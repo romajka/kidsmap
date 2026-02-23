@@ -1,0 +1,34 @@
+{% load i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="utf-8" />
+    <title>{% block title %}KidsMap{% endblock %}</title>
+  </head>
+  <body>
+    <nav style="margin-bottom: 12px;">
+      <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+      |
+      <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
+      |
+      <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
+    </nav>
+
+    <form action="{% url 'set_language' %}" method="post" style="margin-bottom:12px;">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+      <label>
+        {% trans "Язык" %}:
+        <select name="language" onchange="this.form.submit()">
+          {% get_current_language as CURRENT_LANGUAGE %}
+          {% get_available_languages as AVAILABLE_LANGUAGES %}
+          {% for code, name in AVAILABLE_LANGUAGES %}
+            <option value="{{ code }}" {% if code == CURRENT_LANGUAGE %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </form>
+
+    {% block content %}{% endblock %}
+  </body>
+</html>

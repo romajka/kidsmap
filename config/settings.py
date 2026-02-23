@@ -3,32 +3,27 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# DEV settings (пока так)
-# ВАЖНО: сгенерируй новый ключ после этого (см. ниже)
+# SECURITY: в проде ключ хранить только в env
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 
 DEBUG = os.getenv("DJANGO_DEBUG", "1") == "1"
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'catalog',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "catalog",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # языки
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -41,7 +36,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # если потом захочешь общие шаблоны
+        "DIRS": [BASE_DIR / "templates"],  # опционально (общие шаблоны)
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -69,11 +64,20 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-LANGUAGE_CODE = "ru-ru"
+# i18n / l10n
+LANGUAGE_CODE = "ru"  # базовый язык
+LANGUAGES = [
+    ("ru", "Русский"),
+    ("az", "Azərbaycan"),
+    ("en", "English"),
+]
 TIME_ZONE = "Asia/Baku"
 USE_I18N = True
 USE_TZ = True
+LOCALE_PATHS = [BASE_DIR / "locale"]
 
+# static
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
