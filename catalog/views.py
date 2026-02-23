@@ -8,7 +8,10 @@ def place_list(request):
 
     category = request.GET.get("category", "").strip()
     district = request.GET.get("district", "").strip()
+    metro = request.GET.get("metro", "").strip()
     age = request.GET.get("age", "").strip()
+    price_from = request.GET.get("price_from", "").strip()
+    price_to = request.GET.get("price_to", "").strip()
     price_max = request.GET.get("price_max", "").strip()
     sort = request.GET.get("sort", "new").strip()
 
@@ -16,12 +19,21 @@ def place_list(request):
         qs = qs.filter(category=category)
     if district:
         qs = qs.filter(district__icontains=district)
+    if metro:
+        qs = qs.filter(metro__icontains=metro)
     if age.isdigit():
         a = int(age)
         qs = qs.filter(age_from__lte=a, age_to__gte=a)
-    if price_max.isdigit():
+    if price_from.isdigit():
+        pf = int(price_from)
+        qs = qs.filter(price_from__gte=pf)
+    if price_to.isdigit():
+        pt = int(price_to)
+        qs = qs.filter(price_to__lte=pt)
+    elif price_max.isdigit():
+        # Backward compatibility with old query param.
         pm = int(price_max)
-        qs = qs.filter(price_from__lte=pm)
+        qs = qs.filter(price_to__lte=pm)
 
     if sort == "price_asc":
         qs = qs.order_by("price_from", "-created_at")
@@ -46,8 +58,10 @@ def place_list(request):
         "selected": {
             "category": category,
             "district": district,
+            "metro": metro,
             "age": age,
-            "price_max": price_max,
+            "price_from": price_from,
+            "price_to": price_to,
             "sort": sort,
         },
         "categories": Place.CATEGORY_CHOICES,

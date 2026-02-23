@@ -25,13 +25,23 @@
       </label>
 
       <label style="margin-left:10px;">
+        {% trans "Метро" %}:
+        <input name="metro" value="{{ selected.metro }}" />
+      </label>
+
+      <label style="margin-left:10px;">
         {% trans "Возраст" %}:
         <input name="age" value="{{ selected.age }}" size="4" placeholder="{% trans 'например 8' %}" />
       </label>
 
       <label style="margin-left:10px;">
+        {% trans "Цена от" %}:
+        <input name="price_from" value="{{ selected.price_from }}" size="6" placeholder="{% trans 'например 100' %}" />
+      </label>
+
+      <label style="margin-left:10px;">
         {% trans "Цена до" %}:
-        <input name="price_max" value="{{ selected.price_max }}" size="6" placeholder="{% trans 'например 100' %}" />
+        <input name="price_to" value="{{ selected.price_to }}" size="6" placeholder="{% trans 'например 100' %}" />
       </label>
 
       <label style="margin-left:10px;">
