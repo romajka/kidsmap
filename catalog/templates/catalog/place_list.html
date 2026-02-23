@@ -34,17 +34,45 @@
         <input name="price_max" value="{{ selected.price_max }}" size="6" placeholder="{% trans 'например 100' %}" />
       </label>
 
+      <label style="margin-left:10px;">
+        {% trans "Сортировка" %}:
+        <select name="sort">
+          <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% trans "Сначала новые" %}</option>
+          <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% trans "Цена по возрастанию" %}</option>
+          <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% trans "Цена по убыванию" %}</option>
+        </select>
+      </label>
+
       <button type="submit" style="margin-left:10px;">{% trans "Поиск" %}</button>
       <a href="{% url 'place_list' %}" style="margin-left:10px;">{% trans "Сброс" %}</a>
     </form>
 
     {% for place in places %}
       <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
-        <b><a href="{% url 'place_detail' place.id %}">{{ place.name }}</a></b>
+        <b><a href="{% url 'place_detail' place.id %}">{{ place.name_i18n }}</a></b>
         — {{ place.get_category_display }}<br />
         {{ place.district }} / {{ place.metro }}
+        {% if place.description_i18n %}
+          <p style="margin:6px 0 0 0;">{{ place.description_i18n|truncatechars:180 }}</p>
+        {% endif %}
       </div>
     {% empty %}
       <p>{% trans "Пока нет мест." %}</p>
     {% endfor %}
+
+    {% if page_obj.paginator.num_pages > 1 %}
+      <div style="margin-top:14px;">
+        {% if page_obj.has_previous %}
+          <a href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">{% trans "Назад" %}</a>
+        {% endif %}
+
+        <span style="margin:0 8px;">
+          {% trans "Страница" %} {{ page_obj.number }} {% trans "из" %} {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+          <a href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Вперед" %}</a>
+        {% endif %}
+      </div>
+    {% endif %}
 {% endblock %}

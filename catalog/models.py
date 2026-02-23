@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 
 
 class Place(models.Model):
@@ -14,6 +15,12 @@ class Place(models.Model):
     ]
 
     name = models.CharField(_("Название"), max_length=255)
+    name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
+    name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
+    name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
+    description_ru = models.TextField(_("Описание (RU)"), blank=True, default="")
+    description_en = models.TextField(_("Описание (EN)"), blank=True, default="")
+    description_az = models.TextField(_("Описание (AZ)"), blank=True, default="")
     category = models.CharField(_("Категория"), max_length=10, choices=CATEGORY_CHOICES)
     subcategory = models.CharField(_("Подкатегория"), max_length=255, blank=True)
 
@@ -26,12 +33,59 @@ class Place(models.Model):
 
     phone1 = models.CharField(_("Телефон 1"), max_length=50, blank=True)
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True)
+    website = models.URLField(_("Сайт"), blank=True)
+    schedule = models.TextField(_("Расписание"), blank=True)
+    lat = models.FloatField(_("Широта"), null=True, blank=True)
+    lng = models.FloatField(_("Долгота"), null=True, blank=True)
 
     price_from = models.IntegerField(_("Цена от"), null=True, blank=True)
     price_to = models.IntegerField(_("Цена до"), null=True, blank=True)
 
+    is_active = models.BooleanField(_("Активно"), default=True)
     is_verified = models.BooleanField(_("Проверено"), default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    def _normalize_lang(self, lang):
+        if not lang:
+            lang = get_language() or "ru"
+        return lang.split("-")[0]
+
+    def name_i18n(self, lang=None):
+        lang = self._normalize_lang(lang)
+        if lang == "en":
+            return self.name_en or self.name_ru or self.name
+        if lang == "az":
+            return self.name_az or self.name_ru or self.name
+        return self.name_ru or self.name
+
+    def description_i18n(self, lang=None):
+        lang = self._normalize_lang(lang)
+        if lang == "en":
+            return self.description_en or self.description_ru or ""
+        if lang == "az":
+            return self.description_az or self.description_ru or ""
+        return self.description_ru or ""
+
+    def instagram_url(self):
+        value = (self.instagram or "").strip()
+        if not value:
+            return ""
+        if value.startswith(("http://", "https://")):
+            return value
+        if value.startswith(("instagram.com/", "www.instagram.com/")):
+            return f"https://{value}"
+        if "instagram.com/" in value:
+            return f"https://{value.lstrip('/')}"
+        return f"https://instagram.com/{value.lstrip('@')}"
+
+    def website_url(self):
+        value = (self.website or "").strip()
+        if not value:
+            return ""
+        if value.startswith(("http://", "https://")):
+            return value
+        return f"https://{value}"
 
     def __str__(self):
-        return self.name
+        return self.name_i18n()
