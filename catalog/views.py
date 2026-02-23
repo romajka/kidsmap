@@ -2,6 +2,62 @@ from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from .models import Place
 
+BAKU_DISTRICTS = [
+    "Ясамал",
+    "Насими",
+    "Низами",
+    "Нариманов",
+    "Сабаиль",
+    "Сабунчи",
+    "Бинагади",
+    "Сураханы",
+    "Хатаи",
+    "Хазар",
+    "Гарадаг",
+    "Пираллахы",
+]
+
+BAKU_METRO_STATIONS = [
+    "Ичеришехер",
+    "Сахил",
+    "28 Май",
+    "Гянджлик",
+    "Нариман Нариманов",
+    "Бакмил",
+    "Улдуз",
+    "Кёроглу",
+    "Гара Гараев",
+    "Нефтчиляр",
+    "Халглар Достлугу",
+    "Ахмедлы",
+    "Ази Асланов",
+    "Низами",
+    "Эльмляр Академиясы",
+    "Иншаатчылар",
+    "20 Января",
+    "Мемар Аджеми",
+    "Насими",
+    "Азадлыг Проспекти",
+    "Дернегюль",
+    "Джафар Джаббарлы",
+    "Шах Исмаил Хатаи",
+    "Автовагзал",
+    "8 Ноября",
+    "Ходжасан",
+]
+
+
+def home(request):
+    categories = [
+        {"code": "SPRT", "title": "Спорт"},
+        {"code": "ART", "title": "Творчество"},
+        {"code": "MUS", "title": "Музыка и сцена"},
+        {"code": "EDU", "title": "Образование"},
+        {"code": "TECH", "title": "Технологии"},
+        {"code": "FUN", "title": "Досуг"},
+    ]
+    return render(request, "pages/home.html", {"home_categories": categories})
+
 
 def place_list(request):
     qs = Place.objects.filter(is_active=True)
@@ -65,11 +121,13 @@ def place_list(request):
             "sort": sort,
         },
         "categories": Place.CATEGORY_CHOICES,
+        "district_options": BAKU_DISTRICTS,
+        "metro_options": BAKU_METRO_STATIONS,
     }
     return render(request, "catalog/place_list.html", context)
 
 def place_detail(request, pk: int):
-    place = get_object_or_404(Place, pk=pk)
+    place = get_object_or_404(Place.objects.prefetch_related("gallery"), pk=pk)
     return render(
         request,
         "catalog/place_detail.html",

@@ -4,85 +4,131 @@
 {% block title %}{% trans "Каталог" %}{% endblock %}
 
 {% block content %}
-    <h1>{% trans "Каталог" %}</h1>
+  <section class="hero">
+    <div class="hero-art" aria-hidden="true"></div>
+    <div class="hero-text">
+      <h1>{% trans "Каталог" %}</h1>
+      <p>{% trans "Найдите лучшие занятия для ребенка" %}</p>
+    </div>
+  </section>
 
-    <form method="get" style="margin:10px 0; padding:10px; border:1px solid #ddd;">
+  <section class="panel filter-panel">
+    <form method="get" class="filters">
       <label>
-        {% trans "Категория" %}:
-        <select name="category">
+        {% trans "Категория" %}
+        <select class="filter-select" name="category">
           <option value="">{% trans "Все" %}</option>
           {% for code, label in categories %}
-            <option value="{{ code }}" {% if selected.category == code %}selected{% endif %}>
-              {{ label }}
-            </option>
+            <option value="{{ code }}" {% if selected.category == code %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
       </label>
 
-      <label style="margin-left:10px;">
-        {% trans "Район" %}:
-        <input name="district" value="{{ selected.district }}" placeholder="{% trans 'например Ясамал' %}" />
+      <label>
+        {% trans "Район" %}
+        <select class="filter-select" name="district">
+          <option value="">{% trans "Все" %}</option>
+          {% for district_name in district_options %}
+            <option value="{{ district_name }}" {% if selected.district == district_name %}selected{% endif %}>{{ district_name }}</option>
+          {% endfor %}
+        </select>
       </label>
 
-      <label style="margin-left:10px;">
-        {% trans "Метро" %}:
-        <input name="metro" value="{{ selected.metro }}" />
+      <label>
+        {% trans "Метро" %}
+        <select class="filter-select" name="metro">
+          <option value="">{% trans "Все" %}</option>
+          {% for metro_name in metro_options %}
+            <option value="{{ metro_name }}" {% if selected.metro == metro_name %}selected{% endif %}>{{ metro_name }}</option>
+          {% endfor %}
+        </select>
       </label>
 
-      <label style="margin-left:10px;">
-        {% trans "Возраст" %}:
-        <input name="age" value="{{ selected.age }}" size="4" placeholder="{% trans 'например 8' %}" />
+      <label>
+        {% trans "Возраст" %}
+        <input class="field" name="age" value="{{ selected.age }}" size="4" placeholder="{% trans 'например 8' %}" />
       </label>
 
-      <label style="margin-left:10px;">
-        {% trans "Цена от" %}:
-        <input name="price_from" value="{{ selected.price_from }}" size="6" placeholder="{% trans 'например 100' %}" />
+      <label>
+        {% trans "Цена от" %}
+        <input class="field" name="price_from" value="{{ selected.price_from }}" size="6" placeholder="{% trans 'например 100' %}" />
       </label>
 
-      <label style="margin-left:10px;">
-        {% trans "Цена до" %}:
-        <input name="price_to" value="{{ selected.price_to }}" size="6" placeholder="{% trans 'например 100' %}" />
+      <label>
+        {% trans "Цена до" %}
+        <input class="field" name="price_to" value="{{ selected.price_to }}" size="6" placeholder="{% trans 'например 100' %}" />
       </label>
 
-      <label style="margin-left:10px;">
-        {% trans "Сортировка" %}:
-        <select name="sort">
+      <label>
+        {% trans "Сортировка" %}
+        <select class="filter-select" name="sort">
           <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% trans "Сначала новые" %}</option>
           <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% trans "Цена по возрастанию" %}</option>
           <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% trans "Цена по убыванию" %}</option>
         </select>
       </label>
 
-      <button type="submit" style="margin-left:10px;">{% trans "Поиск" %}</button>
-      <a href="{% url 'place_list' %}" style="margin-left:10px;">{% trans "Сброс" %}</a>
+      <div class="actions">
+        <button class="btn" type="submit">{% trans "Поиск" %}</button>
+        <a class="link-btn" href="{% url 'place_list' %}">{% trans "Сброс" %}</a>
+      </div>
     </form>
 
-    {% for place in places %}
-      <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
-        <b><a href="{% url 'place_detail' place.id %}">{{ place.name_i18n }}</a></b>
-        — {{ place.get_category_display }}<br />
-        {{ place.district }} / {{ place.metro }}
-        {% if place.description_i18n %}
-          <p style="margin:6px 0 0 0;">{{ place.description_i18n|truncatechars:180 }}</p>
-        {% endif %}
-      </div>
-    {% empty %}
-      <p>{% trans "Пока нет мест." %}</p>
-    {% endfor %}
+  </section>
 
-    {% if page_obj.paginator.num_pages > 1 %}
-      <div style="margin-top:14px;">
-        {% if page_obj.has_previous %}
-          <a href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">{% trans "Назад" %}</a>
-        {% endif %}
+  {% if places %}
+    <section class="grid">
+      {% for place in places %}
+        <article class="card">
+          <div class="card-media">
+            {% if place.cover_photo %}
+              <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" />
+            {% elif place.photo %}
+              <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" />
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h3><a href="{% url 'place_detail' place.id %}">{{ place.name_i18n }}</a></h3>
+            <div class="chip">{{ place.get_category_display }}</div>
+            {% if place.district or place.metro %}
+              <p class="meta">
+                {% if place.district %}{{ place.district }}{% endif %}
+                {% if place.district and place.metro %} / {% endif %}
+                {% if place.metro %}{{ place.metro }}{% endif %}
+              </p>
+            {% endif %}
+            {% if place.price_from or place.price_to %}
+              <p class="meta">
+                {% if place.price_from %}{{ place.price_from }}{% endif %}
+                {% if place.price_from and place.price_to %}-{% endif %}
+                {% if place.price_to %}{{ place.price_to }}{% endif %} AZN
+              </p>
+            {% endif %}
+            <a class="details-btn" href="{% url 'place_detail' place.id %}">{% trans "Подробнее" %}</a>
+          </div>
+        </article>
+      {% endfor %}
+    </section>
+  {% else %}
+    <section class="empty-state">
+      <div class="empty-illustration" aria-hidden="true"></div>
+      <h2>{% trans "Пока нет мест." %}</h2>
+      <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
+      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Сброс" %}</a>
+    </section>
+  {% endif %}
 
-        <span style="margin:0 8px;">
-          {% trans "Страница" %} {{ page_obj.number }} {% trans "из" %} {{ page_obj.paginator.num_pages }}
-        </span>
+  {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a class="link-btn" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">{% trans "Назад" %}</a>
+      {% endif %}
 
-        {% if page_obj.has_next %}
-          <a href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Вперед" %}</a>
-        {% endif %}
-      </div>
-    {% endif %}
+      <span>{% trans "Страница" %} {{ page_obj.number }} {% trans "из" %} {{ page_obj.paginator.num_pages }}</span>
+
+      {% if page_obj.has_next %}
+        <a class="link-btn" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Вперед" %}</a>
+      {% endif %}
+    </div>
+  {% endif %}
 {% endblock %}

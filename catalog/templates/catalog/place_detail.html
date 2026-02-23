@@ -4,58 +4,82 @@
 {% block title %}{{ place.name_i18n }}{% endblock %}
 
 {% block content %}
+  <section class="detail-wrap">
+    <div>
+      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Назад" %}</a>
+    </div>
 
-    <a href="{% url 'place_list' %}">{% trans "Назад" %}</a>
-    <h1>{{ place.name_i18n }}</h1>
-    {% if place.description_i18n %}
-      <p>{{ place.description_i18n|linebreaksbr }}</p>
-    {% endif %}
+    <article class="detail-block">
+      <h1>{{ place.name_i18n }}</h1>
+      {% with gallery=place.gallery_files %}
+        {% if gallery %}
+          <div class="gallery" data-gallery>
+            <button type="button" class="gallery-nav prev" aria-label="Previous">‹</button>
+            <img class="detail-photo gallery-main" src="{{ gallery.0.url }}" alt="{{ place.name_i18n }}" data-gallery-main />
+            <button type="button" class="gallery-nav next" aria-label="Next">›</button>
 
-    <p><b>{% trans "Категория" %}:</b> {{ place.get_category_display }}</p>
-    {% if place.subcategory %}<p><b>{% trans "Подкатегория" %}:</b> {{ place.subcategory }}</p>{% endif %}
-    {% if place.district or place.metro %}
-      <p>
-        <b>{% trans "Район/метро" %}:</b>
-        {% if place.district %}{{ place.district }}{% endif %}
-        {% if place.district and place.metro %} / {% endif %}
-        {% if place.metro %}{{ place.metro }}{% endif %}
-      </p>
-    {% endif %}
-    {% if place.address %}<p><b>{% trans "Адрес" %}:</b> {{ place.address }}</p>{% endif %}
-    {% if place.age_from or place.age_to %}
-      <p>
-        <b>{% trans "Возраст" %}:</b>
-        {% if place.age_from and place.age_to %}
-          {{ place.age_from }}-{{ place.age_to }}
-        {% elif place.age_from %}
-          {{ place.age_from }}+
-        {% else %}
-          {{ place.age_to }}
+            <div class="gallery-thumbs">
+              {% for file in gallery %}
+                <button
+                  type="button"
+                  class="gallery-thumb {% if forloop.first %}active{% endif %}"
+                  data-src="{{ file.url }}"
+                >
+                  <img src="{{ file.url }}" alt="{{ place.name_i18n }}" />
+                </button>
+              {% endfor %}
+            </div>
+          </div>
         {% endif %}
-      </p>
-    {% endif %}
-    {% if place.price_from or place.price_to %}
-      <p>
-        <b>{% trans "Цена" %}:</b>
-        {% if place.price_from and place.price_to %}
-          {{ place.price_from }}-{{ place.price_to }} AZN
-        {% elif place.price_from %}
-          {{ place.price_from }} AZN
-        {% else %}
-          {{ place.price_to }} AZN
-        {% endif %}
-      </p>
-    {% endif %}
-    {% if place.schedule %}<p><b>{% trans "Расписание" %}:</b> {{ place.schedule }}</p>{% endif %}
-    {% if place.website %}
-      <p><b>{% trans "Сайт" %}:</b> <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a></p>
-    {% endif %}
+      {% endwith %}
+      {% if place.description_i18n %}
+        <p>{{ place.description_i18n|linebreaksbr }}</p>
+      {% endif %}
+    </article>
 
-    {% if place.phone1 %}<p><b>{% trans "Телефон" %}:</b> <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a></p>{% endif %}
-    {% if place.instagram %}
-      <p><b>Instagram:</b> <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a></p>
-    {% endif %}
-    {% if place.lat and place.lng %}
-      <p><b>{% trans "Координаты" %}:</b> {{ place.lat }}, {{ place.lng }}</p>
-    {% endif %}
+    <article class="detail-block">
+      <p class="kv"><b>{% trans "Категория" %}:</b> {{ place.get_category_display }}</p>
+      {% if place.subcategory %}<p class="kv"><b>{% trans "Подкатегория" %}:</b> {{ place.subcategory }}</p>{% endif %}
+      {% if place.district or place.metro %}
+        <p class="kv"><b>{% trans "Район/метро" %}:</b> {% if place.district %}{{ place.district }}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{{ place.metro }}{% endif %}</p>
+      {% endif %}
+      {% if place.address %}<p class="kv"><b>{% trans "Адрес" %}:</b> {{ place.address }}</p>{% endif %}
+      {% if place.age_from or place.age_to %}
+        <p class="kv"><b>{% trans "Возраст" %}:</b> {% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</p>
+      {% endif %}
+      {% if place.price_from or place.price_to %}
+        <p class="kv"><b>{% trans "Цена" %}:</b> {% if place.price_from and place.price_to %}{{ place.price_from }}-{{ place.price_to }} AZN{% elif place.price_from %}{{ place.price_from }} AZN{% else %}{{ place.price_to }} AZN{% endif %}</p>
+      {% endif %}
+      {% if place.schedule %}<p class="kv"><b>{% trans "Расписание" %}:</b> {{ place.schedule }}</p>{% endif %}
+      {% if place.website %}<p class="kv"><b>{% trans "Сайт" %}:</b> <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a></p>{% endif %}
+      {% if place.phone1 %}<p class="kv"><b>{% trans "Телефон" %}:</b> <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a></p>{% endif %}
+      {% if place.instagram %}<p class="kv"><b>Instagram:</b> <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a></p>{% endif %}
+      {% if place.lat and place.lng %}<p class="kv"><b>{% trans "Координаты" %}:</b> {{ place.lat }}, {{ place.lng }}</p>{% endif %}
+    </article>
+  </section>
+  <script>
+    (function () {
+      const gallery = document.querySelector("[data-gallery]");
+      if (!gallery) return;
+
+      const main = gallery.querySelector("[data-gallery-main]");
+      const thumbs = Array.from(gallery.querySelectorAll(".gallery-thumb"));
+      const prevBtn = gallery.querySelector(".gallery-nav.prev");
+      const nextBtn = gallery.querySelector(".gallery-nav.next");
+      let index = Math.max(0, thumbs.findIndex((t) => t.classList.contains("active")));
+
+      function show(i) {
+        index = (i + thumbs.length) % thumbs.length;
+        const src = thumbs[index].dataset.src;
+        if (src) main.src = src;
+        thumbs.forEach((btn, idx) => btn.classList.toggle("active", idx === index));
+      }
+
+      thumbs.forEach((btn, idx) => {
+        btn.addEventListener("click", () => show(idx));
+      });
+      prevBtn.addEventListener("click", () => show(index - 1));
+      nextBtn.addEventListener("click", () => show(index + 1));
+    })();
+  </script>
 {% endblock %}

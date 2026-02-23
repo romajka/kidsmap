@@ -32,6 +32,8 @@ class Place(models.Model):
     address = models.CharField(_("Адрес"), max_length=255, blank=True)
 
     phone1 = models.CharField(_("Телефон 1"), max_length=50, blank=True)
+    cover_photo = models.FileField(_("Фото для шапки"), upload_to="places/covers/", blank=True, null=True)
+    photo = models.FileField(_("Фото"), upload_to="places/", blank=True, null=True)
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True)
     website = models.URLField(_("Сайт"), blank=True)
     schedule = models.TextField(_("Расписание"), blank=True)
@@ -87,5 +89,37 @@ class Place(models.Model):
             return value
         return f"https://{value}"
 
+    def gallery_files(self):
+        files = []
+        seen = set()
+
+        def add_file(file_field):
+            if file_field and getattr(file_field, "name", ""):
+                name = file_field.name
+                if name not in seen:
+                    seen.add(name)
+                    files.append(file_field)
+
+        add_file(self.cover_photo)
+        add_file(self.photo)
+        for item in self.gallery.order_by("order", "id"):
+            add_file(item.image)
+        return files
+
     def __str__(self):
         return self.name_i18n()
+
+
+class PlacePhoto(models.Model):
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="gallery", verbose_name=_("Место"))
+    image = models.FileField(_("Фото"), upload_to="places/gallery/")
+    caption = models.CharField(_("Подпись"), max_length=255, blank=True)
+    order = models.PositiveIntegerField(_("Порядок"), default=0)
+
+    class Meta:
+        ordering = ("order", "id")
+        verbose_name = _("Фото галереи")
+        verbose_name_plural = _("Фото галереи")
+
+    def __str__(self):
+        return f"{self.place.name_i18n()} #{self.order}"

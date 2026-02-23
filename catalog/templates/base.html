@@ -1,34 +1,41 @@
-{% load i18n %}
+{% load i18n static %}
 <!doctype html>
 <html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}KidsMap{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
   </head>
   <body>
-    <nav style="margin-bottom: 12px;">
-      <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
-      |
-      <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
-      |
-      <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
-    </nav>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand-wrap" href="{% url 'home' %}">
+          <span class="logo-slot" style="--logo-url:url('{% static 'img/logo.png' %}');" aria-hidden="true"></span>
+          <span class="brand">KidsMap</span>
+        </a>
 
-    <form action="{% url 'set_language' %}" method="post" style="margin-bottom:12px;">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-      <label>
-        {% trans "Язык" %}:
-        <select name="language" onchange="this.form.submit()">
+        <nav class="nav">
+          <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+          <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+          <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
+          <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
+        </nav>
+
+        <div class="lang-switch" aria-label="{% trans 'Язык' %}">
           {% get_current_language as CURRENT_LANGUAGE %}
-          {% get_available_languages as AVAILABLE_LANGUAGES %}
-          {% for code, name in AVAILABLE_LANGUAGES %}
-            <option value="{{ code }}" {% if code == CURRENT_LANGUAGE %}selected{% endif %}>{{ name }}</option>
-          {% endfor %}
-        </select>
-      </label>
-    </form>
+          <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="/ru{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">RU</a>
+          <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="/az{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">AZ</a>
+          <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="/en{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">EN</a>
+        </div>
+      </header>
 
-    {% block content %}{% endblock %}
+      <main>
+        {% block content %}{% endblock %}
+      </main>
+    </div>
   </body>
 </html>
