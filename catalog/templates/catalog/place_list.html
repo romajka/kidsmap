@@ -3,7 +3,31 @@
 <head><meta charset="utf-8"><title>Каталог</title></head>
 <body>
   <h1>Каталог</h1>
+<form method="get" style="margin:10px 0; padding:10px; border:1px solid #ddd;">
+  <label>Категория:
+    <select name="category">
+      <option value="">Все</option>
+      {% for code, label in categories %}
+        <option value="{{ code }}" {% if selected.category == code %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
 
+  <label style="margin-left:10px;">Район:
+    <input name="district" value="{{ selected.district }}">
+  </label>
+
+  <label style="margin-left:10px;">Возраст:
+    <input name="age" value="{{ selected.age }}" size="4">
+  </label>
+
+  <label style="margin-left:10px;">Цена до:
+    <input name="price_max" value="{{ selected.price_max }}" size="6">
+  </label>
+
+  <button type="submit" style="margin-left:10px;">Поиск</button>
+  <a href="/" style="margin-left:10px;">Сброс</a>
+</form>
   {% for place in places %}
     <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
       <b><a href="{% url 'place_detail' place.id %}">{{ place.name }}</a></b>
