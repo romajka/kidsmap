@@ -35,26 +35,82 @@
       {% if place.description_i18n %}
         <p>{{ place.description_i18n|linebreaksbr }}</p>
       {% endif %}
-    </article>
+      <div class="detail-meta-grid">
+        <div class="detail-meta-item">
+          <span class="meta-label">{% trans "Категория" %}</span>
+          <div class="meta-value">{{ place.get_category_display }}</div>
+        </div>
 
-    <article class="detail-block">
-      <p class="kv"><b>{% trans "Категория" %}:</b> {{ place.get_category_display }}</p>
-      {% if place.subcategory %}<p class="kv"><b>{% trans "Подкатегория" %}:</b> {{ place.subcategory }}</p>{% endif %}
-      {% if place.district or place.metro %}
-        <p class="kv"><b>{% trans "Район/метро" %}:</b> {% if place.district %}{{ place.district }}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{{ place.metro }}{% endif %}</p>
-      {% endif %}
-      {% if place.address %}<p class="kv"><b>{% trans "Адрес" %}:</b> {{ place.address }}</p>{% endif %}
-      {% if place.age_from or place.age_to %}
-        <p class="kv"><b>{% trans "Возраст" %}:</b> {% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</p>
-      {% endif %}
-      {% if place.price_from or place.price_to %}
-        <p class="kv"><b>{% trans "Цена" %}:</b> {% if place.price_from and place.price_to %}{{ place.price_from }}-{{ place.price_to }} AZN{% elif place.price_from %}{{ place.price_from }} AZN{% else %}{{ place.price_to }} AZN{% endif %}</p>
-      {% endif %}
-      {% if place.schedule %}<p class="kv"><b>{% trans "Расписание" %}:</b> {{ place.schedule }}</p>{% endif %}
-      {% if place.website %}<p class="kv"><b>{% trans "Сайт" %}:</b> <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a></p>{% endif %}
-      {% if place.phone1 %}<p class="kv"><b>{% trans "Телефон" %}:</b> <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a></p>{% endif %}
-      {% if place.instagram %}<p class="kv"><b>Instagram:</b> <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a></p>{% endif %}
-      {% if place.lat and place.lng %}<p class="kv"><b>{% trans "Координаты" %}:</b> {{ place.lat }}, {{ place.lng }}</p>{% endif %}
+        {% if place.subcategory %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Подкатегория" %}</span>
+            <div class="meta-value">{{ place.subcategory }}</div>
+          </div>
+        {% endif %}
+
+        {% if place.district or place.metro %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Район/метро" %}</span>
+            <div class="meta-value">{% if place.district %}{{ place.district }}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{{ place.metro }}{% endif %}</div>
+          </div>
+        {% endif %}
+
+        {% if place.address %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Адрес" %}</span>
+            <div class="meta-value">{{ place.address }}</div>
+          </div>
+        {% endif %}
+
+        {% if place.age_from or place.age_to %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Возраст" %}</span>
+            <div class="meta-value">{% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</div>
+          </div>
+        {% endif %}
+
+        {% if place.price_from or place.price_to %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Цена" %}</span>
+            <div class="meta-value">{% if place.price_from and place.price_to %}{{ place.price_from }}-{{ place.price_to }} AZN{% elif place.price_from %}{{ place.price_from }} AZN{% else %}{{ place.price_to }} AZN{% endif %}</div>
+          </div>
+        {% endif %}
+
+        {% if place.schedule %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Расписание" %}</span>
+            <div class="meta-value">{{ place.schedule }}</div>
+          </div>
+        {% endif %}
+
+        {% if place.website %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Сайт" %}</span>
+            <div class="meta-value"><a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a></div>
+          </div>
+        {% endif %}
+
+        {% if place.phone1 %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Телефон" %}</span>
+            <div class="meta-value"><a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a></div>
+          </div>
+        {% endif %}
+
+        {% if place.instagram %}
+          <div class="detail-meta-item">
+            <span class="meta-label">Instagram</span>
+            <div class="meta-value"><a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a></div>
+          </div>
+        {% endif %}
+
+        {% if place.lat and place.lng %}
+          <div class="detail-meta-item">
+            <span class="meta-label">{% trans "Координаты" %}</span>
+            <div class="meta-value">{{ place.lat }}, {{ place.lng }}</div>
+          </div>
+        {% endif %}
+      </div>
     </article>
   </section>
   <script>

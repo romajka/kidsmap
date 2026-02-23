@@ -5,6 +5,8 @@
 
 {% block content %}
   <section class="home-hero panel">
+    <span class="hero-cloud cloud-left" aria-hidden="true"></span>
+    <span class="hero-cloud cloud-right" aria-hidden="true"></span>
     <h1>{% trans "Найдите кружок для ребёнка в Баку" %}</h1>
     <p>{% trans "Спорт, творчество, музыка, образование — всё в одном месте." %}</p>
     <a class="btn" href="{% url 'place_list' %}">{% trans "Начать поиск" %}</a>
@@ -13,15 +15,15 @@
   <section class="home-steps panel">
     <h2>{% trans "Как это работает" %}</h2>
     <div class="home-grid3">
-      <article class="home-tile">
+      <article class="home-tile step-1">
         <h3>1</h3>
         <p>{% trans "Выберите категорию и район" %}</p>
       </article>
-      <article class="home-tile">
+      <article class="home-tile step-2">
         <h3>2</h3>
         <p>{% trans "Сравните кружки по возрасту и цене" %}</p>
       </article>
-      <article class="home-tile">
+      <article class="home-tile step-3">
         <h3>3</h3>
         <p>{% trans "Откройте карточку и свяжитесь с местом" %}</p>
       </article>
@@ -32,7 +34,7 @@
     <h2>{% trans "Популярные категории" %}</h2>
     <div class="home-grid3">
       {% for item in home_categories %}
-        <a class="home-category" href="{% url 'place_list' %}?category={{ item.code }}">{% trans item.title %}</a>
+        <a class="home-category cat-{{ forloop.counter }}" href="{% url 'place_list' %}?category={{ item.code }}">{% trans item.title %}</a>
       {% endfor %}
     </div>
   </section>

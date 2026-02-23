@@ -36,6 +36,7 @@
           <details class="lang-menu lang-mobile">
             <summary class="lang-current">
               {% if CURRENT_LANGUAGE == "ru" %}🇷🇺 RU{% elif CURRENT_LANGUAGE == "az" %}🇦🇿 AZ{% else %}🇬🇧 EN{% endif %}
+              <span class="lang-arrow" aria-hidden="true"></span>
             </summary>
             <div class="lang-dropdown">
               <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="/ru{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
