@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>{{ place.name }}</title></head>
+<body>
+  <a href="{% url 'place_list' %}">← Назад</a>
+  <h1>{{ place.name }}</h1>
+
+  <p><b>Категория:</b> {{ place.get_category_display }}</p>
+  {% if place.subcategory %}<p><b>Подкатегория:</b> {{ place.subcategory }}</p>{% endif %}
+  <p><b>Район/метро:</b> {{ place.district }} / {{ place.metro }}</p>
+  {% if place.address %}<p><b>Адрес:</b> {{ place.address }}</p>{% endif %}
+  <p><b>Возраст:</b> {{ place.age_from }}–{{ place.age_to }}</p>
+  <p><b>Цена:</b> {{ place.price_from }}–{{ place.price_to }} AZN</p>
+
+  {% if place.phone1 %}<p><b>Телефон:</b> <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a></p>{% endif %}
+  {% if place.instagram %}<p><b>Instagram:</b> {{ place.instagram }}</p>{% endif %}
+</body>
+</html>
