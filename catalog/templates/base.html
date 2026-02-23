@@ -27,9 +27,22 @@
 
         <div class="lang-switch" aria-label="{% trans 'Язык' %}">
           {% get_current_language as CURRENT_LANGUAGE %}
-          <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="/ru{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">RU</a>
-          <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="/az{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">AZ</a>
-          <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="/en{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">EN</a>
+          <div class="lang-desktop">
+            <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="/ru{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
+            <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="/az{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
+            <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="/en{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
+          </div>
+
+          <details class="lang-menu lang-mobile">
+            <summary class="lang-current">
+              {% if CURRENT_LANGUAGE == "ru" %}🇷🇺 RU{% elif CURRENT_LANGUAGE == "az" %}🇦🇿 AZ{% else %}🇬🇧 EN{% endif %}
+            </summary>
+            <div class="lang-dropdown">
+              <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="/ru{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
+              <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="/az{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
+              <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="/en{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
+            </div>
+          </details>
         </div>
       </header>
 

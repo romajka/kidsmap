@@ -91,6 +91,33 @@ body {
   gap: 6px;
 }
 
+.lang-desktop {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.lang-menu {
+  position: relative;
+}
+
+.lang-current {
+  display: none;
+  list-style: none;
+}
+
+.lang-current::-webkit-details-marker {
+  display: none;
+}
+
+.lang-dropdown {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.lang-mobile {
+  display: none;
+}
+
 .lang-pill {
   text-decoration: none;
   color: var(--muted);
@@ -577,16 +604,101 @@ main {
     margin-top: 8px;
   }
 
+  .topbar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .brand-wrap {
+    width: 100%;
+  }
+
   .brand {
-    font-size: 36px;
+    font-size: 34px;
+  }
+
+  .nav {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    justify-content: stretch;
+  }
+
+  .nav a {
+    text-align: center;
+    padding: 9px 8px;
+    background: #f4faf4;
+    border: 1px solid #d6e9d8;
+    border-radius: 10px;
+    line-height: 1.1;
+  }
+
+  .lang-switch {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    z-index: 1000;
+    width: auto;
+    justify-content: flex-end;
+  }
+
+  .lang-desktop {
+    display: none;
+  }
+
+  .lang-mobile {
+    display: block;
+  }
+
+  .lang-menu {
+    display: block;
+  }
+
+  .lang-current {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--green-dark);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .lang-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 6px;
+    flex-direction: column;
+    min-width: 108px;
+  }
+
+  .lang-menu[open] .lang-dropdown {
+    display: flex;
+  }
+
+  .lang-dropdown .lang-pill {
+    min-width: 0;
+    text-align: left;
+    white-space: nowrap;
   }
 
   .hero-art {
-    height: 160px;
+    height: 130px;
   }
 
   .hero-text p {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .filters {
@@ -616,7 +728,24 @@ main {
     grid-template-columns: 1fr;
   }
 
+  .site-shell {
+    width: calc(100% - 10px);
+  }
+
   .brand {
-    font-size: 31px;
+    font-size: 30px;
+  }
+
+  .logo-slot {
+    width: 42px;
+    height: 42px;
+  }
+
+  .hero-text h1 {
+    font-size: clamp(30px, 8vw, 40px);
+  }
+
+  .hero-text p {
+    font-size: 16px;
   }
 }
