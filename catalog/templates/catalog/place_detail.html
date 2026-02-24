@@ -41,6 +41,13 @@
       {% if place.description_i18n %}
         <p>{{ place.description_i18n|linebreaksbr }}</p>
       {% endif %}
+      <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+        <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}">
+          ♥ <span class="like-count">{{ place.likes_count }}</span>
+        </button>
+      </form>
       <div class="detail-meta-grid">
         <div class="detail-meta-item">
           <span class="meta-label">{% trans "Категория" %}</span>
@@ -117,6 +124,21 @@
           </div>
         {% endif %}
       </div>
+      {% if map_embed_url %}
+        <section class="detail-map-wrap">
+          <h2 class="detail-map-title">{% trans "На карте" %}</h2>
+          <iframe
+            class="detail-map-frame"
+            src="{{ map_embed_url }}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="{% trans 'Карта места' %}"
+          ></iframe>
+          <p class="detail-map-link">
+            <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% trans "Открыть большую карту" %}</a>
+          </p>
+        </section>
+      {% endif %}
     </article>
   </section>
   <script>

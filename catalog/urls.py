@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home, place_list, place_detail, place_detail_legacy, seo_landing, about, contacts
+from .views import home, place_list, place_detail, place_detail_legacy, toggle_place_like, seo_landing, about, contacts
 
 urlpatterns = [
     path("", home, name="home"),
@@ -9,4 +9,5 @@ urlpatterns = [
     path("contacts/", contacts, name="contacts"),
     path("place/<int:pk>/", place_detail_legacy, name="place_detail_legacy"),
     path("place/<int:pk>-<str:slug>/", place_detail, name="place_detail"),
+    path("place/<int:pk>/like/", toggle_place_like, name="toggle_place_like"),
 ]

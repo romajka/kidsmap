@@ -17,18 +17,18 @@
 
   <section class="home-steps panel">
     <h2>{% trans "Как это работает" %}</h2>
-    <div class="home-grid3">
+    <div class="home-grid3 home-steps-flow">
       <article class="home-tile step-1">
-        <h3>1</h3>
-        <p>{% trans "Выберите категорию и район" %}</p>
+        <p class="step-label">{% trans "Шаг" %} 1</p>
+        <h3>{% trans "Выберите категорию и район" %}</h3>
       </article>
       <article class="home-tile step-2">
-        <h3>2</h3>
-        <p>{% trans "Сравните кружки по возрасту и цене" %}</p>
+        <p class="step-label">{% trans "Шаг" %} 2</p>
+        <h3>{% trans "Сравните кружки по возрасту и цене" %}</h3>
       </article>
       <article class="home-tile step-3">
-        <h3>3</h3>
-        <p>{% trans "Откройте карточку и свяжитесь с местом" %}</p>
+        <p class="step-label">{% trans "Шаг" %} 3</p>
+        <h3>{% trans "Откройте карточку и свяжитесь с местом" %}</h3>
       </article>
     </div>
   </section>
@@ -41,6 +41,56 @@
       {% endfor %}
     </div>
   </section>
+
+  {% if map_places %}
+    <section class="panel">
+      <h2>{% trans "Карта кружков по Азербайджану" %}</h2>
+      {% if google_maps_api_key %}
+        <div id="home-map" class="home-map"></div>
+      {% else %}
+        <iframe
+          class="home-map home-map-fallback"
+          src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="{% trans 'Карта кружков по Азербайджану' %}"
+        ></iframe>
+        <p class="home-map-note">{% trans "Для отображения карты укажите GOOGLE_MAPS_API_KEY в настройках окружения." %}</p>
+      {% endif %}
+      {{ map_places|json_script:"home-map-data" }}
+    </section>
+  {% endif %}
+
+  {% if popular_places %}
+    <section class="panel">
+      <h2>{% trans "Популярные курсы" %}</h2>
+      <div class="grid">
+        {% for place in popular_places %}
+          <article class="card">
+            <div class="card-media">
+              {% if place.cover_photo %}
+                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" />
+              {% elif place.photo %}
+                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" />
+              {% endif %}
+            </div>
+            <div class="card-body">
+              <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+              <div class="chip">{{ place.get_category_display }}</div>
+              <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}">
+                  ♥ <span class="like-count">{{ place.likes_count }}</span>
+                </button>
+              </form>
+              <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
 
   <section class="home-trust panel">
     <h2>{% trans "Почему нам доверяют" %}</h2>
@@ -55,9 +105,11 @@
   <section class="panel">
     <h2>{% trans "Популярные запросы" %}</h2>
     <div class="home-grid2">
-      {% for slug, page in seo_pages.items %}
-        <a class="link-btn" href="{% url 'seo_landing' slug %}">{{ page.title }}</a>
-      {% endfor %}
+      <a class="link-btn" href="{% url 'seo_landing' 'kruzhki-v-baku' %}">{% trans "Кружки в Баку для детей" %}</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'kursy-dlya-detey-v-baku' %}">{% trans "Курсы для детей в Баку" %}</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'sportivnye-sekcii-v-baku' %}">{% trans "Спортивные секции в Баку" %}</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'tvorcheskie-kruzhki-v-baku' %}">{% trans "Творческие кружки в Баку" %}</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'programmirovanie-dlya-detey-baku' %}">{% trans "Программирование для детей в Баку" %}</a>
     </div>
   </section>
 
@@ -65,4 +117,55 @@
     <h2>{% trans "Готовы выбрать кружок?" %}</h2>
     <a class="btn" href="{% url 'place_list' %}">{% trans "Начать поиск" %}</a>
   </section>
+
+  {% if map_places and google_maps_api_key %}
+    <script>
+      function initHomeGoogleMap() {
+        const mapEl = document.getElementById("home-map");
+        const dataEl = document.getElementById("home-map-data");
+        if (!mapEl || !dataEl || !window.google || !window.google.maps) return;
+
+        const places = JSON.parse(dataEl.textContent || "[]");
+        if (!places.length) return;
+
+        const map = new google.maps.Map(mapEl, {
+          center: { lat: 40.4, lng: 47.7 },
+          zoom: 7,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+        });
+
+        const bounds = new google.maps.LatLngBounds();
+        const infoWindow = new google.maps.InfoWindow();
+
+        places.forEach((place) => {
+          if (typeof place.lat !== "number" || typeof place.lng !== "number") return;
+          const position = { lat: place.lat, lng: place.lng };
+          const marker = new google.maps.Marker({
+            position,
+            map,
+            title: place.name,
+          });
+          marker.addListener("click", function () {
+            infoWindow.setContent(
+              `<b>${place.name}</b><br>${place.category}<br><a href="${place.url}">{% trans "Подробнее" %}</a>`
+            );
+            infoWindow.open(map, marker);
+          });
+          bounds.extend(position);
+        });
+
+        if (!bounds.isEmpty()) {
+          map.fitBounds(bounds);
+          google.maps.event.addListenerOnce(map, "idle", function () {
+            if (map.getZoom() > 12) {
+              map.setZoom(12);
+            }
+          });
+        }
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initHomeGoogleMap" async defer></script>
+  {% endif %}
 {% endblock %}

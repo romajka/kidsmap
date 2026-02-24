@@ -45,6 +45,7 @@ class Place(models.Model):
 
     price_from = models.IntegerField(_("Цена от"), null=True, blank=True)
     price_to = models.IntegerField(_("Цена до"), null=True, blank=True)
+    likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
 
     is_active = models.BooleanField(_("Активно"), default=True)
     is_verified = models.BooleanField(_("Проверено"), default=False)
@@ -130,6 +131,11 @@ class Place(models.Model):
             self.slug = self._build_unique_slug()
         super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = _("Кружок/курс")
+        verbose_name_plural = _("Кружки и курсы")
+
 
 class PlacePhoto(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="gallery", verbose_name=_("Место"))
@@ -144,3 +150,19 @@ class PlacePhoto(models.Model):
 
     def __str__(self):
         return f"{self.place.name_i18n()} #{self.order}"
+
+
+class PlaceLike(models.Model):
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="place_likes", verbose_name=_("Место"))
+    session_key = models.CharField(_("Сессия"), max_length=64, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("place", "session_key"), name="unique_place_like_per_session"),
+        ]
+        verbose_name = _("Лайк")
+        verbose_name_plural = _("Лайки")
+
+    def __str__(self):
+        return f"{self.place_id}:{self.session_key}"

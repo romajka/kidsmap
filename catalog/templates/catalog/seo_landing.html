@@ -11,12 +11,12 @@
     <h1>{{ seo_page.title }}</h1>
     <p>{{ seo_page.intro }}</p>
     <p>
-      <a class="btn" href="{% url 'place_list' %}{{ seo_page.catalog_query }}">Перейти в каталог</a>
+      <a class="btn" href="{% url 'place_list' %}{{ seo_page.catalog_query }}">{% trans "Перейти в каталог" %}</a>
     </p>
   </section>
 
   <section class="panel">
-    <h2>Что вы найдете на KidsMap</h2>
+    <h2>{% trans "Что вы найдете на KidsMap" %}</h2>
     <div class="home-grid2">
       {% for item in seo_page.benefits %}
         <p>{{ item }}</p>
@@ -25,17 +25,19 @@
   </section>
 
   <section class="panel">
-    <h2>Частые вопросы</h2>
-    {% for question, answer in seo_page.faq %}
-      <article class="home-tile">
-        <h3>{{ question }}</h3>
-        <p>{{ answer }}</p>
-      </article>
-    {% endfor %}
+    <h2>{% trans "Частые вопросы" %}</h2>
+    <div class="faq-grid">
+      {% for question, answer in seo_page.faq %}
+        <article class="faq-card">
+          <h3 class="faq-question">{{ question }}</h3>
+          <p class="faq-answer">{{ answer }}</p>
+        </article>
+      {% endfor %}
+    </div>
   </section>
 
   <section class="panel">
-    <h2>Полезные подборки</h2>
+    <h2>{% trans "Полезные подборки" %}</h2>
     <div class="home-grid2">
       {% for slug, page in seo_pages.items %}
         {% if slug != request.resolver_match.kwargs.seo_slug %}

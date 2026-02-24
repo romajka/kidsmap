@@ -79,17 +79,6 @@
 
   </section>
 
-  <section class="panel">
-    <h2>{% trans "Часто ищут" %}</h2>
-    <div class="home-grid2">
-      <a class="link-btn" href="{% url 'seo_landing' 'kruzhki-v-baku' %}">Кружки в Баку</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'kursy-dlya-detey-v-baku' %}">Курсы для детей в Баку</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'sportivnye-sekcii-v-baku' %}">Спортивные секции в Баку</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'tvorcheskie-kruzhki-v-baku' %}">Творческие кружки в Баку</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'programmirovanie-dlya-detey-baku' %}">Программирование для детей в Баку</a>
-    </div>
-  </section>
-
   {% if places %}
     <section class="grid">
       {% for place in places %}
@@ -118,6 +107,13 @@
                 {% if place.price_to %}{{ place.price_to }}{% endif %} AZN
               </p>
             {% endif %}
+            <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+              <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}">
+                ♥ <span class="like-count">{{ place.likes_count }}</span>
+              </button>
+            </form>
             <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
           </div>
         </article>
@@ -145,4 +141,15 @@
       {% endif %}
     </div>
   {% endif %}
+
+  <section class="panel">
+    <h2>{% trans "Часто ищут" %}</h2>
+    <div class="home-grid2">
+      <a class="link-btn" href="{% url 'seo_landing' 'kruzhki-v-baku' %}">{% trans "Кружки в Баку для детей" %}</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'kursy-dlya-detey-v-baku' %}">{% trans "Курсы для детей в Баку" %}</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'sportivnye-sekcii-v-baku' %}">{% trans "Спортивные секции в Баку" %}</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'tvorcheskie-kruzhki-v-baku' %}">{% trans "Творческие кружки в Баку" %}</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'programmirovanie-dlya-detey-baku' %}">{% trans "Программирование для детей в Баку" %}</a>
+    </div>
+  </section>
 {% endblock %}

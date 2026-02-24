@@ -1,4 +1,6 @@
 :root {
+  --font-body: "Nunito Sans", "Segoe UI", sans-serif;
+  --font-display: "Comfortaa", "Nunito Sans", "Segoe UI", sans-serif;
   --bg: #edf6ee;
   --surface: #ffffff;
   --line: #d4e3d6;
@@ -19,7 +21,7 @@
 
 body {
   margin: 0;
-  font-family: "Baloo 2", "Segoe UI", sans-serif;
+  font-family: var(--font-body);
   color: var(--ink);
   background:
     radial-gradient(circle at 8% 12%, #d9f3dc 0 110px, transparent 110px),
@@ -62,6 +64,7 @@ body {
 }
 
 .brand {
+  font-family: var(--font-display);
   font-size: 44px;
   line-height: 1;
   font-weight: 800;
@@ -77,6 +80,7 @@ body {
 }
 
 .nav a {
+  font-family: var(--font-display);
   text-decoration: none;
   color: var(--ink);
   padding: 8px 14px;
@@ -139,6 +143,7 @@ body {
 }
 
 .lang-pill {
+  font-family: var(--font-display);
   text-decoration: none;
   color: var(--muted);
   border: 1px solid var(--line);
@@ -217,6 +222,7 @@ main {
 }
 
 .hero-text h1 {
+  font-family: var(--font-display);
   margin: 0;
   font-size: clamp(34px, 4vw, 52px);
 }
@@ -272,6 +278,7 @@ main {
 .btn,
 .link-btn,
 .details-btn {
+  font-family: var(--font-display);
   border: none;
   border-radius: 999px;
   padding: 9px 18px;
@@ -365,6 +372,7 @@ main {
 }
 
 .card h3 {
+  font-family: var(--font-display);
   margin: 0;
   font-size: 30px;
   line-height: 1;
@@ -397,6 +405,48 @@ main {
 
 .details-btn {
   margin-top: 10px;
+}
+
+.like-form {
+  margin-top: 10px;
+}
+
+.detail-like-form {
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.like-btn {
+  border: 1px solid #f2c6cf;
+  border-radius: 999px;
+  background: #fff5f7;
+  color: #8f3a4b;
+  font: inherit;
+  font-weight: 800;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: transform 0.16s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.like-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(143, 58, 75, 0.18);
+}
+
+.like-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.like-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.like-btn.active {
+  background: linear-gradient(180deg, #ff7f9c, #f35b83);
+  color: #fff;
+  border-color: #f35b83;
+  box-shadow: 0 7px 14px rgba(243, 91, 131, 0.3);
 }
 
 .empty {
@@ -475,6 +525,7 @@ main {
 }
 
 .detail-block h1 {
+  font-family: var(--font-display);
   margin: 0 0 10px;
   font-size: clamp(30px, 4vw, 44px);
 }
@@ -617,6 +668,33 @@ main {
   color: #1e5b97;
 }
 
+.detail-map-wrap {
+  margin-top: 14px;
+}
+
+.detail-map-title {
+  margin: 0 0 8px;
+  font-size: clamp(22px, 3vw, 28px);
+  color: #26794a;
+}
+
+.detail-map-frame {
+  width: 100%;
+  height: 320px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: block;
+}
+
+.detail-map-link {
+  margin: 8px 0 0;
+}
+
+.detail-map-link a {
+  color: #1e5b97;
+  font-weight: 700;
+}
+
 .home-hero {
   text-align: center;
   position: relative;
@@ -649,6 +727,7 @@ main {
 }
 
 .home-hero h1 {
+  font-family: var(--font-display);
   margin: 0 0 8px;
   font-size: clamp(34px, 4.2vw, 54px);
 }
@@ -664,6 +743,7 @@ main {
 .home-categories h2,
 .home-trust h2,
 .home-final h2 {
+  font-family: var(--font-display);
   margin: 0 0 12px;
   font-size: clamp(26px, 3vw, 34px);
   text-align: center;
@@ -708,6 +788,55 @@ main {
   box-shadow: 0 8px 18px rgba(53, 122, 72, 0.1);
 }
 
+.home-steps-flow .home-tile {
+  position: relative;
+  padding: 14px 14px 16px;
+}
+
+.home-steps-flow {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.home-steps-flow .step-label {
+  margin: 0;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid #cce3d1;
+  color: #1f8640;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.home-steps-flow .home-tile h3 {
+  margin: 10px 0 0;
+  font-size: 28px;
+  line-height: 1.2;
+  color: #35566d;
+}
+
+.home-steps-flow .home-tile:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -20px;
+  top: calc(50% - 18px);
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #c7decc;
+  box-shadow: 0 5px 12px rgba(53, 122, 72, 0.14);
+  color: #2ea94e;
+  font-size: 20px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+}
+
 .home-tile.step-1 {
   background: linear-gradient(180deg, #fff6ea, #ffefd7);
 }
@@ -721,6 +850,7 @@ main {
 }
 
 .home-tile h3 {
+  font-family: var(--font-display);
   margin: 0;
   color: var(--green-dark);
   font-size: 28px;
@@ -839,6 +969,50 @@ main {
   text-align: center;
 }
 
+.home-map {
+  width: 100%;
+  height: 420px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.home-map-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.faq-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.faq-card {
+  background: linear-gradient(180deg, #f9fffb, #eef9f2);
+  border: 1px solid #cfe5d5;
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.faq-question {
+  margin: 0;
+  font-size: clamp(22px, 2.6vw, 34px);
+  line-height: 1.2;
+  color: #1f8640;
+  font-family: var(--font-display);
+  text-align: left;
+}
+
+.faq-answer {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1.35;
+  font-weight: 700;
+  text-align: left;
+}
+
 @media (max-width: 1100px) {
   .topbar {
     grid-template-columns: 1fr;
@@ -859,6 +1033,18 @@ main {
 
   .home-grid3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-steps-flow {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .home-steps-flow .home-tile:not(:last-child)::after {
+    content: "↓";
+    right: calc(50% - 18px);
+    top: auto;
+    bottom: -18px;
   }
 }
 
@@ -999,7 +1185,19 @@ main {
     grid-template-columns: 1fr;
   }
 
+  .home-steps-flow .home-tile h3 {
+    font-size: 26px;
+  }
+
   .home-hero p {
+    font-size: 18px;
+  }
+
+  .faq-question {
+    font-size: clamp(20px, 6vw, 28px);
+  }
+
+  .faq-answer {
     font-size: 18px;
   }
 }
@@ -1041,5 +1239,9 @@ main {
 
   .gallery-main {
     aspect-ratio: 1 / 1;
+  }
+
+  .home-map {
+    height: 320px;
   }
 }

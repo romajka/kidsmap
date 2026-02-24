@@ -1,10 +1,15 @@
 import json
 
+from django.conf import settings
+from django.db import transaction
+from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
 from django.http import Http404
+from django.http import JsonResponse
 from django.core.paginator import Paginator
-from .models import Place
+from django.views.decorators.http import require_POST
+from .models import Place, PlaceLike
 
 BAKU_DISTRICTS = [
     "Ясамал",
@@ -128,6 +133,16 @@ SEO_LANDING_PAGES = {
     },
 }
 
+def _session_key(request):
+    if not request.session.session_key:
+        request.session.save()
+    return request.session.session_key
+
+
+def _set_liked_flags(places, liked_ids):
+    for place in places:
+        place.is_liked = place.id in liked_ids
+
 
 def home(request):
     categories = [
@@ -138,6 +153,20 @@ def home(request):
         {"code": "TECH", "title": "Технологии"},
         {"code": "FUN", "title": "Досуг"},
     ]
+    session_key = _session_key(request)
+    liked_ids = set(PlaceLike.objects.filter(session_key=session_key).values_list("place_id", flat=True))
+    popular_places = list(Place.objects.filter(is_active=True).order_by("-likes_count", "-updated_at")[:4])
+    _set_liked_flags(popular_places, liked_ids)
+    map_places = [
+        {
+            "name": place.name_i18n(request.LANGUAGE_CODE),
+            "lat": place.lat,
+            "lng": place.lng,
+            "url": place.get_absolute_url(),
+            "category": place.get_category_display(),
+        }
+        for place in Place.objects.filter(is_active=True).exclude(lat__isnull=True).exclude(lng__isnull=True)
+    ]
     return render(
         request,
         "pages/home.html",
@@ -145,12 +174,17 @@ def home(request):
             "home_categories": categories,
             "meta_description": "KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене.",
             "seo_pages": SEO_LANDING_PAGES,
+            "popular_places": popular_places,
+            "map_places": map_places,
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         },
     )
 
 
 def place_list(request):
     qs = Place.objects.filter(is_active=True)
+    session_key = _session_key(request)
+    liked_ids = set(PlaceLike.objects.filter(session_key=session_key).values_list("place_id", flat=True))
 
     category = request.GET.get("category", "").strip()
     district = request.GET.get("district", "").strip()
@@ -215,6 +249,7 @@ def place_list(request):
         "district_options": BAKU_DISTRICTS,
         "metro_options": BAKU_METRO_STATIONS,
     }
+    _set_liked_flags(context["places"], liked_ids)
     return render(request, "catalog/place_list.html", context)
 
 
@@ -225,8 +260,11 @@ def place_detail_legacy(request, pk: int):
 
 def place_detail(request, pk: int, slug: str):
     place = get_object_or_404(Place.objects.filter(is_active=True).prefetch_related("gallery"), pk=pk)
+    session_key = _session_key(request)
+    liked_ids = set(PlaceLike.objects.filter(session_key=session_key).values_list("place_id", flat=True))
     if slug != place.slug:
         return redirect(place.get_absolute_url(), permanent=True)
+    place.is_liked = place.id in liked_ids
 
     gallery = place.gallery_files()
     first_image_url = request.build_absolute_uri(gallery[0].url) if gallery else ""
@@ -252,6 +290,12 @@ def place_detail(request, pk: int, slug: str):
             "latitude": place.lat,
             "longitude": place.lng,
         }
+        query = f"{place.lat},{place.lng}"
+        map_embed_url = f"https://maps.google.com/maps?q={query}&z=15&output=embed"
+        map_open_url = f"https://www.google.com/maps/search/?api=1&query={query}"
+    else:
+        map_embed_url = ""
+        map_open_url = ""
 
     return render(
         request,
@@ -262,8 +306,40 @@ def place_detail(request, pk: int, slug: str):
             "meta_description": description[:160],
             "seo_image_url": first_image_url,
             "place_schema_json": json.dumps(schema, ensure_ascii=False),
+            "map_embed_url": map_embed_url,
+            "map_open_url": map_open_url,
         },
     )
+
+
+@require_POST
+def toggle_place_like(request, pk: int):
+    place = get_object_or_404(Place, pk=pk, is_active=True)
+    session_key = _session_key(request)
+
+    with transaction.atomic():
+        lock_place = Place.objects.select_for_update().get(pk=place.pk)
+        existing_like = PlaceLike.objects.filter(place=lock_place, session_key=session_key)
+
+        if existing_like.exists():
+            existing_like.delete()
+            liked = False
+        else:
+            try:
+                PlaceLike.objects.create(place=lock_place, session_key=session_key)
+            except IntegrityError:
+                # Two parallel requests may race; unique constraint prevents duplicates.
+                pass
+            liked = True
+
+        lock_place.likes_count = PlaceLike.objects.filter(place=lock_place).count()
+        lock_place.save(update_fields=["likes_count"])
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({"ok": True, "liked": liked, "likes_count": lock_place.likes_count})
+
+    next_url = request.POST.get("next", "").strip()
+    return redirect(next_url or place.get_absolute_url())
 
 
 def seo_landing(request, seo_slug: str):
