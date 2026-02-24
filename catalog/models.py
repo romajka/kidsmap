@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
+from django.utils.text import slugify
+from django.urls import reverse
 
 
 class Place(models.Model):
@@ -15,6 +17,7 @@ class Place(models.Model):
     ]
 
     name = models.CharField(_("Название"), max_length=255)
+    slug = models.SlugField(_("Slug"), max_length=255, blank=True, default="", unique=True)
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
     name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
     name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
@@ -108,6 +111,24 @@ class Place(models.Model):
 
     def __str__(self):
         return self.name_i18n()
+
+    def get_absolute_url(self):
+        return reverse("place_detail", kwargs={"pk": self.pk, "slug": self.slug})
+
+    def _build_unique_slug(self):
+        source = self.name_ru or self.name or self.name_en or self.name_az or "place"
+        base = slugify(source, allow_unicode=True) or "place"
+        candidate = base
+        idx = 2
+        while Place.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
+            candidate = f"{base}-{idx}"
+            idx += 1
+        return candidate
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self._build_unique_slug()
+        super().save(*args, **kwargs)
 
 
 class PlacePhoto(models.Model):

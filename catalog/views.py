@@ -1,4 +1,8 @@
+import json
+
 from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect
+from django.http import Http404
 from django.core.paginator import Paginator
 from .models import Place
 
@@ -46,6 +50,84 @@ BAKU_METRO_STATIONS = [
     "Ходжасан",
 ]
 
+SEO_LANDING_PAGES = {
+    "kruzhki-v-baku": {
+        "title": "Кружки в Баку для детей",
+        "meta_description": "Кружки в Баку для детей: спорт, творчество, музыка, технологии. Сравнивайте по району, возрасту и цене на KidsMap.",
+        "intro": "На этой странице собраны детские кружки в Баку с удобным фильтром по возрасту, району и бюджету. Можно быстро перейти в карточку и связаться с местом.",
+        "benefits": [
+            "Кружки по спорту, музыке, творчеству и технологиям",
+            "Фильтрация по району, метро и возрасту ребенка",
+            "Сравнение стоимости до звонка или записи",
+        ],
+        "catalog_query": "",
+        "faq": [
+            ("Как выбрать кружок для ребенка в Баку?", "Сначала определите цель: развитие, спорт или подготовка к школе. Затем сравните места по району, возрасту и цене."),
+            ("С какого возраста лучше начинать кружки?", "Чаще всего с 4-6 лет, но это зависит от направления. В карточках можно отфильтровать возрастные границы."),
+        ],
+    },
+    "kursy-dlya-detey-v-baku": {
+        "title": "Курсы для детей в Баку",
+        "meta_description": "Курсы для детей в Баку: языки, программирование, творчество и подготовка. Найдите подходящий курс для ребенка на KidsMap.",
+        "intro": "Подборка детских курсов в Баку для школьников и дошкольников. На KidsMap можно сравнить курсы по стоимости, локации и формату занятий.",
+        "benefits": [
+            "Курсы по образованию, технологиям и творческим направлениям",
+            "Удобный поиск рядом с домом или школой",
+            "Быстрый переход к контактам и расписанию",
+        ],
+        "catalog_query": "?category=EDU",
+        "faq": [
+            ("Какие курсы популярны для детей в Баку?", "Чаще всего выбирают языковые курсы, подготовку к школе, программирование и математику."),
+            ("Как понять, что курс подходит ребенку?", "Проверьте возраст, программу, формат уроков и нагрузку. Лучше сравнить 2-3 варианта перед выбором."),
+        ],
+    },
+    "sportivnye-sekcii-v-baku": {
+        "title": "Спортивные секции в Баку",
+        "meta_description": "Спортивные секции в Баку для детей: футбол, гимнастика, боевые искусства и другие направления. Выберите секцию по району и цене.",
+        "intro": "Секции для активных детей в Баку: от базовой физической подготовки до соревновательных направлений. Смотрите условия и выбирайте по локации.",
+        "benefits": [
+            "Секции для разного возраста и уровня подготовки",
+            "Фильтры по району и стоимости занятий",
+            "Контакты клубов в одном месте",
+        ],
+        "catalog_query": "?category=SPRT",
+        "faq": [
+            ("Какая секция лучше для начинающего?", "Для старта обычно выбирают плавание, гимнастику или общую физподготовку. Главное учитывать интерес ребенка."),
+            ("Сколько раз в неделю оптимально заниматься спортом?", "Обычно 2-3 раза в неделю достаточно для прогресса без перегрузки."),
+        ],
+    },
+    "tvorcheskie-kruzhki-v-baku": {
+        "title": "Творческие кружки в Баку",
+        "meta_description": "Творческие кружки в Баку для детей: рисование, лепка, актерское мастерство и музыка. Найдите занятия рядом с вами.",
+        "intro": "Творческие занятия помогают ребенку развивать воображение, речь и уверенность. В каталоге можно выбрать кружки по району, возрасту и цене.",
+        "benefits": [
+            "Рисование, лепка, театр, музыка и другие направления",
+            "Подбор по возрасту ребенка",
+            "Сравнение форматов и стоимости занятий",
+        ],
+        "catalog_query": "?category=ART",
+        "faq": [
+            ("Что дают ребенку творческие кружки?", "Они развивают креативность, мелкую моторику, коммуникацию и уверенность в себе."),
+            ("Нужно ли иметь талант для начала?", "Нет, большинство кружков рассчитаны на старт с нуля и постепенное развитие."),
+        ],
+    },
+    "programmirovanie-dlya-detey-baku": {
+        "title": "Программирование для детей в Баку",
+        "meta_description": "Программирование для детей в Баку: курсы Scratch, Python, робототехника и STEM-направления. Подберите курс по возрасту и району.",
+        "intro": "Детские IT-курсы в Баку: визуальное программирование, основы кода и проектная работа. Сравнивайте школы по цене, району и возрасту.",
+        "benefits": [
+            "Курсы Scratch, Python, робототехники и STEM",
+            "Программы для новичков и продолжающих",
+            "Удобный поиск IT-направлений рядом",
+        ],
+        "catalog_query": "?category=TECH",
+        "faq": [
+            ("С какого возраста ребенку можно на программирование?", "Обычно с 7-8 лет, а визуальные форматы возможны и раньше."),
+            ("Что выбрать первым: Scratch или Python?", "Для начала чаще выбирают Scratch, потом переходят к Python."),
+        ],
+    },
+}
+
 
 def home(request):
     categories = [
@@ -56,7 +138,15 @@ def home(request):
         {"code": "TECH", "title": "Технологии"},
         {"code": "FUN", "title": "Досуг"},
     ]
-    return render(request, "pages/home.html", {"home_categories": categories})
+    return render(
+        request,
+        "pages/home.html",
+        {
+            "home_categories": categories,
+            "meta_description": "KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене.",
+            "seo_pages": SEO_LANDING_PAGES,
+        },
+    )
 
 
 def place_list(request):
@@ -111,6 +201,7 @@ def place_list(request):
         "page_obj": page_obj,
         "language": request.LANGUAGE_CODE,
         "query_without_page": query_without_page,
+        "meta_description": "Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене.",
         "selected": {
             "category": category,
             "district": district,
@@ -126,18 +217,115 @@ def place_list(request):
     }
     return render(request, "catalog/place_list.html", context)
 
-def place_detail(request, pk: int):
-    place = get_object_or_404(Place.objects.prefetch_related("gallery"), pk=pk)
+
+def place_detail_legacy(request, pk: int):
+    place = get_object_or_404(Place.objects.filter(is_active=True), pk=pk)
+    return redirect(place.get_absolute_url(), permanent=True)
+
+
+def place_detail(request, pk: int, slug: str):
+    place = get_object_or_404(Place.objects.filter(is_active=True).prefetch_related("gallery"), pk=pk)
+    if slug != place.slug:
+        return redirect(place.get_absolute_url(), permanent=True)
+
+    gallery = place.gallery_files()
+    first_image_url = request.build_absolute_uri(gallery[0].url) if gallery else ""
+    description = place.description_i18n(request.LANGUAGE_CODE) or place.name_i18n(request.LANGUAGE_CODE)
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": place.name_i18n(request.LANGUAGE_CODE),
+        "description": description,
+        "url": request.build_absolute_uri(place.get_absolute_url()),
+        "image": first_image_url,
+        "telephone": place.phone1 or "",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": place.address or "",
+            "addressLocality": place.district or "Baku",
+            "addressCountry": "AZ",
+        },
+    }
+    if place.lat is not None and place.lng is not None:
+        schema["geo"] = {
+            "@type": "GeoCoordinates",
+            "latitude": place.lat,
+            "longitude": place.lng,
+        }
+
     return render(
         request,
         "catalog/place_detail.html",
-        {"place": place, "language": request.LANGUAGE_CODE},
+        {
+            "place": place,
+            "language": request.LANGUAGE_CODE,
+            "meta_description": description[:160],
+            "seo_image_url": first_image_url,
+            "place_schema_json": json.dumps(schema, ensure_ascii=False),
+        },
+    )
+
+
+def seo_landing(request, seo_slug: str):
+    page = SEO_LANDING_PAGES.get(seo_slug)
+    if not page:
+        raise Http404("SEO page not found")
+
+    breadcrumb_schema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Главная",
+                "item": request.build_absolute_uri("/"),
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": page["title"],
+                "item": request.build_absolute_uri(request.path),
+            },
+        ],
+    }
+    faq_schema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": question,
+                "acceptedAnswer": {"@type": "Answer", "text": answer},
+            }
+            for question, answer in page["faq"]
+        ],
+    }
+
+    return render(
+        request,
+        "catalog/seo_landing.html",
+        {
+            "seo_page": page,
+            "seo_pages": SEO_LANDING_PAGES,
+            "meta_description": page["meta_description"],
+            "breadcrumb_schema_json": json.dumps(breadcrumb_schema, ensure_ascii=False),
+            "faq_schema_json": json.dumps(faq_schema, ensure_ascii=False),
+        },
     )
 
 
 def about(request):
-    return render(request, "pages/about.html")
+    return render(
+        request,
+        "pages/about.html",
+        {"meta_description": "О проекте KidsMap: каталог детских кружков и секций в Баку."},
+    )
 
 
 def contacts(request):
-    return render(request, "pages/contacts.html")
+    return render(
+        request,
+        "pages/contacts.html",
+        {"meta_description": "Контакты проекта KidsMap."},
+    )

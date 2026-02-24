@@ -2,6 +2,9 @@
 {% load i18n %}
 
 {% block title %}{% trans "Каталог" %}{% endblock %}
+{% block title_plain %}{% trans "Каталог" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Каталог" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
   <section class="hero">
@@ -76,6 +79,17 @@
 
   </section>
 
+  <section class="panel">
+    <h2>{% trans "Часто ищут" %}</h2>
+    <div class="home-grid2">
+      <a class="link-btn" href="{% url 'seo_landing' 'kruzhki-v-baku' %}">Кружки в Баку</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'kursy-dlya-detey-v-baku' %}">Курсы для детей в Баку</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'sportivnye-sekcii-v-baku' %}">Спортивные секции в Баку</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'tvorcheskie-kruzhki-v-baku' %}">Творческие кружки в Баку</a>
+      <a class="link-btn" href="{% url 'seo_landing' 'programmirovanie-dlya-detey-baku' %}">Программирование для детей в Баку</a>
+    </div>
+  </section>
+
   {% if places %}
     <section class="grid">
       {% for place in places %}
@@ -88,7 +102,7 @@
             {% endif %}
           </div>
           <div class="card-body">
-            <h3><a href="{% url 'place_detail' place.id %}">{{ place.name_i18n }}</a></h3>
+            <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
             <div class="chip">{{ place.get_category_display }}</div>
             {% if place.district or place.metro %}
               <p class="meta">
@@ -104,7 +118,7 @@
                 {% if place.price_to %}{{ place.price_to }}{% endif %} AZN
               </p>
             {% endif %}
-            <a class="details-btn" href="{% url 'place_detail' place.id %}">{% trans "Подробнее" %}</a>
+            <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
           </div>
         </article>
       {% endfor %}

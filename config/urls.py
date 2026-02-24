@@ -3,9 +3,21 @@ from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+
+from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap
+from config.views import robots_txt
+
+sitemaps = {
+    "static": StaticViewSitemap,
+    "places": PlaceSitemap,
+    "seo": SeoLandingSitemap,
+}
 
 urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),  # set_language endpoint
+    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
+    path("robots.txt", robots_txt, name="robots_txt"),
 ]
 
 urlpatterns += i18n_patterns(

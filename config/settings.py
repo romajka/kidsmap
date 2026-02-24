@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 
 DEBUG = os.getenv("DJANGO_DEBUG", "1") == "1"
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "testserver"]
 extra_hosts = [h.strip() for h in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if h.strip()]
 ALLOWED_HOSTS.extend(extra_hosts)
 render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME")
@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
     "catalog",
 ]
 
@@ -52,6 +53,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "catalog.context_processors.seo_urls",
             ],
         },
     },

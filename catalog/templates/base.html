@@ -5,6 +5,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}KidsMap{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}" />
+    <link rel="canonical" href="{{ canonical_url }}" />
+    {% for code, url in alternate_urls.items %}
+      <link rel="alternate" hreflang="{{ code }}" href="{{ url }}" />
+    {% endfor %}
+    <link rel="alternate" hreflang="x-default" href="{{ x_default_url }}" />
+    <meta property="og:site_name" content="KidsMap" />
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+    <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}KidsMap{% endblock %}{% endblock %}{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
+    <meta property="og:url" content="{{ canonical_url }}" />
+    {% block og_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.png' %}" />{% endblock %}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}KidsMap{% endblock %}{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
+    {% block twitter_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.png' %}" />{% endblock %}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet" />
@@ -28,9 +44,9 @@
         <div class="lang-switch" aria-label="{% trans 'Язык' %}">
           {% get_current_language as CURRENT_LANGUAGE %}
           <div class="lang-desktop">
-            <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="/ru{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
-            <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="/az{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
-            <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="/en{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
+            <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
+            <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
+            <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
           </div>
 
           <details class="lang-menu lang-mobile">
@@ -39,9 +55,9 @@
               <span class="lang-arrow" aria-hidden="true"></span>
             </summary>
             <div class="lang-dropdown">
-              <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="/ru{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
-              <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="/az{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
-              <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="/en{{ request.path|slice:'3:' }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
+              <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
+              <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
+              <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
             </div>
           </details>
         </div>

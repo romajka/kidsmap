@@ -2,6 +2,9 @@
 {% load i18n %}
 
 {% block title %}{% trans "Главная" %}{% endblock %}
+{% block title_plain %}{% trans "Главная" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Главная" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
   <section class="home-hero panel">
@@ -46,6 +49,15 @@
       <p>{% trans "Фильтры по возрасту, району и цене" %}</p>
       <p>{% trans "Быстрый переход к звонку и Instagram" %}</p>
       <p>{% trans "Удобно на телефоне и компьютере" %}</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>{% trans "Популярные запросы" %}</h2>
+    <div class="home-grid2">
+      {% for slug, page in seo_pages.items %}
+        <a class="link-btn" href="{% url 'seo_landing' slug %}">{{ page.title }}</a>
+      {% endfor %}
     </div>
   </section>
 
