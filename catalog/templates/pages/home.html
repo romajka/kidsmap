@@ -7,12 +7,18 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="home-hero panel">
+  <section class="home-hero panel" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
     <span class="hero-cloud cloud-left" aria-hidden="true"></span>
     <span class="hero-cloud cloud-right" aria-hidden="true"></span>
     <h1>{% trans "Найдите кружок для ребёнка в Баку" %}</h1>
     <p>{% trans "Спорт, творчество, музыка, образование — всё в одном месте." %}</p>
-    <a class="btn" href="{% url 'place_list' %}">{% trans "Начать поиск" %}</a>
+    <form class="home-search" method="get" action="{% url 'place_list' %}">
+      <label class="home-search-label" for="home-search-q">{% trans "Искать кружок, курс или школу" %}</label>
+      <div class="home-search-row">
+        <input id="home-search-q" class="field home-search-input" type="search" name="q" placeholder="{% trans 'например english, ballet, lego' %}" />
+        <button class="btn" type="submit">{% trans "Начать поиск" %}</button>
+      </div>
+    </form>
   </section>
 
   <section class="home-steps panel">
@@ -69,9 +75,14 @@
           <article class="card">
             <div class="card-media">
               {% if place.cover_photo %}
-                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" />
+                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% elif place.photo %}
-                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" />
+                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+              {% else %}
+                <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
+                  <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+                  <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+                </div>
               {% endif %}
             </div>
             <div class="card-body">

@@ -1,5 +1,7 @@
 from django.conf import settings
+from django.db.utils import OperationalError, ProgrammingError
 from django.utils.translation import get_language
+from .models import SiteSettings
 
 
 def seo_urls(request):
@@ -28,4 +30,51 @@ def seo_urls(request):
         "alternate_urls": alternate_urls,
         "x_default_url": alternate_urls.get(settings.LANGUAGE_CODE, canonical_url),
         "current_lang_code": current_lang,
+    }
+
+
+def site_settings(request):
+    try:
+        cfg = SiteSettings.get_solo()
+    except (OperationalError, ProgrammingError):
+        cfg = None
+    if cfg is None:
+        lang = (request.LANGUAGE_CODE or "ru").split("-")[0]
+        about_defaults = {
+            "ru": "KidsMap — каталог детских кружков и секций в Баку.",
+            "en": "KidsMap is a catalog of kids clubs and courses in Baku.",
+            "az": "KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
+        }
+        contacts_defaults = {
+            "ru": "Свяжитесь с нами по почте: kidsmap@example.com",
+            "en": "Contact us by email: kidsmap@example.com",
+            "az": "Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap@example.com",
+        }
+        empty_defaults = {
+            "ru": "Ничего не найдено.",
+            "en": "Nothing found.",
+            "az": "Heç nə tapılmadı.",
+        }
+        return {
+            "site_settings": None,
+            "brand_name": "KidsMap",
+            "site_about_text": about_defaults.get(lang, about_defaults["ru"]),
+            "site_contacts_text": contacts_defaults.get(lang, contacts_defaults["ru"]),
+            "site_empty_results_text": empty_defaults.get(lang, empty_defaults["ru"]),
+            "footer_phone": "+994 00 000 00 00",
+            "footer_email": "kidsmap@example.com",
+            "footer_instagram_url": "",
+            "footer_whatsapp_url": "",
+        }
+
+    return {
+        "site_settings": cfg,
+        "brand_name": cfg.brand_name or "KidsMap",
+        "site_about_text": cfg.about_text_i18n(request.LANGUAGE_CODE),
+        "site_contacts_text": cfg.contacts_text_i18n(request.LANGUAGE_CODE),
+        "site_empty_results_text": cfg.empty_results_text_i18n(request.LANGUAGE_CODE),
+        "footer_phone": (cfg.footer_phone or "").strip(),
+        "footer_email": (cfg.footer_email or "").strip(),
+        "footer_instagram_url": cfg.footer_instagram_url(),
+        "footer_whatsapp_url": (cfg.footer_whatsapp or "").strip(),
     }

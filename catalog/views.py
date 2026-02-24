@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from django.db import transaction
 from django.db import IntegrityError
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
 from django.http import Http404
@@ -187,6 +188,7 @@ def place_list(request):
     liked_ids = set(PlaceLike.objects.filter(session_key=session_key).values_list("place_id", flat=True))
 
     category = request.GET.get("category", "").strip()
+    query = request.GET.get("q", "").strip()
     district = request.GET.get("district", "").strip()
     metro = request.GET.get("metro", "").strip()
     age = request.GET.get("age", "").strip()
@@ -197,6 +199,18 @@ def place_list(request):
 
     if category:
         qs = qs.filter(category=category)
+    if query:
+        qs = qs.filter(
+            Q(name_ru__icontains=query)
+            | Q(name_en__icontains=query)
+            | Q(name_az__icontains=query)
+            | Q(name__icontains=query)
+            | Q(description_ru__icontains=query)
+            | Q(description_en__icontains=query)
+            | Q(description_az__icontains=query)
+            | Q(subcategory__icontains=query)
+            | Q(address__icontains=query)
+        )
     if district:
         qs = qs.filter(district__icontains=district)
     if metro:
@@ -238,6 +252,7 @@ def place_list(request):
         "meta_description": "Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене.",
         "selected": {
             "category": category,
+            "q": query,
             "district": district,
             "metro": metro,
             "age": age,

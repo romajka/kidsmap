@@ -17,6 +17,11 @@
 
   <section class="panel filter-panel">
     <form method="get" class="filters">
+      <label class="filters-search">
+        {% trans "Поиск по названию" %}
+        <input class="field search-field" name="q" value="{{ selected.q }}" placeholder="{% trans 'например робототехника или english' %}" />
+      </label>
+
       <label>
         {% trans "Категория" %}
         <select class="filter-select" name="category">
@@ -85,9 +90,14 @@
         <article class="card">
           <div class="card-media">
             {% if place.cover_photo %}
-              <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" />
+              <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
             {% elif place.photo %}
-              <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" />
+              <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+            {% else %}
+              <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
+                <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+                <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+              </div>
             {% endif %}
           </div>
           <div class="card-body">
@@ -121,8 +131,16 @@
     </section>
   {% else %}
     <section class="empty-state">
-      <div class="empty-illustration" aria-hidden="true"></div>
-      <h2>{% trans "Пока нет мест." %}</h2>
+      {% if site_settings.empty_results_image %}
+        <img class="empty-custom-image" src="{{ site_settings.empty_results_image.url }}" alt="{% trans 'Ничего не найдено.' %}" />
+      {% else %}
+        <div class="empty-illustration" aria-hidden="true"></div>
+      {% endif %}
+      {% if site_empty_results_text %}
+        <h2>{{ site_empty_results_text }}</h2>
+      {% else %}
+        <h2>{% trans "Ничего не найдено." %}</h2>
+      {% endif %}
       <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
       <a class="link-btn" href="{% url 'place_list' %}">{% trans "Сброс" %}</a>
     </section>

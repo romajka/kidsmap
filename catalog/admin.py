@@ -1,7 +1,39 @@
 from django.contrib import admin
 from django import forms
+from django.utils.html import format_html
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
-from .models import Place, PlacePhoto
+from .models import (
+    Place,
+    PlacePhoto,
+    SiteSettings,
+    SiteBrandingSettings,
+    SiteAboutSettings,
+    SiteContactsSettings,
+    SiteFooterSettings,
+    SiteEmptyStateSettings,
+)
+
+# Keep "Настройка сайта" as the first item in CATALOG app menu.
+_original_get_app_list = admin.site.get_app_list
+
+
+def _kidsmap_get_app_list(self, request, app_label=None):
+    app_list = _original_get_app_list(request, app_label)
+    for app in app_list:
+        if app.get("app_label") != "catalog":
+            continue
+        priority = {
+            "sitesettings": 0,
+            "place": 10,
+        }
+        app["models"].sort(key=lambda m: (priority.get(m.get("object_name", "").lower(), 999), m.get("name", "")))
+    return app_list
+
+
+admin.site.get_app_list = _kidsmap_get_app_list.__get__(admin.site, type(admin.site))
 
 
 class PlacePhotoInline(admin.TabularInline):
@@ -78,3 +110,174 @@ class PlaceAdmin(admin.ModelAdmin):
     @admin.action(description=_("Снять отметку проверки"))
     def mark_unverified(self, request, queryset):
         queryset.update(is_verified=False)
+
+
+class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
+    list_display = ("brand_name", "updated_at")
+    readonly_fields = (
+        "updated_at",
+        "logo_preview",
+        "site_background_image_preview",
+        "home_hero_image_preview",
+        "empty_results_image_preview",
+    )
+
+    def get_model_perms(self, request):
+        # Hide subsection models from the left sidebar; open via "Настройка сайта" hub.
+        return {}
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        obj = SiteSettings.get_solo()
+        opts = self.model._meta
+        url = reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk])
+        return redirect(url)
+
+    def _render_image_preview(self, obj, field_name):
+        if not obj:
+            return "-"
+        file_field = getattr(obj, field_name, None)
+        if not file_field:
+            return "-"
+        try:
+            url = file_field.url
+        except Exception:
+            return "-"
+        name = file_field.name.split("/")[-1] if getattr(file_field, "name", "") else ""
+        return format_html(
+            '<div style="display:flex;align-items:center;gap:10px;">'
+            '<a href="{0}" target="_blank" rel="noopener">'
+            '<img src="{0}" alt="{1}" style="max-width:220px;max-height:120px;border:1px solid #cdd6df;border-radius:8px;background:#fff;" />'
+            "</a>"
+            '<span style="font-family:monospace;">{2}</span>'
+            "</div>",
+            url,
+            name,
+            name,
+        )
+
+    @admin.display(description=_("Текущее лого"))
+    def logo_preview(self, obj):
+        return self._render_image_preview(obj, "logo")
+
+    @admin.display(description=_("Текущий фон сайта"))
+    def site_background_image_preview(self, obj):
+        return self._render_image_preview(obj, "site_background_image")
+
+    @admin.display(description=_("Текущий фон баннера"))
+    def home_hero_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_hero_image")
+
+    @admin.display(description=_("Текущая картинка пустого результата"))
+    def empty_results_image_preview(self, obj):
+        return self._render_image_preview(obj, "empty_results_image")
+
+
+@admin.register(SiteSettings)
+class SiteSettingsCompatAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def _sections(self):
+        return [
+            {
+                "title": _("Лого и бренд"),
+                "description": _("Название проекта и логотип в шапке."),
+                "url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+            },
+            {
+                "title": _("О проекте"),
+                "description": _("Текст страницы «О проекте»."),
+                "url": reverse("admin:catalog_siteaboutsettings_changelist"),
+            },
+            {
+                "title": _("Контакты"),
+                "description": _("Контакты для страницы «Контакты»."),
+                "url": reverse("admin:catalog_sitecontactssettings_changelist"),
+            },
+            {
+                "title": _("Футер и соцсети"),
+                "description": _("Телефон, email, Instagram и WhatsApp в футере."),
+                "url": reverse("admin:catalog_sitefootersettings_changelist"),
+            },
+            {
+                "title": _("Пустой результат"),
+                "description": _("Картинка и текст, если в каталоге ничего не найдено."),
+                "url": reverse("admin:catalog_siteemptystatesettings_changelist"),
+            },
+        ]
+
+    def changelist_view(self, request, extra_context=None):
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Настройка сайта"),
+            "opts": self.model._meta,
+            "sections": self._sections(),
+        }
+        return TemplateResponse(request, "admin/catalog/site_settings_hub.html", context)
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        return redirect(reverse("admin:catalog_sitesettings_changelist"))
+
+
+@admin.register(SiteBrandingSettings)
+class SiteBrandingSettingsAdmin(_BaseSiteSettingsSectionAdmin):
+    fieldsets = (
+        (_("Лого и бренд"), {"fields": ("brand_name", "logo", "logo_preview")}),
+        (
+            _("Дизайн-картинки"),
+            {"fields": ("site_background_image", "site_background_image_preview", "home_hero_image", "home_hero_image_preview")},
+        ),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
+    )
+
+
+@admin.register(SiteAboutSettings)
+class SiteAboutSettingsAdmin(_BaseSiteSettingsSectionAdmin):
+    fieldsets = (
+        (_("О проекте (i18n)"), {"fields": ("about_text_ru", "about_text_az", "about_text_en")}),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
+    )
+
+
+@admin.register(SiteContactsSettings)
+class SiteContactsSettingsAdmin(_BaseSiteSettingsSectionAdmin):
+    fieldsets = (
+        (_("Контакты страницы (i18n)"), {"fields": ("contacts_text_ru", "contacts_text_az", "contacts_text_en")}),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
+    )
+
+
+@admin.register(SiteFooterSettings)
+class SiteFooterSettingsAdmin(_BaseSiteSettingsSectionAdmin):
+    fieldsets = (
+        (_("Футер и соцсети"), {"fields": ("footer_phone", "footer_email", "footer_instagram", "footer_whatsapp")}),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
+    )
+
+
+@admin.register(SiteEmptyStateSettings)
+class SiteEmptyStateSettingsAdmin(_BaseSiteSettingsSectionAdmin):
+    fieldsets = (
+        (
+            _("Пустой результат каталога"),
+            {
+                "fields": (
+                    "empty_results_text_ru",
+                    "empty_results_text_az",
+                    "empty_results_text_en",
+                    "empty_results_image",
+                    "empty_results_image_preview",
+                )
+            },
+        ),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
+    )

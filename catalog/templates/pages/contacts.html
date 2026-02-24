@@ -9,6 +9,10 @@
 {% block content %}
   <section class="panel">
     <h1>{% trans "Контакты" %}</h1>
-    <p>{% trans "Свяжитесь с нами по почте: kidsmap@example.com" %}</p>
+    {% if site_contacts_text %}
+      <p>{{ site_contacts_text }}</p>
+    {% else %}
+      <p>{% trans "Свяжитесь с нами по почте: kidsmap@example.com" %}</p>
+    {% endif %}
   </section>
 {% endblock %}

@@ -166,3 +166,146 @@ class PlaceLike(models.Model):
 
     def __str__(self):
         return f"{self.place_id}:{self.session_key}"
+
+
+class SiteSettings(models.Model):
+    brand_name = models.CharField(_("Название бренда"), max_length=120, default="KidsMap")
+    logo = models.FileField(
+        _("Логотип"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется SVG или PNG, размер 256x256 px (минимум 128x128), до 500 KB."),
+    )
+    site_background_image = models.FileField(
+        _("Фон сайта"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1920x1080 px, до 2 MB."),
+    )
+    home_hero_image = models.FileField(
+        _("Фон главного баннера"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB."),
+    )
+    contacts_text_ru = models.TextField(_("Контакты (RU)"), blank=True, default="")
+    contacts_text_en = models.TextField(_("Контакты (EN)"), blank=True, default="")
+    contacts_text_az = models.TextField(_("Контакты (AZ)"), blank=True, default="")
+    about_text_ru = models.TextField(_("О проекте (RU)"), blank=True, default="")
+    about_text_en = models.TextField(_("О проекте (EN)"), blank=True, default="")
+    about_text_az = models.TextField(_("О проекте (AZ)"), blank=True, default="")
+    empty_results_text_ru = models.CharField(_("Текст пустого результата (RU)"), max_length=255, blank=True, default="")
+    empty_results_text_en = models.CharField(_("Текст пустого результата (EN)"), max_length=255, blank=True, default="")
+    empty_results_text_az = models.CharField(_("Текст пустого результата (AZ)"), max_length=255, blank=True, default="")
+    empty_results_image = models.FileField(
+        _("Картинка пустого результата"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется PNG/WebP 600x400 px, до 500 KB."),
+    )
+    footer_phone = models.CharField(_("Телефон в футере"), max_length=60, blank=True, default="")
+    footer_email = models.EmailField(_("Email в футере"), blank=True, default="")
+    footer_instagram = models.CharField(_("Instagram в футере"), max_length=255, blank=True, default="")
+    footer_whatsapp = models.CharField(_("WhatsApp ссылка в футере"), max_length=255, blank=True, default="")
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    def _normalize_lang(self, lang):
+        if not lang:
+            lang = get_language() or "ru"
+        return lang.split("-")[0]
+
+    def _i18n_text(self, prefix, lang):
+        lang = self._normalize_lang(lang)
+        if lang == "en":
+            return (getattr(self, f"{prefix}_en", "") or getattr(self, f"{prefix}_ru", "")).strip()
+        if lang == "az":
+            return (getattr(self, f"{prefix}_az", "") or getattr(self, f"{prefix}_ru", "")).strip()
+        return getattr(self, f"{prefix}_ru", "").strip()
+
+    def contacts_text_i18n(self, lang=None):
+        return self._i18n_text("contacts_text", lang)
+
+    def about_text_i18n(self, lang=None):
+        return self._i18n_text("about_text", lang)
+
+    def empty_results_text_i18n(self, lang=None):
+        return self._i18n_text("empty_results_text", lang)
+
+    def footer_instagram_url(self):
+        value = (self.footer_instagram or "").strip()
+        if not value:
+            return ""
+        if value.startswith(("http://", "https://")):
+            return value
+        if value.startswith(("instagram.com/", "www.instagram.com/")):
+            return f"https://{value}"
+        if "instagram.com/" in value:
+            return f"https://{value.lstrip('/')}"
+        return f"https://instagram.com/{value.lstrip('@')}"
+
+    @classmethod
+    def get_solo(cls):
+        obj = cls.objects.order_by("id").first()
+        if obj:
+            return obj
+        return cls.objects.create(
+            brand_name="KidsMap",
+            contacts_text_ru="Свяжитесь с нами по почте: kidsmap@example.com",
+            contacts_text_en="Contact us by email: kidsmap@example.com",
+            contacts_text_az="Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap@example.com",
+            about_text_ru="KidsMap — каталог детских кружков и секций в Баку.",
+            about_text_en="KidsMap is a catalog of kids clubs and courses in Baku.",
+            about_text_az="KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
+            empty_results_text_ru="Ничего не найдено.",
+            empty_results_text_en="Nothing found.",
+            empty_results_text_az="Heç nə tapılmadı.",
+            footer_phone="+994 00 000 00 00",
+            footer_email="kidsmap@example.com",
+            footer_instagram="kidsmap",
+        )
+
+    class Meta:
+        verbose_name = _("Настройка сайта")
+        verbose_name_plural = _("Настройка сайта")
+
+    def __str__(self):
+        return self.brand_name or "Site settings"
+
+
+class SiteBrandingSettings(SiteSettings):
+    class Meta:
+        proxy = True
+        verbose_name = _("Лого и бренд")
+        verbose_name_plural = _("Лого и бренд")
+
+
+class SiteAboutSettings(SiteSettings):
+    class Meta:
+        proxy = True
+        verbose_name = _("О проекте")
+        verbose_name_plural = _("О проекте")
+
+
+class SiteContactsSettings(SiteSettings):
+    class Meta:
+        proxy = True
+        verbose_name = _("Контакты")
+        verbose_name_plural = _("Контакты")
+
+
+class SiteFooterSettings(SiteSettings):
+    class Meta:
+        proxy = True
+        verbose_name = _("Футер и соцсети")
+        verbose_name_plural = _("Футер и соцсети")
+
+
+class SiteEmptyStateSettings(SiteSettings):
+    class Meta:
+        proxy = True
+        verbose_name = _("Пустой результат")
+        verbose_name_plural = _("Пустой результат")

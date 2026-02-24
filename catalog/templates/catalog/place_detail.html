@@ -36,6 +36,11 @@
               {% endfor %}
             </div>
           </div>
+        {% else %}
+          <div class="detail-photo-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
+            <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+            <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+          </div>
         {% endif %}
       {% endwith %}
       {% if place.description_i18n %}
