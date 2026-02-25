@@ -773,24 +773,55 @@ main {
 
 .results-list-mode .card {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 210px 1fr;
+  align-items: stretch;
 }
 
 .results-list-mode .card .card-media {
-  height: 100%;
-  min-height: 180px;
+  width: 210px;
+  height: auto;
+  min-height: 100%;
+  align-self: stretch;
 }
 
 .results-list-mode .card .card-body {
   display: grid;
   align-content: start;
-  gap: 4px;
+  gap: 2px;
+  padding: 10px;
 }
 
 .results-list-mode .card .details-btn {
   justify-self: start;
   width: auto;
-  min-width: 138px;
+  min-width: 124px;
+  margin-top: 6px;
+}
+
+.results-list-mode .card .chip {
+  margin-top: 4px;
+  padding: 2px 8px;
+  font-size: 13px;
+}
+
+.results-list-mode .card .rating-row {
+  margin-top: 4px;
+  padding: 3px 7px;
+}
+
+.results-list-mode .card .meta {
+  margin-top: 4px;
+  font-size: 19px;
+}
+
+.results-list-mode .card .like-form {
+  margin-top: 6px;
+}
+
+.results-list-mode .card .card-cta-row {
+  margin-top: 8px;
+  margin-bottom: 6px;
+  gap: 8px;
 }
 
 .card {
@@ -2055,6 +2086,12 @@ main {
 
   .results-list-mode .card {
     grid-template-columns: 1fr;
+  }
+
+  .results-list-mode .card .card-media {
+    width: 100%;
+    min-height: 220px;
+    height: 220px;
   }
 
   .home-steps-flow {
