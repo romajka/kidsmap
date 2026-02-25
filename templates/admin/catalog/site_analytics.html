@@ -21,8 +21,6 @@
         <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
           <h3 style="margin:0 0 8px;">{% trans "Отзывы по кружкам" %}</h3>
           <div><b>{% trans "Всего" %}:</b> {{ place_reviews_stats.total }}</div>
-          <div><b>{% trans "Одобрено" %}:</b> {{ place_reviews_stats.approved }}</div>
-          <div><b>{% trans "Скрыто" %}:</b> {{ place_reviews_stats.pending }}</div>
           <div><b>{% trans "Средняя оценка" %}:</b> {{ place_reviews_stats.avg_rating }}</div>
           <div style="margin-top:8px;">
             <a href="{% url 'admin:catalog_placereview_changelist' %}">{% trans "Открыть отзывы по кружкам" %}</a>
@@ -32,12 +30,36 @@
         <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
           <h3 style="margin:0 0 8px;">{% trans "Отзывы о сайте" %}</h3>
           <div><b>{% trans "Всего" %}:</b> {{ site_reviews_stats.total }}</div>
-          <div><b>{% trans "Одобрено" %}:</b> {{ site_reviews_stats.approved }}</div>
-          <div><b>{% trans "Скрыто" %}:</b> {{ site_reviews_stats.pending }}</div>
           <div><b>{% trans "Средняя оценка" %}:</b> {{ site_reviews_stats.avg_rating }}</div>
           <div style="margin-top:8px;">
             <a href="{% url 'admin:catalog_sitereview_changelist' %}">{% trans "Открыть отзывы о сайте" %}</a>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Посещаемость сайта" %}</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
+        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+          <h3 style="margin:0 0 8px;">{% trans "Сегодня" %}</h3>
+          <div><b>{% trans "Уникальные посетители" %}:</b> {{ visits_stats.day.unique_sessions }}</div>
+          <div><b>{% trans "Просмотры страниц" %}:</b> {{ visits_stats.day.page_views }}</div>
+        </div>
+        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+          <h3 style="margin:0 0 8px;">{% trans "За 7 дней" %}</h3>
+          <div><b>{% trans "Уникальные посетители" %}:</b> {{ visits_stats.week.unique_sessions }}</div>
+          <div><b>{% trans "Просмотры страниц" %}:</b> {{ visits_stats.week.page_views }}</div>
+        </div>
+        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+          <h3 style="margin:0 0 8px;">{% trans "За 30 дней" %}</h3>
+          <div><b>{% trans "Уникальные посетители" %}:</b> {{ visits_stats.month.unique_sessions }}</div>
+          <div><b>{% trans "Просмотры страниц" %}:</b> {{ visits_stats.month.page_views }}</div>
+        </div>
+        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+          <h3 style="margin:0 0 8px;">{% trans "За 365 дней" %}</h3>
+          <div><b>{% trans "Уникальные посетители" %}:</b> {{ visits_stats.year.unique_sessions }}</div>
+          <div><b>{% trans "Просмотры страниц" %}:</b> {{ visits_stats.year.page_views }}</div>
         </div>
       </div>
     </div>

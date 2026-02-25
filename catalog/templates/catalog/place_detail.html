@@ -74,6 +74,30 @@
           <div class="meta-value">{{ place.get_category_display }}</div>
         </div>
 
+        <div class="detail-meta-item">
+          <span class="meta-label">{% trans "Формат" %}</span>
+          <div class="meta-value">
+            {% if place.is_temporary %}
+              🕒 {% trans "Временное" %}
+            {% else %}
+              ♾️ {% trans "Постоянное" %}
+            {% endif %}
+          </div>
+        </div>
+
+        {% if place.is_temporary %}
+          {% if place.temporary_start or place.temporary_end %}
+            <div class="detail-meta-item">
+              <span class="meta-label">{% trans "Период проведения" %}</span>
+              <div class="meta-value">
+                {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
+                {% if place.temporary_start and place.temporary_end %} — {% endif %}
+                {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+
         {% if place.subcategory %}
           <div class="detail-meta-item">
             <span class="meta-label">{% trans "Подкатегория" %}</span>

@@ -43,6 +43,9 @@ class Place(models.Model):
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True)
     website = models.URLField(_("Сайт"), blank=True)
     schedule = models.TextField(_("Расписание"), blank=True)
+    is_temporary = models.BooleanField(_("Временное мероприятие"), default=False)
+    temporary_start = models.DateTimeField(_("Начало мероприятия"), null=True, blank=True)
+    temporary_end = models.DateTimeField(_("Окончание мероприятия"), null=True, blank=True)
     lat = models.FloatField(_("Широта"), null=True, blank=True)
     lng = models.FloatField(_("Долгота"), null=True, blank=True)
 

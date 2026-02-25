@@ -262,6 +262,20 @@
                   <span class="new-badge-meta">{% trans "Добавлено" %} {{ place.days_since_added }} {% trans "дн. назад" %}</span>
                 </div>
                 <div class="chip">{{ place.get_category_display }}</div>
+                <div class="event-badge-row">
+                  {% if place.is_temporary %}
+                    <span class="event-badge temporary">🕒 {% trans "Временное" %}</span>
+                    {% if place.temporary_start or place.temporary_end %}
+                      <span class="event-badge-meta">
+                        {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
+                        {% if place.temporary_start and place.temporary_end %} — {% endif %}
+                        {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
+                      </span>
+                    {% endif %}
+                  {% else %}
+                    <span class="event-badge permanent">♾️ {% trans "Постоянное" %}</span>
+                  {% endif %}
+                </div>
                 <div class="rating-row">
                   <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
                   <span class="rating-text">
@@ -313,6 +327,20 @@
           <div class="card-body">
             <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
             <div class="chip">{{ place.get_category_display }}</div>
+            <div class="event-badge-row">
+              {% if place.is_temporary %}
+                <span class="event-badge temporary">🕒 {% trans "Временное" %}</span>
+                {% if place.temporary_start or place.temporary_end %}
+                  <span class="event-badge-meta">
+                    {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
+                    {% if place.temporary_start and place.temporary_end %} — {% endif %}
+                    {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
+                  </span>
+                {% endif %}
+              {% else %}
+                <span class="event-badge permanent">♾️ {% trans "Постоянное" %}</span>
+              {% endif %}
+            </div>
             <div class="rating-row">
               <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
               <span class="rating-text">

@@ -85,6 +85,7 @@ class PlaceAdmin(admin.ModelAdmin):
     list_display = (
         "display_name",
         "category",
+        "event_kind",
         "district",
         "metro",
         "likes_count",
@@ -94,7 +95,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "is_verified",
         "updated_at",
     )
-    list_filter = ("category", "district", "metro", "is_active", "is_verified", "age_from", "age_to")
+    list_filter = ("category", "is_temporary", "district", "metro", "is_active", "is_verified", "age_from", "age_to")
     search_fields = ("name_ru", "name_en", "name", "address", "instagram", "phone1")
     list_editable = ("is_active", "is_verified", "likes_count")
     readonly_fields = ("slug", "rating_avg", "rating_count", "created_at", "updated_at")
@@ -112,6 +113,9 @@ class PlaceAdmin(admin.ModelAdmin):
                     "slug",
                     "category",
                     "subcategory",
+                    "is_temporary",
+                    "temporary_start",
+                    "temporary_end",
                     "is_active",
                     "is_verified",
                     "likes_count",
@@ -131,6 +135,10 @@ class PlaceAdmin(admin.ModelAdmin):
     @admin.display(description=_("Название"))
     def display_name(self, obj):
         return obj.name_ru or obj.name
+
+    @admin.display(description=_("Формат"))
+    def event_kind(self, obj):
+        return _("Временное") if obj.is_temporary else _("Постоянное")
 
     @admin.action(description=_("Сделать активными"))
     def mark_active(self, request, queryset):
@@ -383,14 +391,14 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
         }
 
         visits_stats = {}
+        today = timezone.localdate()
         periods = {
-            "day": cutoff_7 + timedelta(days=6),
-            "week": cutoff_7,
-            "month": cutoff_30,
-            "year": now - timedelta(days=365),
+            "day": today,
+            "week": today - timedelta(days=6),
+            "month": today - timedelta(days=29),
+            "year": today - timedelta(days=364),
         }
-        for key, start_dt in periods.items():
-            start_day = start_dt.date()
+        for key, start_day in periods.items():
             period_qs = visits_qs.filter(day__gte=start_day)
             visits_stats[key] = {
                 "unique_sessions": period_qs.count(),
@@ -435,11 +443,11 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
 
 @admin.register(PlaceReview)
 class PlaceReviewAdmin(admin.ModelAdmin):
-    list_display = ("place", "display_author", "rating", "is_approved", "created_at")
-    list_filter = ("rating", "is_approved", "is_anonymous", "created_at")
+    list_display = ("place", "display_author", "rating", "created_at")
+    list_filter = ("rating", "is_anonymous", "created_at")
     search_fields = ("place__name_ru", "place__name_en", "place__name_az", "author_name", "text")
-    actions = ("approve_reviews", "hide_reviews")
     readonly_fields = ("created_at", "updated_at", "session_key")
+    exclude = ("is_approved",)
 
     @admin.display(description=_("Автор"))
     def display_author(self, obj):
@@ -447,28 +455,18 @@ class PlaceReviewAdmin(admin.ModelAdmin):
             return _("Аноним")
         return obj.author_name or _("Без имени")
 
-    @admin.action(description=_("Одобрить выбранные отзывы"))
-    def approve_reviews(self, request, queryset):
-        places = set(queryset.values_list("place_id", flat=True))
-        queryset.update(is_approved=True)
-        for place in Place.objects.filter(id__in=places):
-            place.refresh_rating_stats()
-
-    @admin.action(description=_("Скрыть выбранные отзывы"))
-    def hide_reviews(self, request, queryset):
-        places = set(queryset.values_list("place_id", flat=True))
-        queryset.update(is_approved=False)
-        for place in Place.objects.filter(id__in=places):
-            place.refresh_rating_stats()
+    def save_model(self, request, obj, form, change):
+        obj.is_approved = True
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(SiteReview)
 class SiteReviewAdmin(admin.ModelAdmin):
-    list_display = ("display_author", "rating", "is_approved", "created_at")
-    list_filter = ("rating", "is_approved", "is_anonymous", "created_at")
+    list_display = ("display_author", "rating", "created_at")
+    list_filter = ("rating", "is_anonymous", "created_at")
     search_fields = ("author_name", "text")
-    actions = ("approve_reviews", "hide_reviews")
     readonly_fields = ("created_at", "updated_at", "session_key")
+    exclude = ("is_approved",)
 
     @admin.display(description=_("Автор"))
     def display_author(self, obj):
@@ -476,13 +474,9 @@ class SiteReviewAdmin(admin.ModelAdmin):
             return _("Аноним")
         return obj.author_name or _("Без имени")
 
-    @admin.action(description=_("Одобрить выбранные отзывы"))
-    def approve_reviews(self, request, queryset):
-        queryset.update(is_approved=True)
-
-    @admin.action(description=_("Скрыть выбранные отзывы"))
-    def hide_reviews(self, request, queryset):
-        queryset.update(is_approved=False)
+    def save_model(self, request, obj, form, change):
+        obj.is_approved = True
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(PlaceReviewsByClub)
