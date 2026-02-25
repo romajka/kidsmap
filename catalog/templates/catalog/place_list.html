@@ -82,6 +82,15 @@
       </div>
     </form>
 
+    <div class="quick-filters">
+      <span class="quick-filters-label">{% trans "Быстрые фильтры" %}:</span>
+      <a class="chip-link" href="{% url 'place_list' %}?category=TECH">{% trans "Технологии" %}</a>
+      <a class="chip-link" href="{% url 'place_list' %}?category=SPRT">{% trans "Спорт" %}</a>
+      <a class="chip-link" href="{% url 'place_list' %}?category=EDU">{% trans "Образование" %}</a>
+      <a class="chip-link" href="{% url 'place_list' %}?district=Ясамал">{% trans "Ясамал" %}</a>
+      <a class="chip-link" href="{% url 'place_list' %}?district=Нариманов">{% trans "Нариманов" %}</a>
+      <a class="chip-link" href="{% url 'place_list' %}?sort=new">{% trans "Сначала новые" %}</a>
+    </div>
   </section>
 
   {% if places %}
@@ -124,6 +133,14 @@
                 ♥ <span class="like-count">{{ place.likes_count }}</span>
               </button>
             </form>
+            <div class="card-cta-row">
+              {% if place.phone1 %}
+                <a class="link-btn" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
+              {% endif %}
+              {% if place.instagram %}
+                <a class="link-btn" href="{{ place.instagram_url }}" target="_blank" rel="noopener">{% trans "Instagram" %}</a>
+              {% endif %}
+            </div>
             <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
           </div>
         </article>

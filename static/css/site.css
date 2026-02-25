@@ -316,6 +316,33 @@ main {
   flex-wrap: wrap;
 }
 
+.quick-filters {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-filters-label {
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.chip-link {
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 999px;
+  border: 1px solid #c7ddcb;
+  background: #f1fbf4;
+  color: #1d6a43;
+  padding: 6px 11px;
+}
+
+.chip-link:hover {
+  background: #e9f7ed;
+}
+
 .btn,
 .link-btn,
 .details-btn {
@@ -473,6 +500,13 @@ main {
 
 .details-btn {
   margin-top: 10px;
+}
+
+.card-cta-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .like-form {

@@ -186,32 +186,50 @@ class SiteSettingsCompatAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def _is_section_complete(self, obj, fields):
+        for field in fields:
+            value = getattr(obj, field, None)
+            if value in (None, "", []):
+                return False
+        return True
+
     def _sections(self):
+        obj = SiteSettings.get_solo()
+        branding_ok = self._is_section_complete(obj, ["brand_name"])
+        about_ok = self._is_section_complete(obj, ["about_text_ru"])
+        contacts_ok = self._is_section_complete(obj, ["contacts_text_ru"])
+        footer_ok = self._is_section_complete(obj, ["footer_phone", "footer_email"])
+        empty_ok = self._is_section_complete(obj, ["empty_results_text_ru"])
         return [
             {
                 "title": _("Лого и бренд"),
                 "description": _("Название проекта и логотип в шапке."),
                 "url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "complete": branding_ok,
             },
             {
                 "title": _("О проекте"),
                 "description": _("Текст страницы «О проекте»."),
                 "url": reverse("admin:catalog_siteaboutsettings_changelist"),
+                "complete": about_ok,
             },
             {
                 "title": _("Контакты"),
                 "description": _("Контакты для страницы «Контакты»."),
                 "url": reverse("admin:catalog_sitecontactssettings_changelist"),
+                "complete": contacts_ok,
             },
             {
                 "title": _("Футер и соцсети"),
                 "description": _("Телефон, email, Instagram и WhatsApp в футере."),
                 "url": reverse("admin:catalog_sitefootersettings_changelist"),
+                "complete": footer_ok,
             },
             {
                 "title": _("Пустой результат"),
                 "description": _("Картинка и текст, если в каталоге ничего не найдено."),
                 "url": reverse("admin:catalog_siteemptystatesettings_changelist"),
+                "complete": empty_ok,
             },
         ]
 

@@ -9,6 +9,11 @@
         {% for section in sections %}
           <li style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;">
             <a href="{{ section.url }}" style="font-weight:700;text-decoration:none;">{{ section.title }}</a>
+            {% if section.complete %}
+              <span style="margin-left:8px;padding:2px 8px;border-radius:999px;background:#e9f7ed;color:#1e6a43;font-size:12px;">{% trans "Заполнено" %}</span>
+            {% else %}
+              <span style="margin-left:8px;padding:2px 8px;border-radius:999px;background:#fff4e6;color:#9a5d00;font-size:12px;">{% trans "Нужно заполнить" %}</span>
+            {% endif %}
             <div style="margin-top:4px;color:#617084;">{{ section.description }}</div>
           </li>
         {% endfor %}

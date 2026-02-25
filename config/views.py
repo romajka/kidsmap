@@ -1,5 +1,7 @@
 from django.http import HttpResponse
 from django.urls import reverse
+from django.utils import timezone
+from django.http import JsonResponse
 
 
 def robots_txt(request):
@@ -11,3 +13,7 @@ def robots_txt(request):
         f"Sitemap: {sitemap_url}",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+def healthz(request):
+    return JsonResponse({"status": "ok", "time": timezone.now().isoformat()})

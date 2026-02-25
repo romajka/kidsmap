@@ -56,7 +56,22 @@ BAKU_METRO_STATIONS = [
     "Ходжасан",
 ]
 
-SEO_LANDING_PAGES = {
+BAKU_DISTRICT_SEO = [
+    ("yasamal", "Ясамал"),
+    ("nasimi", "Насими"),
+    ("nizami", "Низами"),
+    ("narimanov", "Нариманов"),
+    ("sabail", "Сабаиль"),
+    ("sabunchi", "Сабунчи"),
+    ("binagadi", "Бинагади"),
+    ("surakhani", "Сураханы"),
+    ("khatai", "Хатаи"),
+    ("khazar", "Хазар"),
+    ("garadagh", "Гарадаг"),
+    ("pirallahi", "Пираллахы"),
+]
+
+BASE_SEO_LANDING_PAGES = {
     "kruzhki-v-baku": {
         "title": "Кружки в Баку для детей",
         "meta_description": "Кружки в Баку для детей: спорт, творчество, музыка, технологии. Сравнивайте по району, возрасту и цене на KidsMap.",
@@ -133,6 +148,32 @@ SEO_LANDING_PAGES = {
         ],
     },
 }
+
+
+def _district_seo_pages():
+    pages = {}
+    for slug, district in BAKU_DISTRICT_SEO:
+        page_slug = f"kruzhki-v-{slug}-baku"
+        pages[page_slug] = {
+            "title": f"Кружки в районе {district} (Баку)",
+            "meta_description": f"Кружки и секции для детей в районе {district}, Баку. Сравнивайте по возрасту, цене и метро на KidsMap.",
+            "intro": f"Подборка кружков и курсов для детей в районе {district}. Используйте фильтры по возрасту, метро и цене, чтобы выбрать лучший вариант рядом.",
+            "benefits": [
+                f"Детские кружки и секции в районе {district}",
+                "Сравнение цен и возрастных групп",
+                "Контакты и быстрый переход к карточке",
+            ],
+            "catalog_query": f"?district={district}",
+            "faq": [
+                (f"Какие кружки есть в районе {district}?", "На странице собраны спортивные, образовательные и творческие направления."),
+                ("Как выбрать кружок рядом с домом?", "Используйте фильтр по району и метро, затем сравните возраст, цену и расписание."),
+            ],
+        }
+    return pages
+
+
+SEO_LANDING_PAGES = {**BASE_SEO_LANDING_PAGES, **_district_seo_pages()}
+
 
 def _session_key(request):
     if not request.session.session_key:
