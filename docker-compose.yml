@@ -1,8 +1,30 @@
 services:
+  db:
+    image: mariadb:11.4
+    container_name: kidsmap-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-kidsmap}
+      MARIADB_USER: ${DB_USER:-kidsmap}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-kidsmap}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpass}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u${DB_USER:-kidsmap}", "-p${DB_PASSWORD:-kidsmap}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   web:
     build: .
     container_name: kidsmap-web
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: ./scripts/start-server.sh
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
     environment:
@@ -10,5 +32,15 @@ services:
       DJANGO_SECRET_KEY: "dev-only-change-me"
       DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost,0.0.0.0"
       GOOGLE_MAPS_API_KEY: "${GOOGLE_MAPS_API_KEY:-}"
+      DB_ENGINE: "mariadb"
+      DB_NAME: "${DB_NAME:-kidsmap}"
+      DB_USER: "${DB_USER:-kidsmap}"
+      DB_PASSWORD: "${DB_PASSWORD:-kidsmap}"
+      DB_HOST: "db"
+      DB_PORT: "3306"
+      USE_RUNSERVER: "1"
     volumes:
       - ./:/app
+
+volumes:
+  mariadb_data:

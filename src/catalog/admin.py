@@ -305,6 +305,29 @@ class SiteBrandingSettingsAdmin(_BaseSiteSettingsSectionAdmin):
             _("Дизайн-картинки"),
             {"fields": ("site_background_image", "site_background_image_preview", "home_hero_image", "home_hero_image_preview")},
         ),
+        (
+            _("Hero главной страницы (i18n)"),
+            {
+                "fields": (
+                    "home_hero_show_decor",
+                    "home_title_ru",
+                    "home_title_az",
+                    "home_title_en",
+                    "home_subtitle_ru",
+                    "home_subtitle_az",
+                    "home_subtitle_en",
+                    "home_search_label_ru",
+                    "home_search_label_az",
+                    "home_search_label_en",
+                    "home_search_placeholder_ru",
+                    "home_search_placeholder_az",
+                    "home_search_placeholder_en",
+                    "home_cta_text_ru",
+                    "home_cta_text_az",
+                    "home_cta_text_en",
+                )
+            },
+        ),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
     )
 

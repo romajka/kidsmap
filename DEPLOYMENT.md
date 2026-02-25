@@ -4,8 +4,7 @@
 ```bash
 cd /home/ramin/kidsmap
 source .venv/bin/activate
-python manage.py migrate
-python manage.py collectstatic --noinput
+./scripts/migrate.sh
 GOOGLE_MAPS_API_KEY="YOUR_KEY" python manage.py runserver 0.0.0.0:8000
 ```
 
@@ -28,6 +27,9 @@ git push origin main
 
 ## Docker (local)
 ```bash
+# one-time: copy env template
+cp .env.example .env
+
 # build + run
 docker compose up --build
 
@@ -39,12 +41,15 @@ docker compose down
 
 # logs
 docker compose logs -f web
+
+# run only migrations in web container
+docker compose run --rm web ./scripts/migrate.sh
 ```
 
 ## Production release checklist
-1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `GOOGLE_MAPS_API_KEY`.
-2. Run `python manage.py migrate`.
-3. Run `python manage.py collectstatic --noinput`.
+1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `GOOGLE_MAPS_API_KEY`, `DB_*`.
+2. Run `./scripts/migrate.sh`.
+3. Run `./scripts/start-server.sh` (or `gunicorn config.wsgi:application ...`).
 4. Run `python manage.py check`.
 5. Verify:
    - `/healthz`
@@ -53,5 +58,5 @@ docker compose logs -f web
    - `/admin/`
 
 ## Backup suggestion
-1. Daily DB backup (`db.sqlite3`) with timestamp.
+1. Daily MariaDB backup (`mysqldump`) with timestamp.
 2. Daily `media/` backup.

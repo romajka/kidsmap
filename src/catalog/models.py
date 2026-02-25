@@ -306,6 +306,22 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB."),
     )
+    home_hero_show_decor = models.BooleanField(_("Показывать декор в hero"), default=True)
+    home_title_ru = models.CharField(_("Hero заголовок (RU)"), max_length=220, blank=True, default="")
+    home_title_en = models.CharField(_("Hero заголовок (EN)"), max_length=220, blank=True, default="")
+    home_title_az = models.CharField(_("Hero заголовок (AZ)"), max_length=220, blank=True, default="")
+    home_subtitle_ru = models.CharField(_("Hero подзаголовок (RU)"), max_length=260, blank=True, default="")
+    home_subtitle_en = models.CharField(_("Hero подзаголовок (EN)"), max_length=260, blank=True, default="")
+    home_subtitle_az = models.CharField(_("Hero подзаголовок (AZ)"), max_length=260, blank=True, default="")
+    home_search_label_ru = models.CharField(_("Hero подпись поиска (RU)"), max_length=220, blank=True, default="")
+    home_search_label_en = models.CharField(_("Hero подпись поиска (EN)"), max_length=220, blank=True, default="")
+    home_search_label_az = models.CharField(_("Hero подпись поиска (AZ)"), max_length=220, blank=True, default="")
+    home_search_placeholder_ru = models.CharField(_("Hero placeholder поиска (RU)"), max_length=220, blank=True, default="")
+    home_search_placeholder_en = models.CharField(_("Hero placeholder поиска (EN)"), max_length=220, blank=True, default="")
+    home_search_placeholder_az = models.CharField(_("Hero placeholder поиска (AZ)"), max_length=220, blank=True, default="")
+    home_cta_text_ru = models.CharField(_("Hero кнопка (RU)"), max_length=120, blank=True, default="")
+    home_cta_text_en = models.CharField(_("Hero кнопка (EN)"), max_length=120, blank=True, default="")
+    home_cta_text_az = models.CharField(_("Hero кнопка (AZ)"), max_length=120, blank=True, default="")
     contacts_text_ru = models.TextField(_("Контакты (RU)"), blank=True, default="")
     contacts_text_en = models.TextField(_("Контакты (EN)"), blank=True, default="")
     contacts_text_az = models.TextField(_("Контакты (AZ)"), blank=True, default="")
@@ -350,6 +366,21 @@ class SiteSettings(models.Model):
     def empty_results_text_i18n(self, lang=None):
         return self._i18n_text("empty_results_text", lang)
 
+    def home_title_i18n(self, lang=None):
+        return self._i18n_text("home_title", lang)
+
+    def home_subtitle_i18n(self, lang=None):
+        return self._i18n_text("home_subtitle", lang)
+
+    def home_search_label_i18n(self, lang=None):
+        return self._i18n_text("home_search_label", lang)
+
+    def home_search_placeholder_i18n(self, lang=None):
+        return self._i18n_text("home_search_placeholder", lang)
+
+    def home_cta_text_i18n(self, lang=None):
+        return self._i18n_text("home_cta_text", lang)
+
     def footer_instagram_url(self):
         value = (self.footer_instagram or "").strip()
         if not value:
@@ -375,6 +406,21 @@ class SiteSettings(models.Model):
             about_text_ru="KidsMap — каталог детских кружков и секций в Баку.",
             about_text_en="KidsMap is a catalog of kids clubs and courses in Baku.",
             about_text_az="KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
+            home_title_ru="Найдите кружок для ребёнка в Баку",
+            home_title_en="Find a club for your child in Baku",
+            home_title_az="Bakıda uşağınız üçün dərnək tapın",
+            home_subtitle_ru="Спорт, творчество, музыка, образование — всё в одном месте.",
+            home_subtitle_en="Sports, creativity, music, and education in one place.",
+            home_subtitle_az="İdman, yaradıcılıq, musiqi, təhsil — hamısı bir yerdə.",
+            home_search_label_ru="Искать кружок, курс или школу",
+            home_search_label_en="Find a club, course, or school",
+            home_search_label_az="Dərnək, kurs və ya məktəb axtarın",
+            home_search_placeholder_ru="например english, ballet, lego",
+            home_search_placeholder_en="for example english, ballet, lego",
+            home_search_placeholder_az="məsələn english, ballet, lego",
+            home_cta_text_ru="Начать поиск",
+            home_cta_text_en="Start searching",
+            home_cta_text_az="Axtarışa başla",
             empty_results_text_ru="Ничего не найдено.",
             empty_results_text_en="Nothing found.",
             empty_results_text_az="Heç nə tapılmadı.",

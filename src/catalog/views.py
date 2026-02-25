@@ -1,63 +1,37 @@
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Avg
-from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
-from .content_data import HOME_CATEGORIES
+from .controllers.home_controller import HomeController
+from .controllers.place_controller import PlaceController
 from .models import CatalogContentSettings, Place, SiteReview
-from .services.filtering import PlaceListFilters, build_new_page_stats
 from .services.reactions import (
     create_or_update_review,
     liked_place_ids,
-    mark_liked_flags,
     toggle_place_like as toggle_like_service,
 )
-from .services.seo import build_place_seo_payload, build_seo_landing_schema_payload
+from .services.seo import build_seo_landing_schema_payload
+
+home_controller = HomeController.build_default()
+place_controller = PlaceController.build_default()
 
 
 def home(request):
-    content_settings = CatalogContentSettings.get_solo()
-    seo_pages = content_settings.seo_pages()
     liked_ids = liked_place_ids(request)
-    popular_places = list(Place.objects.filter(is_active=True).order_by("-likes_count", "-updated_at")[:4])
-    mark_liked_flags(popular_places, liked_ids)
-
-    map_places = [
-        {
-            "name": place.name_i18n(request.LANGUAGE_CODE),
-            "lat": place.lat,
-            "lng": place.lng,
-            "url": place.get_absolute_url(),
-            "category": place.get_category_display(),
-        }
-        for place in Place.objects.filter(is_active=True).exclude(lat__isnull=True).exclude(lng__isnull=True)
-    ]
-
-    site_reviews_qs = SiteReview.objects.filter(is_approved=True).order_by("-created_at")
-    site_reviews = list(site_reviews_qs[:4])
-    site_reviews_avg = site_reviews_qs.aggregate(avg=Avg("rating")).get("avg") or 0
-    site_reviews_count = site_reviews_qs.count()
+    context = home_controller.build_context(
+        language_code=request.LANGUAGE_CODE,
+        liked_ids=liked_ids,
+        google_maps_api_key=settings.GOOGLE_MAPS_API_KEY,
+    )
 
     return render(
         request,
         "pages/home.html",
-        {
-            "home_categories": HOME_CATEGORIES,
-            "meta_description": "KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене.",
-            "seo_pages": seo_pages,
-            "popular_places": popular_places,
-            "map_places": map_places,
-            "site_reviews": site_reviews,
-            "site_reviews_avg": float(site_reviews_avg),
-            "site_reviews_count": site_reviews_count,
-            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
-        },
+        context,
     )
 
 
@@ -70,90 +44,34 @@ def place_new(request):
 
 
 def _render_place_list(request, force_new_only=False, created_after=None):
-    content_settings = CatalogContentSettings.get_solo()
-    filters = PlaceListFilters.from_request(request, force_new_only=force_new_only)
-    qs = filters.apply(Place.objects.filter(is_active=True), created_after=created_after)
     liked_ids = liked_place_ids(request)
-
-    timeline_places = []
-    stats_qs = None
-    if force_new_only:
-        stats_qs = qs
-        timeline_places = list(qs.order_by("-created_at")[:5])
-        qs = qs.exclude(id__in=[place.id for place in timeline_places])
-
-    paginator = Paginator(qs, 10)
-    page_obj = paginator.get_page(request.GET.get("page"))
-
-    params = request.GET.copy()
-    params.pop("page", None)
-    query_without_page = params.urlencode()
-
-    context = {
-        "places": page_obj.object_list,
-        "timeline_places": timeline_places,
-        "page_obj": page_obj,
-        "language": request.LANGUAGE_CODE,
-        "query_without_page": query_without_page,
-        "meta_description": (
-            "Новые кружки и курсы в Баку за последние 30 дней. Смотрите свежие добавления на KidsMap."
-            if force_new_only
-            else "Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене."
-        ),
-        "selected": filters.selected(),
-        "categories": Place.CATEGORY_CHOICES,
-        "district_options": content_settings.districts(),
-        "metro_options": content_settings.metro_stations(),
-        "is_new_page": force_new_only,
-    }
-
-    mark_liked_flags(context["places"], liked_ids)
-    mark_liked_flags(context["timeline_places"], liked_ids)
-
-    if force_new_only:
-        now = timezone.now()
-        for item in context["timeline_places"]:
-            item.days_since_added = max((now - item.created_at).days, 0)
-        for item in context["places"]:
-            item.days_since_added = max((now - item.created_at).days, 0)
-
-        stats_qs = stats_qs if stats_qs is not None else Place.objects.none()
-        context["new_stats_days"] = int(filters.days) if filters.days.isdigit() else 30
-        context["new_stats"] = build_new_page_stats(stats_qs)
+    context = place_controller.build_list_context(
+        request,
+        liked_ids=liked_ids,
+        force_new_only=force_new_only,
+        created_after=created_after,
+    )
 
     return render(request, "catalog/place_list.html", context)
 
 
 def place_detail_legacy(request, pk):
-    place = get_object_or_404(Place.objects.filter(is_active=True), pk=pk)
+    place = place_controller.get_active_place_for_legacy_redirect(pk=pk)
     return redirect(place.get_absolute_url(), permanent=True)
 
 
 def place_detail(request, pk, slug):
-    place = get_object_or_404(Place.objects.filter(is_active=True).prefetch_related("gallery"), pk=pk)
+    place = place_controller.get_active_place_with_gallery(pk=pk)
     if slug != place.slug:
         return redirect(place.get_absolute_url(), permanent=True)
 
     liked_ids = liked_place_ids(request)
-    place.is_liked = place.id in liked_ids
-
-    seo_payload = build_place_seo_payload(place, request, request.LANGUAGE_CODE)
-    place_reviews = list(place.reviews.filter(is_approved=True).order_by("-created_at"))
+    context = place_controller.build_detail_context(request, place=place, liked_ids=liked_ids)
 
     return render(
         request,
         "catalog/place_detail.html",
-        {
-            "place": place,
-            "language": request.LANGUAGE_CODE,
-            "meta_description": seo_payload["description"][:160],
-            "seo_image_url": seo_payload["first_image_url"],
-            "place_schema_json": seo_payload["schema_json"],
-            "map_embed_url": seo_payload["map_embed_url"],
-            "map_open_url": seo_payload["map_open_url"],
-            "place_reviews": place_reviews,
-            "reviews_count": len(place_reviews),
-        },
+        context,
     )
 
 
