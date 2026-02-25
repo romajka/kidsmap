@@ -12,7 +12,7 @@
 {% block content %}
   <section class="detail-wrap">
     <div>
-      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Назад" %}</a>
+      <a class="link-btn detail-back-btn" href="{% url 'place_list' %}">{% trans "Назад" %}</a>
     </div>
 
     <article class="detail-block">
@@ -55,11 +55,11 @@
       </form>
       <div class="card-cta-row">
         {% if place.phone1 %}
-          <a class="btn" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
-          <a class="link-btn" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="cta-btn cta-call" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
+          <a class="cta-btn cta-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener">WhatsApp</a>
         {% endif %}
         {% if place.instagram %}
-          <a class="link-btn" href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+          <a class="cta-btn cta-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
         {% endif %}
       </div>
       <div class="detail-meta-grid">
@@ -88,6 +88,11 @@
             <div class="meta-value">{{ place.address }}</div>
           </div>
         {% endif %}
+
+        <div class="detail-meta-item">
+          <span class="meta-label">{% trans "Добавлено" %}</span>
+          <div class="meta-value">{{ place.created_at|date:"d.m.Y" }}</div>
+        </div>
 
         {% if place.age_from or place.age_to %}
           <div class="detail-meta-item">

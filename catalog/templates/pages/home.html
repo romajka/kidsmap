@@ -88,6 +88,7 @@
             <div class="card-body">
               <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
               <div class="chip">{{ place.get_category_display }}</div>
+              <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
               <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}" />

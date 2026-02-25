@@ -1,17 +1,22 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Каталог" %}{% endblock %}
-{% block title_plain %}{% trans "Каталог" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Каталог" %} | KidsMap{% endblock %}
+{% block title %}{% if is_new_page %}{% trans "Новое" %}{% else %}{% trans "Каталог" %}{% endif %}{% endblock %}
+{% block title_plain %}{% if is_new_page %}{% trans "Новое" %}{% else %}{% trans "Каталог" %}{% endif %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% if is_new_page %}{% trans "Новое" %}{% else %}{% trans "Каталог" %}{% endif %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
   <section class="hero">
     <div class="hero-art" aria-hidden="true"></div>
     <div class="hero-text">
-      <h1>{% trans "Каталог" %}</h1>
-      <p>{% trans "Найдите лучшие занятия для ребенка" %}</p>
+      {% if is_new_page %}
+        <h1>{% trans "Новое в каталоге" %}</h1>
+        <p>{% trans "Только недавно добавленные кружки и курсы." %}</p>
+      {% else %}
+        <h1>{% trans "Каталог" %}</h1>
+        <p>{% trans "Найдите лучшие занятия для ребенка" %}</p>
+      {% endif %}
     </div>
   </section>
 
@@ -78,7 +83,7 @@
 
       <div class="actions">
         <button class="btn" type="submit">{% trans "Поиск" %}</button>
-        <a class="link-btn" href="{% url 'place_list' %}">{% trans "Сброс" %}</a>
+        <a class="link-btn" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
       </div>
     </form>
 
@@ -126,6 +131,7 @@
                 {% if place.price_to %}{{ place.price_to }}{% endif %} AZN
               </p>
             {% endif %}
+            <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
             <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}" />
@@ -135,10 +141,10 @@
             </form>
             <div class="card-cta-row">
               {% if place.phone1 %}
-                <a class="link-btn" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
+                <a class="cta-btn cta-call" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
               {% endif %}
               {% if place.instagram %}
-                <a class="link-btn" href="{{ place.instagram_url }}" target="_blank" rel="noopener">{% trans "Instagram" %}</a>
+                <a class="cta-btn cta-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">{% trans "Instagram" %}</a>
               {% endif %}
             </div>
             <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
@@ -159,7 +165,7 @@
         <h2>{% trans "Ничего не найдено." %}</h2>
       {% endif %}
       <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
-      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Сброс" %}</a>
+      <a class="link-btn" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
     </section>
   {% endif %}
 

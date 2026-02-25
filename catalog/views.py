@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta
 
 from django.conf import settings
 from django.db import transaction
@@ -9,6 +10,7 @@ from django.shortcuts import redirect
 from django.http import Http404
 from django.http import JsonResponse
 from django.core.paginator import Paginator
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 from .models import Place, PlaceLike
 
@@ -224,7 +226,18 @@ def home(request):
 
 
 def place_list(request):
+    return _render_place_list(request)
+
+
+def place_new(request):
+    recent_cutoff = timezone.now() - timedelta(days=30)
+    return _render_place_list(request, force_new_only=True, created_after=recent_cutoff)
+
+
+def _render_place_list(request, force_new_only: bool = False, created_after=None):
     qs = Place.objects.filter(is_active=True)
+    if created_after is not None:
+        qs = qs.filter(created_at__gte=created_after)
     session_key = _session_key(request)
     liked_ids = set(PlaceLike.objects.filter(session_key=session_key).values_list("place_id", flat=True))
 
@@ -237,6 +250,8 @@ def place_list(request):
     price_to = request.GET.get("price_to", "").strip()
     price_max = request.GET.get("price_max", "").strip()
     sort = request.GET.get("sort", "new").strip()
+    if force_new_only:
+        sort = "new"
 
     if category:
         qs = qs.filter(category=category)
@@ -290,7 +305,11 @@ def place_list(request):
         "page_obj": page_obj,
         "language": request.LANGUAGE_CODE,
         "query_without_page": query_without_page,
-        "meta_description": "Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене.",
+        "meta_description": (
+            "Новые кружки и курсы в Баку за последние 30 дней. Смотрите свежие добавления на KidsMap."
+            if force_new_only
+            else "Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене."
+        ),
         "selected": {
             "category": category,
             "q": query,
@@ -304,6 +323,7 @@ def place_list(request):
         "categories": Place.CATEGORY_CHOICES,
         "district_options": BAKU_DISTRICTS,
         "metro_options": BAKU_METRO_STATIONS,
+        "is_new_page": force_new_only,
     }
     _set_liked_flags(context["places"], liked_ids)
     return render(request, "catalog/place_list.html", context)

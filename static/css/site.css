@@ -503,10 +503,65 @@ main {
 }
 
 .card-cta-row {
-  margin-top: 8px;
+  margin-top: 10px;
+  margin-bottom: 14px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+}
+
+.cta-btn {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 800;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 118px;
+  border: 1px solid transparent;
+  box-shadow: 0 7px 14px rgba(27, 62, 44, 0.18);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+}
+
+.cta-btn:active {
+  transform: translateY(2px) scale(0.98);
+}
+
+.cta-call {
+  background: linear-gradient(180deg, #45cc64, #1fa94b);
+  border-color: #1f9a45;
+}
+
+.cta-whatsapp {
+  background: linear-gradient(180deg, #39d670, #1fb85a);
+  border-color: #1fa352;
+}
+
+.cta-instagram {
+  background: linear-gradient(135deg, #f58529, #dd2a7b 45%, #8134af 78%, #515bd4);
+  border-color: #a9358e;
+}
+
+.detail-back-btn {
+  background: #ffffff;
+  border: 1px solid #b8d8c1;
+  color: #1f5f42;
+  box-shadow: 0 7px 14px rgba(49, 95, 68, 0.18);
+  font-weight: 800;
+}
+
+.detail-back-btn:hover {
+  background: #f7fff9;
 }
 
 .like-form {

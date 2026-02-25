@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import home, place_list, place_detail, place_detail_legacy, toggle_place_like, seo_landing, about, contacts
+from .views import home, place_list, place_new, place_detail, place_detail_legacy, toggle_place_like, seo_landing, about, contacts
 
 urlpatterns = [
     path("", home, name="home"),
     path("catalog/", place_list, name="place_list"),
+    path("catalog/new/", place_new, name="place_new"),
     path("catalog/<slug:seo_slug>/", seo_landing, name="seo_landing"),
     path("about/", about, name="about"),
     path("contacts/", contacts, name="contacts"),
