@@ -2119,6 +2119,26 @@ main {
 }
 
 @media (max-width: 760px) {
+  body.page-home {
+    background-attachment: scroll, scroll, scroll, scroll;
+  }
+
+  .page-home .hero-cloud,
+  .page-home .hero-mascot,
+  .page-home .hero-plane {
+    display: none;
+  }
+
+  .page-home .home-hero,
+  .page-home .panel,
+  .page-home .topbar {
+    box-shadow: 0 5px 12px rgba(34, 79, 55, 0.1);
+  }
+
+  .page-home .home-map {
+    height: 300px;
+  }
+
   .site-shell {
     width: calc(100% - 14px);
     margin-top: 8px;

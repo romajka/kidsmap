@@ -26,7 +26,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/site.css' %}" />
   </head>
-  <body {% if site_settings and site_settings.site_background_image %}style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url }}');"{% endif %}>
+  <body
+    class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
+    {% if site_settings and site_settings.site_background_image %}style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url }}');"{% endif %}
+  >
     <div class="site-shell">
       <header class="topbar">
         <a class="brand-wrap" href="{% url 'home' %}">

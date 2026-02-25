@@ -51,25 +51,46 @@
   <section class="home-trust panel">
     <h2>{% trans "Почему нам доверяют" %}</h2>
     <div class="trust-score">
-      <strong>4.9</strong>
+      <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.9{% endif %}</strong>
       <span class="trust-stars" aria-hidden="true">★★★★★</span>
-      <span>{% trans "удобный выбор для родителей" %}</span>
+      <span>
+        {% if site_reviews_count %}
+          {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва о сервисе{% plural %}на основе {{ total }} отзывов о сервисе{% endblocktrans %}
+        {% else %}
+          {% trans "удобный выбор для родителей" %}
+        {% endif %}
+      </span>
     </div>
     <div class="trust-reviews">
-      <article class="trust-card">
-        <div class="trust-avatar" aria-hidden="true">👩</div>
-        <div>
-          <h3>{% trans "Алина К." %}</h3>
-          <p>{% trans "Очень легко нашли кружок рядом с домом и быстро связались." %}</p>
-        </div>
-      </article>
-      <article class="trust-card">
-        <div class="trust-avatar" aria-hidden="true">👨</div>
-        <div>
-          <h3>{% trans "Игорь С." %}</h3>
-          <p>{% trans "Сравнили варианты по цене и возрасту, выбрали лучший за 10 минут." %}</p>
-        </div>
-      </article>
+      {% if site_reviews %}
+        {% for review in site_reviews|slice:":2" %}
+          <article class="trust-card">
+            <div class="trust-avatar" aria-hidden="true">{% if review.is_anonymous %}🕶️{% else %}👤{% endif %}</div>
+            <div>
+              <h3>{% if review.is_anonymous %}{% trans "Аноним" %}{% else %}{% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %}{% endif %}</h3>
+              <p>
+                <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
+                {% if review.text %} {{ review.text|truncatechars:90 }}{% endif %}
+              </p>
+            </div>
+          </article>
+        {% endfor %}
+      {% else %}
+        <article class="trust-card">
+          <div class="trust-avatar" aria-hidden="true">👩</div>
+          <div>
+            <h3>{% trans "Алина К." %}</h3>
+            <p>{% trans "Очень легко нашли кружок рядом с домом и быстро связались." %}</p>
+          </div>
+        </article>
+        <article class="trust-card">
+          <div class="trust-avatar" aria-hidden="true">👨</div>
+          <div>
+            <h3>{% trans "Игорь С." %}</h3>
+            <p>{% trans "Сравнили варианты по цене и возрасту, выбрали лучший за 10 минут." %}</p>
+          </div>
+        </article>
+      {% endif %}
     </div>
     <div class="home-grid2">
       <p>{% trans "Проверенные и активные места" %}</p>
@@ -78,6 +99,7 @@
       <p>{% trans "Удобно на телефоне и компьютере" %}</p>
     </div>
   </section>
+
 
   <section class="home-categories panel">
     <h2>{% trans "Популярные категории" %}</h2>
@@ -166,8 +188,60 @@
     <a class="btn" href="{% url 'place_list' %}">{% trans "Начать поиск" %}</a>
   </section>
 
+  <section id="site-reviews" class="panel">
+    <h2>{% trans "Понравился сайт? Оставьте отзыв" %}</h2>
+    {% if messages %}
+      <div class="review-messages">
+        {% for message in messages %}
+          <p class="review-message {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <form method="post" action="{% url 'add_site_review' %}" class="review-form">
+      {% csrf_token %}
+      <div class="review-form-grid">
+        <label>
+          {% trans "Ваша оценка" %}
+          <input type="hidden" name="rating" value="5" data-rating-input />
+          <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
+            <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
+            <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
+            <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
+            <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
+            <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
+          </div>
+        </label>
+        <label>
+          {% trans "Ваше имя" %}
+          <input class="field" type="text" name="author_name" maxlength="80" placeholder="{% trans 'например Алина' %}" />
+        </label>
+        <label class="review-anon">
+          <input type="checkbox" name="is_anonymous" value="1" />
+          <span>{% trans "Оставить анонимно" %}</span>
+        </label>
+      </div>
+      <label>
+        {% trans "Текст отзыва" %}
+        <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось в сервисе?' %}"></textarea>
+      </label>
+      <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
+    </form>
+  </section>
+
   {% if map_places and google_maps_api_key %}
     <script>
+      let homeMapApiLoaded = false;
+
+      function loadHomeGoogleMapsApi() {
+        if (homeMapApiLoaded) return;
+        homeMapApiLoaded = true;
+        const script = document.createElement("script");
+        script.src = "https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initHomeGoogleMap";
+        script.async = true;
+        script.defer = true;
+        document.body.appendChild(script);
+      }
+
       function initHomeGoogleMap() {
         const mapEl = document.getElementById("home-map");
         const dataEl = document.getElementById("home-map-data");
@@ -213,7 +287,61 @@
           });
         }
       }
+
+      (function () {
+        const mapEl = document.getElementById("home-map");
+        if (!mapEl) return;
+
+        if (!("IntersectionObserver" in window)) {
+          loadHomeGoogleMapsApi();
+          return;
+        }
+
+        const observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) return;
+              loadHomeGoogleMapsApi();
+              observer.disconnect();
+            });
+          },
+          { rootMargin: "280px 0px" }
+        );
+        observer.observe(mapEl);
+      })();
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initHomeGoogleMap" async defer></script>
   {% endif %}
+
+  <script>
+    (function () {
+      document.querySelectorAll("[data-review-stars]").forEach(function (picker) {
+        const input = picker.parentElement.querySelector("[data-rating-input]");
+        if (!input) return;
+        const stars = Array.from(picker.querySelectorAll(".review-star"));
+
+        function paint(value) {
+          stars.forEach((star, idx) => {
+            star.classList.toggle("active", idx < value);
+          });
+        }
+
+        stars.forEach((star) => {
+          const value = Number(star.dataset.value || 0);
+          star.addEventListener("mouseenter", function () {
+            paint(value);
+          });
+          star.addEventListener("click", function () {
+            input.value = String(value);
+            paint(value);
+          });
+        });
+
+        picker.addEventListener("mouseleave", function () {
+          paint(Number(input.value || 0));
+        });
+
+        paint(Number(input.value || 0));
+      });
+    })();
+  </script>
 {% endblock %}

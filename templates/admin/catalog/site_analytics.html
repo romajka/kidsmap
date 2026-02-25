@@ -1,0 +1,101 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div id="content-main">
+    <div class="module" style="padding:14px;">
+      <h2 style="margin-top:0;">{% trans "Общая статистика" %}</h2>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
+        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+          <h3 style="margin:0 0 8px;">{% trans "Кружки и курсы" %}</h3>
+          <div><b>{% trans "Всего" %}:</b> {{ places_stats.total }}</div>
+          <div><b>{% trans "Активные" %}:</b> {{ places_stats.active }}</div>
+          <div><b>{% trans "Проверенные" %}:</b> {{ places_stats.verified }}</div>
+          <div><b>{% trans "Новые за 7 дней" %}:</b> {{ places_stats.new_7 }}</div>
+          <div><b>{% trans "Новые за 30 дней" %}:</b> {{ places_stats.new_30 }}</div>
+          <div><b>{% trans "Всего лайков" %}:</b> {{ places_stats.likes_total }}</div>
+          <div><b>{% trans "Средний рейтинг" %}:</b> {{ places_stats.avg_rating }}</div>
+        </div>
+
+        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+          <h3 style="margin:0 0 8px;">{% trans "Отзывы по кружкам" %}</h3>
+          <div><b>{% trans "Всего" %}:</b> {{ place_reviews_stats.total }}</div>
+          <div><b>{% trans "Одобрено" %}:</b> {{ place_reviews_stats.approved }}</div>
+          <div><b>{% trans "Скрыто" %}:</b> {{ place_reviews_stats.pending }}</div>
+          <div><b>{% trans "Средняя оценка" %}:</b> {{ place_reviews_stats.avg_rating }}</div>
+          <div style="margin-top:8px;">
+            <a href="{% url 'admin:catalog_placereview_changelist' %}">{% trans "Открыть отзывы по кружкам" %}</a>
+          </div>
+        </div>
+
+        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+          <h3 style="margin:0 0 8px;">{% trans "Отзывы о сайте" %}</h3>
+          <div><b>{% trans "Всего" %}:</b> {{ site_reviews_stats.total }}</div>
+          <div><b>{% trans "Одобрено" %}:</b> {{ site_reviews_stats.approved }}</div>
+          <div><b>{% trans "Скрыто" %}:</b> {{ site_reviews_stats.pending }}</div>
+          <div><b>{% trans "Средняя оценка" %}:</b> {{ site_reviews_stats.avg_rating }}</div>
+          <div style="margin-top:8px;">
+            <a href="{% url 'admin:catalog_sitereview_changelist' %}">{% trans "Открыть отзывы о сайте" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Топ категорий" %}</h2>
+      {% if top_categories %}
+        <ul style="margin:10px 0 0;padding-left:18px;">
+          {% for item in top_categories %}
+            <li>{{ item.name }} — {{ item.total }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Топ районов" %}</h2>
+      {% if top_districts %}
+        <ul style="margin:10px 0 0;padding-left:18px;">
+          {% for item in top_districts %}
+            <li>{{ item.district }} — {{ item.total }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Последние добавленные кружки" %}</h2>
+      {% if recent_places %}
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Название" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Категория" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Район" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Дата" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for place in recent_places %}
+              <tr>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">
+                  <a href="{% url 'admin:catalog_place_change' place.pk %}">{{ place.name_ru|default:place.name }}</a>
+                </td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ place.get_category_display }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ place.district|default:"-" }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ place.created_at|date:"d.m.Y H:i" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

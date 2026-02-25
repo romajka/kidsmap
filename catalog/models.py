@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.utils.text import slugify
 from django.urls import reverse
+from django.utils import timezone
 
 
 class Place(models.Model):
@@ -420,6 +421,40 @@ class SiteEmptyStateSettings(SiteSettings):
         proxy = True
         verbose_name = _("Пустой результат")
         verbose_name_plural = _("Пустой результат")
+
+
+class SiteAnalytics(SiteSettings):
+    class Meta:
+        proxy = True
+        verbose_name = _("Статистика")
+        verbose_name_plural = _("Статистика")
+
+
+class SiteVisit(models.Model):
+    day = models.DateField(_("День"), db_index=True)
+    session_key = models.CharField(_("Сессия"), max_length=64, db_index=True)
+    hits = models.PositiveIntegerField(_("Просмотры"), default=1)
+    first_path = models.CharField(_("Первый путь"), max_length=255, blank=True, default="")
+    created_at = models.DateTimeField(_("Создано"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Посещение")
+        verbose_name_plural = _("Посещения")
+        constraints = [
+            models.UniqueConstraint(
+                fields=("day", "session_key"),
+                name="unique_site_visit_per_day_session",
+            ),
+        ]
+        ordering = ("-day", "-hits")
+
+    def __str__(self):
+        return f"{self.day} / {self.session_key} / {self.hits}"
+
+    @classmethod
+    def today(cls):
+        return timezone.localdate()
 
 
 class CatalogContentSettings(models.Model):

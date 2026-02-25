@@ -1,14 +1,16 @@
 from django.conf import settings
 from django.contrib import messages
+from django.db.models import Avg
 from django.core.paginator import Paginator
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from .content_data import HOME_CATEGORIES
-from .models import CatalogContentSettings, Place
+from .models import CatalogContentSettings, Place, SiteReview
 from .services.filtering import PlaceListFilters, build_new_page_stats
 from .services.reactions import (
     create_or_update_review,
@@ -37,6 +39,11 @@ def home(request):
         for place in Place.objects.filter(is_active=True).exclude(lat__isnull=True).exclude(lng__isnull=True)
     ]
 
+    site_reviews_qs = SiteReview.objects.filter(is_approved=True).order_by("-created_at")
+    site_reviews = list(site_reviews_qs[:4])
+    site_reviews_avg = site_reviews_qs.aggregate(avg=Avg("rating")).get("avg") or 0
+    site_reviews_count = site_reviews_qs.count()
+
     return render(
         request,
         "pages/home.html",
@@ -46,6 +53,9 @@ def home(request):
             "seo_pages": seo_pages,
             "popular_places": popular_places,
             "map_places": map_places,
+            "site_reviews": site_reviews,
+            "site_reviews_avg": float(site_reviews_avg),
+            "site_reviews_count": site_reviews_count,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         },
     )
@@ -200,6 +210,68 @@ def add_place_review(request, pk):
         messages.success(request, _("Спасибо! Ваш отзыв добавлен."))
 
     return redirect(f"{place.get_absolute_url()}#reviews")
+
+
+@require_POST
+def add_site_review(request):
+    if getattr(settings, "REVIEWS_REQUIRE_AUTH", False) and not request.user.is_authenticated:
+        messages.error(request, _("Оставлять отзывы могут только зарегистрированные пользователи."))
+        return redirect(f"{reverse('home')}#site-reviews")
+
+    rating_raw = (request.POST.get("rating") or "").strip()
+    review_text = (request.POST.get("text") or "").strip()
+    author_name = (request.POST.get("author_name") or "").strip()
+    is_anonymous = request.POST.get("is_anonymous") == "1"
+
+    try:
+        rating = int(rating_raw)
+    except (TypeError, ValueError):
+        rating = 0
+
+    if rating < 1 or rating > 5:
+        messages.error(request, _("Пожалуйста, выберите оценку от 1 до 5."))
+        return redirect(f"{reverse('home')}#site-reviews")
+
+    if is_anonymous:
+        author_name = ""
+    elif not author_name:
+        author_name = "Гость"
+
+    if not request.session.session_key:
+        request.session.save()
+    session_key = request.session.session_key or ""
+
+    if request.user.is_authenticated:
+        review = SiteReview.objects.filter(user=request.user).first()
+    else:
+        review = SiteReview.objects.filter(user__isnull=True, session_key=session_key).first()
+
+    if review:
+        review.rating = rating
+        review.text = review_text
+        review.author_name = author_name
+        review.is_anonymous = is_anonymous
+        review.is_approved = True
+        review.save()
+        created = False
+    else:
+        SiteReview.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            rating=rating,
+            text=review_text,
+            author_name=author_name,
+            is_anonymous=is_anonymous,
+            session_key=session_key,
+            is_approved=True,
+        )
+        created = True
+
+    if request.user.is_authenticated and not created:
+        messages.success(request, _("Спасибо! Ваша оценка сайта обновлена."))
+    else:
+        messages.success(request, _("Спасибо! Ваша оценка сайта сохранена."))
+
+    return redirect(f"{reverse('home')}#site-reviews")
 
 
 def seo_landing(request, seo_slug):
