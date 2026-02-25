@@ -10,6 +10,9 @@
   <section class="home-hero panel" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
     <span class="hero-cloud cloud-left" aria-hidden="true"></span>
     <span class="hero-cloud cloud-right" aria-hidden="true"></span>
+    <span class="hero-mascot mascot-left" aria-hidden="true">🧸</span>
+    <span class="hero-mascot mascot-right" aria-hidden="true">🧸</span>
+    <span class="hero-plane" aria-hidden="true">✈️</span>
     <h1>{% trans "Найдите кружок для ребёнка в Баку" %}</h1>
     <p>{% trans "Спорт, творчество, музыка, образование — всё в одном месте." %}</p>
     <form class="home-search" method="get" action="{% url 'place_list' %}">
@@ -26,16 +29,53 @@
     <div class="home-grid3 home-steps-flow">
       <article class="home-tile step-1">
         <p class="step-label">{% trans "Шаг" %} 1</p>
+        <div class="step-emoji" aria-hidden="true">🔎</div>
         <h3>{% trans "Выберите категорию и район" %}</h3>
+        <p>{% trans "Выберите интересы и место" %}</p>
       </article>
       <article class="home-tile step-2">
         <p class="step-label">{% trans "Шаг" %} 2</p>
+        <div class="step-emoji" aria-hidden="true">✅</div>
         <h3>{% trans "Сравните кружки по возрасту и цене" %}</h3>
+        <p>{% trans "Сравните карточки и отзывы" %}</p>
       </article>
       <article class="home-tile step-3">
         <p class="step-label">{% trans "Шаг" %} 3</p>
+        <div class="step-emoji" aria-hidden="true">📅</div>
         <h3>{% trans "Откройте карточку и свяжитесь с местом" %}</h3>
+        <p>{% trans "Запишитесь быстро и удобно" %}</p>
       </article>
+    </div>
+  </section>
+
+  <section class="home-trust panel">
+    <h2>{% trans "Почему нам доверяют" %}</h2>
+    <div class="trust-score">
+      <strong>4.9</strong>
+      <span class="trust-stars" aria-hidden="true">★★★★★</span>
+      <span>{% trans "удобный выбор для родителей" %}</span>
+    </div>
+    <div class="trust-reviews">
+      <article class="trust-card">
+        <div class="trust-avatar" aria-hidden="true">👩</div>
+        <div>
+          <h3>{% trans "Алина К." %}</h3>
+          <p>{% trans "Очень легко нашли кружок рядом с домом и быстро связались." %}</p>
+        </div>
+      </article>
+      <article class="trust-card">
+        <div class="trust-avatar" aria-hidden="true">👨</div>
+        <div>
+          <h3>{% trans "Игорь С." %}</h3>
+          <p>{% trans "Сравнили варианты по цене и возрасту, выбрали лучший за 10 минут." %}</p>
+        </div>
+      </article>
+    </div>
+    <div class="home-grid2">
+      <p>{% trans "Проверенные и активные места" %}</p>
+      <p>{% trans "Фильтры по возрасту, району и цене" %}</p>
+      <p>{% trans "Быстрый переход к звонку и Instagram" %}</p>
+      <p>{% trans "Удобно на телефоне и компьютере" %}</p>
     </div>
   </section>
 
@@ -68,8 +108,8 @@
   {% endif %}
 
   {% if popular_places %}
-    <section class="panel">
-      <h2>{% trans "Популярные курсы" %}</h2>
+    <section class="panel home-recommended">
+      <h2>{% trans "Рекомендуемые кружки" %}</h2>
       <div class="grid">
         {% for place in popular_places %}
           <article class="card">
@@ -88,6 +128,12 @@
             <div class="card-body">
               <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
               <div class="chip">{{ place.get_category_display }}</div>
+              <div class="rating-row">
+                <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+                <span class="rating-text">
+                  {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
+                </span>
+              </div>
               <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
               <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
                 {% csrf_token %}
@@ -104,24 +150,14 @@
     </section>
   {% endif %}
 
-  <section class="home-trust panel">
-    <h2>{% trans "Почему нам доверяют" %}</h2>
-    <div class="home-grid2">
-      <p>{% trans "Проверенные и активные места" %}</p>
-      <p>{% trans "Фильтры по возрасту, району и цене" %}</p>
-      <p>{% trans "Быстрый переход к звонку и Instagram" %}</p>
-      <p>{% trans "Удобно на телефоне и компьютере" %}</p>
-    </div>
-  </section>
-
   <section class="panel">
     <h2>{% trans "Популярные запросы" %}</h2>
     <div class="home-grid2">
-      <a class="link-btn" href="{% url 'seo_landing' 'kruzhki-v-baku' %}">{% trans "Кружки в Баку для детей" %}</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'kursy-dlya-detey-v-baku' %}">{% trans "Курсы для детей в Баку" %}</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'sportivnye-sekcii-v-baku' %}">{% trans "Спортивные секции в Баку" %}</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'tvorcheskie-kruzhki-v-baku' %}">{% trans "Творческие кружки в Баку" %}</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'programmirovanie-dlya-detey-baku' %}">{% trans "Программирование для детей в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Кружки в Баку для детей" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Баку" %}</a>
     </div>
   </section>
 

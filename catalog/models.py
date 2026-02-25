@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Avg, Count, Q
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.utils.text import slugify
@@ -46,6 +48,8 @@ class Place(models.Model):
     price_from = models.IntegerField(_("Цена от"), null=True, blank=True)
     price_to = models.IntegerField(_("Цена до"), null=True, blank=True)
     likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
+    rating_avg = models.FloatField(_("Средний рейтинг"), default=0)
+    rating_count = models.PositiveIntegerField(_("Количество отзывов"), default=0)
 
     is_active = models.BooleanField(_("Активно"), default=True)
     is_verified = models.BooleanField(_("Проверено"), default=False)
@@ -131,6 +135,12 @@ class Place(models.Model):
             self.slug = self._build_unique_slug()
         super().save(*args, **kwargs)
 
+    def refresh_rating_stats(self):
+        stats = self.reviews.filter(is_approved=True).aggregate(avg=Avg("rating"), cnt=Count("id"))
+        self.rating_avg = float(stats.get("avg") or 0)
+        self.rating_count = int(stats.get("cnt") or 0)
+        self.save(update_fields=["rating_avg", "rating_count"])
+
     class Meta:
         ordering = ("-created_at",)
         verbose_name = _("Кружок/курс")
@@ -154,18 +164,119 @@ class PlacePhoto(models.Model):
 
 class PlaceLike(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="place_likes", verbose_name=_("Место"))
-    session_key = models.CharField(_("Сессия"), max_length=64, db_index=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="place_likes",
+        verbose_name=_("Пользователь"),
+        null=True,
+        blank=True,
+    )
+    session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=("place", "session_key"), name="unique_place_like_per_session"),
+            models.UniqueConstraint(
+                fields=("place", "session_key"),
+                condition=~Q(session_key=""),
+                name="unique_place_like_per_session",
+            ),
+            models.UniqueConstraint(
+                fields=("place", "user"),
+                condition=Q(user__isnull=False),
+                name="unique_place_like_per_user",
+            ),
         ]
         verbose_name = _("Лайк")
         verbose_name_plural = _("Лайки")
 
     def __str__(self):
         return f"{self.place_id}:{self.session_key}"
+
+
+class PlaceReview(models.Model):
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="reviews", verbose_name=_("Место"))
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="place_reviews",
+        verbose_name=_("Пользователь"),
+        null=True,
+        blank=True,
+    )
+    author_name = models.CharField(_("Имя"), max_length=80, blank=True)
+    is_anonymous = models.BooleanField(_("Анонимно"), default=False)
+    rating = models.PositiveSmallIntegerField(_("Оценка"), default=5)
+    text = models.TextField(_("Отзыв"))
+    is_approved = models.BooleanField(_("Одобрен"), default=True)
+    session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
+    created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=("place", "user"),
+                condition=Q(user__isnull=False),
+                name="unique_place_review_per_user",
+            ),
+        ]
+        verbose_name = _("Отзыв по кружку")
+        verbose_name_plural = _("Отзывы по кружкам")
+
+    def __str__(self):
+        return f"{self.place_id}:{self.rating}"
+
+    def save(self, *args, **kwargs):
+        self.rating = min(max(int(self.rating or 1), 1), 5)
+        super().save(*args, **kwargs)
+        self.place.refresh_rating_stats()
+
+    def delete(self, *args, **kwargs):
+        place = self.place
+        super().delete(*args, **kwargs)
+        place.refresh_rating_stats()
+
+
+class SiteReview(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="site_reviews",
+        verbose_name=_("Пользователь"),
+        null=True,
+        blank=True,
+    )
+    author_name = models.CharField(_("Имя"), max_length=80, blank=True)
+    is_anonymous = models.BooleanField(_("Анонимно"), default=False)
+    rating = models.PositiveSmallIntegerField(_("Оценка"), default=5)
+    text = models.TextField(_("Отзыв"), blank=True)
+    is_approved = models.BooleanField(_("Одобрен"), default=True)
+    session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
+    created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user",),
+                condition=Q(user__isnull=False),
+                name="unique_site_review_per_user",
+            ),
+        ]
+        verbose_name = _("Отзыв")
+        verbose_name_plural = _("Отзывы")
+
+    def __str__(self):
+        who = _("Аноним") if self.is_anonymous else (self.author_name or _("Гость"))
+        return f"{who}: {self.rating}"
+
+    def save(self, *args, **kwargs):
+        self.rating = min(max(int(self.rating or 1), 1), 5)
+        super().save(*args, **kwargs)
 
 
 class SiteSettings(models.Model):
@@ -309,3 +420,52 @@ class SiteEmptyStateSettings(SiteSettings):
         proxy = True
         verbose_name = _("Пустой результат")
         verbose_name_plural = _("Пустой результат")
+
+
+class CatalogContentSettings(models.Model):
+    districts_json = models.JSONField(_("Районы (JSON)"), default=list, blank=True)
+    metro_stations_json = models.JSONField(_("Станции метро (JSON)"), default=list, blank=True)
+    seo_pages_json = models.JSONField(_("SEO страницы (JSON)"), default=dict, blank=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    @classmethod
+    def get_solo(cls):
+        obj = cls.objects.order_by("id").first()
+        if obj:
+            return obj
+        return cls.objects.create()
+
+    def districts(self):
+        if isinstance(self.districts_json, list) and self.districts_json:
+            return self.districts_json
+        from .content_data import BAKU_DISTRICTS
+
+        return BAKU_DISTRICTS
+
+    def metro_stations(self):
+        if isinstance(self.metro_stations_json, list) and self.metro_stations_json:
+            return self.metro_stations_json
+        from .content_data import BAKU_METRO_STATIONS
+
+        return BAKU_METRO_STATIONS
+
+    def seo_pages(self):
+        if isinstance(self.seo_pages_json, dict) and self.seo_pages_json:
+            return self.seo_pages_json
+        from .content_data import SEO_LANDING_PAGES
+
+        return SEO_LANDING_PAGES
+
+    class Meta:
+        verbose_name = _("Контент каталога")
+        verbose_name_plural = _("Контент каталога")
+
+    def __str__(self):
+        return _("Контент каталога")
+
+
+class PlaceReviewsByClub(Place):
+    class Meta:
+        proxy = True
+        verbose_name = _("Рейтинг кружка")
+        verbose_name_plural = _("Рейтинг кружков")

@@ -22,6 +22,7 @@
 
   <section class="panel filter-panel">
     <form method="get" class="filters">
+      <input type="hidden" name="view" value="{{ selected.view|default:'grid' }}" />
       <label class="filters-search">
         {% trans "Поиск по названию" %}
         <input class="field search-field" name="q" value="{{ selected.q }}" placeholder="{% trans 'например робототехника или english' %}" />
@@ -48,38 +49,103 @@
       </label>
 
       <label>
-        {% trans "Метро" %}
-        <select class="filter-select" name="metro">
+        {% trans "Рейтинг не ниже" %}
+        <select class="filter-select" name="min_rating">
           <option value="">{% trans "Все" %}</option>
-          {% for metro_name in metro_options %}
-            <option value="{{ metro_name }}" {% if selected.metro == metro_name %}selected{% endif %}>{{ metro_name }}</option>
-          {% endfor %}
+          <option value="3" {% if selected.min_rating == "3" %}selected{% endif %}>3.0+</option>
+          <option value="4" {% if selected.min_rating == "4" %}selected{% endif %}>4.0+</option>
+          <option value="4.5" {% if selected.min_rating == "4.5" %}selected{% endif %}>4.5+</option>
+          <option value="5" {% if selected.min_rating == "5" %}selected{% endif %}>5.0</option>
         </select>
       </label>
 
-      <label>
-        {% trans "Возраст" %}
-        <input class="field" name="age" value="{{ selected.age }}" size="4" placeholder="{% trans 'например 8' %}" />
-      </label>
+      {% if is_new_page %}
+        <label>
+          {% trans "Период" %}
+          <select class="filter-select" name="days">
+            <option value="7" {% if selected.days == "7" %}selected{% endif %}>{% trans "За 7 дней" %}</option>
+            <option value="14" {% if selected.days == "14" %}selected{% endif %}>{% trans "За 14 дней" %}</option>
+            <option value="30" {% if selected.days == "30" %}selected{% endif %}>{% trans "За 30 дней" %}</option>
+          </select>
+        </label>
 
-      <label>
-        {% trans "Цена от" %}
-        <input class="field" name="price_from" value="{{ selected.price_from }}" size="6" placeholder="{% trans 'например 100' %}" />
-      </label>
+        <label>
+          {% trans "Только с фото" %}
+          <select class="filter-select" name="with_photo">
+            <option value="">{% trans "Все" %}</option>
+            <option value="1" {% if selected.with_photo == "1" %}selected{% endif %}>{% trans "Да" %}</option>
+          </select>
+        </label>
 
-      <label>
-        {% trans "Цена до" %}
-        <input class="field" name="price_to" value="{{ selected.price_to }}" size="6" placeholder="{% trans 'например 100' %}" />
-      </label>
+        <label>
+          {% trans "Только проверенные" %}
+          <select class="filter-select" name="verified">
+            <option value="">{% trans "Все" %}</option>
+            <option value="1" {% if selected.verified == "1" %}selected{% endif %}>{% trans "Да" %}</option>
+          </select>
+        </label>
+      {% else %}
+        <label>
+          {% trans "Метро" %}
+          <select class="filter-select" name="metro">
+            <option value="">{% trans "Все" %}</option>
+            {% for metro_name in metro_options %}
+              <option value="{{ metro_name }}" {% if selected.metro == metro_name %}selected{% endif %}>{{ metro_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
 
-      <label>
-        {% trans "Сортировка" %}
-        <select class="filter-select" name="sort">
-          <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% trans "Сначала новые" %}</option>
-          <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% trans "Цена по возрастанию" %}</option>
-          <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% trans "Цена по убыванию" %}</option>
-        </select>
-      </label>
+        <div class="range-filter" data-range data-min="0" data-max="18">
+          <div class="range-filter-head">
+            <span>{% trans "Возраст" %}</span>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <div class="range-filter-inputs">
+            <label class="range-filter-mini">
+              <span>{% trans "от" %}</span>
+              <input class="field" type="number" min="0" max="18" name="age_from" value="{{ selected.age_from|default:'0' }}" data-range-from-input />
+            </label>
+            <label class="range-filter-mini">
+              <span>{% trans "до" %}</span>
+              <input class="field" type="number" min="0" max="18" name="age_to" value="{{ selected.age_to|default:'18' }}" data-range-to-input />
+            </label>
+          </div>
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="18" value="{{ selected.age_from|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="18" value="{{ selected.age_to|default:'18' }}" data-range-to-range />
+          </div>
+        </div>
+
+        <div class="range-filter" data-range data-min="0" data-max="500" data-unit="AZN">
+          <div class="range-filter-head">
+            <span>{% trans "Цена" %}</span>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <div class="range-filter-inputs">
+            <label class="range-filter-mini">
+              <span>{% trans "от" %}</span>
+              <input class="field" type="number" min="0" max="500" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
+            </label>
+            <label class="range-filter-mini">
+              <span>{% trans "до" %}</span>
+              <input class="field" type="number" min="0" max="500" name="price_to" value="{{ selected.price_to|default:'500' }}" data-range-to-input />
+            </label>
+          </div>
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="500" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="500" value="{{ selected.price_to|default:'500' }}" data-range-to-range />
+          </div>
+        </div>
+
+        <label>
+          {% trans "Сортировка" %}
+          <select class="filter-select" name="sort">
+            <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% trans "Сначала новые" %}</option>
+            <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% trans "Цена по возрастанию" %}</option>
+            <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% trans "Цена по убыванию" %}</option>
+          </select>
+        </label>
+      {% endif %}
 
       <div class="actions">
         <button class="btn" type="submit">{% trans "Поиск" %}</button>
@@ -87,19 +153,149 @@
       </div>
     </form>
 
-    <div class="quick-filters">
+    <div class="quick-filters {% if is_new_page %}quick-filters-new{% endif %}">
       <span class="quick-filters-label">{% trans "Быстрые фильтры" %}:</span>
-      <a class="chip-link" href="{% url 'place_list' %}?category=TECH">{% trans "Технологии" %}</a>
-      <a class="chip-link" href="{% url 'place_list' %}?category=SPRT">{% trans "Спорт" %}</a>
-      <a class="chip-link" href="{% url 'place_list' %}?category=EDU">{% trans "Образование" %}</a>
-      <a class="chip-link" href="{% url 'place_list' %}?district=Ясамал">{% trans "Ясамал" %}</a>
-      <a class="chip-link" href="{% url 'place_list' %}?district=Нариманов">{% trans "Нариманов" %}</a>
-      <a class="chip-link" href="{% url 'place_list' %}?sort=new">{% trans "Сначала новые" %}</a>
+      {% if is_new_page %}
+        <div class="quick-filter-group">
+          <span class="quick-filter-group-title">{% trans "Период (1 вариант)" %}</span>
+          <a class="chip-link {% if selected.days == '7' %}active{% endif %}" href="{% url 'place_new' %}?days=7{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 7 дней" %}</a>
+          <a class="chip-link {% if selected.days == '14' %}active{% endif %}" href="{% url 'place_new' %}?days=14{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 14 дней" %}</a>
+          <a class="chip-link {% if selected.days == '30' %}active{% endif %}" href="{% url 'place_new' %}?days=30{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 30 дней" %}</a>
+        </div>
+        <div class="quick-filter-group">
+          <span class="quick-filter-group-title">{% trans "Рейтинг (1 вариант)" %}</span>
+          <a class="chip-link {% if not selected.min_rating %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Любой" %}</a>
+          <a class="chip-link {% if selected.min_rating == '4' %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}&min_rating=4{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">4.0+</a>
+          <a class="chip-link {% if selected.min_rating == '4.5' %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}&min_rating=4.5{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">4.5+</a>
+        </div>
+        <div class="quick-filter-group">
+          <span class="quick-filter-group-title">{% trans "Дополнительно (можно несколько)" %}</span>
+          {% if selected.with_photo == '1' %}
+            <a class="chip-link active" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Только с фото" %}</a>
+          {% else %}
+            <a class="chip-link" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}&with_photo=1{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Только с фото" %}</a>
+          {% endif %}
+          {% if selected.verified == '1' %}
+            <a class="chip-link active" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}">{% trans "Только проверенные" %}</a>
+          {% else %}
+            <a class="chip-link" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}&verified=1">{% trans "Только проверенные" %}</a>
+          {% endif %}
+        </div>
+      {% else %}
+        <a class="chip-link" href="{% url 'place_list' %}?category=TECH">{% trans "Технологии" %}</a>
+        <a class="chip-link" href="{% url 'place_list' %}?category=SPRT">{% trans "Спорт" %}</a>
+        <a class="chip-link" href="{% url 'place_list' %}?category=EDU">{% trans "Образование" %}</a>
+        <a class="chip-link {% if selected.min_rating == '4' %}active{% endif %}" href="{% url 'place_list' %}?min_rating=4">4.0+</a>
+        <a class="chip-link {% if selected.min_rating == '4.5' %}active{% endif %}" href="{% url 'place_list' %}?min_rating=4.5">4.5+</a>
+        <a class="chip-link" href="{% url 'place_list' %}?district=Ясамал">{% trans "Ясамал" %}</a>
+        <a class="chip-link" href="{% url 'place_list' %}?district=Нариманов">{% trans "Нариманов" %}</a>
+        <a class="chip-link" href="{% url 'place_list' %}?sort=new">{% trans "Сначала новые" %}</a>
+      {% endif %}
+    </div>
+
+    <p class="results-count">
+      {% blocktrans count total=page_obj.paginator.count %}
+        Найден {{ total }} кружок
+      {% plural %}
+        Найдено {{ total }} кружков
+      {% endblocktrans %}
+    </p>
+    <div class="view-switch" role="group" aria-label="{% trans 'Вид карточек' %}">
+      <a
+        class="chip-link {% if selected.view != 'list' %}active{% endif %}"
+        href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=grid"
+      >{% trans "Обычные карточки" %}</a>
+      <a
+        class="chip-link {% if selected.view == 'list' %}active{% endif %}"
+        href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=list"
+      >{% trans "Карточки списком" %}</a>
     </div>
   </section>
 
+  {% if is_new_page %}
+    <section class="panel new-stats">
+      <h2>{% blocktrans with days=new_stats_days %}Что нового за {{ days }} дней{% endblocktrans %}</h2>
+      <div class="new-stats-grid">
+        <div class="new-stat">
+          <span class="new-stat-icon" aria-hidden="true">🆕</span>
+          <div class="new-stat-value">{{ new_stats.places }}</div>
+          <div class="new-stat-label">{% trans "Новых кружков" %}</div>
+        </div>
+        <div class="new-stat">
+          <span class="new-stat-icon" aria-hidden="true">📍</span>
+          <div class="new-stat-value">{{ new_stats.districts }}</div>
+          <div class="new-stat-label">{% trans "Новых районов" %}</div>
+        </div>
+        <div class="new-stat">
+          <span class="new-stat-icon" aria-hidden="true">🧩</span>
+          <div class="new-stat-value">{{ new_stats.categories }}</div>
+          <div class="new-stat-label">{% trans "Новых категорий" %}</div>
+        </div>
+      </div>
+      <div class="new-subscribe-wrap">
+        <button class="btn" type="button">{% trans "Подписаться на новинки" %}</button>
+      </div>
+    </section>
+
+    {% if timeline_places %}
+      <section class="panel">
+        <h2>{% trans "Последние добавления" %}</h2>
+        <div class="new-timeline {% if selected.view != 'list' %}new-timeline-grid{% endif %}">
+          {% for place in timeline_places %}
+            <article class="card {% if selected.view == 'list' %}new-timeline-item{% endif %}">
+              <div class="card-media">
+                {% if place.cover_photo %}
+                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                {% elif place.photo %}
+                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                {% else %}
+                  <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
+                    <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+                    <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card-body">
+                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                <div class="new-badge-row">
+                  <span class="new-badge">{% trans "Новое" %}</span>
+                  <span class="new-badge-meta">{% trans "Добавлено" %} {{ place.days_since_added }} {% trans "дн. назад" %}</span>
+                </div>
+                <div class="chip">{{ place.get_category_display }}</div>
+                <div class="rating-row">
+                  <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+                  <span class="rating-text">
+                    {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
+                  </span>
+                </div>
+                {% if place.district or place.metro %}
+                  <p class="meta"><b>{% trans "Район/метро" %}:</b> {% if place.district %}{{ place.district }}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{{ place.metro }}{% endif %}</p>
+                {% endif %}
+                {% if place.age_from or place.age_to %}
+                  <p class="meta"><b>{% trans "Возраст" %}:</b> {% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</p>
+                {% endif %}
+                {% if place.price_from or place.price_to %}
+                  <p class="meta"><b>{% trans "Цена" %}:</b> {% if place.price_from %}{{ place.price_from }}{% endif %}{% if place.price_from and place.price_to %}-{% endif %}{% if place.price_to %}{{ place.price_to }}{% endif %} AZN</p>
+                {% endif %}
+                <div class="card-cta-row">
+                  {% if place.phone1 %}
+                    <a class="cta-btn cta-call" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
+                  {% endif %}
+                  {% if place.instagram %}
+                    <a class="cta-btn cta-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">{% trans "Instagram" %}</a>
+                  {% endif %}
+                </div>
+                <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  {% endif %}
+
   {% if places %}
-    <section class="grid">
+    <section class="grid {% if selected.view == 'list' %}results-list-mode{% endif %}">
       {% for place in places %}
         <article class="card">
           <div class="card-media">
@@ -117,6 +313,12 @@
           <div class="card-body">
             <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
             <div class="chip">{{ place.get_category_display }}</div>
+            <div class="rating-row">
+              <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+              <span class="rating-text">
+                {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
+              </span>
+            </div>
             {% if place.district or place.metro %}
               <p class="meta">
                 {% if place.district %}{{ place.district }}{% endif %}
@@ -131,7 +333,21 @@
                 {% if place.price_to %}{{ place.price_to }}{% endif %} AZN
               </p>
             {% endif %}
+            {% if selected.view == 'list' %}
+              {% if place.age_from or place.age_to %}
+                <p class="meta list-only"><b>{% trans "Возраст" %}:</b> {% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</p>
+              {% endif %}
+              {% if place.address %}
+                <p class="meta list-only"><b>{% trans "Адрес" %}:</b> {{ place.address }}</p>
+              {% endif %}
+            {% endif %}
             <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
+            {% if is_new_page %}
+              <div class="new-badge-row">
+                <span class="new-badge">{% trans "Новое" %}</span>
+                <span class="new-badge-meta">{% trans "Добавлено" %} {{ place.days_since_added }} {% trans "дн. назад" %}</span>
+              </div>
+            {% endif %}
             <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}" />
@@ -170,27 +386,103 @@
   {% endif %}
 
   {% if page_obj.paginator.num_pages > 1 %}
-    <div class="pagination">
+    <nav class="pagination" aria-label="{% trans 'Пагинация' %}">
       {% if page_obj.has_previous %}
-        <a class="link-btn" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">{% trans "Назад" %}</a>
+        <a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">‹ {% trans "Назад" %}</a>
+      {% else %}
+        <span class="page-nav disabled">‹ {% trans "Назад" %}</span>
       {% endif %}
 
-      <span>{% trans "Страница" %} {{ page_obj.number }} {% trans "из" %} {{ page_obj.paginator.num_pages }}</span>
+      <div class="page-list">
+        {% for num in page_obj.paginator.page_range %}
+          {% if num == page_obj.number %}
+            <span class="page-item active">{{ num }}</span>
+          {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+            <a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+          {% elif num == 1 or num == page_obj.paginator.num_pages %}
+            <a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+          {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+            <span class="page-dots">…</span>
+          {% endif %}
+        {% endfor %}
+      </div>
 
       {% if page_obj.has_next %}
-        <a class="link-btn" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Вперед" %}</a>
+        <a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Вперед" %} ›</a>
+      {% else %}
+        <span class="page-nav disabled">{% trans "Вперед" %} ›</span>
       {% endif %}
-    </div>
+    </nav>
   {% endif %}
 
   <section class="panel">
     <h2>{% trans "Часто ищут" %}</h2>
     <div class="home-grid2">
-      <a class="link-btn" href="{% url 'seo_landing' 'kruzhki-v-baku' %}">{% trans "Кружки в Баку для детей" %}</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'kursy-dlya-detey-v-baku' %}">{% trans "Курсы для детей в Баку" %}</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'sportivnye-sekcii-v-baku' %}">{% trans "Спортивные секции в Баку" %}</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'tvorcheskie-kruzhki-v-baku' %}">{% trans "Творческие кружки в Баку" %}</a>
-      <a class="link-btn" href="{% url 'seo_landing' 'programmirovanie-dlya-detey-baku' %}">{% trans "Программирование для детей в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Кружки в Баку для детей" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Баку" %}</a>
     </div>
   </section>
+  <script>
+    (function () {
+      document.querySelectorAll("[data-range]").forEach(function (root) {
+        const min = Number(root.dataset.min || 0);
+        const max = Number(root.dataset.max || 100);
+        const unit = root.dataset.unit || "";
+        const fromInput = root.querySelector("[data-range-from-input]");
+        const toInput = root.querySelector("[data-range-to-input]");
+        const fromRange = root.querySelector("[data-range-from-range]");
+        const toRange = root.querySelector("[data-range-to-range]");
+        const caption = root.querySelector("[data-range-caption]");
+        if (!fromInput || !toInput || !fromRange || !toRange) return;
+
+        function clamp(v) {
+          const n = Number(v);
+          if (!Number.isFinite(n)) return min;
+          return Math.min(max, Math.max(min, Math.round(n)));
+        }
+
+        function updateCaption(a, b) {
+          if (!caption) return;
+          caption.textContent = unit ? `${a}–${b} ${unit}` : `${a}–${b}`;
+        }
+
+        function syncFromInput() {
+          let a = clamp(fromInput.value || fromRange.value);
+          let b = clamp(toInput.value || toRange.value);
+          if (a > b) b = a;
+          fromInput.value = a;
+          toInput.value = b;
+          fromRange.value = a;
+          toRange.value = b;
+          updateCaption(a, b);
+        }
+
+        function syncFromRange() {
+          let a = clamp(fromRange.value);
+          let b = clamp(toRange.value);
+          if (a > b) {
+            if (document.activeElement === fromRange) b = a;
+            else a = b;
+          }
+          fromInput.value = a;
+          toInput.value = b;
+          fromRange.value = a;
+          toRange.value = b;
+          updateCaption(a, b);
+        }
+
+        ["input", "change"].forEach((evt) => {
+          fromInput.addEventListener(evt, syncFromInput);
+          toInput.addEventListener(evt, syncFromInput);
+          fromRange.addEventListener(evt, syncFromRange);
+          toRange.addEventListener(evt, syncFromRange);
+        });
+
+        syncFromInput();
+      });
+    })();
+  </script>
 {% endblock %}

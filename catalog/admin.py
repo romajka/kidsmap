@@ -6,8 +6,12 @@ from django.urls import reverse
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
 from .models import (
+    CatalogContentSettings,
     Place,
     PlacePhoto,
+    PlaceReview,
+    PlaceReviewsByClub,
+    SiteReview,
     SiteSettings,
     SiteBrandingSettings,
     SiteAboutSettings,
@@ -43,6 +47,14 @@ class PlacePhotoInline(admin.TabularInline):
     ordering = ("order", "id")
 
 
+class PlaceReviewInline(admin.TabularInline):
+    model = PlaceReview
+    extra = 0
+    fields = ("author_name", "is_anonymous", "rating", "text", "is_approved", "created_at")
+    readonly_fields = ("created_at",)
+    ordering = ("-created_at",)
+
+
 class PlaceAdminForm(forms.ModelForm):
     class Meta:
         model = Place
@@ -56,6 +68,8 @@ class PlaceAdminForm(forms.ModelForm):
             "description_az": _("Описание (Азербайджанский)"),
             "description_en": _("Описание (English)"),
             "likes_count": _("Количество лайков"),
+            "rating_avg": _("Средний рейтинг"),
+            "rating_count": _("Количество отзывов"),
         }
 
 
@@ -68,6 +82,8 @@ class PlaceAdmin(admin.ModelAdmin):
         "district",
         "metro",
         "likes_count",
+        "rating_avg",
+        "rating_count",
         "is_active",
         "is_verified",
         "updated_at",
@@ -75,14 +91,29 @@ class PlaceAdmin(admin.ModelAdmin):
     list_filter = ("category", "district", "metro", "is_active", "is_verified", "age_from", "age_to")
     search_fields = ("name_ru", "name_en", "name", "address", "instagram", "phone1")
     list_editable = ("is_active", "is_verified", "likes_count")
-    readonly_fields = ("slug", "created_at", "updated_at")
+    readonly_fields = ("slug", "rating_avg", "rating_count", "created_at", "updated_at")
     ordering = ("-updated_at",)
     list_per_page = 30
     save_on_top = True
     actions = ("mark_active", "mark_inactive", "mark_verified", "mark_unverified")
-    inlines = [PlacePhotoInline]
+    inlines = [PlacePhotoInline, PlaceReviewInline]
     fieldsets = (
-        (_("Основное"), {"fields": ("name", "slug", "category", "subcategory", "is_active", "is_verified", "likes_count")}),
+        (
+            _("Основное"),
+            {
+                "fields": (
+                    "name",
+                    "slug",
+                    "category",
+                    "subcategory",
+                    "is_active",
+                    "is_verified",
+                    "likes_count",
+                    "rating_avg",
+                    "rating_count",
+                )
+            },
+        ),
         (_("Названия и описания (i18n)"), {"classes": ("collapse",), "fields": ("name_ru", "name_az", "name_en", "description_ru", "description_az", "description_en")}),
         (_("Возраст и цена"), {"fields": ("age_from", "age_to", "price_from", "price_to")}),
         (_("Локация"), {"fields": ("district", "metro", "address", "lat", "lng")}),
@@ -299,3 +330,101 @@ class SiteEmptyStateSettingsAdmin(_BaseSiteSettingsSectionAdmin):
         ),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
     )
+
+
+@admin.register(PlaceReview)
+class PlaceReviewAdmin(admin.ModelAdmin):
+    list_display = ("place", "display_author", "rating", "is_approved", "created_at")
+    list_filter = ("rating", "is_approved", "is_anonymous", "created_at")
+    search_fields = ("place__name_ru", "place__name_en", "place__name_az", "author_name", "text")
+    actions = ("approve_reviews", "hide_reviews")
+    readonly_fields = ("created_at", "updated_at", "session_key")
+
+    @admin.display(description=_("Автор"))
+    def display_author(self, obj):
+        if obj.is_anonymous:
+            return _("Аноним")
+        return obj.author_name or _("Без имени")
+
+    @admin.action(description=_("Одобрить выбранные отзывы"))
+    def approve_reviews(self, request, queryset):
+        places = set(queryset.values_list("place_id", flat=True))
+        queryset.update(is_approved=True)
+        for place in Place.objects.filter(id__in=places):
+            place.refresh_rating_stats()
+
+    @admin.action(description=_("Скрыть выбранные отзывы"))
+    def hide_reviews(self, request, queryset):
+        places = set(queryset.values_list("place_id", flat=True))
+        queryset.update(is_approved=False)
+        for place in Place.objects.filter(id__in=places):
+            place.refresh_rating_stats()
+
+
+@admin.register(SiteReview)
+class SiteReviewAdmin(admin.ModelAdmin):
+    list_display = ("display_author", "rating", "is_approved", "created_at")
+    list_filter = ("rating", "is_approved", "is_anonymous", "created_at")
+    search_fields = ("author_name", "text")
+    actions = ("approve_reviews", "hide_reviews")
+    readonly_fields = ("created_at", "updated_at", "session_key")
+
+    @admin.display(description=_("Автор"))
+    def display_author(self, obj):
+        if obj.is_anonymous:
+            return _("Аноним")
+        return obj.author_name or _("Без имени")
+
+    @admin.action(description=_("Одобрить выбранные отзывы"))
+    def approve_reviews(self, request, queryset):
+        queryset.update(is_approved=True)
+
+    @admin.action(description=_("Скрыть выбранные отзывы"))
+    def hide_reviews(self, request, queryset):
+        queryset.update(is_approved=False)
+
+
+@admin.register(PlaceReviewsByClub)
+class PlaceReviewsByClubAdmin(admin.ModelAdmin):
+    list_display = ("display_name", "rating_count", "rating_avg", "reviews_link", "updated_at")
+    list_filter = ("category", "district", "is_active", "is_verified")
+    search_fields = ("name_ru", "name_en", "name_az", "name")
+    ordering = ("-rating_count", "-rating_avg", "-updated_at")
+    readonly_fields = ("rating_count", "rating_avg")
+
+    @admin.display(description=_("Название"))
+    def display_name(self, obj):
+        return obj.name_ru or obj.name
+
+    @admin.display(description=_("Отзывы"))
+    def reviews_link(self, obj):
+        url = reverse("admin:catalog_placereview_changelist")
+        return format_html('<a href="{}?place__id__exact={}">{}</a>', url, obj.id, _("Открыть отзывы"))
+
+
+@admin.register(CatalogContentSettings)
+class CatalogContentSettingsAdmin(admin.ModelAdmin):
+    list_display = ("id", "updated_at")
+    readonly_fields = ("updated_at",)
+    fieldsets = (
+        (
+            _("Контент фильтров"),
+            {
+                "fields": (
+                    "districts_json",
+                    "metro_stations_json",
+                )
+            },
+        ),
+        (
+            _("Контент SEO-страниц"),
+            {
+                "fields": ("seo_pages_json",),
+                "description": _("JSON-структура SEO страниц. Если оставить пусто, используются значения по умолчанию из кода."),
+            },
+        ),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
+    )
+
+    def has_add_permission(self, request):
+        return not CatalogContentSettings.objects.exists()

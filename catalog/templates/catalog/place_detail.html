@@ -20,9 +20,9 @@
       {% with gallery=place.gallery_files %}
         {% if gallery %}
           <div class="gallery" data-gallery>
-            <button type="button" class="gallery-nav prev" aria-label="Previous">‹</button>
+            <button type="button" class="gallery-nav prev" aria-label="{% trans 'Предыдущее фото' %}">‹</button>
             <img class="detail-photo gallery-main" src="{{ gallery.0.url }}" alt="{{ place.name_i18n }}" data-gallery-main />
-            <button type="button" class="gallery-nav next" aria-label="Next">›</button>
+            <button type="button" class="gallery-nav next" aria-label="{% trans 'Следующее фото' %}">›</button>
 
             <div class="gallery-thumbs">
               {% for file in gallery %}
@@ -53,6 +53,12 @@
           ♥ <span class="like-count">{{ place.likes_count }}</span>
         </button>
       </form>
+      <div class="detail-rating">
+        <span class="rating-stars large" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+        <span class="rating-text">
+          {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
+        </span>
+      </div>
       <div class="card-cta-row">
         {% if place.phone1 %}
           <a class="cta-btn cta-call" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
@@ -158,6 +164,72 @@
           </p>
         </section>
       {% endif %}
+
+      <section id="reviews" class="detail-reviews panel">
+        <h2>{% trans "Отзывы" %}</h2>
+        {% if messages %}
+          <div class="review-messages">
+            {% for message in messages %}
+              <p class="review-message {{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form">
+          {% csrf_token %}
+          <div class="review-form-grid">
+            <label>
+              {% trans "Ваша оценка" %}
+              <input type="hidden" name="rating" value="5" data-rating-input />
+              <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
+                <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
+                <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
+                <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
+                <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
+                <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
+              </div>
+            </label>
+            <label>
+              {% trans "Ваше имя" %}
+              <input class="field" type="text" name="author_name" maxlength="80" placeholder="{% trans 'например Алина' %}" />
+            </label>
+            <label class="review-anon">
+              <input type="checkbox" name="is_anonymous" value="1" />
+              <span>{% trans "Оставить анонимно" %}</span>
+            </label>
+          </div>
+          <label>
+            {% trans "Текст отзыва" %}
+            <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось или не понравилось?' %}"></textarea>
+          </label>
+          <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
+        </form>
+
+        {% if place_reviews %}
+          <div class="reviews-list">
+            {% for review in place_reviews %}
+              <article class="review-item">
+                <div class="review-head">
+                  <strong class="review-author">
+                    {% if review.is_anonymous %}
+                      {% trans "Аноним" %}
+                    {% else %}
+                      {% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %}
+                    {% endif %}
+                  </strong>
+                  <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
+                  <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
+                </div>
+                {% if review.text %}
+                  <p class="review-text">{{ review.text|linebreaksbr }}</p>
+                {% endif %}
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="meta">{% trans "Пока нет отзывов. Будьте первым!" %}</p>
+        {% endif %}
+      </section>
     </article>
   </section>
   <script>
@@ -183,6 +255,38 @@
       });
       prevBtn.addEventListener("click", () => show(index - 1));
       nextBtn.addEventListener("click", () => show(index + 1));
+    })();
+  </script>
+  <script>
+    (function () {
+      const picker = document.querySelector("[data-review-stars]");
+      const input = document.querySelector("[data-rating-input]");
+      if (!picker || !input) return;
+
+      const stars = Array.from(picker.querySelectorAll(".review-star"));
+
+      function paint(value) {
+        stars.forEach((star, idx) => {
+          star.classList.toggle("active", idx < value);
+        });
+      }
+
+      stars.forEach((star) => {
+        const value = Number(star.dataset.value || 0);
+        star.addEventListener("mouseenter", function () {
+          paint(value);
+        });
+        star.addEventListener("click", function () {
+          input.value = String(value);
+          paint(value);
+        });
+      });
+
+      picker.addEventListener("mouseleave", function () {
+        paint(Number(input.value || 0));
+      });
+
+      paint(Number(input.value || 0));
     })();
   </script>
   <script type="application/ld+json">{{ place_schema_json|safe }}</script>

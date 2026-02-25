@@ -1,8 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
-from .models import Place
-from .views import SEO_LANDING_PAGES
+from .models import CatalogContentSettings, Place
 
 
 class StaticViewSitemap(Sitemap):
@@ -32,7 +31,7 @@ class SeoLandingSitemap(Sitemap):
     priority = 0.75
 
     def items(self):
-        return list(SEO_LANDING_PAGES.keys())
+        return list(CatalogContentSettings.get_solo().seo_pages().keys())
 
     def location(self, item):
         return reverse("seo_landing", kwargs={"seo_slug": item})

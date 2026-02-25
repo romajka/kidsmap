@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kidsmap\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-23 14:49+0400\n"
+"POT-Creation-Date: 2026-02-25 13:07+0400\n"
 "PO-Revision-Date: 2026-02-23 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,361 +12,1139 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: catalog/admin.py:19 catalog/models.py:17
-msgid "Название"
+#: catalog/admin.py:62
+msgid "URL-слаг"
+msgstr "URL slug"
+
+#: catalog/admin.py:63
+msgid "Название (Русский)"
+msgstr "Ad (Rus dili)"
+
+#: catalog/admin.py:64
+msgid "Название (Азербайджанский)"
+msgstr "Ad (Azərbaycan dili)"
+
+#: catalog/admin.py:65
+msgid "Название (English)"
 msgstr "Ad"
 
-#: catalog/models.py:8
-msgid "Спорт"
-msgstr "İdman"
+#: catalog/admin.py:66
+msgid "Описание (Русский)"
+msgstr "Təsvir (Rus dili)"
 
-#: catalog/models.py:9
-msgid "Творчество"
-msgstr "Yaradıcılıq"
+#: catalog/admin.py:67
+msgid "Описание (Азербайджанский)"
+msgstr "Təsvir (Azərbaycan dili)"
 
-#: catalog/models.py:10
-msgid "Музыка и сцена"
-msgstr "Musiqi və səhnə"
-
-#: catalog/models.py:11
-msgid "Образование"
-msgstr "Təhsil"
-
-#: catalog/models.py:12
-msgid "Технологии"
-msgstr "Texnologiya"
-
-#: catalog/models.py:13
-msgid "Развлечения и досуг"
-msgstr "Əyləncə və asudə vaxt"
-
-#: catalog/models.py:14
-msgid "Лагеря"
-msgstr "Düşərgələr"
-
-#: catalog/models.py:18
-#, fuzzy
-#| msgid "Название"
-msgid "Название (RU)"
-msgstr "Ad"
-
-#: catalog/models.py:19
-#, fuzzy
-#| msgid "Название"
-msgid "Название (EN)"
-msgstr "Ad"
-
-#: catalog/models.py:20
-#, fuzzy
-#| msgid "Название"
-msgid "Название (AZ)"
-msgstr "Ad"
-
-#: catalog/models.py:21
-#, fuzzy
-#| msgid "Расписание"
-msgid "Описание (RU)"
+#: catalog/admin.py:68
+msgid "Описание (English)"
 msgstr "Cədvəl"
 
-#: catalog/models.py:22
-#, fuzzy
-#| msgid "Расписание"
-msgid "Описание (EN)"
-msgstr "Cədvəl"
+#: catalog/admin.py:69
+msgid "Количество лайков"
+msgstr "Bəyənmə sayı"
 
-#: catalog/models.py:23
-#, fuzzy
-#| msgid "Расписание"
-msgid "Описание (AZ)"
-msgstr "Cədvəl"
+#: catalog/admin.py:70 catalog/models.py:51
+msgid "Средний рейтинг"
+msgstr "Orta reytinq"
 
-#: catalog/models.py:24 catalog/templates/catalog/place_detail.html:41
-#: catalog/templates/catalog/place_list.html:18
-msgid "Категория"
-msgstr "Kateqoriya"
+#: catalog/admin.py:71 catalog/models.py:52
+msgid "Количество отзывов"
+msgstr "Rəy sayı"
 
-#: catalog/models.py:25 catalog/templates/catalog/place_detail.html:42
-msgid "Подкатегория"
-msgstr "Alt kateqoriya"
+#: catalog/admin.py:101
+msgid "Основное"
+msgstr "Əsas"
 
-#: catalog/models.py:27
-msgid "Возраст от"
-msgstr "Yaşdan"
+#: catalog/admin.py:116
+msgid "Названия и описания (i18n)"
+msgstr "Adlar və təsvirlər (i18n)"
 
-#: catalog/models.py:28
-msgid "Возраст до"
-msgstr "Yaşa qədər"
+#: catalog/admin.py:117
+msgid "Возраст и цена"
+msgstr "Yaş və qiymət"
 
-#: catalog/models.py:30 catalog/templates/catalog/place_list.html:28
-msgid "Район"
-msgstr "Rayon"
-
-#: catalog/models.py:31 catalog/templates/catalog/place_list.html:38
-msgid "Метро"
-msgstr "Metro"
-
-#: catalog/models.py:32 catalog/templates/catalog/place_detail.html:46
-msgid "Адрес"
-msgstr "Ünvan"
-
-#: catalog/models.py:34
-msgid "Телефон 1"
-msgstr "Telefon 1"
-
-#: catalog/models.py:35
-msgid "Фото для шапки"
-msgstr "Başlıq üçün şəkil"
-
-#: catalog/models.py:36 catalog/models.py:115
-msgid "Фото"
-msgstr "Şəkil"
-
-#: catalog/models.py:37
-msgid "Instagram"
-msgstr "Instagram"
-
-#: catalog/models.py:38 catalog/templates/catalog/place_detail.html:54
-msgid "Сайт"
-msgstr "Vebsayt"
-
-#: catalog/models.py:39 catalog/templates/catalog/place_detail.html:53
-msgid "Расписание"
-msgstr "Cədvəl"
-
-#: catalog/models.py:40
-msgid "Широта"
-msgstr "Enlik"
-
-#: catalog/models.py:41
-msgid "Долгота"
-msgstr "Uzunluq"
-
-#: catalog/models.py:43 catalog/templates/catalog/place_list.html:53
-msgid "Цена от"
-msgstr "Qiymət (min.)"
-
-#: catalog/models.py:44 catalog/templates/catalog/place_list.html:58
-msgid "Цена до"
-msgstr "Qiymət (maks.)"
-
-#: catalog/models.py:46
-msgid "Активно"
-msgstr "Aktivdir"
-
-#: catalog/models.py:47
-msgid "Проверено"
-msgstr "Yoxlanılıb"
-
-#: catalog/models.py:49
-msgid "Обновлено"
-msgstr "Yenilənib"
-
-#: catalog/models.py:114
-msgid "Место"
+#: catalog/admin.py:118
+msgid "Локация"
 msgstr "Məkan"
 
-#: catalog/models.py:116
-msgid "Подпись"
-msgstr "Başlıq mətni"
-
-#: catalog/models.py:117
-msgid "Порядок"
-msgstr "Sıra"
-
-#: catalog/models.py:121 catalog/models.py:122
-msgid "Фото галереи"
-msgstr "Qalereya şəkli"
-
-#: catalog/templates/base.html:22 catalog/templates/pages/home.html:4
-msgid "Главная"
-msgstr "Ana səhifə"
-
-#: catalog/templates/base.html:23 catalog/templates/catalog/place_list.html:4
-#: catalog/templates/catalog/place_list.html:10
-msgid "Каталог"
-msgstr "Kataloq"
-
-#: catalog/templates/base.html:24 catalog/templates/pages/about.html:4
-#: catalog/templates/pages/about.html:8
-msgid "О проекте"
-msgstr "Layihə haqqında"
-
-#: catalog/templates/base.html:25 catalog/templates/pages/contacts.html:4
-#: catalog/templates/pages/contacts.html:8
+#: catalog/admin.py:119 catalog/admin.py:247 catalog/models.py:368
+#: catalog/models.py:369 catalog/templates/base.html:62
+#: catalog/templates/base.html:98 catalog/templates/pages/contacts.html:4
+#: catalog/templates/pages/contacts.html:5
+#: catalog/templates/pages/contacts.html:6
+#: catalog/templates/pages/contacts.html:11
 msgid "Контакты"
 msgstr "Əlaqə"
 
-#: catalog/templates/base.html:28
+#: catalog/admin.py:120 catalog/models.py:41 catalog/models.py:152
+msgid "Фото"
+msgstr "Şəkil"
+
+#: catalog/admin.py:121 catalog/admin.py:287 catalog/admin.py:295
+#: catalog/admin.py:303 catalog/admin.py:311 catalog/admin.py:330
+#: catalog/admin.py:402
+msgid "Служебное"
+msgstr "Xidmət məlumatları"
+
+#: catalog/admin.py:124 catalog/admin.py:371 catalog/models.py:21
+msgid "Название"
+msgstr "Ad"
+
+#: catalog/admin.py:128
+msgid "Сделать активными"
+msgstr "Aktiv et"
+
+#: catalog/admin.py:132
+msgid "Сделать неактивными"
+msgstr "Qeyri-aktiv et"
+
+#: catalog/admin.py:136
+msgid "Отметить как проверенные"
+msgstr "Yoxlanılıb kimi işarələ"
+
+#: catalog/admin.py:140
+msgid "Снять отметку проверки"
+msgstr "Yoxlanılıb işarəsini sil"
+
+#: catalog/admin.py:194
+msgid "Текущее лого"
+msgstr "Cari loqo"
+
+#: catalog/admin.py:198
+msgid "Текущий фон сайта"
+msgstr "Cari sayt fonu"
+
+#: catalog/admin.py:202
+msgid "Текущий фон баннера"
+msgstr "Cari banner fonu"
+
+#: catalog/admin.py:206
+msgid "Текущая картинка пустого результата"
+msgstr "Cari boş nəticə şəkli"
+
+#: catalog/admin.py:235 catalog/admin.py:282 catalog/models.py:354
+#: catalog/models.py:355
+msgid "Лого и бренд"
+msgstr "Loqo və brend"
+
+#: catalog/admin.py:236
+msgid "Название проекта и логотип в шапке."
+msgstr "Layihə adı və başlıqda loqo."
+
+#: catalog/admin.py:241 catalog/models.py:361 catalog/models.py:362
+#: catalog/templates/base.html:57 catalog/templates/base.html:94
+#: catalog/templates/pages/about.html:4 catalog/templates/pages/about.html:5
+#: catalog/templates/pages/about.html:6 catalog/templates/pages/about.html:11
+msgid "О проекте"
+msgstr "Layihə haqqında"
+
+#: catalog/admin.py:242
+msgid "Текст страницы «О проекте»."
+msgstr "“Layihə haqqında” səhifəsinin mətni."
+
+#: catalog/admin.py:248
+msgid "Контакты для страницы «Контакты»."
+msgstr "“Əlaqə” səhifəsi üçün kontaktlar."
+
+#: catalog/admin.py:253 catalog/admin.py:310 catalog/models.py:375
+#: catalog/models.py:376
+msgid "Футер и соцсети"
+msgstr "Footer və sosial şəbəkələr"
+
+#: catalog/admin.py:254
+msgid "Телефон, email, Instagram и WhatsApp в футере."
+msgstr "Footer hissəsində telefon, email, Instagram və WhatsApp."
+
+#: catalog/admin.py:259 catalog/models.py:382 catalog/models.py:383
+msgid "Пустой результат"
+msgstr "Boş nəticə"
+
+#: catalog/admin.py:260
+msgid "Картинка и текст, если в каталоге ничего не найдено."
+msgstr "Kataloqda heç nə tapılmadıqda şəkil və mətn."
+
+#: catalog/admin.py:269 catalog/models.py:344 catalog/models.py:345
+msgid "Настройка сайта"
+msgstr "Sayt ayarı"
+
+#: catalog/admin.py:284
+msgid "Дизайн-картинки"
+msgstr "Dizayn şəkilləri"
+
+#: catalog/admin.py:294
+msgid "О проекте (i18n)"
+msgstr "Layihə haqqında"
+
+#: catalog/admin.py:302
+msgid "Контакты страницы (i18n)"
+msgstr "“Əlaqə” səhifəsi üçün kontaktlar."
+
+#: catalog/admin.py:319
+msgid "Пустой результат каталога"
+msgstr "Boş nəticə"
+
+#: catalog/admin.py:342
+msgid "Автор"
+msgstr "Müəllif"
+
+#: catalog/admin.py:345 catalog/templates/catalog/place_detail.html:215
+msgid "Аноним"
+msgstr "Anonim"
+
+#: catalog/admin.py:346
+msgid "Без имени"
+msgstr "Adsız"
+
+#: catalog/admin.py:348
+msgid "Одобрить выбранные отзывы"
+msgstr "Seçilmiş rəyləri təsdiqlə"
+
+#: catalog/admin.py:355
+msgid "Скрыть выбранные отзывы"
+msgstr "Seçilmiş rəyləri gizlət"
+
+#: catalog/admin.py:375 catalog/models.py:227
+#: catalog/templates/catalog/place_detail.html:169
+msgid "Отзывы"
+msgstr "Rəylər"
+
+#: catalog/admin.py:378
+#, fuzzy
+#| msgid "Отправить отзыв"
+msgid "Открыть отзывы"
+msgstr "Rəyi göndər"
+
+#: catalog/admin.py:387
+msgid "Контент фильтров"
+msgstr "Sürətli filtrlər"
+
+#: catalog/admin.py:396
+msgid "Контент SEO-страниц"
+msgstr ""
+
+#: catalog/admin.py:399
+msgid ""
+"JSON-структура SEO страниц. Если оставить пусто, используются значения по "
+"умолчанию из кода."
+msgstr ""
+
+#: catalog/models.py:12 catalog/templates/catalog/place_list.html:186
+msgid "Спорт"
+msgstr "İdman"
+
+#: catalog/models.py:13
+msgid "Творчество"
+msgstr "Yaradıcılıq"
+
+#: catalog/models.py:14
+msgid "Музыка и сцена"
+msgstr "Musiqi və səhnə"
+
+#: catalog/models.py:15 catalog/templates/catalog/place_list.html:187
+msgid "Образование"
+msgstr "Təhsil"
+
+#: catalog/models.py:16 catalog/templates/catalog/place_list.html:185
+msgid "Технологии"
+msgstr "Texnologiya"
+
+#: catalog/models.py:17
+msgid "Развлечения и досуг"
+msgstr "Əyləncə və asudə vaxt"
+
+#: catalog/models.py:18
+msgid "Лагеря"
+msgstr "Düşərgələr"
+
+#: catalog/models.py:22
+msgid "Slug"
+msgstr ""
+
+#: catalog/models.py:23
+msgid "Название (RU)"
+msgstr "Ad"
+
+#: catalog/models.py:24
+msgid "Название (EN)"
+msgstr "Ad"
+
+#: catalog/models.py:25
+msgid "Название (AZ)"
+msgstr "Ad"
+
+#: catalog/models.py:26
+msgid "Описание (RU)"
+msgstr "Cədvəl"
+
+#: catalog/models.py:27
+msgid "Описание (EN)"
+msgstr "Cədvəl"
+
+#: catalog/models.py:28
+msgid "Описание (AZ)"
+msgstr "Cədvəl"
+
+#: catalog/models.py:29 catalog/templates/catalog/place_detail.html:73
+#: catalog/templates/catalog/place_list.html:32
+msgid "Категория"
+msgstr "Kateqoriya"
+
+#: catalog/models.py:30 catalog/templates/catalog/place_detail.html:79
+msgid "Подкатегория"
+msgstr "Alt kateqoriya"
+
+#: catalog/models.py:32
+msgid "Возраст от"
+msgstr "Yaşdan"
+
+#: catalog/models.py:33
+msgid "Возраст до"
+msgstr "Yaşa qədər"
+
+#: catalog/models.py:35 catalog/templates/catalog/place_list.html:42
+msgid "Район"
+msgstr "Rayon"
+
+#: catalog/models.py:36 catalog/templates/catalog/place_list.html:89
+msgid "Метро"
+msgstr "Metro"
+
+#: catalog/models.py:37 catalog/templates/catalog/place_detail.html:93
+#: catalog/templates/catalog/place_list.html:341
+msgid "Адрес"
+msgstr "Ünvan"
+
+#: catalog/models.py:39
+msgid "Телефон 1"
+msgstr "Telefon 1"
+
+#: catalog/models.py:40
+msgid "Фото для шапки"
+msgstr "Başlıq üçün şəkil"
+
+#: catalog/models.py:42 catalog/templates/catalog/place_list.html:285
+#: catalog/templates/catalog/place_list.html:363
+msgid "Instagram"
+msgstr "Instagram"
+
+#: catalog/models.py:43 catalog/templates/catalog/place_detail.html:126
+msgid "Сайт"
+msgstr "Vebsayt"
+
+#: catalog/models.py:44 catalog/templates/catalog/place_detail.html:119
+msgid "Расписание"
+msgstr "Cədvəl"
+
+#: catalog/models.py:45
+msgid "Широта"
+msgstr "Enlik"
+
+#: catalog/models.py:46
+msgid "Долгота"
+msgstr "Uzunluq"
+
+#: catalog/models.py:48
+msgid "Цена от"
+msgstr "Qiymət (min.)"
+
+#: catalog/models.py:49
+msgid "Цена до"
+msgstr "Qiymət (maks.)"
+
+#: catalog/models.py:50 catalog/models.py:192
+msgid "Лайки"
+msgstr "Bəyənmələr"
+
+#: catalog/models.py:54
+msgid "Активно"
+msgstr "Aktivdir"
+
+#: catalog/models.py:55
+msgid "Проверено"
+msgstr "Yoxlanılıb"
+
+#: catalog/models.py:57 catalog/models.py:215 catalog/models.py:286
+#: catalog/models.py:390
+msgid "Обновлено"
+msgstr "Yenilənib"
+
+#: catalog/models.py:146
+msgid "Кружок/курс"
+msgstr "Dərnək/kurs"
+
+#: catalog/models.py:147
+msgid "Кружки и курсы"
+msgstr "Dərnəklər və kurslar"
+
+#: catalog/models.py:151 catalog/models.py:166 catalog/models.py:199
+msgid "Место"
+msgstr "Məkan"
+
+#: catalog/models.py:153
+msgid "Подпись"
+msgstr "Başlıq mətni"
+
+#: catalog/models.py:154
+msgid "Порядок"
+msgstr "Sıra"
+
+#: catalog/models.py:158 catalog/models.py:159
+msgid "Фото галереи"
+msgstr "Qalereya şəkli"
+
+#: catalog/models.py:171 catalog/models.py:204
+msgid "Пользователь"
+msgstr ""
+
+#: catalog/models.py:175 catalog/models.py:213
+msgid "Сессия"
+msgstr ""
+
+#: catalog/models.py:191
+msgid "Лайк"
+msgstr "Bəyənmələr"
+
+#: catalog/models.py:208
+msgid "Имя"
+msgstr "Ad"
+
+#: catalog/models.py:209
+msgid "Анонимно"
+msgstr "Anonim"
+
+#: catalog/models.py:210
+msgid "Оценка"
+msgstr "Qiymət"
+
+#: catalog/models.py:211 catalog/models.py:226
+msgid "Отзыв"
+msgstr "Rəy"
+
+#: catalog/models.py:212
+msgid "Одобрен"
+msgstr "Təsdiqlənib"
+
+#: catalog/models.py:214
+msgid "Создан"
+msgstr "Yaradılıb"
+
+#: catalog/models.py:244
+msgid "Название бренда"
+msgstr "Ad"
+
+#: catalog/models.py:246
+msgid "Логотип"
+msgstr "Loqo və brend"
+
+#: catalog/models.py:250
+msgid ""
+"Рекомендуется SVG или PNG, размер 256x256 px (минимум 128x128), до 500 KB."
+msgstr "Tövsiyə: SVG və ya PNG, 256x256 px (minimum 128x128), 500 KB-a qədər."
+
+#: catalog/models.py:253
+msgid "Фон сайта"
+msgstr "Sayt fonu"
+
+#: catalog/models.py:257
+msgid "Рекомендуется JPG/WebP 1920x1080 px, до 2 MB."
+msgstr "Tövsiyə: JPG/WebP 1920x1080 px, 2 MB-a qədər."
+
+#: catalog/models.py:260
+msgid "Фон главного баннера"
+msgstr "Əsas banner fonu"
+
+#: catalog/models.py:264
+msgid "Рекомендуется JPG/WebP 1600x500 px, до 1 MB."
+msgstr "Tövsiyə: JPG/WebP 1600x500 px, 1 MB-a qədər."
+
+#: catalog/models.py:266
+msgid "Контакты (RU)"
+msgstr "Əlaqə"
+
+#: catalog/models.py:267
+msgid "Контакты (EN)"
+msgstr "Əlaqə"
+
+#: catalog/models.py:268
+msgid "Контакты (AZ)"
+msgstr "Əlaqə"
+
+#: catalog/models.py:269
+msgid "О проекте (RU)"
+msgstr "Layihə haqqında"
+
+#: catalog/models.py:270
+msgid "О проекте (EN)"
+msgstr "Layihə haqqında"
+
+#: catalog/models.py:271
+msgid "О проекте (AZ)"
+msgstr "Layihə haqqında"
+
+#: catalog/models.py:272
+msgid "Текст пустого результата (RU)"
+msgstr "Cari boş nəticə şəkli"
+
+#: catalog/models.py:273
+msgid "Текст пустого результата (EN)"
+msgstr "Cari boş nəticə şəkli"
+
+#: catalog/models.py:274
+msgid "Текст пустого результата (AZ)"
+msgstr "Cari boş nəticə şəkli"
+
+#: catalog/models.py:276
+msgid "Картинка пустого результата"
+msgstr "Cari boş nəticə şəkli"
+
+#: catalog/models.py:280
+msgid "Рекомендуется PNG/WebP 600x400 px, до 500 KB."
+msgstr "Tövsiyə: PNG/WebP 600x400 px, 500 KB-a qədər."
+
+#: catalog/models.py:282
+msgid "Телефон в футере"
+msgstr "Footer hissəsində telefon, email, Instagram və WhatsApp."
+
+#: catalog/models.py:283
+msgid "Email в футере"
+msgstr ""
+
+#: catalog/models.py:284
+msgid "Instagram в футере"
+msgstr ""
+
+#: catalog/models.py:285
+msgid "WhatsApp ссылка в футере"
+msgstr ""
+
+#: catalog/models.py:387
+msgid "Районы (JSON)"
+msgstr "Rayon"
+
+#: catalog/models.py:388
+msgid "Станции метро (JSON)"
+msgstr "Rayon/Metro"
+
+#: catalog/models.py:389
+msgid "SEO страницы (JSON)"
+msgstr ""
+
+#: catalog/models.py:421 catalog/models.py:422 catalog/models.py:425
+msgid "Контент каталога"
+msgstr "Kataloqda yenilər"
+
+#: catalog/models.py:431 catalog/models.py:432
+#, fuzzy
+#| msgid "Новых кружков"
+msgid "Отзывы по кружкам"
+msgstr "Yeni dərnəklər"
+
+#: catalog/templates/base.html:8 catalog/templates/base.html:17
+#: catalog/templates/base.html:22
+msgid ""
+"Каталог детских кружков и секций в Баку: спорт, творчество, музыка, "
+"образование."
+msgstr "KidsMap Bakıda uşaq dərnəkləri və bölmələrinin kataloqudur."
+
+#: catalog/templates/base.html:42 catalog/templates/pages/home.html:4
+#: catalog/templates/pages/home.html:5 catalog/templates/pages/home.html:6
+msgid "Главная"
+msgstr "Ana səhifə"
+
+#: catalog/templates/base.html:47 catalog/templates/catalog/place_list.html:4
+#: catalog/templates/catalog/place_list.html:5
+#: catalog/templates/catalog/place_list.html:6
+#: catalog/templates/catalog/place_list.html:17
+msgid "Каталог"
+msgstr "Kataloq"
+
+#: catalog/templates/base.html:52 catalog/templates/catalog/place_list.html:4
+#: catalog/templates/catalog/place_list.html:5
+#: catalog/templates/catalog/place_list.html:6
+#: catalog/templates/catalog/place_list.html:261
+#: catalog/templates/catalog/place_list.html:347
+msgid "Новое"
+msgstr "Yeni"
+
+#: catalog/templates/base.html:65
 msgid "Язык"
 msgstr "Dil"
 
-#: catalog/templates/catalog/place_detail.html:9
-#: catalog/templates/catalog/place_list.html:124
+#: catalog/templates/base.html:107
+msgid "Мы в Instagram"
+msgstr "Instagram-da biz"
+
+#: catalog/templates/catalog/place_detail.html:15
+#: catalog/templates/catalog/place_list.html:391
 msgid "Назад"
 msgstr "Geri"
 
-#: catalog/templates/catalog/place_detail.html:44
+#: catalog/templates/catalog/place_detail.html:23
+msgid "Предыдущее фото"
+msgstr "Əvvəlki şəkil"
+
+#: catalog/templates/catalog/place_detail.html:25
+msgid "Следующее фото"
+msgstr "Növbəti şəkil"
+
+#: catalog/templates/catalog/place_detail.html:40
+#: catalog/templates/catalog/place_detail.html:42
+#: catalog/templates/catalog/place_list.html:248
+#: catalog/templates/catalog/place_list.html:250
+#: catalog/templates/catalog/place_list.html:252
+#: catalog/templates/catalog/place_list.html:254
+#: catalog/templates/catalog/place_list.html:303
+#: catalog/templates/catalog/place_list.html:305
+#: catalog/templates/catalog/place_list.html:307
+#: catalog/templates/catalog/place_list.html:309
+#: catalog/templates/pages/home.html:118 catalog/templates/pages/home.html:120
+#: catalog/templates/pages/home.html:122 catalog/templates/pages/home.html:124
+msgid "Фото скоро будет."
+msgstr "Şəkil tezliklə əlavə olunacaq."
+
+#: catalog/templates/catalog/place_detail.html:59
+#: catalog/templates/catalog/place_list.html:268
+#: catalog/templates/catalog/place_list.html:319
+#: catalog/templates/pages/home.html:134
+msgid "отзывов"
+msgstr "rəy"
+
+#: catalog/templates/catalog/place_detail.html:64
+#: catalog/templates/catalog/place_list.html:282
+#: catalog/templates/catalog/place_list.html:360
+msgid "Позвонить"
+msgstr "Zəng et"
+
+#: catalog/templates/catalog/place_detail.html:86
+#: catalog/templates/catalog/place_list.html:272
 msgid "Район/метро"
 msgstr "Rayon/Metro"
 
-#: catalog/templates/catalog/place_detail.html:48
-#: catalog/templates/catalog/place_list.html:48
+#: catalog/templates/catalog/place_detail.html:99
+#: catalog/templates/catalog/place_list.html:262
+#: catalog/templates/catalog/place_list.html:344
+#: catalog/templates/catalog/place_list.html:348
+#: catalog/templates/pages/home.html:137
+msgid "Добавлено"
+msgstr "Əlavə olunub"
+
+#: catalog/templates/catalog/place_detail.html:105
+#: catalog/templates/catalog/place_list.html:100
+#: catalog/templates/catalog/place_list.html:275
+#: catalog/templates/catalog/place_list.html:338
 msgid "Возраст"
 msgstr "Yaş"
 
-#: catalog/templates/catalog/place_detail.html:51
+#: catalog/templates/catalog/place_detail.html:112
+#: catalog/templates/catalog/place_list.html:121
+#: catalog/templates/catalog/place_list.html:278
 msgid "Цена"
 msgstr "Qiymət"
 
-#: catalog/templates/catalog/place_detail.html:55
+#: catalog/templates/catalog/place_detail.html:133
 msgid "Телефон"
 msgstr "Telefon"
 
-#: catalog/templates/catalog/place_detail.html:57
+#: catalog/templates/catalog/place_detail.html:147
 msgid "Координаты"
 msgstr "Koordinatlar"
 
-#: catalog/templates/catalog/place_list.html:11
+#: catalog/templates/catalog/place_detail.html:154
+msgid "На карте"
+msgstr "Xəritədə"
+
+#: catalog/templates/catalog/place_detail.html:160
+msgid "Карта места"
+msgstr "Məkanın xəritəsi"
+
+#: catalog/templates/catalog/place_detail.html:163
+msgid "Открыть большую карту"
+msgstr "Böyük xəritəni aç"
+
+#: catalog/templates/catalog/place_detail.html:182
+#: catalog/templates/catalog/place_detail.html:184
+msgid "Ваша оценка"
+msgstr "Sizin qiymətiniz"
+
+#: catalog/templates/catalog/place_detail.html:193
+msgid "Ваше имя"
+msgstr "Adınız"
+
+#: catalog/templates/catalog/place_detail.html:194
+msgid "например Алина"
+msgstr "məsələn Aylin"
+
+#: catalog/templates/catalog/place_detail.html:198
+msgid "Оставить анонимно"
+msgstr "Anonim paylaş"
+
+#: catalog/templates/catalog/place_detail.html:202
+msgid "Текст отзыва"
+msgstr "Rəy mətni"
+
+#: catalog/templates/catalog/place_detail.html:203
+msgid "Что вам понравилось или не понравилось?"
+msgstr "Nə xoşunuza gəldi və ya gəlmədi?"
+
+#: catalog/templates/catalog/place_detail.html:205
+msgid "Отправить отзыв"
+msgstr "Rəyi göndər"
+
+#: catalog/templates/catalog/place_detail.html:217
+msgid "Гость"
+msgstr "Qonaq"
+
+#: catalog/templates/catalog/place_detail.html:228
+msgid "Пока нет отзывов. Будьте первым!"
+msgstr "Hələ rəy yoxdur. İlk siz yazın!"
+
+#: catalog/templates/catalog/place_list.html:14
+msgid "Новое в каталоге"
+msgstr "Kataloqda yenilər"
+
+#: catalog/templates/catalog/place_list.html:15
+msgid "Только недавно добавленные кружки и курсы."
+msgstr "Yalnız yaxın zamanda əlavə olunmuş dərnək və kurslar."
+
+#: catalog/templates/catalog/place_list.html:18
 msgid "Найдите лучшие занятия для ребенка"
 msgstr "Uşağınız üçün ən yaxşı məşğələləri tapın"
 
-#: catalog/templates/catalog/place_list.html:20
-#: catalog/templates/catalog/place_list.html:30
-#: catalog/templates/catalog/place_list.html:40
+#: catalog/templates/catalog/place_list.html:27
+msgid "Поиск по названию"
+msgstr "Ada görə axtarış"
+
+#: catalog/templates/catalog/place_list.html:28
+msgid "например робототехника или english"
+msgstr "məsələn robototexnika və ya english"
+
+#: catalog/templates/catalog/place_list.html:34
+#: catalog/templates/catalog/place_list.html:44
+#: catalog/templates/catalog/place_list.html:54
+#: catalog/templates/catalog/place_list.html:75
+#: catalog/templates/catalog/place_list.html:83
+#: catalog/templates/catalog/place_list.html:91
 msgid "Все"
 msgstr "Hamısı"
 
-#: catalog/templates/catalog/place_list.html:49
-msgid "например 8"
-msgstr "məsələn 8"
+#: catalog/templates/catalog/place_list.html:52
+msgid "Рейтинг не ниже"
+msgstr "Reytinq ən azı"
 
-#: catalog/templates/catalog/place_list.html:54
-#: catalog/templates/catalog/place_list.html:59
-msgid "например 100"
-msgstr "məsələn 100"
+#: catalog/templates/catalog/place_list.html:64
+msgid "Период"
+msgstr "Dövr"
 
-#: catalog/templates/catalog/place_list.html:63
+#: catalog/templates/catalog/place_list.html:66
+#: catalog/templates/catalog/place_list.html:161
+msgid "За 7 дней"
+msgstr "Son 7 gün"
+
+#: catalog/templates/catalog/place_list.html:67
+#: catalog/templates/catalog/place_list.html:162
+msgid "За 14 дней"
+msgstr "Son 14 gün"
+
+#: catalog/templates/catalog/place_list.html:68
+#: catalog/templates/catalog/place_list.html:163
+msgid "За 30 дней"
+msgstr "Son 30 gün"
+
+#: catalog/templates/catalog/place_list.html:73
+#: catalog/templates/catalog/place_list.html:174
+#: catalog/templates/catalog/place_list.html:176
+msgid "Только с фото"
+msgstr "Yalnız şəkilli"
+
+#: catalog/templates/catalog/place_list.html:76
+#: catalog/templates/catalog/place_list.html:84
+msgid "Да"
+msgstr "Bəli"
+
+#: catalog/templates/catalog/place_list.html:81
+#: catalog/templates/catalog/place_list.html:179
+#: catalog/templates/catalog/place_list.html:181
+msgid "Только проверенные"
+msgstr "Yalnız yoxlanılmış"
+
+#: catalog/templates/catalog/place_list.html:105
+#: catalog/templates/catalog/place_list.html:126
+msgid "от"
+msgstr "Şəkil"
+
+#: catalog/templates/catalog/place_list.html:109
+#: catalog/templates/catalog/place_list.html:130
+msgid "до"
+msgstr ""
+
+#: catalog/templates/catalog/place_list.html:141
 msgid "Сортировка"
 msgstr "Sıralama"
 
-#: catalog/templates/catalog/place_list.html:65
+#: catalog/templates/catalog/place_list.html:143
+#: catalog/templates/catalog/place_list.html:192
 msgid "Сначала новые"
 msgstr "Əvvəlcə yenilər"
 
-#: catalog/templates/catalog/place_list.html:66
+#: catalog/templates/catalog/place_list.html:144
 msgid "Цена по возрастанию"
 msgstr "Qiymət: artan"
 
-#: catalog/templates/catalog/place_list.html:67
+#: catalog/templates/catalog/place_list.html:145
 msgid "Цена по убыванию"
 msgstr "Qiymət: azalan"
 
-#: catalog/templates/catalog/place_list.html:72
+#: catalog/templates/catalog/place_list.html:151
 msgid "Поиск"
 msgstr "Axtar"
 
-#: catalog/templates/catalog/place_list.html:73
-#: catalog/templates/catalog/place_list.html:117
+#: catalog/templates/catalog/place_list.html:152
+#: catalog/templates/catalog/place_list.html:384
 msgid "Сброс"
 msgstr "Sıfırla"
 
-#: catalog/templates/catalog/place_list.html:107
+#: catalog/templates/catalog/place_list.html:157
+msgid "Быстрые фильтры"
+msgstr "Sürətli filtrlər"
+
+#: catalog/templates/catalog/place_list.html:160
+msgid "Период (1 вариант)"
+msgstr ""
+
+#: catalog/templates/catalog/place_list.html:166
+#, fuzzy
+#| msgid "Рейтинг не ниже"
+msgid "Рейтинг (1 вариант)"
+msgstr "Reytinq ən azı"
+
+#: catalog/templates/catalog/place_list.html:167
+msgid "Любой"
+msgstr ""
+
+#: catalog/templates/catalog/place_list.html:172
+msgid "Дополнительно (можно несколько)"
+msgstr ""
+
+#: catalog/templates/catalog/place_list.html:190
+msgid "Ясамал"
+msgstr "Yasamal"
+
+#: catalog/templates/catalog/place_list.html:191
+msgid "Нариманов"
+msgstr "Nərimanov"
+
+#: catalog/templates/catalog/place_list.html:197
+#, python-format
+msgid ""
+"\n"
+"        Найден %(total)s кружок\n"
+"      "
+msgid_plural ""
+"\n"
+"        Найдено %(total)s кружков\n"
+"      "
+msgstr[0] ""
+msgstr[1] ""
+
+#: catalog/templates/catalog/place_list.html:203
+#, fuzzy
+#| msgid "На карте"
+msgid "Вид карточек"
+msgstr "Xəritədə"
+
+#: catalog/templates/catalog/place_list.html:207
+#, fuzzy
+#| msgid "Популярные категории"
+msgid "Обычные карточки"
+msgstr "Populyar kateqoriyalar"
+
+#: catalog/templates/catalog/place_list.html:211
+msgid "Карточки списком"
+msgstr ""
+
+#: catalog/templates/catalog/place_list.html:217
+#, python-format
+msgid "Что нового за %(days)s дней"
+msgstr "Son %(days)s gündə nə yenidir"
+
+#: catalog/templates/catalog/place_list.html:222
+msgid "Новых кружков"
+msgstr "Yeni dərnəklər"
+
+#: catalog/templates/catalog/place_list.html:227
+msgid "Новых районов"
+msgstr "Yeni rayonlar"
+
+#: catalog/templates/catalog/place_list.html:232
+msgid "Новых категорий"
+msgstr "Yeni kateqoriyalar"
+
+#: catalog/templates/catalog/place_list.html:236
+msgid "Подписаться на новинки"
+msgstr "Yeniliklərə abunə ol"
+
+#: catalog/templates/catalog/place_list.html:242
+msgid "Последние добавления"
+msgstr "Son əlavələr"
+
+#: catalog/templates/catalog/place_list.html:262
+#: catalog/templates/catalog/place_list.html:348
+msgid "дн. назад"
+msgstr "gün əvvəl"
+
+#: catalog/templates/catalog/place_list.html:288
+#: catalog/templates/catalog/place_list.html:366
+#: catalog/templates/pages/home.html:145 catalog/templates/pages/home.html:200
 msgid "Подробнее"
 msgstr "Ətraflı"
 
-msgid "Досуг"
-msgstr "Asudə vaxt"
-
-#: catalog/templates/catalog/place_list.html:115
-msgid "Пока нет мест."
-msgstr "Hələ məkan yoxdur."
-
+#: catalog/templates/catalog/place_list.html:374
+#: catalog/templates/catalog/place_list.html:381
 msgid "Ничего не найдено."
 msgstr "Heç nə tapılmadı."
 
-#: catalog/templates/catalog/place_list.html:116
+#: catalog/templates/catalog/place_list.html:383
 msgid "Попробуйте изменить фильтры или сбросить поиск."
 msgstr "Filtrləri dəyişin və ya axtarışı sıfırlayın."
 
-#: catalog/templates/catalog/place_list.html:127
+#: catalog/templates/catalog/place_list.html:394
 msgid "Страница"
 msgstr "Səhifə"
 
-#: catalog/templates/catalog/place_list.html:127
+#: catalog/templates/catalog/place_list.html:394
 msgid "из"
 msgstr "dən"
 
-#: catalog/templates/catalog/place_list.html:130
+#: catalog/templates/catalog/place_list.html:397
 msgid "Вперед"
 msgstr "İrəli"
 
-#: catalog/templates/pages/about.html:9
+#: catalog/templates/catalog/place_list.html:403
+msgid "Часто ищут"
+msgstr "Tez-tez axtarılır"
+
+#: catalog/templates/catalog/place_list.html:405
+#: catalog/templates/pages/home.html:156
+msgid "Кружки в Баку для детей"
+msgstr "Bakıda uşaqlar üçün dərnəklər"
+
+#: catalog/templates/catalog/place_list.html:406
+#: catalog/templates/pages/home.html:157
+msgid "Курсы для детей в Баку"
+msgstr "Bakıda uşaqlar üçün kurslar"
+
+#: catalog/templates/catalog/place_list.html:407
+#: catalog/templates/pages/home.html:158
+msgid "Спортивные секции в Баку"
+msgstr "Bakıda idman bölmələri"
+
+#: catalog/templates/catalog/place_list.html:408
+#: catalog/templates/pages/home.html:159
+msgid "Творческие кружки в Баку"
+msgstr "Bakıda yaradıcı dərnəklər"
+
+#: catalog/templates/catalog/place_list.html:409
+#: catalog/templates/pages/home.html:160
+msgid "Программирование для детей в Баку"
+msgstr "Bakıda uşaqlar üçün proqramlaşdırma"
+
+#: catalog/templates/catalog/seo_landing.html:14
+msgid "Перейти в каталог"
+msgstr "Kataloqa keç"
+
+#: catalog/templates/catalog/seo_landing.html:19
+msgid "Что вы найдете на KidsMap"
+msgstr "KidsMap-də nə tapacaqsınız"
+
+#: catalog/templates/catalog/seo_landing.html:28
+msgid "Частые вопросы"
+msgstr "Tez-tez verilən suallar"
+
+#: catalog/templates/catalog/seo_landing.html:40
+msgid "Полезные подборки"
+msgstr "Faydalı seçimlər"
+
+#: catalog/templates/pages/about.html:15
 msgid "KidsMap — каталог детских кружков и секций в Баку."
 msgstr "KidsMap Bakıda uşaq dərnəkləri və bölmələrinin kataloqudur."
 
-#: catalog/templates/pages/contacts.html:9
+#: catalog/templates/pages/contacts.html:15
 msgid "Свяжитесь с нами по почте: kidsmap@example.com"
 msgstr "Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap@example.com"
 
-#: catalog/templates/pages/home.html:8
+#: catalog/templates/pages/home.html:16
 msgid "Найдите кружок для ребёнка в Баку"
 msgstr "Bakıda uşağınız üçün dərnək tapın"
 
-#: catalog/templates/pages/home.html:9
+#: catalog/templates/pages/home.html:17
 msgid "Спорт, творчество, музыка, образование — всё в одном месте."
 msgstr "İdman, yaradıcılıq, musiqi, təhsil — hamısı bir yerdə."
 
-#: catalog/templates/pages/home.html:10 catalog/templates/pages/home.html:52
+#: catalog/templates/pages/home.html:19
+msgid "Искать кружок, курс или школу"
+msgstr "Dərnək, kurs və ya məktəb axtarın"
+
+#: catalog/templates/pages/home.html:21
+msgid "например english, ballet, lego"
+msgstr "məsələn english, ballet, lego"
+
+#: catalog/templates/pages/home.html:22 catalog/templates/pages/home.html:166
 msgid "Начать поиск"
 msgstr "Axtarışa başla"
 
-#: catalog/templates/pages/home.html:14
+#: catalog/templates/pages/home.html:28
 msgid "Как это работает"
 msgstr "Necə işləyir"
 
-#: catalog/templates/pages/home.html:18
+#: catalog/templates/pages/home.html:31 catalog/templates/pages/home.html:37
+#: catalog/templates/pages/home.html:43
+msgid "Шаг"
+msgstr "Addım"
+
+#: catalog/templates/pages/home.html:33
 msgid "Выберите категорию и район"
 msgstr "Kateqoriya və rayonu seçin"
 
-#: catalog/templates/pages/home.html:22
+#: catalog/templates/pages/home.html:34
+#, fuzzy
+#| msgid "Выберите категорию и район"
+msgid "Выберите интересы и место"
+msgstr "Kateqoriya və rayonu seçin"
+
+#: catalog/templates/pages/home.html:39
 msgid "Сравните кружки по возрасту и цене"
 msgstr "Dərnəkləri yaş və qiymətə görə müqayisə edin"
 
-#: catalog/templates/pages/home.html:26
+#: catalog/templates/pages/home.html:40
+#, fuzzy
+#| msgid "Сравните кружки по возрасту и цене"
+msgid "Сравните карточки и отзывы"
+msgstr "Dərnəkləri yaş və qiymətə görə müqayisə edin"
+
+#: catalog/templates/pages/home.html:45
 msgid "Откройте карточку и свяжитесь с местом"
 msgstr "Kartı açın və məkanla əlaqə saxlayın"
 
-#: catalog/templates/pages/home.html:32
-msgid "Популярные категории"
-msgstr "Populyar kateqoriyalar"
+#: catalog/templates/pages/home.html:46
+msgid "Запишитесь быстро и удобно"
+msgstr ""
 
-#: catalog/templates/pages/home.html:41
+#: catalog/templates/pages/home.html:52
 msgid "Почему нам доверяют"
 msgstr "Niyə bizə etibar edirlər"
 
-#: catalog/templates/pages/home.html:43
+#: catalog/templates/pages/home.html:56
+#, fuzzy
+#| msgid "Кружки в Баку для детей"
+msgid "удобный выбор для родителей"
+msgstr "Bakıda uşaqlar üçün dərnəklər"
+
+#: catalog/templates/pages/home.html:62
+msgid "Алина К."
+msgstr ""
+
+#: catalog/templates/pages/home.html:63
+msgid "Очень легко нашли кружок рядом с домом и быстро связались."
+msgstr ""
+
+#: catalog/templates/pages/home.html:69
+msgid "Игорь С."
+msgstr ""
+
+#: catalog/templates/pages/home.html:70
+msgid "Сравнили варианты по цене и возрасту, выбрали лучший за 10 минут."
+msgstr ""
+
+#: catalog/templates/pages/home.html:75
 msgid "Проверенные и активные места"
 msgstr "Yoxlanılmış və aktiv məkanlar"
 
-#: catalog/templates/pages/home.html:44
+#: catalog/templates/pages/home.html:76
 msgid "Фильтры по возрасту, району и цене"
 msgstr "Yaş, rayon və qiymət üzrə filtrlər"
 
-#: catalog/templates/pages/home.html:45
+#: catalog/templates/pages/home.html:77
 msgid "Быстрый переход к звонку и Instagram"
 msgstr "Zəng və Instagram-a sürətli keçid"
 
-#: catalog/templates/pages/home.html:46
+#: catalog/templates/pages/home.html:78
 msgid "Удобно на телефоне и компьютере"
 msgstr "Telefon və kompüterdə rahat"
 
-#: catalog/templates/pages/home.html:51
+#: catalog/templates/pages/home.html:83
+msgid "Популярные категории"
+msgstr "Populyar kateqoriyalar"
+
+#: catalog/templates/pages/home.html:93 catalog/templates/pages/home.html:102
+msgid "Карта кружков по Азербайджану"
+msgstr "Azərbaycan üzrə dərnəklərin xəritəsi"
+
+#: catalog/templates/pages/home.html:104
+msgid ""
+"Для отображения карты укажите GOOGLE_MAPS_API_KEY в настройках окружения."
+msgstr ""
+"Xəritəni göstərmək üçün mühit ayarlarında GOOGLE_MAPS_API_KEY dəyərini təyin "
+"edin."
+
+#: catalog/templates/pages/home.html:112
+msgid "Рекомендуемые кружки"
+msgstr ""
+
+#: catalog/templates/pages/home.html:154
+msgid "Популярные запросы"
+msgstr "Populyar sorğular"
+
+#: catalog/templates/pages/home.html:165
 msgid "Готовы выбрать кружок?"
 msgstr "Dərnək seçməyə hazırsınız?"
 
-#: templates/admin/base_site.html:5
-msgid "Django administration"
-msgstr ""
+#: catalog/views.py:166
+msgid "Оставлять отзывы могут только зарегистрированные пользователи."
+msgstr "Rəy yalnız qeydiyyatdan keçmiş istifadəçilər tərəfindən yazıla bilər."
+
+#: catalog/views.py:180
+msgid "Пожалуйста, выберите оценку от 1 до 5."
+msgstr "Zəhmət olmasa 1-dən 5-ə qədər qiymət seçin."
+
+#: catalog/views.py:184
+msgid "Отзыв должен быть не короче 8 символов."
+msgstr "Rəy ən azı 8 simvol olmalıdır."
+
+#: catalog/views.py:202
+msgid "Спасибо! Ваш отзыв обновлен."
+msgstr "Təşəkkürlər! Rəyiniz əlavə olundu."
+
+#: catalog/views.py:204
+msgid "Спасибо! Ваш отзыв добавлен."
+msgstr "Təşəkkürlər! Rəyiniz əlavə olundu."
+
+#: templates/admin/catalog/site_settings_hub.html:7
+msgid "Выберите раздел для редактирования"
+msgstr "Redaktə üçün bölmə seçin"
+
+#: templates/admin/catalog/site_settings_hub.html:13
+msgid "Заполнено"
+msgstr "Doldurulub"
+
+#: templates/admin/catalog/site_settings_hub.html:15
+msgid "Нужно заполнить"
+msgstr "Doldurmaq lazımdır"
+
+#~ msgid "Популярные курсы"
+#~ msgstr "Populyar kurslar"
+
+#~ msgid "например 8"
+#~ msgstr "məsələn 8"
+
+#~ msgid "например 100"
+#~ msgstr "məsələn 100"
+
+#~ msgid "Досуг"
+#~ msgstr "Asudə vaxt"
+
+#~ msgid "Пока нет мест."
+#~ msgstr "Hələ məkan yoxdur."
 
 #~ msgid "Перевести"
 #~ msgstr "Tərcümə et"
@@ -374,236 +1152,26 @@ msgstr ""
 #~ msgid "например Ясамал"
 #~ msgstr "məsələn Yasamal"
 
-msgid "Кружок/курс"
-msgstr "Dərnək/kurs"
+#~ msgid "Открыть сайт"
+#~ msgstr "Saytı aç"
 
-msgid "Кружки и курсы"
-msgstr "Dərnəklər və kurslar"
+#~ msgid "Рекомендуется JPG/WebP 1920x1080 px, до 400 KB."
+#~ msgstr "Tövsiyə: JPG/WebP 1920x1080 px, 400 KB-a qədər."
 
-msgid "URL-слаг"
-msgstr "URL slug"
+#~ msgid "Рекомендуется JPG/WebP 1600x500 px, до 350 KB."
+#~ msgstr "Tövsiyə: JPG/WebP 1600x500 px, 350 KB-a qədər."
 
-msgid "Название (Русский)"
-msgstr "Ad (Rus dili)"
+#~ msgid "Рекомендуется SVG или PNG, размер 256x256 px (минимум 128x128)."
+#~ msgstr "Tövsiyə: SVG və ya PNG, 256x256 px (minimum 128x128)."
 
-msgid "Название (Азербайджанский)"
-msgstr "Ad (Azərbaycan dili)"
+#~ msgid "Рекомендуется PNG/WebP 600x400 px, до 250 KB."
+#~ msgstr "Tövsiyə: PNG/WebP 600x400 px, 250 KB-a qədər."
 
-msgid "Описание (Русский)"
-msgstr "Təsvir (Rus dili)"
+#~ msgid "Выберите"
+#~ msgstr "Seçin"
 
-msgid "Описание (Азербайджанский)"
-msgstr "Təsvir (Azərbaycan dili)"
+#~ msgid "например 5"
+#~ msgstr "məsələn 5"
 
-msgid "Количество лайков"
-msgstr "Bəyənmə sayı"
-
-msgid "Основное"
-msgstr "Əsas"
-
-msgid "Названия и описания (i18n)"
-msgstr "Adlar və təsvirlər (i18n)"
-
-msgid "Возраст и цена"
-msgstr "Yaş və qiymət"
-
-msgid "Локация"
-msgstr "Məkan"
-
-msgid "Служебное"
-msgstr "Xidmət məlumatları"
-
-msgid "Сделать активными"
-msgstr "Aktiv et"
-
-msgid "Сделать неактивными"
-msgstr "Qeyri-aktiv et"
-
-msgid "Отметить как проверенные"
-msgstr "Yoxlanılıb kimi işarələ"
-
-msgid "Снять отметку проверки"
-msgstr "Yoxlanılıb işarəsini sil"
-
-msgid "Лайки"
-msgstr "Bəyənmələr"
-
-msgid "Популярные курсы"
-msgstr "Populyar kurslar"
-
-msgid "Шаг"
-msgstr "Addım"
-
-msgid "Карта кружков по Азербайджану"
-msgstr "Azərbaycan üzrə dərnəklərin xəritəsi"
-
-msgid "Для отображения карты укажите GOOGLE_MAPS_API_KEY в настройках окружения."
-msgstr "Xəritəni göstərmək üçün mühit ayarlarında GOOGLE_MAPS_API_KEY dəyərini təyin edin."
-
-msgid "Популярные запросы"
-msgstr "Populyar sorğular"
-
-msgid "Кружки в Баку для детей"
-msgstr "Bakıda uşaqlar üçün dərnəklər"
-
-msgid "Курсы для детей в Баку"
-msgstr "Bakıda uşaqlar üçün kurslar"
-
-msgid "Спортивные секции в Баку"
-msgstr "Bakıda idman bölmələri"
-
-msgid "Творческие кружки в Баку"
-msgstr "Bakıda yaradıcı dərnəklər"
-
-msgid "Программирование для детей в Баку"
-msgstr "Bakıda uşaqlar üçün proqramlaşdırma"
-
-msgid "Часто ищут"
-msgstr "Tez-tez axtarılır"
-
-msgid "Перейти в каталог"
-msgstr "Kataloqa keç"
-
-msgid "Что вы найдете на KidsMap"
-msgstr "KidsMap-də nə tapacaqsınız"
-
-msgid "Частые вопросы"
-msgstr "Tez-tez verilən suallar"
-
-msgid "Полезные подборки"
-msgstr "Faydalı seçimlər"
-
-msgid "На карте"
-msgstr "Xəritədə"
-
-msgid "Карта места"
-msgstr "Məkanın xəritəsi"
-
-msgid "Открыть большую карту"
-msgstr "Böyük xəritəni aç"
-
-msgid "Поиск по названию"
-msgstr "Ada görə axtarış"
-
-msgid "например робототехника или english"
-msgstr "məsələn robototexnika və ya english"
-
-msgid "Искать кружок, курс или школу"
-msgstr "Dərnək, kurs və ya məktəb axtarın"
-
-msgid "например english, ballet, lego"
-msgstr "məsələn english, ballet, lego"
-
-msgid "Открыть сайт"
-msgstr "Saytı aç"
-
-msgid "Мы в Instagram"
-msgstr "Instagram-da biz"
-
-msgid "Настройка сайта"
-msgstr "Sayt ayarı"
-
-msgid "Лого и бренд"
-msgstr "Loqo və brend"
-
-msgid "Футер и соцсети"
-msgstr "Footer və sosial şəbəkələr"
-
-msgid "Пустой результат"
-msgstr "Boş nəticə"
-
-msgid "Выберите раздел для редактирования"
-msgstr "Redaktə üçün bölmə seçin"
-
-msgid "Название проекта и логотип в шапке."
-msgstr "Layihə adı və başlıqda loqo."
-
-msgid "Текст страницы «О проекте»."
-msgstr "“Layihə haqqında” səhifəsinin mətni."
-
-msgid "Контакты для страницы «Контакты»."
-msgstr "“Əlaqə” səhifəsi üçün kontaktlar."
-
-msgid "Телефон, email, Instagram и WhatsApp в футере."
-msgstr "Footer hissəsində telefon, email, Instagram və WhatsApp."
-
-msgid "Картинка и текст, если в каталоге ничего не найдено."
-msgstr "Kataloqda heç nə tapılmadıqda şəkil və mətn."
-
-msgid "Дизайн-картинки"
-msgstr "Dizayn şəkilləri"
-
-msgid "Фон сайта"
-msgstr "Sayt fonu"
-
-msgid "Фон главного баннера"
-msgstr "Əsas banner fonu"
-
-msgid "Рекомендуется JPG/WebP 1920x1080 px, до 400 KB."
-msgstr "Tövsiyə: JPG/WebP 1920x1080 px, 400 KB-a qədər."
-
-msgid "Рекомендуется JPG/WebP 1600x500 px, до 350 KB."
-msgstr "Tövsiyə: JPG/WebP 1600x500 px, 350 KB-a qədər."
-
-msgid "Рекомендуется SVG или PNG, размер 256x256 px (минимум 128x128)."
-msgstr "Tövsiyə: SVG və ya PNG, 256x256 px (minimum 128x128)."
-
-msgid "Рекомендуется PNG/WebP 600x400 px, до 250 KB."
-msgstr "Tövsiyə: PNG/WebP 600x400 px, 250 KB-a qədər."
-
-msgid "Рекомендуется SVG или PNG, размер 256x256 px (минимум 128x128), до 500 KB."
-msgstr "Tövsiyə: SVG və ya PNG, 256x256 px (minimum 128x128), 500 KB-a qədər."
-
-msgid "Рекомендуется JPG/WebP 1920x1080 px, до 2 MB."
-msgstr "Tövsiyə: JPG/WebP 1920x1080 px, 2 MB-a qədər."
-
-msgid "Рекомендуется JPG/WebP 1600x500 px, до 1 MB."
-msgstr "Tövsiyə: JPG/WebP 1600x500 px, 1 MB-a qədər."
-
-msgid "Рекомендуется PNG/WebP 600x400 px, до 500 KB."
-msgstr "Tövsiyə: PNG/WebP 600x400 px, 500 KB-a qədər."
-
-msgid "Текущее лого"
-msgstr "Cari loqo"
-
-msgid "Текущий фон сайта"
-msgstr "Cari sayt fonu"
-
-msgid "Текущий фон баннера"
-msgstr "Cari banner fonu"
-
-msgid "Текущая картинка пустого результата"
-msgstr "Cari boş nəticə şəkli"
-
-msgid "Фото скоро будет."
-msgstr "Şəkil tezliklə əlavə olunacaq."
-
-msgid "Быстрые фильтры"
-msgstr "Sürətli filtrlər"
-
-msgid "Позвонить"
-msgstr "Zəng et"
-
-msgid "Заполнено"
-msgstr "Doldurulub"
-
-msgid "Нужно заполнить"
-msgstr "Doldurmaq lazımdır"
-
-msgid "Ясамал"
-msgstr "Yasamal"
-
-msgid "Нариманов"
-msgstr "Nərimanov"
-
-msgid "Новое"
-msgstr "Yeni"
-
-msgid "Добавлено"
-msgstr "Əlavə olunub"
-
-msgid "Новое в каталоге"
-msgstr "Kataloqda yenilər"
-
-msgid "Только недавно добавленные кружки и курсы."
-msgstr "Yalnız yaxın zamanda əlavə olunmuş dərnək və kurslar."
+#~ msgid "например 12"
+#~ msgstr "məsələn 12"

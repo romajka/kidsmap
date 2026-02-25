@@ -35,11 +35,31 @@
         </a>
 
         <nav class="nav">
-          <a href="{% url 'home' %}">{% trans "Главная" %}</a>
-          <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
-          <a href="{% url 'place_new' %}">{% trans "Новое" %}</a>
-          <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
-          <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
+          <a
+            href="{% url 'home' %}"
+            class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}
+          >{% trans "Главная" %}</a>
+          <a
+            href="{% url 'place_list' %}"
+            class="{% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
+          >{% trans "Каталог" %}</a>
+          <a
+            href="{% url 'place_new' %}"
+            class="{% if request.resolver_match.url_name == 'place_new' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'place_new' %}aria-current="page"{% endif %}
+          >{% trans "Новое" %}</a>
+          <a
+            href="{% url 'about' %}"
+            class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
+          >{% trans "О проекте" %}</a>
+          <a
+            href="{% url 'contacts' %}"
+            class="{% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'contacts' %}aria-current="page"{% endif %}
+          >{% trans "Контакты" %}</a>
         </nav>
 
         <div class="lang-switch" aria-label="{% trans 'Язык' %}">
@@ -174,6 +194,26 @@
             if (button) button.disabled = false;
           }
         });
+
+        (function () {
+          const langMenus = Array.from(document.querySelectorAll(".lang-menu"));
+          if (!langMenus.length) return;
+
+          document.addEventListener("click", function (event) {
+            langMenus.forEach(function (menu) {
+              if (!menu.hasAttribute("open")) return;
+              if (menu.contains(event.target)) return;
+              menu.removeAttribute("open");
+            });
+          });
+
+          document.addEventListener("keydown", function (event) {
+            if (event.key !== "Escape") return;
+            langMenus.forEach(function (menu) {
+              menu.removeAttribute("open");
+            });
+          });
+        })();
       })();
     </script>
   </body>
