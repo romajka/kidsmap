@@ -148,8 +148,8 @@
       {% endif %}
 
       <div class="actions">
-        <button class="btn" type="submit">{% trans "Поиск" %}</button>
-        <a class="link-btn" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
+        <button class="btn icon-btn icon-search" type="submit">{% trans "Поиск" %}</button>
+        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
       </div>
     </form>
 
@@ -217,17 +217,17 @@
       <h2>{% blocktrans with days=new_stats_days %}Что нового за {{ days }} дней{% endblocktrans %}</h2>
       <div class="new-stats-grid">
         <div class="new-stat">
-          <span class="new-stat-icon" aria-hidden="true">🆕</span>
+          <span class="new-stat-icon icon-badge-new" aria-hidden="true"></span>
           <div class="new-stat-value">{{ new_stats.places }}</div>
           <div class="new-stat-label">{% trans "Новых кружков" %}</div>
         </div>
         <div class="new-stat">
-          <span class="new-stat-icon" aria-hidden="true">📍</span>
+          <span class="new-stat-icon icon-badge-district" aria-hidden="true"></span>
           <div class="new-stat-value">{{ new_stats.districts }}</div>
           <div class="new-stat-label">{% trans "Новых районов" %}</div>
         </div>
         <div class="new-stat">
-          <span class="new-stat-icon" aria-hidden="true">🧩</span>
+          <span class="new-stat-icon icon-badge-category" aria-hidden="true"></span>
           <div class="new-stat-value">{{ new_stats.categories }}</div>
           <div class="new-stat-label">{% trans "Новых категорий" %}</div>
         </div>
@@ -293,13 +293,13 @@
                 {% endif %}
                 <div class="card-cta-row">
                   {% if place.phone1 %}
-                    <a class="cta-btn cta-call" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
+                    <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
                   {% endif %}
                   {% if place.instagram %}
-                    <a class="cta-btn cta-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">{% trans "Instagram" %}</a>
+                    <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">{% trans "Instagram" %}</a>
                   {% endif %}
                 </div>
-                <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
+                <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
               </div>
             </article>
           {% endfor %}
@@ -385,13 +385,13 @@
             </form>
             <div class="card-cta-row">
               {% if place.phone1 %}
-                <a class="cta-btn cta-call" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
+                <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
               {% endif %}
               {% if place.instagram %}
-                <a class="cta-btn cta-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">{% trans "Instagram" %}</a>
+                <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">{% trans "Instagram" %}</a>
               {% endif %}
             </div>
-            <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
+            <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
           </div>
         </article>
       {% endfor %}
@@ -409,7 +409,7 @@
         <h2>{% trans "Ничего не найдено." %}</h2>
       {% endif %}
       <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
-      <a class="link-btn" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
+      <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
     </section>
   {% endif %}
 

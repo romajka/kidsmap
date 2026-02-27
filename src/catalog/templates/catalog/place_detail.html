@@ -12,7 +12,7 @@
 {% block content %}
   <section class="detail-wrap">
     <div>
-      <a class="link-btn detail-back-btn" href="{% url 'place_list' %}">{% trans "Назад" %}</a>
+      <a class="link-btn detail-back-btn icon-btn icon-arrow-left" href="{% url 'place_list' %}">{% trans "Назад" %}</a>
     </div>
 
     <article class="detail-block">
@@ -61,11 +61,11 @@
       </div>
       <div class="card-cta-row">
         {% if place.phone1 %}
-          <a class="cta-btn cta-call" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
-          <a class="cta-btn cta-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
+          <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener">WhatsApp</a>
         {% endif %}
         {% if place.instagram %}
-          <a class="cta-btn cta-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+          <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
         {% endif %}
       </div>
       <div class="detail-meta-grid">

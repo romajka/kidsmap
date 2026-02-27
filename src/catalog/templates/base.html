@@ -21,6 +21,8 @@
     <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}KidsMap{% endblock %}{% endblock %}" />
     <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
     {% block twitter_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.png' %}" />{% endblock %}
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}" />
+    <link rel="apple-touch-icon" href="{% static 'img/logo.png' %}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
@@ -30,6 +32,19 @@
     class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     {% if site_settings and site_settings.site_background_image %}style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url }}');"{% endif %}
   >
+    <div class="bg-scene" aria-hidden="true">
+      <span class="bg-orb orb-a"></span>
+      <span class="bg-orb orb-b"></span>
+      <span class="bg-orb orb-c"></span>
+      <span class="bg-orb orb-d"></span>
+      <span class="bg-glow glow-a"></span>
+      <span class="bg-glow glow-b"></span>
+      <span class="bg-ribbon ribbon-a"></span>
+      <span class="bg-ribbon ribbon-b"></span>
+      <span class="bg-spark spark-a"></span>
+      <span class="bg-spark spark-b"></span>
+      <span class="bg-spark spark-c"></span>
+    </div>
     <div class="site-shell">
       <header class="topbar">
         <a class="brand-wrap" href="{% url 'home' %}">
@@ -165,6 +180,10 @@
           if (button) {
             button.classList.toggle("active", !!payload.liked);
             button.setAttribute("aria-pressed", payload.liked ? "true" : "false");
+            button.classList.remove("like-pop");
+            // restart keyframe animation for each state change
+            void button.offsetWidth;
+            button.classList.add("like-pop");
           }
           if (countEl && typeof payload.likes_count === "number") {
             countEl.textContent = payload.likes_count;
@@ -217,6 +236,37 @@
             });
           });
         })();
+
+        (function () {
+          if (!("IntersectionObserver" in window)) return;
+          if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+          const targets = Array.from(
+            document.querySelectorAll(".panel, .card, .home-tile, .trust-card, .faq-card")
+          );
+          if (!targets.length) return;
+
+          targets.forEach(function (el, idx) {
+            el.classList.add("reveal-item");
+            el.style.setProperty("--reveal-order", String(idx % 8));
+          });
+
+          const observer = new IntersectionObserver(
+            function (entries, obs) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-visible");
+                obs.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.14, rootMargin: "0px 0px -8% 0px" }
+          );
+
+          targets.forEach(function (el) {
+            observer.observe(el);
+          });
+        })();
+
       })();
     </script>
   </body>

@@ -21,7 +21,7 @@
       <label class="home-search-label" for="home-search-q">{{ hero_search_label }}</label>
       <div class="home-search-row">
         <input id="home-search-q" class="field home-search-input" type="search" name="q" placeholder="{{ hero_search_placeholder }}" />
-        <button class="btn" type="submit">{{ hero_cta_text }}</button>
+        <button class="btn icon-btn icon-search" type="submit">{{ hero_cta_text }}</button>
       </div>
     </form>
   </section>
@@ -173,7 +173,7 @@
                   ♥ <span class="like-count">{{ place.likes_count }}</span>
                 </button>
               </form>
-              <a class="details-btn" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
+              <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
             </div>
           </article>
         {% endfor %}
