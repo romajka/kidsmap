@@ -65,6 +65,117 @@
     </div>
 
     <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Динамика за 30 дней" %}</h2>
+      <div style="display:grid;grid-template-columns:1fr;gap:16px;">
+        <div>
+          <h3 style="margin:0 0 8px;">{% trans "Посещения" %}</h3>
+          <canvas id="visitsChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
+        </div>
+        <div>
+          <h3 style="margin:0 0 8px;">{% trans "Воронка: поиск → карточка → CTA" %}</h3>
+          <canvas id="funnelChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px;">
+        <div>
+          <h3 style="margin:0 0 8px;">{% trans "Посещения по периодам (1/7/30/365 дней)" %}</h3>
+          <canvas id="visitsPeriodChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
+        </div>
+        <div>
+          <h3 style="margin:0 0 8px;">{% trans "Воронка по периодам (1/7/30/365 дней)" %}</h3>
+          <canvas id="funnelPeriodChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
+        </div>
+      </div>
+      {{ visits_daily_chart|json_script:"visits-chart-data" }}
+      {{ funnel_daily_chart|json_script:"funnel-chart-data" }}
+      {{ visits_period_chart|json_script:"visits-period-chart-data" }}
+      {{ funnel_period_chart|json_script:"funnel-period-chart-data" }}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Конверсионная воронка" %}</h2>
+      <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Период" %}</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Поиски" %}</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Фильтры" %}</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Открытия карточек" %}</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "CTA (звонок/WA/IG)" %}</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Open/Search %" %}</th>
+            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "CTA/Open %" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{% trans "Сегодня" %}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.search }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.filter }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.open }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.cta_total }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.open_from_search_pct }}%</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.cta_from_open_pct }}%</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{% trans "За 7 дней" %}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.search }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.filter }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.open }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.cta_total }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.open_from_search_pct }}%</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.cta_from_open_pct }}%</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{% trans "За 30 дней" %}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.search }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.filter }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.open }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.cta_total }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.open_from_search_pct }}%</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.cta_from_open_pct }}%</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{% trans "За 365 дней" %}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.search }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.filter }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.open }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.cta_total }}</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.open_from_search_pct }}%</td>
+            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.cta_from_open_pct }}%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Топ кружков по CTA (30 дней)" %}</h2>
+      {% if top_cta_places %}
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Кружок" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Клики CTA" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in top_cta_places %}
+              <tr>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">
+                  <a href="{% url 'admin:catalog_place_change' item.place_id %}">
+                    {% if item.place__name_ru %}{{ item.place__name_ru }}{% else %}{{ item.place__name }}{% endif %}
+                  </a>
+                </td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ item.total }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
       <h2 style="margin-top:0;">{% trans "Топ категорий" %}</h2>
       {% if top_categories %}
         <ul style="margin:10px 0 0;padding-left:18px;">
@@ -85,6 +196,118 @@
             <li>{{ item.district }} — {{ item.total }}</li>
           {% endfor %}
         </ul>
+      {% else %}
+        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Посещаемость по неделям" %}</h2>
+      {% if weekly_visits %}
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Неделя от" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Уникальные посетители" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Просмотры страниц" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in weekly_visits %}
+              <tr>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.period|date:"d.m.Y" }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.unique_sessions }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.page_views }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Посещаемость по месяцам" %}</h2>
+      {% if monthly_visits %}
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Месяц" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Уникальные посетители" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Просмотры страниц" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in monthly_visits %}
+              <tr>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.period|date:"m.Y" }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.unique_sessions }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.page_views }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Воронка по неделям" %}</h2>
+      {% if weekly_funnel %}
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Неделя от" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Поиски" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Фильтры" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Открытия карточек" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "CTA" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in weekly_funnel %}
+              <tr>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.period|date:"d.m.Y" }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.search }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.catalog_filter }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.place_open }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.cta_total }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+      {% endif %}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">{% trans "Воронка по месяцам" %}</h2>
+      {% if monthly_funnel %}
+        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Месяц" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Поиски" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Фильтры" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Открытия карточек" %}</th>
+              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "CTA" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in monthly_funnel %}
+              <tr>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.period|date:"m.Y" }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.search }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.catalog_filter }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.place_open }}</td>
+                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.cta_total }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       {% else %}
         <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
       {% endif %}
@@ -120,4 +343,123 @@
       {% endif %}
     </div>
   </div>
+
+  <script>
+    (function () {
+      function parseJsonScript(id) {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        try {
+          return JSON.parse(el.textContent || "{}");
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function drawLineChart(canvas, chartData, series) {
+        if (!canvas || !chartData || !chartData.labels || !chartData.labels.length) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const ratio = window.devicePixelRatio || 1;
+        const cssWidth = canvas.clientWidth || 900;
+        const cssHeight = 220;
+        canvas.width = Math.round(cssWidth * ratio);
+        canvas.height = Math.round(cssHeight * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+        const padding = { top: 18, right: 14, bottom: 28, left: 34 };
+        const width = cssWidth - padding.left - padding.right;
+        const height = cssHeight - padding.top - padding.bottom;
+
+        let maxValue = 0;
+        series.forEach(function (item) {
+          const values = chartData[item.key] || [];
+          values.forEach(function (val) {
+            maxValue = Math.max(maxValue, Number(val) || 0);
+          });
+        });
+        if (maxValue < 5) maxValue = 5;
+        const yMax = Math.ceil(maxValue * 1.1);
+
+        ctx.strokeStyle = "#dbe5ef";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, padding.top);
+        ctx.lineTo(padding.left, padding.top + height);
+        ctx.lineTo(padding.left + width, padding.top + height);
+        ctx.stroke();
+
+        ctx.fillStyle = "#637487";
+        ctx.font = "12px sans-serif";
+        ctx.fillText("0", 10, padding.top + height + 4);
+        ctx.fillText(String(yMax), 6, padding.top + 4);
+
+        const points = chartData.labels.length;
+        const stepX = points > 1 ? width / (points - 1) : width;
+
+        series.forEach(function (item) {
+          const values = chartData[item.key] || [];
+          ctx.strokeStyle = item.color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          values.forEach(function (raw, idx) {
+            const val = Number(raw) || 0;
+            const x = padding.left + stepX * idx;
+            const y = padding.top + height - (val / yMax) * height;
+            if (idx === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+        });
+
+        ctx.font = "11px sans-serif";
+        ctx.fillStyle = "#637487";
+        const lastLabel = chartData.labels[chartData.labels.length - 1] || "";
+        if (lastLabel) {
+          ctx.fillText(lastLabel, padding.left + width - 36, padding.top + height + 16);
+        }
+
+        let legendX = padding.left;
+        series.forEach(function (item) {
+          ctx.fillStyle = item.color;
+          ctx.fillRect(legendX, 6, 12, 12);
+          ctx.fillStyle = "#3a4958";
+          ctx.font = "12px sans-serif";
+          ctx.fillText(item.label, legendX + 16, 16);
+          legendX += Math.max(110, item.label.length * 7 + 34);
+        });
+      }
+
+      const visitsData = parseJsonScript("visits-chart-data");
+      const funnelData = parseJsonScript("funnel-chart-data");
+      const visitsPeriodData = parseJsonScript("visits-period-chart-data");
+      const funnelPeriodData = parseJsonScript("funnel-period-chart-data");
+      const visitsCanvas = document.getElementById("visitsChart");
+      const funnelCanvas = document.getElementById("funnelChart");
+      const visitsPeriodCanvas = document.getElementById("visitsPeriodChart");
+      const funnelPeriodCanvas = document.getElementById("funnelPeriodChart");
+
+      drawLineChart(visitsCanvas, visitsData, [
+        { key: "unique_sessions", color: "#2b7fd3", label: "{% trans 'Уникальные' %}" },
+        { key: "page_views", color: "#2ca24f", label: "{% trans 'Просмотры' %}" },
+      ]);
+      drawLineChart(funnelCanvas, funnelData, [
+        { key: "search", color: "#7b5ed9", label: "{% trans 'Поиск' %}" },
+        { key: "open", color: "#2b7fd3", label: "{% trans 'Карточки' %}" },
+        { key: "cta", color: "#2ca24f", label: "{% trans 'CTA' %}" },
+      ]);
+      drawLineChart(visitsPeriodCanvas, visitsPeriodData, [
+        { key: "unique_sessions", color: "#2b7fd3", label: "{% trans 'Уникальные' %}" },
+        { key: "page_views", color: "#2ca24f", label: "{% trans 'Просмотры' %}" },
+      ]);
+      drawLineChart(funnelPeriodCanvas, funnelPeriodData, [
+        { key: "search", color: "#7b5ed9", label: "{% trans 'Поиск' %}" },
+        { key: "filter", color: "#ef8f2d", label: "{% trans 'Фильтры' %}" },
+        { key: "open", color: "#2b7fd3", label: "{% trans 'Карточки' %}" },
+        { key: "cta", color: "#2ca24f", label: "{% trans 'CTA' %}" },
+      ]);
+    })();
+  </script>
 {% endblock %}

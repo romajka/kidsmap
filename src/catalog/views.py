@@ -1,30 +1,27 @@
 from django.conf import settings
 from django.contrib import messages
-from django.http import Http404, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from .controllers.engagement_controller import EngagementController
 from .controllers.home_controller import HomeController
 from .controllers.place_controller import PlaceController
-from .models import CatalogContentSettings, Place, SiteReview
-from .services.reactions import (
-    create_or_update_review,
-    liked_place_ids,
-    toggle_place_like as toggle_like_service,
-)
-from .services.seo import build_seo_landing_schema_payload
+from .controllers.seo_controller import SeoController
+from .controllers.tracking_controller import TrackingController
 
 home_controller = HomeController.build_default()
 place_controller = PlaceController.build_default()
+engagement_controller = EngagementController.build_default()
+seo_controller = SeoController.build_default()
+tracking_controller = TrackingController.build_default()
 
 
 def home(request):
-    liked_ids = liked_place_ids(request)
     context = home_controller.build_context(
-        language_code=request.LANGUAGE_CODE,
-        liked_ids=liked_ids,
+        request=request,
         google_maps_api_key=settings.GOOGLE_MAPS_API_KEY,
     )
 
@@ -44,10 +41,8 @@ def place_new(request):
 
 
 def _render_place_list(request, force_new_only=False, created_after=None):
-    liked_ids = liked_place_ids(request)
     context = place_controller.build_list_context(
         request,
-        liked_ids=liked_ids,
         force_new_only=force_new_only,
         created_after=created_after,
     )
@@ -65,8 +60,7 @@ def place_detail(request, pk, slug):
     if slug != place.slug:
         return redirect(place.get_absolute_url(), permanent=True)
 
-    liked_ids = liked_place_ids(request)
-    context = place_controller.build_detail_context(request, place=place, liked_ids=liked_ids)
+    context = place_controller.build_detail_context(request, place=place)
 
     return render(
         request,
@@ -77,139 +71,51 @@ def place_detail(request, pk, slug):
 
 @require_POST
 def toggle_place_like(request, pk):
-    place = get_object_or_404(Place, pk=pk, is_active=True)
-    liked, likes_count = toggle_like_service(place, request)
+    result = engagement_controller.toggle_place_like(request=request, place_id=pk)
 
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        return JsonResponse({"ok": True, "liked": liked, "likes_count": likes_count})
+        return JsonResponse({"ok": True, "liked": result.liked, "likes_count": result.likes_count})
 
-    return redirect(request.POST.get("next") or place.get_absolute_url())
+    return redirect(request.POST.get("next") or result.place.get_absolute_url())
 
 
 @require_POST
 def add_place_review(request, pk):
-    place = get_object_or_404(Place.objects.filter(is_active=True), pk=pk)
-
-    if getattr(settings, "REVIEWS_REQUIRE_AUTH", False) and not request.user.is_authenticated:
-        messages.error(request, _("Оставлять отзывы могут только зарегистрированные пользователи."))
-        return redirect(f"{place.get_absolute_url()}#reviews")
-
-    rating_raw = (request.POST.get("rating") or "").strip()
-    review_text = (request.POST.get("text") or "").strip()
-    author_name = (request.POST.get("author_name") or "").strip()
-    is_anonymous = request.POST.get("is_anonymous") == "1"
-
-    try:
-        rating = int(rating_raw)
-    except (TypeError, ValueError):
-        rating = 0
-
-    if rating < 1 or rating > 5:
-        messages.error(request, _("Пожалуйста, выберите оценку от 1 до 5."))
-        return redirect(f"{place.get_absolute_url()}#reviews")
-
-    if is_anonymous:
-        author_name = ""
-    elif not author_name:
-        author_name = "Гость"
-
-    _, created = create_or_update_review(
-        place,
-        request,
-        rating=rating,
-        review_text=review_text,
-        author_name=author_name,
-        is_anonymous=is_anonymous,
+    place, result = engagement_controller.add_place_review(
+        request=request,
+        place_id=pk,
+        require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", False),
     )
-
-    if request.user.is_authenticated and not created:
-        messages.success(request, _("Спасибо! Ваш отзыв обновлен."))
+    if result.ok:
+        messages.success(request, result.message)
     else:
-        messages.success(request, _("Спасибо! Ваш отзыв добавлен."))
-
+        messages.error(request, result.message)
     return redirect(f"{place.get_absolute_url()}#reviews")
 
 
 @require_POST
 def add_site_review(request):
-    if getattr(settings, "REVIEWS_REQUIRE_AUTH", False) and not request.user.is_authenticated:
-        messages.error(request, _("Оставлять отзывы могут только зарегистрированные пользователи."))
-        return redirect(f"{reverse('home')}#site-reviews")
-
-    rating_raw = (request.POST.get("rating") or "").strip()
-    review_text = (request.POST.get("text") or "").strip()
-    author_name = (request.POST.get("author_name") or "").strip()
-    is_anonymous = request.POST.get("is_anonymous") == "1"
-
-    try:
-        rating = int(rating_raw)
-    except (TypeError, ValueError):
-        rating = 0
-
-    if rating < 1 or rating > 5:
-        messages.error(request, _("Пожалуйста, выберите оценку от 1 до 5."))
-        return redirect(f"{reverse('home')}#site-reviews")
-
-    if is_anonymous:
-        author_name = ""
-    elif not author_name:
-        author_name = "Гость"
-
-    if not request.session.session_key:
-        request.session.save()
-    session_key = request.session.session_key or ""
-
-    if request.user.is_authenticated:
-        review = SiteReview.objects.filter(user=request.user).first()
+    result = engagement_controller.add_site_review(
+        request=request,
+        require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", False),
+    )
+    if result.ok:
+        messages.success(request, result.message)
     else:
-        review = SiteReview.objects.filter(user__isnull=True, session_key=session_key).first()
-
-    if review:
-        review.rating = rating
-        review.text = review_text
-        review.author_name = author_name
-        review.is_anonymous = is_anonymous
-        review.is_approved = True
-        review.save()
-        created = False
-    else:
-        SiteReview.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            rating=rating,
-            text=review_text,
-            author_name=author_name,
-            is_anonymous=is_anonymous,
-            session_key=session_key,
-            is_approved=True,
-        )
-        created = True
-
-    if request.user.is_authenticated and not created:
-        messages.success(request, _("Спасибо! Ваша оценка сайта обновлена."))
-    else:
-        messages.success(request, _("Спасибо! Ваша оценка сайта сохранена."))
-
+        messages.error(request, result.message)
     return redirect(f"{reverse('home')}#site-reviews")
 
 
-def seo_landing(request, seo_slug):
-    seo_pages = CatalogContentSettings.get_solo().seo_pages()
-    page = seo_pages.get(seo_slug)
-    if not page:
-        raise Http404("SEO page not found")
+@csrf_exempt
+@require_POST
+def track_event(request):
+    result = tracking_controller.track_cta_event_from_json(request=request, raw_body=request.body)
+    return JsonResponse(result.as_payload(), status=result.status_code)
 
-    schema_payload = build_seo_landing_schema_payload(request, page)
-    return render(
-        request,
-        "catalog/seo_landing.html",
-        {
-            "seo_page": page,
-            "seo_pages": seo_pages,
-            "meta_description": page["meta_description"],
-            "breadcrumb_schema_json": schema_payload["breadcrumb_schema_json"],
-            "faq_schema_json": schema_payload["faq_schema_json"],
-        },
-    )
+
+def seo_landing(request, seo_slug):
+    context = seo_controller.build_landing_context(request=request, seo_slug=seo_slug)
+    return render(request, "catalog/seo_landing.html", context)
 
 
 def about(request):

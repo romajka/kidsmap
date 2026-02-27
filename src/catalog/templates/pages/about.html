@@ -7,12 +7,37 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="panel">
+  <section class="panel info-hero">
     <h1>{% trans "О проекте" %}</h1>
     {% if site_about_text %}
       <p>{{ site_about_text }}</p>
     {% else %}
       <p>{% trans "KidsMap — каталог детских кружков и секций в Баку." %}</p>
     {% endif %}
+    <div class="info-actions">
+      <a class="btn icon-btn icon-search" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
+      <a class="link-btn icon-btn icon-details" href="{% url 'place_new' %}">{% trans "Смотреть новое" %}</a>
+    </div>
+  </section>
+
+  <section class="panel info-grid-panel">
+    <div class="info-grid">
+      <article class="info-card">
+        <h2>{% trans "Что делает KidsMap" %}</h2>
+        <ul class="info-list">
+          <li>{% trans "Собирает кружки и курсы в одном месте." %}</li>
+          <li>{% trans "Помогает сравнить варианты по району, возрасту и цене." %}</li>
+          <li>{% trans "Позволяет быстро связаться с местом прямо из карточки." %}</li>
+        </ul>
+      </article>
+      <article class="info-card">
+        <h2>{% trans "Почему это удобно" %}</h2>
+        <ul class="info-list">
+          <li>{% trans "Экономит время родителей на поиске и сравнении." %}</li>
+          <li>{% trans "Показывает отзывы и рейтинг перед выбором." %}</li>
+          <li>{% trans "Работает одинаково удобно на телефоне и компьютере." %}</li>
+        </ul>
+      </article>
+    </div>
   </section>
 {% endblock %}

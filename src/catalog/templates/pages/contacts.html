@@ -7,12 +7,41 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="panel">
+  <section class="panel info-hero">
     <h1>{% trans "Контакты" %}</h1>
     {% if site_contacts_text %}
       <p>{{ site_contacts_text }}</p>
     {% else %}
       <p>{% trans "Свяжитесь с нами по почте: kidsmap@example.com" %}</p>
     {% endif %}
+  </section>
+
+  <section class="panel info-grid-panel">
+    <div class="info-grid">
+      <article class="info-card">
+        <h2>{% trans "Связь с командой" %}</h2>
+        <div class="info-links">
+          {% if footer_phone %}
+            <a class="info-link-item" href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
+          {% endif %}
+          {% if footer_email %}
+            <a class="info-link-item" href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+          {% endif %}
+          {% if footer_whatsapp_url %}
+            <a class="info-link-item" href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>
+          {% endif %}
+        </div>
+      </article>
+      <article class="info-card">
+        <h2>{% trans "Соцсети" %}</h2>
+        <div class="info-links">
+          {% if footer_instagram_url %}
+            <a class="info-link-item" href="{{ footer_instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+          {% endif %}
+          <a class="info-link-item" href="{% url 'about' %}">{% trans "О проекте" %}</a>
+          <a class="info-link-item" href="{% url 'place_list' %}">{% trans "Каталог кружков" %}</a>
+        </div>
+      </article>
+    </div>
   </section>
 {% endblock %}

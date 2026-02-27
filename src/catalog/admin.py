@@ -1,8 +1,5 @@
 from django.contrib import admin
 from django import forms
-from django.db.models import Avg, Count, Sum
-from django.utils import timezone
-from datetime import timedelta
 from django.utils.html import format_html
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -22,8 +19,8 @@ from .models import (
     SiteFooterSettings,
     SiteEmptyStateSettings,
     SiteAnalytics,
-    SiteVisit,
 )
+from .services.admin_analytics import build_site_analytics_context
 
 # Keep "Настройка сайта" as the first item in CATALOG app menu.
 _original_get_app_list = admin.site.get_app_list
@@ -384,82 +381,11 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
         return False
 
     def changelist_view(self, request, extra_context=None):
-        now = timezone.now()
-        cutoff_7 = now - timedelta(days=7)
-        cutoff_30 = now - timedelta(days=30)
-
-        places_qs = Place.objects.all()
-        place_reviews_qs = PlaceReview.objects.all()
-        site_reviews_qs = SiteReview.objects.all()
-        visits_qs = SiteVisit.objects.all()
-
-        places_stats = {
-            "total": places_qs.count(),
-            "active": places_qs.filter(is_active=True).count(),
-            "verified": places_qs.filter(is_verified=True).count(),
-            "new_7": places_qs.filter(created_at__gte=cutoff_7).count(),
-            "new_30": places_qs.filter(created_at__gte=cutoff_30).count(),
-            "likes_total": places_qs.aggregate(total=Sum("likes_count")).get("total") or 0,
-            "avg_rating": round(float(places_qs.aggregate(avg=Avg("rating_avg")).get("avg") or 0), 2),
-        }
-
-        place_reviews_stats = {
-            "total": place_reviews_qs.count(),
-            "avg_rating": round(float(place_reviews_qs.aggregate(avg=Avg("rating")).get("avg") or 0), 2),
-        }
-
-        site_reviews_stats = {
-            "total": site_reviews_qs.count(),
-            "avg_rating": round(float(site_reviews_qs.aggregate(avg=Avg("rating")).get("avg") or 0), 2),
-        }
-
-        visits_stats = {}
-        today = timezone.localdate()
-        periods = {
-            "day": today,
-            "week": today - timedelta(days=6),
-            "month": today - timedelta(days=29),
-            "year": today - timedelta(days=364),
-        }
-        for key, start_day in periods.items():
-            period_qs = visits_qs.filter(day__gte=start_day)
-            visits_stats[key] = {
-                "unique_sessions": period_qs.count(),
-                "page_views": period_qs.aggregate(total=Sum("hits")).get("total") or 0,
-            }
-
-        top_categories = (
-            places_qs.values("category")
-            .annotate(total=Count("id"))
-            .order_by("-total")[:7]
-        )
-        category_labels = dict(Place.CATEGORY_CHOICES)
-        top_categories = [
-            {"name": category_labels.get(item["category"], item["category"]), "total": item["total"]}
-            for item in top_categories
-        ]
-
-        top_districts = (
-            places_qs.exclude(district__isnull=True)
-            .exclude(district="")
-            .values("district")
-            .annotate(total=Count("id"))
-            .order_by("-total")[:10]
-        )
-
-        recent_places = places_qs.order_by("-created_at")[:8]
-
         context = {
             **self.admin_site.each_context(request),
             "title": _("Статистика"),
             "opts": self.model._meta,
-            "places_stats": places_stats,
-            "place_reviews_stats": place_reviews_stats,
-            "site_reviews_stats": site_reviews_stats,
-            "visits_stats": visits_stats,
-            "top_categories": top_categories,
-            "top_districts": top_districts,
-            "recent_places": recent_places,
+            **build_site_analytics_context(),
         }
         return TemplateResponse(request, "admin/catalog/site_analytics.html", context)
 

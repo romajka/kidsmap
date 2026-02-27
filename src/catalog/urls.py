@@ -8,6 +8,7 @@ from .views import (
     toggle_place_like,
     add_place_review,
     add_site_review,
+    track_event,
     seo_landing,
     about,
     contacts,
@@ -25,4 +26,5 @@ urlpatterns = [
     path("place/<int:pk>/like/", toggle_place_like, name="toggle_place_like"),
     path("place/<int:pk>/review/", add_place_review, name="add_place_review"),
     path("review/", add_site_review, name="add_site_review"),
+    path("events/track/", track_event, name="track_event"),
 ]

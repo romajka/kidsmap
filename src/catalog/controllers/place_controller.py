@@ -12,8 +12,9 @@ from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepositor
 from catalog.models import Place
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
-from catalog.services.reactions import mark_liked_flags
+from catalog.services.reactions import liked_place_ids, mark_liked_flags
 from catalog.services.seo import build_place_seo_payload
+from catalog.services.tracking import track_catalog_funnel_events, track_place_open_event
 
 
 @dataclass(slots=True)
@@ -32,10 +33,10 @@ class PlaceController:
         self,
         request: HttpRequest,
         *,
-        liked_ids: set[int],
         force_new_only: bool = False,
         created_after: datetime | None = None,
     ) -> dict:
+        liked_ids = liked_place_ids(request)
         content_settings = self.settings_repository.get_catalog_settings()
         filters = PlaceListFilters.from_request(request, force_new_only=force_new_only)
 
@@ -73,6 +74,13 @@ class PlaceController:
             "is_new_page": force_new_only,
         }
 
+        track_catalog_funnel_events(
+            request=request,
+            selected=context["selected"],
+            results_total=page_obj.paginator.count,
+            is_new_page=force_new_only,
+        )
+
         mark_liked_flags(context["places"], liked_ids)
         mark_liked_flags(context["timeline_places"], liked_ids)
 
@@ -95,8 +103,10 @@ class PlaceController:
     def get_active_place_with_gallery(self, *, pk: int) -> Place:
         return get_object_or_404(self.place_repository.active_queryset_with_gallery(), pk=pk)
 
-    def build_detail_context(self, request: HttpRequest, *, place: Place, liked_ids: set[int]) -> dict:
+    def build_detail_context(self, request: HttpRequest, *, place: Place) -> dict:
+        liked_ids = liked_place_ids(request)
         place.is_liked = place.id in liked_ids
+        track_place_open_event(request=request, place=place)
         seo_payload = build_place_seo_payload(place, request, request.LANGUAGE_CODE)
         place_reviews = list(place.reviews.filter(is_approved=True).order_by("-created_at"))
 

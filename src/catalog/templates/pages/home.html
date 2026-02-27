@@ -11,41 +11,100 @@
     {% if hero_show_decor %}
       <span class="hero-cloud cloud-left" aria-hidden="true"></span>
       <span class="hero-cloud cloud-right" aria-hidden="true"></span>
-      <span class="hero-mascot mascot-left" aria-hidden="true">🧸</span>
-      <span class="hero-mascot mascot-right" aria-hidden="true">🧸</span>
-      <span class="hero-plane" aria-hidden="true">✈️</span>
     {% endif %}
-    <h1>{{ hero_title }}</h1>
-    <p>{{ hero_subtitle }}</p>
-    <form class="home-search" method="get" action="{% url 'place_list' %}">
-      <label class="home-search-label" for="home-search-q">{{ hero_search_label }}</label>
-      <div class="home-search-row">
-        <input id="home-search-q" class="field home-search-input" type="search" name="q" placeholder="{{ hero_search_placeholder }}" />
-        <button class="btn icon-btn icon-search" type="submit">{{ hero_cta_text }}</button>
+
+    <div class="home-hero-grid">
+      <div class="home-hero-copy">
+        <h1>{{ hero_title }}</h1>
+        <p>{{ hero_subtitle }}</p>
+
+        <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}">
+          <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
+          <div class="home-search-row">
+            <select id="home-search-category" class="filter-select home-filter-select" name="category">
+              <option value="">{% trans "Категория" %}</option>
+              {% for item in home_categories %}
+                <option value="{{ item.code }}">{% trans item.title %}</option>
+              {% endfor %}
+            </select>
+
+            <select class="filter-select home-filter-select" name="district">
+              <option value="">{% trans "Район" %}</option>
+              {% for district in home_districts %}
+                <option value="{{ district }}">{{ district }}</option>
+              {% endfor %}
+            </select>
+
+            <select class="filter-select home-filter-select" name="age">
+              <option value="">{% trans "Возраст" %}</option>
+              {% for age in home_age_options %}
+                <option value="{{ age }}">{{ age }}+</option>
+              {% endfor %}
+            </select>
+
+            <button class="btn icon-btn icon-search home-search-btn" type="submit">{{ hero_cta_text }}</button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
+  </section>
+
+  <section class="home-categories panel">
+    <h2>{% trans "Популярные категории" %}</h2>
+    <div class="home-categories-grid">
+      {% for item in home_categories %}
+        <a class="home-category-card cat-{{ forloop.counter }}" href="{% url 'place_list' %}?category={{ item.code }}">
+          <span class="home-category-icon" aria-hidden="true">
+            {% if forloop.counter == 1 %}⚽{% elif forloop.counter == 2 %}🎵{% elif forloop.counter == 3 %}🎨{% elif forloop.counter == 4 %}📘{% elif forloop.counter == 5 %}🤖{% else %}🎉{% endif %}
+          </span>
+          <span class="home-category-title">{% trans item.title %}</span>
+        </a>
+      {% endfor %}
+    </div>
   </section>
 
   <section class="home-steps panel">
     <h2>{% trans "Как это работает" %}</h2>
+    <p class="steps-intro">{% trans "Идите по шагам: 1 → 2 → 3. На каждом шаге есть кнопка действия." %}</p>
     <div class="home-grid3 home-steps-flow">
       <article class="home-tile step-1">
-        <p class="step-label">{% trans "Шаг" %} 1</p>
-        <div class="step-emoji" aria-hidden="true">🔎</div>
-        <h3>{% trans "Выберите категорию и район" %}</h3>
-        <p>{% trans "Выберите интересы и место" %}</p>
+        <div class="step-head">
+          <p class="step-label">{% trans "Шаг" %} 1</p>
+          <div class="step-emoji" aria-hidden="true">🔎</div>
+        </div>
+        <h3>{% trans "Выберите фильтры в каталоге" %}</h3>
+        <p class="step-goal">{% trans "Укажите категорию, район и возраст ребенка." %}</p>
+        <ul class="step-list">
+          <li>{% trans "Категория: что именно ищете (спорт, творчество, IT)." %}</li>
+          <li>{% trans "Район: чтобы кружок был рядом с домом." %}</li>
+        </ul>
+        <a class="btn step-action icon-btn icon-search" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
       </article>
       <article class="home-tile step-2">
-        <p class="step-label">{% trans "Шаг" %} 2</p>
-        <div class="step-emoji" aria-hidden="true">✅</div>
-        <h3>{% trans "Сравните кружки по возрасту и цене" %}</h3>
-        <p>{% trans "Сравните карточки и отзывы" %}</p>
+        <div class="step-head">
+          <p class="step-label">{% trans "Шаг" %} 2</p>
+          <div class="step-emoji" aria-hidden="true">✅</div>
+        </div>
+        <h3>{% trans "Сравните 2-3 варианта" %}</h3>
+        <p class="step-goal">{% trans "Смотрите цену, рейтинг, возраст и отзывы." %}</p>
+        <ul class="step-list">
+          <li>{% trans "Проверьте формат: обычные карточки или список." %}</li>
+          <li>{% trans "Сравните условия и выберите лучший вариант." %}</li>
+        </ul>
+        <a class="btn step-action icon-btn icon-details" href="{% url 'place_list' %}?sort=price_asc&view=list">{% trans "Сравнить варианты" %}</a>
       </article>
       <article class="home-tile step-3">
-        <p class="step-label">{% trans "Шаг" %} 3</p>
-        <div class="step-emoji" aria-hidden="true">📅</div>
-        <h3>{% trans "Откройте карточку и свяжитесь с местом" %}</h3>
-        <p>{% trans "Запишитесь быстро и удобно" %}</p>
+        <div class="step-head">
+          <p class="step-label">{% trans "Шаг" %} 3</p>
+          <div class="step-emoji" aria-hidden="true">📅</div>
+        </div>
+        <h3>{% trans "Откройте «Подробнее» и свяжитесь" %}</h3>
+        <p class="step-goal">{% trans "На карточке можно сразу позвонить или написать." %}</p>
+        <ul class="step-list">
+          <li>{% trans "Используйте кнопки: Позвонить / WhatsApp / Instagram." %}</li>
+          <li>{% trans "Проверьте адрес и точку на карте перед записью." %}</li>
+        </ul>
+        <a class="btn step-action icon-btn icon-phone" href="{% url 'place_list' %}?view=list">{% trans "Открыть карточки" %}</a>
       </article>
     </div>
   </section>
@@ -99,16 +158,6 @@
       <p>{% trans "Фильтры по возрасту, району и цене" %}</p>
       <p>{% trans "Быстрый переход к звонку и Instagram" %}</p>
       <p>{% trans "Удобно на телефоне и компьютере" %}</p>
-    </div>
-  </section>
-
-
-  <section class="home-categories panel">
-    <h2>{% trans "Популярные категории" %}</h2>
-    <div class="home-grid3">
-      {% for item in home_categories %}
-        <a class="home-category cat-{{ forloop.counter }}" href="{% url 'place_list' %}?category={{ item.code }}">{% trans item.title %}</a>
-      {% endfor %}
     </div>
   </section>
 

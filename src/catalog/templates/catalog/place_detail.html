@@ -61,11 +61,11 @@
       </div>
       <div class="card-cta-row">
         {% if place.phone1 %}
-          <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}">{% trans "Позвонить" %}</a>
-          <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail">{% trans "Позвонить" %}</a>
+          <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail">WhatsApp</a>
         {% endif %}
         {% if place.instagram %}
-          <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+          <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail">Instagram</a>
         {% endif %}
       </div>
       <div class="detail-meta-grid">

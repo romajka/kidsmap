@@ -506,6 +506,59 @@ class SiteVisit(models.Model):
         return timezone.localdate()
 
 
+class FunnelEvent(models.Model):
+    EVENT_CATALOG_SEARCH = "catalog_search"
+    EVENT_CATALOG_FILTER = "catalog_filter"
+    EVENT_PLACE_OPEN = "place_open"
+    EVENT_CTA_CALL = "cta_call"
+    EVENT_CTA_WHATSAPP = "cta_whatsapp"
+    EVENT_CTA_INSTAGRAM = "cta_instagram"
+
+    EVENT_CHOICES = (
+        (EVENT_CATALOG_SEARCH, _("Поиск в каталоге")),
+        (EVENT_CATALOG_FILTER, _("Применение фильтров")),
+        (EVENT_PLACE_OPEN, _("Открытие карточки")),
+        (EVENT_CTA_CALL, _("Клик: Позвонить")),
+        (EVENT_CTA_WHATSAPP, _("Клик: WhatsApp")),
+        (EVENT_CTA_INSTAGRAM, _("Клик: Instagram")),
+    )
+
+    event_type = models.CharField(_("Событие"), max_length=32, choices=EVENT_CHOICES, db_index=True)
+    day = models.DateField(_("День"), default=timezone.localdate, db_index=True)
+    path = models.CharField(_("Путь"), max_length=255, blank=True, default="")
+    place = models.ForeignKey(
+        Place,
+        on_delete=models.SET_NULL,
+        related_name="funnel_events",
+        verbose_name=_("Кружок/курс"),
+        null=True,
+        blank=True,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="funnel_events",
+        verbose_name=_("Пользователь"),
+        null=True,
+        blank=True,
+    )
+    session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
+    event_meta = models.JSONField(_("Данные"), default=dict, blank=True)
+    created_at = models.DateTimeField(_("Создано"), auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = _("Событие воронки")
+        verbose_name_plural = _("События воронки")
+        ordering = ("-created_at",)
+        indexes = [
+            models.Index(fields=("day", "event_type")),
+            models.Index(fields=("event_type", "created_at")),
+        ]
+
+    def __str__(self):
+        return f"{self.day} / {self.event_type}"
+
+
 class CatalogContentSettings(models.Model):
     districts_json = models.JSONField(_("Районы (JSON)"), default=list, blank=True)
     metro_stations_json = models.JSONField(_("Станции метро (JSON)"), default=list, blank=True)

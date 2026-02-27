@@ -267,6 +267,45 @@
           });
         })();
 
+        (function () {
+          const trackUrl = "{% url 'track_event' %}";
+          if (!trackUrl) return;
+
+          function send(payload) {
+            if (!payload || !payload.event_type) return;
+            try {
+              if (navigator.sendBeacon) {
+                const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+                navigator.sendBeacon(trackUrl, blob);
+                return;
+              }
+            } catch (err) {}
+
+            fetch(trackUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+              credentials: "same-origin",
+              keepalive: true,
+            }).catch(function () {});
+          }
+
+          document.addEventListener("click", function (event) {
+            const target = event.target.closest("[data-track-event]");
+            if (!target) return;
+
+            const placeIdRaw = target.getAttribute("data-track-place-id");
+            const placeId = placeIdRaw && /^\d+$/.test(placeIdRaw) ? Number(placeIdRaw) : null;
+
+            send({
+              event_type: target.getAttribute("data-track-event"),
+              place_id: placeId,
+              source: target.getAttribute("data-track-source") || "",
+              path: window.location.pathname,
+            });
+          });
+        })();
+
       })();
     </script>
   </body>
