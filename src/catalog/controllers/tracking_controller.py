@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
-from catalog.services.tracking import track_cta_click_event
+from catalog.services.tracking import TrackingService
 
 
 @dataclass(slots=True)
@@ -18,10 +18,13 @@ class TrackEventResult:
         return {"ok": False, "error": self.error}
 
 
+@dataclass(slots=True)
 class TrackingController:
+    tracking_service: TrackingService
+
     @classmethod
     def build_default(cls) -> "TrackingController":
-        return cls()
+        return cls(tracking_service=TrackingService.build_default())
 
     def track_cta_event_from_json(self, *, request, raw_body: bytes) -> TrackEventResult:
         try:
@@ -38,7 +41,7 @@ class TrackingController:
         if str(place_id_raw).isdigit():
             place_id = int(place_id_raw)
 
-        saved = track_cta_click_event(
+        saved = self.tracking_service.track_cta_click_event(
             request=request,
             event_type=event_type,
             place_id=place_id,

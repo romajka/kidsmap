@@ -73,6 +73,20 @@ def create_or_update_review(place, request, *, rating, review_text, author_name,
         )
         return review, created
 
-    defaults["session_key"] = ensure_session_key(request)
+    session_key = ensure_session_key(request)
+    existing_review = (
+        PlaceReview.objects.filter(place=place, user__isnull=True, session_key=session_key)
+        .order_by("-updated_at", "-id")
+        .first()
+    )
+
+    if existing_review:
+        for field, value in defaults.items():
+            setattr(existing_review, field, value)
+        existing_review.session_key = session_key
+        existing_review.save()
+        return existing_review, False
+
+    defaults["session_key"] = session_key
     review = PlaceReview.objects.create(place=place, **defaults)
     return review, True

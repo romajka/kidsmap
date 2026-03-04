@@ -14,19 +14,21 @@ from catalog.repositories.django_repositories import DjangoPlaceRepository, Djan
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
 from catalog.services.reactions import liked_place_ids, mark_liked_flags
 from catalog.services.seo import build_place_seo_payload
-from catalog.services.tracking import track_catalog_funnel_events, track_place_open_event
+from catalog.services.tracking import TrackingService
 
 
 @dataclass(slots=True)
 class PlaceController:
     place_repository: IPlaceRepository
     settings_repository: ISettingsRepository
+    tracking_service: TrackingService
 
     @classmethod
     def build_default(cls) -> "PlaceController":
         return cls(
             place_repository=DjangoPlaceRepository(),
             settings_repository=DjangoSettingsRepository(),
+            tracking_service=TrackingService.build_default(),
         )
 
     def build_list_context(
@@ -74,7 +76,7 @@ class PlaceController:
             "is_new_page": force_new_only,
         }
 
-        track_catalog_funnel_events(
+        self.tracking_service.track_catalog_funnel_events(
             request=request,
             selected=context["selected"],
             results_total=page_obj.paginator.count,
@@ -91,7 +93,7 @@ class PlaceController:
             for item in context["places"]:
                 item.days_since_added = max((now - item.created_at).days, 0)
 
-            stats_qs = stats_qs if stats_qs is not None else Place.objects.none()
+            stats_qs = stats_qs if stats_qs is not None else self.place_repository.active_queryset().none()
             context["new_stats_days"] = int(filters.days) if filters.days.isdigit() else 30
             context["new_stats"] = build_new_page_stats(stats_qs)
 
@@ -106,7 +108,7 @@ class PlaceController:
     def build_detail_context(self, request: HttpRequest, *, place: Place) -> dict:
         liked_ids = liked_place_ids(request)
         place.is_liked = place.id in liked_ids
-        track_place_open_event(request=request, place=place)
+        self.tracking_service.track_place_open_event(request=request, place=place)
         seo_payload = build_place_seo_payload(place, request, request.LANGUAGE_CODE)
         place_reviews = list(place.reviews.filter(is_approved=True).order_by("-created_at"))
 

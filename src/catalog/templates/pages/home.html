@@ -35,6 +35,13 @@
               {% endfor %}
             </select>
 
+            <select class="filter-select home-filter-select" name="metro">
+              <option value="">{% trans "Метро" %}</option>
+              {% for metro in home_metro_options %}
+                <option value="{{ metro }}">{{ metro }}</option>
+              {% endfor %}
+            </select>
+
             <select class="filter-select home-filter-select" name="age">
               <option value="">{% trans "Возраст" %}</option>
               {% for age in home_age_options %}

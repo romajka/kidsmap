@@ -301,7 +301,10 @@
                   <p class="meta"><b>{% trans "Возраст" %}:</b> {% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</p>
                 {% endif %}
                 {% if place.price_from or place.price_to %}
-                  <p class="meta"><b>{% trans "Цена" %}:</b> {% if place.price_from %}{{ place.price_from }}{% endif %}{% if place.price_from and place.price_to %}-{% endif %}{% if place.price_to %}{{ place.price_to }}{% endif %} AZN</p>
+                  <p class="meta meta-price">
+                    <span class="meta-price-label">{% trans "Цена" %}:</span>
+                    <span class="meta-price-value">{% if place.price_from %}{{ place.price_from }}{% endif %}{% if place.price_from and place.price_to %}-{% endif %}{% if place.price_to %}{{ place.price_to }}{% endif %} AZN</span>
+                  </p>
                 {% endif %}
                 <div class="card-cta-row">
                   {% if place.phone1 %}
@@ -367,10 +370,10 @@
               </p>
             {% endif %}
             {% if place.price_from or place.price_to %}
-              <p class="meta">
-                {% if place.price_from %}{{ place.price_from }}{% endif %}
+              <p class="meta meta-price">
+                <span class="meta-price-value">{% if place.price_from %}{{ place.price_from }}{% endif %}
                 {% if place.price_from and place.price_to %}-{% endif %}
-                {% if place.price_to %}{{ place.price_to }}{% endif %} AZN
+                {% if place.price_to %}{{ place.price_to }}{% endif %} AZN</span>
               </p>
             {% endif %}
             {% if selected.view == 'list' %}

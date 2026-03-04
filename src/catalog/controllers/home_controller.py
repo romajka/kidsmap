@@ -57,6 +57,7 @@ class HomeController:
         return {
             "home_categories": HOME_CATEGORIES,
             "home_districts": BAKU_DISTRICTS,
+            "home_metro_options": content_settings.metro_stations(),
             "home_age_options": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16],
             "meta_description": "KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене.",
             "seo_pages": content_settings.seo_pages(),
