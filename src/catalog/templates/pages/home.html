@@ -194,33 +194,43 @@
         {% for place in popular_places %}
           <article class="card">
             <div class="card-media">
-              {% if place.cover_photo %}
-                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-              {% elif place.photo %}
-                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-              {% else %}
-                <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-                  <span class="image-placeholder-icon" aria-hidden="true">📷</span>
-                  <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
-                </div>
+              <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
+                {% if place.cover_photo %}
+                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                {% elif place.photo %}
+                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                {% else %}
+                  <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
+                    <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+                    <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+                  </div>
+                {% endif %}
+              </a>
+              {% if place.price_from or place.price_to %}
+                <span class="card-price-pill">
+                  {% trans "от" %}
+                  {% if place.price_from %}{{ place.price_from }}{% else %}{{ place.price_to }}{% endif %} AZN
+                </span>
               {% endif %}
             </div>
             <div class="card-body">
               <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-              <div class="chip">{{ place.get_category_display }}</div>
-              <div class="event-badge-row">
-                {% if place.is_temporary %}
-                  <span class="event-badge temporary">🕒 {% trans "Временное" %}</span>
-                {% else %}
-                  <span class="event-badge permanent">♾️ {% trans "Постоянное" %}</span>
+              {% with desc=place.description_i18n %}
+                {% if desc %}
+                  <p class="card-description">{{ desc|striptags|truncatechars:96 }}</p>
                 {% endif %}
+              {% endwith %}
+              <div class="card-headline">
+                <span class="chip">{{ place.get_category_display }}</span>
+                <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
               </div>
-              <div class="rating-row">
-                <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
-                <span class="rating-text">
-                  {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
-                </span>
-              </div>
+              {% if place.district or place.metro %}
+                <p class="meta card-location">
+                  {% if place.district %}{{ place.district }}{% endif %}
+                  {% if place.district and place.metro %} / {% endif %}
+                  {% if place.metro %}{{ place.metro }}{% endif %}
+                </p>
+              {% endif %}
               <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
               <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
                 {% csrf_token %}

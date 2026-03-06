@@ -20,7 +20,11 @@
     </div>
   </section>
 
-  <section class="panel filter-panel">
+  {% if not is_new_page %}
+    <div class="catalog-layout">
+  {% endif %}
+
+  <section class="panel filter-panel {% if is_new_page %}filter-panel-new{% else %}filter-panel-catalog{% endif %}">
     <p class="filter-intro">
       {% if is_new_page %}
         {% trans "Выберите период и фильтры, чтобы увидеть только самые свежие добавления." %}
@@ -28,14 +32,38 @@
         {% trans "Настройте фильтры и нажмите «Поиск», чтобы быстро найти подходящие кружки." %}
       {% endif %}
     </p>
-    <form method="get" class="filters">
+    {% if not is_new_page %}
+      <div class="mobile-filter-toolbar">
+        <button
+          type="button"
+          class="btn mobile-filters-toggle"
+          data-filters-open
+          aria-controls="catalog-filters"
+          aria-expanded="false"
+        >
+          {% trans "Фильтры" %}
+        </button>
+      </div>
+      <div class="mobile-filters-backdrop" data-filters-backdrop hidden></div>
+    {% endif %}
+    <form
+      method="get"
+      class="filters {% if is_new_page %}filters-new{% else %}filters-catalog{% endif %}"
+      {% if not is_new_page %}id="catalog-filters" data-filters-drawer aria-hidden="false"{% endif %}
+    >
+      {% if not is_new_page %}
+        <div class="mobile-filters-head">
+          <h2>{% trans "Фильтры" %}</h2>
+          <button type="button" class="mobile-filters-close" data-filters-close aria-label="{% trans 'Закрыть' %}">×</button>
+        </div>
+      {% endif %}
       <input type="hidden" name="view" value="{{ selected.view|default:'grid' }}" />
       <label class="filters-search">
         {% trans "Поиск по названию" %}
         <input class="field search-field" name="q" value="{{ selected.q }}" placeholder="{% trans 'например робототехника или english' %}" />
       </label>
 
-      <label>
+      <label class="filter-item filter-category">
         {% trans "Категория" %}
         <select class="filter-select" name="category">
           <option value="">{% trans "Все" %}</option>
@@ -45,7 +73,7 @@
         </select>
       </label>
 
-      <label>
+      <label class="filter-item filter-district">
         {% trans "Район" %}
         <select class="filter-select" name="district">
           <option value="">{% trans "Все" %}</option>
@@ -55,7 +83,7 @@
         </select>
       </label>
 
-      <label>
+      <label class="filter-item filter-rating">
         {% trans "Рейтинг не ниже" %}
         <select class="filter-select" name="min_rating">
           <option value="">{% trans "Все" %}</option>
@@ -67,7 +95,7 @@
       </label>
 
       {% if is_new_page %}
-        <label>
+        <label class="filter-item filter-days">
           {% trans "Период" %}
           <select class="filter-select" name="days">
             <option value="7" {% if selected.days == "7" %}selected{% endif %}>{% trans "За 7 дней" %}</option>
@@ -76,7 +104,7 @@
           </select>
         </label>
 
-        <label>
+        <label class="filter-item filter-photo">
           {% trans "Только с фото" %}
           <select class="filter-select" name="with_photo">
             <option value="">{% trans "Все" %}</option>
@@ -84,7 +112,7 @@
           </select>
         </label>
 
-        <label>
+        <label class="filter-item filter-verified">
           {% trans "Только проверенные" %}
           <select class="filter-select" name="verified">
             <option value="">{% trans "Все" %}</option>
@@ -92,7 +120,7 @@
           </select>
         </label>
       {% else %}
-        <label>
+        <label class="filter-item filter-metro">
           {% trans "Метро" %}
           <select class="filter-select" name="metro">
             <option value="">{% trans "Все" %}</option>
@@ -102,7 +130,7 @@
           </select>
         </label>
 
-        <div class="range-filter" data-range data-min="0" data-max="18">
+        <div class="range-filter filter-age-range" data-range data-min="0" data-max="18">
           <div class="range-filter-head">
             <span>{% trans "Возраст" %}</span>
             <strong class="range-filter-current" data-range-caption></strong>
@@ -123,7 +151,7 @@
           </div>
         </div>
 
-        <div class="range-filter" data-range data-min="0" data-max="500" data-unit="AZN">
+        <div class="range-filter filter-price-range" data-range data-min="0" data-max="500" data-unit="AZN">
           <div class="range-filter-head">
             <span>{% trans "Цена" %}</span>
             <strong class="range-filter-current" data-range-caption></strong>
@@ -144,7 +172,7 @@
           </div>
         </div>
 
-        <label>
+        <label class="filter-item filter-sort">
           {% trans "Сортировка" %}
           <select class="filter-select" name="sort">
             <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% trans "Сначала новые" %}</option>
@@ -224,6 +252,10 @@
     </div>
   </section>
 
+  {% if not is_new_page %}
+    <div class="catalog-main-column">
+  {% endif %}
+
   {% if is_new_page %}
     <section class="panel new-stats">
       <h2>{% blocktrans with days=new_stats_days %}Что нового за {{ days }} дней{% endblocktrans %}</h2>
@@ -269,6 +301,11 @@
               </div>
               <div class="card-body">
                 <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                {% with desc=place.description_i18n %}
+                  {% if desc %}
+                    <p class="card-description">{{ desc|striptags|truncatechars:96 }}</p>
+                  {% endif %}
+                {% endwith %}
                 <div class="new-badge-row">
                   <span class="new-badge">{% trans "Новое" %}</span>
                   <span class="new-badge-meta">{% trans "Добавлено" %} {{ place.days_since_added }} {% trans "дн. назад" %}</span>
@@ -328,53 +365,75 @@
       {% for place in places %}
         <article class="card">
           <div class="card-media">
-            {% if place.cover_photo %}
-              <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-            {% elif place.photo %}
-              <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-            {% else %}
-              <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-                <span class="image-placeholder-icon" aria-hidden="true">📷</span>
-                <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
-              </div>
+            <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
+              {% if place.cover_photo %}
+                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+              {% elif place.photo %}
+                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+              {% else %}
+                <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
+                  <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+                  <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+                </div>
+              {% endif %}
+            </a>
+            {% if selected.view != 'list' %}
+              {% if place.price_from or place.price_to %}
+                <span class="card-price-pill">
+                  {% trans "от" %}
+                  {% if place.price_from %}{{ place.price_from }}{% else %}{{ place.price_to }}{% endif %} AZN
+                </span>
+              {% endif %}
             {% endif %}
           </div>
           <div class="card-body">
             <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-            <div class="chip">{{ place.get_category_display }}</div>
-            <div class="event-badge-row">
-              {% if place.is_temporary %}
-                <span class="event-badge temporary">🕒 {% trans "Временное" %}</span>
-                {% if place.temporary_start or place.temporary_end %}
-                  <span class="event-badge-meta">
-                    {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
-                    {% if place.temporary_start and place.temporary_end %} — {% endif %}
-                    {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
-                  </span>
-                {% endif %}
-              {% else %}
-                <span class="event-badge permanent">♾️ {% trans "Постоянное" %}</span>
+            {% with desc=place.description_i18n %}
+              {% if desc %}
+                <p class="card-description">{{ desc|striptags|truncatechars:96 }}</p>
               {% endif %}
+            {% endwith %}
+            <div class="card-headline">
+              <span class="chip">{{ place.get_category_display }}</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
             </div>
-            <div class="rating-row">
-              <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
-              <span class="rating-text">
-                {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
-              </span>
-            </div>
+            {% if selected.view == 'list' %}
+              <div class="event-badge-row">
+                {% if place.is_temporary %}
+                  <span class="event-badge temporary">🕒 {% trans "Временное" %}</span>
+                  {% if place.temporary_start or place.temporary_end %}
+                    <span class="event-badge-meta">
+                      {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
+                      {% if place.temporary_start and place.temporary_end %} — {% endif %}
+                      {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
+                    </span>
+                  {% endif %}
+                {% else %}
+                  <span class="event-badge permanent">♾️ {% trans "Постоянное" %}</span>
+                {% endif %}
+              </div>
+              <div class="rating-row">
+                <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+                <span class="rating-text">
+                  {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
+                </span>
+              </div>
+            {% endif %}
             {% if place.district or place.metro %}
-              <p class="meta">
+              <p class="meta card-location">
                 {% if place.district %}{{ place.district }}{% endif %}
                 {% if place.district and place.metro %} / {% endif %}
                 {% if place.metro %}{{ place.metro }}{% endif %}
               </p>
             {% endif %}
-            {% if place.price_from or place.price_to %}
-              <p class="meta meta-price">
-                <span class="meta-price-value">{% if place.price_from %}{{ place.price_from }}{% endif %}
-                {% if place.price_from and place.price_to %}-{% endif %}
-                {% if place.price_to %}{{ place.price_to }}{% endif %} AZN</span>
-              </p>
+            {% if selected.view == 'list' %}
+              {% if place.price_from or place.price_to %}
+                <p class="meta meta-price">
+                  <span class="meta-price-value">{% if place.price_from %}{{ place.price_from }}{% endif %}
+                  {% if place.price_from and place.price_to %}-{% endif %}
+                  {% if place.price_to %}{{ place.price_to }}{% endif %} AZN</span>
+                </p>
+              {% endif %}
             {% endif %}
             {% if selected.view == 'list' %}
               {% if place.age_from or place.age_to %}
@@ -383,8 +442,17 @@
               {% if place.address %}
                 <p class="meta list-only"><b>{% trans "Адрес" %}:</b> {{ place.address }}</p>
               {% endif %}
+              <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
+              <div class="card-cta-row">
+                {% if place.phone1 %}
+                  <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="catalog-grid">{% trans "Позвонить" %}</a>
+                {% endif %}
+                {% if place.instagram %}
+                  <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-grid">Instagram</a>
+                {% endif %}
+              </div>
+              <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
             {% endif %}
-            <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
             {% if is_new_page %}
               <div class="new-badge-row">
                 <span class="new-badge">{% trans "Новое" %}</span>
@@ -398,15 +466,6 @@
                 ♥ <span class="like-count">{{ place.likes_count }}</span>
               </button>
             </form>
-            <div class="card-cta-row">
-              {% if place.phone1 %}
-                <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="catalog-grid">{% trans "Позвонить" %}</a>
-              {% endif %}
-              {% if place.instagram %}
-                <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-grid">Instagram</a>
-              {% endif %}
-            </div>
-            <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
           </div>
         </article>
       {% endfor %}
@@ -468,6 +527,11 @@
       <a class="link-btn" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Баку" %}</a>
     </div>
   </section>
+
+  {% if not is_new_page %}
+    </div>
+    </div>
+  {% endif %}
   <script>
     (function () {
       document.querySelectorAll("[data-range]").forEach(function (root) {
@@ -526,6 +590,61 @@
 
         syncFromInput();
       });
+    })();
+
+    (function () {
+      const openBtn = document.querySelector("[data-filters-open]");
+      const closeBtn = document.querySelector("[data-filters-close]");
+      const backdrop = document.querySelector("[data-filters-backdrop]");
+      const drawer = document.querySelector("[data-filters-drawer]");
+
+      if (!openBtn || !closeBtn || !backdrop || !drawer) return;
+
+      const mobileMedia = window.matchMedia("(max-width: 760px)");
+
+      function setDrawerOpen(isOpen) {
+        document.body.classList.toggle("filters-drawer-open", isOpen);
+        openBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        drawer.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        backdrop.hidden = !isOpen;
+      }
+
+      openBtn.addEventListener("click", function () {
+        setDrawerOpen(true);
+      });
+
+      closeBtn.addEventListener("click", function () {
+        setDrawerOpen(false);
+      });
+
+      backdrop.addEventListener("click", function () {
+        setDrawerOpen(false);
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          setDrawerOpen(false);
+        }
+      });
+
+      function handleViewportChange(e) {
+        if (!e.matches) {
+          setDrawerOpen(false);
+          drawer.setAttribute("aria-hidden", "false");
+        }
+      }
+
+      if (typeof mobileMedia.addEventListener === "function") {
+        mobileMedia.addEventListener("change", handleViewportChange);
+      } else if (typeof mobileMedia.addListener === "function") {
+        mobileMedia.addListener(handleViewportChange);
+      }
+
+      if (mobileMedia.matches) {
+        setDrawerOpen(false);
+      } else {
+        drawer.setAttribute("aria-hidden", "false");
+      }
     })();
   </script>
 {% endblock %}
