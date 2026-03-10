@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
 from catalog.models import Place
@@ -65,9 +66,9 @@ class PlaceController:
             "language": request.LANGUAGE_CODE,
             "query_without_page": query_without_page,
             "meta_description": (
-                "Новые кружки и курсы в Баку за последние 30 дней. Смотрите свежие добавления на KidsMap."
+                _("Новые кружки и курсы в Баку за последние 30 дней. Смотрите свежие добавления на KidsMap.")
                 if force_new_only
-                else "Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене."
+                else _("Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене.")
             ),
             "selected": filters.selected(),
             "categories": Place.CATEGORY_CHOICES,

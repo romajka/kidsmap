@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django import forms
 from django.utils.html import format_html
 from django.shortcuts import redirect
@@ -7,7 +7,12 @@ from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
 from .models import (
     CatalogContentSettings,
+    OwnerTeamInvitation,
+    OwnerTeamMembership,
     Place,
+    PlaceChangeAudit,
+    PlaceOwnershipRequest,
+    PlaceOwnershipRequestAudit,
     PlacePhoto,
     PlaceReview,
     PlaceReviewsByClub,
@@ -19,6 +24,7 @@ from .models import (
     SiteFooterSettings,
     SiteEmptyStateSettings,
     SiteAnalytics,
+    UserProfile,
 )
 from .services.admin_analytics import build_site_analytics_context
 
@@ -58,6 +64,18 @@ class PlaceReviewInline(admin.TabularInline):
     ordering = ("-created_at",)
 
 
+class PlaceChangeAuditInline(admin.TabularInline):
+    model = PlaceChangeAudit
+    extra = 0
+    can_delete = False
+    fields = ("created_at", "changed_by", "source", "field_name", "old_value", "new_value")
+    readonly_fields = fields
+    ordering = ("-created_at",)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 class PlaceAdminForm(forms.ModelForm):
     class Meta:
         model = Place
@@ -78,6 +96,36 @@ class PlaceAdminForm(forms.ModelForm):
 
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
+    AUDIT_TRACKED_FIELDS = (
+        "name",
+        "name_ru",
+        "name_az",
+        "name_en",
+        "description_ru",
+        "description_az",
+        "description_en",
+        "category",
+        "subcategory",
+        "age_from",
+        "age_to",
+        "district",
+        "metro",
+        "address",
+        "phone1",
+        "owner_id",
+        "instagram",
+        "website",
+        "schedule",
+        "is_temporary",
+        "temporary_start",
+        "temporary_end",
+        "lat",
+        "lng",
+        "price_from",
+        "price_to",
+        "is_active",
+        "is_verified",
+    )
     form = PlaceAdminForm
     list_display = (
         "display_name",
@@ -85,6 +133,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "event_kind",
         "district",
         "metro",
+        "owner",
         "likes_count",
         "rating_avg",
         "rating_count",
@@ -92,15 +141,15 @@ class PlaceAdmin(admin.ModelAdmin):
         "is_verified",
         "updated_at",
     )
-    list_filter = ("category", "is_temporary", "district", "metro", "is_active", "is_verified", "age_from", "age_to")
-    search_fields = ("name_ru", "name_en", "name", "address", "instagram", "phone1")
+    list_filter = ("category", "is_temporary", "district", "metro", "owner", "is_active", "is_verified", "age_from", "age_to")
+    search_fields = ("name_ru", "name_en", "name", "address", "instagram", "phone1", "owner__username", "owner__email")
     list_editable = ("is_active", "is_verified", "likes_count")
     readonly_fields = ("slug", "rating_avg", "rating_count", "created_at", "updated_at")
     ordering = ("-updated_at",)
     list_per_page = 30
     save_on_top = True
     actions = ("mark_active", "mark_inactive", "mark_verified", "mark_unverified")
-    inlines = [PlacePhotoInline, PlaceReviewInline]
+    inlines = [PlacePhotoInline, PlaceReviewInline, PlaceChangeAuditInline]
     fieldsets = (
         (
             _("Основное"),
@@ -115,6 +164,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     "temporary_end",
                     "is_active",
                     "is_verified",
+                    "owner",
                     "likes_count",
                     "rating_avg",
                     "rating_count",
@@ -152,6 +202,43 @@ class PlaceAdmin(admin.ModelAdmin):
     @admin.action(description=_("Снять отметку проверки"))
     def mark_unverified(self, request, queryset):
         queryset.update(is_verified=False)
+
+    def _stringify_audit_value(self, value):
+        if value is None:
+            return ""
+        if isinstance(value, bool):
+            return "1" if value else "0"
+        return str(value)
+
+    def save_model(self, request, obj, form, change):
+        old_values = {}
+        if change and obj.pk:
+            old_obj = Place.objects.filter(pk=obj.pk).first()
+            if old_obj:
+                for field in self.AUDIT_TRACKED_FIELDS:
+                    old_values[field] = getattr(old_obj, field)
+
+        super().save_model(request, obj, form, change)
+
+        if change and old_values:
+            audit_entries = []
+            for field_name in self.AUDIT_TRACKED_FIELDS:
+                old_value = old_values.get(field_name)
+                new_value = getattr(obj, field_name)
+                if old_value == new_value:
+                    continue
+                audit_entries.append(
+                    PlaceChangeAudit(
+                        place=obj,
+                        changed_by=request.user,
+                        source=PlaceChangeAudit.SOURCE_ADMIN,
+                        field_name=field_name,
+                        old_value=self._stringify_audit_value(old_value),
+                        new_value=self._stringify_audit_value(new_value),
+                    )
+                )
+            if audit_entries:
+                PlaceChangeAudit.objects.bulk_create(audit_entries)
 
 
 class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
@@ -426,6 +513,184 @@ class SiteReviewAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.is_approved = True
         super().save_model(request, obj, form, change)
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "role", "owner_role", "owner_permissions_preview", "created_at", "updated_at")
+    list_filter = ("role", "owner_role", "created_at")
+    search_fields = ("user__username", "user__email")
+    readonly_fields = ("created_at", "updated_at")
+    fieldsets = (
+        (_("Пользователь"), {"fields": ("user",)}),
+        (_("Роли"), {"fields": ("role", "owner_role")}),
+        (_("Гранулярные права владельца"), {"fields": ("owner_permissions_override",)}),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
+    )
+
+    @admin.display(description=_("Права владельца"))
+    def owner_permissions_preview(self, obj):
+        permissions = sorted(obj.get_owner_permissions())
+        if not permissions:
+            return "-"
+        return ", ".join(permissions)
+
+
+@admin.register(OwnerTeamMembership)
+class OwnerTeamMembershipAdmin(admin.ModelAdmin):
+    list_display = ("owner", "member", "role", "is_active", "invited_by", "created_at", "updated_at")
+    list_filter = ("role", "is_active", "created_at")
+    search_fields = ("owner__username", "owner__email", "member__username", "member__email")
+    readonly_fields = ("created_at", "updated_at")
+    autocomplete_fields = ("owner", "member", "invited_by")
+
+
+@admin.register(OwnerTeamInvitation)
+class OwnerTeamInvitationAdmin(admin.ModelAdmin):
+    list_display = ("owner", "email", "role", "status", "invited_user", "created_at", "responded_at")
+    list_filter = ("role", "status", "created_at", "responded_at")
+    search_fields = ("owner__username", "owner__email", "email", "invited_user__username", "token")
+    readonly_fields = ("token", "created_at", "updated_at", "responded_at")
+    autocomplete_fields = ("owner", "invited_by", "invited_user")
+
+
+@admin.register(PlaceChangeAudit)
+class PlaceChangeAuditAdmin(admin.ModelAdmin):
+    list_display = ("place", "field_name", "changed_by", "source", "created_at")
+    list_filter = ("source", "field_name", "created_at")
+    search_fields = ("place__name_ru", "place__name_en", "place__name_az", "changed_by__username", "field_name", "old_value", "new_value")
+    readonly_fields = ("place", "changed_by", "source", "field_name", "old_value", "new_value", "created_at")
+    autocomplete_fields = ("place", "changed_by")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class PlaceOwnershipRequestAuditInline(admin.TabularInline):
+    model = PlaceOwnershipRequestAudit
+    extra = 0
+    can_delete = False
+    fields = ("created_at", "actor", "action", "from_status", "to_status", "note")
+    readonly_fields = fields
+    ordering = ("-created_at",)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(PlaceOwnershipRequest)
+class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
+    list_display = ("id", "place", "applicant", "status", "created_at", "moderated_at", "moderated_by")
+    list_filter = ("status", "created_at", "moderated_at")
+    search_fields = (
+        "place__name_ru",
+        "place__name_en",
+        "place__name_az",
+        "place__name",
+        "applicant__username",
+        "applicant__email",
+        "note",
+        "moderation_note",
+    )
+    readonly_fields = ("status", "note", "created_at", "updated_at", "moderated_at", "moderated_by")
+    autocomplete_fields = ("place", "applicant", "moderated_by")
+    actions = ("approve_requests", "reject_requests")
+    inlines = (PlaceOwnershipRequestAuditInline,)
+    fieldsets = (
+        (_("Заявка"), {"fields": ("place", "applicant", "status", "note")}),
+        (_("Модерация"), {"fields": ("moderation_note", "moderated_by", "moderated_at")}),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    @admin.action(description=_("Одобрить выбранные заявки"))
+    def approve_requests(self, request, queryset):
+        approved = 0
+        skipped = 0
+        for item in queryset.select_related("place", "applicant"):
+            if not item.is_pending:
+                skipped += 1
+                continue
+            item.apply_moderation(
+                moderator=request.user,
+                new_status=PlaceOwnershipRequest.STATUS_APPROVED,
+                note=_("Одобрено через админку"),
+            )
+            approved += 1
+
+        if approved:
+            self.message_user(
+                request,
+                _("Одобрено заявок: %(count)s") % {"count": approved},
+                level=messages.SUCCESS,
+            )
+        if skipped:
+            self.message_user(
+                request,
+                _("Пропущено заявок (уже обработаны): %(count)s") % {"count": skipped},
+                level=messages.WARNING,
+            )
+
+    @admin.action(description=_("Отклонить выбранные заявки"))
+    def reject_requests(self, request, queryset):
+        rejected = 0
+        skipped = 0
+        for item in queryset.select_related("place", "applicant"):
+            if not item.is_pending:
+                skipped += 1
+                continue
+            item.apply_moderation(
+                moderator=request.user,
+                new_status=PlaceOwnershipRequest.STATUS_REJECTED,
+                note=_("Отклонено через админку"),
+            )
+            rejected += 1
+
+        if rejected:
+            self.message_user(
+                request,
+                _("Отклонено заявок: %(count)s") % {"count": rejected},
+                level=messages.SUCCESS,
+            )
+        if skipped:
+            self.message_user(
+                request,
+                _("Пропущено заявок (уже обработаны): %(count)s") % {"count": skipped},
+                level=messages.WARNING,
+            )
+
+
+@admin.register(PlaceOwnershipRequestAudit)
+class PlaceOwnershipRequestAuditAdmin(admin.ModelAdmin):
+    list_display = ("ownership_request", "action", "actor", "from_status", "to_status", "created_at")
+    list_filter = ("action", "created_at")
+    search_fields = (
+        "ownership_request__place__name_ru",
+        "ownership_request__place__name_en",
+        "ownership_request__place__name_az",
+        "ownership_request__applicant__username",
+        "actor__username",
+        "note",
+    )
+    readonly_fields = ("ownership_request", "actor", "action", "from_status", "to_status", "note", "created_at")
+    autocomplete_fields = ("ownership_request", "actor")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(PlaceReviewsByClub)

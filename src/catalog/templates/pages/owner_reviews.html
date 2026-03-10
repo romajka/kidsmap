@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Модерация отзывов" %}{% endblock %}
+{% block title_plain %}{% trans "Модерация отзывов" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Модерация отзывов" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel owner-reviews">
+    <div class="owner-page-head">
+      <div>
+        <h1>{% trans "Модерация отзывов" %}</h1>
+        <p class="auth-subtitle">{% trans "Отзывы по вашим кружкам. MODERATOR может управлять только этим разделом." %}</p>
+      </div>
+      <div class="owner-page-actions">
+        <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К кабинету" %}</a>
+      </div>
+    </div>
+
+    <div class="owner-permissions">
+      <span class="chip">{% trans "Одобрено" %}: {{ owner_reviews_approved_count }}</span>
+      <span class="chip">{% trans "Скрыто" %}: {{ owner_reviews_pending_count }}</span>
+    </div>
+
+    {% if owner_reviews %}
+      <div class="owner-review-list">
+        {% for review in owner_reviews %}
+          <article class="owner-review-item">
+            <h3><a href="{{ review.place.get_absolute_url }}">{{ review.place.name_i18n }}</a></h3>
+            <p class="meta">
+              {% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %} · ★ {{ review.rating }} · {{ review.created_at|date:"d.m.Y H:i" }}
+            </p>
+            <p>{{ review.text|default:"—" }}</p>
+            <p class="meta">
+              {% trans "Статус" %}: <strong>{% if review.is_approved %}{% trans "Одобрен" %}{% else %}{% trans "Скрыт" %}{% endif %}</strong>
+            </p>
+            <div class="owner-place-actions">
+              <form method="post" action="{% url 'owner_review_approve' review.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn">{% trans "Одобрить" %}</button>
+              </form>
+              <form method="post" action="{% url 'owner_review_reject' review.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">{% trans "Скрыть" %}</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="meta">{% trans "Отзывы для модерации не найдены." %}</p>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Регистрация" %}{% endblock %}
+{% block title_plain %}{% trans "Регистрация" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Регистрация" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel auth-panel">
+    <h1>{% trans "Регистрация" %}</h1>
+    <p class="auth-subtitle">{% trans "Выберите статус аккаунта: обычный пользователь или владелец кружка." %}</p>
+
+    <form method="post" class="auth-form auth-form-register">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}" />
+
+      {% if form.non_field_errors %}
+        <div class="auth-errors">
+          {% for error in form.non_field_errors %}
+            <p class="auth-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <label>
+        {{ form.username.label }}
+        {{ form.username }}
+        {% if form.username.help_text %}
+          <small class="auth-help">{{ form.username.help_text }}</small>
+        {% endif %}
+        {% if form.username.errors %}
+          <span class="auth-field-error">{{ form.username.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <label>
+        {{ form.email.label }}
+        {{ form.email }}
+        {% if form.email.errors %}
+          <span class="auth-field-error">{{ form.email.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <fieldset class="auth-role-group">
+        <legend>{{ form.role.label }}</legend>
+        {{ form.role }}
+        {% if form.role.errors %}
+          <span class="auth-field-error">{{ form.role.errors|join:", " }}</span>
+        {% endif %}
+      </fieldset>
+
+      <label>
+        {{ form.password1.label }}
+        {{ form.password1 }}
+        {% if form.password1.help_text %}
+          <small class="auth-help">{{ form.password1.help_text|safe }}</small>
+        {% endif %}
+        {% if form.password1.errors %}
+          <span class="auth-field-error">{{ form.password1.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <label>
+        {{ form.password2.label }}
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+          <span class="auth-field-error">{{ form.password2.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <button type="submit" class="btn">{% trans "Создать аккаунт" %}</button>
+    </form>
+
+    <p class="auth-alt">
+      {% trans "Уже есть аккаунт?" %}
+      <a href="{% url 'account_login' %}?next={{ next_url|urlencode }}">{% trans "Войти" %}</a>
+    </p>
+  </section>
+{% endblock %}

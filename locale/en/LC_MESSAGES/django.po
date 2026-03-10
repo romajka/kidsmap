@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kidsmap\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-25 13:07+0400\n"
+"POT-Creation-Date: 2026-03-10 12:37+0400\n"
 "PO-Revision-Date: 2026-02-23 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,1110 +12,2754 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: catalog/admin.py:62
+#: src/catalog/admin.py:84
 msgid "URL-слаг"
 msgstr "URL slug"
 
-#: catalog/admin.py:63
+#: src/catalog/admin.py:85
 msgid "Название (Русский)"
 msgstr "Name (Russian)"
 
-#: catalog/admin.py:64
+#: src/catalog/admin.py:86
 msgid "Название (Азербайджанский)"
 msgstr "Name (Azerbaijani)"
 
-#: catalog/admin.py:65
+#: src/catalog/admin.py:87
 msgid "Название (English)"
 msgstr "Name"
 
-#: catalog/admin.py:66
+#: src/catalog/admin.py:88
 msgid "Описание (Русский)"
 msgstr "Description (Russian)"
 
-#: catalog/admin.py:67
+#: src/catalog/admin.py:89
 msgid "Описание (Азербайджанский)"
 msgstr "Description (Azerbaijani)"
 
-#: catalog/admin.py:68
+#: src/catalog/admin.py:90
 msgid "Описание (English)"
 msgstr "Schedule"
 
-#: catalog/admin.py:69
+#: src/catalog/admin.py:91
 msgid "Количество лайков"
 msgstr "Likes count"
 
-#: catalog/admin.py:70 catalog/models.py:51
+#: src/catalog/admin.py:92 src/catalog/models.py:65
+#: src/catalog/templates/pages/owner_places.html:62
+#: templates/admin/catalog/site_analytics.html:18
 msgid "Средний рейтинг"
 msgstr "Average rating"
 
-#: catalog/admin.py:71 catalog/models.py:52
+#: src/catalog/admin.py:93 src/catalog/models.py:66
 msgid "Количество отзывов"
 msgstr "Review count"
 
-#: catalog/admin.py:101
+#: src/catalog/admin.py:155
 msgid "Основное"
 msgstr "Main"
 
-#: catalog/admin.py:116
+#: src/catalog/admin.py:174
 msgid "Названия и описания (i18n)"
 msgstr "Names and descriptions (i18n)"
 
-#: catalog/admin.py:117
+#: src/catalog/admin.py:175
 msgid "Возраст и цена"
 msgstr "Age and price"
 
-#: catalog/admin.py:118
+#: src/catalog/admin.py:176
 msgid "Локация"
 msgstr "Location"
 
-#: catalog/admin.py:119 catalog/admin.py:247 catalog/models.py:368
-#: catalog/models.py:369 catalog/templates/base.html:62
-#: catalog/templates/base.html:98 catalog/templates/pages/contacts.html:4
-#: catalog/templates/pages/contacts.html:5
-#: catalog/templates/pages/contacts.html:6
-#: catalog/templates/pages/contacts.html:11
+#: src/catalog/admin.py:177 src/catalog/admin.py:346 src/catalog/models.py:942
+#: src/catalog/models.py:943 src/catalog/templates/base.html:75
+#: src/catalog/templates/base.html:132
+#: src/catalog/templates/pages/contacts.html:4
+#: src/catalog/templates/pages/contacts.html:5
+#: src/catalog/templates/pages/contacts.html:6
+#: src/catalog/templates/pages/contacts.html:11
 msgid "Контакты"
 msgstr "Contacts"
 
-#: catalog/admin.py:120 catalog/models.py:41 catalog/models.py:152
+#: src/catalog/admin.py:178 src/catalog/models.py:52 src/catalog/models.py:166
 msgid "Фото"
 msgstr "Photo"
 
-#: catalog/admin.py:121 catalog/admin.py:287 catalog/admin.py:295
-#: catalog/admin.py:303 catalog/admin.py:311 catalog/admin.py:330
-#: catalog/admin.py:402
+#: src/catalog/admin.py:179 src/catalog/admin.py:415 src/catalog/admin.py:423
+#: src/catalog/admin.py:431 src/catalog/admin.py:439 src/catalog/admin.py:458
+#: src/catalog/admin.py:528 src/catalog/admin.py:608 src/catalog/admin.py:735
 msgid "Служебное"
 msgstr "Service"
 
-#: catalog/admin.py:124 catalog/admin.py:371 catalog/models.py:21
+#: src/catalog/admin.py:182 src/catalog/admin.py:704 src/catalog/models.py:24
+#: templates/admin/catalog/site_analytics.html:322
 msgid "Название"
 msgstr "Name"
 
-#: catalog/admin.py:128
+#: src/catalog/admin.py:186 src/catalog/templates/catalog/place_detail.html:122
+msgid "Формат"
+msgstr "Format"
+
+#: src/catalog/admin.py:188 src/catalog/templates/catalog/place_detail.html:125
+#: src/catalog/templates/catalog/place_list.html:316
+#: src/catalog/templates/catalog/place_list.html:403
+msgid "Временное"
+msgstr "Temporary"
+
+#: src/catalog/admin.py:188 src/catalog/templates/catalog/place_detail.html:127
+#: src/catalog/templates/catalog/place_list.html:325
+#: src/catalog/templates/catalog/place_list.html:412
+msgid "Постоянное"
+msgstr "Permanent"
+
+#: src/catalog/admin.py:190
 msgid "Сделать активными"
 msgstr "Mark active"
 
-#: catalog/admin.py:132
+#: src/catalog/admin.py:194
 msgid "Сделать неактивными"
 msgstr "Mark inactive"
 
-#: catalog/admin.py:136
+#: src/catalog/admin.py:198
 msgid "Отметить как проверенные"
 msgstr "Mark as verified"
 
-#: catalog/admin.py:140
+#: src/catalog/admin.py:202
 msgid "Снять отметку проверки"
 msgstr "Remove verification"
 
-#: catalog/admin.py:194
+#: src/catalog/admin.py:293
 msgid "Текущее лого"
 msgstr "Current logo"
 
-#: catalog/admin.py:198
+#: src/catalog/admin.py:297
 msgid "Текущий фон сайта"
 msgstr "Current site background"
 
-#: catalog/admin.py:202
+#: src/catalog/admin.py:301
 msgid "Текущий фон баннера"
 msgstr "Current banner background"
 
-#: catalog/admin.py:206
+#: src/catalog/admin.py:305
 msgid "Текущая картинка пустого результата"
 msgstr "Current empty-state image"
 
-#: catalog/admin.py:235 catalog/admin.py:282 catalog/models.py:354
-#: catalog/models.py:355
+#: src/catalog/admin.py:334 src/catalog/admin.py:387 src/catalog/models.py:928
+#: src/catalog/models.py:929
 msgid "Лого и бренд"
 msgstr "Logo and brand"
 
-#: catalog/admin.py:236
+#: src/catalog/admin.py:335
 msgid "Название проекта и логотип в шапке."
 msgstr "Project name and logo in the header."
 
-#: catalog/admin.py:241 catalog/models.py:361 catalog/models.py:362
-#: catalog/templates/base.html:57 catalog/templates/base.html:94
-#: catalog/templates/pages/about.html:4 catalog/templates/pages/about.html:5
-#: catalog/templates/pages/about.html:6 catalog/templates/pages/about.html:11
+#: src/catalog/admin.py:340 src/catalog/models.py:935 src/catalog/models.py:936
+#: src/catalog/templates/base.html:70 src/catalog/templates/base.html:128
+#: src/catalog/templates/pages/about.html:4
+#: src/catalog/templates/pages/about.html:5
+#: src/catalog/templates/pages/about.html:6
+#: src/catalog/templates/pages/about.html:11
+#: src/catalog/templates/pages/contacts.html:41
 msgid "О проекте"
 msgstr "About"
 
-#: catalog/admin.py:242
+#: src/catalog/admin.py:341
 msgid "Текст страницы «О проекте»."
 msgstr "Text for the About page."
 
-#: catalog/admin.py:248
+#: src/catalog/admin.py:347
 msgid "Контакты для страницы «Контакты»."
 msgstr "Contacts for the Contacts page."
 
-#: catalog/admin.py:253 catalog/admin.py:310 catalog/models.py:375
-#: catalog/models.py:376
+#: src/catalog/admin.py:352 src/catalog/admin.py:438 src/catalog/models.py:949
+#: src/catalog/models.py:950
 msgid "Футер и соцсети"
 msgstr "Footer and social links"
 
-#: catalog/admin.py:254
+#: src/catalog/admin.py:353
 msgid "Телефон, email, Instagram и WhatsApp в футере."
 msgstr "Phone, email, Instagram, and WhatsApp in the footer."
 
-#: catalog/admin.py:259 catalog/models.py:382 catalog/models.py:383
+#: src/catalog/admin.py:358 src/catalog/models.py:956 src/catalog/models.py:957
 msgid "Пустой результат"
 msgstr "Empty state"
 
-#: catalog/admin.py:260
+#: src/catalog/admin.py:359
 msgid "Картинка и текст, если в каталоге ничего не найдено."
 msgstr "Image and text when nothing is found in the catalog."
 
-#: catalog/admin.py:269 catalog/models.py:344 catalog/models.py:345
+#: src/catalog/admin.py:364 src/catalog/admin.py:473 src/catalog/models.py:963
+#: src/catalog/models.py:964
+msgid "Статистика"
+msgstr ""
+
+#: src/catalog/admin.py:365
+msgid "Сводные показатели по кружкам, лайкам и отзывам."
+msgstr ""
+
+#: src/catalog/admin.py:374 src/catalog/models.py:918 src/catalog/models.py:919
 msgid "Настройка сайта"
 msgstr "Site settings"
 
-#: catalog/admin.py:284
+#: src/catalog/admin.py:389
 msgid "Дизайн-картинки"
 msgstr "Design images"
 
-#: catalog/admin.py:294
+#: src/catalog/admin.py:393
+#, fuzzy
+#| msgid "Контакты страницы (i18n)"
+msgid "Hero главной страницы (i18n)"
+msgstr "Contacts for the Contacts page."
+
+#: src/catalog/admin.py:422
 msgid "О проекте (i18n)"
 msgstr "About"
 
-#: catalog/admin.py:302
+#: src/catalog/admin.py:430
 msgid "Контакты страницы (i18n)"
 msgstr "Contacts for the Contacts page."
 
-#: catalog/admin.py:319
+#: src/catalog/admin.py:447
 msgid "Пустой результат каталога"
 msgstr "Empty state"
 
-#: catalog/admin.py:342
+#: src/catalog/admin.py:488 src/catalog/admin.py:507
 msgid "Автор"
 msgstr "Author"
 
-#: catalog/admin.py:345 catalog/templates/catalog/place_detail.html:215
+#: src/catalog/admin.py:491 src/catalog/admin.py:510 src/catalog/models.py:288
+#: src/catalog/templates/catalog/place_detail.html:293
+#: src/catalog/templates/pages/home.html:138
 msgid "Аноним"
 msgstr "Anonymous"
 
-#: catalog/admin.py:346
+#: src/catalog/admin.py:492 src/catalog/admin.py:511
 msgid "Без имени"
 msgstr "No name"
 
-#: catalog/admin.py:348
-msgid "Одобрить выбранные отзывы"
+#: src/catalog/admin.py:525 src/catalog/models.py:185 src/catalog/models.py:218
+#: src/catalog/models.py:262 src/catalog/models.py:352
+#: src/catalog/models.py:1026
+msgid "Пользователь"
+msgstr ""
+
+#: src/catalog/admin.py:526
+msgid "Роли"
+msgstr ""
+
+#: src/catalog/admin.py:527
+msgid "Гранулярные права владельца"
+msgstr ""
+
+#: src/catalog/admin.py:531
+msgid "Права владельца"
+msgstr ""
+
+#: src/catalog/admin.py:606 src/catalog/models.py:552
+msgid "Заявка"
+msgstr ""
+
+#: src/catalog/admin.py:607
+#, fuzzy
+#| msgid "Локация"
+msgid "Модерация"
+msgstr "Location"
+
+#: src/catalog/admin.py:614
+#, fuzzy
+#| msgid "Одобрить выбранные отзывы"
+msgid "Одобрить выбранные заявки"
 msgstr "Approve selected reviews"
 
-#: catalog/admin.py:355
-msgid "Скрыть выбранные отзывы"
-msgstr "Hide selected reviews"
+#: src/catalog/admin.py:625
+msgid "Одобрено через админку"
+msgstr ""
 
-#: catalog/admin.py:375 catalog/models.py:227
-#: catalog/templates/catalog/place_detail.html:169
+#: src/catalog/admin.py:632
+#, python-format
+msgid "Одобрено заявок: %(count)s"
+msgstr ""
+
+#: src/catalog/admin.py:638 src/catalog/admin.py:666
+#, python-format
+msgid "Пропущено заявок (уже обработаны): %(count)s"
+msgstr ""
+
+#: src/catalog/admin.py:642
+#, fuzzy
+#| msgid "Одобрить выбранные отзывы"
+msgid "Отклонить выбранные заявки"
+msgstr "Approve selected reviews"
+
+#: src/catalog/admin.py:653
+msgid "Отклонено через админку"
+msgstr ""
+
+#: src/catalog/admin.py:660
+#, python-format
+msgid "Отклонено заявок: %(count)s"
+msgstr ""
+
+#: src/catalog/admin.py:708 src/catalog/models.py:285
+#: src/catalog/templates/catalog/place_detail.html:237
+#: src/catalog/templates/pages/owner_places.html:19
+#: src/catalog/templates/pages/owner_places.html:54
 msgid "Отзывы"
 msgstr "Reviews"
 
-#: catalog/admin.py:378
+#: src/catalog/admin.py:711
 #, fuzzy
 #| msgid "Отправить отзыв"
 msgid "Открыть отзывы"
 msgstr "Submit review"
 
-#: catalog/admin.py:387
+#: src/catalog/admin.py:720
 msgid "Контент фильтров"
 msgstr "Quick filters"
 
-#: catalog/admin.py:396
+#: src/catalog/admin.py:729
 msgid "Контент SEO-страниц"
 msgstr ""
 
-#: catalog/admin.py:399
+#: src/catalog/admin.py:732
 msgid ""
 "JSON-структура SEO страниц. Если оставить пусто, используются значения по "
 "умолчанию из кода."
 msgstr ""
 
-#: catalog/models.py:12 catalog/templates/catalog/place_list.html:186
-msgid "Спорт"
-msgstr "Sport"
+#: src/catalog/context_processors.py:56 src/catalog/models.py:300
+#: src/catalog/templates/base.html:85
+#, fuzzy
+#| msgid "Популярные категории"
+msgid "Обычный пользователь"
+msgstr "Popular categories"
 
-#: catalog/models.py:13
-msgid "Творчество"
-msgstr "Creativity"
+#: src/catalog/controllers/home_controller.py:62
+msgid ""
+"KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, "
+"возрасту и цене."
+msgstr "KidsMap: catalog of kids clubs and classes in Baku with district, age, and price filters."
 
-#: catalog/models.py:14
-msgid "Музыка и сцена"
-msgstr "Music and stage"
+#: src/catalog/controllers/home_controller.py:70
+msgid "Найдите кружок для ребёнка в Баку"
+msgstr "Find a club for your child in Baku"
 
-#: catalog/models.py:15 catalog/templates/catalog/place_list.html:187
-msgid "Образование"
-msgstr "Education"
+#: src/catalog/controllers/home_controller.py:72
+msgid "Спорт, творчество, музыка, образование — всё в одном месте."
+msgstr "Sports, creativity, music, and education in one place."
 
-#: catalog/models.py:16 catalog/templates/catalog/place_list.html:185
-msgid "Технологии"
-msgstr "Technology"
+#: src/catalog/controllers/home_controller.py:73
+msgid "Искать кружок, курс или школу"
+msgstr "Search for a club, course, or school"
 
-#: catalog/models.py:17
-msgid "Развлечения и досуг"
-msgstr "Entertainment and leisure"
+#: src/catalog/controllers/home_controller.py:75
+msgid "например english, ballet, lego"
+msgstr "for example english, ballet, lego"
 
-#: catalog/models.py:18
-msgid "Лагеря"
-msgstr "Camps"
+#: src/catalog/controllers/home_controller.py:76
+#: src/catalog/templates/pages/home.html:262
+msgid "Начать поиск"
+msgstr "Start searching"
 
-#: catalog/models.py:22
-msgid "Slug"
+#: src/catalog/controllers/owner_places_controller.py:85
+#: src/catalog/controllers/owner_places_controller.py:130
+msgid "Карточка не найдена или не привязана к вашему аккаунту."
+msgstr "The listing was not found or is not linked to your account."
+
+#: src/catalog/controllers/owner_places_controller.py:113
+msgid "Карточка успешно обновлена."
+msgstr "Listing updated successfully."
+
+#: src/catalog/controllers/owner_places_controller.py:133
+#: src/catalog/controllers/owner_reviews_controller.py:90
+msgid "Статус уже актуален."
+msgstr "Status is already up to date."
+
+#: src/catalog/controllers/owner_places_controller.py:146
+msgid "Статус карточки обновлен."
+msgstr "Listing status has been updated."
+
+#: src/catalog/controllers/owner_reviews_controller.py:55
+#: src/catalog/controllers/owner_reviews_controller.py:78
+#: src/catalog/services/owner_place_use_cases.py:33
+msgid "Для доступа нужно войти в аккаунт."
+msgstr "You need to sign in to access this section."
+
+#: src/catalog/controllers/owner_reviews_controller.py:59
+#: src/catalog/controllers/owner_reviews_controller.py:83
+msgid "У вас нет прав на модерацию отзывов."
+msgstr "You do not have permission to moderate reviews."
+
+#: src/catalog/controllers/owner_reviews_controller.py:87
+msgid "Отзыв не найден или недоступен."
+msgstr "Review not found or unavailable."
+
+#: src/catalog/controllers/owner_reviews_controller.py:95
+msgid "Статус отзыва обновлен."
+msgstr "Review status has been updated."
+
+#: src/catalog/controllers/owner_team_controller.py:71
+msgid "Проверьте поля формы приглашения."
+msgstr "Please check the invitation form fields."
+
+#: src/catalog/controllers/owner_team_controller.py:77
+msgid "Нельзя пригласить самого себя."
+msgstr "You cannot invite yourself."
+
+#: src/catalog/controllers/owner_team_controller.py:80
+msgid "Пользователь с таким email уже в вашей команде."
+msgstr "A user with this email is already in your team."
+
+#: src/catalog/controllers/owner_team_controller.py:88
+msgid "Приглашение отправлено."
+msgstr "Invitation has been sent."
+
+#: src/catalog/controllers/owner_team_controller.py:101
+#: src/catalog/controllers/owner_team_controller.py:149
+#: src/catalog/controllers/owner_team_controller.py:167
+msgid "Приглашение не найдено или уже обработано."
+msgstr "Invitation not found or already processed."
+
+#: src/catalog/controllers/owner_team_controller.py:104
+msgid "Приглашение отменено."
+msgstr "Invitation has been canceled."
+
+#: src/catalog/controllers/owner_team_controller.py:118
+msgid "Некорректная роль."
+msgstr "Invalid role."
+
+#: src/catalog/controllers/owner_team_controller.py:126
+#: src/catalog/controllers/owner_team_controller.py:140
+msgid "Участник не найден."
+msgstr "Member not found."
+
+#: src/catalog/controllers/owner_team_controller.py:127
+msgid "Роль участника обновлена."
+msgstr "Member role has been updated."
+
+#: src/catalog/controllers/owner_team_controller.py:141
+msgid "Участник удален из команды."
+msgstr "Member has been removed from the team."
+
+#: src/catalog/controllers/owner_team_controller.py:145
+msgid "Для принятия приглашения войдите в аккаунт."
+msgstr "Sign in to accept the invitation."
+
+#: src/catalog/controllers/owner_team_controller.py:159
+msgid "Приглашение принято."
+msgstr "Invitation accepted."
+
+#: src/catalog/controllers/owner_team_controller.py:163
+msgid "Для отклонения приглашения войдите в аккаунт."
+msgstr "Sign in to decline the invitation."
+
+#: src/catalog/controllers/owner_team_controller.py:170
+msgid "Приглашение отклонено."
+msgstr "Invitation declined."
+
+#: src/catalog/controllers/place_controller.py:69
+msgid ""
+"Новые кружки и курсы в Баку за последние 30 дней. Смотрите свежие добавления "
+"на KidsMap."
 msgstr ""
+"New clubs and courses in Baku for the last 30 days. See the latest additions "
+"on KidsMap."
 
-#: catalog/models.py:23
+#: src/catalog/controllers/place_controller.py:71
+msgid ""
+"Каталог детских секций и кружков в Баку. Фильтры по категории, району, "
+"метро, возрасту и цене."
+msgstr ""
+"Catalog of kids activities and clubs in Baku. Filters by category, district, "
+"metro, age, and price."
+
+#: src/catalog/forms.py:17
+msgid "Email"
+msgstr "Email"
+
+#: src/catalog/forms.py:22
+msgid "Кто вы?"
+msgstr "Who are you?"
+
+#: src/catalog/forms.py:37 src/catalog/forms.py:62
+msgid "Логин"
+msgstr "Username"
+
+#: src/catalog/forms.py:38
+msgid "Только буквы, цифры и символы @/./+/-/_"
+msgstr "Letters, digits and @/./+/-/_ symbols only"
+
+#: src/catalog/forms.py:41 src/catalog/forms.py:66
+msgid "Пароль"
+msgstr "Password"
+
+#: src/catalog/forms.py:42
+msgid "Повторите пароль"
+msgstr "Repeat password"
+
+#: src/catalog/forms.py:47
+msgid "Укажите email."
+msgstr "Please enter an email."
+
+#: src/catalog/forms.py:49
+msgid "Пользователь с таким email уже зарегистрирован."
+msgstr "A user with this email is already registered."
+
+#: src/catalog/forms.py:128 src/catalog/models.py:26
 msgid "Название (RU)"
 msgstr "Name"
 
-#: catalog/models.py:24
-msgid "Название (EN)"
-msgstr "Name"
-
-#: catalog/models.py:25
+#: src/catalog/forms.py:129 src/catalog/models.py:28
 msgid "Название (AZ)"
 msgstr "Name"
 
-#: catalog/models.py:26
+#: src/catalog/forms.py:130 src/catalog/models.py:27
+msgid "Название (EN)"
+msgstr "Name"
+
+#: src/catalog/forms.py:131 src/catalog/models.py:29
 msgid "Описание (RU)"
 msgstr "Schedule"
 
-#: catalog/models.py:27
-msgid "Описание (EN)"
-msgstr "Schedule"
-
-#: catalog/models.py:28
+#: src/catalog/forms.py:132 src/catalog/models.py:31
 msgid "Описание (AZ)"
 msgstr "Schedule"
 
-#: catalog/models.py:29 catalog/templates/catalog/place_detail.html:73
-#: catalog/templates/catalog/place_list.html:32
+#: src/catalog/forms.py:133 src/catalog/models.py:30
+msgid "Описание (EN)"
+msgstr "Schedule"
+
+#: src/catalog/forms.py:134 src/catalog/models.py:32
+#: src/catalog/templates/catalog/place_detail.html:117
+#: src/catalog/templates/catalog/place_list.html:67
+#: src/catalog/templates/pages/home.html:25
+#: templates/admin/catalog/site_analytics.html:323
 msgid "Категория"
 msgstr "Category"
 
-#: catalog/models.py:30 catalog/templates/catalog/place_detail.html:79
+#: src/catalog/forms.py:135 src/catalog/models.py:33
+#: src/catalog/templates/catalog/place_detail.html:147
 msgid "Подкатегория"
 msgstr "Subcategory"
 
-#: catalog/models.py:32
+#: src/catalog/forms.py:136 src/catalog/models.py:35
 msgid "Возраст от"
 msgstr "Age from"
 
-#: catalog/models.py:33
+#: src/catalog/forms.py:137 src/catalog/models.py:36
 msgid "Возраст до"
 msgstr "Age to"
 
-#: catalog/models.py:35 catalog/templates/catalog/place_list.html:42
-msgid "Район"
-msgstr "District"
-
-#: catalog/models.py:36 catalog/templates/catalog/place_list.html:89
-msgid "Метро"
-msgstr "Metro"
-
-#: catalog/models.py:37 catalog/templates/catalog/place_detail.html:93
-#: catalog/templates/catalog/place_list.html:341
-msgid "Адрес"
-msgstr "Address"
-
-#: catalog/models.py:39
-msgid "Телефон 1"
-msgstr "Phone 1"
-
-#: catalog/models.py:40
-msgid "Фото для шапки"
-msgstr ""
-
-#: catalog/models.py:42 catalog/templates/catalog/place_list.html:285
-#: catalog/templates/catalog/place_list.html:363
-msgid "Instagram"
-msgstr "Instagram"
-
-#: catalog/models.py:43 catalog/templates/catalog/place_detail.html:126
-msgid "Сайт"
-msgstr "Website"
-
-#: catalog/models.py:44 catalog/templates/catalog/place_detail.html:119
-msgid "Расписание"
-msgstr "Schedule"
-
-#: catalog/models.py:45
-msgid "Широта"
-msgstr "Latitude"
-
-#: catalog/models.py:46
-msgid "Долгота"
-msgstr "Longitude"
-
-#: catalog/models.py:48
+#: src/catalog/forms.py:138 src/catalog/models.py:62
 msgid "Цена от"
 msgstr "Price from"
 
-#: catalog/models.py:49
+#: src/catalog/forms.py:139 src/catalog/models.py:63
 msgid "Цена до"
 msgstr "Price up to"
 
-#: catalog/models.py:50 catalog/models.py:192
+#: src/catalog/forms.py:140 src/catalog/models.py:38
+#: src/catalog/templates/catalog/place_list.html:77
+#: src/catalog/templates/pages/home.html:32
+#: templates/admin/catalog/site_analytics.html:324
+msgid "Район"
+msgstr "District"
+
+#: src/catalog/forms.py:141 src/catalog/models.py:39
+#: src/catalog/templates/catalog/place_list.html:124
+#: src/catalog/templates/pages/home.html:39
+msgid "Метро"
+msgstr "Metro"
+
+#: src/catalog/forms.py:142 src/catalog/models.py:40
+#: src/catalog/templates/catalog/place_detail.html:161
+#: src/catalog/templates/catalog/place_list.html:443
+msgid "Адрес"
+msgstr "Address"
+
+#: src/catalog/forms.py:143 src/catalog/templates/catalog/place_detail.html:201
+msgid "Телефон"
+msgstr "Phone"
+
+#: src/catalog/forms.py:144 src/catalog/models.py:53
+msgid "Instagram"
+msgstr "Instagram"
+
+#: src/catalog/forms.py:145 src/catalog/models.py:54
+#: src/catalog/templates/catalog/place_detail.html:194
+msgid "Сайт"
+msgstr "Website"
+
+#: src/catalog/forms.py:146 src/catalog/models.py:55
+#: src/catalog/templates/catalog/place_detail.html:187
+msgid "Расписание"
+msgstr "Schedule"
+
+#: src/catalog/forms.py:147 src/catalog/models.py:56
+msgid "Временное мероприятие"
+msgstr ""
+
+#: src/catalog/forms.py:148
+#, fuzzy
+#| msgid "Начать поиск"
+msgid "Начало"
+msgstr "Start searching"
+
+#: src/catalog/forms.py:149
+#, fuzzy
+#| msgid "Название"
+msgid "Окончание"
+msgstr "Name"
+
+#: src/catalog/forms.py:150 src/catalog/models.py:51
+msgid "Фото для шапки"
+msgstr ""
+
+#: src/catalog/forms.py:151
+#, fuzzy
+#| msgid "Основное"
+msgid "Основное фото"
+msgstr "Main"
+
+#: src/catalog/forms.py:159
+#, fuzzy
+#| msgid "Отзыв должен быть не короче 8 символов."
+msgid "Возраст 'до' должен быть больше или равен 'от'."
+msgstr "Review must be at least 8 characters."
+
+#: src/catalog/forms.py:164
+msgid "Цена 'до' должна быть больше или равна 'от'."
+msgstr ""
+
+#: src/catalog/forms.py:170
+msgid "Дата окончания должна быть позже даты начала."
+msgstr ""
+
+#: src/catalog/forms.py:177
+msgid "Email участника"
+msgstr ""
+
+#: src/catalog/forms.py:181 src/catalog/forms.py:190
+msgid "Роль"
+msgstr ""
+
+#: src/catalog/models.py:15 src/catalog/templates/catalog/place_list.html:221
+msgid "Спорт"
+msgstr "Sport"
+
+#: src/catalog/models.py:16
+msgid "Творчество"
+msgstr "Creativity"
+
+#: src/catalog/models.py:17
+msgid "Музыка и сцена"
+msgstr "Music and stage"
+
+#: src/catalog/models.py:18 src/catalog/templates/catalog/place_list.html:222
+msgid "Образование"
+msgstr "Education"
+
+#: src/catalog/models.py:19 src/catalog/templates/catalog/place_list.html:220
+msgid "Технологии"
+msgstr "Technology"
+
+#: src/catalog/models.py:20
+msgid "Развлечения и досуг"
+msgstr "Leisure and fun"
+
+#: src/catalog/models.py:21
+msgid "Лагеря"
+msgstr "Camps"
+
+#: src/catalog/models.py:25
+msgid "Slug"
+msgstr ""
+
+#: src/catalog/models.py:42
+msgid "Телефон 1"
+msgstr "Phone 1"
+
+#: src/catalog/models.py:47
+#, fuzzy
+#| msgid "На карте"
+msgid "Владелец карточки"
+msgstr "On the map"
+
+#: src/catalog/models.py:57
+msgid "Начало мероприятия"
+msgstr ""
+
+#: src/catalog/models.py:58
+msgid "Окончание мероприятия"
+msgstr ""
+
+#: src/catalog/models.py:59
+msgid "Широта"
+msgstr "Latitude"
+
+#: src/catalog/models.py:60
+msgid "Долгота"
+msgstr "Longitude"
+
+#: src/catalog/models.py:64 src/catalog/models.py:206
+#: src/catalog/templates/pages/owner_places.html:58
 msgid "Лайки"
 msgstr "Likes"
 
-#: catalog/models.py:54
+#: src/catalog/models.py:68
 msgid "Активно"
 msgstr "Active"
 
-#: catalog/models.py:55
+#: src/catalog/models.py:69
 msgid "Проверено"
 msgstr "Verified"
 
-#: catalog/models.py:57 catalog/models.py:215 catalog/models.py:286
-#: catalog/models.py:390
+#: src/catalog/models.py:71 src/catalog/models.py:229 src/catalog/models.py:273
+#: src/catalog/models.py:627 src/catalog/models.py:697
+#: src/catalog/models.py:830 src/catalog/models.py:973
+#: src/catalog/models.py:1051
 msgid "Обновлено"
 msgstr "Updated"
 
-#: catalog/models.py:146
+#: src/catalog/models.py:160 src/catalog/models.py:1018
 msgid "Кружок/курс"
 msgstr "Club/Course"
 
-#: catalog/models.py:147
+#: src/catalog/models.py:161 templates/admin/catalog/site_analytics.html:11
 msgid "Кружки и курсы"
 msgstr "Clubs and courses"
 
-#: catalog/models.py:151 catalog/models.py:166 catalog/models.py:199
+#: src/catalog/models.py:165 src/catalog/models.py:180
+#: src/catalog/models.py:213
 msgid "Место"
 msgstr ""
 
-#: catalog/models.py:153
+#: src/catalog/models.py:167
 msgid "Подпись"
 msgstr ""
 
-#: catalog/models.py:154
+#: src/catalog/models.py:168
 msgid "Порядок"
 msgstr ""
 
-#: catalog/models.py:158 catalog/models.py:159
+#: src/catalog/models.py:172 src/catalog/models.py:173
 msgid "Фото галереи"
 msgstr ""
 
-#: catalog/models.py:171 catalog/models.py:204
-msgid "Пользователь"
-msgstr ""
-
-#: catalog/models.py:175 catalog/models.py:213
+#: src/catalog/models.py:189 src/catalog/models.py:227
+#: src/catalog/models.py:271 src/catalog/models.py:969
+#: src/catalog/models.py:1030
 msgid "Сессия"
 msgstr ""
 
-#: catalog/models.py:191
+#: src/catalog/models.py:205
 msgid "Лайк"
 msgstr "Likes"
 
-#: catalog/models.py:208
+#: src/catalog/models.py:222 src/catalog/models.py:266
 msgid "Имя"
 msgstr "Name"
 
-#: catalog/models.py:209
+#: src/catalog/models.py:223 src/catalog/models.py:267
 msgid "Анонимно"
 msgstr "Anonymous"
 
-#: catalog/models.py:210
+#: src/catalog/models.py:224 src/catalog/models.py:268
 msgid "Оценка"
 msgstr "Rating"
 
-#: catalog/models.py:211 catalog/models.py:226
+#: src/catalog/models.py:225 src/catalog/models.py:269
+#: src/catalog/models.py:284
 msgid "Отзыв"
 msgstr "Review"
 
-#: catalog/models.py:212
+#: src/catalog/models.py:226 src/catalog/models.py:270
+#: src/catalog/templates/pages/owner_reviews.html:36
 msgid "Одобрен"
 msgstr "Approved"
 
-#: catalog/models.py:214
+#: src/catalog/models.py:228 src/catalog/models.py:272
+#: src/catalog/models.py:374
 msgid "Создан"
 msgstr "Created"
 
-#: catalog/models.py:244
-msgid "Название бренда"
-msgstr "Name"
+#: src/catalog/models.py:240
+#, fuzzy
+#| msgid "Новых кружков"
+msgid "Отзыв по кружку"
+msgstr "New clubs"
 
-#: catalog/models.py:246
-msgid "Логотип"
-msgstr "Logo and brand"
-
-#: catalog/models.py:250
-msgid ""
-"Рекомендуется SVG или PNG, размер 256x256 px (минимум 128x128), до 500 KB."
-msgstr "Recommended SVG or PNG, 256x256 px (minimum 128x128), up to 500 KB."
-
-#: catalog/models.py:253
-msgid "Фон сайта"
-msgstr "Site background"
-
-#: catalog/models.py:257
-msgid "Рекомендуется JPG/WebP 1920x1080 px, до 2 MB."
-msgstr "Recommended JPG/WebP 1920x1080 px, up to 2 MB."
-
-#: catalog/models.py:260
-msgid "Фон главного баннера"
-msgstr "Main hero background"
-
-#: catalog/models.py:264
-msgid "Рекомендуется JPG/WebP 1600x500 px, до 1 MB."
-msgstr "Recommended JPG/WebP 1600x500 px, up to 1 MB."
-
-#: catalog/models.py:266
-msgid "Контакты (RU)"
-msgstr "Contacts"
-
-#: catalog/models.py:267
-msgid "Контакты (EN)"
-msgstr "Contacts"
-
-#: catalog/models.py:268
-msgid "Контакты (AZ)"
-msgstr "Contacts"
-
-#: catalog/models.py:269
-msgid "О проекте (RU)"
-msgstr "About"
-
-#: catalog/models.py:270
-msgid "О проекте (EN)"
-msgstr "About"
-
-#: catalog/models.py:271
-msgid "О проекте (AZ)"
-msgstr "About"
-
-#: catalog/models.py:272
-msgid "Текст пустого результата (RU)"
-msgstr "Current empty-state image"
-
-#: catalog/models.py:273
-msgid "Текст пустого результата (EN)"
-msgstr "Current empty-state image"
-
-#: catalog/models.py:274
-msgid "Текст пустого результата (AZ)"
-msgstr "Current empty-state image"
-
-#: catalog/models.py:276
-msgid "Картинка пустого результата"
-msgstr "Current empty-state image"
-
-#: catalog/models.py:280
-msgid "Рекомендуется PNG/WebP 600x400 px, до 500 KB."
-msgstr "Recommended PNG/WebP 600x400 px, up to 500 KB."
-
-#: catalog/models.py:282
-msgid "Телефон в футере"
-msgstr "Phone, email, Instagram, and WhatsApp in the footer."
-
-#: catalog/models.py:283
-msgid "Email в футере"
-msgstr ""
-
-#: catalog/models.py:284
-msgid "Instagram в футере"
-msgstr ""
-
-#: catalog/models.py:285
-msgid "WhatsApp ссылка в футере"
-msgstr ""
-
-#: catalog/models.py:387
-msgid "Районы (JSON)"
-msgstr "District"
-
-#: catalog/models.py:388
-msgid "Станции метро (JSON)"
-msgstr "District/Metro"
-
-#: catalog/models.py:389
-msgid "SEO страницы (JSON)"
-msgstr ""
-
-#: catalog/models.py:421 catalog/models.py:422 catalog/models.py:425
-msgid "Контент каталога"
-msgstr "New in catalog"
-
-#: catalog/models.py:431 catalog/models.py:432
+#: src/catalog/models.py:241 templates/admin/catalog/site_analytics.html:22
 #, fuzzy
 #| msgid "Новых кружков"
 msgid "Отзывы по кружкам"
 msgstr "New clubs"
 
-#: catalog/templates/base.html:8 catalog/templates/base.html:17
-#: catalog/templates/base.html:22
+#: src/catalog/models.py:288 src/catalog/services/review_use_cases.py:43
+#: src/catalog/templates/catalog/place_detail.html:295
+#: src/catalog/templates/pages/home.html:138
+#: src/catalog/templates/pages/owner_reviews.html:32
+msgid "Гость"
+msgstr "Guest"
+
+#: src/catalog/models.py:301
+msgid "Владелец кружка / бизнеса"
+msgstr "Club owner / business"
+
+#: src/catalog/models.py:307
+msgid "Owner manager"
+msgstr "Owner manager"
+
+#: src/catalog/models.py:308
+msgid "Owner moderator"
+msgstr "Owner moderator"
+
+#: src/catalog/models.py:309
+msgid "Owner editor"
+msgstr "Owner editor"
+
+#: src/catalog/models.py:320
+msgid "Просмотр своих карточек"
+msgstr "View own listings"
+
+#: src/catalog/models.py:321
+msgid "Редактирование карточек"
+msgstr "Edit listings"
+
+#: src/catalog/models.py:322
+msgid "Публикация и перевод в черновик"
+msgstr "Publish and move to draft"
+
+#: src/catalog/models.py:323
+msgid "Просмотр статистики"
+msgstr "View statistics"
+
+#: src/catalog/models.py:324 src/catalog/templates/pages/owner_cabinet.html:20
+#: src/catalog/templates/pages/owner_reviews.html:4
+#: src/catalog/templates/pages/owner_reviews.html:5
+#: src/catalog/templates/pages/owner_reviews.html:6
+#: src/catalog/templates/pages/owner_reviews.html:13
+msgid "Модерация отзывов"
+msgstr "Review moderation"
+
+#: src/catalog/models.py:325
+msgid "Управление участниками команды"
+msgstr "Manage team members"
+
+#: src/catalog/models.py:355 src/catalog/models.py:447
+#: src/catalog/models.py:672 src/catalog/templates/catalog/place_detail.html:96
+#: src/catalog/templates/pages/owner_cabinet.html:87
+#: src/catalog/templates/pages/owner_reviews.html:36
+msgid "Статус"
+msgstr "Status"
+
+#: src/catalog/models.py:362 src/catalog/templates/pages/owner_cabinet.html:14
+#: src/catalog/templates/pages/owner_places.html:28
+msgid "Роль владельца"
+msgstr "Owner role"
+
+#: src/catalog/models.py:366
+msgid "Используется только для пользователей со статусом владельца."
+msgstr "Used only for users with owner status."
+
+#: src/catalog/models.py:369
+msgid "Переопределение прав владельца"
+msgstr "Owner permissions override"
+
+#: src/catalog/models.py:372
+msgid ""
+"Оставьте пустым, чтобы использовать права по умолчанию для роли владельца."
+msgstr "Leave empty to use default permissions for the selected owner role."
+
+#: src/catalog/models.py:375
+#, fuzzy
+#| msgid "Обновлено"
+msgid "Обновлен"
+msgstr "Updated"
+
+#: src/catalog/models.py:378
+msgid "Профиль пользователя"
+msgstr "User profile"
+
+#: src/catalog/models.py:379
+msgid "Профили пользователей"
+msgstr "User profiles"
+
+#: src/catalog/models.py:429
+msgid "На модерации"
+msgstr "Pending moderation"
+
+#: src/catalog/models.py:430 src/catalog/models.py:544
+msgid "Одобрена"
+msgstr "Approved"
+
+#: src/catalog/models.py:431 src/catalog/models.py:545
+msgid "Отклонена"
+msgstr "Rejected"
+
+#: src/catalog/models.py:438 src/catalog/models.py:740
+#: templates/admin/catalog/site_analytics.html:156
+#, fuzzy
+#| msgid "Кружок/курс"
+msgid "Кружок"
+msgstr "Club/Course"
+
+#: src/catalog/models.py:444
+msgid "Заявитель"
+msgstr "Applicant"
+
+#: src/catalog/models.py:454
+msgid "Комментарий заявителя"
+msgstr "Applicant comment"
+
+#: src/catalog/models.py:459
+msgid "Комментарий модератора"
+msgstr "Moderator comment"
+
+#: src/catalog/models.py:467
+msgid "Модератор"
+msgstr "Moderator"
+
+#: src/catalog/models.py:471
+msgid "Дата модерации"
+msgstr "Moderation date"
+
+#: src/catalog/models.py:472 src/catalog/models.py:543
+#: src/catalog/templates/pages/owner_cabinet.html:88
+#, fuzzy
+#| msgid "Создан"
+msgid "Создана"
+msgstr "Created"
+
+#: src/catalog/models.py:473
+#, fuzzy
+#| msgid "Обновлено"
+msgid "Обновлена"
+msgstr "Updated"
+
+#: src/catalog/models.py:484
+msgid "Заявка на владение кружком"
+msgstr "Ownership request"
+
+#: src/catalog/models.py:485
+msgid "Заявки на владение кружком"
+msgstr "Ownership requests"
+
+#: src/catalog/models.py:558
+#, fuzzy
+#| msgid "Нужно заполнить"
+msgid "Кто выполнил"
+msgstr "Needs setup"
+
+#: src/catalog/models.py:562 src/catalog/models.py:1011
+msgid "Событие"
+msgstr "Event"
+
+#: src/catalog/models.py:563
+msgid "Статус до"
+msgstr "Status before"
+
+#: src/catalog/models.py:564
+msgid "Статус после"
+msgstr "Status after"
+
+#: src/catalog/models.py:565
+msgid "Комментарий"
+msgstr "Comment"
+
+#: src/catalog/models.py:566 src/catalog/models.py:626
+#: src/catalog/models.py:696 src/catalog/models.py:760
+#: src/catalog/models.py:972 src/catalog/models.py:1032
+#, fuzzy
+#| msgid "Создан"
+msgid "Создано"
+msgstr "Created"
+
+#: src/catalog/models.py:570
+msgid "Аудит заявки на владение"
+msgstr "Ownership request audit"
+
+#: src/catalog/models.py:571
+msgid "Аудит заявок на владение"
+msgstr "Ownership request audits"
+
+#: src/catalog/models.py:602 src/catalog/models.py:661
+msgid "Владелец команды"
+msgstr "Team owner"
+
+#: src/catalog/models.py:608
+msgid "Участник"
+msgstr "Member"
+
+#: src/catalog/models.py:611 src/catalog/models.py:665
+#, fuzzy
+#| msgid "Новое в каталоге"
+msgid "Роль в команде"
+msgstr "New in catalog"
+
+#: src/catalog/models.py:617
+#, fuzzy
+#| msgid "Активно"
+msgid "Активна"
+msgstr "Active"
+
+#: src/catalog/models.py:622 src/catalog/models.py:683
+msgid "Кто пригласил"
+msgstr "Invited by"
+
+#: src/catalog/models.py:630
+msgid "Участник команды владельца"
+msgstr "Owner team member"
+
+#: src/catalog/models.py:631
+msgid "Участники команды владельца"
+msgstr "Owner team members"
+
+#: src/catalog/models.py:651
+msgid "Ожидает ответа"
+msgstr "Pending response"
+
+#: src/catalog/models.py:652
+msgid "Принято"
+msgstr "Accepted"
+
+#: src/catalog/models.py:653
+#, fuzzy
+#| msgid "Заполнено"
+msgid "Отклонено"
+msgstr "Completed"
+
+#: src/catalog/models.py:654
+#, fuzzy
+#| msgid "Заполнено"
+msgid "Отменено"
+msgstr "Completed"
+
+#: src/catalog/models.py:663
+msgid "Email приглашенного"
+msgstr "Invitee email"
+
+#: src/catalog/models.py:678
+#, fuzzy
+#| msgid "Последние добавления"
+msgid "Токен приглашения"
+msgstr "Latest additions"
+
+#: src/catalog/models.py:691
+#, fuzzy
+#| msgid "Проверенные и активные места"
+msgid "Приглашенный пользователь"
+msgstr "Verified and active places"
+
+#: src/catalog/models.py:695
+msgid "Дата ответа"
+msgstr "Response date"
+
+#: src/catalog/models.py:700
+msgid "Приглашение в команду владельца"
+msgstr "Owner team invitation"
+
+#: src/catalog/models.py:701
+msgid "Приглашения в команду владельца"
+msgstr "Owner team invitations"
+
+#: src/catalog/models.py:731 src/catalog/templates/pages/owner_cabinet.html:4
+#: src/catalog/templates/pages/owner_cabinet.html:5
+#: src/catalog/templates/pages/owner_cabinet.html:6
+#: src/catalog/templates/pages/owner_cabinet.html:11
+msgid "Кабинет владельца"
+msgstr "Owner dashboard"
+
+#: src/catalog/models.py:732
+msgid "Админка"
+msgstr "Admin panel"
+
+#: src/catalog/models.py:733
+#: src/catalog/templates/pages/owner_place_edit.html:56
+msgid "Система"
+msgstr "System"
+
+#: src/catalog/models.py:746
+#, fuzzy
+#| msgid "Без имени"
+msgid "Кто изменил"
+msgstr "No name"
+
+#: src/catalog/models.py:750
+msgid "Поле"
+msgstr "Field"
+
+#: src/catalog/models.py:751
+msgid "Старое значение"
+msgstr "Old value"
+
+#: src/catalog/models.py:752
+msgid "Новое значение"
+msgstr "New value"
+
+#: src/catalog/models.py:754
+msgid "Источник"
+msgstr "Source"
+
+#: src/catalog/models.py:763
+msgid "Аудит изменения карточки"
+msgstr "Listing change audit"
+
+#: src/catalog/models.py:764
+msgid "Аудит изменений карточек"
+msgstr "Listing changes audit"
+
+#: src/catalog/models.py:772
+msgid "Название бренда"
+msgstr "Name"
+
+#: src/catalog/models.py:774
+msgid "Логотип"
+msgstr "Logo and brand"
+
+#: src/catalog/models.py:778
+msgid ""
+"Рекомендуется SVG или PNG, размер 256x256 px (минимум 128x128), до 500 KB."
+msgstr "Recommended SVG or PNG, 256x256 px (minimum 128x128), up to 500 KB."
+
+#: src/catalog/models.py:781
+msgid "Фон сайта"
+msgstr "Site background"
+
+#: src/catalog/models.py:785
+msgid "Рекомендуется JPG/WebP 1920x1080 px, до 2 MB."
+msgstr "Recommended JPG/WebP 1920x1080 px, up to 2 MB."
+
+#: src/catalog/models.py:788
+msgid "Фон главного баннера"
+msgstr "Main hero background"
+
+#: src/catalog/models.py:792
+msgid "Рекомендуется JPG/WebP 1600x500 px, до 1 MB."
+msgstr "Recommended JPG/WebP 1600x500 px, up to 1 MB."
+
+#: src/catalog/models.py:794
+msgid "Показывать декор в hero"
+msgstr ""
+
+#: src/catalog/models.py:795
+msgid "Hero заголовок (RU)"
+msgstr ""
+
+#: src/catalog/models.py:796
+msgid "Hero заголовок (EN)"
+msgstr ""
+
+#: src/catalog/models.py:797
+msgid "Hero заголовок (AZ)"
+msgstr ""
+
+#: src/catalog/models.py:798
+msgid "Hero подзаголовок (RU)"
+msgstr ""
+
+#: src/catalog/models.py:799
+msgid "Hero подзаголовок (EN)"
+msgstr ""
+
+#: src/catalog/models.py:800
+msgid "Hero подзаголовок (AZ)"
+msgstr ""
+
+#: src/catalog/models.py:801
+msgid "Hero подпись поиска (RU)"
+msgstr ""
+
+#: src/catalog/models.py:802
+msgid "Hero подпись поиска (EN)"
+msgstr ""
+
+#: src/catalog/models.py:803
+msgid "Hero подпись поиска (AZ)"
+msgstr ""
+
+#: src/catalog/models.py:804
+msgid "Hero placeholder поиска (RU)"
+msgstr ""
+
+#: src/catalog/models.py:805
+msgid "Hero placeholder поиска (EN)"
+msgstr ""
+
+#: src/catalog/models.py:806
+msgid "Hero placeholder поиска (AZ)"
+msgstr ""
+
+#: src/catalog/models.py:807
+msgid "Hero кнопка (RU)"
+msgstr ""
+
+#: src/catalog/models.py:808
+msgid "Hero кнопка (EN)"
+msgstr ""
+
+#: src/catalog/models.py:809
+msgid "Hero кнопка (AZ)"
+msgstr ""
+
+#: src/catalog/models.py:810
+msgid "Контакты (RU)"
+msgstr "Contacts"
+
+#: src/catalog/models.py:811
+msgid "Контакты (EN)"
+msgstr "Contacts"
+
+#: src/catalog/models.py:812
+msgid "Контакты (AZ)"
+msgstr "Contacts"
+
+#: src/catalog/models.py:813
+msgid "О проекте (RU)"
+msgstr "About"
+
+#: src/catalog/models.py:814
+msgid "О проекте (EN)"
+msgstr "About"
+
+#: src/catalog/models.py:815
+msgid "О проекте (AZ)"
+msgstr "About"
+
+#: src/catalog/models.py:816
+msgid "Текст пустого результата (RU)"
+msgstr "Current empty-state image"
+
+#: src/catalog/models.py:817
+msgid "Текст пустого результата (EN)"
+msgstr "Current empty-state image"
+
+#: src/catalog/models.py:818
+msgid "Текст пустого результата (AZ)"
+msgstr "Current empty-state image"
+
+#: src/catalog/models.py:820
+msgid "Картинка пустого результата"
+msgstr "Current empty-state image"
+
+#: src/catalog/models.py:824
+msgid "Рекомендуется PNG/WebP 600x400 px, до 500 KB."
+msgstr "Recommended PNG/WebP 600x400 px, up to 500 KB."
+
+#: src/catalog/models.py:826
+msgid "Телефон в футере"
+msgstr "Phone, email, Instagram, and WhatsApp in the footer."
+
+#: src/catalog/models.py:827
+msgid "Email в футере"
+msgstr ""
+
+#: src/catalog/models.py:828
+msgid "Instagram в футере"
+msgstr ""
+
+#: src/catalog/models.py:829
+msgid "WhatsApp ссылка в футере"
+msgstr ""
+
+#: src/catalog/models.py:968 src/catalog/models.py:1012
+msgid "День"
+msgstr ""
+
+#: src/catalog/models.py:970 templates/admin/catalog/site_analytics.html:446
+#: templates/admin/catalog/site_analytics.html:455
+msgid "Просмотры"
+msgstr ""
+
+#: src/catalog/models.py:971
+msgid "Первый путь"
+msgstr ""
+
+#: src/catalog/models.py:976
+msgid "Посещение"
+msgstr ""
+
+#: src/catalog/models.py:977 templates/admin/catalog/site_analytics.html:71
+msgid "Посещения"
+msgstr ""
+
+#: src/catalog/models.py:1003
+#, fuzzy
+#| msgid "Новое в каталоге"
+msgid "Поиск в каталоге"
+msgstr "New in catalog"
+
+#: src/catalog/models.py:1004
+#, fuzzy
+#| msgid "Контент фильтров"
+msgid "Применение фильтров"
+msgstr "Quick filters"
+
+#: src/catalog/models.py:1005
+#, fuzzy
+#| msgid "Популярные категории"
+msgid "Открытие карточки"
+msgstr "Popular categories"
+
+#: src/catalog/models.py:1006
+#, fuzzy
+#| msgid "Позвонить"
+msgid "Клик: Позвонить"
+msgstr "Call"
+
+#: src/catalog/models.py:1007
+msgid "Клик: WhatsApp"
+msgstr ""
+
+#: src/catalog/models.py:1008
+#, fuzzy
+#| msgid "Мы в Instagram"
+msgid "Клик: Instagram"
+msgstr "Find us on Instagram"
+
+#: src/catalog/models.py:1013
+msgid "Путь"
+msgstr ""
+
+#: src/catalog/models.py:1031
+msgid "Данные"
+msgstr ""
+
+#: src/catalog/models.py:1035
+msgid "Событие воронки"
+msgstr ""
+
+#: src/catalog/models.py:1036
+msgid "События воронки"
+msgstr ""
+
+#: src/catalog/models.py:1048
+msgid "Районы (JSON)"
+msgstr "District"
+
+#: src/catalog/models.py:1049
+msgid "Станции метро (JSON)"
+msgstr "District/Metro"
+
+#: src/catalog/models.py:1050
+msgid "SEO страницы (JSON)"
+msgstr ""
+
+#: src/catalog/models.py:1082 src/catalog/models.py:1083
+#: src/catalog/models.py:1086
+msgid "Контент каталога"
+msgstr "New in catalog"
+
+#: src/catalog/models.py:1092
+#, fuzzy
+#| msgid "Рейтинг не ниже"
+msgid "Рейтинг кружка"
+msgstr "Rating not lower than"
+
+#: src/catalog/models.py:1093
+#, fuzzy
+#| msgid "Новых кружков"
+msgid "Рейтинг кружков"
+msgstr "New clubs"
+
+#: src/catalog/services/owner_place_use_cases.py:39
+msgid "Раздел доступен только аккаунтам владельца."
+msgstr ""
+
+#: src/catalog/services/owner_place_use_cases.py:46
+msgid "Недостаточно прав для выполнения этого действия."
+msgstr ""
+
+#: src/catalog/services/ownership_use_cases.py:30
+msgid "Для отправки заявки нужно войти в аккаунт."
+msgstr ""
+
+#: src/catalog/services/ownership_use_cases.py:38
+msgid "Заявки на владение доступны только для аккаунтов владельца."
+msgstr ""
+
+#: src/catalog/services/ownership_use_cases.py:45
+msgid "Этот кружок уже привязан к вашему аккаунту."
+msgstr ""
+
+#: src/catalog/services/ownership_use_cases.py:53
+msgid "У вас уже есть активная заявка по этому кружку."
+msgstr ""
+
+#: src/catalog/services/ownership_use_cases.py:63
+msgid ""
+"Заявка отправлена. После проверки модератором вы получите доступ к карточке."
+msgstr ""
+
+#: src/catalog/services/review_use_cases.py:58
+#: src/catalog/services/review_use_cases.py:91
+msgid "Оставлять отзывы могут только зарегистрированные пользователи."
+msgstr "Only registered users can post reviews."
+
+#: src/catalog/services/review_use_cases.py:66
+#: src/catalog/services/review_use_cases.py:99
+msgid "Пожалуйста, выберите оценку от 1 до 5."
+msgstr "Please choose a rating from 1 to 5."
+
+#: src/catalog/services/review_use_cases.py:79
+msgid "Спасибо! Ваш отзыв обновлен."
+msgstr "Thanks! Your review has been added."
+
+#: src/catalog/services/review_use_cases.py:81
+msgid "Спасибо! Ваш отзыв добавлен."
+msgstr "Thanks! Your review has been added."
+
+#: src/catalog/services/review_use_cases.py:125
+#, fuzzy
+#| msgid "Спасибо! Ваш отзыв обновлен."
+msgid "Спасибо! Ваша оценка сайта обновлена."
+msgstr "Thanks! Your review has been added."
+
+#: src/catalog/services/review_use_cases.py:127
+#, fuzzy
+#| msgid "Спасибо! Ваш отзыв обновлен."
+msgid "Спасибо! Ваша оценка сайта сохранена."
+msgstr "Thanks! Your review has been added."
+
+#: src/catalog/templates/auth/login.html:4
+#: src/catalog/templates/auth/login.html:5
+#: src/catalog/templates/auth/login.html:6
+msgid "Вход"
+msgstr "Sign in"
+
+#: src/catalog/templates/auth/login.html:11
+msgid "Вход в аккаунт"
+msgstr "Sign in to your account"
+
+#: src/catalog/templates/auth/login.html:12
+msgid "Войдите, чтобы оставлять отзывы и управлять своим профилем."
+msgstr "Sign in to leave reviews and manage your profile."
+
+#: src/catalog/templates/auth/login.html:42
+#: src/catalog/templates/auth/register.html:77
+#: src/catalog/templates/base.html:93
+#: src/catalog/templates/catalog/place_detail.html:109
+#: src/catalog/templates/catalog/place_detail.html:280
+#: src/catalog/templates/pages/home.html:308
+msgid "Войти"
+msgstr "Sign in"
+
+#: src/catalog/templates/auth/login.html:46
+msgid "Нет аккаунта?"
+msgstr "Don't have an account?"
+
+#: src/catalog/templates/auth/login.html:47
+msgid "Зарегистрироваться"
+msgstr "Sign up"
+
+#: src/catalog/templates/auth/register.html:4
+#: src/catalog/templates/auth/register.html:5
+#: src/catalog/templates/auth/register.html:6
+#: src/catalog/templates/auth/register.html:11
+#: src/catalog/templates/base.html:94
+#: src/catalog/templates/catalog/place_detail.html:110
+#: src/catalog/templates/catalog/place_detail.html:281
+#: src/catalog/templates/pages/home.html:309
+msgid "Регистрация"
+msgstr "Register"
+
+#: src/catalog/templates/auth/register.html:12
+msgid "Выберите статус аккаунта: обычный пользователь или владелец кружка."
+msgstr "Choose account type: regular user or club owner."
+
+#: src/catalog/templates/auth/register.html:72
+msgid "Создать аккаунт"
+msgstr "Create account"
+
+#: src/catalog/templates/auth/register.html:76
+msgid "Уже есть аккаунт?"
+msgstr "Already have an account?"
+
+#: src/catalog/templates/base.html:8 src/catalog/templates/base.html:17
+#: src/catalog/templates/base.html:22
 msgid ""
 "Каталог детских кружков и секций в Баку: спорт, творчество, музыка, "
 "образование."
 msgstr "KidsMap is a catalog of kids clubs and activities in Baku."
 
-#: catalog/templates/base.html:42 catalog/templates/pages/home.html:4
-#: catalog/templates/pages/home.html:5 catalog/templates/pages/home.html:6
+#: src/catalog/templates/base.html:60 src/catalog/templates/pages/home.html:4
+#: src/catalog/templates/pages/home.html:5
+#: src/catalog/templates/pages/home.html:6
 msgid "Главная"
 msgstr "Home"
 
-#: catalog/templates/base.html:47 catalog/templates/catalog/place_list.html:4
-#: catalog/templates/catalog/place_list.html:5
-#: catalog/templates/catalog/place_list.html:6
-#: catalog/templates/catalog/place_list.html:17
+#: src/catalog/templates/base.html:65
+#: src/catalog/templates/catalog/place_list.html:4
+#: src/catalog/templates/catalog/place_list.html:5
+#: src/catalog/templates/catalog/place_list.html:6
+#: src/catalog/templates/catalog/place_list.html:17
 msgid "Каталог"
 msgstr "Catalog"
 
-#: catalog/templates/base.html:52 catalog/templates/catalog/place_list.html:4
-#: catalog/templates/catalog/place_list.html:5
-#: catalog/templates/catalog/place_list.html:6
-#: catalog/templates/catalog/place_list.html:261
-#: catalog/templates/catalog/place_list.html:347
-msgid "Новое"
-msgstr "New"
+#: src/catalog/templates/base.html:79
+msgid "Аккаунт"
+msgstr "Account"
 
-#: catalog/templates/base.html:65
+#: src/catalog/templates/base.html:82
+msgid "Кабинет"
+msgstr "Dashboard"
+
+#: src/catalog/templates/base.html:90
+msgid "Выйти"
+msgstr "Sign out"
+
+#: src/catalog/templates/base.html:98
 msgid "Язык"
 msgstr "Language"
 
-#: catalog/templates/base.html:107
+#: src/catalog/templates/base.html:141
 msgid "Мы в Instagram"
 msgstr "Find us on Instagram"
 
-#: catalog/templates/catalog/place_detail.html:15
-#: catalog/templates/catalog/place_list.html:391
+#: src/catalog/templates/catalog/place_detail.html:15
+#: src/catalog/templates/catalog/place_list.html:493
+#: src/catalog/templates/catalog/place_list.html:495
 msgid "Назад"
 msgstr "Back"
 
-#: catalog/templates/catalog/place_detail.html:23
+#: src/catalog/templates/catalog/place_detail.html:23
 msgid "Предыдущее фото"
 msgstr "Previous photo"
 
-#: catalog/templates/catalog/place_detail.html:25
+#: src/catalog/templates/catalog/place_detail.html:25
 msgid "Следующее фото"
 msgstr "Next photo"
 
-#: catalog/templates/catalog/place_detail.html:40
-#: catalog/templates/catalog/place_detail.html:42
-#: catalog/templates/catalog/place_list.html:248
-#: catalog/templates/catalog/place_list.html:250
-#: catalog/templates/catalog/place_list.html:252
-#: catalog/templates/catalog/place_list.html:254
-#: catalog/templates/catalog/place_list.html:303
-#: catalog/templates/catalog/place_list.html:305
-#: catalog/templates/catalog/place_list.html:307
-#: catalog/templates/catalog/place_list.html:309
-#: catalog/templates/pages/home.html:118 catalog/templates/pages/home.html:120
-#: catalog/templates/pages/home.html:122 catalog/templates/pages/home.html:124
+#: src/catalog/templates/catalog/place_detail.html:40
+#: src/catalog/templates/catalog/place_detail.html:42
+#: src/catalog/templates/catalog/place_list.html:292
+#: src/catalog/templates/catalog/place_list.html:294
+#: src/catalog/templates/catalog/place_list.html:296
+#: src/catalog/templates/catalog/place_list.html:298
+#: src/catalog/templates/catalog/place_list.html:370
+#: src/catalog/templates/catalog/place_list.html:372
+#: src/catalog/templates/catalog/place_list.html:374
+#: src/catalog/templates/catalog/place_list.html:376
+#: src/catalog/templates/pages/home.html:199
+#: src/catalog/templates/pages/home.html:201
+#: src/catalog/templates/pages/home.html:203
+#: src/catalog/templates/pages/home.html:205
 msgid "Фото скоро будет."
 msgstr "Photo coming soon."
 
-#: catalog/templates/catalog/place_detail.html:59
-#: catalog/templates/catalog/place_list.html:268
-#: catalog/templates/catalog/place_list.html:319
-#: catalog/templates/pages/home.html:134
+#: src/catalog/templates/catalog/place_detail.html:59
+#: src/catalog/templates/catalog/place_list.html:331
+#: src/catalog/templates/catalog/place_list.html:418
+#: src/catalog/templates/pages/owner_places.html:82
+#: src/catalog/templates/pages/owner_places.html:112
 msgid "отзывов"
 msgstr "reviews"
 
-#: catalog/templates/catalog/place_detail.html:64
-#: catalog/templates/catalog/place_list.html:282
-#: catalog/templates/catalog/place_list.html:360
+#: src/catalog/templates/catalog/place_detail.html:64
+#: src/catalog/templates/catalog/place_list.html:348
+#: src/catalog/templates/catalog/place_list.html:448
 msgid "Позвонить"
 msgstr "Call"
 
-#: catalog/templates/catalog/place_detail.html:86
-#: catalog/templates/catalog/place_list.html:272
+#: src/catalog/templates/catalog/place_detail.html:73
+#, fuzzy
+#| msgid "Сравните кружки по возрасту и цене"
+msgid "Управление карточкой кружка"
+msgstr "Compare clubs by age and price"
+
+#: src/catalog/templates/catalog/place_detail.html:75
+msgid "Текущий владелец карточки назначен."
+msgstr ""
+
+#: src/catalog/templates/catalog/place_detail.html:77
+msgid "Карточка пока без назначенного владельца."
+msgstr ""
+
+#: src/catalog/templates/catalog/place_detail.html:85
+msgid "Комментарий к заявке (необязательно)"
+msgstr ""
+
+#: src/catalog/templates/catalog/place_detail.html:86
+msgid "Например: я представитель этого кружка, могу подтвердить контакты."
+msgstr ""
+
+#: src/catalog/templates/catalog/place_detail.html:88
+#, fuzzy
+#| msgid "Отметить как проверенные"
+msgid "Отправить заявку на управление"
+msgstr "Mark as verified"
+
+#: src/catalog/templates/catalog/place_detail.html:92
+msgid "Эта карточка уже привязана к вашему аккаунту."
+msgstr ""
+
+#: src/catalog/templates/catalog/place_detail.html:95
+msgid "Ваша заявка уже на модерации."
+msgstr ""
+
+#: src/catalog/templates/catalog/place_detail.html:100
+#, fuzzy
+#| msgid "Оставлять отзывы могут только зарегистрированные пользователи."
+msgid "Отправлять такие заявки могут только аккаунты со статусом владельца."
+msgstr "Only registered users can post reviews."
+
+#: src/catalog/templates/catalog/place_detail.html:101
+#, fuzzy
+#| msgid "Открыть сайт"
+msgid "Открыть кабинет"
+msgstr "Open site"
+
+#: src/catalog/templates/catalog/place_detail.html:107
+msgid "Чтобы отправить заявку на управление карточкой, войдите в аккаунт."
+msgstr ""
+
+#: src/catalog/templates/catalog/place_detail.html:135
+#, fuzzy
+#| msgid "Только проверенные"
+msgid "Период проведения"
+msgstr "Only verified"
+
+#: src/catalog/templates/catalog/place_detail.html:154
+#: src/catalog/templates/catalog/place_list.html:335
 msgid "Район/метро"
 msgstr "District/Metro"
 
-#: catalog/templates/catalog/place_detail.html:99
-#: catalog/templates/catalog/place_list.html:262
-#: catalog/templates/catalog/place_list.html:344
-#: catalog/templates/catalog/place_list.html:348
-#: catalog/templates/pages/home.html:137
+#: src/catalog/templates/catalog/place_detail.html:167
+#: src/catalog/templates/catalog/place_list.html:311
+#: src/catalog/templates/catalog/place_list.html:445
+#: src/catalog/templates/catalog/place_list.html:459
+#: src/catalog/templates/pages/home.html:233
 msgid "Добавлено"
 msgstr "Added"
 
-#: catalog/templates/catalog/place_detail.html:105
-#: catalog/templates/catalog/place_list.html:100
-#: catalog/templates/catalog/place_list.html:275
-#: catalog/templates/catalog/place_list.html:338
+#: src/catalog/templates/catalog/place_detail.html:173
+#: src/catalog/templates/catalog/place_list.html:135
+#: src/catalog/templates/catalog/place_list.html:338
+#: src/catalog/templates/catalog/place_list.html:440
+#: src/catalog/templates/pages/home.html:46
 msgid "Возраст"
 msgstr "Age"
 
-#: catalog/templates/catalog/place_detail.html:112
-#: catalog/templates/catalog/place_list.html:121
-#: catalog/templates/catalog/place_list.html:278
+#: src/catalog/templates/catalog/place_detail.html:180
+#: src/catalog/templates/catalog/place_list.html:156
+#: src/catalog/templates/catalog/place_list.html:342
 msgid "Цена"
 msgstr "Price"
 
-#: catalog/templates/catalog/place_detail.html:133
-msgid "Телефон"
-msgstr "Phone"
-
-#: catalog/templates/catalog/place_detail.html:147
+#: src/catalog/templates/catalog/place_detail.html:215
 msgid "Координаты"
 msgstr "Coordinates"
 
-#: catalog/templates/catalog/place_detail.html:154
+#: src/catalog/templates/catalog/place_detail.html:222
 msgid "На карте"
 msgstr "On the map"
 
-#: catalog/templates/catalog/place_detail.html:160
+#: src/catalog/templates/catalog/place_detail.html:228
 msgid "Карта места"
 msgstr "Place map"
 
-#: catalog/templates/catalog/place_detail.html:163
+#: src/catalog/templates/catalog/place_detail.html:231
 msgid "Открыть большую карту"
 msgstr "Open larger map"
 
-#: catalog/templates/catalog/place_detail.html:182
-#: catalog/templates/catalog/place_detail.html:184
+#: src/catalog/templates/catalog/place_detail.html:251
+#: src/catalog/templates/catalog/place_detail.html:253
+#: src/catalog/templates/pages/home.html:279
+#: src/catalog/templates/pages/home.html:281
 msgid "Ваша оценка"
 msgstr "Your rating"
 
-#: catalog/templates/catalog/place_detail.html:193
+#: src/catalog/templates/catalog/place_detail.html:262
+#: src/catalog/templates/pages/home.html:290
 msgid "Ваше имя"
 msgstr "Your name"
 
-#: catalog/templates/catalog/place_detail.html:194
+#: src/catalog/templates/catalog/place_detail.html:263
+#: src/catalog/templates/pages/home.html:291
 msgid "например Алина"
 msgstr "for example Alina"
 
-#: catalog/templates/catalog/place_detail.html:198
+#: src/catalog/templates/catalog/place_detail.html:267
+#: src/catalog/templates/pages/home.html:295
 msgid "Оставить анонимно"
 msgstr "Post anonymously"
 
-#: catalog/templates/catalog/place_detail.html:202
+#: src/catalog/templates/catalog/place_detail.html:271
+#: src/catalog/templates/pages/home.html:299
 msgid "Текст отзыва"
 msgstr "Review text"
 
-#: catalog/templates/catalog/place_detail.html:203
+#: src/catalog/templates/catalog/place_detail.html:272
 msgid "Что вам понравилось или не понравилось?"
 msgstr "What did you like or dislike?"
 
-#: catalog/templates/catalog/place_detail.html:205
+#: src/catalog/templates/catalog/place_detail.html:274
+#: src/catalog/templates/pages/home.html:302
 msgid "Отправить отзыв"
 msgstr "Submit review"
 
-#: catalog/templates/catalog/place_detail.html:217
-msgid "Гость"
-msgstr "Guest"
+#: src/catalog/templates/catalog/place_detail.html:278
+#: src/catalog/templates/pages/home.html:306
+msgid "Письменные отзывы доступны только после входа в аккаунт."
+msgstr "Written reviews are available only after signing in."
 
-#: catalog/templates/catalog/place_detail.html:228
+#: src/catalog/templates/catalog/place_detail.html:308
 msgid "Пока нет отзывов. Будьте первым!"
 msgstr "No reviews yet. Be the first!"
 
-#: catalog/templates/catalog/place_list.html:14
+#: src/catalog/templates/catalog/place_list.html:4
+#: src/catalog/templates/catalog/place_list.html:5
+#: src/catalog/templates/catalog/place_list.html:6
+#: src/catalog/templates/catalog/place_list.html:310
+#: src/catalog/templates/catalog/place_list.html:458
+msgid "Новое"
+msgstr "New"
+
+#: src/catalog/templates/catalog/place_list.html:14
 msgid "Новое в каталоге"
 msgstr "New in catalog"
 
-#: catalog/templates/catalog/place_list.html:15
+#: src/catalog/templates/catalog/place_list.html:15
 msgid "Только недавно добавленные кружки и курсы."
 msgstr "Only recently added clubs and courses."
 
-#: catalog/templates/catalog/place_list.html:18
+#: src/catalog/templates/catalog/place_list.html:18
 msgid "Найдите лучшие занятия для ребенка"
 msgstr "Find the best activities for your child"
 
-#: catalog/templates/catalog/place_list.html:27
+#: src/catalog/templates/catalog/place_list.html:30
+msgid ""
+"Выберите период и фильтры, чтобы увидеть только самые свежие добавления."
+msgstr "Choose period and filters to see only the newest additions."
+
+#: src/catalog/templates/catalog/place_list.html:32
+msgid ""
+"Настройте фильтры и нажмите «Поиск», чтобы быстро найти подходящие кружки."
+msgstr "Set filters and click “Search” to quickly find suitable clubs."
+
+#: src/catalog/templates/catalog/place_list.html:44
+#: src/catalog/templates/catalog/place_list.html:56
+#: templates/admin/catalog/site_analytics.html:102
+#: templates/admin/catalog/site_analytics.html:264
+#: templates/admin/catalog/site_analytics.html:294
+#: templates/admin/catalog/site_analytics.html:459
+msgid "Фильтры"
+msgstr "Filters"
+
+#: src/catalog/templates/catalog/place_list.html:57
+msgid "Закрыть"
+msgstr "Close"
+
+#: src/catalog/templates/catalog/place_list.html:62
 msgid "Поиск по названию"
 msgstr "Search by title"
 
-#: catalog/templates/catalog/place_list.html:28
+#: src/catalog/templates/catalog/place_list.html:63
 msgid "например робототехника или english"
 msgstr "for example robotics or english"
 
-#: catalog/templates/catalog/place_list.html:34
-#: catalog/templates/catalog/place_list.html:44
-#: catalog/templates/catalog/place_list.html:54
-#: catalog/templates/catalog/place_list.html:75
-#: catalog/templates/catalog/place_list.html:83
-#: catalog/templates/catalog/place_list.html:91
+#: src/catalog/templates/catalog/place_list.html:69
+#: src/catalog/templates/catalog/place_list.html:79
+#: src/catalog/templates/catalog/place_list.html:89
+#: src/catalog/templates/catalog/place_list.html:110
+#: src/catalog/templates/catalog/place_list.html:118
+#: src/catalog/templates/catalog/place_list.html:126
 msgid "Все"
 msgstr "All"
 
-#: catalog/templates/catalog/place_list.html:52
+#: src/catalog/templates/catalog/place_list.html:87
 msgid "Рейтинг не ниже"
 msgstr "Rating not lower than"
 
-#: catalog/templates/catalog/place_list.html:64
+#: src/catalog/templates/catalog/place_list.html:99
+#: templates/admin/catalog/site_analytics.html:100
 msgid "Период"
 msgstr "Period"
 
-#: catalog/templates/catalog/place_list.html:66
-#: catalog/templates/catalog/place_list.html:161
+#: src/catalog/templates/catalog/place_list.html:101
+#: src/catalog/templates/catalog/place_list.html:196
+#: templates/admin/catalog/site_analytics.html:50
+#: templates/admin/catalog/site_analytics.html:120
 msgid "За 7 дней"
 msgstr "Last 7 days"
 
-#: catalog/templates/catalog/place_list.html:67
-#: catalog/templates/catalog/place_list.html:162
+#: src/catalog/templates/catalog/place_list.html:102
+#: src/catalog/templates/catalog/place_list.html:197
 msgid "За 14 дней"
 msgstr "Last 14 days"
 
-#: catalog/templates/catalog/place_list.html:68
-#: catalog/templates/catalog/place_list.html:163
+#: src/catalog/templates/catalog/place_list.html:103
+#: src/catalog/templates/catalog/place_list.html:198
+#: templates/admin/catalog/site_analytics.html:55
+#: templates/admin/catalog/site_analytics.html:129
 msgid "За 30 дней"
 msgstr "Last 30 days"
 
-#: catalog/templates/catalog/place_list.html:73
-#: catalog/templates/catalog/place_list.html:174
-#: catalog/templates/catalog/place_list.html:176
+#: src/catalog/templates/catalog/place_list.html:108
+#: src/catalog/templates/catalog/place_list.html:209
+#: src/catalog/templates/catalog/place_list.html:211
 msgid "Только с фото"
 msgstr "Only with photos"
 
-#: catalog/templates/catalog/place_list.html:76
-#: catalog/templates/catalog/place_list.html:84
+#: src/catalog/templates/catalog/place_list.html:111
+#: src/catalog/templates/catalog/place_list.html:119
 msgid "Да"
 msgstr "Yes"
 
-#: catalog/templates/catalog/place_list.html:81
-#: catalog/templates/catalog/place_list.html:179
-#: catalog/templates/catalog/place_list.html:181
+#: src/catalog/templates/catalog/place_list.html:116
+#: src/catalog/templates/catalog/place_list.html:214
+#: src/catalog/templates/catalog/place_list.html:216
 msgid "Только проверенные"
 msgstr "Only verified"
 
-#: catalog/templates/catalog/place_list.html:105
-#: catalog/templates/catalog/place_list.html:126
+#: src/catalog/templates/catalog/place_list.html:140
+#: src/catalog/templates/catalog/place_list.html:161
+#: src/catalog/templates/catalog/place_list.html:383
+#: src/catalog/templates/pages/home.html:211
 msgid "от"
-msgstr "Photo"
+msgstr "from"
 
-#: catalog/templates/catalog/place_list.html:109
-#: catalog/templates/catalog/place_list.html:130
+#: src/catalog/templates/catalog/place_list.html:144
+#: src/catalog/templates/catalog/place_list.html:165
 msgid "до"
-msgstr ""
+msgstr "to"
 
-#: catalog/templates/catalog/place_list.html:141
+#: src/catalog/templates/catalog/place_list.html:176
 msgid "Сортировка"
 msgstr "Sort"
 
-#: catalog/templates/catalog/place_list.html:143
-#: catalog/templates/catalog/place_list.html:192
+#: src/catalog/templates/catalog/place_list.html:178
+#: src/catalog/templates/catalog/place_list.html:227
 msgid "Сначала новые"
 msgstr "Newest first"
 
-#: catalog/templates/catalog/place_list.html:144
+#: src/catalog/templates/catalog/place_list.html:179
 msgid "Цена по возрастанию"
 msgstr "Price: low to high"
 
-#: catalog/templates/catalog/place_list.html:145
+#: src/catalog/templates/catalog/place_list.html:180
 msgid "Цена по убыванию"
 msgstr "Price: high to low"
 
-#: catalog/templates/catalog/place_list.html:151
+#: src/catalog/templates/catalog/place_list.html:186
+#: templates/admin/catalog/site_analytics.html:449
+#: templates/admin/catalog/site_analytics.html:458
 msgid "Поиск"
 msgstr "Search"
 
-#: catalog/templates/catalog/place_list.html:152
-#: catalog/templates/catalog/place_list.html:384
+#: src/catalog/templates/catalog/place_list.html:187
+#: src/catalog/templates/catalog/place_list.html:486
 msgid "Сброс"
 msgstr "Reset"
 
-#: catalog/templates/catalog/place_list.html:157
+#: src/catalog/templates/catalog/place_list.html:192
 msgid "Быстрые фильтры"
 msgstr "Quick filters"
 
-#: catalog/templates/catalog/place_list.html:160
+#: src/catalog/templates/catalog/place_list.html:195
 msgid "Период (1 вариант)"
-msgstr ""
+msgstr "Period (pick one)"
 
-#: catalog/templates/catalog/place_list.html:166
-#, fuzzy
-#| msgid "Рейтинг не ниже"
+#: src/catalog/templates/catalog/place_list.html:201
 msgid "Рейтинг (1 вариант)"
-msgstr "Rating not lower than"
+msgstr "Rating (pick one)"
 
-#: catalog/templates/catalog/place_list.html:167
+#: src/catalog/templates/catalog/place_list.html:202
 msgid "Любой"
-msgstr ""
+msgstr "Any"
 
-#: catalog/templates/catalog/place_list.html:172
+#: src/catalog/templates/catalog/place_list.html:207
 msgid "Дополнительно (можно несколько)"
-msgstr ""
+msgstr "Extra (multiple allowed)"
 
-#: catalog/templates/catalog/place_list.html:190
+#: src/catalog/templates/catalog/place_list.html:225
 msgid "Ясамал"
 msgstr "Yasamal"
 
-#: catalog/templates/catalog/place_list.html:191
+#: src/catalog/templates/catalog/place_list.html:226
 msgid "Нариманов"
 msgstr "Narimanov"
 
-#: catalog/templates/catalog/place_list.html:197
+#: src/catalog/templates/catalog/place_list.html:233
 #, python-format
 msgid ""
 "\n"
-"        Найден %(total)s кружок\n"
-"      "
+"          Найден %(total)s кружок\n"
+"        "
 msgid_plural ""
 "\n"
-"        Найдено %(total)s кружков\n"
-"      "
-msgstr[0] ""
-msgstr[1] ""
+"          Найдено %(total)s кружков\n"
+"        "
+msgstr[0] "\n          %(total)s club found\n        "
+msgstr[1] "\n          %(total)s clubs found\n        "
 
-#: catalog/templates/catalog/place_list.html:203
-#, fuzzy
-#| msgid "На карте"
+#: src/catalog/templates/catalog/place_list.html:240
+#: src/catalog/templates/catalog/place_list.html:241
 msgid "Вид карточек"
-msgstr "On the map"
+msgstr "Card view"
 
-#: catalog/templates/catalog/place_list.html:207
-#, fuzzy
-#| msgid "Популярные категории"
+#: src/catalog/templates/catalog/place_list.html:245
 msgid "Обычные карточки"
-msgstr "Popular categories"
+msgstr "Grid cards"
 
-#: catalog/templates/catalog/place_list.html:211
+#: src/catalog/templates/catalog/place_list.html:249
 msgid "Карточки списком"
-msgstr ""
+msgstr "List cards"
 
-#: catalog/templates/catalog/place_list.html:217
+#: src/catalog/templates/catalog/place_list.html:261
 #, python-format
 msgid "Что нового за %(days)s дней"
 msgstr "What's new in %(days)s days"
 
-#: catalog/templates/catalog/place_list.html:222
+#: src/catalog/templates/catalog/place_list.html:266
 msgid "Новых кружков"
 msgstr "New clubs"
 
-#: catalog/templates/catalog/place_list.html:227
+#: src/catalog/templates/catalog/place_list.html:271
 msgid "Новых районов"
 msgstr "New districts"
 
-#: catalog/templates/catalog/place_list.html:232
+#: src/catalog/templates/catalog/place_list.html:276
 msgid "Новых категорий"
 msgstr "New categories"
 
-#: catalog/templates/catalog/place_list.html:236
+#: src/catalog/templates/catalog/place_list.html:280
 msgid "Подписаться на новинки"
 msgstr "Subscribe to updates"
 
-#: catalog/templates/catalog/place_list.html:242
+#: src/catalog/templates/catalog/place_list.html:286
 msgid "Последние добавления"
 msgstr "Latest additions"
 
-#: catalog/templates/catalog/place_list.html:262
-#: catalog/templates/catalog/place_list.html:348
+#: src/catalog/templates/catalog/place_list.html:311
+#: src/catalog/templates/catalog/place_list.html:459
 msgid "дн. назад"
 msgstr "days ago"
 
-#: catalog/templates/catalog/place_list.html:288
-#: catalog/templates/catalog/place_list.html:366
-#: catalog/templates/pages/home.html:145 catalog/templates/pages/home.html:200
+#: src/catalog/templates/catalog/place_list.html:354
+#: src/catalog/templates/catalog/place_list.html:454
+#: src/catalog/templates/pages/home.html:241
+#: src/catalog/templates/pages/home.html:358
 msgid "Подробнее"
 msgstr "View details"
 
-#: catalog/templates/catalog/place_list.html:374
-#: catalog/templates/catalog/place_list.html:381
+#: src/catalog/templates/catalog/place_list.html:476
+#: src/catalog/templates/catalog/place_list.html:483
 msgid "Ничего не найдено."
 msgstr "Nothing found."
 
-#: catalog/templates/catalog/place_list.html:383
+#: src/catalog/templates/catalog/place_list.html:485
 msgid "Попробуйте изменить фильтры или сбросить поиск."
 msgstr "Try changing filters or resetting the search."
 
-#: catalog/templates/catalog/place_list.html:394
-msgid "Страница"
-msgstr "Page"
+#: src/catalog/templates/catalog/place_list.html:491
+msgid "Пагинация"
+msgstr "Pagination"
 
-#: catalog/templates/catalog/place_list.html:394
-msgid "из"
-msgstr "of"
-
-#: catalog/templates/catalog/place_list.html:397
+#: src/catalog/templates/catalog/place_list.html:513
+#: src/catalog/templates/catalog/place_list.html:515
 msgid "Вперед"
 msgstr "Next"
 
-#: catalog/templates/catalog/place_list.html:403
+#: src/catalog/templates/catalog/place_list.html:521
 msgid "Часто ищут"
 msgstr "Frequently searched"
 
-#: catalog/templates/catalog/place_list.html:405
-#: catalog/templates/pages/home.html:156
+#: src/catalog/templates/catalog/place_list.html:523
+#: src/catalog/templates/pages/home.html:252
 msgid "Кружки в Баку для детей"
 msgstr "Clubs for children in Baku"
 
-#: catalog/templates/catalog/place_list.html:406
-#: catalog/templates/pages/home.html:157
+#: src/catalog/templates/catalog/place_list.html:524
+#: src/catalog/templates/pages/home.html:253
 msgid "Курсы для детей в Баку"
 msgstr "Courses for children in Baku"
 
-#: catalog/templates/catalog/place_list.html:407
-#: catalog/templates/pages/home.html:158
+#: src/catalog/templates/catalog/place_list.html:525
+#: src/catalog/templates/pages/home.html:254
 msgid "Спортивные секции в Баку"
 msgstr "Sports sections in Baku"
 
-#: catalog/templates/catalog/place_list.html:408
-#: catalog/templates/pages/home.html:159
+#: src/catalog/templates/catalog/place_list.html:526
+#: src/catalog/templates/pages/home.html:255
 msgid "Творческие кружки в Баку"
 msgstr "Creative clubs in Baku"
 
-#: catalog/templates/catalog/place_list.html:409
-#: catalog/templates/pages/home.html:160
+#: src/catalog/templates/catalog/place_list.html:527
+#: src/catalog/templates/pages/home.html:256
 msgid "Программирование для детей в Баку"
 msgstr "Programming for children in Baku"
 
-#: catalog/templates/catalog/seo_landing.html:14
+#: src/catalog/templates/catalog/seo_landing.html:14
+#: src/catalog/templates/pages/about.html:18
 msgid "Перейти в каталог"
 msgstr "Go to catalog"
 
-#: catalog/templates/catalog/seo_landing.html:19
+#: src/catalog/templates/catalog/seo_landing.html:19
 msgid "Что вы найдете на KidsMap"
 msgstr "What you will find on KidsMap"
 
-#: catalog/templates/catalog/seo_landing.html:28
+#: src/catalog/templates/catalog/seo_landing.html:28
 msgid "Частые вопросы"
 msgstr "Frequently asked questions"
 
-#: catalog/templates/catalog/seo_landing.html:40
+#: src/catalog/templates/catalog/seo_landing.html:40
 msgid "Полезные подборки"
 msgstr "Useful collections"
 
-#: catalog/templates/pages/about.html:15
+#: src/catalog/templates/pages/about.html:15
 msgid "KidsMap — каталог детских кружков и секций в Баку."
 msgstr "KidsMap is a catalog of kids clubs and activities in Baku."
 
-#: catalog/templates/pages/contacts.html:15
+#: src/catalog/templates/pages/about.html:19
+msgid "Смотреть новое"
+msgstr "View new items"
+
+#: src/catalog/templates/pages/about.html:26
+#, fuzzy
+#| msgid "Что вы найдете на KidsMap"
+msgid "Что делает KidsMap"
+msgstr "What you will find on KidsMap"
+
+#: src/catalog/templates/pages/about.html:28
+#, fuzzy
+#| msgid "Спорт, творчество, музыка, образование — всё в одном месте."
+msgid "Собирает кружки и курсы в одном месте."
+msgstr "Sports, creativity, music, and education in one place."
+
+#: src/catalog/templates/pages/about.html:29
+#, fuzzy
+#| msgid "Сравните кружки по возрасту и цене"
+msgid "Помогает сравнить варианты по району, возрасту и цене."
+msgstr "Compare clubs by age and price"
+
+#: src/catalog/templates/pages/about.html:30
+msgid "Позволяет быстро связаться с местом прямо из карточки."
+msgstr ""
+
+#: src/catalog/templates/pages/about.html:34
+#, fuzzy
+#| msgid "Почему нам доверяют"
+msgid "Почему это удобно"
+msgstr "Why families trust us"
+
+#: src/catalog/templates/pages/about.html:36
+msgid "Экономит время родителей на поиске и сравнении."
+msgstr ""
+
+#: src/catalog/templates/pages/about.html:37
+#, fuzzy
+#| msgid "Пока нет отзывов. Будьте первым!"
+msgid "Показывает отзывы и рейтинг перед выбором."
+msgstr "No reviews yet. Be the first!"
+
+#: src/catalog/templates/pages/about.html:38
+#, fuzzy
+#| msgid "Удобно на телефоне и компьютере"
+msgid "Работает одинаково удобно на телефоне и компьютере."
+msgstr "Convenient on phone and desktop"
+
+#: src/catalog/templates/pages/contacts.html:15
 msgid "Свяжитесь с нами по почте: kidsmap@example.com"
 msgstr "Contact us by email: kidsmap@example.com"
 
-#: catalog/templates/pages/home.html:16
-msgid "Найдите кружок для ребёнка в Баку"
-msgstr "Find a club for your child in Baku"
+#: src/catalog/templates/pages/contacts.html:22
+msgid "Связь с командой"
+msgstr "Contact the team"
 
-#: catalog/templates/pages/home.html:17
-msgid "Спорт, творчество, музыка, образование — всё в одном месте."
-msgstr "Sports, creativity, music, and education in one place."
+#: src/catalog/templates/pages/contacts.html:36
+msgid "Соцсети"
+msgstr "Social media"
 
-#: catalog/templates/pages/home.html:19
-msgid "Искать кружок, курс или школу"
-msgstr "Search for a club, course, or school"
+#: src/catalog/templates/pages/contacts.html:42
+msgid "Каталог кружков"
+msgstr "Club catalog"
 
-#: catalog/templates/pages/home.html:21
-msgid "например english, ballet, lego"
-msgstr "for example english, ballet, lego"
-
-#: catalog/templates/pages/home.html:22 catalog/templates/pages/home.html:166
-msgid "Начать поиск"
-msgstr "Start searching"
-
-#: catalog/templates/pages/home.html:28
-msgid "Как это работает"
-msgstr "How it works"
-
-#: catalog/templates/pages/home.html:31 catalog/templates/pages/home.html:37
-#: catalog/templates/pages/home.html:43
-msgid "Шаг"
-msgstr "Step"
-
-#: catalog/templates/pages/home.html:33
-msgid "Выберите категорию и район"
-msgstr "Choose a category and district"
-
-#: catalog/templates/pages/home.html:34
-#, fuzzy
-#| msgid "Выберите категорию и район"
-msgid "Выберите интересы и место"
-msgstr "Choose a category and district"
-
-#: catalog/templates/pages/home.html:39
-msgid "Сравните кружки по возрасту и цене"
-msgstr "Compare clubs by age and price"
-
-#: catalog/templates/pages/home.html:40
-#, fuzzy
-#| msgid "Сравните кружки по возрасту и цене"
-msgid "Сравните карточки и отзывы"
-msgstr "Compare clubs by age and price"
-
-#: catalog/templates/pages/home.html:45
-msgid "Откройте карточку и свяжитесь с местом"
-msgstr "Open the card and contact the place"
-
-#: catalog/templates/pages/home.html:46
-msgid "Запишитесь быстро и удобно"
-msgstr ""
-
-#: catalog/templates/pages/home.html:52
-msgid "Почему нам доверяют"
-msgstr "Why families trust us"
-
-#: catalog/templates/pages/home.html:56
-#, fuzzy
-#| msgid "Кружки в Баку для детей"
-msgid "удобный выбор для родителей"
-msgstr "Clubs for children in Baku"
-
-#: catalog/templates/pages/home.html:62
-msgid "Алина К."
-msgstr ""
-
-#: catalog/templates/pages/home.html:63
-msgid "Очень легко нашли кружок рядом с домом и быстро связались."
-msgstr ""
-
-#: catalog/templates/pages/home.html:69
-msgid "Игорь С."
-msgstr ""
-
-#: catalog/templates/pages/home.html:70
-msgid "Сравнили варианты по цене и возрасту, выбрали лучший за 10 минут."
-msgstr ""
-
-#: catalog/templates/pages/home.html:75
-msgid "Проверенные и активные места"
-msgstr "Verified and active places"
-
-#: catalog/templates/pages/home.html:76
-msgid "Фильтры по возрасту, району и цене"
-msgstr "Filters by age, district, and price"
-
-#: catalog/templates/pages/home.html:77
-msgid "Быстрый переход к звонку и Instagram"
-msgstr "Quick access to calls and Instagram"
-
-#: catalog/templates/pages/home.html:78
-msgid "Удобно на телефоне и компьютере"
-msgstr "Convenient on phone and desktop"
-
-#: catalog/templates/pages/home.html:83
+#: src/catalog/templates/pages/home.html:60
 msgid "Популярные категории"
 msgstr "Popular categories"
 
-#: catalog/templates/pages/home.html:93 catalog/templates/pages/home.html:102
+#: src/catalog/templates/pages/home.html:74
+msgid "Как это работает"
+msgstr "How it works"
+
+#: src/catalog/templates/pages/home.html:75
+msgid "Идите по шагам: 1 → 2 → 3. На каждом шаге есть кнопка действия."
+msgstr "Follow steps 1 → 2 → 3. Each step has an action button."
+
+#: src/catalog/templates/pages/home.html:79
+#: src/catalog/templates/pages/home.html:92
+#: src/catalog/templates/pages/home.html:105
+msgid "Шаг"
+msgstr "Step"
+
+#: src/catalog/templates/pages/home.html:82
+msgid "Выберите фильтры в каталоге"
+msgstr "Choose filters in the catalog"
+
+#: src/catalog/templates/pages/home.html:83
+msgid "Укажите категорию, район и возраст ребенка."
+msgstr "Set category, district, and child age."
+
+#: src/catalog/templates/pages/home.html:85
+msgid "Категория: что именно ищете (спорт, творчество, IT)."
+msgstr "Category: what exactly you need (sports, arts, IT)."
+
+#: src/catalog/templates/pages/home.html:86
+msgid "Район: чтобы кружок был рядом с домом."
+msgstr "District: to keep the club close to home."
+
+#: src/catalog/templates/pages/home.html:88
+msgid "Открыть каталог"
+msgstr "Open catalog"
+
+#: src/catalog/templates/pages/home.html:95
+msgid "Сравните 2-3 варианта"
+msgstr "Compare 2-3 options"
+
+#: src/catalog/templates/pages/home.html:96
+msgid "Смотрите цену, рейтинг, возраст и отзывы."
+msgstr "Check price, rating, age, and reviews."
+
+#: src/catalog/templates/pages/home.html:98
+msgid "Проверьте формат: обычные карточки или список."
+msgstr "Check format: grid cards or list."
+
+#: src/catalog/templates/pages/home.html:99
+msgid "Сравните условия и выберите лучший вариант."
+msgstr "Compare conditions and choose the best option."
+
+#: src/catalog/templates/pages/home.html:101
+msgid "Сравнить варианты"
+msgstr "Compare options"
+
+#: src/catalog/templates/pages/home.html:108
+msgid "Откройте «Подробнее» и свяжитесь"
+msgstr "Open “Details” and contact"
+
+#: src/catalog/templates/pages/home.html:109
+msgid "На карточке можно сразу позвонить или написать."
+msgstr "From the card, you can call or message right away."
+
+#: src/catalog/templates/pages/home.html:111
+msgid "Используйте кнопки: Позвонить / WhatsApp / Instagram."
+msgstr "Use buttons: Call / WhatsApp / Instagram."
+
+#: src/catalog/templates/pages/home.html:112
+msgid "Проверьте адрес и точку на карте перед записью."
+msgstr "Check address and map point before booking."
+
+#: src/catalog/templates/pages/home.html:114
+msgid "Открыть карточки"
+msgstr "Open cards"
+
+#: src/catalog/templates/pages/home.html:120
+msgid "Почему нам доверяют"
+msgstr "Why families trust us"
+
+#: src/catalog/templates/pages/home.html:126
+#, python-format
+msgid "на основе %(total)s отзыва о сервисе"
+msgid_plural "на основе %(total)s отзывов о сервисе"
+msgstr[0] "based on %(total)s service review"
+msgstr[1] "based on %(total)s service reviews"
+
+#: src/catalog/templates/pages/home.html:128
+msgid "удобный выбор для родителей"
+msgstr "a convenient choice for parents"
+
+#: src/catalog/templates/pages/home.html:150
+msgid "Алина К."
+msgstr ""
+
+#: src/catalog/templates/pages/home.html:151
+msgid "Очень легко нашли кружок рядом с домом и быстро связались."
+msgstr ""
+
+#: src/catalog/templates/pages/home.html:157
+msgid "Игорь С."
+msgstr ""
+
+#: src/catalog/templates/pages/home.html:158
+msgid "Сравнили варианты по цене и возрасту, выбрали лучший за 10 минут."
+msgstr ""
+
+#: src/catalog/templates/pages/home.html:164
+msgid "Проверенные и активные места"
+msgstr "Verified and active places"
+
+#: src/catalog/templates/pages/home.html:165
+msgid "Фильтры по возрасту, району и цене"
+msgstr "Filters by age, district, and price"
+
+#: src/catalog/templates/pages/home.html:166
+msgid "Быстрый переход к звонку и Instagram"
+msgstr "Quick access to calls and Instagram"
+
+#: src/catalog/templates/pages/home.html:167
+msgid "Удобно на телефоне и компьютере"
+msgstr "Convenient on phone and desktop"
+
+#: src/catalog/templates/pages/home.html:173
+#: src/catalog/templates/pages/home.html:182
 msgid "Карта кружков по Азербайджану"
 msgstr "Map of clubs across Azerbaijan"
 
-#: catalog/templates/pages/home.html:104
+#: src/catalog/templates/pages/home.html:184
 msgid ""
 "Для отображения карты укажите GOOGLE_MAPS_API_KEY в настройках окружения."
 msgstr "To display the map, set GOOGLE_MAPS_API_KEY in environment settings."
 
-#: catalog/templates/pages/home.html:112
+#: src/catalog/templates/pages/home.html:192
 msgid "Рекомендуемые кружки"
-msgstr ""
+msgstr "Recommended clubs"
 
-#: catalog/templates/pages/home.html:154
+#: src/catalog/templates/pages/home.html:250
 msgid "Популярные запросы"
 msgstr "Popular searches"
 
-#: catalog/templates/pages/home.html:165
+#: src/catalog/templates/pages/home.html:261
 msgid "Готовы выбрать кружок?"
 msgstr "Ready to choose a club?"
 
-#: catalog/views.py:166
-msgid "Оставлять отзывы могут только зарегистрированные пользователи."
-msgstr "Only registered users can post reviews."
+#: src/catalog/templates/pages/home.html:266
+msgid "Понравился сайт? Оставьте отзыв"
+msgstr "Like the website? Leave a review"
 
-#: catalog/views.py:180
-msgid "Пожалуйста, выберите оценку от 1 до 5."
-msgstr "Please choose a rating from 1 to 5."
+#: src/catalog/templates/pages/home.html:300
+msgid "Что вам понравилось в сервисе?"
+msgstr "What did you like about the service?"
 
-#: catalog/views.py:184
-msgid "Отзыв должен быть не короче 8 символов."
-msgstr "Review must be at least 8 characters."
+#: src/catalog/templates/pages/owner_cabinet.html:12
+msgid ""
+"Здесь вы видите свои заявки на привязку кружков и текущие управляемые "
+"карточки."
+msgstr "Here you can see your ownership requests and currently managed listings."
 
-#: catalog/views.py:202
-msgid "Спасибо! Ваш отзыв обновлен."
-msgstr "Thanks! Your review has been added."
+#: src/catalog/templates/pages/owner_cabinet.html:18
+#: src/catalog/templates/pages/owner_places.html:13
+msgid "Управление карточками"
+msgstr "Listing management"
 
-#: catalog/views.py:204
-msgid "Спасибо! Ваш отзыв добавлен."
-msgstr "Thanks! Your review has been added."
+#: src/catalog/templates/pages/owner_cabinet.html:23
+#: src/catalog/templates/pages/owner_places.html:22
+msgid "Команда"
+msgstr "Team"
+
+#: src/catalog/templates/pages/owner_cabinet.html:29
+msgid ""
+"Ваш текущий статус: обычный пользователь. Отправка заявок на управление "
+"доступна только владельцам."
+msgstr ""
+"Your current status is a regular user. Ownership requests are available only "
+"for owner accounts."
+
+#: src/catalog/templates/pages/owner_cabinet.html:35
+msgid "Входящие приглашения"
+msgstr "Incoming invitations"
+
+#: src/catalog/templates/pages/owner_cabinet.html:42
+msgid "Приглашение для"
+msgstr "Invitation for"
+
+#: src/catalog/templates/pages/owner_cabinet.html:43
+msgid "Отправлено"
+msgstr "Sent"
+
+#: src/catalog/templates/pages/owner_cabinet.html:48
+msgid "Принять"
+msgstr "Accept"
+
+#: src/catalog/templates/pages/owner_cabinet.html:52
+msgid "Отклонить"
+msgstr "Decline"
+
+#: src/catalog/templates/pages/owner_cabinet.html:59
+msgid "Новых приглашений нет."
+msgstr "No new invitations."
+
+#: src/catalog/templates/pages/owner_cabinet.html:64
+msgid "Мои кружки"
+msgstr "My listings"
+
+#: src/catalog/templates/pages/owner_cabinet.html:75
+msgid "Пока нет привязанных кружков."
+msgstr "No linked listings yet."
+
+#: src/catalog/templates/pages/owner_cabinet.html:80
+msgid "Мои заявки"
+msgstr "My requests"
+
+#: src/catalog/templates/pages/owner_cabinet.html:91
+msgid "Ваш комментарий"
+msgstr "Your comment"
+
+#: src/catalog/templates/pages/owner_cabinet.html:94
+msgid "Ответ модератора"
+msgstr "Moderator reply"
+
+#: src/catalog/templates/pages/owner_cabinet.html:100
+msgid "Вы еще не отправляли заявки."
+msgstr "You have not submitted any requests yet."
+
+#: src/catalog/templates/pages/owner_place_edit.html:4
+#: src/catalog/templates/pages/owner_place_edit.html:5
+#: src/catalog/templates/pages/owner_place_edit.html:6
+#: src/catalog/templates/pages/owner_place_edit.html:13
+msgid "Редактирование карточки"
+msgstr "Edit listing"
+
+#: src/catalog/templates/pages/owner_place_edit.html:17
+msgid "Назад к карточкам"
+msgstr "Back to listings"
+
+#: src/catalog/templates/pages/owner_place_edit.html:43
+msgid "Сохранить изменения"
+msgstr "Save changes"
+
+#: src/catalog/templates/pages/owner_place_edit.html:44
+msgid "Открыть страницу кружка"
+msgstr "Open listing page"
+
+#: src/catalog/templates/pages/owner_place_edit.html:49
+msgid "Аудит изменений"
+msgstr "Change audit"
+
+#: src/catalog/templates/pages/owner_place_edit.html:64
+msgid "Пока нет записей аудита для этой карточки."
+msgstr "No audit records for this listing yet."
+
+#: src/catalog/templates/pages/owner_places.html:4
+#: src/catalog/templates/pages/owner_places.html:5
+#: src/catalog/templates/pages/owner_places.html:6
+msgid "Управление кружками"
+msgstr "Manage listings"
+
+#: src/catalog/templates/pages/owner_places.html:14
+msgid "Редактирование, черновики и публикация ваших кружков."
+msgstr "Editing, drafts, and publishing of your listings."
+
+#: src/catalog/templates/pages/owner_places.html:17
+msgid "К заявкам"
+msgstr "To requests"
+
+#: src/catalog/templates/pages/owner_places.html:42
+msgid "Всего карточек"
+msgstr "Total listings"
+
+#: src/catalog/templates/pages/owner_places.html:46
+msgid "Опубликовано"
+msgstr "Published"
+
+#: src/catalog/templates/pages/owner_places.html:50
+#: src/catalog/templates/pages/owner_places.html:104
+msgid "Черновики"
+msgstr "Drafts"
+
+#: src/catalog/templates/pages/owner_places.html:68
+msgid ""
+"Для вашей роли просмотр статистики выключен. Вы можете работать только с "
+"доступными действиями."
+msgstr ""
+"Statistics are disabled for your role. You can only use actions available to "
+"your permissions."
+
+#: src/catalog/templates/pages/owner_places.html:74
+msgid "Опубликованные карточки"
+msgstr "Published listings"
+
+#: src/catalog/templates/pages/owner_places.html:86
+#: src/catalog/templates/pages/owner_places.html:116
+msgid "Редактировать"
+msgstr "Edit"
+
+#: src/catalog/templates/pages/owner_places.html:91
+msgid "В черновик"
+msgstr "Move to draft"
+
+#: src/catalog/templates/pages/owner_places.html:99
+msgid "Нет опубликованных карточек."
+msgstr "No published listings."
+
+#: src/catalog/templates/pages/owner_places.html:121
+msgid "Опубликовать"
+msgstr "Publish"
+
+#: src/catalog/templates/pages/owner_places.html:129
+msgid "Черновиков нет."
+msgstr "No drafts."
+
+#: src/catalog/templates/pages/owner_reviews.html:14
+msgid ""
+"Отзывы по вашим кружкам. MODERATOR может управлять только этим разделом."
+msgstr ""
+"Reviews for your listings. A MODERATOR can manage only this section."
+
+#: src/catalog/templates/pages/owner_reviews.html:17
+#: src/catalog/templates/pages/owner_team.html:17
+msgid "К кабинету"
+msgstr "Back to dashboard"
+
+#: src/catalog/templates/pages/owner_reviews.html:22
+msgid "Одобрено"
+msgstr "Approved"
+
+#: src/catalog/templates/pages/owner_reviews.html:23
+msgid "Скрыто"
+msgstr "Hidden"
+
+#: src/catalog/templates/pages/owner_reviews.html:36
+msgid "Скрыт"
+msgstr "Hidden"
+
+#: src/catalog/templates/pages/owner_reviews.html:41
+msgid "Одобрить"
+msgstr "Approve"
+
+#: src/catalog/templates/pages/owner_reviews.html:45
+msgid "Скрыть"
+msgstr "Hide"
+
+#: src/catalog/templates/pages/owner_reviews.html:52
+msgid "Отзывы для модерации не найдены."
+msgstr "No reviews found for moderation."
+
+#: src/catalog/templates/pages/owner_team.html:4
+#: src/catalog/templates/pages/owner_team.html:5
+#: src/catalog/templates/pages/owner_team.html:6
+#: src/catalog/templates/pages/owner_team.html:13
+msgid "Команда владельца"
+msgstr "Owner team"
+
+#: src/catalog/templates/pages/owner_team.html:14
+msgid "Приглашайте участников и управляйте ролями manager/moderator/editor."
+msgstr "Invite members and manage manager/moderator/editor roles."
+
+#: src/catalog/templates/pages/owner_team.html:22
+msgid "Пригласить участника"
+msgstr "Invite member"
+
+#: src/catalog/templates/pages/owner_team.html:42
+msgid "Отправить приглашение"
+msgstr "Send invitation"
+
+#: src/catalog/templates/pages/owner_team.html:47
+msgid "Участники команды"
+msgstr "Team members"
+
+#: src/catalog/templates/pages/owner_team.html:61
+msgid "Сменить роль"
+msgstr "Change role"
+
+#: src/catalog/templates/pages/owner_team.html:65
+msgid "Удалить из команды"
+msgstr "Remove from team"
+
+#: src/catalog/templates/pages/owner_team.html:71
+msgid "Пока нет участников."
+msgstr "No members yet."
+
+#: src/catalog/templates/pages/owner_team.html:76
+msgid "Приглашения"
+msgstr "Invitations"
+
+#: src/catalog/templates/pages/owner_team.html:88
+msgid "Отменить"
+msgstr "Cancel"
+
+#: src/catalog/templates/pages/owner_team.html:95
+msgid "Приглашений пока нет."
+msgstr "No invitations yet."
+
+#: src/catalog/views.py:158
+msgid "О проекте KidsMap: каталог детских кружков и секций в Баку."
+msgstr "About KidsMap: a catalog of kids clubs and activities in Baku."
+
+#: src/catalog/views.py:166
+msgid "Контакты проекта KidsMap."
+msgstr "KidsMap project contacts."
+
+#: src/catalog/views.py:176
+msgid "Кабинет владельца KidsMap: заявки и управление карточками."
+msgstr "KidsMap owner dashboard: requests and listing management."
+
+#: src/catalog/views.py:191
+msgid ""
+"Управление карточками владельца: редактирование, черновики, публикация и "
+"статистика."
+msgstr ""
+"Owner listing management: editing, drafts, publishing, and statistics."
+
+#: src/catalog/views.py:221 src/catalog/views.py:235
+msgid "Редактирование карточки кружка в кабинете владельца."
+msgstr "Edit a listing in the owner dashboard."
+
+#: src/catalog/views.py:277 src/catalog/views.py:299
+msgid "Команда владельца KidsMap: приглашения, роли и управление доступами."
+msgstr "KidsMap owner team: invitations, roles, and access management."
+
+#: src/catalog/views.py:381
+msgid ""
+"Модерация отзывов владельца: управление публикацией отзывов по вашим кружкам."
+msgstr "Owner review moderation: manage review visibility for your listings."
+
+#: src/catalog/views.py:439
+msgid "Регистрация прошла успешно. Добро пожаловать!"
+msgstr "Registration successful. Welcome!"
+
+#: src/catalog/views.py:460
+msgid "Вы вошли в аккаунт."
+msgstr "You have signed in."
+
+#: src/catalog/views.py:477
+msgid "Вы вышли из аккаунта."
+msgstr "You have signed out."
+
+#: templates/admin/catalog/site_analytics.html:7
+msgid "Общая статистика"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:12
+#: templates/admin/catalog/site_analytics.html:23
+#: templates/admin/catalog/site_analytics.html:32
+msgid "Всего"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:13
+#, fuzzy
+#| msgid "Активно"
+msgid "Активные"
+msgstr "Active"
+
+#: templates/admin/catalog/site_analytics.html:14
+#, fuzzy
+#| msgid "Проверено"
+msgid "Проверенные"
+msgstr "Verified"
+
+#: templates/admin/catalog/site_analytics.html:15
+#, fuzzy
+#| msgid "За 7 дней"
+msgid "Новые за 7 дней"
+msgstr "Last 7 days"
+
+#: templates/admin/catalog/site_analytics.html:16
+#, fuzzy
+#| msgid "За 30 дней"
+msgid "Новые за 30 дней"
+msgstr "Last 30 days"
+
+#: templates/admin/catalog/site_analytics.html:17
+#, fuzzy
+#| msgid "Количество лайков"
+msgid "Всего лайков"
+msgstr "Likes count"
+
+#: templates/admin/catalog/site_analytics.html:24
+#: templates/admin/catalog/site_analytics.html:33
+#, fuzzy
+#| msgid "Ваша оценка"
+msgid "Средняя оценка"
+msgstr "Your rating"
+
+#: templates/admin/catalog/site_analytics.html:26
+#, fuzzy
+#| msgid "Новых кружков"
+msgid "Открыть отзывы по кружкам"
+msgstr "New clubs"
+
+#: templates/admin/catalog/site_analytics.html:31
+#, fuzzy
+#| msgid "Открыть сайт"
+msgid "Отзывы о сайте"
+msgstr "Open site"
+
+#: templates/admin/catalog/site_analytics.html:35
+#, fuzzy
+#| msgid "Отправить отзыв"
+msgid "Открыть отзывы о сайте"
+msgstr "Submit review"
+
+#: templates/admin/catalog/site_analytics.html:42
+#, fuzzy
+#| msgid "Настройка сайта"
+msgid "Посещаемость сайта"
+msgstr "Site settings"
+
+#: templates/admin/catalog/site_analytics.html:45
+#: templates/admin/catalog/site_analytics.html:111
+msgid "Сегодня"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:46
+#: templates/admin/catalog/site_analytics.html:51
+#: templates/admin/catalog/site_analytics.html:56
+#: templates/admin/catalog/site_analytics.html:61
+#: templates/admin/catalog/site_analytics.html:211
+#: templates/admin/catalog/site_analytics.html:237
+msgid "Уникальные посетители"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:47
+#: templates/admin/catalog/site_analytics.html:52
+#: templates/admin/catalog/site_analytics.html:57
+#: templates/admin/catalog/site_analytics.html:62
+#: templates/admin/catalog/site_analytics.html:212
+#: templates/admin/catalog/site_analytics.html:238
+#, fuzzy
+#| msgid "Контакты страницы (i18n)"
+msgid "Просмотры страниц"
+msgstr "Contacts for the Contacts page."
+
+#: templates/admin/catalog/site_analytics.html:60
+#: templates/admin/catalog/site_analytics.html:138
+#, fuzzy
+#| msgid "За 30 дней"
+msgid "За 365 дней"
+msgstr "Last 30 days"
+
+#: templates/admin/catalog/site_analytics.html:68
+#, fuzzy
+#| msgid "Что нового за %(days)s дней"
+msgid "Динамика за 30 дней"
+msgstr "What's new in %(days)s days"
+
+#: templates/admin/catalog/site_analytics.html:75
+msgid "Воронка: поиск → карточка → CTA"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:81
+msgid "Посещения по периодам (1/7/30/365 дней)"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:85
+msgid "Воронка по периодам (1/7/30/365 дней)"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:96
+msgid "Конверсионная воронка"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:101
+#: templates/admin/catalog/site_analytics.html:263
+#: templates/admin/catalog/site_analytics.html:293
+#, fuzzy
+#| msgid "Поиск"
+msgid "Поиски"
+msgstr "Search"
+
+#: templates/admin/catalog/site_analytics.html:103
+#: templates/admin/catalog/site_analytics.html:265
+#: templates/admin/catalog/site_analytics.html:295
+#, fuzzy
+#| msgid "Популярные категории"
+msgid "Открытия карточек"
+msgstr "Popular categories"
+
+#: templates/admin/catalog/site_analytics.html:104
+msgid "CTA (звонок/WA/IG)"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:105
+#, python-format
+msgid "Open/Search %%"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:106
+#, python-format
+msgid "CTA/Open %%"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:151
+#, fuzzy
+#| msgid "Карта кружков по Азербайджану"
+msgid "Топ кружков по CTA (30 дней)"
+msgstr "Map of clubs across Azerbaijan"
+
+#: templates/admin/catalog/site_analytics.html:157
+msgid "Клики CTA"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:174
+#: templates/admin/catalog/site_analytics.html:187
+#: templates/admin/catalog/site_analytics.html:200
+#: templates/admin/catalog/site_analytics.html:226
+#: templates/admin/catalog/site_analytics.html:252
+#: templates/admin/catalog/site_analytics.html:282
+#: templates/admin/catalog/site_analytics.html:312
+#: templates/admin/catalog/site_analytics.html:342
+#, fuzzy
+#| msgid "Пока нет мест."
+msgid "Пока нет данных."
+msgstr "No places yet."
+
+#: templates/admin/catalog/site_analytics.html:179
+#, fuzzy
+#| msgid "Новых категорий"
+msgid "Топ категорий"
+msgstr "New categories"
+
+#: templates/admin/catalog/site_analytics.html:192
+#, fuzzy
+#| msgid "Новых районов"
+msgid "Топ районов"
+msgstr "New districts"
+
+#: templates/admin/catalog/site_analytics.html:205
+msgid "Посещаемость по неделям"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:210
+#: templates/admin/catalog/site_analytics.html:262
+msgid "Неделя от"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:231
+msgid "Посещаемость по месяцам"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:236
+#: templates/admin/catalog/site_analytics.html:292
+msgid "Месяц"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:257
+msgid "Воронка по неделям"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:266
+#: templates/admin/catalog/site_analytics.html:296
+#: templates/admin/catalog/site_analytics.html:451
+#: templates/admin/catalog/site_analytics.html:461
+msgid "CTA"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:287
+#, fuzzy
+#| msgid "Пока нет мест."
+msgid "Воронка по месяцам"
+msgstr "No places yet."
+
+#: templates/admin/catalog/site_analytics.html:317
+#, fuzzy
+#| msgid "Последние добавления"
+msgid "Последние добавленные кружки"
+msgstr "Latest additions"
+
+#: templates/admin/catalog/site_analytics.html:325
+msgid "Дата"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:445
+#: templates/admin/catalog/site_analytics.html:454
+msgid "Уникальные"
+msgstr ""
+
+#: templates/admin/catalog/site_analytics.html:450
+#: templates/admin/catalog/site_analytics.html:460
+#, fuzzy
+#| msgid "На карте"
+msgid "Карточки"
+msgstr "On the map"
 
 #: templates/admin/catalog/site_settings_hub.html:7
 msgid "Выберите раздел для редактирования"
@@ -1128,6 +2772,15 @@ msgstr "Completed"
 #: templates/admin/catalog/site_settings_hub.html:15
 msgid "Нужно заполнить"
 msgstr "Needs setup"
+
+#~ msgid "Скрыть выбранные отзывы"
+#~ msgstr "Hide selected reviews"
+
+#~ msgid "Страница"
+#~ msgstr "Page"
+
+#~ msgid "из"
+#~ msgstr "of"
 
 #~ msgid "Популярные курсы"
 #~ msgstr "Popular courses"
@@ -1144,14 +2797,8 @@ msgstr "Needs setup"
 #~ msgid "например 100"
 #~ msgstr "for example 100"
 
-#~ msgid "Пока нет мест."
-#~ msgstr "No places yet."
-
-#~ msgid "Досуг"
-#~ msgstr "Leisure"
-
-#~ msgid "Открыть сайт"
-#~ msgstr "Open site"
+msgid "Досуг"
+msgstr "Leisure"
 
 #~ msgid "Рекомендуется JPG/WebP 1920x1080 px, до 400 KB."
 #~ msgstr "Recommended JPG/WebP 1920x1080 px, up to 400 KB."
@@ -1173,3 +2820,106 @@ msgstr "Needs setup"
 
 #~ msgid "например 12"
 #~ msgstr "for example 12"
+
+# Runtime translations for dynamic district/metro/category labels
+msgid "Насими"
+msgstr "Nasimi"
+
+msgid "Низами"
+msgstr "Nizami"
+
+msgid "Сабаиль"
+msgstr "Sabail"
+
+msgid "Сабунчи"
+msgstr "Sabunchi"
+
+msgid "Бинагади"
+msgstr "Binagadi"
+
+msgid "Сураханы"
+msgstr "Surakhani"
+
+msgid "Хатаи"
+msgstr "Khatai"
+
+msgid "Хазар"
+msgstr "Khazar"
+
+msgid "Гарадаг"
+msgstr "Garadagh"
+
+msgid "Пираллахы"
+msgstr "Pirallahi"
+
+msgid "Ичеришехер"
+msgstr "Icherisheher"
+
+msgid "Сахил"
+msgstr "Sahil"
+
+msgid "28 Май"
+msgstr "28 May"
+
+msgid "Гянджлик"
+msgstr "Ganjlik"
+
+msgid "Нариман Нариманов"
+msgstr "Nariman Narimanov"
+
+msgid "Бакмил"
+msgstr "Bakmil"
+
+msgid "Улдуз"
+msgstr "Ulduz"
+
+msgid "Кёроглу"
+msgstr "Koroglu"
+
+msgid "Гара Гараев"
+msgstr "Gara Garayev"
+
+msgid "Нефтчиляр"
+msgstr "Neftchilar"
+
+msgid "Халглар Достлугу"
+msgstr "Khalqlar Dostlugu"
+
+msgid "Ахмедлы"
+msgstr "Ahmadli"
+
+msgid "Ази Асланов"
+msgstr "Azi Aslanov"
+
+msgid "Эльмляр Академиясы"
+msgstr "Elmlar Akademiyasi"
+
+msgid "Иншаатчылар"
+msgstr "Inshaatchilar"
+
+msgid "20 Января"
+msgstr "20 Yanvar"
+
+msgid "Мемар Аджеми"
+msgstr "Memar Ajami"
+
+msgid "Азадлыг Проспекти"
+msgstr "Azadliq Prospekti"
+
+msgid "Дернегюль"
+msgstr "Darnagul"
+
+msgid "Джафар Джаббарлы"
+msgstr "Jafar Jabbarli"
+
+msgid "Шах Исмаил Хатаи"
+msgstr "Shah Ismayil Khatai"
+
+msgid "Автовагзал"
+msgstr "Avtovagzal"
+
+msgid "8 Ноября"
+msgstr "8 Noyabr"
+
+msgid "Ходжасан"
+msgstr "Khojasan"

@@ -68,6 +68,50 @@
           <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail">Instagram</a>
         {% endif %}
       </div>
+
+      <section id="owner-request" class="owner-request panel">
+        <h2>{% trans "Управление карточкой кружка" %}</h2>
+        {% if place.owner %}
+          <p class="meta">{% trans "Текущий владелец карточки назначен." %}</p>
+        {% else %}
+          <p class="meta">{% trans "Карточка пока без назначенного владельца." %}</p>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+          {% if can_claim_place %}
+            <form method="post" action="{% url 'request_place_ownership' place.id %}" class="owner-request-form">
+              {% csrf_token %}
+              <label>
+                {% trans "Комментарий к заявке (необязательно)" %}
+                <textarea class="field" name="note" rows="3" maxlength="1200" placeholder="{% trans 'Например: я представитель этого кружка, могу подтвердить контакты.' %}"></textarea>
+              </label>
+              <button type="submit" class="btn">{% trans "Отправить заявку на управление" %}</button>
+            </form>
+          {% else %}
+            {% if can_claim_reason == "already_owner" %}
+              <p class="meta">{% trans "Эта карточка уже привязана к вашему аккаунту." %}</p>
+            {% elif can_claim_reason == "pending_exists" and latest_ownership_request %}
+              <p class="meta">
+                {% trans "Ваша заявка уже на модерации." %}
+                {% trans "Статус" %}: {{ latest_ownership_request.get_status_display }}.
+              </p>
+            {% elif can_claim_reason == "not_owner_role" %}
+              <p class="meta">
+                {% trans "Отправлять такие заявки могут только аккаунты со статусом владельца." %}
+                <a href="{% url 'owner_cabinet' %}">{% trans "Открыть кабинет" %}</a>
+              </p>
+            {% endif %}
+          {% endif %}
+        {% else %}
+          <div class="review-auth-note">
+            <p>{% trans "Чтобы отправить заявку на управление карточкой, войдите в аккаунт." %}</p>
+            <div class="review-auth-actions">
+              <a class="btn" href="{% url 'account_login' %}?next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}">{% trans "Войти" %}</a>
+              <a class="link-btn" href="{% url 'account_register' %}?next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}">{% trans "Регистрация" %}</a>
+            </div>
+          </div>
+        {% endif %}
+      </section>
       <div class="detail-meta-grid">
         <div class="detail-meta-item">
           <span class="meta-label">{% trans "Категория" %}</span>
@@ -108,7 +152,7 @@
         {% if place.district or place.metro %}
           <div class="detail-meta-item">
             <span class="meta-label">{% trans "Район/метро" %}</span>
-            <div class="meta-value">{% if place.district %}{{ place.district }}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{{ place.metro }}{% endif %}</div>
+            <div class="meta-value">{% if place.district %}{% trans place.district %}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{% trans place.metro %}{% endif %}</div>
           </div>
         {% endif %}
 
@@ -199,35 +243,45 @@
           </div>
         {% endif %}
 
-        <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form">
-          {% csrf_token %}
-          <div class="review-form-grid">
+        {% if request.user.is_authenticated %}
+          <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form">
+            {% csrf_token %}
+            <div class="review-form-grid">
+              <label>
+                {% trans "Ваша оценка" %}
+                <input type="hidden" name="rating" value="5" data-rating-input />
+                <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
+                  <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
+                  <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
+                  <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
+                  <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
+                  <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
+                </div>
+              </label>
+              <label>
+                {% trans "Ваше имя" %}
+                <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
+              </label>
+              <label class="review-anon">
+                <input type="checkbox" name="is_anonymous" value="1" />
+                <span>{% trans "Оставить анонимно" %}</span>
+              </label>
+            </div>
             <label>
-              {% trans "Ваша оценка" %}
-              <input type="hidden" name="rating" value="5" data-rating-input />
-              <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
-                <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
-                <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
-                <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
-                <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
-                <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
-              </div>
+              {% trans "Текст отзыва" %}
+              <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось или не понравилось?' %}"></textarea>
             </label>
-            <label>
-              {% trans "Ваше имя" %}
-              <input class="field" type="text" name="author_name" maxlength="80" placeholder="{% trans 'например Алина' %}" />
-            </label>
-            <label class="review-anon">
-              <input type="checkbox" name="is_anonymous" value="1" />
-              <span>{% trans "Оставить анонимно" %}</span>
-            </label>
+            <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
+          </form>
+        {% else %}
+          <div class="review-auth-note">
+            <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
+            <div class="review-auth-actions">
+              <a class="btn" href="{% url 'account_login' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Войти" %}</a>
+              <a class="link-btn" href="{% url 'account_register' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Регистрация" %}</a>
+            </div>
           </div>
-          <label>
-            {% trans "Текст отзыва" %}
-            <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось или не понравилось?' %}"></textarea>
-          </label>
-          <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
-        </form>
+        {% endif %}
 
         {% if place_reviews %}
           <div class="reviews-list">

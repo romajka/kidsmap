@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Вход" %}{% endblock %}
+{% block title_plain %}{% trans "Вход" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Вход" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel auth-panel">
+    <h1>{% trans "Вход в аккаунт" %}</h1>
+    <p class="auth-subtitle">{% trans "Войдите, чтобы оставлять отзывы и управлять своим профилем." %}</p>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}" />
+
+      {% if form.non_field_errors %}
+        <div class="auth-errors">
+          {% for error in form.non_field_errors %}
+            <p class="auth-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <label>
+        {{ form.username.label }}
+        {{ form.username }}
+        {% if form.username.errors %}
+          <span class="auth-field-error">{{ form.username.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <label>
+        {{ form.password.label }}
+        {{ form.password }}
+        {% if form.password.errors %}
+          <span class="auth-field-error">{{ form.password.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <button type="submit" class="btn">{% trans "Войти" %}</button>
+    </form>
+
+    <p class="auth-alt">
+      {% trans "Нет аккаунта?" %}
+      <a href="{% url 'account_register' %}?next={{ next_url|urlencode }}">{% trans "Зарегистрироваться" %}</a>
+    </p>
+  </section>
+{% endblock %}

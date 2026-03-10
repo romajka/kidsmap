@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Кабинет владельца" %}{% endblock %}
+{% block title_plain %}{% trans "Кабинет владельца" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Кабинет владельца" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel owner-cabinet">
+    <h1>{% trans "Кабинет владельца" %}</h1>
+    <p class="auth-subtitle">{% trans "Здесь вы видите свои заявки на привязку кружков и текущие управляемые карточки." %}</p>
+    {% if is_owner_role %}
+      <p class="meta">{% trans "Роль владельца" %}: <strong>{{ owner_role_label }}</strong></p>
+    {% endif %}
+
+    <div class="owner-page-actions">
+      <a class="btn" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+      {% if "owner.reviews.moderate" in owner_permissions %}
+        <a class="btn-secondary" href="{% url 'owner_reviews_dashboard' %}">{% trans "Модерация отзывов" %}</a>
+      {% endif %}
+      {% if "owner.team.manage" in owner_permissions %}
+        <a class="btn-secondary" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
+      {% endif %}
+    </div>
+
+    {% if not is_owner_role %}
+      <div class="review-auth-note">
+        <p>{% trans "Ваш текущий статус: обычный пользователь. Отправка заявок на управление доступна только владельцам." %}</p>
+      </div>
+    {% endif %}
+
+    <div class="owner-cabinet-grid">
+      <section class="owner-cabinet-section">
+        <h2>{% trans "Входящие приглашения" %}</h2>
+        {% if pending_team_invitations %}
+          <div class="owner-request-list">
+            {% for invitation in pending_team_invitations %}
+              <article class="owner-request-item">
+                <h3>{{ invitation.owner.username }} → {{ invitation.get_role_display }}</h3>
+                <p class="meta">
+                  {% trans "Приглашение для" %}: {{ invitation.email }} ·
+                  {% trans "Отправлено" %}: {{ invitation.created_at|date:"d.m.Y H:i" }}
+                </p>
+                <div class="owner-place-actions">
+                  <form method="post" action="{% url 'owner_team_accept_invitation' invitation.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn">{% trans "Принять" %}</button>
+                  </form>
+                  <form method="post" action="{% url 'owner_team_reject_invitation' invitation.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-secondary">{% trans "Отклонить" %}</button>
+                  </form>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="meta">{% trans "Новых приглашений нет." %}</p>
+        {% endif %}
+      </section>
+
+      <section class="owner-cabinet-section">
+        <h2>{% trans "Мои кружки" %}</h2>
+        {% if managed_places %}
+          <div class="owner-place-list">
+            {% for place in managed_places %}
+              <article class="owner-place-item">
+                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                <p class="meta">{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="meta">{% trans "Пока нет привязанных кружков." %}</p>
+        {% endif %}
+      </section>
+
+      <section class="owner-cabinet-section">
+        <h2>{% trans "Мои заявки" %}</h2>
+        {% if ownership_requests %}
+          <div class="owner-request-list">
+            {% for item in ownership_requests %}
+              <article class="owner-request-item">
+                <h3><a href="{{ item.place.get_absolute_url }}">{{ item.place.name_i18n }}</a></h3>
+                <p class="meta">
+                  {% trans "Статус" %}: <strong>{{ item.get_status_display }}</strong> ·
+                  {% trans "Создана" %}: {{ item.created_at|date:"d.m.Y H:i" }}
+                </p>
+                {% if item.note %}
+                  <p class="meta"><b>{% trans "Ваш комментарий" %}:</b> {{ item.note|linebreaksbr }}</p>
+                {% endif %}
+                {% if item.moderation_note %}
+                  <p class="meta"><b>{% trans "Ответ модератора" %}:</b> {{ item.moderation_note|linebreaksbr }}</p>
+                {% endif %}
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="meta">{% trans "Вы еще не отправляли заявки." %}</p>
+        {% endif %}
+      </section>
+    </div>
+  </section>
+{% endblock %}

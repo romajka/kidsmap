@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Команда владельца" %}{% endblock %}
+{% block title_plain %}{% trans "Команда владельца" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Команда владельца" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel owner-team">
+    <div class="owner-page-head">
+      <div>
+        <h1>{% trans "Команда владельца" %}</h1>
+        <p class="auth-subtitle">{% trans "Приглашайте участников и управляйте ролями manager/moderator/editor." %}</p>
+      </div>
+      <div class="owner-page-actions">
+        <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К кабинету" %}</a>
+      </div>
+    </div>
+
+    <section class="owner-team-section">
+      <h2>{% trans "Пригласить участника" %}</h2>
+      <form method="post" action="{% url 'owner_team_invite' %}" class="auth-form owner-team-invite-form">
+        {% csrf_token %}
+        {% if team_invitation_form.non_field_errors %}
+          <div class="auth-errors">{{ team_invitation_form.non_field_errors }}</div>
+        {% endif %}
+        <label>
+          {{ team_invitation_form.email.label }}
+          {{ team_invitation_form.email }}
+          {% for error in team_invitation_form.email.errors %}
+            <small class="auth-field-error">{{ error }}</small>
+          {% endfor %}
+        </label>
+        <label>
+          {{ team_invitation_form.role.label }}
+          {{ team_invitation_form.role }}
+          {% for error in team_invitation_form.role.errors %}
+            <small class="auth-field-error">{{ error }}</small>
+          {% endfor %}
+        </label>
+        <button type="submit" class="btn">{% trans "Отправить приглашение" %}</button>
+      </form>
+    </section>
+
+    <section class="owner-team-section">
+      <h2>{% trans "Участники команды" %}</h2>
+      {% if team_members %}
+        <div class="owner-team-list">
+          {% for membership in team_members %}
+            <article class="owner-team-item">
+              <h3>{{ membership.member.username }}</h3>
+              <p class="meta">{{ membership.member.email }}</p>
+              <form method="post" action="{% url 'owner_team_update_member_role' membership.id %}" class="owner-team-role-form">
+                {% csrf_token %}
+                <select class="field" name="role">
+                  {% for code, label in owner_role_choices %}
+                    <option value="{{ code }}"{% if membership.role == code %} selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="btn-secondary">{% trans "Сменить роль" %}</button>
+              </form>
+              <form method="post" action="{% url 'owner_team_remove_member' membership.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-secondary">{% trans "Удалить из команды" %}</button>
+              </form>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="meta">{% trans "Пока нет участников." %}</p>
+      {% endif %}
+    </section>
+
+    <section class="owner-team-section">
+      <h2>{% trans "Приглашения" %}</h2>
+      {% if team_invitations %}
+        <div class="owner-team-list">
+          {% for invitation in team_invitations %}
+            <article class="owner-team-item">
+              <h3>{{ invitation.email }}</h3>
+              <p class="meta">
+                {{ invitation.get_role_display }} · {{ invitation.get_status_display }} · {{ invitation.created_at|date:"d.m.Y H:i" }}
+              </p>
+              {% if invitation.is_pending %}
+                <form method="post" action="{% url 'owner_team_cancel_invitation' invitation.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-secondary">{% trans "Отменить" %}</button>
+                </form>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="meta">{% trans "Приглашений пока нет." %}</p>
+      {% endif %}
+    </section>
+  </section>
+{% endblock %}

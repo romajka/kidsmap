@@ -78,7 +78,7 @@
         <select class="filter-select" name="district">
           <option value="">{% trans "Все" %}</option>
           {% for district_name in district_options %}
-            <option value="{{ district_name }}" {% if selected.district == district_name %}selected{% endif %}>{{ district_name }}</option>
+            <option value="{{ district_name }}" {% if selected.district == district_name %}selected{% endif %}>{% trans district_name %}</option>
           {% endfor %}
         </select>
       </label>
@@ -125,7 +125,7 @@
           <select class="filter-select" name="metro">
             <option value="">{% trans "Все" %}</option>
             {% for metro_name in metro_options %}
-              <option value="{{ metro_name }}" {% if selected.metro == metro_name %}selected{% endif %}>{{ metro_name }}</option>
+              <option value="{{ metro_name }}" {% if selected.metro == metro_name %}selected{% endif %}>{% trans metro_name %}</option>
             {% endfor %}
           </select>
         </label>
@@ -332,7 +332,7 @@
                   </span>
                 </div>
                 {% if place.district or place.metro %}
-                  <p class="meta"><b>{% trans "Район/метро" %}:</b> {% if place.district %}{{ place.district }}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{{ place.metro }}{% endif %}</p>
+                  <p class="meta"><b>{% trans "Район/метро" %}:</b> {% if place.district %}{% trans place.district %}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{% trans place.metro %}{% endif %}</p>
                 {% endif %}
                 {% if place.age_from or place.age_to %}
                   <p class="meta"><b>{% trans "Возраст" %}:</b> {% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</p>
@@ -421,9 +421,9 @@
             {% endif %}
             {% if place.district or place.metro %}
               <p class="meta card-location">
-                {% if place.district %}{{ place.district }}{% endif %}
+                {% if place.district %}{% trans place.district %}{% endif %}
                 {% if place.district and place.metro %} / {% endif %}
-                {% if place.metro %}{{ place.metro }}{% endif %}
+                {% if place.metro %}{% trans place.metro %}{% endif %}
               </p>
             {% endif %}
             {% if selected.view == 'list' %}

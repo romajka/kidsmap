@@ -31,14 +31,14 @@
             <select class="filter-select home-filter-select" name="district">
               <option value="">{% trans "Район" %}</option>
               {% for district in home_districts %}
-                <option value="{{ district }}">{{ district }}</option>
+                <option value="{{ district }}">{% trans district %}</option>
               {% endfor %}
             </select>
 
             <select class="filter-select home-filter-select" name="metro">
               <option value="">{% trans "Метро" %}</option>
               {% for metro in home_metro_options %}
-                <option value="{{ metro }}">{{ metro }}</option>
+                <option value="{{ metro }}">{% trans metro %}</option>
               {% endfor %}
             </select>
 
@@ -216,22 +216,21 @@
             <div class="card-body">
               <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
               {% with desc=place.description_i18n %}
-                {% if desc %}
-                  <p class="card-description">{{ desc|striptags|truncatechars:96 }}</p>
-                {% endif %}
+                <p class="card-description{% if not desc %} is-empty{% endif %}">
+                  {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
+                </p>
               {% endwith %}
               <div class="card-headline">
                 <span class="chip">{{ place.get_category_display }}</span>
                 <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
               </div>
-              {% if place.district or place.metro %}
-                <p class="meta card-location">
-                  {% if place.district %}{{ place.district }}{% endif %}
-                  {% if place.district and place.metro %} / {% endif %}
-                  {% if place.metro %}{{ place.metro }}{% endif %}
-                </p>
-              {% endif %}
-              <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
+              <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
+                {% if place.district %}{% trans place.district %}{% endif %}
+                {% if place.district and place.metro %} / {% endif %}
+                {% if place.metro %}{% trans place.metro %}{% endif %}
+                {% if not place.district and not place.metro %}&nbsp;{% endif %}
+              </p>
+              <p class="meta card-created">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
               <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}" />
@@ -272,35 +271,45 @@
         {% endfor %}
       </div>
     {% endif %}
-    <form method="post" action="{% url 'add_site_review' %}" class="review-form">
-      {% csrf_token %}
-      <div class="review-form-grid">
+    {% if request.user.is_authenticated %}
+      <form method="post" action="{% url 'add_site_review' %}" class="review-form">
+        {% csrf_token %}
+        <div class="review-form-grid">
+          <label>
+            {% trans "Ваша оценка" %}
+            <input type="hidden" name="rating" value="5" data-rating-input />
+            <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
+              <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
+              <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
+              <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
+              <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
+              <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
+            </div>
+          </label>
+          <label>
+            {% trans "Ваше имя" %}
+            <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
+          </label>
+          <label class="review-anon">
+            <input type="checkbox" name="is_anonymous" value="1" />
+            <span>{% trans "Оставить анонимно" %}</span>
+          </label>
+        </div>
         <label>
-          {% trans "Ваша оценка" %}
-          <input type="hidden" name="rating" value="5" data-rating-input />
-          <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
-            <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
-            <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
-            <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
-            <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
-            <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
-          </div>
+          {% trans "Текст отзыва" %}
+          <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось в сервисе?' %}"></textarea>
         </label>
-        <label>
-          {% trans "Ваше имя" %}
-          <input class="field" type="text" name="author_name" maxlength="80" placeholder="{% trans 'например Алина' %}" />
-        </label>
-        <label class="review-anon">
-          <input type="checkbox" name="is_anonymous" value="1" />
-          <span>{% trans "Оставить анонимно" %}</span>
-        </label>
+        <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
+      </form>
+    {% else %}
+      <div class="review-auth-note">
+        <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
+        <div class="review-auth-actions">
+          <a class="btn" href="{% url 'account_login' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Войти" %}</a>
+          <a class="link-btn" href="{% url 'account_register' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Регистрация" %}</a>
+        </div>
       </div>
-      <label>
-        {% trans "Текст отзыва" %}
-        <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось в сервисе?' %}"></textarea>
-      </label>
-      <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
-    </form>
+    {% endif %}
   </section>
 
   {% if map_places and google_maps_api_key %}

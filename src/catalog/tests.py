@@ -1,9 +1,25 @@
 import json
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from catalog.models import FunnelEvent, Place, SiteVisit
+from catalog.models import (
+    FunnelEvent,
+    OwnerTeamInvitation,
+    OwnerTeamMembership,
+    Place,
+    PlaceChangeAudit,
+    PlaceOwnershipRequest,
+    PlaceOwnershipRequestAudit,
+    PlaceReview,
+    SiteReview,
+    SiteVisit,
+    UserProfile,
+)
+
+
+User = get_user_model()
 
 
 class TestPublicPagesSmoke(TestCase):
@@ -80,3 +96,580 @@ class TestSiteVisitMiddleware(TestCase):
     def test_site_visit_skips_excluded_path(self):
         self.client.get("/favicon.ico")
         self.assertEqual(SiteVisit.objects.count(), 0)
+
+
+class TestAccountsAndReviewAccess(TestCase):
+    def setUp(self):
+        self.place = Place.objects.create(
+            name="Auth Place",
+            name_ru="Площадка для авторизации",
+            category="EDU",
+            is_active=True,
+        )
+
+    def test_register_creates_profile_with_owner_role(self):
+        response = self.client.post(
+            reverse("account_register"),
+            data={
+                "username": "owner_user",
+                "email": "owner@example.com",
+                "role": UserProfile.ROLE_OWNER,
+                "password1": "StrongPass123!!",
+                "password2": "StrongPass123!!",
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        user = User.objects.get(username="owner_user")
+        self.assertEqual(user.profile.role, UserProfile.ROLE_OWNER)
+        self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
+
+    def test_anonymous_cannot_submit_place_review(self):
+        response = self.client.post(
+            reverse("add_place_review", args=[self.place.id]),
+            data={"rating": "5", "text": "Отлично", "author_name": "Гость"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PlaceReview.objects.count(), 0)
+
+    def test_anonymous_cannot_submit_site_review(self):
+        response = self.client.post(
+            reverse("add_site_review"),
+            data={"rating": "5", "text": "Супер", "author_name": "Гость"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(SiteReview.objects.count(), 0)
+
+    def test_authenticated_user_can_submit_place_review(self):
+        user = User.objects.create_user(username="member", email="member@example.com", password="StrongPass123!!")
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_USER)
+        self.client.login(username="member", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("add_place_review", args=[self.place.id]),
+            data={"rating": "4", "text": "Нормально", "author_name": "Пользователь"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PlaceReview.objects.count(), 1)
+        review = PlaceReview.objects.first()
+        self.assertEqual(review.user, user)
+
+
+class TestAuthValidationAndNextSecurity(TestCase):
+    def test_register_requires_email(self):
+        response = self.client.post(
+            reverse("account_register"),
+            data={
+                "username": "no_email_user",
+                "email": "",
+                "role": UserProfile.ROLE_USER,
+                "password1": "StrongPass123!!",
+                "password2": "StrongPass123!!",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username="no_email_user").exists())
+        self.assertIn("email", response.context["form"].errors)
+
+    def test_register_rejects_duplicate_email_case_insensitive(self):
+        User.objects.create_user(
+            username="first_user",
+            email="Dup@Example.com",
+            password="StrongPass123!!",
+        )
+
+        response = self.client.post(
+            reverse("account_register"),
+            data={
+                "username": "second_user",
+                "email": "dup@example.com",
+                "role": UserProfile.ROLE_USER,
+                "password1": "StrongPass123!!",
+                "password2": "StrongPass123!!",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username="second_user").exists())
+        self.assertIn("email", response.context["form"].errors)
+
+    def test_register_rejects_invalid_role_choice(self):
+        response = self.client.post(
+            reverse("account_register"),
+            data={
+                "username": "invalid_role_user",
+                "email": "invalid-role@example.com",
+                "role": "HACKER",
+                "password1": "StrongPass123!!",
+                "password2": "StrongPass123!!",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username="invalid_role_user").exists())
+        self.assertIn("role", response.context["form"].errors)
+
+    def test_register_rejects_external_next_redirect(self):
+        response = self.client.post(
+            f"{reverse('account_register')}?next=https://evil.example",
+            data={
+                "username": "safe_next_user",
+                "email": "safe-next@example.com",
+                "role": UserProfile.ROLE_USER,
+                "password1": "StrongPass123!!",
+                "password2": "StrongPass123!!",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/ru/")
+
+    def test_login_rejects_external_next_redirect(self):
+        User.objects.create_user(
+            username="login_safe_user",
+            email="login-safe@example.com",
+            password="StrongPass123!!",
+        )
+        response = self.client.post(
+            f"{reverse('account_login')}?next=https://evil.example",
+            data={"username": "login_safe_user", "password": "StrongPass123!!"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/ru/")
+
+
+class TestOwnershipWorkflow(TestCase):
+    def setUp(self):
+        self.place = Place.objects.create(
+            name="Ownership Place",
+            name_ru="Кружок для привязки",
+            category="EDU",
+            is_active=True,
+        )
+        self.owner_user = User.objects.create_user(
+            username="owner_role_user",
+            email="owner-role@example.com",
+            password="StrongPass123!!",
+        )
+        self.regular_user = User.objects.create_user(
+            username="regular_role_user",
+            email="regular-role@example.com",
+            password="StrongPass123!!",
+        )
+        self.moderator = User.objects.create_superuser(
+            username="moderator_admin",
+            email="moderator@example.com",
+            password="StrongPass123!!",
+        )
+
+        UserProfile.objects.create(user=self.owner_user, role=UserProfile.ROLE_OWNER)
+        UserProfile.objects.create(user=self.regular_user, role=UserProfile.ROLE_USER)
+
+    def test_owner_can_submit_place_ownership_request(self):
+        self.client.login(username="owner_role_user", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("request_place_ownership", args=[self.place.id]),
+            data={"note": "Я представитель кружка"},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PlaceOwnershipRequest.objects.count(), 1)
+        ownership_request = PlaceOwnershipRequest.objects.first()
+        self.assertEqual(ownership_request.applicant, self.owner_user)
+        self.assertEqual(ownership_request.place, self.place)
+        self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
+        self.assertEqual(PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).count(), 1)
+
+    def test_regular_user_cannot_submit_place_ownership_request(self):
+        self.client.login(username="regular_role_user", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("request_place_ownership", args=[self.place.id]),
+            data={"note": "Хочу управлять карточкой"},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PlaceOwnershipRequest.objects.count(), 0)
+
+    def test_approve_request_assigns_place_owner_and_writes_audit(self):
+        ownership_request = PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.owner_user,
+            note="Подтверждаю права на кружок",
+        )
+
+        ownership_request.apply_moderation(
+            moderator=self.moderator,
+            new_status=PlaceOwnershipRequest.STATUS_APPROVED,
+            note="Проверено",
+        )
+        ownership_request.refresh_from_db()
+        self.place.refresh_from_db()
+
+        self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_APPROVED)
+        self.assertEqual(ownership_request.moderated_by, self.moderator)
+        self.assertEqual(self.place.owner, self.owner_user)
+        self.assertEqual(PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).count(), 2)
+        latest_audit = PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).first()
+        self.assertEqual(latest_audit.action, PlaceOwnershipRequestAudit.ACTION_APPROVED)
+
+    def test_reject_request_keeps_place_unassigned_and_writes_audit(self):
+        ownership_request = PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.owner_user,
+            note="Подтверждаю права на кружок",
+        )
+
+        ownership_request.apply_moderation(
+            moderator=self.moderator,
+            new_status=PlaceOwnershipRequest.STATUS_REJECTED,
+            note="Недостаточно подтверждений",
+        )
+        ownership_request.refresh_from_db()
+        self.place.refresh_from_db()
+
+        self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_REJECTED)
+        self.assertIsNone(self.place.owner)
+        self.assertEqual(PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).count(), 2)
+        latest_audit = PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).first()
+        self.assertEqual(latest_audit.action, PlaceOwnershipRequestAudit.ACTION_REJECTED)
+
+
+class TestOwnerPlaceManagementAndPermissions(TestCase):
+    def setUp(self):
+        self.manager_user = User.objects.create_user(
+            username="owner_manager",
+            email="manager@example.com",
+            password="StrongPass123!!",
+        )
+        self.editor_user = User.objects.create_user(
+            username="owner_editor",
+            email="editor@example.com",
+            password="StrongPass123!!",
+        )
+        self.moderator_user = User.objects.create_user(
+            username="owner_moderator",
+            email="moderator-role@example.com",
+            password="StrongPass123!!",
+        )
+        self.regular_user = User.objects.create_user(
+            username="regular_for_owner_pages",
+            email="regular-owner-pages@example.com",
+            password="StrongPass123!!",
+        )
+
+        UserProfile.objects.create(
+            user=self.manager_user,
+            role=UserProfile.ROLE_OWNER,
+            owner_role=UserProfile.OWNER_ROLE_MANAGER,
+        )
+        UserProfile.objects.create(
+            user=self.editor_user,
+            role=UserProfile.ROLE_OWNER,
+            owner_role=UserProfile.OWNER_ROLE_EDITOR,
+        )
+        UserProfile.objects.create(
+            user=self.moderator_user,
+            role=UserProfile.ROLE_OWNER,
+            owner_role=UserProfile.OWNER_ROLE_MODERATOR,
+        )
+        UserProfile.objects.create(user=self.regular_user, role=UserProfile.ROLE_USER)
+
+        self.manager_place = Place.objects.create(
+            name="Manager Place",
+            name_ru="Кружок менеджера",
+            category="EDU",
+            owner=self.manager_user,
+            is_active=False,
+            rating_avg=4.7,
+            rating_count=10,
+            likes_count=25,
+        )
+        self.editor_place = Place.objects.create(
+            name="Editor Place",
+            name_ru="Кружок редактора",
+            category="TECH",
+            owner=self.editor_user,
+            is_active=False,
+        )
+        self.moderator_place = Place.objects.create(
+            name="Moderator Place",
+            name_ru="Кружок модератора",
+            category="MUS",
+            owner=self.moderator_user,
+            is_active=True,
+        )
+
+    def test_owner_manager_can_open_places_dashboard(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_places_dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Кружок менеджера")
+
+    def test_owner_editor_can_edit_but_cannot_publish(self):
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+
+        edit_response = self.client.post(
+            reverse("owner_place_edit", args=[self.editor_place.id]),
+            data={
+                "name_ru": "Кружок редактора обновлен",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Новое описание",
+                "description_az": "",
+                "description_en": "",
+                "category": "TECH",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(edit_response.status_code, 200)
+        self.editor_place.refresh_from_db()
+        self.assertEqual(self.editor_place.name_ru, "Кружок редактора обновлен")
+
+        publish_response = self.client.post(
+            reverse("owner_place_publish", args=[self.editor_place.id]),
+            follow=True,
+        )
+        self.assertEqual(publish_response.status_code, 200)
+        self.editor_place.refresh_from_db()
+        self.assertFalse(self.editor_place.is_active)
+
+    def test_owner_manager_can_publish_draft(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_publish", args=[self.manager_place.id]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.manager_place.refresh_from_db()
+        self.assertTrue(self.manager_place.is_active)
+
+    def test_owner_moderator_cannot_edit_place(self):
+        self.client.login(username="owner_moderator", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.moderator_place.id]),
+            data={
+                "name_ru": "Изменение от модератора",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "",
+                "description_en": "",
+                "category": "MUS",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.moderator_place.refresh_from_db()
+        self.assertNotEqual(self.moderator_place.name_ru, "Изменение от модератора")
+
+    def test_regular_user_is_redirected_from_owner_places_dashboard(self):
+        self.client.login(username="regular_for_owner_pages", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_places_dashboard"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("owner_cabinet"))
+
+
+class TestOwnerTeamAndReviewModeration(TestCase):
+    def setUp(self):
+        self.owner_manager = User.objects.create_user(
+            username="team_owner_manager",
+            email="team-owner@example.com",
+            password="StrongPass123!!",
+        )
+        self.team_member = User.objects.create_user(
+            username="team_member_user",
+            email="team-member@example.com",
+            password="StrongPass123!!",
+        )
+        self.other_user = User.objects.create_user(
+            username="team_other_user",
+            email="team-other@example.com",
+            password="StrongPass123!!",
+        )
+        UserProfile.objects.create(
+            user=self.owner_manager,
+            role=UserProfile.ROLE_OWNER,
+            owner_role=UserProfile.OWNER_ROLE_MANAGER,
+        )
+        UserProfile.objects.create(user=self.team_member, role=UserProfile.ROLE_USER)
+        UserProfile.objects.create(user=self.other_user, role=UserProfile.ROLE_USER)
+
+        self.place = Place.objects.create(
+            name="Team Place",
+            name_ru="Кружок команды",
+            category="EDU",
+            owner=self.owner_manager,
+            is_active=True,
+        )
+        self.place_review = PlaceReview.objects.create(
+            place=self.place,
+            user=self.other_user,
+            author_name="Тест",
+            rating=4,
+            text="Нормальный кружок",
+            is_approved=True,
+        )
+
+    def test_owner_manager_can_create_team_invitation(self):
+        self.client.login(username="team_owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_team_invite"),
+            data={"email": "team-member@example.com", "role": UserProfile.OWNER_ROLE_MODERATOR},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        invitation = OwnerTeamInvitation.objects.get(owner=self.owner_manager, email="team-member@example.com")
+        self.assertEqual(invitation.status, OwnerTeamInvitation.STATUS_PENDING)
+        self.assertEqual(invitation.role, UserProfile.OWNER_ROLE_MODERATOR)
+
+    def test_user_can_accept_team_invitation(self):
+        invitation = OwnerTeamInvitation.objects.create(
+            owner=self.owner_manager,
+            invited_by=self.owner_manager,
+            email="team-member@example.com",
+            role=UserProfile.OWNER_ROLE_MODERATOR,
+        )
+
+        self.client.login(username="team_member_user", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_team_accept_invitation", args=[invitation.id]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        invitation.refresh_from_db()
+        self.assertEqual(invitation.status, OwnerTeamInvitation.STATUS_ACCEPTED)
+        membership = OwnerTeamMembership.objects.get(owner=self.owner_manager, member=self.team_member)
+        self.assertTrue(membership.is_active)
+        self.assertEqual(membership.role, UserProfile.OWNER_ROLE_MODERATOR)
+
+    def test_team_moderator_can_moderate_reviews_but_cannot_edit_content(self):
+        OwnerTeamMembership.objects.create(
+            owner=self.owner_manager,
+            member=self.team_member,
+            role=UserProfile.OWNER_ROLE_MODERATOR,
+            is_active=True,
+            invited_by=self.owner_manager,
+        )
+        profile = UserProfile.get_or_create_for_user(self.team_member)
+        profile.role = UserProfile.ROLE_OWNER
+        profile.owner_role = UserProfile.OWNER_ROLE_MODERATOR
+        profile.save(update_fields=["role", "owner_role", "updated_at"])
+
+        self.client.login(username="team_member_user", password="StrongPass123!!")
+        reviews_response = self.client.get(reverse("owner_reviews_dashboard"))
+        self.assertEqual(reviews_response.status_code, 200)
+        self.assertContains(reviews_response, "Кружок команды")
+
+        reject_response = self.client.post(
+            reverse("owner_review_reject", args=[self.place_review.id]),
+            follow=True,
+        )
+        self.assertEqual(reject_response.status_code, 200)
+        self.place_review.refresh_from_db()
+        self.assertFalse(self.place_review.is_approved)
+
+        edit_response = self.client.post(
+            reverse("owner_place_edit", args=[self.place.id]),
+            data={
+                "name_ru": "Нельзя менять",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(edit_response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.name_ru, "Кружок команды")
+
+    def test_owner_edit_creates_place_change_audit(self):
+        self.client.login(username="team_owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.place.id]),
+            data={
+                "name_ru": "Кружок команды обновлен",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание обновлено",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        audits = PlaceChangeAudit.objects.filter(place=self.place, changed_by=self.owner_manager)
+        self.assertGreaterEqual(audits.count(), 1)
+        self.assertTrue(audits.filter(field_name="name_ru").exists())

@@ -64,11 +64,6 @@
             {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
           >{% trans "Каталог" %}</a>
           <a
-            href="{% url 'place_new' %}"
-            class="{% if request.resolver_match.url_name == 'place_new' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'place_new' %}aria-current="page"{% endif %}
-          >{% trans "Новое" %}</a>
-          <a
             href="{% url 'about' %}"
             class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}"
             {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
@@ -80,27 +75,56 @@
           >{% trans "Контакты" %}</a>
         </nav>
 
-        <div class="lang-switch" aria-label="{% trans 'Язык' %}">
-          {% get_current_language as CURRENT_LANGUAGE %}
-          <div class="lang-desktop">
-            <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
-            <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
-            <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
+        <div class="topbar-right">
+          <div class="auth-switch" aria-label="{% trans 'Аккаунт' %}">
+            {% if request.user.is_authenticated %}
+              {% if current_user_role == "OWNER" %}
+                <a class="auth-pill auth-pill-primary" href="{% url 'owner_cabinet' %}">{% trans "Кабинет" %}</a>
+              {% endif %}
+              <span class="auth-pill auth-role">
+                {% if current_user_role_label %}{{ current_user_role_label }}{% else %}{% trans "Обычный пользователь" %}{% endif %}
+              </span>
+              <form method="post" action="{% url 'account_logout' %}" class="auth-logout-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                <button type="submit" class="auth-pill auth-logout">{% trans "Выйти" %}</button>
+              </form>
+            {% else %}
+              <a class="auth-pill" href="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">{% trans "Войти" %}</a>
+              <a class="auth-pill auth-pill-primary" href="{% url 'account_register' %}?next={{ request.get_full_path|urlencode }}">{% trans "Регистрация" %}</a>
+            {% endif %}
           </div>
 
-          <details class="lang-menu lang-mobile">
-            <summary class="lang-current">
-              {% if CURRENT_LANGUAGE == "ru" %}🇷🇺 RU{% elif CURRENT_LANGUAGE == "az" %}🇦🇿 AZ{% else %}🇬🇧 EN{% endif %}
-              <span class="lang-arrow" aria-hidden="true"></span>
-            </summary>
-            <div class="lang-dropdown">
+          <div class="lang-switch" aria-label="{% trans 'Язык' %}">
+            {% get_current_language as CURRENT_LANGUAGE %}
+            <div class="lang-desktop">
               <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
               <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
               <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
             </div>
-          </details>
+
+            <details class="lang-menu lang-mobile">
+              <summary class="lang-current">
+                {% if CURRENT_LANGUAGE == "ru" %}🇷🇺 RU{% elif CURRENT_LANGUAGE == "az" %}🇦🇿 AZ{% else %}🇬🇧 EN{% endif %}
+                <span class="lang-arrow" aria-hidden="true"></span>
+              </summary>
+              <div class="lang-dropdown">
+                <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
+                <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
+                <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
+              </div>
+            </details>
+          </div>
         </div>
       </header>
+
+      {% if messages and request.resolver_match and request.resolver_match.url_name != 'home' and request.resolver_match.url_name != 'place_detail' %}
+        <section class="flash-stack" aria-live="polite">
+          {% for message in messages %}
+            <p class="flash-message {% if message.tags %}flash-{{ message.tags }}{% else %}flash-info{% endif %}">{{ message }}</p>
+          {% endfor %}
+        </section>
+      {% endif %}
 
       <main>
         {% block content %}{% endblock %}
@@ -156,7 +180,7 @@
 
         function attachImageFallbacks() {
           document.querySelectorAll("img[data-photo-fallback]").forEach(function (img) {
-            const text = img.getAttribute("data-placeholder-text") || "Фото скоро будет.";
+            const text = img.getAttribute("data-placeholder-text") || "{% trans 'Фото скоро будет.' %}";
             const applyFallback = function () {
               const container = img.closest(".card-media");
               if (!container || container.querySelector(".image-placeholder")) return;

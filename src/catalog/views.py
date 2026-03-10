@@ -1,13 +1,24 @@
+from urllib.parse import urlencode
+
 from django.conf import settings
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from .controllers.auth_controller import AuthController
 from .controllers.engagement_controller import EngagementController
 from .controllers.home_controller import HomeController
+from .controllers.owner_places_controller import OwnerPlacesController
+from .controllers.owner_reviews_controller import OwnerReviewsController
+from .controllers.owner_team_controller import OwnerTeamController
+from .controllers.ownership_controller import OwnershipController
 from .controllers.place_controller import PlaceController
 from .controllers.seo_controller import SeoController
 from .controllers.tracking_controller import TrackingController
@@ -15,8 +26,29 @@ from .controllers.tracking_controller import TrackingController
 home_controller = HomeController.build_default()
 place_controller = PlaceController.build_default()
 engagement_controller = EngagementController.build_default()
+auth_controller = AuthController.build_default()
+ownership_controller = OwnershipController.build_default()
+owner_places_controller = OwnerPlacesController.build_default()
+owner_team_controller = OwnerTeamController.build_default()
+owner_reviews_controller = OwnerReviewsController.build_default()
 seo_controller = SeoController.build_default()
 tracking_controller = TrackingController.build_default()
+
+
+def _resolve_safe_next_url(request, fallback_url: str) -> str:
+    target = (request.POST.get("next") or request.GET.get("next") or "").strip()
+    if target and url_has_allowed_host_and_scheme(
+        target,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return target
+    return fallback_url
+
+
+def _redirect_to_login(request):
+    query = urlencode({"next": request.get_full_path()})
+    return redirect(f"{reverse('account_login')}?{query}")
 
 
 def home(request):
@@ -61,6 +93,7 @@ def place_detail(request, pk, slug):
         return redirect(place.get_absolute_url(), permanent=True)
 
     context = place_controller.build_detail_context(request, place=place)
+    context.update(ownership_controller.build_place_claim_context(request=request, place=place))
 
     return render(
         request,
@@ -84,7 +117,7 @@ def add_place_review(request, pk):
     place, result = engagement_controller.add_place_review(
         request=request,
         place_id=pk,
-        require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", False),
+        require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", True),
     )
     if result.ok:
         messages.success(request, result.message)
@@ -97,7 +130,7 @@ def add_place_review(request, pk):
 def add_site_review(request):
     result = engagement_controller.add_site_review(
         request=request,
-        require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", False),
+        require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", True),
     )
     if result.ok:
         messages.success(request, result.message)
@@ -122,7 +155,7 @@ def about(request):
     return render(
         request,
         "pages/about.html",
-        {"meta_description": "О проекте KidsMap: каталог детских кружков и секций в Баку."},
+        {"meta_description": _("О проекте KidsMap: каталог детских кружков и секций в Баку.")},
     )
 
 
@@ -130,5 +163,316 @@ def contacts(request):
     return render(
         request,
         "pages/contacts.html",
-        {"meta_description": "Контакты проекта KidsMap."},
+        {"meta_description": _("Контакты проекта KidsMap.")},
     )
+
+
+def owner_cabinet(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    context = ownership_controller.build_owner_cabinet_context(request=request)
+    context.update(owner_team_controller.build_user_pending_invitations_context(request=request))
+    context.update({"meta_description": _("Кабинет владельца KidsMap: заявки и управление карточками.")})
+    return render(request, "pages/owner_cabinet.html", context)
+
+
+def owner_places_dashboard(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    context, access = owner_places_controller.build_dashboard_context(request=request)
+    if not access.ok:
+        messages.error(request, access.message)
+        return redirect("owner_cabinet")
+
+    context.update(
+        {
+            "meta_description": _("Управление карточками владельца: редактирование, черновики, публикация и статистика."),
+        }
+    )
+    return render(request, "pages/owner_places.html", context)
+
+
+def owner_place_edit(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    if request.method == "POST":
+        result = owner_places_controller.save_edit_form(
+            request=request,
+            place_id=pk,
+            data=request.POST,
+            files=request.FILES,
+        )
+        if result.ok:
+            messages.success(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        if result.form is None:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        context = {
+            "form": result.form,
+            "place": result.place,
+            "owner_profile": result.profile,
+            "recent_place_audits": result.place.change_audits.select_related("changed_by")[:20] if result.place else [],
+            "meta_description": _("Редактирование карточки кружка в кабинете владельца."),
+        }
+        return render(request, "pages/owner_place_edit.html", context)
+
+    result = owner_places_controller.build_edit_form_context(request=request, place_id=pk)
+    if not result.ok or result.form is None:
+        messages.error(request, result.message)
+        return redirect("owner_places_dashboard")
+
+    context = {
+        "form": result.form,
+        "place": result.place,
+        "owner_profile": result.profile,
+        "recent_place_audits": result.place.change_audits.select_related("changed_by")[:20] if result.place else [],
+        "meta_description": _("Редактирование карточки кружка в кабинете владельца."),
+    }
+    return render(request, "pages/owner_place_edit.html", context)
+
+
+@require_POST
+def owner_place_publish(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.set_publication_state(request=request, place_id=pk, is_active=True)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_place_draft(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.set_publication_state(request=request, place_id=pk, is_active=False)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+def owner_team_dashboard(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    context, access = owner_team_controller.build_manager_context(request=request)
+    if not access.ok:
+        messages.error(request, access.message)
+        return redirect("owner_cabinet")
+
+    context.update(
+        {
+            "meta_description": _("Команда владельца KidsMap: приглашения, роли и управление доступами."),
+        }
+    )
+    return render(request, "pages/owner_team.html", context)
+
+
+@require_POST
+def owner_team_invite(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.submit_invitation(request=request)
+    if result.ok:
+        messages.success(request, result.message)
+        return redirect("owner_team_dashboard")
+
+    messages.error(request, result.message)
+    context, access = owner_team_controller.build_manager_context(request=request, form=result.form)
+    if not access.ok:
+        return redirect("owner_cabinet")
+    context.update(
+        {
+            "meta_description": _("Команда владельца KidsMap: приглашения, роли и управление доступами."),
+        }
+    )
+    return render(request, "pages/owner_team.html", context)
+
+
+@require_POST
+def owner_team_cancel_invitation(request, invitation_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.cancel_invitation(request=request, invitation_id=invitation_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_team_dashboard")
+
+
+@require_POST
+def owner_team_update_member_role(request, membership_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.update_member_role(request=request, membership_id=membership_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_team_dashboard")
+
+
+@require_POST
+def owner_team_remove_member(request, membership_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.remove_member(request=request, membership_id=membership_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_team_dashboard")
+
+
+@require_POST
+def owner_team_accept_invitation(request, invitation_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.accept_invitation_for_user(request=request, invitation_id=invitation_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_cabinet")
+
+
+@require_POST
+def owner_team_reject_invitation(request, invitation_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_team_controller.reject_invitation_for_user(request=request, invitation_id=invitation_id)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_cabinet")
+
+
+def owner_reviews_dashboard(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    context, result = owner_reviews_controller.build_context(request=request)
+    if not result.ok:
+        messages.error(request, result.message)
+        return redirect("owner_cabinet")
+
+    context.update(
+        {
+            "meta_description": _("Модерация отзывов владельца: управление публикацией отзывов по вашим кружкам."),
+        }
+    )
+    return render(request, "pages/owner_reviews.html", context)
+
+
+@require_POST
+def owner_review_approve(request, review_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_reviews_controller.set_review_approval(
+        request=request,
+        review_id=review_id,
+        is_approved=True,
+    )
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_reviews_dashboard")
+
+
+@require_POST
+def owner_review_reject(request, review_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_reviews_controller.set_review_approval(
+        request=request,
+        review_id=review_id,
+        is_approved=False,
+    )
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_reviews_dashboard")
+
+
+@require_POST
+def request_place_ownership(request, pk):
+    place, result = ownership_controller.submit_claim_request(request=request, place_id=pk)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect(f"{place.get_absolute_url()}#owner-request")
+
+
+def account_register(request):
+    if request.user.is_authenticated:
+        return redirect(_resolve_safe_next_url(request, reverse("home")))
+
+    form = auth_controller.build_registration_form(data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = auth_controller.register_user_from_form(form=form)
+        auth_login(request, user)
+        messages.success(request, _("Регистрация прошла успешно. Добро пожаловать!"))
+        return redirect(_resolve_safe_next_url(request, reverse("home")))
+
+    return render(
+        request,
+        "auth/register.html",
+        {
+            "form": form,
+            "meta_description": "Регистрация в KidsMap: выберите тип аккаунта и начните пользоваться каталогом.",
+            "next_url": _resolve_safe_next_url(request, reverse("home")),
+        },
+    )
+
+
+def account_login(request):
+    if request.user.is_authenticated:
+        return redirect(_resolve_safe_next_url(request, reverse("home")))
+
+    form = auth_controller.build_login_form(request=request, data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        auth_login(request, form.get_user())
+        messages.success(request, _("Вы вошли в аккаунт."))
+        return redirect(_resolve_safe_next_url(request, reverse("home")))
+
+    return render(
+        request,
+        "auth/login.html",
+        {
+            "form": form,
+            "meta_description": "Вход в аккаунт KidsMap.",
+            "next_url": _resolve_safe_next_url(request, reverse("home")),
+        },
+    )
+
+
+@require_POST
+def account_logout(request):
+    auth_logout(request)
+    messages.info(request, _("Вы вышли из аккаунта."))
+    return redirect(_resolve_safe_next_url(request, reverse("home")))

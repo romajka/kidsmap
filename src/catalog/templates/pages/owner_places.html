@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Управление кружками" %}{% endblock %}
+{% block title_plain %}{% trans "Управление кружками" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Управление кружками" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel owner-places">
+    <div class="owner-page-head">
+      <div>
+        <h1>{% trans "Управление карточками" %}</h1>
+        <p class="auth-subtitle">{% trans "Редактирование, черновики и публикация ваших кружков." %}</p>
+      </div>
+      <div class="owner-page-actions">
+        <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К заявкам" %}</a>
+        {% if can_moderate_reviews %}
+          <a class="btn-secondary" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
+        {% endif %}
+        {% if can_manage_team %}
+          <a class="btn-secondary" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <p class="meta owner-role-meta">
+      {% trans "Роль владельца" %}: <strong>{{ owner_profile.get_owner_role_display }}</strong>
+    </p>
+
+    {% if owner_permissions %}
+      <div class="owner-permissions">
+        {% for permission in owner_permissions %}
+          <span class="chip">{{ permission }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if can_view_stats %}
+      <div class="owner-stats-grid">
+        <article class="owner-stat-card">
+          <span class="meta-label">{% trans "Всего карточек" %}</span>
+          <strong>{{ owner_stats.total_places }}</strong>
+        </article>
+        <article class="owner-stat-card">
+          <span class="meta-label">{% trans "Опубликовано" %}</span>
+          <strong>{{ owner_stats.published_places }}</strong>
+        </article>
+        <article class="owner-stat-card">
+          <span class="meta-label">{% trans "Черновики" %}</span>
+          <strong>{{ owner_stats.draft_places }}</strong>
+        </article>
+        <article class="owner-stat-card">
+          <span class="meta-label">{% trans "Отзывы" %}</span>
+          <strong>{{ owner_stats.total_reviews }}</strong>
+        </article>
+        <article class="owner-stat-card">
+          <span class="meta-label">{% trans "Лайки" %}</span>
+          <strong>{{ owner_stats.total_likes }}</strong>
+        </article>
+        <article class="owner-stat-card">
+          <span class="meta-label">{% trans "Средний рейтинг" %}</span>
+          <strong>{{ owner_stats.avg_rating|floatformat:1 }}</strong>
+        </article>
+      </div>
+    {% else %}
+      <div class="review-auth-note">
+        <p>{% trans "Для вашей роли просмотр статистики выключен. Вы можете работать только с доступными действиями." %}</p>
+      </div>
+    {% endif %}
+
+    <div class="owner-place-columns">
+      <section class="owner-place-column">
+        <h2>{% trans "Опубликованные карточки" %}</h2>
+        {% if published_places %}
+          <div class="owner-place-list">
+            {% for place in published_places %}
+              <article class="owner-place-item">
+                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                <p class="meta">{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
+                <p class="meta">
+                  ★ {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %} · ♥ {{ place.likes_count }}
+                </p>
+                <div class="owner-place-actions">
+                  {% if can_edit_places %}
+                    <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
+                  {% endif %}
+                  {% if can_publish_places %}
+                    <form method="post" action="{% url 'owner_place_draft' place.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-secondary">{% trans "В черновик" %}</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="meta">{% trans "Нет опубликованных карточек." %}</p>
+        {% endif %}
+      </section>
+
+      <section class="owner-place-column">
+        <h2>{% trans "Черновики" %}</h2>
+        {% if draft_places %}
+          <div class="owner-place-list">
+            {% for place in draft_places %}
+              <article class="owner-place-item">
+                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                <p class="meta">{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
+                <p class="meta">
+                  ★ {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %} · ♥ {{ place.likes_count }}
+                </p>
+                <div class="owner-place-actions">
+                  {% if can_edit_places %}
+                    <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
+                  {% endif %}
+                  {% if can_publish_places %}
+                    <form method="post" action="{% url 'owner_place_publish' place.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn">{% trans "Опубликовать" %}</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="meta">{% trans "Черновиков нет." %}</p>
+        {% endif %}
+      </section>
+    </div>
+  </section>
+{% endblock %}

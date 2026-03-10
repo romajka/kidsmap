@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.db.utils import OperationalError, ProgrammingError
 from django.utils.translation import get_language
-from .models import SiteSettings
+from django.utils.translation import gettext as _
+from .models import SiteSettings, UserProfile
 
 
 def seo_urls(request):
@@ -34,6 +35,29 @@ def seo_urls(request):
 
 
 def site_settings(request):
+    user_role_data = {
+        "current_user_role": "",
+        "current_user_role_label": "",
+        "current_owner_role": "",
+        "current_owner_role_label": "",
+    }
+    if getattr(request, "user", None) is not None and request.user.is_authenticated:
+        try:
+            profile = UserProfile.get_or_create_for_user(request.user)
+            user_role_data = {
+                "current_user_role": profile.role,
+                "current_user_role_label": profile.get_role_display(),
+                "current_owner_role": profile.owner_role if profile.role == UserProfile.ROLE_OWNER else "",
+                "current_owner_role_label": profile.get_owner_role_display() if profile.role == UserProfile.ROLE_OWNER else "",
+            }
+        except (OperationalError, ProgrammingError):
+            user_role_data = {
+                "current_user_role": UserProfile.ROLE_USER,
+                "current_user_role_label": _("Обычный пользователь"),
+                "current_owner_role": "",
+                "current_owner_role_label": "",
+            }
+
     try:
         cfg = SiteSettings.get_solo()
     except (OperationalError, ProgrammingError):
@@ -65,6 +89,7 @@ def site_settings(request):
             "footer_email": "kidsmap@example.com",
             "footer_instagram_url": "",
             "footer_whatsapp_url": "",
+            **user_role_data,
         }
 
     return {
@@ -77,4 +102,5 @@ def site_settings(request):
         "footer_email": (cfg.footer_email or "").strip(),
         "footer_instagram_url": cfg.footer_instagram_url(),
         "footer_whatsapp_url": (cfg.footer_whatsapp or "").strip(),
+        **user_role_data,
     }
