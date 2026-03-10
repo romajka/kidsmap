@@ -1,0 +1,1228 @@
+
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catalog</title>
+    <meta name="description" content="Catalog of kids activities and clubs in Baku. Filters by category, district, metro, age, and price." />
+    <link rel="canonical" href="http://testserver/en/catalog/" />
+    
+      <link rel="alternate" hreflang="ru" href="http://testserver/ru/catalog/" />
+    
+      <link rel="alternate" hreflang="az" href="http://testserver/az/catalog/" />
+    
+      <link rel="alternate" hreflang="en" href="http://testserver/en/catalog/" />
+    
+    <link rel="alternate" hreflang="x-default" href="http://testserver/ru/catalog/" />
+    <meta property="og:site_name" content="KidsMap" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Catalog | KidsMap" />
+    <meta property="og:description" content="KidsMap is a catalog of kids clubs and activities in Baku." />
+    <meta property="og:url" content="http://testserver/en/catalog/" />
+    <meta property="og:image" content="http://testserver/static/img/logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Catalog | KidsMap" />
+    <meta name="twitter:description" content="KidsMap is a catalog of kids clubs and activities in Baku." />
+    <meta name="twitter:image" content="http://testserver/static/img/logo.png" />
+    <link rel="icon" type="image/png" href="/static/img/logo.png" />
+    <link rel="apple-touch-icon" href="/static/img/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/site.css" />
+  </head>
+  <body
+    class="page-place_list"
+    
+  >
+    <div class="bg-scene" aria-hidden="true">
+      <span class="bg-orb orb-a"></span>
+      <span class="bg-orb orb-b"></span>
+      <span class="bg-orb orb-c"></span>
+      <span class="bg-orb orb-d"></span>
+      <span class="bg-glow glow-a"></span>
+      <span class="bg-glow glow-b"></span>
+      <span class="bg-ribbon ribbon-a"></span>
+      <span class="bg-ribbon ribbon-b"></span>
+      <span class="bg-spark spark-a"></span>
+      <span class="bg-spark spark-b"></span>
+      <span class="bg-spark spark-c"></span>
+    </div>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand-wrap" href="/en/">
+          <span class="logo-slot" style="--logo-url:url('/static/img/logo.png');" aria-hidden="true"></span>
+          <span class="brand">KidsMap</span>
+        </a>
+
+        <nav class="nav">
+          <a
+            href="/en/"
+            class=""
+            
+          >Home</a>
+          <a
+            href="/en/catalog/"
+            class="active"
+            aria-current="page"
+          >Catalog</a>
+          <a
+            href="/en/about/"
+            class=""
+            
+          >About</a>
+          <a
+            href="/en/contacts/"
+            class=""
+            
+          >Contacts</a>
+        </nav>
+
+        <div class="topbar-right">
+          <div class="auth-switch" aria-label="Account">
+            
+              <a class="auth-pill" href="/en/auth/login/?next=/en/catalog/">Sign in</a>
+              <a class="auth-pill auth-pill-primary" href="/en/auth/register/?next=/en/catalog/">Register</a>
+            
+          </div>
+
+          <div class="lang-switch" aria-label="Language">
+            
+            <div class="lang-desktop">
+              <a class="lang-pill " href="http://testserver/ru/catalog/" hreflang="ru">🇷🇺 RU</a>
+              <a class="lang-pill " href="http://testserver/az/catalog/" hreflang="az">🇦🇿 AZ</a>
+              <a class="lang-pill active" href="http://testserver/en/catalog/" hreflang="en">🇬🇧 EN</a>
+            </div>
+
+            <details class="lang-menu lang-mobile">
+              <summary class="lang-current">
+                🇬🇧 EN
+                <span class="lang-arrow" aria-hidden="true"></span>
+              </summary>
+              <div class="lang-dropdown">
+                <a class="lang-pill " href="http://testserver/ru/catalog/" hreflang="ru">🇷🇺 RU</a>
+                <a class="lang-pill " href="http://testserver/az/catalog/" hreflang="az">🇦🇿 AZ</a>
+                <a class="lang-pill active" href="http://testserver/en/catalog/" hreflang="en">🇬🇧 EN</a>
+              </div>
+            </details>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        
+  <section class="hero">
+    <div class="hero-art" aria-hidden="true"></div>
+    <div class="hero-text">
+      
+        <h1>Catalog</h1>
+        <p>Find the best activities for your child</p>
+      
+    </div>
+  </section>
+
+  
+    <div class="catalog-layout">
+  
+
+  <section class="panel filter-panel filter-panel-catalog">
+    <p class="filter-intro">
+      
+        Set filters and click “Search” to quickly find suitable clubs.
+      
+    </p>
+    
+      <div class="mobile-filter-toolbar">
+        <button
+          type="button"
+          class="btn mobile-filters-toggle"
+          data-filters-open
+          aria-controls="catalog-filters"
+          aria-expanded="false"
+        >
+          Filters
+        </button>
+      </div>
+      <div class="mobile-filters-backdrop" data-filters-backdrop hidden></div>
+    
+    <form
+      method="get"
+      class="filters filters-catalog"
+      id="catalog-filters" data-filters-drawer aria-hidden="false"
+    >
+      
+        <div class="mobile-filters-head">
+          <h2>Filters</h2>
+          <button type="button" class="mobile-filters-close" data-filters-close aria-label="Close">×</button>
+        </div>
+      
+      <input type="hidden" name="view" value="grid" />
+      <label class="filters-search">
+        Search by title
+        <input class="field search-field" name="q" value="" placeholder="for example robotics or english" />
+      </label>
+
+      <label class="filter-item filter-category">
+        Category
+        <select class="filter-select" name="category">
+          <option value="">All</option>
+          
+            <option value="SPRT" >Sport</option>
+          
+            <option value="ART" >Creativity</option>
+          
+            <option value="MUS" >Music and stage</option>
+          
+            <option value="EDU" >Education</option>
+          
+            <option value="TECH" >Technology</option>
+          
+            <option value="FUN" >Leisure and fun</option>
+          
+            <option value="CAMP" >Camps</option>
+          
+        </select>
+      </label>
+
+      <label class="filter-item filter-district">
+        District
+        <select class="filter-select" name="district">
+          <option value="">All</option>
+          
+            <option value="Ясамал" >Yasamal</option>
+          
+            <option value="Насими" >Nasimi</option>
+          
+            <option value="Низами" >Nizami</option>
+          
+            <option value="Нариманов" >Narimanov</option>
+          
+            <option value="Сабаиль" >Sabail</option>
+          
+            <option value="Сабунчи" >Sabunchi</option>
+          
+            <option value="Бинагади" >Binagadi</option>
+          
+            <option value="Сураханы" >Surakhani</option>
+          
+            <option value="Хатаи" >Khatai</option>
+          
+            <option value="Хазар" >Khazar</option>
+          
+            <option value="Гарадаг" >Garadagh</option>
+          
+            <option value="Пираллахы" >Pirallahi</option>
+          
+        </select>
+      </label>
+
+      <label class="filter-item filter-rating">
+        Rating not lower than
+        <select class="filter-select" name="min_rating">
+          <option value="">All</option>
+          <option value="3" >3.0+</option>
+          <option value="4" >4.0+</option>
+          <option value="4.5" >4.5+</option>
+          <option value="5" >5.0</option>
+        </select>
+      </label>
+
+      
+        <label class="filter-item filter-metro">
+          Metro
+          <select class="filter-select" name="metro">
+            <option value="">All</option>
+            
+              <option value="Ичеришехер" >Icherisheher</option>
+            
+              <option value="Сахил" >Sahil</option>
+            
+              <option value="28 Май" >28 May</option>
+            
+              <option value="Гянджлик" >Ganjlik</option>
+            
+              <option value="Нариман Нариманов" >Nariman Narimanov</option>
+            
+              <option value="Бакмил" >Bakmil</option>
+            
+              <option value="Улдуз" >Ulduz</option>
+            
+              <option value="Кёроглу" >Koroglu</option>
+            
+              <option value="Гара Гараев" >Gara Garayev</option>
+            
+              <option value="Нефтчиляр" >Neftchilar</option>
+            
+              <option value="Халглар Достлугу" >Khalqlar Dostlugu</option>
+            
+              <option value="Ахмедлы" >Ahmadli</option>
+            
+              <option value="Ази Асланов" >Azi Aslanov</option>
+            
+              <option value="Низами" >Nizami</option>
+            
+              <option value="Эльмляр Академиясы" >Elmlar Akademiyasi</option>
+            
+              <option value="Иншаатчылар" >Inshaatchilar</option>
+            
+              <option value="20 Января" >20 Yanvar</option>
+            
+              <option value="Мемар Аджеми" >Memar Ajami</option>
+            
+              <option value="Насими" >Nasimi</option>
+            
+              <option value="Азадлыг Проспекти" >Azadliq Prospekti</option>
+            
+              <option value="Дернегюль" >Darnagul</option>
+            
+              <option value="Джафар Джаббарлы" >Jafar Jabbarli</option>
+            
+              <option value="Шах Исмаил Хатаи" >Shah Ismayil Khatai</option>
+            
+              <option value="Автовагзал" >Avtovagzal</option>
+            
+              <option value="8 Ноября" >8 Noyabr</option>
+            
+              <option value="Ходжасан" >Khojasan</option>
+            
+          </select>
+        </label>
+
+        <div class="range-filter filter-age-range" data-range data-min="0" data-max="18">
+          <div class="range-filter-head">
+            <span>Age</span>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <div class="range-filter-inputs">
+            <label class="range-filter-mini">
+              <span>from</span>
+              <input class="field" type="number" min="0" max="18" name="age_from" value="0" data-range-from-input />
+            </label>
+            <label class="range-filter-mini">
+              <span>to</span>
+              <input class="field" type="number" min="0" max="18" name="age_to" value="18" data-range-to-input />
+            </label>
+          </div>
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="18" value="0" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="18" value="18" data-range-to-range />
+          </div>
+        </div>
+
+        <div class="range-filter filter-price-range" data-range data-min="0" data-max="500" data-unit="AZN">
+          <div class="range-filter-head">
+            <span>Price</span>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <div class="range-filter-inputs">
+            <label class="range-filter-mini">
+              <span>from</span>
+              <input class="field" type="number" min="0" max="500" name="price_from" value="0" data-range-from-input />
+            </label>
+            <label class="range-filter-mini">
+              <span>to</span>
+              <input class="field" type="number" min="0" max="500" name="price_to" value="500" data-range-to-input />
+            </label>
+          </div>
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="500" value="0" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="500" value="500" data-range-to-range />
+          </div>
+        </div>
+
+        <label class="filter-item filter-sort">
+          Sort
+          <select class="filter-select" name="sort">
+            <option value="new" selected>Newest first</option>
+            <option value="price_asc" >Price: low to high</option>
+            <option value="price_desc" >Price: high to low</option>
+          </select>
+        </label>
+      
+
+      <div class="actions">
+        <button class="btn icon-btn icon-search" type="submit">Search</button>
+        <a class="link-btn icon-btn icon-reset" href="/en/catalog/">Reset</a>
+      </div>
+    </form>
+
+    <div class="quick-filters ">
+      <span class="quick-filters-label">Quick filters:</span>
+      
+        <a class="chip-link" href="/en/catalog/?category=TECH">Technology</a>
+        <a class="chip-link" href="/en/catalog/?category=SPRT">Sport</a>
+        <a class="chip-link" href="/en/catalog/?category=EDU">Education</a>
+        <a class="chip-link " href="/en/catalog/?min_rating=4">4.0+</a>
+        <a class="chip-link " href="/en/catalog/?min_rating=4.5">4.5+</a>
+        <a class="chip-link" href="/en/catalog/?district=Ясамал">Yasamal</a>
+        <a class="chip-link" href="/en/catalog/?district=Нариманов">Narimanov</a>
+        <a class="chip-link" href="/en/catalog/?sort=new">Newest first</a>
+      
+    </div>
+
+    <div class="results-toolbar">
+      <p class="results-count">
+        
+          17 clubs found
+        
+      </p>
+      <div class="view-switch-wrap">
+        <span class="view-switch-label">Card view:</span>
+        <div class="view-switch" role="group" aria-label="Card view">
+          <a
+            class="chip-link active"
+            href="?view=grid"
+          >Grid cards</a>
+          <a
+            class="chip-link "
+            href="?view=list"
+          >List cards</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+    <div class="catalog-main-column">
+  
+
+  
+
+  
+    <section class="grid ">
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/17-r/" aria-label="R2">
+              
+                <div class="image-placeholder" aria-label="Photo coming soon.">
+                  <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+                  <span class="image-placeholder-text">Photo coming soon.</span>
+                </div>
+              
+            </a>
+            
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/17-r/">R2</a></h3>
+            
+              
+                <p class="card-description">D2</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Education</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+            
+            
+            
+            <form method="post" action="/en/place/17/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/16-%D0%BB%D0%B5%D0%B3%D0%BE-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-bricklab/" aria-label="BrickLab Lego Club">
+              
+                <img src="/media/places/covers/place_15.jpg" alt="BrickLab Lego Club" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  75 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/16-%D0%BB%D0%B5%D0%B3%D0%BE-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-bricklab/">BrickLab Lego Club</a></h3>
+            
+              
+                <p class="card-description">Lego engineering and logic development classes.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Technology</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Pirallahi
+                 / 
+                Avtovagzal
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/16/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">2</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/15-%D0%BB%D0%B5%D1%82%D0%BD%D0%B8%D0%B9-%D0%BB%D0%B0%D0%B3%D0%B5%D1%80%D1%8C-kids-camp-caspian/" aria-label="Kids Camp Caspian">
+              
+                <img src="/media/places/covers/place_14.jpg" alt="Kids Camp Caspian" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  220 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/15-%D0%BB%D0%B5%D1%82%D0%BD%D0%B8%D0%B9-%D0%BB%D0%B0%D0%B3%D0%B5%D1%80%D1%8C-kids-camp-caspian/">Kids Camp Caspian</a></h3>
+            
+              
+                <p class="card-description">Day and outdoor camp with sports and workshops.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Camps</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Sabunchi
+                 / 
+                Koroglu
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/15/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">1</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/14-%D0%BA%D0%B8%D0%BD%D0%BE%D1%88%D0%BA%D0%BE%D0%BB%D0%B0-junior-film/" aria-label="Junior Film School">
+              
+                <img src="/media/places/covers/place_13.jpg" alt="Junior Film School" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  130 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/14-%D0%BA%D0%B8%D0%BD%D0%BE%D1%88%D0%BA%D0%BE%D0%BB%D0%B0-junior-film/">Junior Film School</a></h3>
+            
+              
+                <p class="card-description">Filming, editing and acting basics for teens.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Music and stage</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Garadagh
+                 / 
+                Khojasan
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/14/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/13-%D0%B3%D0%B8%D0%BC%D0%BD%D0%B0%D1%81%D1%82%D0%B8%D0%BA%D0%B0-grace-kids/" aria-label="Grace Kids Gymnastics">
+              
+                <img src="/media/places/covers/place_12.jpg" alt="Grace Kids Gymnastics" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  100 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/13-%D0%B3%D0%B8%D0%BC%D0%BD%D0%B0%D1%81%D1%82%D0%B8%D0%BA%D0%B0-grace-kids/">Grace Kids Gymnastics</a></h3>
+            
+              
+                <p class="card-description">Rhythmic and general gymnastics classes for children.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Sport</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>4.5</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Khazar
+                 / 
+                Koroglu
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/13/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">2</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/12-%D0%BD%D0%B0%D1%83%D1%87%D0%BD%D1%8B%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1-%D1%8D%D0%B2%D1%80%D0%B8%D0%BA%D0%B0/" aria-label="Eureka Science Club">
+              
+                <img src="/media/places/covers/place_11.jpg" alt="Eureka Science Club" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  110 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/12-%D0%BD%D0%B0%D1%83%D1%87%D0%BD%D1%8B%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1-%D1%8D%D0%B2%D1%80%D0%B8%D0%BA%D0%B0/">Eureka Science Club</a></h3>
+            
+              
+                <p class="card-description">Child-friendly chemistry and physics experiments.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Education</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Narimanov
+                 / 
+                Nariman Narimanov
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/12/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/11-%D1%82%D0%B0%D0%BD%D1%86%D0%B5%D0%B2%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F-%D1%88%D0%BA%D0%BE%D0%BB%D0%B0-moveup/" aria-label="MoveUp Dance School">
+              
+                <img src="/media/places/covers/place_10.jpg" alt="MoveUp Dance School" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  95 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/11-%D1%82%D0%B0%D0%BD%D1%86%D0%B5%D0%B2%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F-%D1%88%D0%BA%D0%BE%D0%BB%D0%B0-moveup/">MoveUp Dance School</a></h3>
+            
+              
+                <p class="card-description">Modern dance and choreography classes for kids.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Leisure and fun</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Sabail
+                 / 
+                Icherisheher
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/11/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/10-%D0%B0%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1-smartkids/" aria-label="SmartKids English Club">
+              
+                <img src="/media/places/covers/place_9.jpg" alt="SmartKids English Club" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  90 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/10-%D0%B0%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1-smartkids/">SmartKids English Club</a></h3>
+            
+              
+                <p class="card-description">English courses for children with speaking and grammar practice.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Education</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Nasimi
+                 / 
+                Memar Ajami
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/10/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/9-%D1%80%D0%BE%D0%B1%D0%BE%D1%82%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-robostart/" aria-label="RoboStart Robotics">
+              
+                <img src="/media/places/covers/place_8.jpg" alt="RoboStart Robotics" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  140 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/9-%D1%80%D0%BE%D0%B1%D0%BE%D1%82%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-robostart/">RoboStart Robotics</a></h3>
+            
+              
+                <p class="card-description">Hands-on robotics and engineering classes for children.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Technology</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Surakhani
+                 / 
+                Ahmadli
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/9/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/en/place/8-%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD-%D0%B4%D0%B5%D0%BB%D1%8C%D1%84%D0%B8%D0%BD-kids/" aria-label="Dolphin Kids Pool">
+              
+                <img src="/media/places/covers/place_7.jpg" alt="Dolphin Kids Pool" data-photo-fallback="1" data-placeholder-text="Photo coming soon." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  from
+                  100 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/en/place/8-%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD-%D0%B4%D0%B5%D0%BB%D1%8C%D1%84%D0%B8%D0%BD-kids/">Dolphin Kids Pool</a></h3>
+            
+              
+                <p class="card-description">Swimming classes for kids from beginner level.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Sport</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0.0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Binagadi
+                 / 
+                Azadliq Prospekti
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/en/place/8/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="XuEsX3EB3LSUMm2wlFTWteU1Udya3lN0dDsd6TNFKlYY5aISvHeCjOqy0Qa4K4MW">
+              <input type="hidden" name="next" value="/en/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+    </section>
+  
+
+  
+    <nav class="pagination" aria-label="Pagination">
+      
+        <span class="page-nav disabled">‹ Back</span>
+      
+
+      <div class="page-list">
+        
+          
+            <span class="page-item active">1</span>
+          
+        
+          
+            <a class="page-item" href="?page=2">2</a>
+          
+        
+      </div>
+
+      
+        <a class="page-nav" href="?page=2">Next ›</a>
+      
+    </nav>
+  
+
+  <section class="panel">
+    <h2>Frequently searched</h2>
+    <div class="home-grid2">
+      <a class="link-btn" href="/en/catalog/">Clubs for children in Baku</a>
+      <a class="link-btn" href="/en/catalog/?category=EDU">Courses for children in Baku</a>
+      <a class="link-btn" href="/en/catalog/?category=SPRT">Sports sections in Baku</a>
+      <a class="link-btn" href="/en/catalog/?category=ART">Creative clubs in Baku</a>
+      <a class="link-btn" href="/en/catalog/?category=TECH&q=program">Programming for children in Baku</a>
+    </div>
+  </section>
+
+  
+    </div>
+    </div>
+  
+  <script>
+    (function () {
+      document.querySelectorAll("[data-range]").forEach(function (root) {
+        const min = Number(root.dataset.min || 0);
+        const max = Number(root.dataset.max || 100);
+        const unit = root.dataset.unit || "";
+        const fromInput = root.querySelector("[data-range-from-input]");
+        const toInput = root.querySelector("[data-range-to-input]");
+        const fromRange = root.querySelector("[data-range-from-range]");
+        const toRange = root.querySelector("[data-range-to-range]");
+        const caption = root.querySelector("[data-range-caption]");
+        if (!fromInput || !toInput || !fromRange || !toRange) return;
+
+        function clamp(v) {
+          const n = Number(v);
+          if (!Number.isFinite(n)) return min;
+          return Math.min(max, Math.max(min, Math.round(n)));
+        }
+
+        function updateCaption(a, b) {
+          if (!caption) return;
+          caption.textContent = unit ? `${a}–${b} ${unit}` : `${a}–${b}`;
+        }
+
+        function syncFromInput() {
+          let a = clamp(fromInput.value || fromRange.value);
+          let b = clamp(toInput.value || toRange.value);
+          if (a > b) b = a;
+          fromInput.value = a;
+          toInput.value = b;
+          fromRange.value = a;
+          toRange.value = b;
+          updateCaption(a, b);
+        }
+
+        function syncFromRange() {
+          let a = clamp(fromRange.value);
+          let b = clamp(toRange.value);
+          if (a > b) {
+            if (document.activeElement === fromRange) b = a;
+            else a = b;
+          }
+          fromInput.value = a;
+          toInput.value = b;
+          fromRange.value = a;
+          toRange.value = b;
+          updateCaption(a, b);
+        }
+
+        ["input", "change"].forEach((evt) => {
+          fromInput.addEventListener(evt, syncFromInput);
+          toInput.addEventListener(evt, syncFromInput);
+          fromRange.addEventListener(evt, syncFromRange);
+          toRange.addEventListener(evt, syncFromRange);
+        });
+
+        syncFromInput();
+      });
+    })();
+
+    (function () {
+      const openBtn = document.querySelector("[data-filters-open]");
+      const closeBtn = document.querySelector("[data-filters-close]");
+      const backdrop = document.querySelector("[data-filters-backdrop]");
+      const drawer = document.querySelector("[data-filters-drawer]");
+
+      if (!openBtn || !closeBtn || !backdrop || !drawer) return;
+
+      const mobileMedia = window.matchMedia("(max-width: 760px)");
+
+      function setDrawerOpen(isOpen) {
+        document.body.classList.toggle("filters-drawer-open", isOpen);
+        openBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        drawer.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        backdrop.hidden = !isOpen;
+      }
+
+      openBtn.addEventListener("click", function () {
+        setDrawerOpen(true);
+      });
+
+      closeBtn.addEventListener("click", function () {
+        setDrawerOpen(false);
+      });
+
+      backdrop.addEventListener("click", function () {
+        setDrawerOpen(false);
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          setDrawerOpen(false);
+        }
+      });
+
+      function handleViewportChange(e) {
+        if (!e.matches) {
+          setDrawerOpen(false);
+          drawer.setAttribute("aria-hidden", "false");
+        }
+      }
+
+      if (typeof mobileMedia.addEventListener === "function") {
+        mobileMedia.addEventListener("change", handleViewportChange);
+      } else if (typeof mobileMedia.addListener === "function") {
+        mobileMedia.addListener(handleViewportChange);
+      }
+
+      if (mobileMedia.matches) {
+        setDrawerOpen(false);
+      } else {
+        drawer.setAttribute("aria-hidden", "false");
+      }
+    })();
+  </script>
+
+      </main>
+
+      <footer class="site-footer panel">
+        <div class="footer-grid">
+          <section>
+            <h3>About</h3>
+            <p>KidsMap is a catalog of kids clubs and courses in Baku.</p>
+          </section>
+          <section>
+            <h3>Contacts</h3>
+            
+              <p><a href="tel:+994000000000">+994 00 000 00 00</a></p>
+            
+            
+              <p><a href="mailto:kidsmap@example.com">kidsmap@example.com</a></p>
+            
+          </section>
+          <section>
+            <h3>Find us on Instagram</h3>
+            
+              <p><a href="https://instagram.com/kidsmap" target="_blank" rel="noopener">Instagram</a></p>
+            
+            
+          </section>
+        </div>
+      </footer>
+    </div>
+    <script>
+      (function () {
+        function buildImagePlaceholder(text) {
+          const wrap = document.createElement("div");
+          wrap.className = "image-placeholder";
+          wrap.setAttribute("aria-label", text);
+
+          const icon = document.createElement("span");
+          icon.className = "image-placeholder-icon";
+          icon.setAttribute("aria-hidden", "true");
+          icon.textContent = "📷";
+
+          const label = document.createElement("span");
+          label.className = "image-placeholder-text";
+          label.textContent = text;
+
+          wrap.appendChild(icon);
+          wrap.appendChild(label);
+          return wrap;
+        }
+
+        function attachImageFallbacks() {
+          document.querySelectorAll("img[data-photo-fallback]").forEach(function (img) {
+            const text = img.getAttribute("data-placeholder-text") || "Photo coming soon.";
+            const applyFallback = function () {
+              const container = img.closest(".card-media");
+              if (!container || container.querySelector(".image-placeholder")) return;
+              img.remove();
+              container.appendChild(buildImagePlaceholder(text));
+            };
+
+            img.addEventListener("error", applyFallback);
+            if (img.complete && img.naturalWidth === 0) {
+              applyFallback();
+            }
+          });
+        }
+
+        attachImageFallbacks();
+
+        function updateLikeForm(form, payload) {
+          if (!payload || payload.ok !== true) return;
+          const button = form.querySelector(".like-btn");
+          const countEl = form.querySelector(".like-count");
+          if (button) {
+            button.classList.toggle("active", !!payload.liked);
+            button.setAttribute("aria-pressed", payload.liked ? "true" : "false");
+            button.classList.remove("like-pop");
+            // restart keyframe animation for each state change
+            void button.offsetWidth;
+            button.classList.add("like-pop");
+          }
+          if (countEl && typeof payload.likes_count === "number") {
+            countEl.textContent = payload.likes_count;
+          }
+        }
+
+        document.addEventListener("submit", async function (event) {
+          const form = event.target;
+          if (!(form instanceof HTMLFormElement)) return;
+          if (!form.matches("[data-like-form]")) return;
+
+          event.preventDefault();
+          const button = form.querySelector(".like-btn");
+          if (button && button.disabled) return;
+          if (button) button.disabled = true;
+
+          try {
+            const response = await fetch(form.action, {
+              method: "POST",
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+              body: new FormData(form),
+              credentials: "same-origin",
+            });
+            if (!response.ok) throw new Error("Request failed");
+            const payload = await response.json();
+            updateLikeForm(form, payload);
+          } catch (err) {
+            form.submit();
+          } finally {
+            if (button) button.disabled = false;
+          }
+        });
+
+        (function () {
+          const langMenus = Array.from(document.querySelectorAll(".lang-menu"));
+          if (!langMenus.length) return;
+
+          document.addEventListener("click", function (event) {
+            langMenus.forEach(function (menu) {
+              if (!menu.hasAttribute("open")) return;
+              if (menu.contains(event.target)) return;
+              menu.removeAttribute("open");
+            });
+          });
+
+          document.addEventListener("keydown", function (event) {
+            if (event.key !== "Escape") return;
+            langMenus.forEach(function (menu) {
+              menu.removeAttribute("open");
+            });
+          });
+        })();
+
+        (function () {
+          if (!("IntersectionObserver" in window)) return;
+          if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+          const targets = Array.from(
+            document.querySelectorAll(".panel, .card, .home-tile, .trust-card, .faq-card")
+          );
+          if (!targets.length) return;
+
+          targets.forEach(function (el, idx) {
+            el.classList.add("reveal-item");
+            el.style.setProperty("--reveal-order", String(idx % 8));
+          });
+
+          const observer = new IntersectionObserver(
+            function (entries, obs) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-visible");
+                obs.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.14, rootMargin: "0px 0px -8% 0px" }
+          );
+
+          targets.forEach(function (el) {
+            observer.observe(el);
+          });
+        })();
+
+        (function () {
+          const trackUrl = "/en/events/track/";
+          if (!trackUrl) return;
+
+          function send(payload) {
+            if (!payload || !payload.event_type) return;
+            try {
+              if (navigator.sendBeacon) {
+                const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+                navigator.sendBeacon(trackUrl, blob);
+                return;
+              }
+            } catch (err) {}
+
+            fetch(trackUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+              credentials: "same-origin",
+              keepalive: true,
+            }).catch(function () {});
+          }
+
+          document.addEventListener("click", function (event) {
+            const target = event.target.closest("[data-track-event]");
+            if (!target) return;
+
+            const placeIdRaw = target.getAttribute("data-track-place-id");
+            const placeId = placeIdRaw && /^\d+$/.test(placeIdRaw) ? Number(placeIdRaw) : null;
+
+            send({
+              event_type: target.getAttribute("data-track-event"),
+              place_id: placeId,
+              source: target.getAttribute("data-track-source") || "",
+              path: window.location.pathname,
+            });
+          });
+        })();
+
+      })();
+    </script>
+  </body>
+</html>

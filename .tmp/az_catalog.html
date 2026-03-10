@@ -1,0 +1,1228 @@
+
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kataloq</title>
+    <meta name="description" content="Bakıda uşaq dərnəkləri və məşğələləri kataloqu. Kateqoriya, rayon, metro, yaş və qiymət üzrə filtrlər." />
+    <link rel="canonical" href="http://testserver/az/catalog/" />
+    
+      <link rel="alternate" hreflang="ru" href="http://testserver/ru/catalog/" />
+    
+      <link rel="alternate" hreflang="az" href="http://testserver/az/catalog/" />
+    
+      <link rel="alternate" hreflang="en" href="http://testserver/en/catalog/" />
+    
+    <link rel="alternate" hreflang="x-default" href="http://testserver/ru/catalog/" />
+    <meta property="og:site_name" content="KidsMap" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Kataloq | KidsMap" />
+    <meta property="og:description" content="KidsMap Bakıda uşaq dərnəkləri və bölmələrinin kataloqudur." />
+    <meta property="og:url" content="http://testserver/az/catalog/" />
+    <meta property="og:image" content="http://testserver/static/img/logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Kataloq | KidsMap" />
+    <meta name="twitter:description" content="KidsMap Bakıda uşaq dərnəkləri və bölmələrinin kataloqudur." />
+    <meta name="twitter:image" content="http://testserver/static/img/logo.png" />
+    <link rel="icon" type="image/png" href="/static/img/logo.png" />
+    <link rel="apple-touch-icon" href="/static/img/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/site.css" />
+  </head>
+  <body
+    class="page-place_list"
+    
+  >
+    <div class="bg-scene" aria-hidden="true">
+      <span class="bg-orb orb-a"></span>
+      <span class="bg-orb orb-b"></span>
+      <span class="bg-orb orb-c"></span>
+      <span class="bg-orb orb-d"></span>
+      <span class="bg-glow glow-a"></span>
+      <span class="bg-glow glow-b"></span>
+      <span class="bg-ribbon ribbon-a"></span>
+      <span class="bg-ribbon ribbon-b"></span>
+      <span class="bg-spark spark-a"></span>
+      <span class="bg-spark spark-b"></span>
+      <span class="bg-spark spark-c"></span>
+    </div>
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand-wrap" href="/az/">
+          <span class="logo-slot" style="--logo-url:url('/static/img/logo.png');" aria-hidden="true"></span>
+          <span class="brand">KidsMap</span>
+        </a>
+
+        <nav class="nav">
+          <a
+            href="/az/"
+            class=""
+            
+          >Ana səhifə</a>
+          <a
+            href="/az/catalog/"
+            class="active"
+            aria-current="page"
+          >Kataloq</a>
+          <a
+            href="/az/about/"
+            class=""
+            
+          >Layihə haqqında</a>
+          <a
+            href="/az/contacts/"
+            class=""
+            
+          >Əlaqə</a>
+        </nav>
+
+        <div class="topbar-right">
+          <div class="auth-switch" aria-label="Аккаунт">
+            
+              <a class="auth-pill" href="/az/auth/login/?next=/az/catalog/">Войти</a>
+              <a class="auth-pill auth-pill-primary" href="/az/auth/register/?next=/az/catalog/">Регистрация</a>
+            
+          </div>
+
+          <div class="lang-switch" aria-label="Dil">
+            
+            <div class="lang-desktop">
+              <a class="lang-pill " href="http://testserver/ru/catalog/" hreflang="ru">🇷🇺 RU</a>
+              <a class="lang-pill active" href="http://testserver/az/catalog/" hreflang="az">🇦🇿 AZ</a>
+              <a class="lang-pill " href="http://testserver/en/catalog/" hreflang="en">🇬🇧 EN</a>
+            </div>
+
+            <details class="lang-menu lang-mobile">
+              <summary class="lang-current">
+                🇦🇿 AZ
+                <span class="lang-arrow" aria-hidden="true"></span>
+              </summary>
+              <div class="lang-dropdown">
+                <a class="lang-pill " href="http://testserver/ru/catalog/" hreflang="ru">🇷🇺 RU</a>
+                <a class="lang-pill active" href="http://testserver/az/catalog/" hreflang="az">🇦🇿 AZ</a>
+                <a class="lang-pill " href="http://testserver/en/catalog/" hreflang="en">🇬🇧 EN</a>
+              </div>
+            </details>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        
+  <section class="hero">
+    <div class="hero-art" aria-hidden="true"></div>
+    <div class="hero-text">
+      
+        <h1>Kataloq</h1>
+        <p>Uşağınız üçün ən yaxşı məşğələləri tapın</p>
+      
+    </div>
+  </section>
+
+  
+    <div class="catalog-layout">
+  
+
+  <section class="panel filter-panel filter-panel-catalog">
+    <p class="filter-intro">
+      
+        Настройте фильтры и нажмите «Поиск», чтобы быстро найти подходящие кружки.
+      
+    </p>
+    
+      <div class="mobile-filter-toolbar">
+        <button
+          type="button"
+          class="btn mobile-filters-toggle"
+          data-filters-open
+          aria-controls="catalog-filters"
+          aria-expanded="false"
+        >
+          Фильтры
+        </button>
+      </div>
+      <div class="mobile-filters-backdrop" data-filters-backdrop hidden></div>
+    
+    <form
+      method="get"
+      class="filters filters-catalog"
+      id="catalog-filters" data-filters-drawer aria-hidden="false"
+    >
+      
+        <div class="mobile-filters-head">
+          <h2>Фильтры</h2>
+          <button type="button" class="mobile-filters-close" data-filters-close aria-label="Закрыть">×</button>
+        </div>
+      
+      <input type="hidden" name="view" value="grid" />
+      <label class="filters-search">
+        Ada görə axtarış
+        <input class="field search-field" name="q" value="" placeholder="məsələn robototexnika və ya english" />
+      </label>
+
+      <label class="filter-item filter-category">
+        Kateqoriya
+        <select class="filter-select" name="category">
+          <option value="">Hamısı</option>
+          
+            <option value="SPRT" >İdman</option>
+          
+            <option value="ART" >Yaradıcılıq</option>
+          
+            <option value="MUS" >Musiqi və səhnə</option>
+          
+            <option value="EDU" >Təhsil</option>
+          
+            <option value="TECH" >Texnologiya</option>
+          
+            <option value="FUN" >Əyləncə və asudə vaxt</option>
+          
+            <option value="CAMP" >Düşərgələr</option>
+          
+        </select>
+      </label>
+
+      <label class="filter-item filter-district">
+        Rayon
+        <select class="filter-select" name="district">
+          <option value="">Hamısı</option>
+          
+            <option value="Ясамал" >Ясамал</option>
+          
+            <option value="Насими" >Насими</option>
+          
+            <option value="Низами" >Низами</option>
+          
+            <option value="Нариманов" >Нариманов</option>
+          
+            <option value="Сабаиль" >Сабаиль</option>
+          
+            <option value="Сабунчи" >Сабунчи</option>
+          
+            <option value="Бинагади" >Бинагади</option>
+          
+            <option value="Сураханы" >Сураханы</option>
+          
+            <option value="Хатаи" >Хатаи</option>
+          
+            <option value="Хазар" >Хазар</option>
+          
+            <option value="Гарадаг" >Гарадаг</option>
+          
+            <option value="Пираллахы" >Пираллахы</option>
+          
+        </select>
+      </label>
+
+      <label class="filter-item filter-rating">
+        Reytinq ən azı
+        <select class="filter-select" name="min_rating">
+          <option value="">Hamısı</option>
+          <option value="3" >3.0+</option>
+          <option value="4" >4.0+</option>
+          <option value="4.5" >4.5+</option>
+          <option value="5" >5.0</option>
+        </select>
+      </label>
+
+      
+        <label class="filter-item filter-metro">
+          Metro
+          <select class="filter-select" name="metro">
+            <option value="">Hamısı</option>
+            
+              <option value="Ичеришехер" >Ичеришехер</option>
+            
+              <option value="Сахил" >Сахил</option>
+            
+              <option value="28 Май" >28 Май</option>
+            
+              <option value="Гянджлик" >Гянджлик</option>
+            
+              <option value="Нариман Нариманов" >Нариман Нариманов</option>
+            
+              <option value="Бакмил" >Бакмил</option>
+            
+              <option value="Улдуз" >Улдуз</option>
+            
+              <option value="Кёроглу" >Кёроглу</option>
+            
+              <option value="Гара Гараев" >Гара Гараев</option>
+            
+              <option value="Нефтчиляр" >Нефтчиляр</option>
+            
+              <option value="Халглар Достлугу" >Халглар Достлугу</option>
+            
+              <option value="Ахмедлы" >Ахмедлы</option>
+            
+              <option value="Ази Асланов" >Ази Асланов</option>
+            
+              <option value="Низами" >Низами</option>
+            
+              <option value="Эльмляр Академиясы" >Эльмляр Академиясы</option>
+            
+              <option value="Иншаатчылар" >Иншаатчылар</option>
+            
+              <option value="20 Января" >20 Января</option>
+            
+              <option value="Мемар Аджеми" >Мемар Аджеми</option>
+            
+              <option value="Насими" >Насими</option>
+            
+              <option value="Азадлыг Проспекти" >Азадлыг Проспекти</option>
+            
+              <option value="Дернегюль" >Дернегюль</option>
+            
+              <option value="Джафар Джаббарлы" >Джафар Джаббарлы</option>
+            
+              <option value="Шах Исмаил Хатаи" >Шах Исмаил Хатаи</option>
+            
+              <option value="Автовагзал" >Автовагзал</option>
+            
+              <option value="8 Ноября" >8 Ноября</option>
+            
+              <option value="Ходжасан" >Ходжасан</option>
+            
+          </select>
+        </label>
+
+        <div class="range-filter filter-age-range" data-range data-min="0" data-max="18">
+          <div class="range-filter-head">
+            <span>Yaş</span>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <div class="range-filter-inputs">
+            <label class="range-filter-mini">
+              <span>Şəkil</span>
+              <input class="field" type="number" min="0" max="18" name="age_from" value="0" data-range-from-input />
+            </label>
+            <label class="range-filter-mini">
+              <span>до</span>
+              <input class="field" type="number" min="0" max="18" name="age_to" value="18" data-range-to-input />
+            </label>
+          </div>
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="18" value="0" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="18" value="18" data-range-to-range />
+          </div>
+        </div>
+
+        <div class="range-filter filter-price-range" data-range data-min="0" data-max="500" data-unit="AZN">
+          <div class="range-filter-head">
+            <span>Qiymət</span>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <div class="range-filter-inputs">
+            <label class="range-filter-mini">
+              <span>Şəkil</span>
+              <input class="field" type="number" min="0" max="500" name="price_from" value="0" data-range-from-input />
+            </label>
+            <label class="range-filter-mini">
+              <span>до</span>
+              <input class="field" type="number" min="0" max="500" name="price_to" value="500" data-range-to-input />
+            </label>
+          </div>
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="500" value="0" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="500" value="500" data-range-to-range />
+          </div>
+        </div>
+
+        <label class="filter-item filter-sort">
+          Sıralama
+          <select class="filter-select" name="sort">
+            <option value="new" selected>Əvvəlcə yenilər</option>
+            <option value="price_asc" >Qiymət: artan</option>
+            <option value="price_desc" >Qiymət: azalan</option>
+          </select>
+        </label>
+      
+
+      <div class="actions">
+        <button class="btn icon-btn icon-search" type="submit">Axtar</button>
+        <a class="link-btn icon-btn icon-reset" href="/az/catalog/">Sıfırla</a>
+      </div>
+    </form>
+
+    <div class="quick-filters ">
+      <span class="quick-filters-label">Sürətli filtrlər:</span>
+      
+        <a class="chip-link" href="/az/catalog/?category=TECH">Texnologiya</a>
+        <a class="chip-link" href="/az/catalog/?category=SPRT">İdman</a>
+        <a class="chip-link" href="/az/catalog/?category=EDU">Təhsil</a>
+        <a class="chip-link " href="/az/catalog/?min_rating=4">4.0+</a>
+        <a class="chip-link " href="/az/catalog/?min_rating=4.5">4.5+</a>
+        <a class="chip-link" href="/az/catalog/?district=Ясамал">Yasamal</a>
+        <a class="chip-link" href="/az/catalog/?district=Нариманов">Nərimanov</a>
+        <a class="chip-link" href="/az/catalog/?sort=new">Əvvəlcə yenilər</a>
+      
+    </div>
+
+    <div class="results-toolbar">
+      <p class="results-count">
+        
+          Найдено 17 кружков
+        
+      </p>
+      <div class="view-switch-wrap">
+        <span class="view-switch-label">Вид карточек:</span>
+        <div class="view-switch" role="group" aria-label="Вид карточек">
+          <a
+            class="chip-link active"
+            href="?view=grid"
+          >Обычные карточки</a>
+          <a
+            class="chip-link "
+            href="?view=list"
+          >Карточки списком</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+    <div class="catalog-main-column">
+  
+
+  
+
+  
+    <section class="grid ">
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/17-r/" aria-label="R2">
+              
+                <div class="image-placeholder" aria-label="Şəkil tezliklə əlavə olunacaq.">
+                  <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+                  <span class="image-placeholder-text">Şəkil tezliklə əlavə olunacaq.</span>
+                </div>
+              
+            </a>
+            
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/17-r/">R2</a></h3>
+            
+              
+                <p class="card-description">D2</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Təhsil</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+            
+            
+            
+            <form method="post" action="/az/place/17/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/16-%D0%BB%D0%B5%D0%B3%D0%BE-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-bricklab/" aria-label="BrickLab Lego Klubu">
+              
+                <img src="/media/places/covers/place_15.jpg" alt="BrickLab Lego Klubu" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  75 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/16-%D0%BB%D0%B5%D0%B3%D0%BE-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-bricklab/">BrickLab Lego Klubu</a></h3>
+            
+              
+                <p class="card-description">5-11 yas ucun lego quruculugu ve mentiq inkisafi.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Texnologiya</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Пираллахы
+                 / 
+                Автовагзал
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/16/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">2</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/15-%D0%BB%D0%B5%D1%82%D0%BD%D0%B8%D0%B9-%D0%BB%D0%B0%D0%B3%D0%B5%D1%80%D1%8C-kids-camp-caspian/" aria-label="Kids Camp Caspian">
+              
+                <img src="/media/places/covers/place_14.jpg" alt="Kids Camp Caspian" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  220 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/15-%D0%BB%D0%B5%D1%82%D0%BD%D0%B8%D0%B9-%D0%BB%D0%B0%D0%B3%D0%B5%D1%80%D1%8C-kids-camp-caspian/">Kids Camp Caspian</a></h3>
+            
+              
+                <p class="card-description">Gunluk ve seyyar dusherge proqrami: idman ve master-klasslar.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Düşərgələr</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Сабунчи
+                 / 
+                Кёроглу
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/15/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">1</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/14-%D0%BA%D0%B8%D0%BD%D0%BE%D1%88%D0%BA%D0%BE%D0%BB%D0%B0-junior-film/" aria-label="Junior Film Mektebi">
+              
+                <img src="/media/places/covers/place_13.jpg" alt="Junior Film Mektebi" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  130 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/14-%D0%BA%D0%B8%D0%BD%D0%BE%D1%88%D0%BA%D0%BE%D0%BB%D0%B0-junior-film/">Junior Film Mektebi</a></h3>
+            
+              
+                <p class="card-description">Yeniyetmeler ucun cekilis, montaj ve aktyorluq esaslari.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Musiqi və səhnə</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Гарадаг
+                 / 
+                Ходжасан
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/14/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/13-%D0%B3%D0%B8%D0%BC%D0%BD%D0%B0%D1%81%D1%82%D0%B8%D0%BA%D0%B0-grace-kids/" aria-label="Grace Kids Gimnastika">
+              
+                <img src="/media/places/covers/place_12.jpg" alt="Grace Kids Gimnastika" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  100 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/13-%D0%B3%D0%B8%D0%BC%D0%BD%D0%B0%D1%81%D1%82%D0%B8%D0%BA%D0%B0-grace-kids/">Grace Kids Gimnastika</a></h3>
+            
+              
+                <p class="card-description">4-12 yas ucun gimnastika dersleri.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">İdman</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>4,5</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Хазар
+                 / 
+                Кёроглу
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/13/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">2</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/12-%D0%BD%D0%B0%D1%83%D1%87%D0%BD%D1%8B%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1-%D1%8D%D0%B2%D1%80%D0%B8%D0%BA%D0%B0/" aria-label="Evrika Elm Klubu">
+              
+                <img src="/media/places/covers/place_11.jpg" alt="Evrika Elm Klubu" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  110 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/12-%D0%BD%D0%B0%D1%83%D1%87%D0%BD%D1%8B%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1-%D1%8D%D0%B2%D1%80%D0%B8%D0%BA%D0%B0/">Evrika Elm Klubu</a></h3>
+            
+              
+                <p class="card-description">Usaqlar ucun tehlukesiz kimya ve fizika tecrubeleri.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Təhsil</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Нариманов
+                 / 
+                Нариман Нариманов
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/12/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/11-%D1%82%D0%B0%D0%BD%D1%86%D0%B5%D0%B2%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F-%D1%88%D0%BA%D0%BE%D0%BB%D0%B0-moveup/" aria-label="MoveUp Reqs Mektebi">
+              
+                <img src="/media/places/covers/place_10.jpg" alt="MoveUp Reqs Mektebi" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  95 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/11-%D1%82%D0%B0%D0%BD%D1%86%D0%B5%D0%B2%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F-%D1%88%D0%BA%D0%BE%D0%BB%D0%B0-moveup/">MoveUp Reqs Mektebi</a></h3>
+            
+              
+                <p class="card-description">Usaqlar ucun muasir reqs ve xoreoqrafiya dersleri.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Əyləncə və asudə vaxt</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Сабаиль
+                 / 
+                Ичеришехер
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/11/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/10-%D0%B0%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1-smartkids/" aria-label="SmartKids Ingilis Klubu">
+              
+                <img src="/media/places/covers/place_9.jpg" alt="SmartKids Ingilis Klubu" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  90 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/10-%D0%B0%D0%BD%D0%B3%D0%BB%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1-smartkids/">SmartKids Ingilis Klubu</a></h3>
+            
+              
+                <p class="card-description">5-14 yas ucun ingilis dili: danisiq, qrammatika, oyunlarla oyrenme.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Təhsil</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Насими
+                 / 
+                Мемар Аджеми
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/10/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/9-%D1%80%D0%BE%D0%B1%D0%BE%D1%82%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-robostart/" aria-label="RoboStart Robototexnika">
+              
+                <img src="/media/places/covers/place_8.jpg" alt="RoboStart Robototexnika" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  140 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/9-%D1%80%D0%BE%D0%B1%D0%BE%D1%82%D0%BE%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B0-robostart/">RoboStart Robototexnika</a></h3>
+            
+              
+                <p class="card-description">Robototexnika ve muhendislik dusuncesi uzre praktiki dersler.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">Texnologiya</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Сураханы
+                 / 
+                Ахмедлы
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/9/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+        <article class="card">
+          <div class="card-media">
+            <a class="card-media-link" href="/az/place/8-%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD-%D0%B4%D0%B5%D0%BB%D1%8C%D1%84%D0%B8%D0%BD-kids/" aria-label="Delfin Kids Hovuzu">
+              
+                <img src="/media/places/covers/place_7.jpg" alt="Delfin Kids Hovuzu" data-photo-fallback="1" data-placeholder-text="Şəkil tezliklə əlavə olunacaq." />
+              
+            </a>
+            
+              
+                <span class="card-price-pill">
+                  Şəkil
+                  100 AZN
+                </span>
+              
+            
+          </div>
+          <div class="card-body">
+            <h3><a href="/az/place/8-%D0%B1%D0%B0%D1%81%D1%81%D0%B5%D0%B9%D0%BD-%D0%B4%D0%B5%D0%BB%D1%8C%D1%84%D0%B8%D0%BD-kids/">Delfin Kids Hovuzu</a></h3>
+            
+              
+                <p class="card-description">Usaqlar ucun uzguculuk dersleri, baslangic seviyesi daxil.</p>
+              
+            
+            <div class="card-headline">
+              <span class="chip">İdman</span>
+              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>0,0</span>
+            </div>
+            
+            
+              <p class="meta card-location">
+                Бинагади
+                 / 
+                Азадлыг Проспекти
+              </p>
+            
+            
+            
+            
+            <form method="post" action="/az/place/8/like/" class="like-form" data-like-form>
+              <input type="hidden" name="csrfmiddlewaretoken" value="PFwTVZNaf2Jcg4TYjtQCFv6o1BD5lnN7M4lqzQ9OOBD8kAIgJN0ZqyLraKbPMSXX">
+              <input type="hidden" name="next" value="/az/catalog/" />
+              <button type="submit" class="like-btn ">
+                ♥ <span class="like-count">0</span>
+              </button>
+            </form>
+          </div>
+        </article>
+      
+    </section>
+  
+
+  
+    <nav class="pagination" aria-label="Пагинация">
+      
+        <span class="page-nav disabled">‹ Geri</span>
+      
+
+      <div class="page-list">
+        
+          
+            <span class="page-item active">1</span>
+          
+        
+          
+            <a class="page-item" href="?page=2">2</a>
+          
+        
+      </div>
+
+      
+        <a class="page-nav" href="?page=2">İrəli ›</a>
+      
+    </nav>
+  
+
+  <section class="panel">
+    <h2>Tez-tez axtarılır</h2>
+    <div class="home-grid2">
+      <a class="link-btn" href="/az/catalog/">Bakıda uşaqlar üçün dərnəklər</a>
+      <a class="link-btn" href="/az/catalog/?category=EDU">Bakıda uşaqlar üçün kurslar</a>
+      <a class="link-btn" href="/az/catalog/?category=SPRT">Bakıda idman bölmələri</a>
+      <a class="link-btn" href="/az/catalog/?category=ART">Bakıda yaradıcı dərnəklər</a>
+      <a class="link-btn" href="/az/catalog/?category=TECH&q=program">Bakıda uşaqlar üçün proqramlaşdırma</a>
+    </div>
+  </section>
+
+  
+    </div>
+    </div>
+  
+  <script>
+    (function () {
+      document.querySelectorAll("[data-range]").forEach(function (root) {
+        const min = Number(root.dataset.min || 0);
+        const max = Number(root.dataset.max || 100);
+        const unit = root.dataset.unit || "";
+        const fromInput = root.querySelector("[data-range-from-input]");
+        const toInput = root.querySelector("[data-range-to-input]");
+        const fromRange = root.querySelector("[data-range-from-range]");
+        const toRange = root.querySelector("[data-range-to-range]");
+        const caption = root.querySelector("[data-range-caption]");
+        if (!fromInput || !toInput || !fromRange || !toRange) return;
+
+        function clamp(v) {
+          const n = Number(v);
+          if (!Number.isFinite(n)) return min;
+          return Math.min(max, Math.max(min, Math.round(n)));
+        }
+
+        function updateCaption(a, b) {
+          if (!caption) return;
+          caption.textContent = unit ? `${a}–${b} ${unit}` : `${a}–${b}`;
+        }
+
+        function syncFromInput() {
+          let a = clamp(fromInput.value || fromRange.value);
+          let b = clamp(toInput.value || toRange.value);
+          if (a > b) b = a;
+          fromInput.value = a;
+          toInput.value = b;
+          fromRange.value = a;
+          toRange.value = b;
+          updateCaption(a, b);
+        }
+
+        function syncFromRange() {
+          let a = clamp(fromRange.value);
+          let b = clamp(toRange.value);
+          if (a > b) {
+            if (document.activeElement === fromRange) b = a;
+            else a = b;
+          }
+          fromInput.value = a;
+          toInput.value = b;
+          fromRange.value = a;
+          toRange.value = b;
+          updateCaption(a, b);
+        }
+
+        ["input", "change"].forEach((evt) => {
+          fromInput.addEventListener(evt, syncFromInput);
+          toInput.addEventListener(evt, syncFromInput);
+          fromRange.addEventListener(evt, syncFromRange);
+          toRange.addEventListener(evt, syncFromRange);
+        });
+
+        syncFromInput();
+      });
+    })();
+
+    (function () {
+      const openBtn = document.querySelector("[data-filters-open]");
+      const closeBtn = document.querySelector("[data-filters-close]");
+      const backdrop = document.querySelector("[data-filters-backdrop]");
+      const drawer = document.querySelector("[data-filters-drawer]");
+
+      if (!openBtn || !closeBtn || !backdrop || !drawer) return;
+
+      const mobileMedia = window.matchMedia("(max-width: 760px)");
+
+      function setDrawerOpen(isOpen) {
+        document.body.classList.toggle("filters-drawer-open", isOpen);
+        openBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        drawer.setAttribute("aria-hidden", isOpen ? "false" : "true");
+        backdrop.hidden = !isOpen;
+      }
+
+      openBtn.addEventListener("click", function () {
+        setDrawerOpen(true);
+      });
+
+      closeBtn.addEventListener("click", function () {
+        setDrawerOpen(false);
+      });
+
+      backdrop.addEventListener("click", function () {
+        setDrawerOpen(false);
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          setDrawerOpen(false);
+        }
+      });
+
+      function handleViewportChange(e) {
+        if (!e.matches) {
+          setDrawerOpen(false);
+          drawer.setAttribute("aria-hidden", "false");
+        }
+      }
+
+      if (typeof mobileMedia.addEventListener === "function") {
+        mobileMedia.addEventListener("change", handleViewportChange);
+      } else if (typeof mobileMedia.addListener === "function") {
+        mobileMedia.addListener(handleViewportChange);
+      }
+
+      if (mobileMedia.matches) {
+        setDrawerOpen(false);
+      } else {
+        drawer.setAttribute("aria-hidden", "false");
+      }
+    })();
+  </script>
+
+      </main>
+
+      <footer class="site-footer panel">
+        <div class="footer-grid">
+          <section>
+            <h3>Layihə haqqında</h3>
+            <p>KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.</p>
+          </section>
+          <section>
+            <h3>Əlaqə</h3>
+            
+              <p><a href="tel:+994000000000">+994 00 000 00 00</a></p>
+            
+            
+              <p><a href="mailto:kidsmap@example.com">kidsmap@example.com</a></p>
+            
+          </section>
+          <section>
+            <h3>Instagram-da biz</h3>
+            
+              <p><a href="https://instagram.com/kidsmap" target="_blank" rel="noopener">Instagram</a></p>
+            
+            
+          </section>
+        </div>
+      </footer>
+    </div>
+    <script>
+      (function () {
+        function buildImagePlaceholder(text) {
+          const wrap = document.createElement("div");
+          wrap.className = "image-placeholder";
+          wrap.setAttribute("aria-label", text);
+
+          const icon = document.createElement("span");
+          icon.className = "image-placeholder-icon";
+          icon.setAttribute("aria-hidden", "true");
+          icon.textContent = "📷";
+
+          const label = document.createElement("span");
+          label.className = "image-placeholder-text";
+          label.textContent = text;
+
+          wrap.appendChild(icon);
+          wrap.appendChild(label);
+          return wrap;
+        }
+
+        function attachImageFallbacks() {
+          document.querySelectorAll("img[data-photo-fallback]").forEach(function (img) {
+            const text = img.getAttribute("data-placeholder-text") || "Şəkil tezliklə əlavə olunacaq.";
+            const applyFallback = function () {
+              const container = img.closest(".card-media");
+              if (!container || container.querySelector(".image-placeholder")) return;
+              img.remove();
+              container.appendChild(buildImagePlaceholder(text));
+            };
+
+            img.addEventListener("error", applyFallback);
+            if (img.complete && img.naturalWidth === 0) {
+              applyFallback();
+            }
+          });
+        }
+
+        attachImageFallbacks();
+
+        function updateLikeForm(form, payload) {
+          if (!payload || payload.ok !== true) return;
+          const button = form.querySelector(".like-btn");
+          const countEl = form.querySelector(".like-count");
+          if (button) {
+            button.classList.toggle("active", !!payload.liked);
+            button.setAttribute("aria-pressed", payload.liked ? "true" : "false");
+            button.classList.remove("like-pop");
+            // restart keyframe animation for each state change
+            void button.offsetWidth;
+            button.classList.add("like-pop");
+          }
+          if (countEl && typeof payload.likes_count === "number") {
+            countEl.textContent = payload.likes_count;
+          }
+        }
+
+        document.addEventListener("submit", async function (event) {
+          const form = event.target;
+          if (!(form instanceof HTMLFormElement)) return;
+          if (!form.matches("[data-like-form]")) return;
+
+          event.preventDefault();
+          const button = form.querySelector(".like-btn");
+          if (button && button.disabled) return;
+          if (button) button.disabled = true;
+
+          try {
+            const response = await fetch(form.action, {
+              method: "POST",
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+              body: new FormData(form),
+              credentials: "same-origin",
+            });
+            if (!response.ok) throw new Error("Request failed");
+            const payload = await response.json();
+            updateLikeForm(form, payload);
+          } catch (err) {
+            form.submit();
+          } finally {
+            if (button) button.disabled = false;
+          }
+        });
+
+        (function () {
+          const langMenus = Array.from(document.querySelectorAll(".lang-menu"));
+          if (!langMenus.length) return;
+
+          document.addEventListener("click", function (event) {
+            langMenus.forEach(function (menu) {
+              if (!menu.hasAttribute("open")) return;
+              if (menu.contains(event.target)) return;
+              menu.removeAttribute("open");
+            });
+          });
+
+          document.addEventListener("keydown", function (event) {
+            if (event.key !== "Escape") return;
+            langMenus.forEach(function (menu) {
+              menu.removeAttribute("open");
+            });
+          });
+        })();
+
+        (function () {
+          if (!("IntersectionObserver" in window)) return;
+          if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+          const targets = Array.from(
+            document.querySelectorAll(".panel, .card, .home-tile, .trust-card, .faq-card")
+          );
+          if (!targets.length) return;
+
+          targets.forEach(function (el, idx) {
+            el.classList.add("reveal-item");
+            el.style.setProperty("--reveal-order", String(idx % 8));
+          });
+
+          const observer = new IntersectionObserver(
+            function (entries, obs) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-visible");
+                obs.unobserve(entry.target);
+              });
+            },
+            { threshold: 0.14, rootMargin: "0px 0px -8% 0px" }
+          );
+
+          targets.forEach(function (el) {
+            observer.observe(el);
+          });
+        })();
+
+        (function () {
+          const trackUrl = "/az/events/track/";
+          if (!trackUrl) return;
+
+          function send(payload) {
+            if (!payload || !payload.event_type) return;
+            try {
+              if (navigator.sendBeacon) {
+                const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+                navigator.sendBeacon(trackUrl, blob);
+                return;
+              }
+            } catch (err) {}
+
+            fetch(trackUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+              credentials: "same-origin",
+              keepalive: true,
+            }).catch(function () {});
+          }
+
+          document.addEventListener("click", function (event) {
+            const target = event.target.closest("[data-track-event]");
+            if (!target) return;
+
+            const placeIdRaw = target.getAttribute("data-track-place-id");
+            const placeId = placeIdRaw && /^\d+$/.test(placeIdRaw) ? Number(placeIdRaw) : null;
+
+            send({
+              event_type: target.getAttribute("data-track-event"),
+              place_id: placeId,
+              source: target.getAttribute("data-track-source") || "",
+              path: window.location.pathname,
+            });
+          });
+        })();
+
+      })();
+    </script>
+  </body>
+</html>
