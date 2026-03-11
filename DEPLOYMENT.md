@@ -47,7 +47,7 @@ docker compose run --rm web ./scripts/migrate.sh
 ```
 
 ## Production release checklist
-1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `GOOGLE_MAPS_API_KEY`, `DB_*`.
+1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `DB_*`.
 2. Run `./scripts/migrate.sh`.
 3. Run `./scripts/start-server.sh` (or `gunicorn config.wsgi:application ...`).
 4. Run `python manage.py check`.

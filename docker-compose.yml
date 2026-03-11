@@ -28,9 +28,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DJANGO_DEBUG: "1"
-      DJANGO_SECRET_KEY: "dev-only-change-me"
-      DJANGO_ALLOWED_HOSTS: "127.0.0.1,localhost,0.0.0.0"
+      DJANGO_DEBUG: "${DJANGO_DEBUG:-0}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-dev-only-change-me}"
+      DJANGO_ALLOWED_HOSTS: "${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost,0.0.0.0}"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "${DJANGO_CSRF_TRUSTED_ORIGINS:-}"
+      USE_X_FORWARDED_HOST: "${USE_X_FORWARDED_HOST:-1}"
+      SESSION_COOKIE_SECURE: "${SESSION_COOKIE_SECURE:-1}"
+      CSRF_COOKIE_SECURE: "${CSRF_COOKIE_SECURE:-1}"
       GOOGLE_MAPS_API_KEY: "${GOOGLE_MAPS_API_KEY:-}"
       DB_ENGINE: "mariadb"
       DB_NAME: "${DB_NAME:-kidsmap}"
@@ -38,7 +42,9 @@ services:
       DB_PASSWORD: "${DB_PASSWORD:-kidsmap}"
       DB_HOST: "db"
       DB_PORT: "3306"
-      USE_RUNSERVER: "1"
+      USE_RUNSERVER: "${USE_RUNSERVER:-0}"
+      GUNICORN_WORKERS: "${GUNICORN_WORKERS:-3}"
+      GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
     volumes:
       - ./:/app
 

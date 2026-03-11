@@ -6,19 +6,45 @@ SRC_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = SRC_DIR.parent
 HAS_WHITENOISE = find_spec("whitenoise") is not None
 
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _env_list(name: str) -> list[str]:
+    return [item.strip() for item in os.getenv(name, "").split(",") if item.strip()]
+
+
 # SECURITY: в проде ключ хранить только в env
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 
-DEBUG = os.getenv("DJANGO_DEBUG", "1") == "1"
+DEBUG = _env_bool("DJANGO_DEBUG", True)
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
-REVIEWS_REQUIRE_AUTH = os.getenv("REVIEWS_REQUIRE_AUTH", "1") == "1"
+REVIEWS_REQUIRE_AUTH = _env_bool("REVIEWS_REQUIRE_AUTH", True)
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "testserver"]
-extra_hosts = [h.strip() for h in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",") if h.strip()]
+extra_hosts = _env_list("DJANGO_ALLOWED_HOSTS")
 ALLOWED_HOSTS.extend(extra_hosts)
 render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME")
 if render_host:
     ALLOWED_HOSTS.append(render_host)
+
+CSRF_TRUSTED_ORIGINS = _env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+if not CSRF_TRUSTED_ORIGINS and not DEBUG:
+    auto_trusted_hosts = {
+        host
+        for host in ALLOWED_HOSTS
+        if host not in {"localhost", "127.0.0.1", "0.0.0.0", "testserver"}
+    }
+    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in sorted(auto_trusted_hosts)]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", True)
+SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", not DEBUG)
+CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE", not DEBUG)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
