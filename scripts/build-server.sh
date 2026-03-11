@@ -10,5 +10,6 @@ else
 fi
 
 "${PYTHON_BIN}" manage.py migrate --noinput
+"${PYTHON_BIN}" manage.py compilemessages --ignore .venv --ignore venv || true
 "${PYTHON_BIN}" manage.py collectstatic --noinput
 "${PYTHON_BIN}" manage.py check
