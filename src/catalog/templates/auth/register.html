@@ -9,7 +9,7 @@
 {% block content %}
   <section class="panel auth-panel">
     <h1>{% trans "Регистрация" %}</h1>
-    <p class="auth-subtitle">{% trans "Выберите статус аккаунта: обычный пользователь или владелец кружка." %}</p>
+    <p class="auth-subtitle">{% trans "Выберите статус аккаунта. После регистрации мы отправим код подтверждения на email." %}</p>
 
     <form method="post" class="auth-form auth-form-register">
       {% csrf_token %}

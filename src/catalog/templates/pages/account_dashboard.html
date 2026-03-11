@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Личный кабинет" %}{% endblock %}
+{% block title_plain %}{% trans "Личный кабинет" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Личный кабинет" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel auth-panel profile-panel">
+    <h1>{% trans "Личный кабинет" %}</h1>
+    <p class="auth-subtitle">{% trans "Быстрый обзор профиля, избранного и истории просмотров." %}</p>
+
+    <nav class="account-section-nav" aria-label="{% trans 'Разделы кабинета' %}">
+      <a class="chip-link active" href="{% url 'account_dashboard' %}">{% trans "Обзор" %}</a>
+      <a class="chip-link" href="{% url 'account_profile' %}">{% trans "Профиль" %}</a>
+      <a class="chip-link" href="{% url 'account_favorites' %}">{% trans "Избранное" %}</a>
+      <a class="chip-link" href="{% url 'account_settings' %}">{% trans "Настройки" %}</a>
+    </nav>
+
+    <section class="profile-summary">
+      <h2>{% trans "Мой профиль" %}</h2>
+      <dl class="profile-meta-grid">
+        <div>
+          <dt>{% trans "Логин" %}</dt>
+          <dd>{{ request.user.username }}</dd>
+        </div>
+        <div>
+          <dt>{% trans "Email" %}</dt>
+          <dd>{{ request.user.email|default:"-" }}</dd>
+        </div>
+        <div>
+          <dt>{% trans "Избранных кружков" %}</dt>
+          <dd>{{ favorites_count }}</dd>
+        </div>
+        <div>
+          <dt>{% trans "Просмотрено карточек" %}</dt>
+          <dd>{{ history_count }}</dd>
+        </div>
+      </dl>
+      <div class="owner-page-actions">
+        <a class="btn-secondary" href="{% url 'account_settings' %}">{% trans "Изменить профиль и пароль" %}</a>
+        {% if is_owner_role %}
+          <a class="btn-secondary" href="{% url 'owner_cabinet' %}">{% trans "Кабинет владельца" %}</a>
+        {% endif %}
+      </div>
+    </section>
+
+    <div class="profile-forms-grid">
+      <section class="profile-form-card account-list-card">
+        <h2>{% trans "Избранные кружки" %}</h2>
+        {% if favorite_places %}
+          <ul class="account-place-list">
+            {% for place in favorite_places|slice:":6" %}
+              <li>
+                <a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a>
+                <span class="chip">{{ place.get_category_display }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+          <a class="link-btn" href="{% url 'account_favorites' %}">{% trans "Открыть полный список" %}</a>
+        {% else %}
+          <p class="meta">{% trans "Пока нет избранных кружков. Откройте каталог и нажмите на сердечко в карточке." %}</p>
+          <a class="btn-secondary" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
+        {% endif %}
+      </section>
+
+      <section class="profile-form-card account-list-card">
+        <h2>{% trans "История просмотров" %}</h2>
+        {% if history_events %}
+          <ul class="account-place-list">
+            {% for item in history_events %}
+              <li>
+                <a href="{{ item.place.get_absolute_url }}">{{ item.place.name_i18n }}</a>
+                <span class="meta">{{ item.opened_at|date:"d.m.Y H:i" }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+          {% if top_interest_categories %}
+            <div class="owner-permissions">
+              {% for category in top_interest_categories %}
+                <span class="chip">{{ category.label }} · {{ category.hits }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% else %}
+          <p class="meta">{% trans "История появится после просмотра карточек в каталоге." %}</p>
+        {% endif %}
+      </section>
+    </div>
+  </section>
+{% endblock %}

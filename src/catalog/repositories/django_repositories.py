@@ -2,11 +2,14 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import QuerySet
 from django.utils import timezone
 
 from catalog.interfaces.repositories import (
+    IAccountRepository,
+    IEmailVerificationRepository,
     IPlaceChangeAuditRepository,
     IPlaceReviewRepository,
     IOwnerTeamRepository,
@@ -19,16 +22,21 @@ from catalog.interfaces.repositories import (
 )
 from catalog.models import (
     CatalogContentSettings,
+    FunnelEvent,
     OwnerTeamInvitation,
     OwnerTeamMembership,
     Place,
     PlaceChangeAudit,
+    PlaceLike,
     PlaceOwnershipRequest,
     PlaceReview,
     SiteReview,
     SiteSettings,
+    UserEmailVerification,
     UserProfile,
 )
+
+User = get_user_model()
 
 
 class DjangoPlaceRepository(IPlaceRepository):
@@ -82,6 +90,97 @@ class DjangoUserProfileRepository(IUserProfileRepository):
             profile.phone = normalized_phone
             profile.save(update_fields=["phone", "updated_at"])
         return profile
+
+
+class DjangoEmailVerificationRepository(IEmailVerificationRepository):
+    def get_by_user(self, *, user) -> UserEmailVerification | None:
+        return UserEmailVerification.objects.filter(user=user).first()
+
+    def get_by_email(self, *, email: str) -> UserEmailVerification | None:
+        normalized = (email or "").strip().lower()
+        if not normalized:
+            return None
+        return (
+            UserEmailVerification.objects.select_related("user")
+            .filter(email__iexact=normalized)
+            .first()
+        )
+
+    def get_pending_user_by_email(self, *, email: str):
+        normalized = (email or "").strip().lower()
+        if not normalized:
+            return None
+        return User.objects.filter(email__iexact=normalized, is_active=False).first()
+
+    def save_challenge(
+        self,
+        *,
+        user,
+        email: str,
+        code_hash: str,
+        expires_at,
+        resend_available_at,
+        attempts_left: int,
+    ) -> UserEmailVerification:
+        normalized = (email or "").strip().lower()
+        verification, _ = UserEmailVerification.objects.update_or_create(
+            user=user,
+            defaults={
+                "email": normalized,
+                "code_hash": code_hash,
+                "expires_at": expires_at,
+                "resend_available_at": resend_available_at,
+                "attempts_left": attempts_left,
+                "is_verified": False,
+                "verified_at": None,
+            },
+        )
+        return verification
+
+    def mark_verified(self, *, verification: UserEmailVerification, verified_at) -> UserEmailVerification:
+        verification.is_verified = True
+        verification.verified_at = verified_at
+        verification.code_hash = ""
+        verification.expires_at = None
+        verification.resend_available_at = None
+        verification.save(
+            update_fields=[
+                "is_verified",
+                "verified_at",
+                "code_hash",
+                "expires_at",
+                "resend_available_at",
+                "updated_at",
+            ]
+        )
+        return verification
+
+    def decrement_attempts(self, *, verification: UserEmailVerification) -> UserEmailVerification:
+        verification.attempts_left = max(int(verification.attempts_left or 0) - 1, 0)
+        verification.save(update_fields=["attempts_left", "updated_at"])
+        return verification
+
+
+class DjangoAccountRepository(IAccountRepository):
+    def list_user_favorite_likes(self, *, user) -> QuerySet:
+        return (
+            PlaceLike.objects.filter(user=user)
+            .select_related("place")
+            .order_by("-created_at")
+        )
+
+    def list_recent_place_open_events(self, *, user, limit: int = 50) -> QuerySet:
+        safe_limit = max(int(limit or 1), 1)
+        return (
+            FunnelEvent.objects.filter(
+                user=user,
+                event_type=FunnelEvent.EVENT_PLACE_OPEN,
+                place__isnull=False,
+                place__is_active=True,
+            )
+            .select_related("place")
+            .order_by("-created_at")[:safe_limit]
+        )
 
 
 class DjangoPlaceOwnershipRequestRepository(IPlaceOwnershipRequestRepository):

@@ -427,6 +427,32 @@ class UserProfile(models.Model):
         return permission_code in self.get_owner_permissions()
 
 
+class UserEmailVerification(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="email_verification",
+        verbose_name=_("Пользователь"),
+    )
+    email = models.EmailField(_("Email для подтверждения"), db_index=True)
+    code_hash = models.CharField(_("Хэш кода"), max_length=255, blank=True, default="")
+    expires_at = models.DateTimeField(_("Код действует до"), null=True, blank=True)
+    resend_available_at = models.DateTimeField(_("Повторная отправка после"), null=True, blank=True)
+    attempts_left = models.PositiveSmallIntegerField(_("Осталось попыток"), default=5)
+    is_verified = models.BooleanField(_("Email подтвержден"), default=False, db_index=True)
+    verified_at = models.DateTimeField(_("Дата подтверждения"), null=True, blank=True)
+    created_at = models.DateTimeField(_("Создано"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("Подтверждение email")
+        verbose_name_plural = _("Подтверждение email")
+        ordering = ("-updated_at",)
+
+    def __str__(self):
+        return f"{self.user} ({self.email})"
+
+
 class PlaceOwnershipRequest(models.Model):
     STATUS_PENDING = "PENDING"
     STATUS_APPROVED = "APPROVED"

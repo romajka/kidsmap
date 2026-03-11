@@ -589,6 +589,7 @@ main {
   grid-template-columns: 286px minmax(0, 1fr);
   gap: 14px;
   align-items: start;
+  isolation: isolate;
 }
 
 .page-place_list .catalog-layout .filter-panel-catalog {
@@ -601,6 +602,8 @@ main {
   padding: 10px 12px;
   background: #eef7f2;
   border-color: #cfe2d6;
+  position: relative;
+  z-index: 2;
 }
 
 .page-place_list .catalog-layout .filters-catalog {
@@ -616,7 +619,7 @@ main {
   border-radius: 18px;
   background: linear-gradient(180deg, #ffffff, #f4faf6);
   box-shadow: 0 14px 24px rgba(43, 101, 69, 0.12);
-  z-index: 3;
+  z-index: 1;
   max-height: calc(100vh - 108px);
   overflow: auto;
   scrollbar-gutter: stable;
@@ -705,6 +708,8 @@ main {
   background: #fff;
   border: 1px solid #d3e4d9;
   border-radius: 16px 16px 0 0;
+  position: relative;
+  z-index: 2;
 }
 
 .page-place_list .catalog-layout .results-toolbar {
@@ -716,6 +721,8 @@ main {
   border-top: 0;
   border-radius: 0 0 16px 16px;
   overflow: visible;
+  position: relative;
+  z-index: 2;
 }
 
 .page-place_list .results-count {
@@ -731,6 +738,8 @@ main {
   min-width: 0;
   display: grid;
   gap: 12px;
+  position: relative;
+  z-index: 2;
 }
 
 .page-place_list .catalog-layout .catalog-main-column > * {
@@ -3637,6 +3646,10 @@ main {
   gap: 10px;
 }
 
+.auth-form-secondary {
+  margin-top: 12px;
+}
+
 .auth-form > label {
   display: grid;
   gap: 6px;
@@ -3703,6 +3716,63 @@ main {
 
 .auth-alt a {
   color: #0d4924;
+}
+
+.auth-form > label.auth-remember-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.account-section-nav {
+  margin: 10px 0 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.account-list-card h2 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.account-list-card h2 a:hover {
+  text-decoration: underline;
+}
+
+.account-place-list {
+  margin: 0 0 10px;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.account-place-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.account-place-list li a {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.account-favorites-grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.account-favorites-grid .auth-form {
+  display: block;
 }
 
 .profile-panel {
@@ -3925,7 +3995,8 @@ main {
 
 @media (max-width: 900px) {
   .profile-meta-grid,
-  .profile-forms-grid {
+  .profile-forms-grid,
+  .account-favorites-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -5587,5 +5658,112 @@ main {
 
   .auth-pill {
     padding: 6px 10px;
+  }
+}
+
+/* Final mobile pass: keep header/search stable on narrow screens. */
+@media (max-width: 760px) {
+  .site-shell {
+    width: calc(100% - 12px);
+  }
+
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand lang"
+      "nav nav";
+    gap: 8px;
+    padding: 9px 10px;
+  }
+
+  .brand-wrap {
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .logo-slot {
+    width: 48px;
+    height: 48px;
+  }
+
+  .brand {
+    font-size: clamp(26px, 7vw, 34px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-right {
+    min-width: 0;
+    gap: 4px;
+  }
+
+  .auth-switch {
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+
+  .auth-switch .auth-pill {
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lang-current {
+    min-width: 66px;
+    padding: 7px 8px;
+    font-size: 14px;
+  }
+
+  .nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav a {
+    min-width: 0;
+    font-size: 16px;
+    padding: 8px 6px;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .logo-slot {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand {
+    font-size: clamp(22px, 7.4vw, 30px);
+  }
+
+  .topbar-right {
+    gap: 3px;
+  }
+
+  .auth-switch .auth-pill {
+    min-height: 32px;
+    padding: 6px 7px;
+  }
+
+  .lang-current {
+    min-width: 60px;
+    padding: 6px 7px;
+    font-size: 13px;
+  }
+
+  .home-search-compact .home-search-row {
+    grid-template-columns: 1fr;
+  }
+
+  .home-search-compact .home-search-btn {
+    grid-column: auto;
   }
 }

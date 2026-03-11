@@ -11,6 +11,13 @@
     <h1>{% trans "Личный кабинет" %}</h1>
     <p class="auth-subtitle">{% trans "Управляйте персональными данными и безопасностью аккаунта." %}</p>
 
+    <nav class="account-section-nav" aria-label="{% trans 'Разделы кабинета' %}">
+      <a class="chip-link" href="{% url 'account_dashboard' %}">{% trans "Обзор" %}</a>
+      <a class="chip-link {% if request.resolver_match.url_name == 'account_profile' %}active{% endif %}" href="{% url 'account_profile' %}">{% trans "Профиль" %}</a>
+      <a class="chip-link" href="{% url 'account_favorites' %}">{% trans "Избранное" %}</a>
+      <a class="chip-link {% if request.resolver_match.url_name == 'account_settings' %}active{% endif %}" href="{% url 'account_settings' %}">{% trans "Настройки" %}</a>
+    </nav>
+
     <div class="owner-page-actions">
       {% if is_owner_role %}
         <a class="btn-secondary" href="{% url 'owner_cabinet' %}">{% trans "Перейти в кабинет владельца" %}</a>
@@ -27,6 +34,14 @@
         <div>
           <dt>{% trans "Email" %}</dt>
           <dd>{{ request.user.email|default:"-" }}</dd>
+        </div>
+        <div>
+          <dt>{% trans "Избранных кружков" %}</dt>
+          <dd>{{ favorites_count }}</dd>
+        </div>
+        <div>
+          <dt>{% trans "Просмотрено карточек" %}</dt>
+          <dd>{{ history_count }}</dd>
         </div>
         <div>
           <dt>{% trans "Статус" %}</dt>
@@ -67,6 +82,14 @@
             {{ profile_form.last_name }}
             {% if profile_form.last_name.errors %}
               <span class="auth-field-error">{{ profile_form.last_name.errors|join:", " }}</span>
+            {% endif %}
+          </label>
+
+          <label>
+            {{ profile_form.email.label }}
+            {{ profile_form.email }}
+            {% if profile_form.email.errors %}
+              <span class="auth-field-error">{{ profile_form.email.errors|join:", " }}</span>
             {% endif %}
           </label>
 

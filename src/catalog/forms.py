@@ -4,7 +4,13 @@ import re
 
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, UserCreationForm
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    PasswordChangeForm,
+    PasswordResetForm,
+    SetPasswordForm,
+    UserCreationForm,
+)
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -187,9 +193,91 @@ class LoginForm(AuthenticationForm):
         },
         widget=forms.PasswordInput(attrs={"class": "field", "autocomplete": "current-password"}),
     )
+    remember_me = forms.BooleanField(
+        label=_("Запомнить меня"),
+        required=False,
+        initial=False,
+    )
+
+    def clean(self):
+        username = (self.data.get("username") or "").strip()
+        password = self.data.get("password") or ""
+        if username and password:
+            user = User.objects.filter(username__iexact=username).first()
+            if user and not user.is_active and user.check_password(password):
+                raise ValidationError(
+                    _("Email не подтвержден. Подтвердите email кодом из письма, затем повторите вход."),
+                    code="email_not_verified",
+                )
+        return super().clean()
+
+
+class EmailVerificationForm(forms.Form):
+    email = forms.EmailField(
+        label=_("Email"),
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "field", "autocomplete": "email"}),
+        error_messages={
+            "required": _("Укажите email."),
+            "invalid": _("Укажите корректный email."),
+        },
+    )
+    code = forms.CharField(
+        label=_("Код подтверждения"),
+        required=True,
+        min_length=6,
+        max_length=6,
+        widget=forms.TextInput(
+            attrs={
+                "class": "field",
+                "autocomplete": "one-time-code",
+                "inputmode": "numeric",
+                "pattern": r"\d{6}",
+                "placeholder": "123456",
+            }
+        ),
+        error_messages={
+            "required": _("Введите код подтверждения."),
+            "min_length": _("Код должен содержать 6 цифр."),
+            "max_length": _("Код должен содержать 6 цифр."),
+        },
+    )
+
+    def clean_email(self):
+        return (self.cleaned_data.get("email") or "").strip().lower()
+
+    def clean_code(self):
+        code = (self.cleaned_data.get("code") or "").strip()
+        if not code.isdigit():
+            raise ValidationError(_("Код должен состоять только из цифр."))
+        return code
+
+
+class EmailVerificationResendForm(forms.Form):
+    email = forms.EmailField(
+        label=_("Email"),
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "field", "autocomplete": "email"}),
+        error_messages={
+            "required": _("Укажите email."),
+            "invalid": _("Укажите корректный email."),
+        },
+    )
+
+    def clean_email(self):
+        return (self.cleaned_data.get("email") or "").strip().lower()
 
 
 class UserProfileEditForm(forms.Form):
+    email = forms.EmailField(
+        label=_("Email"),
+        required=True,
+        error_messages={
+            "required": _("Укажите email."),
+            "invalid": _("Укажите корректный email."),
+        },
+        widget=forms.EmailInput(attrs={"class": "field", "autocomplete": "email"}),
+    )
     first_name = forms.CharField(
         label=_("Имя"),
         required=True,
@@ -209,6 +297,21 @@ class UserProfileEditForm(forms.Form):
         widget=forms.TextInput(attrs={"class": "field", "autocomplete": "tel"}),
     )
 
+    def __init__(self, *args, user=None, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = (self.cleaned_data.get("email") or "").strip().lower()
+        if not email:
+            raise ValidationError(_("Укажите email."))
+        qs = User.objects.filter(email__iexact=email)
+        if self.user is not None:
+            qs = qs.exclude(pk=self.user.pk)
+        if qs.exists():
+            raise ValidationError(_("Пользователь с таким email уже зарегистрирован. Укажите другой email."))
+        return email
+
     def clean_first_name(self):
         return _validate_person_name(self.cleaned_data.get("first_name") or "", field_label=str(_("Имя")))
 
@@ -226,6 +329,22 @@ class UserPasswordChangeForm(PasswordChangeForm):
         self.fields["new_password1"].label = _("Новый пароль")
         self.fields["new_password2"].label = _("Повторите новый пароль")
         self.fields["old_password"].widget.attrs.update({"class": "field", "autocomplete": "current-password"})
+        self.fields["new_password1"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
+        self.fields["new_password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
+
+
+class UserPasswordResetForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email"].label = _("Email")
+        self.fields["email"].widget.attrs.update({"class": "field", "autocomplete": "email"})
+
+
+class UserSetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["new_password1"].label = _("Новый пароль")
+        self.fields["new_password2"].label = _("Повторите новый пароль")
         self.fields["new_password1"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
         self.fields["new_password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
 

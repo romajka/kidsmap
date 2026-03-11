@@ -2,17 +2,21 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth import login as auth_login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.views import View
+from django.views.generic import TemplateView
 
+from .controllers.account_controller import AccountController
 from .controllers.auth_controller import AuthController
 from .controllers.engagement_controller import EngagementController
 from .controllers.home_controller import HomeController
@@ -35,6 +39,7 @@ owner_team_controller = OwnerTeamController.build_default()
 owner_reviews_controller = OwnerReviewsController.build_default()
 seo_controller = SeoController.build_default()
 tracking_controller = TrackingController.build_default()
+account_controller = AccountController.build_default()
 
 
 def _resolve_safe_next_url(request, fallback_url: str) -> str:
@@ -430,22 +435,138 @@ def request_place_ownership(request, pk):
     return redirect(f"{place.get_absolute_url()}#owner-request")
 
 
-def account_profile(request):
-    if not request.user.is_authenticated:
-        return _redirect_to_login(request)
+def account_verify_email(request):
+    if request.user.is_authenticated:
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
-    profile = auth_controller.ensure_profile(user=request.user)
-    profile_form = auth_controller.build_profile_edit_form(user=request.user)
-    password_form = auth_controller.build_password_change_form(user=request.user)
+    initial_email = (request.GET.get("email") or "").strip().lower()
+    initial_next = _resolve_safe_next_url(request, reverse("account_profile"))
+    verify_form = auth_controller.build_email_verification_form(initial={"email": initial_email})
+    resend_form = auth_controller.build_email_verification_resend_form(initial={"email": initial_email})
 
     if request.method == "POST":
+        action = (request.POST.get("form_action") or "verify").strip().lower()
+        if action == "resend":
+            resend_form = auth_controller.build_email_verification_resend_form(data=request.POST)
+            verify_form = auth_controller.build_email_verification_form(initial={"email": resend_form.data.get("email", "")})
+            if resend_form.is_valid():
+                result = auth_controller.resend_registration_verification_code(email=resend_form.cleaned_data["email"])
+                if result.ok:
+                    messages.success(request, result.message)
+                else:
+                    messages.error(request, result.message)
+                query = urlencode({"email": resend_form.cleaned_data["email"], "next": initial_next})
+                return redirect(f"{reverse('account_verify_email')}?{query}")
+            messages.error(request, _("Проверьте email и повторите отправку кода."))
+        else:
+            verify_form = auth_controller.build_email_verification_form(data=request.POST)
+            resend_form = auth_controller.build_email_verification_resend_form(
+                initial={"email": verify_form.data.get("email", "")}
+            )
+            if verify_form.is_valid():
+                result = auth_controller.verify_registration_email_code(
+                    email=verify_form.cleaned_data["email"],
+                    code=verify_form.cleaned_data["code"],
+                )
+                if result.ok and result.user is not None:
+                    auth_login(request, result.user)
+                    messages.success(request, result.message)
+                    return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
+                messages.error(request, result.message)
+            else:
+                messages.error(request, _("Проверьте email и код подтверждения."))
+
+    return render(
+        request,
+        "auth/verify_email.html",
+        {
+            "verify_form": verify_form,
+            "resend_form": resend_form,
+            "meta_description": _("Подтверждение email в KidsMap."),
+            "next_url": initial_next,
+        },
+    )
+
+
+class AccountDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "pages/account_dashboard.html"
+    login_url = reverse_lazy("account_login")
+    redirect_field_name = "next"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
+        context.update(dashboard_context)
+        context.update(
+            {
+                "is_owner_role": dashboard_context["profile_model"].role == UserProfile.ROLE_OWNER,
+                "meta_description": _("Личный кабинет KidsMap: профиль, избранные кружки и история просмотров."),
+            }
+        )
+        return context
+
+
+class AccountFavoritesView(LoginRequiredMixin, TemplateView):
+    template_name = "pages/account_favorites.html"
+    login_url = reverse_lazy("account_login")
+    redirect_field_name = "next"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = account_controller.ensure_profile(user=self.request.user)
+        context.update(account_controller.build_favorites_context(user=self.request.user))
+        context.update(
+            {
+                "profile_model": profile,
+                "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
+                "meta_description": _("Избранные кружки пользователя в KidsMap."),
+            }
+        )
+        return context
+
+
+class AccountProfileView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("account_login")
+    redirect_field_name = "next"
+    template_name = "pages/account_profile.html"
+
+    def _build_context(self, *, profile, profile_form, password_form):
+        dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
+        return {
+            "profile_model": profile,
+            "profile_form": profile_form,
+            "password_form": password_form,
+            "favorites_count": dashboard_context["favorites_count"],
+            "history_count": dashboard_context["history_count"],
+            "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
+            "meta_description": _("Личный кабинет KidsMap: данные профиля, контакты и безопасность аккаунта."),
+        }
+
+    def get(self, request, *args, **kwargs):
+        profile = auth_controller.ensure_profile(user=request.user)
+        profile_form = auth_controller.build_profile_edit_form(user=request.user)
+        password_form = auth_controller.build_password_change_form(user=request.user)
+        return render(
+            request,
+            self.template_name,
+            self._build_context(profile=profile, profile_form=profile_form, password_form=password_form),
+        )
+
+    def post(self, request, *args, **kwargs):
+        profile = auth_controller.ensure_profile(user=request.user)
+        profile_form = auth_controller.build_profile_edit_form(user=request.user)
+        password_form = auth_controller.build_password_change_form(user=request.user)
+        current_route = request.resolver_match.url_name if request.resolver_match else "account_profile"
+        if current_route not in {"account_profile", "account_settings"}:
+            current_route = "account_profile"
+
         form_action = (request.POST.get("form_action") or "").strip().lower()
         if form_action == "profile":
             profile_form = auth_controller.build_profile_edit_form(user=request.user, data=request.POST)
             if profile_form.is_valid():
                 profile = auth_controller.update_user_profile_from_form(user=request.user, form=profile_form)
                 messages.success(request, _("Профиль обновлен."))
-                return redirect("account_profile")
+                return redirect(current_route)
             messages.error(request, _("Проверьте данные профиля и исправьте ошибки."))
         elif form_action == "password":
             password_form = auth_controller.build_password_change_form(user=request.user, data=request.POST)
@@ -453,23 +574,33 @@ def account_profile(request):
                 updated_user = auth_controller.update_password_from_form(form=password_form)
                 update_session_auth_hash(request, updated_user)
                 messages.success(request, _("Пароль успешно изменен."))
-                return redirect("account_profile")
+                return redirect(current_route)
             messages.error(request, _("Не удалось изменить пароль. Проверьте введенные поля."))
         else:
             messages.error(request, _("Неизвестное действие формы."))
-            return redirect("account_profile")
+            return redirect(current_route)
 
-    return render(
-        request,
-        "pages/account_profile.html",
-        {
-            "profile_model": profile,
-            "profile_form": profile_form,
-            "password_form": password_form,
-            "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
-            "meta_description": _("Личный кабинет KidsMap: данные профиля, контакты и безопасность аккаунта."),
-        },
-    )
+        return render(
+            request,
+            self.template_name,
+            self._build_context(profile=profile, profile_form=profile_form, password_form=password_form),
+        )
+
+
+def account_dashboard(request):
+    return AccountDashboardView.as_view()(request)
+
+
+def account_favorites(request):
+    return AccountFavoritesView.as_view()(request)
+
+
+def account_profile(request):
+    return AccountProfileView.as_view()(request)
+
+
+def account_settings(request):
+    return AccountProfileView.as_view()(request)
 
 
 def account_register(request):
@@ -479,16 +610,31 @@ def account_register(request):
     form = auth_controller.build_registration_form(data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = auth_controller.register_user_from_form(form=form)
-        auth_login(request, user)
-        messages.success(request, _("Регистрация прошла успешно. Добро пожаловать!"))
-        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
+        verification = auth_controller.send_registration_verification_code(
+            user=user,
+            email=form.cleaned_data["email"],
+        )
+        if verification.ok:
+            messages.success(
+                request,
+                _("Регистрация почти завершена. Введите код из письма для подтверждения email."),
+            )
+        else:
+            messages.error(request, verification.message)
+        query = urlencode(
+            {
+                "email": form.cleaned_data["email"],
+                "next": _resolve_safe_next_url(request, reverse("account_profile")),
+            }
+        )
+        return redirect(f"{reverse('account_verify_email')}?{query}")
 
     return render(
         request,
         "auth/register.html",
         {
             "form": form,
-            "meta_description": "Регистрация в KidsMap: выберите тип аккаунта и начните пользоваться каталогом.",
+            "meta_description": _("Регистрация в KidsMap: выберите тип аккаунта и начните пользоваться каталогом."),
             "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
         },
     )
@@ -501,6 +647,10 @@ def account_login(request):
     form = auth_controller.build_login_form(request=request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         auth_login(request, form.get_user())
+        if form.cleaned_data.get("remember_me"):
+            request.session.set_expiry(int(getattr(settings, "SESSION_COOKIE_AGE", 1209600)))
+        else:
+            request.session.set_expiry(0)
         messages.success(request, _("Вы вошли в аккаунт."))
         return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
@@ -509,7 +659,7 @@ def account_login(request):
         "auth/login.html",
         {
             "form": form,
-            "meta_description": "Вход в аккаунт KidsMap.",
+            "meta_description": _("Вход в аккаунт KidsMap."),
             "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
         },
     )

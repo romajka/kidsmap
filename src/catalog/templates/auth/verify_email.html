@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Подтверждение email" %}{% endblock %}
+{% block title_plain %}{% trans "Подтверждение email" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Подтверждение email" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel auth-panel">
+    <h1>{% trans "Подтвердите email" %}</h1>
+    <p class="auth-subtitle">
+      {% trans "Мы отправили 6-значный код на ваш email. Введите его, чтобы активировать аккаунт и войти." %}
+    </p>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      <input type="hidden" name="form_action" value="verify" />
+      <input type="hidden" name="next" value="{{ next_url }}" />
+
+      {% if verify_form.non_field_errors %}
+        <div class="auth-errors">
+          {% for error in verify_form.non_field_errors %}
+            <p class="auth-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <label>
+        {{ verify_form.email.label }}
+        {{ verify_form.email }}
+        {% if verify_form.email.errors %}
+          <span class="auth-field-error">{{ verify_form.email.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <label>
+        {{ verify_form.code.label }}
+        {{ verify_form.code }}
+        {% if verify_form.code.errors %}
+          <span class="auth-field-error">{{ verify_form.code.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <button type="submit" class="btn">{% trans "Подтвердить email" %}</button>
+    </form>
+
+    <form method="post" class="auth-form auth-form-secondary">
+      {% csrf_token %}
+      <input type="hidden" name="form_action" value="resend" />
+      <input type="hidden" name="next" value="{{ next_url }}" />
+
+      {% if resend_form.non_field_errors %}
+        <div class="auth-errors">
+          {% for error in resend_form.non_field_errors %}
+            <p class="auth-error">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <label>
+        {{ resend_form.email.label }}
+        {{ resend_form.email }}
+        {% if resend_form.email.errors %}
+          <span class="auth-field-error">{{ resend_form.email.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <button type="submit" class="btn">{% trans "Отправить код повторно" %}</button>
+    </form>
+
+    <p class="auth-alt">
+      {% trans "Уже подтверждали email?" %}
+      <a href="{% url 'account_login' %}?next={{ next_url|urlencode }}">{% trans "Войти" %}</a>
+    </p>
+  </section>
+{% endblock %}

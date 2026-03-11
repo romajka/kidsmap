@@ -78,7 +78,7 @@
         <div class="topbar-right">
           <div class="auth-switch" aria-label="{% trans 'Аккаунт' %}">
             {% if request.user.is_authenticated %}
-              <a class="auth-pill auth-pill-primary" href="{% url 'account_profile' %}">{% trans "Профиль" %}</a>
+              <a class="auth-pill auth-pill-primary" href="{% url 'account_dashboard' %}">{% trans "Кабинет" %}</a>
               {% if current_user_role == "OWNER" %}
                 <a class="auth-pill" href="{% url 'owner_cabinet' %}">{% trans "Кабинет владельца" %}</a>
               {% endif %}

@@ -39,12 +39,28 @@
         {% endif %}
       </label>
 
+      <label class="auth-remember-row">
+        {{ form.remember_me }}
+        <span>{{ form.remember_me.label }}</span>
+      </label>
+      {% if form.remember_me.errors %}
+        <span class="auth-field-error">{{ form.remember_me.errors|join:", " }}</span>
+      {% endif %}
+
       <button type="submit" class="btn">{% trans "Войти" %}</button>
     </form>
 
     <p class="auth-alt">
+      <a href="{% url 'password_reset' %}">{% trans "Забыли пароль?" %}</a>
+    </p>
+
+    <p class="auth-alt">
       {% trans "Нет аккаунта?" %}
       <a href="{% url 'account_register' %}?next={{ next_url|urlencode }}">{% trans "Зарегистрироваться" %}</a>
+    </p>
+    <p class="auth-alt">
+      {% trans "Не подтвердили email?" %}
+      <a href="{% url 'account_verify_email' %}?next={{ next_url|urlencode }}">{% trans "Ввести код подтверждения" %}</a>
     </p>
   </section>
 {% endblock %}

@@ -7,9 +7,12 @@ from django.db.models import QuerySet
 
 from catalog.models import (
     CatalogContentSettings,
+    FunnelEvent,
     Place,
     PlaceChangeAudit,
+    PlaceLike,
     PlaceReview,
+    UserEmailVerification,
     OwnerTeamInvitation,
     OwnerTeamMembership,
     PlaceOwnershipRequest,
@@ -68,6 +71,51 @@ class IUserProfileRepository(ABC):
 
     @abstractmethod
     def set_phone(self, *, user, phone: str) -> UserProfile:
+        raise NotImplementedError
+
+
+class IEmailVerificationRepository(ABC):
+    @abstractmethod
+    def get_by_user(self, *, user) -> UserEmailVerification | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_by_email(self, *, email: str) -> UserEmailVerification | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_pending_user_by_email(self, *, email: str):
+        raise NotImplementedError
+
+    @abstractmethod
+    def save_challenge(
+        self,
+        *,
+        user,
+        email: str,
+        code_hash: str,
+        expires_at,
+        resend_available_at,
+        attempts_left: int,
+    ) -> UserEmailVerification:
+        raise NotImplementedError
+
+    @abstractmethod
+    def mark_verified(self, *, verification: UserEmailVerification, verified_at) -> UserEmailVerification:
+        raise NotImplementedError
+
+    @abstractmethod
+    def decrement_attempts(self, *, verification: UserEmailVerification) -> UserEmailVerification:
+        raise NotImplementedError
+
+
+class IAccountRepository(ABC):
+    @abstractmethod
+    def list_user_favorite_likes(self, *, user) -> QuerySet:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_recent_place_open_events(self, *, user, limit: int = 50) -> QuerySet:
         raise NotImplementedError
 
 

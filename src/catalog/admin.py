@@ -24,6 +24,7 @@ from .models import (
     SiteFooterSettings,
     SiteEmptyStateSettings,
     SiteAnalytics,
+    UserEmailVerification,
     UserProfile,
 )
 from .services.admin_analytics import build_site_analytics_context
@@ -534,6 +535,14 @@ class UserProfileAdmin(admin.ModelAdmin):
         if not permissions:
             return "-"
         return ", ".join(permissions)
+
+
+@admin.register(UserEmailVerification)
+class UserEmailVerificationAdmin(admin.ModelAdmin):
+    list_display = ("user", "email", "is_verified", "attempts_left", "expires_at", "resend_available_at", "updated_at")
+    list_filter = ("is_verified",)
+    search_fields = ("user__username", "user__email", "email")
+    readonly_fields = ("created_at", "updated_at", "verified_at")
 
 
 @admin.register(OwnerTeamMembership)

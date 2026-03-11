@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Избранные кружки" %}{% endblock %}
+{% block title_plain %}{% trans "Избранные кружки" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Избранные кружки" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel auth-panel profile-panel">
+    <h1>{% trans "Избранные кружки" %}</h1>
+    <p class="auth-subtitle">{% trans "Список карточек, которые вы сохранили через кнопку с сердцем." %}</p>
+
+    <nav class="account-section-nav" aria-label="{% trans 'Разделы кабинета' %}">
+      <a class="chip-link" href="{% url 'account_dashboard' %}">{% trans "Обзор" %}</a>
+      <a class="chip-link" href="{% url 'account_profile' %}">{% trans "Профиль" %}</a>
+      <a class="chip-link active" href="{% url 'account_favorites' %}">{% trans "Избранное" %}</a>
+      <a class="chip-link" href="{% url 'account_settings' %}">{% trans "Настройки" %}</a>
+    </nav>
+
+    {% if favorite_places %}
+      <p class="meta">{% blocktrans count total=favorites_count %}Сохранен {{ total }} кружок.{% plural %}Сохранено {{ total }} кружков.{% endblocktrans %}</p>
+      <ul class="account-favorites-grid">
+        {% for place in favorite_places %}
+          <li class="profile-form-card">
+            <h2><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h2>
+            <p class="meta">
+              {{ place.get_category_display }}
+              {% if place.district %} · {% trans place.district %}{% endif %}
+            </p>
+            <form method="post" action="{% url 'toggle_place_like' place.id %}" class="auth-form">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{% url 'account_favorites' %}" />
+              <button type="submit" class="link-btn">{% trans "Убрать из избранного" %}</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="review-auth-note">
+        <p>{% trans "У вас пока нет избранных кружков." %}</p>
+        <div class="review-auth-actions">
+          <a class="btn" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+          <a class="link-btn" href="{% url 'account_dashboard' %}">{% trans "Вернуться в кабинет" %}</a>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
