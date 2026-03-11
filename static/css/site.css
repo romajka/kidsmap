@@ -312,11 +312,12 @@ body {
 }
 
 .logo-slot {
-  width: 54px;
-  height: 54px;
-  border-radius: 12px;
+  width: 62px;
+  height: 62px;
+  border-radius: 0;
   border: 0;
   background: var(--logo-url) center/contain no-repeat;
+  background-color: transparent;
   flex-shrink: 0;
 }
 
@@ -3934,8 +3935,8 @@ main {
 }
 
 .logo-slot {
-  border-color: rgba(19, 111, 56, 0.25);
-  background-color: rgba(168, 213, 155, 0.14);
+  border-color: transparent;
+  background-color: transparent;
 }
 
 .brand {
@@ -5124,8 +5125,8 @@ main {
   }
 
   .logo-slot {
-    width: 42px;
-    height: 42px;
+    width: 50px;
+    height: 50px;
   }
 
   .hero-text h1 {
