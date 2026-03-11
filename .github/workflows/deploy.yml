@@ -4,9 +4,66 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_DATABASE: kidsmap
+          MARIADB_ROOT_PASSWORD: rootpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping -h 127.0.0.1 -uroot -prootpass"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+    env:
+      DJANGO_DEBUG: "0"
+      DJANGO_SECRET_KEY: "ci-secret-key-for-kidsmap-not-for-prod"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,testserver"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost"
+      DB_ENGINE: "mariadb"
+      DB_NAME: "kidsmap"
+      DB_USER: "root"
+      DB_PASSWORD: "rootpass"
+      DB_HOST: "127.0.0.1"
+      DB_PORT: "3306"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Apply migrations
+        run: python manage.py migrate --noinput
+
+      - name: Ensure migrations committed
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Django system checks
+        run: python manage.py check
+
+      - name: Run tests
+        run: python manage.py test
+
   deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: quality
     runs-on: ubuntu-latest
     steps:
       - name: Deploy over SSH

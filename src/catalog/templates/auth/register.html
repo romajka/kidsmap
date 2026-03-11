@@ -35,10 +35,46 @@
       </label>
 
       <label>
+        {{ form.first_name.label }}
+        {{ form.first_name }}
+        {% if form.first_name.help_text %}
+          <small class="auth-help">{{ form.first_name.help_text }}</small>
+        {% endif %}
+        {% if form.first_name.errors %}
+          <span class="auth-field-error">{{ form.first_name.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <label>
+        {{ form.last_name.label }}
+        {{ form.last_name }}
+        {% if form.last_name.help_text %}
+          <small class="auth-help">{{ form.last_name.help_text }}</small>
+        {% endif %}
+        {% if form.last_name.errors %}
+          <span class="auth-field-error">{{ form.last_name.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <label>
         {{ form.email.label }}
         {{ form.email }}
+        {% if form.email.help_text %}
+          <small class="auth-help">{{ form.email.help_text }}</small>
+        {% endif %}
         {% if form.email.errors %}
           <span class="auth-field-error">{{ form.email.errors|join:", " }}</span>
+        {% endif %}
+      </label>
+
+      <label>
+        {{ form.phone.label }}
+        {{ form.phone }}
+        {% if form.phone.help_text %}
+          <small class="auth-help">{{ form.phone.help_text }}</small>
+        {% endif %}
+        {% if form.phone.errors %}
+          <span class="auth-field-error">{{ form.phone.errors|join:", " }}</span>
         {% endif %}
       </label>
 

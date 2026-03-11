@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from django.conf import settings
 from django.utils import timezone
 
 from catalog.interfaces.tracking import ISiteVisitRepository
@@ -20,9 +21,21 @@ class SiteVisitTracker:
     def build_default(cls) -> "SiteVisitTracker":
         return cls(visit_repository=DjangoSiteVisitRepository())
 
+    def _strip_language_prefix(self, path: str) -> str:
+        normalized = path if path.startswith("/") else f"/{path}"
+        stripped = normalized.lstrip("/")
+        language, sep, remainder = stripped.partition("/")
+        language_codes = {str(code).lower() for code, _ in settings.LANGUAGES}
+        if language.lower() not in language_codes:
+            return normalized
+        return f"/{remainder}" if sep else "/"
+
     def track_request(self, request) -> None:
-        path = (request.path or "").lower()
-        if not path or path.startswith(self.EXCLUDED_PREFIXES) or path in self.EXCLUDED_PATHS:
+        original_path = (request.path or "").lower()
+        if not original_path:
+            return
+        path = self._strip_language_prefix(original_path).lower()
+        if path.startswith(self.EXCLUDED_PREFIXES) or path in self.EXCLUDED_PATHS:
             return
         if request.method not in {"GET", "HEAD"}:
             return

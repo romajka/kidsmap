@@ -35,8 +35,9 @@ What it does:
 1. Stashes local server edits (if any).
 2. Pulls latest `origin/main`.
 3. Rebuilds/restarts Docker containers.
-4. Runs `python manage.py check`.
-5. Runs smoke checks for `/`, `/ru/catalog/`, `/ru/admin/login/`.
+4. Verifies there is no model/migration drift (`makemigrations --check --dry-run`).
+5. Runs `python manage.py check`.
+6. Runs smoke checks for `/`, `/catalog/`, `/admin/` (with redirect follow and final `200`).
 
 Optional custom branch:
 ```bash
@@ -45,7 +46,9 @@ Optional custom branch:
 
 ## Auto-deploy on push (GitHub Actions)
 Repo includes workflow: `.github/workflows/deploy.yml`  
-It runs `./scripts/deploy-server.sh main` on every push to `main`.
+It has two stages:
+1. `quality`: runs migrations + `makemigrations --check --dry-run` + `check` + `test` against MariaDB in CI.
+2. `deploy`: runs `./scripts/deploy-server.sh main` only after `quality` passes on push to `main`.
 
 Set these repository secrets in GitHub (`Settings -> Secrets and variables -> Actions`):
 1. `DEPLOY_HOST` (example: `157.173.119.227`)
@@ -74,7 +77,7 @@ docker compose run --rm web ./scripts/migrate.sh
 ```
 
 ## Production release checklist
-1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `DB_*`.
+1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`.
 2. Avoid editing tracked files on server (`docker-compose.yml`, `src/config/settings.py`); keep server-specific values in `.env`.
 3. Run `./scripts/deploy-server.sh`.
 4. Run `python manage.py check` (optional extra).
@@ -83,6 +86,12 @@ docker compose run --rm web ./scripts/migrate.sh
    - `/sitemap.xml`
    - `/robots.txt`
    - `/admin/`
+
+## SMTP test (Brevo or other provider)
+```bash
+python manage.py send_test_email your-address@example.com
+```
+If SMTP is configured correctly, command prints `Test email sent ...`.
 
 ## Backup suggestion
 1. Daily MariaDB backup (`mysqldump`) with timestamp.

@@ -66,6 +66,10 @@ class IUserProfileRepository(ABC):
     def set_role(self, *, user, role: str) -> UserProfile:
         raise NotImplementedError
 
+    @abstractmethod
+    def set_phone(self, *, user, phone: str) -> UserProfile:
+        raise NotImplementedError
+
 
 class IPlaceOwnershipRequestRepository(ABC):
     @abstractmethod

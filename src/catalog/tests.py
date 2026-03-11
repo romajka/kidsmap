@@ -97,6 +97,10 @@ class TestSiteVisitMiddleware(TestCase):
         self.client.get("/favicon.ico")
         self.assertEqual(SiteVisit.objects.count(), 0)
 
+    def test_site_visit_skips_localized_admin_path(self):
+        self.client.get("/ru/admin/login/")
+        self.assertEqual(SiteVisit.objects.count(), 0)
+
 
 class TestAccountsAndReviewAccess(TestCase):
     def setUp(self):
@@ -112,7 +116,10 @@ class TestAccountsAndReviewAccess(TestCase):
             reverse("account_register"),
             data={
                 "username": "owner_user",
+                "first_name": "Рамин",
+                "last_name": "Алиев",
                 "email": "owner@example.com",
+                "phone": "+994 50 123 45 67",
                 "role": UserProfile.ROLE_OWNER,
                 "password1": "StrongPass123!!",
                 "password2": "StrongPass123!!",
@@ -122,6 +129,9 @@ class TestAccountsAndReviewAccess(TestCase):
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username="owner_user")
         self.assertEqual(user.profile.role, UserProfile.ROLE_OWNER)
+        self.assertEqual(user.profile.phone, "+994 50 123 45 67")
+        self.assertEqual(user.first_name, "Рамин")
+        self.assertEqual(user.last_name, "Алиев")
         self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
 
     def test_anonymous_cannot_submit_place_review(self):
@@ -159,20 +169,50 @@ class TestAccountsAndReviewAccess(TestCase):
 
 
 class TestAuthValidationAndNextSecurity(TestCase):
+    def _registration_payload(self, **overrides):
+        payload = {
+            "username": "new_user",
+            "first_name": "Иван",
+            "last_name": "Иванов",
+            "email": "new@example.com",
+            "phone": "+994 50 111 22 33",
+            "role": UserProfile.ROLE_USER,
+            "password1": "StrongPass123!!",
+            "password2": "StrongPass123!!",
+        }
+        payload.update(overrides)
+        return payload
+
     def test_register_requires_email(self):
         response = self.client.post(
             reverse("account_register"),
-            data={
-                "username": "no_email_user",
-                "email": "",
-                "role": UserProfile.ROLE_USER,
-                "password1": "StrongPass123!!",
-                "password2": "StrongPass123!!",
-            },
+            data=self._registration_payload(username="no_email_user", email=""),
         )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username="no_email_user").exists())
         self.assertIn("email", response.context["form"].errors)
+
+    def test_register_requires_phone(self):
+        response = self.client.post(
+            reverse("account_register"),
+            data=self._registration_payload(username="no_phone_user", email="no-phone@example.com", phone=""),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username="no_phone_user").exists())
+        self.assertIn("phone", response.context["form"].errors)
+
+    def test_register_rejects_invalid_first_name(self):
+        response = self.client.post(
+            reverse("account_register"),
+            data=self._registration_payload(
+                username="bad_first_name",
+                email="bad-first-name@example.com",
+                first_name="123",
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username="bad_first_name").exists())
+        self.assertIn("first_name", response.context["form"].errors)
 
     def test_register_rejects_duplicate_email_case_insensitive(self):
         User.objects.create_user(
@@ -183,29 +223,35 @@ class TestAuthValidationAndNextSecurity(TestCase):
 
         response = self.client.post(
             reverse("account_register"),
-            data={
-                "username": "second_user",
-                "email": "dup@example.com",
-                "role": UserProfile.ROLE_USER,
-                "password1": "StrongPass123!!",
-                "password2": "StrongPass123!!",
-            },
+            data=self._registration_payload(username="second_user", email="dup@example.com"),
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username="second_user").exists())
         self.assertIn("email", response.context["form"].errors)
 
+    def test_register_rejects_duplicate_username_case_insensitive(self):
+        User.objects.create_user(
+            username="ExistingUser",
+            email="existing@example.com",
+            password="StrongPass123!!",
+        )
+        response = self.client.post(
+            reverse("account_register"),
+            data=self._registration_payload(username="existinguser", email="new-existing@example.com"),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(email="new-existing@example.com").exists())
+        self.assertIn("username", response.context["form"].errors)
+
     def test_register_rejects_invalid_role_choice(self):
         response = self.client.post(
             reverse("account_register"),
-            data={
-                "username": "invalid_role_user",
-                "email": "invalid-role@example.com",
-                "role": "HACKER",
-                "password1": "StrongPass123!!",
-                "password2": "StrongPass123!!",
-            },
+            data=self._registration_payload(
+                username="invalid_role_user",
+                email="invalid-role@example.com",
+                role="HACKER",
+            ),
         )
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username="invalid_role_user").exists())
@@ -214,16 +260,10 @@ class TestAuthValidationAndNextSecurity(TestCase):
     def test_register_rejects_external_next_redirect(self):
         response = self.client.post(
             f"{reverse('account_register')}?next=https://evil.example",
-            data={
-                "username": "safe_next_user",
-                "email": "safe-next@example.com",
-                "role": UserProfile.ROLE_USER,
-                "password1": "StrongPass123!!",
-                "password2": "StrongPass123!!",
-            },
+            data=self._registration_payload(username="safe_next_user", email="safe-next@example.com"),
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers["Location"], "/ru/")
+        self.assertEqual(response.headers["Location"], "/ru/account/profile/")
 
     def test_login_rejects_external_next_redirect(self):
         User.objects.create_user(
@@ -236,7 +276,69 @@ class TestAuthValidationAndNextSecurity(TestCase):
             data={"username": "login_safe_user", "password": "StrongPass123!!"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers["Location"], "/ru/")
+        self.assertEqual(response.headers["Location"], "/ru/account/profile/")
+
+    def test_login_without_next_redirects_to_account_profile(self):
+        User.objects.create_user(
+            username="login_profile_user",
+            email="login-profile@example.com",
+            password="StrongPass123!!",
+        )
+        response = self.client.post(
+            reverse("account_login"),
+            data={"username": "login_profile_user", "password": "StrongPass123!!"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/ru/account/profile/")
+
+
+class TestAccountProfileUpdates(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="profile_user",
+            email="profile@example.com",
+            password="StrongPass123!!",
+            first_name="Старое",
+            last_name="Имя",
+        )
+        UserProfile.objects.create(user=self.user, role=UserProfile.ROLE_USER, phone="+994 50 000 00 00")
+        self.client.login(username="profile_user", password="StrongPass123!!")
+
+    def test_account_profile_opens_for_authenticated_user(self):
+        response = self.client.get(reverse("account_profile"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "profile_user")
+
+    def test_account_profile_updates_names_and_phone(self):
+        response = self.client.post(
+            reverse("account_profile"),
+            data={
+                "form_action": "profile",
+                "first_name": "Новый",
+                "last_name": "Пользователь",
+                "phone": "+994 55 111 22 33",
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, "Новый")
+        self.assertEqual(self.user.last_name, "Пользователь")
+        self.assertEqual(self.user.profile.phone, "+994 55 111 22 33")
+
+    def test_account_profile_can_change_password(self):
+        response = self.client.post(
+            reverse("account_profile"),
+            data={
+                "form_action": "password",
+                "old_password": "StrongPass123!!",
+                "new_password1": "NewStrongPass123!!",
+                "new_password2": "NewStrongPass123!!",
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.client.login(username="profile_user", password="NewStrongPass123!!"))
 
 
 class TestOwnershipWorkflow(TestCase):

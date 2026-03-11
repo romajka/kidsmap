@@ -3705,6 +3705,60 @@ main {
   color: #0d4924;
 }
 
+.profile-panel {
+  max-width: 960px;
+}
+
+.profile-summary {
+  margin: 12px 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fcfcfc, rgba(168, 213, 155, 0.08));
+  padding: 12px;
+}
+
+.profile-summary h2 {
+  margin: 0 0 10px;
+  font-size: clamp(24px, 3vw, 32px);
+}
+
+.profile-meta-grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.profile-meta-grid dt {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.profile-meta-grid dd {
+  margin: 4px 0 0;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.profile-forms-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-form-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fcfcfc, rgba(168, 213, 155, 0.1));
+  padding: 12px;
+}
+
+.profile-form-card h2 {
+  margin: 0 0 10px;
+  font-size: clamp(24px, 3vw, 32px);
+}
+
 .owner-page-head {
   display: flex;
   align-items: flex-start;
@@ -3867,6 +3921,13 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .profile-meta-grid,
+  .profile-forms-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .owner-edit-form {

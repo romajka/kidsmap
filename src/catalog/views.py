@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
@@ -22,6 +23,7 @@ from .controllers.ownership_controller import OwnershipController
 from .controllers.place_controller import PlaceController
 from .controllers.seo_controller import SeoController
 from .controllers.tracking_controller import TrackingController
+from .models import UserProfile
 
 home_controller = HomeController.build_default()
 place_controller = PlaceController.build_default()
@@ -428,16 +430,58 @@ def request_place_ownership(request, pk):
     return redirect(f"{place.get_absolute_url()}#owner-request")
 
 
+def account_profile(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    profile = auth_controller.ensure_profile(user=request.user)
+    profile_form = auth_controller.build_profile_edit_form(user=request.user)
+    password_form = auth_controller.build_password_change_form(user=request.user)
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip().lower()
+        if form_action == "profile":
+            profile_form = auth_controller.build_profile_edit_form(user=request.user, data=request.POST)
+            if profile_form.is_valid():
+                profile = auth_controller.update_user_profile_from_form(user=request.user, form=profile_form)
+                messages.success(request, _("Профиль обновлен."))
+                return redirect("account_profile")
+            messages.error(request, _("Проверьте данные профиля и исправьте ошибки."))
+        elif form_action == "password":
+            password_form = auth_controller.build_password_change_form(user=request.user, data=request.POST)
+            if password_form.is_valid():
+                updated_user = auth_controller.update_password_from_form(form=password_form)
+                update_session_auth_hash(request, updated_user)
+                messages.success(request, _("Пароль успешно изменен."))
+                return redirect("account_profile")
+            messages.error(request, _("Не удалось изменить пароль. Проверьте введенные поля."))
+        else:
+            messages.error(request, _("Неизвестное действие формы."))
+            return redirect("account_profile")
+
+    return render(
+        request,
+        "pages/account_profile.html",
+        {
+            "profile_model": profile,
+            "profile_form": profile_form,
+            "password_form": password_form,
+            "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
+            "meta_description": _("Личный кабинет KidsMap: данные профиля, контакты и безопасность аккаунта."),
+        },
+    )
+
+
 def account_register(request):
     if request.user.is_authenticated:
-        return redirect(_resolve_safe_next_url(request, reverse("home")))
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
     form = auth_controller.build_registration_form(data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = auth_controller.register_user_from_form(form=form)
         auth_login(request, user)
         messages.success(request, _("Регистрация прошла успешно. Добро пожаловать!"))
-        return redirect(_resolve_safe_next_url(request, reverse("home")))
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
     return render(
         request,
@@ -445,20 +489,20 @@ def account_register(request):
         {
             "form": form,
             "meta_description": "Регистрация в KidsMap: выберите тип аккаунта и начните пользоваться каталогом.",
-            "next_url": _resolve_safe_next_url(request, reverse("home")),
+            "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
         },
     )
 
 
 def account_login(request):
     if request.user.is_authenticated:
-        return redirect(_resolve_safe_next_url(request, reverse("home")))
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
     form = auth_controller.build_login_form(request=request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         auth_login(request, form.get_user())
         messages.success(request, _("Вы вошли в аккаунт."))
-        return redirect(_resolve_safe_next_url(request, reverse("home")))
+        return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
     return render(
         request,
@@ -466,7 +510,7 @@ def account_login(request):
         {
             "form": form,
             "meta_description": "Вход в аккаунт KidsMap.",
-            "next_url": _resolve_safe_next_url(request, reverse("home")),
+            "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
         },
     )
 

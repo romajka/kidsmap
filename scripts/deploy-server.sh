@@ -27,7 +27,11 @@ log "Fetching $REMOTE/$BRANCH"
 git fetch "$REMOTE" "$BRANCH"
 
 log "Checking out branch $BRANCH"
-git checkout "$BRANCH" >/dev/null 2>&1 || true
+if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
+  git checkout "$BRANCH" >/dev/null
+else
+  git checkout -b "$BRANCH" "$REMOTE/$BRANCH" >/dev/null
+fi
 
 log "Pulling latest changes"
 git pull --ff-only "$REMOTE" "$BRANCH"
@@ -36,26 +40,27 @@ log "Rebuilding and starting containers"
 docker compose down
 docker compose up -d --build
 
+log "Checking migrations drift"
+docker compose exec -T web python manage.py makemigrations --check --dry-run
+
 log "Running Django check"
 docker compose exec -T web python manage.py check
 
 smoke() {
   local path="$1"
   local code
-  code="$(curl -sS -o /dev/null -w '%{http_code}' "${APP_BASE_URL}${path}")"
-  log "Smoke ${path} -> ${code}"
-  case "$code" in
-    200|301|302) ;;
-    *)
-      log "Unexpected status ${code} for ${path}"
-      exit 1
-      ;;
-  esac
+  local final_url
+  read -r code final_url <<<"$(curl -sS -L -o /dev/null -w '%{http_code} %{url_effective}' "${APP_BASE_URL}${path}")"
+  log "Smoke ${path} -> ${code} (${final_url})"
+  if [[ "$code" != "200" ]]; then
+    log "Unexpected final status ${code} for ${path}"
+    exit 1
+  fi
 }
 
 log "Running smoke checks"
 smoke "/"
-smoke "/ru/catalog/"
-smoke "/ru/admin/login/"
+smoke "/catalog/"
+smoke "/admin/"
 
 log "Deploy complete"

@@ -75,6 +75,14 @@ class DjangoUserProfileRepository(IUserProfileRepository):
             profile.save(update_fields=["role", "updated_at"])
         return profile
 
+    def set_phone(self, *, user, phone: str) -> UserProfile:
+        profile = self.get_or_create_for_user(user)
+        normalized_phone = (phone or "").strip()
+        if profile.phone != normalized_phone:
+            profile.phone = normalized_phone
+            profile.save(update_fields=["phone", "updated_at"])
+        return profile
+
 
 class DjangoPlaceOwnershipRequestRepository(IPlaceOwnershipRequestRepository):
     def list_for_user(self, *, user) -> QuerySet:

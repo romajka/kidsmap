@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Личный кабинет" %}{% endblock %}
+{% block title_plain %}{% trans "Личный кабинет" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Личный кабинет" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel auth-panel profile-panel">
+    <h1>{% trans "Личный кабинет" %}</h1>
+    <p class="auth-subtitle">{% trans "Управляйте персональными данными и безопасностью аккаунта." %}</p>
+
+    <div class="owner-page-actions">
+      {% if is_owner_role %}
+        <a class="btn-secondary" href="{% url 'owner_cabinet' %}">{% trans "Перейти в кабинет владельца" %}</a>
+      {% endif %}
+    </div>
+
+    <section class="profile-summary">
+      <h2>{% trans "Информация о профиле" %}</h2>
+      <dl class="profile-meta-grid">
+        <div>
+          <dt>{% trans "Логин" %}</dt>
+          <dd>{{ request.user.username }}</dd>
+        </div>
+        <div>
+          <dt>{% trans "Email" %}</dt>
+          <dd>{{ request.user.email|default:"-" }}</dd>
+        </div>
+        <div>
+          <dt>{% trans "Статус" %}</dt>
+          <dd>{% if current_user_role_label %}{{ current_user_role_label }}{% else %}{% trans "Обычный пользователь" %}{% endif %}</dd>
+        </div>
+        <div>
+          <dt>{% trans "Роль владельца" %}</dt>
+          <dd>{% if current_owner_role_label %}{{ current_owner_role_label }}{% else %}-{% endif %}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="profile-forms-grid">
+      <section class="profile-form-card">
+        <h2>{% trans "Редактировать профиль" %}</h2>
+        <form method="post" class="auth-form">
+          {% csrf_token %}
+          <input type="hidden" name="form_action" value="profile" />
+
+          {% if profile_form.non_field_errors %}
+            <div class="auth-errors">
+              {% for error in profile_form.non_field_errors %}
+                <p class="auth-error">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <label>
+            {{ profile_form.first_name.label }}
+            {{ profile_form.first_name }}
+            {% if profile_form.first_name.errors %}
+              <span class="auth-field-error">{{ profile_form.first_name.errors|join:", " }}</span>
+            {% endif %}
+          </label>
+
+          <label>
+            {{ profile_form.last_name.label }}
+            {{ profile_form.last_name }}
+            {% if profile_form.last_name.errors %}
+              <span class="auth-field-error">{{ profile_form.last_name.errors|join:", " }}</span>
+            {% endif %}
+          </label>
+
+          <label>
+            {{ profile_form.phone.label }}
+            {{ profile_form.phone }}
+            {% if profile_form.phone.errors %}
+              <span class="auth-field-error">{{ profile_form.phone.errors|join:", " }}</span>
+            {% endif %}
+          </label>
+
+          <button type="submit" class="btn">{% trans "Сохранить профиль" %}</button>
+        </form>
+      </section>
+
+      <section class="profile-form-card">
+        <h2>{% trans "Сменить пароль" %}</h2>
+        <form method="post" class="auth-form">
+          {% csrf_token %}
+          <input type="hidden" name="form_action" value="password" />
+
+          {% if password_form.non_field_errors %}
+            <div class="auth-errors">
+              {% for error in password_form.non_field_errors %}
+                <p class="auth-error">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <label>
+            {{ password_form.old_password.label }}
+            {{ password_form.old_password }}
+            {% if password_form.old_password.errors %}
+              <span class="auth-field-error">{{ password_form.old_password.errors|join:", " }}</span>
+            {% endif %}
+          </label>
+
+          <label>
+            {{ password_form.new_password1.label }}
+            {{ password_form.new_password1 }}
+            {% if password_form.new_password1.help_text %}
+              <small class="auth-help">{{ password_form.new_password1.help_text|safe }}</small>
+            {% endif %}
+            {% if password_form.new_password1.errors %}
+              <span class="auth-field-error">{{ password_form.new_password1.errors|join:", " }}</span>
+            {% endif %}
+          </label>
+
+          <label>
+            {{ password_form.new_password2.label }}
+            {{ password_form.new_password2 }}
+            {% if password_form.new_password2.errors %}
+              <span class="auth-field-error">{{ password_form.new_password2.errors|join:", " }}</span>
+            {% endif %}
+          </label>
+
+          <button type="submit" class="btn">{% trans "Обновить пароль" %}</button>
+        </form>
+      </section>
+    </div>
+  </section>
+{% endblock %}

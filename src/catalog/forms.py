@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import re
+
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, UserCreationForm
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -10,12 +12,62 @@ from catalog.models import Place, UserProfile
 
 
 User = get_user_model()
+_NAME_CONNECTORS = {" ", "-", "'"}
+_PHONE_RE = re.compile(r"^\+?[0-9()\-\s]{7,25}$")
+
+
+def _normalize_whitespace(value: str) -> str:
+    return " ".join((value or "").split())
+
+
+def _validate_person_name(value: str, *, field_label: str) -> str:
+    normalized = _normalize_whitespace(value)
+    if not normalized:
+        raise ValidationError(_("%(field)s обязательно для заполнения.") % {"field": field_label})
+    if len(normalized) < 2:
+        raise ValidationError(_("%(field)s слишком короткое. Укажите минимум 2 символа.") % {"field": field_label})
+    if normalized[0] in _NAME_CONNECTORS or normalized[-1] in _NAME_CONNECTORS:
+        raise ValidationError(_("%(field)s содержит недопустимые символы.") % {"field": field_label})
+    for char in normalized:
+        if char in _NAME_CONNECTORS or char.isalpha():
+            continue
+        raise ValidationError(
+            _("%(field)s должно содержать только буквы, пробел, дефис или апостроф.")
+            % {"field": field_label}
+        )
+    return normalized
+
+
+def _validate_phone(value: str) -> str:
+    normalized = _normalize_whitespace(value)
+    if not normalized:
+        raise ValidationError(_("Укажите номер телефона."))
+    if not _PHONE_RE.fullmatch(normalized):
+        raise ValidationError(_("Введите корректный номер телефона. Пример: +994 50 123 45 67"))
+    digits = "".join(char for char in normalized if char.isdigit())
+    if len(digits) < 7 or len(digits) > 15:
+        raise ValidationError(_("Номер телефона должен содержать от 7 до 15 цифр."))
+    return normalized
 
 
 class RegistrationForm(UserCreationForm):
     error_messages = {
         "password_mismatch": _("Пароли не совпадают. Введите одинаковый пароль в обоих полях."),
     }
+    first_name = forms.CharField(
+        label=_("Имя"),
+        required=True,
+        max_length=150,
+        error_messages={"required": _("Укажите имя.")},
+        widget=forms.TextInput(attrs={"class": "field", "autocomplete": "given-name"}),
+    )
+    last_name = forms.CharField(
+        label=_("Фамилия"),
+        required=True,
+        max_length=150,
+        error_messages={"required": _("Укажите фамилию.")},
+        widget=forms.TextInput(attrs={"class": "field", "autocomplete": "family-name"}),
+    )
     email = forms.EmailField(
         label=_("Email"),
         required=True,
@@ -24,6 +76,13 @@ class RegistrationForm(UserCreationForm):
             "invalid": _("Укажите корректный email."),
         },
         widget=forms.EmailInput(attrs={"class": "field", "autocomplete": "email"}),
+    )
+    phone = forms.CharField(
+        label=_("Телефон"),
+        required=True,
+        max_length=32,
+        error_messages={"required": _("Укажите номер телефона.")},
+        widget=forms.TextInput(attrs={"class": "field", "autocomplete": "tel"}),
     )
     role = forms.ChoiceField(
         label=_("Кто вы?"),
@@ -38,7 +97,7 @@ class RegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ("username", "email")
+        fields = ("username", "first_name", "last_name", "email")
         widgets = {
             "username": forms.TextInput(attrs={"class": "field", "autocomplete": "username"}),
         }
@@ -54,7 +113,10 @@ class RegistrationForm(UserCreationForm):
                 "max_length": _("Логин слишком длинный. Используйте не более 150 символов."),
             }
         )
+        self.fields["first_name"].help_text = _("Введите ваше настоящее имя.")
+        self.fields["last_name"].help_text = _("Введите вашу настоящую фамилию.")
         self.fields["email"].help_text = _("Укажите рабочий email: на него может прийти важная информация.")
+        self.fields["phone"].help_text = _("Номер нужен для связи по вашему аккаунту.")
         self.fields["password1"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
         self.fields["password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
         self.fields["password1"].label = _("Пароль")
@@ -84,9 +146,20 @@ class RegistrationForm(UserCreationForm):
             )
         return email
 
+    def clean_first_name(self):
+        return _validate_person_name(self.cleaned_data.get("first_name") or "", field_label=str(_("Имя")))
+
+    def clean_last_name(self):
+        return _validate_person_name(self.cleaned_data.get("last_name") or "", field_label=str(_("Фамилия")))
+
+    def clean_phone(self):
+        return _validate_phone(self.cleaned_data.get("phone") or "")
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data["email"]
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
         if commit:
             user.save()
         return user
@@ -114,6 +187,47 @@ class LoginForm(AuthenticationForm):
         },
         widget=forms.PasswordInput(attrs={"class": "field", "autocomplete": "current-password"}),
     )
+
+
+class UserProfileEditForm(forms.Form):
+    first_name = forms.CharField(
+        label=_("Имя"),
+        required=True,
+        max_length=150,
+        widget=forms.TextInput(attrs={"class": "field", "autocomplete": "given-name"}),
+    )
+    last_name = forms.CharField(
+        label=_("Фамилия"),
+        required=True,
+        max_length=150,
+        widget=forms.TextInput(attrs={"class": "field", "autocomplete": "family-name"}),
+    )
+    phone = forms.CharField(
+        label=_("Телефон"),
+        required=True,
+        max_length=32,
+        widget=forms.TextInput(attrs={"class": "field", "autocomplete": "tel"}),
+    )
+
+    def clean_first_name(self):
+        return _validate_person_name(self.cleaned_data.get("first_name") or "", field_label=str(_("Имя")))
+
+    def clean_last_name(self):
+        return _validate_person_name(self.cleaned_data.get("last_name") or "", field_label=str(_("Фамилия")))
+
+    def clean_phone(self):
+        return _validate_phone(self.cleaned_data.get("phone") or "")
+
+
+class UserPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["old_password"].label = _("Текущий пароль")
+        self.fields["new_password1"].label = _("Новый пароль")
+        self.fields["new_password2"].label = _("Повторите новый пароль")
+        self.fields["old_password"].widget.attrs.update({"class": "field", "autocomplete": "current-password"})
+        self.fields["new_password1"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
+        self.fields["new_password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
 
 
 class OwnerPlaceEditForm(forms.ModelForm):

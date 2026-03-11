@@ -371,6 +371,12 @@ class UserProfile(models.Model):
         blank=True,
         help_text=_("Оставьте пустым, чтобы использовать права по умолчанию для роли владельца."),
     )
+    phone = models.CharField(
+        _("Телефон"),
+        max_length=32,
+        blank=True,
+        default="",
+    )
     created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлен"), auto_now=True)
 
