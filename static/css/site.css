@@ -701,7 +701,6 @@ main {
 }
 
 .page-place_list .catalog-layout .quick-filters {
-  grid-column: 2;
   margin: 0;
   border-top: 0;
   padding: 10px 12px 0;
@@ -713,7 +712,6 @@ main {
 }
 
 .page-place_list .catalog-layout .results-toolbar {
-  grid-column: 2;
   margin: 0;
   padding: 10px 12px 12px;
   background: #fff;
@@ -721,6 +719,14 @@ main {
   border-top: 0;
   border-radius: 0 0 16px 16px;
   overflow: visible;
+  position: relative;
+  z-index: 2;
+}
+
+.page-place_list .catalog-layout .catalog-top-stack {
+  grid-column: 2;
+  margin: 0;
+  align-self: start;
   position: relative;
   z-index: 2;
 }
@@ -4649,6 +4655,7 @@ main {
   }
 
   .page-place_list .catalog-layout .filter-panel-catalog .filter-intro,
+  .page-place_list .catalog-layout .catalog-top-stack,
   .page-place_list .catalog-layout .quick-filters,
   .page-place_list .catalog-layout .results-toolbar,
   .page-place_list .catalog-layout .catalog-main-column {

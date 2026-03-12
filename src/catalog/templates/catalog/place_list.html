@@ -188,65 +188,67 @@
       </div>
     </form>
 
-    <div class="quick-filters {% if is_new_page %}quick-filters-new{% endif %}">
-      <span class="quick-filters-label">{% trans "Быстрые фильтры" %}:</span>
-      {% if is_new_page %}
-        <div class="quick-filter-group">
-          <span class="quick-filter-group-title">{% trans "Период (1 вариант)" %}</span>
-          <a class="chip-link {% if selected.days == '7' %}active{% endif %}" href="{% url 'place_new' %}?days=7{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 7 дней" %}</a>
-          <a class="chip-link {% if selected.days == '14' %}active{% endif %}" href="{% url 'place_new' %}?days=14{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 14 дней" %}</a>
-          <a class="chip-link {% if selected.days == '30' %}active{% endif %}" href="{% url 'place_new' %}?days=30{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 30 дней" %}</a>
-        </div>
-        <div class="quick-filter-group">
-          <span class="quick-filter-group-title">{% trans "Рейтинг (1 вариант)" %}</span>
-          <a class="chip-link {% if not selected.min_rating %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Любой" %}</a>
-          <a class="chip-link {% if selected.min_rating == '4' %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}&min_rating=4{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">4.0+</a>
-          <a class="chip-link {% if selected.min_rating == '4.5' %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}&min_rating=4.5{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">4.5+</a>
-        </div>
-        <div class="quick-filter-group">
-          <span class="quick-filter-group-title">{% trans "Дополнительно (можно несколько)" %}</span>
-          {% if selected.with_photo == '1' %}
-            <a class="chip-link active" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Только с фото" %}</a>
-          {% else %}
-            <a class="chip-link" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}&with_photo=1{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Только с фото" %}</a>
-          {% endif %}
-          {% if selected.verified == '1' %}
-            <a class="chip-link active" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}">{% trans "Только проверенные" %}</a>
-          {% else %}
-            <a class="chip-link" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}&verified=1">{% trans "Только проверенные" %}</a>
-          {% endif %}
-        </div>
-      {% else %}
-        <a class="chip-link" href="{% url 'place_list' %}?category=TECH">{% trans "Технологии" %}</a>
-        <a class="chip-link" href="{% url 'place_list' %}?category=SPRT">{% trans "Спорт" %}</a>
-        <a class="chip-link" href="{% url 'place_list' %}?category=EDU">{% trans "Образование" %}</a>
-        <a class="chip-link {% if selected.min_rating == '4' %}active{% endif %}" href="{% url 'place_list' %}?min_rating=4">4.0+</a>
-        <a class="chip-link {% if selected.min_rating == '4.5' %}active{% endif %}" href="{% url 'place_list' %}?min_rating=4.5">4.5+</a>
-        <a class="chip-link" href="{% url 'place_list' %}?district=Ясамал">{% trans "Ясамал" %}</a>
-        <a class="chip-link" href="{% url 'place_list' %}?district=Нариманов">{% trans "Нариманов" %}</a>
-        <a class="chip-link" href="{% url 'place_list' %}?sort=new">{% trans "Сначала новые" %}</a>
-      {% endif %}
-    </div>
+    <div class="catalog-top-stack">
+      <div class="quick-filters {% if is_new_page %}quick-filters-new{% endif %}">
+        <span class="quick-filters-label">{% trans "Быстрые фильтры" %}:</span>
+        {% if is_new_page %}
+          <div class="quick-filter-group">
+            <span class="quick-filter-group-title">{% trans "Период (1 вариант)" %}</span>
+            <a class="chip-link {% if selected.days == '7' %}active{% endif %}" href="{% url 'place_new' %}?days=7{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 7 дней" %}</a>
+            <a class="chip-link {% if selected.days == '14' %}active{% endif %}" href="{% url 'place_new' %}?days=14{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 14 дней" %}</a>
+            <a class="chip-link {% if selected.days == '30' %}active{% endif %}" href="{% url 'place_new' %}?days=30{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 30 дней" %}</a>
+          </div>
+          <div class="quick-filter-group">
+            <span class="quick-filter-group-title">{% trans "Рейтинг (1 вариант)" %}</span>
+            <a class="chip-link {% if not selected.min_rating %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Любой" %}</a>
+            <a class="chip-link {% if selected.min_rating == '4' %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}&min_rating=4{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">4.0+</a>
+            <a class="chip-link {% if selected.min_rating == '4.5' %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}&min_rating=4.5{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">4.5+</a>
+          </div>
+          <div class="quick-filter-group">
+            <span class="quick-filter-group-title">{% trans "Дополнительно (можно несколько)" %}</span>
+            {% if selected.with_photo == '1' %}
+              <a class="chip-link active" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Только с фото" %}</a>
+            {% else %}
+              <a class="chip-link" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}&with_photo=1{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Только с фото" %}</a>
+            {% endif %}
+            {% if selected.verified == '1' %}
+              <a class="chip-link active" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}">{% trans "Только проверенные" %}</a>
+            {% else %}
+              <a class="chip-link" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}&verified=1">{% trans "Только проверенные" %}</a>
+            {% endif %}
+          </div>
+        {% else %}
+          <a class="chip-link" href="{% url 'place_list' %}?category=TECH">{% trans "Технологии" %}</a>
+          <a class="chip-link" href="{% url 'place_list' %}?category=SPRT">{% trans "Спорт" %}</a>
+          <a class="chip-link" href="{% url 'place_list' %}?category=EDU">{% trans "Образование" %}</a>
+          <a class="chip-link {% if selected.min_rating == '4' %}active{% endif %}" href="{% url 'place_list' %}?min_rating=4">4.0+</a>
+          <a class="chip-link {% if selected.min_rating == '4.5' %}active{% endif %}" href="{% url 'place_list' %}?min_rating=4.5">4.5+</a>
+          <a class="chip-link" href="{% url 'place_list' %}?district=Ясамал">{% trans "Ясамал" %}</a>
+          <a class="chip-link" href="{% url 'place_list' %}?district=Нариманов">{% trans "Нариманов" %}</a>
+          <a class="chip-link" href="{% url 'place_list' %}?sort=new">{% trans "Сначала новые" %}</a>
+        {% endif %}
+      </div>
 
-    <div class="results-toolbar">
-      <p class="results-count">
-        {% blocktrans count total=page_obj.paginator.count %}
-          Найден {{ total }} кружок
-        {% plural %}
-          Найдено {{ total }} кружков
-        {% endblocktrans %}
-      </p>
-      <div class="view-switch-wrap">
-        <span class="view-switch-label">{% trans "Вид карточек" %}:</span>
-        <div class="view-switch" role="group" aria-label="{% trans 'Вид карточек' %}">
-          <a
-            class="chip-link {% if selected.view != 'list' %}active{% endif %}"
-            href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=grid"
-          >{% trans "Обычные карточки" %}</a>
-          <a
-            class="chip-link {% if selected.view == 'list' %}active{% endif %}"
-            href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=list"
-          >{% trans "Карточки списком" %}</a>
+      <div class="results-toolbar">
+        <p class="results-count">
+          {% blocktrans count total=page_obj.paginator.count %}
+            Найден {{ total }} кружок
+          {% plural %}
+            Найдено {{ total }} кружков
+          {% endblocktrans %}
+        </p>
+        <div class="view-switch-wrap">
+          <span class="view-switch-label">{% trans "Вид карточек" %}:</span>
+          <div class="view-switch" role="group" aria-label="{% trans 'Вид карточек' %}">
+            <a
+              class="chip-link {% if selected.view != 'list' %}active{% endif %}"
+              href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=grid"
+            >{% trans "Обычные карточки" %}</a>
+            <a
+              class="chip-link {% if selected.view == 'list' %}active{% endif %}"
+              href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=list"
+            >{% trans "Карточки списком" %}</a>
+          </div>
         </div>
       </div>
     </div>
