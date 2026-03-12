@@ -399,6 +399,7 @@ class TestPasswordResetIdentifierSupport(TestCase):
         self.assertEqual(response.headers["Location"], reverse("password_reset_done"))
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ["reset-user@example.com"])
+        self.assertIn("Логин аккаунта: reset_user.", mail.outbox[0].body)
 
 
 @override_settings(
