@@ -67,6 +67,7 @@ class AuthController:
         role = form.cleaned_data["role"]
         self.profile_repository.set_role(user=user, role=role)
         self.profile_repository.set_phone(user=user, phone=form.cleaned_data.get("phone", ""))
+        self.profile_repository.set_gender(user=user, gender=form.cleaned_data.get("gender", ""))
         return user
 
     def send_registration_verification_code(self, *, user, email: str, force: bool = False) -> EmailVerificationResult:

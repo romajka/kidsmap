@@ -345,6 +345,19 @@ class UserProfile(models.Model):
         ),
     }
 
+    GENDER_UNSPECIFIED = "U"
+    GENDER_MALE = "M"
+    GENDER_FEMALE = "F"
+    GENDER_CHOICES = [
+        (GENDER_UNSPECIFIED, _("Не указан")),
+        (GENDER_MALE, _("Мужской")),
+        (GENDER_FEMALE, _("Женский")),
+    ]
+    REGISTRATION_GENDER_CHOICES = [
+        (GENDER_MALE, _("Мужской")),
+        (GENDER_FEMALE, _("Женский")),
+    ]
+
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -376,6 +389,13 @@ class UserProfile(models.Model):
         max_length=32,
         blank=True,
         default="",
+    )
+    gender = models.CharField(
+        _("Пол"),
+        max_length=1,
+        choices=GENDER_CHOICES,
+        default=GENDER_UNSPECIFIED,
+        db_index=True,
     )
     created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлен"), auto_now=True)

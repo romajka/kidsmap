@@ -88,7 +88,7 @@
               </summary>
               <div class="auth-dropdown menu-dropdown">
                 {% if request.user.is_authenticated %}
-                  <a class="auth-pill auth-pill-primary" href="{% url 'account_profile' %}">{% trans "Профиль" %}</a>
+                  <a class="auth-pill auth-pill-primary" href="{% url 'account_profile' %}">{% trans "Личный кабинет" %}</a>
                   {% if current_user_role == "OWNER" %}
                     <a class="auth-pill" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
                   {% endif %}

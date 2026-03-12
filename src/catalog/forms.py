@@ -90,6 +90,16 @@ class RegistrationForm(UserCreationForm):
         error_messages={"required": _("Укажите номер телефона.")},
         widget=forms.TextInput(attrs={"class": "field", "autocomplete": "tel"}),
     )
+    gender = forms.ChoiceField(
+        label=_("Пол"),
+        choices=UserProfile.REGISTRATION_GENDER_CHOICES,
+        required=True,
+        error_messages={
+            "required": _("Выберите пол."),
+            "invalid_choice": _("Выберите корректный вариант пола."),
+        },
+        widget=forms.RadioSelect(attrs={"class": "auth-role-option"}),
+    )
     role = forms.ChoiceField(
         label=_("Кто вы?"),
         choices=UserProfile.ROLE_CHOICES,
@@ -123,6 +133,7 @@ class RegistrationForm(UserCreationForm):
         self.fields["last_name"].help_text = _("Введите вашу настоящую фамилию.")
         self.fields["email"].help_text = _("Укажите рабочий email: на него может прийти важная информация.")
         self.fields["phone"].help_text = _("Номер нужен для связи по вашему аккаунту.")
+        self.fields["gender"].help_text = _("Укажите ваш пол.")
         self.fields["password1"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
         self.fields["password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
         self.fields["password1"].label = _("Пароль")
@@ -160,6 +171,13 @@ class RegistrationForm(UserCreationForm):
 
     def clean_phone(self):
         return _validate_phone(self.cleaned_data.get("phone") or "")
+
+    def clean_gender(self):
+        gender = (self.cleaned_data.get("gender") or "").strip().upper()
+        valid_values = {value for value, _ in UserProfile.REGISTRATION_GENDER_CHOICES}
+        if gender not in valid_values:
+            raise ValidationError(_("Выберите корректный вариант пола."))
+        return gender
 
     def save(self, commit=True):
         user = super().save(commit=False)

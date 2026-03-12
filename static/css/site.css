@@ -5838,6 +5838,12 @@ main {
 }
 
 /* Header compact menus: single account button + compact language dropdown. */
+.topbar {
+  position: relative;
+  z-index: 30;
+  overflow: visible;
+}
+
 .topbar-right {
   gap: 8px;
 }
@@ -5853,7 +5859,6 @@ main {
 
 .header-menu {
   position: relative;
-  isolation: isolate;
 }
 
 .menu-trigger {

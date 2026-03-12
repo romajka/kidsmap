@@ -142,6 +142,7 @@ class TestAccountsAndReviewAccess(TestCase):
                     "last_name": "Алиев",
                     "email": "owner@example.com",
                     "phone": "+994 50 123 45 67",
+                    "gender": UserProfile.GENDER_MALE,
                     "role": UserProfile.ROLE_OWNER,
                     "password1": "StrongPass123!!",
                     "password2": "StrongPass123!!",
@@ -155,6 +156,7 @@ class TestAccountsAndReviewAccess(TestCase):
         self.assertNotIn("_auth_user_id", self.client.session)
         self.assertEqual(user.profile.role, UserProfile.ROLE_OWNER)
         self.assertEqual(user.profile.phone, "+994 50 123 45 67")
+        self.assertEqual(user.profile.gender, UserProfile.GENDER_MALE)
         self.assertEqual(user.first_name, "Рамин")
         self.assertEqual(user.last_name, "Алиев")
 
@@ -206,6 +208,7 @@ class TestAuthValidationAndNextSecurity(TestCase):
             "last_name": "Иванов",
             "email": "new@example.com",
             "phone": "+994 50 111 22 33",
+            "gender": UserProfile.GENDER_MALE,
             "role": UserProfile.ROLE_USER,
             "password1": "StrongPass123!!",
             "password2": "StrongPass123!!",
@@ -230,6 +233,15 @@ class TestAuthValidationAndNextSecurity(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username="no_phone_user").exists())
         self.assertIn("phone", response.context["form"].errors)
+
+    def test_register_requires_gender(self):
+        response = self.client.post(
+            reverse("account_register"),
+            data=self._registration_payload(username="no_gender_user", email="no-gender@example.com", gender=""),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username="no_gender_user").exists())
+        self.assertIn("gender", response.context["form"].errors)
 
     def test_register_rejects_invalid_first_name(self):
         response = self.client.post(
@@ -365,6 +377,7 @@ class TestEmailVerificationFlow(TestCase):
             "last_name": "Иванов",
             "email": email,
             "phone": "+994 50 111 22 33",
+            "gender": UserProfile.GENDER_MALE,
             "role": UserProfile.ROLE_USER,
             "password1": "StrongPass123!!",
             "password2": "StrongPass123!!",

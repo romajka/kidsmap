@@ -112,6 +112,17 @@ class DjangoUserProfileRepository(IUserProfileRepository):
             profile.save(update_fields=["phone", "updated_at"])
         return profile
 
+    def set_gender(self, *, user, gender: str) -> UserProfile:
+        profile = self.get_or_create_for_user(user)
+        normalized_gender = (gender or "").strip().upper()
+        valid_gender_values = {value for value, _ in UserProfile.GENDER_CHOICES}
+        if normalized_gender not in valid_gender_values:
+            normalized_gender = UserProfile.GENDER_UNSPECIFIED
+        if profile.gender != normalized_gender:
+            profile.gender = normalized_gender
+            profile.save(update_fields=["gender", "updated_at"])
+        return profile
+
 
 class DjangoEmailVerificationRepository(IEmailVerificationRepository):
     def get_by_user(self, *, user) -> UserEmailVerification | None:

@@ -79,6 +79,17 @@
       </label>
 
       <fieldset class="auth-role-group">
+        <legend>{{ form.gender.label }}</legend>
+        {{ form.gender }}
+        {% if form.gender.help_text %}
+          <small class="auth-help">{{ form.gender.help_text }}</small>
+        {% endif %}
+        {% if form.gender.errors %}
+          <span class="auth-field-error">{{ form.gender.errors|join:", " }}</span>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="auth-role-group">
         <legend>{{ form.role.label }}</legend>
         {{ form.role }}
         {% if form.role.errors %}

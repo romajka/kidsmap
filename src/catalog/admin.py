@@ -518,12 +518,12 @@ class SiteReviewAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "phone", "role", "owner_role", "owner_permissions_preview", "created_at", "updated_at")
-    list_filter = ("role", "owner_role", "created_at")
+    list_display = ("user", "phone", "gender", "role", "owner_role", "owner_permissions_preview", "created_at", "updated_at")
+    list_filter = ("gender", "role", "owner_role", "created_at")
     search_fields = ("user__username", "user__email", "phone")
     readonly_fields = ("created_at", "updated_at")
     fieldsets = (
-        (_("Пользователь"), {"fields": ("user", "phone")}),
+        (_("Пользователь"), {"fields": ("user", "phone", "gender")}),
         (_("Роли"), {"fields": ("role", "owner_role")}),
         (_("Гранулярные права владельца"), {"fields": ("owner_permissions_override",)}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),

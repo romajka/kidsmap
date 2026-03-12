@@ -77,6 +77,10 @@ class IUserProfileRepository(ABC):
     def set_phone(self, *, user, phone: str) -> UserProfile:
         raise NotImplementedError
 
+    @abstractmethod
+    def set_gender(self, *, user, gender: str) -> UserProfile:
+        raise NotImplementedError
+
 
 class IEmailVerificationRepository(ABC):
     @abstractmethod

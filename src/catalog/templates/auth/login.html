@@ -58,9 +58,5 @@
       {% trans "Нет аккаунта?" %}
       <a href="{% url 'account_register' %}?next={{ next_url|urlencode }}">{% trans "Зарегистрироваться" %}</a>
     </p>
-    <p class="auth-alt">
-      {% trans "Не подтвердили email?" %}
-      <a href="{% url 'account_verify_email' %}?next={{ next_url|urlencode }}">{% trans "Ввести код подтверждения" %}</a>
-    </p>
   </section>
 {% endblock %}

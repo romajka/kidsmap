@@ -48,6 +48,10 @@
           <dd>{% if current_user_role_label %}{{ current_user_role_label }}{% else %}{% trans "Обычный пользователь" %}{% endif %}</dd>
         </div>
         <div>
+          <dt>{% trans "Пол" %}</dt>
+          <dd>{{ profile_model.get_gender_display }}</dd>
+        </div>
+        <div>
           <dt>{% trans "Роль владельца" %}</dt>
           <dd>{% if is_owner_role %}{% trans "Владелец кружка / бизнеса" %}{% else %}-{% endif %}</dd>
         </div>
