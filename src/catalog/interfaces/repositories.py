@@ -43,6 +43,10 @@ class IPlaceRepository(ABC):
     def filtered_active_queryset(self, *, created_after: datetime | None = None) -> QuerySet:
         raise NotImplementedError
 
+    @abstractmethod
+    def claim_candidates_for_user(self, *, user, query: str = "", limit: int = 8) -> QuerySet:
+        raise NotImplementedError
+
 
 class ISiteReviewRepository(ABC):
     @abstractmethod

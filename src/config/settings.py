@@ -24,6 +24,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 DEBUG = _env_bool("DJANGO_DEBUG", True)
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 REVIEWS_REQUIRE_AUTH = _env_bool("REVIEWS_REQUIRE_AUTH", True)
+ADMIN_HOST = (os.getenv("DJANGO_ADMIN_HOST", "") or "").strip().lower()
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "testserver"]
 extra_hosts = _env_list("DJANGO_ALLOWED_HOSTS")
@@ -77,6 +78,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "catalog.middleware.AdminHostRedirectMiddleware",
     "catalog.middleware.SiteVisitMiddleware",
     "django.middleware.locale.LocaleMiddleware",  # языки
     "django.middleware.common.CommonMiddleware",

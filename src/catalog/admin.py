@@ -617,6 +617,16 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )
 
+    def changelist_view(self, request, extra_context=None):
+        pending_count = PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
+        if pending_count:
+            self.message_user(
+                request,
+                _("Ожидают проверки заявок на владение: %(count)s") % {"count": pending_count},
+                level=messages.WARNING,
+            )
+        return super().changelist_view(request, extra_context=extra_context)
+
     def has_add_permission(self, request):
         return False
 

@@ -36,6 +36,16 @@ class OwnershipController:
         profile = self.profile_repository.get_or_create_for_user(request.user)
         requests = list(self.ownership_repository.list_for_user(user=request.user))
         permissions = profile.get_owner_permissions() if profile.role == UserProfile.ROLE_OWNER else set()
+        claim_query = (request.GET.get("claim_q") or "").strip()
+        claimable_places = []
+        if profile.role == UserProfile.ROLE_OWNER:
+            claimable_places = list(
+                self.place_repository.claim_candidates_for_user(
+                    user=request.user,
+                    query=claim_query,
+                    limit=8,
+                )
+            )
         return {
             "owner_profile": profile,
             "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
@@ -44,6 +54,8 @@ class OwnershipController:
             "managed_places": list(request.user.managed_places.order_by("-updated_at")),
             "ownership_requests": requests,
             "ownership_pending_count": sum(1 for item in requests if item.status == PlaceOwnershipRequest.STATUS_PENDING),
+            "claim_query": claim_query,
+            "claimable_places": claimable_places,
         }
 
     def build_place_claim_context(self, *, request, place) -> dict:

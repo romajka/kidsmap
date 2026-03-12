@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 
 from catalog.interfaces.repositories import (
@@ -57,6 +57,27 @@ class DjangoPlaceRepository(IPlaceRepository):
         if created_after is not None:
             qs = qs.filter(created_at__gte=created_after)
         return qs
+
+    def claim_candidates_for_user(self, *, user, query: str = "", limit: int = 8) -> QuerySet:
+        normalized_query = (query or "").strip()
+        qs = self.active_queryset().exclude(owner=user)
+        if normalized_query:
+            qs = qs.filter(
+                Q(name__icontains=normalized_query)
+                | Q(name_ru__icontains=normalized_query)
+                | Q(name_en__icontains=normalized_query)
+                | Q(name_az__icontains=normalized_query)
+                | Q(district__icontains=normalized_query)
+                | Q(address__icontains=normalized_query)
+            )
+
+        pending_place_ids = PlaceOwnershipRequest.objects.filter(
+            applicant=user,
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+        ).values_list("place_id", flat=True)
+        qs = qs.exclude(id__in=pending_place_ids)
+
+        return qs.order_by("-updated_at", "-id")[:limit]
 
 
 class DjangoSiteReviewRepository(ISiteReviewRepository):

@@ -20,7 +20,7 @@
 
     <div class="owner-page-actions">
       {% if is_owner_role %}
-        <a class="btn-secondary" href="{% url 'owner_cabinet' %}">{% trans "Перейти в кабинет владельца" %}</a>
+        <a class="btn-secondary" href="{% url 'owner_cabinet' %}">{% trans "Перейти к управлению карточками" %}</a>
       {% endif %}
     </div>
 
@@ -49,7 +49,7 @@
         </div>
         <div>
           <dt>{% trans "Роль владельца" %}</dt>
-          <dd>{% if current_owner_role_label %}{{ current_owner_role_label }}{% else %}-{% endif %}</dd>
+          <dd>{% if is_owner_role %}{% trans "Владелец кружка / бизнеса" %}{% else %}-{% endif %}</dd>
         </div>
       </dl>
     </section>

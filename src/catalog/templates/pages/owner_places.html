@@ -25,16 +25,8 @@
     </div>
 
     <p class="meta owner-role-meta">
-      {% trans "Роль владельца" %}: <strong>{{ owner_profile.get_owner_role_display }}</strong>
+      {% trans "Статус" %}: <strong>{% trans "Владелец кружка / бизнеса" %}</strong>
     </p>
-
-    {% if owner_permissions %}
-      <div class="owner-permissions">
-        {% for permission in owner_permissions %}
-          <span class="chip">{{ permission }}</span>
-        {% endfor %}
-      </div>
-    {% endif %}
 
     {% if can_view_stats %}
       <div class="owner-stats-grid">

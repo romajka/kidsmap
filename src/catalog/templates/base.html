@@ -77,39 +77,42 @@
 
         <div class="topbar-right">
           <div class="auth-switch" aria-label="{% trans 'Аккаунт' %}">
-            {% if request.user.is_authenticated %}
-              <a class="auth-pill auth-pill-primary" href="{% url 'account_dashboard' %}">{% trans "Кабинет" %}</a>
-              {% if current_user_role == "OWNER" %}
-                <a class="auth-pill" href="{% url 'owner_cabinet' %}">{% trans "Кабинет владельца" %}</a>
-              {% endif %}
-              <span class="auth-pill auth-role">
-                {% if current_user_role_label %}{{ current_user_role_label }}{% else %}{% trans "Обычный пользователь" %}{% endif %}
-              </span>
-              <form method="post" action="{% url 'account_logout' %}" class="auth-logout-form">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                <button type="submit" class="auth-pill auth-logout">{% trans "Выйти" %}</button>
-              </form>
-            {% else %}
-              <a class="auth-pill" href="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">{% trans "Войти" %}</a>
-              <a class="auth-pill auth-pill-primary" href="{% url 'account_register' %}?next={{ request.get_full_path|urlencode }}">{% trans "Регистрация" %}</a>
-            {% endif %}
+            <details class="account-menu header-menu">
+              <summary class="menu-trigger auth-current">
+                {% if request.user.is_authenticated %}
+                  {% trans "Профиль" %}
+                {% else %}
+                  {% trans "Войти" %} / {% trans "Регистрация" %}
+                {% endif %}
+                <span class="lang-arrow" aria-hidden="true"></span>
+              </summary>
+              <div class="auth-dropdown menu-dropdown">
+                {% if request.user.is_authenticated %}
+                  <a class="auth-pill auth-pill-primary" href="{% url 'account_profile' %}">{% trans "Профиль" %}</a>
+                  {% if current_user_role == "OWNER" %}
+                    <a class="auth-pill" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+                  {% endif %}
+                  <form method="post" action="{% url 'account_logout' %}" class="auth-logout-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                    <button type="submit" class="auth-pill auth-logout">{% trans "Выйти" %}</button>
+                  </form>
+                {% else %}
+                  <a class="auth-pill" href="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">{% trans "Войти" %}</a>
+                  <a class="auth-pill auth-pill-primary" href="{% url 'account_register' %}?next={{ request.get_full_path|urlencode }}">{% trans "Регистрация" %}</a>
+                {% endif %}
+              </div>
+            </details>
           </div>
 
           <div class="lang-switch" aria-label="{% trans 'Язык' %}">
             {% get_current_language as CURRENT_LANGUAGE %}
-            <div class="lang-desktop">
-              <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
-              <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
-              <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
-            </div>
-
-            <details class="lang-menu lang-mobile">
-              <summary class="lang-current">
+            <details class="lang-menu header-menu">
+              <summary class="menu-trigger lang-current">
                 {% if CURRENT_LANGUAGE == "ru" %}🇷🇺 RU{% elif CURRENT_LANGUAGE == "az" %}🇦🇿 AZ{% else %}🇬🇧 EN{% endif %}
                 <span class="lang-arrow" aria-hidden="true"></span>
               </summary>
-              <div class="lang-dropdown">
+              <div class="lang-dropdown menu-dropdown">
                 <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
                 <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
                 <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
@@ -243,11 +246,21 @@
         });
 
         (function () {
-          const langMenus = Array.from(document.querySelectorAll(".lang-menu"));
-          if (!langMenus.length) return;
+          const headerMenus = Array.from(document.querySelectorAll(".header-menu"));
+          if (!headerMenus.length) return;
+
+          headerMenus.forEach(function (menu) {
+            menu.addEventListener("toggle", function () {
+              if (!menu.hasAttribute("open")) return;
+              headerMenus.forEach(function (other) {
+                if (other === menu) return;
+                other.removeAttribute("open");
+              });
+            });
+          });
 
           document.addEventListener("click", function (event) {
-            langMenus.forEach(function (menu) {
+            headerMenus.forEach(function (menu) {
               if (!menu.hasAttribute("open")) return;
               if (menu.contains(event.target)) return;
               menu.removeAttribute("open");
@@ -256,7 +269,7 @@
 
           document.addEventListener("keydown", function (event) {
             if (event.key !== "Escape") return;
-            langMenus.forEach(function (menu) {
+            headerMenus.forEach(function (menu) {
               menu.removeAttribute("open");
             });
           });

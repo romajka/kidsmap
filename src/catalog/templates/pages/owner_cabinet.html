@@ -11,7 +11,7 @@
     <h1>{% trans "Кабинет владельца" %}</h1>
     <p class="auth-subtitle">{% trans "Здесь вы видите свои заявки на привязку кружков и текущие управляемые карточки." %}</p>
     {% if is_owner_role %}
-      <p class="meta">{% trans "Роль владельца" %}: <strong>{{ owner_role_label }}</strong></p>
+      <p class="meta">{% trans "Статус" %}: <strong>{% trans "Владелец кружка / бизнеса" %}</strong></p>
     {% endif %}
 
     <div class="owner-page-actions">
@@ -23,6 +23,67 @@
         <a class="btn-secondary" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
       {% endif %}
     </div>
+
+    {% if is_owner_role %}
+      <section class="owner-cabinet-section owner-claim-section">
+        <h2>{% trans "Создать заявку на управление карточкой" %}</h2>
+        <p class="meta">{% trans "Найдите нужный кружок и отправьте заявку. После отправки заявка появится в админке в разделе заявок на владение и будет ждать подтверждения модератора." %}</p>
+        <form method="get" class="owner-claim-search">
+          <label>
+            {% trans "Поиск карточки" %}
+            <input
+              class="field"
+              type="text"
+              name="claim_q"
+              value="{{ claim_query }}"
+              maxlength="120"
+              placeholder="{% trans 'Название, район или адрес' %}"
+            />
+          </label>
+          <div class="owner-place-actions">
+            <button type="submit" class="btn-secondary">{% trans "Найти" %}</button>
+            <a class="link-btn" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+          </div>
+        </form>
+
+        {% if claimable_places %}
+          <div class="owner-request-list owner-claim-list">
+            {% for place in claimable_places %}
+              <article class="owner-request-item owner-claim-item">
+                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                <p class="meta">
+                  {{ place.get_category_display }}
+                  {% if place.district %} · {{ place.district }}{% endif %}
+                  {% if place.address %} · {{ place.address }}{% endif %}
+                </p>
+                <form method="post" action="{% url 'request_place_ownership' place.id %}" class="owner-claim-form">
+                  {% csrf_token %}
+                  <label>
+                    {% trans "Комментарий к заявке (необязательно)" %}
+                    <input
+                      class="field"
+                      type="text"
+                      name="note"
+                      maxlength="240"
+                      placeholder="{% trans 'Например: я официальный представитель кружка' %}"
+                    />
+                  </label>
+                  <button type="submit" class="btn">{% trans "Отправить заявку" %}</button>
+                </form>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="meta">
+            {% if claim_query %}
+              {% trans "По вашему запросу карточки не найдены или по ним уже есть активные заявки." %}
+            {% else %}
+              {% trans "Нет доступных карточек для новой заявки. Возможно, по ним уже отправлены заявки или они уже привязаны." %}
+            {% endif %}
+          </p>
+        {% endif %}
+      </section>
+    {% endif %}
 
     {% if not is_owner_role %}
       <div class="review-auth-note">

@@ -48,6 +48,19 @@ class TestPublicPagesSmoke(TestCase):
         self.assertTrue(response.redirect_chain)
         self.assertIn("/ru/admin/login/", response.redirect_chain[-1][0])
 
+    @override_settings(ADMIN_HOST="admin.kidsmap.az")
+    def test_admin_page_redirects_to_admin_host_when_configured(self):
+        response = self.client.get(
+            "/ru/admin/login/?next=/ru/admin/",
+            secure=True,
+            HTTP_HOST="testserver",
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response["Location"],
+            "https://admin.kidsmap.az/ru/admin/login/?next=/ru/admin/",
+        )
+
 
 class TestTrackingController(TestCase):
     def setUp(self):
@@ -618,6 +631,29 @@ class TestOwnershipWorkflow(TestCase):
         self.assertEqual(ownership_request.place, self.place)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
         self.assertEqual(PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).count(), 1)
+
+    def test_owner_cabinet_shows_claim_candidates(self):
+        self.client.login(username="owner_role_user", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_cabinet"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("claimable_places", response.context)
+        self.assertIn(self.place, response.context["claimable_places"])
+
+    def test_owner_cabinet_claim_search_filters_candidates(self):
+        Place.objects.create(
+            name="Another Place",
+            name_ru="Другой кружок",
+            category="TECH",
+            is_active=True,
+        )
+        self.client.login(username="owner_role_user", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_cabinet"), data={"claim_q": "Другой"})
+
+        self.assertEqual(response.status_code, 200)
+        claimable_places = list(response.context["claimable_places"])
+        self.assertEqual(len(claimable_places), 1)
+        self.assertEqual(claimable_places[0].name_ru, "Другой кружок")
 
     def test_regular_user_cannot_submit_place_ownership_request(self):
         self.client.login(username="regular_role_user", password="StrongPass123!!")
