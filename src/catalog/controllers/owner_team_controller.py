@@ -42,12 +42,14 @@ class OwnerTeamController:
 
         members = list(self.team_repository.list_members(owner=request.user))
         invitations = list(self.team_repository.list_invitations(owner=request.user))
+        owner_permissions = access.profile.get_owner_permissions() if access.profile else set()
         context = {
             "owner_profile": access.profile,
             "team_members": members,
             "team_invitations": invitations,
             "team_invitation_form": form or OwnerTeamInvitationForm(),
             "owner_role_choices": UserProfile.OWNER_ROLE_CHOICES,
+            "can_moderate_reviews": UserProfile.OWNER_PERMISSION_MODERATE_REVIEWS in owner_permissions,
         }
         return context, access
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from django import forms
+from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
     AuthenticationForm,
@@ -12,6 +13,7 @@ from django.contrib.auth.forms import (
     UserCreationForm,
 )
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Place, UserProfile
@@ -20,6 +22,7 @@ from catalog.models import Place, UserProfile
 User = get_user_model()
 _NAME_CONNECTORS = {" ", "-", "'"}
 _PHONE_RE = re.compile(r"^\+?[0-9()\-\s]{7,25}$")
+_OWNER_GALLERY_MAX_FILES = 5
 
 
 def _normalize_whitespace(value: str) -> str:
@@ -54,6 +57,34 @@ def _validate_phone(value: str) -> str:
     if len(digits) < 7 or len(digits) > 15:
         raise ValidationError(_("Номер телефона должен содержать от 7 до 15 цифр."))
     return normalized
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("widget", MultipleFileInput(attrs={"class": "field", "accept": "image/*", "multiple": True}))
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        if not data:
+            return []
+
+        if isinstance(data, (list, tuple)):
+            items = data
+        else:
+            items = [data]
+
+        cleaned_items = []
+        single_clean = super().clean
+        for item in items:
+            if not item:
+                continue
+            cleaned_items.append(single_clean(item, initial))
+        return cleaned_items
 
 
 class RegistrationForm(UserCreationForm):
@@ -197,9 +228,9 @@ class LoginForm(AuthenticationForm):
         "inactive": _("Этот аккаунт временно отключен. Обратитесь к администратору."),
     }
     username = forms.CharField(
-        label=_("Логин"),
+        label=_("Логин или email"),
         error_messages={
-            "required": _("Укажите логин."),
+            "required": _("Укажите логин или email."),
         },
         widget=forms.TextInput(attrs={"class": "field", "autocomplete": "username"}),
     )
@@ -218,16 +249,40 @@ class LoginForm(AuthenticationForm):
     )
 
     def clean(self):
-        username = (self.data.get("username") or "").strip()
-        password = self.data.get("password") or ""
-        if username and password:
-            user = User.objects.filter(username__iexact=username).first()
+        login_value = (self.cleaned_data.get("username") or "").strip()
+        password = self.cleaned_data.get("password") or ""
+        if not login_value or not password:
+            return self.cleaned_data
+
+        user = (
+            User.objects.filter(Q(username__iexact=login_value) | Q(email__iexact=login_value))
+            .order_by("id")
+            .first()
+        )
+        resolved_username = user.username if user else login_value
+        self.cleaned_data["username"] = resolved_username
+
+        if user and not user.is_active and user.check_password(password):
+            raise ValidationError(
+                _("Email не подтвержден. Подтвердите email кодом из письма, затем повторите вход."),
+                code="email_not_verified",
+            )
+
+        self.user_cache = authenticate(self.request, username=resolved_username, password=password)
+        if self.user_cache is None:
+            raise self.get_invalid_login_error()
+
+        try:
+            self.confirm_login_allowed(self.user_cache)
+        except ValidationError as exc:
             if user and not user.is_active and user.check_password(password):
                 raise ValidationError(
                     _("Email не подтвержден. Подтвердите email кодом из письма, затем повторите вход."),
                     code="email_not_verified",
                 )
-        return super().clean()
+            raise exc
+
+        return self.cleaned_data
 
 
 class EmailVerificationForm(forms.Form):
@@ -352,10 +407,36 @@ class UserPasswordChangeForm(PasswordChangeForm):
 
 
 class UserPasswordResetForm(PasswordResetForm):
+    email = forms.CharField(
+        label=_("Email или логин"),
+        required=True,
+        widget=forms.TextInput(attrs={"class": "field", "autocomplete": "username"}),
+        error_messages={
+            "required": _("Укажите email или логин."),
+        },
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["email"].label = _("Email")
-        self.fields["email"].widget.attrs.update({"class": "field", "autocomplete": "email"})
+        self.fields["email"].widget.attrs.update({"class": "field"})
+
+    def clean_email(self):
+        value = (self.cleaned_data.get("email") or "").strip()
+        if not value:
+            raise ValidationError(_("Укажите email или логин."))
+
+        if "@" in value:
+            return value.lower()
+
+        user = (
+            User.objects.filter(username__iexact=value)
+            .exclude(email="")
+            .order_by("id")
+            .first()
+        )
+        if user and user.email:
+            return user.email.strip().lower()
+        return value.lower()
 
 
 class UserSetPasswordForm(SetPasswordForm):
@@ -507,6 +588,62 @@ class OwnerPlaceEditForm(forms.ModelForm):
 
         return cleaned
 
+
+class OwnerPlaceCreateForm(OwnerPlaceEditForm):
+    moderation_note = forms.CharField(
+        label=_("Комментарий для модерации"),
+        required=False,
+        max_length=500,
+        widget=forms.Textarea(attrs={"class": "field", "rows": 3}),
+        help_text=_("Например: чем уникален кружок и кто ответственный за карточку."),
+    )
+    gallery_images = MultipleFileField(
+        label=_("Дополнительные фото (до 5)"),
+        required=False,
+        help_text=_("Можно загрузить до 5 изображений для галереи."),
+    )
+
+    class Meta(OwnerPlaceEditForm.Meta):
+        fields = OwnerPlaceEditForm.Meta.fields
+
+    def clean(self):
+        cleaned = super().clean()
+        names = [
+            (cleaned.get("name_ru") or "").strip(),
+            (cleaned.get("name_az") or "").strip(),
+            (cleaned.get("name_en") or "").strip(),
+        ]
+        if not any(names):
+            self.add_error("name_ru", _("Укажите хотя бы одно название (RU, AZ или EN)."))
+
+        gallery_images = self.files.getlist("gallery_images")
+        cleaned["gallery_images"] = gallery_images
+        if len(gallery_images) > _OWNER_GALLERY_MAX_FILES:
+            self.add_error(
+                "gallery_images",
+                _("Можно загрузить не больше %(limit)s фото.") % {"limit": _OWNER_GALLERY_MAX_FILES},
+            )
+
+        for file_obj in gallery_images:
+            content_type = (getattr(file_obj, "content_type", "") or "").lower()
+            if content_type and not content_type.startswith("image/"):
+                self.add_error("gallery_images", _("Загружайте только изображения (JPG, PNG, WEBP и т.д.)."))
+                break
+
+        return cleaned
+
+    def save(self, commit=True):
+        place = super().save(commit=False)
+        place.name = (
+            (self.cleaned_data.get("name_ru") or "").strip()
+            or (self.cleaned_data.get("name_az") or "").strip()
+            or (self.cleaned_data.get("name_en") or "").strip()
+            or place.name
+            or "KidsMap"
+        )
+        if commit:
+            place.save()
+        return place
 
 class OwnerTeamInvitationForm(forms.Form):
     email = forms.EmailField(

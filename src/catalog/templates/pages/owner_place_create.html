@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Новая карточка кружка" %}{% endblock %}
+{% block title_plain %}{% trans "Новая карточка кружка" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Новая карточка кружка" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel owner-place-edit">
+    <div class="owner-page-head">
+      <div>
+        <h1>{% trans "Новая карточка кружка" %}</h1>
+        <p class="auth-subtitle">{% trans "Заполните данные и отправьте карточку на модерацию. После проверки администратор подтвердит публикацию." %}</p>
+      </div>
+      <div class="owner-page-actions">
+        <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% trans "Назад к карточкам" %}</a>
+      </div>
+    </div>
+
+    <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
+      <a class="chip-link" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
+      <a class="chip-link active" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+    </nav>
+
+    <form method="post" enctype="multipart/form-data" class="owner-edit-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="auth-errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="owner-form-grid">
+        {% for field in form %}
+          <label class="owner-form-field{% if field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' or field.name == 'schedule' or field.name == 'moderation_note' or field.name == 'gallery_images' %} owner-form-field-full{% endif %}">
+            <span>{{ field.label }}</span>
+            {{ field }}
+            {% if field.help_text %}
+              <small class="meta">{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+              <small class="auth-errors">{{ error }}</small>
+            {% endfor %}
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="owner-edit-actions">
+        <button type="submit" class="btn">{% trans "Создать и отправить на проверку" %}</button>
+        <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К заявкам" %}</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

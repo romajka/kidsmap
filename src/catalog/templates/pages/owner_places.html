@@ -14,6 +14,9 @@
         <p class="auth-subtitle">{% trans "Редактирование, черновики и публикация ваших кружков." %}</p>
       </div>
       <div class="owner-page-actions">
+        {% if can_edit_places %}
+          <a class="btn" href="{% url 'owner_place_create' %}">{% trans "Добавить новую карточку" %}</a>
+        {% endif %}
         <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К заявкам" %}</a>
         {% if can_moderate_reviews %}
           <a class="btn-secondary" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
@@ -24,9 +27,21 @@
       </div>
     </div>
 
+    <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
+      <a class="chip-link" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
+      <a class="chip-link active" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+      {% if can_moderate_reviews %}
+        <a class="chip-link" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
+      {% endif %}
+      {% if can_manage_team %}
+        <a class="chip-link" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
+      {% endif %}
+    </nav>
+
     <p class="meta owner-role-meta">
       {% trans "Статус" %}: <strong>{% trans "Владелец кружка / бизнеса" %}</strong>
     </p>
+    <p class="meta">{% trans "Ожидают модерации" %}: <strong>{{ pending_moderation_count }}</strong></p>
 
     {% if can_view_stats %}
       <div class="owner-stats-grid">
@@ -73,6 +88,11 @@
                 <p class="meta">
                   ★ {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %} · ♥ {{ place.likes_count }}
                 </p>
+                {% if place.latest_moderation_request %}
+                  <p class="meta">
+                    {% trans "Заявка" %}: <strong>{{ place.latest_moderation_request.get_status_display }}</strong>
+                  </p>
+                {% endif %}
                 <div class="owner-place-actions">
                   {% if can_edit_places %}
                     <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
@@ -103,9 +123,22 @@
                 <p class="meta">
                   ★ {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %} · ♥ {{ place.likes_count }}
                 </p>
+                {% if place.latest_moderation_request %}
+                  <p class="meta">
+                    {% trans "Заявка" %}: <strong>{{ place.latest_moderation_request.get_status_display }}</strong>
+                  </p>
+                {% endif %}
                 <div class="owner-place-actions">
                   {% if can_edit_places %}
                     <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
+                  {% endif %}
+                  {% if can_edit_places and place.latest_moderation_request and place.latest_moderation_request.status == "PENDING" %}
+                    <span class="chip">{% trans "На проверке" %}</span>
+                  {% elif can_edit_places %}
+                    <form method="post" action="{% url 'owner_place_submit_review' place.id %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-secondary">{% trans "Отправить на проверку" %}</button>
+                    </form>
                   {% endif %}
                   {% if can_publish_places %}
                     <form method="post" action="{% url 'owner_place_publish' place.id %}">

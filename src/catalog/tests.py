@@ -5,10 +5,13 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
 
+from catalog.forms import OwnerPlaceCreateForm
 from catalog.models import (
     FunnelEvent,
     OwnerTeamInvitation,
@@ -16,6 +19,7 @@ from catalog.models import (
     Place,
     PlaceChangeAudit,
     PlaceLike,
+    PlacePhoto,
     PlaceOwnershipRequest,
     PlaceOwnershipRequestAudit,
     PlaceReview,
@@ -336,6 +340,19 @@ class TestAuthValidationAndNextSecurity(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers["Location"], "/ru/account/profile/")
 
+    def test_login_accepts_email_instead_of_username(self):
+        User.objects.create_user(
+            username="login_email_user",
+            email="login-email@example.com",
+            password="StrongPass123!!",
+        )
+        response = self.client.post(
+            reverse("account_login"),
+            data={"username": "login-email@example.com", "password": "StrongPass123!!"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/ru/account/profile/")
+
     def test_login_without_remember_me_expires_session_on_browser_close(self):
         User.objects.create_user(
             username="session_short_user",
@@ -361,6 +378,27 @@ class TestAuthValidationAndNextSecurity(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(self.client.session.get_expire_at_browser_close())
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class TestPasswordResetIdentifierSupport(TestCase):
+    def test_password_reset_accepts_username_and_sends_email(self):
+        User.objects.create_user(
+            username="reset_user",
+            email="reset-user@example.com",
+            password="StrongPass123!!",
+            is_active=True,
+        )
+
+        response = self.client.post(
+            reverse("password_reset"),
+            data={"email": "reset_user"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], reverse("password_reset_done"))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["reset-user@example.com"])
 
 
 @override_settings(
@@ -788,6 +826,9 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             is_active=True,
         )
 
+    def _image_upload(self, name: str) -> SimpleUploadedFile:
+        return SimpleUploadedFile(name, b"fake-image-content", content_type="image/png")
+
     def test_owner_manager_can_open_places_dashboard(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.get(reverse("owner_places_dashboard"))
@@ -882,6 +923,117 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.moderator_place.refresh_from_db()
         self.assertNotEqual(self.moderator_place.name_ru, "Изменение от модератора")
+
+    def test_owner_manager_can_create_place_and_send_for_moderation(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "name_ru": "Новая карточка владельца",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание новой карточки",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "Робототехника",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "100",
+                "price_to": "200",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "address": "Улица 1",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "Пн-Сб",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "Новая карточка на проверку",
+                "gallery_images": [self._image_upload("g1.png"), self._image_upload("g2.png")],
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], reverse("owner_places_dashboard"))
+
+        place = Place.objects.get(owner=self.manager_user, name_ru="Новая карточка владельца")
+        self.assertFalse(place.is_active)
+        self.assertFalse(place.is_verified)
+        self.assertEqual(place.name, "Новая карточка владельца")
+        self.assertEqual(PlacePhoto.objects.filter(place=place).count(), 2)
+        ownership_request = PlaceOwnershipRequest.objects.get(place=place, applicant=self.manager_user)
+        self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
+
+    def test_owner_place_create_rejects_more_than_five_gallery_files(self):
+        form = OwnerPlaceCreateForm(
+            data={
+                "name_ru": "Слишком много фото",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "",
+            },
+            files=MultiValueDict(
+                {
+                    "gallery_images": [
+                        self._image_upload("g1.png"),
+                        self._image_upload("g2.png"),
+                        self._image_upload("g3.png"),
+                        self._image_upload("g4.png"),
+                        self._image_upload("g5.png"),
+                        self._image_upload("g6.png"),
+                    ]
+                }
+            ),
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("gallery_images", form.errors)
+
+    def test_owner_editor_can_submit_draft_for_moderation(self):
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+
+        first_response = self.client.post(
+            reverse("owner_place_submit_review", args=[self.editor_place.id]),
+            follow=True,
+        )
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(
+            PlaceOwnershipRequest.objects.filter(place=self.editor_place, applicant=self.editor_user).count(),
+            1,
+        )
+
+        second_response = self.client.post(
+            reverse("owner_place_submit_review", args=[self.editor_place.id]),
+            follow=True,
+        )
+        self.assertEqual(second_response.status_code, 200)
+        self.assertContains(second_response, "уже отправлена")
+        self.assertEqual(
+            PlaceOwnershipRequest.objects.filter(place=self.editor_place, applicant=self.editor_user).count(),
+            1,
+        )
 
     def test_regular_user_is_redirected_from_owner_places_dashboard(self):
         self.client.login(username="regular_for_owner_pages", password="StrongPass123!!")

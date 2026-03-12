@@ -14,6 +14,17 @@
       <p class="meta">{% trans "Статус" %}: <strong>{% trans "Владелец кружка / бизнеса" %}</strong></p>
     {% endif %}
 
+    <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
+      <a class="chip-link active" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
+      <a class="chip-link" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+      {% if "owner.reviews.moderate" in owner_permissions %}
+        <a class="chip-link" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
+      {% endif %}
+      {% if "owner.team.manage" in owner_permissions %}
+        <a class="chip-link" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
+      {% endif %}
+    </nav>
+
     <div class="owner-page-actions">
       <a class="btn" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
       {% if "owner.reviews.moderate" in owner_permissions %}

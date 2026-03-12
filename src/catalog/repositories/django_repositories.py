@@ -28,6 +28,7 @@ from catalog.models import (
     Place,
     PlaceChangeAudit,
     PlaceLike,
+    PlacePhoto,
     PlaceOwnershipRequest,
     PlaceReview,
     SiteReview,
@@ -241,6 +242,15 @@ class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
 
     def get_managed_by_pk(self, *, user, pk: int) -> Place | None:
         return self.managed_queryset(user=user).filter(pk=pk).first()
+
+    def add_gallery_images(self, *, place: Place, image_files: list) -> None:
+        photos = []
+        for index, image in enumerate(image_files, start=1):
+            if not image:
+                continue
+            photos.append(PlacePhoto(place=place, image=image, order=index))
+        if photos:
+            PlacePhoto.objects.bulk_create(photos)
 
 
 class DjangoOwnerTeamRepository(IOwnerTeamRepository):

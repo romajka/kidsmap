@@ -201,6 +201,44 @@ def owner_places_dashboard(request):
     return render(request, "pages/owner_places.html", context)
 
 
+def owner_place_create(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    if request.method == "POST":
+        result = owner_places_controller.create_place(
+            request=request,
+            data=request.POST,
+            files=request.FILES,
+        )
+        if result.ok:
+            messages.success(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        if result.form is None:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        context = {
+            "form": result.form,
+            "owner_profile": result.profile,
+            "meta_description": _("Создание карточки кружка в кабинете владельца."),
+        }
+        return render(request, "pages/owner_place_create.html", context)
+
+    result = owner_places_controller.build_create_form_context(request=request)
+    if not result.ok or result.form is None:
+        messages.error(request, result.message)
+        return redirect("owner_places_dashboard")
+
+    context = {
+        "form": result.form,
+        "owner_profile": result.profile,
+        "meta_description": _("Создание карточки кружка в кабинете владельца."),
+    }
+    return render(request, "pages/owner_place_create.html", context)
+
+
 def owner_place_edit(request, pk):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
@@ -263,6 +301,19 @@ def owner_place_draft(request, pk):
         return _redirect_to_login(request)
 
     result = owner_places_controller.set_publication_state(request=request, place_id=pk, is_active=False)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_place_submit_review(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.submit_for_moderation(request=request, place_id=pk)
     if result.ok:
         messages.success(request, result.message)
     else:

@@ -18,6 +18,15 @@
       </div>
     </div>
 
+    <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
+      <a class="chip-link" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
+      <a class="chip-link" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+      {% if can_moderate_reviews %}
+        <a class="chip-link" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
+      {% endif %}
+      <a class="chip-link active" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
+    </nav>
+
     <section class="owner-team-section">
       <h2>{% trans "Пригласить участника" %}</h2>
       <form method="post" action="{% url 'owner_team_invite' %}" class="auth-form owner-team-invite-form">

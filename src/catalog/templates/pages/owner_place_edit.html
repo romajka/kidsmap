@@ -18,6 +18,11 @@
       </div>
     </div>
 
+    <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
+      <a class="chip-link" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
+      <a class="chip-link active" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+    </nav>
+
     <form method="post" enctype="multipart/form-data" class="owner-edit-form">
       {% csrf_token %}
       {% if form.non_field_errors %}

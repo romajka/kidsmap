@@ -150,6 +150,10 @@ class IOwnerPlaceRepository(ABC):
     def get_managed_by_pk(self, *, user, pk: int) -> Place | None:
         raise NotImplementedError
 
+    @abstractmethod
+    def add_gallery_images(self, *, place: Place, image_files: list) -> None:
+        raise NotImplementedError
+
 
 class IOwnerTeamRepository(ABC):
     @abstractmethod

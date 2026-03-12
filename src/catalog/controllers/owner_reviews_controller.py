@@ -69,6 +69,7 @@ class OwnerReviewsController:
         pending_count = sum(1 for item in reviews if not item.is_approved)
         approved_count = len(reviews) - pending_count
         scope_owner_ids = sorted(set(owner_ids_for_permission(scopes, UserProfile.OWNER_PERMISSION_MODERATE_REVIEWS)))
+        can_manage_team = any(UserProfile.OWNER_PERMISSION_MANAGE_TEAM in scope.permissions for scope in scopes)
 
         context = {
             "owner_review_scopes": scopes,
@@ -76,6 +77,7 @@ class OwnerReviewsController:
             "owner_reviews": reviews,
             "owner_reviews_pending_count": pending_count,
             "owner_reviews_approved_count": approved_count,
+            "can_manage_team": can_manage_team,
         }
         return context, OwnerReviewsActionResult(ok=True, message="")
 
