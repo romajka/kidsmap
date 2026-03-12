@@ -22,9 +22,6 @@
       <a class="chip-link" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
       <a class="chip-link" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
       <a class="chip-link active" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
-      {% if can_manage_team %}
-        <a class="chip-link" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
-      {% endif %}
     </nav>
 
     <div class="owner-permissions">

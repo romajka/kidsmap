@@ -21,9 +21,6 @@
         {% if can_moderate_reviews %}
           <a class="btn-secondary" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
         {% endif %}
-        {% if can_manage_team %}
-          <a class="btn-secondary" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
-        {% endif %}
       </div>
     </div>
 
@@ -32,9 +29,6 @@
       <a class="chip-link active" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
       {% if can_moderate_reviews %}
         <a class="chip-link" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
-      {% endif %}
-      {% if can_manage_team %}
-        <a class="chip-link" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
       {% endif %}
     </nav>
 

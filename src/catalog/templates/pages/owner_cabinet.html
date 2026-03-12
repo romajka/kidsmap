@@ -20,18 +20,12 @@
       {% if "owner.reviews.moderate" in owner_permissions %}
         <a class="chip-link" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
       {% endif %}
-      {% if "owner.team.manage" in owner_permissions %}
-        <a class="chip-link" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
-      {% endif %}
     </nav>
 
     <div class="owner-page-actions">
       <a class="btn" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
       {% if "owner.reviews.moderate" in owner_permissions %}
         <a class="btn-secondary" href="{% url 'owner_reviews_dashboard' %}">{% trans "Модерация отзывов" %}</a>
-      {% endif %}
-      {% if "owner.team.manage" in owner_permissions %}
-        <a class="btn-secondary" href="{% url 'owner_team_dashboard' %}">{% trans "Команда" %}</a>
       {% endif %}
     </div>
 
