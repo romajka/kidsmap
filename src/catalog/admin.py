@@ -3,6 +3,7 @@ from django.contrib.admin.sites import NotRegistered
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
+from django.db.models import Q
 from django import forms
 from django.utils.html import format_html
 from django.shortcuts import redirect
@@ -28,6 +29,8 @@ from .models import (
     SiteFooterSettings,
     SiteEmptyStateSettings,
     SiteAnalytics,
+    SiteRegisteredUser,
+    StaffAccessUser,
     UserEmailVerification,
     UserProfile,
 )
@@ -54,6 +57,8 @@ def _kidsmap_get_app_list(self, request, app_label=None):
         priority = {
             "sitesettings": 0,
             "siteanalytics": 1,
+            "siteregistereduser": 2,
+            "staffaccessuser": 3,
             "placeownershiprequest": 5,
             "place": 10,
             "placechangeaudit": 20,
@@ -110,17 +115,56 @@ except NotRegistered:
     pass
 
 
+class _HiddenFromAdminIndexMixin:
+    def get_model_perms(self, request):
+        return {}
+
+
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    fk_name = "user"
+    can_delete = False
+    extra = 0
+    max_num = 1
+    fields = ("role", "owner_role", "owner_permissions_override", "phone", "gender", "created_at", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
+
+
+class _BaseKidsMapUserAdmin(UserAdmin):
+    filter_horizontal = ()
+    search_fields = ("username", "email", "first_name", "last_name")
+    ordering = ("username",)
+    inlines = (UserProfileInline,)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("profile")
+
+    @admin.display(description=_("Статус на сайте"))
+    def site_role(self, obj):
+        profile = getattr(obj, "profile", None)
+        return profile.get_role_display() if profile else "-"
+
+    @admin.display(description=_("Телефон"))
+    def site_phone(self, obj):
+        profile = getattr(obj, "profile", None)
+        return profile.phone if profile and profile.phone else "-"
+
+    @admin.display(description=_("Пол"))
+    def site_gender(self, obj):
+        profile = getattr(obj, "profile", None)
+        return profile.get_gender_display() if profile else "-"
+
+
 @admin.register(User)
-class KidsMapUserAdmin(UserAdmin):
+class HiddenBaseUserAdmin(_HiddenFromAdminIndexMixin, _BaseKidsMapUserAdmin):
     """
-    Keep user management simple for project admins:
-    no "Groups" block on the user form, role control via is_staff/is_superuser.
+    Hidden base registration to keep default auth user admin URLs alive.
     """
 
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (_("Персональная информация"), {"fields": ("first_name", "last_name", "email")}),
-        (_("Права доступа"), {"fields": ("is_active", "is_staff", "is_superuser")}),
+        (_("Права доступа"), {"fields": ("is_active", "is_staff", "is_superuser", "user_permissions")}),
         (_("Важные даты"), {"fields": ("last_login", "date_joined")}),
     )
     add_fieldsets = (
@@ -132,16 +176,78 @@ class KidsMapUserAdmin(UserAdmin):
             },
         ),
     )
-    filter_horizontal = ()
-    list_display = ("username", "email", "first_name", "last_name", "is_staff", "is_superuser", "last_login")
+    list_display = ("username", "email", "is_staff", "is_superuser", "is_active", "last_login")
     list_filter = ("is_staff", "is_superuser", "is_active", "last_login", "date_joined")
-    search_fields = ("username", "email", "first_name", "last_name")
-    ordering = ("username",)
+    filter_horizontal = ("user_permissions",)
 
 
-class _HiddenFromAdminIndexMixin:
-    def get_model_perms(self, request):
-        return {}
+@admin.register(SiteRegisteredUser)
+class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        (_("Персональная информация"), {"fields": ("first_name", "last_name", "email")}),
+        (_("Статус аккаунта"), {"fields": ("is_active",)}),
+        (_("Важные даты"), {"fields": ("last_login", "date_joined")}),
+    )
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "email", "password1", "password2", "is_active"),
+            },
+        ),
+    )
+    list_display = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "site_role",
+        "site_phone",
+        "site_gender",
+        "is_active",
+        "date_joined",
+        "last_login",
+    )
+    list_filter = ("is_active", "date_joined", "last_login", "profile__role", "profile__gender")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(is_staff=False, is_superuser=False)
+
+
+@admin.register(StaffAccessUser)
+class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        (_("Персональная информация"), {"fields": ("first_name", "last_name", "email")}),
+        (_("Права доступа"), {"fields": ("is_active", "is_staff", "is_superuser", "user_permissions")}),
+        (_("Важные даты"), {"fields": ("last_login", "date_joined")}),
+    )
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "email", "password1", "password2", "is_staff", "is_superuser", "is_active"),
+            },
+        ),
+    )
+    list_display = (
+        "username",
+        "email",
+        "first_name",
+        "last_name",
+        "is_staff",
+        "is_superuser",
+        "is_active",
+        "last_login",
+    )
+    list_filter = ("is_staff", "is_superuser", "is_active", "last_login", "date_joined")
+    filter_horizontal = ("user_permissions",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(Q(is_staff=True) | Q(is_superuser=True))
 
 
 class PlacePhotoInline(admin.TabularInline):
@@ -656,7 +762,7 @@ class UserProfileOwnerRoleFilter(admin.SimpleListFilter):
 
 
 @admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
     list_display = (
         "user",
         "access_level",

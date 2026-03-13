@@ -16,7 +16,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import Place, UserProfile
+from catalog.content_data import BAKU_METRO_STATIONS
+from catalog.models import CatalogContentSettings, Place, UserProfile
 
 
 User = get_user_model()
@@ -455,6 +456,19 @@ class UserSetPasswordForm(SetPasswordForm):
 
 
 class OwnerPlaceEditForm(forms.ModelForm):
+    district = forms.ChoiceField(
+        label=_("Район"),
+        required=False,
+        choices=(),
+        widget=forms.Select(attrs={"class": "field"}),
+    )
+    metro = forms.ChoiceField(
+        label=_("Метро"),
+        required=False,
+        choices=(),
+        widget=forms.Select(attrs={"class": "field"}),
+    )
+
     class Meta:
         model = Place
         fields = (
@@ -504,8 +518,6 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "price_to": forms.TextInput(
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "500"}
             ),
-            "district": forms.TextInput(attrs={"class": "field"}),
-            "metro": forms.TextInput(attrs={"class": "field"}),
             "address": forms.TextInput(attrs={"class": "field"}),
             "phone1": forms.TextInput(attrs={"class": "field"}),
             "instagram": forms.TextInput(attrs={"class": "field"}),
@@ -546,6 +558,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._configure_location_choices()
         for field_name in ("age_from", "age_to"):
             self.fields[field_name].error_messages.update(
                 {
@@ -566,12 +579,66 @@ class OwnerPlaceEditForm(forms.ModelForm):
                 "invalid": _("Укажите корректный адрес сайта. Пример: https://site.com"),
             }
         )
+        self.fields["address"].widget.attrs.update(
+            {
+                "placeholder": _("Улица, дом, ориентир"),
+                "autocomplete": "street-address",
+            }
+        )
+        self.fields["address"].help_text = _("Укажите точный адрес: улица, номер дома и ориентир.")
         for field_name in ("temporary_start", "temporary_end"):
             self.fields[field_name].error_messages.update(
                 {
                     "invalid": _("Укажите дату и время в формате ГГГГ-ММ-ДД ЧЧ:ММ."),
                 }
             )
+
+    def _configure_location_choices(self):
+        district_options = []
+        metro_options = BAKU_METRO_STATIONS
+
+        try:
+            content_settings = CatalogContentSettings.get_solo()
+            district_options = content_settings.districts()
+        except Exception:
+            # If DB is not available (e.g., management command pre-setup), keep empty options.
+            district_options = []
+
+        district_current = (self.initial.get("district") or getattr(self.instance, "district", "") or "").strip()
+        metro_current = (self.initial.get("metro") or getattr(self.instance, "metro", "") or "").strip()
+
+        self.fields["district"].choices = self._build_location_choices(
+            options=district_options,
+            current_value=district_current,
+            empty_label=_("Выберите район"),
+        )
+        self.fields["metro"].choices = self._build_location_choices(
+            options=metro_options,
+            current_value=metro_current,
+            empty_label=_("Выберите метро"),
+        )
+
+        self.fields["district"].help_text = _("Выберите район или укажите ниже ближайшее метро.")
+        self.fields["metro"].help_text = _("Если район не выбран, укажите ближайшую станцию метро.")
+        self.fields["district"].error_messages.update({"invalid_choice": _("Выберите район из списка.")})
+        self.fields["metro"].error_messages.update({"invalid_choice": _("Выберите станцию метро из списка.")})
+
+    @staticmethod
+    def _build_location_choices(*, options, current_value, empty_label):
+        choices = [("", empty_label)]
+        seen = set()
+
+        for raw in options or []:
+            value = str(raw or "").strip()
+            if not value or value in seen:
+                continue
+            seen.add(value)
+            choices.append((value, value))
+
+        if current_value and current_value not in seen:
+            choices.insert(1, (current_value, current_value))
+
+        return choices
 
     def clean(self):
         cleaned = super().clean()
@@ -594,11 +661,22 @@ class OwnerPlaceEditForm(forms.ModelForm):
         temporary = cleaned.get("is_temporary")
         start = cleaned.get("temporary_start")
         end = cleaned.get("temporary_end")
-        if temporary and start and end and start > end:
-            self.add_error(
-                "temporary_end",
-                _("Дата окончания раньше даты начала. Укажите окончание позже начала."),
-            )
+        if temporary:
+            if not start:
+                self.add_error(
+                    "temporary_start",
+                    _("Укажите дату и время начала для временного мероприятия."),
+                )
+            if not end:
+                self.add_error(
+                    "temporary_end",
+                    _("Укажите дату и время окончания для временного мероприятия."),
+                )
+            if start and end and start > end:
+                self.add_error(
+                    "temporary_end",
+                    _("Дата окончания раньше даты начала. Укажите окончание позже начала."),
+                )
 
         return cleaned
 
@@ -651,6 +729,13 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         ]
         if not any(descriptions):
             self.add_error("description_ru", _("Укажите хотя бы одно описание (RU, AZ или EN)."))
+
+        district = (cleaned.get("district") or "").strip()
+        metro = (cleaned.get("metro") or "").strip()
+        if not district and not metro:
+            message = _("Укажите локацию: выберите район или станцию метро.")
+            self.add_error("district", message)
+            self.add_error("metro", message)
 
         gallery_images = self.files.getlist("gallery_images")
         cleaned["gallery_images"] = gallery_images

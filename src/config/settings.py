@@ -22,6 +22,7 @@ def _env_list(name: str) -> list[str]:
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 
 DEBUG = _env_bool("DJANGO_DEBUG", True)
+SERVE_MEDIA_FILES = _env_bool("SERVE_MEDIA_FILES", True)
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 REVIEWS_REQUIRE_AUTH = _env_bool("REVIEWS_REQUIRE_AUTH", True)
 ADMIN_HOST = (os.getenv("DJANGO_ADMIN_HOST", "") or "").strip().lower()

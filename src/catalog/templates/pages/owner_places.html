@@ -82,9 +82,25 @@
                 <p class="meta">
                   ★ {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %} · ♥ {{ place.likes_count }}
                 </p>
-                {% if place.latest_moderation_request %}
-                  <p class="meta">
-                    {% trans "Заявка" %}: <strong>{{ place.latest_moderation_request.get_status_display }}</strong>
+                <div class="owner-moderation-row">
+                  <span class="meta">{% trans "Статус модерации" %}:</span>
+                  {% if place.latest_moderation_request %}
+                    {% if place.latest_moderation_request.status == "PENDING" %}
+                      <span class="owner-status-badge owner-status-badge-pending">{% trans "На рассмотрении" %}</span>
+                    {% elif place.latest_moderation_request.status == "APPROVED" %}
+                      <span class="owner-status-badge owner-status-badge-approved">{% trans "Одобрена" %}</span>
+                    {% elif place.latest_moderation_request.status == "REJECTED" %}
+                      <span class="owner-status-badge owner-status-badge-rejected">{% trans "Отклонена" %}</span>
+                    {% else %}
+                      <span class="owner-status-badge owner-status-badge-none">{{ place.latest_moderation_request.get_status_display }}</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="owner-status-badge owner-status-badge-none">{% trans "Не отправлена" %}</span>
+                  {% endif %}
+                </div>
+                {% if place.latest_moderation_request and place.latest_moderation_request.status == "REJECTED" and place.latest_moderation_request.moderation_note %}
+                  <p class="meta owner-moderation-note">
+                    {% trans "Причина отклонения" %}: {{ place.latest_moderation_request.moderation_note }}
                   </p>
                 {% endif %}
                 <div class="owner-place-actions">
@@ -117,9 +133,25 @@
                 <p class="meta">
                   ★ {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %} · ♥ {{ place.likes_count }}
                 </p>
-                {% if place.latest_moderation_request %}
-                  <p class="meta">
-                    {% trans "Заявка" %}: <strong>{{ place.latest_moderation_request.get_status_display }}</strong>
+                <div class="owner-moderation-row">
+                  <span class="meta">{% trans "Статус модерации" %}:</span>
+                  {% if place.latest_moderation_request %}
+                    {% if place.latest_moderation_request.status == "PENDING" %}
+                      <span class="owner-status-badge owner-status-badge-pending">{% trans "На рассмотрении" %}</span>
+                    {% elif place.latest_moderation_request.status == "APPROVED" %}
+                      <span class="owner-status-badge owner-status-badge-approved">{% trans "Одобрена" %}</span>
+                    {% elif place.latest_moderation_request.status == "REJECTED" %}
+                      <span class="owner-status-badge owner-status-badge-rejected">{% trans "Отклонена" %}</span>
+                    {% else %}
+                      <span class="owner-status-badge owner-status-badge-none">{{ place.latest_moderation_request.get_status_display }}</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="owner-status-badge owner-status-badge-none">{% trans "Не отправлена" %}</span>
+                  {% endif %}
+                </div>
+                {% if place.latest_moderation_request and place.latest_moderation_request.status == "REJECTED" and place.latest_moderation_request.moderation_note %}
+                  <p class="meta owner-moderation-note">
+                    {% trans "Причина отклонения" %}: {{ place.latest_moderation_request.moderation_note }}
                   </p>
                 {% endif %}
                 <div class="owner-place-actions">
@@ -131,7 +163,13 @@
                   {% elif can_edit_places %}
                     <form method="post" action="{% url 'owner_place_submit_review' place.id %}">
                       {% csrf_token %}
-                      <button type="submit" class="btn-secondary">{% trans "Отправить на проверку" %}</button>
+                      <button type="submit" class="btn-secondary">
+                        {% if place.latest_moderation_request and place.latest_moderation_request.status == "REJECTED" %}
+                          {% trans "Отправить повторно на проверку" %}
+                        {% else %}
+                          {% trans "Отправить на проверку" %}
+                        {% endif %}
+                      </button>
                     </form>
                   {% endif %}
                   {% if can_publish_places %}

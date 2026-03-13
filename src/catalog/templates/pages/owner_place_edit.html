@@ -31,8 +31,13 @@
 
       <div class="owner-form-grid">
         {% for field in form %}
-          <label class="owner-form-field{% if field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' or field.name == 'schedule' %} owner-form-field-full{% endif %}">
-            <span>{{ field.label }}</span>
+          <label class="owner-form-field{% if field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' or field.name == 'schedule' %} owner-form-field-full{% endif %}{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} owner-temp-required-field{% endif %}"{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} data-temp-required-field="1"{% endif %}>
+            <span class="owner-form-label">
+              {{ field.label }}
+              {% if field.name == 'temporary_start' or field.name == 'temporary_end' %}
+                <span class="required-mark owner-temp-required-mark" aria-hidden="true" hidden>*</span>
+              {% endif %}
+            </span>
             {{ field }}
             {% if field.help_text %}
               <small class="meta">{{ field.help_text }}</small>
@@ -49,25 +54,31 @@
         <a class="link-btn" href="{{ place.get_absolute_url }}">{% trans "Открыть страницу кружка" %}</a>
       </div>
     </form>
-
-    <section class="owner-team-section">
-      <h2>{% trans "Аудит изменений" %}</h2>
-      {% if recent_place_audits %}
-        <div class="owner-review-list">
-          {% for audit in recent_place_audits %}
-            <article class="owner-review-item">
-              <p class="meta">
-                {{ audit.created_at|date:"d.m.Y H:i" }} ·
-                {% if audit.changed_by %}{{ audit.changed_by.username }}{% else %}{% trans "Система" %}{% endif %} ·
-                {{ audit.get_source_display }}
-              </p>
-              <p><strong>{{ audit.field_name }}</strong>: {{ audit.old_value|default:"—" }} → {{ audit.new_value|default:"—" }}</p>
-            </article>
-          {% endfor %}
-        </div>
-      {% else %}
-        <p class="meta">{% trans "Пока нет записей аудита для этой карточки." %}</p>
-      {% endif %}
-    </section>
   </section>
+
+  <script>
+    (function () {
+      const form = document.querySelector(".owner-edit-form");
+      if (!form) return;
+      const temporaryCheckbox = form.querySelector('[name="is_temporary"]');
+      const startInput = form.querySelector('[name="temporary_start"]');
+      const endInput = form.querySelector('[name="temporary_end"]');
+      const marks = form.querySelectorAll(".owner-temp-required-mark");
+      if (!temporaryCheckbox || !startInput || !endInput) return;
+
+      function syncTemporaryRequiredState() {
+        const isTemporary = !!temporaryCheckbox.checked;
+        [startInput, endInput].forEach(function (field) {
+          field.required = isTemporary;
+          field.setAttribute("aria-required", isTemporary ? "true" : "false");
+        });
+        marks.forEach(function (mark) {
+          mark.hidden = !isTemporary;
+        });
+      }
+
+      syncTemporaryRequiredState();
+      temporaryCheckbox.addEventListener("change", syncTemporaryRequiredState);
+    })();
+  </script>
 {% endblock %}

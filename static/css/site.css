@@ -4042,6 +4042,54 @@ main {
   text-decoration: none;
 }
 
+.owner-moderation-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.owner-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.owner-status-badge-pending {
+  color: #8a5300;
+  background: rgba(251, 191, 36, 0.22);
+  border-color: rgba(180, 107, 0, 0.35);
+}
+
+.owner-status-badge-approved {
+  color: #0b5f3b;
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(14, 116, 72, 0.35);
+}
+
+.owner-status-badge-rejected {
+  color: #9b1c1c;
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(185, 28, 28, 0.35);
+}
+
+.owner-status-badge-none {
+  color: #49515a;
+  background: rgba(148, 163, 184, 0.16);
+  border-color: rgba(100, 116, 139, 0.26);
+}
+
+.owner-moderation-note {
+  margin-top: 6px;
+}
+
 .owner-place-actions {
   margin-top: 10px;
   display: flex;
@@ -4157,6 +4205,24 @@ main {
   color: #c94a4a;
   font-weight: 900;
   line-height: 1;
+}
+
+.owner-location-hint {
+  padding: 10px 12px;
+  border: 1px dashed #a8d59b;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(168, 213, 155, 0.16), rgba(168, 213, 155, 0.08));
+}
+
+.owner-location-hint-title {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.owner-location-hint .meta {
+  margin-top: 2px;
 }
 
 .owner-form-field-full {

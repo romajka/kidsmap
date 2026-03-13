@@ -29,6 +29,7 @@ services:
       - "8000:8000"
     environment:
       DJANGO_DEBUG: "${DJANGO_DEBUG:-0}"
+      SERVE_MEDIA_FILES: "${SERVE_MEDIA_FILES:-1}"
       DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-dev-only-change-me}"
       DJANGO_ALLOWED_HOSTS: "${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost,0.0.0.0}"
       DJANGO_CSRF_TRUSTED_ORIGINS: "${DJANGO_CSRF_TRUSTED_ORIGINS:-}"

@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Avg, Count, Q
 from django.conf import settings
@@ -447,6 +448,20 @@ class UserProfile(models.Model):
         return permission_code in self.get_owner_permissions()
 
 
+class SiteRegisteredUser(User):
+    class Meta:
+        proxy = True
+        verbose_name = _("Пользователь сайта")
+        verbose_name_plural = _("Пользователи сайта")
+
+
+class StaffAccessUser(User):
+    class Meta:
+        proxy = True
+        verbose_name = _("Сотрудник админки")
+        verbose_name_plural = _("Сотрудники админки")
+
+
 class UserEmailVerification(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -556,9 +571,16 @@ class PlaceOwnershipRequest(models.Model):
         self.moderation_note = note or ""
         self.save(update_fields=["status", "moderated_by", "moderated_at", "moderation_note", "updated_at"])
 
-        if new_status == self.STATUS_APPROVED and self.place.owner_id != self.applicant_id:
-            self.place.owner = self.applicant
-            self.place.save(update_fields=["owner", "updated_at"])
+        if new_status == self.STATUS_APPROVED:
+            update_fields = ["updated_at"]
+            if self.place.owner_id != self.applicant_id:
+                self.place.owner = self.applicant
+                update_fields.append("owner")
+            # Publish immediately after moderation approval.
+            if not self.place.is_active:
+                self.place.is_active = True
+                update_fields.append("is_active")
+            self.place.save(update_fields=update_fields)
 
         PlaceOwnershipRequestAudit.log_event(
             ownership_request=self,

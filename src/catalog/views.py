@@ -261,7 +261,6 @@ def owner_place_edit(request, pk):
             "form": result.form,
             "place": result.place,
             "owner_profile": result.profile,
-            "recent_place_audits": result.place.change_audits.select_related("changed_by")[:20] if result.place else [],
             "meta_description": _("Редактирование карточки кружка в кабинете владельца."),
         }
         return render(request, "pages/owner_place_edit.html", context)
@@ -275,7 +274,6 @@ def owner_place_edit(request, pk):
         "form": result.form,
         "place": result.place,
         "owner_profile": result.profile,
-        "recent_place_audits": result.place.change_audits.select_related("changed_by")[:20] if result.place else [],
         "meta_description": _("Редактирование карточки кружка в кабинете владельца."),
     }
     return render(request, "pages/owner_place_edit.html", context)
