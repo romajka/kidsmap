@@ -135,7 +135,12 @@ class OwnerPlacesController:
             return result
 
         if not result.form.is_valid():
-            return result
+            return OwnerPlaceActionResult(
+                ok=False,
+                message="",
+                form=result.form,
+                profile=result.profile,
+            )
 
         place = result.form.save(commit=False)
         place.owner = request.user
@@ -182,7 +187,13 @@ class OwnerPlacesController:
         old_snapshot = {field: getattr(result.place, field) for field in tracked_fields}
 
         if not result.form.is_valid():
-            return result
+            return OwnerPlaceActionResult(
+                ok=False,
+                message="",
+                place=result.place,
+                form=result.form,
+                profile=result.profile,
+            )
 
         place = result.form.save()
         changes: dict[str, tuple[object, object]] = {}
@@ -224,6 +235,20 @@ class OwnerPlacesController:
 
         if place.is_active == is_active:
             return OwnerPlaceActionResult(ok=True, message=_("Статус уже актуален."), place=place, profile=access.profile)
+
+        if is_active:
+            latest_request = self.ownership_repository.latest_for_user_and_place(user=request.user, place=place)
+            if latest_request is None or latest_request.status != PlaceOwnershipRequest.STATUS_APPROVED:
+                return OwnerPlaceActionResult(
+                    ok=False,
+                    message=_(
+                        "Нельзя опубликовать карточку до одобрения модератором. "
+                        "Сначала отправьте заявку и дождитесь статуса «Одобрена»."
+                    ),
+                    place=place,
+                    profile=access.profile,
+                    ownership_request=latest_request,
+                )
 
         previous_value = place.is_active
         place.is_active = is_active

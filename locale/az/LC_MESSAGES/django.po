@@ -639,8 +639,8 @@ msgid "Введите вашу настоящую фамилию."
 msgstr "Həqiqi soyadınızı daxil edin."
 
 #: src/catalog/forms.py:118
-msgid "Укажите рабочий email: на него может прийти важная информация."
-msgstr "Aktiv email ünvanı daxil edin: vacib məlumatlar ora göndərilə bilər."
+msgid "Укажите рабочий email: после регистрации на него придет код подтверждения."
+msgstr "Aktiv email ünvanı daxil edin: qeydiyyatdan sonra ora təsdiq kodu göndəriləcək."
 
 #: src/catalog/forms.py:119
 #| msgid "Карточка не найдена или не привязана к вашему аккаунту."
@@ -2556,8 +2556,8 @@ msgid "Обновить пароль"
 msgstr "Parolu yenilə"
 
 #: src/catalog/templates/pages/contacts.html:15
-msgid "Свяжитесь с нами по почте: kidsmap@example.com"
-msgstr "Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap@example.com"
+msgid "Свяжитесь с нами по почте: kidsmap.az@gmail.com"
+msgstr "Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap.az@gmail.com"
 
 #: src/catalog/templates/pages/contacts.html:22
 msgid "Связь с командой"
@@ -3532,3 +3532,30 @@ msgstr "Kişi"
 msgid "Женский"
 msgstr "Qadın"
 
+#: src/catalog/forms.py:640
+msgid "Укажите хотя бы одно описание (RU, AZ или EN)."
+msgstr "Ən azı bir təsvir daxil edin (RU, AZ və ya EN)."
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:5
+msgid "На данный момент"
+msgstr "Hazırda"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:9
+msgid "Текущее изображение"
+msgstr "Cari şəkil"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:14
+msgid "Открыть фото в новой вкладке"
+msgstr "Şəkli yeni vərəqdə aç"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:27
+msgid "Удалить текущее фото"
+msgstr "Cari şəkli sil"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:34
+msgid "Заменить фото"
+msgstr "Şəkli dəyiş"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:36
+msgid "Загрузить фото"
+msgstr "Şəkil yüklə"

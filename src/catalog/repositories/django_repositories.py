@@ -218,7 +218,11 @@ class DjangoAccountRepository(IAccountRepository):
 
 class DjangoPlaceOwnershipRequestRepository(IPlaceOwnershipRequestRepository):
     def list_for_user(self, *, user) -> QuerySet:
-        return PlaceOwnershipRequest.objects.filter(applicant=user).select_related("place", "moderated_by")
+        return (
+            PlaceOwnershipRequest.objects.filter(applicant=user)
+            .select_related("place", "moderated_by")
+            .order_by("-created_at")
+        )
 
     def latest_for_user_and_place(self, *, user, place: Place) -> PlaceOwnershipRequest | None:
         return (

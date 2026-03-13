@@ -63,6 +63,10 @@ class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
 
+class ImagePreviewFileInput(forms.ClearableFileInput):
+    template_name = "widgets/image_preview_file_input.html"
+
+
 class MultipleFileField(forms.FileField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("required", False)
@@ -162,7 +166,9 @@ class RegistrationForm(UserCreationForm):
         )
         self.fields["first_name"].help_text = _("Введите ваше настоящее имя.")
         self.fields["last_name"].help_text = _("Введите вашу настоящую фамилию.")
-        self.fields["email"].help_text = _("Укажите рабочий email: на него может прийти важная информация.")
+        self.fields["email"].help_text = _(
+            "Укажите рабочий email: после регистрации на него придет код подтверждения."
+        )
         self.fields["phone"].help_text = _("Номер нужен для связи по вашему аккаунту.")
         self.fields["gender"].help_text = _("Укажите ваш пол.")
         self.fields["password1"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
@@ -486,10 +492,18 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "description_en": forms.Textarea(attrs={"class": "field", "rows": 3}),
             "category": forms.Select(attrs={"class": "field"}),
             "subcategory": forms.TextInput(attrs={"class": "field"}),
-            "age_from": forms.NumberInput(attrs={"class": "field", "min": 0, "max": 18}),
-            "age_to": forms.NumberInput(attrs={"class": "field", "min": 0, "max": 18}),
-            "price_from": forms.NumberInput(attrs={"class": "field", "min": 0}),
-            "price_to": forms.NumberInput(attrs={"class": "field", "min": 0}),
+            "age_from": forms.TextInput(
+                attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "0"}
+            ),
+            "age_to": forms.TextInput(
+                attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "18"}
+            ),
+            "price_from": forms.TextInput(
+                attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "0"}
+            ),
+            "price_to": forms.TextInput(
+                attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "500"}
+            ),
             "district": forms.TextInput(attrs={"class": "field"}),
             "metro": forms.TextInput(attrs={"class": "field"}),
             "address": forms.TextInput(attrs={"class": "field"}),
@@ -500,8 +514,8 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "is_temporary": forms.CheckboxInput(attrs={"class": "field-check"}),
             "temporary_start": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
             "temporary_end": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
-            "cover_photo": forms.ClearableFileInput(attrs={"class": "field"}),
-            "photo": forms.ClearableFileInput(attrs={"class": "field"}),
+            "cover_photo": ImagePreviewFileInput(attrs={"class": "field", "accept": "image/*"}),
+            "photo": ImagePreviewFileInput(attrs={"class": "field", "accept": "image/*"}),
         }
         labels = {
             "name_ru": _("Название (RU)"),
@@ -606,6 +620,20 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
     class Meta(OwnerPlaceEditForm.Meta):
         fields = OwnerPlaceEditForm.Meta.fields
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in (
+            "category",
+            "age_from",
+            "age_to",
+            "price_from",
+            "price_to",
+            "address",
+            "phone1",
+            "photo",
+        ):
+            self.fields[field_name].required = True
+
     def clean(self):
         cleaned = super().clean()
         names = [
@@ -615,6 +643,14 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         ]
         if not any(names):
             self.add_error("name_ru", _("Укажите хотя бы одно название (RU, AZ или EN)."))
+
+        descriptions = [
+            (cleaned.get("description_ru") or "").strip(),
+            (cleaned.get("description_az") or "").strip(),
+            (cleaned.get("description_en") or "").strip(),
+        ]
+        if not any(descriptions):
+            self.add_error("description_ru", _("Укажите хотя бы одно описание (RU, AZ или EN)."))
 
         gallery_images = self.files.getlist("gallery_images")
         cleaned["gallery_images"] = gallery_images

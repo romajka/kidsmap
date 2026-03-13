@@ -179,7 +179,6 @@ def owner_cabinet(request):
         return _redirect_to_login(request)
 
     context = ownership_controller.build_owner_cabinet_context(request=request)
-    context.update(owner_team_controller.build_user_pending_invitations_context(request=request))
     context.update({"meta_description": _("Кабинет владельца KidsMap: заявки и управление карточками.")})
     return render(request, "pages/owner_cabinet.html", context)
 

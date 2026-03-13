@@ -639,8 +639,8 @@ msgid "Введите вашу настоящую фамилию."
 msgstr "Enter your real last name."
 
 #: src/catalog/forms.py:118
-msgid "Укажите рабочий email: на него может прийти важная информация."
-msgstr "Enter a working email: important information may be sent there."
+msgid "Укажите рабочий email: после регистрации на него придет код подтверждения."
+msgstr "Enter a working email: after registration, a verification code will be sent there."
 
 #: src/catalog/forms.py:119
 #| msgid "Карточка не найдена или не привязана к вашему аккаунту."
@@ -2555,8 +2555,8 @@ msgid "Обновить пароль"
 msgstr "Update password"
 
 #: src/catalog/templates/pages/contacts.html:15
-msgid "Свяжитесь с нами по почте: kidsmap@example.com"
-msgstr "Contact us by email: kidsmap@example.com"
+msgid "Свяжитесь с нами по почте: kidsmap.az@gmail.com"
+msgstr "Contact us by email: kidsmap.az@gmail.com"
 
 #: src/catalog/templates/pages/contacts.html:22
 msgid "Связь с командой"
@@ -3527,3 +3527,30 @@ msgstr "Male"
 msgid "Женский"
 msgstr "Female"
 
+#: src/catalog/forms.py:640
+msgid "Укажите хотя бы одно описание (RU, AZ или EN)."
+msgstr "Provide at least one description (RU, AZ, or EN)."
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:5
+msgid "На данный момент"
+msgstr "Current image"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:9
+msgid "Текущее изображение"
+msgstr "Current image"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:14
+msgid "Открыть фото в новой вкладке"
+msgstr "Open image in a new tab"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:27
+msgid "Удалить текущее фото"
+msgstr "Remove current image"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:34
+msgid "Заменить фото"
+msgstr "Replace image"
+
+#: src/catalog/templates/widgets/image_preview_file_input.html:36
+msgid "Загрузить фото"
+msgstr "Upload image"

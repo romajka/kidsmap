@@ -22,74 +22,6 @@
       {% endif %}
     </nav>
 
-    <div class="owner-page-actions">
-      <a class="btn" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
-      {% if "owner.reviews.moderate" in owner_permissions %}
-        <a class="btn-secondary" href="{% url 'owner_reviews_dashboard' %}">{% trans "Модерация отзывов" %}</a>
-      {% endif %}
-    </div>
-
-    {% if is_owner_role %}
-      <section class="owner-cabinet-section owner-claim-section">
-        <h2>{% trans "Создать заявку на управление карточкой" %}</h2>
-        <p class="meta">{% trans "Найдите нужный кружок и отправьте заявку. После отправки заявка появится в админке в разделе заявок на владение и будет ждать подтверждения модератора." %}</p>
-        <form method="get" class="owner-claim-search">
-          <label>
-            {% trans "Поиск карточки" %}
-            <input
-              class="field"
-              type="text"
-              name="claim_q"
-              value="{{ claim_query }}"
-              maxlength="120"
-              placeholder="{% trans 'Название, район или адрес' %}"
-            />
-          </label>
-          <div class="owner-place-actions">
-            <button type="submit" class="btn-secondary">{% trans "Найти" %}</button>
-            <a class="link-btn" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
-          </div>
-        </form>
-
-        {% if claimable_places %}
-          <div class="owner-request-list owner-claim-list">
-            {% for place in claimable_places %}
-              <article class="owner-request-item owner-claim-item">
-                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-                <p class="meta">
-                  {{ place.get_category_display }}
-                  {% if place.district %} · {{ place.district }}{% endif %}
-                  {% if place.address %} · {{ place.address }}{% endif %}
-                </p>
-                <form method="post" action="{% url 'request_place_ownership' place.id %}" class="owner-claim-form">
-                  {% csrf_token %}
-                  <label>
-                    {% trans "Комментарий к заявке (необязательно)" %}
-                    <input
-                      class="field"
-                      type="text"
-                      name="note"
-                      maxlength="240"
-                      placeholder="{% trans 'Например: я официальный представитель кружка' %}"
-                    />
-                  </label>
-                  <button type="submit" class="btn">{% trans "Отправить заявку" %}</button>
-                </form>
-              </article>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="meta">
-            {% if claim_query %}
-              {% trans "По вашему запросу карточки не найдены или по ним уже есть активные заявки." %}
-            {% else %}
-              {% trans "Нет доступных карточек для новой заявки. Возможно, по ним уже отправлены заявки или они уже привязаны." %}
-            {% endif %}
-          </p>
-        {% endif %}
-      </section>
-    {% endif %}
-
     {% if not is_owner_role %}
       <div class="review-auth-note">
         <p>{% trans "Ваш текущий статус: обычный пользователь. Отправка заявок на управление доступна только владельцам." %}</p>
@@ -98,55 +30,38 @@
 
     <div class="owner-cabinet-grid">
       <section class="owner-cabinet-section">
-        <h2>{% trans "Входящие приглашения" %}</h2>
-        {% if pending_team_invitations %}
-          <div class="owner-request-list">
-            {% for invitation in pending_team_invitations %}
+        <h2>{% trans "Заявки на рассмотрении" %}</h2>
+        {% if pending_requests %}
+          <div class="owner-place-list">
+            {% for item in pending_requests %}
               <article class="owner-request-item">
-                <h3>{{ invitation.owner.username }} → {{ invitation.get_role_display }}</h3>
+                <h3><a href="{{ item.place.get_absolute_url }}">{{ item.place.name_i18n }}</a></h3>
                 <p class="meta">
-                  {% trans "Приглашение для" %}: {{ invitation.email }} ·
-                  {% trans "Отправлено" %}: {{ invitation.created_at|date:"d.m.Y H:i" }}
+                  {% trans "Статус" %}: <strong>{{ item.get_status_display }}</strong> ·
+                  {% trans "Создана" %}: {{ item.created_at|date:"d.m.Y H:i" }}
                 </p>
+                {% if item.note %}
+                  <p class="meta"><b>{% trans "Ваш комментарий" %}:</b> {{ item.note|linebreaksbr }}</p>
+                {% endif %}
                 <div class="owner-place-actions">
-                  <form method="post" action="{% url 'owner_team_accept_invitation' invitation.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn">{% trans "Принять" %}</button>
-                  </form>
-                  <form method="post" action="{% url 'owner_team_reject_invitation' invitation.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-secondary">{% trans "Отклонить" %}</button>
-                  </form>
+                  <a class="link-btn" href="{{ item.place.get_absolute_url }}">{% trans "Открыть карточку" %}</a>
+                  {% if can_edit_places and item.place.owner_id == request.user.id %}
+                    <a class="btn-secondary" href="{% url 'owner_place_edit' item.place.id %}">{% trans "Редактировать карточку" %}</a>
+                  {% endif %}
                 </div>
               </article>
             {% endfor %}
           </div>
         {% else %}
-          <p class="meta">{% trans "Новых приглашений нет." %}</p>
+          <p class="meta">{% trans "Заявок на рассмотрении нет." %}</p>
         {% endif %}
       </section>
 
       <section class="owner-cabinet-section">
-        <h2>{% trans "Мои кружки" %}</h2>
-        {% if managed_places %}
-          <div class="owner-place-list">
-            {% for place in managed_places %}
-              <article class="owner-place-item">
-                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-                <p class="meta">{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
-              </article>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="meta">{% trans "Пока нет привязанных кружков." %}</p>
-        {% endif %}
-      </section>
-
-      <section class="owner-cabinet-section">
-        <h2>{% trans "Мои заявки" %}</h2>
-        {% if ownership_requests %}
+        <h2>{% trans "Принятые заявки" %}</h2>
+        {% if approved_requests %}
           <div class="owner-request-list">
-            {% for item in ownership_requests %}
+            {% for item in approved_requests %}
               <article class="owner-request-item">
                 <h3><a href="{{ item.place.get_absolute_url }}">{{ item.place.name_i18n }}</a></h3>
                 <p class="meta">
@@ -159,11 +74,45 @@
                 {% if item.moderation_note %}
                   <p class="meta"><b>{% trans "Ответ модератора" %}:</b> {{ item.moderation_note|linebreaksbr }}</p>
                 {% endif %}
+                <div class="owner-place-actions">
+                  <a class="link-btn" href="{{ item.place.get_absolute_url }}">{% trans "Открыть карточку" %}</a>
+                  {% if can_edit_places and item.place.owner_id == request.user.id %}
+                    <a class="btn-secondary" href="{% url 'owner_place_edit' item.place.id %}">{% trans "Редактировать карточку" %}</a>
+                  {% endif %}
+                </div>
               </article>
             {% endfor %}
           </div>
         {% else %}
-          <p class="meta">{% trans "Вы еще не отправляли заявки." %}</p>
+          <p class="meta">{% trans "Принятых заявок нет." %}</p>
+        {% endif %}
+      </section>
+
+      <section class="owner-cabinet-section">
+        <h2>{% trans "Отклоненные заявки" %}</h2>
+        {% if rejected_requests %}
+          <div class="owner-request-list">
+            {% for item in rejected_requests %}
+              <article class="owner-request-item">
+                <h3><a href="{{ item.place.get_absolute_url }}">{{ item.place.name_i18n }}</a></h3>
+                <p class="meta">
+                  {% trans "Статус" %}: <strong>{{ item.get_status_display }}</strong> ·
+                  {% trans "Создана" %}: {{ item.created_at|date:"d.m.Y H:i" }}
+                </p>
+                {% if item.note %}
+                  <p class="meta"><b>{% trans "Ваш комментарий" %}:</b> {{ item.note|linebreaksbr }}</p>
+                {% endif %}
+                {% if item.moderation_note %}
+                  <p class="meta"><b>{% trans "Ответ модератора" %}:</b> {{ item.moderation_note|linebreaksbr }}</p>
+                {% endif %}
+                <div class="owner-place-actions">
+                  <a class="link-btn" href="{{ item.place.get_absolute_url }}">{% trans "Открыть карточку" %}</a>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="meta">{% trans "Отклоненных заявок нет." %}</p>
         {% endif %}
       </section>
     </div>

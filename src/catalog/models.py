@@ -937,9 +937,9 @@ class SiteSettings(models.Model):
             return obj
         return cls.objects.create(
             brand_name="KidsMap",
-            contacts_text_ru="Свяжитесь с нами по почте: kidsmap@example.com",
-            contacts_text_en="Contact us by email: kidsmap@example.com",
-            contacts_text_az="Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap@example.com",
+            contacts_text_ru="Свяжитесь с нами по почте: kidsmap.az@gmail.com",
+            contacts_text_en="Contact us by email: kidsmap.az@gmail.com",
+            contacts_text_az="Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap.az@gmail.com",
             about_text_ru="KidsMap — каталог детских кружков и секций в Баку.",
             about_text_en="KidsMap is a catalog of kids clubs and courses in Baku.",
             about_text_az="KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
@@ -962,8 +962,8 @@ class SiteSettings(models.Model):
             empty_results_text_en="Nothing found.",
             empty_results_text_az="Heç nə tapılmadı.",
             footer_phone="+994 00 000 00 00",
-            footer_email="kidsmap@example.com",
-            footer_instagram="kidsmap",
+            footer_email="kidsmap.az@gmail.com",
+            footer_instagram="https://www.instagram.com/kidsmap.az/",
         )
 
     class Meta:

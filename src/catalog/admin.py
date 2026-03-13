@@ -2,7 +2,7 @@ from django.contrib import admin, messages
 from django import forms
 from django.utils.html import format_html
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import path, reverse
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
 from .models import (
@@ -29,25 +29,70 @@ from .models import (
 )
 from .services.admin_analytics import build_site_analytics_context
 
+# Clarify similar names in admin navigation.
+SiteReview._meta.verbose_name = _("Отзыв о сайте")
+SiteReview._meta.verbose_name_plural = _("Отзывы о сайте")
+PlaceChangeAudit._meta.verbose_name_plural = _("История изменений карточек")
+
 # Keep "Настройка сайта" as the first item in CATALOG app menu.
 _original_get_app_list = admin.site.get_app_list
+_original_each_context = admin.site.each_context
 
 
 def _kidsmap_get_app_list(self, request, app_label=None):
     app_list = _original_get_app_list(request, app_label)
+    pending_count = PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
     for app in app_list:
         if app.get("app_label") != "catalog":
             continue
         priority = {
             "sitesettings": 0,
             "siteanalytics": 1,
+            "placeownershiprequest": 5,
             "place": 10,
+            "placechangeaudit": 20,
+            "placereview": 30,
+            "sitereview": 40,
+            "placereviewsbyclub": 50,
+            "userprofile": 60,
+            "useremailverification": 70,
         }
+        display_name_overrides = {
+            "sitereview": _("Отзывы о сайте"),
+            "placereview": _("Отзывы по кружкам"),
+            "placechangeaudit": _("История изменений карточек"),
+        }
+        for model in app["models"]:
+            object_name = model.get("object_name", "").lower()
+            if object_name in display_name_overrides:
+                model["name"] = display_name_overrides[object_name]
+            if object_name == "placeownershiprequest" and pending_count:
+                model["name"] = _("%(name)s (на рассмотрении: %(count)s)") % {
+                    "name": model["name"],
+                    "count": pending_count,
+                }
         app["models"].sort(key=lambda m: (priority.get(m.get("object_name", "").lower(), 999), m.get("name", "")))
     return app_list
 
 
+def _kidsmap_each_context(self, request):
+    context = _original_each_context(request)
+    if request.user.is_authenticated and request.user.is_staff:
+        context["ownership_pending_count"] = PlaceOwnershipRequest.objects.filter(
+            status=PlaceOwnershipRequest.STATUS_PENDING
+        ).count()
+    else:
+        context["ownership_pending_count"] = 0
+    return context
+
+
 admin.site.get_app_list = _kidsmap_get_app_list.__get__(admin.site, type(admin.site))
+admin.site.each_context = _kidsmap_each_context.__get__(admin.site, type(admin.site))
+
+
+class _HiddenFromAdminIndexMixin:
+    def get_model_perms(self, request):
+        return {}
 
 
 class PlacePhotoInline(admin.TabularInline):
@@ -516,10 +561,65 @@ class SiteReviewAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+class UserProfileAccessLevelFilter(admin.SimpleListFilter):
+    title = _("Уровень доступа")
+    parameter_name = "access_level"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("superadmin", _("Суперадмин")),
+            ("admin", _("Админ")),
+            ("owner", _("Владелец")),
+            ("user", _("Пользователь")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "superadmin":
+            return queryset.filter(user__is_superuser=True)
+        if value == "admin":
+            return queryset.filter(user__is_staff=True, user__is_superuser=False)
+        if value == "owner":
+            return queryset.filter(role=UserProfile.ROLE_OWNER, user__is_staff=False, user__is_superuser=False)
+        if value == "user":
+            return queryset.filter(role=UserProfile.ROLE_USER, user__is_staff=False, user__is_superuser=False)
+        return queryset
+
+
+class UserProfileOwnerRoleFilter(admin.SimpleListFilter):
+    title = _("Роль владельца")
+    parameter_name = "owner_role_localized"
+
+    ROLE_LABELS = {
+        UserProfile.OWNER_ROLE_MANAGER: _("Менеджер владельца"),
+        UserProfile.OWNER_ROLE_MODERATOR: _("Модератор владельца"),
+        UserProfile.OWNER_ROLE_EDITOR: _("Редактор владельца"),
+    }
+
+    def lookups(self, request, model_admin):
+        return tuple((value, label) for value, label in self.ROLE_LABELS.items())
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value in self.ROLE_LABELS:
+            return queryset.filter(owner_role=value)
+        return queryset
+
+
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "phone", "gender", "role", "owner_role", "owner_permissions_preview", "created_at", "updated_at")
-    list_filter = ("gender", "role", "owner_role", "created_at")
+    list_display = (
+        "user",
+        "access_level",
+        "phone",
+        "gender",
+        "role",
+        "owner_role_display",
+        "owner_permissions_preview",
+        "created_at",
+        "updated_at",
+    )
+    list_filter = (UserProfileAccessLevelFilter, UserProfileOwnerRoleFilter, "gender", "role", "created_at")
     search_fields = ("user__username", "user__email", "phone")
     readonly_fields = ("created_at", "updated_at")
     fieldsets = (
@@ -529,9 +629,31 @@ class UserProfileAdmin(admin.ModelAdmin):
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )
 
+    @admin.display(description=_("Уровень доступа"))
+    def access_level(self, obj):
+        if obj.user.is_superuser:
+            return _("Суперадмин")
+        if obj.user.is_staff:
+            return _("Админ")
+        if obj.role == UserProfile.ROLE_OWNER:
+            return _("Владелец")
+        return _("Пользователь")
+
+    @admin.display(description=_("Роль владельца"))
+    def owner_role_display(self, obj):
+        if obj.role != UserProfile.ROLE_OWNER:
+            return "-"
+        labels = {
+            UserProfile.OWNER_ROLE_MANAGER: _("Менеджер владельца"),
+            UserProfile.OWNER_ROLE_MODERATOR: _("Модератор владельца"),
+            UserProfile.OWNER_ROLE_EDITOR: _("Редактор владельца"),
+        }
+        return labels.get(obj.owner_role, obj.get_owner_role_display())
+
     @admin.display(description=_("Права владельца"))
     def owner_permissions_preview(self, obj):
-        permissions = sorted(obj.get_owner_permissions())
+        labels_by_code = {code: label for code, label in UserProfile.OWNER_PERMISSION_CHOICES}
+        permissions = sorted(labels_by_code.get(code, code) for code in obj.get_owner_permissions())
         if not permissions:
             return "-"
         return ", ".join(permissions)
@@ -546,7 +668,7 @@ class UserEmailVerificationAdmin(admin.ModelAdmin):
 
 
 @admin.register(OwnerTeamMembership)
-class OwnerTeamMembershipAdmin(admin.ModelAdmin):
+class OwnerTeamMembershipAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
     list_display = ("owner", "member", "role", "is_active", "invited_by", "created_at", "updated_at")
     list_filter = ("role", "is_active", "created_at")
     search_fields = ("owner__username", "owner__email", "member__username", "member__email")
@@ -555,7 +677,7 @@ class OwnerTeamMembershipAdmin(admin.ModelAdmin):
 
 
 @admin.register(OwnerTeamInvitation)
-class OwnerTeamInvitationAdmin(admin.ModelAdmin):
+class OwnerTeamInvitationAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
     list_display = ("owner", "email", "role", "status", "invited_user", "created_at", "responded_at")
     list_filter = ("role", "status", "created_at", "responded_at")
     search_fields = ("owner__username", "owner__email", "email", "invited_user__username", "token")
@@ -595,7 +717,7 @@ class PlaceOwnershipRequestAuditInline(admin.TabularInline):
 
 @admin.register(PlaceOwnershipRequest)
 class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
-    list_display = ("id", "place", "applicant", "status", "created_at", "moderated_at", "moderated_by")
+    list_display = ("id", "place", "applicant", "status_badge", "created_at", "moderated_at", "moderated_by", "moderation_actions")
     list_filter = ("status", "created_at", "moderated_at")
     search_fields = (
         "place__name_ru",
@@ -607,15 +729,62 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         "note",
         "moderation_note",
     )
-    readonly_fields = ("status", "note", "created_at", "updated_at", "moderated_at", "moderated_by")
+    readonly_fields = ("status", "note", "moderation_actions", "created_at", "updated_at", "moderated_at", "moderated_by")
     autocomplete_fields = ("place", "applicant", "moderated_by")
     actions = ("approve_requests", "reject_requests")
     inlines = (PlaceOwnershipRequestAuditInline,)
     fieldsets = (
         (_("Заявка"), {"fields": ("place", "applicant", "status", "note")}),
-        (_("Модерация"), {"fields": ("moderation_note", "moderated_by", "moderated_at")}),
+        (_("Модерация"), {"fields": ("moderation_note", "moderation_actions", "moderated_by", "moderated_at")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )
+
+    def get_urls(self):
+        custom_urls = [
+            path(
+                "<int:request_id>/approve/",
+                self.admin_site.admin_view(self.approve_request_view),
+                name="catalog_placeownershiprequest_approve",
+            ),
+            path(
+                "<int:request_id>/reject/",
+                self.admin_site.admin_view(self.reject_request_view),
+                name="catalog_placeownershiprequest_reject",
+            ),
+        ]
+        return custom_urls + super().get_urls()
+
+    @admin.display(description=_("Статус"))
+    def status_badge(self, obj):
+        palette = {
+            PlaceOwnershipRequest.STATUS_PENDING: ("#ffefcc", "#8a5a00"),
+            PlaceOwnershipRequest.STATUS_APPROVED: ("#e7f8ed", "#17663d"),
+            PlaceOwnershipRequest.STATUS_REJECTED: ("#fde8e8", "#9b1c1c"),
+        }
+        bg, fg = palette.get(obj.status, ("#eef2f7", "#243447"))
+        return format_html(
+            '<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:{};color:{};font-weight:600;">{}</span>',
+            bg,
+            fg,
+            obj.get_status_display(),
+        )
+
+    @admin.display(description=_("Действия"))
+    def moderation_actions(self, obj):
+        if not obj or not obj.pk:
+            return "-"
+        if not obj.is_pending:
+            return _("Заявка уже обработана")
+        approve_url = reverse("admin:catalog_placeownershiprequest_approve", args=[obj.pk])
+        reject_url = reverse("admin:catalog_placeownershiprequest_reject", args=[obj.pk])
+        return format_html(
+            '<a class="button" href="{}">{}</a>&nbsp;'
+            '<a class="button" href="{}" style="background:#ba2121;color:#fff;">{}</a>',
+            approve_url,
+            _("Принять"),
+            reject_url,
+            _("Отклонить"),
+        )
 
     def changelist_view(self, request, extra_context=None):
         pending_count = PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
@@ -629,6 +798,69 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def _moderate_single(self, *, request, request_id: int, new_status: str):
+        item = (
+            self.get_queryset(request)
+            .select_related("place", "applicant")
+            .filter(pk=request_id)
+            .first()
+        )
+        if item is None:
+            self.message_user(request, _("Заявка не найдена."), level=messages.ERROR)
+            return redirect(reverse("admin:catalog_placeownershiprequest_changelist"))
+
+        if request.method != "POST":
+            action_label = _("Принять") if new_status == PlaceOwnershipRequest.STATUS_APPROVED else _("Отклонить")
+            context = {
+                **self.admin_site.each_context(request),
+                "opts": self.model._meta,
+                "title": _("Подтверждение модерации"),
+                "request_item": item,
+                "action_label": action_label,
+                "action_url": request.path,
+                "back_url": reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]),
+            }
+            return TemplateResponse(
+                request,
+                "admin/catalog/place_ownership_request_moderate_confirm.html",
+                context,
+            )
+
+        if not item.is_pending:
+            self.message_user(
+                request,
+                _("Заявка уже обработана."),
+                level=messages.WARNING,
+            )
+            return redirect(reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]))
+
+        note = _("Одобрено через админку") if new_status == PlaceOwnershipRequest.STATUS_APPROVED else _("Отклонено через админку")
+        item.apply_moderation(
+            moderator=request.user,
+            new_status=new_status,
+            note=note,
+        )
+        self.message_user(
+            request,
+            _("Заявка успешно обработана."),
+            level=messages.SUCCESS,
+        )
+        return redirect(reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]))
+
+    def approve_request_view(self, request, request_id: int):
+        return self._moderate_single(
+            request=request,
+            request_id=request_id,
+            new_status=PlaceOwnershipRequest.STATUS_APPROVED,
+        )
+
+    def reject_request_view(self, request, request_id: int):
+        return self._moderate_single(
+            request=request,
+            request_id=request_id,
+            new_status=PlaceOwnershipRequest.STATUS_REJECTED,
+        )
 
     @admin.action(description=_("Одобрить выбранные заявки"))
     def approve_requests(self, request, queryset):
@@ -688,7 +920,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
 
 
 @admin.register(PlaceOwnershipRequestAudit)
-class PlaceOwnershipRequestAuditAdmin(admin.ModelAdmin):
+class PlaceOwnershipRequestAuditAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
     list_display = ("ownership_request", "action", "actor", "from_status", "to_status", "created_at")
     list_filter = ("action", "created_at")
     search_fields = (
@@ -731,7 +963,7 @@ class PlaceReviewsByClubAdmin(admin.ModelAdmin):
 
 
 @admin.register(CatalogContentSettings)
-class CatalogContentSettingsAdmin(admin.ModelAdmin):
+class CatalogContentSettingsAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
     list_display = ("id", "updated_at")
     readonly_fields = ("updated_at",)
     fieldsets = (
@@ -755,4 +987,12 @@ class CatalogContentSettingsAdmin(admin.ModelAdmin):
     )
 
     def has_add_permission(self, request):
-        return not CatalogContentSettings.objects.exists()
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        obj = CatalogContentSettings.get_solo()
+        opts = self.model._meta
+        return redirect(reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk]))

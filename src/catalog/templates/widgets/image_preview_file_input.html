@@ -1,0 +1,43 @@
+{% load i18n %}
+<div class="owner-image-input-widget">
+  {% if widget.is_initial and widget.value.url %}
+    <div class="owner-image-current">
+      <span class="owner-image-current-title">{% trans "На данный момент" %}</span>
+      <a class="owner-image-current-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
+        <img
+          src="{{ widget.value.url }}"
+          alt="{% trans 'Текущее изображение' %}"
+          class="owner-image-current-preview"
+          loading="lazy"
+        />
+      </a>
+      <a class="owner-image-open-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
+        {% trans "Открыть фото в новой вкладке" %}
+      </a>
+    </div>
+
+    {% if not widget.required %}
+      <div class="owner-image-clear-row">
+        <input
+          type="checkbox"
+          name="{{ widget.checkbox_name }}"
+          id="{{ widget.checkbox_id }}"
+          class="owner-image-clear-checkbox"
+          {% if widget.attrs.disabled %}disabled{% endif %}
+        />
+        <span class="owner-image-clear-text">{% trans "Удалить текущее фото" %}</span>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <div class="owner-image-upload">
+    <span class="owner-image-upload-title">
+      {% if widget.is_initial %}
+        {% trans "Заменить фото" %}
+      {% else %}
+        {% trans "Загрузить фото" %}
+      {% endif %}
+    </span>
+    <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} />
+  </div>
+</div>

@@ -4,6 +4,27 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from .models import SiteSettings, UserProfile
 
+DEFAULT_FOOTER_EMAIL = "kidsmap.az@gmail.com"
+DEFAULT_FOOTER_INSTAGRAM_URL = "https://www.instagram.com/kidsmap.az/"
+
+CONTACTS_DEFAULTS = {
+    "ru": f"Свяжитесь с нами по почте: {DEFAULT_FOOTER_EMAIL}",
+    "en": f"Contact us by email: {DEFAULT_FOOTER_EMAIL}",
+    "az": f"Bizimlə e-poçt vasitəsilə əlaqə saxlayın: {DEFAULT_FOOTER_EMAIL}",
+}
+
+ABOUT_DEFAULTS = {
+    "ru": "KidsMap — каталог детских кружков и секций в Баку.",
+    "en": "KidsMap is a catalog of kids clubs and courses in Baku.",
+    "az": "KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
+}
+
+EMPTY_DEFAULTS = {
+    "ru": "Ничего не найдено.",
+    "en": "Nothing found.",
+    "az": "Heç nə tapılmadı.",
+}
+
 
 def seo_urls(request):
     lang_codes = [code for code, _ in settings.LANGUAGES]
@@ -62,45 +83,48 @@ def site_settings(request):
         cfg = SiteSettings.get_solo()
     except (OperationalError, ProgrammingError):
         cfg = None
+
     if cfg is None:
         lang = (request.LANGUAGE_CODE or "ru").split("-")[0]
-        about_defaults = {
-            "ru": "KidsMap — каталог детских кружков и секций в Баку.",
-            "en": "KidsMap is a catalog of kids clubs and courses in Baku.",
-            "az": "KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
-        }
-        contacts_defaults = {
-            "ru": "Свяжитесь с нами по почте: kidsmap@example.com",
-            "en": "Contact us by email: kidsmap@example.com",
-            "az": "Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap@example.com",
-        }
-        empty_defaults = {
-            "ru": "Ничего не найдено.",
-            "en": "Nothing found.",
-            "az": "Heç nə tapılmadı.",
-        }
         return {
             "site_settings": None,
             "brand_name": "KidsMap",
-            "site_about_text": about_defaults.get(lang, about_defaults["ru"]),
-            "site_contacts_text": contacts_defaults.get(lang, contacts_defaults["ru"]),
-            "site_empty_results_text": empty_defaults.get(lang, empty_defaults["ru"]),
+            "site_about_text": ABOUT_DEFAULTS.get(lang, ABOUT_DEFAULTS["ru"]),
+            "site_contacts_text": CONTACTS_DEFAULTS.get(lang, CONTACTS_DEFAULTS["ru"]),
+            "site_empty_results_text": EMPTY_DEFAULTS.get(lang, EMPTY_DEFAULTS["ru"]),
             "footer_phone": "+994 00 000 00 00",
-            "footer_email": "kidsmap@example.com",
-            "footer_instagram_url": "",
+            "footer_email": DEFAULT_FOOTER_EMAIL,
+            "footer_instagram_url": DEFAULT_FOOTER_INSTAGRAM_URL,
             "footer_whatsapp_url": "",
             **user_role_data,
         }
+
+    lang = (request.LANGUAGE_CODE or "ru").split("-")[0]
+    contacts_text = cfg.contacts_text_i18n(request.LANGUAGE_CODE)
+    if not contacts_text:
+        contacts_text = CONTACTS_DEFAULTS.get(lang, CONTACTS_DEFAULTS["ru"])
+    elif "kidsmap@example.com" in contacts_text:
+        contacts_text = contacts_text.replace("kidsmap@example.com", DEFAULT_FOOTER_EMAIL)
+
+    footer_email = (cfg.footer_email or "").strip()
+    if not footer_email or footer_email.lower() == "kidsmap@example.com":
+        footer_email = DEFAULT_FOOTER_EMAIL
+
+    footer_instagram_url = cfg.footer_instagram_url()
+    if not footer_instagram_url:
+        footer_instagram_url = DEFAULT_FOOTER_INSTAGRAM_URL
+    elif footer_instagram_url.rstrip("/") in {"https://instagram.com/kidsmap", "https://www.instagram.com/kidsmap"}:
+        footer_instagram_url = DEFAULT_FOOTER_INSTAGRAM_URL
 
     return {
         "site_settings": cfg,
         "brand_name": cfg.brand_name or "KidsMap",
         "site_about_text": cfg.about_text_i18n(request.LANGUAGE_CODE),
-        "site_contacts_text": cfg.contacts_text_i18n(request.LANGUAGE_CODE),
+        "site_contacts_text": contacts_text,
         "site_empty_results_text": cfg.empty_results_text_i18n(request.LANGUAGE_CODE),
         "footer_phone": (cfg.footer_phone or "").strip(),
-        "footer_email": (cfg.footer_email or "").strip(),
-        "footer_instagram_url": cfg.footer_instagram_url(),
+        "footer_email": footer_email,
+        "footer_instagram_url": footer_instagram_url,
         "footer_whatsapp_url": (cfg.footer_whatsapp or "").strip(),
         **user_role_data,
     }

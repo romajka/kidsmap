@@ -32,7 +32,12 @@
       <div class="owner-form-grid">
         {% for field in form %}
           <label class="owner-form-field{% if field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' or field.name == 'schedule' or field.name == 'moderation_note' or field.name == 'gallery_images' %} owner-form-field-full{% endif %}">
-            <span>{{ field.label }}</span>
+            <span class="owner-form-label">
+              {{ field.label }}
+              {% if field.field.required or field.name == 'name_ru' or field.name == 'name_az' or field.name == 'name_en' or field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' %}
+                <span class="required-mark" aria-hidden="true">*</span>
+              {% endif %}
+            </span>
             {{ field }}
             {% if field.help_text %}
               <small class="meta">{{ field.help_text }}</small>

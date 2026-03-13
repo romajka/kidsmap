@@ -135,10 +135,20 @@
                     </form>
                   {% endif %}
                   {% if can_publish_places %}
-                    <form method="post" action="{% url 'owner_place_publish' place.id %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn">{% trans "Опубликовать" %}</button>
-                    </form>
+                    {% if place.latest_moderation_request and place.latest_moderation_request.status == "APPROVED" %}
+                      <form method="post" action="{% url 'owner_place_publish' place.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn">{% trans "Опубликовать" %}</button>
+                      </form>
+                    {% else %}
+                      <button
+                        type="button"
+                        class="btn"
+                        disabled
+                        data-publish-disabled="1"
+                        title="{% trans 'Публикация станет доступна после одобрения заявки модератором.' %}"
+                      >{% trans "Опубликовать" %}</button>
+                    {% endif %}
                   {% endif %}
                 </div>
               </article>

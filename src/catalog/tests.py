@@ -66,6 +66,89 @@ class TestPublicPagesSmoke(TestCase):
         )
 
 
+class TestAdminOwnershipModerationUX(TestCase):
+    def setUp(self):
+        self.superuser = User.objects.create_superuser(
+            username="superadmin_adminux",
+            email="superadmin-adminux@example.com",
+            password="StrongPass123!!",
+        )
+        self.owner_user = User.objects.create_user(
+            username="owner_adminux",
+            email="owner-adminux@example.com",
+            password="StrongPass123!!",
+        )
+        self.second_owner_user = User.objects.create_user(
+            username="owner_adminux_second",
+            email="owner-adminux-second@example.com",
+            password="StrongPass123!!",
+        )
+        UserProfile.objects.create(user=self.owner_user, role=UserProfile.ROLE_OWNER)
+        UserProfile.objects.create(user=self.second_owner_user, role=UserProfile.ROLE_OWNER)
+        self.place = Place.objects.create(
+            name="Admin UX Place",
+            name_ru="Кружок для модерации",
+            category="EDU",
+            is_active=True,
+        )
+        self.request_item = PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.owner_user,
+            note="Прошу одобрить владение",
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+        )
+        self.client.login(username="superadmin_adminux", password="StrongPass123!!")
+
+    def test_admin_index_shows_pending_badge_and_hides_internal_models(self):
+        response = self.client.get("/ru/admin/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "На рассмотрении: 1")
+        self.assertContains(response, "Заявки на владение кружком")
+        self.assertContains(response, "Отзывы о сайте")
+        self.assertNotContains(response, "Приглашения в команду владельца")
+        self.assertNotContains(response, "Участники команды владельца")
+        self.assertNotContains(response, "Контент каталога")
+        self.assertNotContains(response, "Аудит заявок на владение")
+
+    def test_admin_can_approve_request_with_direct_button_url(self):
+        approve_url = reverse("admin:catalog_placeownershiprequest_approve", args=[self.request_item.id])
+        confirm_response = self.client.get(approve_url)
+        self.assertEqual(confirm_response.status_code, 200)
+
+        response = self.client.post(
+            approve_url,
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.request_item.refresh_from_db()
+        self.place.refresh_from_db()
+        self.assertEqual(self.request_item.status, PlaceOwnershipRequest.STATUS_APPROVED)
+        self.assertEqual(self.place.owner, self.owner_user)
+
+    def test_admin_can_reject_request_with_direct_button_url(self):
+        second_request = PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.second_owner_user,
+            note="Повторная заявка",
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+        )
+
+        reject_url = reverse("admin:catalog_placeownershiprequest_reject", args=[second_request.id])
+        confirm_response = self.client.get(reject_url)
+        self.assertEqual(confirm_response.status_code, 200)
+
+        response = self.client.post(
+            reject_url,
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        second_request.refresh_from_db()
+        self.assertEqual(second_request.status, PlaceOwnershipRequest.STATUS_REJECTED)
+
+
 class TestTrackingController(TestCase):
     def setUp(self):
         self.place = Place.objects.create(
@@ -707,6 +790,36 @@ class TestOwnershipWorkflow(TestCase):
         self.assertEqual(len(claimable_places), 1)
         self.assertEqual(claimable_places[0].name_ru, "Другой кружок")
 
+    def test_owner_cabinet_shows_grouped_request_sections_without_management_blocks(self):
+        PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.owner_user,
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+            note="Ожидает",
+        )
+        PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.owner_user,
+            status=PlaceOwnershipRequest.STATUS_APPROVED,
+            note="Принято",
+        )
+        PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.owner_user,
+            status=PlaceOwnershipRequest.STATUS_REJECTED,
+            note="Отклонено",
+        )
+
+        self.client.login(username="owner_role_user", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_cabinet"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Заявки на рассмотрении")
+        self.assertContains(response, "Принятые заявки")
+        self.assertContains(response, "Отклоненные заявки")
+        self.assertNotContains(response, "Создать заявку на управление карточкой")
+        self.assertNotContains(response, "Мои кружки")
+
     def test_regular_user_cannot_submit_place_ownership_request(self):
         self.client.login(username="regular_role_user", password="StrongPass123!!")
         response = self.client.post(
@@ -837,6 +950,17 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Кружок менеджера")
 
+    def test_owner_edit_page_shows_current_photo_preview(self):
+        self.editor_place.photo = self._image_upload("preview-main.png")
+        self.editor_place.save(update_fields=["photo"])
+
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_place_edit", args=[self.editor_place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "owner-image-current-preview")
+        self.assertContains(response, "owner-image-clear-text")
+
     def test_owner_editor_can_edit_but_cannot_publish(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
 
@@ -881,6 +1005,12 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(self.editor_place.is_active)
 
     def test_owner_manager_can_publish_draft(self):
+        PlaceOwnershipRequest.objects.create(
+            place=self.manager_place,
+            applicant=self.manager_user,
+            status=PlaceOwnershipRequest.STATUS_APPROVED,
+            note="Одобрено модератором",
+        )
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(
             reverse("owner_place_publish", args=[self.manager_place.id]),
@@ -890,6 +1020,32 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.manager_place.refresh_from_db()
         self.assertTrue(self.manager_place.is_active)
+
+    def test_owner_manager_cannot_publish_draft_without_approval(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_publish", args=[self.manager_place.id]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Нельзя опубликовать карточку до одобрения модератором.")
+        self.manager_place.refresh_from_db()
+        self.assertFalse(self.manager_place.is_active)
+
+    def test_owner_dashboard_disables_publish_button_for_unapproved_draft(self):
+        PlaceOwnershipRequest.objects.create(
+            place=self.manager_place,
+            applicant=self.manager_user,
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+            note="Ожидает проверки",
+        )
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response = self.client.get(reverse("owner_places_dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-publish-disabled="1"')
 
     def test_owner_moderator_cannot_edit_place(self):
         self.client.login(username="owner_moderator", password="StrongPass123!!")
@@ -953,6 +1109,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "temporary_start": "",
                 "temporary_end": "",
                 "moderation_note": "Новая карточка на проверку",
+                "photo": self._image_upload("main.png"),
                 "gallery_images": [self._image_upload("g1.png"), self._image_upload("g2.png")],
             },
         )
@@ -1011,6 +1168,77 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn("gallery_images", form.errors)
+
+    def test_owner_place_create_requires_description_in_any_language(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "name_ru": "Карточка без описания",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "Робототехника",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "100",
+                "price_to": "200",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "address": "Улица 1",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "Пн-Сб",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "Проверка обязательного описания",
+                "photo": self._image_upload("main-description-required.png"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Укажите хотя бы одно описание")
+        self.assertFalse(Place.objects.filter(name_ru="Карточка без описания").exists())
+
+    def test_owner_place_create_requires_main_photo(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "name_ru": "Карточка без фото",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание есть",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "Робототехника",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "100",
+                "price_to": "200",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "address": "Улица 1",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "Пн-Сб",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "Проверка обязательного фото",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("photo", response.context["form"].errors)
+        self.assertFalse(Place.objects.filter(name_ru="Карточка без фото").exists())
 
     def test_owner_editor_can_submit_draft_for_moderation(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")

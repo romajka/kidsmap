@@ -36,6 +36,9 @@ class OwnershipController:
         profile = self.profile_repository.get_or_create_for_user(request.user)
         requests = list(self.ownership_repository.list_for_user(user=request.user))
         permissions = profile.get_owner_permissions() if profile.role == UserProfile.ROLE_OWNER else set()
+        pending_requests = [item for item in requests if item.status == PlaceOwnershipRequest.STATUS_PENDING]
+        approved_requests = [item for item in requests if item.status == PlaceOwnershipRequest.STATUS_APPROVED]
+        rejected_requests = [item for item in requests if item.status == PlaceOwnershipRequest.STATUS_REJECTED]
         claim_query = (request.GET.get("claim_q") or "").strip()
         claimable_places = []
         if profile.role == UserProfile.ROLE_OWNER:
@@ -51,8 +54,12 @@ class OwnershipController:
             "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
             "owner_role_label": profile.get_owner_role_display() if profile.role == UserProfile.ROLE_OWNER else "",
             "owner_permissions": sorted(permissions),
+            "can_edit_places": UserProfile.OWNER_PERMISSION_EDIT_PLACES in permissions,
             "managed_places": list(request.user.managed_places.order_by("-updated_at")),
             "ownership_requests": requests,
+            "pending_requests": pending_requests,
+            "approved_requests": approved_requests,
+            "rejected_requests": rejected_requests,
             "ownership_pending_count": sum(1 for item in requests if item.status == PlaceOwnershipRequest.STATUS_PENDING),
             "claim_query": claim_query,
             "claimable_places": claimable_places,

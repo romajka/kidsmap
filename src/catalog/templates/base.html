@@ -82,7 +82,8 @@
                 {% if request.user.is_authenticated %}
                   {% trans "Профиль" %}
                 {% else %}
-                  {% trans "Войти" %} / {% trans "Регистрация" %}
+                  <span class="auth-label-full">{% trans "Войти" %} / {% trans "Регистрация" %}</span>
+                  <span class="auth-label-short">{% trans "Войти" %}</span>
                 {% endif %}
                 <span class="lang-arrow" aria-hidden="true"></span>
               </summary>
@@ -160,7 +161,7 @@
           <section>
             <h3>{% trans "Мы в Instagram" %}</h3>
             {% if footer_instagram_url %}
-              <p><a href="{{ footer_instagram_url }}" target="_blank" rel="noopener">Instagram</a></p>
+              <p><a class="icon-btn icon-instagram footer-social-link" href="{{ footer_instagram_url }}" target="_blank" rel="noopener">Instagram</a></p>
             {% endif %}
             {% if footer_whatsapp_url %}
               <p><a href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a></p>

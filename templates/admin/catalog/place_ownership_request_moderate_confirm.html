@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div id="content-main">
+    <div class="module" style="padding:16px;">
+      <h2 style="margin-top:0;">{{ action_label }}: {{ request_item.place }}</h2>
+      <p>
+        {% blocktranslate with applicant=request_item.applicant status=request_item.get_status_display %}
+          Заявитель: {{ applicant }}. Текущий статус: {{ status }}.
+        {% endblocktranslate %}
+      </p>
+      {% if request_item.note %}
+        <p><b>{% trans "Комментарий заявителя" %}:</b> {{ request_item.note }}</p>
+      {% endif %}
+      <form method="post" action="{{ action_url }}" style="display:flex;gap:10px;align-items:center;margin-top:14px;">
+        {% csrf_token %}
+        <button type="submit" class="default">{{ action_label }}</button>
+        <a href="{{ back_url }}" class="button">{% trans "Отмена" %}</a>
+      </form>
+    </div>
+  </div>
+{% endblock %}
