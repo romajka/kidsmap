@@ -148,6 +148,17 @@ class TestAdminOwnershipModerationUX(TestCase):
         second_request.refresh_from_db()
         self.assertEqual(second_request.status, PlaceOwnershipRequest.STATUS_REJECTED)
 
+    def test_userprofile_changelist_works_without_500(self):
+        response = self.client.get("/ru/admin/catalog/userprofile/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Профили пользователей")
+
+    def test_user_change_form_has_no_groups_block(self):
+        response = self.client.get(reverse("admin:auth_user_change", args=[self.owner_user.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'name="groups"')
+        self.assertNotContains(response, "id_groups")
+
 
 class TestTrackingController(TestCase):
     def setUp(self):

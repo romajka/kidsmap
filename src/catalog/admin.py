@@ -1,4 +1,8 @@
 from django.contrib import admin, messages
+from django.contrib.admin.sites import NotRegistered
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Group
 from django import forms
 from django.utils.html import format_html
 from django.shortcuts import redirect
@@ -43,6 +47,8 @@ def _kidsmap_get_app_list(self, request, app_label=None):
     app_list = _original_get_app_list(request, app_label)
     pending_count = PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
     for app in app_list:
+        if app.get("app_label") == "auth":
+            app["name"] = _("Пользователи")
         if app.get("app_label") != "catalog":
             continue
         priority = {
@@ -88,6 +94,49 @@ def _kidsmap_each_context(self, request):
 
 admin.site.get_app_list = _kidsmap_get_app_list.__get__(admin.site, type(admin.site))
 admin.site.each_context = _kidsmap_each_context.__get__(admin.site, type(admin.site))
+
+
+User = get_user_model()
+
+
+try:
+    admin.site.unregister(Group)
+except NotRegistered:
+    pass
+
+try:
+    admin.site.unregister(User)
+except NotRegistered:
+    pass
+
+
+@admin.register(User)
+class KidsMapUserAdmin(UserAdmin):
+    """
+    Keep user management simple for project admins:
+    no "Groups" block on the user form, role control via is_staff/is_superuser.
+    """
+
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        (_("Персональная информация"), {"fields": ("first_name", "last_name", "email")}),
+        (_("Права доступа"), {"fields": ("is_active", "is_staff", "is_superuser")}),
+        (_("Важные даты"), {"fields": ("last_login", "date_joined")}),
+    )
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "email", "password1", "password2", "is_staff", "is_superuser", "is_active"),
+            },
+        ),
+    )
+    filter_horizontal = ()
+    list_display = ("username", "email", "first_name", "last_name", "is_staff", "is_superuser", "last_login")
+    list_filter = ("is_staff", "is_superuser", "is_active", "last_login", "date_joined")
+    search_fields = ("username", "email", "first_name", "last_name")
+    ordering = ("username",)
 
 
 class _HiddenFromAdminIndexMixin:
@@ -653,7 +702,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     @admin.display(description=_("Права владельца"))
     def owner_permissions_preview(self, obj):
         labels_by_code = {code: label for code, label in UserProfile.OWNER_PERMISSION_CHOICES}
-        permissions = sorted(labels_by_code.get(code, code) for code in obj.get_owner_permissions())
+        permissions = sorted(str(labels_by_code.get(code, code)) for code in obj.get_owner_permissions())
         if not permissions:
             return "-"
         return ", ".join(permissions)
@@ -717,7 +766,16 @@ class PlaceOwnershipRequestAuditInline(admin.TabularInline):
 
 @admin.register(PlaceOwnershipRequest)
 class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
-    list_display = ("id", "place", "applicant", "status_badge", "created_at", "moderated_at", "moderated_by", "moderation_actions")
+    list_display = (
+        "id",
+        "place",
+        "applicant",
+        "status_badge",
+        "created_at",
+        "moderated_at_display",
+        "moderated_by_display",
+        "moderation_actions",
+    )
     list_filter = ("status", "created_at", "moderated_at")
     search_fields = (
         "place__name_ru",
@@ -768,6 +826,14 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             fg,
             obj.get_status_display(),
         )
+
+    @admin.display(description=_("Дата решения"))
+    def moderated_at_display(self, obj):
+        return obj.moderated_at or "-"
+
+    @admin.display(description=_("Кто проверил"))
+    def moderated_by_display(self, obj):
+        return obj.moderated_by or "-"
 
     @admin.display(description=_("Действия"))
     def moderation_actions(self, obj):

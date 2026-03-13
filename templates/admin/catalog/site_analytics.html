@@ -1,8 +1,48 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .kidsmap-analytics .module {
+      background: var(--darkened-bg);
+      border: 1px solid var(--hairline-color);
+    }
+
+    .kidsmap-analytics [style*="background:#f9fcff"],
+    .kidsmap-analytics [style*="background:#fff"] {
+      background: var(--body-bg) !important;
+      border-color: var(--hairline-color) !important;
+      color: var(--body-fg) !important;
+    }
+
+    .kidsmap-analytics [style*="border-bottom:1px solid #d9e3ec"],
+    .kidsmap-analytics [style*="border-bottom:1px solid #eef3f8"] {
+      border-bottom-color: var(--hairline-color) !important;
+    }
+
+    .kidsmap-analytics [style*="color:#617084"] {
+      color: var(--body-quiet-color) !important;
+    }
+
+    .kidsmap-analytics table th,
+    .kidsmap-analytics table td,
+    .kidsmap-analytics h2,
+    .kidsmap-analytics h3,
+    .kidsmap-analytics p,
+    .kidsmap-analytics li,
+    .kidsmap-analytics div {
+      color: var(--body-fg);
+    }
+
+    .kidsmap-analytics a {
+      color: var(--link-fg);
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-  <div id="content-main">
+  <div id="content-main" class="kidsmap-analytics">
     <div class="module" style="padding:14px;">
       <h2 style="margin-top:0;">{% trans "Общая статистика" %}</h2>
 
