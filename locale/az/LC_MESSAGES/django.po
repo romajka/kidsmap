@@ -3398,109 +3398,201 @@ msgstr "Doldurmaq lazımdır"
 #~ msgid "например 12"
 #~ msgstr "məsələn 12"
 
-# Runtime translations for dynamic district/metro/category labels
-#~ msgid "Насими"
-#~ msgstr "Nəsimi"
+#: src/catalog/forms.py:406
+msgid "Улица, дом, ориентир"
+msgstr "Küçə, bina, orientir"
 
-#~ msgid "Низами"
-#~ msgstr "Nizami"
+#: src/catalog/forms.py:410
+msgid "Укажите точный адрес: улица, номер дома и ориентир."
+msgstr "Dəqiq ünvanı göstərin: küçə, bina nömrəsi və orientir."
 
-#~ msgid "Сабаиль"
-#~ msgstr "Səbail"
+#: src/catalog/forms.py:625
+msgid "Выберите район"
+msgstr "Rayon seçin"
 
-#~ msgid "Сабунчи"
-#~ msgstr "Sabunçu"
+#: src/catalog/forms.py:630
+msgid "Выберите метро"
+msgstr "Metro seçin"
 
-#~ msgid "Бинагади"
-#~ msgstr "Binəqədi"
+#: src/catalog/forms.py:633
+msgid "Выберите район или укажите ниже ближайшее метро."
+msgstr "Rayonu seçin və ya aşağıda ən yaxın metro stansiyasını göstərin."
 
-#~ msgid "Сураханы"
-#~ msgstr "Suraxanı"
+#: src/catalog/forms.py:634
+msgid "Если район не выбран, укажите ближайшую станцию метро."
+msgstr "Rayon seçilməyibsə, ən yaxın metro stansiyasını göstərin."
 
-#~ msgid "Хатаи"
-#~ msgstr "Xətai"
+#: src/catalog/forms.py:635
+msgid "Выберите район из списка."
+msgstr "Rayonu siyahıdan seçin."
 
-#~ msgid "Хазар"
-#~ msgstr "Xəzər"
+#: src/catalog/forms.py:636
+msgid "Выберите станцию метро из списка."
+msgstr "Metro stansiyasını siyahıdan seçin."
 
-#~ msgid "Гарадаг"
-#~ msgstr "Qaradağ"
+#: src/catalog/forms.py:749
+msgid "Укажите локацию: выберите район или станцию метро."
+msgstr "Məkanı göstərin: rayon və ya metro stansiyası seçin."
 
-#~ msgid "Пираллахы"
-#~ msgstr "Pirallahı"
+#: src/catalog/templates/pages/owner_place_create.html:37
+msgid "Локация обязательна"
+msgstr "Məkan mütləqdir"
 
-#~ msgid "Ичеришехер"
-#~ msgstr "İçərişəhər"
+#: src/catalog/templates/pages/owner_place_create.html:40
+msgid "Укажите точный адрес и выберите район или метро, чтобы карточку было проще найти в каталоге."
+msgstr "Dəqiq ünvanı daxil edin və rayon və ya metro seçin ki, kart kataloqda daha asan tapılsın."
 
-#~ msgid "Сахил"
-#~ msgstr "Sahil"
+# Runtime translations for dynamic district and metro labels in owner forms.
+msgid "Насими"
+msgstr "Nəsimi"
 
-#~ msgid "28 Май"
-#~ msgstr "28 May"
+msgid "Низами"
+msgstr "Nizami"
 
-#~ msgid "Гянджлик"
-#~ msgstr "Gənclik"
+msgid "Сабаиль"
+msgstr "Səbail"
 
-#~ msgid "Нариман Нариманов"
-#~ msgstr "Nəriman Nərimanov"
+msgid "Сабунчи"
+msgstr "Sabunçu"
 
-#~ msgid "Бакмил"
-#~ msgstr "Bakmil"
+msgid "Бинагади"
+msgstr "Binəqədi"
 
-#~ msgid "Улдуз"
-#~ msgstr "Ulduz"
+msgid "Сураханы"
+msgstr "Suraxanı"
 
-#~ msgid "Кёроглу"
-#~ msgstr "Koroğlu"
+msgid "Хатаи"
+msgstr "Xətai"
 
-#~ msgid "Гара Гараев"
-#~ msgstr "Qara Qarayev"
+msgid "Хазар"
+msgstr "Xəzər"
 
-#~ msgid "Нефтчиляр"
-#~ msgstr "Neftçilər"
+msgid "Гарадаг"
+msgstr "Qaradağ"
 
-#~ msgid "Халглар Достлугу"
-#~ msgstr "Xalqlar Dostluğu"
+msgid "Пираллахы"
+msgstr "Pirallahı"
 
-#~ msgid "Ахмедлы"
-#~ msgstr "Əhmədli"
+msgid "Ичеришехер"
+msgstr "İçərişəhər"
 
-#~ msgid "Ази Асланов"
-#~ msgstr "Əzi Aslanov"
+msgid "Сахил"
+msgstr "Sahil"
 
-#~ msgid "Эльмляр Академиясы"
-#~ msgstr "Elmlər Akademiyası"
+msgid "28 Май"
+msgstr "28 May"
 
-#~ msgid "Иншаатчылар"
-#~ msgstr "İnşaatçılar"
+msgid "Гянджлик"
+msgstr "Gənclik"
 
-#~ msgid "20 Января"
-#~ msgstr "20 Yanvar"
+msgid "Нариман Нариманов"
+msgstr "Nəriman Nərimanov"
 
-#~ msgid "Мемар Аджеми"
-#~ msgstr "Memar Əcəmi"
+msgid "Бакмил"
+msgstr "Bakmil"
 
-#~ msgid "Азадлыг Проспекти"
-#~ msgstr "Azadlıq Prospekti"
+msgid "Улдуз"
+msgstr "Ulduz"
 
-#~ msgid "Дернегюль"
-#~ msgstr "Dərnəgül"
+msgid "Кёроглу"
+msgstr "Koroğlu"
 
-#~ msgid "Джафар Джаббарлы"
-#~ msgstr "Cəfər Cabbarlı"
+msgid "Гара Гараев"
+msgstr "Qara Qarayev"
 
-#~ msgid "Шах Исмаил Хатаи"
-#~ msgstr "Şah İsmayıl Xətai"
+msgid "Нефтчиляр"
+msgstr "Neftçilər"
 
-#~ msgid "Автовагзал"
-#~ msgstr "Avtovağzal"
+msgid "Халглар Достлугу"
+msgstr "Xalqlar Dostluğu"
 
-#~ msgid "8 Ноября"
-#~ msgstr "8 Noyabr"
+msgid "Ахмедлы"
+msgstr "Əhmədli"
 
-#~ msgid "Ходжасан"
-#~ msgstr "Xocəsən"
+msgid "Ази Асланов"
+msgstr "Əzi Aslanov"
 
+msgid "Эльмляр Академиясы"
+msgstr "Elmlər Akademiyası"
+
+msgid "Иншаатчылар"
+msgstr "İnşaatçılar"
+
+msgid "20 Января"
+msgstr "20 Yanvar"
+
+msgid "Мемар Аджеми"
+msgstr "Memar Əcəmi"
+
+msgid "Азадлыг Проспекти"
+msgstr "Azadlıq Prospekti"
+
+msgid "Дернегюль"
+msgstr "Dərnəgül"
+
+msgid "Джафар Джаббарлы"
+msgstr "Cəfər Cabbarlı"
+
+msgid "Шах Исмаил Хатаи"
+msgstr "Şah İsmayıl Xətai"
+
+msgid "Автовагзал"
+msgstr "Avtovağzal"
+
+msgid "8 Ноября"
+msgstr "8 Noyabr"
+
+msgid "Ходжасан"
+msgstr "Xocəsən"
+
+#: src/catalog/templates/pages/owner_places.html:18
+msgid "Добавить новую карточку"
+msgstr "Yeni kart əlavə et"
+
+#: src/catalog/templates/pages/owner_places.html:28
+#: src/catalog/templates/pages/owner_cabinet.html:18
+msgid "Заявки"
+msgstr "Müraciətlər"
+
+#: src/catalog/templates/pages/owner_places.html:38
+msgid "Ожидают модерации"
+msgstr "Moderasiya gözləyir"
+
+#: src/catalog/templates/pages/owner_places.html:86
+#: src/catalog/templates/pages/owner_places.html:137
+msgid "Статус модерации"
+msgstr "Moderasiya statusu"
+
+#: src/catalog/templates/pages/owner_places.html:89
+#: src/catalog/templates/pages/owner_places.html:140
+msgid "На рассмотрении"
+msgstr "Baxışdadır"
+
+#: src/catalog/templates/pages/owner_places.html:96
+#: src/catalog/templates/pages/owner_places.html:147
+msgid "Не отправлена"
+msgstr "Göndərilməyib"
+
+#: src/catalog/templates/pages/owner_places.html:101
+#: src/catalog/templates/pages/owner_places.html:152
+msgid "Причина отклонения"
+msgstr "Rədd səbəbi"
+
+#: src/catalog/templates/pages/owner_places.html:122
+msgid "На проверке"
+msgstr "Yoxlamadadır"
+
+#: src/catalog/templates/pages/owner_places.html:127
+msgid "Отправить повторно на проверку"
+msgstr "Yenidən yoxlamaya göndər"
+
+#: src/catalog/templates/pages/owner_places.html:129
+msgid "Отправить на проверку"
+msgstr "Yoxlamaya göndər"
+
+#: src/catalog/templates/pages/owner_places.html:169
+msgid "Публикация станет доступна после одобрения заявки модератором."
+msgstr "Müraciət moderator tərəfindən təsdiqləndikdən sonra dərc etmək mümkün olacaq."
 
 
 #: src/catalog/forms.py:125 src/catalog/models.py:394

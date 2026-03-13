@@ -633,10 +633,10 @@ class OwnerPlaceEditForm(forms.ModelForm):
             if not value or value in seen:
                 continue
             seen.add(value)
-            choices.append((value, value))
+            choices.append((value, _(value)))
 
         if current_value and current_value not in seen:
-            choices.insert(1, (current_value, current_value))
+            choices.insert(1, (current_value, _(current_value)))
 
         return choices
 
