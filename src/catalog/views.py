@@ -205,6 +205,28 @@ def owner_place_create(request):
         return _redirect_to_login(request)
 
     if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        if form_action == "check_coordinates":
+            result = owner_places_controller.preview_create_coordinates(
+                request=request,
+                data=request.POST,
+                files=request.FILES,
+            )
+            if result.form is None:
+                messages.error(request, result.message)
+                return redirect("owner_places_dashboard")
+            if result.message:
+                if result.ok:
+                    messages.success(request, result.message)
+                else:
+                    messages.error(request, result.message)
+            context = {
+                "form": result.form,
+                "owner_profile": result.profile,
+                "meta_description": _("Создание карточки кружка в кабинете владельца."),
+            }
+            return render(request, "pages/owner_place_create.html", context)
+
         result = owner_places_controller.create_place(
             request=request,
             data=request.POST,
@@ -243,14 +265,18 @@ def owner_place_edit(request, pk):
         return _redirect_to_login(request)
 
     if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
         result = owner_places_controller.save_edit_form(
             request=request,
             place_id=pk,
             data=request.POST,
             files=request.FILES,
+            force_coordinate_refresh=form_action == "refresh_coordinates",
         )
         if result.ok:
             messages.success(request, result.message)
+            if form_action == "refresh_coordinates":
+                return redirect("owner_place_edit", pk=pk)
             return redirect("owner_places_dashboard")
 
         if result.form is None:

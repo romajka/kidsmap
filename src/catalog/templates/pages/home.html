@@ -5,6 +5,16 @@
 {% block title_plain %}{% trans "Главная" %} | KidsMap{% endblock %}
 {% block title_plain_twitter %}{% trans "Главная" %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block extra_head %}
+  {% if map_places %}
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  {% endif %}
+{% endblock %}
 
 {% block content %}
   <section class="home-hero panel" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
@@ -171,9 +181,8 @@
   {% if map_places %}
     <section class="panel">
       <h2>{% trans "Карта кружков по Азербайджану" %}</h2>
-      {% if google_maps_api_key %}
-        <div id="home-map" class="home-map"></div>
-      {% else %}
+      <div id="home-map" class="home-map"></div>
+      <noscript>
         <iframe
           class="home-map home-map-fallback"
           src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed"
@@ -181,8 +190,7 @@
           referrerpolicy="no-referrer-when-downgrade"
           title="{% trans 'Карта кружков по Азербайджану' %}"
         ></iframe>
-        <p class="home-map-note">{% trans "Для отображения карты укажите GOOGLE_MAPS_API_KEY в настройках окружения." %}</p>
-      {% endif %}
+      </noscript>
       {{ map_places|json_script:"home-map-data" }}
     </section>
   {% endif %}
@@ -312,90 +320,6 @@
     {% endif %}
   </section>
 
-  {% if map_places and google_maps_api_key %}
-    <script>
-      let homeMapApiLoaded = false;
-
-      function loadHomeGoogleMapsApi() {
-        if (homeMapApiLoaded) return;
-        homeMapApiLoaded = true;
-        const script = document.createElement("script");
-        script.src = "https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initHomeGoogleMap";
-        script.async = true;
-        script.defer = true;
-        document.body.appendChild(script);
-      }
-
-      function initHomeGoogleMap() {
-        const mapEl = document.getElementById("home-map");
-        const dataEl = document.getElementById("home-map-data");
-        if (!mapEl || !dataEl || !window.google || !window.google.maps) return;
-
-        const places = JSON.parse(dataEl.textContent || "[]");
-        if (!places.length) return;
-
-        const map = new google.maps.Map(mapEl, {
-          center: { lat: 40.4, lng: 47.7 },
-          zoom: 7,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true,
-        });
-
-        const bounds = new google.maps.LatLngBounds();
-        const infoWindow = new google.maps.InfoWindow();
-
-        places.forEach((place) => {
-          if (typeof place.lat !== "number" || typeof place.lng !== "number") return;
-          const position = { lat: place.lat, lng: place.lng };
-          const marker = new google.maps.Marker({
-            position,
-            map,
-            title: place.name,
-          });
-          marker.addListener("click", function () {
-            infoWindow.setContent(
-              `<b>${place.name}</b><br>${place.category}<br><a href="${place.url}">{% trans "Подробнее" %}</a>`
-            );
-            infoWindow.open(map, marker);
-          });
-          bounds.extend(position);
-        });
-
-        if (!bounds.isEmpty()) {
-          map.fitBounds(bounds);
-          google.maps.event.addListenerOnce(map, "idle", function () {
-            if (map.getZoom() > 12) {
-              map.setZoom(12);
-            }
-          });
-        }
-      }
-
-      (function () {
-        const mapEl = document.getElementById("home-map");
-        if (!mapEl) return;
-
-        if (!("IntersectionObserver" in window)) {
-          loadHomeGoogleMapsApi();
-          return;
-        }
-
-        const observer = new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (entry) {
-              if (!entry.isIntersecting) return;
-              loadHomeGoogleMapsApi();
-              observer.disconnect();
-            });
-          },
-          { rootMargin: "280px 0px" }
-        );
-        observer.observe(mapEl);
-      })();
-    </script>
-  {% endif %}
-
   <script>
     (function () {
       document.querySelectorAll("[data-review-stars]").forEach(function (picker) {
@@ -428,4 +352,105 @@
       });
     })();
   </script>
+{% endblock %}
+
+{% block extra_body %}
+  {% if map_places %}
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script>
+      (function () {
+        const mapEl = document.getElementById("home-map");
+        const dataEl = document.getElementById("home-map-data");
+        if (!mapEl || !dataEl) return;
+
+        function renderFallback() {
+          mapEl.innerHTML =
+            '<iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{% trans "Карта кружков по Азербайджану" %}"></iframe>';
+        }
+
+        if (!window.L) {
+          renderFallback();
+          return;
+        }
+
+        let places = [];
+        try {
+          places = JSON.parse(dataEl.textContent || "[]");
+        } catch (err) {
+          renderFallback();
+          return;
+        }
+
+        const validPlaces = places.filter(function (place) {
+          return typeof place.lat === "number" && typeof place.lng === "number";
+        });
+        if (!validPlaces.length) {
+          renderFallback();
+          return;
+        }
+
+        function escapeHtml(value) {
+          return String(value || "").replace(/[&<>"']/g, function (char) {
+            return {
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[char];
+          });
+        }
+
+        const map = L.map(mapEl, {
+          scrollWheelZoom: false,
+          zoomControl: true,
+        });
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+
+        const bounds = L.latLngBounds([]);
+        validPlaces.forEach(function (place) {
+          const position = [place.lat, place.lng];
+          const marker = L.circleMarker(position, {
+            radius: 8,
+            color: "#ffffff",
+            weight: 2,
+            fillColor: "#1f8640",
+            fillOpacity: 0.9,
+          }).addTo(map);
+
+          marker.bindPopup(
+            "<strong>" + escapeHtml(place.name) + "</strong><br>" +
+            escapeHtml(place.category) + "<br>" +
+            '<a href="' + encodeURI(place.url || "") + '">{% trans "Подробнее" %}</a>'
+          );
+          bounds.extend(position);
+        });
+
+        if (validPlaces.length === 1) {
+          map.setView(bounds.getCenter(), 12);
+        } else {
+          map.fitBounds(bounds, { padding: [24, 24] });
+        }
+
+        setTimeout(function () {
+          map.invalidateSize();
+        }, 0);
+
+        mapEl.addEventListener("mouseenter", function () {
+          map.scrollWheelZoom.enable();
+        });
+        mapEl.addEventListener("mouseleave", function () {
+          map.scrollWheelZoom.disable();
+        });
+      })();
+    </script>
+  {% endif %}
 {% endblock %}

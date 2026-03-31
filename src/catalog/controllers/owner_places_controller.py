@@ -18,6 +18,7 @@ from catalog.repositories.django_repositories import (
     DjangoPlaceOwnershipRequestRepository,
     DjangoUserProfileRepository,
 )
+from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
 from catalog.services.owner_place_use_cases import (
     OwnerAccessResult,
     build_owner_places_stats,
@@ -41,6 +42,7 @@ class OwnerPlacesController:
     ownership_repository: IPlaceOwnershipRequestRepository
     profile_repository: IUserProfileRepository
     place_audit_repository: IPlaceChangeAuditRepository
+    geocoding_service: PlaceGeocodingService
 
     @classmethod
     def build_default(cls) -> "OwnerPlacesController":
@@ -49,7 +51,59 @@ class OwnerPlacesController:
             ownership_repository=DjangoPlaceOwnershipRequestRepository(),
             profile_repository=DjangoUserProfileRepository(),
             place_audit_repository=DjangoPlaceChangeAuditRepository(),
+            geocoding_service=PlaceGeocodingService.build_default(),
         )
+
+    def _sync_place_coordinates(
+        self,
+        *,
+        place: Place,
+        overwrite: bool,
+    ) -> tuple[dict[str, tuple[object, object]], PlaceGeocodingResult]:
+        previous_coordinates = {
+            "lat": place.lat,
+            "lng": place.lng,
+        }
+        geocoding_result = self.geocoding_service.geocode_place(place=place, overwrite=overwrite)
+        coordinate_changes: dict[str, tuple[object, object]] = {}
+        for field_name in ("lat", "lng"):
+            old_value = previous_coordinates[field_name]
+            new_value = getattr(place, field_name)
+            if old_value != new_value:
+                coordinate_changes[field_name] = (old_value, new_value)
+        return coordinate_changes, geocoding_result
+
+    @staticmethod
+    def _format_coordinate_value(value: float) -> str:
+        return f"{value:.6f}"
+
+    def _build_create_geocoding_message(self, *, geocoding_result) -> str:
+        point = geocoding_result.point
+        if geocoding_result.resolved and point is not None:
+            return _("Координаты найдены: %(lat)s, %(lng)s. Карточка еще не сохранена.") % {
+                "lat": self._format_coordinate_value(point.lat),
+                "lng": self._format_coordinate_value(point.lng),
+            }
+        if geocoding_result.reason == "provider_not_configured":
+            return _("Не удалось проверить координаты: сервис геокодирования не настроен.")
+        if geocoding_result.reason == "not_found":
+            return _("Не удалось найти координаты по указанному адресу.")
+        return _("Не удалось проверить координаты: укажите адрес.")
+
+    def _build_manual_refresh_message(self, *, geocoding_result: PlaceGeocodingResult) -> str:
+        point = geocoding_result.point
+        if geocoding_result.updated and point is not None:
+            return _("Изменения сохранены. Координаты обновлены: %(lat)s, %(lng)s.") % {
+                "lat": self._format_coordinate_value(point.lat),
+                "lng": self._format_coordinate_value(point.lng),
+            }
+        if geocoding_result.reason in {"coordinates_present", "unchanged"}:
+            return _("Изменения сохранены. Координаты уже актуальны.")
+        if geocoding_result.reason == "provider_not_configured":
+            return _("Изменения сохранены, но сервис геокодирования не настроен.")
+        if geocoding_result.reason == "not_found":
+            return _("Изменения сохранены, но координаты по указанному адресу не найдены.")
+        return _("Изменения сохранены, но для геокодирования нужен адрес.")
 
     def build_dashboard_context(self, *, request) -> tuple[dict, OwnerAccessResult]:
         access = ensure_owner_permission(
@@ -117,7 +171,14 @@ class OwnerPlacesController:
         form = OwnerPlaceEditForm(data=data, files=files, instance=place)
         return OwnerPlaceActionResult(ok=True, message="", place=place, form=form, profile=access.profile)
 
-    def build_create_form_context(self, *, request, data=None, files=None) -> OwnerPlaceActionResult:
+    def build_create_form_context(
+        self,
+        *,
+        request,
+        data=None,
+        files=None,
+        geocoding_check_only: bool = False,
+    ) -> OwnerPlaceActionResult:
         access = ensure_owner_permission(
             user=request.user,
             profile_repository=self.profile_repository,
@@ -126,8 +187,38 @@ class OwnerPlacesController:
         if not access.ok:
             return OwnerPlaceActionResult(ok=False, message=access.message, profile=access.profile)
 
-        form = OwnerPlaceCreateForm(data=data, files=files)
+        form = OwnerPlaceCreateForm(data=data, files=files, geocoding_check_only=geocoding_check_only)
         return OwnerPlaceActionResult(ok=True, message="", form=form, profile=access.profile)
+
+    def preview_create_coordinates(self, *, request, data, files) -> OwnerPlaceActionResult:
+        result = self.build_create_form_context(
+            request=request,
+            data=data,
+            files=files,
+            geocoding_check_only=True,
+        )
+        if not result.ok or result.form is None:
+            return result
+
+        if not result.form.is_valid():
+            return OwnerPlaceActionResult(
+                ok=False,
+                message="",
+                form=result.form,
+                profile=result.profile,
+            )
+
+        geocoding_result = self.geocoding_service.geocode_location(
+            address=result.form.cleaned_data.get("address", ""),
+            district=result.form.cleaned_data.get("district", ""),
+            metro=result.form.cleaned_data.get("metro", ""),
+        )
+        return OwnerPlaceActionResult(
+            ok=geocoding_result.resolved,
+            message=self._build_create_geocoding_message(geocoding_result=geocoding_result),
+            form=result.form,
+            profile=result.profile,
+        )
 
     def create_place(self, *, request, data, files) -> OwnerPlaceActionResult:
         result = self.build_create_form_context(request=request, data=data, files=files)
@@ -148,6 +239,7 @@ class OwnerPlacesController:
         place.is_verified = False
         place.save()
 
+        coordinate_changes, geocoding_result = self._sync_place_coordinates(place=place, overwrite=True)
         gallery_images = result.form.cleaned_data.get("gallery_images") or []
         self.owner_place_repository.add_gallery_images(place=place, image_files=gallery_images)
 
@@ -168,17 +260,36 @@ class OwnerPlacesController:
                 "is_verified": ("", place.is_verified),
             },
         )
+        if coordinate_changes:
+            self.place_audit_repository.create_entries(
+                place=place,
+                changed_by=request.user,
+                source=PlaceChangeAudit.SOURCE_SYSTEM,
+                changes=coordinate_changes,
+            )
 
         return OwnerPlaceActionResult(
             ok=True,
-            message=_("Карточка создана и отправлена на модерацию в админку."),
+            message=(
+                _("Карточка создана и отправлена на модерацию в админку. Координаты обновлены автоматически.")
+                if geocoding_result.updated
+                else _("Карточка создана и отправлена на модерацию в админку.")
+            ),
             place=place,
             form=result.form,
             profile=result.profile,
             ownership_request=ownership_request,
         )
 
-    def save_edit_form(self, *, request, place_id: int, data, files) -> OwnerPlaceActionResult:
+    def save_edit_form(
+        self,
+        *,
+        request,
+        place_id: int,
+        data,
+        files,
+        force_coordinate_refresh: bool = False,
+    ) -> OwnerPlaceActionResult:
         result = self.build_edit_form_context(request=request, place_id=place_id, data=data, files=files)
         if not result.ok or result.form is None:
             return result
@@ -196,6 +307,11 @@ class OwnerPlacesController:
             )
 
         place = result.form.save()
+        location_changed = place_location_fields_changed(previous_values=old_snapshot, place=place)
+        coordinate_changes, geocoding_result = self._sync_place_coordinates(
+            place=place,
+            overwrite=location_changed or force_coordinate_refresh,
+        )
         changes: dict[str, tuple[object, object]] = {}
         for field in tracked_fields:
             changes[field] = (old_snapshot.get(field), getattr(place, field))
@@ -205,9 +321,24 @@ class OwnerPlacesController:
             source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
             changes=changes,
         )
+        if coordinate_changes:
+            self.place_audit_repository.create_entries(
+                place=place,
+                changed_by=request.user,
+                source=PlaceChangeAudit.SOURCE_SYSTEM,
+                changes=coordinate_changes,
+            )
         return OwnerPlaceActionResult(
             ok=True,
-            message=_("Карточка успешно обновлена."),
+            message=(
+                self._build_manual_refresh_message(geocoding_result=geocoding_result)
+                if force_coordinate_refresh
+                else (
+                    _("Карточка успешно обновлена. Координаты обновлены автоматически.")
+                    if geocoding_result.updated
+                    else _("Карточка успешно обновлена.")
+                )
+            ),
             place=place,
             form=result.form,
             profile=result.profile,

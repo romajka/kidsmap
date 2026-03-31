@@ -27,6 +27,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+    {% block extra_head %}{% endblock %}
   </head>
   <body
     class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
@@ -355,5 +356,6 @@
 
       })();
     </script>
+    {% block extra_body %}{% endblock %}
   </body>
 </html>

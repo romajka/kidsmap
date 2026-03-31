@@ -64,8 +64,10 @@
 
       <div class="owner-edit-actions">
         <button type="submit" class="btn">{% trans "Создать и отправить на проверку" %}</button>
+        <button type="submit" name="form_action" value="check_coordinates" class="btn-secondary">{% trans "Проверить координаты" %}</button>
         <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К заявкам" %}</a>
       </div>
+      <p class="meta">{% trans "Проверка координат не создает карточку и не отправляет ее на модерацию." %}</p>
     </form>
   </section>
 

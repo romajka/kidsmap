@@ -52,6 +52,14 @@
           <strong>{{ owner_stats.draft_places }}</strong>
         </article>
         <article class="owner-stat-card">
+          <span class="meta-label">{% trans "С координатами" %}</span>
+          <strong>{{ owner_stats.places_with_coordinates }}</strong>
+        </article>
+        <article class="owner-stat-card">
+          <span class="meta-label">{% trans "Готово для карты" %}</span>
+          <strong>{{ owner_stats.map_ready_places }}</strong>
+        </article>
+        <article class="owner-stat-card">
           <span class="meta-label">{% trans "Отзывы" %}</span>
           <strong>{{ owner_stats.total_reviews }}</strong>
         </article>
@@ -103,6 +111,7 @@
                     {% trans "Причина отклонения" %}: {{ place.latest_moderation_request.moderation_note }}
                   </p>
                 {% endif %}
+                {% include "pages/includes/owner_place_location_status.html" with place=place %}
                 <div class="owner-place-actions">
                   {% if can_edit_places %}
                     <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
@@ -154,6 +163,7 @@
                     {% trans "Причина отклонения" %}: {{ place.latest_moderation_request.moderation_note }}
                   </p>
                 {% endif %}
+                {% include "pages/includes/owner_place_location_status.html" with place=place %}
                 <div class="owner-place-actions">
                   {% if can_edit_places %}
                     <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>

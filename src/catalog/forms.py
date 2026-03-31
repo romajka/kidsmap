@@ -557,6 +557,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.geocoding_check_only = bool(kwargs.pop("geocoding_check_only", False))
         super().__init__(*args, **kwargs)
         self._configure_location_choices()
         for field_name in ("age_from", "age_to"):
@@ -600,6 +601,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
         try:
             content_settings = CatalogContentSettings.get_solo()
             district_options = content_settings.districts()
+            metro_options = content_settings.metro_stations()
         except Exception:
             # If DB is not available (e.g., management command pre-setup), keep empty options.
             district_options = []
@@ -642,6 +644,9 @@ class OwnerPlaceEditForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if self.geocoding_check_only:
+            return cleaned
+
         age_from = cleaned.get("age_from")
         age_to = cleaned.get("age_to")
         if age_from is not None and age_to is not None and age_from > age_to:
@@ -700,20 +705,34 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field_name in (
-            "category",
-            "age_from",
-            "age_to",
-            "price_from",
-            "price_to",
-            "address",
-            "phone1",
-            "photo",
-        ):
-            self.fields[field_name].required = True
+        if self.geocoding_check_only:
+            for field_name in self.fields:
+                self.fields[field_name].required = field_name == "address"
+        else:
+            for field_name in (
+                "category",
+                "age_from",
+                "age_to",
+                "price_from",
+                "price_to",
+                "address",
+                "phone1",
+                "photo",
+            ):
+                self.fields[field_name].required = True
 
     def clean(self):
         cleaned = super().clean()
+        district = (cleaned.get("district") or "").strip()
+        metro = (cleaned.get("metro") or "").strip()
+        if not district and not metro:
+            message = _("Укажите локацию: выберите район или станцию метро.")
+            self.add_error("district", message)
+            self.add_error("metro", message)
+
+        if self.geocoding_check_only:
+            return cleaned
+
         names = [
             (cleaned.get("name_ru") or "").strip(),
             (cleaned.get("name_az") or "").strip(),
@@ -729,13 +748,6 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         ]
         if not any(descriptions):
             self.add_error("description_ru", _("Укажите хотя бы одно описание (RU, AZ или EN)."))
-
-        district = (cleaned.get("district") or "").strip()
-        metro = (cleaned.get("metro") or "").strip()
-        if not district and not metro:
-            message = _("Укажите локацию: выберите район или станцию метро.")
-            self.add_error("district", message)
-            self.add_error("metro", message)
 
         gallery_images = self.files.getlist("gallery_images")
         cleaned["gallery_images"] = gallery_images

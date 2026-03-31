@@ -104,6 +104,8 @@ def build_owner_places_stats(*, places) -> dict:
     total_places = len(place_list)
     published_places = sum(1 for place in place_list if place.is_active)
     draft_places = total_places - published_places
+    places_with_coordinates = sum(1 for place in place_list if place.has_coordinates)
+    map_ready_places = sum(1 for place in place_list if place.is_map_ready)
     total_reviews = sum(int(place.rating_count or 0) for place in place_list)
     total_likes = sum(int(place.likes_count or 0) for place in place_list)
 
@@ -114,6 +116,8 @@ def build_owner_places_stats(*, places) -> dict:
         "total_places": total_places,
         "published_places": published_places,
         "draft_places": draft_places,
+        "places_with_coordinates": places_with_coordinates,
+        "map_ready_places": map_ready_places,
         "total_reviews": total_reviews,
         "total_likes": total_likes,
         "avg_rating": avg_rating,

@@ -34,7 +34,9 @@ from .models import (
     UserEmailVerification,
     UserProfile,
 )
+from .repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from .services.admin_analytics import build_site_analytics_context
+from .services.geocoding import PlaceGeocodingService
 
 # Clarify similar names in admin navigation.
 SiteReview._meta.verbose_name = _("Отзыв о сайте")
@@ -295,6 +297,44 @@ class PlaceAdminForm(forms.ModelForm):
         }
 
 
+class PlaceCoordinatesFilter(admin.SimpleListFilter):
+    title = _("Координаты")
+    parameter_name = "coordinates_status"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", _("Есть координаты")),
+            ("no", _("Нужны координаты")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "yes":
+            return queryset.exclude(lat__isnull=True).exclude(lng__isnull=True)
+        if value == "no":
+            return queryset.filter(Q(lat__isnull=True) | Q(lng__isnull=True))
+        return queryset
+
+
+class PlaceMapReadyFilter(admin.SimpleListFilter):
+    title = _("На карте")
+    parameter_name = "map_ready_status"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", _("Готово для карты")),
+            ("no", _("Не готово для карты")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "yes":
+            return queryset.filter(is_active=True).exclude(lat__isnull=True).exclude(lng__isnull=True)
+        if value == "no":
+            return queryset.filter(Q(is_active=False) | Q(lat__isnull=True) | Q(lng__isnull=True))
+        return queryset
+
+
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
     AUDIT_TRACKED_FIELDS = (
@@ -328,12 +368,16 @@ class PlaceAdmin(admin.ModelAdmin):
         "is_verified",
     )
     form = PlaceAdminForm
+    geocoding_service = PlaceGeocodingService.build_default()
+    place_audit_repository = DjangoPlaceChangeAuditRepository()
     list_display = (
         "display_name",
         "category",
         "event_kind",
         "district",
         "metro",
+        "coordinates_status",
+        "map_ready_status",
         "owner",
         "likes_count",
         "rating_avg",
@@ -342,14 +386,34 @@ class PlaceAdmin(admin.ModelAdmin):
         "is_verified",
         "updated_at",
     )
-    list_filter = ("category", "is_temporary", "district", "metro", "owner", "is_active", "is_verified", "age_from", "age_to")
+    list_filter = (
+        PlaceCoordinatesFilter,
+        PlaceMapReadyFilter,
+        "category",
+        "is_temporary",
+        "district",
+        "metro",
+        "owner",
+        "is_active",
+        "is_verified",
+        "age_from",
+        "age_to",
+    )
     search_fields = ("name_ru", "name_en", "name", "address", "instagram", "phone1", "owner__username", "owner__email")
     list_editable = ("is_active", "is_verified", "likes_count")
-    readonly_fields = ("slug", "rating_avg", "rating_count", "created_at", "updated_at")
+    readonly_fields = (
+        "slug",
+        "rating_avg",
+        "rating_count",
+        "coordinates_status_display",
+        "map_ready_status_display",
+        "created_at",
+        "updated_at",
+    )
     ordering = ("-updated_at",)
     list_per_page = 30
     save_on_top = True
-    actions = ("mark_active", "mark_inactive", "mark_verified", "mark_unverified")
+    actions = ("mark_active", "mark_inactive", "mark_verified", "mark_unverified", "refresh_coordinates")
     inlines = [PlacePhotoInline, PlaceReviewInline, PlaceChangeAuditInline]
     fieldsets = (
         (
@@ -374,7 +438,7 @@ class PlaceAdmin(admin.ModelAdmin):
         ),
         (_("Названия и описания (i18n)"), {"classes": ("collapse",), "fields": ("name_ru", "name_az", "name_en", "description_ru", "description_az", "description_en")}),
         (_("Возраст и цена"), {"fields": ("age_from", "age_to", "price_from", "price_to")}),
-        (_("Локация"), {"fields": ("district", "metro", "address", "lat", "lng")}),
+        (_("Локация"), {"fields": ("district", "metro", "address", "lat", "lng", "coordinates_status_display", "map_ready_status_display")}),
         (_("Контакты"), {"fields": ("phone1", "instagram", "website", "schedule")}),
         (_("Фото"), {"fields": ("cover_photo", "photo")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
@@ -387,6 +451,38 @@ class PlaceAdmin(admin.ModelAdmin):
     @admin.display(description=_("Формат"))
     def event_kind(self, obj):
         return _("Временное") if obj.is_temporary else _("Постоянное")
+
+    def _render_place_state_badge(self, *, label: str, positive: bool):
+        bg = "#e7f8ed" if positive else "#eef2f7"
+        fg = "#17663d" if positive else "#49515a"
+        return format_html(
+            '<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:{};color:{};font-weight:600;">{}</span>',
+            bg,
+            fg,
+            label,
+        )
+
+    @admin.display(description=_("Координаты"))
+    def coordinates_status(self, obj):
+        return self._render_place_state_badge(
+            label=_("Есть координаты") if obj.has_coordinates else _("Нужны координаты"),
+            positive=obj.has_coordinates,
+        )
+
+    @admin.display(description=_("Координаты"))
+    def coordinates_status_display(self, obj):
+        return self.coordinates_status(obj)
+
+    @admin.display(description=_("На карте"))
+    def map_ready_status(self, obj):
+        return self._render_place_state_badge(
+            label=_("Готово для карты") if obj.is_map_ready else _("Не готово для карты"),
+            positive=obj.is_map_ready,
+        )
+
+    @admin.display(description=_("На карте"))
+    def map_ready_status_display(self, obj):
+        return self.map_ready_status(obj)
 
     @admin.action(description=_("Сделать активными"))
     def mark_active(self, request, queryset):
@@ -403,6 +499,60 @@ class PlaceAdmin(admin.ModelAdmin):
     @admin.action(description=_("Снять отметку проверки"))
     def mark_unverified(self, request, queryset):
         queryset.update(is_verified=False)
+
+    @admin.action(description=_("Повторно геокодировать выбранные карточки"))
+    def refresh_coordinates(self, request, queryset):
+        if not self.geocoding_service.geocoding_repository.is_configured():
+            self.message_user(
+                request,
+                _("Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY."),
+                level=messages.ERROR,
+            )
+            return
+
+        updated_count = 0
+        unchanged_count = 0
+        missing_query_count = 0
+        not_found_count = 0
+
+        for place in queryset.iterator():
+            previous_coordinates = {"lat": place.lat, "lng": place.lng}
+            geocoding_result = self.geocoding_service.geocode_place(place=place, overwrite=True)
+            if geocoding_result.updated:
+                updated_count += 1
+                coordinate_changes: dict[str, tuple[object, object]] = {}
+                for field_name in ("lat", "lng"):
+                    old_value = previous_coordinates[field_name]
+                    new_value = getattr(place, field_name)
+                    if old_value != new_value:
+                        coordinate_changes[field_name] = (old_value, new_value)
+                if coordinate_changes:
+                    self.place_audit_repository.create_entries(
+                        place=place,
+                        changed_by=request.user,
+                        source=PlaceChangeAudit.SOURCE_SYSTEM,
+                        changes=coordinate_changes,
+                    )
+                continue
+
+            if geocoding_result.reason in {"unchanged", "coordinates_present"}:
+                unchanged_count += 1
+            elif geocoding_result.reason == "not_found":
+                not_found_count += 1
+            else:
+                missing_query_count += 1
+
+        self.message_user(
+            request,
+            _("Повторное геокодирование завершено: обновлено %(updated)s, без изменений %(unchanged)s, без адреса %(missing)s, не найдено %(not_found)s.")
+            % {
+                "updated": updated_count,
+                "unchanged": unchanged_count,
+                "missing": missing_query_count,
+                "not_found": not_found_count,
+            },
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
 
     def _stringify_audit_value(self, value):
         if value is None:

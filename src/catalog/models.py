@@ -129,6 +129,22 @@ class Place(models.Model):
             add_file(item.image)
         return files
 
+    @property
+    def has_coordinates(self) -> bool:
+        return self.lat is not None and self.lng is not None
+
+    @property
+    def is_map_ready(self) -> bool:
+        return self.is_active and self.has_coordinates
+
+    @property
+    def map_readiness_reason(self) -> str:
+        if not self.has_coordinates:
+            return "missing_coordinates"
+        if not self.is_active:
+            return "inactive"
+        return "ready"
+
     def __str__(self):
         return self.name_i18n()
 

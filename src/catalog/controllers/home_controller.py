@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from django.db.models import Avg
 from django.utils.translation import gettext as _
 
-from catalog.content_data import BAKU_DISTRICTS, HOME_CATEGORIES
+from catalog.content_data import HOME_CATEGORIES
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository, ISiteReviewRepository
 from catalog.repositories.django_repositories import (
     DjangoPlaceRepository,
@@ -56,7 +56,7 @@ class HomeController:
 
         return {
             "home_categories": HOME_CATEGORIES,
-            "home_districts": BAKU_DISTRICTS,
+            "home_districts": content_settings.districts(),
             "home_metro_options": content_settings.metro_stations(),
             "home_age_options": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16],
             "meta_description": _("KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене."),

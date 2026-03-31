@@ -3651,3 +3651,95 @@ msgstr "Şəkli dəyiş"
 #: src/catalog/templates/widgets/image_preview_file_input.html:36
 msgid "Загрузить фото"
 msgstr "Şəkil yüklə"
+
+#: src/catalog/admin.py:306 src/catalog/templates/pages/includes/owner_place_location_status.html:5
+msgid "Есть координаты"
+msgstr "Koordinatlar var"
+
+#: src/catalog/admin.py:307 src/catalog/templates/pages/includes/owner_place_location_status.html:7
+msgid "Нужны координаты"
+msgstr "Koordinatlar tələb olunur"
+
+#: src/catalog/admin.py:323 src/catalog/templates/pages/includes/owner_place_location_status.html:13 src/catalog/templates/pages/owner_places.html:57
+msgid "Готово для карты"
+msgstr "Xəritə üçün hazırdır"
+
+#: src/catalog/admin.py:324 src/catalog/templates/pages/includes/owner_place_location_status.html:15
+msgid "Не готово для карты"
+msgstr "Xəritə üçün hazır deyil"
+
+#: src/catalog/templates/pages/includes/owner_place_location_status.html:19
+msgid "Для карты нужны lat/lng."
+msgstr "Xəritə üçün lat/lng lazımdır."
+
+#: src/catalog/templates/pages/includes/owner_place_location_status.html:21
+msgid "Карточка появится на карте после публикации."
+msgstr "Kart dərc edildikdən sonra xəritədə görünəcək."
+
+#: src/catalog/templates/pages/owner_places.html:53
+msgid "С координатами"
+msgstr "Koordinatları olan"
+
+#: src/catalog/controllers/owner_places_controller.py:77
+msgid "Координаты найдены: %(lat)s, %(lng)s. Карточка еще не сохранена."
+msgstr "Koordinatlar tapildi: %(lat)s, %(lng)s. Kart hələ saxlanmayib."
+
+#: src/catalog/controllers/owner_places_controller.py:82
+msgid "Не удалось проверить координаты: сервис геокодирования не настроен."
+msgstr "Koordinatlari yoxlamaq olmadi: geokodlaşdırma xidməti qurulmayib."
+
+#: src/catalog/controllers/owner_places_controller.py:84
+msgid "Не удалось найти координаты по указанному адресу."
+msgstr "Göstərilən ünvan üzrə koordinatlar tapilmadi."
+
+#: src/catalog/controllers/owner_places_controller.py:85
+msgid "Не удалось проверить координаты: укажите адрес."
+msgstr "Koordinatlari yoxlamaq olmadi: ünvan daxil edin."
+
+#: src/catalog/controllers/owner_places_controller.py:90
+msgid "Изменения сохранены. Координаты обновлены: %(lat)s, %(lng)s."
+msgstr "Dəyişikliklər saxlanildi. Koordinatlar yeniləndi: %(lat)s, %(lng)s."
+
+#: src/catalog/controllers/owner_places_controller.py:95
+msgid "Изменения сохранены. Координаты уже актуальны."
+msgstr "Dəyişikliklər saxlanildi. Koordinatlar artıq aktualdir."
+
+#: src/catalog/controllers/owner_places_controller.py:97
+msgid "Изменения сохранены, но сервис геокодирования не настроен."
+msgstr "Dəyişikliklər saxlanildi, amma geokodlaşdırma xidməti qurulmayib."
+
+#: src/catalog/controllers/owner_places_controller.py:99
+msgid "Изменения сохранены, но координаты по указанному адресу не найдены."
+msgstr "Dəyişikliklər saxlanildi, amma göstərilən ünvan üzrə koordinatlar tapilmadi."
+
+#: src/catalog/controllers/owner_places_controller.py:100
+msgid "Изменения сохранены, но для геокодирования нужен адрес."
+msgstr "Dəyişikliklər saxlanildi, amma geokodlaşdırma üçün ünvan lazimdir."
+
+#: src/catalog/templates/pages/owner_place_create.html:69
+msgid "Проверить координаты"
+msgstr "Koordinatlari yoxla"
+
+#: src/catalog/templates/pages/owner_place_create.html:72
+msgid "Проверка координат не создает карточку и не отправляет ее на модерацию."
+msgstr "Koordinat yoxlamasi kart yaratmir və onu moderasiyaya göndərmir."
+
+#: src/catalog/templates/pages/owner_place_edit.html:56
+msgid "Сохранить и обновить координаты"
+msgstr "Saxla və koordinatlari yenilə"
+
+#: src/catalog/templates/pages/owner_place_edit.html:59
+msgid "При обновлении координат текущие изменения формы будут сохранены."
+msgstr "Koordinatlar yenilənəndə formadaki cari dəyişikliklər saxlanacaq."
+
+#: src/catalog/admin.py:495
+msgid "Повторно геокодировать выбранные карточки"
+msgstr "Seçilmiş kartlari yenidən geokodlaşdır"
+
+#: src/catalog/admin.py:500
+msgid "Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY."
+msgstr "Geokodlaşdırma qurulmayib. GOOGLE_MAPS_API_KEY dəyərini doldurun."
+
+#: src/catalog/admin.py:536
+msgid "Повторное геокодирование завершено: обновлено %(updated)s, без изменений %(unchanged)s, без адреса %(missing)s, не найдено %(not_found)s."
+msgstr "Təkrar geokodlaşdırma tamamlandi: yeniləndi %(updated)s, dəyişmədi %(unchanged)s, ünvansiz %(missing)s, tapilmadi %(not_found)s."

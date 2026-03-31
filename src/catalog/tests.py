@@ -1,10 +1,12 @@
 import json
+from io import StringIO
 from datetime import timedelta
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -12,7 +14,9 @@ from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
 
 from catalog.forms import OwnerPlaceCreateForm
+from catalog.interfaces.geocoding import GeocodingPoint
 from catalog.models import (
+    CatalogContentSettings,
     FunnelEvent,
     OwnerTeamInvitation,
     OwnerTeamMembership,
@@ -28,9 +32,24 @@ from catalog.models import (
     UserEmailVerification,
     UserProfile,
 )
+from catalog.services.geocoding import PlaceGeocodingService
 
 
 User = get_user_model()
+
+
+class StubGeocodingRepository:
+    def __init__(self, *, point: GeocodingPoint | None = None, configured: bool = True):
+        self.point = point
+        self.configured = configured
+        self.queries: list[str] = []
+
+    def is_configured(self) -> bool:
+        return self.configured
+
+    def geocode(self, *, query: str, language: str = "ru", region: str = "az") -> GeocodingPoint | None:
+        self.queries.append(query)
+        return self.point
 
 
 class TestPublicPagesSmoke(TestCase):
@@ -64,6 +83,76 @@ class TestPublicPagesSmoke(TestCase):
             response["Location"],
             "https://admin.kidsmap.az/ru/admin/login/?next=/ru/admin/",
         )
+
+    def test_home_page_renders_interactive_map_without_google_maps_key(self):
+        Place.objects.create(
+            name="Home Map Place",
+            name_ru="Кружок для карты на главной",
+            category="EDU",
+            is_active=True,
+            lat=40.4093,
+            lng=49.8671,
+        )
+
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="home-map"', html=False)
+        self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertContains(response, "leaflet@1.9.4/dist/leaflet.js")
+        self.assertContains(response, "home-map-data")
+
+
+class TestCatalogContentSettingsWiring(TestCase):
+    def test_home_page_uses_catalog_settings_districts(self):
+        settings_obj = CatalogContentSettings.get_solo()
+        settings_obj.districts_json = ["Тестовый район"]
+        settings_obj.save(update_fields=["districts_json", "updated_at"])
+
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'option value="Тестовый район"', html=False)
+        self.assertEqual(response.context["home_districts"], ["Тестовый район"])
+
+    def test_owner_place_form_uses_catalog_settings_metro_options(self):
+        settings_obj = CatalogContentSettings.get_solo()
+        settings_obj.metro_stations_json = ["Тестовое метро"]
+        settings_obj.save(update_fields=["metro_stations_json", "updated_at"])
+
+        form = OwnerPlaceCreateForm()
+        metro_values = [value for value, _label in form.fields["metro"].choices]
+
+        self.assertIn("Тестовое метро", metro_values)
+        self.assertNotIn("Иншаатчылар", metro_values)
+
+
+class TestPlaceGeocodingService(TestCase):
+    def test_service_updates_coordinates_from_repository_result(self):
+        place = Place.objects.create(
+            name="Geo Service Place",
+            name_ru="Геосервис кружок",
+            category="EDU",
+            address="ул. Низами, 15",
+            district="Ясамал",
+            metro="Ичеришехер",
+        )
+        repository = StubGeocodingRepository(
+            point=GeocodingPoint(lat=40.4093, lng=49.8671, formatted_address="Baku"),
+        )
+        service = PlaceGeocodingService(geocoding_repository=repository)
+
+        result = service.geocode_place(place=place, overwrite=True)
+
+        self.assertTrue(result.updated)
+        place.refresh_from_db()
+        self.assertEqual(place.lat, 40.4093)
+        self.assertEqual(place.lng, 49.8671)
+        self.assertEqual(len(repository.queries), 1)
+        self.assertIn("ул. Низами, 15", repository.queries[0])
+        self.assertIn("Ясамал", repository.queries[0])
+        self.assertIn("метро Ичеришехер", repository.queries[0])
+        self.assertIn("Баку", repository.queries[0])
 
 
 class TestAdminOwnershipModerationUX(TestCase):
@@ -152,6 +241,59 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         second_request.refresh_from_db()
         self.assertEqual(second_request.status, PlaceOwnershipRequest.STATUS_REJECTED)
+
+    def test_place_admin_shows_coordinates_and_map_readiness_statuses(self):
+        self.place.lat = 40.4093
+        self.place.lng = 49.8671
+        self.place.save(update_fields=["lat", "lng", "updated_at"])
+        Place.objects.create(
+            name="Place Without Coordinates",
+            name_ru="Карточка без координат",
+            category="EDU",
+            is_active=True,
+        )
+
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Есть координаты")
+        self.assertContains(response, "Нужны координаты")
+        self.assertContains(response, "Готово для карты")
+        self.assertContains(response, "Не готово для карты")
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_place_admin_bulk_action_regeocodes_selected_places(self, geocode_mock):
+        geocode_mock.return_value = GeocodingPoint(lat=40.5001, lng=49.9001, formatted_address="Baku")
+        self.place.address = "Проспект 10"
+        self.place.district = "Ясамал"
+        self.place.lat = 40.1001
+        self.place.lng = 49.1001
+        self.place.save(update_fields=["address", "district", "lat", "lng", "updated_at"])
+
+        response = self.client.post(
+            reverse("admin:catalog_place_changelist"),
+            data={
+                "action": "refresh_coordinates",
+                "_selected_action": [str(self.place.id)],
+                "index": 0,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.lat, 40.5001)
+        self.assertEqual(self.place.lng, 49.9001)
+        self.assertContains(response, "Повторное геокодирование завершено: обновлено 1")
+        self.assertTrue(
+            PlaceChangeAudit.objects.filter(
+                place=self.place,
+                changed_by=self.superuser,
+                source=PlaceChangeAudit.SOURCE_SYSTEM,
+                field_name="lat",
+            ).exists()
+        )
 
     def test_userprofile_changelist_works_without_500(self):
         response = self.client.get("/ru/admin/catalog/userprofile/")
@@ -1155,6 +1297,29 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Причина отклонения")
         self.assertContains(response, "Нужно добавить нормальное фото")
 
+    def test_owner_dashboard_shows_coordinates_and_map_readiness_statuses(self):
+        self.manager_place.lat = 40.4093
+        self.manager_place.lng = 49.8671
+        self.manager_place.is_active = True
+        self.manager_place.save(update_fields=["lat", "lng", "is_active", "updated_at"])
+        Place.objects.create(
+            name="Manager Draft Without Coordinates",
+            name_ru="Черновик без координат",
+            category="EDU",
+            owner=self.manager_user,
+            is_active=False,
+            address="Улица без координат",
+        )
+
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_places_dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Есть координаты")
+        self.assertContains(response, "Нужны координаты")
+        self.assertContains(response, "Готово для карты")
+        self.assertContains(response, "С координатами")
+
     def test_owner_moderator_cannot_edit_place(self):
         self.client.login(username="owner_moderator", password="StrongPass123!!")
         response = self.client.post(
@@ -1232,6 +1397,58 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(PlacePhoto.objects.filter(place=place).count(), 2)
         ownership_request = PlaceOwnershipRequest.objects.get(place=place, applicant=self.manager_user)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_manager_create_place_populates_coordinates_automatically(self, geocode_mock):
+        geocode_mock.return_value = GeocodingPoint(lat=40.401, lng=49.801, formatted_address="Baku")
+
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "name_ru": "Карточка с геокодированием",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание новой карточки",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "Робототехника",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "100",
+                "price_to": "200",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "address": "Улица 5",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "Пн-Сб",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "Проверка координат",
+                "photo": self._image_upload("main-geocoded.png"),
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        place = Place.objects.get(owner=self.manager_user, name_ru="Карточка с геокодированием")
+        self.assertEqual(place.lat, 40.401)
+        self.assertEqual(place.lng, 49.801)
+        self.assertContains(response, "Координаты обновлены автоматически")
+        geocode_mock.assert_called_once()
+        self.assertIn("Улица 5", geocode_mock.call_args.kwargs["query"])
+        self.assertTrue(
+            PlaceChangeAudit.objects.filter(
+                place=place,
+                source=PlaceChangeAudit.SOURCE_SYSTEM,
+                field_name="lat",
+            ).exists()
+        )
 
     def test_owner_place_create_rejects_more_than_five_gallery_files(self):
         form = OwnerPlaceCreateForm(
@@ -1462,6 +1679,28 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertIn("photo", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без фото").exists())
 
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_create_form_can_check_coordinates_before_saving(self, geocode_mock):
+        geocode_mock.return_value = GeocodingPoint(lat=40.411111, lng=49.822222, formatted_address="Baku")
+
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "address": "Улица 77",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "form_action": "check_coordinates",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Координаты найдены: 40.411111, 49.822222")
+        self.assertFalse(Place.objects.filter(owner=self.manager_user, address="Улица 77").exists())
+        geocode_mock.assert_called_once()
+
     def test_owner_editor_can_submit_draft_for_moderation(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
 
@@ -1492,6 +1731,111 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("owner_cabinet"))
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_edit_refreshes_coordinates_when_location_changes(self, geocode_mock):
+        self.manager_place.address = "Старый адрес"
+        self.manager_place.district = "Ясамал"
+        self.manager_place.metro = "Иншаатчылар"
+        self.manager_place.lat = 40.11
+        self.manager_place.lng = 49.11
+        self.manager_place.save(update_fields=["address", "district", "metro", "lat", "lng", "updated_at"])
+        geocode_mock.return_value = GeocodingPoint(lat=40.55, lng=49.55, formatted_address="Baku")
+
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.manager_place.id]),
+            data={
+                "name_ru": "Кружок менеджера",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание обновлено",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "Насими",
+                "metro": "28 Май",
+                "address": "Новый адрес 10",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.manager_place.refresh_from_db()
+        self.assertEqual(self.manager_place.lat, 40.55)
+        self.assertEqual(self.manager_place.lng, 49.55)
+        self.assertContains(response, "Координаты обновлены автоматически")
+        geocode_mock.assert_called_once()
+        self.assertIn("Новый адрес 10", geocode_mock.call_args.kwargs["query"])
+        self.assertTrue(
+            PlaceChangeAudit.objects.filter(
+                place=self.manager_place,
+                source=PlaceChangeAudit.SOURCE_SYSTEM,
+                field_name="lng",
+            ).exists()
+        )
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_edit_form_can_force_refresh_coordinates(self, geocode_mock):
+        self.manager_place.address = "Тот же адрес"
+        self.manager_place.district = "Ясамал"
+        self.manager_place.metro = "Иншаатчылар"
+        self.manager_place.lat = 40.111111
+        self.manager_place.lng = 49.111111
+        self.manager_place.save(update_fields=["address", "district", "metro", "lat", "lng", "updated_at"])
+        geocode_mock.return_value = GeocodingPoint(lat=40.666666, lng=49.777777, formatted_address="Baku")
+
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.manager_place.id]),
+            data={
+                "name_ru": "Кружок менеджера",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание без смены адреса",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "address": "Тот же адрес",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "form_action": "refresh_coordinates",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.manager_place.refresh_from_db()
+        self.assertEqual(self.manager_place.lat, 40.666666)
+        self.assertEqual(self.manager_place.lng, 49.777777)
+        self.assertContains(response, "Изменения сохранены. Координаты обновлены: 40.666666, 49.777777")
+        geocode_mock.assert_called_once()
 
 
 class TestOwnerTeamAndReviewModeration(TestCase):
@@ -1662,3 +2006,25 @@ class TestOwnerTeamAndReviewModeration(TestCase):
         audits = PlaceChangeAudit.objects.filter(place=self.place, changed_by=self.owner_manager)
         self.assertGreaterEqual(audits.count(), 1)
         self.assertTrue(audits.filter(field_name="name_ru").exists())
+
+
+class TestGeocodePlacesCommand(TestCase):
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_command_backfills_coordinates_for_existing_place(self, geocode_mock):
+        geocode_mock.return_value = GeocodingPoint(lat=40.777, lng=49.777, formatted_address="Baku")
+        place = Place.objects.create(
+            name="Backfill Place",
+            name_ru="Карточка для бэкфилла",
+            category="EDU",
+            address="Проспект 1",
+            district="Ясамал",
+        )
+        stdout = StringIO()
+
+        call_command("geocode_places", place_id=place.id, stdout=stdout)
+
+        place.refresh_from_db()
+        self.assertEqual(place.lat, 40.777)
+        self.assertEqual(place.lng, 49.777)
+        self.assertIn("Updated: 1", stdout.getvalue())
