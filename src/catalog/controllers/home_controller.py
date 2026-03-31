@@ -12,7 +12,8 @@ from catalog.repositories.django_repositories import (
     DjangoSettingsRepository,
     DjangoSiteReviewRepository,
 )
-from catalog.services.reactions import liked_place_ids, mark_liked_flags
+from catalog.services.options import sort_translated_values
+from catalog.services.reactions import liked_place_ids, mark_liked_flags, mark_site_review_reactions
 
 
 @dataclass(slots=True)
@@ -50,14 +51,14 @@ class HomeController:
         ]
 
         site_reviews_qs = self.review_repository.approved_queryset()
-        site_reviews = list(site_reviews_qs[:4])
+        site_reviews = mark_site_review_reactions(site_reviews_qs[:4], request)
         site_reviews_avg = site_reviews_qs.aggregate(avg=Avg("rating")).get("avg") or 0
         site_reviews_count = site_reviews_qs.count()
 
         return {
-            "home_categories": HOME_CATEGORIES,
-            "home_districts": content_settings.districts(),
-            "home_metro_options": content_settings.metro_stations(),
+            "home_categories": sorted(HOME_CATEGORIES, key=lambda item: str(_(item["title"])).casefold()),
+            "home_districts": sort_translated_values(content_settings.districts()),
+            "home_metro_options": sort_translated_values(content_settings.metro_stations()),
             "home_age_options": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16],
             "meta_description": _("KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене."),
             "seo_pages": content_settings.seo_pages(),

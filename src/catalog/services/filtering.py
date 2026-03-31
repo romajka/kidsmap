@@ -134,6 +134,8 @@ class PlaceListFilters:
             return qs.order_by("price_from", "-created_at")
         if self.sort == "price_desc" and not self.force_new_only:
             return qs.order_by("-price_from", "-created_at")
+        if self.sort == "reviews_desc" and not self.force_new_only:
+            return qs.order_by("-rating_count", "-rating_avg", "-created_at")
         self.sort = "new"
         return qs.order_by("-created_at")
 

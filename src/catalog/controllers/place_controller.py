@@ -13,7 +13,17 @@ from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepositor
 from catalog.models import Place
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
-from catalog.services.reactions import liked_place_ids, mark_liked_flags
+from catalog.services.options import sort_choice_tuples, sort_translated_values
+from catalog.services.reactions import (
+    liked_place_ids,
+    mark_liked_flags,
+    mark_place_review_reactions,
+)
+from catalog.services.review_sorting import (
+    REVIEW_SORT_CHOICES,
+    apply_review_sorting,
+    normalize_review_sort,
+)
 from catalog.services.seo import build_place_seo_payload
 from catalog.services.tracking import TrackingService
 
@@ -71,9 +81,9 @@ class PlaceController:
                 else _("Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене.")
             ),
             "selected": filters.selected(),
-            "categories": Place.CATEGORY_CHOICES,
-            "district_options": content_settings.districts(),
-            "metro_options": content_settings.metro_stations(),
+            "categories": sort_choice_tuples(Place.CATEGORY_CHOICES),
+            "district_options": sort_translated_values(content_settings.districts()),
+            "metro_options": sort_translated_values(content_settings.metro_stations()),
             "is_new_page": force_new_only,
         }
 
@@ -111,7 +121,9 @@ class PlaceController:
         place.is_liked = place.id in liked_ids
         self.tracking_service.track_place_open_event(request=request, place=place)
         seo_payload = build_place_seo_payload(place, request, request.LANGUAGE_CODE)
-        place_reviews = list(place.reviews.filter(is_approved=True).order_by("-created_at"))
+        review_sort = normalize_review_sort(request.GET.get("review_sort"))
+        place_reviews_qs = apply_review_sorting(place.reviews.filter(is_approved=True), review_sort)
+        place_reviews = mark_place_review_reactions(place_reviews_qs, request)
 
         return {
             "place": place,
@@ -123,4 +135,6 @@ class PlaceController:
             "map_open_url": seo_payload["map_open_url"],
             "place_reviews": place_reviews,
             "reviews_count": len(place_reviews),
+            "review_sort": review_sort,
+            "review_sort_choices": REVIEW_SORT_CHOICES,
         }

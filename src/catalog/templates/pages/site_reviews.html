@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Отзывы о сайте" %}{% endblock %}
+{% block title_plain %}{% trans "Отзывы о сайте" %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% trans "Отзывы о сайте" %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel site-reviews-page">
+    <div class="site-reviews-hero">
+      <div>
+        <h1>{% trans "Общие отзывы о сайте" %}</h1>
+        <p class="meta">{% trans "Здесь собраны отзывы именно о сервисе KidsMap, а не о конкретных кружках." %}</p>
+      </div>
+      <div class="trust-score">
+        <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}0.0{% endif %}</strong>
+        <span class="trust-stars" aria-hidden="true">★★★★★</span>
+        <span>
+          {% blocktrans count total=site_reviews_count %}{{ total }} отзыв о сайте{% plural %}{{ total }} отзывов о сайте{% endblocktrans %}
+        </span>
+      </div>
+    </div>
+
+    {% if messages %}
+      <div class="review-messages">
+        {% for message in messages %}
+          <p class="review-message {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <section id="site-reviews" class="review-form-wrap">
+      {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'add_site_review' %}" class="review-form">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+          <div class="review-form-grid">
+            <label>
+              {% trans "Ваша оценка" %}
+              <input type="hidden" name="rating" value="5" data-rating-input />
+              <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
+                <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
+                <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
+                <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
+                <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
+                <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
+              </div>
+            </label>
+            <label>
+              {% trans "Ваше имя" %}
+              <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
+            </label>
+            <label class="review-anon">
+              <input type="checkbox" name="is_anonymous" value="1" />
+              <span>{% trans "Оставить анонимно" %}</span>
+            </label>
+          </div>
+          <label>
+            {% trans "Текст отзыва" %}
+            <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось в сервисе?' %}"></textarea>
+          </label>
+          <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
+        </form>
+      {% else %}
+        <div class="review-auth-note">
+          <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
+          <div class="review-auth-actions">
+            <a class="btn" href="{% url 'account_login' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Войти" %}</a>
+            <a class="link-btn" href="{% url 'account_register' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Регистрация" %}</a>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+    <form method="get" class="reviews-toolbar site-reviews-toolbar">
+      <label class="filter-item filter-sort">
+        {% trans "Сортировка отзывов" %}
+        <select class="filter-select" name="sort">
+          {% for value, label in review_sort_choices %}
+            <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="link-btn" type="submit">{% trans "Применить" %}</button>
+    </form>
+
+    {% if site_reviews %}
+      <div class="reviews-list site-reviews-list">
+        {% for review in site_reviews %}
+          {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_site_review" show_place_link=False next_url=request.get_full_path %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="meta">{% trans "Пока нет общих отзывов о сайте. Будьте первым!" %}</p>
+    {% endif %}
+
+    {% if page_obj.paginator.num_pages > 1 %}
+      <nav class="pagination" aria-label="{% trans 'Пагинация' %}">
+        {% if page_obj.has_previous %}
+          <a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">‹ {% trans "Назад" %}</a>
+        {% else %}
+          <span class="page-nav disabled">‹ {% trans "Назад" %}</span>
+        {% endif %}
+
+        <div class="page-list">
+          {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+              <span class="page-item active">{{ num }}</span>
+            {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+              <a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+              <a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+              <span class="page-dots">…</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        {% if page_obj.has_next %}
+          <a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Вперед" %} ›</a>
+        {% else %}
+          <span class="page-nav disabled">{% trans "Вперед" %} ›</span>
+        {% endif %}
+      </nav>
+    {% endif %}
+  </section>
+
+  <script>
+    (function () {
+      document.querySelectorAll("[data-review-stars]").forEach(function (picker) {
+        const input = picker.parentElement.querySelector("[data-rating-input]");
+        if (!input) return;
+        const stars = Array.from(picker.querySelectorAll(".review-star"));
+
+        function paint(value) {
+          stars.forEach((star, idx) => {
+            star.classList.toggle("active", idx < value);
+          });
+        }
+
+        stars.forEach((star) => {
+          const value = Number(star.dataset.value || 0);
+          star.addEventListener("mouseenter", function () {
+            paint(value);
+          });
+          star.addEventListener("click", function () {
+            input.value = String(value);
+            paint(value);
+          });
+        });
+
+        picker.addEventListener("mouseleave", function () {
+          paint(Number(input.value || 0));
+        });
+
+        paint(Number(input.value || 0));
+      });
+    })();
+  </script>
+{% endblock %}

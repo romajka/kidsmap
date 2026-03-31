@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.models import CatalogContentSettings, Place, UserProfile
+from catalog.services.options import sort_translated_values
 
 
 User = get_user_model()
@@ -491,6 +492,12 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "instagram",
             "website",
             "schedule",
+            "lesson_duration_minutes",
+            "price_per_lesson",
+            "price_per_month",
+            "price_per_8_lessons",
+            "extra_conditions",
+            "additional_info",
             "is_temporary",
             "temporary_start",
             "temporary_end",
@@ -523,6 +530,20 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "instagram": forms.TextInput(attrs={"class": "field"}),
             "website": forms.URLInput(attrs={"class": "field"}),
             "schedule": forms.Textarea(attrs={"class": "field", "rows": 2}),
+            "lesson_duration_minutes": forms.TextInput(
+                attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "60"}
+            ),
+            "price_per_lesson": forms.TextInput(
+                attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "25"}
+            ),
+            "price_per_month": forms.TextInput(
+                attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "160"}
+            ),
+            "price_per_8_lessons": forms.TextInput(
+                attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "180"}
+            ),
+            "extra_conditions": forms.Textarea(attrs={"class": "field", "rows": 2}),
+            "additional_info": forms.Textarea(attrs={"class": "field", "rows": 3}),
             "is_temporary": forms.CheckboxInput(attrs={"class": "field-check"}),
             "temporary_start": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
             "temporary_end": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
@@ -549,6 +570,12 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "instagram": _("Instagram"),
             "website": _("Сайт"),
             "schedule": _("Расписание"),
+            "lesson_duration_minutes": _("Длительность урока (мин)"),
+            "price_per_lesson": _("Цена за 1 урок"),
+            "price_per_month": _("Цена за месяц"),
+            "price_per_8_lessons": _("Цена за 8 уроков"),
+            "extra_conditions": _("Дополнительные условия"),
+            "additional_info": _("Дополнительная информация"),
             "is_temporary": _("Временное мероприятие"),
             "temporary_start": _("Начало"),
             "temporary_end": _("Окончание"),
@@ -575,6 +602,19 @@ class OwnerPlaceEditForm(forms.ModelForm):
                     "min_value": _("Цена не может быть меньше 0."),
                 }
             )
+        for field_name in ("price_per_lesson", "price_per_month", "price_per_8_lessons"):
+            self.fields[field_name].error_messages.update(
+                {
+                    "invalid": _("Введите цену числом. Например: 120."),
+                    "min_value": _("Цена не может быть меньше 0."),
+                }
+            )
+        self.fields["lesson_duration_minutes"].error_messages.update(
+            {
+                "invalid": _("Введите длительность числом. Например: 60."),
+                "min_value": _("Длительность не может быть меньше 0."),
+            }
+        )
         self.fields["website"].error_messages.update(
             {
                 "invalid": _("Укажите корректный адрес сайта. Пример: https://site.com"),
@@ -587,6 +627,13 @@ class OwnerPlaceEditForm(forms.ModelForm):
             }
         )
         self.fields["address"].help_text = _("Укажите точный адрес: улица, номер дома и ориентир.")
+        self.fields["schedule"].help_text = _("Например: Пн/Ср/Пт 18:00-19:00.")
+        self.fields["lesson_duration_minutes"].help_text = _("Продолжительность одного занятия в минутах.")
+        self.fields["price_per_lesson"].help_text = _("Если известна фиксированная цена за одно занятие.")
+        self.fields["price_per_month"].help_text = _("Если есть абонемент или ежемесячная оплата.")
+        self.fields["price_per_8_lessons"].help_text = _("Если есть популярный пакет на 8 занятий.")
+        self.fields["extra_conditions"].help_text = _("Скидки, пробный урок, форма, материалы и другие условия.")
+        self.fields["additional_info"].help_text = _("Любые дополнительные детали, которые стоит показать в карточке.")
         for field_name in ("temporary_start", "temporary_end"):
             self.fields[field_name].error_messages.update(
                 {
@@ -596,12 +643,12 @@ class OwnerPlaceEditForm(forms.ModelForm):
 
     def _configure_location_choices(self):
         district_options = []
-        metro_options = BAKU_METRO_STATIONS
+        metro_options = sort_translated_values(BAKU_METRO_STATIONS)
 
         try:
             content_settings = CatalogContentSettings.get_solo()
-            district_options = content_settings.districts()
-            metro_options = content_settings.metro_stations()
+            district_options = sort_translated_values(content_settings.districts())
+            metro_options = sort_translated_values(content_settings.metro_stations())
         except Exception:
             # If DB is not available (e.g., management command pre-setup), keep empty options.
             district_options = []

@@ -1,7 +1,13 @@
 from django.db import IntegrityError, transaction
 from django.db.models import Q
 
-from catalog.models import PlaceLike, PlaceReview
+from catalog.models import (
+    PlaceLike,
+    PlaceReview,
+    PlaceReviewReaction,
+    SiteReview,
+    SiteReviewReaction,
+)
 
 
 def ensure_session_key(request):
@@ -10,10 +16,14 @@ def ensure_session_key(request):
     return request.session.session_key
 
 
-def likes_filter_for_request(request):
+def identity_filter_for_request(request):
     if request.user.is_authenticated:
         return Q(user=request.user)
     return Q(session_key=ensure_session_key(request))
+
+
+def likes_filter_for_request(request):
+    return identity_filter_for_request(request)
 
 
 def liked_place_ids(request):
@@ -58,12 +68,13 @@ def toggle_place_like(place, request):
     return liked, lock_place.likes_count
 
 
-def create_or_update_review(place, request, *, rating, review_text, author_name, is_anonymous):
+def create_or_update_review(place, request, *, rating, review_text, author_name, is_anonymous, contains_profanity=False):
     defaults = {
         "author_name": author_name,
         "is_anonymous": is_anonymous,
         "rating": rating,
         "text": review_text,
+        "contains_profanity": contains_profanity,
     }
     if request.user.is_authenticated:
         review, created = PlaceReview.objects.update_or_create(
@@ -90,3 +101,83 @@ def create_or_update_review(place, request, *, rating, review_text, author_name,
     defaults["session_key"] = session_key
     review = PlaceReview.objects.create(place=place, **defaults)
     return review, True
+
+
+def _reaction_actor_defaults(request):
+    if request.user.is_authenticated:
+        return request.user, ""
+    return None, ensure_session_key(request)
+
+
+def _toggle_review_reaction(*, review, request, value: int, reaction_model):
+    identity_filter = identity_filter_for_request(request)
+    user, session_key = _reaction_actor_defaults(request)
+
+    with transaction.atomic():
+        locked_review = review.__class__.objects.select_for_update().get(pk=review.pk)
+        existing = reaction_model.objects.filter(review=locked_review).filter(identity_filter).first()
+
+        if existing and int(existing.value) == int(value):
+            existing.delete()
+            current_reaction = 0
+        else:
+            defaults = {"value": value}
+            if existing:
+                for field, field_value in defaults.items():
+                    setattr(existing, field, field_value)
+                existing.save(update_fields=["value", "updated_at"])
+            else:
+                reaction_model.objects.create(
+                    review=locked_review,
+                    user=user,
+                    session_key=session_key,
+                    **defaults,
+                )
+            current_reaction = int(value)
+
+        locked_review.refresh_from_db(fields=["likes_count", "dislikes_count"])
+
+    return current_reaction, locked_review.likes_count, locked_review.dislikes_count
+
+
+def toggle_place_review_reaction(review, request, value: int):
+    return _toggle_review_reaction(
+        review=review,
+        request=request,
+        value=value,
+        reaction_model=PlaceReviewReaction,
+    )
+
+
+def toggle_site_review_reaction(review, request, value: int):
+    return _toggle_review_reaction(
+        review=review,
+        request=request,
+        value=value,
+        reaction_model=SiteReviewReaction,
+    )
+
+
+def _mark_review_reactions(reviews, request, *, reaction_model):
+    review_list = list(reviews)
+    if not review_list:
+        return review_list
+
+    identity_filter = identity_filter_for_request(request)
+    reaction_map = {
+        item.review_id: int(item.value)
+        for item in reaction_model.objects.filter(review_id__in=[review.id for review in review_list]).filter(identity_filter)
+    }
+
+    for review in review_list:
+        review.current_reaction = reaction_map.get(review.id, 0)
+
+    return review_list
+
+
+def mark_place_review_reactions(reviews, request):
+    return _mark_review_reactions(reviews, request, reaction_model=PlaceReviewReaction)
+
+
+def mark_site_review_reactions(reviews, request):
+    return _mark_review_reactions(reviews, request, reaction_model=SiteReviewReaction)

@@ -294,6 +294,10 @@ class PlaceAdminForm(forms.ModelForm):
             "likes_count": _("Количество лайков"),
             "rating_avg": _("Средний рейтинг"),
             "rating_count": _("Количество отзывов"),
+            "price_per_lesson": _("Цена за 1 урок"),
+            "price_per_month": _("Цена за месяц"),
+            "price_per_8_lessons": _("Цена за 8 уроков"),
+            "lesson_duration_minutes": _("Длительность урока (мин)"),
         }
 
 
@@ -357,6 +361,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "instagram",
         "website",
         "schedule",
+        "lesson_duration_minutes",
         "is_temporary",
         "temporary_start",
         "temporary_end",
@@ -364,6 +369,11 @@ class PlaceAdmin(admin.ModelAdmin):
         "lng",
         "price_from",
         "price_to",
+        "price_per_lesson",
+        "price_per_month",
+        "price_per_8_lessons",
+        "extra_conditions",
+        "additional_info",
         "is_active",
         "is_verified",
     )
@@ -437,9 +447,23 @@ class PlaceAdmin(admin.ModelAdmin):
             },
         ),
         (_("Названия и описания (i18n)"), {"classes": ("collapse",), "fields": ("name_ru", "name_az", "name_en", "description_ru", "description_az", "description_en")}),
-        (_("Возраст и цена"), {"fields": ("age_from", "age_to", "price_from", "price_to")}),
+        (
+            _("Возраст и цена"),
+            {
+                "fields": (
+                    "age_from",
+                    "age_to",
+                    "price_from",
+                    "price_to",
+                    "price_per_lesson",
+                    "price_per_month",
+                    "price_per_8_lessons",
+                    "lesson_duration_minutes",
+                )
+            },
+        ),
         (_("Локация"), {"fields": ("district", "metro", "address", "lat", "lng", "coordinates_status_display", "map_ready_status_display")}),
-        (_("Контакты"), {"fields": ("phone1", "instagram", "website", "schedule")}),
+        (_("Контакты"), {"fields": ("phone1", "instagram", "website", "schedule", "extra_conditions", "additional_info")}),
         (_("Фото"), {"fields": ("cover_photo", "photo")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )
@@ -830,10 +854,10 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
 
 @admin.register(PlaceReview)
 class PlaceReviewAdmin(admin.ModelAdmin):
-    list_display = ("place", "display_author", "rating", "created_at")
-    list_filter = ("rating", "is_anonymous", "created_at")
+    list_display = ("place", "display_author", "rating", "likes_count", "dislikes_count", "contains_profanity", "created_at")
+    list_filter = ("rating", "is_anonymous", "contains_profanity", "created_at")
     search_fields = ("place__name_ru", "place__name_en", "place__name_az", "author_name", "text")
-    readonly_fields = ("created_at", "updated_at", "session_key")
+    readonly_fields = ("likes_count", "dislikes_count", "contains_profanity", "created_at", "updated_at", "session_key")
     exclude = ("is_approved",)
 
     @admin.display(description=_("Автор"))
@@ -849,10 +873,10 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
 @admin.register(SiteReview)
 class SiteReviewAdmin(admin.ModelAdmin):
-    list_display = ("display_author", "rating", "created_at")
-    list_filter = ("rating", "is_anonymous", "created_at")
+    list_display = ("display_author", "rating", "likes_count", "dislikes_count", "contains_profanity", "created_at")
+    list_filter = ("rating", "is_anonymous", "contains_profanity", "created_at")
     search_fields = ("author_name", "text")
-    readonly_fields = ("created_at", "updated_at", "session_key")
+    readonly_fields = ("likes_count", "dislikes_count", "contains_profanity", "created_at", "updated_at", "session_key")
     exclude = ("is_approved",)
 
     @admin.display(description=_("Автор"))

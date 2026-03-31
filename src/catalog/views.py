@@ -26,6 +26,7 @@ from .controllers.owner_team_controller import OwnerTeamController
 from .controllers.ownership_controller import OwnershipController
 from .controllers.place_controller import PlaceController
 from .controllers.seo_controller import SeoController
+from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
 from .models import UserProfile
 
@@ -40,6 +41,7 @@ owner_reviews_controller = OwnerReviewsController.build_default()
 seo_controller = SeoController.build_default()
 tracking_controller = TrackingController.build_default()
 account_controller = AccountController.build_default()
+site_reviews_controller = SiteReviewsController.build_default()
 
 
 def _resolve_safe_next_url(request, fallback_url: str) -> str:
@@ -130,7 +132,7 @@ def add_place_review(request, pk):
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
-    return redirect(f"{place.get_absolute_url()}#reviews")
+    return redirect(_resolve_safe_next_url(request, f"{place.get_absolute_url()}#reviews"))
 
 
 @require_POST
@@ -143,7 +145,42 @@ def add_site_review(request):
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
-    return redirect(f"{reverse('home')}#site-reviews")
+    return redirect(_resolve_safe_next_url(request, f"{reverse('site_reviews')}#site-reviews"))
+
+
+def site_reviews(request):
+    context = site_reviews_controller.build_context(request)
+    return render(request, "pages/site_reviews.html", context)
+
+
+@require_POST
+def vote_place_review(request, review_id):
+    value = (request.POST.get("value") or "").strip()
+    if value not in {"1", "-1"}:
+        messages.error(request, _("Не удалось обработать реакцию на отзыв."))
+        return redirect(_resolve_safe_next_url(request, reverse("home")))
+
+    result = engagement_controller.toggle_place_review_reaction(
+        request=request,
+        review_id=review_id,
+        value=int(value),
+    )
+    return redirect(_resolve_safe_next_url(request, f"{result.review.place.get_absolute_url()}#reviews"))
+
+
+@require_POST
+def vote_site_review(request, review_id):
+    value = (request.POST.get("value") or "").strip()
+    if value not in {"1", "-1"}:
+        messages.error(request, _("Не удалось обработать реакцию на отзыв."))
+        return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
+
+    engagement_controller.toggle_site_review_reaction(
+        request=request,
+        review_id=review_id,
+        value=int(value),
+    )
+    return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
 
 
 @csrf_exempt

@@ -70,6 +70,11 @@
             {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
           >{% trans "О проекте" %}</a>
           <a
+            href="{% url 'site_reviews' %}"
+            class="{% if request.resolver_match.url_name == 'site_reviews' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'site_reviews' %}aria-current="page"{% endif %}
+          >{% trans "Отзывы" %}</a>
+          <a
             href="{% url 'contacts' %}"
             class="{% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
             {% if request.resolver_match.url_name == 'contacts' %}aria-current="page"{% endif %}
@@ -79,13 +84,15 @@
         <div class="topbar-right">
           <div class="auth-switch" aria-label="{% trans 'Аккаунт' %}">
             <details class="account-menu header-menu">
-              <summary class="menu-trigger auth-current">
-                {% if request.user.is_authenticated %}
-                  {% trans "Профиль" %}
-                {% else %}
-                  <span class="auth-label-full">{% trans "Войти" %} / {% trans "Регистрация" %}</span>
-                  <span class="auth-label-short">{% trans "Войти" %}</span>
-                {% endif %}
+              <summary class="menu-trigger auth-current auth-trigger-icononly" aria-label="{% trans 'Аккаунт' %}">
+                <span class="menu-icon icon-user" aria-hidden="true"></span>
+                <span class="visually-hidden">
+                  {% if request.user.is_authenticated %}
+                    {% trans "Профиль" %}
+                  {% else %}
+                    {% trans "Войти или зарегистрироваться" %}
+                  {% endif %}
+                </span>
                 <span class="lang-arrow" aria-hidden="true"></span>
               </summary>
               <div class="auth-dropdown menu-dropdown">
@@ -118,14 +125,17 @@
           <div class="lang-switch" aria-label="{% trans 'Язык' %}">
             {% get_current_language as CURRENT_LANGUAGE %}
             <details class="lang-menu header-menu">
-              <summary class="menu-trigger lang-current">
-                {% if CURRENT_LANGUAGE == "ru" %}🇷🇺 RU{% elif CURRENT_LANGUAGE == "az" %}🇦🇿 AZ{% else %}🇬🇧 EN{% endif %}
+              <summary class="menu-trigger lang-current lang-trigger-icononly" aria-label="{% trans 'Язык' %}">
+                <span class="lang-flag" aria-hidden="true">{% if CURRENT_LANGUAGE == "ru" %}🇷🇺{% elif CURRENT_LANGUAGE == "az" %}🇦🇿{% else %}🇬🇧{% endif %}</span>
+                <span class="visually-hidden">
+                  {% if CURRENT_LANGUAGE == "ru" %}{% trans "Русский" %}{% elif CURRENT_LANGUAGE == "az" %}{% trans "Азербайджанский" %}{% else %}{% trans "Английский" %}{% endif %}
+                </span>
                 <span class="lang-arrow" aria-hidden="true"></span>
               </summary>
               <div class="lang-dropdown menu-dropdown">
-                <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">🇷🇺 RU</a>
-                <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">🇦🇿 AZ</a>
-                <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">🇬🇧 EN</a>
+                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru"><span aria-hidden="true">🇷🇺</span><span class="visually-hidden">{% trans "Русский" %}</span></a>
+                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az"><span aria-hidden="true">🇦🇿</span><span class="visually-hidden">{% trans "Азербайджанский" %}</span></a>
+                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en"><span aria-hidden="true">🇬🇧</span><span class="visually-hidden">{% trans "Английский" %}</span></a>
               </div>
             </details>
           </div>

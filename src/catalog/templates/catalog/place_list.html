@@ -178,12 +178,15 @@
             <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% trans "Сначала новые" %}</option>
             <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% trans "Цена по возрастанию" %}</option>
             <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% trans "Цена по убыванию" %}</option>
+            <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% trans "По количеству отзывов" %}</option>
           </select>
         </label>
       {% endif %}
 
       <div class="actions">
-        <button class="btn icon-btn icon-search" type="submit">{% trans "Поиск" %}</button>
+        <button class="btn icon-btn icon-search icon-only-btn" type="submit" aria-label="{% trans 'Поиск' %}">
+          <span class="visually-hidden">{% trans "Поиск" %}</span>
+        </button>
         <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
       </div>
     </form>
@@ -336,13 +339,13 @@
                 {% if place.district or place.metro %}
                   <p class="meta"><b>{% trans "Район/метро" %}:</b> {% if place.district %}{% trans place.district %}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{% trans place.metro %}{% endif %}</p>
                 {% endif %}
-                {% if place.age_from or place.age_to %}
-                  <p class="meta"><b>{% trans "Возраст" %}:</b> {% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</p>
+                {% if place.age_display %}
+                  <p class="meta"><b>{% trans "Возраст" %}:</b> {{ place.age_display }}</p>
                 {% endif %}
-                {% if place.price_from or place.price_to %}
+                {% if place.price_range_display %}
                   <p class="meta meta-price">
                     <span class="meta-price-label">{% trans "Цена" %}:</span>
-                    <span class="meta-price-value">{% if place.price_from %}{{ place.price_from }}{% endif %}{% if place.price_from and place.price_to %}-{% endif %}{% if place.price_to %}{{ place.price_to }}{% endif %} AZN</span>
+                    <span class="meta-price-value">{{ place.price_range_display }}</span>
                   </p>
                 {% endif %}
                 <div class="card-cta-row">
@@ -353,6 +356,7 @@
                     <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">Instagram</a>
                   {% endif %}
                 </div>
+                {% include "catalog/includes/place_more_panel.html" with place=place %}
                 <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
               </div>
             </article>
@@ -380,11 +384,8 @@
               {% endif %}
             </a>
             {% if selected.view != 'list' %}
-              {% if place.price_from or place.price_to %}
-                <span class="card-price-pill">
-                  {% trans "от" %}
-                  {% if place.price_from %}{{ place.price_from }}{% else %}{{ place.price_to }}{% endif %} AZN
-                </span>
+              {% if place.card_price_badge %}
+                <span class="card-price-pill">{{ place.card_price_badge }}</span>
               {% endif %}
             {% endif %}
           </div>
@@ -429,20 +430,21 @@
               </p>
             {% endif %}
             {% if selected.view == 'list' %}
-              {% if place.price_from or place.price_to %}
+              {% if place.price_range_display %}
                 <p class="meta meta-price">
-                  <span class="meta-price-value">{% if place.price_from %}{{ place.price_from }}{% endif %}
-                  {% if place.price_from and place.price_to %}-{% endif %}
-                  {% if place.price_to %}{{ place.price_to }}{% endif %} AZN</span>
+                  <span class="meta-price-value">{{ place.price_range_display }}</span>
                 </p>
               {% endif %}
             {% endif %}
             {% if selected.view == 'list' %}
-              {% if place.age_from or place.age_to %}
-                <p class="meta list-only"><b>{% trans "Возраст" %}:</b> {% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</p>
+              {% if place.age_display %}
+                <p class="meta list-only"><b>{% trans "Возраст" %}:</b> {{ place.age_display }}</p>
               {% endif %}
               {% if place.address %}
                 <p class="meta list-only"><b>{% trans "Адрес" %}:</b> {{ place.address }}</p>
+              {% endif %}
+              {% if place.lesson_duration_display %}
+                <p class="meta list-only"><b>{% trans "Длительность" %}:</b> {{ place.lesson_duration_display }}</p>
               {% endif %}
               <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
               <div class="card-cta-row">
@@ -461,6 +463,7 @@
                 <span class="new-badge-meta">{% trans "Добавлено" %} {{ place.days_since_added }} {% trans "дн. назад" %}</span>
               </div>
             {% endif %}
+            {% include "catalog/includes/place_more_panel.html" with place=place %}
             <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}" />

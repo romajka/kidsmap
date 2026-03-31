@@ -54,6 +54,7 @@ class Place(models.Model):
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True)
     website = models.URLField(_("Сайт"), blank=True)
     schedule = models.TextField(_("Расписание"), blank=True)
+    lesson_duration_minutes = models.PositiveSmallIntegerField(_("Длительность урока (мин)"), null=True, blank=True)
     is_temporary = models.BooleanField(_("Временное мероприятие"), default=False)
     temporary_start = models.DateTimeField(_("Начало мероприятия"), null=True, blank=True)
     temporary_end = models.DateTimeField(_("Окончание мероприятия"), null=True, blank=True)
@@ -62,6 +63,11 @@ class Place(models.Model):
 
     price_from = models.IntegerField(_("Цена от"), null=True, blank=True)
     price_to = models.IntegerField(_("Цена до"), null=True, blank=True)
+    price_per_lesson = models.PositiveIntegerField(_("Цена за 1 урок"), null=True, blank=True)
+    price_per_month = models.PositiveIntegerField(_("Цена за месяц"), null=True, blank=True)
+    price_per_8_lessons = models.PositiveIntegerField(_("Цена за 8 уроков"), null=True, blank=True)
+    extra_conditions = models.TextField(_("Дополнительные условия"), blank=True)
+    additional_info = models.TextField(_("Дополнительная информация"), blank=True)
     likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
     rating_avg = models.FloatField(_("Средний рейтинг"), default=0)
     rating_count = models.PositiveIntegerField(_("Количество отзывов"), default=0)
@@ -128,6 +134,75 @@ class Place(models.Model):
         for item in self.gallery.order_by("order", "id"):
             add_file(item.image)
         return files
+
+    @property
+    def age_display(self) -> str:
+        if self.age_from is not None and self.age_to is not None:
+            return f"{self.age_from}-{self.age_to}"
+        if self.age_from is not None:
+            return f"{self.age_from}+"
+        if self.age_to is not None:
+            return str(self.age_to)
+        return ""
+
+    @property
+    def price_range_display(self) -> str:
+        if self.price_from is not None and self.price_to is not None:
+            return f"{self.price_from}-{self.price_to} AZN"
+        if self.price_from is not None:
+            return f"{self.price_from} AZN"
+        if self.price_to is not None:
+            return f"{self.price_to} AZN"
+        return ""
+
+    @property
+    def lesson_duration_display(self) -> str:
+        if not self.lesson_duration_minutes:
+            return ""
+        return _("%(minutes)s мин") % {"minutes": self.lesson_duration_minutes}
+
+    @property
+    def card_price_badge(self) -> str:
+        if self.price_per_lesson is not None:
+            return _("1 урок · %(price)s AZN") % {"price": self.price_per_lesson}
+        if self.price_from is not None:
+            return _("от %(price)s AZN") % {"price": self.price_from}
+        if self.price_to is not None:
+            return _("до %(price)s AZN") % {"price": self.price_to}
+        return ""
+
+    @property
+    def pricing_options(self) -> list[tuple[str, str]]:
+        options: list[tuple[str, str]] = []
+        if self.price_per_lesson is not None:
+            options.append((str(_("1 урок")), f"{self.price_per_lesson} AZN"))
+        if self.price_per_month is not None:
+            options.append((str(_("1 месяц")), f"{self.price_per_month} AZN"))
+        if self.price_per_8_lessons is not None:
+            options.append((str(_("8 уроков")), f"{self.price_per_8_lessons} AZN"))
+        if self.price_range_display:
+            options.append((str(_("Диапазон цены")), self.price_range_display))
+        return options
+
+    @property
+    def has_more_details(self) -> bool:
+        return any(
+            (
+                self.address,
+                self.phone1,
+                self.instagram,
+                self.website,
+                self.schedule,
+                self.lesson_duration_minutes is not None,
+                self.price_per_lesson is not None,
+                self.price_per_month is not None,
+                self.price_per_8_lessons is not None,
+                self.extra_conditions,
+                self.additional_info,
+                self.price_from is not None,
+                self.price_to is not None,
+            )
+        )
 
     @property
     def has_coordinates(self) -> bool:
@@ -240,6 +315,9 @@ class PlaceReview(models.Model):
     is_anonymous = models.BooleanField(_("Анонимно"), default=False)
     rating = models.PositiveSmallIntegerField(_("Оценка"), default=5)
     text = models.TextField(_("Отзыв"))
+    contains_profanity = models.BooleanField(_("Содержит скрытую лексику"), default=False)
+    likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
+    dislikes_count = models.PositiveIntegerField(_("Дизлайки"), default=0)
     is_approved = models.BooleanField(_("Одобрен"), default=True)
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
     created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
@@ -260,6 +338,19 @@ class PlaceReview(models.Model):
     def __str__(self):
         return f"{self.place_id}:{self.rating}"
 
+    @property
+    def popularity_score(self) -> int:
+        return int(self.likes_count) - int(self.dislikes_count)
+
+    def refresh_reaction_stats(self):
+        stats = self.reactions.aggregate(
+            likes=Count("id", filter=Q(value=1)),
+            dislikes=Count("id", filter=Q(value=-1)),
+        )
+        self.likes_count = int(stats.get("likes") or 0)
+        self.dislikes_count = int(stats.get("dislikes") or 0)
+        self.save(update_fields=["likes_count", "dislikes_count"])
+
     def save(self, *args, **kwargs):
         self.rating = min(max(int(self.rating or 1), 1), 5)
         super().save(*args, **kwargs)
@@ -269,6 +360,60 @@ class PlaceReview(models.Model):
         place = self.place
         super().delete(*args, **kwargs)
         place.refresh_rating_stats()
+
+
+class PlaceReviewReaction(models.Model):
+    VALUE_DISLIKE = -1
+    VALUE_LIKE = 1
+    VALUE_CHOICES = (
+        (VALUE_LIKE, _("Лайк")),
+        (VALUE_DISLIKE, _("Дизлайк")),
+    )
+
+    review = models.ForeignKey(
+        PlaceReview,
+        on_delete=models.CASCADE,
+        related_name="reactions",
+        verbose_name=_("Отзыв"),
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="place_review_reactions",
+        verbose_name=_("Пользователь"),
+        null=True,
+        blank=True,
+    )
+    session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
+    value = models.SmallIntegerField(_("Реакция"), choices=VALUE_CHOICES, default=VALUE_LIKE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("review", "session_key"),
+                condition=~Q(session_key=""),
+                name="unique_place_review_reaction_per_session",
+            ),
+            models.UniqueConstraint(
+                fields=("review", "user"),
+                condition=Q(user__isnull=False),
+                name="unique_place_review_reaction_per_user",
+            ),
+        ]
+        verbose_name = _("Реакция на отзыв по кружку")
+        verbose_name_plural = _("Реакции на отзывы по кружкам")
+
+    def save(self, *args, **kwargs):
+        self.value = self.VALUE_LIKE if int(self.value or self.VALUE_LIKE) > 0 else self.VALUE_DISLIKE
+        super().save(*args, **kwargs)
+        self.review.refresh_reaction_stats()
+
+    def delete(self, *args, **kwargs):
+        review = self.review
+        super().delete(*args, **kwargs)
+        review.refresh_reaction_stats()
 
 
 class SiteReview(models.Model):
@@ -284,6 +429,9 @@ class SiteReview(models.Model):
     is_anonymous = models.BooleanField(_("Анонимно"), default=False)
     rating = models.PositiveSmallIntegerField(_("Оценка"), default=5)
     text = models.TextField(_("Отзыв"), blank=True)
+    contains_profanity = models.BooleanField(_("Содержит скрытую лексику"), default=False)
+    likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
+    dislikes_count = models.PositiveIntegerField(_("Дизлайки"), default=0)
     is_approved = models.BooleanField(_("Одобрен"), default=True)
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
     created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
@@ -305,9 +453,76 @@ class SiteReview(models.Model):
         who = _("Аноним") if self.is_anonymous else (self.author_name or _("Гость"))
         return f"{who}: {self.rating}"
 
+    @property
+    def popularity_score(self) -> int:
+        return int(self.likes_count) - int(self.dislikes_count)
+
+    def refresh_reaction_stats(self):
+        stats = self.reactions.aggregate(
+            likes=Count("id", filter=Q(value=1)),
+            dislikes=Count("id", filter=Q(value=-1)),
+        )
+        self.likes_count = int(stats.get("likes") or 0)
+        self.dislikes_count = int(stats.get("dislikes") or 0)
+        self.save(update_fields=["likes_count", "dislikes_count"])
+
     def save(self, *args, **kwargs):
         self.rating = min(max(int(self.rating or 1), 1), 5)
         super().save(*args, **kwargs)
+
+
+class SiteReviewReaction(models.Model):
+    VALUE_DISLIKE = -1
+    VALUE_LIKE = 1
+    VALUE_CHOICES = (
+        (VALUE_LIKE, _("Лайк")),
+        (VALUE_DISLIKE, _("Дизлайк")),
+    )
+
+    review = models.ForeignKey(
+        SiteReview,
+        on_delete=models.CASCADE,
+        related_name="reactions",
+        verbose_name=_("Отзыв о сайте"),
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="site_review_reactions",
+        verbose_name=_("Пользователь"),
+        null=True,
+        blank=True,
+    )
+    session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
+    value = models.SmallIntegerField(_("Реакция"), choices=VALUE_CHOICES, default=VALUE_LIKE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("review", "session_key"),
+                condition=~Q(session_key=""),
+                name="unique_site_review_reaction_per_session",
+            ),
+            models.UniqueConstraint(
+                fields=("review", "user"),
+                condition=Q(user__isnull=False),
+                name="unique_site_review_reaction_per_user",
+            ),
+        ]
+        verbose_name = _("Реакция на отзыв о сайте")
+        verbose_name_plural = _("Реакции на отзывы о сайте")
+
+    def save(self, *args, **kwargs):
+        self.value = self.VALUE_LIKE if int(self.value or self.VALUE_LIKE) > 0 else self.VALUE_DISLIKE
+        super().save(*args, **kwargs)
+        self.review.refresh_reaction_stats()
+
+    def delete(self, *args, **kwargs):
+        review = self.review
+        super().delete(*args, **kwargs)
+        review.refresh_reaction_stats()
 
 
 class UserProfile(models.Model):

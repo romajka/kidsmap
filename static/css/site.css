@@ -35,6 +35,7 @@
   --icon-reset: url("../img/icon/coolicons.iconjar/icons/arrow-reload-02.svg");
   --icon-details: url("../img/icon/coolicons.iconjar/icons/external-link.svg");
   --icon-arrow-left: url("../img/icon/coolicons.iconjar/icons/chevron-left.svg");
+  --icon-user: url("../img/icon/coolicons.iconjar/icons/user-circle.svg");
   --icon-badge-new: url("../img/icon/coolicons.iconjar/icons/add-plus-circle.svg");
   --icon-badge-district: url("../img/icon/coolicons.iconjar/icons/map-pin.svg");
   --icon-badge-category: url("../img/icon/coolicons.iconjar/icons/puzzle.svg");
@@ -49,11 +50,40 @@ body {
   font-family: var(--font-body);
   color: var(--ink);
   overflow-x: hidden;
+  position: relative;
+  isolation: isolate;
   background:
     var(--custom-site-bg-url, none) center/cover no-repeat fixed,
     radial-gradient(circle at 8% 12%, rgba(168, 213, 155, 0.38) 0 110px, transparent 110px),
     radial-gradient(circle at 95% 16%, rgba(76, 175, 80, 0.2) 0 130px, transparent 130px),
     linear-gradient(180deg, var(--brand-white), var(--bg));
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.48;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(168, 213, 155, 0.18) 0 0, rgba(168, 213, 155, 0.18) 0 22%, transparent 54%),
+    radial-gradient(circle at 84% 20%, rgba(76, 175, 80, 0.12) 0 0, rgba(76, 175, 80, 0.12) 0 18%, transparent 50%),
+    radial-gradient(circle at 52% 88%, rgba(201, 74, 74, 0.06) 0 0, rgba(201, 74, 74, 0.06) 0 16%, transparent 48%);
+  filter: blur(8px);
+  animation: siteBackdropDrift 24s ease-in-out infinite alternate;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .bg-scene {
@@ -6281,5 +6311,368 @@ main {
 
   .account-menu .menu-dropdown {
     min-width: 152px;
+  }
+}
+
+/* Final UI refresh: icon-first header, subtle background motion, review interactions and richer place cards. */
+.menu-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  background: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+.icon-user {
+  -webkit-mask-image: var(--icon-user);
+  mask-image: var(--icon-user);
+}
+
+.auth-trigger-icononly,
+.lang-trigger-icononly {
+  min-width: 42px;
+  padding-inline: 10px;
+  justify-content: center;
+}
+
+.lang-trigger-icononly {
+  min-width: 52px;
+}
+
+.lang-flag,
+.lang-pill-flag {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.lang-pill-flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 8px 10px;
+}
+
+.icon-only-btn {
+  width: 44px;
+  min-width: 44px;
+  padding-inline: 0;
+  justify-content: center;
+}
+
+.icon-only-btn::before {
+  margin: 0;
+}
+
+.auth-required-note {
+  margin: -2px 0 14px;
+  color: var(--brand-spruce);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.card-price-pill,
+.home-recommended .card .card-price-pill,
+.page-place_list .grid:not(.results-list-mode) .card-price-pill,
+.page-place_new .grid:not(.results-list-mode) .card-price-pill {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: linear-gradient(180deg, rgba(13, 73, 36, 0.82), rgba(13, 73, 36, 0.68));
+  color: #fcfcfc;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
+  box-shadow: 0 10px 24px rgba(13, 73, 36, 0.24);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.place-more-details {
+  margin-top: 10px;
+  border: 1px solid rgba(19, 111, 56, 0.16);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(252, 252, 252, 0.96), rgba(168, 213, 155, 0.1));
+  overflow: hidden;
+}
+
+.place-more-trigger {
+  list-style: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  font-weight: 800;
+  color: var(--brand-spruce);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.place-more-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.place-more-trigger::after {
+  content: "+";
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.place-more-details[open] .place-more-trigger::after {
+  transform: rotate(45deg);
+}
+
+.place-more-content {
+  display: grid;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+
+.place-more-section {
+  display: grid;
+  gap: 6px;
+}
+
+.place-more-label {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand-turf);
+}
+
+.place-pricing-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.place-pricing-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(168, 213, 155, 0.12);
+  border: 1px solid rgba(19, 111, 56, 0.12);
+}
+
+.place-pricing-list strong {
+  color: var(--brand-spruce);
+  white-space: nowrap;
+}
+
+.place-more-text,
+.place-more-meta {
+  margin: 0;
+  color: var(--ink);
+}
+
+.place-more-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.place-more-links a,
+.review-place-link a {
+  color: var(--brand-spruce);
+  font-weight: 700;
+}
+
+.place-more-links a:hover,
+.review-place-link a:hover {
+  color: var(--brand-turf);
+}
+
+.detail-pricing-panel {
+  margin-top: 18px;
+}
+
+.detail-pricing-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.detail-pricing-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(19, 111, 56, 0.14);
+  background: linear-gradient(180deg, rgba(252, 252, 252, 0.98), rgba(168, 213, 155, 0.1));
+}
+
+.reviews-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.reviews-toolbar .filter-item {
+  margin: 0;
+  min-width: min(100%, 280px);
+}
+
+.review-place-link {
+  margin: 4px 0 0;
+}
+
+.review-footer {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.review-flag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 225, 168, 0.44);
+  color: #7a4b00;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.review-reactions-form {
+  display: inline-flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.review-reaction-btn {
+  border: 1px solid rgba(19, 111, 56, 0.16);
+  border-radius: 999px;
+  background: #fcfcfc;
+  color: var(--brand-spruce);
+  min-height: 34px;
+  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-weight: 800;
+  transition:
+    transform 0.16s ease,
+    border-color 0.18s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.review-reaction-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(19, 111, 56, 0.26);
+  box-shadow: 0 8px 18px rgba(13, 73, 36, 0.12);
+}
+
+.review-reaction-btn.active {
+  background: rgba(168, 213, 155, 0.22);
+  border-color: rgba(19, 111, 56, 0.28);
+}
+
+.review-reaction-btn.dislike.active {
+  background: rgba(201, 74, 74, 0.12);
+  border-color: rgba(201, 74, 74, 0.26);
+  color: #9a2f2f;
+}
+
+.site-reviews-page,
+.site-reviews-teaser {
+  display: grid;
+  gap: 18px;
+}
+
+.site-reviews-hero,
+.site-reviews-teaser-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.site-reviews-list {
+  gap: 14px;
+}
+
+@media (max-width: 760px) {
+  .auth-trigger-icononly,
+  .lang-trigger-icononly {
+    min-width: 40px;
+    padding-inline: 8px;
+  }
+
+  .lang-trigger-icononly {
+    min-width: 48px;
+  }
+
+  .icon-only-btn {
+    width: 42px;
+    min-width: 42px;
+  }
+
+  .review-footer {
+    align-items: stretch;
+  }
+
+  .review-reactions-form {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .review-reaction-btn {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .lang-flag,
+  .lang-pill-flag {
+    font-size: 18px;
+  }
+
+  .icon-only-btn {
+    width: 40px;
+    min-width: 40px;
+  }
+
+  .place-pricing-list li {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+
+@keyframes siteBackdropDrift {
+  0% {
+    transform: translate3d(-1%, -1.5%, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(1.5%, 1%, 0) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+
+  .place-more-trigger::after,
+  .review-reaction-btn,
+  .menu-trigger {
+    transition: none;
   }
 }

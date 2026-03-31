@@ -5,8 +5,13 @@ from dataclasses import dataclass
 from django.shortcuts import get_object_or_404
 
 from catalog.interfaces.repositories import IPlaceRepository
+from catalog.models import PlaceReview, SiteReview
 from catalog.repositories.django_repositories import DjangoPlaceRepository
-from catalog.services.reactions import toggle_place_like as toggle_like_service
+from catalog.services.reactions import (
+    toggle_place_like as toggle_like_service,
+    toggle_place_review_reaction as toggle_place_review_reaction_service,
+    toggle_site_review_reaction as toggle_site_review_reaction_service,
+)
 from catalog.services.review_use_cases import (
     ReviewSubmissionResult,
     submit_place_review,
@@ -19,6 +24,14 @@ class ToggleLikeResult:
     place: object
     liked: bool
     likes_count: int
+
+
+@dataclass(slots=True)
+class ToggleReviewReactionResult:
+    review: object
+    current_reaction: int
+    likes_count: int
+    dislikes_count: int
 
 
 @dataclass(slots=True)
@@ -41,3 +54,23 @@ class EngagementController:
 
     def add_site_review(self, *, request, require_auth: bool) -> ReviewSubmissionResult:
         return submit_site_review(request=request, require_auth=require_auth)
+
+    def toggle_place_review_reaction(self, *, request, review_id: int, value: int) -> ToggleReviewReactionResult:
+        review = get_object_or_404(PlaceReview.objects.filter(is_approved=True), pk=review_id)
+        current_reaction, likes_count, dislikes_count = toggle_place_review_reaction_service(review, request, value)
+        return ToggleReviewReactionResult(
+            review=review,
+            current_reaction=current_reaction,
+            likes_count=likes_count,
+            dislikes_count=dislikes_count,
+        )
+
+    def toggle_site_review_reaction(self, *, request, review_id: int, value: int) -> ToggleReviewReactionResult:
+        review = get_object_or_404(SiteReview.objects.filter(is_approved=True), pk=review_id)
+        current_reaction, likes_count, dislikes_count = toggle_site_review_reaction_service(review, request, value)
+        return ToggleReviewReactionResult(
+            review=review,
+            current_reaction=current_reaction,
+            likes_count=likes_count,
+            dislikes_count=dislikes_count,
+        )

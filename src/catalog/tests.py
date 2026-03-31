@@ -27,7 +27,9 @@ from catalog.models import (
     PlaceOwnershipRequest,
     PlaceOwnershipRequestAudit,
     PlaceReview,
+    PlaceReviewReaction,
     SiteReview,
+    SiteReviewReaction,
     SiteVisit,
     UserEmailVerification,
     UserProfile,
@@ -64,6 +66,12 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(response.redirect_chain[-1][0], "/ru/catalog/")
+
+    def test_site_reviews_page_opens_with_i18n_redirect(self):
+        response = self.client.get("/reviews/", follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.redirect_chain)
+        self.assertEqual(response.redirect_chain[-1][0], "/ru/reviews/")
 
     def test_admin_page_opens_login(self):
         response = self.client.get("/admin/", follow=True)
@@ -102,6 +110,14 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.js")
         self.assertContains(response, "home-map-data")
 
+    def test_header_uses_icon_only_account_language_and_search_controls(self):
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "auth-trigger-icononly")
+        self.assertContains(response, "lang-pill-flag")
+        self.assertContains(response, "icon-only-btn")
+
 
 class TestCatalogContentSettingsWiring(TestCase):
     def test_home_page_uses_catalog_settings_districts(self):
@@ -125,6 +141,21 @@ class TestCatalogContentSettingsWiring(TestCase):
 
         self.assertIn("Тестовое метро", metro_values)
         self.assertNotIn("Иншаатчылар", metro_values)
+
+    def test_catalog_filter_values_are_sorted_alphabetically(self):
+        settings_obj = CatalogContentSettings.get_solo()
+        settings_obj.districts_json = ["Забрат", "Ахмедлы", "Бинагади"]
+        settings_obj.metro_stations_json = ["Нариман Нариманов", "20 Января", "Азадлыг проспекти"]
+        settings_obj.save(update_fields=["districts_json", "metro_stations_json", "updated_at"])
+
+        response = self.client.get(reverse("place_list"), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["district_options"], ["Ахмедлы", "Бинагади", "Забрат"])
+        self.assertEqual(
+            response.context["metro_options"],
+            ["20 Января", "Азадлыг проспекти", "Нариман Нариманов"],
+        )
 
 
 class TestPlaceGeocodingService(TestCase):
@@ -489,6 +520,169 @@ class TestAccountsAndReviewAccess(TestCase):
         self.assertEqual(PlaceReview.objects.count(), 1)
         review = PlaceReview.objects.first()
         self.assertEqual(review.user, user)
+
+    def test_registration_page_shows_required_fields_note_only_in_azerbaijani(self):
+        response = self.client.get(reverse("account_register"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "* işarəsi olan sahələr mütləq doldurulmalıdır.")
+
+
+class TestCatalogEnhancements(TestCase):
+    def test_catalog_can_sort_places_by_review_count(self):
+        low_reviews = Place.objects.create(
+            name="Few Reviews",
+            name_ru="Мало отзывов",
+            category="EDU",
+            is_active=True,
+            rating_count=1,
+            rating_avg=4.2,
+        )
+        high_reviews = Place.objects.create(
+            name="Many Reviews",
+            name_ru="Много отзывов",
+            category="EDU",
+            is_active=True,
+            rating_count=9,
+            rating_avg=4.8,
+        )
+
+        response = self.client.get(reverse("place_list"), {"sort": "reviews_desc"}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        ordered_names = [item.name_ru for item in response.context["places"]]
+        self.assertLess(ordered_names.index(high_reviews.name_ru), ordered_names.index(low_reviews.name_ru))
+
+    def test_place_detail_renders_extended_schedule_and_pricing_information(self):
+        place = Place.objects.create(
+            name="Detailed Place",
+            name_ru="Кружок с подробной ценой",
+            category="EDU",
+            is_active=True,
+            schedule="Пн/Ср/Пт 18:00-19:00",
+            lesson_duration_minutes=60,
+            price_from=80,
+            price_to=120,
+            price_per_lesson=20,
+            price_per_month=160,
+            price_per_8_lessons=140,
+            extra_conditions="Пробный урок бесплатно",
+            additional_info="Нужна спортивная форма",
+        )
+
+        response = self.client.get(place.get_absolute_url(), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Расписание и цена")
+        self.assertContains(response, "1 урок")
+        self.assertContains(response, "160 AZN")
+        self.assertContains(response, "Пробный урок бесплатно")
+        self.assertContains(response, "Нужна спортивная форма")
+
+    def test_catalog_card_renders_more_details_block(self):
+        Place.objects.create(
+            name="More Details Place",
+            name_ru="Карточка с блоком другое",
+            category="EDU",
+            is_active=True,
+            address="ул. Тестовая, 5",
+            phone1="+994501112233",
+            schedule="Вт/Чт",
+            additional_info="Есть пробное занятие",
+        )
+
+        response = self.client.get(reverse("place_list"), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "place-more-details")
+        self.assertContains(response, "Другое")
+        self.assertContains(response, "Есть пробное занятие")
+
+
+class TestReviewEnhancements(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="review_user",
+            email="review_user@example.com",
+            password="StrongPass123!!",
+        )
+        UserProfile.objects.create(user=self.user, role=UserProfile.ROLE_USER)
+        self.place = Place.objects.create(
+            name="Review Place",
+            name_ru="Кружок для отзывов",
+            category="EDU",
+            is_active=True,
+        )
+
+    def test_place_review_profanity_is_masked_before_publish(self):
+        self.client.login(username="review_user", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("add_place_review", args=[self.place.id]),
+            data={
+                "rating": "5",
+                "text": "This place is fucking great",
+                "author_name": "Tester",
+                "next": f"{self.place.get_absolute_url()}#reviews",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        review = PlaceReview.objects.get(place=self.place)
+        self.assertTrue(review.contains_profanity)
+        self.assertNotIn("fucking", review.text.lower())
+        self.assertIn("*", review.text)
+        self.assertContains(response, "автоматически скрыты")
+
+    def test_place_review_reactions_update_counters(self):
+        review = PlaceReview.objects.create(place=self.place, rating=5, text="Хорошо", author_name="User")
+
+        response = self.client.post(
+            reverse("vote_place_review", args=[review.id]),
+            data={"value": "1", "next": f"{self.place.get_absolute_url()}#reviews"},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        review.refresh_from_db()
+        self.assertEqual(review.likes_count, 1)
+        self.assertEqual(review.dislikes_count, 0)
+        self.assertTrue(PlaceReviewReaction.objects.filter(review=review, value=1).exists())
+
+        self.client.post(
+            reverse("vote_place_review", args=[review.id]),
+            data={"value": "-1", "next": f"{self.place.get_absolute_url()}#reviews"},
+            follow=True,
+        )
+        review.refresh_from_db()
+        self.assertEqual(review.likes_count, 0)
+        self.assertEqual(review.dislikes_count, 1)
+
+    def test_site_reviews_page_can_sort_reviews_by_likes(self):
+        SiteReview.objects.create(author_name="Low", rating=4, text="Нормально", likes_count=1, dislikes_count=0)
+        SiteReview.objects.create(author_name="High", rating=5, text="Отлично", likes_count=7, dislikes_count=0)
+
+        response = self.client.get(reverse("site_reviews"), {"sort": "likes"}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        ordered_authors = [item.author_name for item in response.context["site_reviews"]]
+        self.assertEqual(ordered_authors[:2], ["High", "Low"])
+
+    def test_site_review_reactions_update_counters(self):
+        review = SiteReview.objects.create(author_name="Site User", rating=5, text="Люблю этот сайт")
+
+        response = self.client.post(
+            reverse("vote_site_review", args=[review.id]),
+            data={"value": "1", "next": reverse("site_reviews")},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        review.refresh_from_db()
+        self.assertEqual(review.likes_count, 1)
+        self.assertEqual(review.dislikes_count, 0)
+        self.assertTrue(SiteReviewReaction.objects.filter(review=review, value=1).exists())
 
 
 class TestAuthValidationAndNextSecurity(TestCase):

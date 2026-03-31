@@ -69,6 +69,48 @@
         {% endif %}
       </div>
 
+      {% if place.pricing_options or place.schedule or place.lesson_duration_display or place.extra_conditions or place.additional_info %}
+        <section class="detail-pricing-panel panel">
+          <h2>{% trans "Расписание и цена" %}</h2>
+          <div class="detail-pricing-grid">
+            {% if place.pricing_options %}
+              <div class="detail-pricing-card">
+                <span class="meta-label">{% trans "Форматы оплаты" %}</span>
+                <ul class="place-pricing-list">
+                  {% for label, value in place.pricing_options %}
+                    <li><span>{{ label }}</span><strong>{{ value }}</strong></li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+
+            {% if place.schedule or place.lesson_duration_display %}
+              <div class="detail-pricing-card">
+                <span class="meta-label">{% trans "Расписание занятий" %}</span>
+                {% if place.schedule %}
+                  <p class="place-more-text">{{ place.schedule|linebreaksbr }}</p>
+                {% endif %}
+                {% if place.lesson_duration_display %}
+                  <p class="place-more-meta"><b>{% trans "Длительность урока" %}:</b> {{ place.lesson_duration_display }}</p>
+                {% endif %}
+              </div>
+            {% endif %}
+
+            {% if place.extra_conditions or place.additional_info %}
+              <div class="detail-pricing-card">
+                <span class="meta-label">{% trans "Дополнительно" %}</span>
+                {% if place.extra_conditions %}
+                  <p class="place-more-text">{{ place.extra_conditions|linebreaksbr }}</p>
+                {% endif %}
+                {% if place.additional_info %}
+                  <p class="place-more-text">{{ place.additional_info|linebreaksbr }}</p>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        </section>
+      {% endif %}
+
       <section id="owner-request" class="owner-request panel">
         <h2>{% trans "Управление карточкой кружка" %}</h2>
         {% if place.owner %}
@@ -168,24 +210,24 @@
           <div class="meta-value">{{ place.created_at|date:"d.m.Y" }}</div>
         </div>
 
-        {% if place.age_from or place.age_to %}
+        {% if place.age_display %}
           <div class="detail-meta-item">
             <span class="meta-label">{% trans "Возраст" %}</span>
-            <div class="meta-value">{% if place.age_from and place.age_to %}{{ place.age_from }}-{{ place.age_to }}{% elif place.age_from %}{{ place.age_from }}+{% else %}{{ place.age_to }}{% endif %}</div>
+            <div class="meta-value">{{ place.age_display }}</div>
           </div>
         {% endif %}
 
-        {% if place.price_from or place.price_to %}
+        {% if place.price_range_display %}
           <div class="detail-meta-item">
             <span class="meta-label">{% trans "Цена" %}</span>
-            <div class="meta-value">{% if place.price_from and place.price_to %}{{ place.price_from }}-{{ place.price_to }} AZN{% elif place.price_from %}{{ place.price_from }} AZN{% else %}{{ place.price_to }} AZN{% endif %}</div>
+            <div class="meta-value">{{ place.price_range_display }}</div>
           </div>
         {% endif %}
 
-        {% if place.schedule %}
+        {% if place.lesson_duration_display %}
           <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Расписание" %}</span>
-            <div class="meta-value">{{ place.schedule }}</div>
+            <span class="meta-label">{% trans "Длительность" %}</span>
+            <div class="meta-value">{{ place.lesson_duration_display }}</div>
           </div>
         {% endif %}
 
@@ -246,6 +288,7 @@
         {% if request.user.is_authenticated %}
           <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form">
             {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}" />
             <div class="review-form-grid">
               <label>
                 {% trans "Ваша оценка" %}
@@ -283,25 +326,22 @@
           </div>
         {% endif %}
 
+        <form method="get" class="reviews-toolbar">
+          <label class="filter-item filter-sort">
+            {% trans "Сортировка отзывов" %}
+            <select class="filter-select" name="review_sort">
+              {% for value, label in review_sort_choices %}
+                <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <button class="link-btn" type="submit">{% trans "Применить" %}</button>
+        </form>
+
         {% if place_reviews %}
           <div class="reviews-list">
             {% for review in place_reviews %}
-              <article class="review-item">
-                <div class="review-head">
-                  <strong class="review-author">
-                    {% if review.is_anonymous %}
-                      {% trans "Аноним" %}
-                    {% else %}
-                      {% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %}
-                    {% endif %}
-                  </strong>
-                  <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
-                  <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
-                </div>
-                {% if review.text %}
-                  <p class="review-text">{{ review.text|linebreaksbr }}</p>
-                {% endif %}
-              </article>
+              {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_place_review" show_place_link=False next_url=request.get_full_path %}
             {% endfor %}
           </div>
         {% else %}

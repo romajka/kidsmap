@@ -59,7 +59,9 @@
               {% endfor %}
             </select>
 
-            <button class="btn icon-btn icon-search home-search-btn" type="submit">{{ hero_cta_text }}</button>
+            <button class="btn icon-btn icon-search home-search-btn icon-only-btn" type="submit" aria-label="{{ hero_cta_text }}">
+              <span class="visually-hidden">{{ hero_cta_text }}</span>
+            </button>
           </div>
         </form>
       </div>
@@ -214,11 +216,8 @@
                   </div>
                 {% endif %}
               </a>
-              {% if place.price_from or place.price_to %}
-                <span class="card-price-pill">
-                  {% trans "от" %}
-                  {% if place.price_from %}{{ place.price_from }}{% else %}{{ place.price_to }}{% endif %} AZN
-                </span>
+              {% if place.card_price_badge %}
+                <span class="card-price-pill">{{ place.card_price_badge }}</span>
               {% endif %}
             </div>
             <div class="card-body">
@@ -246,6 +245,7 @@
                   ♥ <span class="like-count">{{ place.likes_count }}</span>
                 </button>
               </form>
+              {% include "catalog/includes/place_more_panel.html" with place=place %}
               <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
             </div>
           </article>
@@ -270,54 +270,23 @@
     <a class="btn" href="{% url 'place_list' %}">{% trans "Начать поиск" %}</a>
   </section>
 
-  <section id="site-reviews" class="panel">
-    <h2>{% trans "Понравился сайт? Оставьте отзыв" %}</h2>
-    {% if messages %}
-      <div class="review-messages">
-        {% for message in messages %}
-          <p class="review-message {{ message.tags }}">{{ message }}</p>
+  <section id="site-reviews" class="panel site-reviews-teaser">
+    <div class="site-reviews-teaser-head">
+      <div>
+        <h2>{% trans "Общие отзывы о сайте" %}</h2>
+        <p class="meta">{% trans "Отдельная страница со всеми отзывами, сортировкой и возможностью поставить лайк или дизлайк." %}</p>
+      </div>
+      <a class="btn" href="{% url 'site_reviews' %}">{% trans "Открыть отзывы" %}</a>
+    </div>
+    <div class="trust-reviews">
+      {% if site_reviews %}
+        {% for review in site_reviews|slice:":3" %}
+          {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_site_review" show_place_link=False next_url=request.get_full_path %}
         {% endfor %}
-      </div>
-    {% endif %}
-    {% if request.user.is_authenticated %}
-      <form method="post" action="{% url 'add_site_review' %}" class="review-form">
-        {% csrf_token %}
-        <div class="review-form-grid">
-          <label>
-            {% trans "Ваша оценка" %}
-            <input type="hidden" name="rating" value="5" data-rating-input />
-            <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
-              <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
-              <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
-              <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
-              <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
-              <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
-            </div>
-          </label>
-          <label>
-            {% trans "Ваше имя" %}
-            <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
-          </label>
-          <label class="review-anon">
-            <input type="checkbox" name="is_anonymous" value="1" />
-            <span>{% trans "Оставить анонимно" %}</span>
-          </label>
-        </div>
-        <label>
-          {% trans "Текст отзыва" %}
-          <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось в сервисе?' %}"></textarea>
-        </label>
-        <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
-      </form>
-    {% else %}
-      <div class="review-auth-note">
-        <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
-        <div class="review-auth-actions">
-          <a class="btn" href="{% url 'account_login' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Войти" %}</a>
-          <a class="link-btn" href="{% url 'account_register' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Регистрация" %}</a>
-        </div>
-      </div>
-    {% endif %}
+      {% else %}
+        <p class="meta">{% trans "Пока нет общих отзывов о сайте." %}</p>
+      {% endif %}
+    </div>
   </section>
 
   <script>

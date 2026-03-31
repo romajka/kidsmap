@@ -31,7 +31,7 @@
 
       <div class="owner-form-grid">
         {% for field in form %}
-          <label class="owner-form-field{% if field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' or field.name == 'schedule' %} owner-form-field-full{% endif %}{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} owner-temp-required-field{% endif %}"{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} data-temp-required-field="1"{% endif %}>
+          <label class="owner-form-field{% if field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' or field.name == 'schedule' or field.name == 'extra_conditions' or field.name == 'additional_info' %} owner-form-field-full{% endif %}{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} owner-temp-required-field{% endif %}"{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} data-temp-required-field="1"{% endif %}>
             <span class="owner-form-label">
               {{ field.label }}
               {% if field.name == 'temporary_start' or field.name == 'temporary_end' %}

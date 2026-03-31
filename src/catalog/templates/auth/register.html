@@ -10,6 +10,7 @@
   <section class="panel auth-panel">
     <h1>{% trans "Регистрация" %}</h1>
     <p class="auth-subtitle">{% trans "Выберите статус аккаунта. После регистрации мы отправим код подтверждения на email." %}</p>
+    <p class="auth-required-note" lang="az">* işarəsi olan sahələr mütləq doldurulmalıdır.</p>
 
     <form method="post" class="auth-form auth-form-register">
       {% csrf_token %}
@@ -24,7 +25,7 @@
       {% endif %}
 
       <label>
-        {{ form.username.label }}
+        {{ form.username.label }}<span class="required-mark" aria-hidden="true">*</span>
         {{ form.username }}
         {% if form.username.help_text %}
           <small class="auth-help">{{ form.username.help_text }}</small>
@@ -35,7 +36,7 @@
       </label>
 
       <label>
-        {{ form.first_name.label }}
+        {{ form.first_name.label }}<span class="required-mark" aria-hidden="true">*</span>
         {{ form.first_name }}
         {% if form.first_name.help_text %}
           <small class="auth-help">{{ form.first_name.help_text }}</small>
@@ -46,7 +47,7 @@
       </label>
 
       <label>
-        {{ form.last_name.label }}
+        {{ form.last_name.label }}<span class="required-mark" aria-hidden="true">*</span>
         {{ form.last_name }}
         {% if form.last_name.help_text %}
           <small class="auth-help">{{ form.last_name.help_text }}</small>
@@ -57,7 +58,7 @@
       </label>
 
       <label>
-        {{ form.email.label }}
+        {{ form.email.label }}<span class="required-mark" aria-hidden="true">*</span>
         {{ form.email }}
         {% if form.email.help_text %}
           <small class="auth-help">{{ form.email.help_text }}</small>
@@ -68,7 +69,7 @@
       </label>
 
       <label>
-        {{ form.phone.label }}
+        {{ form.phone.label }}<span class="required-mark" aria-hidden="true">*</span>
         {{ form.phone }}
         {% if form.phone.help_text %}
           <small class="auth-help">{{ form.phone.help_text }}</small>
@@ -79,7 +80,7 @@
       </label>
 
       <fieldset class="auth-role-group">
-        <legend>{{ form.gender.label }}</legend>
+        <legend>{{ form.gender.label }}<span class="required-mark" aria-hidden="true">*</span></legend>
         {{ form.gender }}
         {% if form.gender.help_text %}
           <small class="auth-help">{{ form.gender.help_text }}</small>
@@ -90,7 +91,7 @@
       </fieldset>
 
       <fieldset class="auth-role-group">
-        <legend>{{ form.role.label }}</legend>
+        <legend>{{ form.role.label }}<span class="required-mark" aria-hidden="true">*</span></legend>
         {{ form.role }}
         {% if form.role.errors %}
           <span class="auth-field-error">{{ form.role.errors|join:", " }}</span>
@@ -98,7 +99,7 @@
       </fieldset>
 
       <label>
-        {{ form.password1.label }}
+        {{ form.password1.label }}<span class="required-mark" aria-hidden="true">*</span>
         {{ form.password1 }}
         {% if form.password1.help_text %}
           <small class="auth-help">{{ form.password1.help_text|safe }}</small>
@@ -109,7 +110,7 @@
       </label>
 
       <label>
-        {{ form.password2.label }}
+        {{ form.password2.label }}<span class="required-mark" aria-hidden="true">*</span>
         {{ form.password2 }}
         {% if form.password2.errors %}
           <span class="auth-field-error">{{ form.password2.errors|join:", " }}</span>

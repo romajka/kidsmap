@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from django.utils.translation import gettext as _
 
 from catalog.models import SiteReview
+from catalog.services.review_moderation import moderate_review_content
 from catalog.services.reactions import create_or_update_review, ensure_session_key
 
 
@@ -79,19 +80,24 @@ def submit_place_review(*, request, place, require_auth: bool) -> ReviewSubmissi
             message=error_message,
         )
 
+    moderated = moderate_review_content(author_name=payload.author_name, text=payload.text)
+
     review_obj, created = create_or_update_review(
         place,
         request,
         rating=payload.rating,
-        review_text=payload.text,
-        author_name=payload.author_name,
+        review_text=moderated.text,
+        author_name=moderated.author_name,
         is_anonymous=payload.is_anonymous,
+        contains_profanity=moderated.contains_profanity,
     )
 
     if request.user.is_authenticated and not created:
         message = _("Спасибо! Ваш отзыв обновлен.")
     else:
         message = _("Спасибо! Ваш отзыв добавлен.")
+    if moderated.contains_profanity:
+        message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 
     return ReviewSubmissionResult(ok=True, created=created, message=message)
 
@@ -112,12 +118,15 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
             message=error_message,
         )
 
+    moderated = moderate_review_content(author_name=payload.author_name, text=payload.text)
+
     session_key = ensure_session_key(request) or ""
     defaults = {
         "rating": payload.rating,
-        "text": payload.text,
-        "author_name": payload.author_name,
+        "text": moderated.text,
+        "author_name": moderated.author_name,
         "is_anonymous": payload.is_anonymous,
+        "contains_profanity": moderated.contains_profanity,
         "is_approved": True,
         "session_key": session_key,
     }
@@ -138,5 +147,7 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
         message = _("Спасибо! Ваша оценка сайта обновлена.")
     else:
         message = _("Спасибо! Ваша оценка сайта сохранена.")
+    if moderated.contains_profanity:
+        message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 
     return ReviewSubmissionResult(ok=True, created=created, message=message)
