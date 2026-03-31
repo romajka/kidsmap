@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "Главная" %}{% endblock %}
 {% block title_plain %}{% trans "Главная" %} | KidsMap{% endblock %}
@@ -7,12 +7,14 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   {% if map_places %}
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
+    {% if not google_maps_api_key %}
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+      />
+    {% endif %}
   {% endif %}
 {% endblock %}
 
@@ -183,7 +185,12 @@
   {% if map_places %}
     <section class="panel">
       <h2>{% trans "Карта кружков по Азербайджану" %}</h2>
-      <div id="home-map" class="home-map"></div>
+      <div
+        id="home-map"
+        class="home-map"
+        data-details-label="{% trans 'Подробнее' %}"
+        data-fallback-title="{% trans 'Карта кружков по Азербайджану' %}"
+      ></div>
       <noscript>
         <iframe
           class="home-map home-map-fallback"
@@ -325,101 +332,111 @@
 
 {% block extra_body %}
   {% if map_places %}
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-    <script>
-      (function () {
-        const mapEl = document.getElementById("home-map");
-        const dataEl = document.getElementById("home-map-data");
-        if (!mapEl || !dataEl) return;
+    {% if google_maps_api_key %}
+      <script src="{% static 'js/home_map.js' %}"></script>
+      <script
+        async
+        defer
+        src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitHomeMap"
+        onerror="window.kidsMapRenderHomeMapFallback && window.kidsMapRenderHomeMapFallback()"
+      ></script>
+    {% else %}
+      <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+      ></script>
+      <script>
+        (function () {
+          const mapEl = document.getElementById("home-map");
+          const dataEl = document.getElementById("home-map-data");
+          if (!mapEl || !dataEl) return;
 
-        function renderFallback() {
-          mapEl.innerHTML =
-            '<iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{% trans "Карта кружков по Азербайджану" %}"></iframe>';
-        }
+          function renderFallback() {
+            mapEl.innerHTML =
+              '<iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{% trans "Карта кружков по Азербайджану" %}"></iframe>';
+          }
 
-        if (!window.L) {
-          renderFallback();
-          return;
-        }
+          if (!window.L) {
+            renderFallback();
+            return;
+          }
 
-        let places = [];
-        try {
-          places = JSON.parse(dataEl.textContent || "[]");
-        } catch (err) {
-          renderFallback();
-          return;
-        }
+          let places = [];
+          try {
+            places = JSON.parse(dataEl.textContent || "[]");
+          } catch (err) {
+            renderFallback();
+            return;
+          }
 
-        const validPlaces = places.filter(function (place) {
-          return typeof place.lat === "number" && typeof place.lng === "number";
-        });
-        if (!validPlaces.length) {
-          renderFallback();
-          return;
-        }
-
-        function escapeHtml(value) {
-          return String(value || "").replace(/[&<>"']/g, function (char) {
-            return {
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            }[char];
+          const validPlaces = places.filter(function (place) {
+            return typeof place.lat === "number" && typeof place.lng === "number";
           });
-        }
+          if (!validPlaces.length) {
+            renderFallback();
+            return;
+          }
 
-        const map = L.map(mapEl, {
-          scrollWheelZoom: false,
-          zoomControl: true,
-        });
+          function escapeHtml(value) {
+            return String(value || "").replace(/[&<>"']/g, function (char) {
+              return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              }[char];
+            });
+          }
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        }).addTo(map);
+          const map = L.map(mapEl, {
+            scrollWheelZoom: false,
+            zoomControl: true,
+          });
 
-        const bounds = L.latLngBounds([]);
-        validPlaces.forEach(function (place) {
-          const position = [place.lat, place.lng];
-          const marker = L.circleMarker(position, {
-            radius: 8,
-            color: "#ffffff",
-            weight: 2,
-            fillColor: "#1f8640",
-            fillOpacity: 0.9,
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
           }).addTo(map);
 
-          marker.bindPopup(
-            "<strong>" + escapeHtml(place.name) + "</strong><br>" +
-            escapeHtml(place.category) + "<br>" +
-            '<a href="' + encodeURI(place.url || "") + '">{% trans "Подробнее" %}</a>'
-          );
-          bounds.extend(position);
-        });
+          const bounds = L.latLngBounds([]);
+          validPlaces.forEach(function (place) {
+            const position = [place.lat, place.lng];
+            const marker = L.circleMarker(position, {
+              radius: 8,
+              color: "#ffffff",
+              weight: 2,
+              fillColor: "#1f8640",
+              fillOpacity: 0.9,
+            }).addTo(map);
 
-        if (validPlaces.length === 1) {
-          map.setView(bounds.getCenter(), 12);
-        } else {
-          map.fitBounds(bounds, { padding: [24, 24] });
-        }
+            marker.bindPopup(
+              "<strong>" + escapeHtml(place.name) + "</strong><br>" +
+              escapeHtml(place.category) + "<br>" +
+              '<a href="' + encodeURI(place.url || "") + '">{% trans "Подробнее" %}</a>'
+            );
+            bounds.extend(position);
+          });
 
-        setTimeout(function () {
-          map.invalidateSize();
-        }, 0);
+          if (validPlaces.length === 1) {
+            map.setView(bounds.getCenter(), 12);
+          } else {
+            map.fitBounds(bounds, { padding: [24, 24] });
+          }
 
-        mapEl.addEventListener("mouseenter", function () {
-          map.scrollWheelZoom.enable();
-        });
-        mapEl.addEventListener("mouseleave", function () {
-          map.scrollWheelZoom.disable();
-        });
-      })();
-    </script>
+          setTimeout(function () {
+            map.invalidateSize();
+          }, 0);
+
+          mapEl.addEventListener("mouseenter", function () {
+            map.scrollWheelZoom.enable();
+          });
+          mapEl.addEventListener("mouseleave", function () {
+            map.scrollWheelZoom.disable();
+          });
+        })();
+      </script>
+    {% endif %}
   {% endif %}
 {% endblock %}

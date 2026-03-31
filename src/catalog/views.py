@@ -260,6 +260,7 @@ def owner_place_create(request):
             context = {
                 "form": result.form,
                 "owner_profile": result.profile,
+                "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
                 "meta_description": _("Создание карточки кружка в кабинете владельца."),
             }
             return render(request, "pages/owner_place_create.html", context)
@@ -280,6 +281,7 @@ def owner_place_create(request):
         context = {
             "form": result.form,
             "owner_profile": result.profile,
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Создание карточки кружка в кабинете владельца."),
         }
         return render(request, "pages/owner_place_create.html", context)
@@ -292,6 +294,7 @@ def owner_place_create(request):
     context = {
         "form": result.form,
         "owner_profile": result.profile,
+        "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         "meta_description": _("Создание карточки кружка в кабинете владельца."),
     }
     return render(request, "pages/owner_place_create.html", context)
@@ -324,6 +327,7 @@ def owner_place_edit(request, pk):
             "form": result.form,
             "place": result.place,
             "owner_profile": result.profile,
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Редактирование карточки кружка в кабинете владельца."),
         }
         return render(request, "pages/owner_place_edit.html", context)
@@ -337,6 +341,7 @@ def owner_place_edit(request, pk):
         "form": result.form,
         "place": result.place,
         "owner_profile": result.profile,
+        "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         "meta_description": _("Редактирование карточки кружка в кабинете владельца."),
     }
     return render(request, "pages/owner_place_edit.html", context)

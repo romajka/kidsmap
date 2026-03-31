@@ -6,12 +6,14 @@
 {% block title_plain_twitter %}{% trans "Редактирование карточки" %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
+  {% if not google_maps_api_key %}
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -36,14 +38,19 @@
       {% if form.non_field_errors %}
         <div class="auth-errors">{{ form.non_field_errors }}</div>
       {% endif %}
-
-      {% include "pages/includes/owner_place_map_picker.html" with form=form %}
+      <div class="owner-form-intro">
+        <p class="owner-form-intro-title">{% trans "Основной язык карточки: AZ" %}</p>
+        <p class="meta">{% trans "Поддерживайте азербайджанскую версию как основную. Русский и английский можно заполнять дополнительно." %}</p>
+      </div>
 
       <div class="owner-form-grid">
         {% for field in form.visible_fields %}
-          <label class="owner-form-field{% if field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' or field.name == 'schedule' or field.name == 'extra_conditions' or field.name == 'additional_info' %} owner-form-field-full{% endif %}{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} owner-temp-required-field{% endif %}"{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} data-temp-required-field="1"{% endif %}>
+          <label class="owner-form-field{% if field.name == 'description_ru' or field.name == 'description_az' or field.name == 'description_en' or field.name == 'schedule' or field.name == 'extra_conditions' or field.name == 'additional_info' or field.name == 'address' %} owner-form-field-full{% endif %}{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} owner-temp-required-field{% endif %}"{% if field.name == 'temporary_start' or field.name == 'temporary_end' %} data-temp-required-field="1"{% endif %}>
             <span class="owner-form-label">
               {{ field.label }}
+              {% if field.field.required %}
+                <span class="required-mark" aria-hidden="true">*</span>
+              {% endif %}
               {% if field.name == 'temporary_start' or field.name == 'temporary_end' %}
                 <span class="required-mark owner-temp-required-mark" aria-hidden="true" hidden>*</span>
               {% endif %}
@@ -56,6 +63,11 @@
               <small class="auth-errors">{{ error }}</small>
             {% endfor %}
           </label>
+          {% if field.name == 'address' %}
+            <div class="owner-form-field owner-form-field-full">
+              {% include "pages/includes/owner_place_map_picker.html" with form=form %}
+            </div>
+          {% endif %}
         {% endfor %}
       </div>
 
@@ -96,10 +108,18 @@
 {% endblock %}
 
 {% block extra_body %}
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
   <script src="{% static 'js/owner_place_map_picker.js' %}"></script>
+  {% if google_maps_api_key %}
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitOwnerMapPickers"
+    ></script>
+  {% else %}
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+  {% endif %}
 {% endblock %}

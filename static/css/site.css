@@ -4377,6 +4377,22 @@ main {
   gap: 4px;
 }
 
+.owner-form-intro {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(112, 167, 95, 0.22);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(246, 252, 247, 0.98), rgba(234, 245, 237, 0.94));
+}
+
+.owner-form-intro-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--ink);
+}
+
 .required-mark {
   color: #c94a4a;
   font-weight: 900;

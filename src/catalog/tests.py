@@ -133,6 +133,25 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.js")
         self.assertContains(response, "home-map-data")
 
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    def test_home_page_prefers_google_maps_when_key_is_configured(self):
+        Place.objects.create(
+            name="Home Map Place",
+            name_ru="Кружок для карты на главной",
+            category="EDU",
+            is_active=True,
+            lat=40.4093,
+            lng=49.8671,
+        )
+
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
+        self.assertContains(response, "kidsMapInitHomeMap")
+        self.assertContains(response, "static/js/home_map.js")
+        self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
+
     def test_header_uses_icon_only_account_language_and_search_controls(self):
         response = self.client.get("/", follow=True)
 
@@ -1567,10 +1586,25 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-owner-map-picker")
+        self.assertContains(response, "Основной язык карточки: AZ")
         self.assertContains(response, 'name="lat"', html=False)
         self.assertContains(response, 'name="lng"', html=False)
         self.assertContains(response, "owner_place_map_picker.js")
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        html = response.content.decode("utf-8")
+        self.assertLess(html.index("Название (AZ)"), html.index("Название (RU)"))
+        self.assertLess(html.index("Описание (AZ)"), html.index("Описание (RU)"))
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    def test_owner_create_page_uses_google_maps_when_key_is_configured(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_place_create"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
+        self.assertContains(response, "kidsMapInitOwnerMapPickers")
+        self.assertContains(response, 'data-map-provider="google"', html=False)
+        self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
 
     def test_owner_editor_can_edit_but_cannot_publish(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
@@ -1767,10 +1801,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "name_ru": "Новая карточка владельца",
-                "name_az": "",
+                "name_az": "Yeni owner karti",
                 "name_en": "",
                 "description_ru": "Описание новой карточки",
-                "description_az": "",
+                "description_az": "Yeni owner kartinin tesviri",
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Робототехника",
@@ -1800,7 +1834,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         place = Place.objects.get(owner=self.manager_user, name_ru="Новая карточка владельца")
         self.assertFalse(place.is_active)
         self.assertFalse(place.is_verified)
-        self.assertEqual(place.name, "Новая карточка владельца")
+        self.assertEqual(place.name, "Yeni owner karti")
         self.assertEqual(PlacePhoto.objects.filter(place=place).count(), 2)
         ownership_request = PlaceOwnershipRequest.objects.get(place=place, applicant=self.manager_user)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
@@ -1815,10 +1849,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "name_ru": "Карточка с геокодированием",
-                "name_az": "",
+                "name_az": "Geokodlasdirma karti",
                 "name_en": "",
                 "description_ru": "Описание новой карточки",
-                "description_az": "",
+                "description_az": "Geokodlasdirma kartinin tesviri",
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Робототехника",
@@ -1865,10 +1899,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "name_ru": "Карточка с ручной точкой",
-                "name_az": "",
+                "name_az": "Xeritede el ile secilen kart",
                 "name_en": "",
                 "description_ru": "Описание новой карточки",
-                "description_az": "",
+                "description_az": "Xeritede el ile secilen kartin tesviri",
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Рисование",
@@ -1912,10 +1946,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         form = OwnerPlaceCreateForm(
             data={
                 "name_ru": "Слишком много фото",
-                "name_az": "",
+                "name_az": "Cox sekil",
                 "name_en": "",
                 "description_ru": "",
-                "description_az": "",
+                "description_az": "Sekiller ucun tesvir",
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "",
@@ -1952,13 +1986,13 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("gallery_images", form.errors)
 
-    def test_owner_place_create_requires_description_in_any_language(self):
+    def test_owner_place_create_requires_description_in_azerbaijani(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(
             reverse("owner_place_create"),
             data={
                 "name_ru": "Карточка без описания",
-                "name_az": "",
+                "name_az": "Tesvirsiz kart",
                 "name_en": "",
                 "description_ru": "",
                 "description_az": "",
@@ -1985,7 +2019,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Укажите хотя бы одно описание")
+        self.assertContains(response, "Укажите основное описание на азербайджанском языке.")
         self.assertFalse(Place.objects.filter(name_ru="Карточка без описания").exists())
 
     def test_owner_place_create_requires_district_or_metro(self):
@@ -1994,10 +2028,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "name_ru": "Карточка без локации",
-                "name_az": "",
+                "name_az": "Lokasiyasiz kart",
                 "name_en": "",
                 "description_ru": "Описание есть",
-                "description_az": "",
+                "description_az": "Tesvir var",
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Робототехника",
@@ -2032,10 +2066,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "name_ru": "Временное мероприятие без дат",
-                "name_az": "",
+                "name_az": "Tarixsiz tedbir",
                 "name_en": "",
                 "description_ru": "Описание есть",
-                "description_az": "",
+                "description_az": "Tedbir tesviri var",
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Робототехника",
@@ -2071,10 +2105,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "name_ru": "Карточка с невалидным метро",
-                "name_az": "",
+                "name_az": "Metro xetasi olan kart",
                 "name_en": "",
                 "description_ru": "Описание есть",
-                "description_az": "",
+                "description_az": "Tesvir var",
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Робототехника",
@@ -2108,10 +2142,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "name_ru": "Карточка без фото",
-                "name_az": "",
+                "name_az": "Fotosuz kart",
                 "name_en": "",
                 "description_ru": "Описание есть",
-                "description_az": "",
+                "description_az": "Tesvir var",
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Робототехника",
@@ -2136,6 +2170,42 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("photo", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без фото").exists())
+
+    def test_owner_place_create_requires_name_in_azerbaijani(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "name_ru": "Карточка без AZ названия",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание есть",
+                "description_az": "Tesvir var",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "Робототехника",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "100",
+                "price_to": "200",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "address": "Улица 1",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "Пн-Сб",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "Проверка обязательного AZ названия",
+                "photo": self._image_upload("main-az-name-required.png"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Укажите основное название на азербайджанском языке.")
+        self.assertFalse(Place.objects.filter(name_ru="Карточка без AZ названия").exists())
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")

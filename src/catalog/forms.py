@@ -481,11 +481,11 @@ class OwnerPlaceEditForm(forms.ModelForm):
     class Meta:
         model = Place
         fields = (
-            "name_ru",
             "name_az",
+            "name_ru",
             "name_en",
-            "description_ru",
             "description_az",
+            "description_ru",
             "description_en",
             "category",
             "subcategory",
@@ -561,11 +561,11 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "photo": ImagePreviewFileInput(attrs={"class": "field", "accept": "image/*"}),
         }
         labels = {
-            "name_ru": _("Название (RU)"),
             "name_az": _("Название (AZ)"),
+            "name_ru": _("Название (RU)"),
             "name_en": _("Название (EN)"),
-            "description_ru": _("Описание (RU)"),
             "description_az": _("Описание (AZ)"),
+            "description_ru": _("Описание (RU)"),
             "description_en": _("Описание (EN)"),
             "category": _("Категория"),
             "subcategory": _("Подкатегория"),
@@ -649,6 +649,12 @@ class OwnerPlaceEditForm(forms.ModelForm):
             }
         )
         self.fields["address"].help_text = _("Укажите точный адрес: улица, номер дома и ориентир.")
+        self.fields["name_az"].help_text = _("Основное название карточки. Заполняется обязательно при создании.")
+        self.fields["name_ru"].help_text = _("Необязательно. Добавьте русский вариант названия, если он нужен.")
+        self.fields["name_en"].help_text = _("Необязательно. Добавьте английский вариант названия, если он нужен.")
+        self.fields["description_az"].help_text = _("Основное описание карточки. Заполняется обязательно при создании.")
+        self.fields["description_ru"].help_text = _("Необязательно. Добавьте описание на русском, если оно нужно.")
+        self.fields["description_en"].help_text = _("Необязательно. Добавьте описание на английском, если оно нужно.")
         self.fields["schedule"].help_text = _("Например: Пн/Ср/Пт 18:00-19:00.")
         self.fields["lesson_duration_minutes"].help_text = _("Продолжительность одного занятия в минутах.")
         self.fields["price_per_lesson"].help_text = _("Если известна фиксированная цена за одно занятие.")
@@ -793,6 +799,8 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
                 self.fields[field_name].required = field_name == "address"
         else:
             for field_name in (
+                "name_az",
+                "description_az",
                 "category",
                 "age_from",
                 "age_to",
@@ -816,21 +824,11 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         if self.geocoding_check_only:
             return cleaned
 
-        names = [
-            (cleaned.get("name_ru") or "").strip(),
-            (cleaned.get("name_az") or "").strip(),
-            (cleaned.get("name_en") or "").strip(),
-        ]
-        if not any(names):
-            self.add_error("name_ru", _("Укажите хотя бы одно название (RU, AZ или EN)."))
+        if not (cleaned.get("name_az") or "").strip():
+            self.add_error("name_az", _("Укажите основное название на азербайджанском языке."))
 
-        descriptions = [
-            (cleaned.get("description_ru") or "").strip(),
-            (cleaned.get("description_az") or "").strip(),
-            (cleaned.get("description_en") or "").strip(),
-        ]
-        if not any(descriptions):
-            self.add_error("description_ru", _("Укажите хотя бы одно описание (RU, AZ или EN)."))
+        if not (cleaned.get("description_az") or "").strip():
+            self.add_error("description_az", _("Укажите основное описание на азербайджанском языке."))
 
         gallery_images = self.files.getlist("gallery_images")
         cleaned["gallery_images"] = gallery_images
@@ -851,8 +849,8 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
     def save(self, commit=True):
         place = super().save(commit=False)
         place.name = (
-            (self.cleaned_data.get("name_ru") or "").strip()
-            or (self.cleaned_data.get("name_az") or "").strip()
+            (self.cleaned_data.get("name_az") or "").strip()
+            or (self.cleaned_data.get("name_ru") or "").strip()
             or (self.cleaned_data.get("name_en") or "").strip()
             or place.name
             or "KidsMap"
