@@ -6340,6 +6340,10 @@ main {
   justify-content: center;
 }
 
+.auth-trigger-icononly {
+  gap: 4px;
+}
+
 .lang-trigger-icononly {
   min-width: 52px;
 }
@@ -6374,6 +6378,74 @@ main {
   color: var(--brand-spruce);
   font-size: 14px;
   font-weight: 700;
+}
+
+.user-entry-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid #b8ddc0;
+  background: linear-gradient(180deg, #ffffff, #effaf1);
+  box-shadow: 0 4px 12px rgba(43, 112, 68, 0.14);
+  text-decoration: none;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.2s ease,
+    border-color 0.18s ease;
+}
+
+.user-entry-link:hover,
+.user-entry-link:focus-visible {
+  transform: translateY(-1px);
+  border-color: #97d1a7;
+  box-shadow: 0 7px 16px rgba(43, 112, 68, 0.18);
+}
+
+.user-entry-link:focus-visible {
+  outline: none;
+}
+
+.user-entry-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 2px 4px rgba(13, 73, 36, 0.14));
+}
+
+.user-entry-tooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 90;
+  min-width: max-content;
+  max-width: 220px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(19, 111, 56, 0.16);
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--brand-spruce);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  box-shadow: 0 14px 24px rgba(40, 94, 61, 0.16);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.18s ease;
+}
+
+.user-entry-link:hover .user-entry-tooltip,
+.user-entry-link:focus-visible .user-entry-tooltip {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .card-price-pill,
@@ -6624,6 +6696,17 @@ main {
     min-width: 42px;
   }
 
+  .user-entry-link {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+  }
+
+  .user-entry-icon {
+    width: 22px;
+    height: 22px;
+  }
+
   .review-footer {
     align-items: stretch;
   }
@@ -6650,6 +6733,16 @@ main {
     min-width: 40px;
   }
 
+  .user-entry-link {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+  }
+
+  .user-entry-tooltip {
+    display: none;
+  }
+
   .place-pricing-list li {
     align-items: start;
     flex-direction: column;
@@ -6672,7 +6765,9 @@ main {
 
   .place-more-trigger::after,
   .review-reaction-btn,
-  .menu-trigger {
+  .menu-trigger,
+  .user-entry-link,
+  .user-entry-tooltip {
     transition: none;
   }
 }

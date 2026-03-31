@@ -114,7 +114,8 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "auth-trigger-icononly")
+        self.assertContains(response, "user-entry-link")
+        self.assertContains(response, "img/ui/user.png")
         self.assertContains(response, "lang-pill-flag")
         self.assertContains(response, "icon-only-btn")
 
