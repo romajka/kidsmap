@@ -1,0 +1,229 @@
+:root {
+  --km-admin-accent: #136f38;
+  --km-admin-accent-strong: #0d4e27;
+  --km-admin-accent-soft: #eaf6ee;
+  --km-admin-border: #d6e4db;
+  --km-admin-muted: #62717d;
+  --km-admin-surface: #ffffff;
+  --km-admin-warn-bg: #fff4e6;
+  --km-admin-warn-fg: #9a5d00;
+}
+
+#header {
+  background: linear-gradient(90deg, #205b73, #2d7a98);
+}
+
+#site-name a {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+#nav-sidebar,
+.module,
+#changelist-filter,
+#changelist-form .actions,
+#toolbar,
+.paginator,
+.submit-row {
+  border-radius: 14px;
+}
+
+#nav-sidebar {
+  border-right: 1px solid var(--km-admin-border);
+}
+
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited,
+#nav-sidebar .current-model {
+  background: #eff7f2;
+  color: var(--km-admin-accent-strong);
+}
+
+#toolbar,
+#changelist-form .actions,
+#changelist-filter {
+  background: var(--km-admin-surface);
+  border: 1px solid var(--km-admin-border);
+  box-shadow: 0 8px 18px rgba(13, 73, 36, 0.05);
+}
+
+#changelist #toolbar form input[type="text"] {
+  min-height: 38px;
+  border-radius: 10px;
+}
+
+#changelist #toolbar form input[type="submit"],
+.submit-row input,
+.submit-row a,
+.button,
+input[type="submit"],
+input[type="button"],
+.object-tools a {
+  border-radius: 999px;
+}
+
+#result_list thead th {
+  white-space: nowrap;
+}
+
+.change-list .results {
+  overflow-x: auto;
+}
+
+.app-catalog.model-place.change-list #result_list td,
+.app-catalog.model-place.change-list #result_list th {
+  vertical-align: top;
+}
+
+.app-catalog.model-place.change-list #result_list .field-display_name {
+  min-width: 220px;
+}
+
+.app-catalog.model-place.change-list #result_list .field-location_summary {
+  min-width: 170px;
+}
+
+.app-catalog.model-place.change-list #result_list .field-publication_status,
+.app-catalog.model-place.change-list #result_list .field-map_status_summary,
+.app-catalog.model-place.change-list #result_list .field-owner_display {
+  min-width: 170px;
+}
+
+.app-catalog.model-place.change-list #result_list .field-engagement_summary {
+  min-width: 120px;
+}
+
+.km-admin-lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 10px;
+}
+
+.km-admin-lang-btn {
+  background: transparent;
+  border: 0;
+  color: #d8edf7;
+  cursor: pointer;
+  padding: 0 4px;
+  font-weight: 700;
+}
+
+.km-admin-lang-btn:hover,
+.km-admin-lang-btn:focus-visible {
+  color: #ffffff;
+}
+
+.km-admin-userlinks-sep {
+  color: #9ed0e3;
+}
+
+.km-admin-pending-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--km-admin-warn-bg);
+  color: var(--km-admin-warn-fg);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.km-admin-pending-pill:hover,
+.km-admin-pending-pill:focus-visible {
+  background: #ffedd5;
+  color: #8a5200;
+}
+
+.km-admin-stack {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.km-admin-title {
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--body-fg);
+}
+
+.km-admin-meta {
+  color: var(--km-admin-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.km-admin-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.km-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.km-admin-badge--good {
+  background: #e7f8ed;
+  border-color: #cdebd7;
+  color: #17663d;
+}
+
+.km-admin-badge--warn {
+  background: var(--km-admin-warn-bg);
+  border-color: #f1d8b3;
+  color: var(--km-admin-warn-fg);
+}
+
+.km-admin-badge--muted {
+  background: #eef2f7;
+  border-color: #d8e0ea;
+  color: #49515a;
+}
+
+.km-admin-badge--info {
+  background: #e8f3fb;
+  border-color: #c9dfef;
+  color: #1f5d80;
+}
+
+.km-admin-submit-row {
+  margin-top: 8px;
+}
+
+.km-admin-submit-row--secondary {
+  background: #f8fbf9;
+  border: 1px dashed var(--km-admin-border);
+}
+
+.km-admin-submit-row--secondary input[type="submit"] {
+  background: var(--km-admin-accent-soft);
+  color: var(--km-admin-accent-strong);
+  border: 1px solid #c8decf;
+}
+
+.km-admin-submit-row--secondary input[type="submit"]:hover,
+.km-admin-submit-row--secondary input[type="submit"]:focus-visible {
+  background: #dff1e6;
+  color: #0c4d27;
+}
+
+@media (max-width: 1024px) {
+  #nav-sidebar {
+    border-radius: 0;
+  }
+
+  .km-admin-lang-switch {
+    margin-right: 6px;
+  }
+}
