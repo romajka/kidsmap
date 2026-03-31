@@ -79,6 +79,29 @@ class TestPublicPagesSmoke(TestCase):
         self.assertTrue(response.redirect_chain)
         self.assertIn("/ru/admin/login/", response.redirect_chain[-1][0])
 
+    def test_contacts_page_shows_public_phone(self):
+        response = self.client.get("/contacts/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "+994 50 540 66 39")
+
+    def test_contacts_page_shows_public_social_links(self):
+        response = self.client.get("/contacts/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "https://t.me/KidsMap_az")
+        self.assertContains(response, "https://www.youtube.com/@KidsMap_az")
+        self.assertContains(response, "https://www.tiktok.com/@kidsmap.az?lang=ru-RU")
+        self.assertContains(response, "https://www.instagram.com/kidsmap.az/")
+        self.assertContains(response, "https://www.facebook.com/people/KidsMap/61583913364027/")
+        self.assertContains(response, "https://www.linkedin.com/company/kidsmap-az/")
+        self.assertContains(response, "icon-telegram")
+        self.assertContains(response, "icon-youtube")
+        self.assertContains(response, "icon-tiktok")
+        self.assertContains(response, "icon-instagram")
+        self.assertContains(response, "icon-facebook")
+        self.assertContains(response, "icon-linkedin")
+
     @override_settings(ADMIN_HOST="admin.kidsmap.az")
     def test_admin_page_redirects_to_admin_host_when_configured(self):
         response = self.client.get(
@@ -220,6 +243,61 @@ class TestAdminOwnershipModerationUX(TestCase):
         )
         self.client.login(username="superadmin_adminux", password="StrongPass123!!")
 
+    def _admin_place_change_payload(self, **overrides):
+        data = {
+            "name": self.place.name,
+            "name_ru": self.place.name_ru,
+            "name_az": self.place.name_az,
+            "name_en": self.place.name_en,
+            "description_ru": self.place.description_ru,
+            "description_az": self.place.description_az,
+            "description_en": self.place.description_en,
+            "category": self.place.category,
+            "subcategory": self.place.subcategory,
+            "is_temporary": "on" if self.place.is_temporary else "",
+            "temporary_start": "",
+            "temporary_end": "",
+            "is_active": "on" if self.place.is_active else "",
+            "is_verified": "on" if self.place.is_verified else "",
+            "owner": str(self.place.owner_id or ""),
+            "likes_count": str(self.place.likes_count or 0),
+            "age_from": "" if self.place.age_from is None else str(self.place.age_from),
+            "age_to": "" if self.place.age_to is None else str(self.place.age_to),
+            "price_from": "" if self.place.price_from is None else str(self.place.price_from),
+            "price_to": "" if self.place.price_to is None else str(self.place.price_to),
+            "price_per_lesson": "" if self.place.price_per_lesson is None else str(self.place.price_per_lesson),
+            "price_per_month": "" if self.place.price_per_month is None else str(self.place.price_per_month),
+            "price_per_8_lessons": "" if self.place.price_per_8_lessons is None else str(self.place.price_per_8_lessons),
+            "lesson_duration_minutes": (
+                "" if self.place.lesson_duration_minutes is None else str(self.place.lesson_duration_minutes)
+            ),
+            "district": self.place.district,
+            "metro": self.place.metro,
+            "address": self.place.address,
+            "lat": "" if self.place.lat is None else str(self.place.lat),
+            "lng": "" if self.place.lng is None else str(self.place.lng),
+            "phone1": self.place.phone1,
+            "instagram": self.place.instagram,
+            "website": self.place.website,
+            "schedule": self.place.schedule,
+            "extra_conditions": self.place.extra_conditions,
+            "additional_info": self.place.additional_info,
+            "gallery-TOTAL_FORMS": "0",
+            "gallery-INITIAL_FORMS": "0",
+            "gallery-MIN_NUM_FORMS": "0",
+            "gallery-MAX_NUM_FORMS": "1000",
+            "reviews-TOTAL_FORMS": "0",
+            "reviews-INITIAL_FORMS": "0",
+            "reviews-MIN_NUM_FORMS": "0",
+            "reviews-MAX_NUM_FORMS": "1000",
+            "change_audits-TOTAL_FORMS": "0",
+            "change_audits-INITIAL_FORMS": "0",
+            "change_audits-MIN_NUM_FORMS": "0",
+            "change_audits-MAX_NUM_FORMS": "1000",
+        }
+        data.update(overrides)
+        return data
+
     def test_admin_index_shows_pending_badge_and_hides_internal_models(self):
         response = self.client.get("/ru/admin/")
 
@@ -292,6 +370,129 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Нужны координаты")
         self.assertContains(response, "Готово для карты")
         self.assertContains(response, "Не готово для карты")
+        self.assertContains(response, "Локация")
+        self.assertContains(response, "Публикация")
+        self.assertContains(response, "Вовлеченность")
+        self.assertContains(response, "admin/css/kidsmap_admin.css")
+
+    def test_place_admin_change_form_shows_coordinate_refresh_button(self):
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Сохранить и рассчитать координаты")
+        self.assertContains(response, "_refresh_coordinates_from_address")
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_place_admin_can_refresh_coordinates_from_address(self, geocode_mock):
+        self.place.address = "ул. Низами, 15"
+        self.place.district = "Ясамал"
+        self.place.metro = "Ичеришехер"
+        self.place.save(update_fields=["address", "district", "metro", "updated_at"])
+        geocode_mock.return_value = GeocodingPoint(lat=40.401234, lng=49.812345, formatted_address="Baku")
+        payload = self._admin_place_change_payload(
+            address="ул. Низами, 15",
+            district="Ясамал",
+            metro="Ичеришехер",
+        )
+        payload["_refresh_coordinates_from_address"] = "1"
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data=payload,
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.lat, 40.401234)
+        self.assertEqual(self.place.lng, 49.812345)
+        self.assertContains(response, "Изменения сохранены. Координаты обновлены: 40.401234, 49.812345.")
+        geocode_mock.assert_called_once()
+        self.assertIn("ул. Низами, 15", geocode_mock.call_args.kwargs["query"])
+        self.assertTrue(
+            PlaceChangeAudit.objects.filter(
+                place=self.place,
+                changed_by=self.superuser,
+                source=PlaceChangeAudit.SOURCE_SYSTEM,
+                field_name="lat",
+            ).exists()
+        )
+
+    def test_place_admin_delete_view_confirms_move_to_deleted(self):
+        delete_url = reverse("admin:catalog_place_delete", args=[self.place.id])
+
+        response = self.client.get(delete_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "будет перемещен в раздел удаленных")
+        self.assertContains(response, "Переместить в удаленные")
+
+    def test_place_admin_single_delete_moves_place_to_deleted(self):
+        delete_url = reverse("admin:catalog_place_delete", args=[self.place.id])
+
+        response = self.client.post(delete_url, data={"post": "yes"}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertTrue(Place.objects.filter(pk=self.place.pk).exists())
+        self.assertIsNotNone(self.place.deleted_at)
+        self.assertFalse(self.place.is_active)
+        self.assertEqual(self.place.deleted_by, self.superuser)
+        self.assertContains(response, "перемещен в удаленные")
+        public_response = self.client.get(self.place.get_absolute_url(), follow=True)
+        self.assertEqual(public_response.status_code, 404)
+
+    def test_place_admin_bulk_move_to_deleted_and_restore(self):
+        confirm_response = self.client.post(
+            reverse("admin:catalog_place_changelist"),
+            data={
+                "action": "move_selected_to_deleted",
+                "_selected_action": [str(self.place.id)],
+                "index": 0,
+            },
+        )
+
+        self.assertEqual(confirm_response.status_code, 200)
+        self.assertContains(confirm_response, "будут перемещены в раздел удаленных")
+
+        response = self.client.post(
+            reverse("admin:catalog_place_changelist"),
+            data={
+                "action": "move_selected_to_deleted",
+                "_selected_action": [str(self.place.id)],
+                "post": "yes",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertIsNotNone(self.place.deleted_at)
+        self.assertContains(response, "В удаленные перемещен 1 кружок")
+
+        deleted_list_response = self.client.get(
+            reverse("admin:catalog_place_changelist"),
+            data={"deleted_state": "deleted"},
+        )
+        self.assertContains(deleted_list_response, "Кружок для модерации")
+        self.assertContains(deleted_list_response, "В удаленных")
+
+        restore_response = self.client.post(
+            reverse("admin:catalog_place_changelist"),
+            data={
+                "action": "restore_selected",
+                "_selected_action": [str(self.place.id)],
+                "index": 0,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(restore_response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertIsNone(self.place.deleted_at)
+        self.assertFalse(self.place.is_active)
+        self.assertContains(restore_response, "Из удаленных восстановлен 1 кружок")
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
@@ -1360,6 +1561,17 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "owner-image-current-preview")
         self.assertContains(response, "owner-image-clear-text")
 
+    def test_owner_create_page_renders_map_picker(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_place_create"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-owner-map-picker")
+        self.assertContains(response, 'name="lat"', html=False)
+        self.assertContains(response, 'name="lng"', html=False)
+        self.assertContains(response, "owner_place_map_picker.js")
+        self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
+
     def test_owner_editor_can_edit_but_cannot_publish(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
 
@@ -1645,6 +1857,57 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             ).exists()
         )
 
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_manager_create_place_keeps_manual_map_coordinates(self, geocode_mock):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "name_ru": "Карточка с ручной точкой",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание новой карточки",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "Рисование",
+                "age_from": "6",
+                "age_to": "10",
+                "price_from": "80",
+                "price_to": "140",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "address": "Улица с ручной точкой 8",
+                "lat": "40.377700",
+                "lng": "49.892200",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "Вт/Чт",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "Проверка ручной точки",
+                "photo": self._image_upload("main-manual-point.png"),
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        place = Place.objects.get(owner=self.manager_user, name_ru="Карточка с ручной точкой")
+        self.assertEqual(place.lat, 40.3777)
+        self.assertEqual(place.lng, 49.8922)
+        self.assertContains(response, "Точка на карте сохранена")
+        geocode_mock.assert_not_called()
+        self.assertTrue(
+            PlaceChangeAudit.objects.filter(
+                place=place,
+                source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
+                field_name="lat",
+            ).exists()
+        )
+
     def test_owner_place_create_rejects_more_than_five_gallery_files(self):
         form = OwnerPlaceCreateForm(
             data={
@@ -1896,6 +2159,27 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(Place.objects.filter(owner=self.manager_user, address="Улица 77").exists())
         geocode_mock.assert_called_once()
 
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_create_form_prefers_manual_point_when_previewing_coordinates(self, geocode_mock):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "address": "Улица 77",
+                "district": "Ясамал",
+                "metro": "Иншаатчылар",
+                "lat": "40.500000",
+                "lng": "49.900000",
+                "form_action": "check_coordinates",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Выбрана точка на карте: 40.500000, 49.900000")
+        geocode_mock.assert_not_called()
+
     def test_owner_editor_can_submit_draft_for_moderation(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
 
@@ -2031,6 +2315,55 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(self.manager_place.lng, 49.777777)
         self.assertContains(response, "Изменения сохранены. Координаты обновлены: 40.666666, 49.777777")
         geocode_mock.assert_called_once()
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_edit_keeps_manual_map_coordinates_when_address_changes(self, geocode_mock):
+        self.manager_place.address = "Старый адрес"
+        self.manager_place.district = "Ясамал"
+        self.manager_place.metro = "Иншаатчылар"
+        self.manager_place.lat = 40.111111
+        self.manager_place.lng = 49.111111
+        self.manager_place.save(update_fields=["address", "district", "metro", "lat", "lng", "updated_at"])
+
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.manager_place.id]),
+            data={
+                "name_ru": "Кружок менеджера",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "Описание с ручной точкой",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "Нариманов",
+                "metro": "Гянджлик",
+                "address": "Новый адрес вручную 15",
+                "lat": "40.455500",
+                "lng": "49.833300",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.manager_place.refresh_from_db()
+        self.assertEqual(self.manager_place.lat, 40.4555)
+        self.assertEqual(self.manager_place.lng, 49.8333)
+        self.assertContains(response, "Карточка успешно обновлена.")
+        geocode_mock.assert_not_called()
 
 
 class TestOwnerTeamAndReviewModeration(TestCase):

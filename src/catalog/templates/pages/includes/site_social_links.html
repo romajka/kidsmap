@@ -1,0 +1,9 @@
+{% for social in footer_social_links %}
+  <a
+    class="{{ link_class }} icon-btn {{ social.icon_class }}{% if link_extra_class %} {{ link_extra_class }}{% endif %}"
+    href="{{ social.url }}"
+    target="_blank"
+    rel="noopener"
+    aria-label="{{ social.label }}"
+  >{{ social.label }}</a>
+{% endfor %}

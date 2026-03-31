@@ -1,25 +1,27 @@
 {% extends "admin/base.html" %}
-{% load i18n %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_admin.css' %}" />
+{% endblock %}
 
 {% block branding %}
   <h1 id="site-name"><a href="{% url 'admin:index' %}">KidsMap Admin</a></h1>
 {% endblock %}
 
 {% block userlinks %}
-  <form action="{% url 'set_language' %}" method="post" style="display:inline; margin-right:10px;">
+  <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch">
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-    <button type="submit" name="language" value="ru" style="background:none;border:none;color:#79aec8;cursor:pointer;padding:0 4px;">RU</button>
-    <span style="color:#79aec8;">/</span>
-    <button type="submit" name="language" value="az" style="background:none;border:none;color:#79aec8;cursor:pointer;padding:0 4px;">AZ</button>
-    <span style="color:#79aec8;">/</span>
-    <button type="submit" name="language" value="en" style="background:none;border:none;color:#79aec8;cursor:pointer;padding:0 4px;">EN</button>
+    <button type="submit" name="language" value="ru" class="km-admin-lang-btn">RU</button>
+    <span class="km-admin-userlinks-sep">/</span>
+    <button type="submit" name="language" value="az" class="km-admin-lang-btn">AZ</button>
+    <span class="km-admin-userlinks-sep">/</span>
+    <button type="submit" name="language" value="en" class="km-admin-lang-btn">EN</button>
   </form>
   {% if ownership_pending_count %}
-    <a
-      href="{% url 'admin:catalog_placeownershiprequest_changelist' %}"
-      style="display:inline-block;margin-right:12px;padding:2px 8px;border-radius:999px;background:#fff4e6;color:#9a5d00;font-weight:700;text-decoration:none;"
-    >
+    <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}" class="km-admin-pending-pill">
       {% blocktranslate with count=ownership_pending_count %}На рассмотрении: {{ count }}{% endblocktranslate %}
     </a>
   {% endif %}

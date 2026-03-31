@@ -171,9 +171,11 @@
             {% endif %}
           </section>
           <section>
-            <h3>{% trans "Мы в Instagram" %}</h3>
-            {% if footer_instagram_url %}
-              <p><a class="icon-btn icon-instagram footer-social-link" href="{{ footer_instagram_url }}" target="_blank" rel="noopener">Instagram</a></p>
+            <h3>{% trans "Соцсети" %}</h3>
+            {% if footer_social_links %}
+              <div class="footer-social-links">
+                {% include "pages/includes/site_social_links.html" with link_class="footer-social-link" %}
+              </div>
             {% endif %}
             {% if footer_whatsapp_url %}
               <p><a href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a></p>

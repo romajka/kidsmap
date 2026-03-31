@@ -74,6 +74,15 @@ class Place(models.Model):
 
     is_active = models.BooleanField(_("Активно"), default=True)
     is_verified = models.BooleanField(_("Проверено"), default=False)
+    deleted_at = models.DateTimeField(_("Удалено"), null=True, blank=True, db_index=True)
+    deleted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="deleted_places",
+        verbose_name=_("Удалил"),
+        null=True,
+        blank=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
 
@@ -209,16 +218,42 @@ class Place(models.Model):
         return self.lat is not None and self.lng is not None
 
     @property
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None
+
+    @property
     def is_map_ready(self) -> bool:
-        return self.is_active and self.has_coordinates
+        return self.is_active and not self.is_deleted and self.has_coordinates
 
     @property
     def map_readiness_reason(self) -> str:
+        if self.is_deleted:
+            return "deleted"
         if not self.has_coordinates:
             return "missing_coordinates"
         if not self.is_active:
             return "inactive"
         return "ready"
+
+    def soft_delete(self, *, deleted_by=None) -> bool:
+        if self.is_deleted and not self.is_active and self.deleted_by_id == getattr(deleted_by, "pk", None):
+            return False
+
+        self.deleted_at = timezone.now()
+        self.deleted_by = deleted_by
+        self.is_active = False
+        self.save(update_fields=["deleted_at", "deleted_by", "is_active", "updated_at"])
+        return True
+
+    def restore_from_deleted(self, *, activate: bool = False) -> bool:
+        if not self.is_deleted and (self.is_active or not activate):
+            return False
+
+        self.deleted_at = None
+        self.deleted_by = None
+        self.is_active = bool(activate)
+        self.save(update_fields=["deleted_at", "deleted_by", "is_active", "updated_at"])
+        return True
 
     def __str__(self):
         return self.name_i18n()
@@ -1131,6 +1166,11 @@ class SiteSettings(models.Model):
     footer_phone = models.CharField(_("Телефон в футере"), max_length=60, blank=True, default="")
     footer_email = models.EmailField(_("Email в футере"), blank=True, default="")
     footer_instagram = models.CharField(_("Instagram в футере"), max_length=255, blank=True, default="")
+    footer_telegram = models.URLField(_("Telegram в футере"), blank=True, default="")
+    footer_youtube = models.URLField(_("YouTube в футере"), blank=True, default="")
+    footer_tiktok = models.URLField(_("TikTok в футере"), blank=True, default="")
+    footer_facebook = models.URLField(_("Facebook в футере"), blank=True, default="")
+    footer_linkedin = models.URLField(_("LinkedIn в футере"), blank=True, default="")
     footer_whatsapp = models.CharField(_("WhatsApp ссылка в футере"), max_length=255, blank=True, default="")
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
 
@@ -1183,6 +1223,25 @@ class SiteSettings(models.Model):
             return f"https://{value.lstrip('/')}"
         return f"https://instagram.com/{value.lstrip('@')}"
 
+    @staticmethod
+    def _footer_external_url(value):
+        return (value or "").strip()
+
+    def footer_telegram_url(self):
+        return self._footer_external_url(self.footer_telegram)
+
+    def footer_youtube_url(self):
+        return self._footer_external_url(self.footer_youtube)
+
+    def footer_tiktok_url(self):
+        return self._footer_external_url(self.footer_tiktok)
+
+    def footer_facebook_url(self):
+        return self._footer_external_url(self.footer_facebook)
+
+    def footer_linkedin_url(self):
+        return self._footer_external_url(self.footer_linkedin)
+
     @classmethod
     def get_solo(cls):
         obj = cls.objects.order_by("id").first()
@@ -1214,9 +1273,14 @@ class SiteSettings(models.Model):
             empty_results_text_ru="Ничего не найдено.",
             empty_results_text_en="Nothing found.",
             empty_results_text_az="Heç nə tapılmadı.",
-            footer_phone="+994 00 000 00 00",
+            footer_phone="+994 50 540 66 39",
             footer_email="kidsmap.az@gmail.com",
             footer_instagram="https://www.instagram.com/kidsmap.az/",
+            footer_telegram="https://t.me/KidsMap_az",
+            footer_youtube="https://www.youtube.com/@KidsMap_az",
+            footer_tiktok="https://www.tiktok.com/@kidsmap.az?lang=ru-RU",
+            footer_facebook="https://www.facebook.com/people/KidsMap/61583913364027/",
+            footer_linkedin="https://www.linkedin.com/company/kidsmap-az/",
         )
 
     class Meta:

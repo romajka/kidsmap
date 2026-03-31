@@ -1,15 +1,19 @@
 from django.contrib import admin, messages
+from django.contrib.admin import helpers
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django import forms
+from django.http import HttpResponseRedirect
 from django.utils.html import format_html
 from django.shortcuts import redirect
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
-from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _, ngettext
 from .models import (
     CatalogContentSettings,
     OwnerTeamInvitation,
@@ -339,6 +343,25 @@ class PlaceMapReadyFilter(admin.SimpleListFilter):
         return queryset
 
 
+class PlaceDeletedFilter(admin.SimpleListFilter):
+    title = _("Удаление")
+    parameter_name = "deleted_state"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("active", _("Не удалено")),
+            ("deleted", _("В удаленных")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "active":
+            return queryset.filter(deleted_at__isnull=True)
+        if value == "deleted":
+            return queryset.filter(deleted_at__isnull=False)
+        return queryset
+
+
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
     AUDIT_TRACKED_FIELDS = (
@@ -376,27 +399,28 @@ class PlaceAdmin(admin.ModelAdmin):
         "additional_info",
         "is_active",
         "is_verified",
+        "deleted_at",
+        "deleted_by_id",
     )
     form = PlaceAdminForm
     geocoding_service = PlaceGeocodingService.build_default()
     place_audit_repository = DjangoPlaceChangeAuditRepository()
+    change_form_template = "admin/catalog/place/change_form.html"
+    delete_confirmation_template = "admin/catalog/place_delete_confirmation.html"
+    delete_selected_confirmation_template = "admin/catalog/place_delete_selected_confirmation.html"
+    list_select_related = ("owner",)
     list_display = (
         "display_name",
         "category",
-        "event_kind",
-        "district",
-        "metro",
-        "coordinates_status",
-        "map_ready_status",
-        "owner",
-        "likes_count",
-        "rating_avg",
-        "rating_count",
-        "is_active",
-        "is_verified",
+        "location_summary",
+        "publication_status",
+        "map_status_summary",
+        "owner_display",
+        "engagement_summary",
         "updated_at",
     )
     list_filter = (
+        PlaceDeletedFilter,
         PlaceCoordinatesFilter,
         PlaceMapReadyFilter,
         "category",
@@ -410,20 +434,30 @@ class PlaceAdmin(admin.ModelAdmin):
         "age_to",
     )
     search_fields = ("name_ru", "name_en", "name", "address", "instagram", "phone1", "owner__username", "owner__email")
-    list_editable = ("is_active", "is_verified", "likes_count")
     readonly_fields = (
         "slug",
         "rating_avg",
         "rating_count",
+        "lifecycle_status_display",
         "coordinates_status_display",
         "map_ready_status_display",
+        "deleted_at",
+        "deleted_by",
         "created_at",
         "updated_at",
     )
     ordering = ("-updated_at",)
     list_per_page = 30
     save_on_top = True
-    actions = ("mark_active", "mark_inactive", "mark_verified", "mark_unverified", "refresh_coordinates")
+    actions = (
+        "mark_active",
+        "mark_inactive",
+        "mark_verified",
+        "mark_unverified",
+        "move_selected_to_deleted",
+        "restore_selected",
+        "refresh_coordinates",
+    )
     inlines = [PlacePhotoInline, PlaceReviewInline, PlaceChangeAuditInline]
     fieldsets = (
         (
@@ -443,6 +477,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     "likes_count",
                     "rating_avg",
                     "rating_count",
+                    "lifecycle_status_display",
                 )
             },
         ),
@@ -465,6 +500,7 @@ class PlaceAdmin(admin.ModelAdmin):
         (_("Локация"), {"fields": ("district", "metro", "address", "lat", "lng", "coordinates_status_display", "map_ready_status_display")}),
         (_("Контакты"), {"fields": ("phone1", "instagram", "website", "schedule", "extra_conditions", "additional_info")}),
         (_("Фото"), {"fields": ("cover_photo", "photo")}),
+        (_("Удаление"), {"classes": ("collapse",), "fields": ("deleted_at", "deleted_by")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )
 
@@ -472,25 +508,30 @@ class PlaceAdmin(admin.ModelAdmin):
     def display_name(self, obj):
         return obj.name_ru or obj.name
 
-    @admin.display(description=_("Формат"))
-    def event_kind(self, obj):
-        return _("Временное") if obj.is_temporary else _("Постоянное")
-
-    def _render_place_state_badge(self, *, label: str, positive: bool):
-        bg = "#e7f8ed" if positive else "#eef2f7"
-        fg = "#17663d" if positive else "#49515a"
+    def _render_place_state_badge(self, *, label: str, tone: str = "muted"):
         return format_html(
-            '<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:{};color:{};font-weight:600;">{}</span>',
-            bg,
-            fg,
+            '<span class="km-admin-badge km-admin-badge--{}">{}</span>',
+            tone,
             label,
         )
+
+    @admin.display(description=_("Статус"))
+    def lifecycle_status(self, obj):
+        if obj.is_deleted:
+            return self._render_place_state_badge(label=_("В удаленных"), tone="muted")
+        if obj.is_active:
+            return self._render_place_state_badge(label=_("Опубликовано"), tone="good")
+        return self._render_place_state_badge(label=_("Неактивно"), tone="warn")
+
+    @admin.display(description=_("Статус"))
+    def lifecycle_status_display(self, obj):
+        return self.lifecycle_status(obj)
 
     @admin.display(description=_("Координаты"))
     def coordinates_status(self, obj):
         return self._render_place_state_badge(
             label=_("Есть координаты") if obj.has_coordinates else _("Нужны координаты"),
-            positive=obj.has_coordinates,
+            tone="good" if obj.has_coordinates else "warn",
         )
 
     @admin.display(description=_("Координаты"))
@@ -501,28 +542,317 @@ class PlaceAdmin(admin.ModelAdmin):
     def map_ready_status(self, obj):
         return self._render_place_state_badge(
             label=_("Готово для карты") if obj.is_map_ready else _("Не готово для карты"),
-            positive=obj.is_map_ready,
+            tone="good" if obj.is_map_ready else "muted",
         )
 
     @admin.display(description=_("На карте"))
     def map_ready_status_display(self, obj):
         return self.map_ready_status(obj)
 
+    @admin.display(description=_("Локация"))
+    def location_summary(self, obj):
+        lines: list[str] = []
+        if obj.district:
+            lines.append(str(obj.district))
+        if obj.metro:
+            lines.append(str(obj.metro))
+        if obj.address:
+            lines.append(str(obj.address))
+
+        if not lines:
+            return format_html('<div class="km-admin-stack"><span class="km-admin-meta">{}</span></div>', _("Локация не заполнена"))
+
+        title = " / ".join(lines[:2])
+        address_line = lines[2] if len(lines) > 2 else ""
+        if address_line:
+            return format_html(
+                '<div class="km-admin-stack">'
+                '<span class="km-admin-title">{}</span>'
+                '<span class="km-admin-meta">{}</span>'
+                "</div>",
+                title,
+                address_line,
+            )
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">{}</span></div>',
+            title,
+        )
+
+    @admin.display(description=_("Публикация"))
+    def publication_status(self, obj):
+        badges = [self.lifecycle_status(obj)]
+        badges.append(
+            self._render_place_state_badge(
+                label=_("Проверено") if obj.is_verified else _("Без проверки"),
+                tone="good" if obj.is_verified else "warn",
+            )
+        )
+        badges.append(
+            self._render_place_state_badge(
+                label=_("Временное") if obj.is_temporary else _("Постоянное"),
+                tone="info" if obj.is_temporary else "muted",
+            )
+        )
+        return format_html(
+            '<div class="km-admin-stack"><div class="km-admin-badges">{} {} {}</div></div>',
+            badges[0],
+            badges[1],
+            badges[2],
+        )
+
+    @admin.display(description=_("Карта"))
+    def map_status_summary(self, obj):
+        coords_line = _("lat %(lat)s, lng %(lng)s") % {"lat": round(obj.lat, 5), "lng": round(obj.lng, 5)} if obj.has_coordinates else _("Координаты не заполнены")
+        return format_html(
+            '<div class="km-admin-stack">'
+            '<div class="km-admin-badges">{} {}</div>'
+            '<span class="km-admin-meta">{}</span>'
+            "</div>",
+            self.coordinates_status(obj),
+            self.map_ready_status(obj),
+            coords_line,
+        )
+
+    @admin.display(description=_("Владелец"))
+    def owner_display(self, obj):
+        if not obj.owner:
+            return format_html('<div class="km-admin-stack"><span class="km-admin-meta">{}</span></div>', _("Не назначен"))
+
+        owner_email = (obj.owner.email or "").strip()
+        if owner_email:
+            return format_html(
+                '<div class="km-admin-stack">'
+                '<span class="km-admin-title">{}</span>'
+                '<span class="km-admin-meta">{}</span>'
+                "</div>",
+                obj.owner.username,
+                owner_email,
+            )
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">{}</span></div>',
+            obj.owner.username,
+        )
+
+    @admin.display(description=_("Вовлеченность"))
+    def engagement_summary(self, obj):
+        likes_value = int(obj.likes_count or 0)
+        rating_value = f"{float(obj.rating_avg or 0):.1f}"
+        reviews_value = int(obj.rating_count or 0)
+        return format_html(
+            '<div class="km-admin-stack">'
+            '<span class="km-admin-title">♥ {} · ★ {}</span>'
+            '<span class="km-admin-meta">{}: {}</span>'
+            "</div>",
+            likes_value,
+            rating_value,
+            _("Отзывы"),
+            reviews_value,
+        )
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def get_deleted_objects(self, objs, request):
+        objects = list(objs)
+        if not objects:
+            return [], {}, set(), []
+
+        model_label = str(self.opts.verbose_name if len(objects) == 1 else self.opts.verbose_name_plural)
+        deleted_objects = [str(obj) for obj in objects]
+        model_count = {model_label: len(objects)}
+        return deleted_objects, model_count, set(), []
+
+    def _build_soft_delete_changes(self, *, place: Place, previous: dict[str, object]) -> dict[str, tuple[object, object]]:
+        changes: dict[str, tuple[object, object]] = {}
+        for field_name in ("is_active", "deleted_at", "deleted_by_id"):
+            old_value = previous.get(field_name)
+            new_value = getattr(place, field_name)
+            if old_value != new_value:
+                changes[field_name] = (old_value, new_value)
+        return changes
+
+    def _soft_delete_place(self, *, place: Place, user) -> bool:
+        previous = {
+            "is_active": place.is_active,
+            "deleted_at": place.deleted_at,
+            "deleted_by_id": place.deleted_by_id,
+        }
+        changed = place.soft_delete(deleted_by=user)
+        if changed:
+            self.place_audit_repository.create_entries(
+                place=place,
+                changed_by=user,
+                source=PlaceChangeAudit.SOURCE_ADMIN,
+                changes=self._build_soft_delete_changes(place=place, previous=previous),
+            )
+        return changed
+
+    def _restore_place(self, *, place: Place, user, activate: bool = False) -> bool:
+        previous = {
+            "is_active": place.is_active,
+            "deleted_at": place.deleted_at,
+            "deleted_by_id": place.deleted_by_id,
+        }
+        changed = place.restore_from_deleted(activate=activate)
+        if changed:
+            self.place_audit_repository.create_entries(
+                place=place,
+                changed_by=user,
+                source=PlaceChangeAudit.SOURCE_ADMIN,
+                changes=self._build_soft_delete_changes(place=place, previous=previous),
+            )
+        return changed
+
+    def _response_after_place_soft_delete(self, request):
+        changelist_url = reverse(
+            f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
+            current_app=self.admin_site.name,
+        )
+        return HttpResponseRedirect(changelist_url)
+
+    @staticmethod
+    def _build_coordinate_changes(*, place: Place, previous_coordinates: dict[str, object]) -> dict[str, tuple[object, object]]:
+        coordinate_changes: dict[str, tuple[object, object]] = {}
+        for field_name in ("lat", "lng"):
+            old_value = previous_coordinates[field_name]
+            new_value = getattr(place, field_name)
+            if old_value != new_value:
+                coordinate_changes[field_name] = (old_value, new_value)
+        return coordinate_changes
+
+    def _refresh_place_coordinates_with_audit(self, *, place: Place, changed_by):
+        previous_coordinates = {"lat": place.lat, "lng": place.lng}
+        geocoding_result = self.geocoding_service.geocode_place(place=place, overwrite=True)
+        coordinate_changes = self._build_coordinate_changes(place=place, previous_coordinates=previous_coordinates)
+        if coordinate_changes:
+            self.place_audit_repository.create_entries(
+                place=place,
+                changed_by=changed_by,
+                source=PlaceChangeAudit.SOURCE_SYSTEM,
+                changes=coordinate_changes,
+            )
+        return geocoding_result
+
+    def _place_change_url(self, obj: Place) -> str:
+        return reverse(
+            f"admin:{self.opts.app_label}_{self.opts.model_name}_change",
+            args=[obj.pk],
+            current_app=self.admin_site.name,
+        )
+
+    def _build_admin_coordinate_refresh_feedback(self, *, geocoding_result, saved_prefix: str) -> tuple[str, int]:
+        point = geocoding_result.point
+        if geocoding_result.updated and point is not None:
+            return (
+                _("%(prefix)s Координаты обновлены: %(lat).6f, %(lng).6f.")
+                % {
+                    "prefix": saved_prefix,
+                    "lat": point.lat,
+                    "lng": point.lng,
+                },
+                messages.SUCCESS,
+            )
+        if geocoding_result.reason in {"unchanged", "coordinates_present"}:
+            return _("%(prefix)s Координаты уже актуальны.") % {"prefix": saved_prefix}, messages.SUCCESS
+        if geocoding_result.reason == "provider_not_configured":
+            return (
+                _("%(prefix)s Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY.")
+                % {"prefix": saved_prefix},
+                messages.ERROR,
+            )
+        if geocoding_result.reason == "not_found":
+            return (
+                _("%(prefix)s Координаты по указанному адресу не найдены.")
+                % {"prefix": saved_prefix},
+                messages.WARNING,
+            )
+        return _("%(prefix)s Для геокодирования нужен адрес.") % {"prefix": saved_prefix}, messages.WARNING
+
+    def _handle_refresh_coordinates_submit(self, request, obj: Place, *, saved_prefix: str):
+        geocoding_result = self._refresh_place_coordinates_with_audit(
+            place=obj,
+            changed_by=request.user,
+        )
+        message, level = self._build_admin_coordinate_refresh_feedback(
+            geocoding_result=geocoding_result,
+            saved_prefix=saved_prefix,
+        )
+        self.message_user(request, message, level=level)
+        return HttpResponseRedirect(self._place_change_url(obj))
+
     @admin.action(description=_("Сделать активными"))
     def mark_active(self, request, queryset):
-        queryset.update(is_active=True)
+        queryset.update(
+            is_active=True,
+            deleted_at=None,
+            deleted_by=None,
+            updated_at=timezone.now(),
+        )
 
     @admin.action(description=_("Сделать неактивными"))
     def mark_inactive(self, request, queryset):
-        queryset.update(is_active=False)
+        queryset.update(is_active=False, updated_at=timezone.now())
 
     @admin.action(description=_("Отметить как проверенные"))
     def mark_verified(self, request, queryset):
-        queryset.update(is_verified=True)
+        queryset.update(is_verified=True, updated_at=timezone.now())
 
     @admin.action(description=_("Снять отметку проверки"))
     def mark_unverified(self, request, queryset):
-        queryset.update(is_verified=False)
+        queryset.update(is_verified=False, updated_at=timezone.now())
+
+    @admin.action(description=_("Переместить выбранные кружки в удаленные"))
+    def move_selected_to_deleted(self, request, queryset):
+        if request.POST.get("post"):
+            moved_count = 0
+            for place in queryset.iterator():
+                if self._soft_delete_place(place=place, user=request.user):
+                    moved_count += 1
+
+            self.message_user(
+                request,
+                ngettext(
+                    "В удаленные перемещен %(count)d кружок.",
+                    "В удаленные перемещено %(count)d кружка.",
+                    moved_count,
+                )
+                % {"count": moved_count},
+                level=messages.SUCCESS if moved_count else messages.WARNING,
+            )
+            return None
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Переместить выбранные кружки в удаленные"),
+            "subtitle": None,
+            "objects_name": str(self.opts.verbose_name_plural),
+            "queryset": queryset,
+            "opts": self.opts,
+            "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
+            "action_name": "move_selected_to_deleted",
+            "media": self.media,
+        }
+        return TemplateResponse(request, self.delete_selected_confirmation_template, context)
+
+    @admin.action(description=_("Восстановить выбранные кружки из удаленных"))
+    def restore_selected(self, request, queryset):
+        restored_count = 0
+        for place in queryset.iterator():
+            if self._restore_place(place=place, user=request.user, activate=False):
+                restored_count += 1
+
+        self.message_user(
+            request,
+            ngettext(
+                "Из удаленных восстановлен %(count)d кружок. Он остался неактивным.",
+                "Из удаленных восстановлено %(count)d кружка. Они остались неактивными.",
+                restored_count,
+            )
+            % {"count": restored_count},
+            level=messages.SUCCESS if restored_count else messages.WARNING,
+        )
 
     @admin.action(description=_("Повторно геокодировать выбранные карточки"))
     def refresh_coordinates(self, request, queryset):
@@ -540,23 +870,12 @@ class PlaceAdmin(admin.ModelAdmin):
         not_found_count = 0
 
         for place in queryset.iterator():
-            previous_coordinates = {"lat": place.lat, "lng": place.lng}
-            geocoding_result = self.geocoding_service.geocode_place(place=place, overwrite=True)
+            geocoding_result = self._refresh_place_coordinates_with_audit(
+                place=place,
+                changed_by=request.user,
+            )
             if geocoding_result.updated:
                 updated_count += 1
-                coordinate_changes: dict[str, tuple[object, object]] = {}
-                for field_name in ("lat", "lng"):
-                    old_value = previous_coordinates[field_name]
-                    new_value = getattr(place, field_name)
-                    if old_value != new_value:
-                        coordinate_changes[field_name] = (old_value, new_value)
-                if coordinate_changes:
-                    self.place_audit_repository.create_entries(
-                        place=place,
-                        changed_by=request.user,
-                        source=PlaceChangeAudit.SOURCE_SYSTEM,
-                        changes=coordinate_changes,
-                    )
                 continue
 
             if geocoding_result.reason in {"unchanged", "coordinates_present"}:
@@ -577,6 +896,60 @@ class PlaceAdmin(admin.ModelAdmin):
             },
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
+
+    def delete_view(self, request, object_id, extra_context=None):
+        obj = self.get_object(request, object_id)
+        if not self.has_delete_permission(request, obj):
+            raise PermissionDenied
+        if obj is None:
+            changelist_url = reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
+                current_app=self.admin_site.name,
+            )
+            return HttpResponseRedirect(changelist_url)
+
+        deleted_objects, model_count, perms_needed, protected = self.get_deleted_objects([obj], request)
+        if request.POST and not protected:
+            if perms_needed:
+                raise PermissionDenied
+            moved = self._soft_delete_place(place=obj, user=request.user)
+            if moved:
+                self.message_user(
+                    request,
+                    _("Кружок “%(name)s” перемещен в удаленные.") % {"name": obj},
+                    level=messages.SUCCESS,
+                )
+            else:
+                self.message_user(
+                    request,
+                    _("Кружок “%(name)s” уже находится в удаленных.") % {"name": obj},
+                    level=messages.WARNING,
+                )
+            return self._response_after_place_soft_delete(request)
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Переместить в удаленные"),
+            "subtitle": None,
+            "object_name": str(self.opts.verbose_name),
+            "object": obj,
+            "deleted_objects": deleted_objects,
+            "model_count": dict(model_count).items(),
+            "perms_lacking": perms_needed,
+            "protected": protected,
+            "opts": self.opts,
+            "app_label": self.opts.app_label,
+            "preserved_filters": self.get_preserved_filters(request),
+            **(extra_context or {}),
+        }
+        return self.render_delete_form(request, context)
+
+    def delete_model(self, request, obj):
+        self._soft_delete_place(place=obj, user=request.user)
+
+    def delete_queryset(self, request, queryset):
+        for place in queryset.iterator():
+            self._soft_delete_place(place=place, user=request.user)
 
     def _stringify_audit_value(self, value):
         if value is None:
@@ -614,6 +987,24 @@ class PlaceAdmin(admin.ModelAdmin):
                 )
             if audit_entries:
                 PlaceChangeAudit.objects.bulk_create(audit_entries)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        if "_refresh_coordinates_from_address" in request.POST:
+            return self._handle_refresh_coordinates_submit(
+                request,
+                obj,
+                saved_prefix=_("Карточка сохранена."),
+            )
+        return super().response_add(request, obj, post_url_continue=post_url_continue)
+
+    def response_change(self, request, obj):
+        if "_refresh_coordinates_from_address" in request.POST:
+            return self._handle_refresh_coordinates_submit(
+                request,
+                obj,
+                saved_prefix=_("Изменения сохранены."),
+            )
+        return super().response_change(request, obj)
 
 
 class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
@@ -725,7 +1116,7 @@ class SiteSettingsCompatAdmin(admin.ModelAdmin):
             },
             {
                 "title": _("Футер и соцсети"),
-                "description": _("Телефон, email, Instagram и WhatsApp в футере."),
+                "description": _("Телефон, email, соцсети и мессенджеры в футере."),
                 "url": reverse("admin:catalog_sitefootersettings_changelist"),
                 "complete": footer_ok,
             },
@@ -810,7 +1201,22 @@ class SiteContactsSettingsAdmin(_BaseSiteSettingsSectionAdmin):
 @admin.register(SiteFooterSettings)
 class SiteFooterSettingsAdmin(_BaseSiteSettingsSectionAdmin):
     fieldsets = (
-        (_("Футер и соцсети"), {"fields": ("footer_phone", "footer_email", "footer_instagram", "footer_whatsapp")}),
+        (
+            _("Футер и соцсети"),
+            {
+                "fields": (
+                    "footer_phone",
+                    "footer_email",
+                    "footer_instagram",
+                    "footer_telegram",
+                    "footer_youtube",
+                    "footer_tiktok",
+                    "footer_facebook",
+                    "footer_linkedin",
+                    "footer_whatsapp",
+                )
+            },
+        ),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
     )
 

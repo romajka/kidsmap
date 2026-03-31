@@ -31,6 +31,11 @@
   --icon-phone: url("../img/icon/coolicons.iconjar/icons/phone.svg");
   --icon-instagram: url("../img/icon/coolicons.iconjar/icons/camera.svg");
   --icon-whatsapp: url("../img/icon/coolicons.iconjar/icons/chat-conversation.svg");
+  --icon-telegram: url("../img/icon/coolicons.iconjar/icons/paper-plane.svg");
+  --icon-youtube: url("../img/icon/coolicons.iconjar/icons/play-circle.svg");
+  --icon-tiktok: url("../img/icon/coolicons.iconjar/icons/note.svg");
+  --icon-facebook: url("../img/icon/social/facebook.svg");
+  --icon-linkedin: url("../img/icon/social/linkedin.svg");
   --icon-search: url("../img/icon/coolicons.iconjar/icons/search-magnifying-glass.svg");
   --icon-reset: url("../img/icon/coolicons.iconjar/icons/arrow-reload-02.svg");
   --icon-details: url("../img/icon/coolicons.iconjar/icons/external-link.svg");
@@ -861,8 +866,26 @@ main {
   text-decoration: underline;
 }
 
+.footer-social-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .footer-social-link {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid #cde0d3;
+  border-radius: 12px;
+  background: #f8fdf9;
   justify-content: flex-start;
+  font-weight: 800;
+}
+
+.footer-social-link:hover {
+  background: #edf8f1;
+  border-color: #b9d8c2;
 }
 
 .filters {
@@ -1538,6 +1561,31 @@ main {
   mask-image: var(--icon-whatsapp);
 }
 
+.icon-telegram::before {
+  -webkit-mask-image: var(--icon-telegram);
+  mask-image: var(--icon-telegram);
+}
+
+.icon-youtube::before {
+  -webkit-mask-image: var(--icon-youtube);
+  mask-image: var(--icon-youtube);
+}
+
+.icon-tiktok::before {
+  -webkit-mask-image: var(--icon-tiktok);
+  mask-image: var(--icon-tiktok);
+}
+
+.icon-facebook::before {
+  -webkit-mask-image: var(--icon-facebook);
+  mask-image: var(--icon-facebook);
+}
+
+.icon-linkedin::before {
+  -webkit-mask-image: var(--icon-linkedin);
+  mask-image: var(--icon-linkedin);
+}
+
 .icon-search::before {
   -webkit-mask-image: var(--icon-search);
   mask-image: var(--icon-search);
@@ -1582,6 +1630,22 @@ main {
 .icon-whatsapp:hover::before,
 .icon-whatsapp:focus-visible::before {
   animation: iconBubblePop 0.44s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.icon-telegram:hover::before,
+.icon-telegram:focus-visible::before {
+  animation: iconArrowNudge 0.45s ease;
+}
+
+.icon-youtube:hover::before,
+.icon-youtube:focus-visible::before,
+.icon-tiktok:hover::before,
+.icon-tiktok:focus-visible::before,
+.icon-facebook:hover::before,
+.icon-facebook:focus-visible::before,
+.icon-linkedin:hover::before,
+.icon-linkedin:focus-visible::before {
+  animation: iconPulseSoft 0.46s ease;
 }
 
 .icon-instagram:hover::before,
@@ -4213,6 +4277,88 @@ main {
   gap: 12px;
 }
 
+.owner-map-picker {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(168, 213, 155, 0.16), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(240, 248, 242, 0.94));
+  box-shadow: 0 16px 38px rgba(28, 60, 43, 0.08);
+}
+
+.owner-map-picker-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.owner-map-picker-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.owner-map-picker-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.owner-map-picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-map-picker-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.owner-map-picker-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid rgba(112, 167, 95, 0.24);
+  border-radius: 999px;
+  background: rgba(246, 252, 247, 0.96);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.owner-map-picker-hint {
+  margin: 0;
+}
+
+.owner-map-picker-canvas {
+  min-height: 320px;
+  height: clamp(300px, 42vw, 380px);
+  border: 1px solid rgba(106, 157, 92, 0.28);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 12px 24px rgba(28, 60, 43, 0.08);
+}
+
+.owner-map-picker-canvas .leaflet-container {
+  width: 100%;
+  height: 100%;
+  font: inherit;
+}
+
+.owner-map-picker-errors {
+  display: grid;
+  gap: 4px;
+}
+
 .owner-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4364,6 +4510,26 @@ main {
   .owner-team-role-form {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .owner-map-picker {
+    padding: 14px;
+  }
+
+  .owner-map-picker-head,
+  .owner-map-picker-toolbar,
+  .owner-map-picker-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .owner-map-picker-status {
+    border-radius: 16px;
+  }
+
+  .owner-map-picker-canvas {
+    min-height: 280px;
+    height: 300px;
   }
 }
 
@@ -5247,6 +5413,10 @@ main {
   }
 
   .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-social-links {
     grid-template-columns: 1fr;
   }
 
@@ -6746,6 +6916,167 @@ main {
   .place-pricing-list li {
     align-items: start;
     flex-direction: column;
+  }
+}
+
+/* Final mobile header compaction pass: keep brand and controls on one row,
+   move navigation into a single horizontal rail, and tighten hero spacing. */
+@media (max-width: 760px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand controls"
+      "nav nav";
+    align-items: center;
+    row-gap: 8px;
+    column-gap: 8px;
+    padding: 8px 10px 10px;
+  }
+
+  .brand-wrap {
+    grid-area: brand;
+    min-width: 0;
+    max-width: 100%;
+    gap: 8px;
+  }
+
+  .topbar-right {
+    grid-area: controls;
+    width: auto;
+    min-width: fit-content;
+    justify-self: end;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav {
+    grid-area: nav;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav a {
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 36px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 15px;
+    line-height: 1;
+    scroll-snap-align: start;
+  }
+
+  .menu-trigger,
+  .user-entry-link,
+  .icon-only-btn {
+    min-height: 40px;
+  }
+
+  .home-hero {
+    padding: 18px 16px;
+  }
+
+  .home-hero-copy h1 {
+    max-width: 10ch;
+    font-size: clamp(32px, 8.5vw, 46px);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+  }
+
+  .home-hero p {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .home-search-label {
+    margin-bottom: 8px;
+  }
+
+  .home-search-compact .home-search-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .home-search-compact .home-search-btn {
+    grid-column: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    padding: 8px;
+    row-gap: 7px;
+  }
+
+  .logo-slot {
+    width: 44px;
+    height: 44px;
+  }
+
+  .brand {
+    font-size: clamp(24px, 8vw, 30px);
+  }
+
+  .topbar-right {
+    gap: 4px;
+  }
+
+  .auth-trigger-icononly,
+  .lang-trigger-icononly,
+  .user-entry-link {
+    min-width: 38px;
+    width: 38px;
+    height: 38px;
+    padding-inline: 6px;
+  }
+
+  .lang-trigger-icononly {
+    width: 46px;
+  }
+
+  .user-entry-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .nav {
+    gap: 5px;
+  }
+
+  .nav a {
+    min-height: 34px;
+    padding: 7px 11px;
+    font-size: 14px;
+  }
+
+  .home-hero {
+    padding: 16px 14px;
+  }
+
+  .home-hero-copy h1 {
+    max-width: 9ch;
+    font-size: clamp(30px, 9vw, 40px);
+  }
+
+  .home-hero p {
+    font-size: 15px;
   }
 }
 

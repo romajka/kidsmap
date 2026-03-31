@@ -42,10 +42,10 @@ User = get_user_model()
 
 class DjangoPlaceRepository(IPlaceRepository):
     def active_queryset(self) -> QuerySet:
-        return Place.objects.filter(is_active=True)
+        return Place.objects.filter(is_active=True, deleted_at__isnull=True)
 
     def active_queryset_with_gallery(self) -> QuerySet:
-        return Place.objects.filter(is_active=True).prefetch_related("gallery")
+        return Place.objects.filter(is_active=True, deleted_at__isnull=True).prefetch_related("gallery")
 
     def top_popular(self, limit: int) -> QuerySet:
         return self.active_queryset().order_by("-likes_count", "-updated_at")[:limit]
@@ -242,7 +242,7 @@ class DjangoPlaceOwnershipRequestRepository(IPlaceOwnershipRequestRepository):
 
 class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
     def managed_queryset(self, *, user) -> QuerySet:
-        return Place.objects.filter(owner=user).order_by("-updated_at")
+        return Place.objects.filter(owner=user, deleted_at__isnull=True).order_by("-updated_at")
 
     def get_managed_by_pk(self, *, user, pk: int) -> Place | None:
         return self.managed_queryset(user=user).filter(pk=pk).first()

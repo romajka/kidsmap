@@ -22,7 +22,7 @@ class Command(BaseCommand):
         force = bool(options.get("force"))
         limit = max(int(options.get("limit") or 0), 0)
 
-        queryset = Place.objects.exclude(address="").order_by("id")
+        queryset = Place.objects.filter(deleted_at__isnull=True).exclude(address="").order_by("id")
         if place_id:
             queryset = queryset.filter(id=place_id)
         if not force:

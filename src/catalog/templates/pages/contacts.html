@@ -35,9 +35,7 @@
       <article class="info-card">
         <h2>{% trans "Соцсети" %}</h2>
         <div class="info-links">
-          {% if footer_instagram_url %}
-            <a class="info-link-item icon-btn icon-instagram" href="{{ footer_instagram_url }}" target="_blank" rel="noopener">Instagram</a>
-          {% endif %}
+          {% include "pages/includes/site_social_links.html" with link_class="info-link-item" %}
           <a class="info-link-item" href="{% url 'about' %}">{% trans "О проекте" %}</a>
           <a class="info-link-item" href="{% url 'place_list' %}">{% trans "Каталог кружков" %}</a>
         </div>

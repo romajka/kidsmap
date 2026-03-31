@@ -11,7 +11,7 @@ from catalog.models import FunnelEvent, Place, SiteVisit
 
 class DjangoEventPlaceRepository(IEventPlaceRepository):
     def find_active_for_event(self, place_id: int) -> Place | None:
-        return Place.objects.filter(pk=place_id, is_active=True).only("id", "category").first()
+        return Place.objects.filter(pk=place_id, is_active=True, deleted_at__isnull=True).only("id", "category").first()
 
 
 class DjangoFunnelEventRepository(IFunnelEventRepository):

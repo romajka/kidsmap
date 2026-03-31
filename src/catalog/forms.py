@@ -469,6 +469,14 @@ class OwnerPlaceEditForm(forms.ModelForm):
         choices=(),
         widget=forms.Select(attrs={"class": "field"}),
     )
+    lat = forms.FloatField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"data-map-coordinate": "lat"}),
+    )
+    lng = forms.FloatField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"data-map-coordinate": "lng"}),
+    )
 
     class Meta:
         model = Place
@@ -488,6 +496,8 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "district",
             "metro",
             "address",
+            "lat",
+            "lng",
             "phone1",
             "instagram",
             "website",
@@ -585,6 +595,18 @@ class OwnerPlaceEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.geocoding_check_only = bool(kwargs.pop("geocoding_check_only", False))
+        instance = kwargs.get("instance")
+        data = kwargs.get("data")
+        if data is not None and instance is not None and getattr(instance, "pk", None):
+            missing_lat = "lat" not in data
+            missing_lng = "lng" not in data
+            if missing_lat or missing_lng:
+                mutable_data = data.copy()
+                if missing_lat:
+                    mutable_data["lat"] = "" if instance.lat is None else str(instance.lat)
+                if missing_lng:
+                    mutable_data["lng"] = "" if instance.lng is None else str(instance.lng)
+                kwargs["data"] = mutable_data
         super().__init__(*args, **kwargs)
         self._configure_location_choices()
         for field_name in ("age_from", "age_to"):
@@ -691,6 +713,20 @@ class OwnerPlaceEditForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        lat = cleaned.get("lat")
+        lng = cleaned.get("lng")
+
+        if (lat is None) ^ (lng is None):
+            message = _("Чтобы отметить место на карте, укажите обе координаты: lat и lng.")
+            self.add_error("lat", message)
+            self.add_error("lng", message)
+
+        if lat is not None and not -90 <= float(lat) <= 90:
+            self.add_error("lat", _("Широта должна быть в диапазоне от -90 до 90."))
+
+        if lng is not None and not -180 <= float(lng) <= 180:
+            self.add_error("lng", _("Долгота должна быть в диапазоне от -180 до 180."))
+
         if self.geocoding_check_only:
             return cleaned
 

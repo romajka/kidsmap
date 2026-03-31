@@ -4,8 +4,14 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from .models import SiteSettings, UserProfile
 
+DEFAULT_FOOTER_PHONE = "+994 50 540 66 39"
 DEFAULT_FOOTER_EMAIL = "kidsmap.az@gmail.com"
 DEFAULT_FOOTER_INSTAGRAM_URL = "https://www.instagram.com/kidsmap.az/"
+DEFAULT_FOOTER_TELEGRAM_URL = "https://t.me/KidsMap_az"
+DEFAULT_FOOTER_YOUTUBE_URL = "https://www.youtube.com/@KidsMap_az"
+DEFAULT_FOOTER_TIKTOK_URL = "https://www.tiktok.com/@kidsmap.az?lang=ru-RU"
+DEFAULT_FOOTER_FACEBOOK_URL = "https://www.facebook.com/people/KidsMap/61583913364027/"
+DEFAULT_FOOTER_LINKEDIN_URL = "https://www.linkedin.com/company/kidsmap-az/"
 
 CONTACTS_DEFAULTS = {
     "ru": f"Свяжитесь с нами по почте: {DEFAULT_FOOTER_EMAIL}",
@@ -24,6 +30,47 @@ EMPTY_DEFAULTS = {
     "en": "Nothing found.",
     "az": "Heç nə tapılmadı.",
 }
+
+FOOTER_SOCIAL_DEFAULTS = (
+    ("instagram", _("Instagram"), "icon-instagram", DEFAULT_FOOTER_INSTAGRAM_URL),
+    ("telegram", _("Telegram"), "icon-telegram", DEFAULT_FOOTER_TELEGRAM_URL),
+    ("youtube", _("YouTube"), "icon-youtube", DEFAULT_FOOTER_YOUTUBE_URL),
+    ("tiktok", _("TikTok"), "icon-tiktok", DEFAULT_FOOTER_TIKTOK_URL),
+    ("facebook", _("Facebook"), "icon-facebook", DEFAULT_FOOTER_FACEBOOK_URL),
+    ("linkedin", _("LinkedIn"), "icon-linkedin", DEFAULT_FOOTER_LINKEDIN_URL),
+)
+
+
+def _build_social_links(*, cfg):
+    if cfg is None:
+        return [
+            {
+                "key": key,
+                "label": label,
+                "icon_class": icon_class,
+                "url": default_url,
+            }
+            for key, label, icon_class, default_url in FOOTER_SOCIAL_DEFAULTS
+        ]
+
+    resolved_urls = {
+        "instagram": cfg.footer_instagram_url(),
+        "telegram": cfg.footer_telegram_url(),
+        "youtube": cfg.footer_youtube_url(),
+        "tiktok": cfg.footer_tiktok_url(),
+        "facebook": cfg.footer_facebook_url(),
+        "linkedin": cfg.footer_linkedin_url(),
+    }
+    return [
+        {
+            "key": key,
+            "label": label,
+            "icon_class": icon_class,
+            "url": resolved_urls.get(key, "").strip(),
+        }
+        for key, label, icon_class, _default_url in FOOTER_SOCIAL_DEFAULTS
+        if resolved_urls.get(key, "").strip()
+    ]
 
 
 def seo_urls(request):
@@ -92,10 +139,11 @@ def site_settings(request):
             "site_about_text": ABOUT_DEFAULTS.get(lang, ABOUT_DEFAULTS["ru"]),
             "site_contacts_text": CONTACTS_DEFAULTS.get(lang, CONTACTS_DEFAULTS["ru"]),
             "site_empty_results_text": EMPTY_DEFAULTS.get(lang, EMPTY_DEFAULTS["ru"]),
-            "footer_phone": "+994 00 000 00 00",
+            "footer_phone": DEFAULT_FOOTER_PHONE,
             "footer_email": DEFAULT_FOOTER_EMAIL,
             "footer_instagram_url": DEFAULT_FOOTER_INSTAGRAM_URL,
             "footer_whatsapp_url": "",
+            "footer_social_links": _build_social_links(cfg=None),
             **user_role_data,
         }
 
@@ -116,15 +164,20 @@ def site_settings(request):
     elif footer_instagram_url.rstrip("/") in {"https://instagram.com/kidsmap", "https://www.instagram.com/kidsmap"}:
         footer_instagram_url = DEFAULT_FOOTER_INSTAGRAM_URL
 
+    footer_phone = (cfg.footer_phone or "").strip()
+    if footer_phone in {"", "+994 00 000 00 00"}:
+        footer_phone = DEFAULT_FOOTER_PHONE
+
     return {
         "site_settings": cfg,
         "brand_name": cfg.brand_name or "KidsMap",
         "site_about_text": cfg.about_text_i18n(request.LANGUAGE_CODE),
         "site_contacts_text": contacts_text,
         "site_empty_results_text": cfg.empty_results_text_i18n(request.LANGUAGE_CODE),
-        "footer_phone": (cfg.footer_phone or "").strip(),
+        "footer_phone": footer_phone,
         "footer_email": footer_email,
         "footer_instagram_url": footer_instagram_url,
         "footer_whatsapp_url": (cfg.footer_whatsapp or "").strip(),
+        "footer_social_links": _build_social_links(cfg=cfg),
         **user_role_data,
     }

@@ -1,0 +1,52 @@
+{% load i18n %}
+
+<section
+  class="owner-map-picker"
+  data-owner-map-picker
+  data-default-lat="40.409264"
+  data-default-lng="49.867092"
+  data-selected-prefix="{% trans 'Выбрана точка:' %}"
+  data-empty-label="{% trans 'Точка на карте не выбрана.' %}"
+  data-locate-error="{% trans 'Не удалось определить геопозицию. Выберите точку вручную на карте.' %}"
+  data-locate-unsupported="{% trans 'Ваш браузер не поддерживает геолокацию. Выберите точку вручную на карте.' %}"
+>
+  {{ form.lat }}
+  {{ form.lng }}
+
+  <div class="owner-map-picker-head">
+    <div class="owner-map-picker-copy">
+      <p class="owner-map-picker-title">{% trans "Укажите на карте ваше место" %}</p>
+      <p class="meta">
+        {% trans "Нажмите на карту, чтобы отметить точное место кружка. Если вы выберете точку вручную, сайт сохранит именно ее. Если точка не выбрана, координаты можно определить по адресу." %}
+      </p>
+    </div>
+    <div class="owner-map-picker-actions">
+      <button type="button" class="btn-secondary" data-map-locate>{% trans "Определить мою геопозицию" %}</button>
+      <button type="button" class="btn-secondary" data-map-clear>{% trans "Очистить точку" %}</button>
+    </div>
+  </div>
+
+  <div class="owner-map-picker-toolbar">
+    <span class="owner-map-picker-status" data-map-status>
+      {% if form.lat.value and form.lng.value %}
+        {% blocktrans with lat=form.lat.value lng=form.lng.value %}Выбрана точка: {{ lat }}, {{ lng }}{% endblocktrans %}
+      {% else %}
+        {% trans "Точка на карте не выбрана." %}
+      {% endif %}
+    </span>
+    <span class="owner-map-picker-hint meta">{% trans "Можно также перетащить маркер после выбора точки." %}</span>
+  </div>
+
+  <div class="owner-map-picker-canvas" data-map-canvas aria-label="{% trans 'Карта выбора координат' %}"></div>
+
+  {% if form.lat.errors or form.lng.errors %}
+    <div class="owner-map-picker-errors">
+      {% for error in form.lat.errors %}
+        <small class="auth-errors">{{ error }}</small>
+      {% endfor %}
+      {% for error in form.lng.errors %}
+        <small class="auth-errors">{{ error }}</small>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
