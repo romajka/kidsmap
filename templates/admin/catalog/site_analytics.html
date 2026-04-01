@@ -79,7 +79,121 @@
     </div>
 
     <div class="module" style="padding:14px;margin-top:12px;">
+      <h2 style="margin-top:0;">Google Analytics 4</h2>
+      {% if ga4.enabled %}
+        <p style="margin:8px 0 0;color:#617084;">
+          <b>Measurement ID:</b> {{ ga4.measurement_id|default:"-" }}
+          <span style="margin-left:12px;"><b>{% trans "Property ID" %}:</b> {{ ga4.property_id|default:"-" }}</span>
+          {% if ga4.credentials_path %}
+            <span style="margin-left:12px;"><b>{% trans "Credentials" %}:</b> {{ ga4.credentials_path }}</span>
+          {% endif %}
+        </p>
+        {% if ga4.connected %}
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
+            <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+              <h3 style="margin:0 0 8px;">{% trans "Сегодня" %}</h3>
+              <div><b>{% trans "Активные пользователи" %}:</b> {{ ga4.period_stats.day.active_users }}</div>
+              <div><b>{% trans "Сессии" %}:</b> {{ ga4.period_stats.day.sessions }}</div>
+              <div><b>{% trans "Просмотры страниц" %}:</b> {{ ga4.period_stats.day.page_views }}</div>
+            </div>
+            <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+              <h3 style="margin:0 0 8px;">{% trans "За 7 дней" %}</h3>
+              <div><b>{% trans "Активные пользователи" %}:</b> {{ ga4.period_stats.week.active_users }}</div>
+              <div><b>{% trans "Сессии" %}:</b> {{ ga4.period_stats.week.sessions }}</div>
+              <div><b>{% trans "Просмотры страниц" %}:</b> {{ ga4.period_stats.week.page_views }}</div>
+            </div>
+            <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+              <h3 style="margin:0 0 8px;">{% trans "За 30 дней" %}</h3>
+              <div><b>{% trans "Активные пользователи" %}:</b> {{ ga4.period_stats.month.active_users }}</div>
+              <div><b>{% trans "Сессии" %}:</b> {{ ga4.period_stats.month.sessions }}</div>
+              <div><b>{% trans "Просмотры страниц" %}:</b> {{ ga4.period_stats.month.page_views }}</div>
+            </div>
+            <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
+              <h3 style="margin:0 0 8px;">{% trans "За 365 дней" %}</h3>
+              <div><b>{% trans "Активные пользователи" %}:</b> {{ ga4.period_stats.year.active_users }}</div>
+              <div><b>{% trans "Сессии" %}:</b> {{ ga4.period_stats.year.sessions }}</div>
+              <div><b>{% trans "Просмотры страниц" %}:</b> {{ ga4.period_stats.year.page_views }}</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px;">
+            <div>
+              <h3 style="margin:0 0 8px;">{% trans "GA4: динамика за 30 дней" %}</h3>
+              <canvas id="ga4VisitsChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px;">
+            <div>
+              <h3 style="margin:0 0 8px;">{% trans "GA4: топ страниц за 30 дней" %}</h3>
+              {% if ga4.top_pages %}
+                <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+                  <thead>
+                    <tr>
+                      <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Путь" %}</th>
+                      <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Просмотры" %}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in ga4.top_pages %}
+                      <tr>
+                        <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.page_path }}</td>
+                        <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.page_views }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+              {% endif %}
+            </div>
+            <div>
+              <h3 style="margin:0 0 8px;">{% trans "GA4: события за 30 дней" %}</h3>
+              {% if ga4.top_events %}
+                <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+                  <thead>
+                    <tr>
+                      <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Событие" %}</th>
+                      <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Количество" %}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in ga4.top_events %}
+                      <tr>
+                        <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.event_name }}</td>
+                        <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.event_count }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+              {% endif %}
+            </div>
+          </div>
+          {{ ga4.daily_chart|json_script:"ga4-visits-chart-data" }}
+        {% else %}
+          <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;margin-top:12px;">
+            <p style="margin:0 0 8px;"><b>{% trans "GA4 пока не подключен к админке." %}</b></p>
+            <p style="margin:0;color:#617084;">{{ ga4.error }}</p>
+            <ul style="margin:10px 0 0;padding-left:18px;">
+              <li>{% trans "Укажите GOOGLE_ANALYTICS_PROPERTY_ID в окружении сервера." %}</li>
+              <li>{% trans "Создайте service account в Google Cloud и сохраните JSON-ключ на сервере." %}</li>
+              <li>{% trans "Добавьте путь к JSON-ключу в GOOGLE_APPLICATION_CREDENTIALS." %}</li>
+              <li>{% trans "Выдайте service account доступ Viewer/Analyst к ресурсу GA4." %}</li>
+            </ul>
+          </div>
+        {% endif %}
+      {% else %}
+        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;margin-top:12px;">
+          <p style="margin:0;"><b>{% trans "GA4 не настроен." %}</b></p>
+          <p style="margin:8px 0 0;color:#617084;">{% trans "Сначала подключите внешний Google Analytics tag к сайту и задайте Measurement ID." %}</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="module" style="padding:14px;margin-top:12px;">
       <h2 style="margin-top:0;">{% trans "Посещаемость сайта" %}</h2>
+      <p style="margin:8px 0 0;color:#617084;">{% trans "Это локальная серверная статистика проекта. Для маркетинговой и внешней аналитики используйте блок Google Analytics 4 выше." %}</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
         <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
           <h3 style="margin:0 0 8px;">{% trans "Сегодня" %}</h3>
@@ -473,14 +587,20 @@
       }
 
       const visitsData = parseJsonScript("visits-chart-data");
+      const ga4VisitsData = parseJsonScript("ga4-visits-chart-data");
       const funnelData = parseJsonScript("funnel-chart-data");
       const visitsPeriodData = parseJsonScript("visits-period-chart-data");
       const funnelPeriodData = parseJsonScript("funnel-period-chart-data");
+      const ga4VisitsCanvas = document.getElementById("ga4VisitsChart");
       const visitsCanvas = document.getElementById("visitsChart");
       const funnelCanvas = document.getElementById("funnelChart");
       const visitsPeriodCanvas = document.getElementById("visitsPeriodChart");
       const funnelPeriodCanvas = document.getElementById("funnelPeriodChart");
 
+      drawLineChart(ga4VisitsCanvas, ga4VisitsData, [
+        { key: "active_users", color: "#2b7fd3", label: "{% trans 'Активные пользователи' %}" },
+        { key: "page_views", color: "#2ca24f", label: "{% trans 'Просмотры страниц' %}" },
+      ]);
       drawLineChart(visitsCanvas, visitsData, [
         { key: "unique_sessions", color: "#2b7fd3", label: "{% trans 'Уникальные' %}" },
         { key: "page_views", color: "#2ca24f", label: "{% trans 'Просмотры' %}" },

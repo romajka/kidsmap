@@ -7,6 +7,7 @@ from django.db.models.functions import TruncMonth, TruncWeek
 from django.utils import timezone
 
 from catalog.models import FunnelEvent, Place, PlaceReview, SiteReview, SiteVisit
+from catalog.services.google_analytics_reporting import build_google_analytics_context
 
 
 def _date_range(start_day, end_day):
@@ -386,6 +387,7 @@ def build_site_analytics_context() -> dict:
     monthly_visits = _build_monthly_visits(visits_qs)
     weekly_funnel = _build_weekly_funnel_stats(events_qs)
     monthly_funnel = _build_monthly_funnel_stats(events_qs)
+    ga4 = build_google_analytics_context()
 
     return {
         "places_stats": places_stats,
@@ -405,4 +407,5 @@ def build_site_analytics_context() -> dict:
         "monthly_visits": monthly_visits,
         "weekly_funnel": weekly_funnel,
         "monthly_funnel": monthly_funnel,
+        "ga4": ga4,
     }

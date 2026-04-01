@@ -442,6 +442,43 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertNotContains(response, "Группы")
         self.assertNotContains(response, "Аудит заявок на владение")
 
+    @override_settings(
+        GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123",
+        GOOGLE_ANALYTICS_PROPERTY_ID="123456789",
+    )
+    @patch("catalog.services.admin_analytics.build_google_analytics_context")
+    def test_admin_site_analytics_page_shows_ga4_block(self, ga4_context_mock):
+        ga4_context_mock.return_value = {
+            "enabled": True,
+            "connected": True,
+            "measurement_id": "G-TEST123",
+            "property_id": "123456789",
+            "credentials_path": "/app/.secrets/ga4.json",
+            "error": "",
+            "period_stats": {
+                "day": {"active_users": 4, "sessions": 5, "page_views": 9},
+                "week": {"active_users": 14, "sessions": 18, "page_views": 42},
+                "month": {"active_users": 40, "sessions": 57, "page_views": 130},
+                "year": {"active_users": 180, "sessions": 260, "page_views": 920},
+            },
+            "daily_chart": {
+                "labels": ["01.04", "02.04"],
+                "active_users": [3, 4],
+                "page_views": [7, 9],
+            },
+            "top_pages": [{"page_path": "/ru/catalog/", "page_views": 55}],
+            "top_events": [{"event_name": "place_open", "event_count": 17}],
+        }
+
+        response = self.client.get(reverse("admin:catalog_siteanalytics_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Google Analytics 4")
+        self.assertContains(response, "G-TEST123")
+        self.assertContains(response, "123456789")
+        self.assertContains(response, "/ru/catalog/")
+        self.assertContains(response, "place_open")
+
     def test_admin_can_approve_request_with_direct_button_url(self):
         self.place.is_active = False
         self.place.save(update_fields=["is_active"])

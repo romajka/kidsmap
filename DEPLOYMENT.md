@@ -77,7 +77,7 @@ docker compose run --rm web ./scripts/migrate.sh
 ```
 
 ## Production release checklist
-1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `SERVE_MEDIA_FILES=1`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`.
+1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `SERVE_MEDIA_FILES=1`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`, `GOOGLE_ANALYTICS_PROPERTY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`.
 2. Avoid editing tracked files on server (`docker-compose.yml`, `src/config/settings.py`); keep server-specific values in `.env`.
 3. Run `./scripts/deploy-server.sh`.
 4. Run `python manage.py check` (optional extra).
