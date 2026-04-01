@@ -50,17 +50,24 @@ class PlaceController:
         created_after: datetime | None = None,
     ) -> dict:
         liked_ids = liked_place_ids(request)
+        language_code = request.LANGUAGE_CODE
         content_settings = self.settings_repository.get_catalog_settings()
         filters = PlaceListFilters.from_request(request, force_new_only=force_new_only)
 
         qs = filters.apply(self.place_repository.filtered_active_queryset(created_after=created_after))
         timeline_places = []
         stats_qs = None
+        map_places = []
 
         if force_new_only:
             stats_qs = qs
             timeline_places = list(qs.order_by("-created_at")[:5])
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
+        else:
+            map_places = self._serialize_map_places(
+                qs.exclude(lat__isnull=True).exclude(lng__isnull=True),
+                language_code=language_code,
+            )
 
         paginator = Paginator(qs, 10)
         page_obj = paginator.get_page(request.GET.get("page"))
@@ -73,7 +80,7 @@ class PlaceController:
             "places": page_obj.object_list,
             "timeline_places": timeline_places,
             "page_obj": page_obj,
-            "language": request.LANGUAGE_CODE,
+            "language": language_code,
             "query_without_page": query_without_page,
             "meta_description": (
                 _("Новые кружки и курсы в Баку за последние 30 дней. Смотрите свежие добавления на KidsMap.")
@@ -85,6 +92,9 @@ class PlaceController:
             "district_options": sort_translated_values(content_settings.districts()),
             "metro_options": sort_translated_values(content_settings.metro_stations()),
             "is_new_page": force_new_only,
+            "catalog_map_places": map_places,
+            "catalog_map_places_count": len(map_places),
+            "catalog_map_missing_count": max(page_obj.paginator.count - len(map_places), 0) if not force_new_only else 0,
         }
 
         self.tracking_service.track_catalog_funnel_events(
@@ -109,6 +119,28 @@ class PlaceController:
             context["new_stats"] = build_new_page_stats(stats_qs)
 
         return context
+
+    def _serialize_map_places(self, qs, *, language_code: str) -> list[dict]:
+        serialized = []
+        for place in qs:
+            location_parts = []
+            if place.district:
+                location_parts.append(str(_(place.district)))
+            if place.metro:
+                location_parts.append(str(_(place.metro)))
+
+            serialized.append(
+                {
+                    "name": place.name_i18n(language_code),
+                    "lat": place.lat,
+                    "lng": place.lng,
+                    "url": place.get_absolute_url(),
+                    "category": place.get_category_display(),
+                    "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
+                    "location": " / ".join(location_parts),
+                }
+            )
+        return serialized
 
     def get_active_place_for_legacy_redirect(self, *, pk: int) -> Place:
         return get_object_or_404(self.place_repository.active_queryset(), pk=pk)

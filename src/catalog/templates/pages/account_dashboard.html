@@ -40,9 +40,9 @@
       </dl>
       <div class="owner-page-actions">
         <a class="btn-secondary" href="{% url 'account_settings' %}">{% trans "Изменить профиль и пароль" %}</a>
-        {% if is_owner_role %}
-          <a class="btn-secondary" href="{% url 'owner_cabinet' %}">{% trans "Кабинет владельца" %}</a>
-        {% endif %}
+        <a class="btn-secondary" href="{% url 'owner_cabinet' %}">
+          {% if is_owner_role %}{% trans "Кабинет владельца" %}{% else %}{% trans "Заявки на карточки" %}{% endif %}
+        </a>
       </div>
     </section>
 

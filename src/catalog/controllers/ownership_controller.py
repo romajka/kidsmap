@@ -40,15 +40,13 @@ class OwnershipController:
         approved_requests = [item for item in requests if item.status == PlaceOwnershipRequest.STATUS_APPROVED]
         rejected_requests = [item for item in requests if item.status == PlaceOwnershipRequest.STATUS_REJECTED]
         claim_query = (request.GET.get("claim_q") or "").strip()
-        claimable_places = []
-        if profile.role == UserProfile.ROLE_OWNER:
-            claimable_places = list(
-                self.place_repository.claim_candidates_for_user(
-                    user=request.user,
-                    query=claim_query,
-                    limit=8,
-                )
+        claimable_places = list(
+            self.place_repository.claim_candidates_for_user(
+                user=request.user,
+                query=claim_query,
+                limit=8,
             )
+        )
         return {
             "owner_profile": profile,
             "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
@@ -79,12 +77,10 @@ class OwnershipController:
         is_owner_role = profile.role == UserProfile.ROLE_OWNER
         has_pending = bool(latest and latest.status == PlaceOwnershipRequest.STATUS_PENDING)
         already_owner = place.owner_id == request.user.id
-        can_claim = is_owner_role and not has_pending and not already_owner
+        can_claim = not has_pending and not already_owner
 
         reason = ""
-        if not is_owner_role:
-            reason = "not_owner_role"
-        elif has_pending:
+        if has_pending:
             reason = "pending_exists"
         elif already_owner:
             reason = "already_owner"

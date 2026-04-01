@@ -8,6 +8,7 @@
 
 {% block content %}
   <section class="panel owner-places">
+    {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
     <div class="owner-page-head">
       <div>
         <h1>{% trans "Управление карточками" %}</h1>
@@ -115,6 +116,14 @@
                 <div class="owner-place-actions">
                   {% if can_edit_places %}
                     <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
+                    <form
+                      method="post"
+                      action="{% url 'owner_place_delete' place.id %}"
+                      onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');"
+                    >
+                      {% csrf_token %}
+                      <button type="submit" class="btn-secondary btn-danger">{% trans "Удалить карточку" %}</button>
+                    </form>
                   {% endif %}
                   {% if can_publish_places %}
                     <form method="post" action="{% url 'owner_place_draft' place.id %}">
@@ -167,6 +176,14 @@
                 <div class="owner-place-actions">
                   {% if can_edit_places %}
                     <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
+                    <form
+                      method="post"
+                      action="{% url 'owner_place_delete' place.id %}"
+                      onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');"
+                    >
+                      {% csrf_token %}
+                      <button type="submit" class="btn-secondary btn-danger">{% trans "Удалить карточку" %}</button>
+                    </form>
                   {% endif %}
                   {% if can_edit_places and place.latest_moderation_request and place.latest_moderation_request.status == "PENDING" %}
                     <span class="chip">{% trans "На проверке" %}</span>

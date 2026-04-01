@@ -23,6 +23,8 @@ def identity_filter_for_request(request):
 
 
 def likes_filter_for_request(request):
+    if not request.user.is_authenticated:
+        return Q(pk__isnull=True)
     return identity_filter_for_request(request)
 
 
@@ -115,10 +117,14 @@ def _toggle_review_reaction(*, review, request, value: int, reaction_model):
 
     with transaction.atomic():
         locked_review = review.__class__.objects.select_for_update().get(pk=review.pk)
-        existing = reaction_model.objects.filter(review=locked_review).filter(identity_filter).first()
+        existing_items = list(
+            reaction_model.objects.filter(review=locked_review).filter(identity_filter).order_by("id")
+        )
+        existing = existing_items[0] if existing_items else None
+        redundant_items = existing_items[1:]
 
         if existing and int(existing.value) == int(value):
-            existing.delete()
+            reaction_model.objects.filter(pk__in=[item.pk for item in existing_items]).delete()
             current_reaction = 0
         else:
             defaults = {"value": value}
@@ -126,6 +132,8 @@ def _toggle_review_reaction(*, review, request, value: int, reaction_model):
                 for field, field_value in defaults.items():
                     setattr(existing, field, field_value)
                 existing.save(update_fields=["value", "updated_at"])
+                if redundant_items:
+                    reaction_model.objects.filter(pk__in=[item.pk for item in redundant_items]).delete()
             else:
                 reaction_model.objects.create(
                     review=locked_review,
@@ -161,6 +169,11 @@ def toggle_site_review_reaction(review, request, value: int):
 def _mark_review_reactions(reviews, request, *, reaction_model):
     review_list = list(reviews)
     if not review_list:
+        return review_list
+
+    if not request.user.is_authenticated:
+        for review in review_list:
+            review.current_reaction = 0
         return review_list
 
     identity_filter = identity_filter_for_request(request)

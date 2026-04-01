@@ -18,6 +18,7 @@
 
 {% block content %}
   <section class="panel owner-place-edit">
+    {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
     <div class="owner-page-head">
       <div>
         <h1>{% trans "Редактирование карточки" %}</h1>
@@ -120,9 +121,19 @@
       <div class="owner-edit-actions">
         <button type="submit" class="btn">{% trans "Сохранить изменения" %}</button>
         <button type="submit" name="form_action" value="refresh_coordinates" class="btn-secondary">{% trans "Сохранить и обновить координаты" %}</button>
+        <button
+          type="submit"
+          form="owner-place-delete-form"
+          class="btn-secondary btn-danger"
+          onclick="return confirm('{{ delete_place_confirm_text|escapejs }}');"
+        >{% trans "Удалить карточку" %}</button>
         <a class="link-btn" href="{{ place.get_absolute_url }}">{% trans "Открыть страницу кружка" %}</a>
       </div>
       <p class="meta">{% trans "При обновлении координат текущие изменения формы будут сохранены." %}</p>
+    </form>
+
+    <form id="owner-place-delete-form" method="post" action="{% url 'owner_place_delete' place.id %}">
+      {% csrf_token %}
     </form>
   </section>
 

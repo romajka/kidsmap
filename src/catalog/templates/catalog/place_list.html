@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% if is_new_page %}{% trans "Новое" %}{% else %}{% trans "Каталог" %}{% endif %}{% endblock %}
 {% block title_plain %}{% if is_new_page %}{% trans "Новое" %}{% else %}{% trans "Каталог" %}{% endif %} | KidsMap{% endblock %}
@@ -240,17 +240,29 @@
             Найдено {{ total }} кружков
           {% endblocktrans %}
         </p>
-        <div class="view-switch-wrap">
-          <span class="view-switch-label">{% trans "Вид карточек" %}:</span>
-          <div class="view-switch" role="group" aria-label="{% trans 'Вид карточек' %}">
-            <a
-              class="chip-link {% if selected.view != 'list' %}active{% endif %}"
-              href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=grid"
-            >{% trans "Обычные карточки" %}</a>
-            <a
-              class="chip-link {% if selected.view == 'list' %}active{% endif %}"
-              href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=list"
-            >{% trans "Карточки списком" %}</a>
+        <div class="results-toolbar-actions">
+          <button
+            type="button"
+            class="link-btn icon-btn icon-map results-map-toggle"
+            data-catalog-map-open
+            aria-controls="catalog-map-panel"
+            aria-expanded="false"
+          >
+            {% trans "На карте" %}
+            <span class="results-map-count">{{ catalog_map_places_count }}</span>
+          </button>
+          <div class="view-switch-wrap">
+            <span class="view-switch-label">{% trans "Вид карточек" %}:</span>
+            <div class="view-switch" role="group" aria-label="{% trans 'Вид карточек' %}">
+              <a
+                class="chip-link {% if selected.view != 'list' %}active{% endif %}"
+                href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=grid"
+              >{% trans "Обычные карточки" %}</a>
+              <a
+                class="chip-link {% if selected.view == 'list' %}active{% endif %}"
+                href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=list"
+              >{% trans "Карточки списком" %}</a>
+            </div>
           </div>
         </div>
       </div>
@@ -259,6 +271,39 @@
 
   {% if not is_new_page %}
     <div class="catalog-main-column">
+      <section
+        id="catalog-map-panel"
+        class="panel catalog-map-panel"
+        data-catalog-map-panel
+        data-map-provider="{% if google_maps_api_key %}google{% else %}fallback{% endif %}"
+        data-details-label="{% trans 'Подробнее' %}"
+        data-empty-message="{% trans 'По текущим фильтрам пока нет карточек с координатами.' %}"
+        data-fallback-message="{% trans 'Интерактивная карта станет доступна после настройки Google Maps.' %}"
+        data-loading-message="{% trans 'Загружаем карту…' %}"
+        hidden
+      >
+        <div class="catalog-map-head">
+          <div class="catalog-map-copy">
+            <h2>{% trans "Результаты на карте" %}</h2>
+            <p class="meta">{% trans "Показаны только кружки, которые соответствуют текущим фильтрам." %}</p>
+          </div>
+          <button type="button" class="catalog-map-close" data-catalog-map-close aria-label="{% trans 'Закрыть карту' %}">×</button>
+        </div>
+
+        <div class="catalog-map-meta">
+          <span class="chip">{% blocktrans count total=catalog_map_places_count %}{{ total }} точка на карте{% plural %}{{ total }} точки на карте{% endblocktrans %}</span>
+          {% if catalog_map_missing_count %}
+            <span class="catalog-map-note">{% blocktrans count total=catalog_map_missing_count %}Еще {{ total }} карточка не показана: нет координат.{% plural %}Еще {{ total }} карточки не показаны: нет координат.{% endblocktrans %}</span>
+          {% endif %}
+        </div>
+
+        <div
+          id="catalog-results-map"
+          class="home-map catalog-results-map"
+          data-catalog-map
+        ></div>
+        {{ catalog_map_places|json_script:"catalog-map-data" }}
+      </section>
   {% endif %}
 
   {% if is_new_page %}
@@ -467,7 +512,7 @@
             <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-              <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}">
+              <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
                 ♥ <span class="like-count">{{ place.likes_count }}</span>
               </button>
             </form>
@@ -536,6 +581,16 @@
   {% if not is_new_page %}
     </div>
     </div>
+  {% endif %}
+  {% if not is_new_page %}
+    <script src="{% static 'js/catalog_map.js' %}"></script>
+    {% if google_maps_api_key %}
+      <script
+        src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitCatalogResultsMap"
+        async
+        defer
+      ></script>
+    {% endif %}
   {% endif %}
   <script>
     (function () {

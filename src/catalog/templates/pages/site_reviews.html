@@ -30,49 +30,6 @@
       </div>
     {% endif %}
 
-    <section id="site-reviews" class="review-form-wrap">
-      {% if request.user.is_authenticated %}
-        <form method="post" action="{% url 'add_site_review' %}" class="review-form">
-          {% csrf_token %}
-          <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-          <div class="review-form-grid">
-            <label>
-              {% trans "Ваша оценка" %}
-              <input type="hidden" name="rating" value="5" data-rating-input />
-              <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
-                <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
-                <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
-                <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
-                <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
-                <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
-              </div>
-            </label>
-            <label>
-              {% trans "Ваше имя" %}
-              <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
-            </label>
-            <label class="review-anon">
-              <input type="checkbox" name="is_anonymous" value="1" />
-              <span>{% trans "Оставить анонимно" %}</span>
-            </label>
-          </div>
-          <label>
-            {% trans "Текст отзыва" %}
-            <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось в сервисе?' %}"></textarea>
-          </label>
-          <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
-        </form>
-      {% else %}
-        <div class="review-auth-note">
-          <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
-          <div class="review-auth-actions">
-            <a class="btn" href="{% url 'account_login' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Войти" %}</a>
-            <a class="link-btn" href="{% url 'account_register' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Регистрация" %}</a>
-          </div>
-        </div>
-      {% endif %}
-    </section>
-
     <form method="get" class="reviews-toolbar site-reviews-toolbar">
       <label class="filter-item filter-sort">
         {% trans "Сортировка отзывов" %}
@@ -124,6 +81,53 @@
         {% endif %}
       </nav>
     {% endif %}
+
+    <section id="site-reviews" class="review-form-wrap">
+      <div class="site-reviews-form-head">
+        <h2>{% trans "Оставить отзыв о сайте" %}</h2>
+        <p class="meta">{% trans "Поделитесь впечатлением о сервисе KidsMap после использования каталога." %}</p>
+      </div>
+      {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'add_site_review' %}" class="review-form">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+          <div class="review-form-grid">
+            <label>
+              {% trans "Ваша оценка" %}
+              <input type="hidden" name="rating" value="5" data-rating-input />
+              <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
+                <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
+                <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
+                <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
+                <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
+                <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
+              </div>
+            </label>
+            <label>
+              {% trans "Ваше имя" %}
+              <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
+            </label>
+            <label class="review-anon">
+              <input type="checkbox" name="is_anonymous" value="1" />
+              <span>{% trans "Оставить анонимно" %}</span>
+            </label>
+          </div>
+          <label>
+            {% trans "Текст отзыва" %}
+            <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось в сервисе?' %}"></textarea>
+          </label>
+          <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
+        </form>
+      {% else %}
+        <div class="review-auth-note">
+          <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
+          <div class="review-auth-actions">
+            <a class="btn" href="{% url 'account_login' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Войти" %}</a>
+            <a class="link-btn" href="{% url 'account_register' %}?next={{ request.path|add:'#site-reviews'|urlencode }}">{% trans "Регистрация" %}</a>
+          </div>
+        </div>
+      {% endif %}
+    </section>
   </section>
 
   <script>

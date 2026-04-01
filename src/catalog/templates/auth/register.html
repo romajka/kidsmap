@@ -7,9 +7,10 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="panel auth-panel">
+  <section class="panel auth-panel auth-panel-register">
     <h1>{% trans "Регистрация" %}</h1>
-    <p class="auth-subtitle">{% trans "Выберите статус аккаунта. После регистрации мы отправим код подтверждения на email." %}</p>
+    <p class="auth-subtitle">{% trans "Создайте аккаунт KidsMap. После регистрации мы отправим код подтверждения на email." %}</p>
+    <p class="auth-register-note">{% trans "После входа вы сможете оставлять отзывы, добавлять кружки в избранное и при необходимости отправить заявку на управление карточкой." %}</p>
     <p class="auth-required-note" lang="az">* işarəsi olan sahələr mütləq doldurulmalıdır.</p>
 
     <form method="post" class="auth-form auth-form-register">
@@ -24,98 +25,92 @@
         </div>
       {% endif %}
 
-      <label>
-        {{ form.username.label }}<span class="required-mark" aria-hidden="true">*</span>
-        {{ form.username }}
-        {% if form.username.help_text %}
-          <small class="auth-help">{{ form.username.help_text }}</small>
-        {% endif %}
-        {% if form.username.errors %}
-          <span class="auth-field-error">{{ form.username.errors|join:", " }}</span>
-        {% endif %}
-      </label>
+      <div class="auth-register-grid">
+        <label class="auth-span-full">
+          {{ form.username.label }}<span class="required-mark" aria-hidden="true">*</span>
+          {{ form.username }}
+          {% if form.username.help_text %}
+            <small class="auth-help">{{ form.username.help_text }}</small>
+          {% endif %}
+          {% if form.username.errors %}
+            <span class="auth-field-error">{{ form.username.errors|join:", " }}</span>
+          {% endif %}
+        </label>
 
-      <label>
-        {{ form.first_name.label }}<span class="required-mark" aria-hidden="true">*</span>
-        {{ form.first_name }}
-        {% if form.first_name.help_text %}
-          <small class="auth-help">{{ form.first_name.help_text }}</small>
-        {% endif %}
-        {% if form.first_name.errors %}
-          <span class="auth-field-error">{{ form.first_name.errors|join:", " }}</span>
-        {% endif %}
-      </label>
+        <label>
+          {{ form.first_name.label }}<span class="required-mark" aria-hidden="true">*</span>
+          {{ form.first_name }}
+          {% if form.first_name.help_text %}
+            <small class="auth-help">{{ form.first_name.help_text }}</small>
+          {% endif %}
+          {% if form.first_name.errors %}
+            <span class="auth-field-error">{{ form.first_name.errors|join:", " }}</span>
+          {% endif %}
+        </label>
 
-      <label>
-        {{ form.last_name.label }}<span class="required-mark" aria-hidden="true">*</span>
-        {{ form.last_name }}
-        {% if form.last_name.help_text %}
-          <small class="auth-help">{{ form.last_name.help_text }}</small>
-        {% endif %}
-        {% if form.last_name.errors %}
-          <span class="auth-field-error">{{ form.last_name.errors|join:", " }}</span>
-        {% endif %}
-      </label>
+        <label>
+          {{ form.last_name.label }}<span class="required-mark" aria-hidden="true">*</span>
+          {{ form.last_name }}
+          {% if form.last_name.help_text %}
+            <small class="auth-help">{{ form.last_name.help_text }}</small>
+          {% endif %}
+          {% if form.last_name.errors %}
+            <span class="auth-field-error">{{ form.last_name.errors|join:", " }}</span>
+          {% endif %}
+        </label>
 
-      <label>
-        {{ form.email.label }}<span class="required-mark" aria-hidden="true">*</span>
-        {{ form.email }}
-        {% if form.email.help_text %}
-          <small class="auth-help">{{ form.email.help_text }}</small>
-        {% endif %}
-        {% if form.email.errors %}
-          <span class="auth-field-error">{{ form.email.errors|join:", " }}</span>
-        {% endif %}
-      </label>
+        <label>
+          {{ form.phone.label }}<span class="required-mark" aria-hidden="true">*</span>
+          {{ form.phone }}
+          {% if form.phone.help_text %}
+            <small class="auth-help">{{ form.phone.help_text }}</small>
+          {% endif %}
+          {% if form.phone.errors %}
+            <span class="auth-field-error">{{ form.phone.errors|join:", " }}</span>
+          {% endif %}
+        </label>
 
-      <label>
-        {{ form.phone.label }}<span class="required-mark" aria-hidden="true">*</span>
-        {{ form.phone }}
-        {% if form.phone.help_text %}
-          <small class="auth-help">{{ form.phone.help_text }}</small>
-        {% endif %}
-        {% if form.phone.errors %}
-          <span class="auth-field-error">{{ form.phone.errors|join:", " }}</span>
-        {% endif %}
-      </label>
+        <label>
+          {{ form.email.label }}<span class="required-mark" aria-hidden="true">*</span>
+          {{ form.email }}
+          {% if form.email.help_text %}
+            <small class="auth-help">{{ form.email.help_text }}</small>
+          {% endif %}
+          {% if form.email.errors %}
+            <span class="auth-field-error">{{ form.email.errors|join:", " }}</span>
+          {% endif %}
+        </label>
 
-      <fieldset class="auth-role-group">
-        <legend>{{ form.gender.label }}<span class="required-mark" aria-hidden="true">*</span></legend>
-        {{ form.gender }}
-        {% if form.gender.help_text %}
-          <small class="auth-help">{{ form.gender.help_text }}</small>
-        {% endif %}
-        {% if form.gender.errors %}
-          <span class="auth-field-error">{{ form.gender.errors|join:", " }}</span>
-        {% endif %}
-      </fieldset>
+        <fieldset class="auth-role-group auth-register-inline-group auth-span-full">
+          <legend>{{ form.gender.label }}<span class="required-mark" aria-hidden="true">*</span></legend>
+          {{ form.gender }}
+          {% if form.gender.help_text %}
+            <small class="auth-help">{{ form.gender.help_text }}</small>
+          {% endif %}
+          {% if form.gender.errors %}
+            <span class="auth-field-error">{{ form.gender.errors|join:", " }}</span>
+          {% endif %}
+        </fieldset>
 
-      <fieldset class="auth-role-group">
-        <legend>{{ form.role.label }}<span class="required-mark" aria-hidden="true">*</span></legend>
-        {{ form.role }}
-        {% if form.role.errors %}
-          <span class="auth-field-error">{{ form.role.errors|join:", " }}</span>
-        {% endif %}
-      </fieldset>
+        <label>
+          {{ form.password1.label }}<span class="required-mark" aria-hidden="true">*</span>
+          {{ form.password1 }}
+          {% if form.password1.help_text %}
+            <small class="auth-help">{{ form.password1.help_text|safe }}</small>
+          {% endif %}
+          {% if form.password1.errors %}
+            <span class="auth-field-error">{{ form.password1.errors|join:", " }}</span>
+          {% endif %}
+        </label>
 
-      <label>
-        {{ form.password1.label }}<span class="required-mark" aria-hidden="true">*</span>
-        {{ form.password1 }}
-        {% if form.password1.help_text %}
-          <small class="auth-help">{{ form.password1.help_text|safe }}</small>
-        {% endif %}
-        {% if form.password1.errors %}
-          <span class="auth-field-error">{{ form.password1.errors|join:", " }}</span>
-        {% endif %}
-      </label>
-
-      <label>
-        {{ form.password2.label }}<span class="required-mark" aria-hidden="true">*</span>
-        {{ form.password2 }}
-        {% if form.password2.errors %}
-          <span class="auth-field-error">{{ form.password2.errors|join:", " }}</span>
-        {% endif %}
-      </label>
+        <label>
+          {{ form.password2.label }}<span class="required-mark" aria-hidden="true">*</span>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <span class="auth-field-error">{{ form.password2.errors|join:", " }}</span>
+          {% endif %}
+        </label>
+      </div>
 
       <button type="submit" class="btn">{% trans "Создать аккаунт" %}</button>
     </form>

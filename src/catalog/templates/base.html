@@ -247,15 +247,40 @@
           }
         }
 
-        document.addEventListener("submit", async function (event) {
-          const form = event.target;
-          if (!(form instanceof HTMLFormElement)) return;
-          if (!form.matches("[data-like-form]")) return;
+        function updateReviewReactionForm(form, payload) {
+          if (!payload || payload.ok !== true) return;
+          const likeButton = form.querySelector('button[name="value"][value="1"]');
+          const dislikeButton = form.querySelector('button[name="value"][value="-1"]');
+          const likeCountEl = form.querySelector("[data-review-like-count]");
+          const dislikeCountEl = form.querySelector("[data-review-dislike-count]");
 
-          event.preventDefault();
-          const button = form.querySelector(".like-btn");
-          if (button && button.disabled) return;
-          if (button) button.disabled = true;
+          if (likeButton) {
+            const isActive = payload.current_reaction === 1;
+            likeButton.classList.toggle("active", isActive);
+            likeButton.setAttribute("aria-pressed", isActive ? "true" : "false");
+          }
+
+          if (dislikeButton) {
+            const isActive = payload.current_reaction === -1;
+            dislikeButton.classList.toggle("active", isActive);
+            dislikeButton.setAttribute("aria-pressed", isActive ? "true" : "false");
+          }
+
+          if (likeCountEl && typeof payload.likes_count === "number") {
+            likeCountEl.textContent = payload.likes_count;
+          }
+
+          if (dislikeCountEl && typeof payload.dislikes_count === "number") {
+            dislikeCountEl.textContent = payload.dislikes_count;
+          }
+        }
+
+        async function submitJsonForm(form, submitButtons, onSuccess) {
+          const buttons = submitButtons.filter(Boolean);
+          if (buttons.some((button) => button.disabled)) return;
+          buttons.forEach((button) => {
+            button.disabled = true;
+          });
 
           try {
             const response = await fetch(form.action, {
@@ -264,13 +289,43 @@
               body: new FormData(form),
               credentials: "same-origin",
             });
-            if (!response.ok) throw new Error("Request failed");
-            const payload = await response.json();
-            updateLikeForm(form, payload);
+            const payload = await response.json().catch(function () {
+              return null;
+            });
+            if (response.status === 401 && payload && payload.auth_required && payload.redirect_url) {
+              window.location.assign(payload.redirect_url);
+              return;
+            }
+            if (!response.ok || !payload) throw new Error("Request failed");
+            onSuccess(form, payload);
           } catch (err) {
             form.submit();
           } finally {
-            if (button) button.disabled = false;
+            buttons.forEach((button) => {
+              button.disabled = false;
+            });
+          }
+        }
+
+        document.addEventListener("submit", async function (event) {
+          const form = event.target;
+          if (!(form instanceof HTMLFormElement)) return;
+          if (form.matches("[data-like-form]")) {
+            event.preventDefault();
+            await submitJsonForm(
+              form,
+              [form.querySelector(".like-btn")],
+              updateLikeForm,
+            );
+            return;
+          }
+          if (form.matches("[data-review-reaction-form]")) {
+            event.preventDefault();
+            await submitJsonForm(
+              form,
+              Array.from(form.querySelectorAll(".review-reaction-btn")),
+              updateReviewReactionForm,
+            );
           }
         });
 

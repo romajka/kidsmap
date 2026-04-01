@@ -28,18 +28,18 @@
       <span class="review-flag">{% trans "Текст отзыва отфильтрован" %}</span>
     {% endif %}
 
-    <form method="post" action="{% url vote_url_name review.id %}" class="review-reactions-form">
+    <form method="post" action="{% url vote_url_name review.id %}" class="review-reactions-form" data-review-reaction-form>
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next_url|default:request.get_full_path }}" />
-      <button type="submit" name="value" value="1" class="review-reaction-btn{% if review.current_reaction == 1 %} active{% endif %}">
+      <button type="submit" name="value" value="1" class="review-reaction-btn{% if review.current_reaction == 1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == 1 %}true{% else %}false{% endif %}">
         <span aria-hidden="true">👍</span>
         <span class="visually-hidden">{% trans "Лайк" %}</span>
-        <span>{{ review.likes_count }}</span>
+        <span data-review-like-count>{{ review.likes_count }}</span>
       </button>
-      <button type="submit" name="value" value="-1" class="review-reaction-btn dislike{% if review.current_reaction == -1 %} active{% endif %}">
+      <button type="submit" name="value" value="-1" class="review-reaction-btn dislike{% if review.current_reaction == -1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == -1 %}true{% else %}false{% endif %}">
         <span aria-hidden="true">👎</span>
         <span class="visually-hidden">{% trans "Дизлайк" %}</span>
-        <span>{{ review.dislikes_count }}</span>
+        <span data-review-dislike-count>{{ review.dislikes_count }}</span>
       </button>
     </form>
   </div>

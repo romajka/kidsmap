@@ -31,15 +31,6 @@ def submit_place_ownership_request(
         )
 
     profile = profile_repository.get_or_create_for_user(request.user)
-    if profile.role != UserProfile.ROLE_OWNER:
-        return OwnershipRequestResult(
-            ok=False,
-            created=False,
-            message=_(
-                "Заявки на владение доступны только аккаунтам владельца. "
-                "Смените тип аккаунта на владельца или примите приглашение в команду владельца."
-            ),
-        )
 
     if place.owner_id == request.user.id:
         return OwnershipRequestResult(

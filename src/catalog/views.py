@@ -28,7 +28,7 @@ from .controllers.place_controller import PlaceController
 from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
-from .models import UserProfile
+from .models import PlaceReview, SiteReview, UserProfile
 
 home_controller = HomeController.build_default()
 place_controller = PlaceController.build_default()
@@ -53,6 +53,33 @@ def _resolve_safe_next_url(request, fallback_url: str) -> str:
     ):
         return target
     return fallback_url
+
+
+def _is_ajax_request(request) -> bool:
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+
+def _build_login_redirect_url(request, fallback_url: str) -> str:
+    target = _resolve_safe_next_url(request, fallback_url)
+    query = urlencode({"next": target})
+    return f"{reverse('account_login')}?{query}"
+
+
+def _engagement_login_required_response(request, fallback_url: str):
+    message = _("Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.")
+    login_url = _build_login_redirect_url(request, fallback_url)
+    messages.info(request, message)
+    if _is_ajax_request(request):
+        return JsonResponse(
+            {
+                "ok": False,
+                "auth_required": True,
+                "redirect_url": login_url,
+                "message": message,
+            },
+            status=401,
+        )
+    return redirect(login_url)
 
 
 def _redirect_to_login(request):
@@ -87,6 +114,7 @@ def _render_place_list(request, force_new_only=False, created_after=None):
         force_new_only=force_new_only,
         created_after=created_after,
     )
+    context["google_maps_api_key"] = settings.GOOGLE_MAPS_API_KEY
 
     return render(request, "catalog/place_list.html", context)
 
@@ -113,9 +141,13 @@ def place_detail(request, pk, slug):
 
 @require_POST
 def toggle_place_like(request, pk):
+    place = place_controller.get_active_place_with_gallery(pk=pk)
+    if not request.user.is_authenticated:
+        return _engagement_login_required_response(request, place.get_absolute_url())
+
     result = engagement_controller.toggle_place_like(request=request, place_id=pk)
 
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+    if _is_ajax_request(request):
         return JsonResponse({"ok": True, "liked": result.liked, "likes_count": result.likes_count})
 
     return redirect(request.POST.get("next") or result.place.get_absolute_url())
@@ -123,6 +155,10 @@ def toggle_place_like(request, pk):
 
 @require_POST
 def add_place_review(request, pk):
+    place = place_controller.get_active_place_with_gallery(pk=pk)
+    if getattr(settings, "REVIEWS_REQUIRE_AUTH", True) and not request.user.is_authenticated:
+        return _engagement_login_required_response(request, f"{place.get_absolute_url()}#reviews")
+
     place, result = engagement_controller.add_place_review(
         request=request,
         place_id=pk,
@@ -137,6 +173,9 @@ def add_place_review(request, pk):
 
 @require_POST
 def add_site_review(request):
+    if getattr(settings, "REVIEWS_REQUIRE_AUTH", True) and not request.user.is_authenticated:
+        return _engagement_login_required_response(request, f"{reverse('site_reviews')}#site-reviews")
+
     result = engagement_controller.add_site_review(
         request=request,
         require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", True),
@@ -160,11 +199,27 @@ def vote_place_review(request, review_id):
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("home")))
 
+    review = PlaceReview.objects.filter(is_approved=True).select_related("place").filter(pk=review_id).first()
+    if review is None:
+        messages.error(request, _("Не удалось обработать реакцию на отзыв."))
+        return redirect(_resolve_safe_next_url(request, reverse("home")))
+    if not request.user.is_authenticated:
+        return _engagement_login_required_response(request, f"{review.place.get_absolute_url()}#reviews")
+
     result = engagement_controller.toggle_place_review_reaction(
         request=request,
         review_id=review_id,
         value=int(value),
     )
+    if _is_ajax_request(request):
+        return JsonResponse(
+            {
+                "ok": True,
+                "current_reaction": result.current_reaction,
+                "likes_count": result.likes_count,
+                "dislikes_count": result.dislikes_count,
+            }
+        )
     return redirect(_resolve_safe_next_url(request, f"{result.review.place.get_absolute_url()}#reviews"))
 
 
@@ -175,11 +230,27 @@ def vote_site_review(request, review_id):
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
 
-    engagement_controller.toggle_site_review_reaction(
+    review = SiteReview.objects.filter(is_approved=True).filter(pk=review_id).first()
+    if review is None:
+        messages.error(request, _("Не удалось обработать реакцию на отзыв."))
+        return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
+    if not request.user.is_authenticated:
+        return _engagement_login_required_response(request, reverse("site_reviews"))
+
+    result = engagement_controller.toggle_site_review_reaction(
         request=request,
         review_id=review_id,
         value=int(value),
     )
+    if _is_ajax_request(request):
+        return JsonResponse(
+            {
+                "ok": True,
+                "current_reaction": result.current_reaction,
+                "likes_count": result.likes_count,
+                "dislikes_count": result.dislikes_count,
+            }
+        )
     return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
 
 
@@ -379,6 +450,19 @@ def owner_place_submit_review(request, pk):
         return _redirect_to_login(request)
 
     result = owner_places_controller.submit_for_moderation(request=request, place_id=pk)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_place_delete(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.delete_place(request=request, place_id=pk)
     if result.ok:
         messages.success(request, result.message)
     else:
@@ -750,7 +834,7 @@ def account_register(request):
         "auth/register.html",
         {
             "form": form,
-            "meta_description": _("Регистрация в KidsMap: выберите тип аккаунта и начните пользоваться каталогом."),
+            "meta_description": _("Регистрация в KidsMap: создайте аккаунт и начните пользоваться каталогом."),
             "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
         },
     )

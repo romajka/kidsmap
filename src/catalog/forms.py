@@ -137,17 +137,6 @@ class RegistrationForm(UserCreationForm):
         },
         widget=forms.RadioSelect(attrs={"class": "auth-role-option"}),
     )
-    role = forms.ChoiceField(
-        label=_("Кто вы?"),
-        choices=UserProfile.ROLE_CHOICES,
-        initial=UserProfile.ROLE_USER,
-        error_messages={
-            "required": _("Выберите тип аккаунта: обычный пользователь или владелец кружка."),
-            "invalid_choice": _("Некорректный тип аккаунта. Выберите один из предложенных вариантов."),
-        },
-        widget=forms.RadioSelect(attrs={"class": "auth-role-option"}),
-    )
-
     class Meta:
         model = User
         fields = ("username", "first_name", "last_name", "email")

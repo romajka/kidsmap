@@ -131,6 +131,16 @@ class OwnerPlacesController:
             return _("Карточка создана и отправлена на модерацию в админку. Координаты обновлены автоматически.")
         return _("Карточка создана и отправлена на модерацию в админку.")
 
+    @staticmethod
+    def _build_soft_delete_changes(*, place: Place, previous: dict[str, object]) -> dict[str, tuple[object, object]]:
+        changes: dict[str, tuple[object, object]] = {}
+        for field_name in ("is_active", "deleted_at", "deleted_by_id"):
+            old_value = previous.get(field_name)
+            new_value = getattr(place, field_name)
+            if old_value != new_value:
+                changes[field_name] = (old_value, new_value)
+        return changes
+
     def build_dashboard_context(self, *, request) -> tuple[dict, OwnerAccessResult]:
         access = ensure_owner_permission(
             user=request.user,
@@ -507,4 +517,51 @@ class OwnerPlacesController:
             place=place,
             profile=access.profile,
             ownership_request=ownership_request,
+        )
+
+    def delete_place(self, *, request, place_id: int) -> OwnerPlaceActionResult:
+        access = ensure_owner_permission(
+            user=request.user,
+            profile_repository=self.profile_repository,
+            permission_code=UserProfile.OWNER_PERMISSION_EDIT_PLACES,
+        )
+        if not access.ok:
+            return OwnerPlaceActionResult(ok=False, message=access.message, profile=access.profile)
+
+        place = self.owner_place_repository.get_managed_by_pk(user=request.user, pk=place_id)
+        if place is None:
+            return OwnerPlaceActionResult(
+                ok=False,
+                message=_(
+                    "Карточка не найдена или не привязана к вашему аккаунту. "
+                    "Обновите список карточек и попробуйте снова."
+                ),
+                profile=access.profile,
+            )
+
+        previous = {
+            "is_active": place.is_active,
+            "deleted_at": place.deleted_at,
+            "deleted_by_id": place.deleted_by_id,
+        }
+        changed = place.soft_delete(deleted_by=request.user)
+        if not changed:
+            return OwnerPlaceActionResult(
+                ok=True,
+                message=_("Карточка уже удалена."),
+                place=place,
+                profile=access.profile,
+            )
+
+        self.place_audit_repository.create_entries(
+            place=place,
+            changed_by=request.user,
+            source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
+            changes=self._build_soft_delete_changes(place=place, previous=previous),
+        )
+        return OwnerPlaceActionResult(
+            ok=True,
+            message=_("Карточка удалена. При необходимости ее можно восстановить через администратора."),
+            place=place,
+            profile=access.profile,
         )

@@ -8,23 +8,31 @@
 
 {% block content %}
   <section class="panel owner-cabinet">
-    <h1>{% trans "Кабинет владельца" %}</h1>
-    <p class="auth-subtitle">{% trans "Здесь вы видите свои заявки на привязку кружков и текущие управляемые карточки." %}</p>
+    <h1>{% if is_owner_role %}{% trans "Кабинет владельца" %}{% else %}{% trans "Заявки на карточки" %}{% endif %}</h1>
+    <p class="auth-subtitle">
+      {% if is_owner_role %}
+        {% trans "Здесь вы видите свои заявки на привязку кружков и текущие управляемые карточки." %}
+      {% else %}
+        {% trans "Здесь можно отслеживать заявки на управление карточками и статус модерации." %}
+      {% endif %}
+    </p>
     {% if is_owner_role %}
       <p class="meta">{% trans "Статус" %}: <strong>{% trans "Владелец кружка / бизнеса" %}</strong></p>
     {% endif %}
 
     <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
       <a class="chip-link active" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
-      <a class="chip-link" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
-      {% if "owner.reviews.moderate" in owner_permissions %}
+      {% if is_owner_role %}
+        <a class="chip-link" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+      {% endif %}
+      {% if is_owner_role and "owner.reviews.moderate" in owner_permissions %}
         <a class="chip-link" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
       {% endif %}
     </nav>
 
     {% if not is_owner_role %}
       <div class="review-auth-note">
-        <p>{% trans "Ваш текущий статус: обычный пользователь. Отправка заявок на управление доступна только владельцам." %}</p>
+        <p>{% trans "После одобрения заявки модератором вы получите доступ к управлению карточкой." %}</p>
       </div>
     {% endif %}
 

@@ -13,6 +13,7 @@ from catalog.forms import (
     UserProfileEditForm,
 )
 from catalog.interfaces.repositories import IEmailVerificationRepository, IUserProfileRepository
+from catalog.models import UserProfile
 from catalog.repositories.django_repositories import DjangoEmailVerificationRepository, DjangoUserProfileRepository
 from catalog.services.email_verification import (
     EmailVerificationResult,
@@ -64,8 +65,7 @@ class AuthController:
         user = form.save(commit=False)
         user.is_active = False
         user.save()
-        role = form.cleaned_data["role"]
-        self.profile_repository.set_role(user=user, role=role)
+        self.profile_repository.set_role(user=user, role=UserProfile.ROLE_USER)
         self.profile_repository.set_phone(user=user, phone=form.cleaned_data.get("phone", ""))
         self.profile_repository.set_gender(user=user, gender=form.cleaned_data.get("gender", ""))
         return user

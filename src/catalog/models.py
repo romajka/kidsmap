@@ -847,6 +847,10 @@ class PlaceOwnershipRequest(models.Model):
                 self.place.is_active = True
                 update_fields.append("is_active")
             self.place.save(update_fields=update_fields)
+            applicant_profile = UserProfile.get_or_create_for_user(self.applicant)
+            if applicant_profile.role != UserProfile.ROLE_OWNER:
+                applicant_profile.role = UserProfile.ROLE_OWNER
+                applicant_profile.save(update_fields=["role", "updated_at"])
 
         PlaceOwnershipRequestAudit.log_event(
             ownership_request=self,
