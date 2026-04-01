@@ -1266,6 +1266,7 @@ class TestReviewEnhancements(TestCase):
         self.assertFalse(payload["ok"])
         self.assertTrue(payload["auth_required"])
         self.assertIn(reverse("account_login"), payload["redirect_url"])
+        self.assertIn("message", payload)
         self.assertEqual(PlaceReviewReaction.objects.filter(review=review).count(), 0)
 
     def test_site_reviews_page_can_sort_reviews_by_likes(self):
@@ -1293,6 +1294,23 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(review.likes_count, 1)
         self.assertEqual(review.dislikes_count, 0)
         self.assertTrue(SiteReviewReaction.objects.filter(review=review, value=1).exists())
+
+    def test_site_review_reaction_requires_login_for_guest_ajax(self):
+        review = SiteReview.objects.create(author_name="Site User", rating=5, text="Люблю этот сайт")
+
+        response = self.client.post(
+            reverse("vote_site_review", args=[review.id]),
+            data={"value": "1", "next": reverse("site_reviews")},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 401)
+        payload = json.loads(response.content)
+        self.assertFalse(payload["ok"])
+        self.assertTrue(payload["auth_required"])
+        self.assertIn(reverse("account_login"), payload["redirect_url"])
+        self.assertIn("message", payload)
+        self.assertEqual(SiteReviewReaction.objects.filter(review=review).count(), 0)
 
     def test_place_like_requires_login_and_redirects_guest(self):
         response = self.client.post(

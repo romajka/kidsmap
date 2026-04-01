@@ -286,7 +286,38 @@
           }
         }
 
-        async function submitJsonForm(form, submitButtons, onSuccess) {
+        function buildFormPayload(form, submitter) {
+          if (submitter) {
+            try {
+              return new FormData(form, submitter);
+            } catch (err) {
+              // Fallback for browsers without FormData(form, submitter).
+            }
+          }
+
+          const formData = new FormData(form);
+          if (submitter && submitter.name) {
+            formData.append(submitter.name, submitter.value || "");
+          }
+          return formData;
+        }
+
+        function submitFormFallback(form, submitter) {
+          let tempInput = null;
+          if (submitter && submitter.name) {
+            tempInput = document.createElement("input");
+            tempInput.type = "hidden";
+            tempInput.name = submitter.name;
+            tempInput.value = submitter.value || "";
+            form.appendChild(tempInput);
+          }
+          HTMLFormElement.prototype.submit.call(form);
+          if (tempInput) {
+            tempInput.remove();
+          }
+        }
+
+        async function submitJsonForm(form, submitButtons, onSuccess, submitter) {
           const buttons = submitButtons.filter(Boolean);
           if (buttons.some((button) => button.disabled)) return;
           buttons.forEach((button) => {
@@ -297,7 +328,7 @@
             const response = await fetch(form.action, {
               method: "POST",
               headers: { "X-Requested-With": "XMLHttpRequest" },
-              body: new FormData(form),
+              body: buildFormPayload(form, submitter),
               credentials: "same-origin",
             });
             const payload = await response.json().catch(function () {
@@ -310,23 +341,33 @@
             if (!response.ok || !payload) throw new Error("Request failed");
             onSuccess(form, payload);
           } catch (err) {
-            form.submit();
+            submitFormFallback(form, submitter);
           } finally {
+            delete form.__kidsMapSubmitter;
             buttons.forEach((button) => {
               button.disabled = false;
             });
           }
         }
 
+        document.addEventListener("click", function (event) {
+          if (!(event.target instanceof Element)) return;
+          const submitter = event.target.closest('button[type="submit"], input[type="submit"]');
+          if (!submitter || !(submitter.form instanceof HTMLFormElement)) return;
+          submitter.form.__kidsMapSubmitter = submitter;
+        });
+
         document.addEventListener("submit", async function (event) {
           const form = event.target;
           if (!(form instanceof HTMLFormElement)) return;
+          const submitter = event.submitter || form.__kidsMapSubmitter || null;
           if (form.matches("[data-like-form]")) {
             event.preventDefault();
             await submitJsonForm(
               form,
               [form.querySelector(".like-btn")],
               updateLikeForm,
+              submitter,
             );
             return;
           }
@@ -336,6 +377,7 @@
               form,
               Array.from(form.querySelectorAll(".review-reaction-btn")),
               updateReviewReactionForm,
+              submitter,
             );
           }
         });
