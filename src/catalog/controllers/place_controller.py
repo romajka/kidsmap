@@ -76,6 +76,7 @@ class PlaceController:
         params.pop("page", None)
         query_without_page = params.urlencode()
 
+        selected = filters.selected()
         context = {
             "places": page_obj.object_list,
             "timeline_places": timeline_places,
@@ -87,7 +88,7 @@ class PlaceController:
                 if force_new_only
                 else _("Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене.")
             ),
-            "selected": filters.selected(),
+            "selected": selected,
             "categories": sort_choice_tuples(Place.CATEGORY_CHOICES),
             "district_options": sort_translated_values(content_settings.districts()),
             "metro_options": sort_translated_values(content_settings.metro_stations()),
@@ -95,6 +96,11 @@ class PlaceController:
             "catalog_map_places": map_places,
             "catalog_map_places_count": len(map_places),
             "catalog_map_missing_count": max(page_obj.paginator.count - len(map_places), 0) if not force_new_only else 0,
+            "analytics_events": self._build_list_analytics_events(
+                selected=selected,
+                results_total=page_obj.paginator.count,
+                force_new_only=force_new_only,
+            ),
         }
 
         self.tracking_service.track_catalog_funnel_events(
@@ -119,6 +125,53 @@ class PlaceController:
             context["new_stats"] = build_new_page_stats(stats_qs)
 
         return context
+
+    def _build_list_analytics_events(self, *, selected: dict, results_total: int, force_new_only: bool) -> list[dict]:
+        page_type = "catalog_new" if force_new_only else "catalog"
+        events: list[dict] = []
+        query = (selected.get("q") or "").strip()
+        active_filters: list[str] = []
+
+        for name in ("category", "district", "metro", "min_rating", "with_photo", "verified"):
+            value = selected.get(name)
+            if value not in (None, "", "0"):
+                active_filters.append(name)
+
+        for name in ("age_from", "age_to", "price_from", "price_to"):
+            value = str(selected.get(name) or "").strip()
+            if value:
+                active_filters.append(name)
+
+        if force_new_only and str(selected.get("days") or "30").strip() != "30":
+            active_filters.append("days")
+
+        if query:
+            events.append(
+                {
+                    "name": "catalog_search",
+                    "params": {
+                        "page_type": page_type,
+                        "query_len": len(query),
+                        "results_total": int(results_total),
+                    },
+                }
+            )
+
+        if active_filters:
+            unique_filters = sorted(set(active_filters))
+            events.append(
+                {
+                    "name": "catalog_filter",
+                    "params": {
+                        "page_type": page_type,
+                        "filter_count": len(unique_filters),
+                        "filter_names": ",".join(unique_filters),
+                        "results_total": int(results_total),
+                    },
+                }
+            )
+
+        return events
 
     def _serialize_map_places(self, qs, *, language_code: str) -> list[dict]:
         serialized = []
@@ -169,4 +222,17 @@ class PlaceController:
             "reviews_count": len(place_reviews),
             "review_sort": review_sort,
             "review_sort_choices": REVIEW_SORT_CHOICES,
+            "analytics_events": [
+                {
+                    "name": "place_open",
+                    "params": {
+                        "page_type": "place_detail",
+                        "place_id": place.id,
+                        "place_category": place.category,
+                        "has_phone": bool(place.phone1),
+                        "has_instagram": bool(place.instagram),
+                        "has_coordinates": bool(place.has_coordinates),
+                    },
+                }
+            ],
         }

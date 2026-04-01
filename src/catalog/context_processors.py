@@ -144,6 +144,8 @@ def site_settings(request):
             "footer_instagram_url": DEFAULT_FOOTER_INSTAGRAM_URL,
             "footer_whatsapp_url": "",
             "footer_social_links": _build_social_links(cfg=None),
+            "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
+            "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
             **user_role_data,
         }
 
@@ -179,5 +181,7 @@ def site_settings(request):
         "footer_instagram_url": footer_instagram_url,
         "footer_whatsapp_url": (cfg.footer_whatsapp or "").strip(),
         "footer_social_links": _build_social_links(cfg=cfg),
+        "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
+        "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
         **user_role_data,
     }

@@ -213,6 +213,14 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "static/js/home_map.js")
         self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
 
+    @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_home_page_includes_google_analytics_tag_when_configured(self):
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "https://www.googletagmanager.com/gtag/js?id=G-TEST123")
+        self.assertContains(response, 'gtag("config", "G\\u002DTEST123")')
+
     def test_home_map_popup_uses_main_photo_preview(self):
         place = Place.objects.create(
             name="Home Map Place",
@@ -749,6 +757,36 @@ class TestTrackingController(TestCase):
         self.assertEqual(event.place_id, self.place.id)
         self.assertEqual(event.path, "/ru/catalog/")
         self.assertEqual(event.event_meta.get("source"), "catalog-list")
+
+
+class TestGoogleAnalyticsEvents(TestCase):
+    @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_catalog_page_renders_google_analytics_search_and_filter_events(self):
+        response = self.client.get("/ru/catalog/?q=robot&min_rating=4")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "kidsmap-analytics-events")
+        self.assertContains(response, '"name": "catalog_search"')
+        self.assertContains(response, '"name": "catalog_filter"')
+
+    @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_place_detail_renders_google_analytics_place_open_event(self):
+        place = Place.objects.create(
+            name="Analytics Place",
+            name_ru="Карточка для аналитики",
+            category="EDU",
+            is_active=True,
+            phone1="+994501112233",
+            lat=40.4093,
+            lng=49.8671,
+        )
+
+        response = self.client.get(place.get_absolute_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "kidsmap-analytics-events")
+        self.assertContains(response, '"name": "place_open"')
+        self.assertContains(response, '"place_id": %s' % place.id)
 
 
 class TestSiteVisitMiddleware(TestCase):

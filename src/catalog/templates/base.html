@@ -23,6 +23,15 @@
     {% block twitter_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.png' %}" />{% endblock %}
     <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}" />
     <link rel="apple-touch-icon" href="{% static 'img/logo.png' %}" />
+    {% if google_analytics_enabled %}
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_measurement_id|urlencode }}"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag("js", new Date());
+        gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
+      </script>
+    {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
@@ -392,11 +401,22 @@
         })();
 
         (function () {
+          function sendGoogleAnalyticsEvent(name, params) {
+            if (!name || typeof window.gtag !== "function") return;
+            window.gtag("event", name, params || {});
+          }
+
+          window.kidsMapTrackGoogleAnalyticsEvent = sendGoogleAnalyticsEvent;
+
           const trackUrl = "{% url 'track_event' %}";
-          if (!trackUrl) return;
 
           function send(payload) {
             if (!payload || !payload.event_type) return;
+            sendGoogleAnalyticsEvent(payload.event_type, {
+              page_type: payload.source || "",
+              place_id: payload.place_id || undefined,
+            });
+            if (!trackUrl) return;
             try {
               if (navigator.sendBeacon) {
                 const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
@@ -432,6 +452,27 @@
 
       })();
     </script>
+    {% if analytics_events %}
+      {{ analytics_events|json_script:"kidsmap-analytics-events" }}
+      <script>
+        (function () {
+          const payload = document.getElementById("kidsmap-analytics-events");
+          if (!payload || typeof window.kidsMapTrackGoogleAnalyticsEvent !== "function") return;
+
+          let events = [];
+          try {
+            events = JSON.parse(payload.textContent || "[]");
+          } catch (err) {
+            events = [];
+          }
+
+          events.forEach(function (eventItem) {
+            if (!eventItem || !eventItem.name) return;
+            window.kidsMapTrackGoogleAnalyticsEvent(eventItem.name, eventItem.params || {});
+          });
+        })();
+      </script>
+    {% endif %}
     {% block extra_body %}{% endblock %}
   </body>
 </html>
