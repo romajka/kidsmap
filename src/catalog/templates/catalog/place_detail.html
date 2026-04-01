@@ -20,46 +20,72 @@
       {% with gallery=place.gallery_files %}
         {% if gallery %}
           <div class="gallery" data-gallery>
-            <div class="gallery-stage" data-gallery-stage tabindex="0" aria-label="{% trans 'Галерея фотографий' %}">
-              <div class="gallery-track" data-gallery-track>
-                {% for file in gallery %}
-                  <figure
-                    class="gallery-slide {% if forloop.first %}is-active{% endif %}"
-                    data-gallery-slide
-                    aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
-                  >
-                    <img class="detail-photo gallery-main" src="{{ file.url }}" alt="{{ place.name_i18n }}" draggable="false" />
-                  </figure>
-                {% endfor %}
+            <div class="gallery-shell">
+              <div class="gallery-viewport-wrap">
+                <div
+                  class="gallery-viewport"
+                  data-gallery-viewport
+                  tabindex="0"
+                  role="group"
+                  aria-roledescription="{% trans 'carousel' %}"
+                  aria-label="{% trans 'Галерея фотографий' %}"
+                >
+                  <div class="gallery-track" data-gallery-track>
+                    {% for file in gallery %}
+                      <figure
+                        class="gallery-slide {% if forloop.first %}is-active{% endif %}"
+                        data-gallery-slide
+                        data-index="{{ forloop.counter0 }}"
+                        aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+                      >
+                        <img
+                          class="detail-photo gallery-image"
+                          src="{{ file.url }}"
+                          alt="{{ place.name_i18n }}"
+                          draggable="false"
+                          {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                        />
+                      </figure>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                {% if gallery|length > 1 %}
+                  <button type="button" class="gallery-nav prev" data-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
+                    <span aria-hidden="true">‹</span>
+                  </button>
+                  <button type="button" class="gallery-nav next" data-gallery-next aria-label="{% trans 'Следующее фото' %}">
+                    <span aria-hidden="true">›</span>
+                  </button>
+                  <div class="gallery-toolbar">
+                    <div class="gallery-status" data-gallery-status aria-live="polite">
+                      <span data-gallery-current>1</span>
+                      <span aria-hidden="true">/</span>
+                      <span>{{ gallery|length }}</span>
+                    </div>
+                    <p class="gallery-swipe-hint" data-gallery-hint>{% trans "Листайте фото свайпом, стрелками или миниатюрами" %}</p>
+                  </div>
+                {% endif %}
               </div>
 
               {% if gallery|length > 1 %}
-                <button type="button" class="gallery-nav prev" data-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">‹</button>
-                <button type="button" class="gallery-nav next" data-gallery-next aria-label="{% trans 'Следующее фото' %}">›</button>
-                <div class="gallery-status" data-gallery-status>
-                  <span data-gallery-current>1</span>
-                  <span aria-hidden="true">/</span>
-                  <span>{{ gallery|length }}</span>
+                <div class="gallery-thumbs" data-gallery-thumbs role="tablist" aria-label="{% trans 'Миниатюры галереи' %}">
+                  {% for file in gallery %}
+                    <button
+                      type="button"
+                      class="gallery-thumb {% if forloop.first %}active{% endif %}"
+                      data-gallery-thumb
+                      data-index="{{ forloop.counter0 }}"
+                      role="tab"
+                      aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                      aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
+                    >
+                      <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" draggable="false" />
+                    </button>
+                  {% endfor %}
                 </div>
-                <p class="gallery-swipe-hint" data-gallery-hint>{% trans "Свайпайте фото" %}</p>
               {% endif %}
             </div>
-
-            {% if gallery|length > 1 %}
-              <div class="gallery-thumbs" data-gallery-thumbs>
-                {% for file in gallery %}
-                  <button
-                    type="button"
-                    class="gallery-thumb {% if forloop.first %}active{% endif %}"
-                    data-gallery-thumb
-                    data-index="{{ forloop.counter0 }}"
-                    aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
-                  >
-                    <img src="{{ file.url }}" alt="{{ place.name_i18n }}" draggable="false" />
-                  </button>
-                {% endfor %}
-              </div>
-            {% endif %}
           </div>
         {% else %}
           <div class="detail-photo-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
@@ -74,7 +100,7 @@
       <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-        <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}">
+        <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
           ♥ <span class="like-count">{{ place.likes_count }}</span>
         </button>
       </form>
@@ -161,11 +187,6 @@
               <p class="meta">
                 {% trans "Ваша заявка уже на модерации." %}
                 {% trans "Статус" %}: {{ latest_ownership_request.get_status_display }}.
-              </p>
-            {% elif can_claim_reason == "not_owner_role" %}
-              <p class="meta">
-                {% trans "Отправлять такие заявки могут только аккаунты со статусом владельца." %}
-                <a href="{% url 'owner_cabinet' %}">{% trans "Открыть кабинет" %}</a>
               </p>
             {% endif %}
           {% endif %}

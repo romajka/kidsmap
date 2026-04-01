@@ -1,6 +1,15 @@
 (function () {
+  const DRAG_START_THRESHOLD = 6;
+  const SWIPE_THRESHOLD_MIN = 56;
+  const SWIPE_THRESHOLD_RATIO = 0.14;
+
+  function normalizeIndex(nextIndex, length) {
+    return ((nextIndex % length) + length) % length;
+  }
+
   function mountGallery(gallery) {
-    const stage = gallery.querySelector("[data-gallery-stage]");
+    const viewport = gallery.querySelector("[data-gallery-viewport]");
+    const track = gallery.querySelector("[data-gallery-track]");
     const slides = Array.from(gallery.querySelectorAll("[data-gallery-slide]"));
     const thumbs = Array.from(gallery.querySelectorAll("[data-gallery-thumb]"));
     const prevBtn = gallery.querySelector("[data-gallery-prev]");
@@ -8,7 +17,7 @@
     const currentEl = gallery.querySelector("[data-gallery-current]");
     const hint = gallery.querySelector("[data-gallery-hint]");
 
-    if (!stage || !slides.length) return;
+    if (!viewport || !track || !slides.length) return;
 
     let index = Math.max(
       0,
@@ -16,9 +25,13 @@
         return slide.classList.contains("is-active");
       })
     );
-    let scrollTimer = null;
     let dragState = null;
+    let suppressClick = false;
     let hintHidden = false;
+
+    function getViewportWidth() {
+      return Math.max(viewport.clientWidth, 1);
+    }
 
     function hideHint() {
       if (!hint || hintHidden) return;
@@ -26,19 +39,24 @@
       hint.classList.add("is-hidden");
     }
 
-    function updateUi(nextIndex) {
-      index = nextIndex;
+    function updateUi() {
       slides.forEach(function (slide, slideIndex) {
         const isActive = slideIndex === index;
         slide.classList.toggle("is-active", isActive);
         slide.setAttribute("aria-hidden", isActive ? "false" : "true");
       });
+
       thumbs.forEach(function (thumb, thumbIndex) {
-        thumb.classList.toggle("active", thumbIndex === index);
+        const isActive = thumbIndex === index;
+        thumb.classList.toggle("active", isActive);
+        thumb.setAttribute("aria-selected", isActive ? "true" : "false");
+        thumb.tabIndex = isActive ? 0 : -1;
       });
+
       if (currentEl) {
         currentEl.textContent = String(index + 1);
       }
+
       const activeThumb = thumbs[index];
       if (activeThumb) {
         activeThumb.scrollIntoView({
@@ -49,147 +67,164 @@
       }
     }
 
-    function scrollToIndex(nextIndex, behavior) {
-      const normalizedIndex = (nextIndex + slides.length) % slides.length;
-      const targetSlide = slides[normalizedIndex];
-      if (!targetSlide) return;
-
-      stage.scrollTo({
-        left: targetSlide.offsetLeft,
-        behavior: behavior || "smooth",
-      });
-      updateUi(normalizedIndex);
+    function setTrackPosition(offsetX, animate) {
+      track.style.transition = animate ? "" : "none";
+      track.style.transform = "translate3d(" + offsetX + "px, 0, 0)";
     }
 
-    function nearestIndex() {
-      const currentScroll = stage.scrollLeft;
-      let bestIndex = index;
-      let bestDistance = Number.POSITIVE_INFINITY;
-
-      slides.forEach(function (slide, slideIndex) {
-        const distance = Math.abs(slide.offsetLeft - currentScroll);
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          bestIndex = slideIndex;
-        }
-      });
-
-      return bestIndex;
+    function goTo(nextIndex, options) {
+      const config = options || {};
+      index = normalizeIndex(nextIndex, slides.length);
+      const offsetX = -index * getViewportWidth();
+      gallery.classList.toggle("is-settling", config.animate !== false);
+      track.classList.remove("is-dragging");
+      setTrackPosition(offsetX, config.animate !== false);
+      updateUi();
     }
 
-    function snapToNearest(behavior) {
-      scrollToIndex(nearestIndex(), behavior || "smooth");
+    function goRelative(step) {
+      hideHint();
+      goTo(index + step, { animate: true });
+    }
+
+    function handlePointerDown(event) {
+      if (slides.length < 2) return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+
+      hideHint();
+      dragState = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        deltaX: 0,
+        moved: false,
+        width: getViewportWidth(),
+      };
+
+      gallery.classList.add("is-dragging");
+      track.classList.add("is-dragging");
+      setTrackPosition(-index * dragState.width, false);
+
+      if (viewport.setPointerCapture) {
+        viewport.setPointerCapture(event.pointerId);
+      }
+    }
+
+    function handlePointerMove(event) {
+      if (!dragState || event.pointerId !== dragState.pointerId) return;
+
+      dragState.deltaX = event.clientX - dragState.startX;
+      if (!dragState.moved && Math.abs(dragState.deltaX) > DRAG_START_THRESHOLD) {
+        dragState.moved = true;
+        suppressClick = true;
+      }
+
+      if (!dragState.moved) return;
+
+      event.preventDefault();
+      setTrackPosition(-index * dragState.width + dragState.deltaX, false);
+    }
+
+    function finishPointer(event) {
+      if (!dragState || event.pointerId !== dragState.pointerId) return;
+
+      if (viewport.releasePointerCapture && viewport.hasPointerCapture && viewport.hasPointerCapture(event.pointerId)) {
+        viewport.releasePointerCapture(event.pointerId);
+      }
+
+      const deltaX = dragState.deltaX;
+      const moved = dragState.moved;
+      const threshold = Math.max(SWIPE_THRESHOLD_MIN, dragState.width * SWIPE_THRESHOLD_RATIO);
+      dragState = null;
+
+      gallery.classList.remove("is-dragging");
+
+      if (moved && Math.abs(deltaX) >= threshold) {
+        goTo(index + (deltaX < 0 ? 1 : -1), { animate: true });
+      } else {
+        goTo(index, { animate: true });
+      }
+
+      window.setTimeout(function () {
+        suppressClick = false;
+      }, 0);
+    }
+
+    function handleKeydown(event) {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goRelative(-1);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        goRelative(1);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        hideHint();
+        goTo(0, { animate: true });
+      } else if (event.key === "End") {
+        event.preventDefault();
+        hideHint();
+        goTo(slides.length - 1, { animate: true });
+      }
     }
 
     thumbs.forEach(function (thumb) {
       thumb.addEventListener("click", function () {
         hideHint();
-        scrollToIndex(Number(thumb.dataset.index || 0), "smooth");
+        goTo(Number(thumb.dataset.index || 0), { animate: true });
       });
     });
 
     if (prevBtn) {
       prevBtn.addEventListener("click", function () {
-        hideHint();
-        scrollToIndex(index - 1, "smooth");
+        goRelative(-1);
       });
     }
 
     if (nextBtn) {
       nextBtn.addEventListener("click", function () {
-        hideHint();
-        scrollToIndex(index + 1, "smooth");
+        goRelative(1);
       });
     }
 
-    stage.addEventListener(
-      "scroll",
-      function () {
-        hideHint();
-        window.clearTimeout(scrollTimer);
-        scrollTimer = window.setTimeout(function () {
-          updateUi(nearestIndex());
-        }, 70);
-      },
-      { passive: true }
-    );
-
-    stage.addEventListener(
-      "touchstart",
-      function () {
-        hideHint();
-      },
-      { passive: true }
-    );
-
-    stage.addEventListener("keydown", function (event) {
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        hideHint();
-        scrollToIndex(index - 1, "smooth");
-      }
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        hideHint();
-        scrollToIndex(index + 1, "smooth");
-      }
-    });
-
-    stage.addEventListener("dragstart", function (event) {
+    viewport.addEventListener("pointerdown", handlePointerDown);
+    viewport.addEventListener("pointermove", handlePointerMove);
+    viewport.addEventListener("pointerup", finishPointer);
+    viewport.addEventListener("pointercancel", finishPointer);
+    viewport.addEventListener("keydown", handleKeydown);
+    viewport.addEventListener("dragstart", function (event) {
       event.preventDefault();
     });
+    viewport.addEventListener(
+      "click",
+      function (event) {
+        if (!suppressClick) return;
+        event.preventDefault();
+        event.stopPropagation();
+      },
+      true
+    );
 
-    stage.addEventListener("pointerdown", function (event) {
-      if (slides.length < 2 || event.pointerType === "touch") return;
-      hideHint();
-
-      dragState = {
-        pointerId: event.pointerId,
-        startX: event.clientX,
-        startScrollLeft: stage.scrollLeft,
-        moved: false,
-      };
-
-      stage.classList.add("is-dragging");
-      if (stage.setPointerCapture) {
-        stage.setPointerCapture(event.pointerId);
-      }
-    });
-
-    stage.addEventListener("pointermove", function (event) {
-      if (!dragState || event.pointerId !== dragState.pointerId) return;
-
-      const deltaX = event.clientX - dragState.startX;
-      if (Math.abs(deltaX) > 4) {
-        dragState.moved = true;
-      }
-      stage.scrollLeft = dragState.startScrollLeft - deltaX;
-    });
-
-    function finishPointer(event) {
-      if (!dragState || event.pointerId !== dragState.pointerId) return;
-
-      if (stage.releasePointerCapture && stage.hasPointerCapture && stage.hasPointerCapture(event.pointerId)) {
-        stage.releasePointerCapture(event.pointerId);
-      }
-      stage.classList.remove("is-dragging");
-
-      const moved = dragState.moved;
-      dragState = null;
-      if (moved) {
-        snapToNearest("smooth");
-      }
+    if (typeof ResizeObserver !== "undefined") {
+      const resizeObserver = new ResizeObserver(function () {
+        goTo(index, { animate: false });
+      });
+      resizeObserver.observe(viewport);
+    } else {
+      window.addEventListener(
+        "resize",
+        function () {
+          goTo(index, { animate: false });
+        },
+        { passive: true }
+      );
     }
 
-    stage.addEventListener("pointerup", finishPointer);
-    stage.addEventListener("pointercancel", finishPointer);
-    stage.addEventListener("mouseleave", function () {
-      if (!dragState) return;
-      stage.classList.remove("is-dragging");
+    track.addEventListener("transitionend", function () {
+      gallery.classList.remove("is-settling");
     });
 
-    updateUi(index);
-    scrollToIndex(index, "auto");
+    updateUi();
+    goTo(index, { animate: false });
   }
 
   document.querySelectorAll("[data-gallery]").forEach(mountGallery);

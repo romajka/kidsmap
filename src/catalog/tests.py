@@ -102,6 +102,67 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "icon-facebook")
         self.assertContains(response, "icon-linkedin")
 
+    def test_about_page_shows_extended_project_description(self):
+        response = self.client.get("/about/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Что такое KidsMap")
+        self.assertContains(response, "Как это работает")
+        self.assertContains(response, "Что получает родитель")
+        self.assertContains(response, "Что получает владелец кружка")
+
+    def test_en_login_page_uses_english_auth_labels(self):
+        response = self.client.get("/en/auth/login/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sign in to your account")
+        self.assertContains(response, "Username or email")
+        self.assertContains(response, "Remember me")
+        self.assertContains(response, "Forgot password?")
+        self.assertNotContains(response, "Логин или email")
+        self.assertNotContains(response, "Запомнить меня")
+        self.assertNotContains(response, "Забыли пароль?")
+
+    def test_en_password_reset_page_uses_english_text(self):
+        response = self.client.get("/en/auth/password-reset/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Password reset")
+        self.assertContains(response, "Send reset link")
+        self.assertContains(response, "Back to sign in")
+        self.assertNotContains(response, "Восстановление пароля")
+        self.assertNotContains(response, "Отправить ссылку")
+        self.assertNotContains(response, "Вернуться ко входу")
+
+    def test_en_register_page_uses_english_helper_text(self):
+        response = self.client.get("/en/auth/register/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Create your KidsMap account.")
+        self.assertContains(response, "Register")
+        self.assertNotContains(response, "Выберите статус аккаунта")
+        self.assertNotContains(response, "Кто вы?")
+
+    def test_register_page_hides_role_selector(self):
+        response = self.client.get("/ru/auth/register/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Кто вы?")
+
+    def test_en_home_page_translates_leisure_category(self):
+        response = self.client.get("/en/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Leisure")
+        self.assertNotContains(response, "Досуг")
+
+    def test_en_header_uses_translated_language_names(self):
+        response = self.client.get("/en/auth/login/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Azerbaijani")
+        self.assertNotContains(response, "Азербайджанский")
+
     @override_settings(ADMIN_HOST="admin.kidsmap.az")
     def test_admin_page_redirects_to_admin_host_when_configured(self):
         response = self.client.get(
@@ -729,7 +790,6 @@ class TestAccountsAndReviewAccess(TestCase):
                     "email": "owner@example.com",
                     "phone": "+994 50 123 45 67",
                     "gender": UserProfile.GENDER_MALE,
-                    "role": UserProfile.ROLE_OWNER,
                     "password1": "StrongPass123!!",
                     "password2": "StrongPass123!!",
                 },
@@ -740,7 +800,7 @@ class TestAccountsAndReviewAccess(TestCase):
         user = User.objects.get(username="owner_user")
         self.assertFalse(user.is_active)
         self.assertNotIn("_auth_user_id", self.client.session)
-        self.assertEqual(user.profile.role, UserProfile.ROLE_OWNER)
+        self.assertEqual(user.profile.role, UserProfile.ROLE_USER)
         self.assertEqual(user.profile.phone, "+994 50 123 45 67")
         self.assertEqual(user.profile.gender, UserProfile.GENDER_MALE)
         self.assertEqual(user.first_name, "Рамин")
@@ -961,9 +1021,10 @@ class TestCatalogEnhancements(TestCase):
         response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "data-gallery-stage")
+        self.assertContains(response, "data-gallery-viewport")
         self.assertContains(response, "data-gallery-track")
-        self.assertContains(response, "gallery-swipe-hint")
+        self.assertContains(response, "data-gallery-thumb")
+        self.assertContains(response, "gallery-toolbar")
         self.assertContains(response, "static/js/place_gallery.js")
 
     def test_catalog_card_renders_more_details_block(self):
@@ -984,6 +1045,58 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "place-more-details")
         self.assertContains(response, "Другое")
         self.assertContains(response, "Есть пробное занятие")
+
+    def test_catalog_map_uses_only_filtered_map_ready_places(self):
+        matching_place = Place.objects.create(
+            name="Map Match",
+            name_ru="Точка на карте",
+            category="EDU",
+            is_active=True,
+            district="Ясамал",
+            metro="Низами",
+            lat=40.3771,
+            lng=49.8412,
+        )
+        Place.objects.create(
+            name="Map Other District",
+            name_ru="Чужой район",
+            category="EDU",
+            is_active=True,
+            district="Нариманов",
+            lat=40.4001,
+            lng=49.8532,
+        )
+        Place.objects.create(
+            name="Map Missing Coordinates",
+            name_ru="Без координат",
+            category="EDU",
+            is_active=True,
+            district="Ясамал",
+            lat=None,
+            lng=None,
+        )
+
+        response = self.client.get(reverse("place_list"), {"district": "Ясамал"}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-catalog-map-open")
+        self.assertContains(response, "catalog-map-data")
+        self.assertEqual(response.context["catalog_map_places_count"], 1)
+        self.assertEqual(response.context["catalog_map_missing_count"], 1)
+        self.assertEqual(
+            response.context["catalog_map_places"],
+            [
+                {
+                    "name": matching_place.name_i18n("ru"),
+                    "lat": matching_place.lat,
+                    "lng": matching_place.lng,
+                    "url": matching_place.get_absolute_url(),
+                    "category": matching_place.get_category_display(),
+                    "image_url": "",
+                    "location": "Ясамал / Низами",
+                }
+            ],
+        )
 
 
 class TestReviewEnhancements(TestCase):
@@ -1024,6 +1137,7 @@ class TestReviewEnhancements(TestCase):
 
     def test_place_review_reactions_update_counters(self):
         review = PlaceReview.objects.create(place=self.place, rating=5, text="Хорошо", author_name="User")
+        self.client.login(username="review_user", password="StrongPass123!!")
 
         response = self.client.post(
             reverse("vote_place_review", args=[review.id]),
@@ -1046,6 +1160,39 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(review.likes_count, 0)
         self.assertEqual(review.dislikes_count, 1)
 
+    def test_place_review_reaction_ajax_updates_without_reload(self):
+        review = PlaceReview.objects.create(place=self.place, rating=5, text="Отлично", author_name="User")
+        self.client.login(username="review_user", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("vote_place_review", args=[review.id]),
+            data={"value": "1", "next": f"{self.place.get_absolute_url()}#reviews"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = json.loads(response.content)
+        self.assertEqual(payload["current_reaction"], 1)
+        self.assertEqual(payload["likes_count"], 1)
+        self.assertEqual(payload["dislikes_count"], 0)
+        self.assertEqual(PlaceReviewReaction.objects.filter(review=review, user=self.user).count(), 1)
+
+    def test_place_review_reaction_requires_login_for_guest_ajax(self):
+        review = PlaceReview.objects.create(place=self.place, rating=5, text="Отлично", author_name="User")
+
+        response = self.client.post(
+            reverse("vote_place_review", args=[review.id]),
+            data={"value": "1", "next": f"{self.place.get_absolute_url()}#reviews"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 401)
+        payload = json.loads(response.content)
+        self.assertFalse(payload["ok"])
+        self.assertTrue(payload["auth_required"])
+        self.assertIn(reverse("account_login"), payload["redirect_url"])
+        self.assertEqual(PlaceReviewReaction.objects.filter(review=review).count(), 0)
+
     def test_site_reviews_page_can_sort_reviews_by_likes(self):
         SiteReview.objects.create(author_name="Low", rating=4, text="Нормально", likes_count=1, dislikes_count=0)
         SiteReview.objects.create(author_name="High", rating=5, text="Отлично", likes_count=7, dislikes_count=0)
@@ -1058,6 +1205,7 @@ class TestReviewEnhancements(TestCase):
 
     def test_site_review_reactions_update_counters(self):
         review = SiteReview.objects.create(author_name="Site User", rating=5, text="Люблю этот сайт")
+        self.client.login(username="review_user", password="StrongPass123!!")
 
         response = self.client.post(
             reverse("vote_site_review", args=[review.id]),
@@ -1071,6 +1219,76 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(review.dislikes_count, 0)
         self.assertTrue(SiteReviewReaction.objects.filter(review=review, value=1).exists())
 
+    def test_place_like_requires_login_and_redirects_guest(self):
+        response = self.client.post(
+            reverse("toggle_place_like", args=[self.place.id]),
+            data={"next": self.place.get_absolute_url()},
+            follow=False,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        location = response["Location"]
+        self.assertIn(reverse("account_login"), location)
+        self.assertEqual(parse_qs(urlparse(location).query).get("next"), [self.place.get_absolute_url()])
+        self.assertEqual(PlaceLike.objects.filter(place=self.place).count(), 0)
+
+    def test_place_like_requires_login_for_guest_ajax(self):
+        response = self.client.post(
+            reverse("toggle_place_like", args=[self.place.id]),
+            data={"next": self.place.get_absolute_url()},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 401)
+        payload = json.loads(response.content)
+        self.assertFalse(payload["ok"])
+        self.assertTrue(payload["auth_required"])
+        self.assertIn(reverse("account_login"), payload["redirect_url"])
+        self.assertEqual(PlaceLike.objects.filter(place=self.place).count(), 0)
+
+    def test_place_like_ajax_updates_without_reload_for_authenticated_user(self):
+        self.client.login(username="review_user", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("toggle_place_like", args=[self.place.id]),
+            data={"next": self.place.get_absolute_url()},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = json.loads(response.content)
+        self.assertTrue(payload["ok"])
+        self.assertTrue(payload["liked"])
+        self.assertEqual(payload["likes_count"], 1)
+        self.assertEqual(PlaceLike.objects.filter(place=self.place, user=self.user).count(), 1)
+
+        response = self.client.post(
+            reverse("toggle_place_like", args=[self.place.id]),
+            data={"next": self.place.get_absolute_url()},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        payload = json.loads(response.content)
+        self.assertFalse(payload["liked"])
+        self.assertEqual(payload["likes_count"], 0)
+
+    def test_add_place_review_requires_login_and_redirects_guest(self):
+        response = self.client.post(
+            reverse("add_place_review", args=[self.place.id]),
+            data={
+                "rating": "5",
+                "text": "Хороший кружок",
+                "author_name": "Guest",
+                "next": f"{self.place.get_absolute_url()}#reviews",
+            },
+            follow=False,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        location = response["Location"]
+        self.assertIn(reverse("account_login"), location)
+        self.assertEqual(parse_qs(urlparse(location).query).get("next"), [f"{self.place.get_absolute_url()}#reviews"])
+        self.assertEqual(PlaceReview.objects.filter(place=self.place).count(), 0)
+
 
 class TestAuthValidationAndNextSecurity(TestCase):
     def _registration_payload(self, **overrides):
@@ -1081,7 +1299,6 @@ class TestAuthValidationAndNextSecurity(TestCase):
             "email": "new@example.com",
             "phone": "+994 50 111 22 33",
             "gender": UserProfile.GENDER_MALE,
-            "role": UserProfile.ROLE_USER,
             "password1": "StrongPass123!!",
             "password2": "StrongPass123!!",
         }
@@ -1158,18 +1375,18 @@ class TestAuthValidationAndNextSecurity(TestCase):
         self.assertFalse(User.objects.filter(email="new-existing@example.com").exists())
         self.assertIn("username", response.context["form"].errors)
 
-    def test_register_rejects_invalid_role_choice(self):
+    def test_register_defaults_to_regular_user_role(self):
         response = self.client.post(
             reverse("account_register"),
             data=self._registration_payload(
-                username="invalid_role_user",
-                email="invalid-role@example.com",
-                role="HACKER",
+                username="default_role_user",
+                email="default-role@example.com",
             ),
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(User.objects.filter(username="invalid_role_user").exists())
-        self.assertIn("role", response.context["form"].errors)
+
+        self.assertEqual(response.status_code, 302)
+        user = User.objects.get(username="default_role_user")
+        self.assertEqual(user.profile.role, UserProfile.ROLE_USER)
 
     def test_register_rejects_external_next_redirect(self):
         response = self.client.post(
@@ -1605,7 +1822,7 @@ class TestOwnershipWorkflow(TestCase):
         self.assertNotContains(response, "Создать заявку на управление карточкой")
         self.assertNotContains(response, "Мои кружки")
 
-    def test_regular_user_cannot_submit_place_ownership_request(self):
+    def test_regular_user_can_submit_place_ownership_request(self):
         self.client.login(username="regular_role_user", password="StrongPass123!!")
         response = self.client.post(
             reverse("request_place_ownership", args=[self.place.id]),
@@ -1614,12 +1831,15 @@ class TestOwnershipWorkflow(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(PlaceOwnershipRequest.objects.count(), 0)
+        self.assertEqual(PlaceOwnershipRequest.objects.count(), 1)
+        ownership_request = PlaceOwnershipRequest.objects.first()
+        self.assertEqual(ownership_request.applicant, self.regular_user)
+        self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
 
     def test_approve_request_assigns_place_owner_and_writes_audit(self):
         ownership_request = PlaceOwnershipRequest.objects.create(
             place=self.place,
-            applicant=self.owner_user,
+            applicant=self.regular_user,
             note="Подтверждаю права на кружок",
         )
 
@@ -1633,7 +1853,9 @@ class TestOwnershipWorkflow(TestCase):
 
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_APPROVED)
         self.assertEqual(ownership_request.moderated_by, self.moderator)
-        self.assertEqual(self.place.owner, self.owner_user)
+        self.assertEqual(self.place.owner, self.regular_user)
+        self.regular_user.profile.refresh_from_db()
+        self.assertEqual(self.regular_user.profile.role, UserProfile.ROLE_OWNER)
         self.assertEqual(PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).count(), 2)
         latest_audit = PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).first()
         self.assertEqual(latest_audit.action, PlaceOwnershipRequestAudit.ACTION_APPROVED)
@@ -1931,6 +2153,51 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Нужны координаты")
         self.assertContains(response, "Готово для карты")
         self.assertContains(response, "С координатами")
+
+    def test_owner_manager_can_soft_delete_own_place(self):
+        self.manager_place.is_active = True
+        self.manager_place.save(update_fields=["is_active", "updated_at"])
+
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_delete", args=[self.manager_place.id]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Карточка удалена")
+        self.manager_place.refresh_from_db()
+        self.assertIsNotNone(self.manager_place.deleted_at)
+        self.assertEqual(self.manager_place.deleted_by, self.manager_user)
+        self.assertFalse(self.manager_place.is_active)
+        self.assertTrue(
+            PlaceChangeAudit.objects.filter(
+                place=self.manager_place,
+                changed_by=self.manager_user,
+                source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
+                field_name="deleted_at",
+            ).exists()
+        )
+
+        dashboard_response = self.client.get(reverse("owner_places_dashboard"))
+        self.assertEqual(dashboard_response.status_code, 200)
+        self.assertNotContains(dashboard_response, "Кружок менеджера")
+
+        public_response = self.client.get(reverse("place_detail_legacy", args=[self.manager_place.id]))
+        self.assertEqual(public_response.status_code, 404)
+
+    def test_owner_cannot_delete_place_of_another_owner(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_delete", args=[self.editor_place.id]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Карточка не найдена или не привязана к вашему аккаунту.")
+        self.editor_place.refresh_from_db()
+        self.assertIsNone(self.editor_place.deleted_at)
+        self.assertIsNone(self.editor_place.deleted_by)
 
     def test_owner_moderator_cannot_edit_place(self):
         self.client.login(username="owner_moderator", password="StrongPass123!!")
