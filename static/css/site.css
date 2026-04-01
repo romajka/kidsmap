@@ -6846,14 +6846,20 @@ main {
 }
 
 .lang-menu .menu-dropdown {
-  min-width: 104px;
+  min-width: auto;
+  grid-template-columns: repeat(3, 44px);
+  justify-content: center;
 }
 
 .lang-menu .lang-pill {
-  text-align: left;
+  text-align: center;
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 0;
   white-space: nowrap;
+}
+
+.lang-menu .lang-pill-flag {
+  min-width: 44px;
 }
 
 .lang-desktop,
@@ -6966,13 +6972,22 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
   line-height: 0;
+  overflow: hidden;
 }
 
 .lang-flag-icon {
   display: block;
+  flex: 0 0 20px;
   width: 20px;
   height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
   object-fit: contain;
   border-radius: 50%;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4), 0 3px 8px rgba(13, 73, 36, 0.12);
@@ -6982,9 +6997,13 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
   min-width: 48px;
-  padding: 8px 10px;
+  padding: 0;
   line-height: 0;
+  overflow: hidden;
 }
 
 .icon-only-btn {
