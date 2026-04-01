@@ -1993,7 +1993,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.get(reverse("owner_place_create"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
+        self.assertContains(response, "maps.googleapis.com/maps/api/js?key=test-key&libraries=places")
         self.assertContains(response, "kidsMapInitOwnerMapPickers")
         self.assertContains(response, 'data-map-provider="google"', html=False)
         self.assertContains(response, "data-map-search-input")

@@ -32,6 +32,9 @@
           data-map-search-input
           placeholder="{% trans 'Поиск по названию или адресу' %}"
           value="{{ form.address.value|default:'' }}"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
         />
         <button type="button" class="btn-secondary" data-map-search>{% trans "Найти на карте" %}</button>
       </div>

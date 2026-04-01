@@ -82,10 +82,37 @@
   }
 
   function bindGoogleSearch(shared, options) {
-    if (!shared.searchInput || !shared.searchBtn || !options || typeof options.setPoint !== "function") return;
+    if (!shared.searchInput || !options || typeof options.setPoint !== "function") return;
 
     const geocoder = new google.maps.Geocoder();
     const map = options.map;
+
+    function applyResolvedPlace(place, rawQuery) {
+      const geometry = place && place.geometry;
+      const location = geometry && geometry.location;
+      if (!location) {
+        shared.statusEl.textContent = shared.searchErrorLabel;
+        return;
+      }
+
+      options.setPoint(location.lat(), location.lng());
+      if (shared.addressInput && place.formatted_address) {
+        shared.addressInput.value = place.formatted_address;
+      }
+      shared.searchInput.value = place.formatted_address || place.name || rawQuery;
+
+      if (!map) return;
+
+      if (geometry.viewport) {
+        map.fitBounds(geometry.viewport);
+        return;
+      }
+
+      map.setCenter({ lat: location.lat(), lng: location.lng() });
+      if (map.getZoom() < 15) {
+        map.setZoom(15);
+      }
+    }
 
     function search() {
       const rawQuery = (shared.searchInput.value || shared.addressInput?.value || "").trim();
@@ -105,31 +132,49 @@
             return;
           }
 
-          const first = results[0];
-          const location = first.geometry && first.geometry.location;
-          if (!location) {
-            shared.statusEl.textContent = shared.searchErrorLabel;
-            return;
-          }
-
-          options.setPoint(location.lat(), location.lng());
-          if (shared.addressInput && first.formatted_address) {
-            shared.addressInput.value = first.formatted_address;
-          }
-          shared.searchInput.value = first.formatted_address || rawQuery;
-
-          if (map && first.geometry.viewport) {
-            map.fitBounds(first.geometry.viewport);
-          }
+          applyResolvedPlace(results[0], rawQuery);
         }
       );
     }
 
-    shared.searchBtn.addEventListener("click", search);
+    let selectionVersion = 0;
+    const canUsePlacesAutocomplete =
+      google.maps.places &&
+      typeof google.maps.places.Autocomplete === "function";
+
+    if (canUsePlacesAutocomplete) {
+      const autocomplete = new google.maps.places.Autocomplete(shared.searchInput, {
+        componentRestrictions: { country: "az" },
+        fields: ["formatted_address", "geometry", "name"],
+      });
+
+      if (map) {
+        autocomplete.bindTo("bounds", map);
+      }
+
+      autocomplete.addListener("place_changed", function () {
+        selectionVersion += 1;
+        const place = autocomplete.getPlace();
+        if (!place || !place.geometry || !place.geometry.location) {
+          search();
+          return;
+        }
+        applyResolvedPlace(place, (shared.searchInput.value || "").trim());
+      });
+    }
+
+    if (shared.searchBtn) {
+      shared.searchBtn.addEventListener("click", search);
+    }
+
     shared.searchInput.addEventListener("keydown", function (event) {
       if (event.key !== "Enter") return;
       event.preventDefault();
-      search();
+      const versionBeforeEnter = selectionVersion;
+      window.setTimeout(function () {
+        if (selectionVersion !== versionBeforeEnter) return;
+        search();
+      }, 0);
     });
   }
 
