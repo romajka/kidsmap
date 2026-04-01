@@ -127,16 +127,22 @@
             {% get_current_language as CURRENT_LANGUAGE %}
             <details class="lang-menu header-menu">
               <summary class="menu-trigger lang-current lang-trigger-icononly" aria-label="{% trans 'Язык' %}">
-                <span class="lang-flag" aria-hidden="true">{% if CURRENT_LANGUAGE == "ru" %}🇷🇺{% elif CURRENT_LANGUAGE == "az" %}🇦🇿{% else %}🇬🇧{% endif %}</span>
+                <span class="lang-flag" aria-hidden="true">
+                  <img
+                    class="lang-flag-icon"
+                    src="{% if CURRENT_LANGUAGE == 'ru' %}{% static 'img/flags/ru.png' %}{% elif CURRENT_LANGUAGE == 'az' %}{% static 'img/flags/az.png' %}{% else %}{% static 'img/flags/en.png' %}{% endif %}"
+                    alt=""
+                  />
+                </span>
                 <span class="visually-hidden">
                   {% if CURRENT_LANGUAGE == "ru" %}{% trans "Русский" %}{% elif CURRENT_LANGUAGE == "az" %}{% trans "Азербайджанский" %}{% else %}{% trans "Английский" %}{% endif %}
                 </span>
                 <span class="lang-arrow" aria-hidden="true"></span>
               </summary>
               <div class="lang-dropdown menu-dropdown">
-                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru"><span aria-hidden="true">🇷🇺</span><span class="visually-hidden">{% trans "Русский" %}</span></a>
-                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az"><span aria-hidden="true">🇦🇿</span><span class="visually-hidden">{% trans "Азербайджанский" %}</span></a>
-                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en"><span aria-hidden="true">🇬🇧</span><span class="visually-hidden">{% trans "Английский" %}</span></a>
+                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru"><img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" aria-hidden="true" /><span class="visually-hidden">{% trans "Русский" %}</span></a>
+                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az"><img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" aria-hidden="true" /><span class="visually-hidden">{% trans "Азербайджанский" %}</span></a>
+                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en"><img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" aria-hidden="true" /><span class="visually-hidden">{% trans "Английский" %}</span></a>
               </div>
             </details>
           </div>

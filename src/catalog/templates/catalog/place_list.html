@@ -293,10 +293,10 @@
           {% for place in timeline_places %}
             <article class="card {% if selected.view == 'list' %}new-timeline-item{% endif %}">
               <div class="card-media">
-                {% if place.cover_photo %}
-                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-                {% elif place.photo %}
+                {% if place.photo %}
                   <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                {% elif place.cover_photo %}
+                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% else %}
                   <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
                     <span class="image-placeholder-icon" aria-hidden="true">📷</span>
@@ -372,10 +372,10 @@
         <article class="card">
           <div class="card-media">
             <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
-              {% if place.cover_photo %}
-                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-              {% elif place.photo %}
+              {% if place.photo %}
                 <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+              {% elif place.cover_photo %}
+                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% else %}
                 <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
                   <span class="image-placeholder-icon" aria-hidden="true">📷</span>

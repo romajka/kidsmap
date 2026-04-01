@@ -138,8 +138,8 @@ class Place(models.Model):
                     seen.add(name)
                     files.append(file_field)
 
-        add_file(self.cover_photo)
         add_file(self.photo)
+        add_file(self.cover_photo)
         for item in self.gallery.order_by("order", "id"):
             add_file(item.image)
         return files

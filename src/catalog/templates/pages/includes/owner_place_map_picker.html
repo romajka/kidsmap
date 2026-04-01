@@ -10,6 +10,9 @@
   data-empty-label="{% trans 'Точка на карте не выбрана.' %}"
   data-locate-error="{% trans 'Не удалось определить геопозицию. Выберите точку вручную на карте.' %}"
   data-locate-unsupported="{% trans 'Ваш браузер не поддерживает геолокацию. Выберите точку вручную на карте.' %}"
+  data-search-error="{% trans 'Не удалось найти место по этому запросу. Уточните название или адрес.' %}"
+  data-search-empty="{% trans 'Введите название места или адрес для поиска на карте.' %}"
+  data-search-unsupported="{% trans 'Поиск на карте доступен, когда подключен Google Maps API.' %}"
 >
   {{ form.lat }}
   {{ form.lng }}
@@ -22,6 +25,16 @@
       </p>
     </div>
     <div class="owner-map-picker-actions">
+      <div class="owner-map-picker-search">
+        <input
+          type="text"
+          class="field"
+          data-map-search-input
+          placeholder="{% trans 'Поиск по названию или адресу' %}"
+          value="{{ form.address.value|default:'' }}"
+        />
+        <button type="button" class="btn-secondary" data-map-search>{% trans "Найти на карте" %}</button>
+      </div>
       <button type="button" class="btn-secondary" data-map-locate>{% trans "Определить мою геопозицию" %}</button>
       <button type="button" class="btn-secondary" data-map-clear>{% trans "Очистить точку" %}</button>
     </div>

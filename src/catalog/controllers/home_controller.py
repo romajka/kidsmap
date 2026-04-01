@@ -46,6 +46,7 @@ class HomeController:
                 "lng": place.lng,
                 "url": place.get_absolute_url(),
                 "category": place.get_category_display(),
+                "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
             }
             for place in self.place_repository.map_ready_queryset()
         ]

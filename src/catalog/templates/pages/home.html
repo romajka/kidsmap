@@ -212,10 +212,10 @@
           <article class="card">
             <div class="card-media">
               <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
-                {% if place.cover_photo %}
-                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-                {% elif place.photo %}
+                {% if place.photo %}
                   <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                {% elif place.cover_photo %}
+                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% else %}
                   <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
                     <span class="image-placeholder-icon" aria-hidden="true">📷</span>
@@ -390,6 +390,25 @@
             });
           }
 
+          function renderPopupContent(place) {
+            const image = place.image_url
+              ? '<a class="home-map-popup-thumb-link" href="' + escapeHtml(place.url || "") + '">' +
+                '<img class="home-map-popup-thumb" src="' + escapeHtml(place.image_url) + '" alt="' + escapeHtml(place.name || "") + '" loading="lazy" />' +
+                '</a>'
+              : '';
+
+            return (
+              '<div class="home-map-popup">' +
+                image +
+                '<div class="home-map-popup-body">' +
+                  '<strong class="home-map-popup-title">' + escapeHtml(place.name) + '</strong>' +
+                  '<span class="home-map-popup-category">' + escapeHtml(place.category) + '</span>' +
+                  '<a class="home-map-popup-link" href="' + escapeHtml(place.url || "") + '">{% trans "Подробнее" %}</a>' +
+                '</div>' +
+              '</div>'
+            );
+          }
+
           const map = L.map(mapEl, {
             scrollWheelZoom: false,
             zoomControl: true,
@@ -411,11 +430,7 @@
               fillOpacity: 0.9,
             }).addTo(map);
 
-            marker.bindPopup(
-              "<strong>" + escapeHtml(place.name) + "</strong><br>" +
-              escapeHtml(place.category) + "<br>" +
-              '<a href="' + encodeURI(place.url || "") + '">{% trans "Подробнее" %}</a>'
-            );
+            marker.bindPopup(renderPopupContent(place));
             bounds.extend(position);
           });
 

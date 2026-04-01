@@ -11,6 +11,39 @@
     });
   }
 
+  function renderPopupContent(place, detailsLabel) {
+    const image = place.image_url
+      ? '<a class="home-map-popup-thumb-link" href="' +
+        escapeHtml(place.url || "") +
+        '">' +
+        '<img class="home-map-popup-thumb" src="' +
+        escapeHtml(place.image_url) +
+        '" alt="' +
+        escapeHtml(place.name || "") +
+        '" loading="lazy" />' +
+        "</a>"
+      : "";
+
+    return (
+      '<div class="home-map-popup">' +
+      image +
+      '<div class="home-map-popup-body">' +
+      '<strong class="home-map-popup-title">' +
+      escapeHtml(place.name) +
+      "</strong>" +
+      '<span class="home-map-popup-category">' +
+      escapeHtml(place.category) +
+      "</span>" +
+      '<a class="home-map-popup-link" href="' +
+      escapeHtml(place.url || "") +
+      '">' +
+      escapeHtml(detailsLabel) +
+      "</a>" +
+      "</div>" +
+      "</div>"
+    );
+  }
+
   function renderFallback() {
     const mapEl = document.getElementById("home-map");
     if (!mapEl) return;
@@ -74,18 +107,7 @@
       });
 
       marker.addListener("click", function () {
-        infoWindow.setContent(
-          "<strong>" +
-            escapeHtml(place.name) +
-            "</strong><br>" +
-            escapeHtml(place.category) +
-            "<br>" +
-            '<a href="' +
-            encodeURI(place.url || "") +
-            '">' +
-            escapeHtml(detailsLabel) +
-            "</a>"
-        );
+        infoWindow.setContent(renderPopupContent(place, detailsLabel));
         infoWindow.open({
           anchor: marker,
           map: map,

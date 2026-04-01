@@ -17,6 +17,10 @@
     const statusEl = root.querySelector("[data-map-status]");
     const locateBtn = root.querySelector("[data-map-locate]");
     const clearBtn = root.querySelector("[data-map-clear]");
+    const searchInput = root.querySelector("[data-map-search-input]");
+    const searchBtn = root.querySelector("[data-map-search]");
+    const form = root.closest("form");
+    const addressInput = form ? form.querySelector('input[name="address"]') : null;
 
     if (!latInput || !lngInput || !mapEl || !statusEl) return null;
 
@@ -26,6 +30,9 @@
     const emptyLabel = root.dataset.emptyLabel || "No point selected.";
     const locateErrorLabel = root.dataset.locateError || "Unable to detect your location.";
     const locateUnsupportedLabel = root.dataset.locateUnsupported || "Geolocation is not supported.";
+    const searchErrorLabel = root.dataset.searchError || "Unable to find this place.";
+    const searchEmptyLabel = root.dataset.searchEmpty || "Enter a search query.";
+    const searchUnsupportedLabel = root.dataset.searchUnsupported || "Search is unavailable.";
 
     function updateStatus(lat, lng) {
       if (lat === null || lng === null) {
@@ -42,12 +49,88 @@
       statusEl: statusEl,
       locateBtn: locateBtn,
       clearBtn: clearBtn,
+      searchInput: searchInput,
+      searchBtn: searchBtn,
+      addressInput: addressInput,
       defaultLat: defaultLat,
       defaultLng: defaultLng,
       locateErrorLabel: locateErrorLabel,
       locateUnsupportedLabel: locateUnsupportedLabel,
+      searchErrorLabel: searchErrorLabel,
+      searchEmptyLabel: searchEmptyLabel,
+      searchUnsupportedLabel: searchUnsupportedLabel,
       updateStatus: updateStatus,
     };
+  }
+
+  function bindUnsupportedSearch(shared) {
+    function showUnsupported() {
+      shared.statusEl.textContent = shared.searchUnsupportedLabel;
+    }
+
+    if (shared.searchBtn) {
+      shared.searchBtn.addEventListener("click", showUnsupported);
+    }
+
+    if (shared.searchInput) {
+      shared.searchInput.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        showUnsupported();
+      });
+    }
+  }
+
+  function bindGoogleSearch(shared, options) {
+    if (!shared.searchInput || !shared.searchBtn || !options || typeof options.setPoint !== "function") return;
+
+    const geocoder = new google.maps.Geocoder();
+    const map = options.map;
+
+    function search() {
+      const rawQuery = (shared.searchInput.value || shared.addressInput?.value || "").trim();
+      if (!rawQuery) {
+        shared.statusEl.textContent = shared.searchEmptyLabel;
+        return;
+      }
+
+      geocoder.geocode(
+        {
+          address: rawQuery,
+          region: "az",
+        },
+        function (results, status) {
+          if (status !== "OK" || !results || !results.length) {
+            shared.statusEl.textContent = shared.searchErrorLabel;
+            return;
+          }
+
+          const first = results[0];
+          const location = first.geometry && first.geometry.location;
+          if (!location) {
+            shared.statusEl.textContent = shared.searchErrorLabel;
+            return;
+          }
+
+          options.setPoint(location.lat(), location.lng());
+          if (shared.addressInput && first.formatted_address) {
+            shared.addressInput.value = first.formatted_address;
+          }
+          shared.searchInput.value = first.formatted_address || rawQuery;
+
+          if (map && first.geometry.viewport) {
+            map.fitBounds(first.geometry.viewport);
+          }
+        }
+      );
+    }
+
+    shared.searchBtn.addEventListener("click", search);
+    shared.searchInput.addEventListener("keydown", function (event) {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      search();
+    });
   }
 
   function bindLocateButton(shared, setPoint) {
@@ -125,6 +208,7 @@
     });
 
     bindLocateButton(shared, setPoint);
+    bindUnsupportedSearch(shared);
 
     if (shared.clearBtn) {
       shared.clearBtn.addEventListener("click", function () {
@@ -224,6 +308,7 @@
     });
 
     bindLocateButton(shared, setPoint);
+    bindGoogleSearch(shared, { setPoint: setPoint, map: map });
 
     if (shared.clearBtn) {
       shared.clearBtn.addEventListener("click", function () {

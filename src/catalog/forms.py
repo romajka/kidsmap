@@ -511,16 +511,15 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "is_temporary",
             "temporary_start",
             "temporary_end",
-            "cover_photo",
             "photo",
         )
         widgets = {
             "name_ru": forms.TextInput(attrs={"class": "field"}),
             "name_az": forms.TextInput(attrs={"class": "field"}),
             "name_en": forms.TextInput(attrs={"class": "field"}),
-            "description_ru": forms.Textarea(attrs={"class": "field", "rows": 3}),
-            "description_az": forms.Textarea(attrs={"class": "field", "rows": 3}),
-            "description_en": forms.Textarea(attrs={"class": "field", "rows": 3}),
+            "description_ru": forms.Textarea(attrs={"class": "field", "rows": 2}),
+            "description_az": forms.Textarea(attrs={"class": "field", "rows": 2}),
+            "description_en": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "category": forms.Select(attrs={"class": "field"}),
             "subcategory": forms.TextInput(attrs={"class": "field"}),
             "age_from": forms.TextInput(
@@ -553,11 +552,10 @@ class OwnerPlaceEditForm(forms.ModelForm):
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "180"}
             ),
             "extra_conditions": forms.Textarea(attrs={"class": "field", "rows": 2}),
-            "additional_info": forms.Textarea(attrs={"class": "field", "rows": 3}),
+            "additional_info": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "is_temporary": forms.CheckboxInput(attrs={"class": "field-check"}),
             "temporary_start": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
             "temporary_end": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
-            "cover_photo": ImagePreviewFileInput(attrs={"class": "field", "accept": "image/*"}),
             "photo": ImagePreviewFileInput(attrs={"class": "field", "accept": "image/*"}),
         }
         labels = {
@@ -589,7 +587,6 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "is_temporary": _("Временное мероприятие"),
             "temporary_start": _("Начало"),
             "temporary_end": _("Окончание"),
-            "cover_photo": _("Фото для шапки"),
             "photo": _("Основное фото"),
         }
 
@@ -648,20 +645,20 @@ class OwnerPlaceEditForm(forms.ModelForm):
                 "autocomplete": "street-address",
             }
         )
-        self.fields["address"].help_text = _("Укажите точный адрес: улица, номер дома и ориентир.")
-        self.fields["name_az"].help_text = _("Основное название карточки. Заполняется обязательно при создании.")
-        self.fields["name_ru"].help_text = _("Необязательно. Добавьте русский вариант названия, если он нужен.")
-        self.fields["name_en"].help_text = _("Необязательно. Добавьте английский вариант названия, если он нужен.")
-        self.fields["description_az"].help_text = _("Основное описание карточки. Заполняется обязательно при создании.")
-        self.fields["description_ru"].help_text = _("Необязательно. Добавьте описание на русском, если оно нужно.")
-        self.fields["description_en"].help_text = _("Необязательно. Добавьте описание на английском, если оно нужно.")
+        self.fields["address"].help_text = _("Улица, дом и ориентир.")
+        self.fields["name_az"].help_text = _("Обязательно.")
+        self.fields["name_ru"].help_text = _("Необязательно.")
+        self.fields["name_en"].help_text = _("Необязательно.")
+        self.fields["description_az"].help_text = _("Обязательно.")
+        self.fields["description_ru"].help_text = _("Необязательно.")
+        self.fields["description_en"].help_text = _("Необязательно.")
         self.fields["schedule"].help_text = _("Например: Пн/Ср/Пт 18:00-19:00.")
-        self.fields["lesson_duration_minutes"].help_text = _("Продолжительность одного занятия в минутах.")
-        self.fields["price_per_lesson"].help_text = _("Если известна фиксированная цена за одно занятие.")
-        self.fields["price_per_month"].help_text = _("Если есть абонемент или ежемесячная оплата.")
-        self.fields["price_per_8_lessons"].help_text = _("Если есть популярный пакет на 8 занятий.")
-        self.fields["extra_conditions"].help_text = _("Скидки, пробный урок, форма, материалы и другие условия.")
-        self.fields["additional_info"].help_text = _("Любые дополнительные детали, которые стоит показать в карточке.")
+        self.fields["lesson_duration_minutes"].help_text = _("В минутах.")
+        self.fields["price_per_lesson"].help_text = _("Если есть.")
+        self.fields["price_per_month"].help_text = _("Если есть.")
+        self.fields["price_per_8_lessons"].help_text = _("Если есть.")
+        self.fields["extra_conditions"].help_text = _("Скидки, пробный урок, форма.")
+        self.fields["additional_info"].help_text = _("Что ещё важно показать.")
         for field_name in ("temporary_start", "temporary_end"):
             self.fields[field_name].error_messages.update(
                 {
@@ -780,8 +777,8 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         label=_("Комментарий для модерации"),
         required=False,
         max_length=500,
-        widget=forms.Textarea(attrs={"class": "field", "rows": 3}),
-        help_text=_("Например: чем уникален кружок и кто ответственный за карточку."),
+        widget=forms.Textarea(attrs={"class": "field", "rows": 2}),
+        help_text=_("Короткий комментарий для модератора."),
     )
     gallery_images = MultipleFileField(
         label=_("Дополнительные фото (до 5)"),

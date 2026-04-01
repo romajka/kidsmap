@@ -152,6 +152,25 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "static/js/home_map.js")
         self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
 
+    def test_home_map_popup_uses_main_photo_preview(self):
+        place = Place.objects.create(
+            name="Home Map Place",
+            name_ru="Кружок для карты на главной",
+            category="EDU",
+            is_active=True,
+            lat=40.4093,
+            lng=49.8671,
+            photo=SimpleUploadedFile("popup-main.png", b"main-image", content_type="image/png"),
+            cover_photo=SimpleUploadedFile("popup-cover.png", b"cover-image", content_type="image/png"),
+        )
+
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["map_places"][0]["image_url"], place.photo.url)
+        self.assertContains(response, "home-map-popup-thumb")
+        self.assertContains(response, place.photo.url)
+
     def test_header_uses_icon_only_account_language_and_search_controls(self):
         response = self.client.get("/", follow=True)
 
@@ -159,6 +178,9 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "user-entry-link")
         self.assertContains(response, "img/ui/user.png")
         self.assertContains(response, "lang-pill-flag")
+        self.assertContains(response, "img/flags/ru.png")
+        self.assertContains(response, "img/flags/az.png")
+        self.assertContains(response, "img/flags/en.png")
         self.assertContains(response, "icon-only-btn")
 
 
@@ -184,6 +206,27 @@ class TestCatalogContentSettingsWiring(TestCase):
 
         self.assertIn("Тестовое метро", metro_values)
         self.assertNotIn("Иншаатчылар", metro_values)
+
+    def test_owner_place_form_uses_only_main_photo_field(self):
+        form = OwnerPlaceCreateForm()
+
+        self.assertIn("photo", form.fields)
+        self.assertNotIn("cover_photo", form.fields)
+
+    def test_place_gallery_files_prefers_main_photo_before_cover(self):
+        place = Place.objects.create(
+            name="Media Place",
+            name_ru="Медиа-кружок",
+            category="EDU",
+            photo=SimpleUploadedFile("main-photo.png", b"main-image", content_type="image/png"),
+            cover_photo=SimpleUploadedFile("cover-photo.png", b"cover-image", content_type="image/png"),
+        )
+
+        files = place.gallery_files()
+
+        self.assertGreaterEqual(len(files), 2)
+        self.assertIn("main-photo", files[0].name)
+        self.assertIn("cover-photo", files[1].name)
 
     def test_catalog_filter_values_are_sorted_alphabetically(self):
         settings_obj = CatalogContentSettings.get_solo()
@@ -774,6 +817,107 @@ class TestCatalogEnhancements(TestCase):
         ordered_names = [item.name_ru for item in response.context["places"]]
         self.assertLess(ordered_names.index(high_reviews.name_ru), ordered_names.index(low_reviews.name_ru))
 
+    def test_catalog_district_filter_matches_exact_value_only(self):
+        exact_place = Place.objects.create(
+            name="Exact District",
+            name_ru="Точный район",
+            category="EDU",
+            is_active=True,
+            district="Ясамал",
+        )
+        partial_place = Place.objects.create(
+            name="Partial District",
+            name_ru="Похожий район",
+            category="EDU",
+            is_active=True,
+            district="Новый Ясамал",
+        )
+
+        response = self.client.get(reverse("place_list"), {"district": "Ясамал"}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        names = [item.name_ru for item in response.context["places"]]
+        self.assertIn(exact_place.name_ru, names)
+        self.assertNotIn(partial_place.name_ru, names)
+
+    def test_catalog_metro_filter_matches_exact_value_only(self):
+        exact_place = Place.objects.create(
+            name="Exact Metro",
+            name_ru="Точное метро",
+            category="EDU",
+            is_active=True,
+            metro="28 Май",
+        )
+        partial_place = Place.objects.create(
+            name="Partial Metro",
+            name_ru="Похожее метро",
+            category="EDU",
+            is_active=True,
+            metro="Около 28 Май",
+        )
+
+        response = self.client.get(reverse("place_list"), {"metro": "28 Май"}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        names = [item.name_ru for item in response.context["places"]]
+        self.assertIn(exact_place.name_ru, names)
+        self.assertNotIn(partial_place.name_ru, names)
+
+    def test_catalog_price_filter_uses_range_overlap(self):
+        overlapping_place = Place.objects.create(
+            name="Overlap Price",
+            name_ru="Подходящий диапазон цены",
+            category="EDU",
+            is_active=True,
+            price_from=80,
+            price_to=120,
+        )
+        out_of_range_place = Place.objects.create(
+            name="Out Price",
+            name_ru="Неподходящий диапазон цены",
+            category="EDU",
+            is_active=True,
+            price_from=200,
+            price_to=260,
+        )
+
+        response = self.client.get(
+            reverse("place_list"),
+            {"price_from": "100", "price_to": "150"},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        names = [item.name_ru for item in response.context["places"]]
+        self.assertIn(overlapping_place.name_ru, names)
+        self.assertNotIn(out_of_range_place.name_ru, names)
+
+    def test_new_page_with_photo_filter_ignores_null_photo_fields(self):
+        with_photo_place = Place.objects.create(
+            name="Recent With Photo",
+            name_ru="Новое с фото",
+            category="EDU",
+            is_active=True,
+            photo=SimpleUploadedFile("new-photo.png", b"main-image", content_type="image/png"),
+        )
+        without_photo_place = Place.objects.create(
+            name="Recent Without Photo",
+            name_ru="Новое без фото",
+            category="EDU",
+            is_active=True,
+            photo=None,
+            cover_photo=None,
+        )
+
+        response = self.client.get(reverse("place_new"), {"with_photo": "1"}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        timeline_names = [item.name_ru for item in response.context["timeline_places"]]
+        page_names = [item.name_ru for item in response.context["places"]]
+        all_names = timeline_names + page_names
+        self.assertIn(with_photo_place.name_ru, all_names)
+        self.assertNotIn(without_photo_place.name_ru, all_names)
+
     def test_place_detail_renders_extended_schedule_and_pricing_information(self):
         place = Place.objects.create(
             name="Detailed Place",
@@ -799,6 +943,28 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "160 AZN")
         self.assertContains(response, "Пробный урок бесплатно")
         self.assertContains(response, "Нужна спортивная форма")
+
+    def test_place_detail_renders_swipe_ready_gallery(self):
+        place = Place.objects.create(
+            name="Gallery Place",
+            name_ru="Кружок с галереей",
+            category="EDU",
+            is_active=True,
+            photo=SimpleUploadedFile("detail-main.png", b"main-image", content_type="image/png"),
+        )
+        PlacePhoto.objects.create(
+            place=place,
+            image=SimpleUploadedFile("detail-gallery.png", b"gallery-image", content_type="image/png"),
+            order=1,
+        )
+
+        response = self.client.get(place.get_absolute_url(), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-gallery-stage")
+        self.assertContains(response, "data-gallery-track")
+        self.assertContains(response, "gallery-swipe-hint")
+        self.assertContains(response, "static/js/place_gallery.js")
 
     def test_catalog_card_renders_more_details_block(self):
         Place.objects.create(
@@ -1579,6 +1745,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "owner-image-current-preview")
         self.assertContains(response, "owner-image-clear-text")
+        self.assertNotContains(response, "Фото для шапки")
 
     def test_owner_create_page_renders_map_picker(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
@@ -1589,8 +1756,11 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Основной язык карточки: AZ")
         self.assertContains(response, 'name="lat"', html=False)
         self.assertContains(response, 'name="lng"', html=False)
+        self.assertContains(response, "data-map-search-input")
+        self.assertContains(response, "Найти на карте")
         self.assertContains(response, "owner_place_map_picker.js")
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertNotContains(response, "Фото для шапки")
         html = response.content.decode("utf-8")
         self.assertLess(html.index("Название (AZ)"), html.index("Название (RU)"))
         self.assertLess(html.index("Описание (AZ)"), html.index("Описание (RU)"))
@@ -1604,6 +1774,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
         self.assertContains(response, "kidsMapInitOwnerMapPickers")
         self.assertContains(response, 'data-map-provider="google"', html=False)
+        self.assertContains(response, "data-map-search-input")
         self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
 
     def test_owner_editor_can_edit_but_cannot_publish(self):

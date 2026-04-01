@@ -73,6 +73,18 @@ class PlaceListFilters:
 
         return age_from_int, age_to_int
 
+    def _normalized_price_bounds(self):
+        price_from_int = self._int_or_none(self.price_from)
+        price_to_int = self._int_or_none(self.price_to)
+
+        if price_to_int is None:
+            price_to_int = self._int_or_none(self.price_max)
+
+        if price_from_int is not None and price_to_int is not None and price_from_int > price_to_int:
+            price_from_int, price_to_int = price_to_int, price_from_int
+
+        return price_from_int, price_to_int
+
     def apply(self, qs, created_after=None):
         if self.force_new_only:
             recent_cutoff = timezone.now() - timedelta(days=int(self.days))
@@ -97,7 +109,7 @@ class PlaceListFilters:
             )
 
         if self.district:
-            qs = qs.filter(district__icontains=self.district)
+            qs = qs.filter(district__iexact=self.district)
 
         if self.min_rating:
             try:
@@ -110,12 +122,15 @@ class PlaceListFilters:
 
         if self.force_new_only:
             if self.with_photo == "1":
-                qs = qs.exclude(Q(cover_photo="") & Q(photo=""))
+                qs = qs.exclude(
+                    (Q(cover_photo="") | Q(cover_photo__isnull=True))
+                    & (Q(photo="") | Q(photo__isnull=True))
+                )
             if self.verified_only == "1":
                 qs = qs.filter(is_verified=True)
 
         if self.metro:
-            qs = qs.filter(metro__icontains=self.metro)
+            qs = qs.filter(metro__iexact=self.metro)
 
         age_from_int, age_to_int = self._normalized_age_bounds()
         if age_from_int is not None:
@@ -123,12 +138,11 @@ class PlaceListFilters:
         if age_to_int is not None:
             qs = qs.filter(Q(age_from__isnull=True) | Q(age_from__lte=age_to_int))
 
-        if self.price_from.isdigit():
-            qs = qs.filter(price_from__gte=int(self.price_from))
-        if self.price_to.isdigit():
-            qs = qs.filter(price_to__lte=int(self.price_to))
-        elif self.price_max.isdigit():
-            qs = qs.filter(price_to__lte=int(self.price_max))
+        price_from_int, price_to_int = self._normalized_price_bounds()
+        if price_from_int is not None:
+            qs = qs.filter(Q(price_to__isnull=True) | Q(price_to__gte=price_from_int))
+        if price_to_int is not None:
+            qs = qs.filter(Q(price_from__isnull=True) | Q(price_from__lte=price_to_int))
 
         if self.sort == "price_asc" and not self.force_new_only:
             return qs.order_by("price_from", "-created_at")
@@ -141,6 +155,7 @@ class PlaceListFilters:
 
     def selected(self):
         age_from_int, age_to_int = self._normalized_age_bounds()
+        price_from_int, price_to_int = self._normalized_price_bounds()
         return {
             "category": self.category,
             "q": self.query,
@@ -149,8 +164,8 @@ class PlaceListFilters:
             "age": self.age,
             "age_from": str(age_from_int if age_from_int is not None else self.age_from),
             "age_to": str(age_to_int if age_to_int is not None else self.age_to),
-            "price_from": self.price_from,
-            "price_to": self.price_to,
+            "price_from": str(price_from_int if price_from_int is not None else self.price_from),
+            "price_to": str(price_to_int if price_to_int is not None else self.price_to),
             "min_rating": self.min_rating,
             "sort": self.sort,
             "days": self.days,
