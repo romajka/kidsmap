@@ -1,0 +1,21 @@
+body {
+  background-color: #eef6ef;
+  background-image:
+    linear-gradient(180deg, rgba(253, 254, 253, 0.9), rgba(242, 250, 243, 0.82) 52%, rgba(236, 247, 238, 0.88)),
+    var(--custom-site-bg-url, none);
+  background-position: center top, center top;
+  background-size: auto, cover;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+}
+
+body::before {
+  opacity: 0.05;
+}
+
+@media (max-width: 699px) {
+  body {
+    background-attachment: scroll, scroll;
+    background-position: center top, center top;
+  }
+}

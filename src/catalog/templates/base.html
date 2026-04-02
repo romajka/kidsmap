@@ -42,6 +42,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/site.css' %}?v=bg-20260402-8" />
+    <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}?v=bg-admin-20260402-1" />
     {% if organization_schema_json %}
       <script type="application/ld+json">{{ organization_schema_json|safe }}</script>
     {% endif %}
@@ -51,7 +52,7 @@
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
   </head>
-  <body class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}">
+  <body class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');"{% endif %}>
     <div class="bg-scene" aria-hidden="true">
       <div class="bg-floaters" data-bg-floaters></div>
     </div>
