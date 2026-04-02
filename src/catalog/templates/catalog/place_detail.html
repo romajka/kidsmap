@@ -12,6 +12,9 @@
   <script type="application/ld+json">{{ place_breadcrumb_schema_json|safe }}</script>
   <script type="application/ld+json">{{ place_schema_json|safe }}</script>
 {% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+{% endblock %}
 
 {% block content %}
   <section class="detail-wrap">
@@ -23,74 +26,64 @@
       <h1>{{ place.name_i18n }}</h1>
       {% with gallery=place.gallery_files %}
         {% if gallery %}
-          <div class="gallery" data-gallery>
-            <div class="gallery-shell">
-              <div class="gallery-viewport-wrap">
-                <div
-                  class="gallery-viewport"
-                  data-gallery-viewport
-                  tabindex="0"
-                  role="group"
-                  aria-roledescription="{% trans 'carousel' %}"
-                  aria-label="{% trans 'Галерея фотографий' %}"
-                >
-                  <div class="gallery-track" data-gallery-track>
-                    {% for file in gallery %}
-                      <figure
-                        class="gallery-slide {% if forloop.first %}is-active{% endif %}"
-                        data-gallery-slide
-                        data-index="{{ forloop.counter0 }}"
-                        aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
-                      >
-                        <img
-                          class="gallery-image"
-                          src="{{ file.url }}"
-                          alt="{{ place.name_i18n }}"
-                          draggable="false"
-                          {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                        />
-                      </figure>
-                    {% endfor %}
+          <section class="place-gallery" data-place-gallery aria-label="{% trans 'Галерея фотографий' %}">
+            <div class="place-gallery__stage swiper" data-place-gallery-main>
+              <div class="swiper-wrapper">
+                {% for file in gallery %}
+                  <div class="swiper-slide place-gallery__slide">
+                    <figure class="place-gallery__media">
+                      <img
+                        class="place-gallery__image"
+                        src="{{ file.url }}"
+                        alt="{{ place.name_i18n }}"
+                        draggable="false"
+                        {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                      />
+                    </figure>
                   </div>
-                </div>
-
-                {% if gallery|length > 1 %}
-                  <button type="button" class="gallery-nav prev" data-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
-                    <span aria-hidden="true">‹</span>
-                  </button>
-                  <button type="button" class="gallery-nav next" data-gallery-next aria-label="{% trans 'Следующее фото' %}">
-                    <span aria-hidden="true">›</span>
-                  </button>
-                  <div class="gallery-toolbar">
-                    <div class="gallery-status" data-gallery-status aria-live="polite">
-                      <span data-gallery-current>1</span>
-                      <span aria-hidden="true">/</span>
-                      <span>{{ gallery|length }}</span>
-                    </div>
-                    <p class="gallery-swipe-hint" data-gallery-hint>{% trans "Листайте фото свайпом, стрелками или миниатюрами" %}</p>
-                  </div>
-                {% endif %}
+                {% endfor %}
               </div>
 
               {% if gallery|length > 1 %}
-                <div class="gallery-thumbs" data-gallery-thumbs role="tablist" aria-label="{% trans 'Миниатюры галереи' %}">
+                <button type="button" class="place-gallery__nav place-gallery__nav--prev" data-place-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <button type="button" class="place-gallery__nav place-gallery__nav--next" data-place-gallery-next aria-label="{% trans 'Следующее фото' %}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="m9.5 5 6.5 7-6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <div class="place-gallery__meta">
+                  <div class="place-gallery__counter" aria-live="polite">
+                    <span data-place-gallery-current>1</span>
+                    <span aria-hidden="true">/</span>
+                    <span>{{ gallery|length }}</span>
+                  </div>
+                  <p class="place-gallery__hint">{% trans "Свайп, стрелки или миниатюры" %}</p>
+                </div>
+              {% endif %}
+            </div>
+
+            {% if gallery|length > 1 %}
+              <div class="place-gallery__thumbs" data-place-gallery-thumbs aria-label="{% trans 'Миниатюры галереи' %}">
+                <div class="place-gallery__thumbs-track">
                   {% for file in gallery %}
                     <button
                       type="button"
-                      class="gallery-thumb {% if forloop.first %}active{% endif %}"
-                      data-gallery-thumb
+                      class="place-gallery__thumb{% if forloop.first %} is-active{% endif %}"
+                      data-place-gallery-thumb
                       data-index="{{ forloop.counter0 }}"
-                      role="tab"
-                      aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
                       aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
                     >
                       <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" draggable="false" />
                     </button>
                   {% endfor %}
                 </div>
-              {% endif %}
-            </div>
-          </div>
+              </div>
+            {% endif %}
+          </section>
         {% else %}
           <div class="detail-photo-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
             <span class="image-placeholder-icon" aria-hidden="true">📷</span>
@@ -400,7 +393,6 @@
       </section>
     </article>
   </section>
-  <script src="{% static 'js/place_gallery.js' %}"></script>
   <script>
     (function () {
       const picker = document.querySelector("[data-review-stars]");
@@ -433,4 +425,8 @@
       paint(Number(input.value || 0));
     })();
   </script>
+{% endblock %}
+{% block extra_body %}
+  <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+  <script src="{% static 'js/place_gallery.js' %}?v=gallery-20260402-6"></script>
 {% endblock %}
