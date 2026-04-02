@@ -167,6 +167,80 @@
       }
     }
 
+    function createTouchHandlers() {
+      let touchState = null;
+
+      function handleTouchStart(event) {
+        if (slides.length < 2) return;
+        const touch = event.touches[0];
+        if (!touch) return;
+
+        hideHint();
+        touchState = {
+          startX: touch.clientX,
+          startY: touch.clientY,
+          deltaX: 0,
+          deltaY: 0,
+          moved: false,
+          width: getViewportWidth(),
+        };
+
+        gallery.classList.add("is-dragging");
+        track.classList.add("is-dragging");
+        setTrackPosition(-index * touchState.width, false);
+      }
+
+      function handleTouchMove(event) {
+        if (!touchState) return;
+        const touch = event.touches[0];
+        if (!touch) return;
+
+        touchState.deltaX = touch.clientX - touchState.startX;
+        touchState.deltaY = touch.clientY - touchState.startY;
+
+        if (!touchState.moved) {
+          if (Math.abs(touchState.deltaX) < DRAG_START_THRESHOLD) return;
+          if (Math.abs(touchState.deltaY) > Math.abs(touchState.deltaX)) {
+            touchState = null;
+            gallery.classList.remove("is-dragging");
+            track.classList.remove("is-dragging");
+            return;
+          }
+          touchState.moved = true;
+          suppressClick = true;
+        }
+
+        event.preventDefault();
+        setTrackPosition(-index * touchState.width + touchState.deltaX, false);
+      }
+
+      function handleTouchEnd() {
+        if (!touchState) return;
+        const deltaX = touchState.deltaX;
+        const moved = touchState.moved;
+        const threshold = Math.max(SWIPE_THRESHOLD_MIN, touchState.width * SWIPE_THRESHOLD_RATIO);
+        touchState = null;
+
+        gallery.classList.remove("is-dragging");
+        track.classList.remove("is-dragging");
+
+        if (moved && Math.abs(deltaX) >= threshold) {
+          goTo(index + (deltaX < 0 ? 1 : -1), { animate: true });
+        } else {
+          goTo(index, { animate: true });
+        }
+
+        window.setTimeout(function () {
+          suppressClick = false;
+        }, 0);
+      }
+
+      viewport.addEventListener("touchstart", handleTouchStart, { passive: true });
+      viewport.addEventListener("touchmove", handleTouchMove, { passive: false });
+      viewport.addEventListener("touchend", handleTouchEnd);
+      viewport.addEventListener("touchcancel", handleTouchEnd);
+    }
+
     thumbs.forEach(function (thumb) {
       thumb.addEventListener("click", function () {
         hideHint();
@@ -203,6 +277,10 @@
       },
       true
     );
+
+    if (!("PointerEvent" in window)) {
+      createTouchHandlers();
+    }
 
     if (typeof ResizeObserver !== "undefined") {
       const resizeObserver = new ResizeObserver(function () {
