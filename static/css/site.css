@@ -57,14 +57,7 @@ body {
   overflow-x: hidden;
   position: relative;
   isolation: isolate;
-  background-color: #eef6ef;
-  background-image:
-    linear-gradient(180deg, rgba(253, 254, 253, 0.9), rgba(242, 250, 243, 0.82) 52%, rgba(236, 247, 238, 0.88)),
-    var(--custom-site-bg-url, none);
-  background-position: center top, center top;
-  background-size: auto, cover;
-  background-repeat: no-repeat, no-repeat;
-  background-attachment: fixed, fixed;
+  background: linear-gradient(180deg, #fdfefd, #f2faf3 52%, #ecf7ee);
 }
 
 body::before {
@@ -73,7 +66,7 @@ body::before {
   inset: -12%;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.05;
+  opacity: 0.08;
   background:
     linear-gradient(118deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.08) 34%, rgba(168, 213, 155, 0.16) 66%, rgba(255, 255, 255, 0.74));
   filter: blur(26px);
@@ -167,11 +160,6 @@ body::before {
 }
 
 @media (max-width: 699px) {
-  body {
-    background-attachment: scroll, scroll;
-    background-position: center top, center top;
-  }
-
   .bg-floaters {
     inset: -2% 0;
   }
