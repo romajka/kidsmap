@@ -1,21 +1,25 @@
 {% extends "base.html" %}
 {% load i18n static %}
 
-{% block title %}{% if is_new_page %}{% trans "Новое" %}{% else %}{% trans "Каталог" %}{% endif %}{% endblock %}
-{% block title_plain %}{% if is_new_page %}{% trans "Новое" %}{% else %}{% trans "Каталог" %}{% endif %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% if is_new_page %}{% trans "Новое" %}{% else %}{% trans "Каталог" %}{% endif %} | KidsMap{% endblock %}
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block structured_data %}
+  <script type="application/ld+json">{{ catalog_breadcrumb_schema_json|safe }}</script>
+  <script type="application/ld+json">{{ catalog_item_list_schema_json|safe }}</script>
+{% endblock %}
 
 {% block content %}
   <section class="hero">
     <div class="hero-art" aria-hidden="true"></div>
     <div class="hero-text">
       {% if is_new_page %}
-        <h1>{% trans "Новое в каталоге" %}</h1>
-        <p>{% trans "Только недавно добавленные кружки и курсы." %}</p>
+        <h1>{{ catalog_heading }}</h1>
+        <p>{{ catalog_intro }}</p>
       {% else %}
-        <h1>{% trans "Каталог" %}</h1>
-        <p>{% trans "Найдите лучшие занятия для ребенка" %}</p>
+        <h1>{{ catalog_heading }}</h1>
+        <p>{{ catalog_intro }}</p>
       {% endif %}
     </div>
   </section>

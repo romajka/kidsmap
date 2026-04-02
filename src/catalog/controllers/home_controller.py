@@ -14,6 +14,7 @@ from catalog.repositories.django_repositories import (
 )
 from catalog.services.options import sort_translated_values
 from catalog.services.reactions import liked_place_ids, mark_liked_flags, mark_site_review_reactions
+from catalog.services.seo import build_home_seo_payload
 
 
 @dataclass(slots=True)
@@ -55,13 +56,16 @@ class HomeController:
         site_reviews = mark_site_review_reactions(site_reviews_qs[:4], request)
         site_reviews_avg = site_reviews_qs.aggregate(avg=Avg("rating")).get("avg") or 0
         site_reviews_count = site_reviews_qs.count()
+        seo_payload = build_home_seo_payload(request=request, popular_places=popular_places)
 
         return {
             "home_categories": sorted(HOME_CATEGORIES, key=lambda item: str(_(item["title"])).casefold()),
             "home_districts": sort_translated_values(content_settings.districts()),
             "home_metro_options": sort_translated_values(content_settings.metro_stations()),
             "home_age_options": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16],
-            "meta_description": _("KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене."),
+            "meta_description": seo_payload["meta_description"],
+            "seo_title": seo_payload["seo_title"],
+            "home_featured_schema_json": seo_payload["home_featured_schema_json"],
             "seo_pages": content_settings.seo_pages(),
             "popular_places": popular_places,
             "map_places": map_places,

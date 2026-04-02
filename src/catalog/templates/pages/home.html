@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 {% load i18n static %}
 
-{% block title %}{% trans "Главная" %}{% endblock %}
-{% block title_plain %}{% trans "Главная" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Главная" %} | KidsMap{% endblock %}
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block structured_data %}
+  {% if home_featured_schema_json %}
+    <script type="application/ld+json">{{ home_featured_schema_json|safe }}</script>
+  {% endif %}
+{% endblock %}
 {% block extra_head %}
   {% if map_places %}
     {% if not google_maps_api_key %}

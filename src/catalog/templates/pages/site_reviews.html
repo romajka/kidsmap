@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Отзывы о сайте" %}{% endblock %}
-{% block title_plain %}{% trans "Отзывы о сайте" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Отзывы о сайте" %} | KidsMap{% endblock %}
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block structured_data %}
+  <script type="application/ld+json">{{ site_reviews_breadcrumb_schema_json|safe }}</script>
+{% endblock %}
 
 {% block content %}
   <section class="panel site-reviews-page">

@@ -2,16 +2,40 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.http import JsonResponse
+from django.conf import settings
 
 
 def robots_txt(request):
     sitemap_url = request.build_absolute_uri(reverse("django.contrib.sitemaps.views.sitemap"))
+    lang_codes = [code for code, _label in settings.LANGUAGES]
     lines = [
         "User-agent: *",
         "Allow: /",
+        "Disallow: /healthz",
+        "Disallow: /i18n/",
+        "Disallow: /favicon.ico",
         "",
-        f"Sitemap: {sitemap_url}",
     ]
+
+    for lang_code in lang_codes:
+        lines.extend(
+            [
+                f"Disallow: /{lang_code}/admin/",
+                f"Disallow: /{lang_code}/auth/",
+                f"Disallow: /{lang_code}/account/",
+                f"Disallow: /{lang_code}/events/track/",
+                f"Disallow: /{lang_code}/place-review/",
+                f"Disallow: /{lang_code}/site-review/",
+                f"Disallow: /{lang_code}/review/",
+            ]
+        )
+
+    lines.extend(
+        [
+            "",
+        f"Sitemap: {sitemap_url}",
+        ]
+    )
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 

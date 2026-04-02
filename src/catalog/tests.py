@@ -221,6 +221,65 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "https://www.googletagmanager.com/gtag/js?id=G-TEST123")
         self.assertContains(response, 'gtag("config", "G\\u002DTEST123")')
 
+    def test_home_page_includes_website_schema_with_search_action(self):
+        response = self.client.get("/ru/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"@type": "WebSite"', html=False)
+        self.assertContains(response, '"SearchAction"', html=False)
+        self.assertContains(response, "/ru/catalog/?q={search_term_string}", html=False)
+
+    def test_login_page_is_marked_noindex(self):
+        response = self.client.get("/ru/auth/login/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<meta name="robots" content="noindex,follow" />', html=False)
+        self.assertContains(response, '<meta name="googlebot" content="noindex,follow" />', html=False)
+
+    def test_filtered_catalog_page_uses_noindex_and_itemlist_schema(self):
+        Place.objects.create(
+            name="Seo Place",
+            name_ru="SEO кружок",
+            category="EDU",
+            is_active=True,
+            district="Ясамал",
+        )
+
+        response = self.client.get("/ru/catalog/", {"category": "EDU"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<meta name="robots" content="noindex,follow" />', html=False)
+        self.assertContains(response, "<title>Образование для детей в Баку | KidsMap</title>", html=False)
+        self.assertContains(response, '"@type": "ItemList"', html=False)
+        self.assertContains(response, '"@type": "BreadcrumbList"', html=False)
+
+    def test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema(self):
+        place = Place.objects.create(
+            name="Seo Place",
+            name_ru="SEO кружок",
+            category="EDU",
+            is_active=True,
+            district="Ясамал",
+            rating_avg=4.7,
+            rating_count=12,
+        )
+
+        response = self.client.get(place.get_absolute_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"@type": "BreadcrumbList"', html=False)
+        self.assertContains(response, '"AggregateRating"', html=False)
+        self.assertContains(response, "<title>SEO кружок — Образование для детей в Ясамал, Баку | KidsMap</title>", html=False)
+
+    def test_robots_txt_disallows_private_sections(self):
+        response = self.client.get("/robots.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Disallow: /ru/auth/")
+        self.assertContains(response, "Disallow: /ru/account/")
+        self.assertContains(response, "Disallow: /ru/admin/")
+        self.assertContains(response, "Sitemap: http://testserver/sitemap.xml")
+
     def test_home_map_popup_uses_main_photo_preview(self):
         place = Place.objects.create(
             name="Home Map Place",

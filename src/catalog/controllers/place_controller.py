@@ -24,7 +24,7 @@ from catalog.services.review_sorting import (
     apply_review_sorting,
     normalize_review_sort,
 )
-from catalog.services.seo import build_place_seo_payload
+from catalog.services.seo import build_catalog_seo_payload, build_place_seo_payload
 from catalog.services.tracking import TrackingService
 
 
@@ -77,17 +77,26 @@ class PlaceController:
         query_without_page = params.urlencode()
 
         selected = filters.selected()
+        seo_payload = build_catalog_seo_payload(
+            request=request,
+            selected=selected,
+            places=page_obj.object_list,
+            total_count=page_obj.paginator.count,
+            is_new_page=force_new_only,
+            page_number=page_obj.number,
+        )
         context = {
             "places": page_obj.object_list,
             "timeline_places": timeline_places,
             "page_obj": page_obj,
             "language": language_code,
             "query_without_page": query_without_page,
-            "meta_description": (
-                _("Новые кружки и курсы в Баку за последние 30 дней. Смотрите свежие добавления на KidsMap.")
-                if force_new_only
-                else _("Каталог детских секций и кружков в Баку. Фильтры по категории, району, метро, возрасту и цене.")
-            ),
+            "meta_description": seo_payload["meta_description"],
+            "seo_title": seo_payload["seo_title"],
+            "catalog_heading": seo_payload["catalog_heading"],
+            "catalog_intro": seo_payload["catalog_intro"],
+            "catalog_breadcrumb_schema_json": seo_payload["catalog_breadcrumb_schema_json"],
+            "catalog_item_list_schema_json": seo_payload["catalog_item_list_schema_json"],
             "selected": selected,
             "categories": sort_choice_tuples(Place.CATEGORY_CHOICES),
             "district_options": sort_translated_values(content_settings.districts()),
@@ -213,9 +222,11 @@ class PlaceController:
         return {
             "place": place,
             "language": request.LANGUAGE_CODE,
+            "seo_title": seo_payload["title"],
             "meta_description": seo_payload["description"][:160],
             "seo_image_url": seo_payload["first_image_url"],
             "place_schema_json": seo_payload["schema_json"],
+            "place_breadcrumb_schema_json": seo_payload["breadcrumb_schema_json"],
             "map_embed_url": seo_payload["map_embed_url"],
             "map_open_url": seo_payload["map_open_url"],
             "place_reviews": place_reviews,

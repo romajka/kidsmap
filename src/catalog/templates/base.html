@@ -6,12 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}KidsMap{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}" />
+    <meta name="robots" content="{% block robots_meta %}{{ robots_content }}{% endblock %}" />
+    <meta name="googlebot" content="{% block googlebot_meta %}{{ robots_content }}{% endblock %}" />
     <link rel="canonical" href="{{ canonical_url }}" />
     {% for code, url in alternate_urls.items %}
       <link rel="alternate" hreflang="{{ code }}" href="{{ url }}" />
     {% endfor %}
     <link rel="alternate" hreflang="x-default" href="{{ x_default_url }}" />
     <meta property="og:site_name" content="KidsMap" />
+    <meta property="og:locale" content="{{ og_locale }}" />
+    {% for locale in og_locale_alternates %}
+      <meta property="og:locale:alternate" content="{{ locale }}" />
+    {% endfor %}
     <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
     <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}KidsMap{% endblock %}{% endblock %}{% endblock %}" />
     <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
@@ -36,6 +42,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+    {% if organization_schema_json %}
+      <script type="application/ld+json">{{ organization_schema_json|safe }}</script>
+    {% endif %}
+    {% if website_schema_json %}
+      <script type="application/ld+json">{{ website_schema_json|safe }}</script>
+    {% endif %}
+    {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
   </head>
   <body

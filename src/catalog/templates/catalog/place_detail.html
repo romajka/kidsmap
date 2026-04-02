@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 {% load i18n static %}
 
-{% block title %}{{ place.name_i18n }}{% endblock %}
-{% block title_plain %}{{ place.name_i18n }} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{{ place.name_i18n }} | KidsMap{% endblock %}
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block og_image %}{% if seo_image_url %}<meta property="og:image" content="{{ seo_image_url }}" />{% endif %}{% endblock %}
 {% block twitter_image %}{% if seo_image_url %}<meta name="twitter:image" content="{{ seo_image_url }}" />{% endif %}{% endblock %}
+{% block structured_data %}
+  <script type="application/ld+json">{{ place_breadcrumb_schema_json|safe }}</script>
+  <script type="application/ld+json">{{ place_schema_json|safe }}</script>
+{% endblock %}
 
 {% block content %}
   <section class="detail-wrap">
@@ -429,5 +433,4 @@
       paint(Number(input.value || 0));
     })();
   </script>
-  <script type="application/ld+json">{{ place_schema_json|safe }}</script>
 {% endblock %}

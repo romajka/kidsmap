@@ -1,8 +1,10 @@
 from django.conf import settings
+from django.templatetags.static import static
 from django.db.utils import OperationalError, ProgrammingError
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from .models import SiteSettings, UserProfile
+from .services.seo import DEFAULT_ROBOTS_CONTENT, build_sitewide_schema_payload
 
 DEFAULT_FOOTER_PHONE = "+994 50 540 66 39"
 DEFAULT_FOOTER_EMAIL = "kidsmap.az@gmail.com"
@@ -39,6 +41,33 @@ FOOTER_SOCIAL_DEFAULTS = (
     ("facebook", _("Facebook"), "icon-facebook", DEFAULT_FOOTER_FACEBOOK_URL),
     ("linkedin", _("LinkedIn"), "icon-linkedin", DEFAULT_FOOTER_LINKEDIN_URL),
 )
+
+NOINDEX_URL_NAMES = {
+    "account_dashboard",
+    "account_favorites",
+    "account_profile",
+    "account_settings",
+    "account_register",
+    "account_verify_email",
+    "account_login",
+    "password_reset",
+    "password_reset_done",
+    "password_reset_confirm",
+    "password_reset_complete",
+    "owner_cabinet",
+    "owner_places_dashboard",
+    "owner_place_create",
+    "owner_place_edit",
+    "owner_reviews_dashboard",
+    "owner_team_dashboard",
+}
+
+QUERY_NOINDEX_URL_NAMES = {
+    "place_list",
+    "place_new",
+    "place_detail",
+    "site_reviews",
+}
 
 
 def _build_social_links(*, cfg):
@@ -94,11 +123,31 @@ def seo_urls(request):
         for code in lang_codes
     }
 
+    resolver_match = getattr(request, "resolver_match", None)
+    url_name = getattr(resolver_match, "url_name", "")
+    robots_content = DEFAULT_ROBOTS_CONTENT
+    if url_name in NOINDEX_URL_NAMES:
+        robots_content = "noindex,follow"
+    elif url_name in QUERY_NOINDEX_URL_NAMES and request.GET:
+        robots_content = "noindex,follow"
+
+    og_locale_map = {"ru": "ru_RU", "az": "az_AZ", "en": "en_US"}
+    og_locale = og_locale_map.get(current_lang, "ru_RU")
+    og_locale_alternates = [
+        locale
+        for code in lang_codes
+        for locale in [og_locale_map.get(code)]
+        if locale and locale != og_locale
+    ]
+
     return {
         "canonical_url": canonical_url,
         "alternate_urls": alternate_urls,
         "x_default_url": alternate_urls.get(settings.LANGUAGE_CODE, canonical_url),
         "current_lang_code": current_lang,
+        "robots_content": robots_content,
+        "og_locale": og_locale,
+        "og_locale_alternates": og_locale_alternates,
     }
 
 
@@ -133,6 +182,13 @@ def site_settings(request):
 
     if cfg is None:
         lang = (request.LANGUAGE_CODE or "ru").split("-")[0]
+        footer_social_links = _build_social_links(cfg=None)
+        schema_payload = build_sitewide_schema_payload(
+            request=request,
+            site_name="KidsMap",
+            logo_url=static("img/logo.png"),
+            social_urls=[item["url"] for item in footer_social_links],
+        )
         return {
             "site_settings": None,
             "brand_name": "KidsMap",
@@ -143,9 +199,10 @@ def site_settings(request):
             "footer_email": DEFAULT_FOOTER_EMAIL,
             "footer_instagram_url": DEFAULT_FOOTER_INSTAGRAM_URL,
             "footer_whatsapp_url": "",
-            "footer_social_links": _build_social_links(cfg=None),
+            "footer_social_links": footer_social_links,
             "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
             "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
+            **schema_payload,
             **user_role_data,
         }
 
@@ -170,6 +227,15 @@ def site_settings(request):
     if footer_phone in {"", "+994 00 000 00 00"}:
         footer_phone = DEFAULT_FOOTER_PHONE
 
+    footer_social_links = _build_social_links(cfg=cfg)
+    logo_url = cfg.logo.url if getattr(cfg, "logo", None) else static("img/logo.png")
+    schema_payload = build_sitewide_schema_payload(
+        request=request,
+        site_name=cfg.brand_name or "KidsMap",
+        logo_url=logo_url,
+        social_urls=[item["url"] for item in footer_social_links],
+    )
+
     return {
         "site_settings": cfg,
         "brand_name": cfg.brand_name or "KidsMap",
@@ -180,8 +246,9 @@ def site_settings(request):
         "footer_email": footer_email,
         "footer_instagram_url": footer_instagram_url,
         "footer_whatsapp_url": (cfg.footer_whatsapp or "").strip(),
-        "footer_social_links": _build_social_links(cfg=cfg),
+        "footer_social_links": footer_social_links,
         "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
         "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
+        **schema_payload,
         **user_role_data,
     }
