@@ -41,7 +41,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=gallery-20260402-6" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=bg-20260402-7" />
     {% if organization_schema_json %}
       <script type="application/ld+json">{{ organization_schema_json|safe }}</script>
     {% endif %}
@@ -51,22 +51,9 @@
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
   </head>
-  <body
-    class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
-    {% if site_settings and site_settings.site_background_image %}style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url }}');"{% endif %}
-  >
+  <body class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}">
     <div class="bg-scene" aria-hidden="true">
-      <span class="bg-orb orb-a"></span>
-      <span class="bg-orb orb-b"></span>
-      <span class="bg-orb orb-c"></span>
-      <span class="bg-orb orb-d"></span>
-      <span class="bg-glow glow-a"></span>
-      <span class="bg-glow glow-b"></span>
-      <span class="bg-ribbon ribbon-a"></span>
-      <span class="bg-ribbon ribbon-b"></span>
-      <span class="bg-spark spark-a"></span>
-      <span class="bg-spark spark-b"></span>
-      <span class="bg-spark spark-c"></span>
+      <div class="bg-floaters" data-bg-floaters></div>
     </div>
     <div class="site-shell">
       <header class="topbar">
@@ -528,6 +515,7 @@
         })();
       </script>
     {% endif %}
+    <script defer src="{% static 'js/bg_scene.js' %}?v=bg-20260402-4"></script>
     {% block extra_body %}{% endblock %}
   </body>
 </html>
