@@ -159,6 +159,19 @@ body::before {
   box-shadow: none;
 }
 
+@media (max-width: 699px) {
+  .bg-floaters {
+    inset: -2% 0;
+  }
+
+  .bg-floater {
+    opacity: 0.82;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 12px 24px rgba(13, 73, 36, 0.06);
+  }
+}
+
 .site-shell {
   width: min(1240px, calc(100% - 28px));
   margin: 14px auto 36px;
@@ -3793,7 +3806,7 @@ main {
 
 @media (prefers-reduced-motion: reduce) {
   .bg-scene {
-    display: none;
+    display: block;
   }
 
   .btn,
@@ -5732,7 +5745,7 @@ main {
   }
 
   .bg-scene {
-    display: none;
+    display: block;
   }
 
   body.page-home {
