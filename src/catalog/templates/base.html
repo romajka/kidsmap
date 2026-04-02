@@ -1,6 +1,7 @@
 {% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
 <!doctype html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="{% firstof CURRENT_LANGUAGE LANGUAGE_CODE 'ru' %}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -38,15 +39,8 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito+Sans:wght@400;600;700;800&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet" />
-<<<<<<< HEAD
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=bg-20260402-8" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=home-20260403-7" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}?v=bg-admin-20260402-1" />
-=======
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=bg-20260402-9" />
->>>>>>> 894ba3a (Restore admin background image behind animated scene)
     {% if organization_schema_json %}
       <script type="application/ld+json">{{ organization_schema_json|safe }}</script>
     {% endif %}
@@ -66,6 +60,40 @@
           <span class="logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.png' %}{% endif %}');" aria-hidden="true"></span>
           <span class="brand">{{ brand_name }}</span>
         </a>
+
+        <details class="mobile-nav-menu header-menu">
+          <summary class="menu-trigger mobile-menu-trigger" aria-label="{% trans 'Меню' %}">
+            <span class="mobile-menu-trigger-icon" aria-hidden="true">☰</span>
+            <span class="mobile-menu-trigger-label">{% trans "Меню" %}</span>
+          </summary>
+          <div class="menu-dropdown mobile-nav-dropdown">
+            <a
+              href="{% url 'home' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}
+            >{% trans "Главная" %}</a>
+            <a
+              href="{% url 'place_list' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
+            >{% trans "Каталог" %}</a>
+            <a
+              href="{% url 'about' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
+            >{% trans "О проекте" %}</a>
+            <a
+              href="{% url 'site_reviews' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'site_reviews' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'site_reviews' %}aria-current="page"{% endif %}
+            >{% trans "Отзывы" %}</a>
+            <a
+              href="{% url 'contacts' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'contacts' %}aria-current="page"{% endif %}
+            >{% trans "Контакты" %}</a>
+          </div>
+        </details>
 
         <nav class="nav">
           <a
@@ -138,7 +166,6 @@
           </div>
 
           <div class="lang-switch" aria-label="{% trans 'Язык' %}">
-            {% get_current_language as CURRENT_LANGUAGE %}
             <details class="lang-menu header-menu">
               <summary class="menu-trigger lang-current lang-trigger-icononly" aria-label="{% trans 'Язык' %}">
                 <span class="lang-flag" aria-hidden="true">
