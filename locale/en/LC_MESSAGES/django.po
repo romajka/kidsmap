@@ -749,10 +749,8 @@ msgid "Отклонено заявок: %(count)s"
 msgstr ""
 
 #: src/catalog/admin.py:1714 src/catalog/templates/pages/home.html:286
-#, fuzzy
-#| msgid "Отправить отзыв"
 msgid "Открыть отзывы"
-msgstr "Submit review"
+msgstr "Open reviews"
 
 #: src/catalog/admin.py:1723
 msgid "Контент фильтров"
@@ -993,8 +991,8 @@ msgid "Искать кружок, курс или школу"
 msgstr "Search for a club, course, or school"
 
 #: src/catalog/controllers/home_controller.py:77
-msgid "например english, ballet, lego"
-msgstr "for example english, ballet, lego"
+msgid "например шахматы, футбол, рисование"
+msgstr "for example chess, football, drawing"
 
 #: src/catalog/controllers/home_controller.py:78
 #: src/catalog/templates/pages/home.html:277
@@ -1285,7 +1283,7 @@ msgstr ""
 
 #: src/catalog/controllers/site_reviews_controller.py:50
 msgid "Отзывы родителей и пользователей о сервисе KidsMap."
-msgstr ""
+msgstr "Reviews from parents and users about the KidsMap service."
 
 #: src/catalog/forms.py:37
 #, python-format
@@ -3470,10 +3468,8 @@ msgstr "Review sorting"
 
 #: src/catalog/templates/catalog/place_detail.html:384
 #: src/catalog/templates/pages/site_reviews.html:42
-#, fuzzy
-#| msgid "Отменить"
 msgid "Применить"
-msgstr "Cancel"
+msgstr "Apply"
 
 #: src/catalog/templates/catalog/place_detail.html:394
 msgid "Пока нет отзывов. Будьте первым!"
@@ -3648,15 +3644,7 @@ msgid "Дополнительно (можно несколько)"
 msgstr "Extra (multiple allowed)"
 
 #: src/catalog/templates/catalog/place_list.html:237
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "          Найден %(total)s кружок\n"
-#| "        "
-#| msgid_plural ""
-#| "\n"
-#| "          Найдено %(total)s кружков\n"
-#| "        "
+#, python-format
 msgid ""
 "\n"
 "            Найден %(total)s кружок\n"
@@ -3696,48 +3684,46 @@ msgstr "List cards"
 msgid "Подробнее"
 msgstr "View details"
 
+msgid "Перейти"
+msgstr "Open card"
+
 #: src/catalog/templates/catalog/place_list.html:280
-#, fuzzy
-#| msgid "Текущий владелец карточки назначен."
 msgid "По текущим фильтрам пока нет карточек с координатами."
-msgstr "A current owner is assigned to this listing."
+msgstr "No listings with coordinates match the current filters yet."
 
 #: src/catalog/templates/catalog/place_list.html:281
 msgid "Интерактивная карта станет доступна после настройки Google Maps."
-msgstr ""
+msgstr "The interactive map will be available after Google Maps is configured."
 
 #: src/catalog/templates/catalog/place_list.html:282
 msgid "Загружаем карту…"
-msgstr ""
+msgstr "Loading the map…"
 
 #: src/catalog/templates/catalog/place_list.html:287
 msgid "Результаты на карте"
-msgstr ""
+msgstr "Results on the map"
 
 #: src/catalog/templates/catalog/place_list.html:288
 msgid "Показаны только кружки, которые соответствуют текущим фильтрам."
-msgstr ""
+msgstr "Only listings that match the current filters are shown."
 
 #: src/catalog/templates/catalog/place_list.html:290
-#, fuzzy
-#| msgid "Открыть карточки"
 msgid "Закрыть карту"
-msgstr "Open cards"
+msgstr "Close map"
 
 #: src/catalog/templates/catalog/place_list.html:294
 #, python-format
 msgid "%(total)s точка на карте"
 msgid_plural "%(total)s точки на карте"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(total)s point on the map"
+msgstr[1] "%(total)s points on the map"
 
 #: src/catalog/templates/catalog/place_list.html:296
-#, fuzzy, python-format
-#| msgid "Эта карточка уже привязана к вашему аккаунту."
+#, python-format
 msgid "Еще %(total)s карточка не показана: нет координат."
 msgid_plural "Еще %(total)s карточки не показаны: нет координат."
-msgstr[0] "This listing is already linked to your account."
-msgstr[1] "This listing is already linked to your account."
+msgstr[0] "%(total)s more listing is hidden: no coordinates."
+msgstr[1] "%(total)s more listings are hidden: no coordinates."
 
 #: src/catalog/templates/catalog/place_list.html:311
 #, python-format
@@ -4398,10 +4384,8 @@ msgstr ""
 "A dedicated page with all site reviews, sorting, and like/dislike controls."
 
 #: src/catalog/templates/pages/home.html:294
-#, fuzzy
-#| msgid "Пока нет общих отзывов о сайте. Будьте первым!"
 msgid "Пока нет общих отзывов о сайте."
-msgstr "There are no general site reviews yet. Be the first."
+msgstr "There are no general site reviews yet."
 
 #: src/catalog/templates/pages/includes/owner_place_location_status.html:19
 msgid "Для карты нужны lat/lng."
@@ -4953,28 +4937,23 @@ msgstr ""
 "This page contains reviews about KidsMap itself, not about specific clubs."
 
 #: src/catalog/templates/pages/site_reviews.html:20
-#, fuzzy, python-format
-#| msgid "Открыть сайт"
+#, python-format
 msgid "%(total)s отзыв о сайте"
 msgid_plural "%(total)s отзывов о сайте"
-msgstr[0] "Open site"
-msgstr[1] "Open site"
+msgstr[0] "%(total)s site review"
+msgstr[1] "%(total)s site reviews"
 
 #: src/catalog/templates/pages/site_reviews.html:52
 msgid "Пока нет общих отзывов о сайте. Будьте первым!"
 msgstr "There are no general site reviews yet. Be the first."
 
 #: src/catalog/templates/pages/site_reviews.html:87
-#, fuzzy
-#| msgid "Отправить отзыв"
 msgid "Оставить отзыв о сайте"
-msgstr "Submit review"
+msgstr "Leave a site review"
 
 #: src/catalog/templates/pages/site_reviews.html:88
-#, fuzzy
-#| msgid "Не удалось отправить приглашение. Исправьте поле и попробуйте снова."
 msgid "Поделитесь впечатлением о сервисе KidsMap после использования каталога."
-msgstr "Failed to send invitation. Correct the field and try again."
+msgstr "Share your impression of KidsMap after using the catalog."
 
 #: src/catalog/templates/pages/site_reviews.html:117
 msgid "Что вам понравилось в сервисе?"
@@ -5418,9 +5397,6 @@ msgstr "Needs setup"
 #~ msgid "Отправлять такие заявки могут только аккаунты со статусом владельца."
 #~ msgstr "Only owner-status accounts can submit such requests."
 
-#~ msgid "Открыть кабинет"
-#~ msgstr "Open account"
-
 #~ msgid ""
 #~ "Ваш текущий статус: обычный пользователь. Отправка заявок на управление "
 #~ "доступна только владельцам."
@@ -5569,3 +5545,246 @@ msgstr "Needs setup"
 
 #~ msgid "Нецензурные слова были автоматически скрыты."
 #~ msgstr "Profanity was automatically hidden."
+
+#: src/catalog/services/seo.py
+msgid "Кружки и секции для детей в Баку"
+msgstr "Clubs and activities for kids in Baku"
+
+#: src/catalog/services/seo.py
+msgid "KidsMap: кружки и секции для детей в Баку"
+msgstr "KidsMap: clubs and activities for kids in Baku"
+
+#: src/catalog/services/seo.py
+msgid "Отзывы о KidsMap от родителей и пользователей"
+msgstr "KidsMap reviews from parents and users"
+
+#: src/catalog/templates/auth/register.html
+msgid "Поля, отмеченные звездочкой, обязательны для заполнения."
+msgstr "Fields marked with an asterisk are required."
+
+#: src/catalog/templates/base.html
+msgid "Меню"
+msgstr "Menu"
+
+#: src/catalog/templates/catalog/includes/place_more_panel.html
+msgid "Условия и контакты"
+msgstr "Details and contacts"
+
+#: src/catalog/templates/catalog/place_detail.html
+msgid "Вы представитель этого кружка?"
+msgstr "Do you represent this club?"
+
+#: src/catalog/templates/catalog/place_detail.html
+msgid "Карточка уже закреплена за представителем кружка. Если доступ нужен вашей команде, свяжитесь с нами."
+msgstr "This listing is already assigned to a club representative. If your team needs access, contact us."
+
+#: src/catalog/templates/catalog/place_detail.html
+msgid "Если вы ведете этот кружок, можно отправить заявку и получить доступ к редактированию карточки."
+msgstr "If you manage this club, you can submit a request and get access to edit the listing."
+
+#: src/catalog/templates/pages/home.html
+msgid "Отзывы появятся здесь"
+msgstr "Reviews will appear here"
+
+#: src/catalog/templates/pages/home.html
+msgid "Когда пользователи начнут оставлять отзывы о сервисе, мы покажем их на этой странице без искусственных примеров."
+msgstr "When users start leaving reviews about the service, we will show them here instead of artificial examples."
+
+#: src/catalog/templates/pages/home.html
+msgid "Карта кружков по Баку"
+msgstr "Map of clubs in Baku"
+
+#: src/catalog/services/seo.py
+msgid "Отзывы о сервисе KidsMap: впечатления родителей и пользователей о каталоге кружков и секций в Баку."
+msgstr "KidsMap service reviews: impressions from parents and users about the catalog of kids clubs and activities in Baku."
+
+#: src/catalog/services/seo.py
+#, python-format
+msgid "Отзывы о сервисе KidsMap: %(count)s оценок и отзывов от родителей и пользователей."
+msgstr "KidsMap service reviews: %(count)s ratings and reviews from parents and users."
+
+#: src/catalog/templates/pages/home.html
+msgid "Поиск детских кружков и секций в Баку"
+msgstr "Find kids clubs and activities in Baku"
+
+#: src/catalog/templates/pages/home.html
+msgid "Преимущества KidsMap"
+msgstr "KidsMap benefits"
+
+#: src/catalog/templates/pages/home.html
+msgid "кружков на карте"
+msgstr "clubs on the map"
+
+#: src/catalog/templates/pages/home.html
+msgid "средняя оценка"
+msgstr "average rating"
+
+#: src/catalog/templates/pages/home.html
+msgid "3 языка интерфейса"
+msgstr "3 interface languages"
+
+#: src/catalog/templates/pages/home.html
+msgid "Быстрый выбор категории"
+msgstr "Quick category selection"
+
+#: src/catalog/templates/pages/home.html
+msgid "Семейный досуг"
+msgstr "Family time"
+
+#: src/catalog/templates/pages/home.html
+msgid "отзывов о сервисе"
+msgstr "service reviews"
+
+#: src/catalog/templates/pages/home.html
+msgid "Семья"
+msgstr "Family"
+
+#: src/catalog/templates/pages/home.html
+msgid "Командные занятия"
+msgstr "Team activities"
+
+#: src/catalog/templates/pages/home.html
+msgid "Три простых шага, чтобы быстро найти подходящий кружок."
+msgstr "Three simple steps to quickly find the right activity."
+
+#: src/catalog/templates/pages/home.html
+msgid "Выберите фильтры"
+msgstr "Choose filters"
+
+#: src/catalog/templates/pages/home.html
+msgid "Категория, район, метро и возраст ребёнка."
+msgstr "Category, district, metro and your child's age."
+
+#: src/catalog/templates/pages/home.html
+msgid "Сравните варианты"
+msgstr "Compare options"
+
+#: src/catalog/templates/pages/home.html
+msgid "Смотрите фото, цену, рейтинг, отзывы и расположение на карте."
+msgstr "Check photos, prices, ratings, reviews and map location."
+
+#: src/catalog/templates/pages/home.html
+msgid "Свяжитесь с клубом"
+msgstr "Contact the club"
+
+#: src/catalog/templates/pages/home.html
+msgid "Откройте карточку и сразу перейдите к звонку, сайту или Instagram."
+msgstr "Open a listing and go straight to phone, website or Instagram."
+
+#: src/catalog/templates/pages/home.html
+msgid "Посмотрите кружки на карте"
+msgstr "Explore clubs on the map"
+
+#: src/catalog/templates/pages/home.html
+msgid "Выбирайте фильтры выше — точки на карте обновятся сразу. Нажмите на маркер, чтобы открыть карточку кружка."
+msgstr "Use the filters above — map markers update instantly. Tap a marker to open the club page."
+
+#: src/catalog/templates/pages/home.html
+msgid "Открыть весь каталог"
+msgstr "Open full catalog"
+
+#: src/catalog/templates/pages/home.html
+msgid "По выбранным фильтрам на карте пока нет кружков"
+msgstr "No clubs match the selected filters on the map yet"
+
+#: src/catalog/templates/pages/home.html
+msgid "Для владельцев кружков"
+msgstr "For club owners"
+
+#: src/catalog/templates/pages/home.html
+msgid "Разместите кружок на KidsMap и получайте новые обращения от родителей"
+msgstr "List your club on KidsMap and get new enquiries from parents"
+
+#: src/catalog/templates/pages/home.html
+msgid "Добавим карточку, покажем её в каталоге и на карте, поможем собрать доверие через фото, описание и отзывы."
+msgstr "We’ll create a place card, show it in the catalog and on the map, and help build trust with photos, a clear description, and reviews."
+
+#: src/catalog/templates/pages/home.html
+msgid "Что даёт размещение на KidsMap"
+msgstr "Benefits of listing on KidsMap"
+
+#: src/catalog/templates/pages/home.html
+msgid "Видимость в каталоге и на карте"
+msgstr "Visibility in the catalog and on the map"
+
+#: src/catalog/templates/pages/home.html
+msgid "Фото, описание, контакты и быстрые CTA"
+msgstr "Photos, description, contacts, and fast CTAs"
+
+#: src/catalog/templates/pages/home.html
+msgid "Отзывы родителей и рост доверия"
+msgstr "Parent reviews and stronger trust"
+
+#: src/catalog/templates/pages/home.html
+msgid "Управление карточками из личного кабинета"
+msgstr "Manage place cards from your dashboard"
+
+#: src/catalog/templates/pages/home.html
+msgid "Открыть кабинет"
+msgstr "Open dashboard"
+
+#: src/catalog/templates/pages/home.html
+msgid "Разместить кружок"
+msgstr "List your club"
+msgid "Рисование"
+msgstr "Drawing"
+
+msgid "Предыдущие фото"
+msgstr "Previous photos"
+
+msgid "Следующие фото"
+msgstr "Next photos"
+
+msgid "Переключение фото"
+msgstr "Photo navigation"
+
+msgid "Частые вопросы о KidsMap"
+msgstr "Frequently asked questions about KidsMap"
+
+msgid "Собрали короткие ответы, чтобы было проще понять, как работает поиск кружков, отзывы и размещение карточек."
+msgstr "Here are short answers to help you understand how club search, reviews, and listings work."
+
+msgid "Как быстро найти кружок для ребёнка?"
+msgstr "How can I quickly find a club for my child?"
+
+msgid "Выберите категорию, район, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку."
+msgstr "Select a category, district, metro station, or age in the homepage search. The map and club list help you quickly compare options and open the right card."
+
+msgid "Нужно ли регистрироваться, чтобы смотреть каталог?"
+msgstr "Do I need to register to browse the catalog?"
+
+msgid "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками."
+msgstr "No, you can browse the catalog, map, and club pages without signing up. An account is needed only if you want to like, leave reviews, or manage your own clubs."
+
+msgid "Как оставить отзыв или поставить лайк?"
+msgstr "How can I leave a review or like a club?"
+
+msgid "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать."
+msgstr "Open a club page or the reviews page, sign in, and leave a rating, text review, or reaction. This helps other parents choose faster."
+
+msgid "Как владельцу кружка разместить карточку на сайте?"
+msgstr "How can a club owner publish a listing on the site?"
+
+msgid "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета."
+msgstr "Click “List your club”, create an account, and submit the listing for review. After publication, the club appears in the catalog and on the map, and you can update it from your dashboard."
+
+msgid "Можно ли показывать фото и контакты кружка?"
+msgstr "Can I show club photos and contact details?"
+
+msgid "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение."
+msgstr "Yes, you can add photos, a description, phone number, website, Instagram, age range, schedule, prices, and extra conditions so parents can decide more easily."
+
+msgid "Дополнительная информация скоро появится."
+msgstr "More details will appear soon."
+
+msgid "Чтобы разместить кружок, войдите в аккаунт или зарегистрируйтесь."
+msgstr "To list a club, sign in or create an account."
+
+msgid "После входа вы сможете создать карточку кружка и отправить её на проверку."
+msgstr "After signing in, you can create a club listing and submit it for review."
+
+msgid "Чтобы разместить кружок, создайте аккаунт или войдите, если он уже есть."
+msgstr "To list a club, create an account or sign in if you already have one."
+
+msgid "После подтверждения email вы сможете добавить карточку кружка и управлять ею из кабинета."
+msgstr "After email verification, you can add a club listing and manage it from your dashboard."

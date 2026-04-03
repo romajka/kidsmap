@@ -17,6 +17,7 @@ from catalog.models import (
     OwnerTeamMembership,
     PlaceOwnershipRequest,
     SiteReview,
+    SiteGalleryImage,
     SiteSettings,
     UserProfile,
 )
@@ -61,6 +62,10 @@ class ISettingsRepository(ABC):
 
     @abstractmethod
     def get_site_settings(self) -> SiteSettings:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_site_gallery_images(self, *, placement: str) -> QuerySet[SiteGalleryImage]:
         raise NotImplementedError
 
 

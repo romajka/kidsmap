@@ -1268,9 +1268,9 @@ class SiteSettings(models.Model):
             home_search_label_ru="Искать кружок, курс или школу",
             home_search_label_en="Find a club, course, or school",
             home_search_label_az="Dərnək, kurs və ya məktəb axtarın",
-            home_search_placeholder_ru="например english, ballet, lego",
-            home_search_placeholder_en="for example english, ballet, lego",
-            home_search_placeholder_az="məsələn english, ballet, lego",
+            home_search_placeholder_ru="например шахматы, футбол, рисование",
+            home_search_placeholder_en="for example chess, football, drawing",
+            home_search_placeholder_az="məsələn şahmat, futbol, rəsm",
             home_cta_text_ru="Начать поиск",
             home_cta_text_en="Start searching",
             home_cta_text_az="Axtarışa başla",
@@ -1293,6 +1293,65 @@ class SiteSettings(models.Model):
 
     def __str__(self):
         return self.brand_name or "Site settings"
+
+
+class SiteGalleryImage(models.Model):
+    PLACEMENT_HOME_HERO = "HOME_HERO"
+    PLACEMENT_HOME_PARTNERS = "HOME_PARTNERS"
+
+    PLACEMENT_CHOICES = (
+        (PLACEMENT_HOME_HERO, _("Главная: hero-слайдер")),
+        (PLACEMENT_HOME_PARTNERS, _("Главная: партнёры")),
+    )
+
+    placement = models.CharField(
+        _("Где показывать"),
+        max_length=32,
+        choices=PLACEMENT_CHOICES,
+        default=PLACEMENT_HOME_HERO,
+        db_index=True,
+    )
+    image = models.FileField(
+        _("Изображение"),
+        upload_to="site/gallery/",
+        help_text=_("Загрузите JPG/WebP/PNG. Для hero лучше 1200x900 или 900x1200, до 2 MB."),
+    )
+    category = models.CharField(
+        _("Категория"),
+        max_length=10,
+        choices=Place.CATEGORY_CHOICES,
+        blank=True,
+        default="",
+        help_text=_("Нужно для подписи фото в hero или будущих подборок."),
+    )
+    title_ru = models.CharField(_("Подпись (RU)"), max_length=120, blank=True, default="")
+    title_en = models.CharField(_("Подпись (EN)"), max_length=120, blank=True, default="")
+    title_az = models.CharField(_("Подпись (AZ)"), max_length=120, blank=True, default="")
+    order = models.PositiveIntegerField(_("Порядок"), default=0, db_index=True)
+    is_active = models.BooleanField(_("Показывать"), default=True, db_index=True)
+    created_at = models.DateTimeField(_("Создано"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    def _normalize_lang(self, lang):
+        if not lang:
+            lang = get_language() or "ru"
+        return lang.split("-")[0]
+
+    def title_i18n(self, lang=None):
+        lang = self._normalize_lang(lang)
+        if lang == "en":
+            return (self.title_en or self.title_ru or self.get_category_display()).strip()
+        if lang == "az":
+            return (self.title_az or self.title_ru or self.get_category_display()).strip()
+        return (self.title_ru or self.get_category_display()).strip()
+
+    class Meta:
+        ordering = ("placement", "order", "id")
+        verbose_name = _("Фото для блоков сайта")
+        verbose_name_plural = _("Фото для блоков сайта")
+
+    def __str__(self):
+        return f"{self.get_placement_display()} · {self.title_i18n() or self.pk}"
 
 
 class SiteBrandingSettings(SiteSettings):

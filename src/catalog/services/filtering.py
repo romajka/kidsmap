@@ -43,11 +43,9 @@ class PlaceListFilters:
             days=(request.GET.get("days") or "30").strip(),
             with_photo=(request.GET.get("with_photo") or "").strip(),
             verified_only=(request.GET.get("verified") or "").strip(),
-            view_mode=(request.GET.get("view") or "grid").strip(),
+            view_mode="grid",
             force_new_only=force_new_only,
         )
-        if data.view_mode not in {"grid", "list"}:
-            data.view_mode = "grid"
         if data.force_new_only:
             data.sort = "new"
             if data.days not in {"7", "14", "30"}:

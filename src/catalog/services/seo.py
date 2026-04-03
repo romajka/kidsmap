@@ -174,7 +174,7 @@ def build_sitewide_schema_payload(*, request, site_name: str, logo_url: str = ""
 
 
 def build_home_seo_payload(*, request, popular_places) -> dict:
-    title = _("KidsMap: кружки и секции для детей в Баку")
+    title = _("Кружки и секции для детей в Баку")
     description = _("KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене.")
 
     featured_places_schema_json = ""

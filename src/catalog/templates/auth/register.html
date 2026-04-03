@@ -9,13 +9,21 @@
 {% block content %}
   <section class="panel auth-panel auth-panel-register">
     <h1>{% trans "Регистрация" %}</h1>
-    <p class="auth-subtitle">{% trans "Создайте аккаунт KidsMap. После регистрации мы отправим код подтверждения на email." %}</p>
+    {% if auth_intent == "owner_place" %}
+      <div class="auth-context-note">
+        <strong>{% trans "Чтобы разместить кружок, создайте аккаунт или войдите, если он уже есть." %}</strong>
+        <p>{% trans "После подтверждения email вы сможете добавить карточку кружка и управлять ею из кабинета." %}</p>
+      </div>
+    {% else %}
+      <p class="auth-subtitle">{% trans "Создайте аккаунт KidsMap. После регистрации мы отправим код подтверждения на email." %}</p>
+    {% endif %}
     <p class="auth-register-note">{% trans "После входа вы сможете оставлять отзывы, добавлять кружки в избранное и при необходимости отправить заявку на управление карточкой." %}</p>
-    <p class="auth-required-note" lang="az">* işarəsi olan sahələr mütləq doldurulmalıdır.</p>
+    <p class="auth-required-note">{% trans "Поля, отмеченные звездочкой, обязательны для заполнения." %}</p>
 
     <form method="post" class="auth-form auth-form-register">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next_url }}" />
+      <input type="hidden" name="intent" value="{{ auth_intent }}" />
 
       {% if form.non_field_errors %}
         <div class="auth-errors">
@@ -117,7 +125,7 @@
 
     <p class="auth-alt">
       {% trans "Уже есть аккаунт?" %}
-      <a href="{% url 'account_login' %}?next={{ next_url|urlencode }}">{% trans "Войти" %}</a>
+      <a href="{% url 'account_login' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}">{% trans "Войти" %}</a>
     </p>
   </section>
 {% endblock %}

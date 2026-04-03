@@ -19,7 +19,7 @@
 {% block content %}
   <section class="detail-wrap">
     <div>
-      <a class="link-btn detail-back-btn icon-btn icon-arrow-left" href="{% url 'place_list' %}">{% trans "Назад" %}</a>
+      <a class="link-btn detail-back-btn icon-btn icon-arrow-left" href="{{ catalog_return_url }}">{% trans "Назад" %}</a>
     </div>
 
     <article class="detail-block">
@@ -160,11 +160,11 @@
       {% endif %}
 
       <section id="owner-request" class="owner-request panel">
-        <h2>{% trans "Управление карточкой кружка" %}</h2>
+        <h2>{% trans "Вы представитель этого кружка?" %}</h2>
         {% if place.owner %}
-          <p class="meta">{% trans "Текущий владелец карточки назначен." %}</p>
+          <p class="meta">{% trans "Карточка уже закреплена за представителем кружка. Если доступ нужен вашей команде, свяжитесь с нами." %}</p>
         {% else %}
-          <p class="meta">{% trans "Карточка пока без назначенного владельца." %}</p>
+          <p class="meta">{% trans "Если вы ведете этот кружок, можно отправить заявку и получить доступ к редактированию карточки." %}</p>
         {% endif %}
 
         {% if request.user.is_authenticated %}

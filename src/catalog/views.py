@@ -87,6 +87,13 @@ def _redirect_to_login(request):
     return redirect(f"{reverse('account_login')}?{query}")
 
 
+def _resolve_auth_intent(request) -> str:
+    intent = (request.POST.get("intent") or request.GET.get("intent") or "").strip()
+    if intent == "owner_place":
+        return "owner_place"
+    return ""
+
+
 def home(request):
     context = home_controller.build_context(
         request=request,
@@ -807,6 +814,7 @@ def account_register(request):
     if request.user.is_authenticated:
         return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
+    auth_intent = _resolve_auth_intent(request)
     form = auth_controller.build_registration_form(data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = auth_controller.register_user_from_form(form=form)
@@ -825,6 +833,7 @@ def account_register(request):
             {
                 "email": form.cleaned_data["email"],
                 "next": _resolve_safe_next_url(request, reverse("account_profile")),
+                "intent": auth_intent,
             }
         )
         return redirect(f"{reverse('account_verify_email')}?{query}")
@@ -836,6 +845,7 @@ def account_register(request):
             "form": form,
             "meta_description": _("Регистрация в KidsMap: создайте аккаунт и начните пользоваться каталогом."),
             "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
+            "auth_intent": auth_intent,
         },
     )
 
@@ -844,6 +854,7 @@ def account_login(request):
     if request.user.is_authenticated:
         return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
+    auth_intent = _resolve_auth_intent(request)
     form = auth_controller.build_login_form(request=request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         auth_login(request, form.get_user())
@@ -861,6 +872,7 @@ def account_login(request):
             "form": form,
             "meta_description": _("Вход в аккаунт KidsMap."),
             "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
+            "auth_intent": auth_intent,
         },
     )
 

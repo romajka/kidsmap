@@ -32,182 +32,226 @@
 
     <div class="home-hero-grid">
       <div class="home-hero-copy">
+        <p class="home-hero-eyebrow">{% trans "Поиск детских кружков и секций в Баку" %}</p>
         <h1>{{ hero_title }}</h1>
         <p>{{ hero_subtitle }}</p>
 
-        <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}">
-          <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
-          <div class="home-search-row">
-            <select id="home-search-category" class="filter-select home-filter-select" name="category">
-              <option value="">{% trans "Категория" %}</option>
-              {% for item in home_categories %}
-                <option value="{{ item.code }}">{% trans item.title %}</option>
-              {% endfor %}
-            </select>
-
-            <select class="filter-select home-filter-select" name="district">
-              <option value="">{% trans "Район" %}</option>
-              {% for district in home_districts %}
-                <option value="{{ district }}">{% trans district %}</option>
-              {% endfor %}
-            </select>
-
-            <select class="filter-select home-filter-select" name="metro">
-              <option value="">{% trans "Метро" %}</option>
-              {% for metro in home_metro_options %}
-                <option value="{{ metro }}">{% trans metro %}</option>
-              {% endfor %}
-            </select>
-
-            <select class="filter-select home-filter-select" name="age">
-              <option value="">{% trans "Возраст" %}</option>
-              {% for age in home_age_options %}
-                <option value="{{ age }}">{{ age }}+</option>
-              {% endfor %}
-            </select>
-
-            <button class="btn icon-btn icon-search home-search-btn icon-only-btn" type="submit" aria-label="{{ hero_cta_text }}">
-              <span class="visually-hidden">{{ hero_cta_text }}</span>
-            </button>
+        <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
+          <div class="home-hero-stat">
+            <strong>{{ map_places|length }}+</strong>
+            <span>{% trans "кружков на карте" %}</span>
           </div>
-        </form>
+          <div class="home-hero-stat">
+            <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.9{% endif %}</strong>
+            <span>
+              {% if site_reviews_count %}
+                {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва{% plural %}на основе {{ total }} отзывов{% endblocktrans %}
+              {% else %}
+                {% trans "средняя оценка" %}
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="home-hero-visual">
+        <div class="home-hero-slider" data-home-hero-slider>
+          <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
+            <div class="home-hero-slider-track" data-home-hero-slider-track>
+              {% for slide in hero_gallery_slides %}
+                <article class="home-hero-slide" data-home-hero-slide>
+                  <div class="home-hero-slide-grid">
+                    <figure class="home-hero-photo-card home-hero-photo-main">
+                      <img
+                        src="{{ slide.main.image_url }}"
+                        alt="{{ slide.main.label }}"
+                        decoding="async"
+                        {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                      />
+                      {% if slide.main.label %}
+                        <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
+                      {% endif %}
+                    </figure>
+                    <figure class="home-hero-photo-card home-hero-photo-side-top">
+                      <img
+                        src="{{ slide.side_top.image_url }}"
+                        alt="{{ slide.side_top.label }}"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      {% if slide.side_top.label %}
+                        <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
+                      {% endif %}
+                    </figure>
+                    <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+                      <img
+                        src="{{ slide.side_bottom.image_url }}"
+                        alt="{{ slide.side_bottom.label }}"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      {% if slide.side_bottom.label %}
+                        <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
+                      {% endif %}
+                    </figure>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="home-hero-slider-arrow home-hero-slider-arrow-prev"
+            data-home-hero-slider-prev
+            aria-label="{% trans 'Предыдущие фото' %}"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            class="home-hero-slider-arrow home-hero-slider-arrow-next"
+            data-home-hero-slider-next
+            aria-label="{% trans 'Следующие фото' %}"
+          >
+            ›
+          </button>
+
+          <div class="home-hero-slider-dots" role="tablist" aria-label="{% trans 'Переключение фото' %}">
+            {% for slide in hero_gallery_slides %}
+              <button
+                type="button"
+                class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
+                data-home-hero-slider-dot
+                data-slide-index="{{ forloop.counter0 }}"
+                aria-label="{{ forloop.counter }}"
+              ></button>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="home-hero-search-panel">
+      <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}" data-home-map-filter-form>
+        <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
+        <div class="home-search-row">
+          <input
+            id="home-search-query"
+            class="field search-field home-search-input"
+            type="search"
+            name="q"
+            placeholder="{{ hero_search_placeholder }}"
+          />
+          <select id="home-search-category" class="filter-select home-filter-select home-filter-category" name="category">
+            <option value="">{% trans "Категория" %}</option>
+            {% for item in home_categories %}
+              <option value="{{ item.code }}">{% trans item.title %}</option>
+            {% endfor %}
+          </select>
+
+          <select class="filter-select home-filter-select home-filter-district" name="district">
+            <option value="">{% trans "Район" %}</option>
+            {% for district in home_districts %}
+              <option value="{{ district }}">{% trans district %}</option>
+            {% endfor %}
+          </select>
+
+          <select class="filter-select home-filter-select home-filter-metro" name="metro">
+            <option value="">{% trans "Метро" %}</option>
+            {% for metro in home_metro_options %}
+              <option value="{{ metro }}">{% trans metro %}</option>
+            {% endfor %}
+          </select>
+
+          <select class="filter-select home-filter-select home-filter-age" name="age">
+            <option value="">{% trans "Возраст" %}</option>
+            {% for age in home_age_options %}
+              <option value="{{ age }}">{{ age }}+</option>
+            {% endfor %}
+          </select>
+
+          <button class="btn icon-btn icon-search home-search-btn icon-only-btn" type="submit" aria-label="{{ hero_cta_text }}">
+            <span class="visually-hidden">{{ hero_cta_text }}</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="home-hero-links" aria-label="{% trans 'Быстрый выбор категории' %}">
+        {% for item in home_categories|slice:":4" %}
+          <a class="home-hero-link-chip" href="{% url 'place_list' %}?category={{ item.code }}">
+            {% trans item.title %}
+          </a>
+        {% endfor %}
       </div>
     </div>
   </section>
 
-  <section class="home-categories panel">
-    <h2>{% trans "Популярные категории" %}</h2>
-    <div class="home-categories-grid">
-      {% for item in home_categories %}
-        <a class="home-category-card cat-{{ forloop.counter }}" href="{% url 'place_list' %}?category={{ item.code }}">
-          <span class="home-category-icon" aria-hidden="true">
-            {% if forloop.counter == 1 %}⚽{% elif forloop.counter == 2 %}🎵{% elif forloop.counter == 3 %}🎨{% elif forloop.counter == 4 %}📘{% elif forloop.counter == 5 %}🤖{% else %}🎉{% endif %}
-          </span>
-          <span class="home-category-title">{% trans item.title %}</span>
-        </a>
-      {% endfor %}
-    </div>
-  </section>
-
-  <section class="home-steps panel">
-    <h2>{% trans "Как это работает" %}</h2>
-    <p class="steps-intro">{% trans "Идите по шагам: 1 → 2 → 3. На каждом шаге есть кнопка действия." %}</p>
-    <div class="home-grid3 home-steps-flow">
-      <article class="home-tile step-1">
-        <div class="step-head">
-          <p class="step-label">{% trans "Шаг" %} 1</p>
-          <div class="step-emoji" aria-hidden="true">🔎</div>
-        </div>
-        <h3>{% trans "Выберите фильтры в каталоге" %}</h3>
-        <p class="step-goal">{% trans "Укажите категорию, район и возраст ребенка." %}</p>
-        <ul class="step-list">
-          <li>{% trans "Категория: что именно ищете (спорт, творчество, IT)." %}</li>
-          <li>{% trans "Район: чтобы кружок был рядом с домом." %}</li>
-        </ul>
-        <a class="btn step-action icon-btn icon-search" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
-      </article>
-      <article class="home-tile step-2">
-        <div class="step-head">
-          <p class="step-label">{% trans "Шаг" %} 2</p>
-          <div class="step-emoji" aria-hidden="true">✅</div>
-        </div>
-        <h3>{% trans "Сравните 2-3 варианта" %}</h3>
-        <p class="step-goal">{% trans "Смотрите цену, рейтинг, возраст и отзывы." %}</p>
-        <ul class="step-list">
-          <li>{% trans "Проверьте формат: обычные карточки или список." %}</li>
-          <li>{% trans "Сравните условия и выберите лучший вариант." %}</li>
-        </ul>
-        <a class="btn step-action icon-btn icon-details" href="{% url 'place_list' %}?sort=price_asc&view=list">{% trans "Сравнить варианты" %}</a>
-      </article>
-      <article class="home-tile step-3">
-        <div class="step-head">
-          <p class="step-label">{% trans "Шаг" %} 3</p>
-          <div class="step-emoji" aria-hidden="true">📅</div>
-        </div>
-        <h3>{% trans "Откройте «Подробнее» и свяжитесь" %}</h3>
-        <p class="step-goal">{% trans "На карточке можно сразу позвонить или написать." %}</p>
-        <ul class="step-list">
-          <li>{% trans "Используйте кнопки: Позвонить / WhatsApp / Instagram." %}</li>
-          <li>{% trans "Проверьте адрес и точку на карте перед записью." %}</li>
-        </ul>
-        <a class="btn step-action icon-btn icon-phone" href="{% url 'place_list' %}?view=list">{% trans "Открыть карточки" %}</a>
-      </article>
-    </div>
-  </section>
-
-  <section class="home-trust panel">
-    <h2>{% trans "Почему нам доверяют" %}</h2>
-    <div class="trust-score">
-      <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.9{% endif %}</strong>
-      <span class="trust-stars" aria-hidden="true">★★★★★</span>
-      <span>
-        {% if site_reviews_count %}
-          {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва о сервисе{% plural %}на основе {{ total }} отзывов о сервисе{% endblocktrans %}
-        {% else %}
-          {% trans "удобный выбор для родителей" %}
-        {% endif %}
-      </span>
-    </div>
-    <div class="trust-reviews">
-      {% if site_reviews %}
-        {% for review in site_reviews|slice:":2" %}
-          <article class="trust-card">
-            <div class="trust-avatar" aria-hidden="true">{% if review.is_anonymous %}🕶️{% else %}👤{% endif %}</div>
-            <div>
-              <h3>{% if review.is_anonymous %}{% trans "Аноним" %}{% else %}{% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %}{% endif %}</h3>
-              <p>
-                <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
-                {% if review.text %} {{ review.text|truncatechars:90 }}{% endif %}
-              </p>
-            </div>
-          </article>
-        {% endfor %}
-      {% else %}
-        <article class="trust-card">
-          <div class="trust-avatar" aria-hidden="true">👩</div>
-          <div>
-            <h3>{% trans "Алина К." %}</h3>
-            <p>{% trans "Очень легко нашли кружок рядом с домом и быстро связались." %}</p>
-          </div>
-        </article>
-        <article class="trust-card">
-          <div class="trust-avatar" aria-hidden="true">👨</div>
-          <div>
-            <h3>{% trans "Игорь С." %}</h3>
-            <p>{% trans "Сравнили варианты по цене и возрасту, выбрали лучший за 10 минут." %}</p>
-          </div>
-        </article>
-      {% endif %}
-    </div>
-    <div class="home-grid2">
-      <p>{% trans "Проверенные и активные места" %}</p>
-      <p>{% trans "Фильтры по возрасту, району и цене" %}</p>
-      <p>{% trans "Быстрый переход к звонку и Instagram" %}</p>
-      <p>{% trans "Удобно на телефоне и компьютере" %}</p>
-    </div>
-  </section>
-
   {% if map_places %}
-    <section class="panel">
-      <h2>{% trans "Карта кружков по Азербайджану" %}</h2>
+    <section class="panel home-map-panel" id="home-map-section">
+      <div class="home-map-head">
+        <div class="home-map-copy">
+          <h2>
+            <a class="home-map-title-link" href="{% url 'place_list' %}">{% trans "Посмотрите кружки на карте" %}</a>
+          </h2>
+          <p class="home-map-subtitle">
+            {% trans "Выбирайте фильтры выше — точки на карте обновятся сразу. Нажмите на маркер, чтобы открыть карточку кружка." %}
+          </p>
+        </div>
+        <a class="home-map-catalog-link" href="{% url 'place_list' %}">{% trans "Открыть весь каталог" %}</a>
+      </div>
+
       <div
         id="home-map"
         class="home-map"
         data-details-label="{% trans 'Подробнее' %}"
-        data-fallback-title="{% trans 'Карта кружков по Азербайджану' %}"
+        data-fallback-title="{% trans 'Карта кружков по Баку' %}"
+        data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет кружков' %}"
       ></div>
+      <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
       <noscript>
         <iframe
           class="home-map home-map-fallback"
-          src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed"
+          src="https://maps.google.com/maps?q=Baku%2C%20Azerbaijan&z=11&output=embed"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          title="{% trans 'Карта кружков по Азербайджану' %}"
+          title="{% trans 'Карта кружков по Баку' %}"
         ></iframe>
       </noscript>
       {{ map_places|json_script:"home-map-data" }}
     </section>
   {% endif %}
+
+  <section class="home-steps panel home-steps-lite" aria-label="{% trans 'Как это работает' %}">
+    <div class="home-steps-lite-head">
+      <h2>{% trans "Как это работает" %}</h2>
+      <p>{% trans "Три простых шага, чтобы быстро найти подходящий кружок." %}</p>
+    </div>
+
+    <div class="home-steps-lite-grid">
+      <article class="home-step-lite-card">
+        <span class="home-step-lite-number">1</span>
+        <h3>{% trans "Выберите фильтры" %}</h3>
+        <p>{% trans "Категория, район, метро и возраст ребёнка." %}</p>
+        <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Найти кружки" %}</a>
+      </article>
+
+      <article class="home-step-lite-card">
+        <span class="home-step-lite-number home-step-lite-number-green">2</span>
+        <h3>{% trans "Сравните варианты" %}</h3>
+        <p>{% trans "Смотрите фото, цену, рейтинг, отзывы и расположение на карте." %}</p>
+        <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Сравнить" %}</a>
+      </article>
+
+      <article class="home-step-lite-card">
+        <span class="home-step-lite-number home-step-lite-number-orange">3</span>
+        <h3>{% trans "Свяжитесь с клубом" %}</h3>
+        <p>{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}</p>
+        <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
+      </article>
+    </div>
+  </section>
 
   {% if popular_places %}
     <section class="panel home-recommended">
@@ -257,14 +301,58 @@
                   ♥ <span class="like-count">{{ place.likes_count }}</span>
                 </button>
               </form>
-              {% include "catalog/includes/place_more_panel.html" with place=place %}
-              <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
+              <div class="card-action-stack">
+                {% include "catalog/includes/place_more_panel.html" with place=place %}
+                <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">{% trans "Перейти" %}</a>
+              </div>
             </div>
           </article>
         {% endfor %}
       </div>
     </section>
   {% endif %}
+
+  {% url 'owner_places_dashboard' as owner_dashboard_url %}
+  <section class="panel home-owner-banner" id="for-owners">
+    <div class="home-owner-media">
+      <img
+        src="{% static 'img/home/photos/family-portrait.jpg' %}"
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+
+    <div class="home-owner-copy">
+      <p class="home-owner-eyebrow">{% trans "Для владельцев кружков" %}</p>
+      <h2>{% trans "Разместите кружок на KidsMap и получайте новые обращения от родителей" %}</h2>
+      <p class="home-owner-text">
+        {% trans "Добавим карточку, покажем её в каталоге и на карте, поможем собрать доверие через фото, описание и отзывы." %}
+      </p>
+
+      <div class="home-owner-benefits" aria-label="{% trans 'Что даёт размещение на KidsMap' %}">
+        {% if current_user_role == "OWNER" %}
+          <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Видимость в каталоге и на карте" %}</a>
+          <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Фото, описание, контакты и быстрые CTA" %}</a>
+          <a href="{% url 'owner_reviews_dashboard' %}" class="home-owner-benefit">{% trans "Отзывы родителей и рост доверия" %}</a>
+          <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Управление карточками из личного кабинета" %}</a>
+        {% else %}
+          <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Видимость в каталоге и на карте" %}</a>
+          <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Фото, описание, контакты и быстрые CTA" %}</a>
+          <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Отзывы родителей и рост доверия" %}</a>
+          <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Управление карточками из личного кабинета" %}</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="home-owner-actions">
+      {% if current_user_role == "OWNER" %}
+        <a class="home-owner-cta" href="{% url 'owner_places_dashboard' %}">{% trans "Открыть кабинет" %}</a>
+      {% else %}
+        <a class="home-owner-cta" href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">{% trans "Разместить кружок" %}</a>
+      {% endif %}
+    </div>
+  </section>
 
   <section class="panel">
     <h2>{% trans "Популярные запросы" %}</h2>
@@ -277,9 +365,49 @@
     </div>
   </section>
 
-  <section class="home-final panel">
-    <h2>{% trans "Готовы выбрать кружок?" %}</h2>
-    <a class="btn" href="{% url 'place_list' %}">{% trans "Начать поиск" %}</a>
+  <section class="home-trust panel">
+    <h2>{% trans "Почему нам доверяют" %}</h2>
+    <div class="trust-score">
+      <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.9{% endif %}</strong>
+      <span class="trust-stars" aria-hidden="true">★★★★★</span>
+      <span>
+        {% if site_reviews_count %}
+          {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва о сервисе{% plural %}на основе {{ total }} отзывов о сервисе{% endblocktrans %}
+        {% else %}
+          {% trans "удобный выбор для родителей" %}
+        {% endif %}
+      </span>
+    </div>
+    <div class="trust-reviews">
+      {% if site_reviews %}
+        {% for review in site_reviews|slice:":2" %}
+          <article class="trust-card">
+            <div class="trust-avatar" aria-hidden="true">{% if review.is_anonymous %}🕶️{% else %}👤{% endif %}</div>
+            <div>
+              <h3>{% if review.is_anonymous %}{% trans "Аноним" %}{% else %}{% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %}{% endif %}</h3>
+              <p>
+                <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
+                {% if review.text %} {{ review.text|truncatechars:90 }}{% endif %}
+              </p>
+            </div>
+          </article>
+        {% endfor %}
+      {% else %}
+        <article class="trust-card">
+          <div class="trust-avatar" aria-hidden="true">💬</div>
+          <div>
+            <h3>{% trans "Отзывы появятся здесь" %}</h3>
+            <p>{% trans "Когда пользователи начнут оставлять отзывы о сервисе, мы покажем их на этой странице без искусственных примеров." %}</p>
+          </div>
+        </article>
+      {% endif %}
+    </div>
+    <div class="home-grid2">
+      <p>{% trans "Проверенные и активные места" %}</p>
+      <p>{% trans "Фильтры по возрасту, району и цене" %}</p>
+      <p>{% trans "Быстрый переход к звонку и Instagram" %}</p>
+      <p>{% trans "Удобно на телефоне и компьютере" %}</p>
+    </div>
   </section>
 
   <section id="site-reviews" class="panel site-reviews-teaser">
@@ -298,6 +426,70 @@
       {% else %}
         <p class="meta">{% trans "Пока нет общих отзывов о сайте." %}</p>
       {% endif %}
+    </div>
+  </section>
+
+  <section class="panel home-faq-panel" id="faq">
+    <div class="home-faq-grid">
+      <div class="home-faq-copy">
+        <p class="home-owner-eyebrow">{% trans "FAQ" %}</p>
+        <h2>{% trans "Частые вопросы о KidsMap" %}</h2>
+        <p class="home-faq-lead">
+          {% trans "Собрали короткие ответы, чтобы было проще понять, как работает поиск кружков, отзывы и размещение карточек." %}
+        </p>
+      </div>
+
+      <div class="home-faq-list">
+        <details class="home-faq-item" open>
+          <summary class="home-faq-question">
+            <span>{% trans "Как быстро найти кружок для ребёнка?" %}</span>
+            <span class="home-faq-icon" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="home-faq-answer">
+            {% trans "Выберите категорию, район, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
+          </div>
+        </details>
+
+        <details class="home-faq-item">
+          <summary class="home-faq-question">
+            <span>{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
+            <span class="home-faq-icon" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="home-faq-answer">
+            {% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}
+          </div>
+        </details>
+
+        <details class="home-faq-item">
+          <summary class="home-faq-question">
+            <span>{% trans "Как оставить отзыв или поставить лайк?" %}</span>
+            <span class="home-faq-icon" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="home-faq-answer">
+            {% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}
+          </div>
+        </details>
+
+        <details class="home-faq-item">
+          <summary class="home-faq-question">
+            <span>{% trans "Как владельцу кружка разместить карточку на сайте?" %}</span>
+            <span class="home-faq-icon" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="home-faq-answer">
+            {% trans "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
+          </div>
+        </details>
+
+        <details class="home-faq-item">
+          <summary class="home-faq-question">
+            <span>{% trans "Можно ли показывать фото и контакты кружка?" %}</span>
+            <span class="home-faq-icon" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="home-faq-answer">
+            {% trans "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение." %}
+          </div>
+        </details>
+      </div>
     </div>
   </section>
 
@@ -336,9 +528,10 @@
 {% endblock %}
 
 {% block extra_body %}
+  <script src="{% static 'js/home_hero_slider.js' %}?v=home-hero-slider-20260403-2"></script>
   {% if map_places %}
     {% if google_maps_api_key %}
-      <script src="{% static 'js/home_map.js' %}"></script>
+      <script src="{% static 'js/home_map.js' %}?v=home-map-20260403-1"></script>
       <script
         async
         defer
@@ -354,12 +547,17 @@
       <script>
         (function () {
           const mapEl = document.getElementById("home-map");
+          const mapNoteEl = document.getElementById("home-map-note");
           const dataEl = document.getElementById("home-map-data");
           if (!mapEl || !dataEl) return;
 
           function renderFallback() {
+            if (mapNoteEl) {
+              mapNoteEl.hidden = true;
+              mapNoteEl.textContent = "";
+            }
             mapEl.innerHTML =
-              '<iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{% trans "Карта кружков по Азербайджану" %}"></iframe>';
+              '<iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Baku%2C%20Azerbaijan&z=11&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{% trans "Карта кружков по Баку" %}"></iframe>';
           }
 
           if (!window.L) {
@@ -414,6 +612,75 @@
             );
           }
 
+          function normalizeValue(value) {
+            return String(value || "").trim();
+          }
+
+          function normalizeSearch(value) {
+            return normalizeValue(value).toLocaleLowerCase();
+          }
+
+          function getFilterState() {
+            const form = document.querySelector("[data-home-map-filter-form]");
+            if (!form) {
+              return {
+                query: "",
+                category: "",
+                district: "",
+                metro: "",
+                age: "",
+              };
+            }
+
+            return {
+              query: normalizeSearch(form.querySelector('[name="q"]')?.value),
+              category: normalizeValue(form.querySelector('[name="category"]')?.value),
+              district: normalizeValue(form.querySelector('[name="district"]')?.value),
+              metro: normalizeValue(form.querySelector('[name="metro"]')?.value),
+              age: normalizeValue(form.querySelector('[name="age"]')?.value),
+            };
+          }
+
+          function placeMatchesFilters(place, filters) {
+            if (filters.category && place.category_code !== filters.category) {
+              return false;
+            }
+
+            if (filters.district && normalizeValue(place.district) !== filters.district) {
+              return false;
+            }
+
+            if (filters.metro && normalizeValue(place.metro) !== filters.metro) {
+              return false;
+            }
+
+            if (filters.age) {
+              const selectedAge = Number(filters.age);
+              const ageFrom = place.age_from === null || place.age_from === undefined ? null : Number(place.age_from);
+              const ageTo = place.age_to === null || place.age_to === undefined ? null : Number(place.age_to);
+
+              if ((ageFrom !== null && selectedAge < ageFrom) || (ageTo !== null && selectedAge > ageTo)) {
+                return false;
+              }
+
+              if (ageFrom === null && ageTo === null) {
+                return false;
+              }
+            }
+
+            if (filters.query && !normalizeSearch(place.search_text || place.name).includes(filters.query)) {
+              return false;
+            }
+
+            return true;
+          }
+
+          function setMapNote(hasVisiblePlaces) {
+            if (!mapNoteEl) return;
+            mapNoteEl.hidden = hasVisiblePlaces;
+            mapNoteEl.textContent = hasVisiblePlaces ? "" : (mapEl.dataset.emptyLabel || "");
+          }
+
           const map = L.map(mapEl, {
             scrollWheelZoom: false,
             zoomControl: true,
@@ -424,7 +691,10 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
           }).addTo(map);
 
-          const bounds = L.latLngBounds([]);
+          const defaultCenter = [40.4093, 49.8671];
+          const defaultZoom = 11;
+          const markerItems = [];
+
           validPlaces.forEach(function (place) {
             const position = [place.lat, place.lng];
             const marker = L.circleMarker(position, {
@@ -433,21 +703,82 @@
               weight: 2,
               fillColor: "#1f8640",
               fillOpacity: 0.9,
-            }).addTo(map);
+            });
 
             marker.bindPopup(renderPopupContent(place));
-            bounds.extend(position);
+            markerItems.push({
+              marker: marker,
+              place: place,
+              position: position,
+            });
           });
 
-          if (validPlaces.length === 1) {
-            map.setView(bounds.getCenter(), 12);
-          } else {
+          function syncVisibleMarkers() {
+            const filters = getFilterState();
+            const visibleItems = [];
+            const bounds = L.latLngBounds([]);
+
+            map.closePopup();
+
+            markerItems.forEach(function (item) {
+              const shouldShow = placeMatchesFilters(item.place, filters);
+              if (shouldShow) {
+                if (!map.hasLayer(item.marker)) {
+                  item.marker.addTo(map);
+                }
+                visibleItems.push(item);
+                bounds.extend(item.position);
+              } else if (map.hasLayer(item.marker)) {
+                map.removeLayer(item.marker);
+              }
+            });
+
+            if (!visibleItems.length) {
+              map.setView(defaultCenter, defaultZoom);
+              setMapNote(false);
+              return;
+            }
+
+            if (visibleItems.length === 1) {
+              map.setView(visibleItems[0].position, 13);
+              setMapNote(true);
+              return;
+            }
+
             map.fitBounds(bounds, { padding: [24, 24] });
+            setMapNote(true);
+          }
+
+          function bindFilterListeners() {
+            const form = document.querySelector("[data-home-map-filter-form]");
+            if (!form) return;
+
+            let searchTimer = null;
+            const queryInput = form.querySelector('[name="q"]');
+            const selectControls = form.querySelectorAll('select[name="category"], select[name="district"], select[name="metro"], select[name="age"]');
+
+            function scheduleUpdate() {
+              if (searchTimer) {
+                window.clearTimeout(searchTimer);
+              }
+              searchTimer = window.setTimeout(syncVisibleMarkers, 120);
+            }
+
+            if (queryInput) {
+              queryInput.addEventListener("input", scheduleUpdate);
+            }
+
+            selectControls.forEach(function (control) {
+              control.addEventListener("change", syncVisibleMarkers);
+            });
           }
 
           setTimeout(function () {
             map.invalidateSize();
           }, 0);
+
+          bindFilterListeners();
+          syncVisibleMarkers();
 
           mapEl.addEventListener("mouseenter", function () {
             map.scrollWheelZoom.enable();

@@ -61,7 +61,6 @@
           <button type="button" class="mobile-filters-close" data-filters-close aria-label="{% trans 'Закрыть' %}">×</button>
         </div>
       {% endif %}
-      <input type="hidden" name="view" value="{{ selected.view|default:'grid' }}" />
       <label class="filters-search">
         {% trans "Поиск по названию" %}
         <input class="field search-field" name="q" value="{{ selected.q }}" placeholder="{% trans 'например робототехника или english' %}" />
@@ -255,19 +254,6 @@
             {% trans "На карте" %}
             <span class="results-map-count">{{ catalog_map_places_count }}</span>
           </button>
-          <div class="view-switch-wrap">
-            <span class="view-switch-label">{% trans "Вид карточек" %}:</span>
-            <div class="view-switch" role="group" aria-label="{% trans 'Вид карточек' %}">
-              <a
-                class="chip-link {% if selected.view != 'list' %}active{% endif %}"
-                href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=grid"
-              >{% trans "Обычные карточки" %}</a>
-              <a
-                class="chip-link {% if selected.view == 'list' %}active{% endif %}"
-                href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}view=list"
-              >{% trans "Карточки списком" %}</a>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -338,9 +324,9 @@
     {% if timeline_places %}
       <section class="panel">
         <h2>{% trans "Последние добавления" %}</h2>
-        <div class="new-timeline {% if selected.view != 'list' %}new-timeline-grid{% endif %}">
+        <div class="new-timeline new-timeline-grid">
           {% for place in timeline_places %}
-            <article class="card {% if selected.view == 'list' %}new-timeline-item{% endif %}">
+            <article class="card">
               <div class="card-media">
                 {% if place.photo %}
                   <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
@@ -354,11 +340,11 @@
                 {% endif %}
               </div>
               <div class="card-body">
-                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                <h3><a href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{{ place.name_i18n }}</a></h3>
                 {% with desc=place.description_i18n %}
-                  {% if desc %}
-                    <p class="card-description">{{ desc|striptags|truncatechars:96 }}</p>
-                  {% endif %}
+                  <p class="card-description{% if not desc %} is-empty{% endif %}">
+                    {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
+                  </p>
                 {% endwith %}
                 <div class="new-badge-row">
                   <span class="new-badge">{% trans "Новое" %}</span>
@@ -385,9 +371,12 @@
                     {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
                   </span>
                 </div>
-                {% if place.district or place.metro %}
-                  <p class="meta"><b>{% trans "Район/метро" %}:</b> {% if place.district %}{% trans place.district %}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{% trans place.metro %}{% endif %}</p>
-                {% endif %}
+                <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
+                  {% if place.district %}{% trans place.district %}{% endif %}
+                  {% if place.district and place.metro %} / {% endif %}
+                  {% if place.metro %}{% trans place.metro %}{% endif %}
+                  {% if not place.district and not place.metro %}&nbsp;{% endif %}
+                </p>
                 {% if place.age_display %}
                   <p class="meta"><b>{% trans "Возраст" %}:</b> {{ place.age_display }}</p>
                 {% endif %}
@@ -405,8 +394,10 @@
                     <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">Instagram</a>
                   {% endif %}
                 </div>
-                {% include "catalog/includes/place_more_panel.html" with place=place %}
-                <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
+                <div class="card-action-stack">
+                  {% include "catalog/includes/place_more_panel.html" with place=place %}
+                  <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% trans "Перейти" %}</a>
+                </div>
               </div>
             </article>
           {% endfor %}
@@ -416,11 +407,11 @@
   {% endif %}
 
   {% if places %}
-    <section class="grid {% if selected.view == 'list' %}results-list-mode{% endif %}">
+    <section class="grid">
       {% for place in places %}
         <article class="card">
           <div class="card-media">
-            <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
+            <a class="card-media-link" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}" aria-label="{{ place.name_i18n }}">
               {% if place.photo %}
                 <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% elif place.cover_photo %}
@@ -432,87 +423,37 @@
                 </div>
               {% endif %}
             </a>
-            {% if selected.view != 'list' %}
-              {% if place.card_price_badge %}
-                <span class="card-price-pill">{{ place.card_price_badge }}</span>
-              {% endif %}
+            {% if place.card_price_badge %}
+              <span class="card-price-pill">{{ place.card_price_badge }}</span>
             {% endif %}
           </div>
           <div class="card-body">
-            <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+            <h3><a href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{{ place.name_i18n }}</a></h3>
             {% with desc=place.description_i18n %}
-              {% if desc %}
-                <p class="card-description">{{ desc|striptags|truncatechars:96 }}</p>
-              {% endif %}
+              <p class="card-description{% if not desc %} is-empty{% endif %}">
+                {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
+              </p>
             {% endwith %}
             <div class="card-headline">
               <span class="chip">{{ place.get_category_display }}</span>
               <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
             </div>
-            {% if selected.view == 'list' %}
-              <div class="event-badge-row">
-                {% if place.is_temporary %}
-                  <span class="event-badge temporary">🕒 {% trans "Временное" %}</span>
-                  {% if place.temporary_start or place.temporary_end %}
-                    <span class="event-badge-meta">
-                      {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
-                      {% if place.temporary_start and place.temporary_end %} — {% endif %}
-                      {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
-                    </span>
-                  {% endif %}
-                {% else %}
-                  <span class="event-badge permanent">♾️ {% trans "Постоянное" %}</span>
-                {% endif %}
-              </div>
-              <div class="rating-row">
-                <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
-                <span class="rating-text">
-                  {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
-                </span>
-              </div>
-            {% endif %}
-            {% if place.district or place.metro %}
-              <p class="meta card-location">
-                {% if place.district %}{% trans place.district %}{% endif %}
-                {% if place.district and place.metro %} / {% endif %}
-                {% if place.metro %}{% trans place.metro %}{% endif %}
-              </p>
-            {% endif %}
-            {% if selected.view == 'list' %}
-              {% if place.price_range_display %}
-                <p class="meta meta-price">
-                  <span class="meta-price-value">{{ place.price_range_display }}</span>
-                </p>
-              {% endif %}
-            {% endif %}
-            {% if selected.view == 'list' %}
-              {% if place.age_display %}
-                <p class="meta list-only"><b>{% trans "Возраст" %}:</b> {{ place.age_display }}</p>
-              {% endif %}
-              {% if place.address %}
-                <p class="meta list-only"><b>{% trans "Адрес" %}:</b> {{ place.address }}</p>
-              {% endif %}
-              {% if place.lesson_duration_display %}
-                <p class="meta list-only"><b>{% trans "Длительность" %}:</b> {{ place.lesson_duration_display }}</p>
-              {% endif %}
-              <p class="meta">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
-              <div class="card-cta-row">
-                {% if place.phone1 %}
-                  <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="catalog-grid">{% trans "Позвонить" %}</a>
-                {% endif %}
-                {% if place.instagram %}
-                  <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-grid">Instagram</a>
-                {% endif %}
-              </div>
-              <a class="details-btn icon-btn icon-details" href="{{ place.get_absolute_url }}">{% trans "Подробнее" %}</a>
-            {% endif %}
+            <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
+              {% if place.district %}{% trans place.district %}{% endif %}
+              {% if place.district and place.metro %} / {% endif %}
+              {% if place.metro %}{% trans place.metro %}{% endif %}
+              {% if not place.district and not place.metro %}&nbsp;{% endif %}
+            </p>
             {% if is_new_page %}
               <div class="new-badge-row">
                 <span class="new-badge">{% trans "Новое" %}</span>
                 <span class="new-badge-meta">{% trans "Добавлено" %} {{ place.days_since_added }} {% trans "дн. назад" %}</span>
               </div>
             {% endif %}
-            {% include "catalog/includes/place_more_panel.html" with place=place %}
+            <div class="card-action-stack">
+              {% include "catalog/includes/place_more_panel.html" with place=place %}
+              <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% trans "Перейти" %}</a>
+            </div>
             <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}" />

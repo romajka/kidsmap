@@ -749,10 +749,8 @@ msgid "Отклонено заявок: %(count)s"
 msgstr ""
 
 #: src/catalog/admin.py:1714 src/catalog/templates/pages/home.html:286
-#, fuzzy
-#| msgid "Отправить отзыв"
 msgid "Открыть отзывы"
-msgstr "Rəyi göndər"
+msgstr "Rəyləri aç"
 
 #: src/catalog/admin.py:1723
 msgid "Контент фильтров"
@@ -993,8 +991,8 @@ msgid "Искать кружок, курс или школу"
 msgstr "Dərnək, kurs və ya məktəb axtarın"
 
 #: src/catalog/controllers/home_controller.py:77
-msgid "например english, ballet, lego"
-msgstr "məsələn english, ballet, lego"
+msgid "например шахматы, футбол, рисование"
+msgstr "məsələn şahmat, futbol, rəsm"
 
 #: src/catalog/controllers/home_controller.py:78
 #: src/catalog/templates/pages/home.html:277
@@ -3472,10 +3470,8 @@ msgstr "Rəylərin sıralanması"
 
 #: src/catalog/templates/catalog/place_detail.html:384
 #: src/catalog/templates/pages/site_reviews.html:42
-#, fuzzy
-#| msgid "Отменить"
 msgid "Применить"
-msgstr "Ləğv et"
+msgstr "Tətbiq et"
 
 #: src/catalog/templates/catalog/place_detail.html:394
 msgid "Пока нет отзывов. Будьте первым!"
@@ -3651,15 +3647,7 @@ msgid "Дополнительно (можно несколько)"
 msgstr "Əlavə (bir neçəsi mümkündür)"
 
 #: src/catalog/templates/catalog/place_list.html:237
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "          Найден %(total)s кружок\n"
-#| "        "
-#| msgid_plural ""
-#| "\n"
-#| "          Найдено %(total)s кружков\n"
-#| "        "
+#, python-format
 msgid ""
 "\n"
 "            Найден %(total)s кружок\n"
@@ -3699,48 +3687,46 @@ msgstr "Siyahı kartları"
 msgid "Подробнее"
 msgstr "Ətraflı"
 
+msgid "Перейти"
+msgstr "Karta keç"
+
 #: src/catalog/templates/catalog/place_list.html:280
-#, fuzzy
-#| msgid "Текущий владелец карточки назначен."
 msgid "По текущим фильтрам пока нет карточек с координатами."
-msgstr "Bu kart üçün hazırkı sahib təyin edilib."
+msgstr "Cari filtrlərə uyğun koordinatlı kart tapılmadı."
 
 #: src/catalog/templates/catalog/place_list.html:281
 msgid "Интерактивная карта станет доступна после настройки Google Maps."
-msgstr ""
+msgstr "Google Maps qurulduqdan sonra interaktiv xəritə əlçatan olacaq."
 
 #: src/catalog/templates/catalog/place_list.html:282
 msgid "Загружаем карту…"
-msgstr ""
+msgstr "Xəritə yüklənir…"
 
 #: src/catalog/templates/catalog/place_list.html:287
 msgid "Результаты на карте"
-msgstr ""
+msgstr "Xəritədə nəticələr"
 
 #: src/catalog/templates/catalog/place_list.html:288
 msgid "Показаны только кружки, которые соответствуют текущим фильтрам."
-msgstr ""
+msgstr "Yalnız cari filtrlərə uyğun dərnəklər göstərilir."
 
 #: src/catalog/templates/catalog/place_list.html:290
-#, fuzzy
-#| msgid "Открыть карточки"
 msgid "Закрыть карту"
-msgstr "Kartları aç"
+msgstr "Xəritəni bağla"
 
 #: src/catalog/templates/catalog/place_list.html:294
 #, python-format
 msgid "%(total)s точка на карте"
 msgid_plural "%(total)s точки на карте"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Xəritədə %(total)s nöqtə"
+msgstr[1] "Xəritədə %(total)s nöqtə"
 
 #: src/catalog/templates/catalog/place_list.html:296
-#, fuzzy, python-format
-#| msgid "Эта карточка уже привязана к вашему аккаунту."
+#, python-format
 msgid "Еще %(total)s карточка не показана: нет координат."
 msgid_plural "Еще %(total)s карточки не показаны: нет координат."
-msgstr[0] "Bu kart artıq hesabınıza bağlıdır."
-msgstr[1] "Bu kart artıq hesabınıza bağlıdır."
+msgstr[0] "Daha %(total)s kart göstərilmir: koordinatlar yoxdur."
+msgstr[1] "Daha %(total)s kart göstərilmir: koordinatlar yoxdur."
 
 #: src/catalog/templates/catalog/place_list.html:311
 #, python-format
@@ -4403,10 +4389,8 @@ msgstr ""
 "səhifə."
 
 #: src/catalog/templates/pages/home.html:294
-#, fuzzy
-#| msgid "Пока нет общих отзывов о сайте. Будьте первым!"
 msgid "Пока нет общих отзывов о сайте."
-msgstr "Hələ sayt haqqında ümumi rəy yoxdur. İlk siz olun!"
+msgstr "Hələ sayt haqqında ümumi rəy yoxdur."
 
 #: src/catalog/templates/pages/includes/owner_place_location_status.html:19
 msgid "Для карты нужны lat/lng."
@@ -4964,28 +4948,23 @@ msgstr ""
 "Burada konkret dərnəklər yox, məhz KidsMap xidməti haqqında rəylər toplanıb."
 
 #: src/catalog/templates/pages/site_reviews.html:20
-#, fuzzy, python-format
-#| msgid "Открыть сайт"
+#, python-format
 msgid "%(total)s отзыв о сайте"
 msgid_plural "%(total)s отзывов о сайте"
-msgstr[0] "Saytı aç"
-msgstr[1] "Saytı aç"
+msgstr[0] "Sayt haqqında %(total)s rəy"
+msgstr[1] "Sayt haqqında %(total)s rəy"
 
 #: src/catalog/templates/pages/site_reviews.html:52
 msgid "Пока нет общих отзывов о сайте. Будьте первым!"
 msgstr "Hələ sayt haqqında ümumi rəy yoxdur. İlk siz olun!"
 
 #: src/catalog/templates/pages/site_reviews.html:87
-#, fuzzy
-#| msgid "Отправить отзыв"
 msgid "Оставить отзыв о сайте"
-msgstr "Rəyi göndər"
+msgstr "Sayt haqqında rəy yazın"
 
 #: src/catalog/templates/pages/site_reviews.html:88
-#, fuzzy
-#| msgid "Не удалось отправить приглашение. Исправьте поле и попробуйте снова."
 msgid "Поделитесь впечатлением о сервисе KidsMap после использования каталога."
-msgstr "Dəvət göndərilmədi. Sahəni düzəldib yenidən cəhd edin."
+msgstr "Kataloqdan istifadə etdikdən sonra KidsMap xidməti barədə təəssüratınızı bölüşün."
 
 #: src/catalog/templates/pages/site_reviews.html:117
 msgid "Что вам понравилось в сервисе?"
@@ -5432,9 +5411,6 @@ msgstr "Doldurmaq lazımdır"
 #~ msgid "Отправлять такие заявки могут только аккаунты со статусом владельца."
 #~ msgstr "Belə sorğuları yalnız sahib statuslu hesablar göndərə bilər."
 
-#~ msgid "Открыть кабинет"
-#~ msgstr "Kabineti aç"
-
 #~ msgid ""
 #~ "Ваш текущий статус: обычный пользователь. Отправка заявок на управление "
 #~ "доступна только владельцам."
@@ -5584,3 +5560,246 @@ msgstr "Doldurmaq lazımdır"
 
 #~ msgid "Нецензурные слова были автоматически скрыты."
 #~ msgstr "Kobud sözlər avtomatik gizlədildi."
+
+#: src/catalog/services/seo.py
+msgid "Кружки и секции для детей в Баку"
+msgstr "Bakıda uşaqlar üçün dərnəklər və məşğələlər"
+
+#: src/catalog/services/seo.py
+msgid "KidsMap: кружки и секции для детей в Баку"
+msgstr "KidsMap: Bakıda uşaqlar üçün dərnəklər və məşğələlər"
+
+#: src/catalog/services/seo.py
+msgid "Отзывы о KidsMap от родителей и пользователей"
+msgstr "KidsMap haqqında valideyn və istifadəçi rəyləri"
+
+#: src/catalog/templates/auth/register.html
+msgid "Поля, отмеченные звездочкой, обязательны для заполнения."
+msgstr "Ulduzla işarələnmiş sahələr mütləq doldurulmalıdır."
+
+#: src/catalog/templates/base.html
+msgid "Меню"
+msgstr "Menyu"
+
+#: src/catalog/templates/catalog/includes/place_more_panel.html
+msgid "Условия и контакты"
+msgstr "Şərtlər və əlaqə"
+
+#: src/catalog/templates/catalog/place_detail.html
+msgid "Вы представитель этого кружка?"
+msgstr "Bu dərnəyin nümayəndəsisiniz?"
+
+#: src/catalog/templates/catalog/place_detail.html
+msgid "Карточка уже закреплена за представителем кружка. Если доступ нужен вашей команде, свяжитесь с нами."
+msgstr "Kart artıq dərnəyin nümayəndəsinə bağlanıb. Komandanıza giriş lazımdırsa, bizimlə əlaqə saxlayın."
+
+#: src/catalog/templates/catalog/place_detail.html
+msgid "Если вы ведете этот кружок, можно отправить заявку и получить доступ к редактированию карточки."
+msgstr "Bu dərnəyi siz idarə edirsinizsə, müraciət göndərib kartı redaktə etmək üçün giriş ala bilərsiniz."
+
+#: src/catalog/templates/pages/home.html
+msgid "Отзывы появятся здесь"
+msgstr "Rəylər burada görünəcək"
+
+#: src/catalog/templates/pages/home.html
+msgid "Когда пользователи начнут оставлять отзывы о сервисе, мы покажем их на этой странице без искусственных примеров."
+msgstr "İstifadəçilər xidmət haqqında rəy yazmağa başlayanda, onları burada süni nümunələr olmadan göstərəcəyik."
+
+#: src/catalog/templates/pages/home.html
+msgid "Карта кружков по Баку"
+msgstr "Bakıda dərnəklərin xəritəsi"
+
+#: src/catalog/services/seo.py
+msgid "Отзывы о сервисе KidsMap: впечатления родителей и пользователей о каталоге кружков и секций в Баку."
+msgstr "KidsMap xidməti haqqında rəylər: Bakıda uşaq dərnəkləri və məşğələlər kataloqu barədə valideyn və istifadəçi təəssüratları."
+
+#: src/catalog/services/seo.py
+#, python-format
+msgid "Отзывы о сервисе KidsMap: %(count)s оценок и отзывов от родителей и пользователей."
+msgstr "KidsMap xidməti haqqında rəylər: valideyn və istifadəçilərdən %(count)s qiymətləndirmə və rəy."
+
+#: src/catalog/templates/pages/home.html
+msgid "Поиск детских кружков и секций в Баку"
+msgstr "Bakıda uşaqlar üçün dərnək və məşğələlərin axtarışı"
+
+#: src/catalog/templates/pages/home.html
+msgid "Преимущества KidsMap"
+msgstr "KidsMap üstünlükləri"
+
+#: src/catalog/templates/pages/home.html
+msgid "кружков на карте"
+msgstr "xəritədə dərnək"
+
+#: src/catalog/templates/pages/home.html
+msgid "средняя оценка"
+msgstr "orta reytinq"
+
+#: src/catalog/templates/pages/home.html
+msgid "3 языка интерфейса"
+msgstr "3 interfeys dili"
+
+#: src/catalog/templates/pages/home.html
+msgid "Быстрый выбор категории"
+msgstr "Kateqoriyanı sürətli seçin"
+
+#: src/catalog/templates/pages/home.html
+msgid "Семейный досуг"
+msgstr "Ailə istirahəti"
+
+#: src/catalog/templates/pages/home.html
+msgid "отзывов о сервисе"
+msgstr "xidmət rəyi"
+
+#: src/catalog/templates/pages/home.html
+msgid "Семья"
+msgstr "Ailə"
+
+#: src/catalog/templates/pages/home.html
+msgid "Командные занятия"
+msgstr "Komanda məşğələləri"
+
+#: src/catalog/templates/pages/home.html
+msgid "Три простых шага, чтобы быстро найти подходящий кружок."
+msgstr "Uyğun dərnəyi tez tapmaq üçün üç sadə addım."
+
+#: src/catalog/templates/pages/home.html
+msgid "Выберите фильтры"
+msgstr "Filtrləri seçin"
+
+#: src/catalog/templates/pages/home.html
+msgid "Категория, район, метро и возраст ребёнка."
+msgstr "Kateqoriya, rayon, metro və uşağın yaşı."
+
+#: src/catalog/templates/pages/home.html
+msgid "Сравните варианты"
+msgstr "Variantları müqayisə edin"
+
+#: src/catalog/templates/pages/home.html
+msgid "Смотрите фото, цену, рейтинг, отзывы и расположение на карте."
+msgstr "Fotolara, qiymətə, reytinqə, rəylərə və xəritədə yerləşməyə baxın."
+
+#: src/catalog/templates/pages/home.html
+msgid "Свяжитесь с клубом"
+msgstr "Klubla əlaqə saxlayın"
+
+#: src/catalog/templates/pages/home.html
+msgid "Откройте карточку и сразу перейдите к звонку, сайту или Instagram."
+msgstr "Kartı açın və dərhal zəngə, sayta və ya Instagram-a keçin."
+
+#: src/catalog/templates/pages/home.html
+msgid "Посмотрите кружки на карте"
+msgstr "Dərnəklərə xəritədə baxın"
+
+#: src/catalog/templates/pages/home.html
+msgid "Выбирайте фильтры выше — точки на карте обновятся сразу. Нажмите на маркер, чтобы открыть карточку кружка."
+msgstr "Yuxarıdakı filtrləri seçin — xəritədə markerlər dərhal yenilənəcək. Dərnək kartını açmaq üçün markerə klikləyin."
+
+#: src/catalog/templates/pages/home.html
+msgid "Открыть весь каталог"
+msgstr "Bütün kataloqu açın"
+
+#: src/catalog/templates/pages/home.html
+msgid "По выбранным фильтрам на карте пока нет кружков"
+msgstr "Seçilmiş filtrlərə uyğun dərnək xəritədə hələ yoxdur"
+
+#: src/catalog/templates/pages/home.html
+msgid "Для владельцев кружков"
+msgstr "Dərnək sahibləri üçün"
+
+#: src/catalog/templates/pages/home.html
+msgid "Разместите кружок на KidsMap и получайте новые обращения от родителей"
+msgstr "Dərnəyinizi KidsMap-də yerləşdirin və valideynlərdən yeni müraciətlər alın"
+
+#: src/catalog/templates/pages/home.html
+msgid "Добавим карточку, покажем её в каталоге и на карте, поможем собрать доверие через фото, описание и отзывы."
+msgstr "Kartınızı kataloqda və xəritədə göstərəcəyik, foto, təsvir və rəylərlə etibar yaratmağa kömək edəcəyik."
+
+#: src/catalog/templates/pages/home.html
+msgid "Что даёт размещение на KidsMap"
+msgstr "KidsMap-də yerləşdirmə nə verir"
+
+#: src/catalog/templates/pages/home.html
+msgid "Видимость в каталоге и на карте"
+msgstr "Kataloqda və xəritədə görünürlük"
+
+#: src/catalog/templates/pages/home.html
+msgid "Фото, описание, контакты и быстрые CTA"
+msgstr "Fotolar, təsvir, kontaktlar və sürətli keçid düymələri"
+
+#: src/catalog/templates/pages/home.html
+msgid "Отзывы родителей и рост доверия"
+msgstr "Valideyn rəyləri və daha çox etibar"
+
+#: src/catalog/templates/pages/home.html
+msgid "Управление карточками из личного кабинета"
+msgstr "Kartları şəxsi kabinetdən idarə etmək"
+
+#: src/catalog/templates/pages/home.html
+msgid "Открыть кабинет"
+msgstr "Kabineti aç"
+
+#: src/catalog/templates/pages/home.html
+msgid "Разместить кружок"
+msgstr "Dərnəyi yerləşdir"
+msgid "Рисование"
+msgstr "Rəsm"
+
+msgid "Предыдущие фото"
+msgstr "Əvvəlki şəkillər"
+
+msgid "Следующие фото"
+msgstr "Növbəti şəkillər"
+
+msgid "Переключение фото"
+msgstr "Şəkillərin dəyişdirilməsi"
+
+msgid "Частые вопросы о KidsMap"
+msgstr "KidsMap haqqında tez-tez verilən suallar"
+
+msgid "Собрали короткие ответы, чтобы было проще понять, как работает поиск кружков, отзывы и размещение карточек."
+msgstr "Dərnək axtarışının, rəylərin və kart yerləşdirmənin necə işlədiyini daha rahat başa düşmək üçün qısa cavabları topladıq."
+
+msgid "Как быстро найти кружок для ребёнка?"
+msgstr "Uşaq üçün dərnəyi necə tez tapmaq olar?"
+
+msgid "Выберите категорию, район, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку."
+msgstr "Əsas səhifədə axtarışdan kateqoriya, rayon, metro və ya yaş seçin. Xəritə və dərnək siyahısı variantları tez müqayisə etməyə və uyğun kartı açmağa kömək edəcək."
+
+msgid "Нужно ли регистрироваться, чтобы смотреть каталог?"
+msgstr "Kataloqa baxmaq üçün qeydiyyat lazımdır?"
+
+msgid "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками."
+msgstr "Xeyr, kataloqa, xəritəyə və dərnək kartlarına qeydiyyatsız baxmaq olar. Hesab yalnız bəyənmə etmək, rəy yazmaq və ya öz dərnəklərinizi idarə etmək üçün lazımdır."
+
+msgid "Как оставить отзыв или поставить лайк?"
+msgstr "Rəy yazmaq və ya bəyənmə etmək necə olar?"
+
+msgid "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать."
+msgstr "Dərnək kartını və ya rəylər səhifəsini açın, hesaba daxil olun və qiymət, mətn rəyi və ya reaksiya əlavə edin. Bu, digər valideynlərin daha tez seçim etməsinə kömək edir."
+
+msgid "Как владельцу кружка разместить карточку на сайте?"
+msgstr "Dərnək sahibi kartı saytda necə yerləşdirə bilər?"
+
+msgid "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета."
+msgstr "“Dərnəyi yerləşdir” düyməsinə klikləyin, hesab yaradın və kartı yoxlamaya göndərin. Dərc olunduqdan sonra dərnək kataloqda və xəritədə görünəcək, siz isə məlumatları kabinetdən yeniləyə biləcəksiniz."
+
+msgid "Можно ли показывать фото и контакты кружка?"
+msgstr "Dərnəyin fotolarını və kontaktlarını göstərmək olar?"
+
+msgid "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение."
+msgstr "Bəli, kartda foto, təsvir, telefon, sayt, Instagram, yaş aralığı, cədvəl, qiymətlər və əlavə şərtlər göstərə bilərsiniz ki, valideynlər daha rahat qərar versin."
+
+msgid "Дополнительная информация скоро появится."
+msgstr "Əlavə məlumat tezliklə görünəcək."
+
+msgid "Чтобы разместить кружок, войдите в аккаунт или зарегистрируйтесь."
+msgstr "Dərnəyi yerləşdirmək üçün hesaba daxil olun və ya qeydiyyatdan keçin."
+
+msgid "После входа вы сможете создать карточку кружка и отправить её на проверку."
+msgstr "Daxil olduqdan sonra dərnək kartı yarada və onu yoxlamaya göndərə bilərsiniz."
+
+msgid "Чтобы разместить кружок, создайте аккаунт или войдите, если он уже есть."
+msgstr "Dərnəyi yerləşdirmək üçün hesab yaradın və ya hesabınız varsa daxil olun."
+
+msgid "После подтверждения email вы сможете добавить карточку кружка и управлять ею из кабинета."
+msgstr "Email təsdiqləndikdən sonra dərnək kartı əlavə edə və onu kabinetdən idarə edə bilərsiniz."

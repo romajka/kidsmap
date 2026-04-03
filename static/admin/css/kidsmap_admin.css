@@ -1,3 +1,13 @@
+@font-face {
+  font-family: "Chiron GoRound TC";
+  src:
+    url("../../fonts/chiron/ChironGoRoundTC-VariableFont_wght.ttf") format("truetype-variations"),
+    url("../../fonts/chiron/ChironGoRoundTC-VariableFont_wght.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+}
+
 :root {
   --km-admin-accent: #136f38;
   --km-admin-accent-strong: #0d4e27;
@@ -7,6 +17,19 @@
   --km-admin-surface: #ffffff;
   --km-admin-warn-bg: #fff4e6;
   --km-admin-warn-fg: #9a5d00;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+#site-name a,
+.module caption,
+.breadcrumbs,
+#nav-sidebar,
+.object-tools a {
+  font-family: "Chiron GoRound TC", "Segoe UI", sans-serif;
 }
 
 #header {

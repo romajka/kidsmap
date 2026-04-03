@@ -140,8 +140,37 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Create your KidsMap account.")
         self.assertContains(response, "Register")
+        self.assertContains(response, "Fields marked with an asterisk are required.")
         self.assertNotContains(response, "Выберите статус аккаунта")
         self.assertNotContains(response, "Кто вы?")
+        self.assertNotContains(response, "* işarəsi olan sahələr mütləq doldurulmalıdır.")
+
+    def test_en_catalog_page_uses_english_map_strings(self):
+        response = self.client.get("/en/catalog/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Results on the map")
+        self.assertContains(response, "The interactive map will be available after Google Maps is configured.")
+        self.assertNotContains(response, "Результаты на карте")
+        self.assertNotContains(response, "Интерактивная карта станет доступна после настройки Google Maps.")
+
+    def test_en_home_title_is_localized(self):
+        response = self.client.get("/en/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<title>Clubs and activities for kids in Baku | KidsMap</title>", html=True)
+
+    def test_en_reviews_page_sets_html_lang_and_translates_apply_button(self):
+        response = self.client.get("/en/reviews/")
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertIn('<html lang="en">', content)
+        self.assertIn("General site reviews", content)
+        self.assertIn(">Apply<", content)
+        self.assertIn("Leave a site review", content)
+        self.assertNotIn(">Применить<", content)
+        self.assertNotIn("Оставить отзыв о сайте", content)
 
     def test_register_page_hides_role_selector(self):
         response = self.client.get("/ru/auth/register/")
@@ -979,14 +1008,28 @@ class TestAccountsAndReviewAccess(TestCase):
         review = PlaceReview.objects.first()
         self.assertEqual(review.user, user)
 
-    def test_registration_page_shows_required_fields_note_only_in_azerbaijani(self):
+    def test_registration_page_shows_required_fields_note_in_current_language(self):
         response = self.client.get(reverse("account_register"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "* işarəsi olan sahələr mütləq doldurulmalıdır.")
+        self.assertContains(response, "Поля, отмеченные звездочкой, обязательны для заполнения.")
 
 
 class TestCatalogEnhancements(TestCase):
+    def test_place_detail_uses_safe_next_url_for_back_link(self):
+        place = Place.objects.create(
+            name="Context Place",
+            name_ru="Карточка с контекстом",
+            category="EDU",
+            is_active=True,
+        )
+
+        next_url = "/ru/catalog/?district=%D0%AF%D1%81%D0%B0%D0%BC%D0%B0%D0%BB"
+        response = self.client.get(f"{place.get_absolute_url()}?next={next_url}")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('href="/ru/catalog/?district=Ясамал"', response.content.decode("utf-8"))
+
     def test_catalog_can_sort_places_by_review_count(self):
         low_reviews = Place.objects.create(
             name="Few Reviews",

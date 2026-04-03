@@ -25,6 +25,7 @@ from .models import (
     PlacePhoto,
     PlaceReview,
     PlaceReviewsByClub,
+    SiteGalleryImage,
     SiteReview,
     SiteSettings,
     SiteBrandingSettings,
@@ -63,6 +64,7 @@ def _kidsmap_get_app_list(self, request, app_label=None):
         priority = {
             "sitesettings": 0,
             "siteanalytics": 1,
+            "sitegalleryimage": 2,
             "siteregistereduser": 2,
             "staffaccessuser": 3,
             "placeownershiprequest": 5,
@@ -1256,6 +1258,71 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
             **build_site_analytics_context(),
         }
         return TemplateResponse(request, "admin/catalog/site_analytics.html", context)
+
+
+@admin.register(SiteGalleryImage)
+class SiteGalleryImageAdmin(admin.ModelAdmin):
+    list_display = (
+        "image_preview",
+        "placement",
+        "category",
+        "title_ru",
+        "order",
+        "is_active",
+        "updated_at",
+    )
+    list_filter = ("placement", "category", "is_active")
+    search_fields = ("title_ru", "title_az", "title_en", "image")
+    list_editable = ("placement", "category", "order", "is_active")
+    readonly_fields = ("image_preview", "created_at", "updated_at")
+    ordering = ("placement", "order", "id")
+    fieldsets = (
+        (
+            _("Где показывать"),
+            {
+                "fields": (
+                    "placement",
+                    "category",
+                    "order",
+                    "is_active",
+                )
+            },
+        ),
+        (
+            _("Изображение и подписи"),
+            {
+                "fields": (
+                    "image",
+                    "image_preview",
+                    "title_ru",
+                    "title_az",
+                    "title_en",
+                )
+            },
+        ),
+        (
+            _("Служебное"),
+            {
+                "classes": ("collapse",),
+                "fields": ("created_at", "updated_at"),
+            },
+        ),
+    )
+
+    @admin.display(description=_("Превью"))
+    def image_preview(self, obj):
+        if not obj or not obj.image:
+            return "-"
+        try:
+            image_url = obj.image.url
+        except Exception:
+            return "-"
+        return format_html(
+            '<a href="{0}" target="_blank" rel="noopener">'
+            '<img src="{0}" alt="" style="display:block;width:120px;height:78px;object-fit:cover;border:1px solid #cdd6df;border-radius:12px;background:#fff;" />'
+            "</a>",
+            image_url,
+        )
 
 
 @admin.register(PlaceReview)

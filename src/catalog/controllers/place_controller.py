@@ -6,6 +6,8 @@ from datetime import datetime
 from django.core.paginator import Paginator
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -219,6 +221,17 @@ class PlaceController:
         place_reviews_qs = apply_review_sorting(place.reviews.filter(is_approved=True), review_sort)
         place_reviews = mark_place_review_reactions(place_reviews_qs, request)
 
+        fallback_catalog_url = reverse("place_list")
+        requested_next = (request.GET.get("next") or "").strip()
+        if requested_next and url_has_allowed_host_and_scheme(
+            requested_next,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            catalog_return_url = requested_next
+        else:
+            catalog_return_url = fallback_catalog_url
+
         return {
             "place": place,
             "language": request.LANGUAGE_CODE,
@@ -233,6 +246,7 @@ class PlaceController:
             "reviews_count": len(place_reviews),
             "review_sort": review_sort,
             "review_sort_choices": REVIEW_SORT_CHOICES,
+            "catalog_return_url": catalog_return_url,
             "analytics_events": [
                 {
                     "name": "place_open",

@@ -32,6 +32,7 @@ from catalog.models import (
     PlaceOwnershipRequest,
     PlaceReview,
     SiteReview,
+    SiteGalleryImage,
     SiteSettings,
     UserEmailVerification,
     UserProfile,
@@ -92,6 +93,12 @@ class DjangoSettingsRepository(ISettingsRepository):
 
     def get_site_settings(self) -> SiteSettings:
         return SiteSettings.get_solo()
+
+    def list_site_gallery_images(self, *, placement: str) -> QuerySet:
+        return SiteGalleryImage.objects.filter(
+            placement=placement,
+            is_active=True,
+        ).order_by("order", "id")
 
 
 class DjangoUserProfileRepository(IUserProfileRepository):
