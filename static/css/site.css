@@ -963,7 +963,8 @@ fieldset.auth-role-group:has(.auth-field-error) .auth-role-option[type="radio"] 
   box-shadow: 0 0 0 3px rgba(201, 74, 74, 0.08), var(--form-field-shadow);
 }
 
-fieldset.auth-role-group:has(.auth-field-error) li label {
+fieldset.auth-role-group:has(.auth-field-error) li label,
+fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > label {
   border-color: var(--form-error-border);
   background: linear-gradient(180deg, #fffefe, rgba(201, 74, 74, 0.03));
 }
@@ -4451,15 +4452,17 @@ fieldset.auth-role-group:has(.auth-field-error) li label {
   font-weight: 900;
 }
 
-.auth-role-group ul {
+.auth-role-group ul,
+.auth-role-group > .auth-role-option {
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 10px;
+  gap: 14px;
 }
 
-.auth-role-group li label {
+.auth-role-group li label,
+.auth-role-group > .auth-role-option > div > label {
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -4480,15 +4483,17 @@ fieldset.auth-role-group:has(.auth-field-error) li label {
     transform 0.16s ease;
 }
 
-.auth-role-group li label:hover {
+.auth-role-group li label:hover,
+.auth-role-group > .auth-role-option > div > label:hover {
   border-color: var(--form-border-hover);
   box-shadow: 0 12px 24px rgba(19, 111, 56, 0.08);
   transform: translateY(-1px);
 }
 
-.auth-register-inline-group ul {
+.auth-register-inline-group ul,
+.auth-register-inline-group > .auth-role-option {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 14px;
+  gap: 14px 18px;
 }
 
 .auth-alt {
@@ -7574,7 +7579,8 @@ fieldset.auth-role-group:has(.auth-field-error) li label {
     grid-template-columns: 1fr;
   }
 
-  .auth-register-inline-group ul {
+  .auth-register-inline-group ul,
+  .auth-register-inline-group > .auth-role-option {
     grid-template-columns: 1fr;
   }
 }
@@ -8768,8 +8774,8 @@ fieldset.auth-role-group:has(.auth-field-error) li label {
   }
 
   .mobile-nav-dropdown {
-    left: 0;
-    right: auto;
+    left: auto;
+    right: 0;
     width: min(280px, calc(100vw - 24px));
     grid-template-columns: 1fr;
     padding: 10px;
@@ -9565,12 +9571,13 @@ fieldset.auth-role-group:has(.auth-field-error) li label {
   place-items: center;
   width: 36px;
   height: 36px;
+  padding-bottom: 3px;
   border-radius: 999px;
   background: linear-gradient(180deg, #f2fff6, #e0f4e7);
   color: #0f6d40;
   font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   font-size: 1.6rem;
-  line-height: 1;
+  line-height: 0.8;
   flex-shrink: 0;
   box-shadow: inset 0 0 0 1px rgba(18, 120, 67, 0.16);
   transition: transform 0.2s ease, background 0.2s ease;
@@ -9765,6 +9772,7 @@ fieldset.auth-role-group:has(.auth-field-error) li label {
   .home-faq-icon {
     width: 32px;
     height: 32px;
+    padding-bottom: 2px;
     font-size: 1.45rem;
   }
 

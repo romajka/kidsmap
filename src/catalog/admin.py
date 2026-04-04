@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django import forms
 from django.http import HttpResponseRedirect
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from django.shortcuts import redirect
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
@@ -1262,6 +1262,7 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
 
 @admin.register(SiteGalleryImage)
 class SiteGalleryImageAdmin(admin.ModelAdmin):
+    change_list_template = "admin/catalog/sitegalleryimage/change_list.html"
     list_display = (
         "image_preview",
         "placement",
@@ -1308,6 +1309,47 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def changelist_view(self, request, extra_context=None):
+        selected_placement = (request.GET.get("placement__exact") or "").strip()
+        block_sections = []
+        for placement_value, placement_label in SiteGalleryImage.PLACEMENT_CHOICES:
+            section_qs = SiteGalleryImage.objects.filter(placement=placement_value).order_by("order", "id")
+            preview_urls = []
+            for item in section_qs[:4]:
+                if not item.image:
+                    continue
+                try:
+                    preview_urls.append(item.image.url)
+                except Exception:
+                    continue
+
+            block_sections.append(
+                {
+                    "key": placement_value,
+                    "title": placement_label,
+                    "count": section_qs.count(),
+                    "previews": preview_urls,
+                    "url": f"{reverse('admin:catalog_sitegalleryimage_changelist')}?placement__exact={placement_value}",
+                    "add_url": f"{reverse('admin:catalog_sitegalleryimage_add')}?placement={placement_value}",
+                    "is_active": selected_placement == placement_value,
+                }
+            )
+
+        context = {
+            **(extra_context or {}),
+            "site_gallery_block_sections": block_sections,
+            "site_gallery_selected_placement": selected_placement,
+            "site_gallery_show_result_list": bool(selected_placement or (request.GET.get("q") or "").strip()),
+        }
+        return super().changelist_view(request, extra_context=context)
+
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        placement = (request.GET.get("placement") or "").strip()
+        if placement in {value for value, _ in SiteGalleryImage.PLACEMENT_CHOICES}:
+            initial["placement"] = placement
+        return initial
 
     @admin.display(description=_("Превью"))
     def image_preview(self, obj):
@@ -1540,15 +1582,28 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         "note",
         "moderation_note",
     )
-    readonly_fields = ("status", "note", "moderation_actions", "created_at", "updated_at", "moderated_at", "moderated_by")
+    readonly_fields = (
+        "status",
+        "note",
+        "place_completion_summary",
+        "moderation_actions",
+        "created_at",
+        "updated_at",
+        "moderated_at",
+        "moderated_by",
+    )
     autocomplete_fields = ("place", "applicant", "moderated_by")
     actions = ("approve_requests", "reject_requests")
     inlines = (PlaceOwnershipRequestAuditInline,)
     fieldsets = (
         (_("Заявка"), {"fields": ("place", "applicant", "status", "note")}),
+        (_("Заполненность карточки"), {"fields": ("place_completion_summary",)}),
         (_("Модерация"), {"fields": ("moderation_note", "moderation_actions", "moderated_by", "moderated_at")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("place", "applicant", "moderated_by").prefetch_related("place__gallery")
 
     def get_urls(self):
         custom_urls = [
@@ -1587,6 +1642,109 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     @admin.display(description=_("Кто проверил"))
     def moderated_by_display(self, obj):
         return obj.moderated_by or "-"
+
+    @staticmethod
+    def _place_text_value(value):
+        return (value or "").strip()
+
+    @staticmethod
+    def _format_place_number_pair(first_value, second_value, *, unit: str = "", separator: str = "–"):
+        if first_value is not None and second_value is not None:
+            return f"{first_value}{separator}{second_value}{unit}"
+        if first_value is not None:
+            return f"{first_value}+{unit}"
+        if second_value is not None:
+            return f"до {second_value}{unit}"
+        return ""
+
+    def _render_place_completion_badge(self, *, is_filled: bool):
+        return format_html(
+            '<span class="km-admin-badge km-admin-badge--{}">{}</span>',
+            "good" if is_filled else "warn",
+            _("Заполнено") if is_filled else _("Не заполнено"),
+        )
+
+    def _place_completion_rows(self, place: Place):
+        gallery_count = len(place.gallery.all())
+        coordinates_value = (
+            _("lat %(lat)s, lng %(lng)s") % {"lat": round(place.lat, 6), "lng": round(place.lng, 6)}
+            if place.has_coordinates
+            else ""
+        )
+        price_value = ", ".join(f"{label}: {value}" for label, value in place.pricing_options)
+
+        return (
+            (_("Название RU"), bool(self._place_text_value(place.name_ru or place.name)), self._place_text_value(place.name_ru or place.name)),
+            (_("Название AZ"), bool(self._place_text_value(place.name_az)), self._place_text_value(place.name_az)),
+            (_("Название EN"), bool(self._place_text_value(place.name_en)), self._place_text_value(place.name_en)),
+            (_("Описание RU"), bool(self._place_text_value(place.description_ru)), self._place_text_value(place.description_ru)),
+            (_("Описание AZ"), bool(self._place_text_value(place.description_az)), self._place_text_value(place.description_az)),
+            (_("Описание EN"), bool(self._place_text_value(place.description_en)), self._place_text_value(place.description_en)),
+            (_("Категория"), bool(self._place_text_value(place.category)), place.get_category_display()),
+            (_("Подкатегория"), bool(self._place_text_value(place.subcategory)), self._place_text_value(place.subcategory)),
+            (_("Возраст"), bool(place.age_display), place.age_display),
+            (_("Цены"), bool(place.pricing_options), price_value),
+            (_("Длительность урока"), place.lesson_duration_minutes is not None, place.lesson_duration_display),
+            (_("Район"), bool(self._place_text_value(place.district)), self._place_text_value(place.district)),
+            (_("Метро"), bool(self._place_text_value(place.metro)), self._place_text_value(place.metro)),
+            (_("Адрес"), bool(self._place_text_value(place.address)), self._place_text_value(place.address)),
+            (_("Координаты"), place.has_coordinates, coordinates_value),
+            (_("Телефон"), bool(self._place_text_value(place.phone1)), self._place_text_value(place.phone1)),
+            (_("Instagram"), bool(self._place_text_value(place.instagram)), self._place_text_value(place.instagram_url())),
+            (_("Сайт"), bool(self._place_text_value(place.website)), self._place_text_value(place.website_url())),
+            (_("Расписание"), bool(self._place_text_value(place.schedule)), self._place_text_value(place.schedule)),
+            (_("Дополнительные условия"), bool(self._place_text_value(place.extra_conditions)), self._place_text_value(place.extra_conditions)),
+            (_("Дополнительная информация"), bool(self._place_text_value(place.additional_info)), self._place_text_value(place.additional_info)),
+            (_("Фото для шапки"), bool(place.cover_photo and getattr(place.cover_photo, "name", "")), getattr(place.cover_photo, "name", "")),
+            (_("Главное фото"), bool(place.photo and getattr(place.photo, "name", "")), getattr(place.photo, "name", "")),
+            (
+                _("Галерея"),
+                gallery_count > 0,
+                ngettext("%(count)s фото", "%(count)s фото", gallery_count) % {"count": gallery_count} if gallery_count else "",
+            ),
+            (_("Публикация"), place.is_active and not place.is_deleted, _("Опубликовано") if place.is_active and not place.is_deleted else _("Не опубликовано")),
+            (_("Проверка"), place.is_verified, _("Проверено") if place.is_verified else _("Без проверки")),
+            (_("Готовность к карте"), place.is_map_ready, _("Готово для карты") if place.is_map_ready else _("Не готово для карты")),
+        )
+
+    @admin.display(description=_("Что заполнено в карточке"))
+    def place_completion_summary(self, obj):
+        if not obj or not obj.place_id:
+            return "-"
+
+        rows = self._place_completion_rows(obj.place)
+        filled_count = sum(1 for _, is_filled, _ in rows if is_filled)
+        total_count = len(rows)
+
+        return format_html(
+            '<div class="km-admin-stack">'
+            '<div class="km-admin-badges">{} <span class="km-admin-meta">{}</span></div>'
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:8px;">'
+            '{}'
+            '</div>'
+            '</div>',
+            format_html(
+                '<span class="km-admin-badge km-admin-badge--{}">{}</span>',
+                "good" if filled_count == total_count else "warn",
+                _("%(filled)s из %(total)s заполнено") % {"filled": filled_count, "total": total_count},
+            ),
+            _("Показывается текущее состояние связанной карточки."),
+            format_html_join(
+                "",
+                '<div class="km-admin-stack" style="padding:10px 12px;border:1px solid #2f2f2f;border-radius:14px;background:#1a1a1a;">'
+                '<div class="km-admin-badges">{} <span class="km-admin-title">{}</span></div>'
+                '<span class="km-admin-meta">{}</span>'
+                '</div>',
+                (
+                    (
+                        self._render_place_completion_badge(is_filled=is_filled),
+                        title,
+                        value or _("Пусто"),
+                    )
+                    for title, is_filled, value in rows
+                ),
+            ),
+        )
 
     @admin.display(description=_("Действия"))
     def moderation_actions(self, obj):
