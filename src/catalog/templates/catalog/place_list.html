@@ -78,6 +78,32 @@
 
       <label class="filter-item filter-district">
         {% trans "Район" %}
+        {% if not is_new_page %}
+          <div class="filter-mobile-tools">
+            <input
+              class="field filter-option-search"
+              type="search"
+              inputmode="search"
+              autocomplete="off"
+              placeholder="{% trans 'Найти район' %}"
+              data-option-search-for="district"
+            />
+            {% if popular_districts %}
+              <div class="filter-popular-options" aria-label="{% trans 'Популярные районы' %}">
+                {% for district_name in popular_districts %}
+                  <button
+                    type="button"
+                    class="filter-popular-chip"
+                    data-select-target="district"
+                    data-select-value="{{ district_name }}"
+                  >
+                    {% trans district_name %}
+                  </button>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
         <select class="filter-select" name="district">
           <option value="">{% trans "Все" %}</option>
           {% for district_name in district_options %}
@@ -125,6 +151,30 @@
       {% else %}
         <label class="filter-item filter-metro">
           {% trans "Метро" %}
+          <div class="filter-mobile-tools">
+            <input
+              class="field filter-option-search"
+              type="search"
+              inputmode="search"
+              autocomplete="off"
+              placeholder="{% trans 'Найти метро' %}"
+              data-option-search-for="metro"
+            />
+            {% if popular_metro %}
+              <div class="filter-popular-options" aria-label="{% trans 'Популярные станции метро' %}">
+                {% for metro_name in popular_metro %}
+                  <button
+                    type="button"
+                    class="filter-popular-chip"
+                    data-select-target="metro"
+                    data-select-value="{{ metro_name }}"
+                  >
+                    {% trans metro_name %}
+                  </button>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
           <select class="filter-select" name="metro">
             <option value="">{% trans "Все" %}</option>
             {% for metro_name in metro_options %}
@@ -235,6 +285,20 @@
         {% endif %}
       </div>
 
+      {% if active_filter_chips %}
+        <div class="active-filter-bar" aria-label="{% trans 'Выбранные фильтры' %}">
+          <div class="active-filter-chips">
+            {% for chip in active_filter_chips %}
+              <a class="active-filter-chip" href="{{ chip.remove_url }}">
+                <span>{{ chip.label }}</span>
+                <span class="active-filter-chip-remove" aria-hidden="true">×</span>
+              </a>
+            {% endfor %}
+          </div>
+          <a class="link-btn icon-btn icon-reset active-filter-reset" href="{{ reset_filters_url }}">{% trans "Сбросить всё" %}</a>
+        </div>
+      {% endif %}
+
       <div class="results-toolbar">
         <p class="results-count">
           {% blocktrans count total=page_obj.paginator.count %}
@@ -244,6 +308,9 @@
           {% endblocktrans %}
         </p>
         <div class="results-toolbar-actions">
+          {% if active_filter_chips %}
+            <a class="link-btn icon-btn icon-reset results-reset-all" href="{{ reset_filters_url }}">{% trans "Сбросить всё" %}</a>
+          {% endif %}
           <button
             type="button"
             class="link-btn icon-btn icon-map results-map-toggle"
@@ -650,6 +717,105 @@
       } else {
         drawer.setAttribute("aria-hidden", "false");
       }
+    })();
+
+    (function () {
+      const selectInputs = Array.from(document.querySelectorAll("[data-option-search-for]"));
+      if (!selectInputs.length) return;
+
+      const optionCache = new Map();
+
+      function normalize(text) {
+        return String(text || "")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      }
+
+      function getSelect(name) {
+        return document.querySelector(`select[name="${name}"]`);
+      }
+
+      function cacheSelectOptions(select) {
+        if (!select || optionCache.has(select)) return;
+        optionCache.set(
+          select,
+          Array.from(select.options).map(function (option) {
+            return {
+              value: option.value,
+              label: option.textContent,
+              selected: option.selected,
+            };
+          })
+        );
+      }
+
+      function rebuildOptions(select, query) {
+        const originalOptions = optionCache.get(select);
+        if (!originalOptions) return;
+
+        const selectedValue = select.value;
+        const cleanQuery = normalize(query);
+        const matchingOptions = originalOptions.filter(function (item, index) {
+          if (index === 0) return true;
+          return !cleanQuery || normalize(item.label).includes(cleanQuery);
+        });
+
+        select.innerHTML = "";
+        matchingOptions.forEach(function (item) {
+          const option = document.createElement("option");
+          option.value = item.value;
+          option.textContent = item.label;
+          select.appendChild(option);
+        });
+
+        const currentOptionExists = matchingOptions.some(function (item) {
+          return item.value === selectedValue;
+        });
+
+        if (selectedValue && !currentOptionExists) {
+          const currentOption = originalOptions.find(function (item) {
+            return item.value === selectedValue;
+          });
+          if (currentOption) {
+            const option = document.createElement("option");
+            option.value = currentOption.value;
+            option.textContent = currentOption.label;
+            select.appendChild(option);
+          }
+        }
+
+        select.value = selectedValue && Array.from(select.options).some(function (option) { return option.value === selectedValue; }) ? selectedValue : "";
+      }
+
+      selectInputs.forEach(function (input) {
+        const targetName = input.dataset.optionSearchFor;
+        const targetSelect = getSelect(targetName);
+        if (!targetSelect) return;
+        cacheSelectOptions(targetSelect);
+
+        input.addEventListener("input", function () {
+          rebuildOptions(targetSelect, input.value);
+        });
+      });
+
+      document.querySelectorAll("[data-select-target]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const targetName = button.dataset.selectTarget;
+          const targetValue = button.dataset.selectValue || "";
+          const targetSelect = getSelect(targetName);
+          const targetInput = document.querySelector(`[data-option-search-for="${targetName}"]`);
+          if (!targetSelect) return;
+
+          cacheSelectOptions(targetSelect);
+          if (targetInput) {
+            targetInput.value = "";
+          }
+          rebuildOptions(targetSelect, "");
+          targetSelect.value = targetValue;
+          targetSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+      });
     })();
   </script>
 {% endblock %}

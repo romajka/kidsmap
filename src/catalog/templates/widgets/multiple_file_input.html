@@ -1,0 +1,25 @@
+{% load i18n %}
+<div
+  class="owner-file-uploader owner-file-uploader-multiple js-file-uploader"
+  data-file-uploader
+  data-upload-empty="{% trans 'Добавьте до 5 изображений в формате JPG, PNG или WEBP.' %}"
+  data-upload-summary="{% trans 'Выбрано файлов:' %}"
+>
+  <label class="owner-file-uploader-drop">
+    <span class="owner-file-uploader-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 16V6M12 6l-4 4m4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 17.5a2.5 2.5 0 0 0 2.5 2.5h9a2.5 2.5 0 0 0 2.5-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <span class="owner-file-uploader-copy">
+      <strong class="owner-file-uploader-title">{% trans "Добавьте фото для галереи" %}</strong>
+      <span class="owner-file-uploader-meta" data-upload-meta>
+        {% trans "Добавьте до 5 изображений в формате JPG, PNG или WEBP." %}
+      </span>
+    </span>
+    <span class="owner-file-uploader-action">{% trans "Выбрать файлы" %}</span>
+    <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
+  </label>
+  <div class="owner-file-uploader-list" data-upload-list hidden></div>
+</div>

@@ -6,17 +6,7 @@ from datetime import datetime
 from typing import Any
 
 from django.conf import settings
-
-
-GA4_TRACKED_EVENT_NAMES = (
-    "page_view",
-    "catalog_search",
-    "catalog_filter",
-    "place_open",
-    "cta_call",
-    "cta_whatsapp",
-    "cta_instagram",
-)
+from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, GA4_TRACKED_EVENT_NAMES
 
 
 def _empty_period_stats() -> dict[str, dict[str, int]]:
@@ -49,6 +39,7 @@ class GoogleAnalyticsAdminSnapshot:
     daily_chart: dict[str, list] = field(default_factory=_empty_daily_chart)
     top_pages: list[dict[str, Any]] = field(default_factory=list)
     top_events: list[dict[str, Any]] = field(default_factory=list)
+    conversion_event_names: list[str] = field(default_factory=lambda: list(GA4_CONVERSION_EVENT_NAMES))
 
     def as_context(self) -> dict[str, Any]:
         return {
@@ -62,6 +53,7 @@ class GoogleAnalyticsAdminSnapshot:
             "daily_chart": self.daily_chart,
             "top_pages": self.top_pages,
             "top_events": self.top_events,
+            "conversion_event_names": self.conversion_event_names,
         }
 
 

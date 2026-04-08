@@ -42,7 +42,7 @@
             <span>{% trans "кружков на карте" %}</span>
           </div>
           <div class="home-hero-stat">
-            <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.9{% endif %}</strong>
+            <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.8{% endif %}</strong>
             <span>
               {% if site_reviews_count %}
                 {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва{% plural %}на основе {{ total }} отзывов{% endblocktrans %}
@@ -52,116 +52,100 @@
             </span>
           </div>
         </div>
-
       </div>
 
-      <div class="home-hero-visual">
-        <div class="home-hero-slider" data-home-hero-slider>
-          <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
-            <div class="home-hero-slider-track" data-home-hero-slider-track>
-              {% for slide in hero_gallery_slides %}
-                <article class="home-hero-slide" data-home-hero-slide>
-                  <div class="home-hero-slide-grid">
-                    <figure class="home-hero-photo-card home-hero-photo-main">
-                      <img
-                        src="{{ slide.main.image_url }}"
-                        alt="{{ slide.main.label }}"
-                        decoding="async"
-                        {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                      />
-                      {% if slide.main.label %}
-                        <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
-                      {% endif %}
-                    </figure>
-                    <figure class="home-hero-photo-card home-hero-photo-side-top">
-                      <img
-                        src="{{ slide.side_top.image_url }}"
-                        alt="{{ slide.side_top.label }}"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      {% if slide.side_top.label %}
-                        <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
-                      {% endif %}
-                    </figure>
-                    <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-                      <img
-                        src="{{ slide.side_bottom.image_url }}"
-                        alt="{{ slide.side_bottom.label }}"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      {% if slide.side_bottom.label %}
-                        <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
-                      {% endif %}
-                    </figure>
-                  </div>
-                </article>
-              {% endfor %}
+      {% if hero_gallery_slides %}
+        <div class="home-hero-visual">
+          <div class="home-hero-slider" data-home-hero-slider>
+            <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
+              <div class="home-hero-slider-track" data-home-hero-slider-track>
+                {% for slide in hero_gallery_slides %}
+                  <article class="home-hero-slide" data-home-hero-slide>
+                    <div class="home-hero-slide-grid">
+                      <figure class="home-hero-photo-card home-hero-photo-main">
+                        <img
+                          src="{{ slide.main.image_url }}"
+                          alt="{{ slide.main.label }}"
+                          decoding="async"
+                          {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                        />
+                        {% if slide.main.label %}
+                          <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
+                        {% endif %}
+                      </figure>
+
+                      <figure class="home-hero-photo-card home-hero-photo-side-top">
+                        <img
+                          src="{{ slide.side_top.image_url }}"
+                          alt="{{ slide.side_top.label }}"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {% if slide.side_top.label %}
+                          <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
+                        {% endif %}
+                      </figure>
+
+                      <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+                        <img
+                          src="{{ slide.side_bottom.image_url }}"
+                          alt="{{ slide.side_bottom.label }}"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {% if slide.side_bottom.label %}
+                          <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
+                        {% endif %}
+                      </figure>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
             </div>
-          </div>
 
-          <button
-            type="button"
-            class="home-hero-slider-arrow home-hero-slider-arrow-prev"
-            data-home-hero-slider-prev
-            aria-label="{% trans 'Предыдущие фото' %}"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            class="home-hero-slider-arrow home-hero-slider-arrow-next"
-            data-home-hero-slider-next
-            aria-label="{% trans 'Следующие фото' %}"
-          >
-            ›
-          </button>
-
-          <div class="home-hero-slider-dots" role="tablist" aria-label="{% trans 'Переключение фото' %}">
-            {% for slide in hero_gallery_slides %}
+            {% if hero_gallery_slides|length > 1 %}
               <button
                 type="button"
-                class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
-                data-home-hero-slider-dot
-                data-slide-index="{{ forloop.counter0 }}"
-                aria-label="{{ forloop.counter }}"
-              ></button>
-            {% endfor %}
+                class="home-hero-slider-arrow home-hero-slider-arrow-prev"
+                data-home-hero-slider-prev
+                aria-label="{% trans 'Предыдущие фото' %}"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                class="home-hero-slider-arrow home-hero-slider-arrow-next"
+                data-home-hero-slider-next
+                aria-label="{% trans 'Следующие фото' %}"
+              >
+                ›
+              </button>
+
+              <div class="home-hero-slider-dots" role="tablist" aria-label="{% trans 'Переключение фото' %}">
+                {% for slide in hero_gallery_slides %}
+                  <button
+                    type="button"
+                    class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
+                    data-home-hero-slider-dot
+                    data-slide-index="{{ forloop.counter0 }}"
+                    aria-label="{{ forloop.counter }}"
+                  ></button>
+                {% endfor %}
+              </div>
+            {% endif %}
           </div>
         </div>
-      </div>
+      {% endif %}
     </div>
 
     <div class="home-hero-search-panel">
       <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}" data-home-map-filter-form>
         <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
         <div class="home-search-row">
-          <input
-            id="home-search-query"
-            class="field search-field home-search-input"
-            type="search"
-            name="q"
-            placeholder="{{ hero_search_placeholder }}"
-          />
-          <select id="home-search-category" class="filter-select home-filter-select home-filter-category" name="category">
-            <option value="">{% trans "Категория" %}</option>
-            {% for item in home_categories %}
-              <option value="{{ item.code }}">{% trans item.title %}</option>
-            {% endfor %}
-          </select>
-
           <select class="filter-select home-filter-select home-filter-district" name="district">
             <option value="">{% trans "Район" %}</option>
             {% for district in home_districts %}
               <option value="{{ district }}">{% trans district %}</option>
-            {% endfor %}
-          </select>
-
-          <select class="filter-select home-filter-select home-filter-metro" name="metro">
-            <option value="">{% trans "Метро" %}</option>
-            {% for metro in home_metro_options %}
-              <option value="{{ metro }}">{% trans metro %}</option>
             {% endfor %}
           </select>
 
@@ -172,19 +156,19 @@
             {% endfor %}
           </select>
 
-          <button class="btn icon-btn icon-search home-search-btn icon-only-btn" type="submit" aria-label="{{ hero_cta_text }}">
-            <span class="visually-hidden">{{ hero_cta_text }}</span>
+          <select id="home-search-category" class="filter-select home-filter-select home-filter-category" name="category">
+            <option value="">{% trans "Категория" %}</option>
+            {% for item in home_categories %}
+              <option value="{{ item.code }}">{% trans item.title %}</option>
+            {% endfor %}
+          </select>
+
+          <button class="btn home-search-btn" type="submit">
+            {{ hero_cta_text }}
           </button>
         </div>
       </form>
 
-      <div class="home-hero-links" aria-label="{% trans 'Быстрый выбор категории' %}">
-        {% for item in home_categories|slice:":4" %}
-          <a class="home-hero-link-chip" href="{% url 'place_list' %}?category={{ item.code }}">
-            {% trans item.title %}
-          </a>
-        {% endfor %}
-      </div>
     </div>
   </section>
 
@@ -317,7 +301,7 @@
     <div class="home-owner-media">
       <img
         src="{% static 'img/home/photos/family-portrait.jpg' %}"
-        alt=""
+        alt="{% trans 'Семья с детьми' %}"
         loading="lazy"
         decoding="async"
       />

@@ -1,20 +1,67 @@
 {% load i18n %}
 
-<label class="owner-form-field{% if full_width %} owner-form-field-full{% endif %}{% if temp_required %} owner-temp-required-field{% endif %}"{% if temp_required %} data-temp-required-field="1"{% endif %}>
-  <span class="owner-form-label">
-    {{ field.label }}
-    {% if field.field.required %}
-      <span class="required-mark" aria-hidden="true">*</span>
+{% if field.field.widget.input_type == "file" %}
+  <div class="owner-form-field owner-form-file-field{% if full_width %} owner-form-field-full{% endif %}{% if temp_required %} owner-temp-required-field{% endif %}"{% if temp_required %} data-temp-required-field="1"{% endif %}>
+    <span class="owner-form-label">
+      {{ field.label }}
+      {% if field.field.required %}
+        <span class="required-mark" aria-hidden="true">*</span>
+      {% endif %}
+      {% if temp_required %}
+        <span class="required-mark owner-temp-required-mark" aria-hidden="true" hidden>*</span>
+      {% endif %}
+    </span>
+    {{ field }}
+    {% if field.help_text %}
+      <small class="meta">{{ field.help_text }}</small>
     {% endif %}
-    {% if temp_required %}
-      <span class="required-mark owner-temp-required-mark" aria-hidden="true" hidden>*</span>
+    {% for error in field.errors %}
+      <small class="auth-field-error">{{ error }}</small>
+    {% endfor %}
+  </div>
+{% elif field.field.widget.input_type == "checkbox" %}
+  <div class="owner-form-field owner-form-toggle-field{% if full_width %} owner-form-field-full{% endif %}{% if temp_required %} owner-temp-required-field{% endif %}"{% if temp_required %} data-temp-required-field="1"{% endif %}>
+    <div class="owner-form-toggle-copy">
+      <span class="owner-form-label">
+        {{ field.label }}
+        {% if field.field.required %}
+          <span class="required-mark" aria-hidden="true">*</span>
+        {% endif %}
+        {% if temp_required %}
+          <span class="required-mark owner-temp-required-mark" aria-hidden="true" hidden>*</span>
+        {% endif %}
+      </span>
+      {% if field.help_text %}
+        <small class="meta">{{ field.help_text }}</small>
+      {% endif %}
+      {% for error in field.errors %}
+        <small class="auth-field-error">{{ error }}</small>
+      {% endfor %}
+    </div>
+    <label class="ui-toggle">
+      {{ field }}
+      <span class="ui-toggle-track" aria-hidden="true">
+        <span class="ui-toggle-thumb"></span>
+      </span>
+    </label>
+  </div>
+{% else %}
+  <label class="owner-form-field{% if full_width %} owner-form-field-full{% endif %}{% if temp_required %} owner-temp-required-field{% endif %}"{% if temp_required %} data-temp-required-field="1"{% endif %}>
+    <span class="owner-form-label">
+      {{ field.label }}
+      {% if field.field.required %}
+        <span class="required-mark" aria-hidden="true">*</span>
+      {% endif %}
+      {% if temp_required %}
+        <span class="required-mark owner-temp-required-mark" aria-hidden="true" hidden>*</span>
+      {% endif %}
+    </span>
+    {{ field }}
+    {% if field.help_text %}
+      <small class="meta">{{ field.help_text }}</small>
     {% endif %}
-  </span>
-  {{ field }}
-  {% if field.help_text %}
-    <small class="meta">{{ field.help_text }}</small>
-  {% endif %}
-  {% for error in field.errors %}
-    <small class="auth-field-error">{{ error }}</small>
-  {% endfor %}
-</label>
+    {% for error in field.errors %}
+      <small class="auth-field-error">{{ error }}</small>
+    {% endfor %}
+  </label>
+{% endif %}

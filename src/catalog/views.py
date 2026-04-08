@@ -29,6 +29,8 @@ from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
 from .models import PlaceReview, SiteReview, UserProfile
+from .models import FunnelEvent
+from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 
 home_controller = HomeController.build_default()
 place_controller = PlaceController.build_default()
@@ -116,6 +118,16 @@ def place_new(request):
 
 
 def _render_place_list(request, force_new_only=False, created_after=None):
+    if request.GET.getlist("view"):
+        normalized_query = place_controller.build_normalized_list_query(
+            request,
+            force_new_only=force_new_only,
+        )
+        target_url = request.path
+        if normalized_query:
+            target_url = f"{target_url}?{normalized_query}"
+        return redirect(target_url)
+
     context = place_controller.build_list_context(
         request,
         force_new_only=force_new_only,
@@ -153,10 +165,41 @@ def toggle_place_like(request, pk):
         return _engagement_login_required_response(request, place.get_absolute_url())
 
     result = engagement_controller.toggle_place_like(request=request, place_id=pk)
+    action = "saved" if result.liked else "removed"
+    analytics_event = build_google_analytics_event(
+        FunnelEvent.EVENT_FAVORITE_TOGGLE,
+        {
+            "place_id": result.place.id,
+            "page_type": "favorite_toggle",
+            "action": action,
+        },
+    )
+    track_funnel_event(
+        request=request,
+        event_type=FunnelEvent.EVENT_FAVORITE_TOGGLE,
+        place=result.place,
+        meta={"action": action},
+    )
 
     if _is_ajax_request(request):
-        return JsonResponse({"ok": True, "liked": result.liked, "likes_count": result.likes_count})
+        return JsonResponse(
+            {
+                "ok": True,
+                "liked": result.liked,
+                "likes_count": result.likes_count,
+                "analytics_event": analytics_event,
+            }
+        )
 
+    queue_google_analytics_event(
+        request=request,
+        name=FunnelEvent.EVENT_FAVORITE_TOGGLE,
+        params={
+            "place_id": result.place.id,
+            "page_type": "favorite_toggle",
+            "action": action,
+        },
+    )
     return redirect(request.POST.get("next") or result.place.get_absolute_url())
 
 
@@ -172,6 +215,21 @@ def add_place_review(request, pk):
         require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", True),
     )
     if result.ok:
+        track_funnel_event(
+            request=request,
+            event_type=FunnelEvent.EVENT_REVIEW_SUBMIT,
+            place=place,
+            meta={"scope": "place"},
+        )
+        queue_google_analytics_event(
+            request=request,
+            name=FunnelEvent.EVENT_REVIEW_SUBMIT,
+            params={
+                "place_id": place.id,
+                "page_type": "place_review",
+                "review_scope": "place",
+            },
+        )
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
@@ -188,6 +246,19 @@ def add_site_review(request):
         require_auth=getattr(settings, "REVIEWS_REQUIRE_AUTH", True),
     )
     if result.ok:
+        track_funnel_event(
+            request=request,
+            event_type=FunnelEvent.EVENT_REVIEW_SUBMIT,
+            meta={"scope": "site"},
+        )
+        queue_google_analytics_event(
+            request=request,
+            name=FunnelEvent.EVENT_REVIEW_SUBMIT,
+            params={
+                "page_type": "site_review",
+                "review_scope": "site",
+            },
+        )
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
@@ -264,7 +335,7 @@ def vote_site_review(request, review_id):
 @csrf_exempt
 @require_POST
 def track_event(request):
-    result = tracking_controller.track_cta_event_from_json(request=request, raw_body=request.body)
+    result = tracking_controller.track_event_from_json(request=request, raw_body=request.body)
     return JsonResponse(result.as_payload(), status=result.status_code)
 
 
@@ -636,6 +707,20 @@ def owner_review_reject(request, review_id):
 def request_place_ownership(request, pk):
     place, result = ownership_controller.submit_claim_request(request=request, place_id=pk)
     if result.ok:
+        track_funnel_event(
+            request=request,
+            event_type=FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
+            place=place,
+            meta={"source": "place_claim_form"},
+        )
+        queue_google_analytics_event(
+            request=request,
+            name=FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
+            params={
+                "place_id": place.id,
+                "page_type": "claim_place",
+            },
+        )
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
@@ -648,6 +733,7 @@ def account_verify_email(request):
 
     initial_email = (request.GET.get("email") or "").strip().lower()
     initial_next = _resolve_safe_next_url(request, reverse("account_profile"))
+    auth_intent = _resolve_auth_intent(request)
     verify_form = auth_controller.build_email_verification_form(initial={"email": initial_email})
     resend_form = auth_controller.build_email_verification_resend_form(initial={"email": initial_email})
 
@@ -662,7 +748,7 @@ def account_verify_email(request):
                     messages.success(request, result.message)
                 else:
                     messages.error(request, result.message)
-                query = urlencode({"email": resend_form.cleaned_data["email"], "next": initial_next})
+                query = urlencode({"email": resend_form.cleaned_data["email"], "next": initial_next, "intent": auth_intent})
                 return redirect(f"{reverse('account_verify_email')}?{query}")
             messages.error(request, _("Проверьте email и повторите отправку кода."))
         else:
@@ -677,6 +763,20 @@ def account_verify_email(request):
                 )
                 if result.ok and result.user is not None:
                     auth_login(request, result.user)
+                    if auth_intent == "owner_place":
+                        track_funnel_event(
+                            request=request,
+                            event_type=FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+                            meta={"intent": auth_intent},
+                        )
+                        queue_google_analytics_event(
+                            request=request,
+                            name=FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+                            params={
+                                "page_type": "owner_signup",
+                                "intent": auth_intent,
+                            },
+                        )
                     messages.success(request, result.message)
                     return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
                 messages.error(request, result.message)
@@ -691,6 +791,7 @@ def account_verify_email(request):
             "resend_form": resend_form,
             "meta_description": _("Подтверждение email в KidsMap."),
             "next_url": initial_next,
+            "auth_intent": auth_intent,
         },
     )
 
@@ -846,6 +947,14 @@ def account_register(request):
             "meta_description": _("Регистрация в KidsMap: создайте аккаунт и начните пользоваться каталогом."),
             "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
             "auth_intent": auth_intent,
+            "analytics_events": [
+                {
+                    "name": FunnelEvent.EVENT_OWNER_SIGNUP_START,
+                    "params": {"page_type": "owner_signup", "intent": auth_intent},
+                }
+            ]
+            if auth_intent == "owner_place"
+            else [],
         },
     )
 

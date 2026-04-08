@@ -13,10 +13,11 @@
       {% trans "Мы отправили 6-значный код на ваш email. Введите его, чтобы активировать аккаунт и войти." %}
     </p>
 
-    <form method="post" class="auth-form">
+    <form method="post" class="auth-form" data-loading-form>
       {% csrf_token %}
       <input type="hidden" name="form_action" value="verify" />
       <input type="hidden" name="next" value="{{ next_url }}" />
+      <input type="hidden" name="intent" value="{{ auth_intent }}" />
 
       {% if verify_form.non_field_errors %}
         <div class="auth-errors">
@@ -42,13 +43,14 @@
         {% endif %}
       </label>
 
-      <button type="submit" class="btn">{% trans "Подтвердить email" %}</button>
+      <button type="submit" class="btn" data-loading-button>{% trans "Подтвердить email" %}</button>
     </form>
 
-    <form method="post" class="auth-form auth-form-secondary">
+    <form method="post" class="auth-form auth-form-secondary" data-loading-form>
       {% csrf_token %}
       <input type="hidden" name="form_action" value="resend" />
       <input type="hidden" name="next" value="{{ next_url }}" />
+      <input type="hidden" name="intent" value="{{ auth_intent }}" />
 
       {% if resend_form.non_field_errors %}
         <div class="auth-errors">
@@ -66,12 +68,12 @@
         {% endif %}
       </label>
 
-      <button type="submit" class="btn">{% trans "Отправить код повторно" %}</button>
+      <button type="submit" class="btn" data-loading-button>{% trans "Отправить код повторно" %}</button>
     </form>
 
     <p class="auth-alt">
       {% trans "Уже подтверждали email?" %}
-      <a href="{% url 'account_login' %}?next={{ next_url|urlencode }}">{% trans "Войти" %}</a>
+      <a href="{% url 'account_login' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}">{% trans "Войти" %}</a>
     </p>
   </section>
 {% endblock %}

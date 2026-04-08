@@ -1,23 +1,30 @@
 {% load i18n %}
-<div class="owner-image-input-widget">
+<div
+  class="owner-file-uploader owner-file-uploader-single js-file-uploader"
+  data-file-uploader
+  data-upload-empty="{% trans 'Нажмите, чтобы выбрать изображение JPG, PNG или WEBP.' %}"
+  data-upload-summary="{% trans 'Новый файл:' %}"
+>
   {% if widget.is_initial and widget.value.url %}
-    <div class="owner-image-current">
-      <span class="owner-image-current-title">{% trans "На данный момент" %}</span>
-      <a class="owner-image-current-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
-        <img
-          src="{{ widget.value.url }}"
-          alt="{% trans 'Текущее изображение' %}"
-          class="owner-image-current-preview"
-          loading="lazy"
-        />
-      </a>
-      <a class="owner-image-open-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
+    <div class="owner-file-uploader-current">
+      <div class="owner-file-uploader-current-copy">
+        <span class="owner-file-uploader-current-kicker">{% trans "На данный момент" %}</span>
+        <a class="owner-file-uploader-current-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
+          <img
+            src="{{ widget.value.url }}"
+            alt="{% trans 'Текущее изображение' %}"
+            class="owner-file-uploader-current-preview"
+            loading="lazy"
+          />
+        </a>
+      </div>
+      <a class="owner-file-uploader-open-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
         {% trans "Открыть фото в новой вкладке" %}
       </a>
     </div>
 
     {% if not widget.required %}
-      <div class="owner-image-clear-row">
+      <label class="owner-file-uploader-clear">
         <input
           type="checkbox"
           name="{{ widget.checkbox_name }}"
@@ -25,19 +32,31 @@
           class="owner-image-clear-checkbox"
           {% if widget.attrs.disabled %}disabled{% endif %}
         />
-        <span class="owner-image-clear-text">{% trans "Удалить текущее фото" %}</span>
-      </div>
+        <span>{% trans "Удалить текущее фото" %}</span>
+      </label>
     {% endif %}
   {% endif %}
 
-  <div class="owner-image-upload">
-    <span class="owner-image-upload-title">
-      {% if widget.is_initial %}
-        {% trans "Заменить фото" %}
-      {% else %}
-        {% trans "Загрузить фото" %}
-      {% endif %}
+  <label class="owner-file-uploader-drop">
+    <span class="owner-file-uploader-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M12 16V6M12 6l-4 4m4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 17.5a2.5 2.5 0 0 0 2.5 2.5h9a2.5 2.5 0 0 0 2.5-2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
     </span>
-    <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} />
-  </div>
+    <span class="owner-file-uploader-copy">
+      <strong class="owner-file-uploader-title">
+        {% if widget.is_initial %}
+          {% trans "Заменить фото" %}
+        {% else %}
+          {% trans "Загрузить фото" %}
+        {% endif %}
+      </strong>
+      <span class="owner-file-uploader-meta" data-upload-meta>
+        {% trans "Нажмите, чтобы выбрать изображение JPG, PNG или WEBP." %}
+      </span>
+    </span>
+    <span class="owner-file-uploader-action">{% trans "Выбрать фото" %}</span>
+    <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
+  </label>
 </div>

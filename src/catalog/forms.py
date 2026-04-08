@@ -63,6 +63,7 @@ def _validate_phone(value: str) -> str:
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True
+    template_name = "widgets/multiple_file_input.html"
 
 
 class ImagePreviewFileInput(forms.ClearableFileInput):
@@ -72,7 +73,16 @@ class ImagePreviewFileInput(forms.ClearableFileInput):
 class MultipleFileField(forms.FileField):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("required", False)
-        kwargs.setdefault("widget", MultipleFileInput(attrs={"class": "field", "accept": "image/*", "multiple": True}))
+        kwargs.setdefault(
+            "widget",
+            MultipleFileInput(
+                attrs={
+                    "class": "field owner-file-uploader-input",
+                    "accept": "image/*",
+                    "multiple": True,
+                }
+            ),
+        )
         super().__init__(*args, **kwargs)
 
     def clean(self, data, initial=None):
@@ -545,7 +555,9 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "is_temporary": forms.CheckboxInput(attrs={"class": "field-check"}),
             "temporary_start": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
             "temporary_end": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
-            "photo": ImagePreviewFileInput(attrs={"class": "field", "accept": "image/*"}),
+            "photo": ImagePreviewFileInput(
+                attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}
+            ),
         }
         labels = {
             "name_az": _("Название (AZ)"),

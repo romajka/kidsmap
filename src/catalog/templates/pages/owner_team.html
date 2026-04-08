@@ -29,7 +29,7 @@
 
     <section class="owner-team-section">
       <h2>{% trans "Пригласить участника" %}</h2>
-      <form method="post" action="{% url 'owner_team_invite' %}" class="auth-form owner-team-invite-form">
+      <form method="post" action="{% url 'owner_team_invite' %}" class="auth-form owner-team-invite-form" data-loading-form>
         {% csrf_token %}
         {% if team_invitation_form.non_field_errors %}
           <div class="auth-errors">{{ team_invitation_form.non_field_errors }}</div>
@@ -48,7 +48,7 @@
             <small class="auth-field-error">{{ error }}</small>
           {% endfor %}
         </label>
-        <button type="submit" class="btn">{% trans "Отправить приглашение" %}</button>
+        <button type="submit" class="btn" data-loading-button>{% trans "Отправить приглашение" %}</button>
       </form>
     </section>
 

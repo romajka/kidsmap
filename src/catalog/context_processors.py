@@ -5,6 +5,7 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from .models import SiteSettings, UserProfile
 from .services.seo import DEFAULT_ROBOTS_CONTENT, build_sitewide_schema_payload
+from .services.tracking import pop_queued_google_analytics_events
 
 DEFAULT_FOOTER_PHONE = "+994 50 540 66 39"
 DEFAULT_FOOTER_EMAIL = "kidsmap.az@gmail.com"
@@ -152,6 +153,7 @@ def seo_urls(request):
 
 
 def site_settings(request):
+    queued_analytics_events = pop_queued_google_analytics_events(request)
     user_role_data = {
         "current_user_role": "",
         "current_user_role_label": "",
@@ -202,6 +204,7 @@ def site_settings(request):
             "footer_social_links": footer_social_links,
             "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
             "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
+            "queued_analytics_events": queued_analytics_events,
             **schema_payload,
             **user_role_data,
         }
@@ -249,6 +252,7 @@ def site_settings(request):
         "footer_social_links": footer_social_links,
         "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
         "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
+        "queued_analytics_events": queued_analytics_events,
         **schema_payload,
         **user_role_data,
     }

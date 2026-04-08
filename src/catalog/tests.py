@@ -35,6 +35,7 @@ from catalog.models import (
     UserProfile,
 )
 from catalog.services.geocoding import PlaceGeocodingService
+from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, TRACKED_EVENT_NAMES
 
 
 User = get_user_model()
@@ -334,11 +335,11 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "user-entry-link")
         self.assertContains(response, "img/ui/user.png")
-        self.assertContains(response, "lang-pill-flag")
+        self.assertContains(response, "lang-flag-icon")
         self.assertContains(response, "img/flags/ru.png")
         self.assertContains(response, "img/flags/az.png")
         self.assertContains(response, "img/flags/en.png")
-        self.assertContains(response, "icon-only-btn")
+        self.assertContains(response, "lang-trigger-icononly")
 
 
 class TestCatalogContentSettingsWiring(TestCase):
@@ -883,6 +884,27 @@ class TestTrackingController(TestCase):
         self.assertEqual(event.path, "/ru/catalog/")
         self.assertEqual(event.event_meta.get("source"), "catalog-list")
 
+    def test_track_event_saves_claim_place_start_event(self):
+        payload = {
+            "event_type": FunnelEvent.EVENT_CLAIM_PLACE_START,
+            "place_id": self.place.id,
+            "source": "place-claim-auth",
+            "path": "/ru/place/test/",
+        }
+
+        response = self.client.post(
+            reverse("track_event"),
+            data=json.dumps(payload),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"ok": True})
+        event = FunnelEvent.objects.get()
+        self.assertEqual(event.event_type, FunnelEvent.EVENT_CLAIM_PLACE_START)
+        self.assertEqual(event.place_id, self.place.id)
+        self.assertEqual(event.event_meta.get("source"), "place-claim-auth")
+
 
 class TestGoogleAnalyticsEvents(TestCase):
     @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
@@ -912,6 +934,43 @@ class TestGoogleAnalyticsEvents(TestCase):
         self.assertContains(response, "kidsmap-analytics-events")
         self.assertContains(response, '"name": "place_open"')
         self.assertContains(response, '"place_id": %s' % place.id)
+
+    @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_register_page_with_owner_intent_renders_owner_signup_start_event(self):
+        response = self.client.get(f"{reverse('account_register')}?intent=owner_place")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"name": "owner_signup_start"')
+        self.assertContains(response, '"intent": "owner_place"')
+
+    def test_tracking_registry_includes_named_events_and_conversions(self):
+        self.assertEqual(
+            TRACKED_EVENT_NAMES,
+            (
+                FunnelEvent.EVENT_CATALOG_SEARCH,
+                FunnelEvent.EVENT_CATALOG_FILTER,
+                FunnelEvent.EVENT_PLACE_OPEN,
+                FunnelEvent.EVENT_CTA_CALL,
+                FunnelEvent.EVENT_CTA_WHATSAPP,
+                FunnelEvent.EVENT_CTA_INSTAGRAM,
+                FunnelEvent.EVENT_FAVORITE_TOGGLE,
+                FunnelEvent.EVENT_REVIEW_SUBMIT,
+                FunnelEvent.EVENT_CLAIM_PLACE_START,
+                FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
+                FunnelEvent.EVENT_OWNER_SIGNUP_START,
+                FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+            ),
+        )
+        self.assertEqual(
+            GA4_CONVERSION_EVENT_NAMES,
+            (
+                FunnelEvent.EVENT_CTA_CALL,
+                FunnelEvent.EVENT_CTA_WHATSAPP,
+                FunnelEvent.EVENT_REVIEW_SUBMIT,
+                FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
+                FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+            ),
+        )
 
 
 class TestSiteVisitMiddleware(TestCase):
@@ -1007,6 +1066,8 @@ class TestAccountsAndReviewAccess(TestCase):
         self.assertEqual(PlaceReview.objects.count(), 1)
         review = PlaceReview.objects.first()
         self.assertEqual(review.user, user)
+        self.assertContains(response, '"name": "review_submit"')
+        self.assertContains(response, '"review_scope": "place"')
 
     def test_registration_page_shows_required_fields_note_in_current_language(self):
         response = self.client.get(reverse("account_register"))
@@ -1198,10 +1259,10 @@ class TestCatalogEnhancements(TestCase):
         response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "data-gallery-viewport")
-        self.assertContains(response, "data-gallery-track")
-        self.assertContains(response, "data-gallery-thumb")
-        self.assertContains(response, "gallery-toolbar")
+        self.assertContains(response, "data-place-gallery")
+        self.assertContains(response, "data-place-gallery-main")
+        self.assertContains(response, "swiper-wrapper")
+        self.assertContains(response, "data-place-gallery-thumb")
         self.assertContains(response, "static/js/place_gallery.js")
 
     def test_catalog_card_renders_more_details_block(self):
@@ -1220,7 +1281,8 @@ class TestCatalogEnhancements(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "place-more-details")
-        self.assertContains(response, "Другое")
+        self.assertContains(response, "Подробнее")
+        self.assertContains(response, "Подробности")
         self.assertContains(response, "Есть пробное занятие")
 
     def test_catalog_map_uses_only_filtered_map_ready_places(self):
@@ -1455,6 +1517,8 @@ class TestReviewEnhancements(TestCase):
         self.assertTrue(payload["ok"])
         self.assertTrue(payload["liked"])
         self.assertEqual(payload["likes_count"], 1)
+        self.assertEqual(payload["analytics_event"]["name"], FunnelEvent.EVENT_FAVORITE_TOGGLE)
+        self.assertEqual(payload["analytics_event"]["params"]["action"], "saved")
         self.assertEqual(PlaceLike.objects.filter(place=self.place, user=self.user).count(), 1)
 
         response = self.client.post(
@@ -1465,6 +1529,7 @@ class TestReviewEnhancements(TestCase):
         payload = json.loads(response.content)
         self.assertFalse(payload["liked"])
         self.assertEqual(payload["likes_count"], 0)
+        self.assertEqual(payload["analytics_event"]["params"]["action"], "removed")
 
     def test_add_place_review_requires_login_and_redirects_guest(self):
         response = self.client.post(
@@ -1743,6 +1808,29 @@ class TestEmailVerificationFlow(TestCase):
         self.assertIsNone(challenge.expires_at)
         self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
 
+    @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_verify_email_with_owner_intent_queues_owner_signup_complete_event(self):
+        register_response, user = self._register(username="owner_verify_user", email="owner-verify@example.com", code="123456")
+        self.assertEqual(register_response.status_code, 302)
+
+        verify_response = self.client.post(
+            reverse("account_verify_email"),
+            data={
+                "form_action": "verify",
+                "email": "owner-verify@example.com",
+                "code": "123456",
+                "next": reverse("account_profile"),
+                "intent": "owner_place",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(verify_response.status_code, 200)
+        user.refresh_from_db()
+        self.assertTrue(user.is_active)
+        self.assertContains(verify_response, '"name": "owner_signup_complete"')
+        self.assertContains(verify_response, '"intent": "owner_place"')
+
     def test_verify_email_rejects_expired_code(self):
         _, user = self._register(username="expired_user", email="expired@example.com", code="123456")
         challenge = UserEmailVerification.objects.get(user=user)
@@ -1963,6 +2051,8 @@ class TestOwnershipWorkflow(TestCase):
         self.assertEqual(ownership_request.place, self.place)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
         self.assertEqual(PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).count(), 1)
+        self.assertContains(response, '"name": "claim_place_submit"')
+        self.assertContains(response, f'"place_id": {self.place.id}')
 
     def test_owner_cabinet_shows_claim_candidates(self):
         self.client.login(username="owner_role_user", password="StrongPass123!!")
@@ -2030,6 +2120,7 @@ class TestOwnershipWorkflow(TestCase):
         ownership_request = PlaceOwnershipRequest.objects.first()
         self.assertEqual(ownership_request.applicant, self.regular_user)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
+        self.assertContains(response, '"name": "claim_place_submit"')
 
     def test_approve_request_assigns_place_owner_and_writes_audit(self):
         ownership_request = PlaceOwnershipRequest.objects.create(
@@ -2160,8 +2251,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.get(reverse("owner_place_edit", args=[self.editor_place.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "owner-image-current-preview")
-        self.assertContains(response, "owner-image-clear-text")
+        self.assertContains(response, "owner-file-uploader-current-preview")
+        self.assertContains(response, "owner-file-uploader-clear")
         self.assertNotContains(response, "Фото для шапки")
 
     def test_owner_create_page_renders_map_picker(self):

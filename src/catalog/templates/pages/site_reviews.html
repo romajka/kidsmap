@@ -91,7 +91,7 @@
         <p class="meta">{% trans "Поделитесь впечатлением о сервисе KidsMap после использования каталога." %}</p>
       </div>
       {% if request.user.is_authenticated %}
-        <form method="post" action="{% url 'add_site_review' %}" class="review-form">
+        <form method="post" action="{% url 'add_site_review' %}" class="review-form" data-loading-form>
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}" />
           <div class="review-form-grid">
@@ -119,7 +119,7 @@
             {% trans "Текст отзыва" %}
             <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось в сервисе?' %}"></textarea>
           </label>
-          <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
+          <button type="submit" class="btn" data-loading-button>{% trans "Отправить отзыв" %}</button>
         </form>
       {% else %}
         <div class="review-auth-note">

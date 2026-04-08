@@ -9,13 +9,40 @@ from catalog.repositories.tracking_repositories import DjangoEventPlaceRepositor
 from catalog.services.reactions import ensure_session_key
 
 
-FUNNEL_EVENT_TYPES = {
+TRACKED_EVENT_NAMES = (
     FunnelEvent.EVENT_CATALOG_SEARCH,
     FunnelEvent.EVENT_CATALOG_FILTER,
     FunnelEvent.EVENT_PLACE_OPEN,
     FunnelEvent.EVENT_CTA_CALL,
     FunnelEvent.EVENT_CTA_WHATSAPP,
     FunnelEvent.EVENT_CTA_INSTAGRAM,
+    FunnelEvent.EVENT_FAVORITE_TOGGLE,
+    FunnelEvent.EVENT_REVIEW_SUBMIT,
+    FunnelEvent.EVENT_CLAIM_PLACE_START,
+    FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
+    FunnelEvent.EVENT_OWNER_SIGNUP_START,
+    FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+)
+
+GA4_TRACKED_EVENT_NAMES = ("page_view",) + TRACKED_EVENT_NAMES
+
+GA4_CONVERSION_EVENT_NAMES = (
+    FunnelEvent.EVENT_CTA_CALL,
+    FunnelEvent.EVENT_CTA_WHATSAPP,
+    FunnelEvent.EVENT_REVIEW_SUBMIT,
+    FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
+    FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+)
+
+SESSION_ANALYTICS_EVENTS_KEY = "kidsmap_queued_analytics_events"
+
+FUNNEL_EVENT_TYPES = set(TRACKED_EVENT_NAMES)
+
+CLICK_EVENT_TYPES = {
+    FunnelEvent.EVENT_CTA_CALL,
+    FunnelEvent.EVENT_CTA_WHATSAPP,
+    FunnelEvent.EVENT_CTA_INSTAGRAM,
+    FunnelEvent.EVENT_CLAIM_PLACE_START,
 }
 
 CTA_EVENT_TYPES = {
@@ -40,6 +67,33 @@ def _normalize_meta(meta: dict[str, Any] | None) -> dict[str, Any]:
         else:
             normalized[str_key] = str(value)[:255]
     return normalized
+
+
+def build_google_analytics_event(name: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    return {
+        "name": str(name or "").strip(),
+        "params": _normalize_meta(params),
+    }
+
+
+def queue_google_analytics_event(*, request, name: str, params: dict[str, Any] | None = None) -> None:
+    event = build_google_analytics_event(name, params)
+    if not event["name"]:
+        return
+
+    queued = request.session.get(SESSION_ANALYTICS_EVENTS_KEY, [])
+    if not isinstance(queued, list):
+        queued = []
+    queued.append(event)
+    request.session[SESSION_ANALYTICS_EVENTS_KEY] = queued
+    request.session.modified = True
+
+
+def pop_queued_google_analytics_events(request) -> list[dict[str, Any]]:
+    queued = request.session.pop(SESSION_ANALYTICS_EVENTS_KEY, [])
+    if isinstance(queued, list):
+        return [item for item in queued if isinstance(item, dict) and item.get("name")]
+    return []
 
 
 @dataclass(slots=True)
@@ -130,7 +184,7 @@ class TrackingService:
             meta={"category": place.category},
         )
 
-    def track_cta_click_event(
+    def track_click_event(
         self,
         *,
         request,
@@ -139,7 +193,7 @@ class TrackingService:
         source: str = "",
         path: str = "",
     ) -> bool:
-        if event_type not in CTA_EVENT_TYPES:
+        if event_type not in CLICK_EVENT_TYPES:
             return False
 
         place = None
@@ -152,6 +206,25 @@ class TrackingService:
             path=path,
             place=place,
             meta={"source": source[:40]},
+        )
+
+    def track_cta_click_event(
+        self,
+        *,
+        request,
+        event_type: str,
+        place_id: int | None,
+        source: str = "",
+        path: str = "",
+    ) -> bool:
+        if event_type not in CTA_EVENT_TYPES:
+            return False
+        return self.track_click_event(
+            request=request,
+            event_type=event_type,
+            place_id=place_id,
+            source=source,
+            path=path,
         )
 
 
@@ -190,6 +263,16 @@ def track_place_open_event(*, request, place: Place) -> None:
 
 def track_cta_click_event(*, request, event_type: str, place_id: int | None, source: str = "", path: str = "") -> bool:
     return _tracking_service.track_cta_click_event(
+        request=request,
+        event_type=event_type,
+        place_id=place_id,
+        source=source,
+        path=path,
+    )
+
+
+def track_click_event(*, request, event_type: str, place_id: int | None, source: str = "", path: str = "") -> bool:
+    return _tracking_service.track_click_event(
         request=request,
         event_type=event_type,
         place_id=place_id,

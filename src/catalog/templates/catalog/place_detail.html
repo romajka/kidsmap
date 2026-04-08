@@ -23,66 +23,110 @@
     </div>
 
     <article class="detail-block">
-      <h1>{{ place.name_i18n }}</h1>
+      <header class="detail-hero">
+        <div class="detail-hero__copy">
+          <h1>{{ place.name_i18n }}</h1>
+
+          {% if place.district or place.metro %}
+            <p class="detail-hero__location">
+              {% if place.district %}{% trans place.district %}{% endif %}
+              {% if place.district and place.metro %} · {% endif %}
+              {% if place.metro %}{% trans place.metro %}{% endif %}
+            </p>
+          {% endif %}
+
+          <div class="detail-rating detail-rating--hero">
+            <span class="rating-stars large" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+            <span class="rating-text">
+              {{ place.rating_avg|floatformat:1 }}
+              {% if place.rating_count %}
+                · {{ place.rating_count }} {% trans "отзывов" %}
+              {% else %}
+                · {% trans "пока без отзывов" %}
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-hero__actions">
+          {% if place.phone1 %}
+            <a class="cta-btn cta-call icon-btn icon-phone detail-primary-cta" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-top">{% trans "Связаться" %}</a>
+          {% elif place.instagram %}
+            <a class="cta-btn cta-instagram icon-btn icon-instagram detail-primary-cta" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-top">{% trans "Связаться" %}</a>
+          {% elif place.website %}
+            <a class="cta-btn detail-primary-cta" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{% trans "Связаться" %}</a>
+          {% endif %}
+
+          <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+            <button type="submit" class="like-btn detail-save-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
+              <span class="detail-save-btn__icon" aria-hidden="true">♥</span>
+              <span>{% trans "Сохранить" %}</span>
+              <span class="like-count">{{ place.likes_count }}</span>
+            </button>
+          </form>
+        </div>
+      </header>
+
       {% with gallery=place.gallery_files %}
         {% if gallery %}
           <section class="place-gallery" data-place-gallery aria-label="{% trans 'Галерея фотографий' %}">
-            <div class="place-gallery__stage swiper" data-place-gallery-main>
-              <div class="swiper-wrapper">
-                {% for file in gallery %}
-                  <div class="swiper-slide place-gallery__slide">
-                    <figure class="place-gallery__media">
-                      <img
-                        class="place-gallery__image"
-                        src="{{ file.url }}"
-                        alt="{{ place.name_i18n }}"
-                        draggable="false"
-                        {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                      />
-                    </figure>
-                  </div>
-                {% endfor %}
-              </div>
+            <div class="place-gallery__frame">
+              <div class="place-gallery__main swiper" data-place-gallery-main>
+                <div class="swiper-wrapper">
+                  {% for file in gallery %}
+                    <div class="swiper-slide">
+                      <figure class="place-gallery__slide">
+                        <img
+                          class="place-gallery__image"
+                          src="{{ file.url }}"
+                          alt="{{ place.name_i18n }}"
+                          draggable="false"
+                          {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                        />
+                      </figure>
+                    </div>
+                  {% endfor %}
+                </div>
 
-              {% if gallery|length > 1 %}
-                <button type="button" class="place-gallery__nav place-gallery__nav--prev" data-place-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-                  </svg>
-                </button>
-                <button type="button" class="place-gallery__nav place-gallery__nav--next" data-place-gallery-next aria-label="{% trans 'Следующее фото' %}">
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="m9.5 5 6.5 7-6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-                  </svg>
-                </button>
-                <div class="place-gallery__meta">
+                {% if gallery|length > 1 %}
+                  <button type="button" class="place-gallery__nav place-gallery__nav--prev" data-place-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                  </button>
+                  <button type="button" class="place-gallery__nav place-gallery__nav--next" data-place-gallery-next aria-label="{% trans 'Следующее фото' %}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="m9.5 5 6.5 7-6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                  </button>
                   <div class="place-gallery__counter" aria-live="polite">
                     <span data-place-gallery-current>1</span>
                     <span aria-hidden="true">/</span>
                     <span>{{ gallery|length }}</span>
                   </div>
-                  <p class="place-gallery__hint">{% trans "Свайп, стрелки или миниатюры" %}</p>
+                {% endif %}
+              </div>
+
+              {% if gallery|length > 1 %}
+                <div class="place-gallery__thumbs" aria-label="{% trans 'Миниатюры галереи' %}">
+                  <div class="place-gallery__thumbs-track">
+                    {% for file in gallery %}
+                      <button
+                        type="button"
+                        class="place-gallery__thumb{% if forloop.first %} is-active{% endif %}"
+                        data-place-gallery-thumb
+                        data-index="{{ forloop.counter0 }}"
+                        aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
+                      >
+                        <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" draggable="false" />
+                      </button>
+                    {% endfor %}
+                  </div>
                 </div>
               {% endif %}
             </div>
-
-            {% if gallery|length > 1 %}
-              <div class="place-gallery__thumbs" data-place-gallery-thumbs aria-label="{% trans 'Миниатюры галереи' %}">
-                <div class="place-gallery__thumbs-track">
-                  {% for file in gallery %}
-                    <button
-                      type="button"
-                      class="place-gallery__thumb{% if forloop.first %} is-active{% endif %}"
-                      data-place-gallery-thumb
-                      data-index="{{ forloop.counter0 }}"
-                      aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
-                    >
-                      <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" draggable="false" />
-                    </button>
-                  {% endfor %}
-                </div>
-              </div>
-            {% endif %}
           </section>
         {% else %}
           <div class="detail-photo-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
@@ -91,22 +135,34 @@
           </div>
         {% endif %}
       {% endwith %}
+
+      <section class="detail-highlights" aria-label="{% trans 'Основные характеристики' %}">
+        {% if place.age_display %}
+          <div class="detail-highlight-card">
+            <span class="detail-highlight-card__label">{% trans "Возраст" %}</span>
+            <strong class="detail-highlight-card__value">{{ place.age_display }}</strong>
+          </div>
+        {% endif %}
+
+        {% if place.price_range_display %}
+          <div class="detail-highlight-card">
+            <span class="detail-highlight-card__label">{% trans "Цена" %}</span>
+            <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
+          </div>
+        {% endif %}
+
+        <div class="detail-highlight-card">
+          <span class="detail-highlight-card__label">{% trans "Категория" %}</span>
+          <strong class="detail-highlight-card__value">{{ place.get_category_display }}</strong>
+        </div>
+      </section>
+
       {% if place.description_i18n %}
-        <p>{{ place.description_i18n|linebreaksbr }}</p>
+        <div class="detail-description">
+          <p>{{ place.description_i18n|linebreaksbr }}</p>
+        </div>
       {% endif %}
-      <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-        <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
-          ♥ <span class="like-count">{{ place.likes_count }}</span>
-        </button>
-      </form>
-      <div class="detail-rating">
-        <span class="rating-stars large" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
-        <span class="rating-text">
-          {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
-        </span>
-      </div>
+
       <div class="card-cta-row">
         {% if place.phone1 %}
           <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail">{% trans "Позвонить" %}</a>
@@ -169,13 +225,13 @@
 
         {% if request.user.is_authenticated %}
           {% if can_claim_place %}
-            <form method="post" action="{% url 'request_place_ownership' place.id %}" class="owner-request-form">
+            <form method="post" action="{% url 'request_place_ownership' place.id %}" class="owner-request-form" data-loading-form>
               {% csrf_token %}
               <label>
                 {% trans "Комментарий к заявке (необязательно)" %}
                 <textarea class="field" name="note" rows="3" maxlength="1200" placeholder="{% trans 'Например: я представитель этого кружка, могу подтвердить контакты.' %}"></textarea>
               </label>
-              <button type="submit" class="btn">{% trans "Отправить заявку на управление" %}</button>
+              <button type="submit" class="btn" data-loading-button>{% trans "Отправить заявку на управление" %}</button>
             </form>
           {% else %}
             {% if can_claim_reason == "already_owner" %}
@@ -191,18 +247,13 @@
           <div class="review-auth-note">
             <p>{% trans "Чтобы отправить заявку на управление карточкой, войдите в аккаунт." %}</p>
             <div class="review-auth-actions">
-              <a class="btn" href="{% url 'account_login' %}?next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}">{% trans "Войти" %}</a>
-              <a class="link-btn" href="{% url 'account_register' %}?next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}">{% trans "Регистрация" %}</a>
+              <a class="btn" href="{% url 'account_login' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% trans "Войти" %}</a>
+              <a class="link-btn" href="{% url 'account_register' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% trans "Регистрация" %}</a>
             </div>
           </div>
         {% endif %}
       </section>
       <div class="detail-meta-grid">
-        <div class="detail-meta-item">
-          <span class="meta-label">{% trans "Категория" %}</span>
-          <div class="meta-value">{{ place.get_category_display }}</div>
-        </div>
-
         <div class="detail-meta-item">
           <span class="meta-label">{% trans "Формат" %}</span>
           <div class="meta-value">
@@ -252,20 +303,6 @@
           <span class="meta-label">{% trans "Добавлено" %}</span>
           <div class="meta-value">{{ place.created_at|date:"d.m.Y" }}</div>
         </div>
-
-        {% if place.age_display %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Возраст" %}</span>
-            <div class="meta-value">{{ place.age_display }}</div>
-          </div>
-        {% endif %}
-
-        {% if place.price_range_display %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Цена" %}</span>
-            <div class="meta-value">{{ place.price_range_display }}</div>
-          </div>
-        {% endif %}
 
         {% if place.lesson_duration_display %}
           <div class="detail-meta-item">
@@ -329,7 +366,7 @@
         {% endif %}
 
         {% if request.user.is_authenticated %}
-          <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form">
+          <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form" data-loading-form>
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}" />
             <div class="review-form-grid">
@@ -357,7 +394,7 @@
               {% trans "Текст отзыва" %}
               <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось или не понравилось?' %}"></textarea>
             </label>
-            <button type="submit" class="btn">{% trans "Отправить отзыв" %}</button>
+            <button type="submit" class="btn" data-loading-button>{% trans "Отправить отзыв" %}</button>
           </form>
         {% else %}
           <div class="review-auth-note">
@@ -428,5 +465,5 @@
 {% endblock %}
 {% block extra_body %}
   <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
-  <script src="{% static 'js/place_gallery.js' %}?v=gallery-20260402-6"></script>
+  <script src="{% static 'js/place_gallery.js' %}?v=gallery-20260406-1"></script>
 {% endblock %}

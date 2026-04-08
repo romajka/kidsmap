@@ -50,7 +50,7 @@
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
   </head>
-  <body class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');"{% endif %}>
+  <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');"{% endif %}>
     <div class="bg-scene" aria-hidden="true">
       <div class="bg-floaters" data-bg-floaters></div>
     </div>
@@ -183,9 +183,18 @@
                 <span class="lang-arrow" aria-hidden="true"></span>
               </summary>
               <div class="lang-dropdown menu-dropdown">
-                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru"><img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" aria-hidden="true" width="20" height="20" /><span class="visually-hidden">{% trans "Русский" %}</span></a>
-                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az"><img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" aria-hidden="true" width="20" height="20" /><span class="visually-hidden">{% trans "Азербайджанский" %}</span></a>
-                <a class="lang-pill lang-pill-flag {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en"><img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" aria-hidden="true" width="20" height="20" /><span class="visually-hidden">{% trans "Английский" %}</span></a>
+                <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="ru">
+                  <img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" aria-hidden="true" width="20" height="20" />
+                  <span class="lang-pill-label">{% trans "Русский" %}</span>
+                </a>
+                <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="az">
+                  <img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" aria-hidden="true" width="20" height="20" />
+                  <span class="lang-pill-label">{% trans "Азербайджанский" %}</span>
+                </a>
+                <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" hreflang="en">
+                  <img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" aria-hidden="true" width="20" height="20" />
+                  <span class="lang-pill-label">{% trans "Английский" %}</span>
+                </a>
               </div>
             </details>
           </div>
@@ -206,30 +215,55 @@
 
       <footer class="site-footer panel">
         <div class="footer-grid">
-          <section>
-            <h3>{% trans "О проекте" %}</h3>
-            <p>{{ site_about_text }}</p>
+          <section class="footer-brand-block">
+            <a class="footer-brand-link" href="{% url 'home' %}">
+              <span class="logo-slot footer-logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.png' %}{% endif %}');" aria-hidden="true"></span>
+              <span class="footer-brand-name">{{ brand_name }}</span>
+            </a>
+            <p class="footer-brand-copy">{{ site_about_text }}</p>
+            <a class="footer-primary-link" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
           </section>
-          <section>
+
+          <section class="footer-links-block">
+            <h3>{% trans "Разделы" %}</h3>
+            <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
+              <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+              <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+              <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
+              <a href="{% url 'site_reviews' %}">{% trans "Отзывы" %}</a>
+              <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
+              <a href="{% url 'home' %}#faq">{% trans "FAQ" %}</a>
+            </nav>
+          </section>
+
+          <section class="footer-links-block">
             <h3>{% trans "Контакты" %}</h3>
-            {% if footer_phone %}
-              <p><a href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a></p>
-            {% endif %}
-            {% if footer_email %}
-              <p><a href="mailto:{{ footer_email }}">{{ footer_email }}</a></p>
-            {% endif %}
+            <div class="footer-contact-list">
+              {% if footer_phone %}
+                <a href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
+              {% endif %}
+              {% if footer_email %}
+                <a href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+              {% endif %}
+              {% if footer_whatsapp_url %}
+                <a href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>
+              {% endif %}
+            </div>
           </section>
-          <section>
+
+          <section class="footer-links-block">
             <h3>{% trans "Соцсети" %}</h3>
             {% if footer_social_links %}
               <div class="footer-social-links">
                 {% include "pages/includes/site_social_links.html" with link_class="footer-social-link" %}
               </div>
             {% endif %}
-            {% if footer_whatsapp_url %}
-              <p><a href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a></p>
-            {% endif %}
           </section>
+        </div>
+
+        <div class="footer-bottom-row">
+          <p>© {% now "Y" %} KidsMap</p>
+          <a class="footer-bottom-link" href="#top">{% trans "Наверх" %}</a>
         </div>
       </footer>
     </div>
@@ -287,6 +321,9 @@
           }
           if (countEl && typeof payload.likes_count === "number") {
             countEl.textContent = payload.likes_count;
+          }
+          if (payload.analytics_event && typeof window.kidsMapEmitAnalyticsEvent === "function") {
+            window.kidsMapEmitAnalyticsEvent(payload.analytics_event);
           }
         }
 
@@ -484,11 +521,21 @@
 
           const trackUrl = "{% url 'track_event' %}";
 
+          function emitAnalyticsEvent(eventItem) {
+            if (!eventItem || !eventItem.name) return;
+            sendGoogleAnalyticsEvent(eventItem.name, eventItem.params || {});
+          }
+
+          window.kidsMapEmitAnalyticsEvent = emitAnalyticsEvent;
+
           function send(payload) {
             if (!payload || !payload.event_type) return;
-            sendGoogleAnalyticsEvent(payload.event_type, {
-              page_type: payload.source || "",
-              place_id: payload.place_id || undefined,
+            emitAnalyticsEvent({
+              name: payload.event_type,
+              params: {
+                page_type: payload.source || "",
+                place_id: payload.place_id || undefined,
+              },
             });
             if (!trackUrl) return;
             try {
@@ -528,25 +575,63 @@
     </script>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}
+    {% endif %}
+    {% if queued_analytics_events %}
+      {{ queued_analytics_events|json_script:"kidsmap-queued-analytics-events" }}
+    {% endif %}
+    {% if analytics_events or queued_analytics_events %}
       <script>
         (function () {
-          const payload = document.getElementById("kidsmap-analytics-events");
-          if (!payload || typeof window.kidsMapTrackGoogleAnalyticsEvent !== "function") return;
+          if (typeof window.kidsMapEmitAnalyticsEvent !== "function") return;
 
-          let events = [];
-          try {
-            events = JSON.parse(payload.textContent || "[]");
-          } catch (err) {
-            events = [];
-          }
+          ["kidsmap-analytics-events", "kidsmap-queued-analytics-events"].forEach(function (elementId) {
+            const payload = document.getElementById(elementId);
+            if (!payload) return;
 
-          events.forEach(function (eventItem) {
-            if (!eventItem || !eventItem.name) return;
-            window.kidsMapTrackGoogleAnalyticsEvent(eventItem.name, eventItem.params || {});
+            let events = [];
+            try {
+              events = JSON.parse(payload.textContent || "[]");
+            } catch (err) {
+              events = [];
+            }
+
+            events.forEach(function (eventItem) {
+              window.kidsMapEmitAnalyticsEvent(eventItem);
+            });
           });
         })();
       </script>
     {% endif %}
+    <script>
+      (function () {
+        function mountLoadingState(button) {
+          if (!button || button.classList.contains("is-loading")) return;
+          const text = (button.dataset.loadingLabel || button.textContent || "").trim();
+          button.dataset.loadingLabel = text;
+          button.innerHTML =
+            '<span class="ui-loader" aria-hidden="true"></span>' +
+            '<span class="btn-loading-text">' + text + "</span>";
+          button.classList.add("is-loading");
+          button.setAttribute("aria-busy", "true");
+          button.disabled = true;
+        }
+
+        document.addEventListener("submit", function (event) {
+          const form = event.target;
+          if (!(form instanceof HTMLFormElement) || !form.matches("[data-loading-form]")) return;
+
+          const submitter =
+            event.submitter ||
+            form.querySelector("[data-loading-button]") ||
+            form.querySelector('button[type="submit"], input[type="submit"]');
+          if (!submitter || submitter.hasAttribute("data-no-loading")) return;
+
+          window.requestAnimationFrame(function () {
+            mountLoadingState(submitter);
+          });
+        });
+      })();
+    </script>
     <script defer src="{% static 'js/bg_scene.js' %}?v=bg-20260402-6"></script>
     {% block extra_body %}{% endblock %}
   </body>

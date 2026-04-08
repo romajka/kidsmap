@@ -119,16 +119,17 @@
                     <form
                       method="post"
                       action="{% url 'owner_place_delete' place.id %}"
+                      data-loading-form
                       onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');"
                     >
                       {% csrf_token %}
-                      <button type="submit" class="btn-secondary btn-danger">{% trans "Удалить карточку" %}</button>
+                      <button type="submit" class="btn-secondary btn-danger" data-loading-button>{% trans "Удалить карточку" %}</button>
                     </form>
                   {% endif %}
                   {% if can_publish_places %}
-                    <form method="post" action="{% url 'owner_place_draft' place.id %}">
+                    <form method="post" action="{% url 'owner_place_draft' place.id %}" data-loading-form>
                       {% csrf_token %}
-                      <button type="submit" class="btn-secondary">{% trans "В черновик" %}</button>
+                      <button type="submit" class="btn-secondary" data-loading-button>{% trans "В черновик" %}</button>
                     </form>
                   {% endif %}
                 </div>
@@ -179,18 +180,19 @@
                     <form
                       method="post"
                       action="{% url 'owner_place_delete' place.id %}"
+                      data-loading-form
                       onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');"
                     >
                       {% csrf_token %}
-                      <button type="submit" class="btn-secondary btn-danger">{% trans "Удалить карточку" %}</button>
+                      <button type="submit" class="btn-secondary btn-danger" data-loading-button>{% trans "Удалить карточку" %}</button>
                     </form>
                   {% endif %}
                   {% if can_edit_places and place.latest_moderation_request and place.latest_moderation_request.status == "PENDING" %}
                     <span class="chip">{% trans "На проверке" %}</span>
                   {% elif can_edit_places %}
-                    <form method="post" action="{% url 'owner_place_submit_review' place.id %}">
+                    <form method="post" action="{% url 'owner_place_submit_review' place.id %}" data-loading-form>
                       {% csrf_token %}
-                      <button type="submit" class="btn-secondary">
+                      <button type="submit" class="btn-secondary" data-loading-button>
                         {% if place.latest_moderation_request and place.latest_moderation_request.status == "REJECTED" %}
                           {% trans "Отправить повторно на проверку" %}
                         {% else %}
@@ -201,9 +203,9 @@
                   {% endif %}
                   {% if can_publish_places %}
                     {% if place.latest_moderation_request and place.latest_moderation_request.status == "APPROVED" %}
-                      <form method="post" action="{% url 'owner_place_publish' place.id %}">
+                      <form method="post" action="{% url 'owner_place_publish' place.id %}" data-loading-form>
                         {% csrf_token %}
-                        <button type="submit" class="btn">{% trans "Опубликовать" %}</button>
+                        <button type="submit" class="btn" data-loading-button>{% trans "Опубликовать" %}</button>
                       </form>
                     {% else %}
                       <button

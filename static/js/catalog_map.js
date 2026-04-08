@@ -64,13 +64,17 @@
 
   function renderCatalogMapState(mapEl, message, className) {
     if (!mapEl) return;
+    const body =
+      className === "catalog-map-loading"
+        ? '<div class="catalog-map-loading-content"><span class="ui-loader ui-loader-dark" aria-hidden="true"></span><p>' +
+          escapeHtml(message) +
+          "</p></div>"
+        : "<p>" + escapeHtml(message) + "</p>";
     mapEl.innerHTML =
       '<div class="' +
       className +
       '">' +
-      '<p>' +
-      escapeHtml(message) +
-      "</p>" +
+      body +
       "</div>";
   }
 

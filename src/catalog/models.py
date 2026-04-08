@@ -1430,6 +1430,12 @@ class FunnelEvent(models.Model):
     EVENT_CTA_CALL = "cta_call"
     EVENT_CTA_WHATSAPP = "cta_whatsapp"
     EVENT_CTA_INSTAGRAM = "cta_instagram"
+    EVENT_FAVORITE_TOGGLE = "favorite_toggle"
+    EVENT_REVIEW_SUBMIT = "review_submit"
+    EVENT_CLAIM_PLACE_START = "claim_place_start"
+    EVENT_CLAIM_PLACE_SUBMIT = "claim_place_submit"
+    EVENT_OWNER_SIGNUP_START = "owner_signup_start"
+    EVENT_OWNER_SIGNUP_COMPLETE = "owner_signup_complete"
 
     EVENT_CHOICES = (
         (EVENT_CATALOG_SEARCH, _("Поиск в каталоге")),
@@ -1438,6 +1444,12 @@ class FunnelEvent(models.Model):
         (EVENT_CTA_CALL, _("Клик: Позвонить")),
         (EVENT_CTA_WHATSAPP, _("Клик: WhatsApp")),
         (EVENT_CTA_INSTAGRAM, _("Клик: Instagram")),
+        (EVENT_FAVORITE_TOGGLE, _("Добавление в избранное")),
+        (EVENT_REVIEW_SUBMIT, _("Отправка отзыва")),
+        (EVENT_CLAIM_PLACE_START, _("Начало заявки на управление")),
+        (EVENT_CLAIM_PLACE_SUBMIT, _("Отправка заявки на управление")),
+        (EVENT_OWNER_SIGNUP_START, _("Начало регистрации владельца")),
+        (EVENT_OWNER_SIGNUP_COMPLETE, _("Завершение регистрации владельца")),
     )
 
     event_type = models.CharField(_("Событие"), max_length=32, choices=EVENT_CHOICES, db_index=True)

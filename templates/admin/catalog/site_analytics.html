@@ -89,6 +89,12 @@
           {% endif %}
         </p>
         {% if ga4.connected %}
+          {% if ga4.conversion_event_names %}
+            <p style="margin:10px 0 0;color:#617084;">
+              <b>{% trans "GA4 conversions" %}:</b>
+              {{ ga4.conversion_event_names|join:", " }}
+            </p>
+          {% endif %}
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
             <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
               <h3 style="margin:0 0 8px;">{% trans "Сегодня" %}</h3>
