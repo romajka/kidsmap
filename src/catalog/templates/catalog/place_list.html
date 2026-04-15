@@ -453,9 +453,6 @@
             </a>
             {% if place.card_price_badge %}
               <span class="card-price-pill">
-                {% if place.card_price_badge_label %}
-                  <span class="card-price-pill__meta">{{ place.card_price_badge_label }}</span>
-                {% endif %}
                 <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
                 <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
               </span>

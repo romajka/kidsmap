@@ -10091,6 +10091,7 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
     display: block;
     grid-area: mobile;
     justify-self: start;
+    position: static;
   }
 
   .mobile-menu-trigger {
@@ -10105,11 +10106,13 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
   }
 
   .mobile-nav-dropdown {
-    left: auto;
-    right: 0;
-    width: min(280px, calc(100vw - 24px));
+    left: clamp(10px, 3vw, 16px);
+    right: clamp(10px, 3vw, 16px);
+    width: auto;
+    max-width: none;
     grid-template-columns: 1fr;
     padding: 10px;
+    box-sizing: border-box;
   }
 
   .mobile-nav-link {
@@ -10167,7 +10170,9 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
   }
 
   .mobile-nav-dropdown {
-    width: min(250px, calc(100vw - 20px));
+    left: 10px;
+    right: 10px;
+    width: auto;
   }
 }
 
@@ -12067,7 +12072,9 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
   }
 
   .mobile-nav-dropdown {
-    width: min(292px, calc(100vw - 22px));
+    left: clamp(10px, 3vw, 16px);
+    right: clamp(10px, 3vw, 16px);
+    width: auto;
   }
 }
 
@@ -12080,7 +12087,9 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
   }
 
   .mobile-nav-dropdown {
-    width: min(276px, calc(100vw - 18px));
+    left: 10px;
+    right: 10px;
+    width: auto;
   }
 
   .lang-menu .menu-dropdown,
@@ -12135,17 +12144,17 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
 .page-place_list .grid:not(.results-list-mode) .card-price-pill,
 .page-place_new .grid:not(.results-list-mode) .card-price-pill {
   display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 8px 14px 9px 12px;
-  border-radius: 16px;
-  background:
-    linear-gradient(135deg, rgba(18, 95, 52, 0.94), rgba(42, 154, 87, 0.84)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  align-items: center;
+  gap: 5px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(18, 112, 68, 0.8), rgba(24, 136, 82, 0.68));
+  border: 1px solid rgba(225, 247, 233, 0.4);
   box-shadow:
-    0 10px 24px rgba(13, 73, 36, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    0 10px 24px rgba(13, 73, 36, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   color: #fcfcfc;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
 }
@@ -12167,11 +12176,25 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
 }
 
 .card-price-pill__currency {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(214, 241, 223, 0.88);
+  color: rgba(236, 249, 240, 0.92);
+}
+
+.home-recommended .card .card-price-pill,
+.page-place_list .grid:not(.results-list-mode) .card-price-pill,
+.page-place_new .grid:not(.results-list-mode) .card-price-pill {
+  top: 18px;
+  left: 18px;
+}
+
+.home-recommended .card .like-form,
+.page-place_list .grid:not(.results-list-mode) .like-form,
+.page-place_new .grid:not(.results-list-mode) .like-form {
+  top: 18px;
+  right: 18px;
 }
 
 .page-place_list .grid:not(.results-list-mode) .like-btn,

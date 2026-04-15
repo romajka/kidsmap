@@ -46,8 +46,8 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=site-20260415-hero-hotfix-1" />
-    <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}?v=bg-admin-20260402-1" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     {% if organization_schema_json %}
       <script type="application/ld+json">{{ organization_schema_json|safe }}</script>
     {% endif %}
@@ -641,7 +641,7 @@
         });
       })();
     </script>
-    <script defer src="{% static 'js/bg_scene.js' %}?v=bg-20260402-6"></script>
+    <script defer src="{% static 'js/bg_scene.js' %}"></script>
     {% block extra_body %}{% endblock %}
   </body>
 </html>

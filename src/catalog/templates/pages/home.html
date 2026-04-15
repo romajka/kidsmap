@@ -269,9 +269,6 @@
               </a>
             {% if place.card_price_badge %}
               <span class="card-price-pill">
-                {% if place.card_price_badge_label %}
-                  <span class="card-price-pill__meta">{{ place.card_price_badge_label }}</span>
-                {% endif %}
                 <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
                 <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
               </span>
@@ -598,11 +595,11 @@
 
 {% block extra_body %}
   {% if hero_gallery_slides|length > 1 %}
-    <script src="{% static 'js/home_hero_slider.js' %}?v=home-hero-slider-20260415-restore-1"></script>
+    <script src="{% static 'js/home_hero_slider.js' %}"></script>
   {% endif %}
   {% if map_places %}
     <script
-      src="{% static 'js/home_map.js' %}?v=home-map-20260415-map-fix-2"
+      src="{% static 'js/home_map.js' %}"
       data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
       data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="

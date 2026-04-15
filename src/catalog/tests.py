@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from io import StringIO
 from datetime import timedelta
+from tempfile import TemporaryDirectory
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
@@ -315,6 +316,12 @@ class TestPublicPagesSmoke(TestCase):
         self.assertNotContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
         self.assertNotContains(response, "kidsMapInitHomeMap")
 
+    def test_home_page_does_not_render_manual_static_version_query_params(self):
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "?v=")
+
     @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
     def test_home_page_includes_google_analytics_tag_when_configured(self):
         response = self.client.get("/", follow=True)
@@ -420,6 +427,28 @@ class TestPublicPagesSmoke(TestCase):
         self.assertIn("ChironGoRoundTC-PublicSubset.woff2", css)
         self.assertIn("Chiron GoRound TC Public", css)
         self.assertNotIn("ChironGoRoundTC-VariableFont_wght.ttf", css)
+
+    def test_collectstatic_builds_manifest_for_public_assets_in_production_mode(self):
+        with TemporaryDirectory() as tmp_dir:
+            manifest_root = Path(tmp_dir)
+            production_storages = {
+                "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+                "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+            }
+
+            with override_settings(DEBUG=False, STATIC_ROOT=manifest_root, STORAGES=production_storages):
+                call_command("collectstatic", interactive=False, verbosity=0, clear=True)
+
+            manifest_path = manifest_root / "staticfiles.json"
+            self.assertTrue(manifest_path.exists())
+
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            paths = manifest.get("paths", {})
+
+            self.assertIn("css/site.css", paths)
+            self.assertIn("img/logo.svg", paths)
+            self.assertIn("fonts/chiron/ChironGoRoundTC-PublicSubset.woff2", paths)
+            self.assertIn("js/bg_scene.js", paths)
 
     @override_settings(MEDIA_CACHE_MAX_AGE=3600)
     def test_media_serve_view_sets_cache_headers(self):
