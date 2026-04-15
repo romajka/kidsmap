@@ -497,19 +497,44 @@
       });
     }
 
+    let loadStarted = false;
+    let fallbackTimer = null;
+
+    function clearFallbackTimer() {
+      if (!fallbackTimer) return;
+      window.clearTimeout(fallbackTimer);
+      fallbackTimer = null;
+    }
+
     function loadAndMount() {
-      if (mapEl.dataset.mapInitialized === "1") return;
+      if (mapEl.dataset.mapInitialized === "1" || loadStarted) return;
+      loadStarted = true;
+
+      fallbackTimer = window.setTimeout(function () {
+        if (mapEl.dataset.mapInitialized !== "1") {
+          renderFallback(mapEl, mapNoteEl);
+        }
+      }, 5000);
 
       if (SCRIPT_CONFIG.googleMapsApiKey) {
         loadGoogleProvider().catch(function () {
+          clearFallbackTimer();
           renderFallback(mapEl, mapNoteEl);
         });
         return;
       }
 
       loadLeafletProvider().catch(function () {
+        clearFallbackTimer();
         renderFallback(mapEl, mapNoteEl);
       });
+    }
+
+    function triggerLoad() {
+      loadAndMount();
+      mapSection.removeEventListener("mouseenter", triggerLoad);
+      mapSection.removeEventListener("touchstart", triggerLoad);
+      window.removeEventListener("scroll", triggerLoad, true);
     }
 
     if (!("IntersectionObserver" in window)) {
@@ -523,7 +548,7 @@
           return entry.isIntersecting;
         })) {
           observer.disconnect();
-          loadAndMount();
+          triggerLoad();
         }
       },
       {
@@ -533,6 +558,10 @@
     );
 
     observer.observe(mapSection);
+    mapSection.addEventListener("mouseenter", triggerLoad, { passive: true });
+    mapSection.addEventListener("touchstart", triggerLoad, { passive: true, once: true });
+    window.addEventListener("scroll", triggerLoad, { passive: true, capture: true, once: true });
+    window.setTimeout(triggerLoad, 900);
   }
 
   startMapBootstrap();
