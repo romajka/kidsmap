@@ -46,69 +46,69 @@
 
       {% if hero_gallery_slides %}
         <div class="home-hero-visual">
-          <div class="home-hero-slider" data-home-hero-slider>
-            <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
-              <div class="home-hero-slider-track" data-home-hero-slider-track>
-                {% for slide in hero_gallery_slides %}
-                  <article class="home-hero-slide" data-home-hero-slide>
-                    <div class="home-hero-slide-grid">
-                      <figure class="home-hero-photo-card home-hero-photo-main">
-                        <picture>
-                          {% if slide.main.image_webp_url %}
-                            <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+          {% if hero_gallery_slides|length > 1 %}
+            <div class="home-hero-slider" data-home-hero-slider>
+              <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
+                <div class="home-hero-slider-track" data-home-hero-slider-track>
+                  {% for slide in hero_gallery_slides %}
+                    <article class="home-hero-slide" data-home-hero-slide>
+                      <div class="home-hero-slide-grid">
+                        <figure class="home-hero-photo-card home-hero-photo-main">
+                          <picture>
+                            {% if slide.main.image_webp_url %}
+                              <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+                            {% endif %}
+                            <img
+                              src="{{ slide.main.image_url }}"
+                              alt="{{ slide.main.label }}"
+                              decoding="async"
+                              {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                            />
+                          </picture>
+                          {% if slide.main.label %}
+                            <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
                           {% endif %}
-                          <img
-                            src="{{ slide.main.image_url }}"
-                            alt="{{ slide.main.label }}"
-                            decoding="async"
-                            {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                          />
-                        </picture>
-                        {% if slide.main.label %}
-                          <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
-                        {% endif %}
-                      </figure>
+                        </figure>
 
-                      <figure class="home-hero-photo-card home-hero-photo-side-top">
-                        <picture>
-                          {% if slide.side_top.image_webp_url %}
-                            <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                        <figure class="home-hero-photo-card home-hero-photo-side-top">
+                          <picture>
+                            {% if slide.side_top.image_webp_url %}
+                              <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                            {% endif %}
+                            <img
+                              src="{{ slide.side_top.image_url }}"
+                              alt="{{ slide.side_top.label }}"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </picture>
+                          {% if slide.side_top.label %}
+                            <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
                           {% endif %}
-                          <img
-                            src="{{ slide.side_top.image_url }}"
-                            alt="{{ slide.side_top.label }}"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        </picture>
-                        {% if slide.side_top.label %}
-                          <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
-                        {% endif %}
-                      </figure>
+                        </figure>
 
-                      <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-                        <picture>
-                          {% if slide.side_bottom.image_webp_url %}
-                            <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                        <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+                          <picture>
+                            {% if slide.side_bottom.image_webp_url %}
+                              <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                            {% endif %}
+                            <img
+                              src="{{ slide.side_bottom.image_url }}"
+                              alt="{{ slide.side_bottom.label }}"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </picture>
+                          {% if slide.side_bottom.label %}
+                            <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
                           {% endif %}
-                          <img
-                            src="{{ slide.side_bottom.image_url }}"
-                            alt="{{ slide.side_bottom.label }}"
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        </picture>
-                        {% if slide.side_bottom.label %}
-                          <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
-                        {% endif %}
-                      </figure>
-                    </div>
-                  </article>
-                {% endfor %}
+                        </figure>
+                      </div>
+                    </article>
+                  {% endfor %}
+                </div>
               </div>
-            </div>
 
-            {% if hero_gallery_slides|length > 1 %}
               <button
                 type="button"
                 class="home-hero-slider-arrow home-hero-slider-arrow-prev"
@@ -137,8 +137,67 @@
                   ></button>
                 {% endfor %}
               </div>
-            {% endif %}
-          </div>
+            </div>
+          {% else %}
+            {% with slide=hero_gallery_slides.0 %}
+              <div class="home-hero-slider home-hero-slider-single" data-home-hero-slider-single>
+                <article class="home-hero-slide home-hero-slide-single">
+                  <div class="home-hero-slide-grid">
+                    <figure class="home-hero-photo-card home-hero-photo-main">
+                      <picture>
+                        {% if slide.main.image_webp_url %}
+                          <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+                        {% endif %}
+                        <img
+                          src="{{ slide.main.image_url }}"
+                          alt="{{ slide.main.label }}"
+                          decoding="async"
+                          fetchpriority="high"
+                        />
+                      </picture>
+                      {% if slide.main.label %}
+                        <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
+                      {% endif %}
+                    </figure>
+
+                    <figure class="home-hero-photo-card home-hero-photo-side-top">
+                      <picture>
+                        {% if slide.side_top.image_webp_url %}
+                          <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                        {% endif %}
+                        <img
+                          src="{{ slide.side_top.image_url }}"
+                          alt="{{ slide.side_top.label }}"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </picture>
+                      {% if slide.side_top.label %}
+                        <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
+                      {% endif %}
+                    </figure>
+
+                    <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+                      <picture>
+                        {% if slide.side_bottom.image_webp_url %}
+                          <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                        {% endif %}
+                        <img
+                          src="{{ slide.side_bottom.image_url }}"
+                          alt="{{ slide.side_bottom.label }}"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </picture>
+                      {% if slide.side_bottom.label %}
+                        <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
+                      {% endif %}
+                    </figure>
+                  </div>
+                </article>
+              </div>
+            {% endwith %}
+          {% endif %}
         </div>
       {% endif %}
     </div>

@@ -33,6 +33,7 @@ from catalog.models import (
     PlaceOwnershipRequestAudit,
     PlaceReview,
     PlaceReviewReaction,
+    SiteGalleryImage,
     SiteReview,
     SiteReviewReaction,
     SiteVisit,
@@ -329,6 +330,30 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "https://www.googletagmanager.com/gtag/js?id=G-TEST123")
         self.assertContains(response, 'gtag("config", "G\\u002DTEST123")')
+
+    def test_home_page_renders_static_hero_grid_for_single_slide(self):
+        SiteGalleryImage.objects.all().delete()
+        for index in range(3):
+            SiteGalleryImage.objects.create(
+                placement=SiteGalleryImage.PLACEMENT_HOME_HERO,
+                image=SimpleUploadedFile(
+                    f"hero-{index + 1}.jpg",
+                    b"hero-image",
+                    content_type="image/jpeg",
+                ),
+                title_ru=f"Фото {index + 1}",
+                order=index + 1,
+                is_active=True,
+            )
+
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "home-hero-slider-single")
+        self.assertContains(response, "home-hero-photo-side-top")
+        self.assertContains(response, "home-hero-photo-side-bottom")
+        self.assertNotContains(response, "data-home-hero-slider-track")
+        self.assertNotContains(response, "data-home-hero-slider-prev")
 
     def test_home_page_includes_website_schema_with_search_action(self):
         response = self.client.get("/")

@@ -10441,12 +10441,21 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
   backface-visibility: hidden;
 }
 
+.home-hero-slide-single {
+  flex: initial;
+  min-width: 0;
+}
+
 .home-hero-slide-grid {
   display: grid;
   width: 100%;
   grid-template-columns: minmax(0, 1.35fr) minmax(160px, 0.8fr);
   grid-template-rows: 200px 200px;
   gap: 14px;
+}
+
+.home-hero-slider-single .home-hero-slide-grid {
+  width: 100%;
 }
 
 .home-hero-photo-card {
