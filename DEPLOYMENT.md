@@ -13,7 +13,7 @@ GOOGLE_MAPS_API_KEY="YOUR_KEY" python manage.py runserver 0.0.0.0:8000
 cd C:\path\to\kidsmap
 .venv\Scripts\activate
 python manage.py migrate
-python manage.py collectstatic --noinput
+python manage.py collectstatic --clear --noinput
 $env:GOOGLE_MAPS_API_KEY="YOUR_KEY"
 python manage.py runserver 0.0.0.0:8000
 ```
@@ -166,7 +166,7 @@ After deploy, validate that static/media are not the new bottleneck:
 
 ```bash
 cd /opt/kidsmap
-docker compose exec -T web python manage.py collectstatic --noinput
+docker compose exec -T web python manage.py collectstatic --clear --noinput
 curl -I https://kidsmap.az/static/css/site.css
 curl -I https://kidsmap.az/static/js/home_map.js
 curl -I https://kidsmap.az/media/site/your-heavy-file.png

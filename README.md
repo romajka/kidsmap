@@ -122,7 +122,7 @@ KidsMap — не просто список карточек. Это сервис
 cd /home/ramin/kidsmap
 source .venv/bin/activate
 python manage.py migrate
-python manage.py collectstatic --noinput
+python manage.py collectstatic --clear --noinput
 python manage.py runserver 0.0.0.0:8000
 ```
 
@@ -190,7 +190,7 @@ git checkout main
 git pull --ff-only origin main
 docker compose up -d --build
 docker compose exec -T web python manage.py migrate --noinput
-docker compose exec -T web python manage.py collectstatic --noinput
+docker compose exec -T web python manage.py collectstatic --clear --noinput
 docker compose exec -T web python manage.py check
 ```
 
