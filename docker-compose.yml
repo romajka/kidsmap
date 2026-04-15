@@ -54,6 +54,7 @@ services:
       EMAIL_OTP_MAX_ATTEMPTS: "${EMAIL_OTP_MAX_ATTEMPTS:-5}"
       DEFAULT_FROM_EMAIL: "${DEFAULT_FROM_EMAIL:-noreply@kidsmap.az}"
       SERVER_EMAIL: "${SERVER_EMAIL:-noreply@kidsmap.az}"
+      MEDIA_CACHE_MAX_AGE: "${MEDIA_CACHE_MAX_AGE:-86400}"
       DB_ENGINE: "mariadb"
       DB_NAME: "${DB_NAME:-kidsmap}"
       DB_USER: "${DB_USER:-kidsmap}"

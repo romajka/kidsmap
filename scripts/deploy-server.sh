@@ -24,7 +24,14 @@ if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --
 fi
 
 log "Fetching $REMOTE/$BRANCH"
-git fetch "$REMOTE" "$BRANCH"
+if ! git fetch "$REMOTE" "$BRANCH"; then
+  log "git fetch failed."
+  log "If GitHub SSH auth is not configured on the server, run:"
+  log "  ./scripts/setup-github-ssh.sh"
+  log "Then add the printed public key to GitHub and verify with:"
+  log "  ssh -T git@github.com"
+  exit 1
+fi
 
 log "Checking out branch $BRANCH"
 if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
@@ -34,7 +41,10 @@ else
 fi
 
 log "Pulling latest changes"
-git pull --ff-only "$REMOTE" "$BRANCH"
+if ! git pull --ff-only "$REMOTE" "$BRANCH"; then
+  log "git pull failed. Check branch state and GitHub SSH access."
+  exit 1
+fi
 
 log "Rebuilding and starting containers"
 docker compose down
