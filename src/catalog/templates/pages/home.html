@@ -11,16 +11,6 @@
   {% endif %}
 {% endblock %}
 {% block extra_head %}
-  {% if map_places %}
-    {% if not google_maps_api_key %}
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""
-      />
-    {% endif %}
-  {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -63,36 +53,51 @@
                   <article class="home-hero-slide" data-home-hero-slide>
                     <div class="home-hero-slide-grid">
                       <figure class="home-hero-photo-card home-hero-photo-main">
-                        <img
-                          src="{{ slide.main.image_url }}"
-                          alt="{{ slide.main.label }}"
-                          decoding="async"
-                          {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                        />
+                        <picture>
+                          {% if slide.main.image_webp_url %}
+                            <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+                          {% endif %}
+                          <img
+                            src="{{ slide.main.image_url }}"
+                            alt="{{ slide.main.label }}"
+                            decoding="async"
+                            {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                          />
+                        </picture>
                         {% if slide.main.label %}
                           <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
                         {% endif %}
                       </figure>
 
                       <figure class="home-hero-photo-card home-hero-photo-side-top">
-                        <img
-                          src="{{ slide.side_top.image_url }}"
-                          alt="{{ slide.side_top.label }}"
-                          loading="lazy"
-                          decoding="async"
-                        />
+                        <picture>
+                          {% if slide.side_top.image_webp_url %}
+                            <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                          {% endif %}
+                          <img
+                            src="{{ slide.side_top.image_url }}"
+                            alt="{{ slide.side_top.label }}"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </picture>
                         {% if slide.side_top.label %}
                           <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
                         {% endif %}
                       </figure>
 
                       <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-                        <img
-                          src="{{ slide.side_bottom.image_url }}"
-                          alt="{{ slide.side_bottom.label }}"
-                          loading="lazy"
-                          decoding="async"
-                        />
+                        <picture>
+                          {% if slide.side_bottom.image_webp_url %}
+                            <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                          {% endif %}
+                          <img
+                            src="{{ slide.side_bottom.image_url }}"
+                            alt="{{ slide.side_bottom.label }}"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </picture>
                         {% if slide.side_bottom.label %}
                           <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
                         {% endif %}
@@ -252,9 +257,9 @@
             <div class="card-media">
               <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
                 {% if place.photo %}
-                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% elif place.cover_photo %}
-                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% else %}
                   <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
                     <span class="image-placeholder-icon" aria-hidden="true">📷</span>
@@ -343,12 +348,15 @@
 
       <div class="home-owner-visual" aria-hidden="true">
         <figure class="home-owner-media">
-          <img
-            src="{% static 'img/home/photos/family-portrait.jpg' %}"
-            alt="{% trans 'Семья с детьми' %}"
-            loading="lazy"
-            decoding="async"
-          />
+          <picture>
+            <source srcset="{% static 'img/home/photos/family-portrait.webp' %}" type="image/webp" />
+            <img
+              src="{% static 'img/home/photos/family-portrait.jpg' %}"
+              alt="{% trans 'Семья с детьми' %}"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
           <span class="home-owner-media-badge">{% trans "Для владельцев кружков" %}</span>
         </figure>
 
@@ -589,266 +597,17 @@
 {% endblock %}
 
 {% block extra_body %}
-  <script src="{% static 'js/home_hero_slider.js' %}?v=home-hero-slider-20260403-2"></script>
+  <script src="{% static 'js/home_hero_slider.js' %}"></script>
   {% if map_places %}
-    {% if google_maps_api_key %}
-      <script src="{% static 'js/home_map.js' %}?v=home-map-20260403-1"></script>
-      <script
-        async
-        defer
-        src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitHomeMap"
-        onerror="window.kidsMapRenderHomeMapFallback && window.kidsMapRenderHomeMapFallback()"
-      ></script>
-    {% else %}
-      <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""
-      ></script>
-      <script>
-        (function () {
-          const mapEl = document.getElementById("home-map");
-          const mapNoteEl = document.getElementById("home-map-note");
-          const dataEl = document.getElementById("home-map-data");
-          if (!mapEl || !dataEl) return;
-
-          function renderFallback() {
-            if (mapNoteEl) {
-              mapNoteEl.hidden = true;
-              mapNoteEl.textContent = "";
-            }
-            mapEl.innerHTML =
-              '<iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Baku%2C%20Azerbaijan&z=11&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="{% trans "Карта кружков по Баку" %}"></iframe>';
-          }
-
-          if (!window.L) {
-            renderFallback();
-            return;
-          }
-
-          let places = [];
-          try {
-            places = JSON.parse(dataEl.textContent || "[]");
-          } catch (err) {
-            renderFallback();
-            return;
-          }
-
-          const validPlaces = places.filter(function (place) {
-            return typeof place.lat === "number" && typeof place.lng === "number";
-          });
-          if (!validPlaces.length) {
-            renderFallback();
-            return;
-          }
-
-          function escapeHtml(value) {
-            return String(value || "").replace(/[&<>"']/g, function (char) {
-              return {
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;",
-                "'": "&#39;",
-              }[char];
-            });
-          }
-
-          function renderPopupContent(place) {
-            const image = place.image_url
-              ? '<a class="home-map-popup-thumb-link" href="' + escapeHtml(place.url || "") + '">' +
-                '<img class="home-map-popup-thumb" src="' + escapeHtml(place.image_url) + '" alt="' + escapeHtml(place.name || "") + '" loading="lazy" />' +
-                '</a>'
-              : '';
-
-            return (
-              '<div class="home-map-popup">' +
-                image +
-                '<div class="home-map-popup-body">' +
-                  '<strong class="home-map-popup-title">' + escapeHtml(place.name) + '</strong>' +
-                  '<span class="home-map-popup-category">' + escapeHtml(place.category) + '</span>' +
-                  '<a class="home-map-popup-link" href="' + escapeHtml(place.url || "") + '">{% trans "Подробнее" %}</a>' +
-                '</div>' +
-              '</div>'
-            );
-          }
-
-          function normalizeValue(value) {
-            return String(value || "").trim();
-          }
-
-          function normalizeSearch(value) {
-            return normalizeValue(value).toLocaleLowerCase();
-          }
-
-          function getFilterState() {
-            const form = document.querySelector("[data-home-map-filter-form]");
-            if (!form) {
-              return {
-                query: "",
-                category: "",
-                district: "",
-                metro: "",
-                age: "",
-              };
-            }
-
-            return {
-              query: normalizeSearch(form.querySelector('[name="q"]')?.value),
-              category: normalizeValue(form.querySelector('[name="category"]')?.value),
-              district: normalizeValue(form.querySelector('[name="district"]')?.value),
-              metro: normalizeValue(form.querySelector('[name="metro"]')?.value),
-              age: normalizeValue(form.querySelector('[name="age"]')?.value),
-            };
-          }
-
-          function placeMatchesFilters(place, filters) {
-            if (filters.category && place.category_code !== filters.category) {
-              return false;
-            }
-
-            if (filters.district && normalizeValue(place.district) !== filters.district) {
-              return false;
-            }
-
-            if (filters.metro && normalizeValue(place.metro) !== filters.metro) {
-              return false;
-            }
-
-            if (filters.age) {
-              const selectedAge = Number(filters.age);
-              const ageFrom = place.age_from === null || place.age_from === undefined ? null : Number(place.age_from);
-              const ageTo = place.age_to === null || place.age_to === undefined ? null : Number(place.age_to);
-
-              if ((ageFrom !== null && selectedAge < ageFrom) || (ageTo !== null && selectedAge > ageTo)) {
-                return false;
-              }
-
-              if (ageFrom === null && ageTo === null) {
-                return false;
-              }
-            }
-
-            if (filters.query && !normalizeSearch(place.search_text || place.name).includes(filters.query)) {
-              return false;
-            }
-
-            return true;
-          }
-
-          function setMapNote(hasVisiblePlaces) {
-            if (!mapNoteEl) return;
-            mapNoteEl.hidden = hasVisiblePlaces;
-            mapNoteEl.textContent = hasVisiblePlaces ? "" : (mapEl.dataset.emptyLabel || "");
-          }
-
-          const map = L.map(mapEl, {
-            scrollWheelZoom: false,
-            zoomControl: true,
-          });
-
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          }).addTo(map);
-
-          const defaultCenter = [40.4093, 49.8671];
-          const defaultZoom = 11;
-          const markerItems = [];
-
-          validPlaces.forEach(function (place) {
-            const position = [place.lat, place.lng];
-            const marker = L.circleMarker(position, {
-              radius: 8,
-              color: "#ffffff",
-              weight: 2,
-              fillColor: "#1f8640",
-              fillOpacity: 0.9,
-            });
-
-            marker.bindPopup(renderPopupContent(place));
-            markerItems.push({
-              marker: marker,
-              place: place,
-              position: position,
-            });
-          });
-
-          function syncVisibleMarkers() {
-            const filters = getFilterState();
-            const visibleItems = [];
-            const bounds = L.latLngBounds([]);
-
-            map.closePopup();
-
-            markerItems.forEach(function (item) {
-              const shouldShow = placeMatchesFilters(item.place, filters);
-              if (shouldShow) {
-                if (!map.hasLayer(item.marker)) {
-                  item.marker.addTo(map);
-                }
-                visibleItems.push(item);
-                bounds.extend(item.position);
-              } else if (map.hasLayer(item.marker)) {
-                map.removeLayer(item.marker);
-              }
-            });
-
-            if (!visibleItems.length) {
-              map.setView(defaultCenter, defaultZoom);
-              setMapNote(false);
-              return;
-            }
-
-            if (visibleItems.length === 1) {
-              map.setView(visibleItems[0].position, 13);
-              setMapNote(true);
-              return;
-            }
-
-            map.fitBounds(bounds, { padding: [24, 24] });
-            setMapNote(true);
-          }
-
-          function bindFilterListeners() {
-            const form = document.querySelector("[data-home-map-filter-form]");
-            if (!form) return;
-
-            let searchTimer = null;
-            const queryInput = form.querySelector('[name="q"]');
-            const selectControls = form.querySelectorAll('select[name="category"], select[name="district"], select[name="metro"], select[name="age"]');
-
-            function scheduleUpdate() {
-              if (searchTimer) {
-                window.clearTimeout(searchTimer);
-              }
-              searchTimer = window.setTimeout(syncVisibleMarkers, 120);
-            }
-
-            if (queryInput) {
-              queryInput.addEventListener("input", scheduleUpdate);
-            }
-
-            selectControls.forEach(function (control) {
-              control.addEventListener("change", syncVisibleMarkers);
-            });
-          }
-
-          setTimeout(function () {
-            map.invalidateSize();
-          }, 0);
-
-          bindFilterListeners();
-          syncVisibleMarkers();
-
-          mapEl.addEventListener("mouseenter", function () {
-            map.scrollWheelZoom.enable();
-          });
-          mapEl.addEventListener("mouseleave", function () {
-            map.scrollWheelZoom.disable();
-          });
-        })();
-      </script>
-    {% endif %}
+    <script
+      src="{% static 'js/home_map.js' %}"
+      data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+      data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
   {% endif %}
 {% endblock %}

@@ -169,3 +169,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 if HAS_WHITENOISE:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    WHITENOISE_MAX_AGE = 31536000

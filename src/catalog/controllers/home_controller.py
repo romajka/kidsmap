@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from django.db.models import Avg
+from django.db.models import Avg, Count
 from django.templatetags.static import static
 from django.utils.translation import gettext as _
 
@@ -74,8 +74,9 @@ class HomeController:
         site_reviews_teaser_qs = site_reviews_qs.filter(text__isnull=False).exclude(text="")
         site_reviews = mark_site_review_reactions(site_reviews_qs[:4], request)
         site_reviews_teaser = mark_site_review_reactions(site_reviews_teaser_qs[:2], request)
-        site_reviews_avg = site_reviews_qs.aggregate(avg=Avg("rating")).get("avg") or 0
-        site_reviews_count = site_reviews_qs.count()
+        site_reviews_stats = site_reviews_qs.aggregate(avg=Avg("rating"), count=Count("id"))
+        site_reviews_avg = site_reviews_stats.get("avg") or 0
+        site_reviews_count = site_reviews_stats.get("count") or 0
         seo_payload = build_home_seo_payload(request=request, popular_places=popular_places)
         hero_gallery_slides = self._build_hero_gallery_slides(
             gallery_images=list(
@@ -128,21 +129,58 @@ class HomeController:
     @staticmethod
     def _default_hero_gallery_items() -> list[dict[str, str]]:
         return [
-            {"image_url": static("img/home/photos/family-studio.jpg"), "label": _("Семья")},
-            {"image_url": static("img/home/photos/kids-craft.jpg"), "label": _("Творчество")},
-            {"image_url": static("img/home/photos/music-lesson.jpg"), "label": _("Музыка")},
-            {"image_url": static("img/home/photos/family-balloons.jpg"), "label": _("Семейный досуг")},
-            {"image_url": static("img/home/photos/art-class.jpg"), "label": _("Творчество")},
-            {"image_url": static("img/home/photos/sports-class.jpg"), "label": _("Спорт")},
-            {"image_url": static("img/home/photos/family-park.jpg"), "label": _("Семейный досуг")},
-            {"image_url": static("img/home/photos/art-drawing.jpg"), "label": _("Рисование")},
-            {"image_url": static("img/home/photos/team-hands.jpg"), "label": _("Командные занятия")},
+            {
+                "image_url": static("img/home/photos/family-studio.jpg"),
+                "image_webp_url": static("img/home/photos/family-studio.webp"),
+                "label": _("Семья"),
+            },
+            {
+                "image_url": static("img/home/photos/kids-craft.jpg"),
+                "image_webp_url": static("img/home/photos/kids-craft.webp"),
+                "label": _("Творчество"),
+            },
+            {
+                "image_url": static("img/home/photos/music-lesson.jpg"),
+                "image_webp_url": static("img/home/photos/music-lesson.webp"),
+                "label": _("Музыка"),
+            },
+            {
+                "image_url": static("img/home/photos/family-balloons.jpg"),
+                "image_webp_url": static("img/home/photos/family-balloons.webp"),
+                "label": _("Семейный досуг"),
+            },
+            {
+                "image_url": static("img/home/photos/art-class.jpg"),
+                "image_webp_url": static("img/home/photos/art-class.webp"),
+                "label": _("Творчество"),
+            },
+            {
+                "image_url": static("img/home/photos/sports-class.jpg"),
+                "image_webp_url": static("img/home/photos/sports-class.webp"),
+                "label": _("Спорт"),
+            },
+            {
+                "image_url": static("img/home/photos/family-park.jpg"),
+                "image_webp_url": static("img/home/photos/family-park.webp"),
+                "label": _("Семейный досуг"),
+            },
+            {
+                "image_url": static("img/home/photos/art-drawing.jpg"),
+                "image_webp_url": static("img/home/photos/art-drawing.webp"),
+                "label": _("Рисование"),
+            },
+            {
+                "image_url": static("img/home/photos/team-hands.jpg"),
+                "image_webp_url": static("img/home/photos/team-hands.webp"),
+                "label": _("Командные занятия"),
+            },
         ]
 
     def _build_hero_gallery_slides(self, *, gallery_images, language_code: str) -> list[dict[str, dict[str, str]]]:
         items = [
             {
                 "image_url": image.image.url,
+                "image_webp_url": self._webp_url_for_gallery_image(image.image),
                 "label": image.title_i18n(language_code),
             }
             for image in gallery_images
@@ -164,3 +202,19 @@ class HomeController:
                 }
             )
         return slides
+
+    @staticmethod
+    def _webp_url_for_gallery_image(file_field) -> str:
+        if not file_field or not getattr(file_field, "name", ""):
+            return ""
+
+        storage = getattr(file_field, "storage", None)
+        if storage is None:
+            return ""
+
+        from pathlib import Path
+
+        webp_name = str(Path(file_field.name).with_suffix(".webp"))
+        if storage.exists(webp_name):
+            return storage.url(webp_name)
+        return ""

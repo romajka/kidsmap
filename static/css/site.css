@@ -1,16 +1,6 @@
-@font-face {
-  font-family: "Chiron GoRound TC";
-  src:
-    url("../fonts/chiron/ChironGoRoundTC-VariableFont_wght.ttf") format("truetype-variations"),
-    url("../fonts/chiron/ChironGoRoundTC-VariableFont_wght.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 300 900;
-  font-display: swap;
-}
-
 :root {
-  --font-body: "Chiron GoRound TC", "Nunito Sans", "Segoe UI", sans-serif;
-  --font-display: "Chiron GoRound TC", "Comfortaa", "Nunito Sans", "Segoe UI", sans-serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --brand-white: #fcfcfc;
   --brand-celadon: #a8d59b;
   --brand-turf: #136f38;
@@ -11733,6 +11723,34 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
   .home-category-title {
     font-size: 14px;
   }
+}
+
+/* Keep the homepage search button identical across local and collected static CSS.
+   This override is intentionally late and specific so it wins over older duplicate rules. */
+.page-home .home-hero-search-panel .home-search-btn.icon-only-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 58px;
+  min-width: 58px;
+  max-width: 58px;
+  height: 54px;
+  min-height: 54px;
+  padding: 0;
+  margin: 0;
+  flex: 0 0 58px;
+  gap: 0;
+  justify-self: end;
+  border-radius: 18px;
+  font-size: 0;
+  line-height: 0;
+  box-sizing: border-box;
+}
+
+.page-home .home-hero-search-panel .home-search-btn.icon-only-btn::before {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  margin: 0;
 }
 
 @media (max-width: 520px) {

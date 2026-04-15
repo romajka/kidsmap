@@ -1,14 +1,72 @@
 import uuid
+from functools import lru_cache
 
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Avg, Count, Q
+from django.db.models.signals import post_delete, post_save
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.utils.text import slugify
 from django.urls import reverse
 from django.utils import timezone
+from django.dispatch import receiver
+
+
+@lru_cache(maxsize=1)
+def _get_solo_site_settings():
+    obj = SiteSettings.objects.order_by("id").first()
+    if obj:
+        return obj
+    return SiteSettings.objects.create(
+        brand_name="KidsMap",
+        contacts_text_ru="Свяжитесь с нами по почте: kidsmap.az@gmail.com",
+        contacts_text_en="Contact us by email: kidsmap.az@gmail.com",
+        contacts_text_az="Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap.az@gmail.com",
+        about_text_ru="KidsMap — каталог детских кружков и секций в Баку.",
+        about_text_en="KidsMap is a catalog of kids clubs and courses in Baku.",
+        about_text_az="KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
+        home_title_ru="Найдите кружок для ребёнка в Баку",
+        home_title_en="Find a club for your child in Baku",
+        home_title_az="Bakıda uşağınız üçün dərnək tapın",
+        home_subtitle_ru="Спорт, творчество, музыка, образование — всё в одном месте.",
+        home_subtitle_en="Sports, creativity, music, and education in one place.",
+        home_subtitle_az="İdman, yaradıcılıq, musiqi, təhsil — hamısı bir yerdə.",
+        home_search_label_ru="Искать кружок, курс или школу",
+        home_search_label_en="Find a club, course, or school",
+        home_search_label_az="Dərnək, kurs və ya məktəb axtarın",
+        home_search_placeholder_ru="например шахматы, футбол, рисование",
+        home_search_placeholder_en="for example chess, football, drawing",
+        home_search_placeholder_az="məsələn şahmat, futbol, rəsm",
+        home_cta_text_ru="Начать поиск",
+        home_cta_text_en="Start searching",
+        home_cta_text_az="Axtarışa başla",
+        empty_results_text_ru="Ничего не найдено.",
+        empty_results_text_en="Nothing found.",
+        empty_results_text_az="Heç nə tapılmadı.",
+        footer_phone="+994 50 540 66 39",
+        footer_email="kidsmap.az@gmail.com",
+        footer_instagram="https://www.instagram.com/kidsmap.az/",
+        footer_telegram="https://t.me/KidsMap_az",
+        footer_youtube="https://www.youtube.com/@KidsMap_az",
+        footer_tiktok="https://www.tiktok.com/@kidsmap.az?lang=ru-RU",
+        footer_facebook="https://www.facebook.com/people/KidsMap/61583913364027/",
+        footer_linkedin="https://www.linkedin.com/company/kidsmap-az/",
+    )
+
+
+@lru_cache(maxsize=1)
+def _get_solo_catalog_content_settings():
+    obj = CatalogContentSettings.objects.order_by("id").first()
+    if obj:
+        return obj
+    return CatalogContentSettings.objects.create()
+
+
+def clear_singleton_caches() -> None:
+    _get_solo_site_settings.cache_clear()
+    _get_solo_catalog_content_settings.cache_clear()
 
 
 class Place(models.Model):
@@ -1284,44 +1342,7 @@ class SiteSettings(models.Model):
 
     @classmethod
     def get_solo(cls):
-        obj = cls.objects.order_by("id").first()
-        if obj:
-            return obj
-        return cls.objects.create(
-            brand_name="KidsMap",
-            contacts_text_ru="Свяжитесь с нами по почте: kidsmap.az@gmail.com",
-            contacts_text_en="Contact us by email: kidsmap.az@gmail.com",
-            contacts_text_az="Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap.az@gmail.com",
-            about_text_ru="KidsMap — каталог детских кружков и секций в Баку.",
-            about_text_en="KidsMap is a catalog of kids clubs and courses in Baku.",
-            about_text_az="KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
-            home_title_ru="Найдите кружок для ребёнка в Баку",
-            home_title_en="Find a club for your child in Baku",
-            home_title_az="Bakıda uşağınız üçün dərnək tapın",
-            home_subtitle_ru="Спорт, творчество, музыка, образование — всё в одном месте.",
-            home_subtitle_en="Sports, creativity, music, and education in one place.",
-            home_subtitle_az="İdman, yaradıcılıq, musiqi, təhsil — hamısı bir yerdə.",
-            home_search_label_ru="Искать кружок, курс или школу",
-            home_search_label_en="Find a club, course, or school",
-            home_search_label_az="Dərnək, kurs və ya məktəb axtarın",
-            home_search_placeholder_ru="например шахматы, футбол, рисование",
-            home_search_placeholder_en="for example chess, football, drawing",
-            home_search_placeholder_az="məsələn şahmat, futbol, rəsm",
-            home_cta_text_ru="Начать поиск",
-            home_cta_text_en="Start searching",
-            home_cta_text_az="Axtarışa başla",
-            empty_results_text_ru="Ничего не найдено.",
-            empty_results_text_en="Nothing found.",
-            empty_results_text_az="Heç nə tapılmadı.",
-            footer_phone="+994 50 540 66 39",
-            footer_email="kidsmap.az@gmail.com",
-            footer_instagram="https://www.instagram.com/kidsmap.az/",
-            footer_telegram="https://t.me/KidsMap_az",
-            footer_youtube="https://www.youtube.com/@KidsMap_az",
-            footer_tiktok="https://www.tiktok.com/@kidsmap.az?lang=ru-RU",
-            footer_facebook="https://www.facebook.com/people/KidsMap/61583913364027/",
-            footer_linkedin="https://www.linkedin.com/company/kidsmap-az/",
-        )
+        return _get_solo_site_settings()
 
     class Meta:
         verbose_name = _("Настройка сайта")
@@ -1532,10 +1553,7 @@ class CatalogContentSettings(models.Model):
 
     @classmethod
     def get_solo(cls):
-        obj = cls.objects.order_by("id").first()
-        if obj:
-            return obj
-        return cls.objects.create()
+        return _get_solo_catalog_content_settings()
 
     def districts(self):
         if isinstance(self.districts_json, list) and self.districts_json:
@@ -1564,6 +1582,18 @@ class CatalogContentSettings(models.Model):
 
     def __str__(self):
         return _("Контент каталога")
+
+
+@receiver(post_save, sender=SiteSettings)
+@receiver(post_delete, sender=SiteSettings)
+def _clear_site_settings_cache(*_args, **_kwargs) -> None:
+    clear_singleton_caches()
+
+
+@receiver(post_save, sender=CatalogContentSettings)
+@receiver(post_delete, sender=CatalogContentSettings)
+def _clear_catalog_content_settings_cache(*_args, **_kwargs) -> None:
+    clear_singleton_caches()
 
 
 class PlaceReviewsByClub(Place):
