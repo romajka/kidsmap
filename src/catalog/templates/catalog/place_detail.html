@@ -83,6 +83,7 @@
                           src="{{ file.url }}"
                           alt="{{ place.name_i18n }}"
                           draggable="false"
+                          decoding="async"
                           {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
                         />
                       </figure>
@@ -120,7 +121,7 @@
                         data-index="{{ forloop.counter0 }}"
                         aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
                       >
-                        <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" draggable="false" />
+                        <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" draggable="false" />
                       </button>
                     {% endfor %}
                   </div>

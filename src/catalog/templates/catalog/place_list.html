@@ -357,9 +357,9 @@
             <article class="card">
               <div class="card-media">
                 {% if place.photo %}
-                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% elif place.cover_photo %}
-                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% else %}
                   <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
                     <span class="image-placeholder-icon" aria-hidden="true">📷</span>
@@ -441,9 +441,9 @@
           <div class="card-media">
             <a class="card-media-link" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}" aria-label="{{ place.name_i18n }}">
               {% if place.photo %}
-                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% elif place.cover_photo %}
-                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% else %}
                 <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
                   <span class="image-placeholder-icon" aria-hidden="true">📷</span>

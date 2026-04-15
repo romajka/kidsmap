@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.http import JsonResponse
 from django.conf import settings
+from django.utils.cache import patch_cache_control
+from django.views.static import serve as serve_static_file
 
 
 def robots_txt(request):
@@ -64,3 +66,15 @@ def redirect_legacy_default_language_prefix(request, path=""):
     if query_string:
         target_path = f"{target_path}?{query_string}"
     return HttpResponsePermanentRedirect(target_path)
+
+
+def serve_media_file(request, path=""):
+    response = serve_static_file(request, path, document_root=settings.MEDIA_ROOT)
+    if response.status_code < 400:
+        patch_cache_control(
+            response,
+            public=True,
+            max_age=max(getattr(settings, "MEDIA_CACHE_MAX_AGE", 86400), 0),
+        )
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    return response

@@ -5,10 +5,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
-from django.views.static import serve as serve_static_file
 
 from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap
-from config.views import robots_txt, healthz, redirect_legacy_default_language_prefix
+from config.views import healthz, redirect_legacy_default_language_prefix, robots_txt, serve_media_file
 
 sitemaps = {
     "static": StaticViewSitemap,
@@ -42,7 +41,6 @@ elif getattr(settings, "SERVE_MEDIA_FILES", False):
     urlpatterns += [
         re_path(
             rf"^{media_path}(?P<path>.*)$",
-            serve_static_file,
-            {"document_root": settings.MEDIA_ROOT},
+            serve_media_file,
         )
     ]

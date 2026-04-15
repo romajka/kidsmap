@@ -1,14 +1,17 @@
 import json
+from pathlib import Path
 from io import StringIO
 from datetime import timedelta
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.http import HttpResponse
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
@@ -37,6 +40,7 @@ from catalog.models import (
 )
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, TRACKED_EVENT_NAMES
+from config.views import serve_media_file
 
 
 User = get_user_model()
@@ -306,10 +310,10 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
-        self.assertContains(response, "kidsMapInitHomeMap")
         self.assertContains(response, "static/js/home_map.js")
-        self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertContains(response, 'data-home-map-google-key="test-key"', html=False)
+        self.assertNotContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
+        self.assertNotContains(response, "kidsMapInitHomeMap")
 
     @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
     def test_home_page_includes_google_analytics_tag_when_configured(self):
@@ -406,8 +410,27 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["map_places"][0]["image_url"], place.photo.url)
-        self.assertContains(response, "home-map-popup-thumb")
+        self.assertContains(response, "home-map-data")
         self.assertContains(response, place.photo.url)
+
+    def test_public_site_css_does_not_reference_chiron_font(self):
+        css_path = Path(settings.BASE_DIR) / "static" / "css" / "site.css"
+        self.assertTrue(css_path.exists())
+        css = css_path.read_text(encoding="utf-8")
+        self.assertNotIn("ChironGoRoundTC", css)
+        self.assertNotIn("Chiron GoRound TC", css)
+
+    @override_settings(MEDIA_CACHE_MAX_AGE=3600)
+    def test_media_serve_view_sets_cache_headers(self):
+        request = RequestFactory().get("/media/example.jpg")
+        response = HttpResponse(b"content", content_type="image/jpeg")
+
+        with patch("config.views.serve_static_file", return_value=response) as serve_mock:
+            served = serve_media_file(request, "example.jpg")
+
+        serve_mock.assert_called_once_with(request, "example.jpg", document_root=settings.MEDIA_ROOT)
+        self.assertEqual(served["Cache-Control"], "public, max-age=3600")
+        self.assertEqual(served["X-Content-Type-Options"], "nosniff")
 
     def test_header_uses_icon_only_account_language_and_search_controls(self):
         response = self.client.get("/", follow=True)

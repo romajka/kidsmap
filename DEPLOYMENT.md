@@ -87,6 +87,26 @@ docker compose run --rm web ./scripts/migrate.sh
    - `/robots.txt`
    - `/admin/`
 
+## Production performance follow-up
+After deploy, validate that static/media are not the new bottleneck:
+
+```bash
+cd /opt/kidsmap
+docker compose exec -T web python manage.py collectstatic --noinput
+curl -I https://kidsmap.az/static/css/site.css
+curl -I https://kidsmap.az/static/js/home_map.js
+curl -I https://kidsmap.az/media/site/your-heavy-file.png
+find /opt/kidsmap/media -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.webp' \) -printf '%s %p\n' | sort -nr | head -20
+```
+
+What to verify:
+1. Static responses include long-lived `Cache-Control`.
+2. Media responses include `Cache-Control` and correct `Content-Type`.
+3. The old public TTF font is no longer requested from the homepage.
+4. The largest production media files are identified explicitly instead of guessed.
+
+If large production PNG/JPG files are still live but absent from git, replace them with optimized files under the same path so current URLs keep working.
+
 ## SMTP test (Brevo or other provider)
 ```bash
 python manage.py send_test_email your-address@example.com
