@@ -29,13 +29,6 @@
   {% endif %}
 
   <section class="panel filter-panel {% if is_new_page %}filter-panel-new{% else %}filter-panel-catalog{% endif %}">
-    <p class="filter-intro">
-      {% if is_new_page %}
-        {% trans "Выберите период и фильтры, чтобы увидеть только самые свежие добавления." %}
-      {% else %}
-        {% trans "Настройте фильтры и нажмите «Поиск», чтобы быстро найти подходящие кружки." %}
-      {% endif %}
-    </p>
     {% if not is_new_page %}
       <div class="mobile-filter-toolbar">
         <button
@@ -243,88 +236,56 @@
         <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
       </div>
     </form>
+  </section>
 
-    <div class="catalog-top-stack">
-      <div class="quick-filters {% if is_new_page %}quick-filters-new{% endif %}">
-        <span class="quick-filters-label">{% trans "Быстрые фильтры" %}:</span>
-        {% if is_new_page %}
-          <div class="quick-filter-group">
-            <span class="quick-filter-group-title">{% trans "Период (1 вариант)" %}</span>
-            <a class="chip-link {% if selected.days == '7' %}active{% endif %}" href="{% url 'place_new' %}?days=7{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 7 дней" %}</a>
-            <a class="chip-link {% if selected.days == '14' %}active{% endif %}" href="{% url 'place_new' %}?days=14{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 14 дней" %}</a>
-            <a class="chip-link {% if selected.days == '30' %}active{% endif %}" href="{% url 'place_new' %}?days=30{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "За 30 дней" %}</a>
-          </div>
-          <div class="quick-filter-group">
-            <span class="quick-filter-group-title">{% trans "Рейтинг (1 вариант)" %}</span>
-            <a class="chip-link {% if not selected.min_rating %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Любой" %}</a>
-            <a class="chip-link {% if selected.min_rating == '4' %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}&min_rating=4{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">4.0+</a>
-            <a class="chip-link {% if selected.min_rating == '4.5' %}active{% endif %}" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}&min_rating=4.5{% if selected.with_photo == '1' %}&with_photo=1{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">4.5+</a>
-          </div>
-          <div class="quick-filter-group">
-            <span class="quick-filter-group-title">{% trans "Дополнительно (можно несколько)" %}</span>
-            {% if selected.with_photo == '1' %}
-              <a class="chip-link active" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Только с фото" %}</a>
-            {% else %}
-              <a class="chip-link" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}&with_photo=1{% if selected.verified == '1' %}&verified=1{% endif %}">{% trans "Только с фото" %}</a>
-            {% endif %}
-            {% if selected.verified == '1' %}
-              <a class="chip-link active" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}">{% trans "Только проверенные" %}</a>
-            {% else %}
-              <a class="chip-link" href="{% url 'place_new' %}?days={{ selected.days|default:'30' }}{% if selected.min_rating %}&min_rating={{ selected.min_rating }}{% endif %}{% if selected.with_photo == '1' %}&with_photo=1{% endif %}&verified=1">{% trans "Только проверенные" %}</a>
-            {% endif %}
-          </div>
-        {% else %}
-          <a class="chip-link" href="{% url 'place_list' %}?category=TECH">{% trans "Технологии" %}</a>
-          <a class="chip-link" href="{% url 'place_list' %}?category=SPRT">{% trans "Спорт" %}</a>
-          <a class="chip-link" href="{% url 'place_list' %}?category=EDU">{% trans "Образование" %}</a>
-          <a class="chip-link {% if selected.min_rating == '4' %}active{% endif %}" href="{% url 'place_list' %}?min_rating=4">4.0+</a>
-          <a class="chip-link {% if selected.min_rating == '4.5' %}active{% endif %}" href="{% url 'place_list' %}?min_rating=4.5">4.5+</a>
-          <a class="chip-link" href="{% url 'place_list' %}?district=Ясамал">{% trans "Ясамал" %}</a>
-          <a class="chip-link" href="{% url 'place_list' %}?district=Нариманов">{% trans "Нариманов" %}</a>
-          <a class="chip-link" href="{% url 'place_list' %}?sort=new">{% trans "Сначала новые" %}</a>
-        {% endif %}
+  {% if not is_new_page %}
+    <div class="catalog-content-column">
+  {% endif %}
+
+  <p class="filter-intro">
+    {% if is_new_page %}
+      {% trans "Выберите период и фильтры, чтобы увидеть только самые свежие добавления." %}
+    {% else %}
+      {% trans "Настройте фильтры и нажмите «Поиск», чтобы быстро найти подходящие кружки." %}
+    {% endif %}
+  </p>
+
+  <div class="catalog-top-stack">
+    {% if active_filter_chips %}
+      <div class="active-filter-bar" aria-label="{% trans 'Выбранные фильтры' %}">
+        <div class="active-filter-chips">
+          {% for chip in active_filter_chips %}
+            <a class="active-filter-chip" href="{{ chip.remove_url }}">
+              <span>{{ chip.label }}</span>
+              <span class="active-filter-chip-remove" aria-hidden="true">×</span>
+            </a>
+          {% endfor %}
+        </div>
+        <a class="link-btn icon-btn icon-reset active-filter-reset" href="{{ reset_filters_url }}">{% trans "Сбросить всё" %}</a>
       </div>
+    {% endif %}
 
-      {% if active_filter_chips %}
-        <div class="active-filter-bar" aria-label="{% trans 'Выбранные фильтры' %}">
-          <div class="active-filter-chips">
-            {% for chip in active_filter_chips %}
-              <a class="active-filter-chip" href="{{ chip.remove_url }}">
-                <span>{{ chip.label }}</span>
-                <span class="active-filter-chip-remove" aria-hidden="true">×</span>
-              </a>
-            {% endfor %}
-          </div>
-          <a class="link-btn icon-btn icon-reset active-filter-reset" href="{{ reset_filters_url }}">{% trans "Сбросить всё" %}</a>
-        </div>
-      {% endif %}
-
-      <div class="results-toolbar">
-        <p class="results-count">
-          {% blocktrans count total=page_obj.paginator.count %}
-            Найден {{ total }} кружок
-          {% plural %}
-            Найдено {{ total }} кружков
-          {% endblocktrans %}
-        </p>
-        <div class="results-toolbar-actions">
-          {% if active_filter_chips %}
-            <a class="link-btn icon-btn icon-reset results-reset-all" href="{{ reset_filters_url }}">{% trans "Сбросить всё" %}</a>
-          {% endif %}
-          <button
-            type="button"
-            class="link-btn icon-btn icon-map results-map-toggle"
-            data-catalog-map-open
-            aria-controls="catalog-map-panel"
-            aria-expanded="false"
-          >
-            {% trans "На карте" %}
-            <span class="results-map-count">{{ catalog_map_places_count }}</span>
-          </button>
-        </div>
+    <div class="results-toolbar">
+      <p class="results-count">
+        {{ results_count_label }}
+      </p>
+      <div class="results-toolbar-actions">
+        {% if active_filter_chips %}
+          <a class="link-btn icon-btn icon-reset results-reset-all" href="{{ reset_filters_url }}">{% trans "Сбросить всё" %}</a>
+        {% endif %}
+        <button
+          type="button"
+          class="link-btn icon-btn icon-map results-map-toggle"
+          data-catalog-map-open
+          aria-controls="catalog-map-panel"
+          aria-expanded="false"
+        >
+          {% trans "На карте" %}
+          <span class="results-map-count">{{ catalog_map_places_count }}</span>
+        </button>
       </div>
     </div>
-  </section>
+  </div>
 
   {% if not is_new_page %}
     <div class="catalog-main-column">
@@ -491,7 +452,13 @@
               {% endif %}
             </a>
             {% if place.card_price_badge %}
-              <span class="card-price-pill">{{ place.card_price_badge }}</span>
+              <span class="card-price-pill">
+                {% if place.card_price_badge_label %}
+                  <span class="card-price-pill__meta">{{ place.card_price_badge_label }}</span>
+                {% endif %}
+                <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
+                <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
+              </span>
             {% endif %}
           </div>
           <div class="card-body">
@@ -579,6 +546,12 @@
     </nav>
   {% endif %}
 
+  {% if not is_new_page %}
+    </div>
+    </div>
+    </div>
+  {% endif %}
+
   <section class="panel">
     <h2>{% trans "Часто ищут" %}</h2>
     <div class="home-grid2">
@@ -590,10 +563,6 @@
     </div>
   </section>
 
-  {% if not is_new_page %}
-    </div>
-    </div>
-  {% endif %}
   {% if not is_new_page %}
     <script src="{% static 'js/catalog_map.js' %}"></script>
     {% if google_maps_api_key %}

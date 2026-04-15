@@ -724,7 +724,7 @@ def request_place_ownership(request, pk):
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
-    return redirect(f"{place.get_absolute_url()}#owner-request")
+    return redirect(place.get_absolute_url())
 
 
 def account_verify_email(request):

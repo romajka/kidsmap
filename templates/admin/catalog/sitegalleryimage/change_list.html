@@ -2,52 +2,5 @@
 {% load i18n %}
 
 {% block content %}
-  <div class="km-gallery-hub module">
-    <div class="km-gallery-hub-head">
-      <div class="km-admin-stack">
-        <h2 class="km-gallery-hub-title">{% trans "Сначала выберите блок сайта" %}</h2>
-        <div class="km-admin-meta">
-          {% trans "После выбора блока ниже появятся его фото. Их можно открыть, заменить, отключить или добавить новые." %}
-        </div>
-      </div>
-    </div>
-
-    <div class="km-gallery-section-grid">
-      {% for section in site_gallery_block_sections %}
-        <section class="km-gallery-section-card{% if section.is_active %} is-active{% endif %}">
-          <a class="km-gallery-section-link" href="{{ section.url }}">
-            <div class="km-gallery-section-top">
-              <strong class="km-gallery-section-title">{{ section.title }}</strong>
-              <span class="km-admin-badge {% if section.count %}km-admin-badge--good{% else %}km-admin-badge--warn{% endif %}">
-                {% blocktranslate count count=section.count %}{{ count }} фото{% plural %}{{ count }} фото{% endblocktranslate %}
-              </span>
-            </div>
-
-            <div class="km-gallery-preview-strip">
-              {% if section.previews %}
-                {% for preview_url in section.previews %}
-                  <img class="km-gallery-preview-thumb" src="{{ preview_url }}" alt="" loading="lazy" />
-                {% endfor %}
-              {% else %}
-                <div class="km-gallery-preview-empty">{% trans "Пока нет фото" %}</div>
-              {% endif %}
-            </div>
-          </a>
-
-          <a class="button km-gallery-section-add" href="{{ section.add_url }}">{% trans "Добавить фото" %}</a>
-        </section>
-      {% endfor %}
-    </div>
-  </div>
-
-  {% if site_gallery_show_result_list %}
-    {{ block.super }}
-  {% else %}
-    <div class="km-gallery-empty-hint module">
-      <h2>{% trans "Выберите блок выше" %}</h2>
-      <p class="km-admin-meta">
-        {% trans "Например: сначала откройте «Главная: hero-слайдер», чтобы редактировать фото карусели на главном экране." %}
-      </p>
-    </div>
-  {% endif %}
+  {{ block.super }}
 {% endblock %}

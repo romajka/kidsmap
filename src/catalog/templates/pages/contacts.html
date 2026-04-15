@@ -7,39 +7,74 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="panel info-hero">
+  <section class="panel info-hero contacts-hero">
     <h1>{% trans "Контакты" %}</h1>
+    <p class="contacts-hero-lead">{% trans "Выберите удобный способ связи: звонок, email или WhatsApp." %}</p>
     {% if site_contacts_text %}
-      <p>{{ site_contacts_text }}</p>
-    {% else %}
-      <p>{% trans "Свяжитесь с нами по почте: kidsmap.az@gmail.com" %}</p>
+      <p class="info-hero-subtext contacts-hero-subtext">{{ site_contacts_text }}</p>
     {% endif %}
   </section>
 
-  <section class="panel info-grid-panel">
-    <div class="info-grid">
-      <article class="info-card">
-        <h2>{% trans "Связь с командой" %}</h2>
-        <div class="info-links">
+  <section class="panel info-grid-panel contacts-grid-panel">
+    <div class="contacts-layout">
+      <article class="info-card contacts-primary-card">
+        <div class="contacts-section-head">
+          <h2>{% trans "Связаться с нами" %}</h2>
+          <p>{% trans "Для вопросов по каталогу, размещению кружков и обратной связи." %}</p>
+        </div>
+
+        <div class="contacts-primary-actions">
           {% if footer_phone %}
-            <a class="info-link-item" href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
+            <a class="contacts-primary-action icon-btn icon-phone" href="tel:{{ footer_phone|cut:' ' }}">
+              <span class="contacts-action-copy">
+                <span class="contacts-action-label">{% trans "Позвонить" %}</span>
+                <strong class="contacts-action-value">{{ footer_phone }}</strong>
+              </span>
+            </a>
           {% endif %}
           {% if footer_email %}
-            <a class="info-link-item" href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+            <a class="contacts-primary-action icon-btn icon-mail" href="mailto:{{ footer_email }}">
+              <span class="contacts-action-copy">
+                <span class="contacts-action-label">{% trans "Написать на email" %}</span>
+                <strong class="contacts-action-value">{{ footer_email }}</strong>
+              </span>
+            </a>
           {% endif %}
           {% if footer_whatsapp_url %}
-            <a class="info-link-item" href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="contacts-primary-action icon-btn icon-whatsapp" href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">
+              <span class="contacts-action-copy">
+                <span class="contacts-action-label">{% trans "Открыть WhatsApp" %}</span>
+                <strong class="contacts-action-value">WhatsApp</strong>
+              </span>
+            </a>
           {% endif %}
         </div>
       </article>
-      <article class="info-card">
-        <h2>{% trans "Соцсети" %}</h2>
-        <div class="info-links">
-          {% include "pages/includes/site_social_links.html" with link_class="info-link-item" %}
-          <a class="info-link-item" href="{% url 'about' %}">{% trans "О проекте" %}</a>
-          <a class="info-link-item" href="{% url 'place_list' %}">{% trans "Каталог кружков" %}</a>
-        </div>
-      </article>
+
+      <div class="contacts-secondary-stack">
+        <article class="info-card contacts-social-card">
+          <div class="contacts-section-head">
+            <h2>{% trans "Соцсети" %}</h2>
+            <p>{% trans "Следите за обновлениями KidsMap в привычных каналах." %}</p>
+          </div>
+
+          <div class="info-links contacts-social-links">
+            {% include "pages/includes/site_social_links.html" with link_class="info-link-item" link_extra_class="contacts-social-link" %}
+          </div>
+        </article>
+
+        <article class="info-card contacts-links-card">
+          <div class="contacts-section-head">
+            <h2>{% trans "Полезные ссылки" %}</h2>
+            <p>{% trans "Быстрые переходы по основным разделам сайта." %}</p>
+          </div>
+
+          <div class="info-links contacts-utility-links">
+            <a class="info-link-item contacts-utility-link icon-btn icon-details" href="{% url 'about' %}">{% trans "О проекте" %}</a>
+            <a class="info-link-item contacts-utility-link icon-btn icon-search" href="{% url 'place_list' %}">{% trans "Каталог кружков" %}</a>
+          </div>
+        </article>
+      </div>
     </div>
   </section>
 {% endblock %}

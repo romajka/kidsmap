@@ -6,7 +6,7 @@
       {% if review.is_anonymous %}
         {% trans "Аноним" %}
       {% else %}
-        {% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %}
+        {{ review.author_name_i18n }}
       {% endif %}
     </strong>
     <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
@@ -20,7 +20,7 @@
   {% endif %}
 
   {% if review.text %}
-    <p class="review-text">{{ review.text|linebreaksbr }}</p>
+    <p class="review-text">{{ review.text_i18n|linebreaksbr }}</p>
   {% endif %}
 
   <div class="review-footer">
@@ -32,14 +32,24 @@
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next_url|default:request.get_full_path }}" />
       <button type="submit" name="value" value="1" class="review-reaction-btn{% if review.current_reaction == 1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == 1 %}true{% else %}false{% endif %}">
-        <span aria-hidden="true">👍</span>
+        <span class="review-reaction-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
+            <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
+            <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
+          </svg>
+        </span>
         <span class="visually-hidden">{% trans "Лайк" %}</span>
-        <span data-review-like-count>{{ review.likes_count }}</span>
+        <span class="review-reaction-count" data-review-like-count>{{ review.likes_count }}</span>
       </button>
       <button type="submit" name="value" value="-1" class="review-reaction-btn dislike{% if review.current_reaction == -1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == -1 %}true{% else %}false{% endif %}">
-        <span aria-hidden="true">👎</span>
+        <span class="review-reaction-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
+            <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
+            <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
+          </svg>
+        </span>
         <span class="visually-hidden">{% trans "Дизлайк" %}</span>
-        <span data-review-dislike-count>{{ review.dislikes_count }}</span>
+        <span class="review-reaction-count" data-review-dislike-count>{{ review.dislikes_count }}</span>
       </button>
     </form>
   </div>

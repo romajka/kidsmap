@@ -8,11 +8,15 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django import forms
 from django.http import HttpResponseRedirect
+from django.conf import settings
+from django.utils.formats import date_format
 from django.utils.html import format_html, format_html_join
+from django.utils.dateparse import parse_datetime
 from django.shortcuts import redirect
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _, ngettext
 from .models import (
     CatalogContentSettings,
@@ -102,7 +106,30 @@ def _kidsmap_each_context(self, request):
         ).count()
     else:
         context["ownership_pending_count"] = 0
+    context["admin_current_language"] = (get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
+    context["admin_language_switch_items"] = _build_admin_language_switch_items(request, context["admin_current_language"])
     return context
+
+
+def _build_admin_language_switch_items(request, current_language: str):
+    lang_codes = [code for code, _label in settings.LANGUAGES]
+    default_lang = (settings.LANGUAGE_CODE or "az").split("-")[0]
+    path = request.path
+    stripped = path.lstrip("/")
+    first_segment, sep, remainder = stripped.partition("/")
+    if first_segment in lang_codes:
+        base_path = f"/{remainder}" if sep else "/"
+    else:
+        base_path = path if path.startswith("/") else f"/{path}"
+
+    if not base_path:
+        base_path = "/"
+
+    items = []
+    for code in lang_codes:
+        url = request.build_absolute_uri(base_path if code == default_lang else f"/{code}{base_path}")
+        items.append({"code": code, "url": url, "active": code == current_language})
+    return items
 
 
 admin.site.get_app_list = _kidsmap_get_app_list.__get__(admin.site, type(admin.site))
@@ -140,7 +167,7 @@ class UserProfileInline(admin.StackedInline):
 
 class _BaseKidsMapUserAdmin(UserAdmin):
     filter_horizontal = ()
-    search_fields = ("username", "email", "first_name", "last_name")
+    search_fields = ("username", "email", "first_name", "last_name", "profile__phone")
     ordering = ("username",)
     inlines = (UserProfileInline,)
 
@@ -161,6 +188,27 @@ class _BaseKidsMapUserAdmin(UserAdmin):
     def site_gender(self, obj):
         profile = getattr(obj, "profile", None)
         return profile.get_gender_display() if profile else "-"
+
+    @admin.display(description=_("Профиль"))
+    def identity_summary(self, obj):
+        profile = getattr(obj, "profile", None)
+        title = obj.username or "-"
+        details: list[str] = []
+
+        full_name = " ".join(part for part in (obj.first_name, obj.last_name) if part).strip()
+        if obj.email:
+            details.append(obj.email)
+        if full_name:
+            details.append(full_name)
+
+        if not details:
+            return format_html('<div class="km-admin-stack"><span class="km-admin-title">{}</span></div>', title)
+
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">{}</span>{}</div>',
+            title,
+            format_html_join("", '<span class="km-admin-meta">{}</span>', ((detail,) for detail in details)),
+        )
 
 
 @admin.register(User)
@@ -206,18 +254,7 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
             },
         ),
     )
-    list_display = (
-        "username",
-        "email",
-        "first_name",
-        "last_name",
-        "site_role",
-        "site_phone",
-        "site_gender",
-        "is_active",
-        "date_joined",
-        "last_login",
-    )
+    list_display = ("identity_summary", "site_role", "site_phone", "site_gender", "is_active", "date_joined", "last_login")
     list_filter = ("is_active", "date_joined", "last_login", "profile__role", "profile__gender")
 
     def get_queryset(self, request):
@@ -242,10 +279,7 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
         ),
     )
     list_display = (
-        "username",
-        "email",
-        "first_name",
-        "last_name",
+        "identity_summary",
         "is_staff",
         "is_superuser",
         "is_active",
@@ -364,6 +398,75 @@ class PlaceDeletedFilter(admin.SimpleListFilter):
         return queryset
 
 
+class ReviewModerationStatusFilter(admin.SimpleListFilter):
+    title = _("Статус модерации")
+    parameter_name = "review_status"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("published", _("Опубликован")),
+            ("hidden", _("Скрыт")),
+            ("suspicious", _("Требует проверки")),
+            ("only_rating", _("Только оценка")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "published":
+            return queryset.filter(is_approved=True, contains_profanity=False)
+        if value == "hidden":
+            return queryset.filter(is_approved=False)
+        if value == "suspicious":
+            return queryset.filter(Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0))
+        if value == "only_rating":
+            return queryset.filter(Q(text__isnull=True) | Q(text__exact=""))
+        return queryset
+
+
+class ReviewTextPresenceFilter(admin.SimpleListFilter):
+    title = _("Текст")
+    parameter_name = "text_presence"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("with_text", _("Есть текст")),
+            ("only_rating", _("Только оценка")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "with_text":
+            return queryset.exclude(text__isnull=True).exclude(text__exact="")
+        if value == "only_rating":
+            return queryset.filter(Q(text__isnull=True) | Q(text__exact=""))
+        return queryset
+
+
+class ReviewRiskFilter(admin.SimpleListFilter):
+    title = _("Сигналы риска")
+    parameter_name = "risk_signal"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("profanity", _("Есть скрытая лексика")),
+            ("anonymous", _("Анонимный")),
+            ("low_rating", _("Низкая оценка")),
+            ("many_dislikes", _("Много дизлайков")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "profanity":
+            return queryset.filter(contains_profanity=True)
+        if value == "anonymous":
+            return queryset.filter(is_anonymous=True)
+        if value == "low_rating":
+            return queryset.filter(rating__lte=2)
+        if value == "many_dislikes":
+            return queryset.filter(dislikes_count__gt=0)
+        return queryset
+
+
 @admin.register(Place)
 class PlaceAdmin(admin.ModelAdmin):
     AUDIT_TRACKED_FIELDS = (
@@ -407,6 +510,7 @@ class PlaceAdmin(admin.ModelAdmin):
     form = PlaceAdminForm
     geocoding_service = PlaceGeocodingService.build_default()
     place_audit_repository = DjangoPlaceChangeAuditRepository()
+    change_list_template = "admin/catalog/place/change_list.html"
     change_form_template = "admin/catalog/place/change_form.html"
     delete_confirmation_template = "admin/catalog/place_delete_confirmation.html"
     delete_selected_confirmation_template = "admin/catalog/place_delete_selected_confirmation.html"
@@ -420,6 +524,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "owner_display",
         "engagement_summary",
         "updated_at",
+        "row_actions",
     )
     list_filter = (
         PlaceDeletedFilter,
@@ -508,7 +613,19 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Название"))
     def display_name(self, obj):
-        return obj.name_ru or obj.name
+        title = obj.name_ru or obj.name
+        meta: list[str] = []
+        if obj.slug:
+            meta.append(f"ID {obj.pk} · /{obj.slug}/")
+        else:
+            meta.append(f"ID {obj.pk}")
+        if obj.is_deleted:
+            meta.append(str(_("Сейчас скрыта в разделе удалённых")))
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">{}</span>{}</div>',
+            title,
+            format_html_join("", '<span class="km-admin-meta">{}</span>', ((item,) for item in meta)),
+        )
 
     def _render_place_state_badge(self, *, label: str, tone: str = "muted"):
         return format_html(
@@ -744,6 +861,123 @@ class PlaceAdmin(admin.ModelAdmin):
             current_app=self.admin_site.name,
         )
 
+    def _place_delete_url(self, obj: Place) -> str:
+        return reverse(
+            f"admin:{self.opts.app_label}_{self.opts.model_name}_delete",
+            args=[obj.pk],
+            current_app=self.admin_site.name,
+        )
+
+    def _place_restore_url(self, obj: Place) -> str:
+        return reverse(
+            f"admin:{self.opts.app_label}_{self.opts.model_name}_restore",
+            args=[obj.pk],
+            current_app=self.admin_site.name,
+        )
+
+    def _build_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
+        params = request.GET.copy()
+        params.pop("p", None)
+        for key in clear:
+            params.pop(key, None)
+        for key, value in updates.items():
+            params.pop(key, None)
+            if value not in (None, ""):
+                params[key] = value
+        encoded = params.urlencode()
+        return f"?{encoded}" if encoded else ""
+
+    def _place_quick_filters(self, request):
+        status_keys = ("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status")
+        current_deleted = request.GET.get("deleted_state")
+        current_active = request.GET.get("is_active__exact")
+        current_coordinates = request.GET.get("coordinates_status")
+        current_map_ready = request.GET.get("map_ready_status")
+        return (
+            {
+                "label": _("Все карточки"),
+                "url": self._build_changelist_query_string(request, clear=status_keys),
+                "active": not any((current_deleted, current_active, current_coordinates, current_map_ready)),
+            },
+            {
+                "label": _("Опубликованы"),
+                "url": self._build_changelist_query_string(
+                    request,
+                    clear=status_keys,
+                    deleted_state="active",
+                    is_active__exact="1",
+                ),
+                "active": current_deleted == "active" and current_active == "1" and not current_coordinates and not current_map_ready,
+            },
+            {
+                "label": _("Неактивные"),
+                "url": self._build_changelist_query_string(
+                    request,
+                    clear=status_keys,
+                    deleted_state="active",
+                    is_active__exact="0",
+                ),
+                "active": current_deleted == "active" and current_active == "0" and not current_coordinates and not current_map_ready,
+            },
+            {
+                "label": _("В удалённых"),
+                "url": self._build_changelist_query_string(request, clear=status_keys, deleted_state="deleted"),
+                "active": current_deleted == "deleted" and not current_active and not current_coordinates and not current_map_ready,
+            },
+            {
+                "label": _("Без координат"),
+                "url": self._build_changelist_query_string(request, clear=status_keys, coordinates_status="no"),
+                "active": current_coordinates == "no" and not current_deleted and not current_active and not current_map_ready,
+            },
+            {
+                "label": _("Не готовы для карты"),
+                "url": self._build_changelist_query_string(request, clear=status_keys, map_ready_status="no"),
+                "active": current_map_ready == "no" and not current_deleted and not current_active and not current_coordinates,
+            },
+        )
+
+    def _place_bulk_actions(self):
+        return (
+            {
+                "name": "mark_active",
+                "label": _("Опубликовать"),
+                "tone": "good",
+                "description": _("Сделать выбранные карточки активными и вернуть их в каталог."),
+            },
+            {
+                "name": "mark_inactive",
+                "label": _("Снять с публикации"),
+                "tone": "muted",
+                "description": _("Оставить карточки в базе, но скрыть их с сайта."),
+            },
+            {
+                "name": "mark_verified",
+                "label": _("Отметить проверенными"),
+                "tone": "info",
+                "description": _("Показать, что карточки прошли проверку."),
+            },
+            {
+                "name": "refresh_coordinates",
+                "label": _("Обновить координаты"),
+                "tone": "info",
+                "description": _("Повторно рассчитать координаты по адресу."),
+            },
+            {
+                "name": "restore_selected",
+                "label": _("Восстановить"),
+                "tone": "good",
+                "confirm": _("Вы собираетесь восстановить {count} выбранных карточек из удалённых.\n\nПосле восстановления карточки останутся неактивными, их можно будет отдельно опубликовать.\n\nПродолжить?"),
+                "description": _("Вернуть карточки из удалённых в базовый список."),
+            },
+            {
+                "name": "move_selected_to_deleted",
+                "label": _("В удалённые"),
+                "tone": "danger",
+                "confirm": _("Вы собираетесь переместить в удалённые {count} выбранных карточек.\n\nКарточки исчезнут с сайта, но останутся в базе и их можно будет восстановить.\n\nПродолжить?"),
+                "description": _("Безопасное мягкое удаление с возможностью восстановления."),
+            },
+        )
+
     def _build_admin_coordinate_refresh_feedback(self, *, geocoding_result, saved_prefix: str) -> tuple[str, int]:
         point = geocoding_result.point
         if geocoding_result.updated and point is not None:
@@ -784,26 +1018,84 @@ class PlaceAdmin(admin.ModelAdmin):
         self.message_user(request, message, level=level)
         return HttpResponseRedirect(self._place_change_url(obj))
 
+    def get_urls(self):
+        custom_urls = [
+            path(
+                "<path:object_id>/restore/",
+                self.admin_site.admin_view(self.restore_view),
+                name="catalog_place_restore",
+            ),
+        ]
+        return custom_urls + super().get_urls()
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = {
+            "place_quick_filters": self._place_quick_filters(request),
+            "place_bulk_actions": self._place_bulk_actions(),
+            **(extra_context or {}),
+        }
+        return super().changelist_view(request, extra_context=extra_context)
+
     @admin.action(description=_("Сделать активными"))
     def mark_active(self, request, queryset):
-        queryset.update(
+        updated_count = queryset.update(
             is_active=True,
             deleted_at=None,
             deleted_by=None,
             updated_at=timezone.now(),
         )
+        self.message_user(
+            request,
+            ngettext(
+                "Опубликована %(count)d карточка.",
+                "Опубликовано %(count)d карточки.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
 
     @admin.action(description=_("Сделать неактивными"))
     def mark_inactive(self, request, queryset):
-        queryset.update(is_active=False, updated_at=timezone.now())
+        updated_count = queryset.update(is_active=False, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext(
+                "С публикации снята %(count)d карточка.",
+                "С публикации снято %(count)d карточки.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
 
     @admin.action(description=_("Отметить как проверенные"))
     def mark_verified(self, request, queryset):
-        queryset.update(is_verified=True, updated_at=timezone.now())
+        updated_count = queryset.update(is_verified=True, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext(
+                "Отмечена как проверенная %(count)d карточка.",
+                "Отмечено как проверенные %(count)d карточки.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
 
     @admin.action(description=_("Снять отметку проверки"))
     def mark_unverified(self, request, queryset):
-        queryset.update(is_verified=False, updated_at=timezone.now())
+        updated_count = queryset.update(is_verified=False, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext(
+                "Снята отметка проверки у %(count)d карточки.",
+                "Снята отметка проверки у %(count)d карточек.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
 
     @admin.action(description=_("Переместить выбранные кружки в удаленные"))
     def move_selected_to_deleted(self, request, queryset):
@@ -816,8 +1108,8 @@ class PlaceAdmin(admin.ModelAdmin):
             self.message_user(
                 request,
                 ngettext(
-                    "В удаленные перемещен %(count)d кружок.",
-                    "В удаленные перемещено %(count)d кружка.",
+                    "В удалённые перемещена %(count)d карточка. Её можно восстановить из админки.",
+                    "В удалённые перемещено %(count)d карточки. Их можно восстановить из админки.",
                     moved_count,
                 )
                 % {"count": moved_count},
@@ -827,15 +1119,16 @@ class PlaceAdmin(admin.ModelAdmin):
 
         context = {
             **self.admin_site.each_context(request),
-            "title": _("Переместить выбранные кружки в удаленные"),
+                "title": _("Переместить выбранные кружки в удаленные"),
             "subtitle": None,
             "objects_name": str(self.opts.verbose_name_plural),
             "queryset": queryset,
             "opts": self.opts,
             "action_checkbox_name": helpers.ACTION_CHECKBOX_NAME,
-            "action_name": "move_selected_to_deleted",
-            "media": self.media,
-        }
+                "action_name": "move_selected_to_deleted",
+                "media": self.media,
+                "undo_hint": _("Это мягкое удаление: карточки останутся в базе и их можно будет восстановить."),
+            }
         return TemplateResponse(request, self.delete_selected_confirmation_template, context)
 
     @admin.action(description=_("Восстановить выбранные кружки из удаленных"))
@@ -848,8 +1141,8 @@ class PlaceAdmin(admin.ModelAdmin):
         self.message_user(
             request,
             ngettext(
-                "Из удаленных восстановлен %(count)d кружок. Он остался неактивным.",
-                "Из удаленных восстановлено %(count)d кружка. Они остались неактивными.",
+                "Из удалённых восстановлена %(count)d карточка. Она осталась неактивной.",
+                "Из удалённых восстановлено %(count)d карточки. Они остались неактивными.",
                 restored_count,
             )
             % {"count": restored_count},
@@ -918,13 +1211,13 @@ class PlaceAdmin(admin.ModelAdmin):
             if moved:
                 self.message_user(
                     request,
-                    _("Кружок “%(name)s” перемещен в удаленные.") % {"name": obj},
+                    _("Карточка “%(name)s” перемещена в удалённые. Её можно восстановить из списка карточек.") % {"name": obj},
                     level=messages.SUCCESS,
                 )
             else:
                 self.message_user(
                     request,
-                    _("Кружок “%(name)s” уже находится в удаленных.") % {"name": obj},
+                    _("Карточка “%(name)s” уже находится в удалённых.") % {"name": obj},
                     level=messages.WARNING,
                 )
             return self._response_after_place_soft_delete(request)
@@ -945,6 +1238,49 @@ class PlaceAdmin(admin.ModelAdmin):
             **(extra_context or {}),
         }
         return self.render_delete_form(request, context)
+
+    def restore_view(self, request, object_id):
+        obj = self.get_object(request, object_id)
+        if not self.has_change_permission(request, obj):
+            raise PermissionDenied
+        if obj is None:
+            changelist_url = reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
+                current_app=self.admin_site.name,
+            )
+            return HttpResponseRedirect(changelist_url)
+
+        if request.method == "POST":
+            restored = self._restore_place(place=obj, user=request.user, activate=False)
+            if restored:
+                self.message_user(
+                    request,
+                    _("Карточка “%(name)s” восстановлена из удалённых и оставлена неактивной.") % {"name": obj},
+                    level=messages.SUCCESS,
+                )
+            else:
+                self.message_user(
+                    request,
+                    _("Карточка “%(name)s” уже доступна в основном списке.") % {"name": obj},
+                    level=messages.WARNING,
+                )
+            changelist_url = reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
+                current_app=self.admin_site.name,
+            )
+            return HttpResponseRedirect(changelist_url)
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Восстановить карточку"),
+            "subtitle": None,
+            "object_name": str(self.opts.verbose_name),
+            "object": obj,
+            "opts": self.opts,
+            "app_label": self.opts.app_label,
+            "preserved_filters": self.get_preserved_filters(request),
+        }
+        return TemplateResponse(request, "admin/catalog/place_restore_confirmation.html", context)
 
     def delete_model(self, request, obj):
         self._soft_delete_place(place=obj, user=request.user)
@@ -1007,6 +1343,44 @@ class PlaceAdmin(admin.ModelAdmin):
                 saved_prefix=_("Изменения сохранены."),
             )
         return super().response_change(request, obj)
+
+    @admin.display(description=_("Действия"))
+    def row_actions(self, obj):
+        edit_url = self._place_change_url(obj)
+        action_links = [
+            format_html(
+                '<a class="km-admin-action km-admin-action--primary" href="{}">{}</a>',
+                edit_url,
+                _("Редактировать"),
+            )
+        ]
+        if obj.is_deleted:
+            action_links.append(
+                format_html(
+                    '<a class="km-admin-action km-admin-action--good" href="{}">{}</a>',
+                    self._place_restore_url(obj),
+                    _("Восстановить"),
+                )
+            )
+            action_links.append(
+                format_html('<span class="km-admin-action km-admin-action--muted">{}</span>', _("В каталоге скрыта"))
+            )
+        else:
+            action_links.append(
+                format_html(
+                    '<a class="km-admin-action km-admin-action--secondary" href="{}" target="_blank" rel="noopener">{}</a>',
+                    obj.get_absolute_url(),
+                    _("Открыть"),
+                )
+            )
+            action_links.append(
+                format_html(
+                    '<a class="km-admin-action km-admin-action--danger" href="{}">{}</a>',
+                    self._place_delete_url(obj),
+                    _("В удалённые"),
+                )
+            )
+        return format_html('<div class="km-place-row-actions">{}</div>', format_html_join("", "{}", ((link,) for link in action_links)))
 
 
 class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
@@ -1272,7 +1646,7 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
         "is_active",
         "updated_at",
     )
-    list_filter = ("placement", "category", "is_active")
+    list_filter = ("category", "is_active")
     search_fields = ("title_ru", "title_az", "title_en", "image")
     list_editable = ("placement", "category", "order", "is_active")
     readonly_fields = ("image_preview", "created_at", "updated_at")
@@ -1311,38 +1685,7 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
     )
 
     def changelist_view(self, request, extra_context=None):
-        selected_placement = (request.GET.get("placement__exact") or "").strip()
-        block_sections = []
-        for placement_value, placement_label in SiteGalleryImage.PLACEMENT_CHOICES:
-            section_qs = SiteGalleryImage.objects.filter(placement=placement_value).order_by("order", "id")
-            preview_urls = []
-            for item in section_qs[:4]:
-                if not item.image:
-                    continue
-                try:
-                    preview_urls.append(item.image.url)
-                except Exception:
-                    continue
-
-            block_sections.append(
-                {
-                    "key": placement_value,
-                    "title": placement_label,
-                    "count": section_qs.count(),
-                    "previews": preview_urls,
-                    "url": f"{reverse('admin:catalog_sitegalleryimage_changelist')}?placement__exact={placement_value}",
-                    "add_url": f"{reverse('admin:catalog_sitegalleryimage_add')}?placement={placement_value}",
-                    "is_active": selected_placement == placement_value,
-                }
-            )
-
-        context = {
-            **(extra_context or {}),
-            "site_gallery_block_sections": block_sections,
-            "site_gallery_selected_placement": selected_placement,
-            "site_gallery_show_result_list": bool(selected_placement or (request.GET.get("q") or "").strip()),
-        }
-        return super().changelist_view(request, extra_context=context)
+        return super().changelist_view(request, extra_context=extra_context)
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
@@ -1369,11 +1712,102 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
 
 @admin.register(PlaceReview)
 class PlaceReviewAdmin(admin.ModelAdmin):
-    list_display = ("place", "display_author", "rating", "likes_count", "dislikes_count", "contains_profanity", "created_at")
-    list_filter = ("rating", "is_anonymous", "contains_profanity", "created_at")
-    search_fields = ("place__name_ru", "place__name_en", "place__name_az", "author_name", "text")
-    readonly_fields = ("likes_count", "dislikes_count", "contains_profanity", "created_at", "updated_at", "session_key")
-    exclude = ("is_approved",)
+    change_list_template = "admin/catalog/placereview/change_list.html"
+    change_form_template = "admin/catalog/placereview/change_form.html"
+    list_select_related = ("place", "user")
+    list_display = (
+        "review_summary",
+        "author_summary",
+        "rating_summary",
+        "moderation_status_summary",
+        "risk_flags_summary",
+        "engagement_summary",
+        "created_at_display",
+        "row_actions",
+    )
+    list_filter = (
+        ReviewModerationStatusFilter,
+        ReviewTextPresenceFilter,
+        ReviewRiskFilter,
+        "rating",
+        "is_anonymous",
+        "contains_profanity",
+        "is_approved",
+        "place",
+        "created_at",
+    )
+    search_fields = ("place__name_ru", "place__name_en", "place__name_az", "author_name", "user__username", "user__email", "text")
+    readonly_fields = (
+        "moderation_status_summary",
+        "likes_count",
+        "dislikes_count",
+        "contains_profanity",
+        "popularity_score_display",
+        "created_at",
+        "updated_at",
+        "session_key",
+    )
+    actions = ("approve_selected", "hide_selected", "reject_selected", "delete_selected")
+    fieldsets = (
+        (_("Отзыв"), {"fields": ("place", "user", "author_name", "is_anonymous", "rating", "text")}),
+        (_("Модерация"), {"fields": ("is_approved", "contains_profanity", "moderation_status_summary")}),
+        (_("Реакции"), {"fields": ("likes_count", "dislikes_count", "popularity_score_display")}),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("session_key", "created_at", "updated_at")}),
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("place", "user")
+
+    def _review_has_text(self, obj) -> bool:
+        return bool((obj.text or "").strip())
+
+    def _render_review_badge(self, *, label: str, tone: str = "muted"):
+        return format_html(
+            '<span class="km-admin-badge km-admin-badge--{}">{}</span>',
+            tone,
+            label,
+        )
+
+    def _place_admin_change_url(self, obj) -> str:
+        return reverse("admin:catalog_place_change", args=[obj.place_id], current_app=self.admin_site.name)
+
+    def _review_change_url(self, obj) -> str:
+        return reverse("admin:catalog_placereview_change", args=[obj.pk], current_app=self.admin_site.name)
+
+    def _review_delete_url(self, obj) -> str:
+        return reverse("admin:catalog_placereview_delete", args=[obj.pk], current_app=self.admin_site.name)
+
+    def _review_action_url(self, obj, action: str) -> str:
+        return reverse(f"admin:catalog_placereview_{action}", args=[obj.pk], current_app=self.admin_site.name)
+
+    def _review_preview_text(self, obj) -> str:
+        text = (obj.text or "").strip()
+        if not text:
+            return str(_("Только оценка без комментария"))
+        if len(text) <= 180:
+            return text
+        return f"{text[:177].rstrip()}..."
+
+    def _review_status(self, obj) -> tuple[str, str]:
+        if not obj.is_approved:
+            return str(_("Скрыт")), "muted"
+        if obj.contains_profanity:
+            return str(_("Требует проверки")), "warn"
+        return str(_("Опубликован")), "good"
+
+    @admin.display(description=_("Отзыв"))
+    def review_summary(self, obj):
+        place_name = obj.place.name_ru or obj.place.name
+        preview = self._review_preview_text(obj)
+        return format_html(
+            '<div class="km-admin-stack">'
+            '<a class="km-review-place-link" href="{}">{}</a>'
+            '<span class="km-admin-meta">{}</span>'
+            "</div>",
+            self._place_admin_change_url(obj),
+            place_name,
+            preview,
+        )
 
     @admin.display(description=_("Автор"))
     def display_author(self, obj):
@@ -1381,9 +1815,248 @@ class PlaceReviewAdmin(admin.ModelAdmin):
             return _("Аноним")
         return obj.author_name or _("Без имени")
 
-    def save_model(self, request, obj, form, change):
-        obj.is_approved = True
-        super().save_model(request, obj, form, change)
+    @admin.display(description=_("Автор"))
+    def author_summary(self, obj):
+        badges = []
+        if obj.is_anonymous:
+            badges.append(self._render_review_badge(label=_("Анонимный"), tone="muted"))
+        if obj.user_id:
+            badges.append(self._render_review_badge(label=_("Есть аккаунт"), tone="info"))
+        name = self.display_author(obj)
+        meta = obj.user.email if obj.user_id and obj.user.email else (obj.user.username if obj.user_id else _("Гость"))
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span><div class="km-admin-badges">{}</div></div>',
+            name,
+            meta,
+            format_html_join("", "{}", ((badge,) for badge in badges)),
+        )
+
+    @admin.display(description=_("Рейтинг"))
+    def rating_summary(self, obj):
+        tone = "warn" if obj.rating <= 2 else "info" if obj.rating == 3 else "good"
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-badge km-admin-badge--{}">★ {}</span>{}</div>',
+            tone,
+            obj.rating,
+            format_html(
+                '<span class="km-admin-meta">{}</span>',
+                _("Только оценка") if not self._review_has_text(obj) else _("Есть комментарий"),
+            ),
+        )
+
+    @admin.display(description=_("Статус"))
+    def moderation_status_summary(self, obj):
+        label, tone = self._review_status(obj)
+        help_text = _("Виден на сайте") if obj.is_approved else _("На сайте скрыт")
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-badge km-admin-badge--{}">{}</span><span class="km-admin-meta">{}</span></div>',
+            tone,
+            label,
+            help_text,
+        )
+
+    @admin.display(description=_("Риски"))
+    def risk_flags_summary(self, obj):
+        flags = []
+        if obj.contains_profanity:
+            flags.append(self._render_review_badge(label=_("Есть скрытая лексика"), tone="warn"))
+        if obj.is_anonymous:
+            flags.append(self._render_review_badge(label=_("Анонимный"), tone="muted"))
+        if not self._review_has_text(obj):
+            flags.append(self._render_review_badge(label=_("Только оценка"), tone="info"))
+        if obj.rating <= 2:
+            flags.append(self._render_review_badge(label=_("Низкая оценка"), tone="warn"))
+        if obj.dislikes_count > obj.likes_count:
+            flags.append(self._render_review_badge(label=_("Много дизлайков"), tone="warn"))
+        if not flags:
+            flags.append(self._render_review_badge(label=_("Без сигналов риска"), tone="good"))
+        return format_html('<div class="km-admin-badges">{}</div>', format_html_join("", "{}", ((flag,) for flag in flags)))
+
+    @admin.display(description=_("Реакции"))
+    def engagement_summary(self, obj):
+        balance_value = f"{int(obj.popularity_score or 0):+d}"
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">👍 {} · 👎 {}</span><span class="km-admin-meta">{} {}</span></div>',
+            int(obj.likes_count or 0),
+            int(obj.dislikes_count or 0),
+            _("Баланс:"),
+            balance_value,
+        )
+
+    @admin.display(description=_("Создан"))
+    def created_at_display(self, obj):
+        return obj.created_at
+
+    @admin.display(description=_("Баланс реакций"))
+    def popularity_score_display(self, obj):
+        return obj.popularity_score
+
+    def _build_review_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
+        params = request.GET.copy()
+        params.pop("p", None)
+        for key in clear:
+            params.pop(key, None)
+        for key, value in updates.items():
+            params.pop(key, None)
+            if value not in (None, ""):
+                params[key] = value
+        encoded = params.urlencode()
+        return f"?{encoded}" if encoded else ""
+
+    def _review_quick_filters(self, request):
+        keys = ("review_status", "risk_signal", "text_presence", "rating__exact")
+        current_status = request.GET.get("review_status")
+        current_risk = request.GET.get("risk_signal")
+        current_text = request.GET.get("text_presence")
+        current_rating = request.GET.get("rating__exact")
+        return (
+            {"label": _("Все отзывы"), "url": self._build_review_changelist_query_string(request, clear=keys), "active": not any((current_status, current_risk, current_text, current_rating))},
+            {"label": _("Опубликованы"), "url": self._build_review_changelist_query_string(request, clear=keys, review_status="published"), "active": current_status == "published"},
+            {"label": _("Скрытые"), "url": self._build_review_changelist_query_string(request, clear=keys, review_status="hidden"), "active": current_status == "hidden"},
+            {"label": _("Требуют проверки"), "url": self._build_review_changelist_query_string(request, clear=keys, review_status="suspicious"), "active": current_status == "suspicious"},
+            {"label": _("Только оценка"), "url": self._build_review_changelist_query_string(request, clear=keys, text_presence="only_rating"), "active": current_text == "only_rating"},
+            {"label": _("Низкая оценка"), "url": self._build_review_changelist_query_string(request, clear=keys, risk_signal="low_rating"), "active": current_risk == "low_rating"},
+        )
+
+    def _review_bulk_actions(self):
+        return (
+            {"name": "approve_selected", "label": _("Опубликовать"), "tone": "good", "description": _("Сделать выбранные отзывы видимыми на сайте.")},
+            {"name": "hide_selected", "label": _("Скрыть"), "tone": "muted", "confirm": _("Вы собираетесь скрыть {count} выбранных отзывов.\n\nОтзывы останутся в базе и их можно будет снова опубликовать.\n\nПродолжить?"), "description": _("Скрыть отзывы с сайта без удаления.")},
+            {"name": "reject_selected", "label": _("Отклонить"), "tone": "warn", "confirm": _("Вы собираетесь отклонить {count} выбранных отзывов.\n\nОтзывы останутся в базе как скрытые, их можно будет позже опубликовать вручную.\n\nПродолжить?"), "description": _("Скрыть отзывы как отклонённые после модерации.")},
+            {"name": "delete_selected", "label": _("Удалить"), "tone": "danger", "confirm": _("Вы собираетесь удалить {count} выбранных отзывов.\n\nЭто действие удалит отзывы из базы после стандартного экрана подтверждения Django admin.\n\nПродолжить?"), "description": _("Полное удаление отзывов из базы.")},
+        )
+
+    def get_urls(self):
+        custom_urls = [
+            path("<path:object_id>/approve/", self.admin_site.admin_view(self.approve_view), name="catalog_placereview_approve"),
+            path("<path:object_id>/hide/", self.admin_site.admin_view(self.hide_view), name="catalog_placereview_hide"),
+            path("<path:object_id>/reject/", self.admin_site.admin_view(self.reject_view), name="catalog_placereview_reject"),
+        ]
+        return custom_urls + super().get_urls()
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = {
+            "review_quick_filters": self._review_quick_filters(request),
+            "review_bulk_actions": self._review_bulk_actions(),
+            **(extra_context or {}),
+        }
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def _message_for_single_review_action(self, *, request, obj, action_key: str):
+        messages_map = {
+            "approve": _("Отзыв опубликован и виден на сайте."),
+            "hide": _("Отзыв скрыт. Его можно снова опубликовать позже."),
+            "reject": _("Отзыв отклонён и скрыт. При необходимости его можно снова опубликовать."),
+        }
+        self.message_user(request, messages_map[action_key], level=messages.SUCCESS)
+
+    def _toggle_review_visibility(self, *, obj, is_approved: bool):
+        if obj.is_approved == is_approved:
+            return False
+        obj.is_approved = is_approved
+        obj.save(update_fields=["is_approved", "updated_at"])
+        return True
+
+    def approve_view(self, request, object_id):
+        obj = self.get_object(request, object_id)
+        if not self.has_change_permission(request, obj):
+            raise PermissionDenied
+        if obj is None:
+            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+        if request.method == "POST":
+            self._toggle_review_visibility(obj=obj, is_approved=True)
+            self._message_for_single_review_action(request=request, obj=obj, action_key="approve")
+            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
+            **self.admin_site.each_context(request),
+            "title": _("Опубликовать отзыв"),
+            "action_label": _("Опубликовать"),
+            "action_key": "approve",
+            "description": _("Отзыв станет снова виден на сайте."),
+            "object": obj,
+            "opts": self.opts,
+        })
+
+    def hide_view(self, request, object_id):
+        obj = self.get_object(request, object_id)
+        if not self.has_change_permission(request, obj):
+            raise PermissionDenied
+        if obj is None:
+            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+        if request.method == "POST":
+            self._toggle_review_visibility(obj=obj, is_approved=False)
+            self._message_for_single_review_action(request=request, obj=obj, action_key="hide")
+            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
+            **self.admin_site.each_context(request),
+            "title": _("Скрыть отзыв"),
+            "action_label": _("Скрыть"),
+            "action_key": "hide",
+            "description": _("Отзыв исчезнет с сайта, но останется в базе и его можно будет снова опубликовать."),
+            "object": obj,
+            "opts": self.opts,
+        })
+
+    def reject_view(self, request, object_id):
+        obj = self.get_object(request, object_id)
+        if not self.has_change_permission(request, obj):
+            raise PermissionDenied
+        if obj is None:
+            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+        if request.method == "POST":
+            self._toggle_review_visibility(obj=obj, is_approved=False)
+            self._message_for_single_review_action(request=request, obj=obj, action_key="reject")
+            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+        return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
+            **self.admin_site.each_context(request),
+            "title": _("Отклонить отзыв"),
+            "action_label": _("Отклонить"),
+            "action_key": "reject",
+            "description": _("Отзыв останется в базе как скрытый. Это решение можно будет изменить позже."),
+            "object": obj,
+            "opts": self.opts,
+        })
+
+    @admin.action(description=_("Опубликовать выбранные отзывы"))
+    def approve_selected(self, request, queryset):
+        updated_count = queryset.exclude(is_approved=True).update(is_approved=True, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext("Опубликован %(count)d отзыв.", "Опубликовано %(count)d отзыва.", updated_count) % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Скрыть выбранные отзывы"))
+    def hide_selected(self, request, queryset):
+        updated_count = queryset.exclude(is_approved=False).update(is_approved=False, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext("Скрыт %(count)d отзыв.", "Скрыто %(count)d отзыва.", updated_count) % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Отклонить выбранные отзывы"))
+    def reject_selected(self, request, queryset):
+        updated_count = queryset.exclude(is_approved=False).update(is_approved=False, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext("Отклонён %(count)d отзыв.", "Отклонено %(count)d отзыва.", updated_count) % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.display(description=_("Действия"))
+    def row_actions(self, obj):
+        actions = [
+            format_html('<a class="km-admin-action km-admin-action--primary" href="{}">{}</a>', self._review_change_url(obj), _("Открыть")),
+            format_html('<a class="km-admin-action km-admin-action--secondary" href="{}">{}</a>', self._place_admin_change_url(obj), _("К кружку")),
+        ]
+        if obj.is_approved:
+            actions.append(format_html('<a class="km-admin-action km-admin-action--muted" href="{}">{}</a>', self._review_action_url(obj, "hide"), _("Скрыть")))
+        else:
+            actions.append(format_html('<a class="km-admin-action km-admin-action--good" href="{}">{}</a>', self._review_action_url(obj, "approve"), _("Опубликовать")))
+            actions.append(format_html('<a class="km-admin-action km-admin-action--warn" href="{}">{}</a>', self._review_action_url(obj, "reject"), _("Отклонить")))
+        actions.append(format_html('<a class="km-admin-action km-admin-action--danger" href="{}">{}</a>', self._review_delete_url(obj), _("Удалить")))
+        return format_html('<div class="km-place-row-actions">{}</div>', format_html_join("", "{}", ((action,) for action in actions)))
 
 
 @admin.register(SiteReview)
@@ -1529,11 +2202,80 @@ class OwnerTeamInvitationAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
     autocomplete_fields = ("owner", "invited_by", "invited_user")
 
 
+class PlaceChangeTypeFilter(admin.SimpleListFilter):
+    title = _("Тип изменения")
+    parameter_name = "change_kind"
+
+    GROUPS = {
+        "delete": (_("Удаление / восстановление"), {"deleted_at", "deleted_by_id"}),
+        "publication": (_("Публикация"), {"is_active"}),
+        "verification": (_("Проверка"), {"is_verified"}),
+        "location": (_("Локация"), {"lat", "lng", "district", "metro", "address"}),
+        "contacts": (_("Контакты"), {"phone1", "instagram", "website", "schedule"}),
+        "photos": (_("Фото"), {"cover_photo", "photo"}),
+        "owner": (_("Владелец"), {"owner_id"}),
+        "content": (
+            _("Данные карточки"),
+            {
+                "name",
+                "name_ru",
+                "name_az",
+                "name_en",
+                "description_ru",
+                "description_az",
+                "description_en",
+                "category",
+                "subcategory",
+                "age_from",
+                "age_to",
+                "price_from",
+                "price_to",
+                "price_per_lesson",
+                "price_per_month",
+                "price_per_8_lessons",
+                "lesson_duration_minutes",
+                "extra_conditions",
+                "additional_info",
+                "is_temporary",
+                "temporary_start",
+                "temporary_end",
+            },
+        ),
+    }
+
+    def lookups(self, request, model_admin):
+        return tuple((key, label) for key, (label, _field_names) in self.GROUPS.items())
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        group = self.GROUPS.get(value)
+        if not group:
+            return queryset
+        _label, field_names = group
+        return queryset.filter(field_name__in=field_names)
+
+
 @admin.register(PlaceChangeAudit)
 class PlaceChangeAuditAdmin(admin.ModelAdmin):
-    list_display = ("place", "field_name", "changed_by", "source", "created_at")
-    list_filter = ("source", "field_name", "created_at")
-    search_fields = ("place__name_ru", "place__name_en", "place__name_az", "changed_by__username", "field_name", "old_value", "new_value")
+    change_list_template = "admin/catalog/placechangeaudit/change_list.html"
+    list_select_related = ("place", "changed_by")
+    date_hierarchy = "created_at"
+    list_display = ("place_summary", "change_summary", "changed_by_summary", "source_badge", "created_at_display", "row_actions")
+    list_display_links = None
+    list_filter = (PlaceChangeTypeFilter, "source", "changed_by", "place", "created_at")
+    search_fields = (
+        "place__name_ru",
+        "place__name_en",
+        "place__name_az",
+        "place__slug",
+        "changed_by__username",
+        "changed_by__email",
+        "field_name",
+        "old_value",
+        "new_value",
+    )
     readonly_fields = ("place", "changed_by", "source", "field_name", "old_value", "new_value", "created_at")
     autocomplete_fields = ("place", "changed_by")
 
@@ -1545,6 +2287,266 @@ class PlaceChangeAuditAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    @staticmethod
+    def _truthy_audit_value(value) -> bool:
+        return str(value).strip().lower() in {"1", "true", "yes", "on", "да", "y"}
+
+    @staticmethod
+    def _audit_display_value(value) -> str:
+        if value is None:
+            return "—"
+        text = str(value).strip()
+        if not text:
+            return "—"
+        parsed_dt = parse_datetime(text)
+        if parsed_dt is not None:
+            if timezone.is_naive(parsed_dt):
+                return date_format(parsed_dt, "d.m.Y H:i")
+            return date_format(timezone.localtime(parsed_dt), "d.m.Y H:i")
+        if text in {"0", "1"}:
+            return _("Да") if text == "1" else _("Нет")
+        return text
+
+    @staticmethod
+    def _audit_user_value(value) -> str:
+        text = str(value).strip()
+        if not text:
+            return "—"
+        try:
+            user_id = int(text)
+        except (TypeError, ValueError):
+            return text
+        user = User.objects.filter(pk=user_id).only("username", "email").first()
+        if not user:
+            return text
+        if user.email and user.username:
+            return f"{user.username} · {user.email}"
+        return user.email or user.username or text
+
+    @staticmethod
+    def _audit_field_label(field_name: str) -> str:
+        labels = {
+            "deleted_at": _("Удаление"),
+            "deleted_by_id": _("Кто удалил"),
+            "is_active": _("Публикация"),
+            "is_verified": _("Проверка"),
+            "owner_id": _("Владелец"),
+            "lat": _("Координаты"),
+            "lng": _("Координаты"),
+            "district": _("Район"),
+            "metro": _("Метро"),
+            "address": _("Адрес"),
+            "phone1": _("Телефон"),
+            "instagram": _("Instagram"),
+            "website": _("Сайт"),
+            "schedule": _("Расписание"),
+            "lesson_duration_minutes": _("Длительность урока"),
+            "is_temporary": _("Тип события"),
+            "temporary_start": _("Начало события"),
+            "temporary_end": _("Окончание события"),
+            "price_from": _("Цена от"),
+            "price_to": _("Цена до"),
+            "price_per_lesson": _("Цена за 1 урок"),
+            "price_per_month": _("Цена за месяц"),
+            "price_per_8_lessons": _("Цена за 8 уроков"),
+            "extra_conditions": _("Дополнительные условия"),
+            "additional_info": _("Дополнительная информация"),
+            "cover_photo": _("Фото для шапки"),
+            "photo": _("Главное фото"),
+            "name": _("Название"),
+            "name_ru": _("Название (RU)"),
+            "name_az": _("Название (AZ)"),
+            "name_en": _("Название (EN)"),
+            "description_ru": _("Описание (RU)"),
+            "description_az": _("Описание (AZ)"),
+            "description_en": _("Описание (EN)"),
+            "category": _("Категория"),
+            "subcategory": _("Подкатегория"),
+            "age_from": _("Возраст от"),
+            "age_to": _("Возраст до"),
+        }
+        return labels.get(field_name, field_name)
+
+    def _audit_event_metadata(self, obj):
+        field_name = obj.field_name
+        old_value = obj.old_value
+        new_value = obj.new_value
+
+        if field_name in {"deleted_at", "deleted_by_id"}:
+            is_restore = not bool(str(new_value).strip())
+            return (
+                "restore" if is_restore else "delete",
+                "good" if is_restore else "warn",
+                _("Карточка восстановлена") if is_restore else _("Карточка перемещена в удалённые"),
+            )
+
+        if field_name == "is_active":
+            became_active = self._truthy_audit_value(new_value)
+            return (
+                "publication",
+                "good" if became_active else "warn",
+                _("Карточка опубликована") if became_active else _("Карточка снята с публикации"),
+            )
+
+        if field_name == "is_verified":
+            became_verified = self._truthy_audit_value(new_value)
+            return (
+                "verification",
+                "info" if became_verified else "muted",
+                _("Карточка помечена как проверенная") if became_verified else _("Снята отметка проверки"),
+            )
+
+        if field_name in {"lat", "lng"}:
+            return ("coordinates", "info", _("Координаты обновлены"))
+
+        if field_name in {"district", "metro", "address"}:
+            return ("location", "info", _("Локация карточки обновлена"))
+
+        if field_name in {"phone1", "instagram", "website", "schedule"}:
+            return ("contacts", "muted", _("Контакты карточки обновлены"))
+
+        if field_name in {"cover_photo", "photo"}:
+            return ("photos", "muted", _("Фото карточки обновлены"))
+
+        if field_name in {
+            "name",
+            "name_ru",
+            "name_az",
+            "name_en",
+            "description_ru",
+            "description_az",
+            "description_en",
+            "category",
+            "subcategory",
+            "age_from",
+            "age_to",
+            "price_from",
+            "price_to",
+            "price_per_lesson",
+            "price_per_month",
+            "price_per_8_lessons",
+            "lesson_duration_minutes",
+            "extra_conditions",
+            "additional_info",
+        }:
+            return ("content", "muted", _("Изменены данные карточки"))
+
+        if field_name == "owner_id":
+            return ("owner", "info", _("Изменён владелец карточки"))
+
+        return ("other", "muted", _("Изменено поле карточки"))
+
+    def _audit_value_pair(self, obj) -> str:
+        field_label = self._audit_field_label(obj.field_name)
+        old_value = self._audit_display_value(obj.old_value)
+        new_value = self._audit_display_value(obj.new_value)
+        if obj.field_name == "deleted_at":
+            if self._truthy_audit_value(obj.new_value):
+                return _("Служебное поле удаления: %(value)s") % {"value": new_value}
+            return _("Служебное поле удаления очищено")
+        if obj.field_name == "deleted_by_id":
+            old_value = self._audit_user_value(obj.old_value)
+            new_value = self._audit_user_value(obj.new_value)
+            if self._truthy_audit_value(obj.new_value):
+                return _("Удалил: %(value)s") % {"value": new_value}
+            return _("Удаливший пользователь очищен")
+        if obj.field_name == "owner_id":
+            old_value = self._audit_user_value(obj.old_value)
+            new_value = self._audit_user_value(obj.new_value)
+        if old_value == new_value:
+            return _("Значение не изменилось")
+        return _("%(field)s: %(old)s → %(new)s") % {
+            "field": field_label,
+            "old": old_value,
+            "new": new_value,
+        }
+
+    @admin.display(description=_("Карточка"))
+    def place_summary(self, obj):
+        if not obj.place_id:
+            return "-"
+        edit_url = reverse("admin:catalog_place_change", args=[obj.place_id], current_app=self.admin_site.name)
+        meta_bits = [obj.place.get_category_display()]
+        if obj.place.district:
+            meta_bits.append(obj.place.district)
+        meta = " · ".join(bit for bit in meta_bits if bit)
+        return format_html(
+            '<div class="km-admin-stack">'
+            '<a class="km-audit-place-link" href="{}">{}</a>'
+            '{}'
+            "</div>",
+            edit_url,
+            obj.place,
+            format_html('<span class="km-admin-meta">{}</span>', meta) if meta else "",
+        )
+
+    @admin.display(description=_("Изменение"))
+    def change_summary(self, obj):
+        _kind, tone, label = self._audit_event_metadata(obj)
+        return format_html(
+            '<div class="km-admin-stack">'
+            '<div class="km-admin-badges">'
+            '<span class="km-admin-badge km-audit-kind km-audit-kind--{}">{}</span>'
+            "</div>"
+            '<span class="km-admin-title">{}</span>'
+            '<span class="km-admin-meta">{}</span>'
+            "</div>",
+            tone,
+            label,
+            self._audit_field_label(obj.field_name),
+            self._audit_value_pair(obj),
+        )
+
+    @admin.display(description=_("Кто изменил"))
+    def changed_by_summary(self, obj):
+        if not obj.changed_by_id:
+            return format_html('<div class="km-admin-stack"><span class="km-admin-title">{}</span></div>', _("Система"))
+        meta = obj.changed_by.email or obj.changed_by.get_full_name() or ""
+        return format_html(
+            '<div class="km-admin-stack">'
+            '<span class="km-admin-title">{}</span>'
+            '{}'
+            "</div>",
+            obj.changed_by.get_username(),
+            format_html('<span class="km-admin-meta">{}</span>', meta) if meta else "",
+        )
+
+    @admin.display(description=_("Источник"))
+    def source_badge(self, obj):
+        source_label = obj.get_source_display()
+        tone = {
+            PlaceChangeAudit.SOURCE_OWNER_PANEL: "good",
+            PlaceChangeAudit.SOURCE_ADMIN: "info",
+            PlaceChangeAudit.SOURCE_SYSTEM: "muted",
+        }.get(obj.source, "muted")
+        return format_html(
+            '<span class="km-admin-badge km-audit-source km-audit-source--{}">{}</span>',
+            tone,
+            source_label,
+        )
+
+    @admin.display(description=_("Когда"))
+    def created_at_display(self, obj):
+        return date_format(timezone.localtime(obj.created_at), "d F Y, H:i")
+
+    @admin.display(description=_("Действия"))
+    def row_actions(self, obj):
+        edit_url = reverse("admin:catalog_place_change", args=[obj.place_id], current_app=self.admin_site.name)
+        actions = [
+            format_html('<a class="button km-audit-action" href="{}">{}</a>', edit_url, _("Редактировать")),
+        ]
+        if obj.place.is_deleted:
+            actions.append(format_html('<span class="km-admin-meta">{}</span>', _("В каталоге скрыта")))
+        else:
+            actions.append(
+                format_html(
+                    '<a class="button km-audit-action km-audit-action--secondary" href="{}" target="_blank" rel="noopener">{}</a>',
+                    obj.place.get_absolute_url(),
+                    _("Открыть"),
+                )
+            )
+        return format_html('<div class="km-audit-actions">{}</div>', format_html_join("", "{}", ((action,) for action in actions)))
 
 
 class PlaceOwnershipRequestAuditInline(admin.TabularInline):

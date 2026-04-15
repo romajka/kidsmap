@@ -1,7 +1,7 @@
 {% load i18n static %}
 {% get_current_language as CURRENT_LANGUAGE %}
 <!doctype html>
-<html lang="{% firstof CURRENT_LANGUAGE LANGUAGE_CODE 'ru' %}">
+<html lang="{% firstof CURRENT_LANGUAGE LANGUAGE_CODE 'az' %}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,13 +23,13 @@
     <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}KidsMap{% endblock %}{% endblock %}{% endblock %}" />
     <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
     <meta property="og:url" content="{{ canonical_url }}" />
-    {% block og_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.png' %}" />{% endblock %}
+    {% block og_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}" />{% endblock %}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}KidsMap{% endblock %}{% endblock %}" />
     <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
-    {% block twitter_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.png' %}" />{% endblock %}
-    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}" />
-    <link rel="apple-touch-icon" href="{% static 'img/logo.png' %}" />
+    {% block twitter_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}" />{% endblock %}
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}" />
+    <link rel="apple-touch-icon" href="{% static 'img/logo.svg' %}" />
     {% if google_analytics_enabled %}
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_measurement_id|urlencode }}"></script>
       <script>
@@ -57,7 +57,7 @@
     <div class="site-shell">
       <header class="topbar">
         <a class="brand-wrap" href="{% url 'home' %}">
-          <span class="logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.png' %}{% endif %}');" aria-hidden="true"></span>
+          <span class="logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}');" aria-hidden="true"></span>
           <span class="brand">{{ brand_name }}</span>
         </a>
 
@@ -134,7 +134,7 @@
                 </summary>
                 <div class="auth-dropdown menu-dropdown">
                   <a
-                    class="auth-pill auth-pill-primary {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}active{% endif %}"
+                    class="auth-pill {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}active{% endif %}"
                     href="{% url 'account_profile' %}"
                     {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}aria-current="page"{% endif %}
                   >{% trans "Личный кабинет" %}</a>
@@ -217,7 +217,7 @@
         <div class="footer-grid">
           <section class="footer-brand-block">
             <a class="footer-brand-link" href="{% url 'home' %}">
-              <span class="logo-slot footer-logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.png' %}{% endif %}');" aria-hidden="true"></span>
+              <span class="logo-slot footer-logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}');" aria-hidden="true"></span>
               <span class="footer-brand-name">{{ brand_name }}</span>
             </a>
             <p class="footer-brand-copy">{{ site_about_text }}</p>
@@ -240,10 +240,10 @@
             <h3>{% trans "Контакты" %}</h3>
             <div class="footer-contact-list">
               {% if footer_phone %}
-                <a href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
+                <a class="icon-btn icon-phone" href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
               {% endif %}
               {% if footer_email %}
-                <a href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+                <a class="icon-btn icon-mail" href="mailto:{{ footer_email }}">{{ footer_email }}</a>
               {% endif %}
               {% if footer_whatsapp_url %}
                 <a href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>
@@ -263,7 +263,9 @@
 
         <div class="footer-bottom-row">
           <p>© {% now "Y" %} KidsMap</p>
-          <a class="footer-bottom-link" href="#top">{% trans "Наверх" %}</a>
+          <a class="footer-bottom-link icon-only-link" href="#top">
+            <span class="visually-hidden">{% trans "Наверх" %}</span>
+          </a>
         </div>
       </footer>
     </div>

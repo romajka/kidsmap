@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_admin.css' %}?v=font-20260404-1" />
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_admin.css' %}?v=theme-20260415-8" />
 {% endblock %}
 
 {% block branding %}
@@ -11,15 +11,23 @@
 {% endblock %}
 
 {% block userlinks %}
-  <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch">
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-    <button type="submit" name="language" value="ru" class="km-admin-lang-btn">RU</button>
-    <span class="km-admin-userlinks-sep">/</span>
-    <button type="submit" name="language" value="az" class="km-admin-lang-btn">AZ</button>
-    <span class="km-admin-userlinks-sep">/</span>
-    <button type="submit" name="language" value="en" class="km-admin-lang-btn">EN</button>
-  </form>
+  <div class="km-admin-lang-switch">
+    {% for item in admin_language_switch_items %}
+      <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch-form">
+        {% csrf_token %}
+        <input type="hidden" name="language" value="{{ item.code }}" />
+        <input type="hidden" name="next" value="{{ item.url }}" />
+        <button
+          type="submit"
+          class="km-admin-lang-btn{% if item.active %} is-active{% endif %}"
+          {% if item.active %}aria-current="true"{% endif %}
+        >{{ item.code|upper }}</button>
+      </form>
+      {% if not forloop.last %}
+        <span class="km-admin-userlinks-sep">/</span>
+      {% endif %}
+    {% endfor %}
+  </div>
   {% if ownership_pending_count %}
     <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}" class="km-admin-pending-pill">
       {% blocktranslate with count=ownership_pending_count %}На рассмотрении: {{ count }}{% endblocktranslate %}

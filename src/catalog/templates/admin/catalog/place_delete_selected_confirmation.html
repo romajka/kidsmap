@@ -24,6 +24,9 @@
       Выбранные кружки будут перемещены в раздел удаленных. Они исчезнут с сайта, но останутся в базе и их можно будет восстановить из админки.
     {% endblocktranslate %}
   </p>
+  {% if undo_hint %}
+    <p>{{ undo_hint }}</p>
+  {% endif %}
   <h2>{% translate "Objects" %}</h2>
   <ul>
     {% for obj in queryset %}

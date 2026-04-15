@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from django.core.paginator import Paginator
 from django.db.models import Avg
+from django.db.models.functions import Trim
 from django.http import HttpRequest
 
 from catalog.interfaces.repositories import ISiteReviewRepository
@@ -25,14 +26,23 @@ class SiteReviewsController:
     def build_default(cls) -> "SiteReviewsController":
         return cls(review_repository=DjangoSiteReviewRepository())
 
+    def _visible_reviews_queryset(self):
+        return (
+            self.review_repository.approved_queryset()
+            .annotate(text_trimmed=Trim("text"))
+            .exclude(text_trimmed="")
+            .exclude(text_trimmed__isnull=True)
+        )
+
     def build_context(self, request: HttpRequest) -> dict:
         review_sort = normalize_review_sort(request.GET.get("sort"))
-        reviews_qs = apply_review_sorting(self.review_repository.approved_queryset(), review_sort)
+        visible_reviews_qs = self._visible_reviews_queryset()
+        reviews_qs = apply_review_sorting(visible_reviews_qs, review_sort)
         paginator = Paginator(reviews_qs, 12)
         page_obj = paginator.get_page(request.GET.get("page"))
         reviews = mark_site_review_reactions(page_obj.object_list, request)
 
-        base_qs = self.review_repository.approved_queryset()
+        base_qs = visible_reviews_qs
         review_avg = base_qs.aggregate(avg=Avg("rating")).get("avg") or 0
         review_count = base_qs.count()
         seo_payload = build_site_reviews_seo_payload(request=request, review_count=review_count)

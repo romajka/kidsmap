@@ -1,0 +1,111 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static admin_list %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=place-20260415-1" defer></script>
+{% endblock %}
+
+{% block search %}
+  <section class="km-place-intro km-place-intro--search">
+    <div class="km-place-intro__copy">
+      <h2>{% translate "Управление карточками" %}</h2>
+      <p>
+        {% blocktranslate trimmed %}
+          Основные статусы и проблемные карточки вынесены в быстрые фильтры. Удаление работает мягко: карточка исчезает с сайта, но остаётся в базе и может быть восстановлена.
+        {% endblocktranslate %}
+      </p>
+    </div>
+    <form id="changelist-search" method="get" role="search" class="km-place-search-panel" aria-labelledby="changelist-search-heading">
+      <h3 id="changelist-search-heading" class="km-place-search-panel__title">{% translate "Поиск по карточкам" %}</h3>
+      <p class="km-place-search-panel__hint">
+        {% translate "Ищите по названию, адресу, телефону, Instagram или владельцу." %}
+      </p>
+      <div class="km-place-search-panel__row">
+        <div class="km-place-search-panel__field">
+          <span class="km-place-search-panel__icon" aria-hidden="true">⌕</span>
+          <label class="visually-hidden" for="searchbar">{% translate "Поиск" %}</label>
+          <input
+            type="text"
+            name="q"
+            value="{{ cl.query }}"
+            id="searchbar"
+            class="km-place-search-panel__input"
+            placeholder="{% translate 'По названию, адресу, телефону или владельцу' %}"
+            {% if cl.search_help_text %}aria-describedby="searchbar_helptext"{% endif %}
+          >
+        </div>
+        <button type="submit" class="button default km-place-search-panel__submit">{% translate "Найти" %}</button>
+      </div>
+      <p class="km-place-search-panel__meta">
+        {% blocktranslate count counter=cl.result_count trimmed %}
+          Найдена {{ counter }} карточка
+        {% plural %}
+          Найдено {{ counter }} карточек
+        {% endblocktranslate %}
+        {% if cl.show_full_result_count %}
+          · {% blocktranslate with full_result_count=cl.full_result_count trimmed %}{{ full_result_count }} всего{% endblocktranslate %}
+        {% endif %}
+      </p>
+      {% if cl.search_help_text %}
+        <div class="help km-place-search-panel__help" id="searchbar_helptext">{{ cl.search_help_text }}</div>
+      {% endif %}
+      {% for pair in cl.params.items %}
+        {% if pair.0 != 'q' %}
+          <input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">
+        {% endif %}
+      {% endfor %}
+    </form>
+    <div class="km-place-quick-filters" aria-label="{% translate 'Быстрые фильтры' %}">
+      {% for item in place_quick_filters %}
+        <a
+          href="{{ item.url|default:'?' }}"
+          class="km-place-quick-filter{% if item.active %} is-active{% endif %}"
+          {% if item.active %}aria-current="true"{% endif %}
+        >{{ item.label }}</a>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block result_list %}
+  <section
+    class="km-place-bulk-bar"
+    data-empty-label="{% translate 'Выберите карточки, чтобы массовые действия стали доступны.' %}"
+    data-selected-label="{% translate 'Выбрано карточек: {count}' %}"
+  >
+    <div class="km-place-bulk-bar__summary">
+      <strong class="km-place-bulk-bar__count">0</strong>
+      <span class="km-place-bulk-bar__text">{% translate "Выберите карточки, чтобы массовые действия стали доступны." %}</span>
+    </div>
+    <div class="km-place-bulk-bar__controls">
+      <div class="km-place-bulk-bar__selection">
+        <button type="button" class="button" data-bulk-select="page">{% translate "Выбрать все на странице" %}</button>
+        <button type="button" class="button" data-bulk-select="clear">{% translate "Снять выделение" %}</button>
+      </div>
+      <div class="km-place-bulk-bar__actions" role="group" aria-label="{% translate 'Массовые действия' %}">
+        {% for item in place_bulk_actions %}
+          <button
+            type="button"
+            class="button km-place-bulk-action km-place-bulk-action--{{ item.tone }}"
+            data-action="{{ item.name }}"
+            {% if item.confirm %}data-confirm="{{ item.confirm }}"{% endif %}
+            title="{{ item.description }}"
+            disabled
+          >{{ item.label }}</button>
+        {% endfor %}
+      </div>
+    </div>
+    <p class="km-place-bulk-bar__note">
+      {% translate "Опасные действия отделены отдельно. Для перемещения в удалённые и восстановления будет запрошено подтверждение." %}
+    </p>
+  </section>
+
+  {% if action_form and actions_on_top and cl.show_admin_actions %}
+    <div class="km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
+  {% endif %}
+  {% result_list cl %}
+  {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+    <div class="km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
+  {% endif %}
+{% endblock %}

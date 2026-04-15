@@ -147,7 +147,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # i18n / l10n
-LANGUAGE_CODE = "ru"  # базовый язык
+LANGUAGE_CODE = "az"  # базовый язык сайта без URL-префикса
 LANGUAGES = [
     ("ru", "Русский"),
     ("az", "Azərbaycan"),

@@ -8,7 +8,7 @@ from django.views.generic.base import RedirectView
 from django.views.static import serve as serve_static_file
 
 from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap
-from config.views import robots_txt, healthz
+from config.views import robots_txt, healthz, redirect_legacy_default_language_prefix
 
 sitemaps = {
     "static": StaticViewSitemap,
@@ -17,16 +17,22 @@ sitemaps = {
 }
 
 urlpatterns = [
-    path("favicon.ico", RedirectView.as_view(url="/static/img/logo.png", permanent=False)),
+    path("favicon.ico", RedirectView.as_view(url="/static/img/logo.svg", permanent=False)),
     path("i18n/", include("django.conf.urls.i18n")),  # set_language endpoint
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
     path("robots.txt", robots_txt, name="robots_txt"),
     path("healthz", healthz, name="healthz"),
+    re_path(
+        rf"^{(settings.LANGUAGE_CODE or 'az').split('-')[0]}(?:/(?P<path>.*))?$",
+        redirect_legacy_default_language_prefix,
+        name="legacy_default_language_redirect",
+    ),
 ]
 
 urlpatterns += i18n_patterns(
     path("admin/", admin.site.urls),
     path("", include("catalog.urls")),
+    prefix_default_language=False,
 )
 
 if settings.DEBUG:

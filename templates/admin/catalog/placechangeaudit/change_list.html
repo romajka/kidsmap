@@ -1,0 +1,23 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="module km-audit-intro">
+    <div class="km-audit-intro-copy">
+      <h2>{% trans "История изменений карточек" %}</h2>
+      <p>
+        {% trans "Каждая строка показывает одно изменение поля. Удаление, восстановление, публикация и обновление локации выделены отдельными метками, чтобы журнал читался быстрее." %}
+      </p>
+      <p class="km-admin-meta">
+        {% trans "Используйте поиск по названию карточки или пользователю, а справа — быстрые фильтры по типу, источнику и дате." %}
+      </p>
+    </div>
+    <div class="km-audit-legend">
+      <span class="km-admin-badge km-audit-kind km-audit-kind--warn">{% trans "Удаление" %}</span>
+      <span class="km-admin-badge km-audit-kind km-audit-kind--good">{% trans "Восстановление" %}</span>
+      <span class="km-admin-badge km-audit-kind km-audit-kind--info">{% trans "Локация" %}</span>
+      <span class="km-admin-badge km-audit-kind km-audit-kind--muted">{% trans "Изменение данных" %}</span>
+    </div>
+  </div>
+  {{ block.super }}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block form_top %}
+  {% if original %}
+    <section class="km-review-detail">
+      <div class="km-review-detail__head">
+        <h2>{% translate "Полный текст отзыва" %}</h2>
+        <div class="km-place-row-actions">
+          <a class="km-admin-action km-admin-action--secondary" href="{% url 'admin:catalog_place_change' original.place_id %}">{% translate "К карточке кружка" %}</a>
+          <a class="km-admin-action km-admin-action--secondary" href="{{ original.place.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Открыть кружок на сайте" %}</a>
+        </div>
+      </div>
+      <div class="km-review-detail__body">
+        {% if original.text %}
+          <blockquote class="km-review-detail__quote">{{ original.text }}</blockquote>
+        {% else %}
+          <p class="km-admin-meta">{% translate "Этот отзыв содержит только оценку без комментария." %}</p>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

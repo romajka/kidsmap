@@ -105,6 +105,7 @@ def _build_social_links(*, cfg):
 
 def seo_urls(request):
     lang_codes = [code for code, _ in settings.LANGUAGES]
+    default_lang = (settings.LANGUAGE_CODE or "az").split("-")[0]
     current_lang = (get_language() or settings.LANGUAGE_CODE).split("-")[0]
 
     path = request.path
@@ -120,7 +121,7 @@ def seo_urls(request):
 
     canonical_url = request.build_absolute_uri(path)
     alternate_urls = {
-        code: request.build_absolute_uri(f"/{code}{base_path}")
+        code: request.build_absolute_uri(base_path if code == default_lang else f"/{code}{base_path}")
         for code in lang_codes
     }
 
@@ -144,7 +145,7 @@ def seo_urls(request):
     return {
         "canonical_url": canonical_url,
         "alternate_urls": alternate_urls,
-        "x_default_url": alternate_urls.get(settings.LANGUAGE_CODE, canonical_url),
+        "x_default_url": alternate_urls.get(default_lang, canonical_url),
         "current_lang_code": current_lang,
         "robots_content": robots_content,
         "og_locale": og_locale,
@@ -183,20 +184,21 @@ def site_settings(request):
         cfg = None
 
     if cfg is None:
-        lang = (request.LANGUAGE_CODE or "ru").split("-")[0]
+        lang = (request.LANGUAGE_CODE or settings.LANGUAGE_CODE or "az").split("-")[0]
         footer_social_links = _build_social_links(cfg=None)
         schema_payload = build_sitewide_schema_payload(
             request=request,
             site_name="KidsMap",
-            logo_url=static("img/logo.png"),
+            logo_url=static("img/logo.svg"),
             social_urls=[item["url"] for item in footer_social_links],
         )
+        default_lang = (settings.LANGUAGE_CODE or "az").split("-")[0]
         return {
             "site_settings": None,
             "brand_name": "KidsMap",
-            "site_about_text": ABOUT_DEFAULTS.get(lang, ABOUT_DEFAULTS["ru"]),
-            "site_contacts_text": CONTACTS_DEFAULTS.get(lang, CONTACTS_DEFAULTS["ru"]),
-            "site_empty_results_text": EMPTY_DEFAULTS.get(lang, EMPTY_DEFAULTS["ru"]),
+            "site_about_text": ABOUT_DEFAULTS.get(lang, ABOUT_DEFAULTS[default_lang]),
+            "site_contacts_text": CONTACTS_DEFAULTS.get(lang, CONTACTS_DEFAULTS[default_lang]),
+            "site_empty_results_text": EMPTY_DEFAULTS.get(lang, EMPTY_DEFAULTS[default_lang]),
             "footer_phone": DEFAULT_FOOTER_PHONE,
             "footer_email": DEFAULT_FOOTER_EMAIL,
             "footer_instagram_url": DEFAULT_FOOTER_INSTAGRAM_URL,
@@ -209,10 +211,10 @@ def site_settings(request):
             **user_role_data,
         }
 
-    lang = (request.LANGUAGE_CODE or "ru").split("-")[0]
+    lang = (request.LANGUAGE_CODE or settings.LANGUAGE_CODE or "az").split("-")[0]
     contacts_text = cfg.contacts_text_i18n(request.LANGUAGE_CODE)
     if not contacts_text:
-        contacts_text = CONTACTS_DEFAULTS.get(lang, CONTACTS_DEFAULTS["ru"])
+        contacts_text = CONTACTS_DEFAULTS.get(lang, CONTACTS_DEFAULTS[(settings.LANGUAGE_CODE or "az").split("-")[0]])
     elif "kidsmap@example.com" in contacts_text:
         contacts_text = contacts_text.replace("kidsmap@example.com", DEFAULT_FOOTER_EMAIL)
 
@@ -231,7 +233,7 @@ def site_settings(request):
         footer_phone = DEFAULT_FOOTER_PHONE
 
     footer_social_links = _build_social_links(cfg=cfg)
-    logo_url = cfg.logo.url if getattr(cfg, "logo", None) else static("img/logo.png")
+    logo_url = cfg.logo.url if getattr(cfg, "logo", None) else static("img/logo.svg")
     schema_payload = build_sitewide_schema_payload(
         request=request,
         site_name=cfg.brand_name or "KidsMap",

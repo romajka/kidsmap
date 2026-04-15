@@ -39,7 +39,7 @@ class HomeController:
         content_settings = self.settings_repository.get_catalog_settings()
         site_settings = self.settings_repository.get_site_settings()
 
-        popular_places = list(self.place_repository.top_popular(limit=4))
+        popular_places = list(self.place_repository.top_popular(limit=3))
         mark_liked_flags(popular_places, liked_ids)
 
         map_places = [
@@ -71,7 +71,9 @@ class HomeController:
         ]
 
         site_reviews_qs = self.review_repository.approved_queryset()
+        site_reviews_teaser_qs = site_reviews_qs.filter(text__isnull=False).exclude(text="")
         site_reviews = mark_site_review_reactions(site_reviews_qs[:4], request)
+        site_reviews_teaser = mark_site_review_reactions(site_reviews_teaser_qs[:2], request)
         site_reviews_avg = site_reviews_qs.aggregate(avg=Avg("rating")).get("avg") or 0
         site_reviews_count = site_reviews_qs.count()
         seo_payload = build_home_seo_payload(request=request, popular_places=popular_places)
@@ -96,6 +98,7 @@ class HomeController:
             "popular_places": popular_places,
             "map_places": map_places,
             "site_reviews": site_reviews,
+            "site_reviews_teaser": site_reviews_teaser,
             "site_reviews_avg": float(site_reviews_avg),
             "site_reviews_count": site_reviews_count,
             "google_maps_api_key": google_maps_api_key,

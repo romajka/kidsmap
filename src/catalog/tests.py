@@ -12,6 +12,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
+from django.utils.translation import override
 
 from catalog.forms import OwnerPlaceCreateForm
 from catalog.interfaces.geocoding import GeocodingPoint
@@ -57,37 +58,43 @@ class StubGeocodingRepository:
 
 class TestPublicPagesSmoke(TestCase):
     def test_home_page_opens_with_i18n_redirect(self):
-        response = self.client.get("/", follow=True)
+        response = self.client.get("/")
+
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(response.redirect_chain[-1][0], "/ru/")
+        self.assertContains(response, '<html lang="az">', html=False)
+
+    def test_legacy_az_urls_redirect_to_default_language_without_prefix(self):
+        response = self.client.get("/az/catalog/", {"category": "EDU"})
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], "/catalog/?category=EDU")
 
     def test_catalog_page_opens_with_i18n_redirect(self):
-        response = self.client.get("/catalog/", follow=True)
+        response = self.client.get("/catalog/")
+
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(response.redirect_chain[-1][0], "/ru/catalog/")
+        self.assertContains(response, '<html lang="az">', html=False)
 
     def test_site_reviews_page_opens_with_i18n_redirect(self):
-        response = self.client.get("/reviews/", follow=True)
+        response = self.client.get("/reviews/")
+
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(response.redirect_chain[-1][0], "/ru/reviews/")
+        self.assertContains(response, '<html lang="az">', html=False)
 
     def test_admin_page_opens_login(self):
         response = self.client.get("/admin/", follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.redirect_chain)
-        self.assertIn("/ru/admin/login/", response.redirect_chain[-1][0])
+        self.assertIn("/admin/login/", response.redirect_chain[-1][0])
 
     def test_contacts_page_shows_public_phone(self):
-        response = self.client.get("/contacts/", follow=True)
+        response = self.client.get("/contacts/")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "+994 50 540 66 39")
 
     def test_contacts_page_shows_public_social_links(self):
-        response = self.client.get("/contacts/", follow=True)
+        response = self.client.get("/contacts/")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "https://t.me/KidsMap_az")
@@ -104,7 +111,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "icon-linkedin")
 
     def test_about_page_shows_extended_project_description(self):
-        response = self.client.get("/about/", follow=True)
+        response = self.client.get("/ru/about/", follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Что такое KidsMap")
@@ -155,6 +162,26 @@ class TestPublicPagesSmoke(TestCase):
         self.assertNotContains(response, "Результаты на карте")
         self.assertNotContains(response, "Интерактивная карта станет доступна после настройки Google Maps.")
 
+    def test_az_catalog_page_localizes_catalog_seo_strings(self):
+        response = self.client.get("/catalog/")
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertIn('<html lang="az">', content)
+        self.assertIn("Bakıda uşaqlar üçün dərnəklər və məşğələlər kataloqu", content)
+        self.assertNotIn("Каталог кружков и секций для детей в Баку", content)
+        self.assertNotIn("Найдено %(total)s карточек", content)
+
+    def test_en_catalog_page_localizes_catalog_seo_strings(self):
+        response = self.client.get("/en/catalog/")
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertIn('<html lang="en">', content)
+        self.assertIn("Catalog of clubs and activities for kids in Baku", content)
+        self.assertNotIn("Каталог кружков и секций для детей в Баку", content)
+        self.assertNotIn("Найдено %(total)s карточек", content)
+
     def test_en_home_title_is_localized(self):
         response = self.client.get("/en/")
 
@@ -172,6 +199,32 @@ class TestPublicPagesSmoke(TestCase):
         self.assertIn("Leave a site review", content)
         self.assertNotIn(">Применить<", content)
         self.assertNotIn("Оставить отзыв о сайте", content)
+
+    def test_az_home_page_translates_faq_supporting_cards(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Bu bölmə nə haqqındadır")
+        self.assertContains(response, "Sürətli axtarış")
+        self.assertContains(response, "Rəylər və like-lar")
+        self.assertNotContains(response, "О чём этот раздел")
+
+    def test_az_reviews_page_translates_reaction_helper(self):
+        response = self.client.get("/reviews/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Rəylər məhz KidsMap haqqındadır")
+        self.assertContains(response, "Bir kliklə like və dislike")
+        self.assertNotContains(response, "Лайк и дизлайк в один клик")
+
+    def test_az_contacts_page_uses_azerbaijani_contact_helpers(self):
+        response = self.client.get("/contacts/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sizin üçün uyğun əlaqə üsulunu seçin: zəng, email və ya WhatsApp.")
+        self.assertContains(response, "KidsMap yeniliklərini öyrəşdiyiniz kanallardan izləyin.")
+        self.assertContains(response, "Saytın əsas bölmələrinə sürətli keçidlər.")
+        self.assertNotContains(response, "Выберите удобный способ связи: звонок, email или WhatsApp.")
 
     def test_register_page_hides_role_selector(self):
         response = self.client.get("/ru/auth/register/")
@@ -224,6 +277,21 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.js")
         self.assertContains(response, "home-map-data")
 
+    def test_home_page_limits_recommended_places_to_three_cards(self):
+        for idx in range(4):
+            Place.objects.create(
+                name=f"Popular Place {idx + 1}",
+                name_ru=f"Популярный кружок {idx + 1}",
+                category="EDU",
+                is_active=True,
+                likes_count=10 - idx,
+            )
+
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["popular_places"]), 3)
+
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     def test_home_page_prefers_google_maps_when_key_is_configured(self):
         Place.objects.create(
@@ -252,12 +320,23 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, 'gtag("config", "G\\u002DTEST123")')
 
     def test_home_page_includes_website_schema_with_search_action(self):
-        response = self.client.get("/ru/")
+        response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '"@type": "WebSite"', html=False)
         self.assertContains(response, '"SearchAction"', html=False)
-        self.assertContains(response, "/ru/catalog/?q={search_term_string}", html=False)
+        self.assertContains(response, "/catalog/?q={search_term_string}", html=False)
+
+    def test_home_page_shows_only_text_site_reviews_in_teaser(self):
+        SiteReview.objects.create(author_name="No Text", rating=4, text="")
+        SiteReview.objects.create(author_name="With Text", rating=5, text="Очень полезный сервис для родителей.")
+
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["site_reviews_teaser"]), 1)
+        self.assertContains(response, "Очень полезный сервис для родителей.")
+        self.assertNotContains(response, "Пользователь оставил оценку без текстового комментария.")
 
     def test_login_page_is_marked_noindex(self):
         response = self.client.get("/ru/auth/login/")
@@ -305,9 +384,10 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/robots.txt")
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Disallow: /auth/")
+        self.assertContains(response, "Disallow: /account/")
+        self.assertContains(response, "Disallow: /admin/")
         self.assertContains(response, "Disallow: /ru/auth/")
-        self.assertContains(response, "Disallow: /ru/account/")
-        self.assertContains(response, "Disallow: /ru/admin/")
         self.assertContains(response, "Sitemap: http://testserver/sitemap.xml")
 
     def test_home_map_popup_uses_main_photo_preview(self):
@@ -531,6 +611,17 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertNotContains(response, "Группы")
         self.assertNotContains(response, "Аудит заявок на владение")
 
+    def test_admin_language_switcher_uses_language_specific_next_urls(self):
+        response = self.client.get("/ru/admin/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="language" value="ru"', html=False)
+        self.assertContains(response, 'name="next" value="http://testserver/ru/admin/"', html=False)
+        self.assertContains(response, 'name="language" value="az"', html=False)
+        self.assertContains(response, 'name="next" value="http://testserver/admin/"', html=False)
+        self.assertContains(response, 'name="language" value="en"', html=False)
+        self.assertContains(response, 'name="next" value="http://testserver/en/admin/"', html=False)
+
     @override_settings(
         GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123",
         GOOGLE_ANALYTICS_PROPERTY_ID="123456789",
@@ -623,14 +714,53 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Есть координаты")
-        self.assertContains(response, "Нужны координаты")
-        self.assertContains(response, "Готово для карты")
-        self.assertContains(response, "Не готово для карты")
+        content = response.content.decode("utf-8")
+        self.assertTrue("Есть координаты" in content or "Koordinatlar var" in content)
+        self.assertTrue("Нужны координаты" in content or "Koordinatlar tələb olunur" in content)
+        self.assertTrue("Готово для карты" in content or "Xəritə üçün hazırdır" in content)
+        self.assertTrue("Не готово для карты" in content or "Xəritə üçün hazır deyil" in content)
         self.assertContains(response, "Локация")
         self.assertContains(response, "Публикация")
         self.assertContains(response, "Вовлеченность")
         self.assertContains(response, "admin/css/kidsmap_admin.css")
+
+    def test_place_admin_changelist_shows_bulk_bar_quick_filters_and_row_actions(self):
+        deleted_place = Place.objects.create(
+            name="Deleted place",
+            name_ru="Удалённая карточка",
+            category="EDU",
+            slug="deleted-place",
+            is_active=True,
+        )
+        deleted_place.soft_delete(deleted_by=self.superuser)
+
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "km-place-bulk-bar")
+        self.assertContains(response, "Выберите карточки, чтобы массовые действия стали доступны.")
+        self.assertContains(response, 'data-action="move_selected_to_deleted"', html=False)
+        self.assertContains(response, 'data-action="restore_selected"', html=False)
+        self.assertContains(response, "Выбрать все на странице")
+        self.assertContains(response, "Снять выделение")
+        self.assertContains(response, "Опубликованы")
+        self.assertContains(response, "В удалённых")
+        self.assertContains(response, "Без координат")
+        self.assertContains(response, reverse("admin:catalog_place_delete", args=[self.place.id]))
+        self.assertContains(response, reverse("admin:catalog_place_restore", args=[deleted_place.id]))
+        self.assertContains(response, "km-place-row-actions")
+        self.assertContains(response, "В удалённые")
+        self.assertContains(response, "Восстановить")
+
+    def test_place_admin_changelist_uses_compact_search_panel(self):
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "km-place-search-panel")
+        self.assertContains(response, "Поиск по карточкам")
+        self.assertContains(response, "Найти")
+        self.assertContains(response, "карточка")
+        self.assertNotContains(response, 'id="toolbar"', html=False)
 
     def test_place_admin_change_form_shows_coordinate_refresh_button(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
@@ -696,9 +826,27 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertIsNotNone(self.place.deleted_at)
         self.assertFalse(self.place.is_active)
         self.assertEqual(self.place.deleted_by, self.superuser)
-        self.assertContains(response, "перемещен в удаленные")
+        self.assertContains(response, "перемещена в удалённые")
         public_response = self.client.get(self.place.get_absolute_url(), follow=True)
         self.assertEqual(public_response.status_code, 404)
+
+    def test_place_admin_restore_view_confirms_and_restores_place(self):
+        self.place.soft_delete(deleted_by=self.superuser)
+        restore_url = reverse("admin:catalog_place_restore", args=[self.place.id])
+
+        response = self.client.get(restore_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "будет восстановлена из раздела удалённых")
+        self.assertContains(response, "Восстановить карточку")
+
+        post_response = self.client.post(restore_url, follow=True)
+
+        self.assertEqual(post_response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertIsNone(self.place.deleted_at)
+        self.assertFalse(self.place.is_active)
+        self.assertContains(post_response, "восстановлена из удалённых и оставлена неактивной")
 
     def test_place_admin_bulk_move_to_deleted_and_restore(self):
         confirm_response = self.client.post(
@@ -726,7 +874,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         self.place.refresh_from_db()
         self.assertIsNotNone(self.place.deleted_at)
-        self.assertContains(response, "В удаленные перемещен 1 кружок")
+        self.assertContains(response, "В удалённые перемещена 1 карточка")
 
         deleted_list_response = self.client.get(
             reverse("admin:catalog_place_changelist"),
@@ -749,7 +897,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.place.refresh_from_db()
         self.assertIsNone(self.place.deleted_at)
         self.assertFalse(self.place.is_active)
-        self.assertContains(restore_response, "Из удаленных восстановлен 1 кружок")
+        self.assertContains(restore_response, "Из удалённых восстановлена 1 карточка")
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
@@ -775,7 +923,11 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.place.refresh_from_db()
         self.assertEqual(self.place.lat, 40.5001)
         self.assertEqual(self.place.lng, 49.9001)
-        self.assertContains(response, "Повторное геокодирование завершено: обновлено 1")
+        response_content = response.content.decode("utf-8")
+        self.assertTrue(
+            "Повторное геокодирование завершено: обновлено 1" in response_content
+            or "Təkrar geokodlaşdırma tamamlandi: yeniləndi 1" in response_content
+        )
         self.assertTrue(
             PlaceChangeAudit.objects.filter(
                 place=self.place,
@@ -784,6 +936,156 @@ class TestAdminOwnershipModerationUX(TestCase):
                 field_name="lat",
             ).exists()
         )
+
+    def test_place_change_audit_changelist_uses_human_readable_labels_and_filters(self):
+        PlaceChangeAudit.objects.create(
+            place=self.place,
+            changed_by=self.superuser,
+            source=PlaceChangeAudit.SOURCE_ADMIN,
+            field_name="deleted_at",
+            old_value="",
+            new_value="2026-04-15 09:00:00",
+        )
+        PlaceChangeAudit.objects.create(
+            place=self.place,
+            changed_by=self.owner_user,
+            source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
+            field_name="phone1",
+            old_value="+994 55 111 11 11",
+            new_value="+994 55 222 22 22",
+        )
+
+        response = self.client.get(reverse("admin:catalog_placechangeaudit_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "История изменений карточек")
+        self.assertContains(response, "Карточка перемещена в удалённые")
+        self.assertContains(response, "Контакты карточки обновлены")
+        self.assertContains(response, "Удаление")
+        self.assertContains(response, "Telefon")
+        self.assertContains(response, "km-audit-actions")
+        self.assertContains(response, "km-audit-action")
+        self.assertContains(response, "km-audit-place-link")
+        self.assertContains(response, reverse("admin:catalog_place_change", args=[self.place.id]))
+        self.assertContains(response, self.place.get_absolute_url())
+
+        filtered_response = self.client.get(
+            reverse("admin:catalog_placechangeaudit_changelist"),
+            data={"change_kind": "delete"},
+        )
+        self.assertEqual(filtered_response.status_code, 200)
+        self.assertContains(filtered_response, "Карточка перемещена в удалённые")
+        self.assertNotContains(filtered_response, "Телефон")
+
+    def test_place_review_admin_changelist_shows_preview_status_filters_and_row_actions(self):
+        published_review = PlaceReview.objects.create(
+            place=self.place,
+            author_name="Мария",
+            rating=5,
+            text="Очень подробный и полезный отзыв о кружке для проверки админского списка.",
+            is_approved=True,
+        )
+        suspicious_review = PlaceReview.objects.create(
+            place=self.place,
+            author_name="",
+            is_anonymous=True,
+            rating=1,
+            text="",
+            contains_profanity=True,
+            is_approved=False,
+            dislikes_count=3,
+        )
+
+        response = self.client.get(reverse("admin:catalog_placereview_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "km-place-bulk-bar")
+        self.assertContains(response, "Модерация отзывов по кружкам")
+        self.assertContains(response, "Только оценка без комментария")
+        self.assertContains(response, "Есть скрытая лексика")
+        self.assertContains(response, "Требуют проверки")
+        self.assertContains(response, "Опубликованы")
+        self.assertContains(response, "Скрытые")
+        self.assertContains(response, 'data-action="approve_selected"', html=False)
+        self.assertContains(response, 'data-action="hide_selected"', html=False)
+        self.assertContains(response, 'data-action="reject_selected"', html=False)
+        self.assertContains(response, 'data-action="delete_selected"', html=False)
+        self.assertContains(response, reverse("admin:catalog_placereview_change", args=[published_review.id]))
+        self.assertContains(response, reverse("admin:catalog_placereview_approve", args=[suspicious_review.id]))
+        self.assertContains(response, reverse("admin:catalog_placereview_hide", args=[published_review.id]))
+        self.assertContains(response, reverse("admin:catalog_place_change", args=[self.place.id]))
+
+    def test_place_review_admin_bulk_hide_and_approve_actions(self):
+        review = PlaceReview.objects.create(
+            place=self.place,
+            author_name="Ольга",
+            rating=4,
+            text="Полезный отзыв",
+            is_approved=True,
+        )
+
+        hide_response = self.client.post(
+            reverse("admin:catalog_placereview_changelist"),
+            data={"action": "hide_selected", "_selected_action": [str(review.id)], "index": 0},
+            follow=True,
+        )
+        self.assertEqual(hide_response.status_code, 200)
+        review.refresh_from_db()
+        self.assertFalse(review.is_approved)
+
+        approve_response = self.client.post(
+            reverse("admin:catalog_placereview_changelist"),
+            data={"action": "approve_selected", "_selected_action": [str(review.id)], "index": 0},
+            follow=True,
+        )
+        self.assertEqual(approve_response.status_code, 200)
+        review.refresh_from_db()
+        self.assertTrue(review.is_approved)
+
+    def test_place_review_admin_moderation_views_update_visibility(self):
+        review = PlaceReview.objects.create(
+            place=self.place,
+            author_name="Ирина",
+            rating=2,
+            text="Нужно проверить",
+            is_approved=False,
+        )
+
+        approve_get = self.client.get(reverse("admin:catalog_placereview_approve", args=[review.id]))
+        self.assertEqual(approve_get.status_code, 200)
+        self.assertContains(approve_get, "Опубликовать отзыв")
+
+        approve_post = self.client.post(
+            reverse("admin:catalog_placereview_approve", args=[review.id]),
+            follow=True,
+        )
+        self.assertEqual(approve_post.status_code, 200)
+        review.refresh_from_db()
+        self.assertTrue(review.is_approved)
+
+        reject_post = self.client.post(
+            reverse("admin:catalog_placereview_reject", args=[review.id]),
+            follow=True,
+        )
+        self.assertEqual(reject_post.status_code, 200)
+        review.refresh_from_db()
+        self.assertFalse(review.is_approved)
+
+    def test_place_review_admin_change_form_shows_full_text_panel(self):
+        review = PlaceReview.objects.create(
+            place=self.place,
+            author_name="Карина",
+            rating=5,
+            text="Полный текст отзыва для детального просмотра в админке.",
+            is_approved=True,
+        )
+
+        response = self.client.get(reverse("admin:catalog_placereview_change", args=[review.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Полный текст отзыва")
+        self.assertContains(response, "К карточке кружка")
+        self.assertContains(response, review.text)
 
     def test_userprofile_changelist_works_without_500(self):
         response = self.client.get("/ru/admin/catalog/userprofile/")
@@ -818,6 +1120,23 @@ class TestAdminOwnershipModerationUX(TestCase):
             response,
             reverse("admin:catalog_siteregistereduser_change", args=[staff_user.id]),
         )
+
+    def test_site_users_changelist_shows_profile_details(self):
+        self.owner_user.first_name = "Али"
+        self.owner_user.last_name = "Керимов"
+        self.owner_user.email = "ali.kerimov@example.com"
+        self.owner_user.save(update_fields=["first_name", "last_name", "email"])
+        profile = self.owner_user.profile
+        profile.phone = "+994 50 123 45 67"
+        profile.save(update_fields=["phone"])
+
+        response = self.client.get(reverse("admin:catalog_siteregistereduser_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "owner_adminux")
+        self.assertContains(response, "ali.kerimov@example.com")
+        self.assertContains(response, "Али Керимов")
+        self.assertEqual(response.content.decode("utf-8").count("+994 50 123 45 67"), 1)
 
     def test_staff_section_shows_only_staff_and_superusers(self):
         staff_user = User.objects.create_user(
@@ -1242,6 +1561,29 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "Пробный урок бесплатно")
         self.assertContains(response, "Нужна спортивная форма")
 
+    def test_place_detail_shows_owner_request_block_for_anonymous_users(self):
+        place = Place.objects.create(
+            name="Owner Request Place",
+            name_ru="Кружок с заявкой владельца",
+            category="EDU",
+            is_active=True,
+        )
+
+        response = self.client.get(f"/ru{place.get_absolute_url()}", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Вы представитель этого кружка?")
+        self.assertContains(response, "intent=owner_place")
+        self.assertContains(response, reverse("account_login"))
+
+    def test_card_price_badge_label_keeps_from_prefix_for_lower_bound_price(self):
+        with override("ru"):
+            place = Place(price_from=80, category="EDU")
+
+            self.assertEqual(place.card_price_badge_label, "от")
+            self.assertEqual(place.card_price_badge_value, "80")
+            self.assertEqual(place.card_price_badge_currency, "AZN")
+
     def test_place_detail_renders_swipe_ready_gallery(self):
         place = Place.objects.create(
             name="Gallery Place",
@@ -1442,6 +1784,82 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(response.status_code, 200)
         ordered_authors = [item.author_name for item in response.context["site_reviews"]]
         self.assertEqual(ordered_authors[:2], ["High", "Low"])
+
+    def test_site_reviews_page_skips_blank_text_reviews(self):
+        SiteReview.objects.create(author_name="Blank", rating=4, text="   ", likes_count=1, dislikes_count=0)
+        SiteReview.objects.create(author_name="Empty", rating=5, text="", likes_count=0, dislikes_count=0)
+        SiteReview.objects.create(author_name="Visible", rating=5, text="Отличный сервис", likes_count=3, dislikes_count=0)
+
+        response = self.client.get(reverse("site_reviews"), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["site_reviews_count"], 1)
+        self.assertEqual(len(response.context["site_reviews"]), 1)
+        self.assertEqual(response.context["site_reviews"][0].author_name, "Visible")
+        self.assertContains(response, 'class="review-item"', count=1)
+        self.assertNotContains(response, "Пока нет отзывов с текстом.")
+
+    def test_site_reviews_page_shows_empty_state_without_text_reviews(self):
+        SiteReview.objects.create(author_name="Blank", rating=4, text="  ", likes_count=1, dislikes_count=0)
+        SiteReview.objects.create(author_name="Empty", rating=5, text="", likes_count=0, dislikes_count=0)
+
+        response = self.client.get(reverse("site_reviews"), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["site_reviews_count"], 0)
+        self.assertContains(response, "Пока нет отзывов с текстом.")
+        self.assertNotContains(response, 'class="review-item"')
+
+    def test_site_review_demo_content_is_localized_in_az_and_en(self):
+        review = SiteReview.objects.create(
+            author_name="Наталья М.",
+            rating=4,
+            text="Хороший каталог, особенно полезны карта и быстрые фильтры по категориям.",
+        )
+
+        with override("az"):
+            self.assertEqual(review.author_name_i18n, "Nataliya M.")
+            self.assertEqual(review.text_i18n, "Yaxşı kataloqdur, xüsusilə xəritə və kateqoriyalar üzrə sürətli filtrlər faydalıdır.")
+
+        with override("en"):
+            self.assertEqual(review.author_name_i18n, "Natalia M.")
+            self.assertEqual(review.text_i18n, "A good catalog, especially useful for the map and quick category filters.")
+
+    def test_home_and_catalog_use_localized_strings_in_az_and_en(self):
+        Place.objects.create(name="Test", name_ru="Тест", category="EDU", is_active=True)
+        SiteReview.objects.create(
+            author_name="Рамин А.",
+            rating=5,
+            text="Сайт помогает быстро находить новые кружки в Баку, интерфейс понятный.",
+        )
+
+        az_home = self.client.get("/az/", follow=True)
+        self.assertEqual(az_home.status_code, 200)
+        self.assertContains(az_home, "KidsMap vasitəsilə yeni valideynlər cəlb edin")
+        self.assertContains(az_home, "Tam lent və reaksiyalar")
+        self.assertContains(az_home, "Ramin A.")
+        self.assertContains(az_home, "Sayt Bakıda yeni dərnəkləri tez tapmağa kömək edir, interfeys aydındır.")
+        self.assertNotContains(az_home, "Приведите новых родителей через KidsMap")
+        self.assertNotContains(az_home, "Полная лента и реакции")
+
+        en_home = self.client.get("/en/", follow=True)
+        self.assertEqual(en_home.status_code, 200)
+        self.assertContains(en_home, "Bring new parents through KidsMap")
+        self.assertContains(en_home, "Full feed and reactions")
+        self.assertContains(en_home, "Ramin A.")
+        self.assertContains(en_home, "The site helps you quickly find new clubs in Baku, and the interface is easy to understand.")
+        self.assertNotContains(en_home, "Приведите новых родителей через KidsMap")
+        self.assertNotContains(en_home, "Полная лента и реакции")
+
+        az_catalog = self.client.get("/az/catalog/", follow=True)
+        self.assertEqual(az_catalog.status_code, 200)
+        self.assertContains(az_catalog, "kart tapıldı")
+        self.assertNotContains(az_catalog, "Найдено")
+
+        en_catalog = self.client.get("/en/catalog/", follow=True)
+        self.assertEqual(en_catalog.status_code, 200)
+        self.assertContains(en_catalog, "clubs found")
+        self.assertNotContains(en_catalog, "Найдено")
 
     def test_site_review_reactions_update_counters(self):
         review = SiteReview.objects.create(author_name="Site User", rating=5, text="Люблю этот сайт")

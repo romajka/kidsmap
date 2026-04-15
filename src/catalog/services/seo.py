@@ -143,7 +143,7 @@ def _catalog_filter_summary(selected: dict, *, is_new_page: bool) -> list[str]:
 def build_sitewide_schema_payload(*, request, site_name: str, logo_url: str = "", social_urls: list[str] | None = None) -> dict:
     home_url = request.build_absolute_uri(reverse("home"))
     catalog_url = request.build_absolute_uri(reverse("place_list"))
-    resolved_logo_url = _absolute_uri(request, logo_url or static("img/logo.png"))
+    resolved_logo_url = _absolute_uri(request, logo_url or static("img/logo.svg"))
 
     organization = {
         "@context": "https://schema.org",
@@ -287,7 +287,7 @@ def _place_description(place, language_code: str) -> str:
 
 def build_place_seo_payload(place, request, language_code):
     gallery = place.gallery_files()
-    first_image_url = _absolute_uri(request, gallery[0].url) if gallery else _absolute_uri(request, static("img/logo.png"))
+    first_image_url = _absolute_uri(request, gallery[0].url) if gallery else _absolute_uri(request, static("img/logo.svg"))
     description = _place_description(place, language_code)
 
     if place.district:

@@ -15,7 +15,7 @@
     if (!viewport || !track || slides.length < 2) return;
 
     let currentIndex = 0;
-    let slideWidth = viewport.getBoundingClientRect().width || viewport.clientWidth || 1;
+    let slideWidth = Math.round(viewport.getBoundingClientRect().width || viewport.clientWidth || 1);
     let dragStartX = 0;
     let dragDeltaX = 0;
     let dragLastX = 0;
@@ -30,9 +30,10 @@
       return index;
     }
 
-    function setTrackPosition(offsetPx, withTransition) {
+    function setTrackPosition(offsetPx, withTransition, snapToPixel) {
+      const appliedOffset = snapToPixel ? Math.round(offsetPx) : offsetPx;
       track.style.transition = withTransition ? TRACK_TRANSITION : "none";
-      track.style.transform = "translate3d(" + offsetPx + "px, 0, 0)";
+      track.style.transform = "translate3d(" + appliedOffset + "px, 0, 0)";
     }
 
     function syncDots() {
@@ -45,12 +46,12 @@
 
     function goToSlide(nextIndex, withTransition) {
       currentIndex = clampIndex(nextIndex);
-      setTrackPosition(-currentIndex * slideWidth, withTransition !== false);
+      setTrackPosition(-currentIndex * slideWidth, withTransition !== false, true);
       syncDots();
     }
 
     function recalculateWidth() {
-      slideWidth = viewport.getBoundingClientRect().width || viewport.clientWidth || 1;
+      slideWidth = Math.round(viewport.getBoundingClientRect().width || viewport.clientWidth || 1);
       goToSlide(currentIndex, false);
     }
 
@@ -120,7 +121,7 @@
       dragDeltaX = event.clientX - dragStartX;
       dragLastX = event.clientX;
       dragLastTime = now;
-      setTrackPosition(-currentIndex * slideWidth + dragDeltaX, false);
+      setTrackPosition(-currentIndex * slideWidth + dragDeltaX, false, false);
     });
 
     viewport.addEventListener("pointerup", function (event) {

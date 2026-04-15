@@ -140,6 +140,7 @@
 
     <div class="home-hero-search-panel">
       <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}" data-home-map-filter-form>
+        {% trans "Начать поиск" as default_search_label %}
         <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
         <div class="home-search-row">
           <select class="filter-select home-filter-select home-filter-district" name="district">
@@ -163,8 +164,13 @@
             {% endfor %}
           </select>
 
-          <button class="btn home-search-btn" type="submit">
-            {{ hero_cta_text }}
+          <button
+            class="btn icon-btn icon-search icon-only-btn home-search-btn"
+            type="submit"
+            aria-label="{% firstof hero_cta_text default_search_label %}"
+            title="{% firstof hero_cta_text default_search_label %}"
+          >
+            <span class="visually-hidden">{% firstof hero_cta_text default_search_label %}</span>
           </button>
         </div>
       </form>
@@ -222,14 +228,14 @@
       </article>
 
       <article class="home-step-lite-card">
-        <span class="home-step-lite-number home-step-lite-number-green">2</span>
+        <span class="home-step-lite-number">2</span>
         <h3>{% trans "Сравните варианты" %}</h3>
         <p>{% trans "Смотрите фото, цену, рейтинг, отзывы и расположение на карте." %}</p>
         <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Сравнить" %}</a>
       </article>
 
       <article class="home-step-lite-card">
-        <span class="home-step-lite-number home-step-lite-number-orange">3</span>
+        <span class="home-step-lite-number">3</span>
         <h3>{% trans "Свяжитесь с клубом" %}</h3>
         <p>{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}</p>
         <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
@@ -256,9 +262,15 @@
                   </div>
                 {% endif %}
               </a>
-              {% if place.card_price_badge %}
-                <span class="card-price-pill">{{ place.card_price_badge }}</span>
-              {% endif %}
+            {% if place.card_price_badge %}
+              <span class="card-price-pill">
+                {% if place.card_price_badge_label %}
+                  <span class="card-price-pill__meta">{{ place.card_price_badge_label }}</span>
+                {% endif %}
+                <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
+                <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
+              </span>
+            {% endif %}
             </div>
             <div class="card-body">
               <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
@@ -298,54 +310,65 @@
 
   {% url 'owner_places_dashboard' as owner_dashboard_url %}
   <section class="panel home-owner-banner" id="for-owners">
-    <div class="home-owner-media">
-      <img
-        src="{% static 'img/home/photos/family-portrait.jpg' %}"
-        alt="{% trans 'Семья с детьми' %}"
-        loading="lazy"
-        decoding="async"
-      />
-    </div>
+    <div class="home-owner-banner-grid">
+      <div class="home-owner-copy">
+        <p class="home-owner-eyebrow">{% trans "Для владельцев кружков" %}</p>
+        <h2>{% trans "Приведите новых родителей через KidsMap" %}</h2>
+        <p class="home-owner-text">
+          {% trans "Покажем ваш кружок в каталоге и на карте, добавим фото, описание и контакты, чтобы родители могли обратиться сразу." %}
+        </p>
 
-    <div class="home-owner-copy">
-      <p class="home-owner-eyebrow">{% trans "Для владельцев кружков" %}</p>
-      <h2>{% trans "Разместите кружок на KidsMap и получайте новые обращения от родителей" %}</h2>
-      <p class="home-owner-text">
-        {% trans "Добавим карточку, покажем её в каталоге и на карте, поможем собрать доверие через фото, описание и отзывы." %}
-      </p>
+        <div class="home-owner-actions">
+          {% if current_user_role == "OWNER" %}
+            <a class="home-owner-cta" href="{% url 'owner_places_dashboard' %}">{% trans "Открыть кабинет" %}</a>
+          {% else %}
+            <a class="home-owner-cta" href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">{% trans "Разместить кружок" %}</a>
+          {% endif %}
+        </div>
 
-      <div class="home-owner-benefits" aria-label="{% trans 'Что даёт размещение на KidsMap' %}">
-        {% if current_user_role == "OWNER" %}
-          <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Видимость в каталоге и на карте" %}</a>
-          <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Фото, описание, контакты и быстрые CTA" %}</a>
-          <a href="{% url 'owner_reviews_dashboard' %}" class="home-owner-benefit">{% trans "Отзывы родителей и рост доверия" %}</a>
-          <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Управление карточками из личного кабинета" %}</a>
-        {% else %}
-          <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Видимость в каталоге и на карте" %}</a>
-          <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Фото, описание, контакты и быстрые CTA" %}</a>
-          <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Отзывы родителей и рост доверия" %}</a>
-          <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Управление карточками из личного кабинета" %}</a>
-        {% endif %}
+        <div class="home-owner-benefits" aria-label="{% trans 'Что даёт размещение на KidsMap' %}">
+          {% if current_user_role == "OWNER" %}
+            <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Каталог и карта" %}</a>
+            <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Фото, описание и CTA" %}</a>
+            <a href="{% url 'owner_reviews_dashboard' %}" class="home-owner-benefit">{% trans "Отзывы и доверие" %}</a>
+            <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Личный кабинет" %}</a>
+          {% else %}
+            <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Каталог и карта" %}</a>
+            <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Фото, описание и CTA" %}</a>
+            <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Отзывы и доверие" %}</a>
+            <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Личный кабинет" %}</a>
+          {% endif %}
+        </div>
       </div>
-    </div>
 
-    <div class="home-owner-actions">
-      {% if current_user_role == "OWNER" %}
-        <a class="home-owner-cta" href="{% url 'owner_places_dashboard' %}">{% trans "Открыть кабинет" %}</a>
-      {% else %}
-        <a class="home-owner-cta" href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">{% trans "Разместить кружок" %}</a>
-      {% endif %}
+      <div class="home-owner-visual" aria-hidden="true">
+        <figure class="home-owner-media">
+          <img
+            src="{% static 'img/home/photos/family-portrait.jpg' %}"
+            alt="{% trans 'Семья с детьми' %}"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="home-owner-media-badge">{% trans "Для владельцев кружков" %}</span>
+        </figure>
+
+        <div class="home-owner-visual-strip">
+          <span class="home-owner-visual-chip">{% trans "Каталог и карта" %}</span>
+          <span class="home-owner-visual-chip">{% trans "Фото, описание и CTA" %}</span>
+          <span class="home-owner-visual-chip">{% trans "Отзывы и доверие" %}</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="panel">
+  <section class="panel home-query-panel">
     <h2>{% trans "Популярные запросы" %}</h2>
-    <div class="home-grid2">
-      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Кружки в Баку для детей" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Баку" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Баку" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Баку" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Баку" %}</a>
+    <div class="home-grid2 home-query-grid">
+      <a class="link-btn home-query-card" href="{% url 'place_list' %}">{% trans "Кружки в Баку для детей" %}</a>
+      <a class="link-btn home-query-card" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Баку" %}</a>
+      <a class="link-btn home-query-card" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Баку" %}</a>
+      <a class="link-btn home-query-card" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Баку" %}</a>
+      <a class="link-btn home-query-card" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Баку" %}</a>
     </div>
   </section>
 
@@ -362,30 +385,6 @@
         {% endif %}
       </span>
     </div>
-    <div class="trust-reviews">
-      {% if site_reviews %}
-        {% for review in site_reviews|slice:":2" %}
-          <article class="trust-card">
-            <div class="trust-avatar" aria-hidden="true">{% if review.is_anonymous %}🕶️{% else %}👤{% endif %}</div>
-            <div>
-              <h3>{% if review.is_anonymous %}{% trans "Аноним" %}{% else %}{% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %}{% endif %}</h3>
-              <p>
-                <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
-                {% if review.text %} {{ review.text|truncatechars:90 }}{% endif %}
-              </p>
-            </div>
-          </article>
-        {% endfor %}
-      {% else %}
-        <article class="trust-card">
-          <div class="trust-avatar" aria-hidden="true">💬</div>
-          <div>
-            <h3>{% trans "Отзывы появятся здесь" %}</h3>
-            <p>{% trans "Когда пользователи начнут оставлять отзывы о сервисе, мы покажем их на этой странице без искусственных примеров." %}</p>
-          </div>
-        </article>
-      {% endif %}
-    </div>
     <div class="home-grid2">
       <p>{% trans "Проверенные и активные места" %}</p>
       <p>{% trans "Фильтры по возрасту, району и цене" %}</p>
@@ -396,16 +395,69 @@
 
   <section id="site-reviews" class="panel site-reviews-teaser">
     <div class="site-reviews-teaser-head">
-      <div>
+      <div class="site-reviews-teaser-copy">
+        <p class="site-reviews-teaser-eyebrow">{% trans "Отзывы о сервисе" %}</p>
         <h2>{% trans "Общие отзывы о сайте" %}</h2>
-        <p class="meta">{% trans "Отдельная страница со всеми отзывами, сортировкой и возможностью поставить лайк или дизлайк." %}</p>
+        <p class="meta site-reviews-teaser-meta">{% trans "Отдельная страница со всеми отзывами, сортировкой и возможностью поставить лайк или дизлайк." %}</p>
       </div>
-      <a class="btn" href="{% url 'site_reviews' %}">{% trans "Открыть отзывы" %}</a>
+      <div class="site-reviews-teaser-side">
+        <p class="site-reviews-teaser-side-label">{% trans "Полная лента и реакции" %}</p>
+        <a class="btn" href="{% url 'site_reviews' %}">{% trans "Открыть отзывы" %}</a>
+      </div>
     </div>
-    <div class="trust-reviews">
-      {% if site_reviews %}
-        {% for review in site_reviews|slice:":3" %}
-          {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_site_review" show_place_link=False next_url=request.get_full_path %}
+    <div class="site-reviews-teaser-list">
+      {% if site_reviews_teaser %}
+        {% for review in site_reviews_teaser %}
+          <article class="review-item site-review-teaser-card">
+            <div class="review-head">
+              <strong class="review-author">
+                {% if review.is_anonymous %}
+                  {% trans "Аноним" %}
+                {% else %}
+                  {{ review.author_name_i18n }}
+                {% endif %}
+              </strong>
+              <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
+              <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
+            </div>
+
+            {% if review.text %}
+              <p class="review-text site-review-teaser-text">{{ review.text_i18n|truncatechars:140 }}</p>
+            {% else %}
+              <p class="review-text site-review-teaser-text">{% trans "Пользователь оставил оценку без текстового комментария." %}</p>
+            {% endif %}
+
+            <div class="review-footer site-review-teaser-footer">
+              {% if review.contains_profanity %}
+                <span class="review-flag">{% trans "Текст отзыва отфильтрован" %}</span>
+              {% endif %}
+
+              <form method="post" action="{% url 'vote_site_review' review.id %}" class="review-reactions-form" data-review-reaction-form>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                <button type="submit" name="value" value="1" class="review-reaction-btn{% if review.current_reaction == 1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == 1 %}true{% else %}false{% endif %}">
+                  <span class="review-reaction-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
+                      <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
+                      <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
+                    </svg>
+                  </span>
+                  <span class="visually-hidden">{% trans "Лайк" %}</span>
+                  <span class="review-reaction-count" data-review-like-count>{{ review.likes_count }}</span>
+                </button>
+                <button type="submit" name="value" value="-1" class="review-reaction-btn dislike{% if review.current_reaction == -1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == -1 %}true{% else %}false{% endif %}">
+                  <span class="review-reaction-icon" aria-hidden="true">
+                    <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
+                      <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
+                      <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
+                    </svg>
+                  </span>
+                  <span class="visually-hidden">{% trans "Дизлайк" %}</span>
+                  <span class="review-reaction-count" data-review-dislike-count>{{ review.dislikes_count }}</span>
+                </button>
+              </form>
+            </div>
+          </article>
         {% endfor %}
       {% else %}
         <p class="meta">{% trans "Пока нет общих отзывов о сайте." %}</p>
@@ -421,6 +473,31 @@
         <p class="home-faq-lead">
           {% trans "Собрали короткие ответы, чтобы было проще понять, как работает поиск кружков, отзывы и размещение карточек." %}
         </p>
+
+        <div class="home-faq-points" aria-label="{% trans 'О чём этот раздел' %}">
+          <article class="home-faq-point">
+            <strong>{% trans "Быстрый поиск" %}</strong>
+            <span>{% trans "Район, возраст, метро и категории без лишних шагов." %}</span>
+          </article>
+          <article class="home-faq-point">
+            <strong>{% trans "Отзывы и лайки" %}</strong>
+            <span>{% trans "Показываем, как работают реакции и когда нужен аккаунт." %}</span>
+          </article>
+          <article class="home-faq-point">
+            <strong>{% trans "Для владельцев" %}</strong>
+            <span>{% trans "Коротко объясняем размещение карточки и обновление данных." %}</span>
+          </article>
+          <article class="home-faq-point">
+            <strong>{% trans "Без регистрации" %}</strong>
+            <span>{% trans "Каталог и карточки можно смотреть сразу, аккаунт нужен только для действий." %}</span>
+          </article>
+        </div>
+
+        <div class="home-faq-actions" aria-label="{% trans 'Быстрые переходы' %}">
+          <a class="home-faq-action" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+          <a class="home-faq-action" href="{% url 'site_reviews' %}">{% trans "Читать отзывы" %}</a>
+          <a class="home-faq-action home-faq-action-wide" href="#for-owners">{% trans "Размещение для владельцев" %}</a>
+        </div>
       </div>
 
       <div class="home-faq-list">

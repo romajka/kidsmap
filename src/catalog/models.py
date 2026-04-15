@@ -88,7 +88,7 @@ class Place(models.Model):
 
     def _normalize_lang(self, lang):
         if not lang:
-            lang = get_language() or "ru"
+            lang = get_language() or settings.LANGUAGE_CODE or "az"
         return lang.split("-")[0]
 
     def name_i18n(self, lang=None):
@@ -178,6 +178,32 @@ class Place(models.Model):
             return _("от %(price)s AZN") % {"price": self.price_from}
         if self.price_to is not None:
             return _("до %(price)s AZN") % {"price": self.price_to}
+        return ""
+
+    @property
+    def card_price_badge_label(self) -> str:
+        if self.price_per_lesson is not None:
+            return str(_("1 урок"))
+        if self.price_from is not None:
+            return str(_("от"))
+        if self.price_to is not None:
+            return str(_("до"))
+        return ""
+
+    @property
+    def card_price_badge_value(self) -> str:
+        if self.price_per_lesson is not None:
+            return str(self.price_per_lesson)
+        if self.price_from is not None:
+            return str(self.price_from)
+        if self.price_to is not None:
+            return str(self.price_to)
+        return ""
+
+    @property
+    def card_price_badge_currency(self) -> str:
+        if self.card_price_badge:
+            return "AZN"
         return ""
 
     @property
@@ -487,6 +513,16 @@ class SiteReview(models.Model):
     def __str__(self):
         who = _("Аноним") if self.is_anonymous else (self.author_name or _("Гость"))
         return f"{who}: {self.rating}"
+
+    @property
+    def author_name_i18n(self) -> str:
+        if self.is_anonymous:
+            return str(_("Аноним"))
+        return str(_(self.author_name or "Гость"))
+
+    @property
+    def text_i18n(self) -> str:
+        return str(_(self.text or ""))
 
     @property
     def popularity_score(self) -> int:
@@ -1180,7 +1216,7 @@ class SiteSettings(models.Model):
 
     def _normalize_lang(self, lang):
         if not lang:
-            lang = get_language() or "ru"
+            lang = get_language() or settings.LANGUAGE_CODE or "az"
         return lang.split("-")[0]
 
     def _i18n_text(self, prefix, lang):
@@ -1334,7 +1370,7 @@ class SiteGalleryImage(models.Model):
 
     def _normalize_lang(self, lang):
         if not lang:
-            lang = get_language() or "ru"
+            lang = get_language() or settings.LANGUAGE_CODE or "az"
         return lang.split("-")[0]
 
     def title_i18n(self, lang=None):
