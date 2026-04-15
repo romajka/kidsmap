@@ -46,36 +46,99 @@
 
       {% if hero_gallery_slides %}
         <div class="home-hero-visual">
-          {% with slide=hero_gallery_slides.0 %}
-            <figure class="home-hero-visual-card">
-              <picture>
-                {% if slide.main.image_webp_url %}
-                  <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
-                {% endif %}
-                <img
-                  src="{{ slide.main.image_url }}"
-                  alt="{{ slide.main.label }}"
-                  decoding="async"
-                  fetchpriority="high"
-                />
-              </picture>
-              {% if slide.main.label %}
-                <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
-              {% endif %}
-            </figure>
+          <div class="home-hero-slider" data-home-hero-slider>
+            <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
+              <div class="home-hero-slider-track" data-home-hero-slider-track>
+                {% for slide in hero_gallery_slides %}
+                  <article class="home-hero-slide" data-home-hero-slide>
+                    <div class="home-hero-slide-grid">
+                      <figure class="home-hero-photo-card home-hero-photo-main">
+                        <picture>
+                          {% if slide.main.image_webp_url %}
+                            <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+                          {% endif %}
+                          <img
+                            src="{{ slide.main.image_url }}"
+                            alt="{{ slide.main.label }}"
+                            decoding="async"
+                            {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                          />
+                        </picture>
+                        {% if slide.main.label %}
+                          <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
+                        {% endif %}
+                      </figure>
 
-            <div class="home-hero-visual-topics" aria-label="{% trans 'Популярные направления' %}">
-              {% if slide.side_top.label %}
-                <span class="home-hero-visual-topic">{{ slide.side_top.label }}</span>
-              {% endif %}
-              {% if slide.side_bottom.label %}
-                <span class="home-hero-visual-topic">{{ slide.side_bottom.label }}</span>
-              {% endif %}
-              {% if slide.main.label %}
-                <span class="home-hero-visual-topic">{{ slide.main.label }}</span>
-              {% endif %}
+                      <figure class="home-hero-photo-card home-hero-photo-side-top">
+                        <picture>
+                          {% if slide.side_top.image_webp_url %}
+                            <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                          {% endif %}
+                          <img
+                            src="{{ slide.side_top.image_url }}"
+                            alt="{{ slide.side_top.label }}"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </picture>
+                        {% if slide.side_top.label %}
+                          <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
+                        {% endif %}
+                      </figure>
+
+                      <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+                        <picture>
+                          {% if slide.side_bottom.image_webp_url %}
+                            <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                          {% endif %}
+                          <img
+                            src="{{ slide.side_bottom.image_url }}"
+                            alt="{{ slide.side_bottom.label }}"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </picture>
+                        {% if slide.side_bottom.label %}
+                          <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
+                        {% endif %}
+                      </figure>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
             </div>
-          {% endwith %}
+
+            {% if hero_gallery_slides|length > 1 %}
+              <button
+                type="button"
+                class="home-hero-slider-arrow home-hero-slider-arrow-prev"
+                data-home-hero-slider-prev
+                aria-label="{% trans 'Предыдущие фото' %}"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                class="home-hero-slider-arrow home-hero-slider-arrow-next"
+                data-home-hero-slider-next
+                aria-label="{% trans 'Следующие фото' %}"
+              >
+                ›
+              </button>
+
+              <div class="home-hero-slider-dots" role="tablist" aria-label="{% trans 'Переключение фото' %}">
+                {% for slide in hero_gallery_slides %}
+                  <button
+                    type="button"
+                    class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
+                    data-home-hero-slider-dot
+                    data-slide-index="{{ forloop.counter0 }}"
+                    aria-label="{{ forloop.counter }}"
+                  ></button>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
         </div>
       {% endif %}
     </div>
@@ -534,6 +597,9 @@
 {% endblock %}
 
 {% block extra_body %}
+  {% if hero_gallery_slides|length > 1 %}
+    <script src="{% static 'js/home_hero_slider.js' %}?v=home-hero-slider-20260415-restore-1"></script>
+  {% endif %}
   {% if map_places %}
     <script
       src="{% static 'js/home_map.js' %}?v=home-map-20260415-map-fix-2"
