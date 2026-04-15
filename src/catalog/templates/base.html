@@ -30,6 +30,13 @@
     {% block twitter_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}" />{% endblock %}
     <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}" />
     <link rel="apple-touch-icon" href="{% static 'img/logo.svg' %}" />
+    <link
+      rel="preload"
+      href="{% static 'fonts/chiron/ChironGoRoundTC-PublicSubset.woff2' %}"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     {% if google_analytics_enabled %}
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_measurement_id|urlencode }}"></script>
       <script>

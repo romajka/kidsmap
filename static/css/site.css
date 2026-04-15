@@ -1,6 +1,15 @@
+@font-face {
+  font-family: "Chiron GoRound TC Public";
+  src: url("../fonts/chiron/ChironGoRoundTC-PublicSubset.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+}
+
 :root {
   --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-brand-display: "Chiron GoRound TC Public", "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --brand-white: #fcfcfc;
   --brand-celadon: #a8d59b;
   --brand-turf: #136f38;
@@ -325,7 +334,7 @@ body::before {
 }
 
 .brand {
-  font-family: var(--font-display);
+  font-family: var(--font-brand-display);
   font-size: 44px;
   line-height: 1;
   font-weight: 800;
@@ -10808,6 +10817,21 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
 
 .home-steps-lite-head h2 {
   margin-bottom: 8px;
+}
+
+.page-home .home-hero-copy h1,
+.hero-text h1,
+.info-hero h1,
+.detail-block h1,
+.site-reviews-hero-card h1,
+.home-steps-lite-head h2,
+.home-map-copy h2,
+.home-recommended h2,
+.home-owner-copy h2,
+.home-faq-head h2 {
+  font-family: var(--font-brand-display);
+  font-variation-settings: "wght" 760;
+  letter-spacing: -0.03em;
 }
 
 .home-steps-lite-head p {

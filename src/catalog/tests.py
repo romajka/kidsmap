@@ -413,12 +413,13 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "home-map-data")
         self.assertContains(response, place.photo.url)
 
-    def test_public_site_css_does_not_reference_chiron_font(self):
+    def test_public_site_css_uses_subset_font_without_heavy_ttf(self):
         css_path = Path(settings.BASE_DIR) / "static" / "css" / "site.css"
         self.assertTrue(css_path.exists())
         css = css_path.read_text(encoding="utf-8")
-        self.assertNotIn("ChironGoRoundTC", css)
-        self.assertNotIn("Chiron GoRound TC", css)
+        self.assertIn("ChironGoRoundTC-PublicSubset.woff2", css)
+        self.assertIn("Chiron GoRound TC Public", css)
+        self.assertNotIn("ChironGoRoundTC-VariableFont_wght.ttf", css)
 
     @override_settings(MEDIA_CACHE_MAX_AGE=3600)
     def test_media_serve_view_sets_cache_headers(self):
