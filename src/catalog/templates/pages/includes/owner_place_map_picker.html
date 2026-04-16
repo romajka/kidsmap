@@ -19,9 +19,9 @@
 
   <div class="owner-map-picker-head">
     <div class="owner-map-picker-copy">
-      <p class="owner-map-picker-title">{% trans "Укажите на карте ваше место" %}</p>
+      <p class="owner-map-picker-title">{% trans "Уточните точку на карте" %}</p>
       <p class="meta">
-        {% trans "Нажмите на карту, чтобы отметить точное место кружка. Если вы выберете точку вручную, сайт сохранит именно ее. Если точка не выбрана, координаты можно определить по адресу." %}
+        {% trans "Если хотите, отметьте точное место вручную. Иначе координаты можно определить по адресу." %}
       </p>
     </div>
     <div class="owner-map-picker-actions">
@@ -51,7 +51,7 @@
         {% trans "Точка на карте не выбрана." %}
       {% endif %}
     </span>
-    <span class="owner-map-picker-hint meta">{% trans "Можно также перетащить маркер после выбора точки." %}</span>
+    <span class="owner-map-picker-hint meta">{% trans "После выбора точки маркер можно перетащить." %}</span>
   </div>
 
   <div class="owner-map-picker-canvas" data-map-canvas aria-label="{% trans 'Карта выбора координат' %}"></div>

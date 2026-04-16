@@ -22,414 +22,472 @@
       <a class="link-btn detail-back-btn icon-btn icon-arrow-left" href="{{ catalog_return_url }}">{% trans "Назад" %}</a>
     </div>
 
-    <article class="detail-block">
-      <header class="detail-hero">
-        <div class="detail-hero__copy">
-          <h1>{{ place.name_i18n }}</h1>
-
-          {% if place.district or place.metro %}
-            <p class="detail-hero__location">
-              {% if place.district %}{% trans place.district %}{% endif %}
-              {% if place.district and place.metro %} · {% endif %}
-              {% if place.metro %}{% trans place.metro %}{% endif %}
-            </p>
-          {% endif %}
-
-          <div class="detail-rating detail-rating--hero">
-            <span class="rating-stars large" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
-            <span class="rating-text">
-              {{ place.rating_avg|floatformat:1 }}
-              {% if place.rating_count %}
-                · {{ place.rating_count }} {% trans "отзывов" %}
-              {% else %}
-                · {% trans "пока без отзывов" %}
-              {% endif %}
-            </span>
-          </div>
-        </div>
-
-        <div class="detail-hero__actions">
-          {% if place.phone1 %}
-            <a class="cta-btn cta-call icon-btn icon-phone detail-primary-cta" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-top">{% trans "Связаться" %}</a>
-          {% elif place.instagram %}
-            <a class="cta-btn cta-instagram icon-btn icon-instagram detail-primary-cta" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-top">{% trans "Связаться" %}</a>
-          {% elif place.website %}
-            <a class="cta-btn detail-primary-cta" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{% trans "Связаться" %}</a>
-          {% endif %}
-
-          <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-            <button type="submit" class="like-btn detail-save-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
-              <span class="detail-save-btn__icon" aria-hidden="true">♥</span>
-              <span>{% trans "Сохранить" %}</span>
-              <span class="like-count">{{ place.likes_count }}</span>
-            </button>
-          </form>
-        </div>
-      </header>
-
+    <article class="detail-block detail-page">
       {% with gallery=place.gallery_files %}
-        {% if gallery %}
-          <section class="place-gallery" data-place-gallery aria-label="{% trans 'Галерея фотографий' %}">
-            <div class="place-gallery__frame">
-              <div class="place-gallery__main swiper" data-place-gallery-main>
-                <div class="swiper-wrapper">
-                  {% for file in gallery %}
-                    <div class="swiper-slide">
-                      <figure class="place-gallery__slide">
-                        <img
-                          class="place-gallery__image"
-                          src="{{ file.url }}"
-                          alt="{{ place.name_i18n }}"
-                          draggable="false"
-                          decoding="async"
-                          {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                        />
-                      </figure>
-                    </div>
-                  {% endfor %}
+        <div class="detail-top">
+          <div class="detail-top-copy">
+            <header class="detail-hero">
+              <div class="detail-hero__copy">
+                <h1>{{ place.name_i18n }}</h1>
+
+                {% if place.district or place.metro %}
+                  <p class="detail-hero__location">
+                    {% if place.district %}{% trans place.district %}{% endif %}
+                    {% if place.district and place.metro %} · {% endif %}
+                    {% if place.metro %}{% trans place.metro %}{% endif %}
+                  </p>
+                {% endif %}
+
+                <div class="detail-rating detail-rating--hero">
+                  <span class="rating-stars large" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+                  <span class="rating-text">
+                    {{ place.rating_avg|floatformat:1 }}
+                    {% if place.rating_count %}
+                      · {{ place.rating_count }} {% trans "отзывов" %}
+                    {% else %}
+                      · {% trans "пока без отзывов" %}
+                    {% endif %}
+                  </span>
+                </div>
+              </div>
+
+              <div class="detail-hero__actions">
+                {% if place.phone1 %}
+                  <a class="cta-btn cta-call icon-btn icon-phone detail-primary-cta" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-top">{% trans "Связаться" %}</a>
+                {% elif place.instagram %}
+                  <a class="cta-btn cta-instagram icon-btn icon-instagram detail-primary-cta" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-top">{% trans "Связаться" %}</a>
+                {% elif place.website %}
+                  <a class="cta-btn detail-primary-cta" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{% trans "Связаться" %}</a>
+                {% endif %}
+
+                <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                  <button type="submit" class="like-btn detail-save-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
+                    <span class="detail-save-btn__icon" aria-hidden="true">♥</span>
+                    <span>{% trans "Сохранить" %}</span>
+                    <span class="like-count">{{ place.likes_count }}</span>
+                  </button>
+                </form>
+              </div>
+            </header>
+
+            <section class="detail-summary-card">
+              <section class="detail-highlights" aria-label="{% trans 'Основные характеристики' %}">
+                {% if place.age_display %}
+                  <div class="detail-highlight-card">
+                    <span class="detail-highlight-card__label">{% trans "Возраст" %}</span>
+                    <strong class="detail-highlight-card__value">{{ place.age_display }}</strong>
+                  </div>
+                {% endif %}
+
+                {% if place.price_range_display %}
+                  <div class="detail-highlight-card">
+                    <span class="detail-highlight-card__label">{% trans "Цена" %}</span>
+                    <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
+                  </div>
+                {% endif %}
+
+                <div class="detail-highlight-card">
+                  <span class="detail-highlight-card__label">{% trans "Категория" %}</span>
+                  <strong class="detail-highlight-card__value">{{ place.get_category_display }}</strong>
                 </div>
 
-                {% if gallery|length > 1 %}
-                  <button type="button" class="place-gallery__nav place-gallery__nav--prev" data-place-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                      <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                  </button>
-                  <button type="button" class="place-gallery__nav place-gallery__nav--next" data-place-gallery-next aria-label="{% trans 'Следующее фото' %}">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                      <path d="m9.5 5 6.5 7-6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                  </button>
-                  <div class="place-gallery__counter" aria-live="polite">
-                    <span data-place-gallery-current>1</span>
-                    <span aria-hidden="true">/</span>
-                    <span>{{ gallery|length }}</span>
+                {% if place.subcategory %}
+                  <div class="detail-highlight-card detail-highlight-card--muted">
+                    <span class="detail-highlight-card__label">{% trans "Подкатегория" %}</span>
+                    <strong class="detail-highlight-card__value">{{ place.subcategory }}</strong>
+                  </div>
+                {% endif %}
+              </section>
+
+              {% if place.description_i18n %}
+                <div class="detail-description detail-description--lead">
+                  <p>{{ place.description_i18n|linebreaksbr }}</p>
+                </div>
+              {% endif %}
+
+              <div class="card-cta-row detail-cta-row">
+                {% if place.phone1 %}
+                  <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail">{% trans "Позвонить" %}</a>
+                  <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail">WhatsApp</a>
+                {% endif %}
+                {% if place.instagram %}
+                  <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail">Instagram</a>
+                {% endif %}
+              </div>
+            </section>
+          </div>
+
+          <div class="detail-top-media">
+            {% if gallery %}
+              <section class="place-gallery" data-place-gallery aria-label="{% trans 'Галерея фотографий' %}">
+                <div class="place-gallery__frame">
+                  <div class="place-gallery__main swiper" data-place-gallery-main>
+                    <div class="swiper-wrapper">
+                      {% for file in gallery %}
+                        <div class="swiper-slide">
+                          <figure class="place-gallery__slide">
+                            <img
+                              class="place-gallery__image"
+                              src="{{ file.url }}"
+                              alt="{{ place.name_i18n }}"
+                              draggable="false"
+                              decoding="async"
+                              {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                            />
+                          </figure>
+                        </div>
+                      {% endfor %}
+                    </div>
+
+                    {% if gallery|length > 1 %}
+                      <button type="button" class="place-gallery__nav place-gallery__nav--prev" data-place-gallery-prev aria-label="{% trans 'Предыдущее фото' %}">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                          <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                      </button>
+                      <button type="button" class="place-gallery__nav place-gallery__nav--next" data-place-gallery-next aria-label="{% trans 'Следующее фото' %}">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                          <path d="m9.5 5 6.5 7-6.5 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                      </button>
+                      <div class="place-gallery__counter" aria-live="polite">
+                        <span data-place-gallery-current>1</span>
+                        <span aria-hidden="true">/</span>
+                        <span>{{ gallery|length }}</span>
+                      </div>
+                    {% endif %}
+                  </div>
+
+                  {% if gallery|length > 1 %}
+                    <div class="place-gallery__thumbs" aria-label="{% trans 'Миниатюры галереи' %}">
+                      <div class="place-gallery__thumbs-track">
+                        {% for file in gallery %}
+                          <button
+                            type="button"
+                            class="place-gallery__thumb{% if forloop.first %} is-active{% endif %}"
+                            data-place-gallery-thumb
+                            data-index="{{ forloop.counter0 }}"
+                            aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
+                          >
+                            <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" draggable="false" />
+                          </button>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endif %}
+                </div>
+              </section>
+            {% else %}
+              <div class="detail-photo-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
+                <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+                <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endwith %}
+
+      <div class="detail-body">
+        <div class="detail-main-column">
+          {% if place.pricing_options or place.schedule or place.lesson_duration_display or place.extra_conditions or place.additional_info %}
+            <section class="detail-pricing-panel detail-section">
+              <div class="detail-section-head">
+                <h2>{% trans "Расписание и цена" %}</h2>
+                <p class="meta">{% trans "Главные условия занятий и формат оплаты." %}</p>
+              </div>
+              <div class="detail-pricing-grid">
+                {% if place.pricing_options %}
+                  <div class="detail-pricing-card">
+                    <span class="meta-label">{% trans "Форматы оплаты" %}</span>
+                    <ul class="place-pricing-list">
+                      {% for label, value in place.pricing_options %}
+                        <li><span>{{ label }}</span><strong>{{ value }}</strong></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endif %}
+
+                {% if place.schedule or place.lesson_duration_display %}
+                  <div class="detail-pricing-card">
+                    <span class="meta-label">{% trans "Расписание занятий" %}</span>
+                    {% if place.schedule %}
+                      <p class="place-more-text">{{ place.schedule|linebreaksbr }}</p>
+                    {% endif %}
+                    {% if place.lesson_duration_display %}
+                      <p class="place-more-meta"><b>{% trans "Длительность урока" %}:</b> {{ place.lesson_duration_display }}</p>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                {% if place.extra_conditions or place.additional_info %}
+                  <div class="detail-pricing-card">
+                    <span class="meta-label">{% trans "Дополнительно" %}</span>
+                    {% if place.extra_conditions %}
+                      <p class="place-more-text">{{ place.extra_conditions|linebreaksbr }}</p>
+                    {% endif %}
+                    {% if place.additional_info %}
+                      <p class="place-more-text">{{ place.additional_info|linebreaksbr }}</p>
+                    {% endif %}
                   </div>
                 {% endif %}
               </div>
+            </section>
+          {% endif %}
 
-              {% if gallery|length > 1 %}
-                <div class="place-gallery__thumbs" aria-label="{% trans 'Миниатюры галереи' %}">
-                  <div class="place-gallery__thumbs-track">
-                    {% for file in gallery %}
-                      <button
-                        type="button"
-                        class="place-gallery__thumb{% if forloop.first %} is-active{% endif %}"
-                        data-place-gallery-thumb
-                        data-index="{{ forloop.counter0 }}"
-                        aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
-                      >
-                        <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" draggable="false" />
-                      </button>
-                    {% endfor %}
+          <section id="reviews" class="detail-reviews detail-section">
+            <div class="detail-section-head">
+              <h2>{% trans "Отзывы" %}</h2>
+              <p class="meta">
+                {% if place.rating_count %}
+                  {% blocktrans count total=place.rating_count %}{{ total }} отзыв помогает понять место лучше.{% plural %}{{ total }} отзыва помогают понять место лучше.{% endblocktrans %}
+                {% else %}
+                  {% trans "Пока отзывов мало, но вы можете оставить первый." %}
+                {% endif %}
+              </p>
+            </div>
+
+            {% if messages %}
+              <div class="review-messages">
+                {% for message in messages %}
+                  <p class="review-message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <form method="get" class="reviews-toolbar">
+              <label class="filter-item filter-sort">
+                {% trans "Сортировка отзывов" %}
+                <select class="filter-select" name="review_sort">
+                  {% for value, label in review_sort_choices %}
+                    <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <button class="link-btn" type="submit">{% trans "Применить" %}</button>
+            </form>
+
+            {% if place_reviews %}
+              <div class="reviews-list detail-reviews-list">
+                {% for review in place_reviews %}
+                  {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_place_review" show_place_link=False next_url=request.get_full_path %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="meta">{% trans "Пока нет отзывов. Будьте первым!" %}</p>
+            {% endif %}
+
+            <div class="detail-review-write">
+              <h3>{% trans "Оставить отзыв" %}</h3>
+              {% if request.user.is_authenticated %}
+                <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form" data-loading-form>
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                  <div class="review-form-grid">
+                    <label>
+                      {% trans "Ваша оценка" %}
+                      <input type="hidden" name="rating" value="5" data-rating-input />
+                      <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
+                        <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
+                        <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
+                        <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
+                        <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
+                        <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
+                      </div>
+                    </label>
+                    <label>
+                      {% trans "Ваше имя" %}
+                      <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
+                    </label>
+                    <label class="review-anon">
+                      <input type="checkbox" name="is_anonymous" value="1" />
+                      <span>{% trans "Оставить анонимно" %}</span>
+                    </label>
+                  </div>
+                  <label>
+                    {% trans "Текст отзыва" %}
+                    <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось или не понравилось?' %}"></textarea>
+                  </label>
+                  <button type="submit" class="btn" data-loading-button>{% trans "Отправить отзыв" %}</button>
+                </form>
+              {% else %}
+                <div class="review-auth-note">
+                  <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
+                  <div class="review-auth-actions">
+                    <a class="btn" href="{% url 'account_login' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Войти" %}</a>
+                    <a class="link-btn" href="{% url 'account_register' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Регистрация" %}</a>
                   </div>
                 </div>
               {% endif %}
             </div>
           </section>
-        {% else %}
-          <div class="detail-photo-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-            <span class="image-placeholder-icon" aria-hidden="true">📷</span>
-            <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
-          </div>
-        {% endif %}
-      {% endwith %}
-
-      <section class="detail-highlights" aria-label="{% trans 'Основные характеристики' %}">
-        {% if place.age_display %}
-          <div class="detail-highlight-card">
-            <span class="detail-highlight-card__label">{% trans "Возраст" %}</span>
-            <strong class="detail-highlight-card__value">{{ place.age_display }}</strong>
-          </div>
-        {% endif %}
-
-        {% if place.price_range_display %}
-          <div class="detail-highlight-card">
-            <span class="detail-highlight-card__label">{% trans "Цена" %}</span>
-            <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
-          </div>
-        {% endif %}
-
-        <div class="detail-highlight-card">
-          <span class="detail-highlight-card__label">{% trans "Категория" %}</span>
-          <strong class="detail-highlight-card__value">{{ place.get_category_display }}</strong>
         </div>
-      </section>
 
-      {% if place.description_i18n %}
-        <div class="detail-description">
-          <p>{{ place.description_i18n|linebreaksbr }}</p>
-        </div>
-      {% endif %}
-
-      <div class="card-cta-row">
-        {% if place.phone1 %}
-          <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail">{% trans "Позвонить" %}</a>
-          <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail">WhatsApp</a>
-        {% endif %}
-        {% if place.instagram %}
-          <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail">Instagram</a>
-        {% endif %}
-      </div>
-
-      {% if place.pricing_options or place.schedule or place.lesson_duration_display or place.extra_conditions or place.additional_info %}
-        <section class="detail-pricing-panel panel">
-          <h2>{% trans "Расписание и цена" %}</h2>
-          <div class="detail-pricing-grid">
-            {% if place.pricing_options %}
-              <div class="detail-pricing-card">
-                <span class="meta-label">{% trans "Форматы оплаты" %}</span>
-                <ul class="place-pricing-list">
-                  {% for label, value in place.pricing_options %}
-                    <li><span>{{ label }}</span><strong>{{ value }}</strong></li>
-                  {% endfor %}
-                </ul>
-              </div>
-            {% endif %}
-
-            {% if place.schedule or place.lesson_duration_display %}
-              <div class="detail-pricing-card">
-                <span class="meta-label">{% trans "Расписание занятий" %}</span>
-                {% if place.schedule %}
-                  <p class="place-more-text">{{ place.schedule|linebreaksbr }}</p>
-                {% endif %}
-                {% if place.lesson_duration_display %}
-                  <p class="place-more-meta"><b>{% trans "Длительность урока" %}:</b> {{ place.lesson_duration_display }}</p>
-                {% endif %}
-              </div>
-            {% endif %}
-
-            {% if place.extra_conditions or place.additional_info %}
-              <div class="detail-pricing-card">
-                <span class="meta-label">{% trans "Дополнительно" %}</span>
-                {% if place.extra_conditions %}
-                  <p class="place-more-text">{{ place.extra_conditions|linebreaksbr }}</p>
-                {% endif %}
-                {% if place.additional_info %}
-                  <p class="place-more-text">{{ place.additional_info|linebreaksbr }}</p>
-                {% endif %}
-              </div>
-            {% endif %}
-          </div>
-        </section>
-      {% endif %}
-
-      <section id="owner-request" class="owner-request panel">
-        <h2>{% trans "Вы представитель этого кружка?" %}</h2>
-        {% if place.owner %}
-          <p class="meta">{% trans "Карточка уже закреплена за представителем кружка. Если доступ нужен вашей команде, свяжитесь с нами." %}</p>
-        {% else %}
-          <p class="meta">{% trans "Если вы ведете этот кружок, можно отправить заявку и получить доступ к редактированию карточки." %}</p>
-        {% endif %}
-
-        {% if request.user.is_authenticated %}
-          {% if can_claim_place %}
-            <form method="post" action="{% url 'request_place_ownership' place.id %}" class="owner-request-form" data-loading-form>
-              {% csrf_token %}
-              <label>
-                {% trans "Комментарий к заявке (необязательно)" %}
-                <textarea class="field" name="note" rows="3" maxlength="1200" placeholder="{% trans 'Например: я представитель этого кружка, могу подтвердить контакты.' %}"></textarea>
-              </label>
-              <button type="submit" class="btn" data-loading-button>{% trans "Отправить заявку на управление" %}</button>
-            </form>
-          {% else %}
-            {% if can_claim_reason == "already_owner" %}
-              <p class="meta">{% trans "Эта карточка уже привязана к вашему аккаунту." %}</p>
-            {% elif can_claim_reason == "pending_exists" and latest_ownership_request %}
-              <p class="meta">
-                {% trans "Ваша заявка уже на модерации." %}
-                {% trans "Статус" %}: {{ latest_ownership_request.get_status_display }}.
-              </p>
-            {% endif %}
-          {% endif %}
-        {% else %}
-          <div class="review-auth-note">
-            <p>{% trans "Чтобы отправить заявку на управление карточкой, войдите в аккаунт." %}</p>
-            <div class="review-auth-actions">
-              <a class="btn" href="{% url 'account_login' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% trans "Войти" %}</a>
-              <a class="link-btn" href="{% url 'account_register' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% trans "Регистрация" %}</a>
+        <aside class="detail-side-column">
+          <section class="detail-side-card detail-contact-panel">
+            <div class="detail-section-head detail-section-head-compact">
+              <h2>{% trans "Контакты и связь" %}</h2>
+              <p class="meta">{% trans "Быстрые способы связаться и уточнить детали." %}</p>
             </div>
-          </div>
-        {% endif %}
-      </section>
-
-      <div class="detail-meta-grid">
-        <div class="detail-meta-item">
-          <span class="meta-label">{% trans "Формат" %}</span>
-          <div class="meta-value">
-            {% if place.is_temporary %}
-              🕒 {% trans "Временное" %}
-            {% else %}
-              ♾️ {% trans "Постоянное" %}
-            {% endif %}
-          </div>
-        </div>
-
-        {% if place.is_temporary %}
-          {% if place.temporary_start or place.temporary_end %}
-            <div class="detail-meta-item">
-              <span class="meta-label">{% trans "Период проведения" %}</span>
-              <div class="meta-value">
-                {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
-                {% if place.temporary_start and place.temporary_end %} — {% endif %}
-                {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
-              </div>
+            <div class="detail-contact-actions">
+              {% if place.phone1 %}
+                <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">{% trans "Позвонить" %}</a>
+                <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">WhatsApp</a>
+              {% endif %}
+              {% if place.instagram %}
+                <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">Instagram</a>
+              {% endif %}
+              {% if place.website %}
+                <a class="link-btn" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{% trans "Открыть сайт" %}</a>
+              {% endif %}
             </div>
-          {% endif %}
-        {% endif %}
-
-        {% if place.subcategory %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Подкатегория" %}</span>
-            <div class="meta-value">{{ place.subcategory }}</div>
-          </div>
-        {% endif %}
-
-        {% if place.district or place.metro %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Район/метро" %}</span>
-            <div class="meta-value">{% if place.district %}{% trans place.district %}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{% trans place.metro %}{% endif %}</div>
-          </div>
-        {% endif %}
-
-        {% if place.address %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Адрес" %}</span>
-            <div class="meta-value">{{ place.address }}</div>
-          </div>
-        {% endif %}
-
-        <div class="detail-meta-item">
-          <span class="meta-label">{% trans "Добавлено" %}</span>
-          <div class="meta-value">{{ place.created_at|date:"d.m.Y" }}</div>
-        </div>
-
-        {% if place.lesson_duration_display %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Длительность" %}</span>
-            <div class="meta-value">{{ place.lesson_duration_display }}</div>
-          </div>
-        {% endif %}
-
-        {% if place.website %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Сайт" %}</span>
-            <div class="meta-value"><a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a></div>
-          </div>
-        {% endif %}
-
-        {% if place.phone1 %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Телефон" %}</span>
-            <div class="meta-value"><a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a></div>
-          </div>
-        {% endif %}
-
-        {% if place.instagram %}
-          <div class="detail-meta-item">
-            <span class="meta-label">Instagram</span>
-            <div class="meta-value"><a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a></div>
-          </div>
-        {% endif %}
-
-        {% if place.lat and place.lng %}
-          <div class="detail-meta-item">
-            <span class="meta-label">{% trans "Координаты" %}</span>
-            <div class="meta-value">{{ place.lat }}, {{ place.lng }}</div>
-          </div>
-        {% endif %}
-      </div>
-      {% if map_embed_url %}
-        <section class="detail-map-wrap">
-          <h2 class="detail-map-title">{% trans "На карте" %}</h2>
-          <iframe
-            class="detail-map-frame"
-            src="{{ map_embed_url }}"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            title="{% trans 'Карта места' %}"
-          ></iframe>
-          <p class="detail-map-link">
-            <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% trans "Открыть большую карту" %}</a>
-          </p>
-        </section>
-      {% endif %}
-
-      <section id="reviews" class="detail-reviews panel">
-        <h2>{% trans "Отзывы" %}</h2>
-        {% if messages %}
-          <div class="review-messages">
-            {% for message in messages %}
-              <p class="review-message {{ message.tags }}">{{ message }}</p>
-            {% endfor %}
-          </div>
-        {% endif %}
-
-        {% if request.user.is_authenticated %}
-          <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form" data-loading-form>
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-            <div class="review-form-grid">
-              <label>
-                {% trans "Ваша оценка" %}
-                <input type="hidden" name="rating" value="5" data-rating-input />
-                <div class="review-stars-picker" data-review-stars role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
-                  <button type="button" class="review-star" data-value="1" aria-label="1">★</button>
-                  <button type="button" class="review-star" data-value="2" aria-label="2">★</button>
-                  <button type="button" class="review-star" data-value="3" aria-label="3">★</button>
-                  <button type="button" class="review-star" data-value="4" aria-label="4">★</button>
-                  <button type="button" class="review-star" data-value="5" aria-label="5">★</button>
+            <div class="detail-contact-list">
+              {% if place.phone1 %}
+                <div class="detail-contact-row">
+                  <span class="meta-label">{% trans "Телефон" %}</span>
+                  <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a>
                 </div>
-              </label>
-              <label>
-                {% trans "Ваше имя" %}
-                <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
-              </label>
-              <label class="review-anon">
-                <input type="checkbox" name="is_anonymous" value="1" />
-                <span>{% trans "Оставить анонимно" %}</span>
-              </label>
+              {% endif %}
+              {% if place.instagram %}
+                <div class="detail-contact-row">
+                  <span class="meta-label">Instagram</span>
+                  <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a>
+                </div>
+              {% endif %}
+              {% if place.website %}
+                <div class="detail-contact-row">
+                  <span class="meta-label">{% trans "Сайт" %}</span>
+                  <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a>
+                </div>
+              {% endif %}
+              {% if place.address %}
+                <div class="detail-contact-row">
+                  <span class="meta-label">{% trans "Адрес" %}</span>
+                  <span>{{ place.address }}</span>
+                </div>
+              {% endif %}
             </div>
-            <label>
-              {% trans "Текст отзыва" %}
-              <textarea class="field" name="text" rows="4" placeholder="{% trans 'Что вам понравилось или не понравилось?' %}"></textarea>
-            </label>
-            <button type="submit" class="btn" data-loading-button>{% trans "Отправить отзыв" %}</button>
-          </form>
-        {% else %}
-          <div class="review-auth-note">
-            <p>{% trans "Письменные отзывы доступны только после входа в аккаунт." %}</p>
-            <div class="review-auth-actions">
-              <a class="btn" href="{% url 'account_login' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Войти" %}</a>
-              <a class="link-btn" href="{% url 'account_register' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Регистрация" %}</a>
+          </section>
+
+          <section class="detail-side-card detail-facts-panel">
+            <div class="detail-section-head detail-section-head-compact">
+              <h2>{% trans "Основные данные" %}</h2>
+              <p class="meta">{% trans "Короткая сводка по формату, локации и условиям." %}</p>
             </div>
-          </div>
-        {% endif %}
+            <div class="detail-meta-grid detail-meta-grid--compact">
+              <div class="detail-meta-item">
+                <span class="meta-label">{% trans "Формат" %}</span>
+                <div class="meta-value">
+                  {% if place.is_temporary %}
+                    {% trans "Временное" %}
+                  {% else %}
+                    {% trans "Постоянное" %}
+                  {% endif %}
+                </div>
+              </div>
 
-        <form method="get" class="reviews-toolbar">
-          <label class="filter-item filter-sort">
-            {% trans "Сортировка отзывов" %}
-            <select class="filter-select" name="review_sort">
-              {% for value, label in review_sort_choices %}
-                <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
-          </label>
-          <button class="link-btn" type="submit">{% trans "Применить" %}</button>
-        </form>
+              {% if place.is_temporary and place.temporary_start or place.temporary_end %}
+                <div class="detail-meta-item">
+                  <span class="meta-label">{% trans "Период" %}</span>
+                  <div class="meta-value">
+                    {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
+                    {% if place.temporary_start and place.temporary_end %} — {% endif %}
+                    {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
+                  </div>
+                </div>
+              {% endif %}
 
-        {% if place_reviews %}
-          <div class="reviews-list">
-            {% for review in place_reviews %}
-              {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_place_review" show_place_link=False next_url=request.get_full_path %}
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="meta">{% trans "Пока нет отзывов. Будьте первым!" %}</p>
-        {% endif %}
-      </section>
+              {% if place.district or place.metro %}
+                <div class="detail-meta-item">
+                  <span class="meta-label">{% trans "Район / метро" %}</span>
+                  <div class="meta-value">{% if place.district %}{% trans place.district %}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{% trans place.metro %}{% endif %}</div>
+                </div>
+              {% endif %}
+
+              {% if place.lesson_duration_display %}
+                <div class="detail-meta-item">
+                  <span class="meta-label">{% trans "Длительность" %}</span>
+                  <div class="meta-value">{{ place.lesson_duration_display }}</div>
+                </div>
+              {% endif %}
+
+              <div class="detail-meta-item">
+                <span class="meta-label">{% trans "Добавлено" %}</span>
+                <div class="meta-value">{{ place.created_at|date:"d.m.Y" }}</div>
+              </div>
+
+              {% if place.lat and place.lng %}
+                <div class="detail-meta-item">
+                  <span class="meta-label">{% trans "Координаты" %}</span>
+                  <div class="meta-value">{{ place.lat }}, {{ place.lng }}</div>
+                </div>
+              {% endif %}
+            </div>
+          </section>
+
+          {% if map_embed_url %}
+            <section class="detail-side-card detail-map-wrap">
+              <div class="detail-section-head detail-section-head-compact">
+                <h2 class="detail-map-title">{% trans "На карте" %}</h2>
+                <p class="meta">{% trans "Ориентир по месту и быстрый переход в большую карту." %}</p>
+              </div>
+              <iframe
+                class="detail-map-frame"
+                src="{{ map_embed_url }}"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="{% trans 'Карта места' %}"
+              ></iframe>
+              <p class="detail-map-link">
+                <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% trans "Открыть большую карту" %}</a>
+              </p>
+            </section>
+          {% endif %}
+
+          <section id="owner-request" class="owner-request detail-side-card owner-request--subtle">
+            <div class="detail-section-head detail-section-head-compact">
+              <h2>{% trans "Вы представитель этого кружка?" %}</h2>
+              <p class="meta">{% trans "Служебный блок для доступа к управлению карточкой." %}</p>
+            </div>
+            {% if place.owner %}
+              <p class="meta">{% trans "Карточка уже закреплена за представителем кружка. Если доступ нужен вашей команде, свяжитесь с нами." %}</p>
+            {% else %}
+              <p class="meta">{% trans "Если вы ведете этот кружок, можно отправить заявку и получить доступ к редактированию карточки." %}</p>
+            {% endif %}
+
+            {% if request.user.is_authenticated %}
+              {% if can_claim_place %}
+                <form method="post" action="{% url 'request_place_ownership' place.id %}" class="owner-request-form" data-loading-form>
+                  {% csrf_token %}
+                  <label>
+                    {% trans "Комментарий к заявке (необязательно)" %}
+                    <textarea class="field" name="note" rows="3" maxlength="1200" placeholder="{% trans 'Например: я представитель этого кружка, могу подтвердить контакты.' %}"></textarea>
+                  </label>
+                  <button type="submit" class="btn" data-loading-button>{% trans "Отправить заявку на управление" %}</button>
+                </form>
+              {% else %}
+                {% if can_claim_reason == "already_owner" %}
+                  <p class="meta">{% trans "Эта карточка уже привязана к вашему аккаунту." %}</p>
+                {% elif can_claim_reason == "pending_exists" and latest_ownership_request %}
+                  <p class="meta">
+                    {% trans "Ваша заявка уже на модерации." %}
+                    {% trans "Статус" %}: {{ latest_ownership_request.get_status_display }}.
+                  </p>
+                {% endif %}
+              {% endif %}
+            {% else %}
+              <div class="review-auth-note">
+                <p>{% trans "Чтобы отправить заявку на управление карточкой, войдите в аккаунт." %}</p>
+                <div class="review-auth-actions">
+                  <a class="btn" href="{% url 'account_login' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% trans "Войти" %}</a>
+                  <a class="link-btn" href="{% url 'account_register' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% trans "Регистрация" %}</a>
+                </div>
+              </div>
+            {% endif %}
+          </section>
+        </aside>
+      </div>
     </article>
   </section>
   <script>

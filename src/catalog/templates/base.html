@@ -364,6 +364,14 @@
           }
         }
 
+        function setReviewReactionPending(form, isPending) {
+          form.classList.toggle("is-pending", !!isPending);
+          form.querySelectorAll(".review-reaction-btn").forEach(function (button) {
+            button.disabled = !!isPending;
+            button.setAttribute("aria-busy", isPending ? "true" : "false");
+          });
+        }
+
         function buildFormPayload(form, submitter) {
           if (submitter) {
             try {
@@ -428,8 +436,56 @@
           }
         }
 
+        async function handleReviewReactionClick(button) {
+          if (!(button instanceof HTMLButtonElement) || !(button.form instanceof HTMLFormElement)) return;
+          const form = button.form;
+          if (!form.matches("[data-review-reaction-form]")) return;
+          if (button.disabled || form.classList.contains("is-pending")) return;
+
+          setReviewReactionPending(form, true);
+
+          try {
+            const response = await fetch(form.action, {
+              method: "POST",
+              headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json",
+              },
+              body: buildFormPayload(form, button),
+              credentials: "same-origin",
+            });
+            const payload = await response.json().catch(function () {
+              return null;
+            });
+
+            if (response.status === 401 && payload && payload.auth_required && payload.redirect_url) {
+              window.location.assign(payload.redirect_url);
+              return;
+            }
+
+            if (!response.ok || !payload || payload.ok !== true) {
+              throw new Error("Review reaction request failed");
+            }
+
+            updateReviewReactionForm(form, payload);
+          } catch (err) {
+            form.classList.add("has-error");
+            window.setTimeout(function () {
+              form.classList.remove("has-error");
+            }, 1400);
+          } finally {
+            setReviewReactionPending(form, false);
+          }
+        }
+
         document.addEventListener("click", function (event) {
           if (!(event.target instanceof Element)) return;
+          const reviewReactionButton = event.target.closest(".review-reaction-btn");
+          if (reviewReactionButton && reviewReactionButton.form instanceof HTMLFormElement && reviewReactionButton.form.matches("[data-review-reaction-form]")) {
+            event.preventDefault();
+            handleReviewReactionClick(reviewReactionButton);
+            return;
+          }
           const submitter = event.target.closest('button[type="submit"], input[type="submit"]');
           if (!submitter || !(submitter.form instanceof HTMLFormElement)) return;
           submitter.form.__kidsMapSubmitter = submitter;
@@ -628,6 +684,7 @@
         document.addEventListener("submit", function (event) {
           const form = event.target;
           if (!(form instanceof HTMLFormElement) || !form.matches("[data-loading-form]")) return;
+          if (event.defaultPrevented) return;
 
           const submitter =
             event.submitter ||

@@ -2749,7 +2749,28 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "owner-file-uploader-current-preview")
         self.assertContains(response, "owner-file-uploader-clear")
+        self.assertContains(response, "data-owner-wizard")
+        self.assertContains(response, "data-owner-free-nav")
+        self.assertContains(response, "data-owner-completion")
+        self.assertContains(response, 'data-owner-step="4"', html=False)
+        self.assertContains(response, "owner-wizard-progressbar")
         self.assertNotContains(response, "Фото для шапки")
+
+    def test_owner_edit_page_hides_public_link_for_inactive_place(self):
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_place_edit", args=[self.editor_place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Открыть страницу кружка")
+        self.assertContains(response, "Публичная страница появится после публикации карточки.")
+
+    def test_owner_dashboard_draft_card_name_is_not_public_link(self):
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_places_dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, f'href="{self.editor_place.get_absolute_url()}"', html=False)
+        self.assertContains(response, self.editor_place.name_i18n())
 
     def test_owner_create_page_renders_map_picker(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
@@ -2757,17 +2778,23 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-owner-map-picker")
-        self.assertContains(response, "Основной язык карточки: AZ")
+        self.assertContains(response, "owner-form-intro-title")
+        self.assertContains(response, "AZ")
         self.assertContains(response, 'name="lat"', html=False)
         self.assertContains(response, 'name="lng"', html=False)
         self.assertContains(response, "data-map-search-input")
-        self.assertContains(response, "Найти на карте")
+        self.assertContains(response, "data-map-search")
         self.assertContains(response, "owner_place_map_picker.js")
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
         self.assertNotContains(response, "Фото для шапки")
+        self.assertContains(response, "data-owner-completion")
+        self.assertContains(response, "owner-form-step-lead")
+        self.assertContains(response, "owner-form-details-secondary")
+        self.assertContains(response, 'data-owner-step="4"', html=False)
+        self.assertContains(response, 'class="owner-temp-panel" hidden data-temp-panel', html=False)
         html = response.content.decode("utf-8")
-        self.assertLess(html.index("Название (AZ)"), html.index("Название (RU)"))
-        self.assertLess(html.index("Описание (AZ)"), html.index("Описание (RU)"))
+        self.assertLess(html.index('name="name_az"'), html.index('name="name_ru"'))
+        self.assertLess(html.index('name="description_az"'), html.index('name="description_ru"'))
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     def test_owner_create_page_uses_google_maps_when_key_is_configured(self):
@@ -2853,7 +2880,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.manager_place.refresh_from_db()
         self.assertFalse(self.manager_place.is_active)
 
-    def test_owner_dashboard_disables_publish_button_for_unapproved_draft(self):
+    def test_owner_dashboard_shows_publish_hint_for_unapproved_draft(self):
         PlaceOwnershipRequest.objects.create(
             place=self.manager_place,
             applicant=self.manager_user,
@@ -2865,7 +2892,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.get(reverse("owner_places_dashboard"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'data-publish-disabled="1"')
+        self.assertContains(response, 'data-publish-unavailable="1"')
+        self.assertNotContains(response, 'owner-place-btn-primary')
 
     def test_owner_dashboard_shows_clear_moderation_statuses_on_cards(self):
         rejected_place = Place.objects.create(
@@ -2906,11 +2934,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.get(reverse("owner_places_dashboard"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Статус модерации")
-        self.assertContains(response, "На рассмотрении")
-        self.assertContains(response, "Одобрена")
-        self.assertContains(response, "Отклонена")
-        self.assertContains(response, "Причина отклонения")
+        self.assertContains(response, "owner-place-fact-label")
+        self.assertContains(response, "owner-status-badge-pending")
+        self.assertContains(response, "owner-status-badge-approved")
+        self.assertContains(response, "owner-status-badge-rejected")
         self.assertContains(response, "Нужно добавить нормальное фото")
 
     def test_owner_dashboard_shows_coordinates_and_map_readiness_statuses(self):
@@ -3032,8 +3059,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -3080,8 +3107,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "address": "Улица 5",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -3100,7 +3127,6 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         place = Place.objects.get(owner=self.manager_user, name_ru="Карточка с геокодированием")
         self.assertEqual(place.lat, 40.401)
         self.assertEqual(place.lng, 49.801)
-        self.assertContains(response, "Координаты обновлены автоматически")
         geocode_mock.assert_called_once()
         self.assertIn("Улица 5", geocode_mock.call_args.kwargs["query"])
         self.assertTrue(
@@ -3130,8 +3156,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "10",
                 "price_from": "80",
                 "price_to": "140",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "address": "Улица с ручной точкой 8",
                 "lat": "40.377700",
                 "lng": "49.892200",
@@ -3152,7 +3178,6 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         place = Place.objects.get(owner=self.manager_user, name_ru="Карточка с ручной точкой")
         self.assertEqual(place.lat, 40.3777)
         self.assertEqual(place.lng, 49.8922)
-        self.assertContains(response, "Точка на карте сохранена")
         geocode_mock.assert_not_called()
         self.assertTrue(
             PlaceChangeAudit.objects.filter(
@@ -3223,8 +3248,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -3239,7 +3264,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Укажите основное описание на азербайджанском языке.")
+        self.assertIn("description_az", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без описания").exists())
 
     def test_owner_place_create_requires_district_or_metro(self):
@@ -3275,7 +3300,6 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Укажите локацию: выберите район или станцию метро.")
         self.assertIn("district", response.context["form"].errors)
         self.assertIn("metro", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без локации").exists())
@@ -3297,7 +3321,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
-                "district": "Ясамал",
+                "district": "Yasamal",
                 "metro": "",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
@@ -3313,10 +3337,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Укажите дату и время начала для временного мероприятия.")
-        self.assertContains(response, "Укажите дату и время окончания для временного мероприятия.")
         self.assertIn("temporary_start", response.context["form"].errors)
         self.assertIn("temporary_end", response.context["form"].errors)
+        self.assertContains(response, 'class="owner-temp-panel" data-temp-panel', html=False)
+        self.assertNotContains(response, 'class="owner-temp-panel" hidden data-temp-panel', html=False)
         self.assertFalse(Place.objects.filter(name_ru="Временное мероприятие без дат").exists())
 
     def test_owner_place_create_rejects_custom_metro_value(self):
@@ -3336,7 +3360,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
-                "district": "Ясамал",
+                "district": "Yasamal",
                 "metro": "Произвольное значение",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
@@ -3352,7 +3376,6 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Выберите станцию метро из списка.")
         self.assertIn("metro", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка с невалидным метро").exists())
 
@@ -3373,8 +3396,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -3408,8 +3431,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -3424,7 +3447,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Укажите основное название на азербайджанском языке.")
+        self.assertIn("name_az", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без AZ названия").exists())
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
@@ -3437,15 +3460,16 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "address": "Улица 77",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "form_action": "check_coordinates",
             },
             follow=True,
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Координаты найдены: 40.411111, 49.822222")
+        self.assertContains(response, "40.411111")
+        self.assertContains(response, "49.822222")
         self.assertFalse(Place.objects.filter(owner=self.manager_user, address="Улица 77").exists())
         geocode_mock.assert_called_once()
 
@@ -3457,8 +3481,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             reverse("owner_place_create"),
             data={
                 "address": "Улица 77",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "lat": "40.500000",
                 "lng": "49.900000",
                 "form_action": "check_coordinates",
@@ -3467,7 +3491,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Выбрана точка на карте: 40.500000, 49.900000")
+        self.assertContains(response, "40.500000")
+        self.assertContains(response, "49.900000")
         geocode_mock.assert_not_called()
 
     def test_owner_editor_can_submit_draft_for_moderation(self):

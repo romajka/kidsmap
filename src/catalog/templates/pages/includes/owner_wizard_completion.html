@@ -1,0 +1,36 @@
+{% load i18n %}
+<div class="owner-completion-panel" data-owner-completion>
+  <article class="owner-completion-card owner-completion-card-required">
+    <div class="owner-completion-card-head">
+      <span class="owner-completion-kicker">{% trans "Обязательный минимум" %}</span>
+      <strong class="owner-completion-percent" data-owner-completion-percent="required">0%</strong>
+    </div>
+    <div class="owner-completion-bar" aria-hidden="true">
+      <span data-owner-completion-bar="required"></span>
+    </div>
+    <p class="meta">
+      <span data-owner-completion-count="required">0/0</span>
+      {% trans "для публикации" %}
+    </p>
+    <p class="owner-completion-tip" data-owner-completion-tip="required">
+      {% trans "Сначала заполните обязательную базу карточки." %}
+    </p>
+  </article>
+
+  <article class="owner-completion-card">
+    <div class="owner-completion-card-head">
+      <span class="owner-completion-kicker">{% trans "Общая заполненность" %}</span>
+      <strong class="owner-completion-percent" data-owner-completion-percent="overall">0%</strong>
+    </div>
+    <div class="owner-completion-bar owner-completion-bar-soft" aria-hidden="true">
+      <span data-owner-completion-bar="overall"></span>
+    </div>
+    <p class="meta">
+      <span data-owner-completion-count="overall">0/0</span>
+      {% trans "вместе с дополнительными данными" %}
+    </p>
+    <p class="owner-completion-tip" data-owner-completion-tip="overall">
+      {% trans "После базы можно усилить карточку деталями и дополнительной информацией." %}
+    </p>
+  </article>
+</div>

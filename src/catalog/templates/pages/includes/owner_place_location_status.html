@@ -1,14 +1,14 @@
 {% load i18n %}
-<div class="owner-moderation-row">
-  <span class="meta">{% trans "Координаты" %}:</span>
+<div class="owner-place-fact">
+  <span class="owner-place-fact-label">{% trans "Координаты" %}</span>
   {% if place.has_coordinates %}
     <span class="owner-status-badge owner-status-badge-approved">{% trans "Есть координаты" %}</span>
   {% else %}
     <span class="owner-status-badge owner-status-badge-none">{% trans "Нужны координаты" %}</span>
   {% endif %}
 </div>
-<div class="owner-moderation-row">
-  <span class="meta">{% trans "На карте" %}:</span>
+<div class="owner-place-fact">
+  <span class="owner-place-fact-label">{% trans "На карте" %}</span>
   {% if place.is_map_ready %}
     <span class="owner-status-badge owner-status-badge-approved">{% trans "Готово для карты" %}</span>
   {% else %}

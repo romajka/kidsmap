@@ -646,20 +646,20 @@ class OwnerPlaceEditForm(forms.ModelForm):
                 "autocomplete": "street-address",
             }
         )
-        self.fields["address"].help_text = _("Улица, дом и ориентир.")
-        self.fields["name_az"].help_text = _("Обязательно.")
-        self.fields["name_ru"].help_text = _("Необязательно.")
-        self.fields["name_en"].help_text = _("Необязательно.")
-        self.fields["description_az"].help_text = _("Обязательно.")
-        self.fields["description_ru"].help_text = _("Необязательно.")
-        self.fields["description_en"].help_text = _("Необязательно.")
+        self.fields["address"].help_text = _("Улица, дом, ориентир.")
+        self.fields["name_az"].help_text = _("Обязательно для публикации.")
+        self.fields["name_ru"].help_text = _("Можно добавить позже.")
+        self.fields["name_en"].help_text = _("Можно добавить позже.")
+        self.fields["description_az"].help_text = _("Обязательно для публикации.")
+        self.fields["description_ru"].help_text = _("Можно добавить позже.")
+        self.fields["description_en"].help_text = _("Можно добавить позже.")
         self.fields["schedule"].help_text = _("Например: Пн/Ср/Пт 18:00-19:00.")
-        self.fields["lesson_duration_minutes"].help_text = _("В минутах.")
-        self.fields["price_per_lesson"].help_text = _("Если есть.")
-        self.fields["price_per_month"].help_text = _("Если есть.")
-        self.fields["price_per_8_lessons"].help_text = _("Если есть.")
+        self.fields["lesson_duration_minutes"].help_text = _("Например: 60 минут.")
+        self.fields["price_per_lesson"].help_text = _("Если есть отдельная цена.")
+        self.fields["price_per_month"].help_text = _("Если есть абонемент.")
+        self.fields["price_per_8_lessons"].help_text = _("Если есть пакет занятий.")
         self.fields["extra_conditions"].help_text = _("Скидки, пробный урок, форма.")
-        self.fields["additional_info"].help_text = _("Что ещё важно показать.")
+        self.fields["additional_info"].help_text = _("Только если есть важные детали.")
         for field_name in ("temporary_start", "temporary_end"):
             self.fields[field_name].error_messages.update(
                 {
@@ -779,12 +779,12 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         required=False,
         max_length=500,
         widget=forms.Textarea(attrs={"class": "field", "rows": 2}),
-        help_text=_("Короткий комментарий для модератора."),
+        help_text=_("Если модератору нужен дополнительный контекст."),
     )
     gallery_images = MultipleFileField(
         label=_("Дополнительные фото (до 5)"),
         required=False,
-        help_text=_("Можно загрузить до 5 изображений для галереи."),
+        help_text=_("До 5 фото для галереи."),
     )
 
     class Meta(OwnerPlaceEditForm.Meta):

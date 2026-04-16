@@ -39,6 +39,16 @@
       class="owner-edit-form owner-wizard-form"
       data-loading-form
       data-owner-wizard
+      data-owner-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
+      data-owner-required-groups="district|metro"
+      data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,instagram,website,schedule,lesson_duration_minutes,price_per_lesson,price_per_month,price_per_8_lessons,extra_conditions,additional_info,gallery_images,moderation_note"
+      data-owner-optional-groups="lat|lng"
+      data-owner-location-group-label="{% trans 'Район или метро' %}"
+      data-owner-map-group-label="{% trans 'Точка на карте' %}"
+      data-owner-required-done-text="{% trans 'Обязательный минимум заполнен. Карточку уже можно отправлять, если всё проверено.' %}"
+      data-owner-required-tip-prefix="{% trans 'Для публикации осталось:' %}"
+      data-owner-overall-done-text="{% trans 'Карточка заполнена очень хорошо. Осталось только финально проверить детали.' %}"
+      data-owner-overall-tip-prefix="{% trans 'Для полного профиля можно ещё добавить:' %}"
       data-location-required-message="{% trans 'Укажите район или метро, чтобы продолжить.' %}"
       data-step-label="{% trans 'Шаг' %}"
       data-of-label="{% trans 'из' %}"
@@ -47,11 +57,13 @@
       {% if form.non_field_errors %}
         <div class="auth-errors">{{ form.non_field_errors }}</div>
       {% endif %}
+
       <div class="owner-wizard-shell">
         <div class="owner-wizard-head">
           <div class="owner-form-intro">
             <p class="owner-form-intro-title">{% trans "Основной язык карточки: AZ" %}</p>
-            <p class="meta">{% trans "Заполняйте форму по шагам. Название и описание на азербайджанском обязательны, остальные языки можно добавить позже." %}</p>
+            <p class="meta">{% trans "Сначала обязательный минимум, остальное можно добавить позже." %}</p>
+            {% include "pages/includes/owner_wizard_completion.html" %}
           </div>
           <div class="owner-wizard-progress">
             <div class="owner-wizard-progress-top">
@@ -87,14 +99,13 @@
             <section class="owner-form-section">
               <div class="owner-form-section-head">
                 <h2>{% trans "Основное" %}</h2>
-                <p class="meta">{% trans "Минимум для создания карточки: название, описание, категория, возраст и цена." %}</p>
+                <p class="meta">{% trans "Обязательный минимум для публикации карточки." %}</p>
               </div>
+              <p class="owner-form-step-lead">{% trans "Заполните базу на AZ: название, описание, категорию, возраст и цену." %}</p>
               <div class="owner-form-grid owner-form-grid-tight">
                 {% include "pages/includes/owner_form_field.html" with field=form.name_az %}
                 {% include "pages/includes/owner_form_field.html" with field=form.category %}
                 {% include "pages/includes/owner_form_field.html" with field=form.description_az full_width=True %}
-                {% include "pages/includes/owner_form_field.html" with field=form.subcategory %}
-                <div></div>
                 {% include "pages/includes/owner_form_field.html" with field=form.age_from %}
                 {% include "pages/includes/owner_form_field.html" with field=form.age_to %}
                 {% include "pages/includes/owner_form_field.html" with field=form.price_from %}
@@ -102,9 +113,20 @@
               </div>
             </section>
 
-            <details class="owner-form-details">
+            <details class="owner-form-details owner-form-details-secondary"{% if form.subcategory.value or form.subcategory.errors %} open{% endif %}>
+              <summary>{% trans "Уточнить категорию" %}</summary>
+              <div class="owner-form-details-grid">
+                <p class="meta owner-form-details-copy">{% trans "Подкатегория помогает родителям быстрее понять формат занятий, но её можно добавить позже." %}</p>
+                <div class="owner-form-grid owner-form-grid-tight">
+                  {% include "pages/includes/owner_form_field.html" with field=form.subcategory %}
+                </div>
+              </div>
+            </details>
+
+            <details class="owner-form-details owner-form-details-secondary"{% if form.name_ru.value or form.name_en.value or form.description_ru.value or form.description_en.value or form.name_ru.errors or form.name_en.errors or form.description_ru.errors or form.description_en.errors %} open{% endif %}>
               <summary>{% trans "Дополнительные языки (RU / EN)" %}</summary>
               <div class="owner-form-grid owner-form-grid-tight owner-form-details-grid">
+                <p class="meta owner-form-details-copy owner-form-field-full">{% trans "AZ обязателен. Русский и английский можно добавить сразу или вернуться к ним позже." %}</p>
                 {% include "pages/includes/owner_form_field.html" with field=form.name_ru %}
                 {% include "pages/includes/owner_form_field.html" with field=form.name_en %}
                 {% include "pages/includes/owner_form_field.html" with field=form.description_ru full_width=True %}
@@ -112,8 +134,24 @@
               </div>
             </details>
 
+            <details class="owner-form-details owner-form-details-secondary"{% if form.is_temporary.value or form.temporary_start.value or form.temporary_end.value or form.is_temporary.errors or form.temporary_start.errors or form.temporary_end.errors %} open{% endif %}>
+              <summary>{% trans "Временное мероприятие" %}</summary>
+              <div class="owner-form-details-grid">
+                <p class="meta owner-form-details-copy">{% trans "Включайте только если эта карточка относится к событию с датой начала и окончания." %}</p>
+                <div class="owner-form-grid owner-form-grid-tight">
+                  {% include "pages/includes/owner_form_field.html" with field=form.is_temporary full_width=True %}
+                </div>
+                <div class="owner-temp-panel"{% if not form.is_temporary.value and not form.temporary_start.errors and not form.temporary_end.errors %} hidden{% endif %} data-temp-panel>
+                  <div class="owner-form-grid owner-form-grid-tight">
+                    {% include "pages/includes/owner_form_field.html" with field=form.temporary_start temp_required=True %}
+                    {% include "pages/includes/owner_form_field.html" with field=form.temporary_end temp_required=True %}
+                  </div>
+                </div>
+              </div>
+            </details>
+
             <div class="owner-wizard-actions">
-              <span class="meta">{% trans "Сначала заполним основу карточки, дальше будут контакты и карта." %}</span>
+              <span class="meta">{% trans "Сейчас важно только заполнить основу карточки." %}</span>
               <button type="button" class="btn" data-owner-next>{% trans "Дальше" %}</button>
             </div>
           </section>
@@ -122,25 +160,40 @@
             <section class="owner-form-section">
               <div class="owner-form-section-head">
                 <h2>{% trans "Контакты" %}</h2>
-                <p class="meta">{% trans "Как с вами связаться и что ещё важно знать родителям." %}</p>
+                <p class="meta">{% trans "Обязательный минимум для связи с вами." %}</p>
               </div>
+              <p class="owner-form-step-lead">{% trans "Для отправки карточки достаточно телефона. Остальную информацию можно добавить по желанию." %}</p>
               <div class="owner-form-grid owner-form-grid-tight">
                 {% include "pages/includes/owner_form_field.html" with field=form.phone1 %}
-                {% include "pages/includes/owner_form_field.html" with field=form.instagram %}
-                {% include "pages/includes/owner_form_field.html" with field=form.website full_width=True %}
-                {% include "pages/includes/owner_form_field.html" with field=form.schedule full_width=True %}
-                {% include "pages/includes/owner_form_field.html" with field=form.lesson_duration_minutes %}
-                {% include "pages/includes/owner_form_field.html" with field=form.price_per_lesson %}
-                {% include "pages/includes/owner_form_field.html" with field=form.price_per_month %}
-                {% include "pages/includes/owner_form_field.html" with field=form.price_per_8_lessons %}
-                {% include "pages/includes/owner_form_field.html" with field=form.extra_conditions full_width=True %}
-                {% include "pages/includes/owner_form_field.html" with field=form.additional_info full_width=True %}
-                {% include "pages/includes/owner_form_field.html" with field=form.is_temporary %}
-                <div></div>
-                {% include "pages/includes/owner_form_field.html" with field=form.temporary_start temp_required=True %}
-                {% include "pages/includes/owner_form_field.html" with field=form.temporary_end temp_required=True %}
               </div>
             </section>
+
+            <details class="owner-form-details owner-form-details-secondary"{% if form.instagram.value or form.website.value or form.instagram.errors or form.website.errors %} open{% endif %}>
+              <summary>{% trans "Онлайн-контакты" %}</summary>
+              <div class="owner-form-details-grid">
+                <p class="meta owner-form-details-copy">{% trans "Добавьте Instagram или сайт, если хотите дать больше способов связи." %}</p>
+                <div class="owner-form-grid owner-form-grid-tight">
+                  {% include "pages/includes/owner_form_field.html" with field=form.instagram %}
+                  {% include "pages/includes/owner_form_field.html" with field=form.website full_width=True %}
+                </div>
+              </div>
+            </details>
+
+            <details class="owner-form-details owner-form-details-secondary"{% if form.schedule.value or form.lesson_duration_minutes.value or form.price_per_lesson.value or form.price_per_month.value or form.price_per_8_lessons.value or form.extra_conditions.value or form.additional_info.value or form.schedule.errors or form.lesson_duration_minutes.errors or form.price_per_lesson.errors or form.price_per_month.errors or form.price_per_8_lessons.errors or form.extra_conditions.errors or form.additional_info.errors or form.is_temporary.value or form.temporary_start.errors or form.temporary_end.errors %} open{% endif %}>
+              <summary>{% trans "Информация о занятиях" %}</summary>
+              <div class="owner-form-details-grid">
+                <p class="meta owner-form-details-copy">{% trans "Расписание, цены и дополнительные условия помогают родителям быстрее принять решение, но не обязательны для отправки." %}</p>
+                <div class="owner-form-grid owner-form-grid-tight">
+                  {% include "pages/includes/owner_form_field.html" with field=form.schedule full_width=True %}
+                  {% include "pages/includes/owner_form_field.html" with field=form.lesson_duration_minutes %}
+                  {% include "pages/includes/owner_form_field.html" with field=form.price_per_lesson %}
+                  {% include "pages/includes/owner_form_field.html" with field=form.price_per_month %}
+                  {% include "pages/includes/owner_form_field.html" with field=form.price_per_8_lessons %}
+                  {% include "pages/includes/owner_form_field.html" with field=form.extra_conditions full_width=True %}
+                  {% include "pages/includes/owner_form_field.html" with field=form.additional_info full_width=True %}
+                </div>
+              </div>
+            </details>
 
             <div class="owner-wizard-actions">
               <button type="button" class="link-btn" data-owner-prev>{% trans "Назад" %}</button>
@@ -152,15 +205,24 @@
             <section class="owner-form-section">
               <div class="owner-form-section-head">
                 <h2>{% trans "Локация" %}</h2>
-                <p class="meta">{% trans "Укажите район, адрес и отметьте точку на карте." %}</p>
+                <p class="meta">{% trans "Сначала адрес и ориентир, потом точка на карте при необходимости." %}</p>
               </div>
+              <p class="owner-form-step-lead">{% trans "Для отправки нужен адрес и хотя бы район или метро. Карту можно использовать, чтобы уточнить точку." %}</p>
               <div class="owner-form-grid owner-form-grid-tight">
                 {% include "pages/includes/owner_form_field.html" with field=form.district %}
                 {% include "pages/includes/owner_form_field.html" with field=form.metro %}
                 {% include "pages/includes/owner_form_field.html" with field=form.address full_width=True %}
-                <div class="owner-form-field owner-form-field-full">
-                  {% include "pages/includes/owner_place_map_picker.html" with form=form %}
-                </div>
+              </div>
+            </section>
+
+            <section class="owner-form-section owner-form-section-secondary owner-form-section-map">
+              <div class="owner-form-section-head">
+                <h3>{% trans "Уточнить точку на карте" %}</h3>
+                <p class="meta">{% trans "Необязательно, но помогает точнее показать место." %}</p>
+              </div>
+              <p class="owner-form-step-lead">{% trans "Отметьте точку вручную или проверьте координаты по адресу." %}</p>
+              <div class="owner-form-field owner-form-field-full">
+                {% include "pages/includes/owner_place_map_picker.html" with form=form %}
               </div>
             </section>
 
@@ -171,25 +233,44 @@
                 <button type="button" class="btn" data-owner-next>{% trans "Дальше" %}</button>
               </div>
             </div>
-            <p class="meta owner-wizard-note">{% trans "Проверка координат не создает карточку и не отправляет ее на модерацию." %}</p>
+            <p class="meta owner-wizard-note">{% trans "Проверка координат необязательна: она не создаёт карточку и не отправляет её на модерацию." %}</p>
           </section>
 
           <section class="owner-wizard-step" data-owner-step="4" data-owner-step-title="{% trans 'Фото и отправка' %}" hidden>
             <section class="owner-form-section">
               <div class="owner-form-section-head">
                 <h2>{% trans "Фото и отправка" %}</h2>
-                <p class="meta">{% trans "Загрузите главное фото, галерею и при необходимости комментарий для модерации." %}</p>
+                <p class="meta">{% trans "Сначала обязательное главное фото, затем при желании дополнительные материалы." %}</p>
               </div>
+              <p class="owner-form-step-lead">{% trans "Главное фото обязательно. Галерею и комментарий для модерации можно добавить по желанию." %}</p>
               <div class="owner-form-grid owner-form-grid-tight">
                 {% include "pages/includes/owner_form_field.html" with field=form.photo %}
                 <div class="owner-wizard-final-card">
                   <p class="owner-wizard-final-title">{% trans "Финальный шаг" %}</p>
-                  <p class="meta">{% trans "Проверьте фото и отправьте карточку на модерацию. После проверки она появится в каталоге." %}</p>
+                  <p class="meta">{% trans "Проверьте главное фото и отправьте карточку на модерацию. После проверки она появится в каталоге." %}</p>
                 </div>
-                {% include "pages/includes/owner_form_field.html" with field=form.gallery_images full_width=True %}
-                {% include "pages/includes/owner_form_field.html" with field=form.moderation_note full_width=True %}
               </div>
             </section>
+
+            <details class="owner-form-details owner-form-details-secondary"{% if form.gallery_images.errors %} open{% endif %}>
+              <summary>{% trans "Дополнительные фото" %}</summary>
+              <div class="owner-form-details-grid">
+                <p class="meta owner-form-details-copy">{% trans "Добавьте галерею, если хотите показать пространство, занятия или детали интерьера." %}</p>
+                <div class="owner-form-grid owner-form-grid-tight">
+                  {% include "pages/includes/owner_form_field.html" with field=form.gallery_images full_width=True %}
+                </div>
+              </div>
+            </details>
+
+            <details class="owner-form-details owner-form-details-secondary"{% if form.moderation_note.value or form.moderation_note.errors %} open{% endif %}>
+              <summary>{% trans "Комментарий для модерации" %}</summary>
+              <div class="owner-form-details-grid">
+                <p class="meta owner-form-details-copy">{% trans "Напишите только если модератору нужен дополнительный контекст по карточке." %}</p>
+                <div class="owner-form-grid owner-form-grid-tight">
+                  {% include "pages/includes/owner_form_field.html" with field=form.moderation_note full_width=True %}
+                </div>
+              </div>
+            </details>
 
             <div class="owner-wizard-actions owner-wizard-actions-final">
               <button type="button" class="link-btn" data-owner-prev>{% trans "Назад" %}</button>
@@ -212,6 +293,7 @@
       const startInput = form.querySelector('[name="temporary_start"]');
       const endInput = form.querySelector('[name="temporary_end"]');
       const marks = form.querySelectorAll(".owner-temp-required-mark");
+      const tempPanel = form.querySelector("[data-temp-panel]");
       if (!temporaryCheckbox || !startInput || !endInput) return;
 
       function syncTemporaryRequiredState() {
@@ -223,6 +305,9 @@
         marks.forEach(function (mark) {
           mark.hidden = !isTemporary;
         });
+        if (tempPanel) {
+          tempPanel.hidden = !isTemporary;
+        }
       }
 
       syncTemporaryRequiredState();
@@ -242,6 +327,179 @@
       const stepLabel = form.dataset.stepLabel || "Шаг";
       const ofLabel = form.dataset.ofLabel || "из";
       let currentStep = 1;
+      let maxUnlockedStep = 1;
+
+      function hasFieldValue(field) {
+        if (!field || field.disabled) return false;
+        if (field.type === "checkbox" || field.type === "radio") {
+          return !!field.checked;
+        }
+        if (field.type === "file") {
+          return !!(field.files && field.files.length);
+        }
+        return !!String(field.value || "").trim();
+      }
+
+      function syncOptionalDetailsState(scope) {
+        const root = scope || form;
+        root.querySelectorAll("details.owner-form-details").forEach(function (details) {
+          const hasErrors = !!details.querySelector(".auth-field-error, .auth-errors");
+          const hasValues = Array.from(details.querySelectorAll("input, select, textarea")).some(hasFieldValue);
+          details.open = hasErrors || hasValues;
+        });
+      }
+
+      function parseList(value) {
+        return String(value || "")
+          .split(",")
+          .map(function (item) { return item.trim(); })
+          .filter(Boolean);
+      }
+
+      function parseGroups(value) {
+        return String(value || "")
+          .split(",")
+          .map(function (item) {
+            return item
+              .split("|")
+              .map(function (name) { return name.trim(); })
+              .filter(Boolean);
+          })
+          .filter(function (group) { return group.length; });
+      }
+
+      function getField(name) {
+        return form.querySelector('[name="' + name + '"]');
+      }
+
+      function getFieldLabel(name) {
+        const field = getField(name);
+        if (!field) return "";
+        const wrapper = field.closest(".owner-form-field, .owner-form-toggle-field, .owner-form-file-field");
+        const label = wrapper ? wrapper.querySelector(".owner-form-label") : null;
+        if (!label) return name;
+        return label.textContent.replace(/\*/g, "").replace(/\s+/g, " ").trim();
+      }
+
+      function isPhotoFieldFilled(field) {
+        if (!field) return false;
+        if (field.files && field.files.length) return true;
+        const uploader = field.closest("[data-file-uploader]");
+        if (!uploader) return false;
+        const clearCheckbox = uploader.querySelector(".owner-image-clear-checkbox");
+        const hasCurrentPreview = !!uploader.querySelector(".owner-file-uploader-current-preview");
+        return hasCurrentPreview && !(clearCheckbox && clearCheckbox.checked);
+      }
+
+      function isFieldFilledByName(name) {
+        const field = getField(name);
+        if (!field) return null;
+        if (name === "photo") {
+          return isPhotoFieldFilled(field);
+        }
+        return hasFieldValue(field);
+      }
+
+      function evaluateFields(names) {
+        let total = 0;
+        let filled = 0;
+        const missing = [];
+
+        names.forEach(function (name) {
+          const state = isFieldFilledByName(name);
+          if (state === null) return;
+          total += 1;
+          if (state) {
+            filled += 1;
+          } else {
+            missing.push(getFieldLabel(name));
+          }
+        });
+
+        return { total: total, filled: filled, missing: missing };
+      }
+
+      function evaluateGroups(groups, labels) {
+        let total = 0;
+        let filled = 0;
+        const missing = [];
+
+        groups.forEach(function (group) {
+          const states = group
+            .map(function (name) { return { name: name, state: isFieldFilledByName(name) }; })
+            .filter(function (item) { return item.state !== null; });
+          if (!states.length) return;
+          total += 1;
+          if (states.some(function (item) { return item.state; })) {
+            filled += 1;
+          } else {
+            const key = group.join("|");
+            missing.push(labels[key] || states.map(function (item) { return getFieldLabel(item.name); }).join(" / "));
+          }
+        });
+
+        return { total: total, filled: filled, missing: missing };
+      }
+
+      function buildTip(prefix, missing, fallbackText) {
+        if (!missing.length) return fallbackText;
+        return prefix + " " + missing.slice(0, 3).join(", ") + ".";
+      }
+
+      function updateCompletion() {
+        const completion = form.querySelector("[data-owner-completion]");
+        if (!completion) return;
+
+        const requiredFields = evaluateFields(parseList(form.dataset.ownerRequiredFields));
+        const optionalFields = evaluateFields(parseList(form.dataset.ownerOptionalFields));
+        const requiredGroups = evaluateGroups(parseGroups(form.dataset.ownerRequiredGroups), {
+          "district|metro": form.dataset.ownerLocationGroupLabel || "Район или метро"
+        });
+        const optionalGroups = evaluateGroups(parseGroups(form.dataset.ownerOptionalGroups), {
+          "lat|lng": form.dataset.ownerMapGroupLabel || "Точка на карте"
+        });
+
+        const requiredTotal = requiredFields.total + requiredGroups.total;
+        const requiredFilled = requiredFields.filled + requiredGroups.filled;
+        const requiredPercent = requiredTotal ? Math.round((requiredFilled / requiredTotal) * 100) : 0;
+        const requiredMissing = requiredFields.missing.concat(requiredGroups.missing);
+
+        const overallTotal = requiredTotal + optionalFields.total + optionalGroups.total;
+        const overallFilled = requiredFilled + optionalFields.filled + optionalGroups.filled;
+        const overallPercent = overallTotal ? Math.round((overallFilled / overallTotal) * 100) : 0;
+        const overallMissing = optionalFields.missing.concat(optionalGroups.missing);
+
+        const requiredPercentNode = completion.querySelector('[data-owner-completion-percent="required"]');
+        const requiredCountNode = completion.querySelector('[data-owner-completion-count="required"]');
+        const requiredBar = completion.querySelector('[data-owner-completion-bar="required"]');
+        const requiredTip = completion.querySelector('[data-owner-completion-tip="required"]');
+        const overallPercentNode = completion.querySelector('[data-owner-completion-percent="overall"]');
+        const overallCountNode = completion.querySelector('[data-owner-completion-count="overall"]');
+        const overallBar = completion.querySelector('[data-owner-completion-bar="overall"]');
+        const overallTip = completion.querySelector('[data-owner-completion-tip="overall"]');
+
+        if (requiredPercentNode) requiredPercentNode.textContent = requiredPercent + "%";
+        if (requiredCountNode) requiredCountNode.textContent = requiredFilled + "/" + requiredTotal;
+        if (requiredBar) requiredBar.style.width = requiredPercent + "%";
+        if (requiredTip) {
+          requiredTip.textContent = buildTip(
+            form.dataset.ownerRequiredTipPrefix || "",
+            requiredMissing,
+            form.dataset.ownerRequiredDoneText || ""
+          );
+        }
+
+        if (overallPercentNode) overallPercentNode.textContent = overallPercent + "%";
+        if (overallCountNode) overallCountNode.textContent = overallFilled + "/" + overallTotal;
+        if (overallBar) overallBar.style.width = overallPercent + "%";
+        if (overallTip) {
+          overallTip.textContent = buildTip(
+            form.dataset.ownerOverallTipPrefix || "",
+            overallMissing,
+            form.dataset.ownerOverallDoneText || ""
+          );
+        }
+      }
 
       function setLocationValidity() {
         const district = form.querySelector('[name="district"]');
@@ -264,9 +522,13 @@
 
         tabs.forEach(function (tab) {
           const target = Number(tab.dataset.ownerStepTarget || "1");
+          const isUnlocked = target <= maxUnlockedStep;
           tab.classList.toggle("is-active", target === currentStep);
           tab.classList.toggle("is-complete", target < currentStep);
+          tab.classList.toggle("is-locked", !isUnlocked);
           tab.setAttribute("aria-current", target === currentStep ? "step" : "false");
+          tab.setAttribute("aria-disabled", isUnlocked ? "false" : "true");
+          tab.disabled = !isUnlocked;
         });
 
         if (progressCurrent) {
@@ -319,7 +581,10 @@
 
         if (stepTab) {
           event.preventDefault();
-          updateWizard(Number(stepTab.dataset.ownerStepTarget || "1"));
+          const target = Number(stepTab.dataset.ownerStepTarget || "1");
+          if (target <= maxUnlockedStep) {
+            updateWizard(target);
+          }
           return;
         }
 
@@ -332,6 +597,7 @@
         if (nextButton) {
           event.preventDefault();
           if (!validateCurrentStep()) return;
+          maxUnlockedStep = Math.max(maxUnlockedStep, currentStep + 1);
           updateWizard(currentStep + 1);
         }
       });
@@ -340,9 +606,85 @@
         if (event.target.matches('[name="district"], [name="metro"]')) {
           setLocationValidity();
         }
+        if (event.target.closest("details.owner-form-details")) {
+          syncOptionalDetailsState(event.target.closest("details.owner-form-details"));
+        }
+        updateCompletion();
       });
 
+      form.addEventListener("input", function () {
+        updateCompletion();
+      });
+
+      syncOptionalDetailsState();
+      maxUnlockedStep = firstErrorStep();
+      updateCompletion();
       updateWizard(firstErrorStep());
+    })();
+
+    (function () {
+      const uploaders = Array.from(document.querySelectorAll("[data-file-uploader]"));
+      if (!uploaders.length) return;
+
+      function formatFileSize(size) {
+        const value = Number(size || 0);
+        if (!value) return "0 KB";
+        if (value >= 1024 * 1024) return (value / (1024 * 1024)).toFixed(1) + " MB";
+        return Math.max(1, Math.round(value / 1024)) + " KB";
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function renderUploaderState(uploader) {
+        const input = uploader.querySelector("[data-upload-input]");
+        const meta = uploader.querySelector("[data-upload-meta]");
+        const list = uploader.querySelector("[data-upload-list]");
+        if (!input || !meta) return;
+
+        const emptyMessage = uploader.dataset.uploadEmpty || "";
+        const summaryLabel = uploader.dataset.uploadSummary || "";
+        const pendingMessage = uploader.dataset.uploadPending || "";
+        const files = Array.from(input.files || []);
+
+        if (!files.length) {
+          meta.textContent = emptyMessage;
+          uploader.classList.remove("is-selected");
+          if (list) {
+            list.hidden = true;
+            list.innerHTML = "";
+          }
+          return;
+        }
+
+        uploader.classList.add("is-selected");
+        if (files.length === 1) {
+          meta.textContent = summaryLabel + " " + files[0].name + " (" + formatFileSize(files[0].size) + "). " + pendingMessage;
+        } else {
+          meta.textContent = summaryLabel + " " + files.length + ". " + pendingMessage;
+        }
+
+        if (!list) return;
+        list.hidden = false;
+        list.innerHTML = files.map(function (file) {
+          return '<span class="owner-file-uploader-item">' + escapeHtml(file.name) + '<em>' + escapeHtml(formatFileSize(file.size)) + "</em></span>";
+        }).join("");
+      }
+
+      uploaders.forEach(function (uploader) {
+        const input = uploader.querySelector("[data-upload-input]");
+        if (!input) return;
+        input.addEventListener("change", function () {
+          renderUploaderState(uploader);
+        });
+        renderUploaderState(uploader);
+      });
     })();
   </script>
 {% endblock %}

@@ -4,6 +4,7 @@
   data-file-uploader
   data-upload-empty="{% trans 'Нажмите, чтобы выбрать изображение JPG, PNG или WEBP.' %}"
   data-upload-summary="{% trans 'Новый файл:' %}"
+  data-upload-pending="{% trans 'Файл выбран и будет сохранён после отправки формы.' %}"
 >
   {% if widget.is_initial and widget.value.url %}
     <div class="owner-file-uploader-current">
@@ -24,7 +25,7 @@
     </div>
 
     {% if not widget.required %}
-      <label class="owner-file-uploader-clear">
+      <label class="owner-file-uploader-clear owner-file-uploader-clear-danger">
         <input
           type="checkbox"
           name="{{ widget.checkbox_name }}"
@@ -32,7 +33,12 @@
           class="owner-image-clear-checkbox"
           {% if widget.attrs.disabled %}disabled{% endif %}
         />
-        <span>{% trans "Удалить текущее фото" %}</span>
+        <span class="owner-file-uploader-clear-copy">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 4.75h6m-8 3h10m-8.25 0 .5 10.25a1 1 0 0 0 1 .95h3.5a1 1 0 0 0 1-.95l.5-10.25M10 11.25v4.5m4-4.5v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>{% trans "Удалить текущее фото" %}</span>
+        </span>
       </label>
     {% endif %}
   {% endif %}
@@ -59,4 +65,5 @@
     <span class="owner-file-uploader-action">{% trans "Выбрать фото" %}</span>
     <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
   </label>
+  <div class="owner-file-uploader-list" data-upload-list hidden></div>
 </div>
