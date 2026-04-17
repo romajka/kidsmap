@@ -14,6 +14,7 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -60,15 +61,32 @@
                   <a class="cta-btn detail-primary-cta" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{% trans "Связаться" %}</a>
                 {% endif %}
 
-                <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
-                  {% csrf_token %}
-                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                  <button type="submit" class="like-btn detail-save-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
-                    <span class="detail-save-btn__icon" aria-hidden="true">♥</span>
-                    <span>{% trans "Сохранить" %}</span>
-                    <span class="like-count">{{ place.likes_count }}</span>
-                  </button>
-                </form>
+                {% if request.user.is_authenticated %}
+                  <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                    <button type="submit" class="like-btn detail-save-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
+                      <span class="detail-save-btn__icon" aria-hidden="true">♥</span>
+                      <span>{% trans "Сохранить" %}</span>
+                      <span class="like-count">{{ place.likes_count }}</span>
+                    </button>
+                  </form>
+                {% else %}
+                  <div class="like-form detail-like-form">
+                    <button
+                      type="button"
+                      class="like-btn detail-save-btn"
+                      aria-pressed="false"
+                      data-auth-required-trigger
+                      data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
+                      data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
+                    >
+                      <span class="detail-save-btn__icon" aria-hidden="true">♥</span>
+                      <span>{% trans "Сохранить" %}</span>
+                      <span class="like-count">{{ place.likes_count }}</span>
+                    </button>
+                  </div>
+                {% endif %}
               </div>
             </header>
 

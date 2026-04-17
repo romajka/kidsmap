@@ -1,0 +1,377 @@
+{% load i18n %}
+
+<div class="owner-wizard-shell" data-owner-wizard-shell>
+  <div class="owner-wizard-head">
+    <div class="owner-form-intro">
+      <div class="owner-form-intro-copy">
+        <p class="owner-form-intro-title">{% trans "Основной язык карточки: AZ" %}</p>
+        <p class="meta">{% trans "Сначала заполните обязательную базу карточки. Переводы и детали можно добавить позже." %}</p>
+      </div>
+      {% include "pages/includes/owner_wizard_completion.html" %}
+    </div>
+    <div class="owner-wizard-progress">
+      <div class="owner-wizard-progress-top">
+        <strong data-owner-progress-current>{% trans "Шаг 1 из 4" %}</strong>
+        <span class="meta" data-owner-progress-title>{% trans "Основное" %}</span>
+      </div>
+      <div class="owner-wizard-progressbar" aria-hidden="true">
+        <span data-owner-progress-bar></span>
+      </div>
+      <div class="owner-wizard-steps" role="tablist" aria-label="{% trans 'Шаги формы' %}">
+        <button
+          type="button"
+          class="owner-wizard-step-tab is-active"
+          data-owner-step-target="1"
+          data-owner-step-label="{% trans 'Основное' %}"
+        >
+          <span class="owner-wizard-step-number" data-owner-step-indicator>1</span>
+          <span class="owner-wizard-step-text">{% trans "Основное" %}</span>
+        </button>
+        <button
+          type="button"
+          class="owner-wizard-step-tab"
+          data-owner-step-target="2"
+          data-owner-step-label="{% trans 'Контакты' %}"
+        >
+          <span class="owner-wizard-step-number" data-owner-step-indicator>2</span>
+          <span class="owner-wizard-step-text">{% trans "Контакты" %}</span>
+        </button>
+        <button
+          type="button"
+          class="owner-wizard-step-tab"
+          data-owner-step-target="3"
+          data-owner-step-label="{% trans 'Локация' %}"
+        >
+          <span class="owner-wizard-step-number" data-owner-step-indicator>3</span>
+          <span class="owner-wizard-step-text">{% trans "Локация" %}</span>
+        </button>
+        <button
+          type="button"
+          class="owner-wizard-step-tab"
+          data-owner-step-target="4"
+          data-owner-step-label="{% trans 'Фото' %}"
+        >
+          <span class="owner-wizard-step-number" data-owner-step-indicator>4</span>
+          <span class="owner-wizard-step-text">{% trans "Фото" %}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="owner-wizard-stage" data-owner-stage>
+    <section
+      class="owner-wizard-step is-active"
+      data-owner-step="1"
+      data-owner-step-title="{% trans 'Основное' %}"
+      data-owner-step-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to"
+    >
+      <section class="owner-form-section owner-form-section-primary">
+        <div class="owner-form-section-head">
+          <h2>{% trans "Основное" %}</h2>
+          <p class="meta">{% trans "Покажите только базу карточки." %}</p>
+        </div>
+        <p class="owner-form-step-lead">{% trans "Название, описание, категория, возраст и цена нужны для первого шага." %}</p>
+        <div class="owner-form-grid owner-form-grid-tight">
+          {% include "pages/includes/owner_form_field.html" with field=form.name_az %}
+          {% include "pages/includes/owner_form_field.html" with field=form.category %}
+          {% include "pages/includes/owner_form_field.html" with field=form.description_az full_width=True %}
+          {% include "pages/includes/owner_form_field.html" with field=form.age_from %}
+          {% include "pages/includes/owner_form_field.html" with field=form.age_to %}
+          {% include "pages/includes/owner_form_field.html" with field=form.price_from %}
+          {% include "pages/includes/owner_form_field.html" with field=form.price_to %}
+        </div>
+      </section>
+
+      <details class="owner-form-details owner-form-details-secondary"{% if form.subcategory.value or form.subcategory.errors %} open{% endif %}>
+        <summary>{% trans "Подкатегория" %}</summary>
+        <div class="owner-form-details-grid">
+          <p class="meta owner-form-details-copy">{% trans "Можно уточнить формат занятий позже." %}</p>
+          <div class="owner-form-grid owner-form-grid-tight">
+            {% include "pages/includes/owner_form_field.html" with field=form.subcategory %}
+          </div>
+        </div>
+      </details>
+
+      <details
+        class="owner-form-details owner-form-details-secondary"
+        data-owner-translation-details
+        {% if form.name_ru.value or form.name_en.value or form.description_ru.value or form.description_en.value or form.name_ru.errors or form.name_en.errors or form.description_ru.errors or form.description_en.errors %} open{% endif %}
+      >
+        <summary>{% trans "Дополнительные языки" %}</summary>
+        <div class="owner-form-details-grid">
+          <p class="meta owner-form-details-copy">{% trans "AZ обязателен. RU и EN можно заполнить сейчас или вернуться к ним позже." %}</p>
+          <div class="owner-language-tabs" data-owner-lang-tabs>
+            <div class="owner-language-tablist" role="tablist" aria-label="{% trans 'Дополнительные языки' %}">
+              <button type="button" class="owner-language-tab is-active" data-owner-lang-tab="ru">{% trans "Русский" %}</button>
+              <button type="button" class="owner-language-tab" data-owner-lang-tab="en">{% trans "Английский" %}</button>
+            </div>
+            <div class="owner-language-panel is-active" data-owner-lang-panel="ru">
+              <div class="owner-form-grid owner-form-grid-tight">
+                {% include "pages/includes/owner_form_field.html" with field=form.name_ru %}
+                {% include "pages/includes/owner_form_field.html" with field=form.description_ru full_width=True %}
+              </div>
+            </div>
+            <div class="owner-language-panel" data-owner-lang-panel="en" hidden>
+              <div class="owner-form-grid owner-form-grid-tight">
+                {% include "pages/includes/owner_form_field.html" with field=form.name_en %}
+                {% include "pages/includes/owner_form_field.html" with field=form.description_en full_width=True %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <div class="owner-wizard-actions">
+        <span class="meta">{% trans "Сначала закройте обязательный минимум." %}</span>
+        <button type="button" class="btn" data-owner-next>{% trans "Дальше" %}</button>
+      </div>
+    </section>
+
+    <section
+      class="owner-wizard-step"
+      data-owner-step="2"
+      data-owner-step-title="{% trans 'Контакты' %}"
+      data-owner-step-required-fields="phone1"
+      hidden
+    >
+      <section class="owner-form-section owner-form-section-primary">
+        <div class="owner-form-section-head">
+          <h2>{% trans "Контакты" %}</h2>
+          <p class="meta">{% trans "Для отправки нужен только телефон." %}</p>
+        </div>
+        <p class="owner-form-step-lead">{% trans "Остальные контакты и подробности можно добавить по желанию." %}</p>
+        <div class="owner-form-grid owner-form-grid-tight">
+          {% include "pages/includes/owner_form_field.html" with field=form.phone1 %}
+        </div>
+      </section>
+
+      <details class="owner-form-details owner-form-details-secondary"{% if form.instagram.value or form.website.value or form.instagram.errors or form.website.errors %} open{% endif %}>
+        <summary>{% trans "Онлайн-контакты" %}</summary>
+        <div class="owner-form-details-grid">
+          <div class="owner-form-grid owner-form-grid-tight">
+            {% include "pages/includes/owner_form_field.html" with field=form.instagram %}
+            {% include "pages/includes/owner_form_field.html" with field=form.website full_width=True %}
+          </div>
+        </div>
+      </details>
+
+      <details
+        class="owner-form-details owner-form-details-secondary"
+        {% if form.schedule.value or form.lesson_duration_minutes.value or form.price_per_lesson.value or form.price_per_month.value or form.price_per_8_lessons.value or form.schedule.errors or form.lesson_duration_minutes.errors or form.price_per_lesson.errors or form.price_per_month.errors or form.price_per_8_lessons.errors %} open{% endif %}
+      >
+        <summary>{% trans "Информация о занятиях" %}</summary>
+        <div class="owner-form-details-grid">
+          <div class="owner-form-grid owner-form-grid-tight">
+            {% include "pages/includes/owner_form_field.html" with field=form.schedule full_width=True %}
+            {% include "pages/includes/owner_form_field.html" with field=form.lesson_duration_minutes %}
+            {% include "pages/includes/owner_form_field.html" with field=form.price_per_lesson %}
+            {% include "pages/includes/owner_form_field.html" with field=form.price_per_month %}
+            {% include "pages/includes/owner_form_field.html" with field=form.price_per_8_lessons %}
+          </div>
+        </div>
+      </details>
+
+      <details
+        class="owner-form-details owner-form-details-secondary"
+        {% if form.extra_conditions.value or form.additional_info.value or form.extra_conditions.errors or form.additional_info.errors %} open{% endif %}
+      >
+        <summary>{% trans "Дополнительно" %}</summary>
+        <div class="owner-form-details-grid">
+          <div class="owner-form-grid owner-form-grid-tight">
+            {% include "pages/includes/owner_form_field.html" with field=form.extra_conditions full_width=True %}
+            {% include "pages/includes/owner_form_field.html" with field=form.additional_info full_width=True %}
+          </div>
+        </div>
+      </details>
+
+      <details
+        class="owner-form-details owner-form-details-secondary"
+        {% if form.is_temporary.value or form.temporary_start.value or form.temporary_end.value or form.is_temporary.errors or form.temporary_start.errors or form.temporary_end.errors %} open{% endif %}
+      >
+        <summary>{% trans "Временное мероприятие" %}</summary>
+        <div class="owner-form-details-grid">
+          <div class="owner-form-grid owner-form-grid-tight">
+            {% include "pages/includes/owner_form_field.html" with field=form.is_temporary full_width=True %}
+          </div>
+          <div class="owner-temp-panel"{% if not form.is_temporary.value and not form.temporary_start.value and not form.temporary_end.value and not form.temporary_start.errors and not form.temporary_end.errors %} hidden{% endif %} data-temp-panel>
+            <div class="owner-form-grid owner-form-grid-tight">
+              {% include "pages/includes/owner_form_field.html" with field=form.temporary_start temp_required=True %}
+              {% include "pages/includes/owner_form_field.html" with field=form.temporary_end temp_required=True %}
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <div class="owner-wizard-actions">
+        <button type="button" class="link-btn" data-owner-prev>{% trans "Назад" %}</button>
+        <button type="button" class="btn" data-owner-next>{% trans "Дальше" %}</button>
+      </div>
+    </section>
+
+    <section
+      class="owner-wizard-step"
+      data-owner-step="3"
+      data-owner-step-title="{% trans 'Локация' %}"
+      data-owner-step-required-fields="address"
+      data-owner-step-required-groups="district|metro"
+      hidden
+    >
+      <section class="owner-form-section owner-form-section-primary">
+        <div class="owner-form-section-head">
+          <h2>{% trans "Локация" %}</h2>
+          <p class="meta">{% trans "Сначала адресный минимум." %}</p>
+        </div>
+        <p class="owner-form-step-lead">{% trans "Укажите адрес и хотя бы район или метро. Карту можно использовать для уточнения точки." %}</p>
+        <div class="owner-form-grid owner-form-grid-tight">
+          {% include "pages/includes/owner_form_field.html" with field=form.district %}
+          {% include "pages/includes/owner_form_field.html" with field=form.metro %}
+          {% include "pages/includes/owner_form_field.html" with field=form.address full_width=True %}
+        </div>
+      </section>
+
+      <section class="owner-form-section owner-form-section-secondary owner-form-section-map">
+        <div class="owner-form-section-head">
+          <h3>{% trans "Уточнить точку" %}</h3>
+          <p class="meta">{% trans "Необязательный шаг." %}</p>
+        </div>
+        <p class="owner-form-step-lead">{% trans "Если нужно, найдите адрес на карте или поставьте точку вручную." %}</p>
+        <div class="owner-form-field owner-form-field-full">
+          {% include "pages/includes/owner_place_map_picker.html" with form=form %}
+        </div>
+      </section>
+
+      <div class="owner-wizard-actions">
+        <button type="button" class="link-btn" data-owner-prev>{% trans "Назад" %}</button>
+        <div class="owner-wizard-actions-group">
+          <button type="submit" name="form_action" value="{% if wizard_mode == 'edit' %}refresh_coordinates{% else %}check_coordinates{% endif %}" class="btn-secondary" data-loading-button>
+            {% if wizard_mode == "edit" %}
+              {% trans "Сохранить и обновить координаты" %}
+            {% else %}
+              {% trans "Проверить координаты" %}
+            {% endif %}
+          </button>
+          <button type="button" class="btn" data-owner-next>{% trans "Дальше" %}</button>
+        </div>
+      </div>
+      <p class="meta owner-wizard-note">
+        {% if wizard_mode == "edit" %}
+          {% trans "Обновление координат сохранит текущие данные формы." %}
+        {% else %}
+          {% trans "Проверка координат не отправляет карточку на модерацию." %}
+        {% endif %}
+      </p>
+    </section>
+
+    <section
+      class="owner-wizard-step"
+      data-owner-step="4"
+      data-owner-step-title="{% trans 'Фото и отправка' %}"
+      data-owner-step-required-fields="photo"
+      hidden
+    >
+      <section class="owner-form-section owner-form-section-primary">
+        <div class="owner-form-section-head">
+          <h2>{% trans "Фото и отправка" %}</h2>
+          <p class="meta">{% trans "Главный шаг перед отправкой." %}</p>
+        </div>
+        <p class="owner-form-step-lead">{% trans "Добавьте главное фото. Остальные материалы можно приложить по желанию." %}</p>
+        <div class="owner-form-grid owner-form-grid-tight">
+          {% include "pages/includes/owner_form_field.html" with field=form.photo %}
+          <div class="owner-wizard-final-card" data-owner-final-summary>
+            <p class="owner-wizard-final-title">{% trans "Перед отправкой" %}</p>
+            <p class="meta">
+              {% if wizard_mode == "edit" %}
+                {% trans "Проверьте фото и сохраните карточку. После модерации изменения обновятся в каталоге." %}
+              {% else %}
+                {% trans "Проверьте фото и отправьте карточку на модерацию." %}
+              {% endif %}
+            </p>
+            <div class="owner-wizard-final-summary">
+              <div class="owner-wizard-final-item">
+                <span class="owner-wizard-final-label">{% trans "Главное фото" %}</span>
+                <strong class="owner-wizard-final-value" data-owner-summary-photo>
+                  {% if form.photo.value %}
+                    {% trans "Файл уже добавлен" %}
+                  {% else %}
+                    {% trans "Фото ещё не выбрано" %}
+                  {% endif %}
+                </strong>
+              </div>
+              {% if wizard_mode == "create" %}
+                <div class="owner-wizard-final-item">
+                  <span class="owner-wizard-final-label">{% trans "Галерея" %}</span>
+                  <strong class="owner-wizard-final-value" data-owner-summary-gallery>
+                    {% trans "Пока без дополнительных фото" %}
+                  </strong>
+                </div>
+                <div class="owner-wizard-final-item">
+                  <span class="owner-wizard-final-label">{% trans "Комментарий модератору" %}</span>
+                  <strong class="owner-wizard-final-value" data-owner-summary-note>
+                    {% if form.moderation_note.value %}
+                      {% trans "Комментарий добавлен" %}
+                    {% else %}
+                      {% trans "Комментария нет" %}
+                    {% endif %}
+                  </strong>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {% if wizard_mode == "create" %}
+        <details class="owner-form-details owner-form-details-secondary"{% if form.gallery_images.errors %} open{% endif %}>
+          <summary>{% trans "Галерея" %}</summary>
+          <div class="owner-form-details-grid">
+            <div class="owner-form-grid owner-form-grid-tight">
+              {% include "pages/includes/owner_form_field.html" with field=form.gallery_images full_width=True %}
+            </div>
+          </div>
+        </details>
+
+        <details class="owner-form-details owner-form-details-secondary"{% if form.moderation_note.value or form.moderation_note.errors %} open{% endif %}>
+          <summary>{% trans "Комментарий для модерации" %}</summary>
+          <div class="owner-form-details-grid">
+            <div class="owner-form-grid owner-form-grid-tight">
+              {% include "pages/includes/owner_form_field.html" with field=form.moderation_note full_width=True %}
+            </div>
+          </div>
+        </details>
+      {% endif %}
+
+      <div class="owner-wizard-actions owner-wizard-actions-final">
+        <button type="button" class="link-btn" data-owner-prev>{% trans "Назад" %}</button>
+        <div class="owner-wizard-actions-group">
+          {% if wizard_mode == "edit" %}
+            {% if place.is_active and not place.is_deleted %}
+              <a class="link-btn" href="{{ place.get_absolute_url }}">{% trans "Открыть страницу кружка" %}</a>
+            {% else %}
+              <span class="owner-place-actions-note">{% trans "Публичная страница появится после публикации карточки." %}</span>
+            {% endif %}
+            <button type="submit" class="btn" data-loading-button>{% trans "Сохранить изменения" %}</button>
+          {% else %}
+            <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К заявкам" %}</a>
+            <button type="submit" class="btn" data-loading-button>{% trans "Создать и отправить на проверку" %}</button>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if wizard_mode == "edit" %}
+        <div class="owner-place-actions owner-place-actions-draft">
+          <div class="owner-place-actions-secondary owner-place-actions-secondary-draft">
+            <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% trans "Назад к карточкам" %}</a>
+          </div>
+          <div class="owner-place-actions-danger">
+            <button
+              type="submit"
+              form="owner-place-delete-form"
+              class="btn-secondary btn-danger owner-place-btn owner-place-btn-danger"
+              onclick="return confirm('{{ delete_place_confirm_text|escapejs }}');"
+            >{% trans "Удалить карточку" %}</button>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+</div>

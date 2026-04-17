@@ -485,13 +485,28 @@
               {% include "catalog/includes/place_more_panel.html" with place=place %}
               <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% trans "Перейти" %}</a>
             </div>
-            <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
-              {% csrf_token %}
-              <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-              <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
-                ♥ <span class="like-count">{{ place.likes_count }}</span>
-              </button>
-            </form>
+            {% if request.user.is_authenticated %}
+              <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
+                  ♥ <span class="like-count">{{ place.likes_count }}</span>
+                </button>
+              </form>
+            {% else %}
+              <div class="like-form">
+                <button
+                  type="button"
+                  class="like-btn"
+                  aria-pressed="false"
+                  data-auth-required-trigger
+                  data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
+                  data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
+                >
+                  ♥ <span class="like-count">{{ place.likes_count }}</span>
+                </button>
+              </div>
+            {% endif %}
           </div>
         </article>
       {% endfor %}

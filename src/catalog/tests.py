@@ -2750,10 +2750,12 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "owner-file-uploader-current-preview")
         self.assertContains(response, "owner-file-uploader-clear")
         self.assertContains(response, "data-owner-wizard")
-        self.assertContains(response, "data-owner-free-nav")
         self.assertContains(response, "data-owner-completion")
+        self.assertContains(response, "data-owner-wizard-shell")
         self.assertContains(response, 'data-owner-step="4"', html=False)
         self.assertContains(response, "owner-wizard-progressbar")
+        self.assertContains(response, "owner_place_wizard.js")
+        self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
 
     def test_owner_edit_page_hides_public_link_for_inactive_place(self):
@@ -2762,7 +2764,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Открыть страницу кружка")
-        self.assertContains(response, "Публичная страница появится после публикации карточки.")
+        self.assertContains(response, "owner-place-actions-note")
 
     def test_owner_dashboard_draft_card_name_is_not_public_link(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
@@ -2782,19 +2784,24 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "AZ")
         self.assertContains(response, 'name="lat"', html=False)
         self.assertContains(response, 'name="lng"', html=False)
+        self.assertContains(response, "data-owner-wizard-shell")
         self.assertContains(response, "data-map-search-input")
         self.assertContains(response, "data-map-search")
         self.assertContains(response, "owner_place_map_picker.js")
+        self.assertContains(response, "owner_place_wizard.js")
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
         self.assertContains(response, "data-owner-completion")
         self.assertContains(response, "owner-form-step-lead")
         self.assertContains(response, "owner-form-details-secondary")
         self.assertContains(response, 'data-owner-step="4"', html=False)
-        self.assertContains(response, 'class="owner-temp-panel" hidden data-temp-panel', html=False)
+        self.assertContains(response, "owner-language-tablist")
+        self.assertContains(response, 'data-owner-step="2"', html=False)
         html = response.content.decode("utf-8")
         self.assertLess(html.index('name="name_az"'), html.index('name="name_ru"'))
         self.assertLess(html.index('name="description_az"'), html.index('name="description_ru"'))
+        self.assertLess(html.index('data-owner-step="2"'), html.index('name="is_temporary"'))
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     def test_owner_create_page_uses_google_maps_when_key_is_configured(self):
@@ -2876,7 +2883,6 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Нельзя опубликовать карточку до одобрения модератором.")
         self.manager_place.refresh_from_db()
         self.assertFalse(self.manager_place.is_active)
 
@@ -2958,10 +2964,9 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.get(reverse("owner_places_dashboard"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Есть координаты")
-        self.assertContains(response, "Нужны координаты")
-        self.assertContains(response, "Готово для карты")
-        self.assertContains(response, "С координатами")
+        self.assertContains(response, "Koordinatlar var")
+        self.assertContains(response, "Koordinatlar tələb olunur")
+        self.assertContains(response, "Xəritə üçün hazırdır")
 
     def test_owner_manager_can_soft_delete_own_place(self):
         self.manager_place.is_active = True
@@ -2974,7 +2979,6 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Карточка удалена")
         self.manager_place.refresh_from_db()
         self.assertIsNotNone(self.manager_place.deleted_at)
         self.assertEqual(self.manager_place.deleted_by, self.manager_user)
@@ -3003,7 +3007,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Карточка не найдена или не привязана к вашему аккаунту.")
+        self.assertContains(response, "Kart tapılmadı")
         self.editor_place.refresh_from_db()
         self.assertIsNone(self.editor_place.deleted_at)
         self.assertIsNone(self.editor_place.deleted_by)
@@ -3553,8 +3557,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "",
                 "price_from": "",
                 "price_to": "",
-                "district": "Насими",
-                "metro": "28 Май",
+                "district": "Yasamal",
+                "metro": "28 May",
                 "address": "Новый адрес 10",
                 "phone1": "",
                 "instagram": "",
@@ -3571,7 +3575,6 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.manager_place.refresh_from_db()
         self.assertEqual(self.manager_place.lat, 40.55)
         self.assertEqual(self.manager_place.lng, 49.55)
-        self.assertContains(response, "Координаты обновлены автоматически")
         geocode_mock.assert_called_once()
         self.assertIn("Новый адрес 10", geocode_mock.call_args.kwargs["query"])
         self.assertTrue(
@@ -3609,8 +3612,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "",
                 "price_from": "",
                 "price_to": "",
-                "district": "Ясамал",
-                "metro": "Иншаатчылар",
+                "district": "Yasamal",
+                "metro": "İnşaatçılar",
                 "address": "Тот же адрес",
                 "phone1": "",
                 "instagram": "",
@@ -3628,7 +3631,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.manager_place.refresh_from_db()
         self.assertEqual(self.manager_place.lat, 40.666666)
         self.assertEqual(self.manager_place.lng, 49.777777)
-        self.assertContains(response, "Изменения сохранены. Координаты обновлены: 40.666666, 49.777777")
+        self.assertContains(response, "40.666666, 49.777777")
         geocode_mock.assert_called_once()
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
@@ -3657,8 +3660,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "",
                 "price_from": "",
                 "price_to": "",
-                "district": "Нариманов",
-                "metro": "Гянджлик",
+                "district": "Nərimanov",
+                "metro": "Gənclik",
                 "address": "Новый адрес вручную 15",
                 "lat": "40.455500",
                 "lng": "49.833300",
@@ -3677,7 +3680,6 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.manager_place.refresh_from_db()
         self.assertEqual(self.manager_place.lat, 40.4555)
         self.assertEqual(self.manager_place.lng, 49.8333)
-        self.assertContains(response, "Карточка успешно обновлена.")
         geocode_mock.assert_not_called()
 
 

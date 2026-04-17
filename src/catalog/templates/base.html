@@ -61,6 +61,7 @@
     <div class="bg-scene" aria-hidden="true">
       <div class="bg-floaters" data-bg-floaters></div>
     </div>
+    <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div class="site-shell">
       <header class="topbar">
         <a class="brand-wrap" href="{% url 'home' %}">
@@ -220,64 +221,164 @@
         {% block content %}{% endblock %}
       </main>
 
-      <footer class="site-footer panel">
-        <div class="footer-grid">
-          <section class="footer-brand-block">
-            <a class="footer-brand-link" href="{% url 'home' %}">
-              <span class="logo-slot footer-logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}');" aria-hidden="true"></span>
-              <span class="footer-brand-name">{{ brand_name }}</span>
-            </a>
-            <p class="footer-brand-copy">{{ site_about_text }}</p>
-            <a class="footer-primary-link" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
-          </section>
+      {% if request.resolver_match.url_name != 'owner_place_create' and request.resolver_match.url_name != 'owner_place_edit' %}
+        <footer class="site-footer panel">
+          <div class="footer-grid">
+            <section class="footer-brand-block">
+              <a class="footer-brand-link" href="{% url 'home' %}">
+                <span class="logo-slot footer-logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}');" aria-hidden="true"></span>
+                <span class="footer-brand-name">{{ brand_name }}</span>
+              </a>
+              <p class="footer-brand-copy">{{ site_about_text }}</p>
+              <a class="footer-primary-link" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+            </section>
 
-          <section class="footer-links-block">
-            <h3>{% trans "Разделы" %}</h3>
-            <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
-              <a href="{% url 'home' %}">{% trans "Главная" %}</a>
-              <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
-              <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
-              <a href="{% url 'site_reviews' %}">{% trans "Отзывы" %}</a>
-              <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
-              <a href="{% url 'home' %}#faq">{% trans "FAQ" %}</a>
-            </nav>
-          </section>
+            <section class="footer-links-block">
+              <h3>{% trans "Разделы" %}</h3>
+              <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
+                <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+                <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+                <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
+                <a href="{% url 'site_reviews' %}">{% trans "Отзывы" %}</a>
+                <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
+                <a href="{% url 'home' %}#faq">{% trans "FAQ" %}</a>
+              </nav>
+            </section>
 
-          <section class="footer-links-block">
-            <h3>{% trans "Контакты" %}</h3>
-            <div class="footer-contact-list">
-              {% if footer_phone %}
-                <a class="icon-btn icon-phone" href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
-              {% endif %}
-              {% if footer_email %}
-                <a class="icon-btn icon-mail" href="mailto:{{ footer_email }}">{{ footer_email }}</a>
-              {% endif %}
-              {% if footer_whatsapp_url %}
-                <a href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>
-              {% endif %}
-            </div>
-          </section>
-
-          <section class="footer-links-block">
-            <h3>{% trans "Соцсети" %}</h3>
-            {% if footer_social_links %}
-              <div class="footer-social-links">
-                {% include "pages/includes/site_social_links.html" with link_class="footer-social-link" %}
+            <section class="footer-links-block">
+              <h3>{% trans "Контакты" %}</h3>
+              <div class="footer-contact-list">
+                {% if footer_phone %}
+                  <a class="icon-btn icon-phone" href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
+                {% endif %}
+                {% if footer_email %}
+                  <a class="icon-btn icon-mail" href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+                {% endif %}
+                {% if footer_whatsapp_url %}
+                  <a href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>
+                {% endif %}
               </div>
-            {% endif %}
-          </section>
-        </div>
+            </section>
 
-        <div class="footer-bottom-row">
-          <p>© {% now "Y" %} KidsMap</p>
-          <a class="footer-bottom-link icon-only-link" href="#top">
-            <span class="visually-hidden">{% trans "Наверх" %}</span>
-          </a>
-        </div>
-      </footer>
+            <section class="footer-links-block">
+              <h3>{% trans "Соцсети" %}</h3>
+              {% if footer_social_links %}
+                <div class="footer-social-links">
+                  {% include "pages/includes/site_social_links.html" with link_class="footer-social-link" %}
+                </div>
+              {% endif %}
+            </section>
+          </div>
+
+          <div class="footer-bottom-row">
+            <p>© {% now "Y" %} KidsMap</p>
+            <a class="footer-bottom-link icon-only-link" href="#top">
+              <span class="visually-hidden">{% trans "Наверх" %}</span>
+            </a>
+          </div>
+        </footer>
+      {% endif %}
     </div>
     <script>
       (function () {
+        const toastStack = document.querySelector("[data-toast-stack]");
+        const toastLoginLabel = "{% trans 'Войти' %}";
+        const toastCloseLabel = "{% trans 'Закрыть' %}";
+        const genericActionErrorMessage = "{% trans 'Не удалось выполнить действие. Попробуйте ещё раз.' %}";
+
+        function showToast(message, options) {
+          if (!toastStack || !message) return;
+          const config = options || {};
+          const toast = document.createElement("section");
+          toast.className = "toast toast-" + (config.variant || "info");
+          toast.setAttribute("role", "status");
+
+          const text = document.createElement("p");
+          text.className = "toast-message";
+          text.textContent = message;
+          toast.appendChild(text);
+
+          const actions = document.createElement("div");
+          actions.className = "toast-actions";
+
+          if (config.actionUrl) {
+            const actionLink = document.createElement("a");
+            actionLink.className = "toast-link";
+            actionLink.href = config.actionUrl;
+            actionLink.textContent = config.actionLabel || toastLoginLabel;
+            actions.appendChild(actionLink);
+          }
+
+          const closeButton = document.createElement("button");
+          closeButton.type = "button";
+          closeButton.className = "toast-close";
+          closeButton.textContent = toastCloseLabel;
+          closeButton.setAttribute("aria-label", toastCloseLabel);
+          actions.appendChild(closeButton);
+
+          toast.appendChild(actions);
+          toastStack.appendChild(toast);
+
+          const removeToast = function () {
+            if (!toast.isConnected) return;
+            toast.classList.add("is-leaving");
+            window.setTimeout(function () {
+              toast.remove();
+            }, 220);
+          };
+
+          closeButton.addEventListener("click", removeToast);
+          window.setTimeout(function () {
+            toast.classList.add("is-visible");
+          }, 10);
+          window.setTimeout(removeToast, config.duration || 4200);
+        }
+
+        function handleAuthRequiredPayload(payload) {
+          if (!payload || !payload.auth_required) return false;
+          showToast(
+            payload.message || "{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}",
+            {
+              actionUrl: payload.redirect_url || "",
+              actionLabel: toastLoginLabel,
+              variant: "info",
+            }
+          );
+          return true;
+        }
+
+        function showAuthRequiredNotice(message, redirectUrl, form) {
+          const resolvedMessage = message || "{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}";
+          showToast(resolvedMessage, {
+            actionUrl: redirectUrl || "",
+            actionLabel: toastLoginLabel,
+            variant: "info",
+          });
+          if (form instanceof HTMLFormElement) {
+            showInlineFormNotice(form, resolvedMessage, { duration: 4200 });
+          }
+        }
+
+        function showInlineFormNotice(form, message, options) {
+          if (!(form instanceof HTMLFormElement) || !message) return;
+          const config = options || {};
+          const siblingNotice = form.parentElement ? form.parentElement.querySelector(".form-inline-notice") : null;
+          if (siblingNotice) {
+            siblingNotice.remove();
+          }
+
+          const notice = document.createElement("p");
+          notice.className = "form-inline-notice" + (config.variant === "error" ? " is-error" : "");
+          notice.textContent = message;
+          form.insertAdjacentElement("afterend", notice);
+
+          window.setTimeout(function () {
+            if (notice.isConnected) {
+              notice.remove();
+            }
+          }, config.duration || 4200);
+        }
+
         function buildImagePlaceholder(text) {
           const wrap = document.createElement("div");
           wrap.className = "image-placeholder";
@@ -388,21 +489,6 @@
           return formData;
         }
 
-        function submitFormFallback(form, submitter) {
-          let tempInput = null;
-          if (submitter && submitter.name) {
-            tempInput = document.createElement("input");
-            tempInput.type = "hidden";
-            tempInput.name = submitter.name;
-            tempInput.value = submitter.value || "";
-            form.appendChild(tempInput);
-          }
-          HTMLFormElement.prototype.submit.call(form);
-          if (tempInput) {
-            tempInput.remove();
-          }
-        }
-
         async function submitJsonForm(form, submitButtons, onSuccess, submitter) {
           const buttons = submitButtons.filter(Boolean);
           if (buttons.some((button) => button.disabled)) return;
@@ -413,21 +499,25 @@
           try {
             const response = await fetch(form.action, {
               method: "POST",
-              headers: { "X-Requested-With": "XMLHttpRequest" },
+              headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json",
+              },
               body: buildFormPayload(form, submitter),
               credentials: "same-origin",
             });
             const payload = await response.json().catch(function () {
               return null;
             });
-            if (response.status === 401 && payload && payload.auth_required && payload.redirect_url) {
-              window.location.assign(payload.redirect_url);
+            if (response.status === 401 && handleAuthRequiredPayload(payload)) {
+              showInlineFormNotice(form, payload.message || "", { duration: 4200 });
               return;
             }
             if (!response.ok || !payload) throw new Error("Request failed");
             onSuccess(form, payload);
           } catch (err) {
-            submitFormFallback(form, submitter);
+            showToast(genericActionErrorMessage, { variant: "error" });
+            showInlineFormNotice(form, genericActionErrorMessage, { variant: "error" });
           } finally {
             delete form.__kidsMapSubmitter;
             buttons.forEach((button) => {
@@ -436,55 +526,21 @@
           }
         }
 
-        async function handleReviewReactionClick(button) {
-          if (!(button instanceof HTMLButtonElement) || !(button.form instanceof HTMLFormElement)) return;
-          const form = button.form;
-          if (!form.matches("[data-review-reaction-form]")) return;
-          if (button.disabled || form.classList.contains("is-pending")) return;
-
-          setReviewReactionPending(form, true);
-
-          try {
-            const response = await fetch(form.action, {
-              method: "POST",
-              headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "Accept": "application/json",
-              },
-              body: buildFormPayload(form, button),
-              credentials: "same-origin",
-            });
-            const payload = await response.json().catch(function () {
-              return null;
-            });
-
-            if (response.status === 401 && payload && payload.auth_required && payload.redirect_url) {
-              window.location.assign(payload.redirect_url);
-              return;
-            }
-
-            if (!response.ok || !payload || payload.ok !== true) {
-              throw new Error("Review reaction request failed");
-            }
-
-            updateReviewReactionForm(form, payload);
-          } catch (err) {
-            form.classList.add("has-error");
-            window.setTimeout(function () {
-              form.classList.remove("has-error");
-            }, 1400);
-          } finally {
-            setReviewReactionPending(form, false);
-          }
-        }
-
         document.addEventListener("click", function (event) {
           if (!(event.target instanceof Element)) return;
+          const authRequiredTrigger = event.target.closest("[data-auth-required-trigger]");
+          if (authRequiredTrigger) {
+            event.preventDefault();
+            showAuthRequiredNotice(
+              authRequiredTrigger.getAttribute("data-auth-required-message"),
+              authRequiredTrigger.getAttribute("data-auth-required-url"),
+              authRequiredTrigger.closest("form")
+            );
+            return;
+          }
           const reviewReactionButton = event.target.closest(".review-reaction-btn");
           if (reviewReactionButton && reviewReactionButton.form instanceof HTMLFormElement && reviewReactionButton.form.matches("[data-review-reaction-form]")) {
-            event.preventDefault();
-            handleReviewReactionClick(reviewReactionButton);
-            return;
+            reviewReactionButton.form.__kidsMapSubmitter = reviewReactionButton;
           }
           const submitter = event.target.closest('button[type="submit"], input[type="submit"]');
           if (!submitter || !(submitter.form instanceof HTMLFormElement)) return;
@@ -507,12 +563,17 @@
           }
           if (form.matches("[data-review-reaction-form]")) {
             event.preventDefault();
+            form.classList.add("is-pending");
             await submitJsonForm(
               form,
               Array.from(form.querySelectorAll(".review-reaction-btn")),
               updateReviewReactionForm,
               submitter,
             );
+            window.setTimeout(function () {
+              form.classList.remove("has-error");
+            }, 1400);
+            setReviewReactionPending(form, false);
           }
         });
 
