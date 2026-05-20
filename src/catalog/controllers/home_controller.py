@@ -103,7 +103,7 @@ class HomeController:
             "site_reviews_avg": float(site_reviews_avg),
             "site_reviews_count": site_reviews_count,
             "google_maps_api_key": google_maps_api_key,
-            "hero_title": site_settings.home_title_i18n(language_code) or _("Найдите кружок для ребёнка в Баку"),
+            "hero_title": site_settings.home_title_i18n(language_code) or _("Найдите кружок для ребёнка в Азербайджане"),
             "hero_subtitle": site_settings.home_subtitle_i18n(language_code)
             or _("Спорт, творчество, музыка, образование — всё в одном месте."),
             "hero_search_label": site_settings.home_search_label_i18n(language_code) or _("Искать кружок, курс или школу"),

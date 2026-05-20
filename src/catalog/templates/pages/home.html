@@ -22,7 +22,7 @@
 
     <div class="home-hero-grid">
       <div class="home-hero-copy">
-        <p class="home-hero-eyebrow">{% trans "Поиск детских кружков и секций в Баку" %}</p>
+        <p class="home-hero-eyebrow">{% trans "Поиск детских кружков и секций по Азербайджану" %}</p>
         <h1>{{ hero_title }}</h1>
         <p>{{ hero_subtitle }}</p>
 
@@ -65,9 +65,6 @@
                               {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
                             />
                           </picture>
-                          {% if slide.main.label %}
-                            <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
-                          {% endif %}
                         </figure>
 
                         <figure class="home-hero-photo-card home-hero-photo-side-top">
@@ -82,9 +79,6 @@
                               decoding="async"
                             />
                           </picture>
-                          {% if slide.side_top.label %}
-                            <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
-                          {% endif %}
                         </figure>
 
                         <figure class="home-hero-photo-card home-hero-photo-side-bottom">
@@ -99,9 +93,6 @@
                               decoding="async"
                             />
                           </picture>
-                          {% if slide.side_bottom.label %}
-                            <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
-                          {% endif %}
                         </figure>
                       </div>
                     </article>
@@ -155,9 +146,6 @@
                           fetchpriority="high"
                         />
                       </picture>
-                      {% if slide.main.label %}
-                        <figcaption class="home-hero-photo-badge">{{ slide.main.label }}</figcaption>
-                      {% endif %}
                     </figure>
 
                     <figure class="home-hero-photo-card home-hero-photo-side-top">
@@ -172,9 +160,6 @@
                           decoding="async"
                         />
                       </picture>
-                      {% if slide.side_top.label %}
-                        <figcaption class="home-hero-photo-badge">{{ slide.side_top.label }}</figcaption>
-                      {% endif %}
                     </figure>
 
                     <figure class="home-hero-photo-card home-hero-photo-side-bottom">
@@ -189,9 +174,6 @@
                           decoding="async"
                         />
                       </picture>
-                      {% if slide.side_bottom.label %}
-                        <figcaption class="home-hero-photo-badge">{{ slide.side_bottom.label }}</figcaption>
-                      {% endif %}
                     </figure>
                   </div>
                 </article>
@@ -208,7 +190,7 @@
         <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
         <div class="home-search-row">
           <select class="filter-select home-filter-select home-filter-district" name="district">
-            <option value="">{% trans "Район" %}</option>
+            <option value="">{% trans "Регион / район" %}</option>
             {% for district in home_districts %}
               <option value="{{ district }}">{% trans district %}</option>
             {% endfor %}
@@ -260,17 +242,17 @@
         id="home-map"
         class="home-map"
         data-details-label="{% trans 'Подробнее' %}"
-        data-fallback-title="{% trans 'Карта кружков по Баку' %}"
+        data-fallback-title="{% trans 'Карта кружков по Азербайджану' %}"
         data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет кружков' %}"
       ></div>
       <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
       <noscript>
         <iframe
           class="home-map home-map-fallback"
-          src="https://maps.google.com/maps?q=Baku%2C%20Azerbaijan&z=11&output=embed"
+          src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          title="{% trans 'Карта кружков по Баку' %}"
+          title="{% trans 'Карта кружков по Азербайджану' %}"
         ></iframe>
       </noscript>
       {{ map_places|json_script:"home-map-data" }}
@@ -287,7 +269,7 @@
       <article class="home-step-lite-card">
         <span class="home-step-lite-number">1</span>
         <h3>{% trans "Выберите фильтры" %}</h3>
-        <p>{% trans "Категория, район, метро и возраст ребёнка." %}</p>
+        <p>{% trans "Категория, регион, метро и возраст ребёнка." %}</p>
         <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Найти кружки" %}</a>
       </article>
 
@@ -430,12 +412,6 @@
           </picture>
           <span class="home-owner-media-badge">{% trans "Для владельцев кружков" %}</span>
         </figure>
-
-        <div class="home-owner-visual-strip">
-          <span class="home-owner-visual-chip">{% trans "Каталог и карта" %}</span>
-          <span class="home-owner-visual-chip">{% trans "Фото, описание и CTA" %}</span>
-          <span class="home-owner-visual-chip">{% trans "Отзывы и доверие" %}</span>
-        </div>
       </div>
     </div>
   </section>
@@ -443,11 +419,26 @@
   <section class="panel home-query-panel">
     <h2>{% trans "Популярные запросы" %}</h2>
     <div class="home-grid2 home-query-grid">
-      <a class="link-btn home-query-card" href="{% url 'place_list' %}">{% trans "Кружки в Баку для детей" %}</a>
-      <a class="link-btn home-query-card" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Баку" %}</a>
-      <a class="link-btn home-query-card" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Баку" %}</a>
-      <a class="link-btn home-query-card" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Баку" %}</a>
-      <a class="link-btn home-query-card" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Баку" %}</a>
+      <a class="home-query-card" href="{% url 'place_list' %}">
+        <span class="home-query-label">{% trans "Кружки в Азербайджане для детей" %}</span>
+        <span class="home-query-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="home-query-card" href="{% url 'place_list' %}?category=EDU">
+        <span class="home-query-label">{% trans "Курсы для детей в Азербайджане" %}</span>
+        <span class="home-query-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="home-query-card" href="{% url 'place_list' %}?category=SPRT">
+        <span class="home-query-label">{% trans "Спортивные секции в Азербайджане" %}</span>
+        <span class="home-query-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="home-query-card" href="{% url 'place_list' %}?category=ART">
+        <span class="home-query-label">{% trans "Творческие кружки в Азербайджане" %}</span>
+        <span class="home-query-arrow" aria-hidden="true">›</span>
+      </a>
+      <a class="home-query-card" href="{% url 'place_list' %}?category=TECH&amp;q=program">
+        <span class="home-query-label">{% trans "Программирование для детей в Азербайджане" %}</span>
+        <span class="home-query-arrow" aria-hidden="true">›</span>
+      </a>
     </div>
   </section>
 
@@ -466,7 +457,7 @@
     </div>
     <div class="home-grid2">
       <p>{% trans "Проверенные и активные места" %}</p>
-      <p>{% trans "Фильтры по возрасту, району и цене" %}</p>
+      <p>{% trans "Фильтры по возрасту, региону и цене" %}</p>
       <p>{% trans "Быстрый переход к звонку и Instagram" %}</p>
       <p>{% trans "Удобно на телефоне и компьютере" %}</p>
     </div>
@@ -595,7 +586,7 @@
         <div class="home-faq-points" aria-label="{% trans 'О чём этот раздел' %}">
           <article class="home-faq-point">
             <strong>{% trans "Быстрый поиск" %}</strong>
-            <span>{% trans "Район, возраст, метро и категории без лишних шагов." %}</span>
+            <span>{% trans "Регион, возраст, метро и категории без лишних шагов." %}</span>
           </article>
           <article class="home-faq-point">
             <strong>{% trans "Отзывы и лайки" %}</strong>
@@ -625,7 +616,7 @@
             <span class="home-faq-icon" aria-hidden="true">⌄</span>
           </summary>
           <div class="home-faq-answer">
-            {% trans "Выберите категорию, район, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
+            {% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
           </div>
         </details>
 

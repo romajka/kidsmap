@@ -23,7 +23,13 @@
       <article class="info-card contacts-primary-card">
         <div class="contacts-section-head">
           <h2>{% trans "Связаться с нами" %}</h2>
-          <p>{% trans "Для вопросов по каталогу, размещению кружков и обратной связи." %}</p>
+          <p>
+            {% if request.LANGUAGE_CODE == "az" %}
+              Kataloq, məkan yerləşdirmə və əks əlaqə ilə bağlı suallar üçün.
+            {% else %}
+              {% trans "Для вопросов по каталогу, размещению кружков и обратной связи." %}
+            {% endif %}
+          </p>
         </div>
 
         <div class="contacts-primary-actions">
@@ -74,7 +80,7 @@
 
           <div class="info-links contacts-utility-links">
             <a class="info-link-item contacts-utility-link icon-btn icon-details" href="{% url 'about' %}">{% trans "О проекте" %}</a>
-            <a class="info-link-item contacts-utility-link icon-btn icon-search" href="{% url 'place_list' %}">{% trans "Каталог кружков" %}</a>
+            <a class="info-link-item contacts-utility-link icon-btn icon-search" href="{% url 'place_list' %}">{% if request.LANGUAGE_CODE == "az" %}Məkanlar kataloqu{% else %}{% trans "Каталог кружков" %}{% endif %}</a>
           </div>
         </article>
       </div>

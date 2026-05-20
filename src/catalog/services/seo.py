@@ -78,28 +78,30 @@ def _catalog_title_base(*, selected: dict, is_new_page: bool) -> str:
     if is_new_page:
         days = str(selected.get("days") or "30")
         if days != "30":
-            return _("Новые кружки и секции для детей в Баку за %(days)s дней") % {"days": days}
-        return _("Новые кружки и секции для детей в Баку")
+            return _("Новые кружки и секции для детей в Азербайджане за %(days)s дней") % {"days": days}
+        return _("Новые кружки и секции для детей в Азербайджане")
 
     query = _normalize_text(selected.get("q"))
     category = _normalize_text(selected.get("category"))
     district = _normalize_text(selected.get("district"))
     metro = _normalize_text(selected.get("metro"))
+    district_label = str(_(district)) if district else ""
+    metro_label = str(_(metro)) if metro else ""
 
     if query:
-        return _('Поиск "%(query)s" среди кружков и секций для детей в Баку') % {"query": query}
+        return _('Поиск "%(query)s" среди кружков и секций для детей в Азербайджане') % {"query": query}
     if category and district:
-        return _("%(category)s для детей в районе %(district)s, Баку") % {
+        return _("%(category)s для детей в регионе %(district)s") % {
             "category": _catalog_category_label(category),
-            "district": district,
+            "district": district_label,
         }
     if category:
-        return _("%(category)s для детей в Баку") % {"category": _catalog_category_label(category)}
+        return _("%(category)s для детей в Азербайджане") % {"category": _catalog_category_label(category)}
     if district:
-        return _("Кружки и секции для детей в районе %(district)s, Баку") % {"district": district}
+        return _("Кружки и секции для детей в регионе %(district)s") % {"district": district_label}
     if metro:
-        return _("Кружки и секции для детей у метро %(metro)s, Баку") % {"metro": metro}
-    return _("Каталог кружков и секций для детей в Баку")
+        return _("Кружки и секции для детей у метро %(metro)s") % {"metro": metro_label}
+    return _("Каталог кружков и секций для детей в Азербайджане")
 
 
 def _catalog_filter_summary(selected: dict, *, is_new_page: bool) -> list[str]:
@@ -116,9 +118,9 @@ def _catalog_filter_summary(selected: dict, *, is_new_page: bool) -> list[str]:
     if category:
         summary.append(_("Категория: %(category)s") % {"category": _catalog_category_label(category)})
     if district:
-        summary.append(_("Район: %(district)s") % {"district": district})
+        summary.append(_("Регион / район: %(district)s") % {"district": str(_(district))})
     if metro:
-        summary.append(_("Метро: %(metro)s") % {"metro": metro})
+        summary.append(_("Метро: %(metro)s") % {"metro": str(_(metro))})
     if age_from and age_to:
         summary.append(_("Возраст: %(age_from)s-%(age_to)s лет") % {"age_from": age_from, "age_to": age_to})
     elif age_from:
@@ -174,13 +176,13 @@ def build_sitewide_schema_payload(*, request, site_name: str, logo_url: str = ""
 
 
 def build_home_seo_payload(*, request, popular_places) -> dict:
-    title = _("Кружки и секции для детей в Баку")
-    description = _("KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, возрасту и цене.")
+    title = _("Кружки и секции для детей в Азербайджане")
+    description = _("KidsMap: каталог детских кружков и секций в Азербайджане с фильтрами по региону, возрасту и цене.")
 
     featured_places_schema_json = ""
     if popular_places:
         featured_places_schema_json = _build_item_list_schema(
-            name=_("Популярные кружки и секции для детей в Баку"),
+            name=_("Популярные кружки и секции для детей в Азербайджане"),
             item_urls=[
                 {
                     "position": idx,
@@ -217,7 +219,7 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
             "title": title_base
         }
     else:
-        description = _("%(title)s. Фильтры по категории, району, метро, возрасту и цене на KidsMap.") % {
+        description = _("%(title)s. Фильтры по категории, региону, метро, возрасту и цене на KidsMap.") % {
             "title": title_base
         }
 
@@ -275,9 +277,9 @@ def _place_description(place, language_code: str) -> str:
 
     bits = [place.name_i18n(language_code), str(place.get_category_display())]
     if place.district:
-        bits.append(_("район %(district)s") % {"district": place.district})
+        bits.append(_("регион %(district)s") % {"district": str(_(place.district))})
     if place.metro:
-        bits.append(_("метро %(metro)s") % {"metro": place.metro})
+        bits.append(_("метро %(metro)s") % {"metro": str(_(place.metro))})
     if place.age_display:
         bits.append(_("возраст %(age)s") % {"age": place.age_display})
     if place.price_range_display:
@@ -291,13 +293,13 @@ def build_place_seo_payload(place, request, language_code):
     description = _place_description(place, language_code)
 
     if place.district:
-        title = _("%(name)s — %(category)s для детей в %(district)s, Баку | KidsMap") % {
+        title = _("%(name)s — %(category)s для детей в регионе %(district)s | KidsMap") % {
             "name": place.name_i18n(language_code),
             "category": place.get_category_display(),
-            "district": place.district,
+            "district": str(_(place.district)),
         }
     else:
-        title = _("%(name)s — кружок и секция для детей в Баку | KidsMap") % {
+        title = _("%(name)s — кружок и секция для детей в Азербайджане | KidsMap") % {
             "name": place.name_i18n(language_code),
         }
 
@@ -312,10 +314,10 @@ def build_place_seo_payload(place, request, language_code):
         "address": {
             "@type": "PostalAddress",
             "streetAddress": place.address or "",
-            "addressLocality": place.district or "Baku",
+            "addressLocality": place.district or "Azerbaijan",
             "addressCountry": "AZ",
         },
-        "areaServed": {"@type": "City", "name": "Baku"},
+        "areaServed": {"@type": "Country", "name": "Azerbaijan"},
         "additionalType": str(place.get_category_display()),
     }
 
@@ -399,7 +401,7 @@ def build_place_seo_payload(place, request, language_code):
 def build_site_reviews_seo_payload(*, request, review_count: int) -> dict:
     title = _("Отзывы о KidsMap от родителей и пользователей")
     description = (
-        _("Отзывы о сервисе KidsMap: впечатления родителей и пользователей о каталоге кружков и секций в Баку.")
+        _("Отзывы о сервисе KidsMap: впечатления родителей и пользователей о каталоге кружков и секций по Азербайджану.")
         if not review_count
         else _("Отзывы о сервисе KidsMap: %(count)s оценок и отзывов от родителей и пользователей.") % {
             "count": int(review_count)

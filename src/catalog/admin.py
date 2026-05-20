@@ -45,6 +45,7 @@ from .models import (
 )
 from .repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from .services.admin_analytics import build_site_analytics_context
+from .services.content_quality import place_quality_check, review_quality_check
 from .services.geocoding import PlaceGeocodingService
 
 # Clarify similar names in admin navigation.
@@ -504,6 +505,10 @@ class PlaceAdmin(admin.ModelAdmin):
         "additional_info",
         "is_active",
         "is_verified",
+        "status",
+        "rejection_reason",
+        "last_verified_at",
+        "published_at",
         "deleted_at",
         "deleted_by_id",
     )
@@ -537,6 +542,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "owner",
         "is_active",
         "is_verified",
+        "status",
         "age_from",
         "age_to",
     )
@@ -548,6 +554,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "lifecycle_status_display",
         "coordinates_status_display",
         "map_ready_status_display",
+        "quality_status_display",
         "deleted_at",
         "deleted_by",
         "created_at",
@@ -561,6 +568,9 @@ class PlaceAdmin(admin.ModelAdmin):
         "mark_inactive",
         "mark_verified",
         "mark_unverified",
+        "mark_pending",
+        "mark_published",
+        "mark_rejected",
         "move_selected_to_deleted",
         "restore_selected",
         "refresh_coordinates",
@@ -580,11 +590,16 @@ class PlaceAdmin(admin.ModelAdmin):
                     "temporary_end",
                     "is_active",
                     "is_verified",
+                    "status",
+                    "rejection_reason",
+                    "last_verified_at",
+                    "published_at",
                     "owner",
                     "likes_count",
                     "rating_avg",
                     "rating_count",
                     "lifecycle_status_display",
+                    "quality_status_display",
                 )
             },
         ),
@@ -668,6 +683,20 @@ class PlaceAdmin(admin.ModelAdmin):
     def map_ready_status_display(self, obj):
         return self.map_ready_status(obj)
 
+    @admin.display(description=_("Качество"))
+    def quality_status_display(self, obj):
+        check = place_quality_check(obj)
+        tone = "good" if check.is_ready else "warn"
+        label = _("Готово к публикации") if check.is_ready else _("Нужна доработка")
+        details = ", ".join(check.errors[:4]) if check.errors else _("Критичных замечаний нет")
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-badge km-admin-badge--{}">{} / 100</span><span class="km-admin-meta">{} · {}</span></div>',
+            tone,
+            check.score,
+            label,
+            details,
+        )
+
     @admin.display(description=_("Локация"))
     def location_summary(self, obj):
         lines: list[str] = []
@@ -699,7 +728,16 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Публикация"))
     def publication_status(self, obj):
-        badges = [self.lifecycle_status(obj)]
+        status_tone = {
+            obj.STATUS_DRAFT: "muted",
+            obj.STATUS_PENDING: "warn",
+            obj.STATUS_PUBLISHED: "good",
+            obj.STATUS_REJECTED: "danger",
+        }.get(obj.status, "muted")
+        badges = [
+            self._render_place_state_badge(label=obj.get_status_display(), tone=status_tone),
+            self.lifecycle_status(obj),
+        ]
         badges.append(
             self._render_place_state_badge(
                 label=_("Проверено") if obj.is_verified else _("Без проверки"),
@@ -713,10 +751,11 @@ class PlaceAdmin(admin.ModelAdmin):
             )
         )
         return format_html(
-            '<div class="km-admin-stack"><div class="km-admin-badges">{} {} {}</div></div>',
+            '<div class="km-admin-stack"><div class="km-admin-badges">{} {} {} {}</div></div>',
             badges[0],
             badges[1],
             badges[2],
+            badges[3],
         )
 
     @admin.display(description=_("Карта"))
@@ -1094,6 +1133,48 @@ class PlaceAdmin(admin.ModelAdmin):
                 updated_count,
             )
             % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Отправить на модерацию"))
+    def mark_pending(self, request, queryset):
+        updated_count = queryset.update(status=Place.STATUS_PENDING, rejection_reason="", updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext("%(count)d карточка отправлена на модерацию.", "%(count)d карточки отправлены на модерацию.", updated_count)
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Опубликовать после проверки качества"))
+    def mark_published(self, request, queryset):
+        now = timezone.now()
+        published_count = 0
+        skipped_count = 0
+        for place in queryset.prefetch_related("gallery").iterator():
+            if not place_quality_check(place).is_ready:
+                skipped_count += 1
+                continue
+            place.status = Place.STATUS_PUBLISHED
+            place.is_active = True
+            place.rejection_reason = ""
+            if place.published_at is None:
+                place.published_at = now
+            place.save(update_fields=["status", "is_active", "rejection_reason", "published_at", "updated_at"])
+            published_count += 1
+        self.message_user(
+            request,
+            _("Опубликовано карточек: %(published)d. Пропущено из-за качества: %(skipped)d.")
+            % {"published": published_count, "skipped": skipped_count},
+            level=messages.SUCCESS if published_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Отклонить карточки"))
+    def mark_rejected(self, request, queryset):
+        updated_count = queryset.update(status=Place.STATUS_REJECTED, is_active=False, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext("%(count)d карточка отклонена.", "%(count)d карточки отклонены.", updated_count) % {"count": updated_count},
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
@@ -1733,6 +1814,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         "is_anonymous",
         "contains_profanity",
         "is_approved",
+        "status",
         "place",
         "created_at",
     )
@@ -1750,7 +1832,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     actions = ("approve_selected", "hide_selected", "reject_selected", "delete_selected")
     fieldsets = (
         (_("Отзыв"), {"fields": ("place", "user", "author_name", "is_anonymous", "rating", "text")}),
-        (_("Модерация"), {"fields": ("is_approved", "contains_profanity", "moderation_status_summary")}),
+        (_("Модерация"), {"fields": ("status", "is_approved", "rejection_reason", "contains_profanity", "moderation_status_summary")}),
         (_("Реакции"), {"fields": ("likes_count", "dislikes_count", "popularity_score_display")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("session_key", "created_at", "updated_at")}),
     )
@@ -1789,6 +1871,10 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         return f"{text[:177].rstrip()}..."
 
     def _review_status(self, obj) -> tuple[str, str]:
+        if obj.status == obj.STATUS_REJECTED:
+            return str(_("Отклонен")), "danger"
+        if obj.status == obj.STATUS_PENDING:
+            return str(_("На модерации")), "warn"
         if not obj.is_approved:
             return str(_("Скрыт")), "muted"
         if obj.contains_profanity:
@@ -1858,8 +1944,11 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     @admin.display(description=_("Риски"))
     def risk_flags_summary(self, obj):
         flags = []
+        quality = review_quality_check(obj)
         if obj.contains_profanity:
             flags.append(self._render_review_badge(label=_("Есть скрытая лексика"), tone="warn"))
+        if not quality.is_ready:
+            flags.append(self._render_review_badge(label=_("Низкое качество"), tone="warn"))
         if obj.is_anonymous:
             flags.append(self._render_review_badge(label=_("Анонимный"), tone="muted"))
         if not self._review_has_text(obj):
@@ -1950,11 +2039,13 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         }
         self.message_user(request, messages_map[action_key], level=messages.SUCCESS)
 
-    def _toggle_review_visibility(self, *, obj, is_approved: bool):
-        if obj.is_approved == is_approved:
+    def _toggle_review_visibility(self, *, obj, is_approved: bool, rejected: bool = False):
+        target_status = obj.STATUS_APPROVED if is_approved else (obj.STATUS_REJECTED if rejected else obj.STATUS_PENDING)
+        if obj.is_approved == is_approved and obj.status == target_status:
             return False
+        obj.status = target_status
         obj.is_approved = is_approved
-        obj.save(update_fields=["is_approved", "updated_at"])
+        obj.save(update_fields=["status", "is_approved", "updated_at"])
         return True
 
     def approve_view(self, request, object_id):
@@ -2004,7 +2095,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         if obj is None:
             return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
         if request.method == "POST":
-            self._toggle_review_visibility(obj=obj, is_approved=False)
+            self._toggle_review_visibility(obj=obj, is_approved=False, rejected=True)
             self._message_for_single_review_action(request=request, obj=obj, action_key="reject")
             return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
         return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
@@ -2019,7 +2110,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Опубликовать выбранные отзывы"))
     def approve_selected(self, request, queryset):
-        updated_count = queryset.exclude(is_approved=True).update(is_approved=True, updated_at=timezone.now())
+        updated_count = queryset.exclude(is_approved=True, status=PlaceReview.STATUS_APPROVED).update(is_approved=True, status=PlaceReview.STATUS_APPROVED, updated_at=timezone.now())
         self.message_user(
             request,
             ngettext("Опубликован %(count)d отзыв.", "Опубликовано %(count)d отзыва.", updated_count) % {"count": updated_count},
@@ -2028,7 +2119,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Скрыть выбранные отзывы"))
     def hide_selected(self, request, queryset):
-        updated_count = queryset.exclude(is_approved=False).update(is_approved=False, updated_at=timezone.now())
+        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_PENDING).update(is_approved=False, status=PlaceReview.STATUS_PENDING, updated_at=timezone.now())
         self.message_user(
             request,
             ngettext("Скрыт %(count)d отзыв.", "Скрыто %(count)d отзыва.", updated_count) % {"count": updated_count},
@@ -2037,7 +2128,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Отклонить выбранные отзывы"))
     def reject_selected(self, request, queryset):
-        updated_count = queryset.exclude(is_approved=False).update(is_approved=False, updated_at=timezone.now())
+        updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_REJECTED).update(is_approved=False, status=PlaceReview.STATUS_REJECTED, updated_at=timezone.now())
         self.message_user(
             request,
             ngettext("Отклонён %(count)d отзыв.", "Отклонено %(count)d отзыва.", updated_count) % {"count": updated_count},
@@ -2061,22 +2152,22 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
 @admin.register(SiteReview)
 class SiteReviewAdmin(admin.ModelAdmin):
-    list_display = ("display_author", "rating", "likes_count", "dislikes_count", "contains_profanity", "created_at")
-    list_filter = ("rating", "is_anonymous", "contains_profanity", "created_at")
+    list_display = ("display_author", "rating", "status", "is_approved", "likes_count", "dislikes_count", "contains_profanity", "created_at")
+    list_filter = ("status", "is_approved", "rating", "is_anonymous", "contains_profanity", "created_at")
     search_fields = ("author_name", "text")
     readonly_fields = ("likes_count", "dislikes_count", "contains_profanity", "created_at", "updated_at", "session_key")
-    exclude = ("is_approved",)
+    fieldsets = (
+        (_("Отзыв"), {"fields": ("user", "author_name", "is_anonymous", "rating", "text")}),
+        (_("Модерация"), {"fields": ("status", "is_approved", "rejection_reason", "contains_profanity")}),
+        (_("Реакции"), {"fields": ("likes_count", "dislikes_count")}),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("session_key", "created_at", "updated_at")}),
+    )
 
     @admin.display(description=_("Автор"))
     def display_author(self, obj):
         if obj.is_anonymous:
             return _("Аноним")
         return obj.author_name or _("Без имени")
-
-    def save_model(self, request, obj, form, change):
-        obj.is_approved = True
-        super().save_model(request, obj, form, change)
-
 
 class UserProfileAccessLevelFilter(admin.SimpleListFilter):
     title = _("Уровень доступа")
@@ -2334,7 +2425,7 @@ class PlaceChangeAuditAdmin(admin.ModelAdmin):
             "owner_id": _("Владелец"),
             "lat": _("Координаты"),
             "lng": _("Координаты"),
-            "district": _("Район"),
+            "district": _("Регион / район"),
             "metro": _("Метро"),
             "address": _("Адрес"),
             "phone1": _("Телефон"),
@@ -2687,7 +2778,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             (_("Возраст"), bool(place.age_display), place.age_display),
             (_("Цены"), bool(place.pricing_options), price_value),
             (_("Длительность урока"), place.lesson_duration_minutes is not None, place.lesson_duration_display),
-            (_("Район"), bool(self._place_text_value(place.district)), self._place_text_value(place.district)),
+            (_("Регион / район"), bool(self._place_text_value(place.district)), self._place_text_value(place.district)),
             (_("Метро"), bool(self._place_text_value(place.metro)), self._place_text_value(place.metro)),
             (_("Адрес"), bool(self._place_text_value(place.address)), self._place_text_value(place.address)),
             (_("Координаты"), place.has_coordinates, coordinates_value),

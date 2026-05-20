@@ -23,9 +23,9 @@ CONTACTS_DEFAULTS = {
 }
 
 ABOUT_DEFAULTS = {
-    "ru": "KidsMap — каталог детских кружков и секций в Баку.",
-    "en": "KidsMap is a catalog of kids clubs and courses in Baku.",
-    "az": "KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
+    "ru": "KidsMap — каталог детских кружков и секций по Азербайджану.",
+    "en": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
+    "az": "KidsMap Azərbaycanda uşaqlar üçün dərnək və kurs kataloqudur.",
 }
 
 EMPTY_DEFAULTS = {

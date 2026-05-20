@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}KidsMap{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}" />
+    <meta name="description" content="{% block meta_description %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}" />
     <meta name="robots" content="{% block robots_meta %}{{ robots_content }}{% endblock %}" />
     <meta name="googlebot" content="{% block googlebot_meta %}{{ robots_content }}{% endblock %}" />
     <link rel="canonical" href="{{ canonical_url }}" />
@@ -21,12 +21,12 @@
     {% endfor %}
     <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
     <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}KidsMap{% endblock %}{% endblock %}{% endblock %}" />
-    <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
     <meta property="og:url" content="{{ canonical_url }}" />
     {% block og_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}" />{% endblock %}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}KidsMap{% endblock %}{% endblock %}" />
-    <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций в Баку: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
     {% block twitter_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}" />{% endblock %}
     <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}" />
     <link rel="apple-touch-icon" href="{% static 'img/logo.svg' %}" />
@@ -86,6 +86,11 @@
               {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
             >{% trans "Каталог" %}</a>
             <a
+              href="{% url 'for_business' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'for_business' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'for_business' %}aria-current="page"{% endif %}
+            >{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
+            <a
               href="{% url 'about' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
               {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
@@ -114,6 +119,11 @@
             class="{% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
             {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
           >{% trans "Каталог" %}</a>
+          <a
+            href="{% url 'for_business' %}"
+            class="{% if request.resolver_match.url_name == 'for_business' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'for_business' %}aria-current="page"{% endif %}
+          >{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
           <a
             href="{% url 'about' %}"
             class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}"
@@ -238,10 +248,15 @@
               <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
                 <a href="{% url 'home' %}">{% trans "Главная" %}</a>
                 <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+                <a href="{% url 'for_business' %}">{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
                 <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
                 <a href="{% url 'site_reviews' %}">{% trans "Отзывы" %}</a>
                 <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
                 <a href="{% url 'home' %}#faq">{% trans "FAQ" %}</a>
+                <a href="{% url 'privacy' %}">{% if CURRENT_LANGUAGE == "en" %}Privacy Policy{% elif CURRENT_LANGUAGE == "az" %}Məxfilik siyasəti{% else %}Политика конфиденциальности{% endif %}</a>
+                <a href="{% url 'terms' %}">{% if CURRENT_LANGUAGE == "en" %}Terms of Use{% elif CURRENT_LANGUAGE == "az" %}İstifadə şərtləri{% else %}Условия использования{% endif %}</a>
+                <a href="{% url 'review_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Review Rules{% elif CURRENT_LANGUAGE == "az" %}Rəy qaydaları{% else %}Правила отзывов{% endif %}</a>
+                <a href="{% url 'listing_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Listing Rules{% elif CURRENT_LANGUAGE == "az" %}Yerləşdirmə qaydaları{% else %}Правила размещения{% endif %}</a>
               </nav>
             </section>
 

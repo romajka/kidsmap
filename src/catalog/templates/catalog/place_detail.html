@@ -199,8 +199,7 @@
               </section>
             {% else %}
               <div class="detail-photo-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-                <span class="image-placeholder-icon" aria-hidden="true">📷</span>
-                <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+                <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               </div>
             {% endif %}
           </div>
@@ -418,7 +417,7 @@
 
               {% if place.district or place.metro %}
                 <div class="detail-meta-item">
-                  <span class="meta-label">{% trans "Район / метро" %}</span>
+                  <span class="meta-label">{% trans "Регион / район / метро" %}</span>
                   <div class="meta-value">{% if place.district %}{% trans place.district %}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{% trans place.metro %}{% endif %}</div>
                 </div>
               {% endif %}

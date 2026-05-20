@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kidsmap\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 15:52+0400\n"
+"POT-Creation-Date: 2026-05-18 10:04+0400\n"
 "PO-Revision-Date: 2026-04-14 14:17+0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1278,9 +1278,9 @@ msgstr "Кто выполнил"
 #: src/catalog/forms.py:575 src/catalog/models.py:97
 #: src/catalog/templates/catalog/place_list.html:73
 #: src/catalog/templates/pages/home.html:211
-#: templates/admin/catalog/site_analytics.html:484
-msgid "Район"
-msgstr "Район"
+#| msgid "Найти район"
+msgid "Регион / район"
+msgstr "Регион / район"
 
 #: src/catalog/admin.py:2338 src/catalog/admin.py:2691 src/catalog/forms.py:466
 #: src/catalog/forms.py:576 src/catalog/models.py:98
@@ -1729,173 +1729,436 @@ msgstr ""
 "умолчанию из кода."
 
 #: src/catalog/content_data.py:5
-msgid "Ясамал"
-msgstr "Ясамал"
+msgid "Баку"
+msgstr "Баку"
 
-#: src/catalog/content_data.py:6 src/catalog/content_data.py:38
-msgid "Насими"
-msgstr "Насими"
+#: src/catalog/content_data.py:6
+msgid "Абшерон"
+msgstr "Абшерон"
 
-#: src/catalog/content_data.py:7 src/catalog/content_data.py:33
-msgid "Низами"
-msgstr "Низами"
+#: src/catalog/content_data.py:7
+msgid "Агджабеди"
+msgstr "Агджабеди"
 
 #: src/catalog/content_data.py:8
-msgid "Нариманов"
-msgstr "Нариманов"
+msgid "Агдам"
+msgstr "Агдам"
 
 #: src/catalog/content_data.py:9
-msgid "Сабаиль"
-msgstr "Сабаиль"
+msgid "Агдаш"
+msgstr "Агдаш"
 
 #: src/catalog/content_data.py:10
-msgid "Сабунчи"
-msgstr "Сабунчи"
+msgid "Агстафа"
+msgstr "Агстафа"
 
 #: src/catalog/content_data.py:11
-msgid "Бинагади"
-msgstr "Бинагади"
+msgid "Агсу"
+msgstr "Агсу"
 
 #: src/catalog/content_data.py:12
-msgid "Сураханы"
-msgstr "Сураханы"
+msgid "Астара"
+msgstr "Астара"
 
 #: src/catalog/content_data.py:13
-msgid "Хатаи"
-msgstr "Хатаи"
+msgid "Бабек"
+msgstr "Бабек"
 
 #: src/catalog/content_data.py:14
-msgid "Хазар"
-msgstr "Хазар"
+msgid "Балакен"
+msgstr "Балакен"
 
 #: src/catalog/content_data.py:15
-msgid "Гарадаг"
-msgstr "Гарадаг"
+msgid "Барда"
+msgstr "Барда"
 
 #: src/catalog/content_data.py:16
-msgid "Пираллахы"
-msgstr "Пираллахы"
+msgid "Бейлаган"
+msgstr "Бейлаган"
+
+#: src/catalog/content_data.py:17
+msgid "Билясувар"
+msgstr "Билясувар"
+
+#: src/catalog/content_data.py:18
+msgid "Габала"
+msgstr "Габала"
+
+#: src/catalog/content_data.py:19
+msgid "Гаджикабул"
+msgstr "Гаджикабул"
 
 #: src/catalog/content_data.py:20
+msgid "Газах"
+msgstr "Газах"
+
+#: src/catalog/content_data.py:21
+#| msgid "Сахил"
+msgid "Гах"
+msgstr "Гах"
+
+#: src/catalog/content_data.py:22
+msgid "Гедабек"
+msgstr "Гедабек"
+
+#: src/catalog/content_data.py:23
+#| msgid "Гянджлик"
+msgid "Гянджа"
+msgstr "Гянджа"
+
+#: src/catalog/content_data.py:24
+msgid "Гёйгёль"
+msgstr "Гёйгёль"
+
+#: src/catalog/content_data.py:25
+msgid "Гёйчай"
+msgstr "Гёйчай"
+
+#: src/catalog/content_data.py:26
+#| msgid "Восстановление пароля"
+msgid "Гобустан"
+msgstr "Гобустан"
+
+#: src/catalog/content_data.py:27
+msgid "Горанбой"
+msgstr "Горанбой"
+
+#: src/catalog/content_data.py:28
+msgid "Губа"
+msgstr "Губа"
+
+#: src/catalog/content_data.py:29
+msgid "Губадлы"
+msgstr "Губадлы"
+
+#: src/catalog/content_data.py:30
+msgid "Гусар"
+msgstr "Гусар"
+
+#: src/catalog/content_data.py:31
+msgid "Дашкесан"
+msgstr "Дашкесан"
+
+#: src/catalog/content_data.py:32
+msgid "Джебраил"
+msgstr "Джебраил"
+
+#: src/catalog/content_data.py:33
+#| msgid "Удалил"
+msgid "Джалилабад"
+msgstr "Джалилабад"
+
+#: src/catalog/content_data.py:34
+msgid "Джульфа"
+msgstr "Джульфа"
+
+#: src/catalog/content_data.py:35
+msgid "Евлах"
+msgstr "Евлах"
+
+#: src/catalog/content_data.py:36
+#| msgid "Каталог"
+msgid "Загатала"
+msgstr "Загатала"
+
+#: src/catalog/content_data.py:37
+msgid "Зангилан"
+msgstr "Зангилан"
+
+#: src/catalog/content_data.py:38
+msgid "Зардаб"
+msgstr "Зардаб"
+
+#: src/catalog/content_data.py:39
+msgid "Имишли"
+msgstr "Имишли"
+
+#: src/catalog/content_data.py:40
+#| msgid "Шах Исмаил Хатаи"
+msgid "Исмаиллы"
+msgstr "Исмаиллы"
+
+#: src/catalog/content_data.py:41
+msgid "Кельбаджар"
+msgstr "Кельбаджар"
+
+#: src/catalog/content_data.py:42
+msgid "Кенгерли"
+msgstr "Кенгерли"
+
+#: src/catalog/content_data.py:43
+msgid "Кюрдамир"
+msgstr "Кюрдамир"
+
+#: src/catalog/content_data.py:44
+msgid "Лачин"
+msgstr "Лачин"
+
+#: src/catalog/content_data.py:45
+msgid "Ленкорань"
+msgstr "Ленкорань"
+
+#: src/catalog/content_data.py:46
+msgid "Лерик"
+msgstr "Лерик"
+
+#: src/catalog/content_data.py:47
+msgid "Масаллы"
+msgstr "Масаллы"
+
+#: src/catalog/content_data.py:48
+msgid "Мингячевир"
+msgstr "Мингячевир"
+
+#: src/catalog/content_data.py:49
+msgid "Нахчыван"
+msgstr "Нахчыван"
+
+#: src/catalog/content_data.py:50
+msgid "Нафталан"
+msgstr "Нафталан"
+
+#: src/catalog/content_data.py:51
+#| msgid "Нефтчиляр"
+msgid "Нефтчала"
+msgstr "Нефтчала"
+
+#: src/catalog/content_data.py:52
+msgid "Огуз"
+msgstr "Огуз"
+
+#: src/catalog/content_data.py:53
+msgid "Ордубад"
+msgstr "Ордубад"
+
+#: src/catalog/content_data.py:54
+msgid "Саатлы"
+msgstr "Саатлы"
+
+#: src/catalog/content_data.py:55
+msgid "Сабирабад"
+msgstr "Сабирабад"
+
+#: src/catalog/content_data.py:56
+msgid "Садарак"
+msgstr "Садарак"
+
+#: src/catalog/content_data.py:57
+msgid "Сальян"
+msgstr "Сальян"
+
+#: src/catalog/content_data.py:58
+msgid "Самух"
+msgstr "Самух"
+
+#: src/catalog/content_data.py:59
+#| msgid "Не указан"
+msgid "Сиазань"
+msgstr "Сиазань"
+
+#: src/catalog/content_data.py:60
+msgid "Сумгаит"
+msgstr "Сумгаит"
+
+#: src/catalog/content_data.py:61
+msgid "Тертер"
+msgstr "Тертер"
+
+#: src/catalog/content_data.py:62
+msgid "Товуз"
+msgstr "Товуз"
+
+#: src/catalog/content_data.py:63
+msgid "Уджар"
+msgstr "Уджар"
+
+#: src/catalog/content_data.py:64
+msgid "Физули"
+msgstr "Физули"
+
+#: src/catalog/content_data.py:65
+msgid "Хачмаз"
+msgstr "Хачмаз"
+
+#: src/catalog/content_data.py:66
+#| msgid "Ходжасан"
+msgid "Ходжавенд"
+msgstr "Ходжавенд"
+
+#: src/catalog/content_data.py:67
+#| msgid "Ходжасан"
+msgid "Ходжалы"
+msgstr "Ходжалы"
+
+#: src/catalog/content_data.py:68
+msgid "Хызы"
+msgstr "Хызы"
+
+#: src/catalog/content_data.py:69
+#| msgid "Избранное"
+msgid "Шабран"
+msgstr "Шабран"
+
+#: src/catalog/content_data.py:70
+msgid "Шамахы"
+msgstr "Шамахы"
+
+#: src/catalog/content_data.py:71
+msgid "Шамкир"
+msgstr "Шамкир"
+
+#: src/catalog/content_data.py:72
+msgid "Шарур"
+msgstr "Шарур"
+
+#: src/catalog/content_data.py:73
+msgid "Шахбуз"
+msgstr "Шахбуз"
+
+#: src/catalog/content_data.py:74
+msgid "Шеки"
+msgstr "Шеки"
+
+#: src/catalog/content_data.py:75
+msgid "Ширван"
+msgstr "Ширван"
+
+#: src/catalog/content_data.py:76
+msgid "Шуша"
+msgstr "Шуша"
+
+#: src/catalog/content_data.py:77
+msgid "Ярдымлы"
+msgstr "Ярдымлы"
+
+#: src/catalog/content_data.py:84
 msgid "Ичеришехер"
 msgstr "Ичеришехер"
 
-#: src/catalog/content_data.py:21
+#: src/catalog/content_data.py:85
 msgid "Сахил"
 msgstr "Сахил"
 
-#: src/catalog/content_data.py:22
+#: src/catalog/content_data.py:86
 msgid "28 Май"
 msgstr "28 Май"
 
-#: src/catalog/content_data.py:23
+#: src/catalog/content_data.py:87
 msgid "Гянджлик"
 msgstr "Гянджлик"
 
-#: src/catalog/content_data.py:24
+#: src/catalog/content_data.py:88
 msgid "Нариман Нариманов"
 msgstr "Нариман Нариманов"
 
-#: src/catalog/content_data.py:25
+#: src/catalog/content_data.py:89
 msgid "Бакмил"
 msgstr "Бакмил"
 
-#: src/catalog/content_data.py:26
+#: src/catalog/content_data.py:90
 msgid "Улдуз"
 msgstr "Улдуз"
 
-#: src/catalog/content_data.py:27
+#: src/catalog/content_data.py:91
 msgid "Кёроглу"
 msgstr "Кёроглу"
 
-#: src/catalog/content_data.py:28
+#: src/catalog/content_data.py:92
 msgid "Гара Гараев"
 msgstr "Гара Гараев"
 
-#: src/catalog/content_data.py:29
+#: src/catalog/content_data.py:93
 msgid "Нефтчиляр"
 msgstr "Нефтчиляр"
 
-#: src/catalog/content_data.py:30
+#: src/catalog/content_data.py:94
 msgid "Халглар Достлугу"
 msgstr "Халглар Достлугу"
 
-#: src/catalog/content_data.py:31
+#: src/catalog/content_data.py:95
 msgid "Ахмедлы"
 msgstr "Ахмедлы"
 
-#: src/catalog/content_data.py:32
+#: src/catalog/content_data.py:96
 msgid "Ази Асланов"
 msgstr "Ази Асланов"
 
-#: src/catalog/content_data.py:34
+#: src/catalog/content_data.py:97
+msgid "Низами"
+msgstr "Низами"
+
+#: src/catalog/content_data.py:98
 msgid "Эльмляр Академиясы"
 msgstr "Эльмляр Академиясы"
 
-#: src/catalog/content_data.py:35
+#: src/catalog/content_data.py:99
 msgid "Иншаатчылар"
 msgstr "Иншаатчылар"
 
-#: src/catalog/content_data.py:36
+#: src/catalog/content_data.py:100
 msgid "20 Января"
 msgstr "20 Января"
 
-#: src/catalog/content_data.py:37
+#: src/catalog/content_data.py:101
 msgid "Мемар Аджеми"
 msgstr "Мемар Аджеми"
 
-#: src/catalog/content_data.py:39
+#: src/catalog/content_data.py:102
+msgid "Насими"
+msgstr "Насими"
+
+#: src/catalog/content_data.py:103
 msgid "Азадлыг Проспекти"
 msgstr "Азадлыг Проспекти"
 
-#: src/catalog/content_data.py:40
+#: src/catalog/content_data.py:104
 msgid "Дернегюль"
 msgstr "Дернегюль"
 
-#: src/catalog/content_data.py:41
+#: src/catalog/content_data.py:105
 msgid "Джафар Джаббарлы"
 msgstr "Джафар Джаббарлы"
 
-#: src/catalog/content_data.py:42
+#: src/catalog/content_data.py:106
 msgid "Шах Исмаил Хатаи"
 msgstr "Шах Исмаил Хатаи"
 
-#: src/catalog/content_data.py:43
+#: src/catalog/content_data.py:107
 msgid "Автовагзал"
 msgstr "Автовагзал"
 
-#: src/catalog/content_data.py:44
+#: src/catalog/content_data.py:108
 msgid "8 Ноября"
 msgstr "8 Ноября"
 
-#: src/catalog/content_data.py:45
+#: src/catalog/content_data.py:109
 msgid "Ходжасан"
 msgstr "Ходжасан"
 
-#: src/catalog/content_data.py:64
+#: src/catalog/content_data.py:135
 #: src/catalog/controllers/home_controller.py:160 src/catalog/models.py:74
 msgid "Спорт"
 msgstr "Спорт"
 
-#: src/catalog/content_data.py:65
+#: src/catalog/content_data.py:136
 #: src/catalog/controllers/home_controller.py:140
 #: src/catalog/controllers/home_controller.py:155 src/catalog/models.py:75
 msgid "Творчество"
 msgstr "Творчество"
 
-#: src/catalog/content_data.py:66 src/catalog/models.py:76
+#: src/catalog/content_data.py:137 src/catalog/models.py:76
 msgid "Музыка и сцена"
 msgstr "Музыка и сцена"
 
-#: src/catalog/content_data.py:67 src/catalog/models.py:77
+#: src/catalog/content_data.py:138 src/catalog/models.py:77
 msgid "Образование"
 msgstr "Образование"
 
-#: src/catalog/content_data.py:68 src/catalog/models.py:78
+#: src/catalog/content_data.py:139 src/catalog/models.py:78
 msgid "Технологии"
 msgstr "Технологии"
 
-#: src/catalog/content_data.py:69
+#: src/catalog/content_data.py:140
 msgid "Досуг"
 msgstr "Досуг"
 
@@ -1925,8 +2188,9 @@ msgid "Обычный пользователь"
 msgstr "Обычный пользователь"
 
 #: src/catalog/controllers/home_controller.py:106
-msgid "Найдите кружок для ребёнка в Баку"
-msgstr "Найдите кружок для ребёнка в Баку"
+#| msgid "Найдите кружок для ребёнка в Баку"
+msgid "Найдите кружок для ребёнка в Азербайджане"
+msgstr "Найдите кружок для ребёнка в Азербайджане"
 
 #: src/catalog/controllers/home_controller.py:108
 msgid "Спорт, творчество, музыка, образование — всё в одном месте."
@@ -2245,8 +2509,9 @@ msgstr "Категория: %(value)s"
 
 #: src/catalog/controllers/place_controller.py:242
 #, python-format
-msgid "Район: %(value)s"
-msgstr "Район: %(value)s"
+#| msgid "Район: %(value)s"
+msgid "Регион / район: %(value)s"
+msgstr "Регион / район: %(value)s"
 
 #: src/catalog/controllers/place_controller.py:251
 #, python-format
@@ -2621,24 +2886,27 @@ msgid "Укажите дату и время в формате ГГГГ-ММ-Д�
 msgstr "Укажите дату и время в формате ГГГГ-ММ-ДД ЧЧ:ММ."
 
 #: src/catalog/forms.py:688
-msgid "Выберите район"
-msgstr "Выберите район"
+#| msgid "Выберите район из списка."
+msgid "Выберите регион или район"
+msgstr "Выберите регион или район"
 
 #: src/catalog/forms.py:693
 msgid "Выберите метро"
 msgstr "Выберите метро"
 
 #: src/catalog/forms.py:696
-msgid "Выберите район или укажите ниже ближайшее метро."
-msgstr "Выберите район или укажите ниже ближайшее метро."
+#| msgid "Выберите район или укажите ниже ближайшее метро."
+msgid "Выберите регион или район, либо укажите ниже ближайшее метро."
+msgstr "Выберите регион или район, либо укажите ниже ближайшее метро."
 
 #: src/catalog/forms.py:697
 msgid "Если район не выбран, укажите ближайшую станцию метро."
 msgstr "Если район не выбран, укажите ближайшую станцию метро."
 
 #: src/catalog/forms.py:698
-msgid "Выберите район из списка."
-msgstr "Выберите район из списка."
+#| msgid "Выберите район из списка."
+msgid "Выберите регион или район из списка."
+msgstr "Выберите регион или район из списка."
 
 #: src/catalog/forms.py:699
 msgid "Выберите станцию метро из списка."
@@ -3580,7 +3848,9 @@ msgid "События воронки"
 msgstr "События воронки"
 
 #: src/catalog/models.py:1549
-msgid "Районы (JSON)"
+#, fuzzy
+#| msgid "Районы (JSON)"
+msgid "Регионы / районы (JSON)"
 msgstr "Районы (JSON)"
 
 #: src/catalog/models.py:1550
@@ -3783,41 +4053,49 @@ msgstr "Спасибо! Ваша оценка сайта сохранена."
 
 #: src/catalog/services/seo.py:81
 #, python-format
-msgid "Новые кружки и секции для детей в Баку за %(days)s дней"
-msgstr "Новые кружки и секции для детей в Баку за %(days)s дней"
+#| msgid "Новые кружки и секции для детей в Баку за %(days)s дней"
+msgid "Новые кружки и секции для детей в Азербайджане за %(days)s дней"
+msgstr "Новые кружки и секции для детей в Азербайджане за %(days)s дней"
 
 #: src/catalog/services/seo.py:82
-msgid "Новые кружки и секции для детей в Баку"
-msgstr "Новые кружки и секции для детей в Баку"
+#| msgid "Новые кружки и секции для детей в Баку"
+msgid "Новые кружки и секции для детей в Азербайджане"
+msgstr "Новые кружки и секции для детей в Азербайджане"
 
 #: src/catalog/services/seo.py:90
 #, python-format
-msgid "Поиск \"%(query)s\" среди кружков и секций для детей в Баку"
-msgstr "Поиск \"%(query)s\" среди кружков и секций для детей в Баку"
+#| msgid "Поиск \"%(query)s\" среди кружков и секций для детей в Баку"
+msgid "Поиск \"%(query)s\" среди кружков и секций для детей в Азербайджане"
+msgstr "Поиск \"%(query)s\" среди кружков и секций для детей в Азербайджане"
 
 #: src/catalog/services/seo.py:92
 #, python-format
-msgid "%(category)s для детей в районе %(district)s, Баку"
-msgstr "%(category)s для детей в районе %(district)s, Баку"
+#| msgid "%(category)s для детей в районе %(district)s, Баку"
+msgid "%(category)s для детей в регионе %(district)s"
+msgstr "%(category)s для детей в регионе %(district)s"
 
 #: src/catalog/services/seo.py:97
 #, python-format
-msgid "%(category)s для детей в Баку"
-msgstr "%(category)s для детей в Баку"
+#| msgid "%(category)s для детей в Баку"
+msgid "%(category)s для детей в Азербайджане"
+msgstr "%(category)s для детей в Азербайджане"
 
 #: src/catalog/services/seo.py:99
 #, python-format
-msgid "Кружки и секции для детей в районе %(district)s, Баку"
-msgstr "Кружки и секции для детей в районе %(district)s, Баку"
+#| msgid "Кружки и секции для детей в районе %(district)s, Баку"
+msgid "Кружки и секции для детей в регионе %(district)s"
+msgstr "Кружки и секции для детей в регионе %(district)s"
 
 #: src/catalog/services/seo.py:101
 #, python-format
-msgid "Кружки и секции для детей у метро %(metro)s, Баку"
-msgstr "Кружки и секции для детей у метро %(metro)s, Баку"
+#| msgid "Кружки и секции для детей у метро %(metro)s, Баку"
+msgid "Кружки и секции для детей у метро %(metro)s"
+msgstr "Кружки и секции для детей у метро %(metro)s"
 
 #: src/catalog/services/seo.py:102
-msgid "Каталог кружков и секций для детей в Баку"
-msgstr "Каталог кружков и секций для детей в Баку"
+#| msgid "Каталог кружков и секций для детей в Баку"
+msgid "Каталог кружков и секций для детей в Азербайджане"
+msgstr "Каталог кружков и секций для детей в Азербайджане"
 
 #: src/catalog/services/seo.py:117
 #, python-format
@@ -3826,8 +4104,9 @@ msgstr "Категория: %(category)s"
 
 #: src/catalog/services/seo.py:119
 #, python-format
-msgid "Район: %(district)s"
-msgstr "Район: %(district)s"
+#| msgid "Район: %(district)s"
+msgid "Регион / район: %(district)s"
+msgstr "Регион / район: %(district)s"
 
 #: src/catalog/services/seo.py:121
 #, python-format
@@ -3878,20 +4157,23 @@ msgid "Только проверенные карточки"
 msgstr "Только проверенные карточки"
 
 #: src/catalog/services/seo.py:177
-msgid "Кружки и секции для детей в Баку"
-msgstr "Кружки и секции для детей в Баку"
+#| msgid "Кружки и секции для детей в Баку"
+msgid "Кружки и секции для детей в Азербайджане"
+msgstr "Кружки и секции для детей в Азербайджане"
 
 #: src/catalog/services/seo.py:178
+#| msgid ""
+#| "KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, "
+#| "возрасту и цене."
 msgid ""
-"KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, "
-"возрасту и цене."
-msgstr ""
-"KidsMap: каталог детских кружков и секций в Баку с фильтрами по району, "
-"возрасту и цене."
+"KidsMap: каталог детских кружков и секций в Азербайджане с фильтрами по "
+"региону, возрасту и цене."
+msgstr "KidsMap: каталог детских кружков и секций в Азербайджане с фильтрами по региону, возрасту и цене."
 
 #: src/catalog/services/seo.py:183
-msgid "Популярные кружки и секции для детей в Баку"
-msgstr "Популярные кружки и секции для детей в Баку"
+#| msgid "Популярные кружки и секции для детей в Баку"
+msgid "Популярные кружки и секции для детей в Азербайджане"
+msgstr "Популярные кружки и секции для детей в Азербайджане"
 
 #: src/catalog/services/seo.py:206
 #, python-format
@@ -3916,10 +4198,12 @@ msgstr ""
 
 #: src/catalog/services/seo.py:220
 #, python-format
+#| msgid ""
+#| "%(title)s. Фильтры по категории, району, метро, возрасту и цене на "
+#| "KidsMap."
 msgid ""
-"%(title)s. Фильтры по категории, району, метро, возрасту и цене на KidsMap."
-msgstr ""
-"%(title)s. Фильтры по категории, району, метро, возрасту и цене на KidsMap."
+"%(title)s. Фильтры по категории, региону, метро, возрасту и цене на KidsMap."
+msgstr "%(title)s. Фильтры по категории, региону, метро, возрасту и цене на KidsMap."
 
 #: src/catalog/services/seo.py:225
 #, python-format
@@ -3950,8 +4234,9 @@ msgstr "Главная"
 
 #: src/catalog/services/seo.py:278
 #, python-format
-msgid "район %(district)s"
-msgstr "район %(district)s"
+#| msgid "район %(district)s"
+msgid "регион %(district)s"
+msgstr "регион %(district)s"
 
 #: src/catalog/services/seo.py:280
 #, python-format
@@ -3970,25 +4255,28 @@ msgstr "цена %(price)s"
 
 #: src/catalog/services/seo.py:294
 #, python-format
-msgid "%(name)s — %(category)s для детей в %(district)s, Баку | KidsMap"
-msgstr "%(name)s — %(category)s для детей в %(district)s, Баку | KidsMap"
+#| msgid "%(name)s — %(category)s для детей в %(district)s, Баку | KidsMap"
+msgid "%(name)s — %(category)s для детей в регионе %(district)s | KidsMap"
+msgstr "%(name)s — %(category)s для детей в регионе %(district)s | KidsMap"
 
 #: src/catalog/services/seo.py:300
 #, python-format
-msgid "%(name)s — кружок и секция для детей в Баку | KidsMap"
-msgstr "%(name)s — кружок и секция для детей в Баку | KidsMap"
+#| msgid "%(name)s — кружок и секция для детей в Баку | KidsMap"
+msgid "%(name)s — кружок и секция для детей в Азербайджане | KidsMap"
+msgstr "%(name)s — кружок и секция для детей в Азербайджане | KidsMap"
 
 #: src/catalog/services/seo.py:400
 msgid "Отзывы о KidsMap от родителей и пользователей"
 msgstr "Отзывы о KidsMap от родителей и пользователей"
 
 #: src/catalog/services/seo.py:402
+#| msgid ""
+#| "Отзывы о сервисе KidsMap: впечатления родителей и пользователей о "
+#| "каталоге кружков и секций в Баку."
 msgid ""
 "Отзывы о сервисе KidsMap: впечатления родителей и пользователей о каталоге "
-"кружков и секций в Баку."
-msgstr ""
-"Отзывы о сервисе KidsMap: впечатления родителей и пользователей о каталоге "
-"кружков и секций в Баку."
+"кружков и секций по Азербайджану."
+msgstr "Отзывы о сервисе KidsMap: впечатления родителей и пользователей о каталоге кружков и секций по Азербайджану."
 
 #: src/catalog/services/seo.py:404
 #, python-format
@@ -4493,12 +4781,13 @@ msgstr "Уже подтверждали email?"
 
 #: src/catalog/templates/base.html:9 src/catalog/templates/base.html:24
 #: src/catalog/templates/base.html:29
+#| msgid ""
+#| "Каталог детских кружков и секций в Баку: спорт, творчество, музыка, "
+#| "образование."
 msgid ""
-"Каталог детских кружков и секций в Баку: спорт, творчество, музыка, "
+"Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, "
 "образование."
-msgstr ""
-"Каталог детских кружков и секций в Баку: спорт, творчество, музыка, "
-"образование."
+msgstr "Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование."
 
 #: src/catalog/templates/base.html:73 src/catalog/templates/base.html:75
 msgid "Меню"
@@ -4851,10 +5140,9 @@ msgid "Период"
 msgstr "Период"
 
 #: src/catalog/templates/catalog/place_detail.html:421
-#, fuzzy
 #| msgid "Район/метро"
-msgid "Район / метро"
-msgstr "Район/метро"
+msgid "Регион / район / метро"
+msgstr "Регион / район / метро"
 
 #: src/catalog/templates/catalog/place_detail.html:434
 #: src/catalog/templates/catalog/place_list.html:379
@@ -4955,12 +5243,14 @@ msgid "Все"
 msgstr "Все"
 
 #: src/catalog/templates/catalog/place_list.html:81
-msgid "Найти район"
-msgstr "Найти район"
+#| msgid "Найти район"
+msgid "Найти регион или район"
+msgstr "Найти регион или район"
 
 #: src/catalog/templates/catalog/place_list.html:85
-msgid "Популярные районы"
-msgstr "Популярные районы"
+#| msgid "Популярные районы"
+msgid "Популярные регионы"
+msgstr "Популярные регионы"
 
 #: src/catalog/templates/catalog/place_list.html:109
 msgid "Рейтинг не ниже"
@@ -5086,8 +5376,9 @@ msgid "Новых кружков"
 msgstr "Новых кружков"
 
 #: src/catalog/templates/catalog/place_list.html:339
-msgid "Новых районов"
-msgstr "Новых районов"
+#| msgid "Новых районов"
+msgid "Новых регионов"
+msgstr "Новых регионов"
 
 #: src/catalog/templates/catalog/place_list.html:344
 msgid "Новых категорий"
@@ -5144,28 +5435,33 @@ msgstr "Часто ищут"
 
 #: src/catalog/templates/catalog/place_list.html:570
 #: src/catalog/templates/pages/home.html:446
-msgid "Кружки в Баку для детей"
-msgstr "Кружки в Баку для детей"
+#| msgid "Кружки в Баку для детей"
+msgid "Кружки в Азербайджане для детей"
+msgstr "Кружки в Азербайджане для детей"
 
 #: src/catalog/templates/catalog/place_list.html:571
 #: src/catalog/templates/pages/home.html:447
-msgid "Курсы для детей в Баку"
-msgstr "Курсы для детей в Баку"
+#| msgid "Курсы для детей в Баку"
+msgid "Курсы для детей в Азербайджане"
+msgstr "Курсы для детей в Азербайджане"
 
 #: src/catalog/templates/catalog/place_list.html:572
 #: src/catalog/templates/pages/home.html:448
-msgid "Спортивные секции в Баку"
-msgstr "Спортивные секции в Баку"
+#| msgid "Спортивные секции в Баку"
+msgid "Спортивные секции в Азербайджане"
+msgstr "Спортивные секции в Азербайджане"
 
 #: src/catalog/templates/catalog/place_list.html:573
 #: src/catalog/templates/pages/home.html:449
-msgid "Творческие кружки в Баку"
-msgstr "Творческие кружки в Баку"
+#| msgid "Творческие кружки в Баку"
+msgid "Творческие кружки в Азербайджане"
+msgstr "Творческие кружки в Азербайджане"
 
 #: src/catalog/templates/catalog/place_list.html:574
 #: src/catalog/templates/pages/home.html:450
-msgid "Программирование для детей в Баку"
-msgstr "Программирование для детей в Баку"
+#| msgid "Программирование для детей в Баку"
+msgid "Программирование для детей в Азербайджане"
+msgstr "Программирование для детей в Азербайджане"
 
 #: src/catalog/templates/catalog/seo_landing.html:14
 #: src/catalog/templates/pages/about.html:21
@@ -5187,18 +5483,20 @@ msgid "Полезные подборки"
 msgstr "Полезные подборки"
 
 #: src/catalog/templates/pages/about.html:15
-msgid "KidsMap — каталог детских кружков и секций в Баку."
-msgstr "KidsMap — каталог детских кружков и секций в Баку."
+#| msgid "KidsMap — каталог детских кружков и секций в Баку."
+msgid "KidsMap — каталог детских кружков и секций по Азербайджану."
+msgstr "KidsMap — каталог детских кружков и секций по Азербайджану."
 
 #: src/catalog/templates/pages/about.html:18
+#| msgid ""
+#| "Мы собираем в одном месте занятия для детей, чтобы родителям было проще "
+#| "находить подходящие кружки по району, возрасту, цене, отзывам и формату "
+#| "занятий."
 msgid ""
 "Мы собираем в одном месте занятия для детей, чтобы родителям было проще "
-"находить подходящие кружки по району, возрасту, цене, отзывам и формату "
+"находить подходящие кружки по региону, возрасту, цене, отзывам и формату "
 "занятий."
-msgstr ""
-"Мы собираем в одном месте занятия для детей, чтобы родителям было проще "
-"находить подходящие кружки по району, возрасту, цене, отзывам и формату "
-"занятий."
+msgstr "Мы собираем в одном месте занятия для детей, чтобы родителям было проще находить подходящие кружки по региону, возрасту, цене, отзывам и формату занятий."
 
 #: src/catalog/templates/pages/about.html:22
 #: src/catalog/templates/pages/contacts.html:25
@@ -5266,12 +5564,13 @@ msgid "Что можно сделать на сайте"
 msgstr "Что можно сделать на сайте"
 
 #: src/catalog/templates/pages/about.html:47
+#| msgid ""
+#| "Использовать фильтры по категории, району, метро, возрасту, цене, "
+#| "рейтингу и новизне."
 msgid ""
-"Использовать фильтры по категории, району, метро, возрасту, цене, рейтингу и "
-"новизне."
-msgstr ""
-"Использовать фильтры по категории, району, метро, возрасту, цене, рейтингу и "
-"новизне."
+"Использовать фильтры по категории, региону, метро, возрасту, цене, рейтингу "
+"и новизне."
+msgstr "Использовать фильтры по категории, региону, метро, возрасту, цене, рейтингу и новизне."
 
 #: src/catalog/templates/pages/about.html:48
 msgid ""
@@ -5341,12 +5640,13 @@ msgid "Найдите подходящие варианты"
 msgstr "Найдите подходящие варианты"
 
 #: src/catalog/templates/pages/about.html:73
+#| msgid ""
+#| "Выберите категорию, район, метро, возраст, цену и другие параметры, чтобы "
+#| "быстро сузить поиск."
 msgid ""
-"Выберите категорию, район, метро, возраст, цену и другие параметры, чтобы "
+"Выберите категорию, регион, метро, возраст, цену и другие параметры, чтобы "
 "быстро сузить поиск."
-msgstr ""
-"Выберите категорию, район, метро, возраст, цену и другие параметры, чтобы "
-"быстро сузить поиск."
+msgstr "Выберите категорию, регион, метро, возраст, цену и другие параметры, чтобы быстро сузить поиск."
 
 #: src/catalog/templates/pages/about.html:77
 msgid "Сравните карточки"
@@ -5381,8 +5681,9 @@ msgid "Понятный каталог без лишнего шума и пут�
 msgstr "Понятный каталог без лишнего шума и путаницы."
 
 #: src/catalog/templates/pages/about.html:94
-msgid "Быстрый выбор кружков рядом с нужным районом или метро."
-msgstr "Быстрый выбор кружков рядом с нужным районом или метро."
+#| msgid "Быстрый выбор кружков рядом с нужным районом или метро."
+msgid "Быстрый выбор кружков рядом с нужным регионом или метро."
+msgstr "Быстрый выбор кружков рядом с нужным регионом или метро."
 
 #: src/catalog/templates/pages/about.html:95
 msgid ""
@@ -5583,8 +5884,9 @@ msgid "Каталог кружков"
 msgstr "Каталог кружков"
 
 #: src/catalog/templates/pages/home.html:25
-msgid "Поиск детских кружков и секций в Баку"
-msgstr "Поиск детских кружков и секций в Баку"
+#| msgid "Поиск детских кружков и секций в Баку"
+msgid "Поиск детских кружков и секций по Азербайджану"
+msgstr "Поиск детских кружков и секций по Азербайджану"
 
 #: src/catalog/templates/pages/home.html:29
 msgid "Преимущества KidsMap"
@@ -5635,8 +5937,9 @@ msgstr "Открыть весь каталог"
 
 #: src/catalog/templates/pages/home.html:263
 #: src/catalog/templates/pages/home.html:273
-msgid "Карта кружков по Баку"
-msgstr "Карта кружков по Баку"
+#| msgid "Карта кружков по Баку"
+msgid "Карта кружков по Азербайджану"
+msgstr "Карта кружков по Азербайджану"
 
 #: src/catalog/templates/pages/home.html:264
 msgid "По выбранным фильтрам на карте пока нет кружков"
@@ -5651,8 +5954,9 @@ msgid "Выберите фильтры"
 msgstr "Выберите фильтры"
 
 #: src/catalog/templates/pages/home.html:290
-msgid "Категория, район, метро и возраст ребёнка."
-msgstr "Категория, район, метро и возраст ребёнка."
+#| msgid "Категория, район, метро и возраст ребёнка."
+msgid "Категория, регион, метро и возраст ребёнка."
+msgstr "Категория, регион, метро и возраст ребёнка."
 
 #: src/catalog/templates/pages/home.html:291
 msgid "Найти кружки"
@@ -5769,8 +6073,9 @@ msgid "Проверенные и активные места"
 msgstr "Проверенные и активные места"
 
 #: src/catalog/templates/pages/home.html:469
-msgid "Фильтры по возрасту, району и цене"
-msgstr "Фильтры по возрасту, району и цене"
+#| msgid "Фильтры по возрасту, району и цене"
+msgid "Фильтры по возрасту, региону и цене"
+msgstr "Фильтры по возрасту, региону и цене"
 
 #: src/catalog/templates/pages/home.html:470
 msgid "Быстрый переход к звонку и Instagram"
@@ -5833,8 +6138,9 @@ msgid "Быстрый поиск"
 msgstr "Быстрый поиск"
 
 #: src/catalog/templates/pages/home.html:598
-msgid "Район, возраст, метро и категории без лишних шагов."
-msgstr "Район, возраст, метро и категории без лишних шагов."
+#| msgid "Район, возраст, метро и категории без лишних шагов."
+msgid "Регион, возраст, метро и категории без лишних шагов."
+msgstr "Регион, возраст, метро и категории без лишних шагов."
 
 #: src/catalog/templates/pages/home.html:601
 msgid "Отзывы и лайки"
@@ -5879,14 +6185,15 @@ msgid "Как быстро найти кружок для ребёнка?"
 msgstr "Как быстро найти кружок для ребёнка?"
 
 #: src/catalog/templates/pages/home.html:628
+#| msgid ""
+#| "Выберите категорию, район, метро или возраст в поиске на главной. Карта и "
+#| "список кружков помогут быстро сравнить варианты и открыть подходящую "
+#| "карточку."
 msgid ""
-"Выберите категорию, район, метро или возраст в поиске на главной. Карта и "
+"Выберите категорию, регион, метро или возраст в поиске на главной. Карта и "
 "список кружков помогут быстро сравнить варианты и открыть подходящую "
 "карточку."
-msgstr ""
-"Выберите категорию, район, метро или возраст в поиске на главной. Карта и "
-"список кружков помогут быстро сравнить варианты и открыть подходящую "
-"карточку."
+msgstr "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку."
 
 #: src/catalog/templates/pages/home.html:634
 msgid "Нужно ли регистрироваться, чтобы смотреть каталог?"
@@ -6348,10 +6655,9 @@ msgstr "К карточкам"
 
 #: src/catalog/templates/pages/owner_place_create.html:46
 #: src/catalog/templates/pages/owner_place_edit.html:47
-#, fuzzy
 #| msgid "Район/метро"
-msgid "Район или метро"
-msgstr "Район/метро"
+msgid "Регион, район или метро"
+msgstr "Регион, район или метро"
 
 #: src/catalog/templates/pages/owner_place_create.html:47
 #: src/catalog/templates/pages/owner_place_edit.html:48
@@ -6474,12 +6780,26 @@ msgstr "Ожидают модерации"
 msgid "Всего карточек"
 msgstr "Всего карточек"
 
-#: src/catalog/templates/pages/owner_places.html:52
-#: src/catalog/templates/pages/owner_places.html:142
-#, fuzzy
-#| msgid "Код подтверждения"
-msgid "Не подтвержденные"
-msgstr "Код подтверждения"
+#: src/catalog/templates/pages/owner_places.html:36
+msgid "Текущий раздел"
+msgstr "Текущий раздел"
+
+#: src/catalog/templates/pages/owner_places.html:39
+msgid "Вы в разделе управления карточками"
+msgstr "Вы в разделе управления карточками"
+
+#: src/catalog/templates/pages/owner_places.html:40
+msgid ""
+"Здесь можно добавлять кружки, отправлять их на модерацию и следить за "
+"публикацией."
+msgstr ""
+"Здесь можно добавлять кружки, отправлять их на модерацию и следить за "
+"публикацией."
+
+#: src/catalog/templates/pages/owner_places.html:59
+#: src/catalog/templates/pages/owner_places.html:149
+msgid "Черновики и модерация"
+msgstr "Черновики и модерация"
 
 #: src/catalog/templates/pages/owner_places.html:70
 msgid ""
@@ -6530,10 +6850,16 @@ msgid "Публикация станет доступна после одобр�
 msgstr "Публикация станет доступна после одобрения заявки модератором."
 
 #: src/catalog/templates/pages/owner_places.html:235
-#, fuzzy
-#| msgid "Нет опубликованных карточек."
-msgid "Нет неподтвержденных карточек."
-msgstr "Нет опубликованных карточек."
+msgid "Пока нет карточек на подготовке."
+msgstr "Пока нет карточек на подготовке."
+
+#: src/catalog/templates/pages/owner_places.html:244
+msgid ""
+"Новые или ожидающие проверки карточки появятся здесь до публикации в "
+"каталоге."
+msgstr ""
+"Новые или ожидающие проверки карточки появятся здесь до публикации в "
+"каталоге."
 
 #: src/catalog/templates/pages/owner_reviews.html:14
 #, fuzzy
@@ -6734,8 +7060,9 @@ msgid "Не удалось обработать реакцию на отзыв."
 msgstr "Не удалось обработать реакцию на отзыв."
 
 #: src/catalog/views.py:351
-msgid "О проекте KidsMap: каталог детских кружков и секций в Баку."
-msgstr "О проекте KidsMap: каталог детских кружков и секций в Баку."
+#| msgid "О проекте KidsMap: каталог детских кружков и секций в Баку."
+msgid "О проекте KidsMap: каталог детских кружков и секций по Азербайджану."
+msgstr "О проекте KidsMap: каталог детских кружков и секций по Азербайджану."
 
 #: src/catalog/views.py:359
 msgid "Контакты проекта KidsMap."
@@ -7166,6 +7493,10 @@ msgstr "Воронка по месяцам"
 msgid "Последние добавленные кружки"
 msgstr "Последние добавленные кружки"
 
+#: templates/admin/catalog/site_analytics.html:484
+msgid "Район"
+msgstr "Район"
+
 #: templates/admin/catalog/site_analytics.html:485
 msgid "Дата"
 msgstr "Дата"
@@ -7182,6 +7513,39 @@ msgstr "Выберите раздел для редактирования"
 #: templates/admin/catalog/site_settings_hub.html:15
 msgid "Нужно заполнить"
 msgstr "Нужно заполнить"
+
+#~ msgid "Ясамал"
+#~ msgstr "Ясамал"
+
+#~ msgid "Нариманов"
+#~ msgstr "Нариманов"
+
+#~ msgid "Сабаиль"
+#~ msgstr "Сабаиль"
+
+#~ msgid "Сабунчи"
+#~ msgstr "Сабунчи"
+
+#~ msgid "Бинагади"
+#~ msgstr "Бинагади"
+
+#~ msgid "Сураханы"
+#~ msgstr "Сураханы"
+
+#~ msgid "Хатаи"
+#~ msgstr "Хатаи"
+
+#~ msgid "Хазар"
+#~ msgstr "Хазар"
+
+#~ msgid "Гарадаг"
+#~ msgstr "Гарадаг"
+
+#~ msgid "Пираллахы"
+#~ msgstr "Пираллахы"
+
+#~ msgid "Выберите район"
+#~ msgstr "Выберите район"
 
 #, python-format
 #~ msgid "В удаленные перемещен %(count)d кружок."
@@ -7517,3 +7881,15 @@ msgstr "Нужно заполнить"
 
 #~ msgid "После выбора точки маркер можно перетащить."
 #~ msgstr "После выбора точки маркер можно перетащить."
+
+msgid "Отзыв отправлен на модерацию."
+msgstr "Отзыв отправлен на модерацию."
+
+msgid "Отзывы публикуются после модерации."
+msgstr "Отзывы публикуются после модерации."
+
+msgid "Отзывы пользователей"
+msgstr "Отзывы пользователей"
+
+msgid "Можно отсортировать по популярности, дате или оценке."
+msgstr "Можно отсортировать по популярности, дате или оценке."

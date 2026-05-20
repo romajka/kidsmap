@@ -30,6 +30,7 @@ from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
 from .models import PlaceReview, SiteReview, UserProfile
 from .models import FunnelEvent
+from .services.content_quality import public_review_queryset
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 
 home_controller = HomeController.build_default()
@@ -277,7 +278,7 @@ def vote_place_review(request, review_id):
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("home")))
 
-    review = PlaceReview.objects.filter(is_approved=True).select_related("place").filter(pk=review_id).first()
+    review = public_review_queryset(PlaceReview.objects.select_related("place")).filter(pk=review_id).first()
     if review is None:
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("home")))
@@ -308,7 +309,7 @@ def vote_site_review(request, review_id):
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
 
-    review = SiteReview.objects.filter(is_approved=True).filter(pk=review_id).first()
+    review = public_review_queryset(SiteReview.objects.all()).filter(pk=review_id).first()
     if review is None:
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
@@ -348,7 +349,7 @@ def about(request):
     return render(
         request,
         "pages/about.html",
-        {"meta_description": _("О проекте KidsMap: каталог детских кружков и секций в Баку.")},
+        {"meta_description": _("О проекте KidsMap: каталог детских кружков и секций по Азербайджану.")},
     )
 
 
@@ -358,6 +359,125 @@ def contacts(request):
         "pages/contacts.html",
         {"meta_description": _("Контакты проекта KidsMap.")},
     )
+
+
+FOR_BUSINESS_CONTENT = {
+    "az": {
+        "title": "Kursunuzu KidsMap-də yerləşdirin",
+        "mobile_title": "Kursunuzu yerləşdirin",
+        "subtitle": "Uşaq kursunuzu və ya mərkəzinizi valideynlərə daha tez göstərin.",
+        "primary_cta": "Məkan əlavə et",
+        "secondary_cta": "WhatsApp-da yaz",
+        "benefits_title": "Nə əldə edirsiniz",
+        "benefits": [
+            "Kataloqda məkan kartı",
+            "Kontaktlar, ünvan və xəritə",
+            "Foto, təsvir, cədvəl və qiymətlər",
+            "Moderasiya olunmuş rəylər",
+            "Gələcək VIP imkanları üçün hazır struktur",
+        ],
+        "steps_title": "Necə işləyir",
+        "steps": ["Qeydiyyatdan keçin", "Kartı doldurun", "Moderasiyaya göndərin", "Yoxlamadan sonra kataloqda görünür"],
+        "plans_title": "Tariflər",
+        "free_plan": "Free: əsas kart, kontaktlar, xəritə və 3 foto.",
+        "vip_plan": "VIP: kataloqda önə çıxarma, daha çox foto və analitika. Tezliklə.",
+        "faq_title": "Suallar",
+        "faq": [
+            ("Yerləşdirmə nə qədərdir?", "Hazırda əsas yerləşdirmə pulsuz strukturda hazırlanıb."),
+            ("Moderasiya nə qədər çəkir?", "Məlumatların tamlığından asılıdır. Test və natamam kartlar dərc olunmur."),
+            ("Kartı redaktə etmək olar?", "Bəli, dəyişikliklər yenidən moderasiya oluna bilər."),
+        ],
+    },
+    "ru": {
+        "title": "Разместите ваш детский кружок на KidsMap",
+        "mobile_title": "Разместите курс",
+        "subtitle": "Помогите родителям быстрее найти ваши занятия в Баку.",
+        "primary_cta": "Добавить кружок",
+        "secondary_cta": "Написать в WhatsApp",
+        "benefits_title": "Что получает владелец",
+        "benefits": [
+            "Карточку кружка в каталоге",
+            "Контакты, адрес и карту",
+            "Фото, описание, расписание и цены",
+            "Отзывы после модерации",
+            "Готовую основу для будущих VIP-возможностей",
+        ],
+        "steps_title": "Как это работает",
+        "steps": ["Зарегистрируйтесь", "Заполните карточку", "Отправьте на модерацию", "После проверки карточка появится в каталоге"],
+        "plans_title": "Тарифы",
+        "free_plan": "Free: базовая карточка, контакты, карта и 3 фото.",
+        "vip_plan": "VIP: выше в каталоге, больше фото и аналитика. Скоро.",
+        "faq_title": "Вопросы",
+        "faq": [
+            ("Сколько стоит размещение?", "Базовое размещение сейчас подготовлено как бесплатная структура."),
+            ("Сколько длится модерация?", "Зависит от полноты данных. Тестовые и неполные карточки не публикуются."),
+            ("Можно ли редактировать карточку?", "Да, изменения могут повторно пройти модерацию."),
+        ],
+    },
+    "en": {
+        "title": "List your kids club on KidsMap",
+        "mobile_title": "List your course",
+        "subtitle": "Help parents in Baku find your activities faster.",
+        "primary_cta": "Add a club",
+        "secondary_cta": "Message on WhatsApp",
+        "benefits_title": "What owners get",
+        "benefits": [
+            "A listing in the catalog",
+            "Contacts, address and map",
+            "Photos, description, schedule and prices",
+            "Reviews after moderation",
+            "A base for future VIP options",
+        ],
+        "steps_title": "How it works",
+        "steps": ["Register", "Fill in the listing", "Send it for moderation", "After review it appears in the catalog"],
+        "plans_title": "Plans",
+        "free_plan": "Free: basic listing, contacts, map and 3 photos.",
+        "vip_plan": "VIP: higher catalog placement, more photos and analytics. Coming soon.",
+        "faq_title": "FAQ",
+        "faq": [
+            ("How much does listing cost?", "Basic listing is currently prepared as a free structure."),
+            ("How long does moderation take?", "It depends on data completeness. Test and incomplete listings are not published."),
+            ("Can I edit a listing?", "Yes, changes may go through moderation again."),
+        ],
+    },
+}
+
+
+LEGAL_CONTENT = {
+    "privacy": {
+        "az": ("Məxfilik siyasəti", ["Email və telefon yalnız hesab, əlaqə və moderasiya üçün istifadə olunur.", "İstifadəçi məlumatlarının silinməsi üçün administrasiya ilə əlaqə saxlaya bilərsiniz."]),
+        "ru": ("Политика конфиденциальности", ["Email и телефон используются для аккаунта, связи и модерации.", "Пользователь может запросить удаление данных через администрацию."]),
+        "en": ("Privacy Policy", ["Email and phone are used for accounts, contact and moderation.", "Users can request data removal by contacting the administration."]),
+    },
+    "terms": {
+        "az": ("İstifadə şərtləri", ["KidsMap kataloq və əlaqə platformasıdır.", "Məlumatların aktuallığı barədə səhv görsəniz, bizə bildirin."]),
+        "ru": ("Условия использования", ["KidsMap является каталогом и площадкой для контакта.", "Если вы нашли ошибку в данных, сообщите администрации."]),
+        "en": ("Terms of Use", ["KidsMap is a catalog and contact platform.", "If you find incorrect information, report it to the administration."]),
+    },
+    "review-rules": {
+        "az": ("Rəy qaydaları", ["Rəylər moderasiyadan sonra dərc olunur.", "Test, təhqiredici və mənasız mətnlər dərc edilmir."]),
+        "ru": ("Правила отзывов", ["Отзывы публикуются после модерации.", "Тестовые, оскорбительные и бессмысленные тексты не публикуются."]),
+        "en": ("Review Rules", ["Reviews are published after moderation.", "Test, offensive and meaningless texts are not published."]),
+    },
+    "listing-rules": {
+        "az": ("Yerləşdirmə qaydaları", ["Kartda ad, kateqoriya, ünvan, kontakt, yaş, qiymət və cədvəl olmalıdır.", "Natamam və test kartları kataloqda göstərilmir."]),
+        "ru": ("Правила размещения", ["В карточке нужны название, категория, адрес, контакт, возраст, цена и расписание.", "Неполные и тестовые карточки не показываются в каталоге."]),
+        "en": ("Listing Rules", ["A listing needs name, category, address, contact, age, price and schedule.", "Incomplete and test listings are not shown in the catalog."]),
+    },
+}
+
+
+def for_business(request):
+    language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in FOR_BUSINESS_CONTENT else "az"
+    content = FOR_BUSINESS_CONTENT[language]
+    return render(request, "pages/for_business.html", {"content": content, "meta_description": content["subtitle"]})
+
+
+def legal_page(request, page_slug):
+    language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in {"az", "ru", "en"} else "az"
+    page = LEGAL_CONTENT[page_slug]
+    title, sections = page[language]
+    return render(request, "pages/legal.html", {"legal_title": title, "legal_sections": sections, "meta_description": title})
 
 
 def owner_cabinet(request):

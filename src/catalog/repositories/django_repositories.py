@@ -37,16 +37,17 @@ from catalog.models import (
     UserEmailVerification,
     UserProfile,
 )
+from catalog.services.content_quality import public_place_queryset, public_review_queryset
 
 User = get_user_model()
 
 
 class DjangoPlaceRepository(IPlaceRepository):
     def active_queryset(self) -> QuerySet:
-        return Place.objects.filter(is_active=True, deleted_at__isnull=True)
+        return public_place_queryset(Place.objects.all())
 
     def active_queryset_with_gallery(self) -> QuerySet:
-        return Place.objects.filter(is_active=True, deleted_at__isnull=True).prefetch_related("gallery")
+        return public_place_queryset(Place.objects.all()).prefetch_related("gallery")
 
     def top_popular(self, limit: int) -> QuerySet:
         return self.active_queryset().order_by("-likes_count", "-updated_at")[:limit]
@@ -84,7 +85,7 @@ class DjangoPlaceRepository(IPlaceRepository):
 
 class DjangoSiteReviewRepository(ISiteReviewRepository):
     def approved_queryset(self) -> QuerySet:
-        return SiteReview.objects.filter(is_approved=True).order_by("-created_at")
+        return public_review_queryset(SiteReview.objects.all()).order_by("-created_at")
 
 
 class DjangoSettingsRepository(ISettingsRepository):
@@ -393,7 +394,7 @@ class DjangoPlaceReviewRepository(IPlaceReviewRepository):
     def list_for_owner_scope(self, *, owner_ids: list[int], include_unapproved: bool = True) -> QuerySet:
         qs = PlaceReview.objects.filter(place__owner_id__in=owner_ids).select_related("place", "user")
         if not include_unapproved:
-            qs = qs.filter(is_approved=True)
+            qs = public_review_queryset(qs)
         return qs.order_by("-created_at")
 
     def get_for_owner_scope(self, *, review_id: int, owner_ids: list[int]) -> PlaceReview | None:

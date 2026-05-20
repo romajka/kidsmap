@@ -41,6 +41,7 @@ from catalog.models import (
     UserProfile,
 )
 from catalog.services.geocoding import PlaceGeocodingService
+from catalog.services.content_quality import public_place_queryset, public_review_queryset, review_quality_check
 from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, TRACKED_EVENT_NAMES
 from config.views import serve_media_file
 
@@ -60,6 +61,85 @@ class StubGeocodingRepository:
     def geocode(self, *, query: str, language: str = "ru", region: str = "az") -> GeocodingPoint | None:
         self.queries.append(query)
         return self.point
+
+
+def create_quality_place(**overrides):
+    long_description = (
+        "Uşaqlar üçün diqqətlə hazırlanmış dərslər, yaşa uyğun qruplar, "
+        "müntəzəm cədvəl və valideynlərlə açıq əlaqə təqdim edən mərkəz."
+    )
+    defaults = {
+        "name": "Quality Kids Club",
+        "name_az": "Keyfiyyətli Uşaq Dərnəyi",
+        "description_az": long_description,
+        "category": "EDU",
+        "age_from": 6,
+        "age_to": 12,
+        "district": "Bakı",
+        "address": "Bakı şəhəri, Nizami küçəsi 10",
+        "phone1": "+994501112233",
+        "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
+        "price_from": 80,
+        "price_to": 80,
+        "is_active": True,
+        "status": Place.STATUS_PUBLISHED,
+    }
+    defaults.update(overrides)
+    return Place.objects.create(**defaults)
+
+
+class ContentModerationPublicVisibilityTests(TestCase):
+    def test_only_published_quality_places_are_public(self):
+        public_place = create_quality_place()
+        create_quality_place(name="Draft Club", status=Place.STATUS_DRAFT)
+        create_quality_place(name="Pending Club", status=Place.STATUS_PENDING)
+        create_quality_place(name="Rejected Club", status=Place.STATUS_REJECTED)
+
+        self.assertEqual(list(public_place_queryset(Place.objects.all())), [public_place])
+
+    def test_place_with_test_content_is_not_public(self):
+        create_quality_place(name="test club")
+
+        self.assertEqual(public_place_queryset(Place.objects.all()).count(), 0)
+
+    def test_review_public_queryset_requires_approved_status_and_quality_text(self):
+        place = create_quality_place()
+        approved = PlaceReview.objects.create(
+            place=place,
+            rating=5,
+            text="Bu dərnək barədə real və faydalı təcrübə paylaşılır.",
+            status=PlaceReview.STATUS_APPROVED,
+            is_approved=True,
+        )
+        PlaceReview.objects.create(
+            place=place,
+            rating=5,
+            text="Bu rəy moderasiyadan keçməyib və görünməməlidir.",
+            status=PlaceReview.STATUS_PENDING,
+            is_approved=False,
+        )
+        PlaceReview.objects.create(
+            place=place,
+            rating=5,
+            text="test aaa lorem",
+            status=PlaceReview.STATUS_APPROVED,
+            is_approved=True,
+        )
+
+        self.assertEqual(list(public_review_queryset(PlaceReview.objects.all())), [approved])
+
+    def test_short_or_test_review_cannot_pass_quality_check(self):
+        place = create_quality_place()
+        review = PlaceReview.objects.create(
+            place=place,
+            rating=5,
+            text="test",
+            status=PlaceReview.STATUS_APPROVED,
+            is_approved=True,
+        )
+
+        self.assertIn("text_too_short", review_quality_check(review).errors)
+        self.assertIn("test_content", review_quality_check(review).errors)
 
 
 class TestPublicPagesSmoke(TestCase):
@@ -115,6 +195,21 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "icon-instagram")
         self.assertContains(response, "icon-facebook")
         self.assertContains(response, "icon-linkedin")
+
+    def test_business_and_legal_pages_open_in_languages(self):
+        checks = {
+            "/for-business/": "Uşaq dərnəyinizi KidsMap-də yerləşdirin",
+            "/ru/for-business/": "Разместите ваш детский кружок на KidsMap",
+            "/en/for-business/": "List your kids club on KidsMap",
+            "/privacy/": "Məxfilik siyasəti",
+            "/ru/terms/": "Условия использования",
+            "/en/review-rules/": "Review Rules",
+        }
+        for path, text in checks.items():
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, text)
 
     def test_about_page_shows_extended_project_description(self):
         response = self.client.get("/ru/about/", follow=True)

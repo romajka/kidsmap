@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ legal_title }} — KidsMap{% endblock %}
+{% block title_plain %}{{ legal_title }} — KidsMap{% endblock %}
+{% block meta_description %}{{ legal_title }}{% endblock %}
+
+{% block content %}
+  <section class="panel content-page legal-page">
+    <div class="content-page__hero">
+      <p class="eyebrow">KidsMap</p>
+      <h1>{{ legal_title }}</h1>
+    </div>
+    <div class="legal-page__body">
+      {% for item in legal_sections %}
+        <p>{{ item }}</p>
+      {% endfor %}
+      <p>{{ footer_email }}</p>
+    </div>
+  </section>
+{% endblock %}

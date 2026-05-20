@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from django.utils.translation import gettext as _
 
-from catalog.models import SiteReview
+from catalog.models import PlaceReview, SiteReview
 from catalog.services.review_moderation import moderate_review_content
 from catalog.services.reactions import create_or_update_review, ensure_session_key
 
@@ -91,11 +91,12 @@ def submit_place_review(*, request, place, require_auth: bool) -> ReviewSubmissi
         is_anonymous=payload.is_anonymous,
         contains_profanity=moderated.contains_profanity,
     )
+    review_obj.status = PlaceReview.STATUS_PENDING
+    review_obj.is_approved = False
+    review_obj.rejection_reason = ""
+    review_obj.save(update_fields=["status", "is_approved", "rejection_reason", "updated_at"])
 
-    if request.user.is_authenticated and not created:
-        message = _("Спасибо! Ваш отзыв обновлен.")
-    else:
-        message = _("Спасибо! Ваш отзыв добавлен.")
+    message = _("Отзыв отправлен на модерацию.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 
@@ -127,7 +128,9 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
         "author_name": moderated.author_name,
         "is_anonymous": payload.is_anonymous,
         "contains_profanity": moderated.contains_profanity,
-        "is_approved": True,
+        "is_approved": False,
+        "status": SiteReview.STATUS_PENDING,
+        "rejection_reason": "",
         "session_key": session_key,
     }
 
@@ -143,10 +146,7 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
             defaults=defaults,
         )
 
-    if request.user.is_authenticated and not created:
-        message = _("Спасибо! Ваша оценка сайта обновлена.")
-    else:
-        message = _("Спасибо! Ваша оценка сайта сохранена.")
+    message = _("Отзыв отправлен на модерацию.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 

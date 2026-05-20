@@ -24,15 +24,15 @@ def _get_solo_site_settings():
         contacts_text_ru="Свяжитесь с нами по почте: kidsmap.az@gmail.com",
         contacts_text_en="Contact us by email: kidsmap.az@gmail.com",
         contacts_text_az="Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap.az@gmail.com",
-        about_text_ru="KidsMap — каталог детских кружков и секций в Баку.",
-        about_text_en="KidsMap is a catalog of kids clubs and courses in Baku.",
-        about_text_az="KidsMap Bakıda uşaqlar üçün dərnək və kurs kataloqudur.",
-        home_title_ru="Найдите кружок для ребёнка в Баку",
-        home_title_en="Find a club for your child in Baku",
-        home_title_az="Bakıda uşağınız üçün dərnək tapın",
-        home_subtitle_ru="Спорт, творчество, музыка, образование — всё в одном месте.",
-        home_subtitle_en="Sports, creativity, music, and education in one place.",
-        home_subtitle_az="İdman, yaradıcılıq, musiqi, təhsil — hamısı bir yerdə.",
+        about_text_ru="KidsMap — каталог детских кружков и секций по Азербайджану.",
+        about_text_en="KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
+        about_text_az="KidsMap Azərbaycanda uşaqlar üçün dərnək və kurs kataloqudur.",
+        home_title_ru="Найдите кружок для ребёнка в Азербайджане",
+        home_title_en="Find a club for your child in Azerbaijan",
+        home_title_az="Azərbaycanda uşağınız üçün dərnək tapın",
+        home_subtitle_ru="Спорт, творчество, музыка, образование по всем регионам — всё в одном месте.",
+        home_subtitle_en="Sports, creativity, music, and education across all regions in one place.",
+        home_subtitle_az="Bütün regionlarda idman, yaradıcılıq, musiqi və təhsil — hamısı bir yerdə.",
         home_search_label_ru="Искать кружок, курс или школу",
         home_search_label_en="Find a club, course, or school",
         home_search_label_az="Dərnək, kurs və ya məktəb axtarın",
@@ -56,7 +56,6 @@ def _get_solo_site_settings():
     )
 
 
-@lru_cache(maxsize=1)
 def _get_solo_catalog_content_settings():
     obj = CatalogContentSettings.objects.order_by("id").first()
     if obj:
@@ -66,10 +65,22 @@ def _get_solo_catalog_content_settings():
 
 def clear_singleton_caches() -> None:
     _get_solo_site_settings.cache_clear()
-    _get_solo_catalog_content_settings.cache_clear()
+    if hasattr(_get_solo_catalog_content_settings, "cache_clear"):
+        _get_solo_catalog_content_settings.cache_clear()
 
 
 class Place(models.Model):
+    STATUS_DRAFT = "draft"
+    STATUS_PENDING = "pending"
+    STATUS_PUBLISHED = "published"
+    STATUS_REJECTED = "rejected"
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, _("Черновик")),
+        (STATUS_PENDING, _("На модерации")),
+        (STATUS_PUBLISHED, _("Опубликовано")),
+        (STATUS_REJECTED, _("Отклонено")),
+    ]
+
     CATEGORY_CHOICES = [
         ("SPRT", _("Спорт")),
         ("ART", _("Творчество")),
@@ -94,7 +105,7 @@ class Place(models.Model):
     age_from = models.PositiveSmallIntegerField(_("Возраст от"), null=True, blank=True)
     age_to = models.PositiveSmallIntegerField(_("Возраст до"), null=True, blank=True)
 
-    district = models.CharField(_("Район"), max_length=100, blank=True)
+    district = models.CharField(_("Регион / район"), max_length=100, blank=True)
     metro = models.CharField(_("Метро"), max_length=100, blank=True)
     address = models.CharField(_("Адрес"), max_length=255, blank=True)
 
@@ -132,6 +143,10 @@ class Place(models.Model):
 
     is_active = models.BooleanField(_("Активно"), default=True)
     is_verified = models.BooleanField(_("Проверено"), default=False)
+    status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_PUBLISHED, db_index=True)
+    rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
+    last_verified_at = models.DateTimeField(_("Информация проверена"), null=True, blank=True, db_index=True)
+    published_at = models.DateTimeField(_("Опубликовано"), null=True, blank=True, db_index=True)
     deleted_at = models.DateTimeField(_("Удалено"), null=True, blank=True, db_index=True)
     deleted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -215,6 +230,8 @@ class Place(models.Model):
     @property
     def price_range_display(self) -> str:
         if self.price_from is not None and self.price_to is not None:
+            if self.price_from == self.price_to:
+                return f"{self.price_from} AZN"
             return f"{self.price_from}-{self.price_to} AZN"
         if self.price_from is not None:
             return f"{self.price_from} AZN"
@@ -307,7 +324,7 @@ class Place(models.Model):
 
     @property
     def is_map_ready(self) -> bool:
-        return self.is_active and not self.is_deleted and self.has_coordinates
+        return self.is_active and self.status == self.STATUS_PUBLISHED and not self.is_deleted and self.has_coordinates
 
     @property
     def map_readiness_reason(self) -> str:
@@ -361,7 +378,7 @@ class Place(models.Model):
         super().save(*args, **kwargs)
 
     def refresh_rating_stats(self):
-        stats = self.reviews.filter(is_approved=True).aggregate(avg=Avg("rating"), cnt=Count("id"))
+        stats = self.reviews.filter(is_approved=True, status=PlaceReview.STATUS_APPROVED).aggregate(avg=Avg("rating"), cnt=Count("id"))
         self.rating_avg = float(stats.get("avg") or 0)
         self.rating_count = int(stats.get("cnt") or 0)
         self.save(update_fields=["rating_avg", "rating_count"])
@@ -421,6 +438,15 @@ class PlaceLike(models.Model):
 
 
 class PlaceReview(models.Model):
+    STATUS_PENDING = "pending"
+    STATUS_APPROVED = "approved"
+    STATUS_REJECTED = "rejected"
+    STATUS_CHOICES = (
+        (STATUS_PENDING, _("На модерации")),
+        (STATUS_APPROVED, _("Одобрен")),
+        (STATUS_REJECTED, _("Отклонен")),
+    )
+
     place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="reviews", verbose_name=_("Место"))
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -438,6 +464,8 @@ class PlaceReview(models.Model):
     likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
     dislikes_count = models.PositiveIntegerField(_("Дизлайки"), default=0)
     is_approved = models.BooleanField(_("Одобрен"), default=True)
+    status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_APPROVED, db_index=True)
+    rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
     created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
@@ -471,6 +499,10 @@ class PlaceReview(models.Model):
         self.save(update_fields=["likes_count", "dislikes_count"])
 
     def save(self, *args, **kwargs):
+        if self.status == self.STATUS_APPROVED:
+            self.is_approved = True
+        elif self.status in {self.STATUS_PENDING, self.STATUS_REJECTED}:
+            self.is_approved = False
         self.rating = min(max(int(self.rating or 1), 1), 5)
         super().save(*args, **kwargs)
         self.place.refresh_rating_stats()
@@ -536,6 +568,15 @@ class PlaceReviewReaction(models.Model):
 
 
 class SiteReview(models.Model):
+    STATUS_PENDING = "pending"
+    STATUS_APPROVED = "approved"
+    STATUS_REJECTED = "rejected"
+    STATUS_CHOICES = (
+        (STATUS_PENDING, _("На модерации")),
+        (STATUS_APPROVED, _("Одобрен")),
+        (STATUS_REJECTED, _("Отклонен")),
+    )
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -552,6 +593,8 @@ class SiteReview(models.Model):
     likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
     dislikes_count = models.PositiveIntegerField(_("Дизлайки"), default=0)
     is_approved = models.BooleanField(_("Одобрен"), default=True)
+    status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_APPROVED, db_index=True)
+    rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
     created_at = models.DateTimeField(_("Создан"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
@@ -596,6 +639,10 @@ class SiteReview(models.Model):
         self.save(update_fields=["likes_count", "dislikes_count"])
 
     def save(self, *args, **kwargs):
+        if self.status == self.STATUS_APPROVED:
+            self.is_approved = True
+        elif self.status in {self.STATUS_PENDING, self.STATUS_REJECTED}:
+            self.is_approved = False
         self.rating = min(max(int(self.rating or 1), 1), 5)
         super().save(*args, **kwargs)
 
@@ -1546,7 +1593,7 @@ class FunnelEvent(models.Model):
 
 
 class CatalogContentSettings(models.Model):
-    districts_json = models.JSONField(_("Районы (JSON)"), default=list, blank=True)
+    districts_json = models.JSONField(_("Регионы / районы (JSON)"), default=list, blank=True)
     metro_stations_json = models.JSONField(_("Станции метро (JSON)"), default=list, blank=True)
     seo_pages_json = models.JSONField(_("SEO страницы (JSON)"), default=dict, blank=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
@@ -1558,9 +1605,9 @@ class CatalogContentSettings(models.Model):
     def districts(self):
         if isinstance(self.districts_json, list) and self.districts_json:
             return self.districts_json
-        from .content_data import BAKU_DISTRICTS
+        from .content_data import AZERBAIJAN_REGIONS
 
-        return BAKU_DISTRICTS
+        return AZERBAIJAN_REGIONS
 
     def metro_stations(self):
         if isinstance(self.metro_stations_json, list) and self.metro_stations_json:

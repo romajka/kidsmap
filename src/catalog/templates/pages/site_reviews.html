@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -10,26 +10,40 @@
 {% endblock %}
 
 {% block content %}
-  <section class="panel site-reviews-page">
-    <div class="site-reviews-hero">
-      <div class="site-reviews-hero-card">
+  <section class="panel site-reviews-page site-reviews-page-polished">
+    <div class="site-reviews-hero reviews-polished-hero">
+      <picture class="reviews-hero-picture">
+        <source
+          media="(max-width: 760px)"
+          srcset="{% static 'img/banners/reviews-hero-mobile.webp' %}?v=mobile-20260519"
+        >
+        <img
+          class="reviews-hero-image"
+          src="{% static 'img/banners/reviews-hero.webp' %}"
+          width="1400"
+          height="600"
+          alt=""
+          loading="lazy"
+          decoding="async"
+        >
+      </picture>
+      <div class="reviews-polished-copy">
         <p class="site-reviews-eyebrow">{% trans "Отзывы о сервисе" %}</p>
         <h1>{% trans "Общие отзывы о сайте" %}</h1>
-        <p class="meta site-reviews-hero-meta">{% trans "Здесь собраны отзывы именно о сервисе KidsMap, а не о конкретных кружках." %}</p>
-
-        <form method="get" class="reviews-toolbar site-reviews-toolbar">
-          <label class="filter-item filter-sort">
-            {% trans "Сортировка отзывов" %}
-            <select class="filter-select" name="sort">
-              {% for value, label in review_sort_choices %}
-                <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
-          </label>
-          <button class="link-btn" type="submit">{% trans "Применить" %}</button>
-        </form>
+        <p class="meta site-reviews-hero-meta">
+          {% if request.LANGUAGE_CODE == "az" %}
+            Burada konkret məkanlar yox, məhz KidsMap xidməti haqqında rəylər toplanıb.
+          {% else %}
+            {% trans "Здесь собраны отзывы именно о сервисе KidsMap, а не о конкретных кружках." %}
+          {% endif %}
+        </p>
+        <div class="reviews-polished-actions">
+          <a class="btn" href="#site-reviews">{% trans "Оставить отзыв" %}</a>
+          <a class="link-btn" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+        </div>
       </div>
-      <aside class="site-reviews-score-card" aria-label="{% trans 'Рейтинг сервиса' %}">
+
+      <aside class="site-reviews-score-card reviews-polished-score" aria-label="{% trans 'Рейтинг сервиса' %}">
         <p class="site-reviews-score-label">{% trans "Средняя оценка сервиса" %}</p>
         <div class="site-reviews-score-main">
           <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}0.0{% endif %}</strong>
@@ -40,11 +54,30 @@
             </span>
           </div>
         </div>
-        <div class="site-reviews-score-pills">
-          <span class="site-reviews-score-pill">{% trans "Отзывы именно о KidsMap" %}</span>
-          <span class="site-reviews-score-pill">{% trans "Лайк и дизлайк в один клик" %}</span>
-        </div>
+        <p class="reviews-polished-note">{% trans "Отзывы публикуются после модерации." %}</p>
       </aside>
+    </div>
+    <div class="mobile-page-hero-actions">
+      <a class="btn" href="#site-reviews">{% trans "Оставить отзыв" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+    </div>
+
+    <div class="reviews-polished-toolbar-wrap">
+      <div class="reviews-polished-toolbar-copy">
+        <strong>{% trans "Отзывы пользователей" %}</strong>
+        <span>{% trans "Можно отсортировать по популярности, дате или оценке." %}</span>
+      </div>
+      <form method="get" class="reviews-toolbar site-reviews-toolbar reviews-polished-toolbar">
+        <label class="filter-item filter-sort">
+          <span class="visually-hidden">{% trans "Сортировка отзывов" %}</span>
+          <select class="filter-select" name="sort">
+            {% for value, label in review_sort_choices %}
+              <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button class="link-btn" type="submit">{% trans "Применить" %}</button>
+      </form>
     </div>
 
     {% if messages %}

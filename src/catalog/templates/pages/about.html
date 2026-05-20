@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "О проекте" %}{% endblock %}
 {% block title_plain %}{% trans "О проекте" %} | KidsMap{% endblock %}
@@ -8,20 +8,47 @@
 
 {% block content %}
   <section class="panel info-hero">
-    <h1>{% trans "О проекте" %}</h1>
-    {% if site_about_text %}
-      <p>{{ site_about_text }}</p>
-    {% else %}
-      <p>{% trans "KidsMap — каталог детских кружков и секций в Баку." %}</p>
-    {% endif %}
-    <p class="info-hero-subtext">
-      {% trans "Мы собираем в одном месте занятия для детей, чтобы родителям было проще находить подходящие кружки по району, возрасту, цене, отзывам и формату занятий." %}
-    </p>
-    <div class="info-actions">
-      <a class="btn icon-btn icon-search" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
-      <a class="link-btn" href="{% url 'contacts' %}">{% trans "Связаться с нами" %}</a>
+    <picture class="info-hero-picture">
+      <source
+        media="(max-width: 760px)"
+        srcset="{% static 'img/banners/about-hero-mobile.webp' %}?v=mobile-20260519"
+      >
+      <img
+        class="info-hero-image"
+        src="{% static 'img/banners/about-hero.webp' %}"
+        width="1600"
+        height="700"
+        alt=""
+        fetchpriority="high"
+        decoding="async"
+      >
+    </picture>
+    <div class="info-hero-copy">
+      <h1>{% trans "О проекте" %}</h1>
+      {% if request.LANGUAGE_CODE == "az" %}
+        <p>KidsMap Azərbaycanda uşaqlar üçün kurs və məşğələ kataloqudur.</p>
+      {% elif site_about_text %}
+        <p>{{ site_about_text }}</p>
+      {% else %}
+        <p>{% trans "KidsMap — каталог детских кружков и секций по Азербайджану." %}</p>
+      {% endif %}
+      <p class="info-hero-subtext">
+        {% if request.LANGUAGE_CODE == "az" %}
+          Uşaq kurslarını və məşğələlərini region, yaş, qiymət, rəylər və format üzrə bir yerdə toplayırıq.
+        {% else %}
+          {% trans "Мы собираем в одном месте занятия для детей, чтобы родителям было проще находить подходящие кружки по региону, возрасту, цене, отзывам и формату занятий." %}
+        {% endif %}
+      </p>
+      <div class="info-actions">
+        <a class="btn icon-btn icon-search" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
+        <a class="link-btn" href="{% url 'contacts' %}">{% trans "Связаться с нами" %}</a>
+      </div>
     </div>
   </section>
+  <div class="mobile-page-hero-actions" aria-label="{% trans 'Действия' %}">
+    <a class="btn icon-btn icon-search" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
+    <a class="link-btn" href="{% url 'contacts' %}">{% trans "Связаться с нами" %}</a>
+  </div>
 
   <section class="panel info-grid-panel">
     <div class="info-grid">
@@ -44,7 +71,7 @@
       <article class="info-card">
         <h2>{% trans "Что можно сделать на сайте" %}</h2>
         <ul class="info-list">
-          <li>{% trans "Использовать фильтры по категории, району, метро, возрасту, цене, рейтингу и новизне." %}</li>
+          <li>{% trans "Использовать фильтры по категории, региону, метро, возрасту, цене, рейтингу и новизне." %}</li>
           <li>{% trans "Открывать карточки кружков, смотреть фото, расписание, условия и расположение на карте." %}</li>
           <li>{% trans "Переходить к звонку, Instagram, WhatsApp и другим каналам связи прямо из карточки." %}</li>
           <li>{% trans "Оставлять отзывы, ставить реакции и сохранять интересные места в избранное после входа в аккаунт." %}</li>
@@ -70,7 +97,7 @@
       <article class="info-step-card">
         <span class="info-step-number">01</span>
         <h3>{% trans "Найдите подходящие варианты" %}</h3>
-        <p>{% trans "Выберите категорию, район, метро, возраст, цену и другие параметры, чтобы быстро сузить поиск." %}</p>
+        <p>{% trans "Выберите категорию, регион, метро, возраст, цену и другие параметры, чтобы быстро сузить поиск." %}</p>
       </article>
       <article class="info-step-card">
         <span class="info-step-number">02</span>
@@ -91,7 +118,7 @@
         <h2>{% trans "Что получает родитель" %}</h2>
         <ul class="info-list">
           <li>{% trans "Понятный каталог без лишнего шума и путаницы." %}</li>
-          <li>{% trans "Быстрый выбор кружков рядом с нужным районом или метро." %}</li>
+          <li>{% trans "Быстрый выбор кружков рядом с нужным регионом или метро." %}</li>
           <li>{% trans "Возможность сравнить стоимость, возрастные рамки, отзывы и условия до звонка." %}</li>
           <li>{% trans "Удобный просмотр карточек, списка и карты в одном сервисе." %}</li>
         </ul>

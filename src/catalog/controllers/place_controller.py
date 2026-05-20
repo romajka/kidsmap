@@ -17,6 +17,7 @@ from catalog.models import FunnelEvent, Place
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
 from catalog.services.options import sort_choice_tuples, sort_translated_values
+from catalog.services.content_quality import public_review_queryset
 from catalog.services.reactions import (
     liked_place_ids,
     mark_liked_flags,
@@ -89,6 +90,7 @@ class PlaceController:
             "places": page_obj.object_list,
             "timeline_places": timeline_places,
             "page_obj": page_obj,
+            "results_total": page_obj.paginator.count,
             "results_count_label": ngettext(
                 "Найден %(total)s кружок",
                 "Найдено %(total)s кружков",
@@ -239,7 +241,7 @@ class PlaceController:
         if district:
             chips.append(
                 {
-                    "label": _("Район: %(value)s") % {"value": _(district)},
+                    "label": _("Регион / район: %(value)s") % {"value": _(district)},
                     "remove_url": remove_url("district"),
                 }
             )
@@ -375,7 +377,7 @@ class PlaceController:
         self.tracking_service.track_place_open_event(request=request, place=place)
         seo_payload = build_place_seo_payload(place, request, request.LANGUAGE_CODE)
         review_sort = normalize_review_sort(request.GET.get("review_sort"))
-        place_reviews_qs = apply_review_sorting(place.reviews.filter(is_approved=True), review_sort)
+        place_reviews_qs = apply_review_sorting(public_review_queryset(place.reviews.all()), review_sort)
         place_reviews = mark_place_review_reactions(place_reviews_qs, request)
 
         fallback_catalog_url = reverse("place_list")

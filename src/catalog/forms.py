@@ -457,7 +457,7 @@ class UserSetPasswordForm(SetPasswordForm):
 
 class OwnerPlaceEditForm(forms.ModelForm):
     district = forms.ChoiceField(
-        label=_("Район"),
+        label=_("Регион / район"),
         required=False,
         choices=(),
         widget=forms.Select(attrs={"class": "field"}),
@@ -572,7 +572,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "age_to": _("Возраст до"),
             "price_from": _("Цена от"),
             "price_to": _("Цена до"),
-            "district": _("Район"),
+            "district": _("Регион / район"),
             "metro": _("Метро"),
             "address": _("Адрес"),
             "phone1": _("Телефон"),
@@ -685,7 +685,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
         self.fields["district"].choices = self._build_location_choices(
             options=district_options,
             current_value=district_current,
-            empty_label=_("Выберите район"),
+            empty_label=_("Выберите регион или район"),
         )
         self.fields["metro"].choices = self._build_location_choices(
             options=metro_options,
@@ -693,9 +693,9 @@ class OwnerPlaceEditForm(forms.ModelForm):
             empty_label=_("Выберите метро"),
         )
 
-        self.fields["district"].help_text = _("Выберите район или укажите ниже ближайшее метро.")
+        self.fields["district"].help_text = _("Выберите регион или район, либо укажите ниже ближайшее метро.")
         self.fields["metro"].help_text = _("Если район не выбран, укажите ближайшую станцию метро.")
-        self.fields["district"].error_messages.update({"invalid_choice": _("Выберите район из списка.")})
+        self.fields["district"].error_messages.update({"invalid_choice": _("Выберите регион или район из списка.")})
         self.fields["metro"].error_messages.update({"invalid_choice": _("Выберите станцию метро из списка.")})
 
     @staticmethod

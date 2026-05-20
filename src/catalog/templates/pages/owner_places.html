@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "Управление кружками" %}{% endblock %}
 {% block title_plain %}{% trans "Управление кружками" %} | KidsMap{% endblock %}
@@ -33,10 +33,32 @@
       {% endif %}
     </nav>
 
-    <p class="meta owner-role-meta">
-      {% trans "Статус" %}: <strong>{% trans "Владелец кружка / бизнеса" %}</strong>
-    </p>
-    <p class="meta">{% trans "Ожидают модерации" %}: <strong>{{ pending_moderation_count }}</strong></p>
+    <div class="owner-context-panel" aria-label="{% trans 'Текущий раздел' %}">
+      <picture class="owner-context-picture">
+        <source
+          media="(max-width: 760px)"
+          srcset="{% static 'img/banners/owner-dashboard-hero-mobile.webp' %}?v=mobile-20260519"
+        >
+        <img
+          class="owner-context-image"
+          src="{% static 'img/banners/owner-dashboard-hero.webp' %}"
+          width="1200"
+          height="500"
+          alt=""
+          loading="lazy"
+          decoding="async"
+        >
+      </picture>
+      <div>
+        <p class="owner-context-kicker">{% trans "Кабинет владельца" %}</p>
+        <h2>{% trans "Вы в разделе управления карточками" %}</h2>
+        <p class="meta">{% trans "Здесь можно добавлять кружки, отправлять их на модерацию и следить за публикацией." %}</p>
+      </div>
+      <div class="owner-context-meta">
+        <span>{% trans "Роль" %}: <strong>{% trans "Владелец кружка / бизнеса" %}</strong></span>
+        <span>{% trans "Ожидают модерации" %}: <strong>{{ pending_moderation_count }}</strong></span>
+      </div>
+    </div>
 
     {% if can_view_stats %}
       <div class="owner-stats-grid">
@@ -49,7 +71,7 @@
           <strong>{{ owner_stats.published_places }}</strong>
         </article>
         <article class="owner-stat-card">
-          <span class="meta-label">{% trans "Не подтвержденные" %}</span>
+          <span class="meta-label">{% trans "Черновики и модерация" %}</span>
           <strong>{{ owner_stats.draft_places }}</strong>
         </article>
         <article class="owner-stat-card">
@@ -139,7 +161,7 @@
       </section>
 
       <section class="owner-place-column">
-        <h2>{% trans "Не подтвержденные" %}</h2>
+        <h2>{% trans "Черновики и модерация" %}</h2>
         {% if draft_places %}
           <div class="owner-place-list">
             {% for place in draft_places %}
@@ -232,7 +254,10 @@
             {% endfor %}
           </div>
         {% else %}
-          <p class="meta">{% trans "Нет неподтвержденных карточек." %}</p>
+          <div class="owner-empty-state">
+            <strong>{% trans "Пока нет карточек на подготовке." %}</strong>
+            <p class="meta">{% trans "Новые или ожидающие проверки карточки появятся здесь до публикации в каталоге." %}</p>
+          </div>
         {% endif %}
       </section>
     </div>

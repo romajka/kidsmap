@@ -2,6 +2,7 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
 from .models import CatalogContentSettings, Place
+from .services.content_quality import public_place_queryset
 
 
 class StaticViewSitemap(Sitemap):
@@ -9,7 +10,19 @@ class StaticViewSitemap(Sitemap):
     priority = 0.7
 
     def items(self):
-        return ["home", "place_list", "place_new", "site_reviews", "about", "contacts"]
+        return [
+            "home",
+            "place_list",
+            "place_new",
+            "site_reviews",
+            "about",
+            "contacts",
+            "for_business",
+            "privacy",
+            "terms",
+            "review_rules",
+            "listing_rules",
+        ]
 
     def location(self, item):
         return reverse(item)
@@ -20,7 +33,7 @@ class PlaceSitemap(Sitemap):
     priority = 0.8
 
     def items(self):
-        return Place.objects.filter(is_active=True, deleted_at__isnull=True).order_by("-updated_at")
+        return public_place_queryset(Place.objects.all()).order_by("-updated_at")
 
     def lastmod(self, obj):
         return obj.updated_at

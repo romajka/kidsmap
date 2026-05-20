@@ -12,7 +12,23 @@
 
 {% block content %}
   <section class="hero">
-    <div class="hero-art" aria-hidden="true"></div>
+    <picture class="catalog-hero-picture">
+      {% if not is_new_page %}
+        <source
+          media="(max-width: 760px)"
+          srcset="{% static 'img/banners/catalog-hero-mobile.webp' %}?v=family-map-mobile-20260519"
+        >
+      {% endif %}
+      <img
+        class="catalog-hero-image"
+        src="{% static 'img/banners/catalog-hero.webp' %}?v=family-map-20260519"
+        width="1600"
+        height="500"
+        alt=""
+        {% if is_new_page %}loading="lazy"{% else %}fetchpriority="high"{% endif %}
+        decoding="async"
+      >
+    </picture>
     <div class="hero-text">
       {% if is_new_page %}
         <h1>{{ catalog_heading }}</h1>
@@ -22,15 +38,66 @@
         <p>{{ catalog_intro }}</p>
       {% endif %}
     </div>
+    {% if not is_new_page %}
+      <div class="mobile-hero-caption">
+        <h1>{% if language == "az" %}Uşağınız üçün uyğun məkanı tapın{% else %}{% trans "Найдите подходящее место для ребёнка" %}{% endif %}</h1>
+        <p>{% if language == "az" %}Kursları və məşğələləri yaş, rayon və metroya görə rahat seçin.{% else %}{% trans "Выбирайте курсы и занятия по возрасту, району и метро." %}{% endif %}</p>
+      </div>
+    {% endif %}
   </section>
 
   {% if not is_new_page %}
     <div class="catalog-layout">
+      <section class="mobile-catalog-controls" aria-label="{% trans 'Фильтры каталога' %}">
+        <form class="mobile-catalog-search" method="get" action="{% url 'place_list' %}">
+          {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
+          {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
+          {% if selected.metro %}<input type="hidden" name="metro" value="{{ selected.metro }}" />{% endif %}
+          {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
+          {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
+          {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
+          {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
+          {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
+          {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
+          <label class="mobile-search-field">
+            <span class="visually-hidden">{% trans "Поиск" %}</span>
+            <input
+              id="catalog-mobile-search"
+              name="q"
+              value="{{ selected.q }}"
+              placeholder="{% if language == 'az' %}Məkan, fəaliyyət və ya açar söz axtar...{% else %}{% trans 'Место, занятие или ключевое слово...' %}{% endif %}"
+            />
+          </label>
+          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="catalog-filters" aria-label="{% trans 'Фильтры' %}"></button>
+        </form>
+
+        <div class="mobile-quick-filters" aria-label="{% trans 'Быстрые фильтры' %}">
+          <button type="button" class="mobile-quick-filter{% if selected.category %} is-active{% endif %}" data-filters-open data-filter-focus="category">{% if language == "az" %}Kateqoriya{% else %}{% trans "Категория" %}{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-filters-open data-filter-focus="district">{% if language == "az" %}Rayon{% else %}{% trans "Регион / район" %}{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.metro %} is-active{% endif %}" data-filters-open data-filter-focus="metro">{% if language == "az" %}Metro{% else %}{% trans "Метро" %}{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="age">{% if language == "az" %}Yaş{% else %}{% trans "Возраст" %}{% endif %}</button>
+        </div>
+
+        {% if active_filter_chips %}
+          <div class="mobile-active-chips" aria-label="{% trans 'Выбранные фильтры' %}">
+            {% for chip in active_filter_chips %}
+              <a class="mobile-active-chip" href="{{ chip.remove_url }}">
+                <span>{{ chip.label }}</span>
+                <span aria-hidden="true">×</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </section>
   {% endif %}
 
   <section class="panel filter-panel {% if is_new_page %}filter-panel-new{% else %}filter-panel-catalog{% endif %}">
     {% if not is_new_page %}
       <div class="mobile-filter-toolbar">
+        <div class="mobile-filter-summary">
+          <strong>{% trans "Выберите фильтры" %}</strong>
+          <span>{% trans "Категория, регион, метро и возраст ребёнка." %}</span>
+        </div>
         <button
           type="button"
           class="btn mobile-filters-toggle"
@@ -38,7 +105,7 @@
           aria-controls="catalog-filters"
           aria-expanded="false"
         >
-          {% trans "Фильтры" %}
+          <span>{% trans "Фильтры" %}</span>
         </button>
       </div>
       <div class="mobile-filters-backdrop" data-filters-backdrop hidden></div>
@@ -50,8 +117,16 @@
     >
       {% if not is_new_page %}
         <div class="mobile-filters-head">
+          <span class="mobile-filters-handle" aria-hidden="true"></span>
           <h2>{% trans "Фильтры" %}</h2>
           <button type="button" class="mobile-filters-close" data-filters-close aria-label="{% trans 'Закрыть' %}">×</button>
+        </div>
+        <div class="desktop-filter-head">
+          <span class="desktop-filter-head-icon" aria-hidden="true"></span>
+          <div>
+            <h2>{% trans "Подобрать кружок" %}</h2>
+            <p>{% trans "Категория, район, метро, возраст и бюджет в одном месте." %}</p>
+          </div>
         </div>
       {% endif %}
       <label class="filters-search">
@@ -61,6 +136,32 @@
 
       <label class="filter-item filter-category">
         {% trans "Категория" %}
+        {% if not is_new_page %}
+          <div class="mobile-category-options" aria-label="{% trans 'Категория' %}">
+            <button type="button" class="mobile-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="">
+              {% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}
+            </button>
+            {% for code, label in categories %}
+              <button type="button" class="mobile-category-chip{% if selected.category == code %} is-active{% endif %}" data-select-target="category" data-select-value="{{ code }}">
+                {{ label }}
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if not is_new_page %}
+          <div class="desktop-category-options" aria-label="{% trans 'Категория' %}">
+            <button type="button" class="desktop-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="" data-category-code="ALL">
+              <span class="desktop-category-chip-icon" aria-hidden="true"></span>
+              <span>{% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}</span>
+            </button>
+            {% for code, label in categories %}
+              <button type="button" class="desktop-category-chip{% if selected.category == code %} is-active{% endif %}" data-select-target="category" data-select-value="{{ code }}" data-category-code="{{ code }}">
+                <span class="desktop-category-chip-icon" aria-hidden="true"></span>
+                <span>{{ label }}</span>
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
         <select class="filter-select" name="category">
           <option value="">{% trans "Все" %}</option>
           {% for code, label in categories %}
@@ -70,7 +171,7 @@
       </label>
 
       <label class="filter-item filter-district">
-        {% trans "Район" %}
+        {% trans "Регион / район" %}
         {% if not is_new_page %}
           <div class="filter-mobile-tools">
             <input
@@ -78,11 +179,11 @@
               type="search"
               inputmode="search"
               autocomplete="off"
-              placeholder="{% trans 'Найти район' %}"
+              placeholder="{% trans 'Найти регион или район' %}"
               data-option-search-for="district"
             />
             {% if popular_districts %}
-              <div class="filter-popular-options" aria-label="{% trans 'Популярные районы' %}">
+              <div class="filter-popular-options" aria-label="{% trans 'Популярные регионы' %}">
                 {% for district_name in popular_districts %}
                   <button
                     type="button"
@@ -181,6 +282,14 @@
             <span>{% trans "Возраст" %}</span>
             <strong class="range-filter-current" data-range-caption></strong>
           </div>
+          <div class="mobile-age-presets" aria-label="{% trans 'Возраст' %}">
+            <button type="button" class="mobile-age-option{% if not selected.age_from and not selected.age_to or selected.age_from == '0' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="0" data-age-to="18">{% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '0' and selected.age_to == '3' %} is-active{% endif %}" data-age-from="0" data-age-to="3">0–3</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '3' and selected.age_to == '6' %} is-active{% endif %}" data-age-from="3" data-age-to="6">3–6</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '6' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="6" data-age-to="18">6+</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '10' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="10" data-age-to="18">10+</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '14' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="14" data-age-to="18">14+</button>
+          </div>
           <div class="range-filter-inputs">
             <label class="range-filter-mini">
               <span>{% trans "от" %}</span>
@@ -231,9 +340,10 @@
 
       <div class="actions">
         <button class="btn icon-btn icon-search icon-only-btn" type="submit" aria-label="{% trans 'Поиск' %}">
+          <span class="filter-submit-label">{% if language == "az" %}Tətbiq et{% else %}{% trans "Применить" %}{% endif %}</span>
           <span class="visually-hidden">{% trans "Поиск" %}</span>
         </button>
-        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
+        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% if language == "az" %}Sıfırla{% else %}{% trans "Сброс" %}{% endif %}</a>
       </div>
     </form>
   </section>
@@ -266,6 +376,25 @@
     {% endif %}
 
     <div class="results-toolbar">
+      <div class="mobile-results-summary">
+        <span class="mobile-results-icon" aria-hidden="true"></span>
+        <div>
+          <strong>
+            {% if language == "az" %}
+              {{ results_total }} uyğun məkan tapıldı
+            {% else %}
+              {{ results_count_label }}
+            {% endif %}
+          </strong>
+          <span>
+            {% if language == "az" %}
+              {% if results_total %}Seçilmiş filtrlərə uyğun məkanlar göstərilir.{% else %}Seçilmiş filtrlərə uyğun nəticə tapılmadı.{% endif %}
+            {% else %}
+              {% if results_total %}{% trans "Показаны места по выбранным фильтрам." %}{% else %}{% trans "По выбранным фильтрам ничего не найдено." %}{% endif %}
+            {% endif %}
+          </span>
+        </div>
+      </div>
       <p class="results-count">
         {{ results_count_label }}
       </p>
@@ -280,7 +409,7 @@
           aria-controls="catalog-map-panel"
           aria-expanded="false"
         >
-          {% trans "На карте" %}
+          {% if language == "az" %}Xəritədə bax{% else %}{% trans "На карте" %}{% endif %}
           <span class="results-map-count">{{ catalog_map_places_count }}</span>
         </button>
       </div>
@@ -336,7 +465,7 @@
         <div class="new-stat">
           <span class="new-stat-icon icon-badge-district" aria-hidden="true"></span>
           <div class="new-stat-value">{{ new_stats.districts }}</div>
-          <div class="new-stat-label">{% trans "Новых районов" %}</div>
+          <div class="new-stat-label">{% trans "Новых регионов" %}</div>
         </div>
         <div class="new-stat">
           <span class="new-stat-icon icon-badge-category" aria-hidden="true"></span>
@@ -361,10 +490,7 @@
                 {% elif place.cover_photo %}
                   <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% else %}
-                  <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-                    <span class="image-placeholder-icon" aria-hidden="true">📷</span>
-                    <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
-                  </div>
+                  <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
                 {% endif %}
               </div>
               <div class="card-body">
@@ -445,10 +571,7 @@
               {% elif place.cover_photo %}
                 <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% else %}
-                <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-                  <span class="image-placeholder-icon" aria-hidden="true">📷</span>
-                  <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
-                </div>
+                <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               {% endif %}
             </a>
             {% if place.card_price_badge %}
@@ -512,19 +635,28 @@
       {% endfor %}
     </section>
   {% else %}
-    <section class="empty-state">
+    <section class="empty-state catalog-empty-state">
       {% if site_settings.empty_results_image %}
-        <img class="empty-custom-image" src="{{ site_settings.empty_results_image.url }}" alt="{% trans 'Ничего не найдено.' %}" loading="lazy" decoding="async" />
+        <img class="empty-custom-image" src="{{ site_settings.empty_results_image.url }}" alt="{% if language == 'az' %}Hələ uyğun məkan tapılmadı{% else %}{% trans 'Ничего не найдено.' %}{% endif %}" loading="lazy" decoding="async" />
       {% else %}
         <div class="empty-illustration" aria-hidden="true"></div>
       {% endif %}
-      {% if site_empty_results_text %}
+      {% if language == "az" %}
+        <h2>Hələ uyğun məkan tapılmadı</h2>
+        <p>Filtrlərinizi dəyişin və ya bütün məkanlara baxın.</p>
+      {% elif site_empty_results_text %}
         <h2>{{ site_empty_results_text }}</h2>
+        <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
       {% else %}
         <h2>{% trans "Ничего не найдено." %}</h2>
+        <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
       {% endif %}
-      <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
-      <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
+      <div class="empty-actions">
+        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% if language == "az" %}Filtrləri sıfırla{% else %}{% trans "Сброс" %}{% endif %}</a>
+        {% if not is_new_page %}
+          <a class="btn" href="{% url 'place_list' %}">{% if language == "az" %}Bütün məkanlara bax{% else %}{% trans "Все места" %}{% endif %}</a>
+        {% endif %}
+      </div>
     </section>
   {% endif %}
 
@@ -567,11 +699,11 @@
   <section class="panel">
     <h2>{% trans "Часто ищут" %}</h2>
     <div class="home-grid2">
-      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Кружки в Баку для детей" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Баку" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Баку" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Баку" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Баку" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Кружки в Азербайджане для детей" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Азербайджане" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Азербайджане" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Азербайджане" %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Азербайджане" %}</a>
     </div>
   </section>
 
@@ -654,24 +786,40 @@
       if (!openBtn || !closeBtn || !backdrop || !drawer) return;
 
       const mobileMedia = window.matchMedia("(max-width: 760px)");
+      let pendingFilterFocus = "";
 
       function setDrawerOpen(isOpen) {
         document.body.classList.toggle("filters-drawer-open", isOpen);
         openBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
         drawer.setAttribute("aria-hidden", isOpen ? "false" : "true");
         backdrop.hidden = !isOpen;
+        if (isOpen && pendingFilterFocus) {
+          window.setTimeout(function () {
+            const target = drawer.querySelector(`[data-mobile-filter-section="${pendingFilterFocus}"]`) ||
+              drawer.querySelector(`.filter-${pendingFilterFocus}`) ||
+              drawer.querySelector(`.filter-${pendingFilterFocus}-range`) ||
+              drawer.querySelector(`[name="${pendingFilterFocus}"]`);
+            if (target && typeof target.scrollIntoView === "function") {
+              target.scrollIntoView({ block: "start", behavior: "smooth" });
+            }
+            pendingFilterFocus = "";
+          }, 80);
+        }
       }
 
-      openBtn.addEventListener("click", function () {
-        setDrawerOpen(true);
-      });
+      document.addEventListener("click", function (event) {
+        const openTrigger = event.target.closest("[data-filters-open]");
+        if (openTrigger) {
+          event.preventDefault();
+          pendingFilterFocus = openTrigger.dataset.filterFocus || "";
+          setDrawerOpen(true);
+          return;
+        }
 
-      closeBtn.addEventListener("click", function () {
-        setDrawerOpen(false);
-      });
-
-      backdrop.addEventListener("click", function () {
-        setDrawerOpen(false);
+        if (event.target.closest("[data-filters-close]") || event.target.closest("[data-filters-backdrop]")) {
+          event.preventDefault();
+          setDrawerOpen(false);
+        }
       });
 
       document.addEventListener("keydown", function (event) {
@@ -795,6 +943,33 @@
           rebuildOptions(targetSelect, "");
           targetSelect.value = targetValue;
           targetSelect.dispatchEvent(new Event("change", { bubbles: true }));
+
+          document.querySelectorAll(`[data-select-target="${targetName}"]`).forEach(function (item) {
+            item.classList.toggle("is-active", (item.dataset.selectValue || "") === targetValue);
+          });
+        });
+      });
+
+      document.querySelectorAll("[data-age-from][data-age-to]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const container = button.closest("[data-range]");
+          if (!container) return;
+          const fromInput = container.querySelector("[data-range-from-input]");
+          const toInput = container.querySelector("[data-range-to-input]");
+          const fromRange = container.querySelector("[data-range-from-range]");
+          const toRange = container.querySelector("[data-range-to-range]");
+          if (!fromInput || !toInput || !fromRange || !toRange) return;
+
+          fromInput.value = button.dataset.ageFrom || "0";
+          toInput.value = button.dataset.ageTo || "18";
+          fromRange.value = fromInput.value;
+          toRange.value = toInput.value;
+          fromInput.dispatchEvent(new Event("input", { bubbles: true }));
+          toInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+          container.querySelectorAll("[data-age-from][data-age-to]").forEach(function (item) {
+            item.classList.toggle("is-active", item === button);
+          });
         });
       });
     })();

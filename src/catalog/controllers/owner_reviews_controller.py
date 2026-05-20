@@ -103,10 +103,12 @@ class OwnerReviewsController:
                 message=_("Отзыв не найден или уже недоступен. Обновите страницу и попробуйте снова."),
             )
 
-        if review.is_approved == is_approved:
+        target_status = review.STATUS_APPROVED if is_approved else review.STATUS_REJECTED
+        if review.is_approved == is_approved and review.status == target_status:
             return OwnerReviewsActionResult(ok=True, message=_("Статус уже актуален."))
 
+        review.status = target_status
         review.is_approved = is_approved
-        review.save(update_fields=["is_approved", "updated_at"])
+        review.save(update_fields=["status", "is_approved", "updated_at"])
         review.place.refresh_rating_stats()
         return OwnerReviewsActionResult(ok=True, message=_("Статус отзыва обновлен."))
