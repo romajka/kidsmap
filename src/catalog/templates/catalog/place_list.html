@@ -379,19 +379,9 @@
       <div class="mobile-results-summary">
         <span class="mobile-results-icon" aria-hidden="true"></span>
         <div>
-          <strong>
-            {% if language == "az" %}
-              {{ results_total }} uyğun məkan tapıldı
-            {% else %}
-              {{ results_count_label }}
-            {% endif %}
-          </strong>
+          <strong>{{ results_count_label }}</strong>
           <span>
-            {% if language == "az" %}
-              {% if results_total %}Seçilmiş filtrlərə uyğun məkanlar göstərilir.{% else %}Seçilmiş filtrlərə uyğun nəticə tapılmadı.{% endif %}
-            {% else %}
-              {% if results_total %}{% trans "Показаны места по выбранным фильтрам." %}{% else %}{% trans "По выбранным фильтрам ничего не найдено." %}{% endif %}
-            {% endif %}
+            {% if results_total %}{% trans "Показаны места по выбранным фильтрам." %}{% else %}{% trans "По выбранным фильтрам ничего не найдено." %}{% endif %}
           </span>
         </div>
       </div>

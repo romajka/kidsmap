@@ -46,6 +46,9 @@ if ! git pull --ff-only "$REMOTE" "$BRANCH"; then
   exit 1
 fi
 
+log "Creating database backup"
+./scripts/backup-db.sh
+
 log "Rebuilding and starting containers"
 docker compose down
 docker compose up -d --build
@@ -55,6 +58,9 @@ docker compose exec -T web python manage.py makemigrations --check --dry-run
 
 log "Running Django check"
 docker compose exec -T web python manage.py check
+
+log "Restoring featured public clubs"
+docker compose exec -T web python manage.py restore_featured_places
 
 smoke() {
   local path="$1"

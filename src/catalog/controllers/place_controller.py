@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
-from django.utils.translation import gettext as _, ngettext
+from django.utils.translation import gettext as _, ngettext, override
 
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
 from catalog.models import FunnelEvent, Place
@@ -86,17 +86,19 @@ class PlaceController:
             is_new_page=force_new_only,
             page_number=page_obj.number,
         )
+        with override(language_code):
+            results_count_label = ngettext(
+                "Найден %(total)s кружок",
+                "Найдено %(total)s кружков",
+                page_obj.paginator.count,
+            ) % {"total": page_obj.paginator.count}
+
         context = {
             "places": page_obj.object_list,
             "timeline_places": timeline_places,
             "page_obj": page_obj,
             "results_total": page_obj.paginator.count,
-            "results_count_label": ngettext(
-                "Найден %(total)s кружок",
-                "Найдено %(total)s кружков",
-                page_obj.paginator.count,
-            )
-            % {"total": page_obj.paginator.count},
+            "results_count_label": results_count_label,
             "language": language_code,
             "query_without_page": query_without_page,
             "meta_description": seo_payload["meta_description"],

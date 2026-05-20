@@ -91,7 +91,8 @@ class HomeController:
             "home_categories": sorted(HOME_CATEGORIES, key=lambda item: str(_(item["title"])).casefold()),
             "home_districts": sort_translated_values(content_settings.districts()),
             "home_metro_options": sort_translated_values(content_settings.metro_stations()),
-            "home_age_options": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16],
+            "home_age_options": [0, 6, 9, 12, 16],
+            "selected_age": self._selected_age(request),
             "meta_description": seo_payload["meta_description"],
             "seo_title": seo_payload["seo_title"],
             "home_featured_schema_json": seo_payload["home_featured_schema_json"],
@@ -114,6 +115,11 @@ class HomeController:
             "hero_show_decor": bool(site_settings.home_hero_show_decor),
             "hero_gallery_slides": hero_gallery_slides,
         }
+
+    @staticmethod
+    def _selected_age(request) -> str:
+        value = str(request.GET.get("age") or "").strip()
+        return value if value in {"0", "6", "9", "12", "16"} else ""
 
     @staticmethod
     def _hero_search_placeholder(raw_value: str) -> str:

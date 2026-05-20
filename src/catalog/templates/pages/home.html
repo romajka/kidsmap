@@ -189,19 +189,35 @@
         {% trans "Начать поиск" as default_search_label %}
         <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
         <div class="home-search-row">
-          <select class="filter-select home-filter-select home-filter-district" name="district">
-            <option value="">{% trans "Регион / район" %}</option>
-            {% for district in home_districts %}
-              <option value="{{ district }}">{% trans district %}</option>
-            {% endfor %}
-          </select>
+          <input
+            id="home-search-district"
+            class="filter-select home-filter-select home-filter-district"
+            name="district"
+            type="text"
+            value="{{ selected.district }}"
+            placeholder="{% trans 'Регион / район' %}"
+            list="home-district-options"
+            autocomplete="off"
+            spellcheck="false"
+            inputmode="search"
+          />
 
-          <select class="filter-select home-filter-select home-filter-age" name="age">
-            <option value="">{% trans "Возраст" %}</option>
+          <div class="home-age-presets" role="group" aria-label="{% trans 'Возраст' %}">
+            <input type="hidden" name="age" value="{{ selected_age }}" />
             {% for age in home_age_options %}
-              <option value="{{ age }}">{{ age }}+</option>
+              {% with age_value=age|stringformat:"s" %}
+                <button
+                  type="button"
+                  class="home-age-chip{% if selected_age == age_value %} is-active{% endif %}"
+                  data-home-age-chip
+                  data-age-value="{{ age_value }}"
+                  aria-pressed="{% if selected_age == age_value %}true{% else %}false{% endif %}"
+                >
+                  {{ age }}+
+                </button>
+              {% endwith %}
             {% endfor %}
-          </select>
+          </div>
 
           <select id="home-search-category" class="filter-select home-filter-select home-filter-category" name="category">
             <option value="">{% trans "Категория" %}</option>
@@ -219,6 +235,11 @@
             <span class="visually-hidden">{% firstof hero_cta_text default_search_label %}</span>
           </button>
         </div>
+        <datalist id="home-district-options">
+          {% for district in home_districts %}
+            <option value="{{ district }}"></option>
+          {% endfor %}
+        </datalist>
       </form>
 
     </div>

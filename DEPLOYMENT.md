@@ -37,7 +37,8 @@ What it does:
 3. Rebuilds/restarts Docker containers.
 4. Verifies there is no model/migration drift (`makemigrations --check --dry-run`).
 5. Runs `python manage.py check`.
-6. Runs smoke checks for `/`, `/catalog/`, `/admin/` (with redirect follow and final `200`).
+6. Restores the three featured public clubs if they were quarantined or edited.
+7. Runs smoke checks for `/`, `/catalog/`, `/admin/` (with redirect follow and final `200`).
 
 Optional custom branch:
 ```bash
@@ -189,5 +190,6 @@ python manage.py send_test_email your-address@example.com
 If SMTP is configured correctly, command prints `Test email sent ...`.
 
 ## Backup suggestion
-1. Daily MariaDB backup (`mysqldump`) with timestamp.
-2. Daily `media/` backup.
+1. Run `./scripts/backup-db.sh` before each deploy. It writes a timestamped MariaDB dump to `backups/`.
+2. Back up `media/` on the same schedule as the database.
+3. To restore the three featured demo clubs after a deploy, run `./.venv/bin/python manage.py restore_featured_places` on the target server.

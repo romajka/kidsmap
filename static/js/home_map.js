@@ -41,6 +41,65 @@
     return normalizeValue(value).toLocaleLowerCase();
   }
 
+  function getDistrictOptions(form) {
+    const districtOptionsEl = form.querySelector("#home-district-options");
+    if (!districtOptionsEl) return [];
+
+    return Array.from(districtOptionsEl.querySelectorAll("option"))
+      .map(function (option) {
+        return normalizeValue(option.value);
+      })
+      .filter(Boolean);
+  }
+
+  function resolveDistrictValue(value, options) {
+    const current = normalizeValue(value);
+    if (!current) return "";
+
+    const normalizedCurrent = normalizeSearch(current);
+    const exactMatch = options.find(function (option) {
+      return normalizeSearch(option) === normalizedCurrent;
+    });
+    if (exactMatch) return exactMatch;
+
+    const prefixMatches = options.filter(function (option) {
+      return normalizeSearch(option).startsWith(normalizedCurrent);
+    });
+    if (prefixMatches.length === 1) {
+      return prefixMatches[0];
+    }
+
+    return "";
+  }
+
+  function getAgeInput(form) {
+    return form.querySelector('[name="age"]');
+  }
+
+  function getAgeButtons(form) {
+    return Array.from(form.querySelectorAll("[data-home-age-chip]"));
+  }
+
+  function syncAgeButtons(form) {
+    const ageInput = getAgeInput(form);
+    if (!ageInput) return;
+
+    const currentValue = normalizeValue(ageInput.value);
+    getAgeButtons(form).forEach(function (button) {
+      const isActive = normalizeValue(button.dataset.ageValue) === currentValue;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+  }
+
+  function setAgeValue(form, nextValue) {
+    const ageInput = getAgeInput(form);
+    if (!ageInput) return;
+
+    ageInput.value = nextValue;
+    syncAgeButtons(form);
+  }
+
   function parsePlaces() {
     const dataEl = document.getElementById("home-map-data");
     if (!dataEl) return [];
@@ -259,7 +318,11 @@
 
     let searchTimer = null;
     const queryInput = form.querySelector('[name="q"]');
-    const selectControls = form.querySelectorAll('select[name="category"], select[name="district"], select[name="metro"], select[name="age"]');
+    const districtInput = form.querySelector('[name="district"]');
+    const districtOptions = getDistrictOptions(form);
+    const categorySelect = form.querySelector('select[name="category"]');
+    const ageInput = getAgeInput(form);
+    const ageButtons = getAgeButtons(form);
 
     function scheduleUpdate() {
       if (searchTimer) {
@@ -272,9 +335,40 @@
       queryInput.addEventListener("input", scheduleUpdate);
     }
 
-    selectControls.forEach(function (control) {
-      control.addEventListener("change", updateMap);
-    });
+    if (districtInput) {
+      districtInput.addEventListener("input", function () {
+        const resolvedValue = resolveDistrictValue(districtInput.value, districtOptions);
+        if (!normalizeValue(districtInput.value) || resolvedValue) {
+          scheduleUpdate();
+        }
+      });
+
+      districtInput.addEventListener("change", function () {
+        districtInput.value = resolveDistrictValue(districtInput.value, districtOptions);
+        scheduleUpdate();
+      });
+
+      form.addEventListener("submit", function () {
+        districtInput.value = resolveDistrictValue(districtInput.value, districtOptions);
+      });
+    }
+
+    if (categorySelect) {
+      categorySelect.addEventListener("change", updateMap);
+    }
+
+    if (ageInput && ageButtons.length) {
+      syncAgeButtons(form);
+
+      ageButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          const nextValue = normalizeValue(button.dataset.ageValue);
+          const currentValue = normalizeValue(ageInput.value);
+          setAgeValue(form, currentValue === nextValue ? "" : nextValue);
+          updateMap();
+        });
+      });
+    }
   }
 
   function mountGoogleMap(sharedState) {
