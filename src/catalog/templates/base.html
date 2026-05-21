@@ -156,13 +156,13 @@
                     href="{% url 'account_profile' %}"
                     {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}aria-current="page"{% endif %}
                   >{% trans "Личный кабинет" %}</a>
-                  {% if current_user_role == "OWNER" %}
-                    <a
-                      class="auth-pill {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
-                      href="{% url 'owner_places_dashboard' %}"
-                      {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
-                    >{% trans "Управление карточками" %}</a>
-                  {% endif %}
+                  <a
+                    class="auth-pill {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
+                    href="{% url 'owner_places_dashboard' %}"
+                    {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
+                  >
+                    {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
+                  </a>
                   <form method="post" action="{% url 'account_logout' %}" class="auth-logout-form">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}" />
@@ -775,6 +775,7 @@
       })();
     </script>
     <script defer src="{% static 'js/bg_scene.js' %}"></script>
+    <script defer src="{% static 'js/scroll_animations.js' %}"></script>
     {% block extra_body %}{% endblock %}
   </body>
 </html>

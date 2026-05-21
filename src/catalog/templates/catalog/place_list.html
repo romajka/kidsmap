@@ -139,11 +139,13 @@
         {% if not is_new_page %}
           <div class="mobile-category-options" aria-label="{% trans 'Категория' %}">
             <button type="button" class="mobile-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="">
-              {% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}
+              <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
+              <span>{% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}</span>
             </button>
             {% for code, label in categories %}
               <button type="button" class="mobile-category-chip{% if selected.category == code %} is-active{% endif %}" data-select-target="category" data-select-value="{{ code }}">
-                {{ label }}
+                <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=code %}</span>
+                <span>{{ label }}</span>
               </button>
             {% endfor %}
           </div>
@@ -151,12 +153,12 @@
         {% if not is_new_page %}
           <div class="desktop-category-options" aria-label="{% trans 'Категория' %}">
             <button type="button" class="desktop-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="" data-category-code="ALL">
-              <span class="desktop-category-chip-icon" aria-hidden="true"></span>
+              <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
               <span>{% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}</span>
             </button>
             {% for code, label in categories %}
               <button type="button" class="desktop-category-chip{% if selected.category == code %} is-active{% endif %}" data-select-target="category" data-select-value="{{ code }}" data-category-code="{{ code }}">
-                <span class="desktop-category-chip-icon" aria-hidden="true"></span>
+                <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=code %}</span>
                 <span>{{ label }}</span>
               </button>
             {% endfor %}
@@ -169,6 +171,26 @@
           {% endfor %}
         </select>
       </label>
+
+      {% if not is_new_page %}
+        <fieldset class="filter-item filter-event-type">
+          <legend>{% if language == "az" %}Məkan növü{% elif language == "en" %}Place type{% else %}{% trans "Тип места" %}{% endif %}</legend>
+          <div class="event-type-filter" role="radiogroup" aria-label="{% if language == 'az' %}Məkan növü{% elif language == 'en' %}Place type{% else %}{% trans 'Тип места' %}{% endif %}">
+            <label class="event-type-option{% if not selected.event_type %} is-active{% endif %}">
+              <input type="radio" name="event_type" value="" {% if not selected.event_type %}checked{% endif %} />
+              <span>{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
+            </label>
+            <label class="event-type-option{% if selected.event_type == 'temporary' %} is-active{% endif %}">
+              <input type="radio" name="event_type" value="temporary" {% if selected.event_type == "temporary" %}checked{% endif %} />
+              <span>{% if language == "az" %}Müvəqqəti{% elif language == "en" %}Temporary{% else %}{% trans "Временные" %}{% endif %}</span>
+            </label>
+            <label class="event-type-option{% if selected.event_type == 'permanent' %} is-active{% endif %}">
+              <input type="radio" name="event_type" value="permanent" {% if selected.event_type == "permanent" %}checked{% endif %} />
+              <span>{% if language == "az" %}Daimi{% elif language == "en" %}Permanent{% else %}{% trans "Постоянные" %}{% endif %}</span>
+            </label>
+          </div>
+        </fieldset>
+      {% endif %}
 
       <label class="filter-item filter-district">
         {% trans "Регион / район" %}
@@ -497,16 +519,9 @@
                 <div class="chip">{{ place.get_category_display }}</div>
                 <div class="event-badge-row">
                   {% if place.is_temporary %}
-                    <span class="event-badge temporary">🕒 {% trans "Временное" %}</span>
-                    {% if place.temporary_start or place.temporary_end %}
-                      <span class="event-badge-meta">
-                        {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
-                        {% if place.temporary_start and place.temporary_end %} — {% endif %}
-                        {% if place.temporary_end %}{{ place.temporary_end|date:"d.m.Y H:i" }}{% endif %}
-                      </span>
-                    {% endif %}
+                    {% include "catalog/includes/temporary_event_badge.html" with place=place language=language variant="compact" %}
                   {% else %}
-                    <span class="event-badge permanent">♾️ {% trans "Постоянное" %}</span>
+                    <span class="event-badge permanent">{% if language == "az" %}Daimi məkan{% elif language == "en" %}Permanent place{% else %}{% trans "Постоянное место" %}{% endif %}</span>
                   {% endif %}
                 </div>
                 <div class="rating-row">
@@ -582,6 +597,11 @@
               <span class="chip">{{ place.get_category_display }}</span>
               <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
             </div>
+            {% if place.is_temporary %}
+              <div class="event-badge-row event-badge-row--card">
+                {% include "catalog/includes/temporary_event_badge.html" with place=place language=language variant="compact" %}
+              </div>
+            {% endif %}
             <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
               {% if place.district %}{% trans place.district %}{% endif %}
               {% if place.district and place.metro %} / {% endif %}
@@ -642,10 +662,9 @@
         <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
       {% endif %}
       <div class="empty-actions">
-        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% if language == "az" %}Filtrləri sıfırla{% else %}{% trans "Сброс" %}{% endif %}</a>
-        {% if not is_new_page %}
-          <a class="btn" href="{% url 'place_list' %}">{% if language == "az" %}Bütün məkanlara bax{% else %}{% trans "Все места" %}{% endif %}</a>
-        {% endif %}
+        <a class="btn" style="background: var(--brand); color: #fff; border:none;" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">
+          {% if language == "az" %}Bütün filtrləri sıfırla{% else %}{% trans "Сбросить все фильтры" %}{% endif %}
+        </a>
       </div>
     </section>
   {% endif %}
@@ -707,6 +726,7 @@
       ></script>
     {% endif %}
   {% endif %}
+  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   <script>
     (function () {
       document.querySelectorAll("[data-range]").forEach(function (root) {
@@ -839,6 +859,19 @@
     })();
 
     (function () {
+      document.querySelectorAll(".event-type-filter").forEach(function (group) {
+        const sync = function () {
+          group.querySelectorAll(".event-type-option").forEach(function (option) {
+            const input = option.querySelector('input[type="radio"]');
+            option.classList.toggle("is-active", !!(input && input.checked));
+          });
+        };
+        group.addEventListener("change", sync);
+        sync();
+      });
+    })();
+
+    (function () {
       const selectInputs = Array.from(document.querySelectorAll("[data-option-search-for]"));
       if (!selectInputs.length) return;
 
@@ -962,6 +995,24 @@
           });
         });
       });
+    })();
+
+    (function() {
+      const filtersForm = document.getElementById("filters-form");
+      const resultsGrid = document.querySelector(".grid");
+      const isListMode = document.body.classList.contains("results-list-mode") || (resultsGrid && resultsGrid.classList.contains("results-list-mode"));
+      if (filtersForm && resultsGrid && !isListMode) {
+        filtersForm.addEventListener("submit", function () {
+          const skeletonHtml = Array(6).fill().map(function() {
+             return '<div class="skeleton-card">' +
+                      '<div class="skeleton-img"></div>' +
+                      '<div class="skeleton-text"></div>' +
+                      '<div class="skeleton-text short"></div>' +
+                    '</div>';
+          }).join("");
+          resultsGrid.innerHTML = skeletonHtml;
+        });
+      }
     })();
   </script>
 {% endblock %}

@@ -41,6 +41,8 @@ class HomeController:
 
         popular_places = list(self.place_repository.top_popular(limit=3))
         mark_liked_flags(popular_places, liked_ids)
+        upcoming_events = list(self.place_repository.upcoming_temporary(limit=8))
+        mark_liked_flags(upcoming_events, liked_ids)
 
         map_places = [
             {
@@ -98,6 +100,7 @@ class HomeController:
             "home_featured_schema_json": seo_payload["home_featured_schema_json"],
             "seo_pages": content_settings.seo_pages(),
             "popular_places": popular_places,
+            "upcoming_events": upcoming_events,
             "map_places": map_places,
             "site_reviews": site_reviews,
             "site_reviews_teaser": site_reviews_teaser,

@@ -146,6 +146,8 @@
     state.bounds = new google.maps.LatLngBounds();
     const infoWindow = new google.maps.InfoWindow();
 
+    const markersByUrl = {};
+
     state.places.forEach(function (place) {
       const position = { lat: place.lat, lng: place.lng };
       const marker = new google.maps.Marker({
@@ -153,6 +155,10 @@
         map: state.googleMap,
         title: place.name || "",
       });
+
+      if (place.url) {
+        markersByUrl[place.url] = marker;
+      }
 
       marker.addListener("click", function () {
         infoWindow.setContent(renderPopupContent(place, state.detailsLabel));
@@ -162,7 +168,50 @@
         });
       });
 
+      marker.addListener("mouseover", function () {
+        if (!place.url) return;
+        const cardLink = document.querySelector('a[href="' + place.url + '"]');
+        if (cardLink) {
+          const card = cardLink.closest(".card");
+          if (card) {
+            card.style.transform = "translateY(-4px)";
+            card.style.boxShadow = "0 16px 32px rgba(34, 61, 73, 0.12)";
+          }
+        }
+      });
+
+      marker.addListener("mouseout", function () {
+        if (!place.url) return;
+        const cardLink = document.querySelector('a[href="' + place.url + '"]');
+        if (cardLink) {
+          const card = cardLink.closest(".card");
+          if (card) {
+            card.style.transform = "";
+            card.style.boxShadow = "";
+          }
+        }
+      });
+
       state.bounds.extend(position);
+    });
+
+    document.querySelectorAll(".card").forEach(function (card) {
+      card.addEventListener("mouseenter", function () {
+        const link = card.querySelector("a");
+        if (link && link.getAttribute("href") && markersByUrl[link.getAttribute("href")]) {
+          const marker = markersByUrl[link.getAttribute("href")];
+          marker.setAnimation(google.maps.Animation.BOUNCE);
+          setTimeout(function () {
+            marker.setAnimation(null);
+          }, 700);
+        }
+      });
+      card.addEventListener("mouseleave", function () {
+        const link = card.querySelector("a");
+        if (link && link.getAttribute("href") && markersByUrl[link.getAttribute("href")]) {
+          markersByUrl[link.getAttribute("href")].setAnimation(null);
+        }
+      });
     });
 
     state.initialized = true;

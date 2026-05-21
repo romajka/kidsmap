@@ -41,6 +41,10 @@ class IPlaceRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def upcoming_temporary(self, limit: int = 8) -> QuerySet:
+        raise NotImplementedError
+
+    @abstractmethod
     def filtered_active_queryset(self, *, created_after: datetime | None = None) -> QuerySet:
         raise NotImplementedError
 

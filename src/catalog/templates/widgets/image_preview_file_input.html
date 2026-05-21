@@ -1,26 +1,27 @@
 {% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
 <div
   class="owner-file-uploader owner-file-uploader-single js-file-uploader"
   data-file-uploader
-  data-upload-empty="{% trans 'Нажмите, чтобы выбрать изображение JPG, PNG или WEBP.' %}"
-  data-upload-summary="{% trans 'Новый файл:' %}"
-  data-upload-pending="{% trans 'Файл выбран и будет сохранён после отправки формы.' %}"
+  data-upload-empty="{% if CURRENT_LANGUAGE == 'az' %}Şəkil seçmək üçün klikləyin. JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == 'en' %}Click to choose an image. JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans 'Нажмите, чтобы выбрать изображение JPG, PNG или WEBP до 2 МБ.' %}{% endif %}"
+  data-upload-summary="{% if CURRENT_LANGUAGE == 'az' %}Yeni fayl:{% elif CURRENT_LANGUAGE == 'en' %}New file:{% else %}{% trans 'Новый файл:' %}{% endif %}"
+  data-upload-pending="{% if CURRENT_LANGUAGE == 'az' %}Fayl forma göndəriləndə saxlanacaq.{% elif CURRENT_LANGUAGE == 'en' %}The file will be saved after submitting the form.{% else %}{% trans 'Файл выбран и будет сохранён после отправки формы.' %}{% endif %}"
 >
   {% if widget.is_initial and widget.value.url %}
     <div class="owner-file-uploader-current">
       <div class="owner-file-uploader-current-copy">
-        <span class="owner-file-uploader-current-kicker">{% trans "На данный момент" %}</span>
+        <span class="owner-file-uploader-current-kicker">{% if CURRENT_LANGUAGE == "az" %}Hazırda{% elif CURRENT_LANGUAGE == "en" %}Current{% else %}{% trans "На данный момент" %}{% endif %}</span>
         <a class="owner-file-uploader-current-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
           <img
             src="{{ widget.value.url }}"
-            alt="{% trans 'Текущее изображение' %}"
+            alt="{% if CURRENT_LANGUAGE == 'az' %}Cari şəkil{% elif CURRENT_LANGUAGE == 'en' %}Current image{% else %}{% trans 'Текущее изображение' %}{% endif %}"
             class="owner-file-uploader-current-preview"
             loading="lazy"
           />
         </a>
       </div>
       <a class="owner-file-uploader-open-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
-        {% trans "Открыть фото в новой вкладке" %}
+        {% if CURRENT_LANGUAGE == "az" %}Şəkli yeni pəncərədə aç{% elif CURRENT_LANGUAGE == "en" %}Open photo in a new tab{% else %}{% trans "Открыть фото в новой вкладке" %}{% endif %}
       </a>
     </div>
 
@@ -37,7 +38,7 @@
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M9 4.75h6m-8 3h10m-8.25 0 .5 10.25a1 1 0 0 0 1 .95h3.5a1 1 0 0 0 1-.95l.5-10.25M10 11.25v4.5m4-4.5v4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span>{% trans "Удалить текущее фото" %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Cari şəkli sil{% elif CURRENT_LANGUAGE == "en" %}Remove current photo{% else %}{% trans "Удалить текущее фото" %}{% endif %}</span>
         </span>
       </label>
     {% endif %}
@@ -53,16 +54,16 @@
     <span class="owner-file-uploader-copy">
       <strong class="owner-file-uploader-title">
         {% if widget.is_initial %}
-          {% trans "Заменить фото" %}
+          {% if CURRENT_LANGUAGE == "az" %}Şəkli dəyiş{% elif CURRENT_LANGUAGE == "en" %}Replace photo{% else %}{% trans "Заменить фото" %}{% endif %}
         {% else %}
-          {% trans "Загрузить фото" %}
+          {% if CURRENT_LANGUAGE == "az" %}Əsas şəkil{% elif CURRENT_LANGUAGE == "en" %}Upload photo{% else %}{% trans "Загрузить фото" %}{% endif %}
         {% endif %}
       </strong>
       <span class="owner-file-uploader-meta" data-upload-meta>
-        {% trans "Нажмите, чтобы выбрать изображение JPG, PNG или WEBP." %}
+        {% if CURRENT_LANGUAGE == "az" %}Şəkil seçmək üçün klikləyin. JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == "en" %}Click to choose an image. JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans "Нажмите, чтобы выбрать изображение JPG, PNG или WEBP до 2 МБ." %}{% endif %}
       </span>
     </span>
-    <span class="owner-file-uploader-action">{% trans "Выбрать фото" %}</span>
+    <span class="owner-file-uploader-action">{% if CURRENT_LANGUAGE == "az" %}Şəkil seçin{% elif CURRENT_LANGUAGE == "en" %}Choose photo{% else %}{% trans "Выбрать фото" %}{% endif %}</span>
     <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
   </label>
   <div class="owner-file-uploader-list" data-upload-list hidden></div>

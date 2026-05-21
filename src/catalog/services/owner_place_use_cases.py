@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from django.utils.translation import gettext as _
 
-from catalog.models import OwnerTeamMembership, UserProfile
+from catalog.models import OwnerTeamMembership, Place, UserProfile
 
 
 @dataclass(slots=True)
@@ -36,11 +36,19 @@ def ensure_owner_permission(
     if profile.role != UserProfile.ROLE_OWNER:
         return OwnerAccessResult(
             ok=False,
-            message=_("Раздел доступен только аккаунтам владельца. Измените тип аккаунта на владельца."),
+            message=_("Этот раздел доступен только для расширенного доступа команды."),
             profile=profile,
         )
 
-    if permission_code and not profile.has_owner_permission(permission_code):
+    basic_permissions = {
+        UserProfile.OWNER_PERMISSION_VIEW_PLACES,
+        UserProfile.OWNER_PERMISSION_EDIT_PLACES,
+        UserProfile.OWNER_PERMISSION_VIEW_STATS,
+    }
+    if permission_code in basic_permissions:
+        return OwnerAccessResult(ok=True, message="", profile=profile)
+
+    if permission_code and permission_code not in basic_permissions and not profile.has_owner_permission(permission_code):
         return OwnerAccessResult(
             ok=False,
             message=_(
@@ -102,7 +110,7 @@ def owner_ids_for_permission(scopes: list[OwnerPermissionScope], permission_code
 def build_owner_places_stats(*, places) -> dict:
     place_list = list(places)
     total_places = len(place_list)
-    published_places = sum(1 for place in place_list if place.is_active)
+    published_places = sum(1 for place in place_list if place.status == Place.STATUS_PUBLISHED and place.is_active)
     draft_places = total_places - published_places
     places_with_coordinates = sum(1 for place in place_list if place.has_coordinates)
     map_ready_places = sum(1 for place in place_list if place.is_map_ready)

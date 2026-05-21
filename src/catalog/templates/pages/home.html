@@ -280,7 +280,7 @@
     </section>
   {% endif %}
 
-  <section class="home-steps panel home-steps-lite" aria-label="{% trans 'Как это работает' %}">
+  <section class="home-steps panel home-steps-lite animate-on-scroll" aria-label="{% trans 'Как это работает' %}">
     <div class="home-steps-lite-head">
       <h2>{% trans "Как это работает" %}</h2>
       <p>{% trans "Три простых шага, чтобы быстро найти подходящий кружок." %}</p>
@@ -309,6 +309,47 @@
       </article>
     </div>
   </section>
+
+  {% if upcoming_events %}
+    <section class="panel home-events">
+      <div class="home-events-head">
+        <div>
+          <p class="home-events-kicker">{% if request.LANGUAGE_CODE == "az" %}Yaxın tarixlər{% elif request.LANGUAGE_CODE == "en" %}Upcoming{% else %}Скоро{% endif %}</p>
+          <h2>{% if request.LANGUAGE_CODE == "az" %}Yaxın tədbirlər{% elif request.LANGUAGE_CODE == "en" %}Upcoming events{% else %}Ближайшие мероприятия{% endif %}</h2>
+          <p>{% if request.LANGUAGE_CODE == "az" %}Vaxtı məhdud olan maraqlı məkanları və tədbirləri izləyin.{% elif request.LANGUAGE_CODE == "en" %}Track time-limited activities and events near you.{% else %}Интересные события и активности рядом с вами с понятным таймером.{% endif %}</p>
+        </div>
+        <a class="home-events-all" href="{% url 'place_list' %}?event_type=temporary">{% if request.LANGUAGE_CODE == "az" %}Bütün tədbirlər{% elif request.LANGUAGE_CODE == "en" %}All events{% else %}Все мероприятия{% endif %}</a>
+      </div>
+      <div class="home-events-rail" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Yaxın tədbirlər{% elif request.LANGUAGE_CODE == 'en' %}Upcoming events{% else %}Ближайшие мероприятия{% endif %}">
+        {% for place in upcoming_events %}
+          <article class="home-event-card">
+            <a class="home-event-card__media" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
+              {% if place.photo %}
+                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+              {% elif place.cover_photo %}
+                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+              {% else %}
+                <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
+              {% endif %}
+              <span class="home-event-card__category">{{ place.get_category_display }}</span>
+            </a>
+            <div class="home-event-card__body">
+              <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+              <p class="home-event-card__meta">
+                {% if place.district %}{% trans place.district %}{% endif %}
+                {% if place.district and place.metro %} · {% endif %}
+                {% if place.metro %}{% trans place.metro %}{% endif %}
+              </p>
+              {% if place.price_range_display %}
+                <p class="home-event-card__price">{{ place.price_range_display }}</p>
+              {% endif %}
+              {% include "catalog/includes/temporary_event_badge.html" with place=place language=request.LANGUAGE_CODE variant="card" %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
 
   {% if popular_places %}
     <section class="panel home-recommended">
@@ -388,7 +429,7 @@
   {% endif %}
 
   {% url 'owner_places_dashboard' as owner_dashboard_url %}
-  <section class="panel home-owner-banner" id="for-owners">
+  <section class="panel home-owner-banner animate-on-scroll" id="for-owners">
     <div class="home-owner-banner-grid">
       <div class="home-owner-copy">
         <p class="home-owner-eyebrow">{% trans "Для владельцев кружков" %}</p>
@@ -431,13 +472,12 @@
               decoding="async"
             />
           </picture>
-          <span class="home-owner-media-badge">{% trans "Для владельцев кружков" %}</span>
         </figure>
       </div>
     </div>
   </section>
 
-  <section class="panel home-query-panel">
+  <section class="panel home-query-panel animate-on-scroll">
     <h2>{% trans "Популярные запросы" %}</h2>
     <div class="home-grid2 home-query-grid">
       <a class="home-query-card" href="{% url 'place_list' %}">
@@ -734,4 +774,5 @@
       referrerpolicy="no-referrer"
     ></script>
   {% endif %}
+  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
 {% endblock %}

@@ -28,7 +28,7 @@ from .controllers.place_controller import PlaceController
 from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
-from .models import PlaceReview, SiteReview, UserProfile
+from .models import Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile
 from .models import FunnelEvent
 from .services.content_quality import public_review_queryset
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
@@ -88,6 +88,24 @@ def _engagement_login_required_response(request, fallback_url: str):
 def _redirect_to_login(request):
     query = urlencode({"next": request.get_full_path()})
     return redirect(f"{reverse('account_login')}?{query}")
+
+
+def _build_managed_places_summary(user) -> dict:
+    managed_places = list(user.managed_places.order_by("-updated_at"))
+    active_managed_places_count = sum(
+        1 for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active
+    )
+    draft_managed_places_count = sum(
+        1
+        for place in managed_places
+        if place.status != Place.STATUS_PUBLISHED or not place.is_active
+    )
+    return {
+        "managed_places": managed_places,
+        "managed_places_count": len(managed_places),
+        "active_managed_places_count": active_managed_places_count,
+        "draft_managed_places_count": draft_managed_places_count,
+    }
 
 
 def _resolve_auth_intent(request) -> str:
@@ -484,9 +502,7 @@ def owner_cabinet(request):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
-    context = ownership_controller.build_owner_cabinet_context(request=request)
-    context.update({"meta_description": _("Кабинет владельца KidsMap: заявки и управление карточками.")})
-    return render(request, "pages/owner_cabinet.html", context)
+    return redirect("owner_places_dashboard")
 
 
 def owner_places_dashboard(request):
@@ -500,7 +516,7 @@ def owner_places_dashboard(request):
 
     context.update(
         {
-            "meta_description": _("Управление карточками владельца: редактирование, черновики, публикация и статистика."),
+            "meta_description": _("Мои места KidsMap: редактирование, черновики, модерация и статистика."),
         }
     )
     return render(request, "pages/owner_places.html", context)
@@ -530,7 +546,30 @@ def owner_place_create(request):
                 "form": result.form,
                 "owner_profile": result.profile,
                 "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
-                "meta_description": _("Создание карточки кружка в кабинете владельца."),
+                "meta_description": _("Создание места в личном кабинете KidsMap."),
+            }
+            return render(request, "pages/owner_place_create.html", context)
+
+        if form_action == "save_draft":
+            result = owner_places_controller.create_place(
+                request=request,
+                data=request.POST,
+                files=request.FILES,
+                draft_save_only=True,
+            )
+            if result.ok:
+                messages.success(request, result.message)
+                return redirect("owner_places_dashboard")
+
+            if result.form is None:
+                messages.error(request, result.message)
+                return redirect("owner_places_dashboard")
+
+            context = {
+                "form": result.form,
+                "owner_profile": result.profile,
+                "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
+                "meta_description": _("Создание места в личном кабинете KidsMap."),
             }
             return render(request, "pages/owner_place_create.html", context)
 
@@ -551,7 +590,7 @@ def owner_place_create(request):
             "form": result.form,
             "owner_profile": result.profile,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
-            "meta_description": _("Создание карточки кружка в кабинете владельца."),
+            "meta_description": _("Создание места в личном кабинете KidsMap."),
         }
         return render(request, "pages/owner_place_create.html", context)
 
@@ -564,7 +603,7 @@ def owner_place_create(request):
         "form": result.form,
         "owner_profile": result.profile,
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
-        "meta_description": _("Создание карточки кружка в кабинете владельца."),
+        "meta_description": _("Создание места в личном кабинете KidsMap."),
     }
     return render(request, "pages/owner_place_create.html", context)
 
@@ -581,10 +620,11 @@ def owner_place_edit(request, pk):
             data=request.POST,
             files=request.FILES,
             force_coordinate_refresh=form_action == "refresh_coordinates",
+            draft_save_only=form_action == "save_draft",
         )
         if result.ok:
             messages.success(request, result.message)
-            if form_action == "refresh_coordinates":
+            if form_action in {"refresh_coordinates", "save_draft"}:
                 return redirect("owner_place_edit", pk=pk)
             return redirect("owner_places_dashboard")
 
@@ -597,7 +637,7 @@ def owner_place_edit(request, pk):
             "place": result.place,
             "owner_profile": result.profile,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
-            "meta_description": _("Редактирование карточки кружка в кабинете владельца."),
+            "meta_description": _("Редактирование места в личном кабинете KidsMap."),
         }
         return render(request, "pages/owner_place_edit.html", context)
 
@@ -611,7 +651,7 @@ def owner_place_edit(request, pk):
         "place": result.place,
         "owner_profile": result.profile,
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
-        "meta_description": _("Редактирование карточки кружка в кабинете владельца."),
+        "meta_description": _("Редактирование места в личном кабинете KidsMap."),
     }
     return render(request, "pages/owner_place_edit.html", context)
 
@@ -925,10 +965,10 @@ class AccountDashboardView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
         context.update(dashboard_context)
+        context.update(_build_managed_places_summary(self.request.user))
         context.update(
             {
-                "is_owner_role": dashboard_context["profile_model"].role == UserProfile.ROLE_OWNER,
-                "meta_description": _("Личный кабинет KidsMap: профиль, избранные кружки и история просмотров."),
+                "meta_description": _("Личный кабинет KidsMap: профиль, избранное, история просмотров и мои места."),
             }
         )
         return context
@@ -942,11 +982,12 @@ class AccountFavoritesView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         profile = account_controller.ensure_profile(user=self.request.user)
-        context.update(account_controller.build_favorites_context(user=self.request.user))
+        dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
+        context.update(dashboard_context)
+        context.update(_build_managed_places_summary(self.request.user))
         context.update(
             {
                 "profile_model": profile,
-                "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
                 "meta_description": _("Избранные кружки пользователя в KidsMap."),
             }
         )
@@ -960,13 +1001,16 @@ class AccountProfileView(LoginRequiredMixin, View):
 
     def _build_context(self, *, profile, profile_form, password_form):
         dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
+        current_route = self.request.resolver_match.url_name if self.request.resolver_match else "account_profile"
+        managed_places_summary = _build_managed_places_summary(self.request.user)
         return {
             "profile_model": profile,
             "profile_form": profile_form,
             "password_form": password_form,
             "favorites_count": dashboard_context["favorites_count"],
             "history_count": dashboard_context["history_count"],
-            "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
+            **managed_places_summary,
+            "is_settings_view": current_route == "account_settings",
             "meta_description": _("Личный кабинет KidsMap: данные профиля, контакты и безопасность аккаунта."),
         }
 

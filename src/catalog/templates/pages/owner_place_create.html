@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% trans "Новая карточка" %}{% endblock %}
-{% block title_plain %}{% trans "Новая карточка" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Новая карточка" %} | KidsMap{% endblock %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Yeni məkan{% elif CURRENT_LANGUAGE == "en" %}New place{% else %}Новое место{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Yeni məkan{% elif CURRENT_LANGUAGE == "en" %}New place{% else %}Новое место{% endif %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Yeni məkan{% elif CURRENT_LANGUAGE == "en" %}New place{% else %}Новое место{% endif %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   {% if not google_maps_api_key %}
@@ -20,18 +21,13 @@
   <section class="panel owner-place-edit owner-wizard-page">
     <div class="owner-page-head">
       <div>
-        <h1>{% trans "Новая карточка" %}</h1>
-        <p class="auth-subtitle">{% trans "Заполните только обязательный минимум, а остальное можно добавить позже." %}</p>
+        <h1>{% if CURRENT_LANGUAGE == "az" %}Yeni elan{% elif CURRENT_LANGUAGE == "en" %}New listing{% else %}Новое объявление{% endif %}</h1>
+        <p class="auth-subtitle">{% if CURRENT_LANGUAGE == "az" %}Əvvəlcə elan növünü seçin, sonra yalnız uyğun sahələri doldurun.{% elif CURRENT_LANGUAGE == "en" %}Choose the listing type first, then fill only the relevant fields.{% else %}Сначала выберите тип объявления, дальше откроется подходящая форма.{% endif %}</p>
       </div>
       <div class="owner-page-actions">
-        <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% trans "К карточкам" %}</a>
+        <a class="link-btn" href="{% url 'account_profile' %}">← {% if CURRENT_LANGUAGE == "az" %}Profilə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to profile{% else %}Вернуться в профиль{% endif %}</a>
       </div>
     </div>
-
-    <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
-      <a class="chip-link" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
-      <a class="chip-link active" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
-    </nav>
 
     <form
       method="post"
@@ -39,36 +35,50 @@
       class="owner-edit-form owner-wizard-form"
       data-loading-form
       data-owner-wizard
+      data-owner-mode="{% if form.is_temporary.value %}temporary{% else %}permanent{% endif %}"
       data-owner-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
+      data-owner-permanent-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
+      data-owner-temporary-required-fields="name_az,category,description_az,temporary_start,temporary_end,price_from,address,phone1,photo"
       data-owner-required-groups="district|metro"
+      data-owner-permanent-required-groups="district|metro"
+      data-owner-temporary-required-groups="district|metro"
       data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,instagram,website,schedule,lesson_duration_minutes,price_per_lesson,price_per_month,price_per_8_lessons,extra_conditions,additional_info,is_temporary,temporary_start,temporary_end,gallery_images,moderation_note"
       data-owner-optional-groups="lat|lng"
-      data-owner-location-group-label="{% trans 'Регион, район или метро' %}"
-      data-owner-map-group-label="{% trans 'Точка на карте' %}"
-      data-owner-required-done-text="{% trans 'Обязательный минимум заполнен. Карточку уже можно отправлять.' %}"
-      data-owner-required-tip-prefix="{% trans 'Следом добавьте:' %}"
-      data-owner-overall-done-text="{% trans 'Карточка заполнена подробно. Осталось только точечно улучшать детали.' %}"
-      data-owner-overall-tip-prefix="{% trans 'Для полного профиля ещё можно добавить:' %}"
-      data-owner-location-required-message="{% trans 'Укажите район или метро, чтобы продолжить.' %}"
+      data-owner-location-group-label="{% if CURRENT_LANGUAGE == 'az' %}Region, rayon və ya metro{% elif CURRENT_LANGUAGE == 'en' %}Region, district, or metro{% else %}{% trans 'Регион, район или метро' %}{% endif %}"
+      data-owner-map-group-label="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə nöqtə{% elif CURRENT_LANGUAGE == 'en' %}Map point{% else %}{% trans 'Точка на карте' %}{% endif %}"
+      data-owner-required-done-text="{% if CURRENT_LANGUAGE == 'az' %}Məcburi minimum tamamlanıb.{% elif CURRENT_LANGUAGE == 'en' %}Required minimum is complete.{% else %}{% trans 'Обязательный минимум заполнен. Карточку уже можно отправлять.' %}{% endif %}"
+      data-owner-required-tip-prefix="{% if CURRENT_LANGUAGE == 'az' %}Məsləhət:{% elif CURRENT_LANGUAGE == 'en' %}Tip:{% else %}{% trans 'Следом добавьте:' %}{% endif %}"
+      data-owner-required-tip-suffix="{% if CURRENT_LANGUAGE == 'az' %}əlavə edin.{% endif %}"
+      data-owner-overall-done-text="{% if CURRENT_LANGUAGE == 'az' %}Tam profil üçün əsas məlumatlar hazırdır.{% elif CURRENT_LANGUAGE == 'en' %}The profile is detailed enough.{% else %}{% trans 'Карточка заполнена подробно. Осталось только точечно улучшать детали.' %}{% endif %}"
+      data-owner-overall-tip-prefix="{% if CURRENT_LANGUAGE == 'az' %}Tam profil üçün{% elif CURRENT_LANGUAGE == 'en' %}For a fuller profile, add:{% else %}{% trans 'Для полного профиля ещё можно добавить:' %}{% endif %}"
+      data-owner-overall-tip-suffix="{% if CURRENT_LANGUAGE == 'az' %}əlavə edə bilərsiniz.{% endif %}"
+      data-owner-location-required-message="{% if CURRENT_LANGUAGE == 'az' %}Davam etmək üçün rayon və ya metro seçin.{% elif CURRENT_LANGUAGE == 'en' %}Choose a district or metro to continue.{% else %}{% trans 'Укажите район или метро, чтобы продолжить.' %}{% endif %}"
       data-owner-step-warning-label="!"
       data-owner-step-complete-label="✓"
-      data-owner-step-neutral-label="{% trans 'Не заполнено' %}"
-      data-owner-summary-photo-empty="{% trans 'Фото ещё не выбрано' %}"
-      data-owner-summary-photo-selected="{% trans 'Выбрано:' %}"
-      data-owner-summary-photo-ready="{% trans 'Файл уже добавлен' %}"
-      data-owner-summary-gallery-empty="{% trans 'Пока без дополнительных фото' %}"
-      data-owner-summary-gallery-one="{% trans '1 файл в галерее' %}"
-      data-owner-summary-gallery-many-prefix="{% trans 'Файлов в галерее:' %}"
-      data-owner-summary-note-empty="{% trans 'Комментария нет' %}"
-      data-owner-summary-note-filled="{% trans 'Комментарий добавлен' %}"
-      data-owner-unsaved-changes-message="{% trans 'У вас есть несохранённые изменения. Действительно выйти? Если выйти сейчас, изменения не сохранятся.' %}"
-      data-step-label="{% trans 'Шаг' %}"
-      data-of-label="{% trans 'из' %}"
+      data-owner-step-neutral-label="{% if CURRENT_LANGUAGE == 'az' %}Boşdur{% elif CURRENT_LANGUAGE == 'en' %}Not filled{% else %}{% trans 'Не заполнено' %}{% endif %}"
+      data-owner-summary-photo-empty="{% if CURRENT_LANGUAGE == 'az' %}Əsas şəkil seçilməyib{% elif CURRENT_LANGUAGE == 'en' %}Main photo is not selected{% else %}{% trans 'Фото ещё не выбрано' %}{% endif %}"
+      data-owner-summary-photo-selected="{% if CURRENT_LANGUAGE == 'az' %}Seçildi:{% elif CURRENT_LANGUAGE == 'en' %}Selected:{% else %}{% trans 'Выбрано:' %}{% endif %}"
+      data-owner-summary-photo-ready="{% if CURRENT_LANGUAGE == 'az' %}Fayl əlavə olunub{% elif CURRENT_LANGUAGE == 'en' %}File is already added{% else %}{% trans 'Файл уже добавлен' %}{% endif %}"
+      data-owner-summary-gallery-empty="{% if CURRENT_LANGUAGE == 'az' %}Galereya boşdur{% elif CURRENT_LANGUAGE == 'en' %}Gallery is empty{% else %}{% trans 'Пока без дополнительных фото' %}{% endif %}"
+      data-owner-summary-gallery-one="{% if CURRENT_LANGUAGE == 'az' %}Galereyada 1 fayl{% elif CURRENT_LANGUAGE == 'en' %}1 gallery file{% else %}{% trans '1 файл в галерее' %}{% endif %}"
+      data-owner-summary-gallery-many-prefix="{% if CURRENT_LANGUAGE == 'az' %}Galereyada fayl sayı:{% elif CURRENT_LANGUAGE == 'en' %}Gallery files:{% else %}{% trans 'Файлов в галерее:' %}{% endif %}"
+      data-owner-summary-note-empty="{% if CURRENT_LANGUAGE == 'az' %}Şərh yoxdur{% elif CURRENT_LANGUAGE == 'en' %}No comment{% else %}{% trans 'Комментария нет' %}{% endif %}"
+      data-owner-summary-note-filled="{% if CURRENT_LANGUAGE == 'az' %}Şərh əlavə olunub{% elif CURRENT_LANGUAGE == 'en' %}Comment added{% else %}{% trans 'Комментарий добавлен' %}{% endif %}"
+      data-owner-unsaved-changes-message="{% if CURRENT_LANGUAGE == 'az' %}Yadda saxlanmamış dəyişikliklər var. Çıxsanız, dəyişikliklər saxlanmayacaq.{% elif CURRENT_LANGUAGE == 'en' %}You have unsaved changes. If you leave now, they will not be saved.{% else %}{% trans 'У вас есть несохранённые изменения. Действительно выйти? Если выйти сейчас, изменения не сохранятся.' %}{% endif %}"
+      data-step-label="{% if CURRENT_LANGUAGE == 'az' %}Addım{% elif CURRENT_LANGUAGE == 'en' %}Step{% else %}{% trans 'Шаг' %}{% endif %}"
+      data-of-label="{% if CURRENT_LANGUAGE == 'az' %}/{% elif CURRENT_LANGUAGE == 'en' %}/{% else %}{% trans 'из' %}{% endif %}"
+      data-owner-draft-key="owner-place-create"
+      data-owner-draft-restored-message="{% if CURRENT_LANGUAGE == 'az' %}Qaralama bərpa olundu. Daxil etdiyiniz məlumatlar bu brauzerdən qaytarıldı.{% elif CURRENT_LANGUAGE == 'en' %}Draft restored. Your saved form data was recovered in this browser.{% else %}Черновик восстановлен. Данные формы возвращены из этого браузера.{% endif %}"
+      data-owner-draft-saved-message="{% if CURRENT_LANGUAGE == 'az' %}Qaralama bu brauzerdə avtomatik saxlanılır.{% elif CURRENT_LANGUAGE == 'en' %}This draft is being auto-saved in this browser.{% else %}Черновик автоматически сохраняется в этом браузере.{% endif %}"
+      data-owner-draft-offline-message="{% if CURRENT_LANGUAGE == 'az' %}İnternet yoxdur. Daxil etdiyiniz məlumatlar bu brauzerdə saxlanacaq.{% elif CURRENT_LANGUAGE == 'en' %}You are offline. Your progress will stay saved in this browser.{% else %}Интернет недоступен. Заполненные данные сохраняются в этом браузере.{% endif %}"
+      data-owner-draft-online-message="{% if CURRENT_LANGUAGE == 'az' %}İnternet bərpa olundu. Qaralama saxlanmağa davam edir.{% elif CURRENT_LANGUAGE == 'en' %}Connection is back. Draft saving continues.{% else %}Интернет вернулся. Черновик продолжает сохраняться.{% endif %}"
+      data-owner-draft-files-message="{% if CURRENT_LANGUAGE == 'az' %}Şəkillər təhlükəsizlik səbəbi ilə bərpa olunmur, onları yenidən seçmək lazımdır.{% elif CURRENT_LANGUAGE == 'en' %}Images cannot be restored automatically for security reasons, so choose them again.{% else %}Файлы изображений браузер не восстанавливает автоматически, их нужно выбрать заново.{% endif %}"
     >
       {% csrf_token %}
       {% if form.non_field_errors %}
         <div class="auth-errors">{{ form.non_field_errors }}</div>
       {% endif %}
+      <div class="owner-wizard-draft-status" data-owner-draft-status hidden aria-live="polite"></div>
 
       {% include "pages/includes/owner_place_wizard.html" with wizard_mode="create" %}
     </form>

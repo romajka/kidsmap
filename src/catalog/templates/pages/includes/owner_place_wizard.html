@@ -1,60 +1,91 @@
 {% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
 <div class="owner-wizard-shell" data-owner-wizard-shell>
-  <div class="owner-wizard-head">
-    <div class="owner-form-intro">
-      <div class="owner-form-intro-copy">
-        <p class="owner-form-intro-title">{% trans "Основной язык карточки: AZ" %}</p>
-        <p class="meta">{% trans "Сначала заполните обязательную базу карточки. Переводы и детали можно добавить позже." %}</p>
-      </div>
-      {% include "pages/includes/owner_wizard_completion.html" %}
+  <section class="owner-listing-type" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Elan növü{% elif CURRENT_LANGUAGE == 'en' %}Listing type{% else %}Тип объявления{% endif %}">
+    <div class="owner-listing-type__field">
+      {{ form.is_temporary }}
+      {% if form.is_temporary.errors %}
+        <div class="auth-field-error">{{ form.is_temporary.errors }}</div>
+      {% endif %}
     </div>
+    <button
+      type="button"
+      class="owner-listing-type-card{% if not form.is_temporary.value %} is-active{% endif %}"
+      data-owner-listing-type="permanent"
+      aria-pressed="{% if form.is_temporary.value %}false{% else %}true{% endif %}"
+    >
+      <span class="owner-listing-type-card__icon owner-listing-type-card__icon--place" aria-hidden="true"></span>
+      <span class="owner-listing-type-card__copy">
+        <strong>{% if CURRENT_LANGUAGE == "az" %}Daimi məkan{% elif CURRENT_LANGUAGE == "en" %}Permanent place{% else %}Постоянное место{% endif %}</strong>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Klub, kurs, mərkəz və ya müntəzəm fəaliyyət göstərən məkan.{% elif CURRENT_LANGUAGE == "en" %}A club, course, center, or regular place.{% else %}Кружок, курс, центр или место, которое работает регулярно.{% endif %}</span>
+        <em>{% if CURRENT_LANGUAGE == "az" %}4 addım · daha ətraflı{% elif CURRENT_LANGUAGE == "en" %}4 steps · more detailed{% else %}4 шага · подробнее{% endif %}</em>
+      </span>
+    </button>
+    <button
+      type="button"
+      class="owner-listing-type-card{% if form.is_temporary.value %} is-active{% endif %}"
+      data-owner-listing-type="temporary"
+      aria-pressed="{% if form.is_temporary.value %}true{% else %}false{% endif %}"
+    >
+      <span class="owner-listing-type-card__icon owner-listing-type-card__icon--event" aria-hidden="true"></span>
+      <span class="owner-listing-type-card__copy">
+        <strong>{% if CURRENT_LANGUAGE == "az" %}Müvəqqəti tədbir{% elif CURRENT_LANGUAGE == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}</strong>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Ustad dərsi, açıq dərs, festival, seminar və tarixə bağlı aktivlik.{% elif CURRENT_LANGUAGE == "en" %}A workshop, open lesson, festival, seminar, or date-based activity.{% else %}Мастер-класс, открытый урок, фестиваль, семинар или событие с датой.{% endif %}</span>
+        <em>{% if CURRENT_LANGUAGE == "az" %}Daha qısa forma{% elif CURRENT_LANGUAGE == "en" %}Shorter form{% else %}Короче и быстрее{% endif %}</em>
+      </span>
+    </button>
+  </section>
+
+  <div class="owner-wizard-head">
     <div class="owner-wizard-progress">
-      <div class="owner-wizard-progress-top">
-        <strong data-owner-progress-current>{% trans "Шаг 1 из 4" %}</strong>
-        <span class="meta" data-owner-progress-title>{% trans "Основное" %}</span>
-      </div>
-      <div class="owner-wizard-progressbar" aria-hidden="true">
-        <span data-owner-progress-bar></span>
-      </div>
-      <div class="owner-wizard-steps" role="tablist" aria-label="{% trans 'Шаги формы' %}">
+      <p class="owner-form-intro-title visually-hidden">{% if CURRENT_LANGUAGE == "az" %}Kartın əsas dili: AZ{% elif CURRENT_LANGUAGE == "en" %}Main card language: AZ{% else %}{% trans "Основной язык карточки: AZ" %}{% endif %}</p>
+      <div class="owner-wizard-steps" role="tablist" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Form addımları{% elif CURRENT_LANGUAGE == 'en' %}Form steps{% else %}{% trans 'Шаги формы' %}{% endif %}">
         <button
           type="button"
           class="owner-wizard-step-tab is-active"
           data-owner-step-target="1"
-          data-owner-step-label="{% trans 'Основное' %}"
+          data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basics{% else %}{% trans 'Основное' %}{% endif %}"
         >
           <span class="owner-wizard-step-number" data-owner-step-indicator>1</span>
-          <span class="owner-wizard-step-text">{% trans "Основное" %}</span>
+          <span class="owner-wizard-step-text">{% if CURRENT_LANGUAGE == "az" %}Əsas{% elif CURRENT_LANGUAGE == "en" %}Basics{% else %}{% trans "Основное" %}{% endif %}</span>
         </button>
         <button
           type="button"
           class="owner-wizard-step-tab"
           data-owner-step-target="2"
-          data-owner-step-label="{% trans 'Контакты' %}"
+          data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Əlaqə{% elif CURRENT_LANGUAGE == 'en' %}Contact{% else %}{% trans 'Контакты' %}{% endif %}"
         >
           <span class="owner-wizard-step-number" data-owner-step-indicator>2</span>
-          <span class="owner-wizard-step-text">{% trans "Контакты" %}</span>
+          <span class="owner-wizard-step-text">{% if CURRENT_LANGUAGE == "az" %}Əlaqə{% elif CURRENT_LANGUAGE == "en" %}Contact{% else %}{% trans "Контакты" %}{% endif %}</span>
         </button>
         <button
           type="button"
           class="owner-wizard-step-tab"
           data-owner-step-target="3"
-          data-owner-step-label="{% trans 'Локация' %}"
+          data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Location{% else %}{% trans 'Локация' %}{% endif %}"
         >
           <span class="owner-wizard-step-number" data-owner-step-indicator>3</span>
-          <span class="owner-wizard-step-text">{% trans "Локация" %}</span>
+          <span class="owner-wizard-step-text">{% if CURRENT_LANGUAGE == "az" %}Məkan{% elif CURRENT_LANGUAGE == "en" %}Location{% else %}{% trans "Локация" %}{% endif %}</span>
         </button>
         <button
           type="button"
           class="owner-wizard-step-tab"
           data-owner-step-target="4"
-          data-owner-step-label="{% trans 'Фото' %}"
+          data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Şəkil{% elif CURRENT_LANGUAGE == 'en' %}Photo{% else %}{% trans 'Фото' %}{% endif %}"
         >
           <span class="owner-wizard-step-number" data-owner-step-indicator>4</span>
-          <span class="owner-wizard-step-text">{% trans "Фото" %}</span>
+          <span class="owner-wizard-step-text">{% if CURRENT_LANGUAGE == "az" %}Şəkil{% elif CURRENT_LANGUAGE == "en" %}Photo{% else %}{% trans "Фото" %}{% endif %}</span>
         </button>
       </div>
+      <div class="owner-wizard-progress-footer">
+        <div class="owner-wizard-progressbar" aria-hidden="true">
+          <span data-owner-progress-bar></span>
+        </div>
+        <strong data-owner-progress-current>{% if CURRENT_LANGUAGE == "az" %}Addım 1/4{% elif CURRENT_LANGUAGE == "en" %}Step 1/4{% else %}{% trans "Шаг 1 из 4" %}{% endif %}</strong>
+        <span class="visually-hidden" data-owner-progress-title>{% if CURRENT_LANGUAGE == "az" %}Əsas{% elif CURRENT_LANGUAGE == "en" %}Basics{% else %}{% trans "Основное" %}{% endif %}</span>
+      </div>
+      {% include "pages/includes/owner_wizard_completion.html" %}
     </div>
   </div>
 
@@ -62,30 +93,43 @@
     <section
       class="owner-wizard-step is-active"
       data-owner-step="1"
-      data-owner-step-title="{% trans 'Основное' %}"
+      data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basics{% else %}{% trans 'Основное' %}{% endif %}"
       data-owner-step-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to"
+      data-owner-step-permanent-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to"
+      data-owner-step-temporary-required-fields="name_az,category,description_az,temporary_start,temporary_end,price_from"
     >
       <section class="owner-form-section owner-form-section-primary">
         <div class="owner-form-section-head">
-          <h2>{% trans "Основное" %}</h2>
-          <p class="meta">{% trans "Покажите только базу карточки." %}</p>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Əsas{% elif CURRENT_LANGUAGE == "en" %}Basics{% else %}{% trans "Основное" %}{% endif %}</h2>
+          <p class="meta owner-form-step-lead">{% if CURRENT_LANGUAGE == "az" %}Ad, təsvir, kateqoriya, yaş və qiymət.{% elif CURRENT_LANGUAGE == "en" %}Name, description, category, age, and price.{% else %}{% trans "Покажите только базу карточки." %}{% endif %}</p>
         </div>
-        <p class="owner-form-step-lead">{% trans "Название, описание, категория, возраст и цена нужны для первого шага." %}</p>
         <div class="owner-form-grid owner-form-grid-tight">
           {% include "pages/includes/owner_form_field.html" with field=form.name_az %}
           {% include "pages/includes/owner_form_field.html" with field=form.category %}
           {% include "pages/includes/owner_form_field.html" with field=form.description_az full_width=True %}
-          {% include "pages/includes/owner_form_field.html" with field=form.age_from %}
-          {% include "pages/includes/owner_form_field.html" with field=form.age_to %}
           {% include "pages/includes/owner_form_field.html" with field=form.price_from %}
-          {% include "pages/includes/owner_form_field.html" with field=form.price_to %}
+          <div data-owner-mode-panel="permanent">
+            {% include "pages/includes/owner_form_field.html" with field=form.age_from %}
+          </div>
+          <div data-owner-mode-panel="permanent">
+            {% include "pages/includes/owner_form_field.html" with field=form.age_to %}
+          </div>
+          <div data-owner-mode-panel="permanent">
+            {% include "pages/includes/owner_form_field.html" with field=form.price_to %}
+          </div>
+          <div data-owner-mode-panel="temporary">
+            {% include "pages/includes/owner_form_field.html" with field=form.temporary_start temp_required=True %}
+          </div>
+          <div data-owner-mode-panel="temporary">
+            {% include "pages/includes/owner_form_field.html" with field=form.temporary_end temp_required=True %}
+          </div>
         </div>
       </section>
 
-      <details class="owner-form-details owner-form-details-secondary"{% if form.subcategory.value or form.subcategory.errors %} open{% endif %}>
-        <summary>{% trans "Подкатегория" %}</summary>
+      <details class="owner-form-details owner-form-details-secondary" data-owner-mode-panel="permanent"{% if form.subcategory.value or form.subcategory.errors %} open{% endif %}>
+        <summary>{% if CURRENT_LANGUAGE == "az" %}Alt kateqoriya{% elif CURRENT_LANGUAGE == "en" %}Subcategory{% else %}{% trans "Подкатегория" %}{% endif %}</summary>
         <div class="owner-form-details-grid">
-          <p class="meta owner-form-details-copy">{% trans "Можно уточнить формат занятий позже." %}</p>
+          <p class="meta owner-form-details-copy">{% if CURRENT_LANGUAGE == "az" %}Formatı sonra dəqiqləşdirmək olar.{% elif CURRENT_LANGUAGE == "en" %}You can refine the format later.{% else %}{% trans "Можно уточнить формат занятий позже." %}{% endif %}</p>
           <div class="owner-form-grid owner-form-grid-tight">
             {% include "pages/includes/owner_form_field.html" with field=form.subcategory %}
           </div>
@@ -94,16 +138,17 @@
 
       <details
         class="owner-form-details owner-form-details-secondary"
+        data-owner-mode-panel="permanent"
         data-owner-translation-details
         {% if form.name_ru.value or form.name_en.value or form.description_ru.value or form.description_en.value or form.name_ru.errors or form.name_en.errors or form.description_ru.errors or form.description_en.errors %} open{% endif %}
       >
-        <summary>{% trans "Дополнительные языки" %}</summary>
+        <summary>{% if CURRENT_LANGUAGE == "az" %}Əlavə dillər{% elif CURRENT_LANGUAGE == "en" %}Additional languages{% else %}{% trans "Дополнительные языки" %}{% endif %}</summary>
         <div class="owner-form-details-grid">
-          <p class="meta owner-form-details-copy">{% trans "AZ обязателен. RU и EN можно заполнить сейчас или вернуться к ним позже." %}</p>
+          <p class="meta owner-form-details-copy">{% if CURRENT_LANGUAGE == "az" %}AZ məcburidir. RU və EN sonra əlavə edilə bilər.{% elif CURRENT_LANGUAGE == "en" %}AZ is required. RU and EN can be added later.{% else %}{% trans "AZ обязателен. RU и EN можно заполнить сейчас или вернуться к ним позже." %}{% endif %}</p>
           <div class="owner-language-tabs" data-owner-lang-tabs>
-            <div class="owner-language-tablist" role="tablist" aria-label="{% trans 'Дополнительные языки' %}">
-              <button type="button" class="owner-language-tab is-active" data-owner-lang-tab="ru">{% trans "Русский" %}</button>
-              <button type="button" class="owner-language-tab" data-owner-lang-tab="en">{% trans "Английский" %}</button>
+            <div class="owner-language-tablist" role="tablist" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Əlavə dillər{% elif CURRENT_LANGUAGE == 'en' %}Additional languages{% else %}{% trans 'Дополнительные языки' %}{% endif %}">
+              <button type="button" class="owner-language-tab is-active" data-owner-lang-tab="ru">{% if CURRENT_LANGUAGE == "az" %}Rus dili{% elif CURRENT_LANGUAGE == "en" %}Russian{% else %}{% trans "Русский" %}{% endif %}</button>
+              <button type="button" class="owner-language-tab" data-owner-lang-tab="en">{% if CURRENT_LANGUAGE == "az" %}İngilis dili{% elif CURRENT_LANGUAGE == "en" %}English{% else %}{% trans "Английский" %}{% endif %}</button>
             </div>
             <div class="owner-language-panel is-active" data-owner-lang-panel="ru">
               <div class="owner-form-grid owner-form-grid-tight">
@@ -122,44 +167,51 @@
       </details>
 
       <div class="owner-wizard-actions">
-        <span class="meta">{% trans "Сначала закройте обязательный минимум." %}</span>
-        <button type="button" class="btn" data-owner-next>{% trans "Дальше" %}</button>
+        <span class="meta">{% if CURRENT_LANGUAGE == "az" %}Məcburi minimumu tamamlayın.{% elif CURRENT_LANGUAGE == "en" %}Complete the required minimum first.{% else %}{% trans "Сначала закройте обязательный минимум." %}{% endif %}</span>
+        <div class="owner-wizard-actions-group">
+          {% if wizard_mode == "create" or wizard_mode == "edit" %}
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+          {% endif %}
+          <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</button>
+        </div>
       </div>
     </section>
 
     <section
       class="owner-wizard-step"
       data-owner-step="2"
-      data-owner-step-title="{% trans 'Контакты' %}"
+      data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Əlaqə{% elif CURRENT_LANGUAGE == 'en' %}Contact{% else %}{% trans 'Контакты' %}{% endif %}"
       data-owner-step-required-fields="phone1"
+      data-owner-step-permanent-required-fields="phone1"
+      data-owner-step-temporary-required-fields="phone1"
       hidden
     >
       <section class="owner-form-section owner-form-section-primary">
         <div class="owner-form-section-head">
-          <h2>{% trans "Контакты" %}</h2>
-          <p class="meta">{% trans "Для отправки нужен только телефон." %}</p>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Əlaqə{% elif CURRENT_LANGUAGE == "en" %}Contact{% else %}{% trans "Контакты" %}{% endif %}</h2>
+          <p class="meta owner-form-step-lead">{% if CURRENT_LANGUAGE == "az" %}Göndərmək üçün telefon kifayətdir.{% elif CURRENT_LANGUAGE == "en" %}Phone is enough for submission.{% else %}{% trans "Для отправки нужен только телефон." %}{% endif %}</p>
         </div>
-        <p class="owner-form-step-lead">{% trans "Остальные контакты и подробности можно добавить по желанию." %}</p>
         <div class="owner-form-grid owner-form-grid-tight">
           {% include "pages/includes/owner_form_field.html" with field=form.phone1 %}
         </div>
       </section>
 
       <details class="owner-form-details owner-form-details-secondary"{% if form.instagram.value or form.website.value or form.instagram.errors or form.website.errors %} open{% endif %}>
-        <summary>{% trans "Онлайн-контакты" %}</summary>
+        <summary>{% if CURRENT_LANGUAGE == "az" %}Onlayn əlaqələr{% elif CURRENT_LANGUAGE == "en" %}Online contacts{% else %}{% trans "Онлайн-контакты" %}{% endif %}</summary>
         <div class="owner-form-details-grid">
           <div class="owner-form-grid owner-form-grid-tight">
             {% include "pages/includes/owner_form_field.html" with field=form.instagram %}
-            {% include "pages/includes/owner_form_field.html" with field=form.website full_width=True %}
+            {% include "pages/includes/owner_form_field.html" with field=form.website %}
           </div>
         </div>
       </details>
 
       <details
         class="owner-form-details owner-form-details-secondary"
+        data-owner-mode-panel="permanent"
         {% if form.schedule.value or form.lesson_duration_minutes.value or form.price_per_lesson.value or form.price_per_month.value or form.price_per_8_lessons.value or form.schedule.errors or form.lesson_duration_minutes.errors or form.price_per_lesson.errors or form.price_per_month.errors or form.price_per_8_lessons.errors %} open{% endif %}
       >
-        <summary>{% trans "Информация о занятиях" %}</summary>
+        <summary>{% if CURRENT_LANGUAGE == "az" %}Məşğələ məlumatları{% elif CURRENT_LANGUAGE == "en" %}Class details{% else %}{% trans "Информация о занятиях" %}{% endif %}</summary>
         <div class="owner-form-details-grid">
           <div class="owner-form-grid owner-form-grid-tight">
             {% include "pages/includes/owner_form_field.html" with field=form.schedule full_width=True %}
@@ -173,9 +225,10 @@
 
       <details
         class="owner-form-details owner-form-details-secondary"
+        data-owner-mode-panel="permanent"
         {% if form.extra_conditions.value or form.additional_info.value or form.extra_conditions.errors or form.additional_info.errors %} open{% endif %}
       >
-        <summary>{% trans "Дополнительно" %}</summary>
+        <summary>{% if CURRENT_LANGUAGE == "az" %}Əlavə{% elif CURRENT_LANGUAGE == "en" %}Additional{% else %}{% trans "Дополнительно" %}{% endif %}</summary>
         <div class="owner-form-details-grid">
           <div class="owner-form-grid owner-form-grid-tight">
             {% include "pages/includes/owner_form_field.html" with field=form.extra_conditions full_width=True %}
@@ -184,44 +237,34 @@
         </div>
       </details>
 
-      <details
-        class="owner-form-details owner-form-details-secondary"
-        {% if form.is_temporary.value or form.temporary_start.value or form.temporary_end.value or form.is_temporary.errors or form.temporary_start.errors or form.temporary_end.errors %} open{% endif %}
-      >
-        <summary>{% trans "Временное мероприятие" %}</summary>
-        <div class="owner-form-details-grid">
-          <div class="owner-form-grid owner-form-grid-tight">
-            {% include "pages/includes/owner_form_field.html" with field=form.is_temporary full_width=True %}
-          </div>
-          <div class="owner-temp-panel"{% if not form.is_temporary.value and not form.temporary_start.value and not form.temporary_end.value and not form.temporary_start.errors and not form.temporary_end.errors %} hidden{% endif %} data-temp-panel>
-            <div class="owner-form-grid owner-form-grid-tight">
-              {% include "pages/includes/owner_form_field.html" with field=form.temporary_start temp_required=True %}
-              {% include "pages/includes/owner_form_field.html" with field=form.temporary_end temp_required=True %}
-            </div>
-          </div>
-        </div>
-      </details>
-
       <div class="owner-wizard-actions">
-        <button type="button" class="link-btn" data-owner-prev>{% trans "Назад" %}</button>
-        <button type="button" class="btn" data-owner-next>{% trans "Дальше" %}</button>
+        <button type="button" class="link-btn" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</button>
+        <div class="owner-wizard-actions-group">
+          {% if wizard_mode == "create" or wizard_mode == "edit" %}
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+          {% endif %}
+          <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</button>
+        </div>
       </div>
     </section>
 
     <section
       class="owner-wizard-step"
       data-owner-step="3"
-      data-owner-step-title="{% trans 'Локация' %}"
+      data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Location{% else %}{% trans 'Локация' %}{% endif %}"
       data-owner-step-required-fields="address"
+      data-owner-step-permanent-required-fields="address"
+      data-owner-step-temporary-required-fields="address"
       data-owner-step-required-groups="district|metro"
+      data-owner-step-permanent-required-groups="district|metro"
+      data-owner-step-temporary-required-groups="district|metro"
       hidden
     >
       <section class="owner-form-section owner-form-section-primary">
         <div class="owner-form-section-head">
-          <h2>{% trans "Локация" %}</h2>
-          <p class="meta">{% trans "Сначала адресный минимум." %}</p>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Məkan{% elif CURRENT_LANGUAGE == "en" %}Location{% else %}{% trans "Локация" %}{% endif %}</h2>
+          <p class="meta owner-form-step-lead">{% if CURRENT_LANGUAGE == "az" %}Rayon, metro və ünvan.{% elif CURRENT_LANGUAGE == "en" %}District, metro, and address.{% else %}{% trans "Сначала адресный минимум." %}{% endif %}</p>
         </div>
-        <p class="owner-form-step-lead">{% trans "Укажите адрес и хотя бы район или метро. Карту можно использовать для уточнения точки." %}</p>
         <div class="owner-form-grid owner-form-grid-tight">
           {% include "pages/includes/owner_form_field.html" with field=form.district %}
           {% include "pages/includes/owner_form_field.html" with field=form.metro %}
@@ -229,35 +272,36 @@
         </div>
       </section>
 
-      <section class="owner-form-section owner-form-section-secondary owner-form-section-map">
-        <div class="owner-form-section-head">
-          <h3>{% trans "Уточнить точку" %}</h3>
-          <p class="meta">{% trans "Необязательный шаг." %}</p>
-        </div>
-        <p class="owner-form-step-lead">{% trans "Если нужно, найдите адрес на карте или поставьте точку вручную." %}</p>
+      <details class="owner-form-details owner-form-details-secondary owner-form-details-map"{% if form.lat.value or form.lng.value or form.lat.errors or form.lng.errors %} open{% endif %}>
+        <summary>{% if CURRENT_LANGUAGE == "az" %}Nöqtəni dəqiqləşdir{% elif CURRENT_LANGUAGE == "en" %}Refine map point{% else %}{% trans "Уточнить точку" %}{% endif %}</summary>
+        <div class="owner-form-details-grid">
         <div class="owner-form-field owner-form-field-full">
           {% include "pages/includes/owner_place_map_picker.html" with form=form %}
         </div>
-      </section>
+        </div>
+      </details>
 
       <div class="owner-wizard-actions">
-        <button type="button" class="link-btn" data-owner-prev>{% trans "Назад" %}</button>
+        <button type="button" class="link-btn" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</button>
         <div class="owner-wizard-actions-group">
+          {% if wizard_mode == "create" or wizard_mode == "edit" %}
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+          {% endif %}
           <button type="submit" name="form_action" value="{% if wizard_mode == 'edit' %}refresh_coordinates{% else %}check_coordinates{% endif %}" class="btn-secondary" data-loading-button>
             {% if wizard_mode == "edit" %}
-              {% trans "Сохранить и обновить координаты" %}
+              {% if CURRENT_LANGUAGE == "az" %}Saxla və koordinatları yenilə{% elif CURRENT_LANGUAGE == "en" %}Save and update coordinates{% else %}{% trans "Сохранить и обновить координаты" %}{% endif %}
             {% else %}
-              {% trans "Проверить координаты" %}
+              {% if CURRENT_LANGUAGE == "az" %}Koordinatları yoxla{% elif CURRENT_LANGUAGE == "en" %}Check coordinates{% else %}{% trans "Проверить координаты" %}{% endif %}
             {% endif %}
           </button>
-          <button type="button" class="btn" data-owner-next>{% trans "Дальше" %}</button>
+          <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</button>
         </div>
       </div>
       <p class="meta owner-wizard-note">
         {% if wizard_mode == "edit" %}
-          {% trans "Обновление координат сохранит текущие данные формы." %}
+          {% if CURRENT_LANGUAGE == "az" %}Koordinat yeniləməsi cari məlumatları saxlayır.{% elif CURRENT_LANGUAGE == "en" %}Updating coordinates saves the current form data.{% else %}{% trans "Обновление координат сохранит текущие данные формы." %}{% endif %}
         {% else %}
-          {% trans "Проверка координат не отправляет карточку на модерацию." %}
+          {% if CURRENT_LANGUAGE == "az" %}Koordinat yoxlaması məkanı moderasiyaya göndərmir.{% elif CURRENT_LANGUAGE == "en" %}Checking coordinates does not submit the place for moderation.{% else %}{% trans "Проверка координат не отправляет карточку на модерацию." %}{% endif %}
         {% endif %}
       </p>
     </section>
@@ -265,52 +309,53 @@
     <section
       class="owner-wizard-step"
       data-owner-step="4"
-      data-owner-step-title="{% trans 'Фото и отправка' %}"
+      data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Şəkil{% elif CURRENT_LANGUAGE == 'en' %}Photo{% else %}{% trans 'Фото и отправка' %}{% endif %}"
       data-owner-step-required-fields="photo"
+      data-owner-step-permanent-required-fields="photo"
+      data-owner-step-temporary-required-fields="photo"
       hidden
     >
       <section class="owner-form-section owner-form-section-primary">
         <div class="owner-form-section-head">
-          <h2>{% trans "Фото и отправка" %}</h2>
-          <p class="meta">{% trans "Главный шаг перед отправкой." %}</p>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Foto və göndərmə{% elif CURRENT_LANGUAGE == "en" %}Photo and submission{% else %}{% trans "Фото и отправка" %}{% endif %}</h2>
+          <p class="meta owner-form-step-lead">{% if CURRENT_LANGUAGE == "az" %}Əsas şəkil və yekun yoxlama.{% elif CURRENT_LANGUAGE == "en" %}Main photo and final check.{% else %}{% trans "Главный шаг перед отправкой." %}{% endif %}</p>
         </div>
-        <p class="owner-form-step-lead">{% trans "Добавьте главное фото. Остальные материалы можно приложить по желанию." %}</p>
         <div class="owner-form-grid owner-form-grid-tight">
           {% include "pages/includes/owner_form_field.html" with field=form.photo %}
           <div class="owner-wizard-final-card" data-owner-final-summary>
-            <p class="owner-wizard-final-title">{% trans "Перед отправкой" %}</p>
+            <p class="owner-wizard-final-title">{% if CURRENT_LANGUAGE == "az" %}Göndərmədən əvvəl{% elif CURRENT_LANGUAGE == "en" %}Before submitting{% else %}{% trans "Перед отправкой" %}{% endif %}</p>
             <p class="meta">
               {% if wizard_mode == "edit" %}
-                {% trans "Проверьте фото и сохраните карточку. После модерации изменения обновятся в каталоге." %}
+                {% if CURRENT_LANGUAGE == "az" %}Şəkli yoxlayın və dəyişiklikləri saxlayın.{% elif CURRENT_LANGUAGE == "en" %}Check the photo and save changes.{% else %}{% trans "Проверьте фото и сохраните карточку. После модерации изменения обновятся в каталоге." %}{% endif %}
               {% else %}
-                {% trans "Проверьте фото и отправьте карточку на модерацию." %}
+                {% if CURRENT_LANGUAGE == "az" %}Şəkli yoxlayın və məkanı moderasiyaya göndərin.{% elif CURRENT_LANGUAGE == "en" %}Check the photo and submit the place for review.{% else %}{% trans "Проверьте фото и отправьте карточку на модерацию." %}{% endif %}
               {% endif %}
             </p>
             <div class="owner-wizard-final-summary">
               <div class="owner-wizard-final-item">
-                <span class="owner-wizard-final-label">{% trans "Главное фото" %}</span>
+                <span class="owner-wizard-final-label">{% if CURRENT_LANGUAGE == "az" %}Əsas şəkil{% elif CURRENT_LANGUAGE == "en" %}Main photo{% else %}{% trans "Главное фото" %}{% endif %}</span>
                 <strong class="owner-wizard-final-value" data-owner-summary-photo>
                   {% if form.photo.value %}
-                    {% trans "Файл уже добавлен" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Fayl əlavə olunub{% elif CURRENT_LANGUAGE == "en" %}File is already added{% else %}{% trans "Файл уже добавлен" %}{% endif %}
                   {% else %}
-                    {% trans "Фото ещё не выбрано" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Əsas şəkil seçilməyib{% elif CURRENT_LANGUAGE == "en" %}Main photo is not selected{% else %}{% trans "Фото ещё не выбрано" %}{% endif %}
                   {% endif %}
                 </strong>
               </div>
               {% if wizard_mode == "create" %}
                 <div class="owner-wizard-final-item">
-                  <span class="owner-wizard-final-label">{% trans "Галерея" %}</span>
+                  <span class="owner-wizard-final-label">{% if CURRENT_LANGUAGE == "az" %}Galereya{% elif CURRENT_LANGUAGE == "en" %}Gallery{% else %}{% trans "Галерея" %}{% endif %}</span>
                   <strong class="owner-wizard-final-value" data-owner-summary-gallery>
-                    {% trans "Пока без дополнительных фото" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Galereya boşdur{% elif CURRENT_LANGUAGE == "en" %}Gallery is empty{% else %}{% trans "Пока без дополнительных фото" %}{% endif %}
                   </strong>
                 </div>
                 <div class="owner-wizard-final-item">
-                  <span class="owner-wizard-final-label">{% trans "Комментарий модератору" %}</span>
+                  <span class="owner-wizard-final-label">{% if CURRENT_LANGUAGE == "az" %}Moderasiya üçün şərh{% elif CURRENT_LANGUAGE == "en" %}Moderation comment{% else %}{% trans "Комментарий модератору" %}{% endif %}</span>
                   <strong class="owner-wizard-final-value" data-owner-summary-note>
                     {% if form.moderation_note.value %}
-                      {% trans "Комментарий добавлен" %}
+                      {% if CURRENT_LANGUAGE == "az" %}Şərh əlavə olunub{% elif CURRENT_LANGUAGE == "en" %}Comment added{% else %}{% trans "Комментарий добавлен" %}{% endif %}
                     {% else %}
-                      {% trans "Комментария нет" %}
+                      {% if CURRENT_LANGUAGE == "az" %}Şərh yoxdur{% elif CURRENT_LANGUAGE == "en" %}No comment{% else %}{% trans "Комментария нет" %}{% endif %}
                     {% endif %}
                   </strong>
                 </div>
@@ -322,7 +367,7 @@
 
       {% if wizard_mode == "create" %}
         <details class="owner-form-details owner-form-details-secondary"{% if form.gallery_images.errors %} open{% endif %}>
-          <summary>{% trans "Галерея" %}</summary>
+          <summary>{% if CURRENT_LANGUAGE == "az" %}Galereya{% elif CURRENT_LANGUAGE == "en" %}Gallery{% else %}{% trans "Галерея" %}{% endif %}</summary>
           <div class="owner-form-details-grid">
             <div class="owner-form-grid owner-form-grid-tight">
               {% include "pages/includes/owner_form_field.html" with field=form.gallery_images full_width=True %}
@@ -331,7 +376,7 @@
         </details>
 
         <details class="owner-form-details owner-form-details-secondary"{% if form.moderation_note.value or form.moderation_note.errors %} open{% endif %}>
-          <summary>{% trans "Комментарий для модерации" %}</summary>
+          <summary>{% if CURRENT_LANGUAGE == "az" %}Moderasiya üçün şərh{% elif CURRENT_LANGUAGE == "en" %}Moderation comment{% else %}{% trans "Комментарий для модерации" %}{% endif %}</summary>
           <div class="owner-form-details-grid">
             <div class="owner-form-grid owner-form-grid-tight">
               {% include "pages/includes/owner_form_field.html" with field=form.moderation_note full_width=True %}
@@ -341,18 +386,19 @@
       {% endif %}
 
       <div class="owner-wizard-actions owner-wizard-actions-final">
-        <button type="button" class="link-btn" data-owner-prev>{% trans "Назад" %}</button>
+        <button type="button" class="link-btn" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</button>
         <div class="owner-wizard-actions-group">
           {% if wizard_mode == "edit" %}
             {% if place.is_active and not place.is_deleted %}
-              <a class="link-btn" href="{{ place.get_absolute_url }}">{% trans "Открыть страницу кружка" %}</a>
+              <a class="link-btn" href="{{ place.get_absolute_url }}">{% if CURRENT_LANGUAGE == "az" %}Məkan səhifəsini aç{% elif CURRENT_LANGUAGE == "en" %}Open place page{% else %}{% trans "Открыть страницу кружка" %}{% endif %}</a>
             {% else %}
-              <span class="owner-place-actions-note">{% trans "Публичная страница появится после публикации карточки." %}</span>
+              <span class="owner-place-actions-note">{% if CURRENT_LANGUAGE == "az" %}Səhifə moderasiyadan sonra görünəcək.{% elif CURRENT_LANGUAGE == "en" %}The public page appears after moderation.{% else %}{% trans "Публичная страница появится после публикации карточки." %}{% endif %}</span>
             {% endif %}
-            <button type="submit" class="btn" data-loading-button>{% trans "Сохранить изменения" %}</button>
+            <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Dəyişiklikləri saxla{% elif CURRENT_LANGUAGE == "en" %}Save changes{% else %}{% trans "Сохранить изменения" %}{% endif %}</button>
           {% else %}
-            <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К заявкам" %}</a>
-            <button type="submit" class="btn" data-loading-button>{% trans "Создать и отправить на проверку" %}</button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+            <a class="link-btn" href="{% url 'owner_cabinet' %}">{% if CURRENT_LANGUAGE == "az" %}Müraciətlərə{% elif CURRENT_LANGUAGE == "en" %}Requests{% else %}{% trans "К заявкам" %}{% endif %}</a>
+            <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Yarat və yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Create and send for review{% else %}{% trans "Создать и отправить на проверку" %}{% endif %}</button>
           {% endif %}
         </div>
       </div>
@@ -360,7 +406,7 @@
       {% if wizard_mode == "edit" %}
         <div class="owner-place-actions owner-place-actions-draft">
           <div class="owner-place-actions-secondary owner-place-actions-secondary-draft">
-            <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% trans "Назад к карточкам" %}</a>
+            <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Məkanlara qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to places{% else %}{% trans "Назад к карточкам" %}{% endif %}</a>
           </div>
           <div class="owner-place-actions-danger">
             <button
@@ -368,7 +414,7 @@
               form="owner-place-delete-form"
               class="btn-secondary btn-danger owner-place-btn owner-place-btn-danger"
               onclick="return confirm('{{ delete_place_confirm_text|escapejs }}');"
-            >{% trans "Удалить карточку" %}</button>
+            >{% if CURRENT_LANGUAGE == "az" %}Məkanı sil{% elif CURRENT_LANGUAGE == "en" %}Delete place{% else %}{% trans "Удалить карточку" %}{% endif %}</button>
           </div>
         </div>
       {% endif %}

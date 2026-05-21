@@ -1,49 +1,190 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% trans "Избранные кружки" %}{% endblock %}
-{% block title_plain %}{% trans "Избранные кружки" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Избранные кружки" %} | KidsMap{% endblock %}
+{% block title %}
+  {% if CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %}
+{% endblock %}
+{% block title_plain %}
+  {% if CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %} | KidsMap
+{% endblock %}
+{% block title_plain_twitter %}
+  {% if CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite Places{% else %}Избранные места{% endif %} | KidsMap
+{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}" />
+{% endblock %}
+
 {% block content %}
-  <section class="panel auth-panel profile-panel">
-    <h1>{% trans "Избранные кружки" %}</h1>
-    <p class="auth-subtitle">{% trans "Список карточек, которые вы сохранили через кнопку с сердцем." %}</p>
-
-    <nav class="account-section-nav" aria-label="{% trans 'Разделы кабинета' %}">
-      <a class="chip-link" href="{% url 'account_dashboard' %}">{% trans "Обзор" %}</a>
-      <a class="chip-link" href="{% url 'account_profile' %}">{% trans "Профиль" %}</a>
-      <a class="chip-link active" href="{% url 'account_favorites' %}">{% trans "Избранное" %}</a>
-      <a class="chip-link" href="{% url 'account_settings' %}">{% trans "Настройки" %}</a>
-    </nav>
-
-    {% if favorite_places %}
-      <p class="meta">{% blocktrans count total=favorites_count %}Сохранен {{ total }} кружок.{% plural %}Сохранено {{ total }} кружков.{% endblocktrans %}</p>
-      <ul class="account-favorites-grid">
-        {% for place in favorite_places %}
-          <li class="profile-form-card">
-            <h2><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h2>
-            <p class="meta">
-              {{ place.get_category_display }}
-              {% if place.district %} · {% trans place.district %}{% endif %}
+  <section class="panel auth-panel profile-panel account-dashboard">
+    <header class="account-dashboard__hero">
+      <div class="account-dashboard__hero-surface">
+        <img src="{% static 'img/banners/owner-dashboard-hero.webp' %}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+        <div class="account-dashboard__hero-copy">
+          <div class="account-dashboard__hero-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.5 5.75h9a1.75 1.75 0 0 1 1.75 1.75v10.75l-6.25-3.2-6.25 3.2V7.5A1.75 1.75 0 0 1 7.5 5.75Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1>{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</h1>
+            <p class="auth-subtitle">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Ürək işarəsi ilə saxladığınız kartlar burada toplanır.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                The cards you saved with the heart button are collected here.
+              {% else %}
+                Здесь собраны карточки, которые вы сохранили через кнопку с сердцем.
+              {% endif %}
             </p>
-            <form method="post" action="{% url 'toggle_place_like' place.id %}" class="auth-form">
-              {% csrf_token %}
-              <input type="hidden" name="next" value="{% url 'account_favorites' %}" />
-              <button type="submit" class="link-btn">{% trans "Убрать из избранного" %}</button>
-            </form>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <div class="review-auth-note">
-        <p>{% trans "У вас пока нет избранных кружков." %}</p>
-        <div class="review-auth-actions">
-          <a class="btn" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
-          <a class="link-btn" href="{% url 'account_dashboard' %}">{% trans "Вернуться в кабинет" %}</a>
+          </div>
         </div>
       </div>
-    {% endif %}
+    </header>
+
+    <div class="account-dashboard__tabs-row">
+      <nav class="account-dashboard__tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Kabinet bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Cabinet sections{% else %}Разделы кабинета{% endif %}">
+        <a class="account-dashboard__tab" href="{% url 'account_dashboard' %}">
+          {% if CURRENT_LANGUAGE == "az" %}İcmal{% elif CURRENT_LANGUAGE == "en" %}Overview{% else %}Обзор{% endif %}
+        </a>
+        <a class="account-dashboard__tab" href="{% url 'account_profile' %}">
+          {% if CURRENT_LANGUAGE == "az" %}Profil{% elif CURRENT_LANGUAGE == "en" %}Profile{% else %}Профиль{% endif %}
+        </a>
+        <a class="account-dashboard__tab is-active" href="{% url 'account_favorites' %}">
+          <span>{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
+          <span class="account-dashboard__tab-count">{{ favorites_count }}</span>
+        </a>
+        <a class="account-dashboard__tab" href="{% url 'owner_places_dashboard' %}">
+          <span>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+          <span class="account-dashboard__tab-count">{{ managed_places_count }}</span>
+        </a>
+      </nav>
+      <div class="account-dashboard__tabs-actions">
+        <a class="btn account-dashboard__tabs-add" href="{% url 'place_list' %}">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 7.5h16M4 12h16M4 16.5h16" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+          </svg>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Kataloqu aç{% elif CURRENT_LANGUAGE == "en" %}Open catalog{% else %}Открыть каталог{% endif %}</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="account-dashboard__grid">
+      <section class="account-card account-card--summary">
+        <div class="account-card__head account-card__head--inline">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Saxlanmış kartlar{% elif CURRENT_LANGUAGE == "en" %}Saved cards{% else %}Сохранённые карточки{% endif %}</h2>
+          <a class="account-card__action" href="{% url 'account_dashboard' %}">
+            <span>{% if CURRENT_LANGUAGE == "az" %}Kabinetə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to cabinet{% else %}Вернуться в кабинет{% endif %}</span>
+          </a>
+        </div>
+
+        {% if favorite_places %}
+          <div class="account-stack">
+            {% for place in favorite_places %}
+              <article class="account-place-card account-place-card--favorite">
+                <div class="account-place-card__layout">
+                  <div class="account-place-card__media card-media">
+                    <a class="account-place-card__media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
+                      {% if place.photo %}
+                        <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                      {% elif place.cover_photo %}
+                        <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                      {% else %}
+                        <div class="account-place-card__placeholder">
+                          <span aria-hidden="true">⌂</span>
+                        </div>
+                      {% endif %}
+                    </a>
+                  </div>
+                  <div class="account-place-card__content">
+                    <div class="account-place-card__head">
+                      <div>
+                        <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                        <p class="account-place-card__meta">
+                          {{ place.get_category_display }}
+                          {% if place.district %} · {% trans place.district %}{% endif %}
+                          {% if place.metro %} · {{ place.metro }}{% endif %}
+                        </p>
+                      </div>
+                      <span class="account-mini-chip">
+                        {% if place.price_monthly %}{{ place.price_monthly }} AZN{% else %}♥ {{ place.likes_count }}{% endif %}
+                      </span>
+                    </div>
+
+                    <div class="account-place-card__stats">
+                      <span>★ {{ place.rating_avg|floatformat:1 }}</span>
+                      <span>
+                        {{ place.rating_count }}
+                        {% if CURRENT_LANGUAGE == "az" %}rəy{% elif CURRENT_LANGUAGE == "en" %}reviews{% else %}отзывов{% endif %}
+                      </span>
+                      <span>♥ {{ place.likes_count }}</span>
+                    </div>
+
+                    <div class="account-place-card__actions">
+                      <a class="btn-secondary" href="{{ place.get_absolute_url }}">
+                        {% if CURRENT_LANGUAGE == "az" %}Karta keç{% elif CURRENT_LANGUAGE == "en" %}Open place{% else %}Открыть карточку{% endif %}
+                      </a>
+                      <form method="post" action="{% url 'toggle_place_like' place.id %}" class="auth-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'account_favorites' %}" />
+                        <button type="submit" class="link-btn account-inline-link">
+                          {% if CURRENT_LANGUAGE == "az" %}Seçilmişlərdən sil{% elif CURRENT_LANGUAGE == "en" %}Remove from favorites{% else %}Убрать из избранного{% endif %}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="account-empty-state">
+            <p>{% if CURRENT_LANGUAGE == "az" %}Hələ seçilmiş məkan yoxdur. Kataloqda bəyəndiyiniz kartlara ürək işarəsi əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}You do not have favorites yet. Add a heart to the cards you like in the catalog.{% else %}Пока нет избранных мест. Добавьте сердечко понравившимся карточкам в каталоге.{% endif %}</p>
+            <div class="account-empty-state__actions">
+              <a class="btn" href="{% url 'place_list' %}">{% if CURRENT_LANGUAGE == "az" %}Kataloqa keç{% elif CURRENT_LANGUAGE == "en" %}Go to catalog{% else %}Перейти в каталог{% endif %}</a>
+              <a class="link-btn" href="{% url 'account_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Kabinetə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to cabinet{% else %}Вернуться в кабинет{% endif %}</a>
+            </div>
+          </div>
+        {% endif %}
+      </section>
+
+      <aside class="account-card account-card--quick">
+        <div class="account-card__head">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Qısa məlumat{% elif CURRENT_LANGUAGE == "en" %}At a glance{% else %}Кратко{% endif %}</h2>
+        </div>
+        <div class="account-overview">
+          <article class="account-overview__item">
+            <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
+            <strong class="account-overview__value">{{ favorites_count }}</strong>
+          </article>
+          <article class="account-overview__item">
+            <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}Baxış tarixçəsi{% elif CURRENT_LANGUAGE == "en" %}Viewed cards{% else %}Просмотры{% endif %}</span>
+            <strong class="account-overview__value">{{ history_count }}</strong>
+          </article>
+          <article class="account-overview__item">
+            <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+            <strong class="account-overview__value">{{ managed_places_count }}</strong>
+          </article>
+        </div>
+
+        <div class="account-quick-links">
+          <a class="account-quick-link" href="{% url 'account_profile' %}">
+            <span class="account-quick-link__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 1 1 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="account-quick-link__label">{% if CURRENT_LANGUAGE == "az" %}Profili aç{% elif CURRENT_LANGUAGE == "en" %}Open profile{% else %}Открыть профиль{% endif %}</span>
+          </a>
+          <a class="account-quick-link" href="{% url 'owner_places_dashboard' %}">
+            <span class="account-quick-link__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.75 7.75h14.5v8.5H4.75v-8.5Zm4-3h6.5v3h-6.5v-3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="account-quick-link__label">{% if CURRENT_LANGUAGE == "az" %}Məkanları idarə et{% elif CURRENT_LANGUAGE == "en" %}Manage places{% else %}Управлять местами{% endif %}</span>
+            <span class="account-quick-link__count">{{ managed_places_count }}</span>
+          </a>
+        </div>
+      </aside>
+    </div>
   </section>
 {% endblock %}

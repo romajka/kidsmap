@@ -22,6 +22,7 @@ class PlaceListFilters:
     days: str = "30"
     with_photo: str = ""
     verified_only: str = ""
+    event_type: str = ""
     view_mode: str = "grid"
     force_new_only: bool = False
 
@@ -43,9 +44,12 @@ class PlaceListFilters:
             days=(request.GET.get("days") or "30").strip(),
             with_photo=(request.GET.get("with_photo") or "").strip(),
             verified_only=(request.GET.get("verified") or "").strip(),
+            event_type=(request.GET.get("event_type") or "").strip(),
             view_mode="grid",
             force_new_only=force_new_only,
         )
+        if data.event_type not in {"temporary", "permanent"}:
+            data.event_type = ""
         if data.force_new_only:
             data.sort = "new"
             if data.days not in {"7", "14", "30"}:
@@ -118,6 +122,13 @@ class PlaceListFilters:
                 min_rating_value = max(0, min(5, min_rating_value))
                 qs = qs.filter(rating_avg__gte=min_rating_value)
 
+        if not self.force_new_only:
+            if self.event_type == "temporary":
+                now = timezone.now()
+                qs = qs.filter(is_temporary=True).filter(Q(temporary_end__isnull=True) | Q(temporary_end__gte=now))
+            elif self.event_type == "permanent":
+                qs = qs.filter(is_temporary=False)
+
         if self.force_new_only:
             if self.with_photo == "1":
                 qs = qs.exclude(
@@ -169,6 +180,7 @@ class PlaceListFilters:
             "days": self.days,
             "with_photo": self.with_photo,
             "verified": self.verified_only,
+            "event_type": self.event_type,
             "view": self.view_mode,
         }
 

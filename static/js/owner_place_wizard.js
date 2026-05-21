@@ -14,8 +14,48 @@
   const completeLabel = form.dataset.ownerStepCompleteLabel || "✓";
   const neutralLabel = form.dataset.ownerStepNeutralLabel || "";
   const unsavedChangesMessage = form.dataset.ownerUnsavedChangesMessage || "You have unsaved changes.";
+  const draftKey = form.dataset.ownerDraftKey || "";
+  const draftStatus = form.querySelector("[data-owner-draft-status]");
+  const draftRestoredMessage = form.dataset.ownerDraftRestoredMessage || "";
+  const draftSavedMessage = form.dataset.ownerDraftSavedMessage || "";
+  const draftOfflineMessage = form.dataset.ownerDraftOfflineMessage || "";
+  const draftOnlineMessage = form.dataset.ownerDraftOnlineMessage || "";
+  const draftFilesMessage = form.dataset.ownerDraftFilesMessage || "";
+  const hasServerErrors = !!form.querySelector(".auth-field-error, .auth-errors");
   let currentStep = 1;
   let allowNavigation = false;
+  let draftSaveTimer = null;
+  let isRestoringDraft = false;
+  let restoredStep = null;
+
+  function currentListingMode() {
+    const temporaryCheckbox = form.querySelector('[name="is_temporary"]');
+    return temporaryCheckbox && temporaryCheckbox.checked ? "temporary" : "permanent";
+  }
+
+  function getDraftStorage() {
+    if (!draftKey || typeof window === "undefined" || !window.localStorage) return null;
+    try {
+      const probeKey = "__owner_wizard_draft_probe__";
+      window.localStorage.setItem(probeKey, "1");
+      window.localStorage.removeItem(probeKey);
+      return window.localStorage;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  const draftStorage = getDraftStorage();
+
+  function showDraftStatus(message, mode) {
+    if (!draftStatus || !message) return;
+    draftStatus.textContent = message;
+    draftStatus.hidden = false;
+    draftStatus.classList.remove("is-restored", "is-saved", "is-offline");
+    if (mode) {
+      draftStatus.classList.add("is-" + mode);
+    }
+  }
 
   function serializeField(field) {
     if (!field || !field.name || field.disabled) return "";
@@ -45,6 +85,145 @@
 
   function hasUnsavedChanges() {
     return captureFormSnapshot() !== initialSnapshot;
+  }
+
+  function escapeSelectorValue(value) {
+    if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
+      return CSS.escape(String(value));
+    }
+    return String(value).replace(/["\\]/g, "\\$&");
+  }
+
+  function listRestorableFields() {
+    return Array.from(form.elements || []).filter(function (field) {
+      return !!field.name
+        && field.name !== "csrfmiddlewaretoken"
+        && !field.disabled
+        && field.type !== "file"
+        && field.type !== "submit"
+        && field.type !== "button"
+        && field.type !== "reset";
+    });
+  }
+
+  function collectDraftState() {
+    const detailsState = Array.from(form.querySelectorAll("details.owner-form-details")).map(function (details) {
+      return !!details.open;
+    });
+    const fields = {};
+
+    listRestorableFields().forEach(function (field) {
+      if (field.type === "checkbox") {
+        fields[field.name] = !!field.checked;
+        return;
+      }
+      if (field.type === "radio") {
+        if (field.checked) {
+          fields[field.name] = field.value;
+        }
+        return;
+      }
+      fields[field.name] = field.value;
+    });
+
+    return {
+      version: 1,
+      step: currentStep,
+      fields: fields,
+      detailsOpen: detailsState,
+      hasPendingFiles: Array.from(form.querySelectorAll('input[type="file"]')).some(function (field) {
+        return !!(field.files && field.files.length);
+      }),
+      savedAt: Date.now(),
+    };
+  }
+
+  function clearDraftStatus() {
+    if (!draftStatus) return;
+    draftStatus.hidden = true;
+    draftStatus.textContent = "";
+    draftStatus.classList.remove("is-restored", "is-saved", "is-offline");
+  }
+
+  function saveDraftNow() {
+    if (!draftStorage || isRestoringDraft) return;
+    try {
+      if (!hasUnsavedChanges()) {
+        draftStorage.removeItem(draftKey);
+        clearDraftStatus();
+        return;
+      }
+      draftStorage.setItem(draftKey, JSON.stringify(collectDraftState()));
+      if (navigator.onLine) {
+        showDraftStatus(draftSavedMessage, "saved");
+      }
+    } catch (error) {
+      // Ignore storage quota or privacy-mode failures and keep the form usable.
+    }
+  }
+
+  function scheduleDraftSave() {
+    if (!draftStorage || isRestoringDraft) return;
+    window.clearTimeout(draftSaveTimer);
+    draftSaveTimer = window.setTimeout(saveDraftNow, 250);
+  }
+
+  function restoreDraftState() {
+    if (!draftStorage || hasServerErrors) return;
+    let rawState = null;
+    try {
+      rawState = draftStorage.getItem(draftKey);
+    } catch (error) {
+      return;
+    }
+    if (!rawState) return;
+
+    let state = null;
+    try {
+      state = JSON.parse(rawState);
+    } catch (error) {
+      draftStorage.removeItem(draftKey);
+      return;
+    }
+    if (!state || !state.fields || typeof state.fields !== "object") return;
+
+    isRestoringDraft = true;
+    Object.keys(state.fields).forEach(function (name) {
+      const field = getField(name);
+      if (!field || field.disabled) return;
+      if (field.type === "checkbox") {
+        field.checked = !!state.fields[name];
+        return;
+      }
+      if (field.type === "radio") {
+        const radio = form.querySelector('[name="' + name + '"][value="' + escapeSelectorValue(state.fields[name]) + '"]');
+        if (radio) radio.checked = true;
+        return;
+      }
+      field.value = state.fields[name];
+    });
+
+    syncListingMode();
+    syncTemporaryRequiredState();
+    syncOptionalDetailsState();
+    syncLanguagePanels();
+
+    if (Array.isArray(state.detailsOpen)) {
+      Array.from(form.querySelectorAll("details.owner-form-details")).forEach(function (details, index) {
+        details.open = !!state.detailsOpen[index] || details.open;
+      });
+    }
+
+    updateCompletion();
+    updateFinalSummary();
+    restoredStep = Number(state.step || 1);
+    updateWizard(restoredStep);
+    isRestoringDraft = false;
+
+    const restoredMessage = state.hasPendingFiles
+      ? [draftRestoredMessage, draftFilesMessage].filter(Boolean).join(" ")
+      : draftRestoredMessage;
+    showDraftStatus(restoredMessage, "restored");
   }
 
   function hasFieldValue(field) {
@@ -153,17 +332,63 @@
     return { total: total, filled: filled, missing: missing };
   }
 
-  function buildTip(prefix, missing, fallbackText) {
+  function buildTip(prefix, suffix, missing, fallbackText) {
     if (!missing.length) return fallbackText;
-    return prefix + " " + missing[0] + ".";
+    return [prefix, missing[0], suffix].filter(Boolean).join(" ").replace(/\s+\./g, ".").trim();
   }
 
   function syncOptionalDetailsState(scope) {
     const root = scope || form;
     root.querySelectorAll("details.owner-form-details").forEach(function (details) {
+      if (details.hidden) return;
       const hasErrors = !!details.querySelector(".auth-field-error, .auth-errors");
       const hasValues = Array.from(details.querySelectorAll("input, select, textarea")).some(hasFieldValue);
       details.open = hasErrors || hasValues || details.hasAttribute("data-owner-force-open");
+    });
+  }
+
+  function syncListingMode() {
+    const mode = currentListingMode();
+    form.dataset.ownerMode = mode;
+
+    if (form.dataset.ownerPermanentRequiredFields || form.dataset.ownerTemporaryRequiredFields) {
+      form.dataset.ownerRequiredFields = mode === "temporary"
+        ? (form.dataset.ownerTemporaryRequiredFields || form.dataset.ownerRequiredFields || "")
+        : (form.dataset.ownerPermanentRequiredFields || form.dataset.ownerRequiredFields || "");
+    }
+    if (form.dataset.ownerPermanentRequiredGroups || form.dataset.ownerTemporaryRequiredGroups) {
+      form.dataset.ownerRequiredGroups = mode === "temporary"
+        ? (form.dataset.ownerTemporaryRequiredGroups || form.dataset.ownerRequiredGroups || "")
+        : (form.dataset.ownerPermanentRequiredGroups || form.dataset.ownerRequiredGroups || "");
+    }
+
+    steps.forEach(function (step) {
+      const fieldKey = mode === "temporary" ? "ownerStepTemporaryRequiredFields" : "ownerStepPermanentRequiredFields";
+      const groupKey = mode === "temporary" ? "ownerStepTemporaryRequiredGroups" : "ownerStepPermanentRequiredGroups";
+      if (step.dataset[fieldKey] !== undefined) {
+        step.dataset.ownerStepRequiredFields = step.dataset[fieldKey] || "";
+      }
+      if (step.dataset[groupKey] !== undefined) {
+        step.dataset.ownerStepRequiredGroups = step.dataset[groupKey] || "";
+      }
+    });
+
+    form.querySelectorAll("[data-owner-listing-type]").forEach(function (card) {
+      const active = card.dataset.ownerListingType === mode;
+      card.classList.toggle("is-active", active);
+      card.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+
+    form.querySelectorAll("[data-owner-mode-panel]").forEach(function (panel) {
+      const visible = panel.dataset.ownerModePanel === mode;
+      panel.hidden = !visible;
+      panel.querySelectorAll("input, select, textarea, button").forEach(function (field) {
+        if (field.name === "is_temporary") return;
+        field.disabled = !visible;
+      });
+      if (!visible && panel.tagName === "DETAILS") {
+        panel.open = false;
+      }
     });
   }
 
@@ -177,7 +402,7 @@
 
     const isTemporary = !!temporaryCheckbox.checked;
     [startInput, endInput].forEach(function (field) {
-      field.required = isTemporary;
+      field.required = isTemporary && !field.disabled;
       field.setAttribute("aria-required", isTemporary ? "true" : "false");
     });
     marks.forEach(function (mark) {
@@ -251,6 +476,7 @@
     if (requiredTip) {
       requiredTip.textContent = buildTip(
         form.dataset.ownerRequiredTipPrefix || "",
+        form.dataset.ownerRequiredTipSuffix || "",
         requiredMissing,
         form.dataset.ownerRequiredDoneText || ""
       );
@@ -262,6 +488,7 @@
     if (overallTip) {
       overallTip.textContent = buildTip(
         form.dataset.ownerOverallTipPrefix || "",
+        form.dataset.ownerOverallTipSuffix || "",
         overallMissing,
         form.dataset.ownerOverallDoneText || ""
       );
@@ -387,7 +614,9 @@
     });
 
     if (progressCurrent) {
-      progressCurrent.textContent = stepLabel + " " + currentStep + " " + ofLabel + " " + steps.length;
+      progressCurrent.textContent = ofLabel === "/"
+        ? stepLabel + " " + currentStep + "/" + steps.length
+        : stepLabel + " " + currentStep + " " + ofLabel + " " + steps.length;
     }
     if (progressTitle) {
       progressTitle.textContent = steps[currentStep - 1].dataset.ownerStepTitle || "";
@@ -525,9 +754,31 @@
   }
 
   window.addEventListener("beforeunload", function (event) {
+    saveDraftNow();
     if (allowNavigation || !hasUnsavedChanges()) return;
     event.preventDefault();
     event.returnValue = unsavedChangesMessage;
+  });
+
+  window.addEventListener("offline", function () {
+    saveDraftNow();
+    showDraftStatus(draftOfflineMessage, "offline");
+  });
+
+  window.addEventListener("online", function () {
+    if (hasUnsavedChanges()) {
+      showDraftStatus(draftOnlineMessage, "saved");
+    }
+  });
+
+  window.addEventListener("pagehide", function () {
+    saveDraftNow();
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
+      saveDraftNow();
+    }
   });
 
   document.addEventListener("click", function (event) {
@@ -543,6 +794,8 @@
 
   form.addEventListener("submit", function () {
     allowNavigation = true;
+    window.clearTimeout(draftSaveTimer);
+    saveDraftNow();
   });
 
   form.addEventListener("click", function (event) {
@@ -550,6 +803,23 @@
     const prevButton = event.target.closest("[data-owner-prev]");
     const stepTab = event.target.closest("[data-owner-step-target]");
     const langTab = event.target.closest("[data-owner-lang-tab]");
+    const listingType = event.target.closest("[data-owner-listing-type]");
+
+    if (listingType) {
+      event.preventDefault();
+      const temporaryCheckbox = form.querySelector('[name="is_temporary"]');
+      if (temporaryCheckbox) {
+        temporaryCheckbox.checked = listingType.dataset.ownerListingType === "temporary";
+      }
+      syncListingMode();
+      syncTemporaryRequiredState();
+      syncOptionalDetailsState();
+      updateCompletion();
+      updateFinalSummary();
+      updateWizard(currentStep);
+      scheduleDraftSave();
+      return;
+    }
 
     if (langTab) {
       event.preventDefault();
@@ -562,6 +832,7 @@
       const target = Number(stepTab.dataset.ownerStepTarget || "1");
       if (target <= maxReachableStep()) {
         updateWizard(target);
+        scheduleDraftSave();
       }
       return;
     }
@@ -569,6 +840,7 @@
     if (prevButton) {
       event.preventDefault();
       updateWizard(currentStep - 1);
+      scheduleDraftSave();
       return;
     }
 
@@ -581,6 +853,7 @@
       }
       updateCompletion();
       updateWizard(currentStep + 1);
+      scheduleDraftSave();
     }
   });
 
@@ -590,6 +863,7 @@
       setLocationValidity();
     }
     if (event.target.matches('[name="is_temporary"]')) {
+      syncListingMode();
       syncTemporaryRequiredState();
     }
     if (event.target.closest("details.owner-form-details")) {
@@ -602,6 +876,7 @@
     updateCompletion();
     updateFinalSummary();
     updateWizard(currentStep);
+    scheduleDraftSave();
   });
 
   form.addEventListener("input", function (event) {
@@ -609,11 +884,19 @@
     updateCompletion();
     updateFinalSummary();
     updateWizard(currentStep);
+    scheduleDraftSave();
   });
+
+  form.addEventListener("toggle", function (event) {
+    if (!event.target.matches("details.owner-form-details")) return;
+    scheduleDraftSave();
+  }, true);
 
   Array.from(document.querySelectorAll("[data-file-uploader]")).forEach(function (uploader) {
     renderUploaderState(uploader);
   });
+
+  restoreDraftState();
 
   steps.forEach(function (step) {
     if (step.querySelector(".auth-field-error, .auth-errors")) {
@@ -622,10 +905,11 @@
     }
   });
 
+  syncListingMode();
   syncTemporaryRequiredState();
   syncOptionalDetailsState();
   syncLanguagePanels();
   updateCompletion();
   updateFinalSummary();
-  updateWizard(firstErrorStep());
+  updateWizard(restoredStep || firstErrorStep());
 })();

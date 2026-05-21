@@ -1,9 +1,10 @@
 {% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
 <div
   class="owner-file-uploader owner-file-uploader-multiple js-file-uploader"
   data-file-uploader
-  data-upload-empty="{% trans 'Добавьте до 5 изображений в формате JPG, PNG или WEBP.' %}"
-  data-upload-summary="{% trans 'Выбрано файлов:' %}"
+  data-upload-empty="{% if CURRENT_LANGUAGE == 'az' %}10-dək şəkil əlavə edin. Hər biri JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == 'en' %}Add up to 10 images. Each JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans 'Добавьте до 10 изображений в формате JPG, PNG или WEBP, каждое до 2 МБ.' %}{% endif %}"
+  data-upload-summary="{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş fayllar:{% elif CURRENT_LANGUAGE == 'en' %}Selected files:{% else %}{% trans 'Выбрано файлов:' %}{% endif %}"
 >
   <label class="owner-file-uploader-drop">
     <span class="owner-file-uploader-icon" aria-hidden="true">
@@ -13,12 +14,12 @@
       </svg>
     </span>
     <span class="owner-file-uploader-copy">
-      <strong class="owner-file-uploader-title">{% trans "Добавьте фото для галереи" %}</strong>
+      <strong class="owner-file-uploader-title">{% if CURRENT_LANGUAGE == "az" %}Galereya üçün şəkillər{% elif CURRENT_LANGUAGE == "en" %}Gallery photos{% else %}{% trans "Добавьте фото для галереи" %}{% endif %}</strong>
       <span class="owner-file-uploader-meta" data-upload-meta>
-        {% trans "Добавьте до 5 изображений в формате JPG, PNG или WEBP." %}
+        {% if CURRENT_LANGUAGE == "az" %}10-dək şəkil əlavə edin. Hər biri JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == "en" %}Add up to 10 images. Each JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans "Добавьте до 10 изображений в формате JPG, PNG или WEBP, каждое до 2 МБ." %}{% endif %}
       </span>
     </span>
-    <span class="owner-file-uploader-action">{% trans "Выбрать файлы" %}</span>
+    <span class="owner-file-uploader-action">{% if CURRENT_LANGUAGE == "az" %}Faylları seçin{% elif CURRENT_LANGUAGE == "en" %}Choose files{% else %}{% trans "Выбрать файлы" %}{% endif %}</span>
     <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
   </label>
   <div class="owner-file-uploader-list" data-upload-list hidden></div>

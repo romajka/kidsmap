@@ -1,158 +1,455 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% trans "Личный кабинет" %}{% endblock %}
-{% block title_plain %}{% trans "Личный кабинет" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Личный кабинет" %} | KidsMap{% endblock %}
+{% block title %}
+  {% if CURRENT_LANGUAGE == "az" %}Şəxsi kabinet{% elif CURRENT_LANGUAGE == "en" %}Personal Cabinet{% else %}Личный кабинет{% endif %}
+{% endblock %}
+{% block title_plain %}
+  {% if CURRENT_LANGUAGE == "az" %}Şəxsi kabinet{% elif CURRENT_LANGUAGE == "en" %}Personal Cabinet{% else %}Личный кабинет{% endif %} | KidsMap
+{% endblock %}
+{% block title_plain_twitter %}
+  {% if CURRENT_LANGUAGE == "az" %}Şəxsi kabinet{% elif CURRENT_LANGUAGE == "en" %}Personal Cabinet{% else %}Личный кабинет{% endif %} | KidsMap
+{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}" />
+{% endblock %}
+
 {% block content %}
-  <section class="panel auth-panel profile-panel">
-    <h1>{% trans "Личный кабинет" %}</h1>
-    <p class="auth-subtitle">{% trans "Управляйте персональными данными и безопасностью аккаунта." %}</p>
+  <section class="panel auth-panel profile-panel account-dashboard">
+    <header class="account-dashboard__hero">
+      <div class="account-dashboard__hero-surface">
+        <img src="{% static 'img/banners/owner-dashboard-hero.webp' %}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+        <div class="account-dashboard__hero-copy">
+          <div class="account-dashboard__hero-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 1 1 14 0" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1>
+              {% if CURRENT_LANGUAGE == "az" %}Şəxsi kabinet{% elif CURRENT_LANGUAGE == "en" %}Personal cabinet{% else %}Личный кабинет{% endif %}
+            </h1>
+            <p class="auth-subtitle">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Hesab məlumatlarınızı idarə edin və profilinizi yeniləyin.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Manage your account details and keep your profile up to date.
+              {% else %}
+                Управляйте данными аккаунта и обновляйте профиль.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
 
-    <nav class="account-section-nav" aria-label="{% trans 'Разделы кабинета' %}">
-      <a class="chip-link" href="{% url 'account_dashboard' %}">{% trans "Обзор" %}</a>
-      <a class="chip-link {% if request.resolver_match.url_name == 'account_profile' %}active{% endif %}" href="{% url 'account_profile' %}">{% trans "Профиль" %}</a>
-      <a class="chip-link" href="{% url 'account_favorites' %}">{% trans "Избранное" %}</a>
-      <a class="chip-link {% if request.resolver_match.url_name == 'account_settings' %}active{% endif %}" href="{% url 'account_settings' %}">{% trans "Настройки" %}</a>
-    </nav>
-
-    <div class="owner-page-actions">
-      {% if is_owner_role %}
-        <a class="btn-secondary" href="{% url 'owner_cabinet' %}">{% trans "Перейти к управлению карточками" %}</a>
-      {% endif %}
+    <div class="account-dashboard__tabs-row">
+      <nav class="account-dashboard__tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Kabinet bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Cabinet sections{% else %}Разделы кабинета{% endif %}">
+        <a class="account-dashboard__tab" href="{% url 'account_dashboard' %}">
+          {% if CURRENT_LANGUAGE == "az" %}İcmal{% elif CURRENT_LANGUAGE == "en" %}Overview{% else %}Обзор{% endif %}
+        </a>
+        <a class="account-dashboard__tab is-active" href="{% url 'account_profile' %}">
+          {% if CURRENT_LANGUAGE == "az" %}Profil{% elif CURRENT_LANGUAGE == "en" %}Profile{% else %}Профиль{% endif %}
+        </a>
+        <a class="account-dashboard__tab" href="{% url 'account_favorites' %}">
+          <span>{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
+          <span class="account-dashboard__tab-count">{{ favorites_count }}</span>
+        </a>
+        <a class="account-dashboard__tab" href="{% url 'owner_places_dashboard' %}">
+          <span>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+          <span class="account-dashboard__tab-count">{{ managed_places_count }}</span>
+        </a>
+      </nav>
+      <div class="account-dashboard__tabs-actions">
+        <a class="btn account-dashboard__tabs-add" href="{% url 'owner_place_create' %}">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 5.25v13.5M5.25 12h13.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
+        </a>
+      </div>
     </div>
 
-    <section class="profile-summary">
-      <h2>{% trans "Информация о профиле" %}</h2>
-      <dl class="profile-meta-grid">
-        <div>
-          <dt>{% trans "Логин" %}</dt>
-          <dd>{{ request.user.username }}</dd>
+    <div class="account-dashboard__grid">
+      <section class="account-card account-card--summary" id="profile-summary">
+        <div class="account-card__head account-card__head--inline">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Profil icmalı{% elif CURRENT_LANGUAGE == "en" %}Profile summary{% else %}Сводка профиля{% endif %}</h2>
+          <a
+            class="account-card__action"
+            href="{% if is_settings_view %}{% url 'account_profile' %}{% else %}{% url 'account_settings' %}{% endif %}"
+            aria-label="{% if is_settings_view %}{% if CURRENT_LANGUAGE == 'az' %}Profil görünüşünə qayıt{% elif CURRENT_LANGUAGE == 'en' %}Back to profile view{% else %}Вернуться к профилю{% endif %}{% else %}{% if CURRENT_LANGUAGE == 'az' %}Tənzimləmələri aç{% elif CURRENT_LANGUAGE == 'en' %}Open settings{% else %}Открыть настройки{% endif %}{% endif %}"
+          >
+            {% if is_settings_view %}
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M3.75 12s3.25-5.5 8.25-5.5 8.25 5.5 8.25 5.5-3.25 5.5-8.25 5.5S3.75 12 3.75 12Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 14.5A2.5 2.5 0 1 0 12 9.5a2.5 2.5 0 0 0 0 5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Profilə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to profile{% else %}К профилю{% endif %}</span>
+            {% else %}
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M12 9.25a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Z" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M19.25 12a7.9 7.9 0 0 0-.08-1.08l1.73-1.35-1.65-2.86-2.12.62a7.7 7.7 0 0 0-1.86-1.08L14.94 4h-3.88l-.33 2.25a7.7 7.7 0 0 0-1.86 1.08l-2.12-.62-1.65 2.86 1.73 1.35A7.9 7.9 0 0 0 4.75 12c0 .37.03.73.08 1.08L3.1 14.43l1.65 2.86 2.12-.62c.56.45 1.19.82 1.86 1.08L11.06 20h3.88l.33-2.25c.67-.26 1.3-.63 1.86-1.08l2.12.62 1.65-2.86-1.73-1.35c.05-.35.08-.71.08-1.08Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit settings{% else %}Редактировать{% endif %}</span>
+            {% endif %}
+          </a>
         </div>
-        <div>
-          <dt>{% trans "Email" %}</dt>
-          <dd>{{ request.user.email|default:"-" }}</dd>
-        </div>
-        <div>
-          <dt>{% trans "Избранных кружков" %}</dt>
-          <dd>{{ favorites_count }}</dd>
-        </div>
-        <div>
-          <dt>{% trans "Просмотрено карточек" %}</dt>
-          <dd>{{ history_count }}</dd>
-        </div>
-        <div>
-          <dt>{% trans "Статус" %}</dt>
-          <dd>{% if current_user_role_label %}{{ current_user_role_label }}{% else %}{% trans "Обычный пользователь" %}{% endif %}</dd>
-        </div>
-        <div>
-          <dt>{% trans "Пол" %}</dt>
-          <dd>{{ profile_model.get_gender_display }}</dd>
-        </div>
-        <div>
-          <dt>{% trans "Роль владельца" %}</dt>
-          <dd>{% if is_owner_role %}{% trans "Владелец кружка / бизнеса" %}{% else %}-{% endif %}</dd>
-        </div>
-      </dl>
-    </section>
-
-    <div class="profile-forms-grid">
-      <section class="profile-form-card">
-        <h2>{% trans "Редактировать профиль" %}</h2>
-        <form method="post" class="auth-form" data-loading-form>
-          {% csrf_token %}
-          <input type="hidden" name="form_action" value="profile" />
-
-          {% if profile_form.non_field_errors %}
-            <div class="auth-errors">
-              {% for error in profile_form.non_field_errors %}
-                <p class="auth-error">{{ error }}</p>
-              {% endfor %}
+        <div class="account-summary">
+          <div class="account-summary__identity">
+            <div class="account-summary__avatar" aria-hidden="true">
+              <span>{{ request.user.first_name|default:request.user.username|slice:":1"|upper }}</span>
             </div>
-          {% endif %}
+            <div class="account-summary__identity-copy">
+              <strong>{{ request.user.username }}</strong>
+              <div class="account-summary__badges">
+                <span class="account-badge account-badge--status {% if request.user.is_active %}is-active{% endif %}">
+                  {% if request.user.is_active %}
+                    {% if CURRENT_LANGUAGE == "az" %}Hesab aktivdir{% elif CURRENT_LANGUAGE == "en" %}Account is active{% else %}Аккаунт активен{% endif %}
+                  {% else %}
+                    {% if CURRENT_LANGUAGE == "az" %}Hesab məhduddur{% elif CURRENT_LANGUAGE == "en" %}Account is limited{% else %}Аккаунт ограничен{% endif %}
+                  {% endif %}
+                </span>
+              </div>
+              <p>{{ request.user.email|default:"-" }}</p>
+            </div>
+          </div>
 
-          <label>
-            {{ profile_form.first_name.label }}
-            {{ profile_form.first_name }}
-            {% if profile_form.first_name.errors %}
-              <span class="auth-field-error">{{ profile_form.first_name.errors|join:", " }}</span>
-            {% endif %}
-          </label>
-
-          <label>
-            {{ profile_form.last_name.label }}
-            {{ profile_form.last_name }}
-            {% if profile_form.last_name.errors %}
-              <span class="auth-field-error">{{ profile_form.last_name.errors|join:", " }}</span>
-            {% endif %}
-          </label>
-
-          <label>
-            {{ profile_form.email.label }}
-            {{ profile_form.email }}
-            {% if profile_form.email.errors %}
-              <span class="auth-field-error">{{ profile_form.email.errors|join:", " }}</span>
-            {% endif %}
-          </label>
-
-          <label>
-            {{ profile_form.phone.label }}
-            {{ profile_form.phone }}
-            {% if profile_form.phone.errors %}
-              <span class="auth-field-error">{{ profile_form.phone.errors|join:", " }}</span>
-            {% endif %}
-          </label>
-
-          <button type="submit" class="btn" data-loading-button>{% trans "Сохранить профиль" %}</button>
-        </form>
+          <div class="account-summary__stats">
+            <article class="account-summary__stat">
+              <span class="account-summary__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7.5 5.75h9a1.75 1.75 0 0 1 1.75 1.75v10.75l-6.25-3.2-6.25 3.2V7.5A1.75 1.75 0 0 1 7.5 5.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <strong>{{ favorites_count }}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Seçilmiş yerlər{% elif CURRENT_LANGUAGE == "en" %}Saved places{% else %}Избранные места{% endif %}</span>
+            </article>
+            <article class="account-summary__stat">
+              <span class="account-summary__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.75 12a7.25 7.25 0 1 1 14.5 0 7.25 7.25 0 0 1-14.5 0Z" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="m12 8.75.05 3.5 2.2 1.55" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <strong>{{ history_count }}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Baxılan kartlar{% elif CURRENT_LANGUAGE == "en" %}Viewed cards{% else %}Просмотренные карточки{% endif %}</span>
+            </article>
+            <article class="account-summary__stat">
+              <span class="account-summary__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 8.25h14M7 5.75h10a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <strong>{{ managed_places_count }}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+            </article>
+            <article class="account-summary__stat">
+              <span class="account-summary__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6.5 5.5v13M17.5 5.5v13M6 9.25h12M6 14.75h12M8.5 3.75v3.5M15.5 3.75v3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <strong>{{ request.user.date_joined|date:"d.m.Y" }}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat tarixi{% elif CURRENT_LANGUAGE == "en" %}Joined on{% else %}Дата регистрации{% endif %}</span>
+            </article>
+          </div>
+        </div>
       </section>
 
-      <section class="profile-form-card">
-        <h2>{% trans "Сменить пароль" %}</h2>
-        <form method="post" class="auth-form" data-loading-form>
-          {% csrf_token %}
-          <input type="hidden" name="form_action" value="password" />
+      <aside class="account-card account-card--quick">
+        <div class="account-card__head">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Sürətli əməliyyatlar{% elif CURRENT_LANGUAGE == "en" %}Quick actions{% else %}Быстрые действия{% endif %}</h2>
+        </div>
+        <div class="account-quick-links">
+          <a class="account-quick-link" href="{% url 'account_favorites' %}">
+            <span class="account-quick-link__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 5.75h9a1.75 1.75 0 0 1 1.75 1.75v10.75l-6.25-3.2-6.25 3.2V7.5A1.75 1.75 0 0 1 7.5 5.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="account-quick-link__label">{% if CURRENT_LANGUAGE == "az" %}Seçilmiş yerlər{% elif CURRENT_LANGUAGE == "en" %}Saved places{% else %}Избранные места{% endif %}</span>
+            <span class="account-quick-link__count">{{ favorites_count }}</span>
+          </a>
+          <a class="account-quick-link" href="{% url 'owner_places_dashboard' %}">
+            <span class="account-quick-link__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.75 7.75h14.5v8.5H4.75v-8.5Zm4-3h6.5v3h-6.5v-3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="account-quick-link__label">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+            <span class="account-quick-link__count">{{ managed_places_count }}</span>
+          </a>
+          <a class="account-quick-link" href="{% url 'account_settings' %}">
+            <span class="account-quick-link__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 9.25a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.25 12a7.9 7.9 0 0 0-.08-1.08l1.73-1.35-1.65-2.86-2.12.62a7.7 7.7 0 0 0-1.86-1.08L14.94 4h-3.88l-.33 2.25a7.7 7.7 0 0 0-1.86 1.08l-2.12-.62-1.65 2.86 1.73 1.35A7.9 7.9 0 0 0 4.75 12c0 .37.03.73.08 1.08L3.1 14.43l1.65 2.86 2.12-.62c.56.45 1.19.82 1.86 1.08L11.06 20h3.88l.33-2.25c.67-.26 1.3-.63 1.86-1.08l2.12.62 1.65-2.86-1.73-1.35c.05-.35.08-.71.08-1.08Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="account-quick-link__label">{% if CURRENT_LANGUAGE == "az" %}Profil ayarları{% elif CURRENT_LANGUAGE == "en" %}Profile settings{% else %}Настройки профиля{% endif %}</span>
+          </a>
+        </div>
+      </aside>
 
-          {% if password_form.non_field_errors %}
-            <div class="auth-errors">
-              {% for error in password_form.non_field_errors %}
-                <p class="auth-error">{{ error }}</p>
-              {% endfor %}
+      {% if is_settings_view %}
+        <div class="account-dashboard__forms-row">
+          <section class="account-card account-card--form" id="profile-details">
+            <div class="account-card__head">
+              <h2>{% if CURRENT_LANGUAGE == "az" %}Profil məlumatları{% elif CURRENT_LANGUAGE == "en" %}Profile details{% else %}Данные профиля{% endif %}</h2>
             </div>
-          {% endif %}
 
-          <label>
-            {{ password_form.old_password.label }}
-            {{ password_form.old_password }}
-            {% if password_form.old_password.errors %}
-              <span class="auth-field-error">{{ password_form.old_password.errors|join:", " }}</span>
-            {% endif %}
-          </label>
+            <form method="post" class="auth-form account-form" data-loading-form>
+              {% csrf_token %}
+              <input type="hidden" name="form_action" value="profile" />
 
-          <label>
-            {{ password_form.new_password1.label }}
-            {{ password_form.new_password1 }}
-            {% if password_form.new_password1.help_text %}
-              <small class="auth-help">{{ password_form.new_password1.help_text|safe }}</small>
-            {% endif %}
-            {% if password_form.new_password1.errors %}
-              <span class="auth-field-error">{{ password_form.new_password1.errors|join:", " }}</span>
-            {% endif %}
-          </label>
+              {% if profile_form.non_field_errors %}
+                <div class="auth-errors">
+                  {% for error in profile_form.non_field_errors %}
+                    <p class="auth-error">{{ error }}</p>
+                  {% endfor %}
+                </div>
+              {% endif %}
 
-          <label>
-            {{ password_form.new_password2.label }}
-            {{ password_form.new_password2 }}
-            {% if password_form.new_password2.errors %}
-              <span class="auth-field-error">{{ password_form.new_password2.errors|join:", " }}</span>
-            {% endif %}
-          </label>
+              <div class="account-form__grid">
+                <label class="account-field">
+                  <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}Ad{% elif CURRENT_LANGUAGE == "en" %}First name{% else %}Имя{% endif %} <span class="required-mark" aria-hidden="true">*</span></span>
+                  {{ profile_form.first_name }}
+                  {% if profile_form.first_name.errors %}<span class="auth-field-error">{{ profile_form.first_name.errors|join:", " }}</span>{% endif %}
+                </label>
 
-          <button type="submit" class="btn" data-loading-button>{% trans "Обновить пароль" %}</button>
-        </form>
-      </section>
+                <label class="account-field">
+                  <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}Soyad{% elif CURRENT_LANGUAGE == "en" %}Last name{% else %}Фамилия{% endif %} <span class="required-mark" aria-hidden="true">*</span></span>
+                  {{ profile_form.last_name }}
+                  {% if profile_form.last_name.errors %}<span class="auth-field-error">{{ profile_form.last_name.errors|join:", " }}</span>{% endif %}
+                </label>
+
+                <label class="account-field">
+                  <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}E-poçt{% elif CURRENT_LANGUAGE == "en" %}Email{% else %}Email{% endif %} <span class="required-mark" aria-hidden="true">*</span></span>
+                  {{ profile_form.email }}
+                  {% if profile_form.email.errors %}<span class="auth-field-error">{{ profile_form.email.errors|join:", " }}</span>{% endif %}
+                </label>
+
+                <label class="account-field">
+                  <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}Telefon{% elif CURRENT_LANGUAGE == "en" %}Phone{% else %}Телефон{% endif %} <span class="required-mark" aria-hidden="true">*</span></span>
+                  {{ profile_form.phone }}
+                  {% if profile_form.phone.errors %}<span class="auth-field-error">{{ profile_form.phone.errors|join:", " }}</span>{% endif %}
+                </label>
+
+                <div class="account-form__readonly-grid">
+                  <div class="account-readonly">
+                    <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}İstifadəçi adı{% elif CURRENT_LANGUAGE == "en" %}Username{% else %}Логин{% endif %}</span>
+                    <strong>{{ request.user.username }}</strong>
+                  </div>
+                  <div class="account-readonly">
+                    <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat tarixi{% elif CURRENT_LANGUAGE == "en" %}Joined on{% else %}Дата регистрации{% endif %}</span>
+                    <strong>{{ request.user.date_joined|date:"d.m.Y" }}</strong>
+                  </div>
+                  <div class="account-readonly account-readonly--status">
+                    <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}Status{% elif CURRENT_LANGUAGE == "en" %}Status{% else %}Статус{% endif %}</span>
+                    <strong>
+                      {% if request.user.is_active %}
+                        {% if CURRENT_LANGUAGE == "az" %}Aktiv{% elif CURRENT_LANGUAGE == "en" %}Active{% else %}Активен{% endif %}
+                      {% else %}
+                        {% if CURRENT_LANGUAGE == "az" %}Məhdud{% elif CURRENT_LANGUAGE == "en" %}Limited{% else %}Ограничен{% endif %}
+                      {% endif %}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn account-form__submit" data-loading-button>
+                {% if CURRENT_LANGUAGE == "az" %}Dəyişiklikləri saxla{% elif CURRENT_LANGUAGE == "en" %}Save changes{% else %}Сохранить изменения{% endif %}
+              </button>
+            </form>
+          </section>
+
+          <section class="account-card account-card--security">
+            <div class="account-card__head">
+              <h2>{% if CURRENT_LANGUAGE == "az" %}Parol və təhlükəsizlik{% elif CURRENT_LANGUAGE == "en" %}Password and security{% else %}Пароль и безопасность{% endif %}</h2>
+            </div>
+
+            <form method="post" class="auth-form account-form account-form--security" data-loading-form>
+              {% csrf_token %}
+              <input type="hidden" name="form_action" value="password" />
+
+              {% if password_form.non_field_errors %}
+                <div class="auth-errors">
+                  {% for error in password_form.non_field_errors %}
+                    <p class="auth-error">{{ error }}</p>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <label class="account-field account-field--password">
+                <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}Cari parol{% elif CURRENT_LANGUAGE == "en" %}Current password{% else %}Текущий пароль{% endif %} <span class="required-mark" aria-hidden="true">*</span></span>
+                <span class="account-password-wrap">
+                  {{ password_form.old_password }}
+                  <button type="button" class="account-password-toggle" data-password-toggle aria-label="{% if CURRENT_LANGUAGE == 'az' %}Parolu göstər və ya gizlət{% elif CURRENT_LANGUAGE == 'en' %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.75 12s3.4-5.75 9.25-5.75S21.25 12 21.25 12s-3.4 5.75-9.25 5.75S2.75 12 2.75 12Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 14.75A2.75 2.75 0 1 0 12 9.25a2.75 2.75 0 0 0 0 5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </span>
+                {% if password_form.old_password.errors %}<span class="auth-field-error">{{ password_form.old_password.errors|join:", " }}</span>{% endif %}
+              </label>
+
+              <label class="account-field account-field--password">
+                <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}Yeni parol{% elif CURRENT_LANGUAGE == "en" %}New password{% else %}Новый пароль{% endif %} <span class="required-mark" aria-hidden="true">*</span></span>
+                <span class="account-password-wrap">
+                  {{ password_form.new_password1 }}
+                  <button type="button" class="account-password-toggle" data-password-toggle aria-label="{% if CURRENT_LANGUAGE == 'az' %}Parolu göstər və ya gizlət{% elif CURRENT_LANGUAGE == 'en' %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.75 12s3.4-5.75 9.25-5.75S21.25 12 21.25 12s-3.4 5.75-9.25 5.75S2.75 12 2.75 12Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 14.75A2.75 2.75 0 1 0 12 9.25a2.75 2.75 0 0 0 0 5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </span>
+                {% if password_form.new_password1.errors %}<span class="auth-field-error">{{ password_form.new_password1.errors|join:", " }}</span>{% endif %}
+              </label>
+
+              <label class="account-field account-field--password">
+                <span class="account-field__label">{% if CURRENT_LANGUAGE == "az" %}Yeni parolu təsdiqləyin{% elif CURRENT_LANGUAGE == "en" %}Confirm new password{% else %}Подтвердите новый пароль{% endif %} <span class="required-mark" aria-hidden="true">*</span></span>
+                <span class="account-password-wrap">
+                  {{ password_form.new_password2 }}
+                  <button type="button" class="account-password-toggle" data-password-toggle aria-label="{% if CURRENT_LANGUAGE == 'az' %}Parolu göstər və ya gizlət{% elif CURRENT_LANGUAGE == 'en' %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.75 12s3.4-5.75 9.25-5.75S21.25 12 21.25 12s-3.4 5.75-9.25 5.75S2.75 12 2.75 12Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 14.75A2.75 2.75 0 1 0 12 9.25a2.75 2.75 0 0 0 0 5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </span>
+                {% if password_form.new_password2.errors %}<span class="auth-field-error">{{ password_form.new_password2.errors|join:", " }}</span>{% endif %}
+              </label>
+
+              <div class="account-security-tips">
+                <h3>{% if CURRENT_LANGUAGE == "az" %}Təhlükəsizlik tövsiyələri{% elif CURRENT_LANGUAGE == "en" %}Security tips{% else %}Рекомендации по безопасности{% endif %}</h3>
+                <ul>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}Şifrəniz ən azı 8 simvoldan ibarət olmalıdır.{% elif CURRENT_LANGUAGE == "en" %}Your password should contain at least 8 characters.{% else %}Пароль должен содержать минимум 8 символов.{% endif %}</li>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}Böyük və kiçik hərflərdən istifadə edin.{% elif CURRENT_LANGUAGE == "en" %}Use both uppercase and lowercase letters.{% else %}Используйте строчные и заглавные буквы.{% endif %}</li>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}Rəqəm və xüsusi simvol əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}Add numbers and special characters.{% else %}Добавьте цифры и специальные символы.{% endif %}</li>
+                </ul>
+              </div>
+
+              <button type="submit" class="btn account-form__submit" data-loading-button>
+                {% if CURRENT_LANGUAGE == "az" %}Parolu yenilə{% elif CURRENT_LANGUAGE == "en" %}Update password{% else %}Обновить пароль{% endif %}
+              </button>
+            </form>
+          </section>
+        </div>
+      {% else %}
+        <div class="account-dashboard__forms-row account-dashboard__forms-row--overview">
+          <section class="account-card account-card--overview" id="profile-details">
+            <div class="account-card__head account-card__head--inline">
+              <h2>{% if CURRENT_LANGUAGE == "az" %}Profil məlumatları{% elif CURRENT_LANGUAGE == "en" %}Profile details{% else %}Данные профиля{% endif %}</h2>
+              <a class="account-card__action" href="{% url 'account_settings' %}">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M12 9.25a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Z" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M19.25 12a7.9 7.9 0 0 0-.08-1.08l1.73-1.35-1.65-2.86-2.12.62a7.7 7.7 0 0 0-1.86-1.08L14.94 4h-3.88l-.33 2.25a7.7 7.7 0 0 0-1.86 1.08l-2.12-.62-1.65 2.86 1.73 1.35A7.9 7.9 0 0 0 4.75 12c0 .37.03.73.08 1.08L3.1 14.43l1.65 2.86 2.12-.62c.56.45 1.19.82 1.86 1.08L11.06 20h3.88l.33-2.25c.67-.26 1.3-.63 1.86-1.08l2.12.62 1.65-2.86-1.73-1.35c.05-.35.08-.71.08-1.08Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Tənzimləmələr{% elif CURRENT_LANGUAGE == "en" %}Settings{% else %}Настройки{% endif %}</span>
+              </a>
+            </div>
+
+            <div class="account-overview">
+              <article class="account-overview__item">
+                <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}Ad{% elif CURRENT_LANGUAGE == "en" %}First name{% else %}Имя{% endif %}</span>
+                <strong class="account-overview__value">{{ request.user.first_name|default:"-" }}</strong>
+              </article>
+              <article class="account-overview__item">
+                <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}Soyad{% elif CURRENT_LANGUAGE == "en" %}Last name{% else %}Фамилия{% endif %}</span>
+                <strong class="account-overview__value">{{ request.user.last_name|default:"-" }}</strong>
+              </article>
+              <article class="account-overview__item">
+                <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}E-poçt{% elif CURRENT_LANGUAGE == "en" %}Email{% else %}Email{% endif %}</span>
+                <strong class="account-overview__value">{{ request.user.email|default:"-" }}</strong>
+              </article>
+              <article class="account-overview__item">
+                <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}Telefon{% elif CURRENT_LANGUAGE == "en" %}Phone{% else %}Телефон{% endif %}</span>
+                <strong class="account-overview__value">{{ profile_model.phone|default:"-" }}</strong>
+              </article>
+              <article class="account-overview__item">
+                <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}Status{% elif CURRENT_LANGUAGE == "en" %}Status{% else %}Статус{% endif %}</span>
+                <strong class="account-overview__value">
+                  {% if request.user.is_active %}
+                    {% if CURRENT_LANGUAGE == "az" %}Aktiv{% elif CURRENT_LANGUAGE == "en" %}Active{% else %}Активен{% endif %}
+                  {% else %}
+                    {% if CURRENT_LANGUAGE == "az" %}Məhdud{% elif CURRENT_LANGUAGE == "en" %}Limited{% else %}Ограничен{% endif %}
+                  {% endif %}
+                </strong>
+              </article>
+              <article class="account-overview__item">
+                <span class="account-overview__label">{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat tarixi{% elif CURRENT_LANGUAGE == "en" %}Joined on{% else %}Дата регистрации{% endif %}</span>
+                <strong class="account-overview__value">{{ request.user.date_joined|date:"d.m.Y" }}</strong>
+              </article>
+            </div>
+          </section>
+        </div>
+      {% endif %}
+
+      <div class="account-dashboard__bottom-row">
+        <aside class="account-card account-card--status">
+          <div class="account-card__head">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Hesab statusu{% elif CURRENT_LANGUAGE == "en" %}Account status{% else %}Статус аккаунта{% endif %}</h2>
+          </div>
+          <div class="account-status">
+            <div class="account-status__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3.75 19.25 6v5.35c0 4.1-2.85 7.85-7.25 8.9-4.4-1.05-7.25-4.8-7.25-8.9V6L12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="m9.5 11.95 1.7 1.7 3.45-3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <strong>
+              {% if request.user.is_active %}
+                {% if CURRENT_LANGUAGE == "az" %}Hesabınız aktivdir{% elif CURRENT_LANGUAGE == "en" %}Your account is active{% else %}Ваш аккаунт активен{% endif %}
+              {% else %}
+                {% if CURRENT_LANGUAGE == "az" %}Hesabınız məhduddur{% elif CURRENT_LANGUAGE == "en" %}Your account is limited{% else %}Ваш аккаунт ограничен{% endif %}
+              {% endif %}
+            </strong>
+            <p>
+              {% if request.user.is_active %}
+                {% if CURRENT_LANGUAGE == "az" %}Hesabınızda hər hansı məhdudiyyət yoxdur.{% elif CURRENT_LANGUAGE == "en" %}There are no restrictions on your account.{% else %}На аккаунте нет ограничений.{% endif %}
+              {% else %}
+                {% if CURRENT_LANGUAGE == "az" %}Zəhmət olmasa dəstək komandası ilə əlaqə saxlayın.{% elif CURRENT_LANGUAGE == "en" %}Please contact support for details.{% else %}Свяжитесь с поддержкой для уточнения деталей.{% endif %}
+              {% endif %}
+            </p>
+            <a class="btn-secondary account-status__link" href="{% url 'account_settings' %}">
+              {% if CURRENT_LANGUAGE == "az" %}Tənzimləmələrə keç{% elif CURRENT_LANGUAGE == "en" %}Go to settings{% else %}Перейти в настройки{% endif %}
+            </a>
+          </div>
+        </aside>
+
+        <aside class="account-card account-card--listings">
+          <div class="account-card__head">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h2>
+          </div>
+          <div class="account-listings">
+            <div class="account-listings__count">{{ managed_places_count }}</div>
+            <p>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Əlavə etdiyiniz məkanlar və onların moderasiya vəziyyəti burada görünür.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                The places you added and their moderation status are shown here.
+              {% else %}
+                Здесь показаны добавленные вами места и их статус модерации.
+              {% endif %}
+            </p>
+            <dl class="account-listings__meta">
+              <div>
+                <dt>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</dt>
+                <dd>{{ active_managed_places_count }}</dd>
+              </div>
+              <div>
+                <dt>{% if CURRENT_LANGUAGE == "az" %}Qaralamalar və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts and moderation{% else %}Черновики и модерация{% endif %}</dt>
+                <dd>{{ draft_managed_places_count }}</dd>
+              </div>
+            </dl>
+            <a class="btn-secondary account-status__link" href="{% url 'owner_places_dashboard' %}">
+              {% if CURRENT_LANGUAGE == "az" %}Məkanları idarə et{% elif CURRENT_LANGUAGE == "en" %}Manage places{% else %}Управлять местами{% endif %}
+            </a>
+          </div>
+        </aside>
+      </div>
     </div>
   </section>
+{% endblock %}
+
+{% block extra_body %}
+  <script defer src="{% static 'js/account_profile.js' %}"></script>
 {% endblock %}

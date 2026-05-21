@@ -1,4 +1,5 @@
 {% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
 <section
   class="owner-map-picker"
@@ -6,22 +7,22 @@
   data-map-provider="{% if google_maps_api_key %}google{% else %}leaflet{% endif %}"
   data-default-lat="40.409264"
   data-default-lng="49.867092"
-  data-selected-prefix="{% trans 'Выбрана точка:' %}"
-  data-empty-label="{% trans 'Точка на карте не выбрана.' %}"
-  data-locate-error="{% trans 'Не удалось определить геопозицию. Выберите точку вручную на карте.' %}"
-  data-locate-unsupported="{% trans 'Ваш браузер не поддерживает геолокацию. Выберите точку вручную на карте.' %}"
-  data-search-error="{% trans 'Не удалось найти место по этому запросу. Уточните название или адрес.' %}"
-  data-search-empty="{% trans 'Введите название места или адрес для поиска на карте.' %}"
-  data-search-unsupported="{% trans 'Поиск на карте доступен, когда подключен Google Maps API.' %}"
+  data-selected-prefix="{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş nöqtə:{% elif CURRENT_LANGUAGE == 'en' %}Selected point:{% else %}{% trans 'Выбрана точка:' %}{% endif %}"
+  data-empty-label="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə nöqtə seçilməyib.{% elif CURRENT_LANGUAGE == 'en' %}No map point selected.{% else %}{% trans 'Точка на карте не выбрана.' %}{% endif %}"
+  data-locate-error="{% if CURRENT_LANGUAGE == 'az' %}Geolokasiyanı müəyyən etmək olmadı. Nöqtəni xəritədə seçin.{% elif CURRENT_LANGUAGE == 'en' %}Could not detect your location. Pick a point on the map.{% else %}{% trans 'Не удалось определить геопозицию. Выберите точку вручную на карте.' %}{% endif %}"
+  data-locate-unsupported="{% if CURRENT_LANGUAGE == 'az' %}Brauzeriniz geolokasiyanı dəstəkləmir. Nöqtəni xəritədə seçin.{% elif CURRENT_LANGUAGE == 'en' %}Your browser does not support geolocation. Pick a point on the map.{% else %}{% trans 'Ваш браузер не поддерживает геолокацию. Выберите точку вручную на карте.' %}{% endif %}"
+  data-search-error="{% if CURRENT_LANGUAGE == 'az' %}Bu sorğu üzrə məkan tapılmadı. Ünvanı dəqiqləşdirin.{% elif CURRENT_LANGUAGE == 'en' %}No place found for this query. Refine the address.{% else %}{% trans 'Не удалось найти место по этому запросу. Уточните название или адрес.' %}{% endif %}"
+  data-search-empty="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə axtarış üçün ad və ya ünvan yazın.{% elif CURRENT_LANGUAGE == 'en' %}Enter a name or address to search on the map.{% else %}{% trans 'Введите название места или адрес для поиска на карте.' %}{% endif %}"
+  data-search-unsupported="{% if CURRENT_LANGUAGE == 'az' %}Xəritə axtarışı Google Maps API qoşulduqda işləyir.{% elif CURRENT_LANGUAGE == 'en' %}Map search is available when Google Maps API is connected.{% else %}{% trans 'Поиск на карте доступен, когда подключен Google Maps API.' %}{% endif %}"
 >
   {{ form.lat }}
   {{ form.lng }}
 
   <div class="owner-map-picker-head">
     <div class="owner-map-picker-copy">
-      <p class="owner-map-picker-title">{% trans "Уточните точку на карте" %}</p>
+      <p class="owner-map-picker-title">{% if CURRENT_LANGUAGE == "az" %}Nöqtəni dəqiqləşdirin{% elif CURRENT_LANGUAGE == "en" %}Refine the point{% else %}{% trans "Уточните точку на карте" %}{% endif %}</p>
       <p class="meta">
-        {% trans "Карта помогает уточнить точку, но не обязательна для отправки карточки." %}
+        {% if CURRENT_LANGUAGE == "az" %}Xəritə nöqtəni dəqiqləşdirmək üçündür.{% elif CURRENT_LANGUAGE == "en" %}Use the map to refine the point.{% else %}{% trans "Карта помогает уточнить точку, но не обязательна для отправки карточки." %}{% endif %}
       </p>
     </div>
     <div class="owner-map-picker-actions">
@@ -30,31 +31,31 @@
           type="text"
           class="field"
           data-map-search-input
-          placeholder="{% trans 'Поиск по названию или адресу' %}"
+          placeholder="{% if CURRENT_LANGUAGE == 'az' %}Ad və ya ünvan{% elif CURRENT_LANGUAGE == 'en' %}Name or address{% else %}{% trans 'Поиск по названию или адресу' %}{% endif %}"
           value="{{ form.address.value|default:'' }}"
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
         />
-        <button type="button" class="btn-secondary" data-map-search>{% trans "Найти" %}</button>
+        <button type="button" class="btn-secondary" data-map-search>{% if CURRENT_LANGUAGE == "az" %}Axtar{% elif CURRENT_LANGUAGE == "en" %}Search{% else %}{% trans "Найти" %}{% endif %}</button>
       </div>
-      <button type="button" class="btn-secondary" data-map-locate>{% trans "Моя геопозиция" %}</button>
-      <button type="button" class="btn-secondary" data-map-clear>{% trans "Очистить" %}</button>
+      <button type="button" class="btn-secondary" data-map-locate>{% if CURRENT_LANGUAGE == "az" %}Mənim geolokasiyam{% elif CURRENT_LANGUAGE == "en" %}My location{% else %}{% trans "Моя геопозиция" %}{% endif %}</button>
+      <button type="button" class="btn-secondary" data-map-clear>{% if CURRENT_LANGUAGE == "az" %}Təmizlə{% elif CURRENT_LANGUAGE == "en" %}Clear{% else %}{% trans "Очистить" %}{% endif %}</button>
     </div>
   </div>
 
   <div class="owner-map-picker-toolbar">
     <span class="owner-map-picker-status" data-map-status>
       {% if form.lat.value and form.lng.value %}
-        {% blocktrans with lat=form.lat.value lng=form.lng.value %}Выбрана точка: {{ lat }}, {{ lng }}{% endblocktrans %}
+        {% if CURRENT_LANGUAGE == "az" %}Seçilmiş nöqtə: {{ form.lat.value }}, {{ form.lng.value }}{% elif CURRENT_LANGUAGE == "en" %}Selected point: {{ form.lat.value }}, {{ form.lng.value }}{% else %}{% blocktrans with lat=form.lat.value lng=form.lng.value %}Выбрана точка: {{ lat }}, {{ lng }}{% endblocktrans %}{% endif %}
       {% else %}
-        {% trans "Точка на карте не выбрана." %}
+        {% if CURRENT_LANGUAGE == "az" %}Xəritədə nöqtə seçilməyib.{% elif CURRENT_LANGUAGE == "en" %}No map point selected.{% else %}{% trans "Точка на карте не выбрана." %}{% endif %}
       {% endif %}
     </span>
-    <span class="owner-map-picker-hint meta">{% trans "Маркер можно перетаскивать." %}</span>
+    <span class="owner-map-picker-hint meta">{% if CURRENT_LANGUAGE == "az" %}Markeri sürüşdürmək olar.{% elif CURRENT_LANGUAGE == "en" %}The marker can be dragged.{% else %}{% trans "Маркер можно перетаскивать." %}{% endif %}</span>
   </div>
 
-  <div class="owner-map-picker-canvas" data-map-canvas aria-label="{% trans 'Карта выбора координат' %}"></div>
+  <div class="owner-map-picker-canvas" data-map-canvas aria-label="{% if CURRENT_LANGUAGE == 'az' %}Koordinat seçimi xəritəsi{% elif CURRENT_LANGUAGE == 'en' %}Coordinate picker map{% else %}{% trans 'Карта выбора координат' %}{% endif %}"></div>
 
   {% if form.lat.errors or form.lng.errors %}
     <div class="owner-map-picker-errors">

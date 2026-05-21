@@ -24,119 +24,8 @@
     </div>
 
     <article class="detail-block detail-page">
-      {% with gallery=place.gallery_files %}
+      {% with gallery=place.gallery_files language=request.LANGUAGE_CODE %}
         <div class="detail-top">
-          <div class="detail-top-copy">
-            <header class="detail-hero">
-              <div class="detail-hero__copy">
-                <h1>{{ place.name_i18n }}</h1>
-
-                {% if place.district or place.metro %}
-                  <p class="detail-hero__location">
-                    {% if place.district %}{% trans place.district %}{% endif %}
-                    {% if place.district and place.metro %} · {% endif %}
-                    {% if place.metro %}{% trans place.metro %}{% endif %}
-                  </p>
-                {% endif %}
-
-                <div class="detail-rating detail-rating--hero">
-                  <span class="rating-stars large" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
-                  <span class="rating-text">
-                    {{ place.rating_avg|floatformat:1 }}
-                    {% if place.rating_count %}
-                      · {{ place.rating_count }} {% trans "отзывов" %}
-                    {% else %}
-                      · {% trans "пока без отзывов" %}
-                    {% endif %}
-                  </span>
-                </div>
-              </div>
-
-              <div class="detail-hero__actions">
-                {% if place.phone1 %}
-                  <a class="cta-btn cta-call icon-btn icon-phone detail-primary-cta" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-top">{% trans "Связаться" %}</a>
-                {% elif place.instagram %}
-                  <a class="cta-btn cta-instagram icon-btn icon-instagram detail-primary-cta" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-top">{% trans "Связаться" %}</a>
-                {% elif place.website %}
-                  <a class="cta-btn detail-primary-cta" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{% trans "Связаться" %}</a>
-                {% endif %}
-
-                {% if request.user.is_authenticated %}
-                  <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                    <button type="submit" class="like-btn detail-save-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
-                      <span class="detail-save-btn__icon" aria-hidden="true">♥</span>
-                      <span>{% trans "Сохранить" %}</span>
-                      <span class="like-count">{{ place.likes_count }}</span>
-                    </button>
-                  </form>
-                {% else %}
-                  <div class="like-form detail-like-form">
-                    <button
-                      type="button"
-                      class="like-btn detail-save-btn"
-                      aria-pressed="false"
-                      data-auth-required-trigger
-                      data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
-                      data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
-                    >
-                      <span class="detail-save-btn__icon" aria-hidden="true">♥</span>
-                      <span>{% trans "Сохранить" %}</span>
-                      <span class="like-count">{{ place.likes_count }}</span>
-                    </button>
-                  </div>
-                {% endif %}
-              </div>
-            </header>
-
-            <section class="detail-summary-card">
-              <section class="detail-highlights" aria-label="{% trans 'Основные характеристики' %}">
-                {% if place.age_display %}
-                  <div class="detail-highlight-card">
-                    <span class="detail-highlight-card__label">{% trans "Возраст" %}</span>
-                    <strong class="detail-highlight-card__value">{{ place.age_display }}</strong>
-                  </div>
-                {% endif %}
-
-                {% if place.price_range_display %}
-                  <div class="detail-highlight-card">
-                    <span class="detail-highlight-card__label">{% trans "Цена" %}</span>
-                    <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
-                  </div>
-                {% endif %}
-
-                <div class="detail-highlight-card">
-                  <span class="detail-highlight-card__label">{% trans "Категория" %}</span>
-                  <strong class="detail-highlight-card__value">{{ place.get_category_display }}</strong>
-                </div>
-
-                {% if place.subcategory %}
-                  <div class="detail-highlight-card detail-highlight-card--muted">
-                    <span class="detail-highlight-card__label">{% trans "Подкатегория" %}</span>
-                    <strong class="detail-highlight-card__value">{{ place.subcategory }}</strong>
-                  </div>
-                {% endif %}
-              </section>
-
-              {% if place.description_i18n %}
-                <div class="detail-description detail-description--lead">
-                  <p>{{ place.description_i18n|linebreaksbr }}</p>
-                </div>
-              {% endif %}
-
-              <div class="card-cta-row detail-cta-row">
-                {% if place.phone1 %}
-                  <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail">{% trans "Позвонить" %}</a>
-                  <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail">WhatsApp</a>
-                {% endif %}
-                {% if place.instagram %}
-                  <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail">Instagram</a>
-                {% endif %}
-              </div>
-            </section>
-          </div>
-
           <div class="detail-top-media">
             {% if gallery %}
               <section class="place-gallery" data-place-gallery aria-label="{% trans 'Галерея фотографий' %}">
@@ -203,44 +92,162 @@
               </div>
             {% endif %}
           </div>
+
+          <div class="detail-top-copy">
+            <header class="detail-hero">
+              <div class="detail-hero__copy">
+                <h1>{{ place.name_i18n }}</h1>
+
+                {% if place.district or place.metro %}
+                  <p class="detail-hero__location">
+                    {% if place.district %}{% trans place.district %}{% endif %}
+                    {% if place.district and place.metro %} · {% endif %}
+                    {% if place.metro %}{% trans place.metro %}{% endif %}
+                  </p>
+                {% endif %}
+
+                <div class="detail-rating detail-rating--hero">
+                  <span class="rating-stars large" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+                  <span class="rating-text">
+                    {{ place.rating_avg|floatformat:1 }}
+                    {% if place.rating_count %}
+                      · {{ place.rating_count }}
+                      {% if language == "az" %}rəy{% elif language == "en" %}reviews{% else %}отзывов{% endif %}
+                    {% else %}
+                      · {% if language == "az" %}hələ rəy yoxdur{% elif language == "en" %}no reviews yet{% else %}пока без отзывов{% endif %}
+                    {% endif %}
+                  </span>
+                </div>
+              </div>
+            </header>
+
+            <section class="detail-summary-card">
+              <div class="card-cta-row detail-cta-row">
+                {% if place.phone1 %}
+                  <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">{% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}Позвонить{% endif %}</a>
+                  <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">WhatsApp</a>
+                {% endif %}
+                {% if place.instagram %}
+                  <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">Instagram</a>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                  <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                    <button type="submit" class="like-btn detail-save-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
+                      <span class="detail-save-btn__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 20.25 4.875 13.5a4.74 4.74 0 0 1 0-6.75 4.94 4.94 0 0 1 6.938 0L12 7.05l.188-.3a4.94 4.94 0 0 1 6.937 0 4.74 4.74 0 0 1 0 6.75L12 20.25Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </span>
+                      <span class="detail-save-btn__label">{% if language == "az" %}Seçilmişlərə{% elif language == "en" %}Favorite{% else %}В избранное{% endif %}</span>
+                    </button>
+                  </form>
+                {% else %}
+                  <div class="like-form detail-like-form">
+                    <button
+                      type="button"
+                      class="like-btn detail-save-btn"
+                      aria-pressed="false"
+                      data-auth-required-trigger
+                      data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
+                      data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
+                    >
+                      <span class="detail-save-btn__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 20.25 4.875 13.5a4.74 4.74 0 0 1 0-6.75 4.94 4.94 0 0 1 6.938 0L12 7.05l.188-.3a4.94 4.94 0 0 1 6.937 0 4.74 4.74 0 0 1 0 6.75L12 20.25Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </span>
+                      <span class="detail-save-btn__label">{% if language == "az" %}Seçilmişlərə{% elif language == "en" %}Favorite{% else %}В избранное{% endif %}</span>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+
+              {% if place.description_i18n %}
+                <div class="detail-description detail-description--lead">
+                  <p>{{ place.description_i18n|linebreaksbr }}</p>
+                </div>
+              {% endif %}
+
+              <section class="detail-highlights" aria-label="{% trans 'Основные характеристики' %}">
+                {% if place.age_display %}
+                  <div class="detail-highlight-card">
+                    <span class="detail-highlight-card__label">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</span>
+                    <strong class="detail-highlight-card__value">{{ place.age_display }}</strong>
+                  </div>
+                {% endif %}
+
+                {% if place.price_range_display %}
+                  <div class="detail-highlight-card">
+                    <span class="detail-highlight-card__label">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</span>
+                    <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
+                  </div>
+                {% endif %}
+
+                <div class="detail-highlight-card">
+                  <span class="detail-highlight-card__label">{% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}Категория{% endif %}</span>
+                  <strong class="detail-highlight-card__value">{{ place.get_category_display }}</strong>
+                </div>
+
+                {% if place.subcategory %}
+                  <div class="detail-highlight-card detail-highlight-card--muted">
+                    <span class="detail-highlight-card__label">{% if language == "az" %}Alt kateqoriya{% elif language == "en" %}Subcategory{% else %}Подкатегория{% endif %}</span>
+                    <strong class="detail-highlight-card__value">{{ place.subcategory }}</strong>
+                  </div>
+                {% endif %}
+              </section>
+            </section>
+          </div>
         </div>
       {% endwith %}
 
       <div class="detail-body">
-        <div class="detail-main-column">
+        {% with language=request.LANGUAGE_CODE %}
           {% if place.pricing_options or place.schedule or place.lesson_duration_display or place.extra_conditions or place.additional_info %}
-            <section class="detail-pricing-panel detail-section">
+            <section class="detail-pricing-panel detail-section detail-body-card detail-body-card--pricing">
               <div class="detail-section-head">
-                <h2>{% trans "Расписание и цена" %}</h2>
-                <p class="meta">{% trans "Главные условия занятий и формат оплаты." %}</p>
+                <h2>{% if language == "az" %}Cədvəl və qiymət{% elif language == "en" %}Schedule and pricing{% else %}Расписание и цена{% endif %}</h2>
+                <p class="meta">{% if language == "az" %}Məşğələ cədvəli və ödəniş məlumatları{% elif language == "en" %}Session schedule and payment details{% else %}Главные условия занятий и формат оплаты{% endif %}</p>
               </div>
-              <div class="detail-pricing-grid">
-                {% if place.pricing_options %}
-                  <div class="detail-pricing-card">
-                    <span class="meta-label">{% trans "Форматы оплаты" %}</span>
-                    <ul class="place-pricing-list">
-                      {% for label, value in place.pricing_options %}
-                        <li><span>{{ label }}</span><strong>{{ value }}</strong></li>
-                      {% endfor %}
-                    </ul>
+              <div class="detail-pricing-grid detail-pricing-grid--balanced">
+                {% if place.pricing_options or place.price_range_display %}
+                  <div class="detail-pricing-card detail-pricing-card--price">
+                    <span class="meta-label">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</span>
+                    {% if place.pricing_options and place.pricing_options|length == 1 %}
+                      <div class="detail-price-stack">
+                        <strong class="detail-price-main">{{ place.pricing_options.0.1 }}</strong>
+                        <span class="detail-price-note">{{ place.pricing_options.0.0 }}</span>
+                      </div>
+                    {% elif place.pricing_options %}
+                      <ul class="place-pricing-list detail-pricing-list">
+                        {% for label, value in place.pricing_options %}
+                          <li><span>{{ label }}</span><strong>{{ value }}</strong></li>
+                        {% endfor %}
+                      </ul>
+                    {% elif place.price_range_display %}
+                      <div class="detail-price-stack">
+                        <strong class="detail-price-main">{{ place.price_range_display }}</strong>
+                      </div>
+                    {% endif %}
                   </div>
                 {% endif %}
 
                 {% if place.schedule or place.lesson_duration_display %}
-                  <div class="detail-pricing-card">
-                    <span class="meta-label">{% trans "Расписание занятий" %}</span>
+                  <div class="detail-pricing-card detail-pricing-card--schedule">
+                    <span class="meta-label">{% if language == "az" %}Dərs cədvəli{% elif language == "en" %}Schedule{% else %}Расписание{% endif %}</span>
                     {% if place.schedule %}
-                      <p class="place-more-text">{{ place.schedule|linebreaksbr }}</p>
+                      <div class="detail-schedule-copy">{{ place.schedule|linebreaksbr }}</div>
                     {% endif %}
                     {% if place.lesson_duration_display %}
-                      <p class="place-more-meta"><b>{% trans "Длительность урока" %}:</b> {{ place.lesson_duration_display }}</p>
+                      <p class="place-more-meta"><b>{% if language == "az" %}Müddət{% elif language == "en" %}Duration{% else %}Длительность урока{% endif %}:</b> {{ place.lesson_duration_display }}</p>
                     {% endif %}
                   </div>
                 {% endif %}
 
                 {% if place.extra_conditions or place.additional_info %}
-                  <div class="detail-pricing-card">
-                    <span class="meta-label">{% trans "Дополнительно" %}</span>
+                  <div class="detail-pricing-card detail-pricing-card--extra">
+                    <span class="meta-label">{% if language == "az" %}Əlavə məlumat{% elif language == "en" %}Additional details{% else %}Дополнительно{% endif %}</span>
                     {% if place.extra_conditions %}
                       <p class="place-more-text">{{ place.extra_conditions|linebreaksbr }}</p>
                     {% endif %}
@@ -253,14 +260,101 @@
             </section>
           {% endif %}
 
-          <section id="reviews" class="detail-reviews detail-section">
+          <section class="detail-side-card detail-contact-panel detail-body-card detail-body-card--contact">
+            <div class="detail-section-head detail-section-head-compact">
+              <h2>{% if language == "az" %}Əlaqə məlumatları{% elif language == "en" %}Contact details{% else %}Контакты и связь{% endif %}</h2>
+              <p class="meta">{% if language == "az" %}Sürətli əlaqə üçün məlumatlar{% elif language == "en" %}Fast ways to contact the venue{% else %}Быстрые способы связаться и уточнить детали{% endif %}</p>
+            </div>
+            <div class="detail-contact-actions">
+              {% if place.phone1 %}
+                <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">{% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}Позвонить{% endif %}</a>
+                <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">WhatsApp</a>
+              {% endif %}
+              {% if place.instagram %}
+                <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">Instagram</a>
+              {% endif %}
+            </div>
+            <div class="detail-contact-list">
+              {% if place.phone1 %}
+                <div class="detail-contact-row">
+                  <span class="meta-label">{% if language == "az" %}Telefon{% elif language == "en" %}Phone{% else %}Телефон{% endif %}</span>
+                  <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a>
+                </div>
+              {% endif %}
+              {% if place.instagram %}
+                <div class="detail-contact-row">
+                  <span class="meta-label">Instagram</span>
+                  <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a>
+                </div>
+              {% endif %}
+              {% if place.address %}
+                <div class="detail-contact-row">
+                  <span class="meta-label">{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</span>
+                  <span>{{ place.address }}</span>
+                </div>
+              {% endif %}
+              {% if place.website %}
+                <div class="detail-contact-row">
+                  <span class="meta-label">{% if language == "az" %}Sayt{% elif language == "en" %}Website{% else %}Сайт{% endif %}</span>
+                  <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a>
+                </div>
+              {% endif %}
+            </div>
+          </section>
+
+          {% if map_embed_url %}
+            <section class="detail-side-card detail-map-wrap detail-body-card detail-body-card--map">
+              <div class="detail-section-head detail-section-head-compact">
+                <h2 class="detail-map-title">{% if language == "az" %}Xəritədə{% elif language == "en" %}On the map{% else %}На карте{% endif %}</h2>
+                <p class="meta">{% if language == "az" %}Ünvan və xəritədə baxış{% elif language == "en" %}Address and map preview{% else %}Ориентир по месту и быстрый переход в большую карту{% endif %}</p>
+              </div>
+              {% if place.address %}
+                <p class="detail-map-address">{{ place.address }}</p>
+              {% endif %}
+              <iframe
+                class="detail-map-frame"
+                src="{{ map_embed_url }}"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="{% trans 'Карта места' %}"
+              ></iframe>
+              <div class="detail-map-foot">
+                <p class="detail-map-link">
+                  <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% if language == "az" %}Böyük xəritədə aç{% elif language == "en" %}Open larger map{% else %}Открыть большую карту{% endif %}</a>
+                </p>
+                {% if place.lat and place.lng %}
+                  <p class="detail-map-coordinates">{{ place.lat }}, {{ place.lng }}</p>
+                {% endif %}
+              </div>
+            </section>
+          {% endif %}
+
+          <section id="reviews" class="detail-reviews detail-section detail-body-card detail-body-card--reviews">
             <div class="detail-section-head">
-              <h2>{% trans "Отзывы" %}</h2>
+              <h2>{% if language == "az" %}Rəylər{% elif language == "en" %}Reviews{% else %}Отзывы{% endif %}</h2>
               <p class="meta">
-                {% if place.rating_count %}
-                  {% blocktrans count total=place.rating_count %}{{ total }} отзыв помогает понять место лучше.{% plural %}{{ total }} отзыва помогают понять место лучше.{% endblocktrans %}
+                {% if place_reviews %}
+                  {% if place.rating_count %}
+                    {% blocktrans count total=place.rating_count %}{{ total }} отзыв помогает понять место лучше.{% plural %}{{ total }} отзыва помогают понять место лучше.{% endblocktrans %}
+                  {% else %}
+                    {% if language == "az" %}Rəylər digər valideynlər üçün də faydalı olacaq.{% elif language == "en" %}Reviews help other parents make a faster choice.{% else %}Отзывы помогут другим родителям быстрее сориентироваться.{% endif %}
+                  {% endif %}
+                {% elif place.rating_count %}
+                  {% if language == "az" %}
+                    Bu məkan üçün hələ yazılı rəy yoxdur. İlk rəy yazan siz olun.
+                  {% elif language == "en" %}
+                    There are ratings already, but no written review yet. Be the first to leave one.
+                  {% else %}
+                    Для этого места уже есть оценки, но пока нет письменных отзывов. Оставьте первый.
+                  {% endif %}
                 {% else %}
-                  {% trans "Пока отзывов мало, но вы можете оставить первый." %}
+                  {% if language == "az" %}
+                    Hələ rəy yoxdur. İlk rəyi siz yazın.
+                  {% elif language == "en" %}
+                    No reviews yet. Be the first to write one.
+                  {% else %}
+                    Пока отзывов мало, но вы можете оставить первый.
+                  {% endif %}
                 {% endif %}
               </p>
             </div>
@@ -273,30 +367,44 @@
               </div>
             {% endif %}
 
-            <form method="get" class="reviews-toolbar">
-              <label class="filter-item filter-sort">
-                {% trans "Сортировка отзывов" %}
-                <select class="filter-select" name="review_sort">
-                  {% for value, label in review_sort_choices %}
-                    <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
-                  {% endfor %}
-                </select>
-              </label>
-              <button class="link-btn" type="submit">{% trans "Применить" %}</button>
-            </form>
-
             {% if place_reviews %}
+              <form method="get" class="reviews-toolbar">
+                <label class="filter-item filter-sort">
+                  {% if language == "az" %}Rəylərin sıralanması{% elif language == "en" %}Review sorting{% else %}Сортировка отзывов{% endif %}
+                  <select class="filter-select" name="review_sort">
+                    {% for value, label in review_sort_choices %}
+                      <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+                <button class="link-btn" type="submit">{% if language == "az" %}Tətbiq et{% elif language == "en" %}Apply{% else %}Применить{% endif %}</button>
+              </form>
+
               <div class="reviews-list detail-reviews-list">
                 {% for review in place_reviews %}
                   {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_place_review" show_place_link=False next_url=request.get_full_path %}
                 {% endfor %}
               </div>
             {% else %}
-              <p class="meta">{% trans "Пока нет отзывов. Будьте первым!" %}</p>
+              <p class="meta">
+                {% if place.rating_count and language == "az" %}
+                  Bu məkan üçün hələ yazılı rəy yoxdur. İlk rəy yazan siz olun.
+                {% elif place.rating_count and language == "en" %}
+                  There are ratings already, but no written review yet. Be the first to leave one.
+                {% elif place.rating_count %}
+                  Для этого места уже есть оценки, но пока нет письменных отзывов. Оставьте первый.
+                {% elif language == "az" %}
+                  Hələ rəy yoxdur. İlk rəyi siz yazın.
+                {% elif language == "en" %}
+                  No reviews yet. Be the first to write one.
+                {% else %}
+                  Пока нет отзывов. Будьте первым!
+                {% endif %}
+              </p>
             {% endif %}
 
             <div class="detail-review-write">
-              <h3>{% trans "Оставить отзыв" %}</h3>
+              <h3>{% if language == "az" %}Rəy yaz{% elif language == "en" %}Write a review{% else %}Оставить отзыв{% endif %}</h3>
               {% if request.user.is_authenticated %}
                 <form method="post" action="{% url 'add_place_review' place.id %}" class="review-form" data-loading-form>
                   {% csrf_token %}
@@ -339,74 +447,30 @@
               {% endif %}
             </div>
           </section>
-        </div>
 
-        <aside class="detail-side-column">
-          <section class="detail-side-card detail-contact-panel">
+          <section class="detail-side-card detail-facts-panel detail-body-card detail-body-card--facts">
             <div class="detail-section-head detail-section-head-compact">
-              <h2>{% trans "Контакты и связь" %}</h2>
-              <p class="meta">{% trans "Быстрые способы связаться и уточнить детали." %}</p>
+              <h2>{% if language == "az" %}Əsas məlumatlar{% elif language == "en" %}Basic details{% else %}Основные данные{% endif %}</h2>
+              <p class="meta">{% if language == "az" %}Format, məkan və şərtlər üzrə qısa məlumat{% elif language == "en" %}Short summary of format, location, and essentials{% else %}Короткая сводка по формату, локации и условиям{% endif %}</p>
             </div>
-            <div class="detail-contact-actions">
-              {% if place.phone1 %}
-                <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">{% trans "Позвонить" %}</a>
-                <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">WhatsApp</a>
-              {% endif %}
-              {% if place.instagram %}
-                <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-side">Instagram</a>
-              {% endif %}
-              {% if place.website %}
-                <a class="link-btn" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{% trans "Открыть сайт" %}</a>
-              {% endif %}
-            </div>
-            <div class="detail-contact-list">
-              {% if place.phone1 %}
-                <div class="detail-contact-row">
-                  <span class="meta-label">{% trans "Телефон" %}</span>
-                  <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a>
-                </div>
-              {% endif %}
-              {% if place.instagram %}
-                <div class="detail-contact-row">
-                  <span class="meta-label">Instagram</span>
-                  <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a>
-                </div>
-              {% endif %}
-              {% if place.website %}
-                <div class="detail-contact-row">
-                  <span class="meta-label">{% trans "Сайт" %}</span>
-                  <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a>
-                </div>
-              {% endif %}
-              {% if place.address %}
-                <div class="detail-contact-row">
-                  <span class="meta-label">{% trans "Адрес" %}</span>
-                  <span>{{ place.address }}</span>
-                </div>
-              {% endif %}
-            </div>
-          </section>
-
-          <section class="detail-side-card detail-facts-panel">
-            <div class="detail-section-head detail-section-head-compact">
-              <h2>{% trans "Основные данные" %}</h2>
-              <p class="meta">{% trans "Короткая сводка по формату, локации и условиям." %}</p>
-            </div>
+            {% if place.is_temporary %}
+              {% include "catalog/includes/temporary_event_badge.html" with place=place language=language variant="detail" %}
+            {% endif %}
             <div class="detail-meta-grid detail-meta-grid--compact">
               <div class="detail-meta-item">
-                <span class="meta-label">{% trans "Формат" %}</span>
+                <span class="meta-label">{% if language == "az" %}Format{% elif language == "en" %}Format{% else %}Формат{% endif %}</span>
                 <div class="meta-value">
                   {% if place.is_temporary %}
-                    {% trans "Временное" %}
+                    {% if language == "az" %}Müvəqqəti tədbir{% elif language == "en" %}Temporary event{% else %}{% trans "Временное мероприятие" %}{% endif %}
                   {% else %}
-                    {% trans "Постоянное" %}
+                    {% if language == "az" %}Daimi məkan{% elif language == "en" %}Permanent place{% else %}{% trans "Постоянное место" %}{% endif %}
                   {% endif %}
                 </div>
               </div>
 
               {% if place.is_temporary and place.temporary_start or place.temporary_end %}
                 <div class="detail-meta-item">
-                  <span class="meta-label">{% trans "Период" %}</span>
+                  <span class="meta-label">{% if language == "az" %}Dövr{% elif language == "en" %}Period{% else %}Период{% endif %}</span>
                   <div class="meta-value">
                     {% if place.temporary_start %}{{ place.temporary_start|date:"d.m.Y H:i" }}{% endif %}
                     {% if place.temporary_start and place.temporary_end %} — {% endif %}
@@ -417,60 +481,35 @@
 
               {% if place.district or place.metro %}
                 <div class="detail-meta-item">
-                  <span class="meta-label">{% trans "Регион / район / метро" %}</span>
+                  <span class="meta-label">{% if language == "az" %}Rayon / metro{% elif language == "en" %}District / metro{% else %}Регион / район / метро{% endif %}</span>
                   <div class="meta-value">{% if place.district %}{% trans place.district %}{% endif %}{% if place.district and place.metro %} / {% endif %}{% if place.metro %}{% trans place.metro %}{% endif %}</div>
                 </div>
               {% endif %}
 
-              {% if place.lesson_duration_display %}
-                <div class="detail-meta-item">
-                  <span class="meta-label">{% trans "Длительность" %}</span>
-                  <div class="meta-value">{{ place.lesson_duration_display }}</div>
-                </div>
-              {% endif %}
-
               <div class="detail-meta-item">
-                <span class="meta-label">{% trans "Добавлено" %}</span>
+                <span class="meta-label">{% if language == "az" %}Əlavə olunub{% elif language == "en" %}Added{% else %}Добавлено{% endif %}</span>
                 <div class="meta-value">{{ place.created_at|date:"d.m.Y" }}</div>
               </div>
-
-              {% if place.lat and place.lng %}
-                <div class="detail-meta-item">
-                  <span class="meta-label">{% trans "Координаты" %}</span>
-                  <div class="meta-value">{{ place.lat }}, {{ place.lng }}</div>
-                </div>
-              {% endif %}
             </div>
           </section>
 
-          {% if map_embed_url %}
-            <section class="detail-side-card detail-map-wrap">
-              <div class="detail-section-head detail-section-head-compact">
-                <h2 class="detail-map-title">{% trans "На карте" %}</h2>
-                <p class="meta">{% trans "Ориентир по месту и быстрый переход в большую карту." %}</p>
-              </div>
-              <iframe
-                class="detail-map-frame"
-                src="{{ map_embed_url }}"
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-                title="{% trans 'Карта места' %}"
-              ></iframe>
-              <p class="detail-map-link">
-                <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% trans "Открыть большую карту" %}</a>
-              </p>
-            </section>
-          {% endif %}
-
-          <section id="owner-request" class="owner-request detail-side-card owner-request--subtle">
+          <section id="owner-request" class="owner-request detail-side-card owner-request--subtle detail-body-card detail-body-card--owner">
             <div class="detail-section-head detail-section-head-compact">
-              <h2>{% trans "Вы представитель этого кружка?" %}</h2>
-              <p class="meta">{% trans "Служебный блок для доступа к управлению карточкой." %}</p>
+              <h2>{% if language == "az" %}Bu məkanın nümayəndəsisiniz?{% elif language == "en" %}Do you represent this venue?{% else %}Вы представитель этого кружка?{% endif %}</h2>
+              <p class="meta">{% if language == "az" %}Məkan idarəçiliyi üçün bölmə{% elif language == "en" %}Section for venue management access{% else %}Служебный блок для доступа к управлению карточкой{% endif %}</p>
             </div>
             {% if place.owner %}
               <p class="meta">{% trans "Карточка уже закреплена за представителем кружка. Если доступ нужен вашей команде, свяжитесь с нами." %}</p>
             {% else %}
-              <p class="meta">{% trans "Если вы ведете этот кружок, можно отправить заявку и получить доступ к редактированию карточки." %}</p>
+              <p class="meta">
+                {% if language == "az" %}
+                  Məlumatları yeniləmək və kartı idarə etmək üçün hesabınıza daxil olun.
+                {% elif language == "en" %}
+                  Sign in to update the details and manage this card.
+                {% else %}
+                  Если вы ведете этот кружок, можно отправить заявку и получить доступ к редактированию карточки.
+                {% endif %}
+              </p>
             {% endif %}
 
             {% if request.user.is_authenticated %}
@@ -495,17 +534,41 @@
               {% endif %}
             {% else %}
               <div class="review-auth-note">
-                <p>{% trans "Чтобы отправить заявку на управление карточкой, войдите в аккаунт." %}</p>
+                <p>
+                  {% if language == "az" %}
+                    Məlumatları yeniləmək və kartı idarə etmək üçün hesabınıza daxil olun.
+                  {% elif language == "en" %}
+                    Sign in to update the details and manage this card.
+                  {% else %}
+                    Чтобы отправить заявку на управление карточкой, войдите в аккаунт.
+                  {% endif %}
+                </p>
                 <div class="review-auth-actions">
-                  <a class="btn" href="{% url 'account_login' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% trans "Войти" %}</a>
-                  <a class="link-btn" href="{% url 'account_register' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% trans "Регистрация" %}</a>
+                  <a class="btn" href="{% url 'account_login' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% if language == "az" %}Daxil ol{% elif language == "en" %}Log in{% else %}Войти{% endif %}</a>
+                  <a class="link-btn" href="{% url 'account_register' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% if language == "az" %}Qeydiyyat{% elif language == "en" %}Sign up{% else %}Регистрация{% endif %}</a>
                 </div>
               </div>
             {% endif %}
           </section>
-        </aside>
+        {% endwith %}
       </div>
     </article>
+
+    {% with language=request.LANGUAGE_CODE %}
+      {% if place.phone1 or place.instagram %}
+        <div class="detail-mobile-sticky-bar" aria-label="{% trans 'Быстрые действия' %}">
+          <div class="detail-mobile-sticky-bar__inner">
+            {% if place.phone1 %}
+              <a class="btn detail-mobile-sticky-bar__btn" href="tel:{{ place.phone1 }}">{% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}Позвонить{% endif %}</a>
+              <a class="btn detail-mobile-sticky-bar__btn detail-mobile-sticky-bar__btn--ghost" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener">WhatsApp</a>
+            {% endif %}
+            {% if place.instagram %}
+              <a class="btn detail-mobile-sticky-bar__btn detail-mobile-sticky-bar__btn--ghost" href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endwith %}
   </section>
   <script>
     (function () {
@@ -543,4 +606,5 @@
 {% block extra_body %}
   <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
   <script src="{% static 'js/place_gallery.js' %}"></script>
+  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
 {% endblock %}

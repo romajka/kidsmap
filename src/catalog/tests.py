@@ -2827,12 +2827,19 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
     def _image_upload(self, name: str) -> SimpleUploadedFile:
         return SimpleUploadedFile(name, b"fake-image-content", content_type="image/png")
 
+    def _oversized_image_upload(self, name: str) -> SimpleUploadedFile:
+        return SimpleUploadedFile(name, b"x" * (2 * 1024 * 1024 + 1), content_type="image/png")
+
     def test_owner_manager_can_open_places_dashboard(self):
+        self.manager_place.status = Place.STATUS_DRAFT
+        self.manager_place.save(update_fields=["status", "updated_at"])
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.get(reverse("owner_places_dashboard"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Кружок менеджера")
+        self.assertContains(response, "Redaktəni davam et")
+        self.assertContains(response, reverse("owner_place_edit", args=[self.manager_place.id]))
 
     def test_owner_edit_page_shows_current_photo_preview(self):
         self.editor_place.photo = self._image_upload("preview-main.png")
@@ -2852,6 +2859,60 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "owner_place_wizard.js")
         self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
+
+    def test_owner_editor_can_save_incomplete_edit_as_draft(self):
+        self.editor_place.name_az = "Redakte qaralama"
+        self.editor_place.description_az = "Ilkin tesvir"
+        self.editor_place.category = "EDU"
+        self.editor_place.status = Place.STATUS_DRAFT
+        self.editor_place.is_active = False
+        self.editor_place.photo = self._image_upload("draft-edit.png")
+        self.editor_place.save()
+
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.editor_place.id]),
+            data={
+                "form_action": "save_draft",
+                "name_ru": "",
+                "name_az": "Redakte qaralama",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "Yenilenmis qaralama tesviri",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "lat": "",
+                "lng": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "lesson_duration_minutes": "",
+                "price_per_lesson": "",
+                "price_per_month": "",
+                "price_per_8_lessons": "",
+                "extra_conditions": "",
+                "additional_info": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.editor_place.refresh_from_db()
+        self.assertEqual(self.editor_place.name_az, "Redakte qaralama")
+        self.assertEqual(self.editor_place.description_az, "Yenilenmis qaralama tesviri")
+        self.assertEqual(self.editor_place.status, Place.STATUS_DRAFT)
 
     def test_owner_edit_page_hides_public_link_for_inactive_place(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
@@ -3185,6 +3246,51 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         ownership_request = PlaceOwnershipRequest.objects.get(place=place, applicant=self.manager_user)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
 
+    def test_owner_manager_can_save_incomplete_place_as_draft(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "form_action": "save_draft",
+                "name_az": "Yarımçıq qaralama",
+                "category": "EDU",
+                "description_az": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        place = Place.objects.get(owner=self.manager_user, name_az="Yarımçıq qaralama")
+        self.assertEqual(place.status, Place.STATUS_DRAFT)
+        self.assertFalse(place.is_active)
+        self.assertFalse(place.is_verified)
+        self.assertFalse(PlaceOwnershipRequest.objects.filter(place=place, applicant=self.manager_user).exists())
+
+    def test_owner_cannot_create_more_than_ten_places(self):
+        for index in range(2, 11):
+            Place.objects.create(
+                name=f"Manager Place {index}",
+                name_ru=f"Кружок менеджера {index}",
+                category="EDU",
+                owner=self.manager_user,
+                is_active=False,
+                status=Place.STATUS_DRAFT,
+            )
+
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_place_create"), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Limit dolub")
+
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
     def test_owner_manager_create_place_populates_coordinates_automatically(self, geocode_mock):
@@ -3286,7 +3392,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             ).exists()
         )
 
-    def test_owner_place_create_rejects_more_than_five_gallery_files(self):
+    def test_owner_place_create_rejects_more_than_ten_gallery_files(self):
         form = OwnerPlaceCreateForm(
             data={
                 "name_ru": "Слишком много фото",
@@ -3322,6 +3428,11 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                         self._image_upload("g4.png"),
                         self._image_upload("g5.png"),
                         self._image_upload("g6.png"),
+                        self._image_upload("g7.png"),
+                        self._image_upload("g8.png"),
+                        self._image_upload("g9.png"),
+                        self._image_upload("g10.png"),
+                        self._image_upload("g11.png"),
                     ]
                 }
             ),
@@ -3329,6 +3440,40 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn("gallery_images", form.errors)
+
+    def test_owner_place_create_rejects_main_photo_larger_than_two_mb(self):
+        form = OwnerPlaceCreateForm(
+            data={
+                "name_ru": "Большое фото",
+                "name_az": "Boyuk sekil",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "Boyuk sekil ucun tesvir",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "10",
+                "price_to": "20",
+                "district": "Yasamal",
+                "metro": "",
+                "address": "Улица 1",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+                "moderation_note": "",
+            },
+            files=MultiValueDict({"photo": [self._oversized_image_upload("too-large.png")]}),
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("photo", form.errors)
+        self.assertIn("2 МБ", form.errors["photo"][0])
 
     def test_owner_place_create_requires_description_in_azerbaijani(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
@@ -3438,8 +3583,9 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("temporary_start", response.context["form"].errors)
         self.assertIn("temporary_end", response.context["form"].errors)
-        self.assertContains(response, 'class="owner-temp-panel" data-temp-panel', html=False)
-        self.assertNotContains(response, 'class="owner-temp-panel" hidden data-temp-panel', html=False)
+        self.assertContains(response, 'data-owner-listing-type="temporary"', html=False)
+        self.assertContains(response, 'data-owner-mode-panel="temporary"', html=False)
+        self.assertContains(response, 'name="is_temporary" class="field-check" id="id_is_temporary" checked', html=False)
         self.assertFalse(Place.objects.filter(name_ru="Временное мероприятие без дат").exists())
 
     def test_owner_place_create_rejects_custom_metro_value(self):

@@ -1,262 +1,321 @@
 {% extends "base.html" %}
 {% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% trans "Управление кружками" %}{% endblock %}
-{% block title_plain %}{% trans "Управление кружками" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Управление кружками" %} | KidsMap{% endblock %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="panel owner-places">
+  <section class="panel owner-places owner-places-dashboard">
     {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
-    <div class="owner-page-head">
-      <div>
-        <h1>{% trans "Управление карточками" %}</h1>
-        <p class="auth-subtitle">{% trans "Редактирование, черновики и публикация ваших кружков." %}</p>
-      </div>
-      <div class="owner-page-actions">
-        {% if can_edit_places %}
-          <a class="btn" href="{% url 'owner_place_create' %}">{% trans "Добавить новую карточку" %}</a>
-        {% endif %}
-        <a class="link-btn" href="{% url 'owner_cabinet' %}">{% trans "К заявкам" %}</a>
-        {% if can_moderate_reviews %}
-          <a class="btn-secondary" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
-        {% endif %}
-      </div>
-    </div>
 
-    <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
-      <a class="chip-link" href="{% url 'owner_cabinet' %}">{% trans "Заявки" %}</a>
-      <a class="chip-link active" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+    <header class="owner-dashboard-head">
+      <div>
+        <h1>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h1>
+        <p class="auth-subtitle">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Məkanlarınızı əlavə edin və moderasiya statusunu izləyin.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Add places and track their publishing and moderation status.
+          {% else %}
+            Добавляйте места и следите за их публикацией и модерацией.
+          {% endif %}
+        </p>
+      </div>
+      {% if can_create_more_places %}
+        <a class="btn owner-dashboard-add" href="{% url 'owner_place_create' %}">
+          <span aria-hidden="true">+</span>
+          {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}
+        </a>
+      {% else %}
+        <span class="btn-secondary owner-dashboard-add owner-dashboard-add-disabled">
+          {% if CURRENT_LANGUAGE == "az" %}Limit dolub{% elif CURRENT_LANGUAGE == "en" %}Limit reached{% else %}Лимит заполнен{% endif %}
+        </span>
+      {% endif %}
+    </header>
+
+    <nav class="owner-dashboard-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Kabinet bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Cabinet sections{% else %}Разделы кабинета{% endif %}">
+      <a class="owner-dashboard-tab is-active" href="{% url 'owner_places_dashboard' %}">
+        <span aria-hidden="true">⌖</span>
+        {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
+      </a>
       {% if can_moderate_reviews %}
-        <a class="chip-link" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
+        <a class="owner-dashboard-tab" href="{% url 'owner_reviews_dashboard' %}">
+          <span aria-hidden="true">□</span>
+          {% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}
+        </a>
+      {% else %}
+        <span class="owner-dashboard-tab is-disabled">
+          <span aria-hidden="true">□</span>
+          {% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}
+        </span>
       {% endif %}
     </nav>
 
-    <div class="owner-context-panel" aria-label="{% trans 'Текущий раздел' %}">
-      <picture class="owner-context-picture">
-        <source
-          media="(max-width: 760px)"
-          srcset="{% static 'img/banners/owner-dashboard-hero-mobile.webp' %}?v=mobile-20260519"
-        >
-        <img
-          class="owner-context-image"
-          src="{% static 'img/banners/owner-dashboard-hero.webp' %}"
-          width="1200"
-          height="500"
-          alt=""
-          loading="lazy"
-          decoding="async"
-        >
-      </picture>
-      <div>
-        <p class="owner-context-kicker">{% trans "Кабинет владельца" %}</p>
-        <h2>{% trans "Вы в разделе управления карточками" %}</h2>
-        <p class="meta">{% trans "Здесь можно добавлять кружки, отправлять их на модерацию и следить за публикацией." %}</p>
+    <section class="owner-dashboard-banner">
+      <div class="owner-dashboard-banner__copy">
+        <span class="owner-dashboard-banner__icon" aria-hidden="true">i</span>
+        <div>
+          <h2>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Yeni məkanlar əlavə edin və statusunu izləyin
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Add new places and track their status
+            {% else %}
+              Добавляйте новые места и отслеживайте их статус
+            {% endif %}
+          </h2>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məlumatları doldurun, məkanı moderasiyaya göndərin və yoxlamadan sonra kataloqda dərc olunsun.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Fill in the details, send the place for moderation, and it will appear in the catalog after review.
+            {% else %}
+              Заполните информацию, отправьте место на модерацию, и после проверки оно появится в каталоге.
+            {% endif %}
+          </p>
+        </div>
       </div>
-      <div class="owner-context-meta">
-        <span>{% trans "Роль" %}: <strong>{% trans "Владелец кружка / бизнеса" %}</strong></span>
-        <span>{% trans "Ожидают модерации" %}: <strong>{{ pending_moderation_count }}</strong></span>
+      <div class="owner-dashboard-banner__art" aria-hidden="true">
+        <span class="owner-dashboard-banner__leaf"></span>
+        <span class="owner-dashboard-banner__screen"></span>
+        <span class="owner-dashboard-banner__pin"></span>
       </div>
-    </div>
+    </section>
+
+    <section class="owner-dashboard-actions" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Əsas əməliyyatlar{% elif CURRENT_LANGUAGE == 'en' %}Main actions{% else %}Основные действия{% endif %}">
+      <article class="owner-action-card owner-action-card--new">
+        <div class="owner-action-card__mark" aria-hidden="true">+</div>
+        <div>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a new place{% else %}Добавить новое место{% endif %}</h2>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Yeni məkan kartı yaradın və valideynlər üçün faydalı məlumat paylaşın.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Create a new place card and share useful information with parents.
+            {% else %}
+              Создайте новую карточку места и поделитесь полезной информацией с родителями.
+            {% endif %}
+          </p>
+        </div>
+        {% if can_create_more_places %}
+          <a class="btn owner-action-card__button" href="{% url 'owner_place_create' %}">
+            {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}
+          </a>
+        {% else %}
+          <span class="btn-secondary owner-action-card__button owner-dashboard-add-disabled">
+            {% if CURRENT_LANGUAGE == "az" %}Limit dolub{% elif CURRENT_LANGUAGE == "en" %}Limit reached{% else %}Лимит заполнен{% endif %}
+          </span>
+        {% endif %}
+      </article>
+
+      {% if latest_editable_place %}
+        <article class="owner-action-card">
+          <div class="owner-action-card__mark" aria-hidden="true">▤</div>
+          <div>
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı davam etdir{% elif CURRENT_LANGUAGE == "en" %}Continue draft{% else %}Продолжить черновик{% endif %}</h2>
+            <p>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Tamamlanmamış məkan kartınız var.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                You have an unfinished place card.
+              {% else %}
+                У вас есть незавершённая карточка места.
+              {% endif %}
+            </p>
+            <span class="owner-action-card__place">{{ latest_editable_place.name_i18n }}</span>
+          </div>
+          <a class="btn-secondary owner-action-card__button" href="{% url 'owner_place_edit' latest_editable_place.id %}" data-owner-legacy-label="Redaktəni davam et">
+            {% if CURRENT_LANGUAGE == "az" %}Redaktəyə davam et{% elif CURRENT_LANGUAGE == "en" %}Continue editing{% else %}Продолжить редактирование{% endif %}
+          </a>
+        </article>
+      {% endif %}
+    </section>
 
     {% if can_view_stats %}
-      <div class="owner-stats-grid">
+      <section class="owner-dashboard-stats" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Statistika{% elif CURRENT_LANGUAGE == 'en' %}Statistics{% else %}Статистика{% endif %}">
         <article class="owner-stat-card">
-          <span class="meta-label">{% trans "Всего карточек" %}</span>
+          <span class="owner-stat-card__icon" aria-hidden="true">⌖</span>
           <strong>{{ owner_stats.total_places }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Bütün məkanlar{% elif CURRENT_LANGUAGE == "en" %}Total places{% else %}Всего мест{% endif %}</span>
         </article>
         <article class="owner-stat-card">
-          <span class="meta-label">{% trans "Опубликовано" %}</span>
+          <span class="owner-stat-card__icon" aria-hidden="true">↗</span>
           <strong>{{ owner_stats.published_places }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
         </article>
         <article class="owner-stat-card">
-          <span class="meta-label">{% trans "Черновики и модерация" %}</span>
+          <span class="owner-stat-card__icon" aria-hidden="true">◷</span>
           <strong>{{ owner_stats.draft_places }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts and moderation{% else %}Черновики и модерация{% endif %}</span>
         </article>
         <article class="owner-stat-card">
-          <span class="meta-label">{% trans "Отзывы" %}</span>
+          <span class="owner-stat-card__icon" aria-hidden="true">□</span>
           <strong>{{ owner_stats.total_reviews }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
         </article>
         <article class="owner-stat-card">
-          <span class="meta-label">{% trans "Лайки" %}</span>
+          <span class="owner-stat-card__icon" aria-hidden="true">♡</span>
           <strong>{{ owner_stats.total_likes }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Bəyənmələr{% elif CURRENT_LANGUAGE == "en" %}Likes{% else %}Лайки{% endif %}</span>
         </article>
         <article class="owner-stat-card">
-          <span class="meta-label">{% trans "Средний рейтинг" %}</span>
+          <span class="owner-stat-card__icon" aria-hidden="true">☆</span>
           <strong>{{ owner_stats.avg_rating|floatformat:1 }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Orta reytinq{% elif CURRENT_LANGUAGE == "en" %}Average rating{% else %}Средний рейтинг{% endif %}</span>
         </article>
-      </div>
-    {% else %}
-      <div class="review-auth-note">
-        <p>{% trans "Для вашей роли просмотр статистики выключен. Вы можете работать только с доступными действиями." %}</p>
-      </div>
+      </section>
     {% endif %}
 
-    <div class="owner-place-columns">
-      <section class="owner-place-column">
-        <h2>{% trans "Опубликованные карточки" %}</h2>
+    <div class="owner-dashboard-columns">
+      <section class="owner-dashboard-section">
+        <div class="owner-dashboard-section__head">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</h2>
+        </div>
         {% if published_places %}
-          <div class="owner-place-list">
+          <div class="owner-dashboard-list">
             {% for place in published_places %}
-              <article class="owner-place-item">
-                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-                <p class="meta">{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
-                <p class="meta">
-                  ★ {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %} · ♥ {{ place.likes_count }}
-                </p>
-                <div class="owner-moderation-row">
-                  <span class="meta">{% trans "Статус модерации" %}:</span>
-                  {% if place.latest_moderation_request %}
-                    {% if place.latest_moderation_request.status == "PENDING" %}
-                      <span class="owner-status-badge owner-status-badge-pending">{% trans "На рассмотрении" %}</span>
-                    {% elif place.latest_moderation_request.status == "APPROVED" %}
-                      <span class="owner-status-badge owner-status-badge-approved">{% trans "Одобрена" %}</span>
-                    {% elif place.latest_moderation_request.status == "REJECTED" %}
-                      <span class="owner-status-badge owner-status-badge-rejected">{% trans "Отклонена" %}</span>
-                    {% else %}
-                      <span class="owner-status-badge owner-status-badge-none">{{ place.latest_moderation_request.get_status_display }}</span>
-                    {% endif %}
-                  {% else %}
-                    <span class="owner-status-badge owner-status-badge-none">{% trans "Не отправлена" %}</span>
-                  {% endif %}
-                </div>
-                {% if place.latest_moderation_request and place.latest_moderation_request.status == "REJECTED" and place.latest_moderation_request.moderation_note %}
-                  <p class="meta owner-moderation-note">
-                    {% trans "Причина отклонения" %}: {{ place.latest_moderation_request.moderation_note }}
-                  </p>
-                {% endif %}
-                {% include "pages/includes/owner_place_location_status.html" with place=place %}
-                <div class="owner-place-actions">
-                  <div class="owner-place-actions-main">
-                    {% if can_edit_places %}
-                      <a class="btn-secondary owner-place-btn" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
-                    {% endif %}
-                    {% if can_publish_places %}
-                      <form method="post" action="{% url 'owner_place_draft' place.id %}" data-loading-form>
-                        {% csrf_token %}
-                        <button type="submit" class="btn-secondary owner-place-btn owner-place-btn-soft" data-loading-button>{% trans "В черновик" %}</button>
-                      </form>
-                    {% endif %}
+              <article class="owner-place-card">
+                <div class="owner-place-card__top">
+                  <div>
+                    <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+                    <p>{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
                   </div>
-                  {% if can_edit_places %}
-                    <div class="owner-place-actions-secondary">
-                      <form
-                        method="post"
-                        action="{% url 'owner_place_delete' place.id %}"
-                        onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');"
-                      >
-                        {% csrf_token %}
-                        <button type="submit" class="btn-secondary btn-danger owner-place-btn owner-place-btn-danger">{% trans "Удалить" %}</button>
-                      </form>
-                    </div>
+                  <span class="owner-status-badge owner-status-badge-approved">{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
+                </div>
+                <div class="owner-place-card__metrics">
+                  <span>☆ {{ place.rating_avg|floatformat:1 }}</span>
+                  <span>{{ place.rating_count }} {% if CURRENT_LANGUAGE == "az" %}rəy{% elif CURRENT_LANGUAGE == "en" %}reviews{% else %}отзывов{% endif %}</span>
+                  <span>♡ {{ place.likes_count }}</span>
+                </div>
+                {% include "pages/includes/owner_place_location_status.html" with place=place %}
+                <div class="owner-place-card__actions">
+                  <a class="btn-secondary owner-place-btn" href="{{ place.get_absolute_url }}">{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</a>
+                  {% if place.owner_can_edit %}
+                    <a class="btn-secondary owner-place-btn" href="{% url 'owner_place_edit' place.id %}">{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</a>
                   {% endif %}
+                  <span class="btn-secondary owner-place-btn owner-place-btn-muted">{% if CURRENT_LANGUAGE == "az" %}Statistika{% elif CURRENT_LANGUAGE == "en" %}Statistics{% else %}Статистика{% endif %}</span>
                 </div>
               </article>
             {% endfor %}
           </div>
         {% else %}
-          <p class="meta">{% trans "Нет опубликованных карточек." %}</p>
+          <div class="owner-dashboard-empty">
+            <div class="owner-dashboard-empty__icon" aria-hidden="true">⌖</div>
+            <strong>{% if CURRENT_LANGUAGE == "az" %}Hələ dərc olunmuş məkan yoxdur{% elif CURRENT_LANGUAGE == "en" %}No published places yet{% else %}Пока нет опубликованных мест{% endif %}</strong>
+            <p>{% if CURRENT_LANGUAGE == "az" %}İlk məkanınızı dərc edin və burada görünsün.{% elif CURRENT_LANGUAGE == "en" %}Publish your first place, and it will appear here.{% else %}Опубликуйте своё первое место, и оно появится здесь.{% endif %}</p>
+            {% if can_create_more_places %}
+              <a class="btn owner-dashboard-empty__button" href="{% url 'owner_place_create' %}">{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}</a>
+            {% endif %}
+          </div>
         {% endif %}
       </section>
 
-      <section class="owner-place-column">
-        <h2>{% trans "Черновики и модерация" %}</h2>
+      <section class="owner-dashboard-section">
+        <div class="owner-dashboard-section__head">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Qaralamalar və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts and moderation{% else %}Черновики и модерация{% endif %}</h2>
+        </div>
         {% if draft_places %}
-          <div class="owner-place-list">
+          <div class="owner-dashboard-list">
             {% for place in draft_places %}
-              <article class="owner-place-item">
-                <h3>{{ place.name_i18n }}</h3>
-                <p class="meta owner-place-summary">{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
-                <p class="meta owner-place-summary">
-                  ★ {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %} · ♥ {{ place.likes_count }}
-                </p>
-                <div class="owner-place-details">
-                  <div class="owner-place-facts">
-                    <div class="owner-place-fact">
-                      <span class="owner-place-fact-label">{% trans "Модерация" %}</span>
-                      {% if place.latest_moderation_request %}
-                        {% if place.latest_moderation_request.status == "PENDING" %}
-                          <span class="owner-status-badge owner-status-badge-pending">{% trans "На рассмотрении" %}</span>
-                        {% elif place.latest_moderation_request.status == "APPROVED" %}
-                          <span class="owner-status-badge owner-status-badge-approved">{% trans "Одобрена" %}</span>
-                        {% elif place.latest_moderation_request.status == "REJECTED" %}
-                          <span class="owner-status-badge owner-status-badge-rejected">{% trans "Отклонена" %}</span>
-                        {% else %}
-                          <span class="owner-status-badge owner-status-badge-none">{{ place.latest_moderation_request.get_status_display }}</span>
-                        {% endif %}
-                      {% else %}
-                        <span class="owner-status-badge owner-status-badge-none">{% trans "Не отправлена" %}</span>
-                      {% endif %}
-                    </div>
-                    {% include "pages/includes/owner_place_location_status.html" with place=place %}
+              <article class="owner-place-card">
+                <div class="owner-place-card__top">
+                  <div>
+                    <h3>{{ place.name_i18n }}</h3>
+                    <p>{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
                   </div>
-                  {% if place.latest_moderation_request and place.latest_moderation_request.status == "REJECTED" and place.latest_moderation_request.moderation_note %}
-                    <p class="meta owner-moderation-note">
-                      {% trans "Причина отклонения" %}: {{ place.latest_moderation_request.moderation_note }}
-                    </p>
+                  <div class="owner-place-fact">
+                    <span class="owner-place-fact-label">{% if CURRENT_LANGUAGE == "az" %}Moderasiya{% elif CURRENT_LANGUAGE == "en" %}Moderation{% else %}Модерация{% endif %}</span>
+                    {% if place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
+                      <span class="owner-status-badge owner-status-badge-pending">{% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}Under moderation{% else %}На модерации{% endif %}</span>
+                    {% elif place.latest_moderation_request.status == "APPROVED" %}
+                      <span class="owner-status-badge owner-status-badge-approved">{% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрено{% endif %}</span>
+                    {% elif place.latest_moderation_request.status == "REJECTED" or place.status == place.STATUS_REJECTED %}
+                      <span class="owner-status-badge owner-status-badge-rejected">{% if CURRENT_LANGUAGE == "az" %}Rədd edildi{% elif CURRENT_LANGUAGE == "en" %}Rejected{% else %}Отклонено{% endif %}</span>
+                    {% else %}
+                      <span class="owner-status-badge owner-status-badge-none">{% if CURRENT_LANGUAGE == "az" %}Qaralama{% elif CURRENT_LANGUAGE == "en" %}Draft{% else %}Черновик{% endif %}</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="owner-place-card__metrics">
+                  <span>☆ {{ place.rating_avg|floatformat:1 }}</span>
+                  <span>{{ place.rating_count }} {% if CURRENT_LANGUAGE == "az" %}rəy{% elif CURRENT_LANGUAGE == "en" %}reviews{% else %}отзывов{% endif %}</span>
+                  <span>♡ {{ place.likes_count }}</span>
+                </div>
+
+                {% include "pages/includes/owner_place_location_status.html" with place=place %}
+
+                <div class="owner-place-checklist">
+                  {% if not place.lat or not place.lng %}
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Koordinatlar lazımdır{% elif CURRENT_LANGUAGE == "en" %}Coordinates needed{% else %}Нужны координаты{% endif %}</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Xəritə üçün hazır deyil{% elif CURRENT_LANGUAGE == "en" %}Not ready for map{% else %}Не готово для карты{% endif %}</span>
                   {% endif %}
-                  {% if place.map_readiness_reason == "missing_coordinates" %}
-                    <p class="meta owner-moderation-note">{% trans "Для карты нужны lat/lng." %}</p>
-                  {% elif place.map_readiness_reason == "inactive" %}
-                    <p class="meta owner-moderation-note">{% trans "Карточка появится на карте после публикации." %}</p>
+                  {% if not place.photo %}
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Şəkil lazımdır{% elif CURRENT_LANGUAGE == "en" %}Photo needed{% else %}Нужно фото{% endif %}</span>
+                  {% endif %}
+                  {% if not place.phone1 %}
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Telefon lazımdır{% elif CURRENT_LANGUAGE == "en" %}Phone needed{% else %}Нужен телефон{% endif %}</span>
+                  {% endif %}
+                  {% if not place.category %}
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Kateqoriya seçilməyib{% elif CURRENT_LANGUAGE == "en" %}Category missing{% else %}Категория не выбрана{% endif %}</span>
+                  {% endif %}
+                  {% if place.lat and place.lng and place.photo and place.phone1 and place.category %}
+                    <span class="is-ready">{% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar hazırdır{% elif CURRENT_LANGUAGE == "en" %}Required details are ready{% else %}Основные данные готовы{% endif %}</span>
                   {% endif %}
                 </div>
-                <div class="owner-place-actions owner-place-actions-draft">
-                  <div class="owner-place-actions-primary">
-                    {% if can_publish_places and place.latest_moderation_request and place.latest_moderation_request.status == "APPROVED" %}
-                      <form method="post" action="{% url 'owner_place_publish' place.id %}" data-loading-form>
-                        {% csrf_token %}
-                        <button type="submit" class="btn owner-place-btn owner-place-btn-primary owner-place-btn-wide" data-loading-button>{% trans "Опубликовать" %}</button>
-                      </form>
-                    {% elif can_edit_places %}
-                      {% if not place.latest_moderation_request or place.latest_moderation_request.status == "REJECTED" %}
-                        <form method="post" action="{% url 'owner_place_submit_review' place.id %}" data-loading-form>
-                          {% csrf_token %}
-                          <button type="submit" class="btn-secondary owner-place-btn owner-place-btn-soft owner-place-btn-wide" data-loading-button>
-                            {% if place.latest_moderation_request and place.latest_moderation_request.status == "REJECTED" %}
-                              {% trans "Отправить повторно на проверку" %}
-                            {% else %}
-                              {% trans "Отправить на проверку" %}
-                            {% endif %}
-                          </button>
-                        </form>
-                      {% elif can_publish_places %}
-                        <div class="owner-place-action-note owner-place-action-note-inline" data-publish-unavailable="1">
-                          {% trans "Публикация станет доступна после одобрения заявки модератором." %}
-                        </div>
-                      {% endif %}
-                    {% elif can_publish_places %}
-                      <div class="owner-place-action-note owner-place-action-note-inline" data-publish-unavailable="1">
-                        {% trans "Публикация станет доступна после одобрения заявки модератором." %}
-                      </div>
+
+                {% if place.latest_moderation_request.status == "REJECTED" and place.latest_moderation_request.moderation_note %}
+                  <p class="owner-place-card__note">
+                    {% if CURRENT_LANGUAGE == "az" %}Rədd səbəbi{% elif CURRENT_LANGUAGE == "en" %}Rejection reason{% else %}Причина отклонения{% endif %}: {{ place.latest_moderation_request.moderation_note }}
+                  </p>
+                {% elif place.status == place.STATUS_REJECTED and place.rejection_reason %}
+                  <p class="owner-place-card__note">
+                    {% if CURRENT_LANGUAGE == "az" %}Rədd səbəbi{% elif CURRENT_LANGUAGE == "en" %}Rejection reason{% else %}Причина отклонения{% endif %}: {{ place.rejection_reason }}
+                  </p>
+                {% endif %}
+
+                <div class="owner-place-card__actions">
+                  {% if place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
+                    <span class="owner-place-action-note owner-place-action-note-inline" data-publish-unavailable="1">{% if CURRENT_LANGUAGE == "az" %}Bu məkan hazırda admin moderasiyasındadır.{% elif CURRENT_LANGUAGE == "en" %}This place is currently under admin moderation.{% else %}Это место сейчас находится на модерации у администратора.{% endif %}</span>
+                  {% else %}
+                    {% if place.owner_can_edit %}
+                      <a class="btn-secondary owner-place-btn" href="{% url 'owner_place_edit' place.id %}">
+                        {% if place.status == place.STATUS_REJECTED %}
+                          {% if CURRENT_LANGUAGE == "az" %}Düzəlt{% elif CURRENT_LANGUAGE == "en" %}Fix{% else %}Исправить{% endif %}
+                        {% else %}
+                          {% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}
+                        {% endif %}
+                      </a>
                     {% endif %}
-                  </div>
-                  <div class="owner-place-actions-secondary owner-place-actions-secondary-draft">
-                    {% if can_edit_places %}
-                      <a class="btn-secondary owner-place-btn owner-place-btn-ghost" href="{% url 'owner_place_edit' place.id %}">{% trans "Редактировать" %}</a>
-                    {% endif %}
-                  </div>
-                  {% if can_edit_places %}
-                    <div class="owner-place-actions-danger">
-                      <form
-                        method="post"
-                        action="{% url 'owner_place_delete' place.id %}"
-                        onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');"
-                      >
-                        {% csrf_token %}
-                        <button type="submit" class="btn-secondary btn-danger owner-place-btn owner-place-btn-danger">{% trans "Удалить" %}</button>
-                      </form>
-                    </div>
+                    <form method="post" action="{% url 'owner_place_submit_review' place.id %}" data-loading-form>
+                      {% csrf_token %}
+                      <button type="submit" class="btn owner-place-btn" data-loading-button>
+                        {% if place.status == place.STATUS_REJECTED %}
+                          {% if CURRENT_LANGUAGE == "az" %}Yenidən göndər{% elif CURRENT_LANGUAGE == "en" %}Resubmit{% else %}Отправить повторно{% endif %}
+                        {% else %}
+                          {% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for moderation{% else %}Отправить на модерацию{% endif %}
+                        {% endif %}
+                      </button>
+                    </form>
                   {% endif %}
+                  {% if place.owner_can_edit %}
+                    <a class="btn-secondary owner-place-btn owner-place-btn-ghost" href="{% url 'owner_place_edit' place.id %}">{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</a>
+                  {% endif %}
+                  <form method="post" action="{% url 'owner_place_delete' place.id %}" onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-secondary btn-danger owner-place-btn owner-place-btn-danger">{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Delete{% else %}Удалить{% endif %}</button>
+                  </form>
                 </div>
               </article>
             {% endfor %}
           </div>
         {% else %}
-          <div class="owner-empty-state">
-            <strong>{% trans "Пока нет карточек на подготовке." %}</strong>
-            <p class="meta">{% trans "Новые или ожидающие проверки карточки появятся здесь до публикации в каталоге." %}</p>
+          <div class="owner-dashboard-empty owner-dashboard-empty--compact">
+            <strong>{% if CURRENT_LANGUAGE == "az" %}Qaralama və moderasiya yoxdur{% elif CURRENT_LANGUAGE == "en" %}No drafts or moderation items{% else %}Нет черновиков и модерации{% endif %}</strong>
+            <p>{% if CURRENT_LANGUAGE == "az" %}Yarımçıq və yoxlamada olan məkanlar burada görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Unfinished and moderated places will appear here.{% else %}Незавершённые места и места на проверке появятся здесь.{% endif %}</p>
           </div>
         {% endif %}
       </section>

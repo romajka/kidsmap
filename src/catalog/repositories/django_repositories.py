@@ -55,6 +55,15 @@ class DjangoPlaceRepository(IPlaceRepository):
     def map_ready_queryset(self) -> QuerySet:
         return self.active_queryset().exclude(lat__isnull=True).exclude(lng__isnull=True)
 
+    def upcoming_temporary(self, limit: int = 8) -> QuerySet:
+        now = timezone.now()
+        return (
+            self.active_queryset()
+            .filter(is_temporary=True, temporary_start__isnull=False)
+            .filter(Q(temporary_end__isnull=True) | Q(temporary_end__gte=now))
+            .order_by("temporary_start", "-rating_avg", "-likes_count")[:limit]
+        )
+
     def filtered_active_queryset(self, *, created_after: datetime | None = None) -> QuerySet:
         qs = self.active_queryset()
         if created_after is not None:

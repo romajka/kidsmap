@@ -6,57 +6,86 @@ from django.utils import timezone
 from catalog.models import Place
 
 
+TEMPORARY_PREVIEW_NAMES = (
+    "Шахматная студия Preview Baku",
+    "Творческая студия Preview Art Lab",
+    "Лего-конструирование BrickLab",
+)
+
 FEATURED_PLACES = {
-    "Шахматная студия Preview Baku": {
+    2: {
+        "name": "Sonic Athletics Club",
+        "name_ru": "Sonic Athletics Club",
+        "name_en": "Sonic Athletics Club",
+        "name_az": "Sonic Athletics Club",
         "description_ru": (
-            "Шахматные занятия для детей в Баку: основы, тактика, турниры и тренировка внимания. "
-            "Подходит для начинающих и для тех, кто уже играет в клубе или дома."
+            "Правильное начало спорта для вашего ребёнка: скорость, выносливость, сила и здоровый образ жизни. "
+            "Тренировки проходят в группах по возрасту и уровню подготовки, помогают детям развивать "
+            "координацию, дисциплину и любовь к спорту."
         ),
         "description_az": (
-            "Bakıda uşaqlar üçün şahmat məşğələləri: əsaslar, taktika, turnirlər və diqqət məşqi. "
-            "Başlayanlar və artıq oynayan uşaqlar üçün uyğundur."
+            "Uşağınız üçün düzgün idman başlanğıcı: sürət, dözümlülük, güc və sağlam həyat tərzi. "
+            "Məşqlər yaşa və hazırlıq səviyyəsinə uyğun qruplarda keçirilir, uşaqlarda koordinasiya, "
+            "intizam və idmana maraq yaradır."
         ),
         "description_en": (
-            "Chess classes for children in Baku: fundamentals, tactics, tournaments, and focus training. "
-            "Suitable for beginners and for kids who already play at home or in a club."
+            "The right sports start for your child: speed, endurance, strength, and a healthy lifestyle. "
+            "Training takes place in groups by age and level, helping children develop coordination, "
+            "discipline, and interest in sport."
         ),
     },
-    "Творческая студия Preview Art Lab": {
+    3: {
+        "name": "Farid Rzayev ART Studio",
+        "name_ru": "Farid Rzayev ART Studio",
+        "name_en": "Farid Rzayev ART Studio",
+        "name_az": "Farid Rzayev ART Studio",
         "description_ru": (
-            "Студия творчества для детей: рисование, композиция, работа с цветом и развитие воображения. "
-            "Занятия помогают детям пробовать разные техники и собирать первые портфолио-работы."
+            "Художественная студия Farid Rzayev ART Studio для детей и взрослых: рисунок, живопись, "
+            "композиция и развитие творческого мышления. Занятия подходят для начинающих и тех, кто хочет "
+            "улучшить технику и собрать портфолио."
         ),
         "description_az": (
-            "Uşaqlar üçün yaradıcılıq studiyası: rəsm, kompozisiya, rənglə iş və təxəyyülün inkişafı. "
-            "Dərslər uşaqlara fərqli texnikaları sınamağa və ilk işlərini toplamağa kömək edir."
+            "Farid Rzayev ART Studio uşaqlar və böyüklər üçün rəsm, boyakarlıq, kompozisiya və yaradıcı "
+            "düşüncənin inkişafı üzrə məşğələlər keçirir. Dərslər həm başlayanlar, həm də texnikasını "
+            "inkişaf etdirmək istəyənlər üçün uyğundur."
         ),
         "description_en": (
-            "Creative studio for children: drawing, composition, color work, and imagination development. "
-            "Classes help kids try different techniques and build their first portfolio pieces."
+            "Farid Rzayev ART Studio offers drawing, painting, composition, and creative development classes "
+            "for children and adults. Lessons suit beginners and students who want to improve technique and "
+            "build a portfolio."
         ),
+        "schedule": "Расписание уточняйте у студии",
     },
-    "Лего-конструирование BrickLab": {
+    4: {
+        "name": "Bakı Cüdo Təlim Mərkəzi",
+        "name_ru": "Бакинский центр обучения дзюдо",
+        "name_en": "Baku Judo Training Center",
+        "name_az": "Bakı Cüdo Təlim Mərkəzi",
         "description_ru": (
-            "Конструирование и развитие логики для детей 5-11 лет. Занятия помогают собирать модели, "
-            "пробовать инженерные решения и развивать пространственное мышление. Есть группы для начинающих "
-            "и для детей, которые уже собирают более сложные проекты."
+            "Центр обучения дзюдо в Баку для детей и подростков. Тренировки помогают развивать силу, "
+            "гибкость, координацию, дисциплину и уверенность. Занятия проходят в спортивном зале "
+            "Морского колледжа."
         ),
         "description_az": (
-            "5-11 yaşlı uşaqlar üçün lego quruculuğu və məntiq inkişafı. Dərslər modellər yığmağı, "
-            "mühəndis yanaşmalarını sınamağı və məkan təfəkkürünü gücləndirməyi öyrədir. Başlayanlar "
-            "və daha çətin layihələrə hazır olan uşaqlar üçün qruplar var."
+            "Bakıda uşaqlar və yeniyetmələr üçün cüdo təlim mərkəzi. Məşqlər güc, elastiklik, koordinasiya, "
+            "intizam və özünəinamı inkişaf etdirməyə kömək edir. Dərslər Dənizçilik kollecinin idman "
+            "zalında keçirilir."
         ),
         "description_en": (
-            "Lego building and logic development for children aged 5-11. Classes help kids assemble models, "
-            "explore simple engineering ideas, and strengthen spatial thinking. There are groups for beginners "
-            "and for children ready for more advanced projects."
+            "Baku judo training center for children and teenagers. Training helps develop strength, "
+            "flexibility, coordination, discipline, and confidence. Classes take place in the sports hall "
+            "of the Maritime College."
+        ),
+        "schedule": (
+            "Bazar ertəsi 17:00-19:00; Çərşənbə axşamı 19:00-21:00; Çərşənbə 17:00-19:00; "
+            "Cümə axşamı 19:00-21:00; Cümə 17:00-19:00; Şənbə 10:30-12:30"
         ),
     },
 }
 
 
 class Command(BaseCommand):
-    help = "Restore the three featured public clubs and make them pass the public filter."
+    help = "Restore the three original featured public clubs and make them pass the public filter."
 
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true", help="Show changes without saving them")
@@ -66,10 +95,19 @@ class Command(BaseCommand):
         restored = 0
         missing = []
 
-        for name_ru, payload in FEATURED_PLACES.items():
-            place = Place.objects.filter(name_ru=name_ru).first()
+        temporary_qs = Place.objects.filter(name_ru__in=TEMPORARY_PREVIEW_NAMES)
+        temporary_count = temporary_qs.count()
+        if temporary_count:
+            if dry_run:
+                self.stdout.write(f"[dry-run] Would delete {temporary_count} temporary preview record(s).")
+            else:
+                temporary_qs.delete()
+                self.stdout.write(self.style.SUCCESS(f"Deleted {temporary_count} temporary preview record(s)."))
+
+        for place_id, payload in FEATURED_PLACES.items():
+            place = Place.objects.filter(id=place_id).first()
             if place is None:
-                missing.append(name_ru)
+                missing.append(str(place_id))
                 continue
 
             updates = {}
@@ -90,17 +128,17 @@ class Command(BaseCommand):
             if updates:
                 restored += 1
                 if dry_run:
-                    self.stdout.write(f"[dry-run] {place.id}: {place.name_ru} -> {sorted(updates)}")
+                    self.stdout.write(f"[dry-run] {place.id}: {place.name} -> {sorted(updates)}")
                 else:
                     for field, value in updates.items():
                         setattr(place, field, value)
                     place.save(update_fields=[*sorted(updates), "updated_at"])
-                    self.stdout.write(self.style.SUCCESS(f"Restored: {place.id} {place.name_ru}"))
+                    self.stdout.write(self.style.SUCCESS(f"Restored: {place.id} {place.name}"))
             else:
-                self.stdout.write(f"No changes needed: {place.id} {place.name_ru}")
+                self.stdout.write(f"No changes needed: {place.id} {place.name}")
 
         if missing:
-            self.stdout.write(self.style.WARNING("Missing featured clubs: " + ", ".join(missing)))
+            self.stdout.write(self.style.WARNING("Missing featured club ids: " + ", ".join(missing)))
 
         if dry_run:
             self.stdout.write(self.style.WARNING(f"Dry run complete. Would touch {restored} record(s)."))

@@ -60,7 +60,10 @@ _original_each_context = admin.site.each_context
 
 def _kidsmap_get_app_list(self, request, app_label=None):
     app_list = _original_get_app_list(request, app_label)
-    pending_count = PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
+    pending_count = (
+        Place.objects.filter(status=Place.STATUS_PENDING, deleted_at__isnull=True).count()
+        + PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
+    )
     for app in app_list:
         if app.get("app_label") == "auth":
             app["name"] = _("Пользователи")
@@ -102,9 +105,10 @@ def _kidsmap_get_app_list(self, request, app_label=None):
 def _kidsmap_each_context(self, request):
     context = _original_each_context(request)
     if request.user.is_authenticated and request.user.is_staff:
-        context["ownership_pending_count"] = PlaceOwnershipRequest.objects.filter(
-            status=PlaceOwnershipRequest.STATUS_PENDING
-        ).count()
+        context["ownership_pending_count"] = (
+            Place.objects.filter(status=Place.STATUS_PENDING, deleted_at__isnull=True).count()
+            + PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
+        )
     else:
         context["ownership_pending_count"] = 0
     context["admin_current_language"] = (get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
@@ -566,6 +570,7 @@ class PlaceAdmin(admin.ModelAdmin):
     actions = (
         "mark_active",
         "mark_inactive",
+        "mark_draft",
         "mark_verified",
         "mark_unverified",
         "mark_pending",
@@ -927,16 +932,17 @@ class PlaceAdmin(admin.ModelAdmin):
         return f"?{encoded}" if encoded else ""
 
     def _place_quick_filters(self, request):
-        status_keys = ("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status")
+        status_keys = ("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")
         current_deleted = request.GET.get("deleted_state")
         current_active = request.GET.get("is_active__exact")
         current_coordinates = request.GET.get("coordinates_status")
         current_map_ready = request.GET.get("map_ready_status")
+        current_status = request.GET.get("status__exact")
         return (
             {
                 "label": _("Все карточки"),
                 "url": self._build_changelist_query_string(request, clear=status_keys),
-                "active": not any((current_deleted, current_active, current_coordinates, current_map_ready)),
+                "active": not any((current_deleted, current_active, current_coordinates, current_map_ready, current_status)),
             },
             {
                 "label": _("Опубликованы"),
@@ -946,7 +952,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     deleted_state="active",
                     is_active__exact="1",
                 ),
-                "active": current_deleted == "active" and current_active == "1" and not current_coordinates and not current_map_ready,
+                "active": current_deleted == "active" and current_active == "1" and not current_coordinates and not current_map_ready and not current_status,
             },
             {
                 "label": _("Неактивные"),
@@ -956,22 +962,37 @@ class PlaceAdmin(admin.ModelAdmin):
                     deleted_state="active",
                     is_active__exact="0",
                 ),
-                "active": current_deleted == "active" and current_active == "0" and not current_coordinates and not current_map_ready,
+                "active": current_deleted == "active" and current_active == "0" and not current_coordinates and not current_map_ready and not current_status,
+            },
+            {
+                "label": _("Черновики"),
+                "url": self._build_changelist_query_string(request, clear=status_keys, status__exact=Place.STATUS_DRAFT),
+                "active": current_status == Place.STATUS_DRAFT and not current_deleted and not current_active and not current_coordinates and not current_map_ready,
+            },
+            {
+                "label": _("На модерации"),
+                "url": self._build_changelist_query_string(request, clear=status_keys, status__exact=Place.STATUS_PENDING),
+                "active": current_status == Place.STATUS_PENDING and not current_deleted and not current_active and not current_coordinates and not current_map_ready,
+            },
+            {
+                "label": _("Отклонены"),
+                "url": self._build_changelist_query_string(request, clear=status_keys, status__exact=Place.STATUS_REJECTED),
+                "active": current_status == Place.STATUS_REJECTED and not current_deleted and not current_active and not current_coordinates and not current_map_ready,
             },
             {
                 "label": _("В удалённых"),
                 "url": self._build_changelist_query_string(request, clear=status_keys, deleted_state="deleted"),
-                "active": current_deleted == "deleted" and not current_active and not current_coordinates and not current_map_ready,
+                "active": current_deleted == "deleted" and not current_active and not current_coordinates and not current_map_ready and not current_status,
             },
             {
                 "label": _("Без координат"),
                 "url": self._build_changelist_query_string(request, clear=status_keys, coordinates_status="no"),
-                "active": current_coordinates == "no" and not current_deleted and not current_active and not current_map_ready,
+                "active": current_coordinates == "no" and not current_deleted and not current_active and not current_map_ready and not current_status,
             },
             {
                 "label": _("Не готовы для карты"),
                 "url": self._build_changelist_query_string(request, clear=status_keys, map_ready_status="no"),
-                "active": current_map_ready == "no" and not current_deleted and not current_active and not current_coordinates,
+                "active": current_map_ready == "no" and not current_deleted and not current_active and not current_coordinates and not current_status,
             },
         )
 
@@ -1108,6 +1129,20 @@ class PlaceAdmin(admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
+    @admin.action(description=_("Вернуть в черновик"))
+    def mark_draft(self, request, queryset):
+        updated_count = queryset.update(
+            status=Place.STATUS_DRAFT,
+            is_active=False,
+            updated_at=timezone.now(),
+        )
+        self.message_user(
+            request,
+            ngettext("%(count)d карточка переведена в черновик.", "%(count)d карточки переведены в черновик.", updated_count)
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
     @admin.action(description=_("Отметить как проверенные"))
     def mark_verified(self, request, queryset):
         updated_count = queryset.update(is_verified=True, updated_at=timezone.now())
@@ -1171,7 +1206,15 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Отклонить карточки"))
     def mark_rejected(self, request, queryset):
-        updated_count = queryset.update(status=Place.STATUS_REJECTED, is_active=False, updated_at=timezone.now())
+        default_reason = _("Məkan admin moderasiyasından keçmədi. Zəhmət olmasa məlumatları yeniləyin.")
+        updated_count = 0
+        for place in queryset.iterator():
+            place.status = Place.STATUS_REJECTED
+            place.is_active = False
+            if not (place.rejection_reason or "").strip():
+                place.rejection_reason = default_reason
+            place.save(update_fields=["status", "is_active", "rejection_reason", "updated_at"])
+            updated_count += 1
         self.message_user(
             request,
             ngettext("%(count)d карточка отклонена.", "%(count)d карточки отклонены.", updated_count) % {"count": updated_count},

@@ -33,7 +33,7 @@ cd /opt/kidsmap
 ```
 What it does:
 1. Stashes local server edits (if any).
-2. Pulls latest `origin/main`.
+2. Fetches and fast-forwards the selected branch from `origin`.
 3. Rebuilds/restarts Docker containers.
 4. Verifies there is no model/migration drift (`makemigrations --check --dry-run`).
 5. Runs `python manage.py check`.
@@ -42,7 +42,14 @@ What it does:
 
 Optional custom branch:
 ```bash
-./scripts/deploy-server.sh main
+./scripts/deploy-server.sh release
+```
+
+Useful overrides:
+```bash
+APP_BASE_URL=http://127.0.0.1:8000 ./scripts/deploy-server.sh main
+REMOTE=origin ./scripts/deploy-server.sh main
+BACKUP_DIR=/opt/backups ./scripts/deploy-server.sh main
 ```
 
 ## Fix `git pull` on server via SSH to GitHub
@@ -192,4 +199,4 @@ If SMTP is configured correctly, command prints `Test email sent ...`.
 ## Backup suggestion
 1. Run `./scripts/backup-db.sh` before each deploy. It writes a timestamped MariaDB dump to `backups/`.
 2. Back up `media/` on the same schedule as the database.
-3. To restore the three featured demo clubs after a deploy, run `./.venv/bin/python manage.py restore_featured_places` on the target server.
+3. To restore the three featured demo clubs manually on the target server, run `docker compose exec -T web python manage.py restore_featured_places`.

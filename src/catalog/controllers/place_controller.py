@@ -116,6 +116,7 @@ class PlaceController:
             "active_filter_chips": self._build_active_filter_chips(
                 selected=selected,
                 force_new_only=force_new_only,
+                language_code=language_code,
             ),
             "popular_districts": self._build_popular_options(
                 available=content_settings.districts(),
@@ -181,6 +182,8 @@ class PlaceController:
         add_param("category", selected.get("category"))
         add_param("district", selected.get("district"))
         add_param("min_rating", selected.get("min_rating"))
+        if not force_new_only:
+            add_param("event_type", selected.get("event_type"))
 
         if not force_new_only:
             add_param("metro", selected.get("metro"))
@@ -213,7 +216,7 @@ class PlaceController:
 
         return params
 
-    def _build_active_filter_chips(self, *, selected: dict, force_new_only: bool) -> list[dict[str, str]]:
+    def _build_active_filter_chips(self, *, selected: dict, force_new_only: bool, language_code: str) -> list[dict[str, str]]:
         base_url = self._base_list_url(force_new_only=force_new_only)
         base_params = self._build_normalized_query_params(selected=selected, force_new_only=force_new_only)
         chips: list[dict[str, str]] = []
@@ -266,6 +269,16 @@ class PlaceController:
                 }
             )
 
+        event_type = str(selected.get("event_type") or "").strip()
+        if event_type and not force_new_only:
+            if language_code == "az":
+                event_label = "Müvəqqəti tədbirlər" if event_type == "temporary" else "Daimi məkanlar"
+            elif language_code == "en":
+                event_label = "Temporary events" if event_type == "temporary" else "Permanent places"
+            else:
+                event_label = _("Временные мероприятия") if event_type == "temporary" else _("Постоянные места")
+            chips.append({"label": event_label, "remove_url": remove_url("event_type")})
+
         age_from = str(selected.get("age_from") or "").strip()
         age_to = str(selected.get("age_to") or "").strip()
         if not force_new_only and (age_from or age_to) and not (age_from in {"", "0"} and age_to in {"", "18"}):
@@ -304,7 +317,7 @@ class PlaceController:
         query = (selected.get("q") or "").strip()
         active_filters: list[str] = []
 
-        for name in ("category", "district", "metro", "min_rating", "with_photo", "verified"):
+        for name in ("category", "district", "metro", "min_rating", "with_photo", "verified", "event_type"):
             value = selected.get(name)
             if value not in (None, "", "0"):
                 active_filters.append(name)

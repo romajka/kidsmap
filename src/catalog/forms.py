@@ -24,7 +24,8 @@ from catalog.services.options import sort_translated_values
 User = get_user_model()
 _NAME_CONNECTORS = {" ", "-", "'"}
 _PHONE_RE = re.compile(r"^\+?[0-9()\-\s]{7,25}$")
-_OWNER_GALLERY_MAX_FILES = 5
+_OWNER_IMAGE_MAX_BYTES = 2 * 1024 * 1024
+_OWNER_GALLERY_MAX_FILES = 10
 
 
 def _normalize_whitespace(value: str) -> str:
@@ -59,6 +60,16 @@ def _validate_phone(value: str) -> str:
     if len(digits) < 7 or len(digits) > 15:
         raise ValidationError(_("Номер телефона должен содержать от 7 до 15 цифр."))
     return normalized
+
+
+def _validate_uploaded_image(file_obj, *, max_bytes: int = _OWNER_IMAGE_MAX_BYTES) -> None:
+    if not file_obj:
+        return
+    content_type = (getattr(file_obj, "content_type", "") or "").lower()
+    if content_type and not content_type.startswith("image/"):
+        raise ValidationError(_("Загружайте только изображения (JPG, PNG, WEBP и т.д.)."))
+    if getattr(file_obj, "size", 0) > max_bytes:
+        raise ValidationError(_("Размер изображения не должен превышать 2 МБ."))
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -456,6 +467,8 @@ class UserSetPasswordForm(SetPasswordForm):
 
 
 class OwnerPlaceEditForm(forms.ModelForm):
+    draft_save_only = False
+
     district = forms.ChoiceField(
         label=_("Регион / район"),
         required=False,
@@ -593,6 +606,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.geocoding_check_only = bool(kwargs.pop("geocoding_check_only", False))
+        self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
         instance = kwargs.get("instance")
         data = kwargs.get("data")
         if data is not None and instance is not None and getattr(instance, "pk", None):
@@ -660,6 +674,10 @@ class OwnerPlaceEditForm(forms.ModelForm):
         self.fields["price_per_8_lessons"].help_text = _("Если есть пакет занятий.")
         self.fields["extra_conditions"].help_text = _("Скидки, пробный урок, форма.")
         self.fields["additional_info"].help_text = _("Только если есть важные детали.")
+        self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
+        if self.draft_save_only:
+            for field in self.fields.values():
+                field.required = False
         for field_name in ("temporary_start", "temporary_end"):
             self.fields[field_name].error_messages.update(
                 {
@@ -770,6 +788,13 @@ class OwnerPlaceEditForm(forms.ModelForm):
                     _("Дата окончания раньше даты начала. Укажите окончание позже начала."),
                 )
 
+        photo = cleaned.get("photo")
+        if photo:
+            try:
+                _validate_uploaded_image(photo)
+            except ValidationError as exc:
+                self.add_error("photo", exc)
+
         return cleaned
 
 
@@ -782,9 +807,9 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         help_text=_("Если модератору нужен дополнительный контекст."),
     )
     gallery_images = MultipleFileField(
-        label=_("Дополнительные фото (до 5)"),
+        label=_("Дополнительные фото (до 10)"),
         required=False,
-        help_text=_("До 5 фото для галереи."),
+        help_text=_("До 10 фото для галереи, каждое до 2 МБ."),
     )
 
     class Meta(OwnerPlaceEditForm.Meta):
@@ -792,6 +817,9 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["gallery_images"].help_text = _("До 10 фото для галереи, каждое до 2 МБ.")
+        if self.draft_save_only:
+            return
         if self.geocoding_check_only:
             for field_name in self.fields:
                 self.fields[field_name].required = field_name == "address"
@@ -814,7 +842,7 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         cleaned = super().clean()
         district = (cleaned.get("district") or "").strip()
         metro = (cleaned.get("metro") or "").strip()
-        if not district and not metro:
+        if not self.draft_save_only and not district and not metro:
             message = _("Укажите локацию: выберите район или станцию метро.")
             self.add_error("district", message)
             self.add_error("metro", message)
@@ -822,10 +850,10 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         if self.geocoding_check_only:
             return cleaned
 
-        if not (cleaned.get("name_az") or "").strip():
+        if not self.draft_save_only and not (cleaned.get("name_az") or "").strip():
             self.add_error("name_az", _("Укажите основное название на азербайджанском языке."))
 
-        if not (cleaned.get("description_az") or "").strip():
+        if not self.draft_save_only and not (cleaned.get("description_az") or "").strip():
             self.add_error("description_az", _("Укажите основное описание на азербайджанском языке."))
 
         gallery_images = self.files.getlist("gallery_images")
@@ -837,9 +865,10 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
             )
 
         for file_obj in gallery_images:
-            content_type = (getattr(file_obj, "content_type", "") or "").lower()
-            if content_type and not content_type.startswith("image/"):
-                self.add_error("gallery_images", _("Загружайте только изображения (JPG, PNG, WEBP и т.д.)."))
+            try:
+                _validate_uploaded_image(file_obj)
+            except ValidationError as exc:
+                self.add_error("gallery_images", exc)
                 break
 
         return cleaned
