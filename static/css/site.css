@@ -8,7 +8,7 @@
 
 :root {
   --font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
-  --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Chiron GoRound TC Public", "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --font-brand-display: "Chiron GoRound TC Public", "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --brand-white: #fcfcfc;
   --brand-celadon: #a8d59b;
@@ -11184,14 +11184,36 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
 
 .temporary-event-badge__timer {
   color: #527066;
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.temporary-event-badge[data-temporary-state="upcoming"] {
+  background: linear-gradient(180deg, #fff7ed, #fffcf9);
+  border-color: rgba(234, 88, 12, 0.2);
+  color: #9a3412;
+  box-shadow: 0 10px 22px rgba(234, 88, 12, 0.12);
+}
+
+.temporary-event-badge[data-temporary-state="upcoming"] .temporary-event-badge__icon {
+  background: #ffedd5;
+  color: #ea580c;
+  animation: iconPulseSoft 2s infinite ease-in-out;
 }
 
 .temporary-event-badge[data-temporary-state="running"] {
-  background: linear-gradient(180deg, #d9f8e6, #f4fff8);
-  border-color: rgba(0, 128, 64, 0.28);
-  box-shadow: 0 10px 22px rgba(0, 128, 64, 0.14);
+  background: linear-gradient(180deg, #f0fdf4, #f8fafc);
+  border-color: rgba(22, 163, 74, 0.28);
+  color: #166534;
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.14);
+}
+
+.temporary-event-badge[data-temporary-state="running"] .temporary-event-badge__icon {
+  background: #dcfce7;
+  color: #16a34a;
+  animation: iconPulseSoft 1.5s infinite ease-in-out;
 }
 
 .temporary-event-badge[data-temporary-state="ended"] {
@@ -11286,7 +11308,8 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
 .home-events-rail {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(224px, 1fr);
+  grid-auto-columns: minmax(240px, 300px);
+  justify-content: start;
   gap: 12px;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
@@ -11369,7 +11392,7 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
 
 @media (min-width: 980px) {
   .home-events-rail {
-    grid-auto-columns: minmax(220px, 1fr);
+    grid-auto-columns: minmax(260px, 292px);
   }
 }
 
@@ -17627,6 +17650,29 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
     color: #0d6b35;
   }
 
+  .mobile-quick-filter.mobile-intent-filter {
+    text-decoration: none;
+    border-color: rgba(19, 111, 56, 0.24);
+    background: #ffffff;
+  }
+
+  .mobile-quick-filter.mobile-intent-filter::before {
+    -webkit-mask-image: var(--icon-badge-district);
+    mask-image: var(--icon-badge-district);
+  }
+
+  .mobile-quick-filter.mobile-intent-filter:nth-child(2)::before {
+    -webkit-mask-image: var(--icon-calendar);
+    mask-image: var(--icon-calendar);
+  }
+
+  .mobile-quick-filter.mobile-intent-filter.is-active {
+    color: #ffffff;
+    border-color: rgba(19, 111, 56, 0.94);
+    background: linear-gradient(180deg, #4caf50, #136f38);
+    box-shadow: 0 12px 24px rgba(19, 111, 56, 0.18);
+  }
+
   .mobile-active-chips {
     display: flex;
     gap: 7px;
@@ -18737,6 +18783,31 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
   border-radius: 24px;
   background: #ddf7e9;
   box-shadow: inset 0 0 0 1px rgba(0, 153, 92, 0.22);
+  display: grid;
+  place-items: center;
+}
+
+.owner-listing-choice-card__icon::before {
+  content: "";
+  width: 38px;
+  height: 38px;
+  background: #007d4b;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+.owner-listing-choice-card__icon--place::before {
+  -webkit-mask-image: url("../img/icon/coolicons.iconjar/icons/house-01.svg");
+  mask-image: url("../img/icon/coolicons.iconjar/icons/house-01.svg");
+}
+
+.owner-listing-choice-card__icon--event::before {
+  -webkit-mask-image: url("../img/icon/coolicons.iconjar/icons/calendar-event.svg");
+  mask-image: url("../img/icon/coolicons.iconjar/icons/calendar-event.svg");
 }
 
 .owner-listing-choice-card strong {
@@ -18975,15 +19046,69 @@ fieldset.auth-role-group:has(.auth-field-error) > .auth-role-option > div > labe
 }
 
 @media (max-width: 860px) {
-  .owner-listing-choice-grid,
   .owner-event-layout,
   .event-detail-hero,
   .event-detail-grid {
     grid-template-columns: 1fr;
   }
 
+  .owner-listing-choice-grid {
+    gap: 12px;
+  }
+
   .owner-listing-choice-card {
     min-height: auto;
+    padding: 16px 12px;
+    gap: 8px;
+    text-align: center;
+    justify-items: center;
+  }
+
+  .owner-listing-choice-card__icon {
+    width: 48px;
+    height: 48px;
+    margin-top: 14px;
+  }
+
+  .owner-listing-choice-card__icon::before {
+    width: 24px;
+    height: 24px;
+  }
+
+  .owner-listing-choice-card__badge,
+  .owner-listing-choice-card__check {
+    top: 10px;
+  }
+
+  .owner-listing-choice-card__badge {
+    right: 10px;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  .owner-listing-choice-card__check {
+    left: 10px;
+  }
+
+  .owner-listing-choice-card strong {
+    font-size: 1.15rem;
+  }
+
+  .owner-listing-choice-card__text {
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+
+  .owner-listing-choice-card__note,
+  .owner-listing-choice-features {
+    display: none;
+  }
+
+  .owner-listing-choice-card__button {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    margin-top: auto;
   }
 
   .owner-event-actions {

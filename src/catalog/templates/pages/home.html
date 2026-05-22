@@ -22,14 +22,14 @@
 
     <div class="home-hero-grid">
       <div class="home-hero-copy">
-        <p class="home-hero-eyebrow">{% trans "Поиск детских кружков и секций по Азербайджану" %}</p>
+        <p class="home-hero-eyebrow">{% trans "Поиск детских занятий и мест рядом" %}</p>
         <h1>{{ hero_title }}</h1>
         <p>{{ hero_subtitle }}</p>
 
         <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
           <div class="home-hero-stat">
             <strong>{{ map_places|length }}+</strong>
-            <span>{% trans "кружков на карте" %}</span>
+            <span>{% trans "мест и занятий на карте" %}</span>
           </div>
           <div class="home-hero-stat">
             <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.8{% endif %}</strong>
@@ -250,10 +250,10 @@
       <div class="home-map-head">
         <div class="home-map-copy">
           <h2>
-            <a class="home-map-title-link" href="{% url 'place_list' %}">{% trans "Посмотрите кружки на карте" %}</a>
+            <a class="home-map-title-link" href="{% url 'place_list' %}">{% trans "Посмотрите детские места на карте" %}</a>
           </h2>
           <p class="home-map-subtitle">
-            {% trans "Выбирайте фильтры выше — точки на карте обновятся сразу. Нажмите на маркер, чтобы открыть карточку кружка." %}
+            {% trans "Выбирайте фильтры выше — точки на карте обновятся сразу. Нажмите на маркер, чтобы открыть карточку места." %}
           </p>
         </div>
         <a class="home-map-catalog-link" href="{% url 'place_list' %}">{% trans "Открыть весь каталог" %}</a>
@@ -263,8 +263,8 @@
         id="home-map"
         class="home-map"
         data-details-label="{% trans 'Подробнее' %}"
-        data-fallback-title="{% trans 'Карта кружков по Азербайджану' %}"
-        data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет кружков' %}"
+        data-fallback-title="{% trans 'Карта детских мест по Азербайджану' %}"
+        data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
       ></div>
       <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
       <noscript>
@@ -273,7 +273,7 @@
           src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          title="{% trans 'Карта кружков по Азербайджану' %}"
+          title="{% trans 'Карта детских мест по Азербайджану' %}"
         ></iframe>
       </noscript>
       {{ map_places|json_script:"home-map-data" }}
@@ -283,7 +283,7 @@
   <section class="home-steps panel home-steps-lite animate-on-scroll" aria-label="{% trans 'Как это работает' %}">
     <div class="home-steps-lite-head">
       <h2>{% trans "Как это работает" %}</h2>
-      <p>{% trans "Три простых шага, чтобы быстро найти подходящий кружок." %}</p>
+      <p>{% trans "Три простых шага, чтобы быстро найти детские занятия и места рядом." %}</p>
     </div>
 
     <div class="home-steps-lite-grid">
@@ -291,7 +291,7 @@
         <span class="home-step-lite-number">1</span>
         <h3>{% trans "Выберите фильтры" %}</h3>
         <p>{% trans "Категория, регион, метро и возраст ребёнка." %}</p>
-        <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Найти кружки" %}</a>
+        <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Найти места" %}</a>
       </article>
 
       <article class="home-step-lite-card">
@@ -303,7 +303,7 @@
 
       <article class="home-step-lite-card">
         <span class="home-step-lite-number">3</span>
-        <h3>{% trans "Свяжитесь с клубом" %}</h3>
+        <h3>{% trans "Свяжитесь с местом" %}</h3>
         <p>{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}</p>
         <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
       </article>
@@ -349,7 +349,7 @@
 
   {% if popular_places %}
     <section class="panel home-recommended">
-      <h2>{% trans "Рекомендуемые кружки" %}</h2>
+      <h2>{% trans "Рекомендуемые места и занятия" %}</h2>
       <div class="grid">
         {% for place in popular_places %}
           <article class="card">
@@ -428,17 +428,17 @@
   <section class="panel home-owner-banner animate-on-scroll" id="for-owners">
     <div class="home-owner-banner-grid">
       <div class="home-owner-copy">
-        <p class="home-owner-eyebrow">{% trans "Для владельцев кружков" %}</p>
-        <h2>{% trans "Приведите новых родителей через KidsMap" %}</h2>
+        <p class="home-owner-eyebrow">{% trans "Для владельцев детских мест" %}</p>
+        <h2>{% trans "Помогите родителям найти вас рядом" %}</h2>
         <p class="home-owner-text">
-          {% trans "Покажем ваш кружок в каталоге и на карте, добавим фото, описание и контакты, чтобы родители могли обратиться сразу." %}
+          {% trans "Покажем ваше место в каталоге и на карте, добавим фото, описание и контакты, чтобы родители могли обратиться сразу." %}
         </p>
 
         <div class="home-owner-actions">
           {% if current_user_role == "OWNER" %}
             <a class="home-owner-cta" href="{% url 'owner_places_dashboard' %}">{% trans "Открыть кабинет" %}</a>
           {% else %}
-            <a class="home-owner-cta" href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">{% trans "Разместить кружок" %}</a>
+            <a class="home-owner-cta" href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">{% trans "Разместить место" %}</a>
           {% endif %}
         </div>
 

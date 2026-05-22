@@ -69,6 +69,7 @@ EMAIL_OTP_MAX_ATTEMPTS = int(os.getenv("EMAIL_OTP_MAX_ATTEMPTS", "5"))
 MEDIA_CACHE_MAX_AGE = int(os.getenv("MEDIA_CACHE_MAX_AGE", "86400"))
 
 INSTALLED_APPS = [
+    "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -79,12 +80,85 @@ INSTALLED_APPS = [
     "catalog",
 ]
 
+JAZZMIN_SETTINGS = {
+    "site_title": "KidsMap Admin",
+    "site_header": "KidsMap",
+    "site_brand": "KidsMap",
+    "site_logo": "img/logo.svg",
+    "login_logo": "img/logo.svg",
+    "login_logo_dark": "img/logo.svg",
+    "site_logo_classes": "img-circle",
+    "site_icon": None,
+    "welcome_sign": "Панель управления KidsMap",
+    "copyright": "KidsMap",
+    "search_model": ["catalog.Place", "auth.User"],
+    "user_avatar": None,
+    
+    "topmenu_links": [
+        {"name": "Главная",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Перейти на сайт", "url": "/", "new_window": True},
+    ],
+    
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "catalog.Place": "fas fa-map-marker-alt",
+        "catalog.Event": "fas fa-calendar-alt",
+        "catalog.PlaceReview": "fas fa-star",
+        "catalog.SiteReview": "fas fa-comment-dots",
+        "catalog.SiteRegisteredUser": "fas fa-user-check",
+        "catalog.StaffAccessUser": "fas fa-user-shield",
+        "catalog.UserProfile": "fas fa-id-card",
+        "catalog.UserEmailVerification": "fas fa-envelope-open-text",
+        "catalog.PlaceOwnershipRequest": "fas fa-key",
+        "catalog.OwnerTeamMembership": "fas fa-users",
+        "catalog.OwnerTeamInvitation": "fas fa-envelope",
+        "catalog.SiteSettings": "fas fa-cogs",
+        "catalog.SiteBrandingSettings": "fas fa-paint-brush",
+        "catalog.SiteAboutSettings": "fas fa-info-circle",
+        "catalog.SiteContactsSettings": "fas fa-address-book",
+        "catalog.SiteFooterSettings": "fas fa-shoe-prints",
+        "catalog.SiteEmptyStateSettings": "fas fa-ghost",
+        "catalog.SiteAnalytics": "fas fa-chart-line",
+        "catalog.SiteGalleryImage": "fas fa-images",
+        "catalog.PlaceChangeAudit": "fas fa-history",
+        "catalog.PlaceOwnershipRequestAudit": "fas fa-clipboard-list",
+        "catalog.PlaceReviewsByClub": "fas fa-star-half-alt",
+        "catalog.CatalogContentSettings": "fas fa-sliders-h",
+    },
+    
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": True,
+    "custom_css": "admin/css/kidsmap_admin.css",
+    "custom_js": None,
+    "show_ui_builder": True,
+    "language_chooser": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar": "navbar-white navbar-light",
+    "theme": "litera",
+    "sidebar": "sidebar-dark-success",
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": True,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme_color": "success",
+    "accent": "accent-success",
+}
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "catalog.middleware.AdminHostRedirectMiddleware",
     "catalog.middleware.SiteVisitMiddleware",
     "django.middleware.locale.LocaleMiddleware",  # языки
+    "config.middleware.AdminLocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

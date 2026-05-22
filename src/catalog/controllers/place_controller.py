@@ -18,7 +18,7 @@ from catalog.models import Event, FunnelEvent, Place
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
 from catalog.services.options import sort_choice_tuples, sort_translated_values
-from catalog.services.content_quality import public_review_queryset
+from catalog.services.content_quality import public_review_queryset, published_place_queryset
 from catalog.services.reactions import (
     liked_place_ids,
     mark_liked_flags,
@@ -93,19 +93,30 @@ class PlaceController:
             is_new_page=force_new_only,
             page_number=page_obj.number,
         )
+        total_results = page_obj.paginator.count
         with override(language_code):
             if showing_events:
-                results_count_label = ngettext(
-                    "Найдено %(total)s мероприятие",
-                    "Найдено %(total)s мероприятий",
-                    page_obj.paginator.count,
-                ) % {"total": page_obj.paginator.count}
+                if language_code == "az":
+                    results_count_label = f"{total_results} tədbir tapıldı"
+                elif language_code == "en":
+                    results_count_label = f"{total_results} events found"
+                else:
+                    results_count_label = ngettext(
+                        "Найдено %(total)s мероприятие",
+                        "Найдено %(total)s мероприятий",
+                        total_results,
+                    ) % {"total": total_results}
             else:
-                results_count_label = ngettext(
-                    "Найден %(total)s кружок",
-                    "Найдено %(total)s кружков",
-                    page_obj.paginator.count,
-                ) % {"total": page_obj.paginator.count}
+                if language_code == "az":
+                    results_count_label = f"{total_results} kart tapıldı"
+                elif language_code == "en":
+                    results_count_label = f"{total_results} clubs found"
+                else:
+                    results_count_label = ngettext(
+                        "Найден %(total)s кружок",
+                        "Найдено %(total)s кружков",
+                        total_results,
+                    ) % {"total": total_results}
 
         context = {
             "places": [] if showing_events else page_obj.object_list,
@@ -129,6 +140,16 @@ class PlaceController:
             "metro_options": sort_translated_values(content_settings.metro_stations()),
             "is_new_page": force_new_only,
             "reset_filters_url": self._base_list_url(force_new_only=force_new_only),
+            "catalog_places_nearby_url": self._build_event_type_url(
+                selected=selected,
+                force_new_only=force_new_only,
+                event_type="permanent",
+            ),
+            "catalog_events_url": self._build_event_type_url(
+                selected=selected,
+                force_new_only=force_new_only,
+                event_type="temporary",
+            ),
             "active_filter_chips": self._build_active_filter_chips(
                 selected=selected,
                 force_new_only=force_new_only,
@@ -353,6 +374,17 @@ class PlaceController:
 
         return chips
 
+    def _build_event_type_url(self, *, selected: dict, force_new_only: bool, event_type: str) -> str:
+        params = self._build_normalized_query_params(selected=selected, force_new_only=force_new_only)
+        if event_type:
+            params["event_type"] = event_type
+        else:
+            params.pop("event_type", None)
+
+        query = urlencode(params)
+        base_url = self._base_list_url(force_new_only=force_new_only)
+        return f"{base_url}?{query}" if query else base_url
+
     def _build_popular_options(self, *, available, preferred: tuple[str, ...]) -> list[str]:
         available_values = {str(item).strip() for item in available if str(item).strip()}
         return [item for item in preferred if item in available_values]
@@ -427,10 +459,10 @@ class PlaceController:
         return serialized
 
     def get_active_place_for_legacy_redirect(self, *, pk: int) -> Place:
-        return get_object_or_404(self.place_repository.active_queryset(), pk=pk)
+        return get_object_or_404(published_place_queryset(Place.objects.all()), pk=pk)
 
     def get_active_place_with_gallery(self, *, pk: int) -> Place:
-        return get_object_or_404(self.place_repository.active_queryset_with_gallery(), pk=pk)
+        return get_object_or_404(published_place_queryset(Place.objects.all()).prefetch_related("gallery"), pk=pk)
 
     def build_detail_context(self, request: HttpRequest, *, place: Place) -> dict:
         liked_ids = liked_place_ids(request)

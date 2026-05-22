@@ -37,7 +37,11 @@ from catalog.models import (
     UserEmailVerification,
     UserProfile,
 )
-from catalog.services.content_quality import public_place_queryset, public_review_queryset
+from catalog.services.content_quality import (
+    approved_review_queryset,
+    public_place_queryset,
+    public_review_queryset,
+)
 
 User = get_user_model()
 
@@ -94,7 +98,7 @@ class DjangoPlaceRepository(IPlaceRepository):
 
 class DjangoSiteReviewRepository(ISiteReviewRepository):
     def approved_queryset(self) -> QuerySet:
-        return public_review_queryset(SiteReview.objects.all()).order_by("-created_at")
+        return approved_review_queryset(SiteReview.objects.all()).order_by("-created_at")
 
 
 class DjangoSettingsRepository(ISettingsRepository):

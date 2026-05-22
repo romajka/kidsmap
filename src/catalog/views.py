@@ -33,7 +33,7 @@ from .controllers.tracking_controller import TrackingController
 from .forms import OwnerEventForm
 from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile
 from .models import FunnelEvent
-from .services.content_quality import public_review_queryset
+from .services.content_quality import approved_review_queryset
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 
 home_controller = HomeController.build_default()
@@ -115,11 +115,18 @@ def _build_managed_places_summary(user) -> dict:
         for place in managed_places
         if place.status != Place.STATUS_PUBLISHED or not place.is_active
     )
+    actionable_draft_places = [
+        place
+        for place in managed_places
+        if place.status in {Place.STATUS_DRAFT, Place.STATUS_REJECTED} or not place.is_active
+    ]
     return {
         "managed_places": managed_places,
         "managed_places_count": len(managed_places),
         "active_managed_places_count": active_managed_places_count,
         "draft_managed_places_count": draft_managed_places_count,
+        "actionable_draft_places_count": len(actionable_draft_places),
+        "latest_actionable_draft_place": actionable_draft_places[0] if actionable_draft_places else None,
     }
 
 
@@ -311,7 +318,7 @@ def vote_place_review(request, review_id):
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("home")))
 
-    review = public_review_queryset(PlaceReview.objects.select_related("place")).filter(pk=review_id).first()
+    review = approved_review_queryset(PlaceReview.objects.select_related("place")).filter(pk=review_id).first()
     if review is None:
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("home")))
@@ -342,7 +349,7 @@ def vote_site_review(request, review_id):
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
 
-    review = public_review_queryset(SiteReview.objects.all()).filter(pk=review_id).first()
+    review = approved_review_queryset(SiteReview.objects.all()).filter(pk=review_id).first()
     if review is None:
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
         return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
@@ -396,9 +403,9 @@ def contacts(request):
 
 FOR_BUSINESS_CONTENT = {
     "az": {
-        "title": "Kursunuzu KidsMap-də yerləşdirin",
-        "mobile_title": "Kursunuzu yerləşdirin",
-        "subtitle": "Uşaq kursunuzu və ya mərkəzinizi valideynlərə daha tez göstərin.",
+        "title": "Uşaq məkanınızı KidsMap-də yerləşdirin",
+        "mobile_title": "Məkanınızı yerləşdirin",
+        "subtitle": "Valideynlərə yaxınlıqdakı uşaq məşğələlərini və məkanları daha tez tapmağa kömək edin.",
         "primary_cta": "Məkan əlavə et",
         "secondary_cta": "WhatsApp-da yaz",
         "benefits_title": "Nə əldə edirsiniz",
@@ -422,14 +429,14 @@ FOR_BUSINESS_CONTENT = {
         ],
     },
     "ru": {
-        "title": "Разместите ваш детский кружок на KidsMap",
-        "mobile_title": "Разместите курс",
-        "subtitle": "Помогите родителям быстрее найти ваши занятия в Баку.",
-        "primary_cta": "Добавить кружок",
+        "title": "Разместите детское место на KidsMap",
+        "mobile_title": "Разместите место",
+        "subtitle": "Помогите родителям быстрее найти детские занятия и места рядом.",
+        "primary_cta": "Добавить место",
         "secondary_cta": "Написать в WhatsApp",
         "benefits_title": "Что получает владелец",
         "benefits": [
-            "Карточку кружка в каталоге",
+            "Карточку места в каталоге",
             "Контакты, адрес и карту",
             "Фото, описание, расписание и цены",
             "Отзывы после модерации",
@@ -448,10 +455,10 @@ FOR_BUSINESS_CONTENT = {
         ],
     },
     "en": {
-        "title": "List your kids club on KidsMap",
-        "mobile_title": "List your course",
-        "subtitle": "Help parents in Baku find your activities faster.",
-        "primary_cta": "Add a club",
+        "title": "List your kids place on KidsMap",
+        "mobile_title": "List your place",
+        "subtitle": "Help parents find nearby kids activities and places faster.",
+        "primary_cta": "Add a place",
         "secondary_cta": "Message on WhatsApp",
         "benefits_title": "What owners get",
         "benefits": [

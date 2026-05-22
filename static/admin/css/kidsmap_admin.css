@@ -1,13 +1,3 @@
-@font-face {
-  font-family: "Chiron GoRound TC";
-  src:
-    url("../../fonts/chiron/ChironGoRoundTC-VariableFont_wght.ttf") format("truetype-variations"),
-    url("../../fonts/chiron/ChironGoRoundTC-VariableFont_wght.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 300 900;
-  font-display: swap;
-}
-
 :root {
   --km-admin-accent: #136f38;
   --km-admin-accent-strong: #0d4e27;
@@ -120,6 +110,59 @@ body.theme-dark,
   --km-admin-submit-secondary-btn-hover-fg: var(--body-fg);
 }
 
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    --km-admin-page-bg: var(--body-bg);
+    --km-admin-panel-bg: color-mix(in srgb, var(--darkened-bg) 94%, var(--body-fg) 6%);
+    --km-admin-panel-bg-soft: color-mix(in srgb, var(--darkened-bg) 84%, var(--body-fg) 16%);
+    --km-admin-panel-shadow: none;
+    --km-admin-text: var(--body-fg);
+    --km-admin-muted: color-mix(in srgb, var(--body-fg) 72%, var(--body-bg) 28%);
+    --km-admin-accent-soft: rgba(19, 111, 56, 0.22);
+    --km-admin-link: var(--link-fg);
+    --km-admin-link-hover: var(--link-hover-color);
+    --km-admin-header-bg-start: #123847;
+    --km-admin-header-bg-end: #1a5367;
+    --km-admin-header-link: var(--header-link-color);
+    --km-admin-header-link-hover: var(--header-link-hover-color);
+    --km-admin-button-bg: color-mix(in srgb, var(--darkened-bg) 88%, var(--body-fg) 12%);
+    --km-admin-button-fg: var(--body-fg);
+    --km-admin-button-border: var(--hairline-color);
+    --km-admin-button-hover-bg: color-mix(in srgb, var(--selected-bg) 88%, var(--body-fg) 12%);
+    --km-admin-button-hover-fg: var(--body-fg);
+    --km-admin-pill-bg: color-mix(in srgb, var(--message-warning-bg) 72%, var(--body-bg) 28%);
+    --km-admin-pill-fg: var(--message-warning-fg);
+    --km-admin-badge-good-bg: rgba(25, 135, 84, 0.18);
+    --km-admin-badge-good-border: rgba(25, 135, 84, 0.35);
+    --km-admin-badge-good-fg: #9fe3b4;
+    --km-admin-badge-warn-bg: rgba(255, 193, 7, 0.16);
+    --km-admin-badge-warn-border: rgba(255, 193, 7, 0.33);
+    --km-admin-badge-warn-fg: #ffd98a;
+    --km-admin-badge-muted-bg: rgba(108, 117, 125, 0.18);
+    --km-admin-badge-muted-border: rgba(108, 117, 125, 0.33);
+    --km-admin-badge-muted-fg: #c6cdd6;
+    --km-admin-badge-info-bg: rgba(13, 110, 253, 0.18);
+    --km-admin-badge-info-border: rgba(13, 110, 253, 0.33);
+    --km-admin-badge-info-fg: #aad0ff;
+    --km-admin-input-bg: color-mix(in srgb, var(--darkened-bg) 88%, var(--body-fg) 12%);
+    --km-admin-input-border: var(--hairline-color);
+    --km-admin-input-fg: var(--body-fg);
+    --km-admin-input-placeholder: var(--body-quiet-color);
+    --km-admin-focus-ring: var(--link-fg);
+    --km-admin-gallery-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+    --km-admin-gallery-thumb-bg: var(--body-bg);
+    --km-admin-gallery-thumb-border: var(--hairline-color);
+    --km-admin-gallery-empty-bg: rgba(255, 255, 255, 0.03);
+    --km-admin-gallery-empty-fg: var(--body-quiet-color);
+    --km-admin-submit-secondary-bg: rgba(255, 255, 255, 0.03);
+    --km-admin-submit-secondary-border: var(--hairline-color);
+    --km-admin-submit-secondary-btn-bg: rgba(255, 255, 255, 0.08);
+    --km-admin-submit-secondary-btn-fg: var(--body-fg);
+    --km-admin-submit-secondary-btn-hover-bg: rgba(255, 255, 255, 0.14);
+    --km-admin-submit-secondary-btn-hover-fg: var(--body-fg);
+  }
+}
+
 html,
 body {
   min-height: 100%;
@@ -128,6 +171,17 @@ body {
 
 body {
   background-image: none !important;
+}
+
+body.login {
+  background: var(--km-admin-page-bg) !important;
+  display: flow-root;
+}
+
+.login-logo img {
+  max-width: 120px !important;
+  height: auto;
+  margin-bottom: 20px;
 }
 
 body,
@@ -140,7 +194,6 @@ textarea,
 .breadcrumbs,
 #nav-sidebar,
 .object-tools a {
-  font-family: "Chiron GoRound TC", "Segoe UI", sans-serif;
 }
 
 #header {
@@ -1428,4 +1481,74 @@ select:focus-visible {
   .km-admin-lang-switch {
     margin-right: 6px;
   }
+}
+
+/* Sticky Header for Tables */
+.card-body.table-responsive {
+    max-height: 80vh;
+}
+.card-body.table-responsive table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--km-admin-panel-bg);
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Compact Filters */
+#changelist-search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+#changelist-search .form-group {
+    margin-bottom: 0;
+}
+#change-list-filters {
+    padding-bottom: 1rem !important;
+}
+
+/* Audit Admin Specifics */
+.km-audit-kind {
+    font-size: 0.85em;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+.km-audit-kind--warn { background-color: var(--km-admin-badge-warn-bg); color: var(--km-admin-badge-warn-fg); }
+.km-audit-kind--good { background-color: var(--km-admin-badge-good-bg); color: var(--km-admin-badge-good-fg); }
+.km-audit-kind--info { background-color: var(--km-admin-badge-info-bg); color: var(--km-admin-badge-info-fg); }
+.km-audit-kind--muted { background-color: var(--km-admin-badge-muted-bg); color: var(--km-admin-badge-muted-fg); }
+
+.km-audit-source {
+    font-size: 0.8em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid currentColor;
+}
+.km-audit-source--good { color: var(--km-admin-badge-good-fg); }
+.km-audit-source--info { color: var(--km-admin-badge-info-fg); }
+.km-audit-source--muted { color: var(--km-admin-badge-muted-fg); }
+
+.km-admin-action {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    text-decoration: none;
+    margin: 2px;
+}
+.km-admin-action--primary { background: var(--km-admin-accent); color: #fff; }
+.km-admin-action--secondary { background: var(--km-admin-accent-soft); color: var(--km-admin-accent-strong); }
+.km-admin-action--danger { background: #dc3545; color: #fff; }
+
+.km-audit-actions { display: flex; flex-direction: column; gap: 4px; }
+
+/* Make tables scrollable horizontally on mobile */
+@media (max-width: 1024px) {
+    .card-body.table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }

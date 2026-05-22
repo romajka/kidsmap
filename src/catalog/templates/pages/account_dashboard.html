@@ -138,9 +138,29 @@
 
       <aside class="account-card account-card--quick">
         <div class="account-card__head">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Sürətli keçidlər{% elif CURRENT_LANGUAGE == "en" %}Quick links{% else %}Быстрые переходы{% endif %}</h2>
+          <h2>{% trans "Следующее действие" %}</h2>
         </div>
-        <div class="account-quick-links">
+        <div class="account-next-action">
+          {% if latest_actionable_draft_place %}
+            <p class="account-next-action__copy">
+              {% blocktrans count total=actionable_draft_places_count %}У вас есть {{ total }} черновик. Завершите публикацию, чтобы место можно было отправить на проверку.{% plural %}У вас есть {{ total }} черновика. Завершите публикацию, чтобы места можно было отправить на проверку.{% endblocktrans %}
+            </p>
+            <a class="btn account-next-action__btn" href="{% url 'owner_place_edit' latest_actionable_draft_place.id %}">
+              {% trans "Продолжить черновик" %}
+            </a>
+          {% elif managed_places_count %}
+            <p class="account-next-action__copy">{% trans "Проверьте опубликованные места, ответы на отзывы и актуальность контактов." %}</p>
+            <a class="btn account-next-action__btn" href="{% url 'owner_places_dashboard' %}">
+              {% trans "Открыть мои места" %}
+            </a>
+          {% else %}
+            <p class="account-next-action__copy">{% trans "Добавьте первое детское место, чтобы родители могли найти его в каталоге и на карте." %}</p>
+            <a class="btn account-next-action__btn" href="{% url 'owner_place_create' %}?fresh=1">
+              {% trans "Добавить место" %}
+            </a>
+          {% endif %}
+        </div>
+        <div class="account-quick-links account-quick-links--secondary">
           <a class="account-quick-link" href="{% url 'account_profile' %}">
             <span class="account-quick-link__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 1 1 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>

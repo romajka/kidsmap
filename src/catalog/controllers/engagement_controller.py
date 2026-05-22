@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from django.shortcuts import get_object_or_404
 
 from catalog.interfaces.repositories import IPlaceRepository
-from catalog.models import PlaceReview, SiteReview
+from catalog.models import Place, PlaceReview, SiteReview
 from catalog.repositories.django_repositories import DjangoPlaceRepository
-from catalog.services.content_quality import public_review_queryset
+from catalog.services.content_quality import approved_review_queryset, published_place_queryset
 from catalog.services.reactions import (
     toggle_place_like as toggle_like_service,
     toggle_place_review_reaction as toggle_place_review_reaction_service,
@@ -44,12 +44,12 @@ class EngagementController:
         return cls(place_repository=DjangoPlaceRepository())
 
     def toggle_place_like(self, *, request, place_id: int) -> ToggleLikeResult:
-        place = get_object_or_404(self.place_repository.active_queryset(), pk=place_id)
+        place = get_object_or_404(published_place_queryset(Place.objects.all()), pk=place_id)
         liked, likes_count = toggle_like_service(place, request)
         return ToggleLikeResult(place=place, liked=liked, likes_count=likes_count)
 
     def add_place_review(self, *, request, place_id: int, require_auth: bool) -> tuple[object, ReviewSubmissionResult]:
-        place = get_object_or_404(self.place_repository.active_queryset(), pk=place_id)
+        place = get_object_or_404(published_place_queryset(Place.objects.all()), pk=place_id)
         result = submit_place_review(request=request, place=place, require_auth=require_auth)
         return place, result
 
@@ -57,7 +57,7 @@ class EngagementController:
         return submit_site_review(request=request, require_auth=require_auth)
 
     def toggle_place_review_reaction(self, *, request, review_id: int, value: int) -> ToggleReviewReactionResult:
-        review = get_object_or_404(public_review_queryset(PlaceReview.objects.all()), pk=review_id)
+        review = get_object_or_404(approved_review_queryset(PlaceReview.objects.all()), pk=review_id)
         current_reaction, likes_count, dislikes_count = toggle_place_review_reaction_service(review, request, value)
         return ToggleReviewReactionResult(
             review=review,
@@ -67,7 +67,7 @@ class EngagementController:
         )
 
     def toggle_site_review_reaction(self, *, request, review_id: int, value: int) -> ToggleReviewReactionResult:
-        review = get_object_or_404(public_review_queryset(SiteReview.objects.all()), pk=review_id)
+        review = get_object_or_404(approved_review_queryset(SiteReview.objects.all()), pk=review_id)
         current_reaction, likes_count, dislikes_count = toggle_site_review_reaction_service(review, request, value)
         return ToggleReviewReactionResult(
             review=review,

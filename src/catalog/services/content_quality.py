@@ -81,6 +81,16 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
     return qs
 
 
+def published_place_queryset(queryset: QuerySet) -> QuerySet:
+    """Return places that are published and active, without catalog-quality gating."""
+
+    return queryset.filter(
+        is_active=True,
+        deleted_at__isnull=True,
+        status=PLACE_STATUS_PUBLISHED,
+    )
+
+
 def public_review_queryset(queryset: QuerySet) -> QuerySet:
     """Return only moderated reviews that are useful enough for public pages."""
 
@@ -95,6 +105,17 @@ def public_review_queryset(queryset: QuerySet) -> QuerySet:
     for token in ("aaa", "aaaa", "aaaaa", "test", "lorem", "123456", "qwerty"):
         qs = qs.exclude(Q(text__icontains=token) | Q(author_name__icontains=token))
     return qs
+
+
+def approved_review_queryset(queryset: QuerySet) -> QuerySet:
+    """Return reviews allowed for reactions and review feeds after moderation."""
+
+    return queryset.filter(
+        is_approved=True,
+        status=REVIEW_STATUS_APPROVED,
+        rating__gte=1,
+        rating__lte=5,
+    )
 
 
 @dataclass(frozen=True)

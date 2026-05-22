@@ -2019,7 +2019,7 @@ class TestReviewEnhancements(TestCase):
 
         az_home = self.client.get("/az/", follow=True)
         self.assertEqual(az_home.status_code, 200)
-        self.assertContains(az_home, "KidsMap vasitəsilə yeni valideynlər cəlb edin")
+        self.assertContains(az_home, "Valideynlərə sizi yaxınlıqda tapmağa kömək edin")
         self.assertContains(az_home, "Tam lent və reaksiyalar")
         self.assertContains(az_home, "Ramin A.")
         self.assertContains(az_home, "Sayt Bakıda yeni dərnəkləri tez tapmağa kömək edir, interfeys aydındır.")
@@ -2028,7 +2028,7 @@ class TestReviewEnhancements(TestCase):
 
         en_home = self.client.get("/en/", follow=True)
         self.assertEqual(en_home.status_code, 200)
-        self.assertContains(en_home, "Bring new parents through KidsMap")
+        self.assertContains(en_home, "Help parents find you nearby")
         self.assertContains(en_home, "Full feed and reactions")
         self.assertContains(en_home, "Ramin A.")
         self.assertContains(en_home, "The site helps you quickly find new clubs in Baku, and the interface is easy to understand.")
@@ -3619,8 +3619,9 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("start_datetime", response.context["form"].errors)
-        self.assertIn("end_datetime", response.context["form"].errors)
+        self.assertIn("event_date", response.context["form"].errors)
+        self.assertIn("start_time_input", response.context["form"].errors)
+        self.assertIn("end_time_input", response.context["form"].errors)
         self.assertContains(response, "Müvəqqəti tədbir")
         self.assertFalse(Event.objects.filter(name_az="Tarixsiz tədbir").exists())
 

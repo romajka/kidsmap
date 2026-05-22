@@ -65,13 +65,15 @@
               id="catalog-mobile-search"
               name="q"
               value="{{ selected.q }}"
-              placeholder="{% if language == 'az' %}Məkan, fəaliyyət və ya açar söz axtar...{% else %}{% trans 'Место, занятие или ключевое слово...' %}{% endif %}"
+              placeholder="{% trans 'Место, занятие или ключевое слово...' %}"
             />
           </label>
           <button type="button" class="mobile-search-filter" data-filters-open aria-controls="catalog-filters" aria-label="{% trans 'Фильтры' %}"></button>
         </form>
 
         <div class="mobile-quick-filters" aria-label="{% trans 'Быстрые фильтры' %}">
+          <a class="mobile-quick-filter mobile-intent-filter{% if selected.event_type == 'permanent' %} is-active{% endif %}" href="{{ catalog_places_nearby_url }}">{% trans "Места рядом" %}</a>
+          <a class="mobile-quick-filter mobile-intent-filter{% if selected.event_type == 'temporary' %} is-active{% endif %}" href="{{ catalog_events_url }}">{% trans "Мероприятия" %}</a>
           <button type="button" class="mobile-quick-filter{% if selected.category %} is-active{% endif %}" data-filters-open data-filter-focus="category">{% trans "Категория" %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-filters-open data-filter-focus="district">{% trans "Регион / район" %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.metro %} is-active{% endif %}" data-filters-open data-filter-focus="metro">{% trans "Метро" %}</button>

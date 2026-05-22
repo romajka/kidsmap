@@ -781,15 +781,46 @@ class SiteReview(models.Model):
         who = _("Аноним") if self.is_anonymous else (self.author_name or _("Гость"))
         return f"{who}: {self.rating}"
 
+    _AUTHOR_NAME_TRANSLATIONS = {
+        "Наталья М.": {
+            "az": "Nataliya M.",
+            "en": "Natalia M.",
+        },
+        "Рамин А.": {
+            "az": "Ramin A.",
+            "en": "Ramin A.",
+        },
+    }
+
+    _TEXT_TRANSLATIONS = {
+        "Хороший каталог, особенно полезны карта и быстрые фильтры по категориям.": {
+            "az": "Yaxşı kataloqdur, xüsusilə xəritə və kateqoriyalar üzrə sürətli filtrlər faydalıdır.",
+            "en": "A good catalog, especially useful for the map and quick category filters.",
+        },
+        "Сайт помогает быстро находить новые кружки в Баку, интерфейс понятный.": {
+            "az": "Sayt Bakıda yeni dərnəkləri tez tapmağa kömək edir, interfeys aydındır.",
+            "en": "The site helps you quickly find new clubs in Baku, and the interface is easy to understand.",
+        },
+    }
+
+    @staticmethod
+    def _localized_demo_value(raw_value: str, translations: dict[str, dict[str, str]]) -> str:
+        language = (get_language() or "ru").split("-", 1)[0]
+        if language == "ru":
+            return raw_value
+        return translations.get(raw_value, {}).get(language, raw_value)
+
     @property
     def author_name_i18n(self) -> str:
         if self.is_anonymous:
             return str(_("Аноним"))
-        return str(_(self.author_name or "Гость"))
+        raw_value = str(_(self.author_name or "Гость"))
+        return self._localized_demo_value(raw_value, self._AUTHOR_NAME_TRANSLATIONS)
 
     @property
     def text_i18n(self) -> str:
-        return str(_(self.text or ""))
+        raw_value = str(_(self.text or ""))
+        return self._localized_demo_value(raw_value, self._TEXT_TRANSLATIONS)
 
     @property
     def popularity_score(self) -> int:

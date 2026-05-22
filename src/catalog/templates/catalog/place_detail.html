@@ -124,17 +124,17 @@
             <section class="detail-summary-card">
               <div class="card-cta-row detail-cta-row">
                 {% if place.phone1 %}
-                  <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">{% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}Позвонить{% endif %}</a>
-                  <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">WhatsApp</a>
+                  <a class="cta-btn cta-call cta-primary icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">{% trans "Позвонить и уточнить" %}</a>
+                  <a class="cta-btn cta-whatsapp cta-secondary icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">WhatsApp</a>
                 {% endif %}
                 {% if place.instagram %}
-                  <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">Instagram</a>
+                  <a class="cta-btn cta-instagram cta-secondary icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">Instagram</a>
                 {% endif %}
                 {% if request.user.is_authenticated %}
                   <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                    <button type="submit" class="like-btn detail-save-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
+                    <button type="submit" class="like-btn detail-save-btn cta-secondary {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
                       <span class="detail-save-btn__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M12 20.25 4.875 13.5a4.74 4.74 0 0 1 0-6.75 4.94 4.94 0 0 1 6.938 0L12 7.05l.188-.3a4.94 4.94 0 0 1 6.937 0 4.74 4.74 0 0 1 0 6.75L12 20.25Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
@@ -147,7 +147,7 @@
                   <div class="like-form detail-like-form">
                     <button
                       type="button"
-                      class="like-btn detail-save-btn"
+                      class="like-btn detail-save-btn cta-secondary"
                       aria-pressed="false"
                       data-auth-required-trigger
                       data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
@@ -182,6 +182,20 @@
                   <div class="detail-highlight-card">
                     <span class="detail-highlight-card__label">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</span>
                     <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
+                  </div>
+                {% endif %}
+                {% if place.schedule or place.lesson_duration_display %}
+                  <div class="detail-highlight-card">
+                    <span class="detail-highlight-card__label">{% trans "Расписание" %}</span>
+                    <strong class="detail-highlight-card__value">
+                      {% if place.lesson_duration_display %}{{ place.lesson_duration_display }}{% elif place.schedule %}{{ place.schedule|striptags|truncatechars:42 }}{% endif %}
+                    </strong>
+                  </div>
+                {% endif %}
+                {% if place.address %}
+                  <div class="detail-highlight-card">
+                    <span class="detail-highlight-card__label">{% trans "Адрес" %}</span>
+                    <strong class="detail-highlight-card__value">{{ place.address|truncatechars:58 }}</strong>
                   </div>
                 {% endif %}
 

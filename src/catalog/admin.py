@@ -2467,7 +2467,7 @@ class PlaceChangeAuditAdmin(admin.ModelAdmin):
     change_list_template = "admin/catalog/placechangeaudit/change_list.html"
     list_select_related = ("place", "changed_by")
     date_hierarchy = "created_at"
-    list_display = ("place_summary", "change_summary", "changed_by_summary", "source_badge", "created_at_display", "row_actions")
+    list_display = ("place_summary", "change_type_badge", "field_changes_summary", "changed_by_summary", "source_badge", "created_at_display", "row_actions")
     list_display_links = None
     list_filter = (PlaceChangeTypeFilter, "source", "changed_by", "place", "created_at")
     search_fields = (
@@ -2686,19 +2686,24 @@ class PlaceChangeAuditAdmin(admin.ModelAdmin):
             format_html('<span class="km-admin-meta">{}</span>', meta) if meta else "",
         )
 
-    @admin.display(description=_("Изменение"))
-    def change_summary(self, obj):
+    @admin.display(description=_("Тип изменения"))
+    def change_type_badge(self, obj):
         _kind, tone, label = self._audit_event_metadata(obj)
         return format_html(
-            '<div class="km-admin-stack">'
             '<div class="km-admin-badges">'
             '<span class="km-admin-badge km-audit-kind km-audit-kind--{}">{}</span>'
-            "</div>"
-            '<span class="km-admin-title">{}</span>'
-            '<span class="km-admin-meta">{}</span>'
             "</div>",
             tone,
             label,
+        )
+
+    @admin.display(description=_("Что изменилось"))
+    def field_changes_summary(self, obj):
+        return format_html(
+            '<div class="km-admin-stack">'
+            '<span class="km-admin-title">{}</span>'
+            '<span class="km-admin-meta">{}</span>'
+            "</div>",
             self._audit_field_label(obj.field_name),
             self._audit_value_pair(obj),
         )
