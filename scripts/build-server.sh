@@ -11,5 +11,7 @@ fi
 
 "${PYTHON_BIN}" manage.py migrate --noinput
 "${PYTHON_BIN}" manage.py compilemessages --ignore .venv --ignore venv || true
-"${PYTHON_BIN}" manage.py collectstatic --clear --noinput
+if [ "${RUN_COLLECTSTATIC_ON_START:-0}" = "1" ]; then
+  "${PYTHON_BIN}" manage.py collectstatic --clear --noinput
+fi
 "${PYTHON_BIN}" manage.py check
