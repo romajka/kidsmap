@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <article class="panel event-detail-page">
+    <div class="event-detail-hero">
+      <div class="event-detail-copy">
+        <span class="event-detail-kicker">{% if language == "az" %}Müvəqqəti tədbir{% elif language == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}</span>
+        <h1>{{ event.name_i18n }}</h1>
+        <p>{{ event.description_i18n }}</p>
+        {% include "catalog/includes/event_countdown.html" with event=event language=language variant="detail" %}
+      </div>
+      <div class="event-detail-media">
+        {% if event.photo %}
+          <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="eager" decoding="async" />
+        {% else %}
+          <img src="{% static 'img/banners/listing-placeholder.webp' %}" alt="" loading="eager" decoding="async" />
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="event-detail-grid">
+      <section class="event-detail-card">
+        <h2>{% if language == "az" %}Tədbir məlumatları{% elif language == "en" %}Event details{% else %}Детали мероприятия{% endif %}</h2>
+        <dl class="event-detail-list">
+          <div>
+            <dt>{% if language == "az" %}Tarix{% elif language == "en" %}Date{% else %}Дата{% endif %}</dt>
+            <dd>{{ event.start_datetime|date:"d.m.Y H:i" }} - {{ event.end_datetime|date:"H:i" }}</dd>
+          </div>
+          <div>
+            <dt>{% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}Категория{% endif %}</dt>
+            <dd>{{ event.get_category_display }}</dd>
+          </div>
+          {% if event.age_display %}
+            <div>
+              <dt>{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</dt>
+              <dd>{{ event.age_display }}</dd>
+            </div>
+          {% endif %}
+          {% if event.price_display %}
+            <div>
+              <dt>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</dt>
+              <dd>{{ event.price_display }}</dd>
+            </div>
+          {% endif %}
+          <div>
+            <dt>{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</dt>
+            <dd>{{ event.address }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <aside class="event-detail-card event-detail-contact">
+        <h2>{% if language == "az" %}Əlaqə{% elif language == "en" %}Contact{% else %}Контакты{% endif %}</h2>
+        {% if event.phone %}
+          <a class="btn" href="tel:{{ event.phone }}">{{ event.phone }}</a>
+        {% endif %}
+        {% if event.instagram %}
+          <a class="link-btn" href="{{ event.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+        {% endif %}
+        {% if event.related_place %}
+          <a class="link-btn" href="{{ event.related_place.get_absolute_url }}">{% if language == "az" %}Əlaqəli məkanı aç{% elif language == "en" %}Open related place{% else %}Открыть связанное место{% endif %}</a>
+        {% endif %}
+      </aside>
+    </div>
+  </article>
+{% endblock %}
+
+{% block extra_body %}
+  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
+{% endblock %}

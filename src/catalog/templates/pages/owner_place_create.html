@@ -22,7 +22,7 @@
     <div class="owner-page-head">
       <div>
         <h1>{% if CURRENT_LANGUAGE == "az" %}Yeni elan{% elif CURRENT_LANGUAGE == "en" %}New listing{% else %}Новое объявление{% endif %}</h1>
-        <p class="auth-subtitle">{% if CURRENT_LANGUAGE == "az" %}Əvvəlcə elan növünü seçin, sonra yalnız uyğun sahələri doldurun.{% elif CURRENT_LANGUAGE == "en" %}Choose the listing type first, then fill only the relevant fields.{% else %}Сначала выберите тип объявления, дальше откроется подходящая форма.{% endif %}</p>
+        <p class="auth-subtitle">{% if CURRENT_LANGUAGE == "az" %}Daimi məkan üçün ətraflı 4 addımlı formanı doldurun.{% elif CURRENT_LANGUAGE == "en" %}Fill in the detailed 4-step form for a permanent place.{% else %}Заполните подробную форму постоянного места в 4 шага.{% endif %}</p>
       </div>
       <div class="owner-page-actions">
         <a class="link-btn" href="{% url 'account_profile' %}">← {% if CURRENT_LANGUAGE == "az" %}Profilə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to profile{% else %}Вернуться в профиль{% endif %}</a>
@@ -35,13 +35,14 @@
       class="owner-edit-form owner-wizard-form"
       data-loading-form
       data-owner-wizard
-      data-owner-mode="{% if form.is_temporary.value %}temporary{% else %}permanent{% endif %}"
+      data-owner-requires-type-choice="0"
+      data-owner-mode="permanent"
       data-owner-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
       data-owner-permanent-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
-      data-owner-temporary-required-fields="name_az,category,description_az,temporary_start,temporary_end,price_from,address,phone1,photo"
+      data-owner-temporary-required-fields=""
       data-owner-required-groups="district|metro"
       data-owner-permanent-required-groups="district|metro"
-      data-owner-temporary-required-groups="district|metro"
+      data-owner-temporary-required-groups=""
       data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,instagram,website,schedule,lesson_duration_minutes,price_per_lesson,price_per_month,price_per_8_lessons,extra_conditions,additional_info,is_temporary,temporary_start,temporary_end,gallery_images,moderation_note"
       data-owner-optional-groups="lat|lng"
       data-owner-location-group-label="{% if CURRENT_LANGUAGE == 'az' %}Region, rayon və ya metro{% elif CURRENT_LANGUAGE == 'en' %}Region, district, or metro{% else %}{% trans 'Регион, район или метро' %}{% endif %}"
@@ -67,7 +68,7 @@
       data-owner-unsaved-changes-message="{% if CURRENT_LANGUAGE == 'az' %}Yadda saxlanmamış dəyişikliklər var. Çıxsanız, dəyişikliklər saxlanmayacaq.{% elif CURRENT_LANGUAGE == 'en' %}You have unsaved changes. If you leave now, they will not be saved.{% else %}{% trans 'У вас есть несохранённые изменения. Действительно выйти? Если выйти сейчас, изменения не сохранятся.' %}{% endif %}"
       data-step-label="{% if CURRENT_LANGUAGE == 'az' %}Addım{% elif CURRENT_LANGUAGE == 'en' %}Step{% else %}{% trans 'Шаг' %}{% endif %}"
       data-of-label="{% if CURRENT_LANGUAGE == 'az' %}/{% elif CURRENT_LANGUAGE == 'en' %}/{% else %}{% trans 'из' %}{% endif %}"
-      data-owner-draft-key="owner-place-create"
+      data-owner-draft-key="{{ draft_client_key }}"
       data-owner-draft-restored-message="{% if CURRENT_LANGUAGE == 'az' %}Qaralama bərpa olundu. Daxil etdiyiniz məlumatlar bu brauzerdən qaytarıldı.{% elif CURRENT_LANGUAGE == 'en' %}Draft restored. Your saved form data was recovered in this browser.{% else %}Черновик восстановлен. Данные формы возвращены из этого браузера.{% endif %}"
       data-owner-draft-saved-message="{% if CURRENT_LANGUAGE == 'az' %}Qaralama bu brauzerdə avtomatik saxlanılır.{% elif CURRENT_LANGUAGE == 'en' %}This draft is being auto-saved in this browser.{% else %}Черновик автоматически сохраняется в этом браузере.{% endif %}"
       data-owner-draft-offline-message="{% if CURRENT_LANGUAGE == 'az' %}İnternet yoxdur. Daxil etdiyiniz məlumatlar bu brauzerdə saxlanacaq.{% elif CURRENT_LANGUAGE == 'en' %}You are offline. Your progress will stay saved in this browser.{% else %}Интернет недоступен. Заполненные данные сохраняются в этом браузере.{% endif %}"
@@ -75,12 +76,13 @@
       data-owner-draft-files-message="{% if CURRENT_LANGUAGE == 'az' %}Şəkillər təhlükəsizlik səbəbi ilə bərpa olunmur, onları yenidən seçmək lazımdır.{% elif CURRENT_LANGUAGE == 'en' %}Images cannot be restored automatically for security reasons, so choose them again.{% else %}Файлы изображений браузер не восстанавливает автоматически, их нужно выбрать заново.{% endif %}"
     >
       {% csrf_token %}
+      <input type="hidden" name="draft_client_key" value="{{ draft_client_key }}" />
       {% if form.non_field_errors %}
         <div class="auth-errors">{{ form.non_field_errors }}</div>
       {% endif %}
       <div class="owner-wizard-draft-status" data-owner-draft-status hidden aria-live="polite"></div>
 
-      {% include "pages/includes/owner_place_wizard.html" with wizard_mode="create" %}
+      {% include "pages/includes/owner_place_wizard.html" with wizard_mode="create" listing_kind="place" %}
     </form>
   </section>
 {% endblock %}

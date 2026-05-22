@@ -59,6 +59,8 @@ NOINDEX_URL_NAMES = {
     "owner_places_dashboard",
     "owner_place_create",
     "owner_place_edit",
+    "owner_event_create",
+    "owner_event_edit",
     "owner_reviews_dashboard",
     "owner_team_dashboard",
 }

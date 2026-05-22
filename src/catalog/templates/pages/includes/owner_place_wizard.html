@@ -2,7 +2,12 @@
 {% get_current_language as CURRENT_LANGUAGE %}
 
 <div class="owner-wizard-shell" data-owner-wizard-shell>
+  {% if listing_kind != "place" %}
   <section class="owner-listing-type" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Elan növü{% elif CURRENT_LANGUAGE == 'en' %}Listing type{% else %}Тип объявления{% endif %}">
+    <div class="owner-listing-type__intro">
+      <p>{% if CURRENT_LANGUAGE == "az" %}Əvvəlcə nə əlavə etdiyinizi seçin{% elif CURRENT_LANGUAGE == "en" %}Choose what you are adding first{% else %}Сначала выберите, что вы добавляете{% endif %}</p>
+      <span>{% if CURRENT_LANGUAGE == "az" %}Seçimdən sonra uyğun və daha rahat forma açılacaq.{% elif CURRENT_LANGUAGE == "en" %}After the choice, the right form will open.{% else %}После выбора откроется подходящая форма без лишних полей.{% endif %}</span>
+    </div>
     <div class="owner-listing-type__field">
       {{ form.is_temporary }}
       {% if form.is_temporary.errors %}
@@ -11,7 +16,7 @@
     </div>
     <button
       type="button"
-      class="owner-listing-type-card{% if not form.is_temporary.value %} is-active{% endif %}"
+      class="owner-listing-type-card{% if wizard_mode != 'create' or form.is_bound %}{% if not form.is_temporary.value %} is-active{% endif %}{% endif %}"
       data-owner-listing-type="permanent"
       aria-pressed="{% if form.is_temporary.value %}false{% else %}true{% endif %}"
     >
@@ -36,6 +41,7 @@
       </span>
     </button>
   </section>
+  {% endif %}
 
   <div class="owner-wizard-head">
     <div class="owner-wizard-progress">
@@ -117,12 +123,14 @@
           <div data-owner-mode-panel="permanent">
             {% include "pages/includes/owner_form_field.html" with field=form.price_to %}
           </div>
-          <div data-owner-mode-panel="temporary">
-            {% include "pages/includes/owner_form_field.html" with field=form.temporary_start temp_required=True %}
-          </div>
-          <div data-owner-mode-panel="temporary">
-            {% include "pages/includes/owner_form_field.html" with field=form.temporary_end temp_required=True %}
-          </div>
+          {% if listing_kind != "place" %}
+            <div data-owner-mode-panel="temporary">
+              {% include "pages/includes/owner_form_field.html" with field=form.temporary_start temp_required=True %}
+            </div>
+            <div data-owner-mode-panel="temporary">
+              {% include "pages/includes/owner_form_field.html" with field=form.temporary_end temp_required=True %}
+            </div>
+          {% endif %}
         </div>
       </section>
 
@@ -397,7 +405,7 @@
             <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Dəyişiklikləri saxla{% elif CURRENT_LANGUAGE == "en" %}Save changes{% else %}{% trans "Сохранить изменения" %}{% endif %}</button>
           {% else %}
             <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
-            <a class="link-btn" href="{% url 'owner_cabinet' %}">{% if CURRENT_LANGUAGE == "az" %}Müraciətlərə{% elif CURRENT_LANGUAGE == "en" %}Requests{% else %}{% trans "К заявкам" %}{% endif %}</a>
+            <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}{% trans "Мои места" %}{% endif %}</a>
             <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Yarat və yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Create and send for review{% else %}{% trans "Создать и отправить на проверку" %}{% endif %}</button>
           {% endif %}
         </div>

@@ -65,6 +65,36 @@ msgstr "Status after"
 msgid "Телефон"
 msgstr "Phone"
 
+msgid "Выберите дату"
+msgstr "Select date"
+
+msgid "Выберите время"
+msgstr "Select time"
+
+msgid "Время начала"
+msgstr "Start time"
+
+msgid "Дата окончания"
+msgstr "End date"
+
+msgid "Время окончания"
+msgstr "End time"
+
+msgid "Укажите дату мероприятия."
+msgstr "Select the event date."
+
+msgid "Укажите время начала."
+msgstr "Select the start time."
+
+msgid "Укажите время окончания."
+msgstr "Select the end time."
+
+msgid "Время окончания должно быть позже времени начала."
+msgstr "End time must be after start time."
+
+msgid "Нельзя выбрать прошедшую дату или время начала."
+msgstr "You cannot choose a past date or start time."
+
 #: src/catalog/admin.py:187 src/catalog/forms.py:141 src/catalog/models.py:755
 #: src/catalog/templates/pages/account_profile.html:51
 msgid "Пол"
@@ -5413,6 +5443,14 @@ msgstr "Sign in to submit a request to manage this listing."
 msgid "Фильтры"
 msgstr "Filters"
 
+#: src/catalog/templates/catalog/place_list.html:43
+msgid "Найдите подходящее место для ребёнка"
+msgstr "Find the right place for your child"
+
+#: src/catalog/templates/catalog/place_list.html:44
+msgid "Выбирайте курсы и занятия по возрасту, району и метро."
+msgstr "Choose courses and activities by age, district, and metro."
+
 #: src/catalog/templates/catalog/place_list.html:58
 msgid "Поиск по названию"
 msgstr "Search by title"
@@ -7699,7 +7737,7 @@ msgstr "District"
 
 #: templates/admin/catalog/site_analytics.html:485
 msgid "Дата"
-msgstr ""
+msgstr "Date"
 
 #: templates/admin/catalog/site_analytics.html:611
 #: templates/admin/catalog/site_analytics.html:620

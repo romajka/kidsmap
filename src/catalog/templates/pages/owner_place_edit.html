@@ -36,14 +36,14 @@
       class="owner-edit-form owner-wizard-form"
       data-loading-form
       data-owner-wizard
-      data-owner-mode="{% if form.is_temporary.value %}temporary{% else %}permanent{% endif %}"
+      data-owner-mode="permanent"
       data-owner-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
       data-owner-permanent-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
-      data-owner-temporary-required-fields="name_az,category,description_az,temporary_start,temporary_end,price_from,address,phone1,photo"
+      data-owner-temporary-required-fields=""
       data-owner-required-groups="district|metro"
       data-owner-permanent-required-groups="district|metro"
-      data-owner-temporary-required-groups="district|metro"
-      data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,instagram,website,schedule,lesson_duration_minutes,price_per_lesson,price_per_month,price_per_8_lessons,extra_conditions,additional_info,is_temporary,temporary_start,temporary_end"
+      data-owner-temporary-required-groups=""
+      data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,instagram,website,schedule,lesson_duration_minutes,price_per_lesson,price_per_month,price_per_8_lessons,extra_conditions,additional_info"
       data-owner-optional-groups="lat|lng"
       data-owner-location-group-label="{% if CURRENT_LANGUAGE == 'az' %}Region, rayon və ya metro{% elif CURRENT_LANGUAGE == 'en' %}Region, district, or metro{% else %}{% trans 'Регион, район или метро' %}{% endif %}"
       data-owner-map-group-label="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə nöqtə{% elif CURRENT_LANGUAGE == 'en' %}Map point{% else %}{% trans 'Точка на карте' %}{% endif %}"
@@ -81,7 +81,7 @@
       {% endif %}
       <div class="owner-wizard-draft-status" data-owner-draft-status hidden aria-live="polite"></div>
 
-      {% include "pages/includes/owner_place_wizard.html" with wizard_mode="edit" place=place delete_place_confirm_text=delete_place_confirm_text %}
+      {% include "pages/includes/owner_place_wizard.html" with wizard_mode="edit" place=place delete_place_confirm_text=delete_place_confirm_text listing_kind="place" %}
     </form>
 
     <form id="owner-place-delete-form" method="post" action="{% url 'owner_place_delete' place.id %}">

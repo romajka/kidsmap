@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import re
 
 from django import forms
@@ -14,10 +15,11 @@ from django.contrib.auth.forms import (
 )
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from catalog.content_data import BAKU_METRO_STATIONS
-from catalog.models import CatalogContentSettings, Place, UserProfile
+from catalog.models import CatalogContentSettings, Event, Place, UserProfile
 from catalog.services.options import sort_translated_values
 
 
@@ -566,8 +568,22 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "extra_conditions": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "additional_info": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "is_temporary": forms.CheckboxInput(attrs={"class": "field-check"}),
-            "temporary_start": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
-            "temporary_end": forms.DateTimeInput(attrs={"class": "field", "type": "datetime-local"}),
+            "temporary_start": forms.TextInput(
+                attrs={
+                    "class": "field",
+                    "data-kidsmap-datetime-picker": "1",
+                    "data-allow-input": "1",
+                    "placeholder": _("Время начала"),
+                }
+            ),
+            "temporary_end": forms.TextInput(
+                attrs={
+                    "class": "field",
+                    "data-kidsmap-datetime-picker": "1",
+                    "data-allow-input": "1",
+                    "placeholder": _("Время окончания"),
+                }
+            ),
             "photo": ImagePreviewFileInput(
                 attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}
             ),
@@ -620,6 +636,8 @@ class OwnerPlaceEditForm(forms.ModelForm):
                     mutable_data["lng"] = "" if instance.lng is None else str(instance.lng)
                 kwargs["data"] = mutable_data
         super().__init__(*args, **kwargs)
+        self.fields["temporary_start"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
+        self.fields["temporary_end"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
         self._configure_location_choices()
         for field_name in ("age_from", "age_to"):
             self.fields[field_name].error_messages.update(
@@ -885,6 +903,246 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         if commit:
             place.save()
         return place
+
+
+class OwnerEventForm(forms.ModelForm):
+    draft_save_only = False
+
+    event_date = forms.DateField(
+        label=_("Дата"),
+        required=False,
+        input_formats=["%Y-%m-%d"],
+        widget=forms.TextInput(
+            attrs={
+                "class": "field",
+                "data-kidsmap-date-picker": "1",
+                "data-min-today": "1",
+                "data-allow-input": "1",
+                "placeholder": _("Выберите дату"),
+            }
+        ),
+    )
+    start_time_input = forms.TimeField(
+        label=_("Время начала"),
+        required=False,
+        input_formats=["%H:%M"],
+        widget=forms.TextInput(
+            attrs={
+                "class": "field",
+                "data-kidsmap-time-picker": "1",
+                "data-allow-input": "1",
+                "placeholder": _("Выберите время"),
+            }
+        ),
+    )
+    end_date = forms.DateField(
+        label=_("Дата окончания"),
+        required=False,
+        input_formats=["%Y-%m-%d"],
+        widget=forms.TextInput(
+            attrs={
+                "class": "field",
+                "data-kidsmap-date-picker": "1",
+                "data-min-today": "1",
+                "data-allow-input": "1",
+                "placeholder": _("Выберите дату"),
+            }
+        ),
+    )
+    end_time_input = forms.TimeField(
+        label=_("Время окончания"),
+        required=False,
+        input_formats=["%H:%M"],
+        widget=forms.TextInput(
+            attrs={
+                "class": "field",
+                "data-kidsmap-time-picker": "1",
+                "data-allow-input": "1",
+                "placeholder": _("Выберите время"),
+            }
+        ),
+    )
+
+    related_place = forms.ModelChoiceField(
+        label=_("Связанное место"),
+        required=False,
+        queryset=Place.objects.none(),
+        widget=forms.Select(attrs={"class": "field", "data-event-related-place": "1"}),
+        help_text=_("Необязательно. Можно добавить мероприятие без постоянного места."),
+    )
+
+    class Meta:
+        model = Event
+        fields = (
+            "name_az",
+            "category",
+            "start_datetime",
+            "end_datetime",
+            "age_from",
+            "age_to",
+            "price_text",
+            "related_place",
+            "address",
+            "phone",
+            "description_az",
+            "photo",
+            "moderation_note",
+        )
+        widgets = {
+            "name_az": forms.TextInput(attrs={"class": "field", "placeholder": _("Например: мастер-класс по рисованию")}),
+            "category": forms.Select(attrs={"class": "field"}),
+            "start_datetime": forms.HiddenInput(),
+            "end_datetime": forms.HiddenInput(),
+            "age_from": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "6"}),
+            "age_to": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "12"}),
+            "price_text": forms.TextInput(attrs={"class": "field", "placeholder": _("Например: 15 AZN или бесплатно")}),
+            "address": forms.TextInput(attrs={"class": "field", "placeholder": _("Например: Bakı, Nərimanov r., Xətai pr. 12")}),
+            "phone": forms.TextInput(attrs={"class": "field", "placeholder": _("Например: 050 123 45 67")}),
+            "description_az": forms.Textarea(
+                attrs={
+                    "class": "field",
+                    "rows": 5,
+                    "maxlength": "300",
+                    "placeholder": _("Qısa məlumat: tədbirdə nələr olacaq, kimlər üçün uyğundur."),
+                    "data-counter-target": "event-description-counter",
+                }
+            ),
+            "photo": ImagePreviewFileInput(
+                attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}
+            ),
+            "moderation_note": forms.Textarea(attrs={"class": "field", "rows": 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
+        super().__init__(*args, **kwargs)
+        self.fields["start_datetime"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
+        self.fields["end_datetime"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
+        if self.instance and getattr(self.instance, "pk", None):
+            if self.instance.start_datetime:
+                localized_start = timezone.localtime(self.instance.start_datetime)
+                self.fields["event_date"].initial = localized_start.date()
+                self.fields["start_time_input"].initial = localized_start.strftime("%H:%M")
+            if self.instance.end_datetime:
+                localized_end = timezone.localtime(self.instance.end_datetime)
+                self.fields["end_date"].initial = localized_end.date()
+                self.fields["end_time_input"].initial = localized_end.strftime("%H:%M")
+        if self.user is not None and getattr(self.user, "is_authenticated", False):
+            self.fields["related_place"].queryset = (
+                Place.objects.filter(owner=self.user, deleted_at__isnull=True)
+                .exclude(status=Place.STATUS_REJECTED)
+                .order_by("name_az", "name_ru", "name")
+            )
+        self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
+        self.fields["moderation_note"].help_text = _("Необязательно. Укажите детали для модератора.")
+        if self.draft_save_only:
+            for field in self.fields.values():
+                field.required = False
+            return
+        for field_name in (
+            "name_az",
+            "category",
+            "event_date",
+            "start_time_input",
+            "end_time_input",
+            "age_from",
+            "age_to",
+            "price_text",
+            "description_az",
+            "photo",
+        ):
+            self.fields[field_name].required = True
+
+    def clean_name_az(self):
+        return _normalize_whitespace(self.cleaned_data.get("name_az") or "")
+
+    def clean_phone(self):
+        value = self.cleaned_data.get("phone") or ""
+        if self.draft_save_only and not value:
+            return ""
+        return _validate_phone(value)
+
+    def clean(self):
+        cleaned = super().clean()
+        related_place = cleaned.get("related_place")
+        if related_place:
+            if not cleaned.get("address"):
+                cleaned["address"] = related_place.address
+                self.instance.address = related_place.address
+            if not cleaned.get("phone"):
+                cleaned["phone"] = related_place.phone1
+                self.instance.phone = related_place.phone1
+        if not self.draft_save_only:
+            if not cleaned.get("address"):
+                self.add_error("address", _("Укажите адрес или выберите связанное место с адресом."))
+            if not cleaned.get("phone"):
+                self.add_error("phone", _("Укажите телефон / WhatsApp или выберите связанное место с телефоном."))
+
+        event_date = cleaned.get("event_date")
+        end_date = cleaned.get("end_date") or event_date
+        start_time = cleaned.get("start_time_input")
+        end_time = cleaned.get("end_time_input")
+
+        start = None
+        end = None
+        if event_date and start_time:
+            start = datetime.combine(event_date, start_time)
+            if timezone.is_naive(start):
+                start = timezone.make_aware(start, timezone.get_current_timezone())
+        if end_date and end_time:
+            end = datetime.combine(end_date, end_time)
+            if timezone.is_naive(end):
+                end = timezone.make_aware(end, timezone.get_current_timezone())
+
+        cleaned["start_datetime"] = start
+        cleaned["end_datetime"] = end
+        self.instance.start_datetime = start
+        self.instance.end_datetime = end
+
+        if not self.draft_save_only:
+            if not event_date:
+                self.add_error("event_date", _("Укажите дату мероприятия."))
+            if not start_time:
+                self.add_error("start_time_input", _("Укажите время начала."))
+            if not end_time:
+                self.add_error("end_time_input", _("Укажите время окончания."))
+
+        if start and end and start >= end:
+            self.add_error("end_time_input", _("Время окончания должно быть позже времени начала."))
+        if not self.draft_save_only and start and start < timezone.now():
+            self.add_error("event_date", _("Нельзя выбрать прошедшую дату или время начала."))
+        if not self.draft_save_only and end and end <= timezone.now():
+            self.add_error("end_time_input", _("Нельзя отправить на модерацию уже завершившееся мероприятие."))
+
+        age_from = cleaned.get("age_from")
+        age_to = cleaned.get("age_to")
+        if age_from is not None and age_to is not None and age_from > age_to:
+            self.add_error("age_to", _("Возраст «до» меньше «от»."))
+
+        photo = cleaned.get("photo")
+        if photo:
+            try:
+                _validate_uploaded_image(photo)
+            except ValidationError as exc:
+                self.add_error("photo", exc)
+        return cleaned
+
+    def save(self, commit=True):
+        event = super().save(commit=False)
+        event.name = event.name_az or event.name_ru or event.name_en or event.name
+        if event.related_place:
+            if not event.address:
+                event.address = event.related_place.address
+            if not event.phone:
+                event.phone = event.related_place.phone1
+            if not event.instagram:
+                event.instagram = event.related_place.instagram
+        if commit:
+            event.save()
+            self.save_m2m()
+        return event
+
 
 class OwnerTeamInvitationForm(forms.Form):
     email = forms.EmailField(

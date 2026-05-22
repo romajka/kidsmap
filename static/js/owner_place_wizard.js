@@ -8,12 +8,12 @@
   const progressTitle = form.querySelector("[data-owner-progress-title]");
   const progressBar = form.querySelector("[data-owner-progress-bar]");
   const locationRequiredMessage = form.dataset.ownerLocationRequiredMessage || "";
-  const stepLabel = form.dataset.stepLabel || "Шаг";
-  const ofLabel = form.dataset.ofLabel || "из";
+  const stepLabel = form.dataset.stepLabel || "";
+  const ofLabel = form.dataset.ofLabel || "/";
   const warningLabel = form.dataset.ownerStepWarningLabel || "!";
   const completeLabel = form.dataset.ownerStepCompleteLabel || "✓";
   const neutralLabel = form.dataset.ownerStepNeutralLabel || "";
-  const unsavedChangesMessage = form.dataset.ownerUnsavedChangesMessage || "You have unsaved changes.";
+  const unsavedChangesMessage = form.dataset.ownerUnsavedChangesMessage || "";
   const draftKey = form.dataset.ownerDraftKey || "";
   const draftStatus = form.querySelector("[data-owner-draft-status]");
   const draftRestoredMessage = form.dataset.ownerDraftRestoredMessage || "";
@@ -27,8 +27,14 @@
   let draftSaveTimer = null;
   let isRestoringDraft = false;
   let restoredStep = null;
+  const requiresTypeChoice = form.dataset.ownerRequiresTypeChoice === "1";
+  let listingTypeChosen = !requiresTypeChoice
+    || form.dataset.ownerMode === "temporary"
+    || form.dataset.ownerMode === "permanent"
+    || hasServerErrors;
 
   function currentListingMode() {
+    if (requiresTypeChoice && !listingTypeChosen) return "";
     const temporaryCheckbox = form.querySelector('[name="is_temporary"]');
     return temporaryCheckbox && temporaryCheckbox.checked ? "temporary" : "permanent";
   }
@@ -188,6 +194,9 @@
     if (!state || !state.fields || typeof state.fields !== "object") return;
 
     isRestoringDraft = true;
+    if (requiresTypeChoice && Object.prototype.hasOwnProperty.call(state.fields, "is_temporary")) {
+      listingTypeChosen = true;
+    }
     Object.keys(state.fields).forEach(function (name) {
       const field = getField(name);
       if (!field || field.disabled) return;
@@ -349,29 +358,43 @@
 
   function syncListingMode() {
     const mode = currentListingMode();
+    const waitingForType = requiresTypeChoice && !listingTypeChosen;
     form.dataset.ownerMode = mode;
+    form.classList.toggle("is-awaiting-listing-type", waitingForType);
 
     if (form.dataset.ownerPermanentRequiredFields || form.dataset.ownerTemporaryRequiredFields) {
-      form.dataset.ownerRequiredFields = mode === "temporary"
-        ? (form.dataset.ownerTemporaryRequiredFields || form.dataset.ownerRequiredFields || "")
-        : (form.dataset.ownerPermanentRequiredFields || form.dataset.ownerRequiredFields || "");
+      form.dataset.ownerRequiredFields = waitingForType
+        ? ""
+        : mode === "temporary"
+          ? (form.dataset.ownerTemporaryRequiredFields || form.dataset.ownerRequiredFields || "")
+          : (form.dataset.ownerPermanentRequiredFields || form.dataset.ownerRequiredFields || "");
     }
     if (form.dataset.ownerPermanentRequiredGroups || form.dataset.ownerTemporaryRequiredGroups) {
-      form.dataset.ownerRequiredGroups = mode === "temporary"
-        ? (form.dataset.ownerTemporaryRequiredGroups || form.dataset.ownerRequiredGroups || "")
-        : (form.dataset.ownerPermanentRequiredGroups || form.dataset.ownerRequiredGroups || "");
+      form.dataset.ownerRequiredGroups = waitingForType
+        ? ""
+        : mode === "temporary"
+          ? (form.dataset.ownerTemporaryRequiredGroups || form.dataset.ownerRequiredGroups || "")
+          : (form.dataset.ownerPermanentRequiredGroups || form.dataset.ownerRequiredGroups || "");
     }
 
     steps.forEach(function (step) {
       const fieldKey = mode === "temporary" ? "ownerStepTemporaryRequiredFields" : "ownerStepPermanentRequiredFields";
       const groupKey = mode === "temporary" ? "ownerStepTemporaryRequiredGroups" : "ownerStepPermanentRequiredGroups";
-      if (step.dataset[fieldKey] !== undefined) {
+      if (waitingForType) {
+        step.dataset.ownerStepRequiredFields = "";
+        step.dataset.ownerStepRequiredGroups = "";
+      } else if (step.dataset[fieldKey] !== undefined) {
         step.dataset.ownerStepRequiredFields = step.dataset[fieldKey] || "";
       }
-      if (step.dataset[groupKey] !== undefined) {
+      if (!waitingForType && step.dataset[groupKey] !== undefined) {
         step.dataset.ownerStepRequiredGroups = step.dataset[groupKey] || "";
       }
     });
+
+    const wizardHead = form.querySelector(".owner-wizard-head");
+    const wizardStage = form.querySelector("[data-owner-stage]");
+    if (wizardHead) wizardHead.hidden = waitingForType;
+    if (wizardStage) wizardStage.hidden = waitingForType;
 
     form.querySelectorAll("[data-owner-listing-type]").forEach(function (card) {
       const active = card.dataset.ownerListingType === mode;
@@ -505,29 +528,29 @@
 
     if (photoSummary) {
       if (photoField && photoField.files && photoField.files.length) {
-        photoSummary.textContent = (form.dataset.ownerSummaryPhotoSelected || "Selected:") + " " + photoField.files[0].name;
+        photoSummary.textContent = (form.dataset.ownerSummaryPhotoSelected || "") + " " + photoField.files[0].name;
       } else if (isPhotoFieldFilled(photoField)) {
-        photoSummary.textContent = form.dataset.ownerSummaryPhotoReady || "File already added";
+        photoSummary.textContent = form.dataset.ownerSummaryPhotoReady || "";
       } else {
-        photoSummary.textContent = form.dataset.ownerSummaryPhotoEmpty || "Photo not selected yet";
+        photoSummary.textContent = form.dataset.ownerSummaryPhotoEmpty || "";
       }
     }
 
     if (gallerySummary) {
       const count = galleryField && galleryField.files ? galleryField.files.length : 0;
       if (count === 1) {
-        gallerySummary.textContent = form.dataset.ownerSummaryGalleryOne || "1 gallery file";
+        gallerySummary.textContent = form.dataset.ownerSummaryGalleryOne || "";
       } else if (count > 1) {
-        gallerySummary.textContent = (form.dataset.ownerSummaryGalleryManyPrefix || "Gallery files:") + " " + count;
+        gallerySummary.textContent = (form.dataset.ownerSummaryGalleryManyPrefix || "") + " " + count;
       } else {
-        gallerySummary.textContent = form.dataset.ownerSummaryGalleryEmpty || "No extra photos yet";
+        gallerySummary.textContent = form.dataset.ownerSummaryGalleryEmpty || "";
       }
     }
 
     if (noteSummary) {
       noteSummary.textContent = noteField && String(noteField.value || "").trim()
         ? (form.dataset.ownerSummaryNoteFilled || "Comment added")
-        : (form.dataset.ownerSummaryNoteEmpty || "No comment");
+        : (form.dataset.ownerSummaryNoteEmpty || "");
     }
   }
 
@@ -808,6 +831,7 @@
     if (listingType) {
       event.preventDefault();
       const temporaryCheckbox = form.querySelector('[name="is_temporary"]');
+      listingTypeChosen = true;
       if (temporaryCheckbox) {
         temporaryCheckbox.checked = listingType.dataset.ownerListingType === "temporary";
       }

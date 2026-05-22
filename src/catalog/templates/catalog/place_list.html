@@ -40,8 +40,8 @@
     </div>
     {% if not is_new_page %}
       <div class="mobile-hero-caption">
-        <h1>{% if language == "az" %}Uşağınız üçün uyğun məkanı tapın{% else %}{% trans "Найдите подходящее место для ребёнка" %}{% endif %}</h1>
-        <p>{% if language == "az" %}Kursları və məşğələləri yaş, rayon və metroya görə rahat seçin.{% else %}{% trans "Выбирайте курсы и занятия по возрасту, району и метро." %}{% endif %}</p>
+        <h1>{% trans "Найдите подходящее место для ребёнка" %}</h1>
+        <p>{% trans "Выбирайте курсы и занятия по возрасту, району и метро." %}</p>
       </div>
     {% endif %}
   </section>
@@ -72,10 +72,10 @@
         </form>
 
         <div class="mobile-quick-filters" aria-label="{% trans 'Быстрые фильтры' %}">
-          <button type="button" class="mobile-quick-filter{% if selected.category %} is-active{% endif %}" data-filters-open data-filter-focus="category">{% if language == "az" %}Kateqoriya{% else %}{% trans "Категория" %}{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-filters-open data-filter-focus="district">{% if language == "az" %}Rayon{% else %}{% trans "Регион / район" %}{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.metro %} is-active{% endif %}" data-filters-open data-filter-focus="metro">{% if language == "az" %}Metro{% else %}{% trans "Метро" %}{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="age">{% if language == "az" %}Yaş{% else %}{% trans "Возраст" %}{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.category %} is-active{% endif %}" data-filters-open data-filter-focus="category">{% trans "Категория" %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-filters-open data-filter-focus="district">{% trans "Регион / район" %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.metro %} is-active{% endif %}" data-filters-open data-filter-focus="metro">{% trans "Метро" %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="age">{% trans "Возраст" %}</button>
         </div>
 
         {% if active_filter_chips %}
@@ -140,7 +140,7 @@
           <div class="mobile-category-options" aria-label="{% trans 'Категория' %}">
             <button type="button" class="mobile-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="">
               <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
-              <span>{% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}</span>
+              <span>{% trans "Все" %}</span>
             </button>
             {% for code, label in categories %}
               <button type="button" class="mobile-category-chip{% if selected.category == code %} is-active{% endif %}" data-select-target="category" data-select-value="{{ code }}">
@@ -154,7 +154,7 @@
           <div class="desktop-category-options" aria-label="{% trans 'Категория' %}">
             <button type="button" class="desktop-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="" data-category-code="ALL">
               <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
-              <span>{% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}</span>
+              <span>{% trans "Все" %}</span>
             </button>
             {% for code, label in categories %}
               <button type="button" class="desktop-category-chip{% if selected.category == code %} is-active{% endif %}" data-select-target="category" data-select-value="{{ code }}" data-category-code="{{ code }}">
@@ -305,7 +305,7 @@
             <strong class="range-filter-current" data-range-caption></strong>
           </div>
           <div class="mobile-age-presets" aria-label="{% trans 'Возраст' %}">
-            <button type="button" class="mobile-age-option{% if not selected.age_from and not selected.age_to or selected.age_from == '0' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="0" data-age-to="18">{% if language == "az" %}Hamısı{% else %}{% trans "Все" %}{% endif %}</button>
+            <button type="button" class="mobile-age-option{% if not selected.age_from and not selected.age_to or selected.age_from == '0' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="0" data-age-to="18">{% trans "Все" %}</button>
             <button type="button" class="mobile-age-option{% if selected.age_from == '0' and selected.age_to == '3' %} is-active{% endif %}" data-age-from="0" data-age-to="3">0–3</button>
             <button type="button" class="mobile-age-option{% if selected.age_from == '3' and selected.age_to == '6' %} is-active{% endif %}" data-age-from="3" data-age-to="6">3–6</button>
             <button type="button" class="mobile-age-option{% if selected.age_from == '6' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="6" data-age-to="18">6+</button>
@@ -362,10 +362,10 @@
 
       <div class="actions">
         <button class="btn icon-btn icon-search icon-only-btn" type="submit" aria-label="{% trans 'Поиск' %}">
-          <span class="filter-submit-label">{% if language == "az" %}Tətbiq et{% else %}{% trans "Применить" %}{% endif %}</span>
+          <span class="filter-submit-label">{% trans "Применить" %}</span>
           <span class="visually-hidden">{% trans "Поиск" %}</span>
         </button>
-        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% if language == "az" %}Sıfırla{% else %}{% trans "Сброс" %}{% endif %}</a>
+        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
       </div>
     </form>
   </section>
@@ -421,7 +421,7 @@
           aria-controls="catalog-map-panel"
           aria-expanded="false"
         >
-          {% if language == "az" %}Xəritədə bax{% else %}{% trans "На карте" %}{% endif %}
+          {% trans "На карте" %}
           <span class="results-map-count">{{ catalog_map_places_count }}</span>
         </button>
       </div>
@@ -565,7 +565,45 @@
     {% endif %}
   {% endif %}
 
-  {% if places %}
+  {% if showing_events and events %}
+    <section class="grid catalog-events-grid">
+      {% for event in events %}
+        <article class="card event-card">
+          <div class="card-media">
+            <a class="card-media-link" href="{{ event.get_absolute_url }}?next={{ request.get_full_path|urlencode }}" aria-label="{{ event.name_i18n }}">
+              {% if event.photo %}
+                <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+              {% else %}
+                <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
+              {% endif %}
+            </a>
+            {% if event.price_display %}
+              <span class="card-price-pill">
+                <span class="card-price-pill__amount">{{ event.price_display }}</span>
+              </span>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h3><a href="{{ event.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{{ event.name_i18n }}</a></h3>
+            {% with desc=event.description_i18n %}
+              <p class="card-description{% if not desc %} is-empty{% endif %}">
+                {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
+              </p>
+            {% endwith %}
+            <div class="card-headline">
+              <span class="chip">{{ event.get_category_display }}</span>
+              <span class="event-badge temporary">{% if language == "az" %}Tədbir{% elif language == "en" %}Event{% else %}{% trans "Мероприятие" %}{% endif %}</span>
+            </div>
+            <p class="meta card-location">{{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address|truncatechars:56 }}{% endif %}</p>
+            {% include "catalog/includes/event_countdown.html" with event=event language=language variant="compact" %}
+            <div class="card-action-stack">
+              <a class="details-btn card-go-btn" href="{{ event.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% if language == "az" %}Bax{% elif language == "en" %}Open{% else %}{% trans "Перейти" %}{% endif %}</a>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </section>
+  {% elif places %}
     <section class="grid">
       {% for place in places %}
         <article class="card">
@@ -663,7 +701,7 @@
       {% endif %}
       <div class="empty-actions">
         <a class="btn" style="background: var(--brand); color: #fff; border:none;" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">
-          {% if language == "az" %}Bütün filtrləri sıfırla{% else %}{% trans "Сбросить все фильтры" %}{% endif %}
+          {% trans "Сбросить всё" %}
         </a>
       </div>
     </section>

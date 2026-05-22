@@ -404,6 +404,172 @@ class PlacePhoto(models.Model):
         return f"{self.place.name_i18n()} #{self.order}"
 
 
+class Event(models.Model):
+    STATUS_DRAFT = "draft"
+    STATUS_PENDING = "pending"
+    STATUS_PUBLISHED = "published"
+    STATUS_REJECTED = "rejected"
+    STATUS_EXPIRED = "expired"
+    STATUS_CANCELLED = "cancelled"
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, _("Черновик")),
+        (STATUS_PENDING, _("На модерации")),
+        (STATUS_PUBLISHED, _("Опубликовано")),
+        (STATUS_REJECTED, _("Отклонено")),
+        (STATUS_EXPIRED, _("Завершено")),
+        (STATUS_CANCELLED, _("Отменено")),
+    ]
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="owned_events",
+        verbose_name=_("Владелец мероприятия"),
+        null=True,
+        blank=True,
+    )
+    related_place = models.ForeignKey(
+        Place,
+        on_delete=models.SET_NULL,
+        related_name="events",
+        verbose_name=_("Связанное место"),
+        null=True,
+        blank=True,
+    )
+    name = models.CharField(_("Название"), max_length=255)
+    slug = models.SlugField(_("Slug"), max_length=255, blank=True, default="")
+    name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
+    name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
+    name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
+    description_az = models.TextField(_("Описание (AZ)"), blank=True, default="")
+    description_ru = models.TextField(_("Описание (RU)"), blank=True, default="")
+    description_en = models.TextField(_("Описание (EN)"), blank=True, default="")
+    category = models.CharField(_("Категория"), max_length=10, choices=Place.CATEGORY_CHOICES)
+    start_datetime = models.DateTimeField(_("Начало мероприятия"), null=True, blank=True, db_index=True)
+    end_datetime = models.DateTimeField(_("Окончание мероприятия"), null=True, blank=True, db_index=True)
+    age_from = models.PositiveSmallIntegerField(_("Возраст от"), null=True, blank=True)
+    age_to = models.PositiveSmallIntegerField(_("Возраст до"), null=True, blank=True)
+    price_text = models.CharField(_("Цена"), max_length=120, blank=True, default="")
+    address = models.CharField(_("Адрес"), max_length=255, blank=True, default="")
+    phone = models.CharField(_("Телефон / WhatsApp"), max_length=50, blank=True, default="")
+    instagram = models.CharField(_("Instagram"), max_length=255, blank=True, default="")
+    photo = models.FileField(_("Основное фото"), upload_to="events/", blank=True, null=True)
+    moderation_note = models.TextField(_("Комментарий для модерации"), blank=True, default="")
+    rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
+    status = models.CharField(_("Статус модерации"), max_length=16, choices=STATUS_CHOICES, default=STATUS_DRAFT, db_index=True)
+    published_at = models.DateTimeField(_("Опубликовано"), null=True, blank=True, db_index=True)
+    deleted_at = models.DateTimeField(_("Удалено"), null=True, blank=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
+
+    def _normalize_lang(self, lang):
+        if not lang:
+            lang = get_language() or settings.LANGUAGE_CODE or "az"
+        return lang.split("-")[0]
+
+    def name_i18n(self, lang=None):
+        lang = self._normalize_lang(lang)
+        if lang == "en":
+            return self.name_en or self.name_az or self.name_ru or self.name
+        if lang == "ru":
+            return self.name_ru or self.name_az or self.name_en or self.name
+        return self.name_az or self.name_ru or self.name_en or self.name
+
+    def description_i18n(self, lang=None):
+        lang = self._normalize_lang(lang)
+        if lang == "en":
+            return self.description_en or self.description_az or self.description_ru or ""
+        if lang == "ru":
+            return self.description_ru or self.description_az or self.description_en or ""
+        return self.description_az or self.description_ru or self.description_en or ""
+
+    @property
+    def age_display(self) -> str:
+        if self.age_from is not None and self.age_to is not None:
+            return f"{self.age_from}-{self.age_to}"
+        if self.age_from is not None:
+            return f"{self.age_from}+"
+        if self.age_to is not None:
+            return str(self.age_to)
+        return ""
+
+    @property
+    def price_display(self) -> str:
+        return (self.price_text or "").strip()
+
+    @property
+    def has_ended(self) -> bool:
+        return bool(self.end_datetime and self.end_datetime < timezone.now())
+
+    @property
+    def is_running_now(self) -> bool:
+        if not self.start_datetime or not self.end_datetime:
+            return False
+        now = timezone.now()
+        return self.start_datetime <= now <= self.end_datetime
+
+    @property
+    def effective_status(self) -> str:
+        if self.status == self.STATUS_PUBLISHED and self.has_ended:
+            return self.STATUS_EXPIRED
+        return self.status
+
+    @property
+    def is_public(self) -> bool:
+        return (
+            self.status == self.STATUS_PUBLISHED
+            and not self.deleted_at
+            and bool(self.start_datetime)
+            and bool(self.end_datetime)
+            and not self.has_ended
+        )
+
+    def instagram_url(self):
+        value = (self.instagram or "").strip()
+        if not value:
+            return ""
+        if value.startswith(("http://", "https://")):
+            return value
+        if value.startswith(("instagram.com/", "www.instagram.com/")):
+            return f"https://{value}"
+        if "instagram.com/" in value:
+            return f"https://{value.lstrip('/')}"
+        return f"https://instagram.com/{value.lstrip('@')}"
+
+    def get_absolute_url(self):
+        return reverse("event_detail", kwargs={"pk": self.pk, "slug": self.slug})
+
+    def _build_unique_slug(self):
+        source = self.name_az or self.name_ru or self.name_en or self.name or "event"
+        base = slugify(source, allow_unicode=True) or "event"
+        candidate = base
+        idx = 2
+        while Event.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
+            candidate = f"{base}-{idx}"
+            idx += 1
+        return candidate
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            self.name = self.name_az or self.name_ru or self.name_en or _("Мероприятие")
+        if not self.slug:
+            self.slug = self._build_unique_slug()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name_i18n()
+
+    class Meta:
+        ordering = ("start_datetime", "-created_at")
+        indexes = [
+            models.Index(fields=("status", "start_datetime")),
+            models.Index(fields=("owner", "status")),
+            models.Index(fields=("end_datetime",)),
+        ]
+        verbose_name = _("Мероприятие")
+        verbose_name_plural = _("Мероприятия")
+
+
 class PlaceLike(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="place_likes", verbose_name=_("Место"))
     user = models.ForeignKey(

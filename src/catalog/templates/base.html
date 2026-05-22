@@ -157,9 +157,9 @@
                     {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}aria-current="page"{% endif %}
                   >{% trans "Личный кабинет" %}</a>
                   <a
-                    class="auth-pill {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
+                    class="auth-pill {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
                     href="{% url 'owner_places_dashboard' %}"
-                    {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
+                    {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
                   >
                     {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
                   </a>
@@ -231,7 +231,7 @@
         {% block content %}{% endblock %}
       </main>
 
-      {% if request.resolver_match.url_name != 'owner_place_create' and request.resolver_match.url_name != 'owner_place_edit' %}
+      {% if request.resolver_match.url_name != 'owner_place_create' and request.resolver_match.url_name != 'owner_place_edit' and request.resolver_match.url_name != 'owner_event_create' and request.resolver_match.url_name != 'owner_event_edit' %}
         <footer class="site-footer panel">
           <div class="footer-grid">
             <section class="footer-brand-block">

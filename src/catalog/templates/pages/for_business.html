@@ -31,7 +31,7 @@
         </h1>
         <p>{{ content.subtitle }}</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="{% url 'owner_place_create' %}">{{ content.primary_cta }}</a>
+          <a class="btn btn-primary" href="{% url 'owner_place_create' %}?fresh=1">{{ content.primary_cta }}</a>
           {% if footer_whatsapp_url %}
             <a class="btn btn-secondary" href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">{{ content.secondary_cta }}</a>
           {% endif %}
@@ -39,7 +39,7 @@
       </div>
     </div>
     <div class="mobile-page-hero-actions">
-      <a class="btn btn-primary" href="{% url 'owner_place_create' %}">{{ content.primary_cta }}</a>
+      <a class="btn btn-primary" href="{% url 'owner_place_create' %}?fresh=1">{{ content.primary_cta }}</a>
       {% if footer_whatsapp_url %}
         <a class="btn btn-secondary" href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">{{ content.secondary_cta }}</a>
       {% endif %}

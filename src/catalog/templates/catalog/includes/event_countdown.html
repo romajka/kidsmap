@@ -1,0 +1,25 @@
+{% load i18n %}
+<div
+  class="temporary-event-badge{% if variant %} temporary-event-badge--{{ variant }}{% endif %}"
+  data-temporary-event-timer
+  data-temporary-start="{% if event.start_datetime %}{{ event.start_datetime|date:'c' }}{% endif %}"
+  data-temporary-end="{% if event.end_datetime %}{{ event.end_datetime|date:'c' }}{% endif %}"
+  data-label-upcoming="{% if language == 'az' %}Başlamasına{% elif language == 'en' %}Starts in{% else %}До начала{% endif %}"
+  data-label-running="{% if language == 'az' %}Tədbir hazırda keçirilir{% elif language == 'en' %}Event is happening now{% else %}Мероприятие идёт сейчас{% endif %}"
+  data-label-ending="{% if language == 'az' %}Bitməsinə{% elif language == 'en' %}Ends in{% else %}До окончания{% endif %}"
+  data-label-ended="{% if language == 'az' %}Başa çatıb{% elif language == 'en' %}Ended{% else %}Завершено{% endif %}"
+  data-label-days="{% if language == 'az' %}gün{% elif language == 'en' %}days{% else %}дн.{% endif %}"
+  data-label-hours="{% if language == 'az' %}saat{% elif language == 'en' %}hours{% else %}ч{% endif %}"
+  data-label-minutes="{% if language == 'az' %}dəq{% elif language == 'en' %}min{% else %}мин{% endif %}"
+  data-label-seconds="{% if language == 'az' %}san{% elif language == 'en' %}sec{% else %}сек{% endif %}"
+>
+  <span class="temporary-event-badge__icon" aria-hidden="true"></span>
+  <span class="temporary-event-badge__content">
+    <span class="temporary-event-badge__title">
+      {% if language == "az" %}Müvəqqəti tədbir{% elif language == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}
+    </span>
+    <span class="temporary-event-badge__timer" data-temporary-event-timer-text>
+      {% if event.start_datetime %}{{ event.start_datetime|date:"d.m.Y H:i" }}{% endif %}
+    </span>
+  </span>
+</div>

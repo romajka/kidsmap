@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{% if event %}{% if CURRENT_LANGUAGE == "az" %}Tədbiri redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit event{% else %}Редактировать мероприятие{% endif %}{% else %}{% if CURRENT_LANGUAGE == "az" %}Yeni tədbir{% elif CURRENT_LANGUAGE == "en" %}New event{% else %}Новое мероприятие{% endif %}{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Yeni tədbir{% elif CURRENT_LANGUAGE == "en" %}New event{% else %}Новое мероприятие{% endif %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Yeni tədbir{% elif CURRENT_LANGUAGE == "en" %}New event{% else %}Новое мероприятие{% endif %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+{% endblock %}
+
+{% block content %}
+  <section class="panel owner-event-page">
+    <div class="owner-page-head">
+      <div>
+        <h1>{% if CURRENT_LANGUAGE == "az" %}Müvəqqəti tədbir{% elif CURRENT_LANGUAGE == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}</h1>
+        <p class="auth-subtitle">{% if CURRENT_LANGUAGE == "az" %}Qısa 2 addımlı forma: əsas məlumatlar, foto və moderasiyaya göndərmə.{% elif CURRENT_LANGUAGE == "en" %}A short 2-step form: main details, photo, and moderation submission.{% else %}Короткая форма в 2 шага: данные, фото и отправка на модерацию.{% endif %}</p>
+      </div>
+      <div class="owner-page-actions">
+        <a class="link-btn" href="{% url 'owner_place_create' %}">← {% if CURRENT_LANGUAGE == "az" %}Elan növünü dəyiş{% elif CURRENT_LANGUAGE == "en" %}Change type{% else %}Изменить тип{% endif %}</a>
+      </div>
+    </div>
+
+    <form
+      method="post"
+      enctype="multipart/form-data"
+      class="owner-event-form"
+      data-loading-form
+      data-event-form
+      data-past-date-message="{% if CURRENT_LANGUAGE == 'az' %}Keçmiş tarix və ya vaxt seçmək olmaz.{% elif CURRENT_LANGUAGE == 'en' %}You cannot choose a past date or time.{% else %}Нельзя выбрать прошедшую дату или время.{% endif %}"
+      data-end-before-start-message="{% if CURRENT_LANGUAGE == 'az' %}Bitmə vaxtı başlama vaxtından sonra olmalıdır.{% elif CURRENT_LANGUAGE == 'en' %}End time must be after start time.{% else %}Время окончания должно быть позже времени начала.{% endif %}"
+    >
+      {% csrf_token %}
+      {{ form.start_datetime }}
+      {{ form.end_datetime }}
+      {% if form.non_field_errors %}
+        <div class="auth-errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="owner-event-layout">
+        <div class="owner-event-main">
+          <div class="owner-event-stepper" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Tədbir forması addımları{% elif CURRENT_LANGUAGE == 'en' %}Event form steps{% else %}Шаги формы мероприятия{% endif %}">
+            <span class="is-active">1 · {% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Main details{% else %}Основная информация{% endif %}</span>
+            <span>2 · {% if CURRENT_LANGUAGE == "az" %}Foto və göndərmə{% elif CURRENT_LANGUAGE == "en" %}Photo and submit{% else %}Фото и отправка{% endif %}</span>
+          </div>
+
+          <section class="owner-event-section">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Main details{% else %}Основная информация{% endif %}</h2>
+            <div class="owner-event-grid">
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Tədbirin adı{% elif CURRENT_LANGUAGE == "en" %}Event title{% else %}Название мероприятия{% endif %} *
+                {{ form.name_az }}
+                {% for error in form.name_az.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Kateqoriya{% elif CURRENT_LANGUAGE == "en" %}Category{% else %}Категория{% endif %} *
+                {{ form.category }}
+                {% for error in form.category.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Tarix{% elif CURRENT_LANGUAGE == "en" %}Date{% else %}Дата{% endif %} *
+                {{ form.event_date }}
+                {% for error in form.event_date.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Başlama saatı{% elif CURRENT_LANGUAGE == "en" %}Start time{% else %}Время начала{% endif %} *
+                {{ form.start_time_input }}
+                {% for error in form.start_time_input.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Bitmə tarixi{% elif CURRENT_LANGUAGE == "en" %}End date{% else %}Дата окончания{% endif %}
+                {{ form.end_date }}
+                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Tədbir növbəti gün bitirsə, ayrıca tarix seçin.{% elif CURRENT_LANGUAGE == "en" %}Choose a separate date only if the event ends on the next day.{% else %}Укажите отдельно только если мероприятие заканчивается в другой день.{% endif %}</small>
+                {% for error in form.end_date.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Bitmə saatı{% elif CURRENT_LANGUAGE == "en" %}End time{% else %}Время окончания{% endif %} *
+                {{ form.end_time_input }}
+                {% for error in form.end_time_input.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Yaş aralığı, başlanğıc{% elif CURRENT_LANGUAGE == "en" %}Age from{% else %}Возраст от{% endif %} *
+                {{ form.age_from }}
+                {% for error in form.age_from.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Yaş aralığı, son{% elif CURRENT_LANGUAGE == "en" %}Age to{% else %}Возраст до{% endif %} *
+                {{ form.age_to }}
+                {% for error in form.age_to.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Qiymət{% elif CURRENT_LANGUAGE == "en" %}Price{% else %}Цена{% endif %} *
+                {{ form.price_text }}
+                {% for error in form.price_text.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Əlaqəli məkan{% elif CURRENT_LANGUAGE == "en" %}Related place{% else %}Связанное место{% endif %}
+                <select class="field" name="{{ form.related_place.html_name }}" id="{{ form.related_place.id_for_label }}" data-event-related-place>
+                  <option value="">{% if CURRENT_LANGUAGE == "az" %}Seçilməyib{% elif CURRENT_LANGUAGE == "en" %}Not selected{% else %}Не выбрано{% endif %}</option>
+                  {% for place in form.related_place.field.queryset %}
+                    <option value="{{ place.id }}" {% if form.related_place.value|stringformat:"s" == place.id|stringformat:"s" %}selected{% endif %} data-address="{{ place.address|default:'' }}" data-phone="{{ place.phone1|default:'' }}">{{ place.name_i18n }}</option>
+                  {% endfor %}
+                </select>
+                <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Opsionaldır. Seçsəniz, ünvan və telefon avtomatik doldurula bilər.{% elif CURRENT_LANGUAGE == "en" %}Optional. If selected, address and phone can be filled automatically.{% else %}Необязательно. При выборе адрес и телефон можно подставить автоматически.{% endif %}</small>
+                {% for error in form.related_place.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Ünvan{% elif CURRENT_LANGUAGE == "en" %}Address{% else %}Адрес{% endif %} *
+                {{ form.address }}
+                {% for error in form.address.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label>
+                {% if CURRENT_LANGUAGE == "az" %}Telefon / WhatsApp{% elif CURRENT_LANGUAGE == "en" %}Phone / WhatsApp{% else %}Телефон / WhatsApp{% endif %} *
+                {{ form.phone }}
+                {% for error in form.phone.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label class="owner-event-full">
+                {% if CURRENT_LANGUAGE == "az" %}Qısa təsvir{% elif CURRENT_LANGUAGE == "en" %}Short description{% else %}Краткое описание{% endif %} *
+                {{ form.description_az }}
+                <small class="helptext"><span id="event-description-counter">0</span>/300</small>
+                {% for error in form.description_az.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+            </div>
+          </section>
+
+          <section class="owner-event-section">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Foto və göndərmə{% elif CURRENT_LANGUAGE == "en" %}Photo and submit{% else %}Фото и отправка{% endif %}</h2>
+            <div class="owner-event-grid">
+              <label class="owner-event-file owner-event-full">
+                {% if CURRENT_LANGUAGE == "az" %}Əsas şəkil{% elif CURRENT_LANGUAGE == "en" %}Main photo{% else %}Основное фото{% endif %} *
+                {{ form.photo }}
+                {% if event and event.photo %}<small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Hazırkı şəkil saxlanılıb. Yenisini seçsəniz dəyişəcək.{% elif CURRENT_LANGUAGE == "en" %}Current photo is saved. Choose a new one to replace it.{% else %}Текущее фото сохранено. Выберите новое, чтобы заменить.{% endif %}</small>{% endif %}
+                {% for error in form.photo.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+              <label class="owner-event-full">
+                {% if CURRENT_LANGUAGE == "az" %}Moderasiya üçün şərh{% elif CURRENT_LANGUAGE == "en" %}Comment for moderation{% else %}Комментарий для модерации{% endif %}
+                {{ form.moderation_note }}
+                {% for error in form.moderation_note.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </label>
+            </div>
+          </section>
+
+          <div class="owner-event-actions">
+            <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</a>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}</button>
+            <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на проверку{% endif %}</button>
+          </div>
+        </div>
+
+        <aside class="owner-event-side">
+          <article class="owner-event-help-card">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Nə vaxt tədbir seçməli?{% elif CURRENT_LANGUAGE == "en" %}When to choose an event?{% else %}Когда выбирать мероприятие?{% endif %}</h2>
+            <ul>
+              <li>{% if CURRENT_LANGUAGE == "az" %}Müəyyən tarix və saat var{% elif CURRENT_LANGUAGE == "en" %}There is a specific date and time{% else %}Есть конкретная дата и время{% endif %}</li>
+              <li>{% if CURRENT_LANGUAGE == "az" %}Forma qısa və sürətlidir{% elif CURRENT_LANGUAGE == "en" %}The form is short and fast{% else %}Форма короче и быстрее{% endif %}</li>
+              <li>{% if CURRENT_LANGUAGE == "az" %}Dərcdən sonra taymer göstərilir{% elif CURRENT_LANGUAGE == "en" %}A countdown is shown after publication{% else %}После публикации показывается таймер{% endif %}</li>
+            </ul>
+          </article>
+        </aside>
+      </div>
+    </form>
+  </section>
+{% endblock %}
+
+{% block extra_body %}
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="{% static 'js/kidsmap_datetime_picker.js' %}"></script>
+  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
+  <script src="{% static 'js/owner_event_form.js' %}"></script>
+{% endblock %}

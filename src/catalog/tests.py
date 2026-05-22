@@ -22,6 +22,7 @@ from catalog.forms import OwnerPlaceCreateForm
 from catalog.interfaces.geocoding import GeocodingPoint
 from catalog.models import (
     CatalogContentSettings,
+    Event,
     FunnelEvent,
     OwnerTeamInvitation,
     OwnerTeamMembership,
@@ -1734,20 +1735,30 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "Пробный урок бесплатно")
         self.assertContains(response, "Нужна спортивная форма")
 
-    def test_place_detail_shows_owner_request_block_for_anonymous_users(self):
+    def test_place_detail_does_not_show_owner_request_block(self):
         place = Place.objects.create(
-            name="Owner Request Place",
-            name_ru="Кружок с заявкой владельца",
+            name="Owner Claim Place",
+            name_ru="Кружок без блока владельца",
             category="EDU",
             is_active=True,
+            status=Place.STATUS_PUBLISHED,
+            address="Баку, Низами 10",
+            schedule="Пн-Пт 10:00-18:00",
+            phone1="+994501112233",
+            age_from=5,
+            price_from=30,
+            description_ru=(
+                "Полезное место для детей и родителей с понятным расписанием, контактами, "
+                "возрастными ограничениями и описанием услуг для семейного каталога KidsMap."
+            ),
         )
 
-        response = self.client.get(f"/ru{place.get_absolute_url()}", follow=True)
+        response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Вы представитель этого кружка?")
-        self.assertContains(response, "intent=owner_place")
-        self.assertContains(response, reverse("account_login"))
+        self.assertNotContains(response, "Вы представитель этого кружка?")
+        self.assertNotContains(response, "intent=owner_place")
+        self.assertNotContains(response, reverse("request_place_ownership", args=[place.id]))
 
     def test_card_price_badge_label_keeps_from_prefix_for_lower_bound_price(self):
         with override("ru"):
@@ -2645,15 +2656,14 @@ class TestOwnershipWorkflow(TestCase):
         self.assertContains(response, '"name": "claim_place_submit"')
         self.assertContains(response, f'"place_id": {self.place.id}')
 
-    def test_owner_cabinet_shows_claim_candidates(self):
+    def test_owner_cabinet_redirects_to_places_dashboard(self):
         self.client.login(username="owner_role_user", password="StrongPass123!!")
         response = self.client.get(reverse("owner_cabinet"))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("claimable_places", response.context)
-        self.assertIn(self.place, response.context["claimable_places"])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("owner_places_dashboard"))
 
-    def test_owner_cabinet_claim_search_filters_candidates(self):
+    def test_owner_cabinet_ignores_legacy_claim_search_and_redirects(self):
         Place.objects.create(
             name="Another Place",
             name_ru="Другой кружок",
@@ -2663,12 +2673,10 @@ class TestOwnershipWorkflow(TestCase):
         self.client.login(username="owner_role_user", password="StrongPass123!!")
         response = self.client.get(reverse("owner_cabinet"), data={"claim_q": "Другой"})
 
-        self.assertEqual(response.status_code, 200)
-        claimable_places = list(response.context["claimable_places"])
-        self.assertEqual(len(claimable_places), 1)
-        self.assertEqual(claimable_places[0].name_ru, "Другой кружок")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("owner_places_dashboard"))
 
-    def test_owner_cabinet_shows_grouped_request_sections_without_management_blocks(self):
+    def test_owner_cabinet_does_not_render_legacy_request_sections(self):
         PlaceOwnershipRequest.objects.create(
             place=self.place,
             applicant=self.owner_user,
@@ -2689,14 +2697,14 @@ class TestOwnershipWorkflow(TestCase):
         )
 
         self.client.login(username="owner_role_user", password="StrongPass123!!")
-        response = self.client.get(reverse("owner_cabinet"))
+        response = self.client.get(reverse("owner_cabinet"), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Заявки на рассмотрении")
-        self.assertContains(response, "Принятые заявки")
-        self.assertContains(response, "Отклоненные заявки")
+        self.assertNotContains(response, "Заявки на рассмотрении")
+        self.assertNotContains(response, "Принятые заявки")
+        self.assertNotContains(response, "Отклоненные заявки")
         self.assertNotContains(response, "Создать заявку на управление карточкой")
-        self.assertNotContains(response, "Мои кружки")
+        self.assertContains(response, "Мои места")
 
     def test_regular_user_can_submit_place_ownership_request(self):
         self.client.login(username="regular_role_user", password="StrongPass123!!")
@@ -2932,7 +2940,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
     def test_owner_create_page_renders_map_picker(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
-        response = self.client.get(reverse("owner_place_create"))
+        response = self.client.get(reverse("owner_place_create"), {"type": "permanent"})
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-owner-map-picker")
@@ -2957,12 +2965,54 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         html = response.content.decode("utf-8")
         self.assertLess(html.index('name="name_az"'), html.index('name="name_ru"'))
         self.assertLess(html.index('name="description_az"'), html.index('name="description_ru"'))
-        self.assertLess(html.index('data-owner-step="2"'), html.index('name="is_temporary"'))
+        self.assertNotIn('name="is_temporary"', html)
+
+    def test_owner_place_create_opens_listing_type_choice_first(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_place_create"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Nə əlavə etmək istəyirsiniz?")
+        self.assertContains(response, "Daimi məkan")
+        self.assertContains(response, "Müvəqqəti tədbir")
+        self.assertContains(response, reverse("owner_event_create"))
+
+    def test_owner_place_create_fresh_page_uses_unique_browser_draft_key(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response_one = self.client.get(reverse("owner_place_create"), {"type": "permanent", "fresh": "1"})
+        response_two = self.client.get(reverse("owner_place_create"), {"type": "permanent", "fresh": "1"})
+
+        key_one = response_one.context["draft_client_key"]
+        key_two = response_two.context["draft_client_key"]
+
+        self.assertTrue(key_one.startswith("owner-place-create-"))
+        self.assertTrue(key_two.startswith("owner-place-create-"))
+        self.assertNotEqual(key_one, key_two)
+        self.assertContains(response_one, f'data-owner-draft-key="{key_one}"', html=False)
+        self.assertContains(response_one, f'name="draft_client_key" value="{key_one}"', html=False)
+
+    def test_owner_place_create_invalid_post_preserves_browser_draft_key(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+        draft_key = "owner-place-create-test-session"
+
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "draft_client_key": draft_key,
+                "name_az": "",
+                "category": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["draft_client_key"], draft_key)
+        self.assertContains(response, f'data-owner-draft-key="{draft_key}"', html=False)
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     def test_owner_create_page_uses_google_maps_when_key_is_configured(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
-        response = self.client.get(reverse("owner_place_create"))
+        response = self.client.get(reverse("owner_place_create"), {"type": "permanent"})
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "maps.googleapis.com/maps/api/js?key=test-key&libraries=places")
@@ -3548,45 +3598,31 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertIn("metro", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без локации").exists())
 
-    def test_owner_place_create_temporary_event_requires_start_and_end(self):
+    def test_owner_event_create_requires_start_and_end(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(
-            reverse("owner_place_create"),
+            reverse("owner_event_create"),
             data={
-                "name_ru": "Временное мероприятие без дат",
-                "name_az": "Tarixsiz tedbir",
-                "name_en": "",
-                "description_ru": "Описание есть",
+                "name_az": "Tarixsiz tədbir",
                 "description_az": "Tedbir tesviri var",
-                "description_en": "",
                 "category": "EDU",
-                "subcategory": "Робототехника",
                 "age_from": "7",
                 "age_to": "12",
-                "price_from": "100",
-                "price_to": "200",
-                "district": "Yasamal",
-                "metro": "",
+                "price_text": "100 AZN",
                 "address": "Улица 1",
-                "phone1": "+994501112233",
-                "instagram": "",
-                "website": "",
-                "schedule": "Пн-Сб",
-                "is_temporary": "on",
-                "temporary_start": "",
-                "temporary_end": "",
+                "phone": "+994501112233",
+                "start_datetime": "",
+                "end_datetime": "",
                 "moderation_note": "Проверка обязательных дат",
                 "photo": self._image_upload("main-temporary-required.png"),
             },
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("temporary_start", response.context["form"].errors)
-        self.assertIn("temporary_end", response.context["form"].errors)
-        self.assertContains(response, 'data-owner-listing-type="temporary"', html=False)
-        self.assertContains(response, 'data-owner-mode-panel="temporary"', html=False)
-        self.assertContains(response, 'name="is_temporary" class="field-check" id="id_is_temporary" checked', html=False)
-        self.assertFalse(Place.objects.filter(name_ru="Временное мероприятие без дат").exists())
+        self.assertIn("start_datetime", response.context["form"].errors)
+        self.assertIn("end_datetime", response.context["form"].errors)
+        self.assertContains(response, "Müvəqqəti tədbir")
+        self.assertFalse(Event.objects.filter(name_az="Tarixsiz tədbir").exists())
 
     def test_owner_place_create_rejects_custom_metro_value(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")

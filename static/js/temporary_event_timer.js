@@ -7,11 +7,20 @@
 
   function formatRemaining(milliseconds, labels) {
     var safeMs = Math.max(milliseconds, 0);
-    var totalMinutes = Math.max(Math.ceil(safeMs / 60000), 1);
+    var totalSeconds = Math.max(Math.ceil(safeMs / 1000), 1);
+    var totalMinutes = Math.ceil(totalSeconds / 60);
     var days = Math.floor(totalMinutes / 1440);
     var hours = Math.floor((totalMinutes % 1440) / 60);
     var minutes = totalMinutes % 60;
+    var seconds = totalSeconds % 60;
     var parts = [];
+
+    if (days === 0 && totalSeconds < 86400) {
+      parts.push(hours + " " + labels.hours);
+      parts.push(minutes + " " + labels.minutes);
+      parts.push(seconds + " " + labels.seconds);
+      return parts.join(" ");
+    }
 
     if (days > 0) parts.push(days + " " + labels.days);
     if (hours > 0 || days > 0) parts.push(hours + " " + labels.hours);
@@ -33,7 +42,8 @@
       ended: root.dataset.labelEnded || "Ended",
       days: root.dataset.labelDays || "d",
       hours: root.dataset.labelHours || "h",
-      minutes: root.dataset.labelMinutes || "min"
+      minutes: root.dataset.labelMinutes || "min",
+      seconds: root.dataset.labelSeconds || "sec"
     };
 
     if (end && now > end) {
@@ -63,7 +73,7 @@
     timers.forEach(updateTimer);
     window.setInterval(function () {
       timers.forEach(updateTimer);
-    }, 60000);
+    }, 1000);
   }
 
   if (document.readyState === "loading") {

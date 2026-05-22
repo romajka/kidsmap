@@ -26,13 +26,13 @@
 
     const defaultLat = parseCoordinate(root.dataset.defaultLat) ?? 40.409264;
     const defaultLng = parseCoordinate(root.dataset.defaultLng) ?? 49.867092;
-    const selectedPrefix = root.dataset.selectedPrefix || "Selected point:";
-    const emptyLabel = root.dataset.emptyLabel || "No point selected.";
-    const locateErrorLabel = root.dataset.locateError || "Unable to detect your location.";
-    const locateUnsupportedLabel = root.dataset.locateUnsupported || "Geolocation is not supported.";
-    const searchErrorLabel = root.dataset.searchError || "Unable to find this place.";
-    const searchEmptyLabel = root.dataset.searchEmpty || "Enter a search query.";
-    const searchUnsupportedLabel = root.dataset.searchUnsupported || "Search is unavailable.";
+    const selectedPrefix = root.dataset.selectedPrefix || "";
+    const emptyLabel = root.dataset.emptyLabel || "";
+    const locateErrorLabel = root.dataset.locateError || "";
+    const locateUnsupportedLabel = root.dataset.locateUnsupported || "";
+    const searchErrorLabel = root.dataset.searchError || "";
+    const searchEmptyLabel = root.dataset.searchEmpty || "";
+    const searchUnsupportedLabel = root.dataset.searchUnsupported || "";
 
     function updateStatus(lat, lng) {
       if (lat === null || lng === null) {

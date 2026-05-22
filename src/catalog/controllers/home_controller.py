@@ -4,11 +4,12 @@ from dataclasses import dataclass
 
 from django.db.models import Avg, Count
 from django.templatetags.static import static
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from catalog.content_data import HOME_CATEGORIES
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository, ISiteReviewRepository
-from catalog.models import SiteGalleryImage
+from catalog.models import Event, SiteGalleryImage
 from catalog.repositories.django_repositories import (
     DjangoPlaceRepository,
     DjangoSettingsRepository,
@@ -41,8 +42,16 @@ class HomeController:
 
         popular_places = list(self.place_repository.top_popular(limit=3))
         mark_liked_flags(popular_places, liked_ids)
-        upcoming_events = list(self.place_repository.upcoming_temporary(limit=8))
-        mark_liked_flags(upcoming_events, liked_ids)
+        upcoming_events = list(
+            Event.objects.filter(
+                status=Event.STATUS_PUBLISHED,
+                deleted_at__isnull=True,
+                start_datetime__isnull=False,
+                end_datetime__gte=timezone.now(),
+            )
+            .select_related("related_place")
+            .order_by("start_datetime", "-updated_at")[:8]
+        )
 
         map_places = [
             {

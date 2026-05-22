@@ -1,4 +1,5 @@
 from urllib.parse import urlencode
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth import login as auth_login
@@ -7,8 +8,9 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
@@ -28,7 +30,8 @@ from .controllers.place_controller import PlaceController
 from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
-from .models import Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile
+from .forms import OwnerEventForm
+from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile
 from .models import FunnelEvent
 from .services.content_quality import public_review_queryset
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
@@ -66,6 +69,18 @@ def _build_login_redirect_url(request, fallback_url: str) -> str:
     target = _resolve_safe_next_url(request, fallback_url)
     query = urlencode({"next": target})
     return f"{reverse('account_login')}?{query}"
+
+
+def _build_owner_create_draft_key(request, *, prefix: str) -> str:
+    if request.method == "GET" and request.GET.get("fresh") == "1":
+        return f"{prefix}-{uuid4().hex}"
+
+    existing = (request.POST.get("draft_client_key") or request.GET.get("draft_session") or "").strip()
+    if existing.startswith(prefix + "-"):
+        return existing
+    if existing:
+        return f"{prefix}-{existing}"
+    return f"{prefix}-{uuid4().hex}"
 
 
 def _engagement_login_required_response(request, fallback_url: str):
@@ -514,8 +529,20 @@ def owner_places_dashboard(request):
         messages.error(request, access.message)
         return redirect("owner_cabinet")
 
+    owner_events = list(
+        Event.objects.filter(owner=request.user, deleted_at__isnull=True)
+        .select_related("related_place")
+        .order_by("-updated_at")
+    )
     context.update(
         {
+            "owner_events": owner_events,
+            "owner_event_stats": {
+                "total": len(owner_events),
+                "published": sum(1 for event in owner_events if event.status == Event.STATUS_PUBLISHED and not event.has_ended),
+                "drafts": sum(1 for event in owner_events if event.status in {Event.STATUS_DRAFT, Event.STATUS_PENDING, Event.STATUS_REJECTED}),
+                "ended": sum(1 for event in owner_events if event.effective_status == Event.STATUS_EXPIRED),
+            },
             "meta_description": _("Мои места KidsMap: редактирование, черновики, модерация и статистика."),
         }
     )
@@ -526,12 +553,30 @@ def owner_place_create(request):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
+    if request.method == "GET" and request.GET.get("type") != "permanent":
+        result = owner_places_controller.build_create_form_context(request=request)
+        if not result.ok:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+        return render(
+            request,
+            "pages/owner_listing_type_select.html",
+            {
+                "meta_description": _("Выбор типа объявления KidsMap."),
+            },
+        )
+
     if request.method == "POST":
+        draft_client_key = _build_owner_create_draft_key(request, prefix="owner-place-create")
         form_action = (request.POST.get("form_action") or "").strip()
+        place_post_data = request.POST.copy()
+        place_post_data["is_temporary"] = ""
+        place_post_data["temporary_start"] = ""
+        place_post_data["temporary_end"] = ""
         if form_action == "check_coordinates":
             result = owner_places_controller.preview_create_coordinates(
                 request=request,
-                data=request.POST,
+                data=place_post_data,
                 files=request.FILES,
             )
             if result.form is None:
@@ -547,13 +592,14 @@ def owner_place_create(request):
                 "owner_profile": result.profile,
                 "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
                 "meta_description": _("Создание места в личном кабинете KidsMap."),
+                "draft_client_key": draft_client_key,
             }
             return render(request, "pages/owner_place_create.html", context)
 
         if form_action == "save_draft":
             result = owner_places_controller.create_place(
                 request=request,
-                data=request.POST,
+                data=place_post_data,
                 files=request.FILES,
                 draft_save_only=True,
             )
@@ -570,12 +616,13 @@ def owner_place_create(request):
                 "owner_profile": result.profile,
                 "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
                 "meta_description": _("Создание места в личном кабинете KidsMap."),
+                "draft_client_key": draft_client_key,
             }
             return render(request, "pages/owner_place_create.html", context)
 
         result = owner_places_controller.create_place(
             request=request,
-            data=request.POST,
+            data=place_post_data,
             files=request.FILES,
         )
         if result.ok:
@@ -591,6 +638,7 @@ def owner_place_create(request):
             "owner_profile": result.profile,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Создание места в личном кабинете KidsMap."),
+            "draft_client_key": draft_client_key,
         }
         return render(request, "pages/owner_place_create.html", context)
 
@@ -604,8 +652,193 @@ def owner_place_create(request):
         "owner_profile": result.profile,
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         "meta_description": _("Создание места в личном кабинете KidsMap."),
+        "draft_client_key": _build_owner_create_draft_key(request, prefix="owner-place-create"),
     }
     return render(request, "pages/owner_place_create.html", context)
+
+
+def _owner_event_profile(request):
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    if profile.role != UserProfile.ROLE_OWNER:
+        return None
+    return profile
+
+
+def _event_required_missing(event: Event) -> list[str]:
+    missing = []
+    if not event.name_az:
+        missing.append(_("название"))
+    if not event.category:
+        missing.append(_("категория"))
+    if not event.start_datetime or not event.end_datetime:
+        missing.append(_("дата и время"))
+    if event.end_datetime and event.end_datetime <= timezone.now():
+        missing.append(_("актуальная дата окончания"))
+    if event.age_from is None or event.age_to is None:
+        missing.append(_("возраст"))
+    if not event.price_text:
+        missing.append(_("цена"))
+    if not event.address:
+        missing.append(_("адрес"))
+    if not event.phone:
+        missing.append(_("телефон"))
+    if not event.description_az:
+        missing.append(_("описание"))
+    if not event.photo:
+        missing.append(_("фото"))
+    return missing
+
+
+def owner_event_create(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    profile = _owner_event_profile(request)
+    if profile is None:
+        messages.error(request, _("Этот раздел доступен только владельцам карточек."))
+        return redirect("owner_places_dashboard")
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        draft_save_only = form_action == "save_draft"
+        form = OwnerEventForm(data=request.POST, files=request.FILES, user=request.user, draft_save_only=draft_save_only)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.owner = request.user
+            event.status = Event.STATUS_DRAFT if draft_save_only else Event.STATUS_PENDING
+            if not draft_save_only:
+                event.rejection_reason = ""
+                event.published_at = None
+            event.save()
+            messages.success(
+                request,
+                _("Qaralama saxlanıldı.") if draft_save_only else _("Tədbir moderasiyaya göndərildi."),
+            )
+            return redirect("owner_places_dashboard")
+    else:
+        form = OwnerEventForm(user=request.user)
+
+    return render(
+        request,
+        "pages/owner_event_form.html",
+        {
+            "form": form,
+            "owner_profile": profile,
+            "event": None,
+            "meta_description": _("Создание временного мероприятия KidsMap."),
+        },
+    )
+
+
+def owner_event_edit(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    profile = _owner_event_profile(request)
+    if profile is None:
+        messages.error(request, _("Этот раздел доступен только владельцам карточек."))
+        return redirect("owner_places_dashboard")
+
+    event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
+    if event.status in {Event.STATUS_PENDING, Event.STATUS_PUBLISHED} and request.method != "GET":
+        messages.error(request, _("Tədbir yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."))
+        return redirect("owner_places_dashboard")
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        draft_save_only = form_action == "save_draft"
+        form = OwnerEventForm(
+            data=request.POST,
+            files=request.FILES,
+            instance=event,
+            user=request.user,
+            draft_save_only=draft_save_only,
+        )
+        if form.is_valid():
+            event = form.save(commit=False)
+            if draft_save_only:
+                event.status = Event.STATUS_DRAFT
+            else:
+                event.status = Event.STATUS_PENDING
+                event.rejection_reason = ""
+                event.published_at = None
+            event.save()
+            messages.success(
+                request,
+                _("Qaralama saxlanıldı.") if draft_save_only else _("Tədbir moderasiyaya göndərildi."),
+            )
+            return redirect("owner_places_dashboard")
+    else:
+        form = OwnerEventForm(instance=event, user=request.user)
+
+    return render(
+        request,
+        "pages/owner_event_form.html",
+        {
+            "form": form,
+            "owner_profile": profile,
+            "event": event,
+            "meta_description": _("Редактирование временного мероприятия KidsMap."),
+        },
+    )
+
+
+@require_POST
+def owner_event_submit_review(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
+    if event.status == Event.STATUS_PENDING:
+        messages.error(request, _("Это мероприятие уже на модерации."))
+        return redirect("owner_places_dashboard")
+
+    missing = _event_required_missing(event)
+    if missing:
+        messages.error(request, _("Заполните перед отправкой: %(fields)s.") % {"fields": ", ".join(str(item) for item in missing)})
+        return redirect("owner_event_edit", pk=event.pk)
+
+    event.status = Event.STATUS_PENDING
+    event.rejection_reason = ""
+    event.published_at = None
+    event.save(update_fields=["status", "rejection_reason", "published_at", "updated_at"])
+    messages.success(request, _("Tədbir moderasiyaya göndərildi."))
+    return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_event_delete(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
+    event.deleted_at = timezone.now()
+    event.save(update_fields=["deleted_at", "updated_at"])
+    messages.success(request, _("Tədbir silindi."))
+    return redirect("owner_places_dashboard")
+
+
+def event_detail(request, pk, slug):
+    event = get_object_or_404(
+        Event.objects.select_related("related_place"),
+        pk=pk,
+        status=Event.STATUS_PUBLISHED,
+        deleted_at__isnull=True,
+        start_datetime__isnull=False,
+        end_datetime__gte=timezone.now(),
+    )
+    if slug != event.slug:
+        return redirect(event.get_absolute_url(), permanent=True)
+    return render(
+        request,
+        "catalog/event_detail.html",
+        {
+            "event": event,
+            "language": request.LANGUAGE_CODE,
+            "meta_description": event.description_i18n(request.LANGUAGE_CODE) or event.name_i18n(request.LANGUAGE_CODE),
+            "seo_title": f"{event.name_i18n(request.LANGUAGE_CODE)} | KidsMap",
+        },
+    )
 
 
 def owner_place_edit(request, pk):
@@ -614,10 +847,14 @@ def owner_place_edit(request, pk):
 
     if request.method == "POST":
         form_action = (request.POST.get("form_action") or "").strip()
+        place_post_data = request.POST.copy()
+        place_post_data["is_temporary"] = ""
+        place_post_data["temporary_start"] = ""
+        place_post_data["temporary_end"] = ""
         result = owner_places_controller.save_edit_form(
             request=request,
             place_id=pk,
-            data=request.POST,
+            data=place_post_data,
             files=request.FILES,
             force_coordinate_refresh=form_action == "refresh_coordinates",
             draft_save_only=form_action == "save_draft",

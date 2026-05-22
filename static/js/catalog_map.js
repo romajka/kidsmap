@@ -1,5 +1,21 @@
 (function () {
   let catalogMapState = null;
+  const BRAND_MARKER_COLOR = "#136f38";
+  const BRAND_MARKER_INNER_COLOR = "#a8d59b";
+
+  function buildMarkerIcon() {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44" fill="none">' +
+      '<path d="M18 1.5C9.44 1.5 2.5 8.44 2.5 17c0 11.41 12.35 23.56 14.3 25.39a1.75 1.75 0 0 0 2.4 0C21.15 40.56 33.5 28.41 33.5 17 33.5 8.44 26.56 1.5 18 1.5Z" fill="' + BRAND_MARKER_COLOR + '" stroke="white" stroke-width="3"/>' +
+      '<circle cx="18" cy="17" r="6" fill="' + BRAND_MARKER_INNER_COLOR + '" stroke="white" stroke-width="2"/>' +
+      "</svg>";
+
+    return {
+      url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+      scaledSize: new google.maps.Size(36, 44),
+      anchor: new google.maps.Point(18, 44),
+    };
+  }
 
   function escapeHtml(value) {
     return String(value || "").replace(/[&<>"']/g, function (char) {
@@ -96,10 +112,10 @@
         return typeof place.lat === "number" && typeof place.lng === "number";
       }),
       provider: (panel.dataset.mapProvider || "").trim(),
-      detailsLabel: panel.dataset.detailsLabel || "Details",
-      emptyMessage: panel.dataset.emptyMessage || "No map points found.",
-      fallbackMessage: panel.dataset.fallbackMessage || "Map is not available.",
-      loadingMessage: panel.dataset.loadingMessage || "Loading map...",
+      detailsLabel: panel.dataset.detailsLabel || "",
+      emptyMessage: panel.dataset.emptyMessage || "",
+      fallbackMessage: panel.dataset.fallbackMessage || "",
+      loadingMessage: panel.dataset.loadingMessage || "",
       initialized: false,
       bound: false,
       googleMap: null,
@@ -145,6 +161,7 @@
 
     state.bounds = new google.maps.LatLngBounds();
     const infoWindow = new google.maps.InfoWindow();
+    const markerIcon = buildMarkerIcon();
 
     const markersByUrl = {};
 
@@ -154,6 +171,7 @@
         position: position,
         map: state.googleMap,
         title: place.name || "",
+        icon: markerIcon,
       });
 
       if (place.url) {

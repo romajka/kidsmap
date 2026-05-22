@@ -65,6 +65,36 @@ msgstr "Sonrakı status"
 msgid "Телефон"
 msgstr "Telefon"
 
+msgid "Выберите дату"
+msgstr "Tarix seçin"
+
+msgid "Выберите время"
+msgstr "Saat seçin"
+
+msgid "Время начала"
+msgstr "Başlama vaxtı"
+
+msgid "Дата окончания"
+msgstr "Bitmə tarixi"
+
+msgid "Время окончания"
+msgstr "Bitmə vaxtı"
+
+msgid "Укажите дату мероприятия."
+msgstr "Tədbirin tarixini seçin."
+
+msgid "Укажите время начала."
+msgstr "Başlama vaxtını seçin."
+
+msgid "Укажите время окончания."
+msgstr "Bitmə vaxtını seçin."
+
+msgid "Время окончания должно быть позже времени начала."
+msgstr "Bitmə vaxtı başlama vaxtından sonra olmalıdır."
+
+msgid "Нельзя выбрать прошедшую дату или время начала."
+msgstr "Keçmiş tarix və ya başlama vaxtı seçmək olmaz."
+
 #: src/catalog/admin.py:187 src/catalog/forms.py:141 src/catalog/models.py:755
 #: src/catalog/templates/pages/account_profile.html:51
 msgid "Пол"
@@ -5424,6 +5454,14 @@ msgstr "Kartı idarə etmək üçün sorğu göndərməkdən ötrü hesaba daxil
 msgid "Фильтры"
 msgstr "Filtrlər"
 
+#: src/catalog/templates/catalog/place_list.html:43
+msgid "Найдите подходящее место для ребёнка"
+msgstr "Uşağınız üçün uyğun məkanı tapın"
+
+#: src/catalog/templates/catalog/place_list.html:44
+msgid "Выбирайте курсы и занятия по возрасту, району и метро."
+msgstr "Kursları və məşğələləri yaşa, rayona və metroya görə rahat seçin."
+
 #: src/catalog/templates/catalog/place_list.html:58
 msgid "Поиск по названию"
 msgstr "Ada görə axtarış"
@@ -7723,7 +7761,7 @@ msgstr "Rayon"
 
 #: templates/admin/catalog/site_analytics.html:485
 msgid "Дата"
-msgstr ""
+msgstr "Tarix"
 
 #: templates/admin/catalog/site_analytics.html:611
 #: templates/admin/catalog/site_analytics.html:620

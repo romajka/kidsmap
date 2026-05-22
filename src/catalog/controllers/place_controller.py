@@ -5,6 +5,7 @@ from datetime import datetime
 from urllib.parse import urlencode
 
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -13,7 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext, override
 
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
-from catalog.models import FunnelEvent, Place
+from catalog.models import Event, FunnelEvent, Place
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
 from catalog.services.options import sort_choice_tuples, sort_translated_values
@@ -60,10 +61,14 @@ class PlaceController:
 
         qs = filters.apply(self.place_repository.filtered_active_queryset(created_after=created_after))
         timeline_places = []
+        events = []
         stats_qs = None
         map_places = []
+        showing_events = filters.event_type == "temporary" and not force_new_only
 
-        if force_new_only:
+        if showing_events:
+            qs = self._filtered_event_queryset(filters=filters)
+        elif force_new_only:
             stats_qs = qs
             timeline_places = list(qs.order_by("-created_at")[:5])
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
@@ -75,6 +80,8 @@ class PlaceController:
 
         paginator = Paginator(qs, 10)
         page_obj = paginator.get_page(request.GET.get("page"))
+        if showing_events:
+            events = page_obj.object_list
 
         selected = filters.selected()
         query_without_page = urlencode(self._build_normalized_query_params(selected=selected, force_new_only=force_new_only))
@@ -87,14 +94,23 @@ class PlaceController:
             page_number=page_obj.number,
         )
         with override(language_code):
-            results_count_label = ngettext(
-                "Найден %(total)s кружок",
-                "Найдено %(total)s кружков",
-                page_obj.paginator.count,
-            ) % {"total": page_obj.paginator.count}
+            if showing_events:
+                results_count_label = ngettext(
+                    "Найдено %(total)s мероприятие",
+                    "Найдено %(total)s мероприятий",
+                    page_obj.paginator.count,
+                ) % {"total": page_obj.paginator.count}
+            else:
+                results_count_label = ngettext(
+                    "Найден %(total)s кружок",
+                    "Найдено %(total)s кружков",
+                    page_obj.paginator.count,
+                ) % {"total": page_obj.paginator.count}
 
         context = {
-            "places": page_obj.object_list,
+            "places": [] if showing_events else page_obj.object_list,
+            "events": events,
+            "showing_events": showing_events,
             "timeline_places": timeline_places,
             "page_obj": page_obj,
             "results_total": page_obj.paginator.count,
@@ -143,7 +159,8 @@ class PlaceController:
             is_new_page=force_new_only,
         )
 
-        mark_liked_flags(context["places"], liked_ids)
+        if not showing_events:
+            mark_liked_flags(context["places"], liked_ids)
         mark_liked_flags(context["timeline_places"], liked_ids)
 
         if force_new_only:
@@ -158,6 +175,35 @@ class PlaceController:
             context["new_stats"] = build_new_page_stats(stats_qs)
 
         return context
+
+    def _filtered_event_queryset(self, *, filters: PlaceListFilters):
+        qs = Event.objects.filter(
+            status=Event.STATUS_PUBLISHED,
+            deleted_at__isnull=True,
+            start_datetime__isnull=False,
+            end_datetime__gte=timezone.now(),
+        ).select_related("related_place")
+        if filters.category:
+            qs = qs.filter(category=filters.category)
+        if filters.query:
+            qs = qs.filter(
+                Q(name__icontains=filters.query)
+                | Q(name_az__icontains=filters.query)
+                | Q(name_ru__icontains=filters.query)
+                | Q(name_en__icontains=filters.query)
+                | Q(description_az__icontains=filters.query)
+                | Q(description_ru__icontains=filters.query)
+                | Q(description_en__icontains=filters.query)
+                | Q(address__icontains=filters.query)
+            )
+        if filters.district:
+            qs = qs.filter(Q(address__icontains=filters.district) | Q(related_place__district__iexact=filters.district))
+        age_from, age_to = filters._normalized_age_bounds()
+        if age_from is not None:
+            qs = qs.filter(Q(age_to__isnull=True) | Q(age_to__gte=age_from))
+        if age_to is not None:
+            qs = qs.filter(Q(age_from__isnull=True) | Q(age_from__lte=age_to))
+        return qs.order_by("start_datetime", "-updated_at")
 
     def _base_list_url(self, *, force_new_only: bool) -> str:
         return reverse("place_new") if force_new_only else reverse("place_list")

@@ -2,30 +2,31 @@
 {% load i18n static %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}{% endblock %}
-{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap{% endblock %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
   <section class="panel owner-places owner-places-dashboard">
     {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
+    {% trans "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков." as delete_event_confirm_text %}
 
     <header class="owner-dashboard-head">
       <div>
-        <h1>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h1>
+        <h1>{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %}</h1>
         <p class="auth-subtitle">
           {% if CURRENT_LANGUAGE == "az" %}
-            Məkanlarınızı əlavə edin və moderasiya statusunu izləyin.
+            Məkan və tədbirlərinizi əlavə edin, moderasiya statusunu izləyin.
           {% elif CURRENT_LANGUAGE == "en" %}
-            Add places and track their publishing and moderation status.
+            Add places and events, then track their publishing and moderation status.
           {% else %}
-            Добавляйте места и следите за их публикацией и модерацией.
+            Добавляйте места и мероприятия, следите за публикацией и модерацией.
           {% endif %}
         </p>
       </div>
       {% if can_create_more_places %}
-        <a class="btn owner-dashboard-add" href="{% url 'owner_place_create' %}">
+        <a class="btn owner-dashboard-add" href="{% url 'owner_place_create' %}?fresh=1">
           <span aria-hidden="true">+</span>
           {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}
         </a>
@@ -35,6 +36,11 @@
         </span>
       {% endif %}
     </header>
+
+    <nav class="owner-listing-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Elan növləri{% elif CURRENT_LANGUAGE == 'en' %}Listing types{% else %}Типы объявлений{% endif %}">
+      <a class="owner-listing-tab is-active" href="#owner-places-list">{% if CURRENT_LANGUAGE == "az" %}Məkanlar{% elif CURRENT_LANGUAGE == "en" %}Places{% else %}Места{% endif %} <span>{{ owner_stats.total_places }}</span></a>
+      <a class="owner-listing-tab" href="#owner-events-list">{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %} <span>{{ owner_event_stats.total }}</span></a>
+    </nav>
 
     <nav class="owner-dashboard-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Kabinet bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Cabinet sections{% else %}Разделы кабинета{% endif %}">
       <a class="owner-dashboard-tab is-active" href="{% url 'owner_places_dashboard' %}">
@@ -101,7 +107,7 @@
           </p>
         </div>
         {% if can_create_more_places %}
-          <a class="btn owner-action-card__button" href="{% url 'owner_place_create' %}">
+          <a class="btn owner-action-card__button" href="{% url 'owner_place_create' %}?fresh=1">
             {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}
           </a>
         {% else %}
@@ -132,6 +138,25 @@
           </a>
         </article>
       {% endif %}
+
+      <article class="owner-action-card owner-action-card--event">
+        <div class="owner-action-card__mark" aria-hidden="true">◷</div>
+        <div>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add an event{% else %}Добавить мероприятие{% endif %}</h2>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Master-klas, açıq dərs və ya tarixə bağlı aktivliyi qısa formada əlavə edin.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Add a workshop, open lesson, or date-based activity with a shorter form.
+            {% else %}
+              Добавьте мастер-класс, открытый урок или событие с датой через короткую форму.
+            {% endif %}
+          </p>
+        </div>
+        <a class="btn-secondary owner-action-card__button" href="{% url 'owner_event_create' %}">
+          {% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}
+        </a>
+      </article>
     </section>
 
     {% if can_view_stats %}
@@ -169,7 +194,7 @@
       </section>
     {% endif %}
 
-    <div class="owner-dashboard-columns">
+    <div id="owner-places-list" class="owner-dashboard-columns">
       <section class="owner-dashboard-section">
         <div class="owner-dashboard-section__head">
           <h2>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</h2>
@@ -207,7 +232,7 @@
             <strong>{% if CURRENT_LANGUAGE == "az" %}Hələ dərc olunmuş məkan yoxdur{% elif CURRENT_LANGUAGE == "en" %}No published places yet{% else %}Пока нет опубликованных мест{% endif %}</strong>
             <p>{% if CURRENT_LANGUAGE == "az" %}İlk məkanınızı dərc edin və burada görünsün.{% elif CURRENT_LANGUAGE == "en" %}Publish your first place, and it will appear here.{% else %}Опубликуйте своё первое место, и оно появится здесь.{% endif %}</p>
             {% if can_create_more_places %}
-              <a class="btn owner-dashboard-empty__button" href="{% url 'owner_place_create' %}">{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}</a>
+              <a class="btn owner-dashboard-empty__button" href="{% url 'owner_place_create' %}?fresh=1">{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}</a>
             {% endif %}
           </div>
         {% endif %}
@@ -320,5 +345,69 @@
         {% endif %}
       </section>
     </div>
+
+    <section id="owner-events-list" class="owner-dashboard-section owner-events-dashboard-section">
+      <div class="owner-dashboard-section__head">
+        <h2>{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %}</h2>
+        <a class="btn-secondary owner-place-btn" href="{% url 'owner_event_create' %}">{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}</a>
+      </div>
+      {% if owner_events %}
+        <div class="owner-dashboard-list owner-events-list">
+          {% for event in owner_events %}
+            <article class="owner-place-card owner-event-card">
+              <div class="owner-place-card__top">
+                <div>
+                  <h3>{% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}<a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a>{% else %}{{ event.name_i18n }}{% endif %}</h3>
+                  <p>{{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address|truncatechars:44 }}{% endif %}</p>
+                </div>
+                {% if event.effective_status == event.STATUS_EXPIRED %}
+                  <span class="owner-status-badge owner-status-badge-none">{% if CURRENT_LANGUAGE == "az" %}Başa çatıb{% elif CURRENT_LANGUAGE == "en" %}Ended{% else %}Завершено{% endif %}</span>
+                {% elif event.status == event.STATUS_PENDING %}
+                  <span class="owner-status-badge owner-status-badge-pending">{% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}Under moderation{% else %}На модерации{% endif %}</span>
+                {% elif event.status == event.STATUS_PUBLISHED %}
+                  <span class="owner-status-badge owner-status-badge-approved">{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
+                {% elif event.status == event.STATUS_REJECTED %}
+                  <span class="owner-status-badge owner-status-badge-rejected">{% if CURRENT_LANGUAGE == "az" %}Rədd edildi{% elif CURRENT_LANGUAGE == "en" %}Rejected{% else %}Отклонено{% endif %}</span>
+                {% else %}
+                  <span class="owner-status-badge owner-status-badge-none">{% if CURRENT_LANGUAGE == "az" %}Qaralama{% elif CURRENT_LANGUAGE == "en" %}Draft{% else %}Черновик{% endif %}</span>
+                {% endif %}
+              </div>
+
+              {% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}
+                {% include "catalog/includes/event_countdown.html" with event=event language=CURRENT_LANGUAGE variant="compact" %}
+              {% elif event.effective_status == event.STATUS_EXPIRED %}
+                <p class="owner-place-card__note">{% if CURRENT_LANGUAGE == "az" %}Başa çatıb{% elif CURRENT_LANGUAGE == "en" %}Ended{% else %}Завершено{% endif %}</p>
+              {% endif %}
+
+              {% if event.status == event.STATUS_REJECTED and event.rejection_reason %}
+                <p class="owner-place-card__note">{% if CURRENT_LANGUAGE == "az" %}Rədd səbəbi{% elif CURRENT_LANGUAGE == "en" %}Rejection reason{% else %}Причина отклонения{% endif %}: {{ event.rejection_reason }}</p>
+              {% endif %}
+
+              <div class="owner-place-card__actions">
+                {% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}
+                  <a class="btn-secondary owner-place-btn" href="{{ event.get_absolute_url }}">{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</a>
+                {% endif %}
+                {% if event.status != event.STATUS_PENDING and event.status != event.STATUS_PUBLISHED %}
+                  <a class="btn-secondary owner-place-btn" href="{% url 'owner_event_edit' event.id %}">{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</a>
+                  <form method="post" action="{% url 'owner_event_submit_review' event.id %}" data-loading-form>
+                    {% csrf_token %}
+                    <button type="submit" class="btn owner-place-btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}</button>
+                  </form>
+                {% endif %}
+                <form method="post" action="{% url 'owner_event_delete' event.id %}" onsubmit="return confirm('{{ delete_event_confirm_text|escapejs }}');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-secondary btn-danger owner-place-btn owner-place-btn-danger">{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Delete{% else %}Удалить{% endif %}</button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="owner-dashboard-empty owner-dashboard-empty--compact">
+          <strong>{% if CURRENT_LANGUAGE == "az" %}Hələ tədbir yoxdur{% elif CURRENT_LANGUAGE == "en" %}No events yet{% else %}Пока нет мероприятий{% endif %}</strong>
+          <p>{% if CURRENT_LANGUAGE == "az" %}Müvəqqəti tədbirlər burada görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Temporary events will appear here.{% else %}Временные мероприятия появятся здесь.{% endif %}</p>
+        </div>
+      {% endif %}
+    </section>
   </section>
 {% endblock %}

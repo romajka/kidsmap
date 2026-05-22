@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Yeni elan{% elif CURRENT_LANGUAGE == "en" %}New listing{% else %}Новое объявление{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Yeni elan{% elif CURRENT_LANGUAGE == "en" %}New listing{% else %}Новое объявление{% endif %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Yeni elan{% elif CURRENT_LANGUAGE == "en" %}New listing{% else %}Новое объявление{% endif %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  <section class="panel owner-listing-choice-page">
+    <div class="owner-listing-choice-head">
+      <span class="owner-listing-choice-kicker">{% if CURRENT_LANGUAGE == "az" %}KidsMap elanları{% elif CURRENT_LANGUAGE == "en" %}KidsMap listings{% else %}Объявления KidsMap{% endif %}</span>
+      <h1>{% if CURRENT_LANGUAGE == "az" %}Nə əlavə etmək istəyirsiniz?{% elif CURRENT_LANGUAGE == "en" %}What would you like to add?{% else %}Что вы хотите добавить?{% endif %}</h1>
+      <p>{% if CURRENT_LANGUAGE == "az" %}Uyğun elan növünü seçin, sonra sizə uyğun forma açılacaq.{% elif CURRENT_LANGUAGE == "en" %}Choose the listing type and we will show the right form.{% else %}Выберите тип объявления, и мы покажем подходящую форму.{% endif %}</p>
+    </div>
+
+    <div class="owner-listing-choice-grid">
+      <a class="owner-listing-choice-card" href="{% url 'owner_place_create' %}?type=permanent&amp;fresh=1">
+        <span class="owner-listing-choice-card__badge">{% if CURRENT_LANGUAGE == "az" %}4 addım{% elif CURRENT_LANGUAGE == "en" %}4 steps{% else %}4 шага{% endif %}</span>
+        <span class="owner-listing-choice-card__check" aria-hidden="true">✓</span>
+        <span class="owner-listing-choice-card__icon owner-listing-choice-card__icon--place" aria-hidden="true"></span>
+        <strong>{% if CURRENT_LANGUAGE == "az" %}Daimi məkan{% elif CURRENT_LANGUAGE == "en" %}Permanent place{% else %}Постоянное место{% endif %}</strong>
+        <span class="owner-listing-choice-card__text">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Klub, kurs, mərkəz və ya müntəzəm fəaliyyət göstərən məkan.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            A club, course, center, or regular place.
+          {% else %}
+            Клуб, курс, центр, секция, школа или постоянное место.
+          {% endif %}
+        </span>
+        <span class="owner-listing-choice-card__note">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Uzunmüddətli fəaliyyət üçün uyğundur. Kataloqda daimi kart kimi görünür.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Best for long-term activity. It appears as a permanent catalog card.
+          {% else %}
+            Подходит для долгосрочной работы и отображается как постоянная карточка.
+          {% endif %}
+        </span>
+        <span class="owner-listing-choice-features">
+          <span>{% if CURRENT_LANGUAGE == "az" %}Müntəzəm fəaliyyət{% elif CURRENT_LANGUAGE == "en" %}Regular activity{% else %}Регулярная работа{% endif %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Ətraflı profil{% elif CURRENT_LANGUAGE == "en" %}Detailed profile{% else %}Подробный профиль{% endif %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Kataloq və xəritədə görünür{% elif CURRENT_LANGUAGE == "en" %}Catalog and map visibility{% else %}Каталог и карта{% endif %}</span>
+        </span>
+        <span class="btn owner-listing-choice-card__button">{% if CURRENT_LANGUAGE == "az" %}Daimi məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a permanent place{% else %}Добавить постоянное место{% endif %}</span>
+      </a>
+
+      <a class="owner-listing-choice-card owner-listing-choice-card--event" href="{% url 'owner_event_create' %}?fresh=1">
+        <span class="owner-listing-choice-card__badge">{% if CURRENT_LANGUAGE == "az" %}2 addım{% elif CURRENT_LANGUAGE == "en" %}2 steps{% else %}2 шага{% endif %}</span>
+        <span class="owner-listing-choice-card__check" aria-hidden="true">✓</span>
+        <span class="owner-listing-choice-card__icon owner-listing-choice-card__icon--event" aria-hidden="true"></span>
+        <strong>{% if CURRENT_LANGUAGE == "az" %}Müvəqqəti tədbir{% elif CURRENT_LANGUAGE == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}</strong>
+        <span class="owner-listing-choice-card__text">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Master-klas, açıq dərs, turnir, festival, seminar və tarixə bağlı aktivlik.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            A workshop, open lesson, tournament, festival, seminar, or date-based activity.
+          {% else %}
+            Мастер-класс, открытый урок, турнир, праздник, семинар или разовая активность.
+          {% endif %}
+        </span>
+        <span class="owner-listing-choice-card__note">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Tarix və saatla bağlı tədbirlər üçün uyğundur. Yaxın tədbirlər lentində görünür.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Best for date-based events. It appears in the upcoming events feed.
+          {% else %}
+            Подходит для событий с датой и показывается в ленте ближайших мероприятий.
+          {% endif %}
+        </span>
+        <span class="owner-listing-choice-features">
+          <span>{% if CURRENT_LANGUAGE == "az" %}Müəyyən tarix və saat{% elif CURRENT_LANGUAGE == "en" %}Specific date and time{% else %}Дата и время{% endif %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Daha qısa forma{% elif CURRENT_LANGUAGE == "en" %}Shorter form{% else %}Короткая форма{% endif %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Başlama vaxtına qədər taymer{% elif CURRENT_LANGUAGE == "en" %}Countdown before start{% else %}Таймер до начала{% endif %}</span>
+        </span>
+        <span class="btn owner-listing-choice-card__button">{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add an event{% else %}Добавить мероприятие{% endif %}</span>
+      </a>
+    </div>
+  </section>
+{% endblock %}

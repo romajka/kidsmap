@@ -321,29 +321,25 @@
         <a class="home-events-all" href="{% url 'place_list' %}?event_type=temporary">{% if request.LANGUAGE_CODE == "az" %}Bütün tədbirlər{% elif request.LANGUAGE_CODE == "en" %}All events{% else %}Все мероприятия{% endif %}</a>
       </div>
       <div class="home-events-rail" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Yaxın tədbirlər{% elif request.LANGUAGE_CODE == 'en' %}Upcoming events{% else %}Ближайшие мероприятия{% endif %}">
-        {% for place in upcoming_events %}
+        {% for event in upcoming_events %}
           <article class="home-event-card">
-            <a class="home-event-card__media" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
-              {% if place.photo %}
-                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-              {% elif place.cover_photo %}
-                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+            <a class="home-event-card__media" href="{{ event.get_absolute_url }}" aria-label="{{ event.name_i18n }}">
+              {% if event.photo %}
+                <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% else %}
                 <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               {% endif %}
-              <span class="home-event-card__category">{{ place.get_category_display }}</span>
+              <span class="home-event-card__category">{{ event.get_category_display }}</span>
             </a>
             <div class="home-event-card__body">
-              <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+              <h3><a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a></h3>
               <p class="home-event-card__meta">
-                {% if place.district %}{% trans place.district %}{% endif %}
-                {% if place.district and place.metro %} · {% endif %}
-                {% if place.metro %}{% trans place.metro %}{% endif %}
+                {{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address|truncatechars:42 }}{% endif %}
               </p>
-              {% if place.price_range_display %}
-                <p class="home-event-card__price">{{ place.price_range_display }}</p>
+              {% if event.price_display %}
+                <p class="home-event-card__price">{{ event.price_display }}</p>
               {% endif %}
-              {% include "catalog/includes/temporary_event_badge.html" with place=place language=request.LANGUAGE_CODE variant="card" %}
+              {% include "catalog/includes/event_countdown.html" with event=event language=request.LANGUAGE_CODE variant="card" %}
             </div>
           </article>
         {% endfor %}

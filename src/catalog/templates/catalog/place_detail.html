@@ -493,63 +493,6 @@
             </div>
           </section>
 
-          <section id="owner-request" class="owner-request detail-side-card owner-request--subtle detail-body-card detail-body-card--owner">
-            <div class="detail-section-head detail-section-head-compact">
-              <h2>{% if language == "az" %}Bu məkanın nümayəndəsisiniz?{% elif language == "en" %}Do you represent this venue?{% else %}Вы представитель этого кружка?{% endif %}</h2>
-              <p class="meta">{% if language == "az" %}Məkan idarəçiliyi üçün bölmə{% elif language == "en" %}Section for venue management access{% else %}Служебный блок для доступа к управлению карточкой{% endif %}</p>
-            </div>
-            {% if place.owner %}
-              <p class="meta">{% trans "Карточка уже закреплена за представителем кружка. Если доступ нужен вашей команде, свяжитесь с нами." %}</p>
-            {% else %}
-              <p class="meta">
-                {% if language == "az" %}
-                  Məlumatları yeniləmək və kartı idarə etmək üçün hesabınıza daxil olun.
-                {% elif language == "en" %}
-                  Sign in to update the details and manage this card.
-                {% else %}
-                  Если вы ведете этот кружок, можно отправить заявку и получить доступ к редактированию карточки.
-                {% endif %}
-              </p>
-            {% endif %}
-
-            {% if request.user.is_authenticated %}
-              {% if can_claim_place %}
-                <form method="post" action="{% url 'request_place_ownership' place.id %}" class="owner-request-form" data-loading-form>
-                  {% csrf_token %}
-                  <label>
-                    {% trans "Комментарий к заявке (необязательно)" %}
-                    <textarea class="field" name="note" rows="3" maxlength="1200" placeholder="{% trans 'Например: я представитель этого кружка, могу подтвердить контакты.' %}"></textarea>
-                  </label>
-                  <button type="submit" class="btn" data-loading-button>{% trans "Отправить заявку на управление" %}</button>
-                </form>
-              {% else %}
-                {% if can_claim_reason == "already_owner" %}
-                  <p class="meta">{% trans "Эта карточка уже привязана к вашему аккаунту." %}</p>
-                {% elif can_claim_reason == "pending_exists" and latest_ownership_request %}
-                  <p class="meta">
-                    {% trans "Ваша заявка уже на модерации." %}
-                    {% trans "Статус" %}: {{ latest_ownership_request.get_status_display }}.
-                  </p>
-                {% endif %}
-              {% endif %}
-            {% else %}
-              <div class="review-auth-note">
-                <p>
-                  {% if language == "az" %}
-                    Məlumatları yeniləmək və kartı idarə etmək üçün hesabınıza daxil olun.
-                  {% elif language == "en" %}
-                    Sign in to update the details and manage this card.
-                  {% else %}
-                    Чтобы отправить заявку на управление карточкой, войдите в аккаунт.
-                  {% endif %}
-                </p>
-                <div class="review-auth-actions">
-                  <a class="btn" href="{% url 'account_login' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% if language == "az" %}Daxil ol{% elif language == "en" %}Log in{% else %}Войти{% endif %}</a>
-                  <a class="link-btn" href="{% url 'account_register' %}?intent=owner_place&next={{ place.get_absolute_url|add:'#owner-request'|urlencode }}" data-track-event="claim_place_start" data-track-place-id="{{ place.id }}" data-track-source="place-claim-auth">{% if language == "az" %}Qeydiyyat{% elif language == "en" %}Sign up{% else %}Регистрация{% endif %}</a>
-                </div>
-              </div>
-            {% endif %}
-          </section>
         {% endwith %}
       </div>
     </article>

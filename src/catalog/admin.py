@@ -20,6 +20,7 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _, ngettext
 from .models import (
     CatalogContentSettings,
+    Event,
     OwnerTeamInvitation,
     OwnerTeamMembership,
     Place,
@@ -62,6 +63,7 @@ def _kidsmap_get_app_list(self, request, app_label=None):
     app_list = _original_get_app_list(request, app_label)
     pending_count = (
         Place.objects.filter(status=Place.STATUS_PENDING, deleted_at__isnull=True).count()
+        + Event.objects.filter(status=Event.STATUS_PENDING, deleted_at__isnull=True).count()
         + PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
     )
     for app in app_list:
@@ -76,6 +78,7 @@ def _kidsmap_get_app_list(self, request, app_label=None):
             "siteregistereduser": 2,
             "staffaccessuser": 3,
             "placeownershiprequest": 5,
+            "event": 8,
             "place": 10,
             "placechangeaudit": 20,
             "placereview": 30,
@@ -470,6 +473,74 @@ class ReviewRiskFilter(admin.SimpleListFilter):
         if value == "many_dislikes":
             return queryset.filter(dislikes_count__gt=0)
         return queryset
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = (
+        "display_name",
+        "category",
+        "start_datetime",
+        "end_datetime",
+        "owner",
+        "status",
+        "updated_at",
+    )
+    list_filter = ("status", "category", "start_datetime", "owner")
+    search_fields = ("name", "name_az", "name_ru", "name_en", "address", "phone", "owner__username", "owner__email")
+    readonly_fields = ("slug", "created_at", "updated_at")
+    list_select_related = ("owner", "related_place")
+    fieldsets = (
+        (
+            _("Основное"),
+            {
+                "fields": (
+                    "owner",
+                    "related_place",
+                    "status",
+                    "rejection_reason",
+                    "published_at",
+                    "name",
+                    "slug",
+                    "name_az",
+                    "name_ru",
+                    "name_en",
+                    "description_az",
+                    "description_ru",
+                    "description_en",
+                    "category",
+                )
+            },
+        ),
+        (
+            _("Дата, место и контакты"),
+            {
+                "fields": (
+                    "start_datetime",
+                    "end_datetime",
+                    "age_from",
+                    "age_to",
+                    "price_text",
+                    "address",
+                    "phone",
+                    "instagram",
+                    "photo",
+                )
+            },
+        ),
+        (_("Служебное"), {"fields": ("moderation_note", "deleted_at", "created_at", "updated_at")}),
+    )
+
+    @admin.display(description=_("Название"))
+    def display_name(self, obj):
+        return obj.name_i18n()
+
+    def save_model(self, request, obj, form, change):
+        if obj.status == Event.STATUS_PUBLISHED and not obj.published_at:
+            obj.published_at = timezone.now()
+        if obj.status != Event.STATUS_REJECTED:
+            obj.rejection_reason = obj.rejection_reason if obj.status == Event.STATUS_PUBLISHED else obj.rejection_reason
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Place)
