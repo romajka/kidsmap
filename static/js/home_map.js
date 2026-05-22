@@ -1,6 +1,8 @@
 (function () {
   const DEFAULT_CENTER = { lat: 40.4093, lng: 49.8671 };
   const DEFAULT_ZOOM = 11;
+  const BRAND_MARKER_COLOR = "#136f38";
+  const BRAND_MARKER_INNER_COLOR = "#a8d59b";
   const LEAFLET_DEFAULTS = {
     cssHref: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
     cssIntegrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=",
@@ -199,6 +201,20 @@
     );
   }
 
+  function buildGoogleMarkerIcon() {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44" fill="none">' +
+      '<path d="M18 1.5C9.44 1.5 2.5 8.44 2.5 17c0 11.41 12.35 23.56 14.3 25.39a1.75 1.75 0 0 0 2.4 0C21.15 40.56 33.5 28.41 33.5 17 33.5 8.44 26.56 1.5 18 1.5Z" fill="' + BRAND_MARKER_COLOR + '" stroke="white" stroke-width="3"/>' +
+      '<circle cx="18" cy="17" r="6" fill="' + BRAND_MARKER_INNER_COLOR + '" stroke="white" stroke-width="2"/>' +
+      "</svg>";
+
+    return {
+      url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+      scaledSize: new google.maps.Size(36, 44),
+      anchor: new google.maps.Point(18, 44),
+    };
+  }
+
   function renderFallback(mapEl, mapNoteEl) {
     if (!mapEl) return;
 
@@ -388,6 +404,7 @@
       gestureHandling: "cooperative",
     });
     const infoWindow = new google.maps.InfoWindow();
+    const markerIcon = buildGoogleMarkerIcon();
     const markerItems = [];
 
     places.forEach(function (place) {
@@ -396,6 +413,7 @@
         position: position,
         map: null,
         title: place.name || "",
+        icon: markerIcon,
       });
 
       marker.addListener("click", function () {
