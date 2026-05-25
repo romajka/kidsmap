@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
 from django.core.paginator import Paginator
@@ -67,7 +67,7 @@ class PlaceController:
         showing_events = filters.event_type == "temporary" and not force_new_only
 
         if showing_events:
-            qs = self._filtered_event_queryset(filters=filters)
+            qs = self._filtered_event_queryset()
         elif force_new_only:
             stats_qs = qs
             timeline_places = list(qs.order_by("-created_at")[:5])
@@ -197,34 +197,186 @@ class PlaceController:
 
         return context
 
-    def _filtered_event_queryset(self, *, filters: PlaceListFilters):
+    def build_events_landing_context(self, request: HttpRequest) -> dict:
+        language_code = request.LANGUAGE_CODE
+        now = timezone.now()
+
+        # --- read filter params ---
+        q = (request.GET.get("q") or "").strip()
+        category = (request.GET.get("category") or "").strip()
+        district = (request.GET.get("district") or "").strip()
+        date_filter = (request.GET.get("date_filter") or "").strip()
+        age_from = (request.GET.get("age_from") or "").strip()
+        age_to = (request.GET.get("age_to") or "").strip()
+        is_free = request.GET.get("free") == "1"
+        sort = (request.GET.get("sort") or "date").strip()
+
+        selected = {
+            "q": q,
+            "category": category,
+            "district": district,
+            "date_filter": date_filter,
+            "age_from": age_from,
+            "age_to": age_to,
+            "free": "1" if is_free else "",
+            "sort": sort,
+        }
+
+        qs = self._filtered_event_queryset(
+            q=q,
+            category=category,
+            district=district,
+            date_filter=date_filter,
+            age_from=age_from,
+            age_to=age_to,
+            is_free=is_free,
+            sort=sort,
+        )
+
+        # --- total active (unfiltered) for stats ---
+        active_total = Event.objects.filter(
+            status=Event.STATUS_PUBLISHED,
+            deleted_at__isnull=True,
+            start_datetime__isnull=False,
+            end_datetime__gte=now,
+        ).count()
+
+        paginator = Paginator(qs, 12)
+        page_obj = paginator.get_page(request.GET.get("page"))
+        events = list(page_obj.object_list)
+
+        # --- build query string without page ---
+        query_params = {k: v for k, v in selected.items() if v and v != "date"}
+        if sort and sort != "date":
+            query_params["sort"] = sort
+        query_without_page = urlencode(query_params)
+
+        # --- i18n strings ---
+        if language_code == "az":
+            seo_title = "Uşaqlar üçün tədbirlər afişası | KidsMap"
+            heading = "Tədbirlər afişası"
+            intro = "Yaxın günlərdə uşaqlar üçün master-klaslar, açıq dərslər və tədbirləri izləyin."
+            results_count_label = f"{page_obj.paginator.count} tədbir tapıldı"
+            stat_label = f"{active_total} aktiv tədbir"
+            search_placeholder = "Tədbir axtar..."
+        elif language_code == "en":
+            seo_title = "Kids events calendar | KidsMap"
+            heading = "Events"
+            intro = "Workshops, open classes and upcoming activities for kids."
+            results_count_label = f"{page_obj.paginator.count} events found"
+            stat_label = f"{active_total} active events"
+            search_placeholder = "Search events..."
+        else:
+            seo_title = "Афиша детских мероприятий | KidsMap"
+            heading = "Афиша мероприятий"
+            intro = "Мастер-классы, открытые уроки и события для детей на ближайшие дни."
+            results_count_label = ngettext(
+                "Найдено %(total)s мероприятие",
+                "Найдено %(total)s мероприятий",
+                page_obj.paginator.count,
+            ) % {"total": page_obj.paginator.count}
+            stat_label = ngettext(
+                "%(total)s активное мероприятие",
+                "%(total)s активных мероприятий",
+                active_total,
+            ) % {"total": active_total}
+            search_placeholder = "Найти мероприятие..."
+
+        return {
+            "events": events,
+            "page_obj": page_obj,
+            "results_total": page_obj.paginator.count,
+            "results_count_label": results_count_label,
+            "language": language_code,
+            "query_without_page": query_without_page,
+            "seo_title": seo_title,
+            "meta_description": intro,
+            "events_heading": heading,
+            "events_intro": intro,
+            "events_stat_label": stat_label,
+            "events_search_placeholder": search_placeholder,
+            "events_stats": {
+                "total": active_total,
+            },
+            "selected": selected,
+            "categories": sort_choice_tuples(Place.CATEGORY_CHOICES),
+            "district_options": sort_translated_values(self.settings_repository.get_catalog_settings().districts()),
+            "has_active_filters": any(v for k, v in selected.items() if k != "sort" and v),
+        }
+
+    def _filtered_event_queryset(
+        self,
+        *,
+        q: str = "",
+        category: str = "",
+        district: str = "",
+        date_filter: str = "",
+        age_from: str = "",
+        age_to: str = "",
+        is_free: bool = False,
+        sort: str = "date",
+    ):
+        now = timezone.now()
         qs = Event.objects.filter(
             status=Event.STATUS_PUBLISHED,
             deleted_at__isnull=True,
             start_datetime__isnull=False,
-            end_datetime__gte=timezone.now(),
+            end_datetime__gte=now,
         ).select_related("related_place")
-        if filters.category:
-            qs = qs.filter(category=filters.category)
-        if filters.query:
+
+        if q:
             qs = qs.filter(
-                Q(name__icontains=filters.query)
-                | Q(name_az__icontains=filters.query)
-                | Q(name_ru__icontains=filters.query)
-                | Q(name_en__icontains=filters.query)
-                | Q(description_az__icontains=filters.query)
-                | Q(description_ru__icontains=filters.query)
-                | Q(description_en__icontains=filters.query)
-                | Q(address__icontains=filters.query)
+                Q(name__icontains=q)
+                | Q(name_az__icontains=q)
+                | Q(name_ru__icontains=q)
+                | Q(name_en__icontains=q)
+                | Q(description_az__icontains=q)
+                | Q(description_ru__icontains=q)
+                | Q(description_en__icontains=q)
+                | Q(address__icontains=q)
             )
-        if filters.district:
-            qs = qs.filter(Q(address__icontains=filters.district) | Q(related_place__district__iexact=filters.district))
-        age_from, age_to = filters._normalized_age_bounds()
-        if age_from is not None:
-            qs = qs.filter(Q(age_to__isnull=True) | Q(age_to__gte=age_from))
-        if age_to is not None:
-            qs = qs.filter(Q(age_from__isnull=True) | Q(age_from__lte=age_to))
-        return qs.order_by("start_datetime", "-updated_at")
+
+        if category:
+            qs = qs.filter(category=category)
+
+        if district:
+            qs = qs.filter(related_place__district=district)
+
+        if date_filter == "today":
+            qs = qs.filter(start_datetime__date=now.date())
+        elif date_filter == "tomorrow":
+            qs = qs.filter(start_datetime__date=now.date() + timedelta(days=1))
+        elif date_filter == "this_week":
+            end_of_week = now.date() + timedelta(days=(6 - now.weekday()))
+            qs = qs.filter(start_datetime__date__lte=end_of_week)
+        elif date_filter == "weekend":
+            qs = qs.filter(start_datetime__week_day__in=[1, 7])  # Sunday=1, Saturday=7
+
+        if age_from and age_from.isdigit():
+            qs = qs.filter(Q(age_to__gte=int(age_from)) | Q(age_to__isnull=True))
+        if age_to and age_to.isdigit():
+            qs = qs.filter(Q(age_from__lte=int(age_to)) | Q(age_from__isnull=True))
+
+        if is_free:
+            qs = qs.filter(
+                Q(price_text="")
+                | Q(price_text__iexact="pulsuz")
+                | Q(price_text__iexact="free")
+                | Q(price_text__iexact="бесплатно")
+                | Q(price_text="0")
+                | Q(price_text__iexact="0 AZN")
+            )
+
+        if sort == "price":
+            qs = qs.order_by("price_text", "start_datetime")
+        elif sort == "new":
+            qs = qs.order_by("-created_at")
+        elif sort == "popular":
+            qs = qs.order_by("-related_place__likes_count", "start_datetime")
+        else:
+            qs = qs.order_by("start_datetime", "-updated_at")
+
+        return qs
 
     def _base_list_url(self, *, force_new_only: bool) -> str:
         return reverse("place_new") if force_new_only else reverse("place_list")

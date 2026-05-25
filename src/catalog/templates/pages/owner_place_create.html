@@ -21,8 +21,8 @@
   <section class="panel owner-place-edit owner-wizard-page">
     <div class="owner-page-head">
       <div>
-        <h1>{% if CURRENT_LANGUAGE == "az" %}Yeni elan{% elif CURRENT_LANGUAGE == "en" %}New listing{% else %}Новое объявление{% endif %}</h1>
-        <p class="auth-subtitle">{% if CURRENT_LANGUAGE == "az" %}Daimi məkan üçün ətraflı 4 addımlı formanı doldurun.{% elif CURRENT_LANGUAGE == "en" %}Fill in the detailed 4-step form for a permanent place.{% else %}Заполните подробную форму постоянного места в 4 шага.{% endif %}</p>
+        <h1>{% if CURRENT_LANGUAGE == "az" %}Yeni məkan{% elif CURRENT_LANGUAGE == "en" %}New place{% else %}Новое место{% endif %}</h1>
+        <p class="auth-subtitle">{% if CURRENT_LANGUAGE == "az" %}Kurs, mərkəz və ya fəaliyyət haqqında məlumatları doldurun. Yoxlamadan sonra kart kataloqda görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Fill in details about the course, center or activity. After review, the card will appear in the catalog.{% else %}Заполните данные о кружке, курсе или центре. После проверки карточка появится в каталоге.{% endif %}</p>
       </div>
       <div class="owner-page-actions">
         <a class="link-btn" href="{% url 'account_profile' %}">← {% if CURRENT_LANGUAGE == "az" %}Profilə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to profile{% else %}Вернуться в профиль{% endif %}</a>
@@ -48,8 +48,8 @@
       data-owner-location-group-label="{% if CURRENT_LANGUAGE == 'az' %}Region, rayon və ya metro{% elif CURRENT_LANGUAGE == 'en' %}Region, district, or metro{% else %}{% trans 'Регион, район или метро' %}{% endif %}"
       data-owner-map-group-label="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə nöqtə{% elif CURRENT_LANGUAGE == 'en' %}Map point{% else %}{% trans 'Точка на карте' %}{% endif %}"
       data-owner-required-done-text="{% if CURRENT_LANGUAGE == 'az' %}Məcburi minimum tamamlanıb.{% elif CURRENT_LANGUAGE == 'en' %}Required minimum is complete.{% else %}{% trans 'Обязательный минимум заполнен. Карточку уже можно отправлять.' %}{% endif %}"
-      data-owner-required-tip-prefix="{% if CURRENT_LANGUAGE == 'az' %}Məsləhət:{% elif CURRENT_LANGUAGE == 'en' %}Tip:{% else %}{% trans 'Следом добавьте:' %}{% endif %}"
-      data-owner-required-tip-suffix="{% if CURRENT_LANGUAGE == 'az' %}əlavə edin.{% endif %}"
+      data-owner-required-tip-prefix="{% if CURRENT_LANGUAGE == 'az' %}Zəhmət olmasa doldurun:{% elif CURRENT_LANGUAGE == 'en' %}Please fill in:{% else %}Заполните:{% endif %}"
+      data-owner-required-tip-suffix=""
       data-owner-overall-done-text="{% if CURRENT_LANGUAGE == 'az' %}Tam profil üçün əsas məlumatlar hazırdır.{% elif CURRENT_LANGUAGE == 'en' %}The profile is detailed enough.{% else %}{% trans 'Карточка заполнена подробно. Осталось только точечно улучшать детали.' %}{% endif %}"
       data-owner-overall-tip-prefix="{% if CURRENT_LANGUAGE == 'az' %}Tam profil üçün{% elif CURRENT_LANGUAGE == 'en' %}For a fuller profile, add:{% else %}{% trans 'Для полного профиля ещё можно добавить:' %}{% endif %}"
       data-owner-overall-tip-suffix="{% if CURRENT_LANGUAGE == 'az' %}əlavə edə bilərsiniz.{% endif %}"

@@ -417,7 +417,9 @@
 
         <aside class="account-card account-card--listings">
           <div class="account-card__head">
-            <h2>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h2>
+            <h2>
+              {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
+            </h2>
           </div>
           <div class="account-listings">
             <div class="account-listings__count">{{ managed_places_count }}</div>

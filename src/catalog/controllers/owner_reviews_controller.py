@@ -60,7 +60,7 @@ class OwnerReviewsController:
                 ok=False,
                 message=_(
                     "У вас нет прав на модерацию отзывов. "
-                    "Обратитесь к owner manager, чтобы получить роль moderator или manager."
+                    "Обратитесь к администратору, чтобы изменить доступ."
                 ),
             )
 
@@ -92,7 +92,7 @@ class OwnerReviewsController:
                 ok=False,
                 message=_(
                     "У вас нет прав на модерацию отзывов. "
-                    "Попросите owner manager назначить роль moderator или manager."
+                    "Обратитесь к администратору, чтобы изменить доступ."
                 ),
             )
 

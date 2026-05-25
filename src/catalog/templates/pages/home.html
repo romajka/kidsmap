@@ -318,7 +318,7 @@
           <h2>{% if request.LANGUAGE_CODE == "az" %}Yaxın tədbirlər{% elif request.LANGUAGE_CODE == "en" %}Upcoming events{% else %}Ближайшие мероприятия{% endif %}</h2>
           <p>{% if request.LANGUAGE_CODE == "az" %}Vaxtı məhdud olan maraqlı məkanları və tədbirləri izləyin.{% elif request.LANGUAGE_CODE == "en" %}Track time-limited activities and events near you.{% else %}Интересные события и активности рядом с вами с понятным таймером.{% endif %}</p>
         </div>
-        <a class="home-events-all" href="{% url 'place_list' %}?event_type=temporary">{% if request.LANGUAGE_CODE == "az" %}Bütün tədbirlər{% elif request.LANGUAGE_CODE == "en" %}All events{% else %}Все мероприятия{% endif %}</a>
+        <a class="home-events-all" href="{% url 'events_landing' %}">{% if request.LANGUAGE_CODE == "az" %}Bütün tədbirlər{% elif request.LANGUAGE_CODE == "en" %}All events{% else %}Все мероприятия{% endif %}</a>
       </div>
       <div class="home-events-rail" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Yaxın tədbirlər{% elif request.LANGUAGE_CODE == 'en' %}Upcoming events{% else %}Ближайшие мероприятия{% endif %}">
         {% for event in upcoming_events %}
@@ -334,7 +334,7 @@
             <div class="home-event-card__body">
               <h3><a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a></h3>
               <p class="home-event-card__meta">
-                {{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address|truncatechars:42 }}{% endif %}
+                {{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address_i18n|truncatechars:42 }}{% endif %}
               </p>
               {% if event.price_display %}
                 <p class="home-event-card__price">{{ event.price_display }}</p>
@@ -435,7 +435,7 @@
         </p>
 
         <div class="home-owner-actions">
-          {% if current_user_role == "OWNER" %}
+          {% if request.user.is_authenticated %}
             <a class="home-owner-cta" href="{% url 'owner_places_dashboard' %}">{% trans "Открыть кабинет" %}</a>
           {% else %}
             <a class="home-owner-cta" href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">{% trans "Разместить место" %}</a>
@@ -443,10 +443,10 @@
         </div>
 
         <div class="home-owner-benefits" aria-label="{% trans 'Что даёт размещение на KidsMap' %}">
-          {% if current_user_role == "OWNER" %}
+          {% if request.user.is_authenticated %}
             <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Каталог и карта" %}</a>
             <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Фото, описание и CTA" %}</a>
-            <a href="{% url 'owner_reviews_dashboard' %}" class="home-owner-benefit">{% trans "Отзывы и доверие" %}</a>
+            <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Отзывы и доверие" %}</a>
             <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Личный кабинет" %}</a>
           {% else %}
             <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Каталог и карта" %}</a>

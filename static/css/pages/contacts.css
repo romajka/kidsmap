@@ -1,48 +1,59 @@
 .page-contacts .contacts-hero {
-  padding: 18px 18px 16px;
+  min-height: auto !important;
+  display: grid !important;
+  align-items: start !important;
+  align-content: start !important;
+  gap: 10px !important;
+  padding: 14px 16px 12px !important;
+}
+
+.page-contacts .contacts-hero h1 {
+  margin: 0;
+  font-size: clamp(28px, 3.2vw, 40px);
 }
 
 .page-contacts .contacts-hero-lead {
   margin: 0;
-  max-width: 34ch;
+  max-width: 28ch;
   color: var(--brand-spruce);
-  font-size: clamp(22px, 2.4vw, 30px);
-  line-height: 1.24;
+  font-size: clamp(18px, 2vw, 25px);
+  line-height: 1.2;
   font-weight: 800;
 }
 
 .page-contacts .contacts-hero-subtext {
-  max-width: 62ch;
+  max-width: 54ch;
+  font-size: 15px;
 }
 
 .page-contacts .contacts-grid-panel {
-  padding: 14px;
+  padding: 12px;
 }
 
 .page-contacts .contacts-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.88fr);
+  gap: 12px;
   align-items: start;
 }
 
 .page-contacts .contacts-secondary-stack {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .page-contacts .contacts-primary-card {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   align-content: start;
-  padding: 18px;
+  padding: 16px;
 }
 
 .page-contacts .contacts-social-card,
 .page-contacts .contacts-links-card {
   display: grid;
-  gap: 14px;
-  padding: 18px;
+  gap: 12px;
+  padding: 16px;
 }
 
 .page-contacts .contacts-section-head {
@@ -64,13 +75,14 @@
 
 .page-contacts .contacts-primary-actions {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
 .page-contacts .contacts-primary-action {
   justify-content: flex-start;
-  min-height: 64px;
-  padding: 13px 16px;
+  min-height: 56px;
+  padding: 11px 14px;
   border-radius: 16px;
   border: 1px solid rgba(19, 111, 56, 0.16);
   background:
@@ -104,7 +116,7 @@
 
 .page-contacts .contacts-action-copy {
   display: grid;
-  gap: 3px;
+  gap: 2px;
 }
 
 .page-contacts .contacts-action-label {
@@ -118,7 +130,7 @@
 
 .page-contacts .contacts-action-value {
   color: var(--brand-spruce);
-  font-size: clamp(18px, 1.65vw, 24px);
+  font-size: clamp(16px, 1.35vw, 21px);
   line-height: 1.08;
   font-weight: 900;
   letter-spacing: -0.02em;
@@ -126,14 +138,16 @@
 
 .page-contacts .contacts-social-links,
 .page-contacts .contacts-utility-links {
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .page-contacts .contacts-social-link,
 .page-contacts .contacts-utility-link {
   justify-content: flex-start;
-  min-height: 50px;
-  padding: 12px 14px;
+  min-height: 46px;
+  padding: 10px 12px;
   border-radius: 14px;
   background: linear-gradient(180deg, #fbfefc, #f1f8f4);
   box-shadow: none;
@@ -148,21 +162,27 @@
   .page-contacts .contacts-layout {
     grid-template-columns: 1fr;
   }
+
+  .page-contacts .contacts-primary-actions,
+  .page-contacts .contacts-social-links,
+  .page-contacts .contacts-utility-links {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 699px) {
   .page-contacts .contacts-primary-card,
   .page-contacts .contacts-social-card,
   .page-contacts .contacts-links-card {
-    padding: 16px;
+    padding: 14px;
   }
 
   .page-contacts .contacts-primary-action {
-    min-height: 60px;
-    padding: 14px 16px;
+    min-height: 54px;
+    padding: 12px 14px;
   }
 
   .page-contacts .contacts-action-value {
-    font-size: clamp(17px, 4.8vw, 22px);
+    font-size: clamp(16px, 4.5vw, 20px);
   }
 }

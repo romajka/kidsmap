@@ -2026,6 +2026,13 @@ class TestReviewEnhancements(TestCase):
         self.assertNotContains(az_home, "Приведите новых родителей через KidsMap")
         self.assertNotContains(az_home, "Полная лента и реакции")
 
+        az_catalog = self.client.get("/az/catalog/", follow=True)
+        self.assertEqual(az_catalog.status_code, 200)
+        self.assertContains(az_catalog, "Dərnək seçin")
+        self.assertContains(az_catalog, "Kateqoriya, rayon, metro, yaş və büdcə bir yerdə.")
+        self.assertNotContains(az_catalog, "Подобрать кружок")
+        self.assertNotContains(az_catalog, "Категория, район, метро, возраст и бюджет в одном месте.")
+
         en_home = self.client.get("/en/", follow=True)
         self.assertEqual(en_home.status_code, 200)
         self.assertContains(en_home, "Help parents find you nearby")
@@ -2583,6 +2590,17 @@ class TestAccountProfileUpdates(TestCase):
         self.assertEqual(dashboard_response.status_code, 200)
         self.assertEqual(favorites_response.status_code, 200)
         self.assertEqual(settings_response.status_code, 200)
+
+    def test_regular_user_account_pages_render_place_actions(self):
+        dashboard_response = self.client.get(reverse("account_dashboard"))
+        profile_response = self.client.get(reverse("account_profile"))
+        favorites_response = self.client.get(reverse("account_favorites"))
+
+        self.assertContains(dashboard_response, reverse("owner_places_dashboard"))
+        self.assertContains(dashboard_response, reverse("owner_place_create"))
+        self.assertContains(profile_response, reverse("owner_places_dashboard"))
+        self.assertContains(profile_response, reverse("owner_place_create"))
+        self.assertContains(favorites_response, reverse("owner_places_dashboard"))
 
     def test_account_favorites_lists_liked_places(self):
         place = Place.objects.create(
@@ -3801,12 +3819,27 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             1,
         )
 
-    def test_regular_user_is_redirected_from_owner_places_dashboard(self):
+    def test_regular_user_can_open_places_dashboard(self):
         self.client.login(username="regular_for_owner_pages", password="StrongPass123!!")
         response = self.client.get(reverse("owner_places_dashboard"))
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("owner_cabinet"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Мои места")
+
+    def test_regular_user_owner_cabinet_redirects_to_places_dashboard(self):
+        self.client.login(username="regular_for_owner_pages", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_cabinet"), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.redirect_chain[-1][0], reverse("owner_places_dashboard"))
+        self.assertNotContains(response, "Этот раздел доступен только для расширенного доступа команды.")
+
+    def test_regular_user_can_open_place_create_flow(self):
+        self.client.login(username="regular_for_owner_pages", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_place_create"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Выбор типа объявления")
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
@@ -4151,3 +4184,100 @@ class TestGeocodePlacesCommand(TestCase):
         self.assertEqual(place.lat, 40.777)
         self.assertEqual(place.lng, 49.777)
         self.assertIn("Updated: 1", stdout.getvalue())
+
+
+class EventsLandingTests(TestCase):
+    def setUp(self):
+        self.place = create_quality_place(
+            name="Event Place",
+            name_ru="Площадка для событий",
+            district="Ясамал",
+        )
+        now = timezone.now()
+        self.upcoming_event = Event.objects.create(
+            related_place=self.place,
+            name="Weekend Workshop",
+            name_ru="Мастер-класс выходного дня",
+            description_ru="Подробное описание открытого семейного мастер-класса для детей и родителей.",
+            category="ART",
+            start_datetime=now + timedelta(days=2),
+            end_datetime=now + timedelta(days=2, hours=2),
+            status=Event.STATUS_PUBLISHED,
+            address="Ясамал, Баку",
+            price_text="25 AZN",
+        )
+        Event.objects.create(
+            name="Past Event",
+            name_ru="Прошедшее событие",
+            description_ru="Это событие уже завершилось и не должно быть на афише.",
+            category="ART",
+            start_datetime=now - timedelta(days=3),
+            end_datetime=now - timedelta(days=2),
+            status=Event.STATUS_PUBLISHED,
+            address="Баку",
+        )
+
+    def test_events_landing_shows_only_active_events(self):
+        with override("ru"):
+            response = self.client.get(reverse("events_landing"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["results_total"], 1)
+        self.assertContains(response, "Мастер-класс выходного дня")
+        self.assertNotContains(response, "Прошедшее событие")
+
+    def test_events_landing_does_not_render_filter_controls(self):
+        response = self.client.get(reverse("events_landing"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'name="q"')
+        self.assertNotContains(response, 'name="category"')
+        self.assertNotContains(response, 'name="district"')
+        self.assertNotContains(response, 'name="age_from"')
+        self.assertNotContains(response, 'name="age_to"')
+
+    def test_home_upcoming_events_link_points_to_events_landing(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, f'href="{reverse("events_landing")}"')
+
+    def test_home_shows_only_four_upcoming_events(self):
+        now = timezone.now()
+        for idx in range(5):
+            Event.objects.create(
+                name=f"Extra Event {idx}",
+                name_ru=f"Дополнительное событие {idx}",
+                description_ru="Дополнительное событие для проверки лимита на главной.",
+                category="ART",
+                start_datetime=now + timedelta(days=3 + idx),
+                end_datetime=now + timedelta(days=3 + idx, hours=2),
+                status=Event.STATUS_PUBLISHED,
+                address="Баку",
+            )
+
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context["upcoming_events"]), 4)
+
+    def test_event_address_is_localized_for_az_public_pages(self):
+        self.upcoming_event.address = "ул. Школьная 9, Баку"
+        self.upcoming_event.save(update_fields=["address", "updated_at"])
+
+        with override("az"):
+            home_response = self.client.get(reverse("home"))
+            events_response = self.client.get(reverse("events_landing"))
+            detail_response = self.client.get(self.upcoming_event.get_absolute_url())
+
+        self.assertContains(home_response, "küç. Məktəb 9, Bakı")
+        self.assertContains(events_response, "küç. Məktəb 9, Bakı")
+        self.assertContains(detail_response, "küç. Məktəb 9, Bakı")
+
+    def test_event_address_is_localized_for_en_public_pages(self):
+        self.upcoming_event.address = "пр. Гусейна Джавида 18, Баку"
+        self.upcoming_event.save(update_fields=["address", "updated_at"])
+
+        with override("en"):
+            response = self.client.get(reverse("events_landing"))
+
+        self.assertContains(response, "Ave. Huseyn Javid 18, Baku")

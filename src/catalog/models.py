@@ -1,3 +1,4 @@
+import re
 import uuid
 from functools import lru_cache
 
@@ -67,6 +68,46 @@ def clear_singleton_caches() -> None:
     _get_solo_site_settings.cache_clear()
     if hasattr(_get_solo_catalog_content_settings, "cache_clear"):
         _get_solo_catalog_content_settings.cache_clear()
+
+
+def _localize_public_address(raw_value: str, lang: str) -> str:
+    value = (raw_value or "").strip()
+    if not value:
+        return ""
+
+    normalized_lang = (lang or settings.LANGUAGE_CODE or "az").split("-")[0]
+    if normalized_lang == "ru":
+        return value
+
+    common_replacements = {
+        "Баку": "Baku" if normalized_lang == "en" else "Bakı",
+        "Ясамал": "Yasamal",
+        "Школьная": "School" if normalized_lang == "en" else "Məktəb",
+        "Ататюрка": "Ataturk" if normalized_lang == "en" else "Atatürk",
+        "Гусейна Джавида": "Huseyn Javid" if normalized_lang == "en" else "Hüseyn Cavid",
+    }
+    for source, target in common_replacements.items():
+        value = value.replace(source, target)
+
+    if normalized_lang == "en":
+        replacements = [
+            (r"\bул\.\s*", "St. "),
+            (r"\bулица\s+", ""),
+            (r"\bпр\.\s*", "Ave. "),
+            (r"\bпроспект\s+", ""),
+        ]
+    else:
+        replacements = [
+            (r"\bул\.\s*", "küç. "),
+            (r"\bулица\s+", ""),
+            (r"\bпр\.\s*", "prospekti "),
+            (r"\bпроспект\s+", ""),
+        ]
+
+    for pattern, replacement in replacements:
+        value = re.sub(pattern, replacement, value, flags=re.IGNORECASE)
+
+    return re.sub(r"\s{2,}", " ", value).strip(" ,")
 
 
 class Place(models.Model):
@@ -482,6 +523,9 @@ class Event(models.Model):
         if lang == "ru":
             return self.description_ru or self.description_az or self.description_en or ""
         return self.description_az or self.description_ru or self.description_en or ""
+
+    def address_i18n(self, lang=None):
+        return _localize_public_address(self.address, self._normalize_lang(lang))
 
     @property
     def age_display(self) -> str:

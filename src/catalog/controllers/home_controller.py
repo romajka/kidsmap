@@ -50,7 +50,7 @@ class HomeController:
                 end_datetime__gte=timezone.now(),
             )
             .select_related("related_place")
-            .order_by("start_datetime", "-updated_at")[:8]
+            .order_by("start_datetime", "-updated_at")[:4]
         )
 
         map_places = [

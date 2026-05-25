@@ -33,13 +33,6 @@ def ensure_owner_permission(
         return OwnerAccessResult(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
 
     profile = profile_repository.get_or_create_for_user(user)
-    if profile.role != UserProfile.ROLE_OWNER:
-        return OwnerAccessResult(
-            ok=False,
-            message=_("Этот раздел доступен только для расширенного доступа команды."),
-            profile=profile,
-        )
-
     basic_permissions = {
         UserProfile.OWNER_PERMISSION_VIEW_PLACES,
         UserProfile.OWNER_PERMISSION_EDIT_PLACES,
@@ -53,7 +46,7 @@ def ensure_owner_permission(
             ok=False,
             message=_(
                 "Недостаточно прав для выполнения этого действия. "
-                "Обратитесь к owner manager, чтобы изменить роль или права доступа."
+                "Обратитесь к администратору, чтобы изменить доступ."
             ),
             profile=profile,
         )

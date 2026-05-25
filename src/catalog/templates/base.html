@@ -46,7 +46,7 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20260525b" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     {% if organization_schema_json %}
       <script type="application/ld+json">{{ organization_schema_json|safe }}</script>
@@ -86,6 +86,11 @@
               {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
             >{% trans "Каталог" %}</a>
             <a
+              href="{% url 'events_landing' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
+            >{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
+            <a
               href="{% url 'for_business' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'for_business' %}active{% endif %}"
               {% if request.resolver_match.url_name == 'for_business' %}aria-current="page"{% endif %}
@@ -120,25 +125,35 @@
             {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
           >{% trans "Каталог" %}</a>
           <a
+            href="{% url 'events_landing' %}"
+            class="{% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
+          >{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
+          <a
             href="{% url 'for_business' %}"
             class="{% if request.resolver_match.url_name == 'for_business' %}active{% endif %}"
             {% if request.resolver_match.url_name == 'for_business' %}aria-current="page"{% endif %}
           >{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
-          <a
-            href="{% url 'about' %}"
-            class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
-          >{% trans "О проекте" %}</a>
-          <a
-            href="{% url 'site_reviews' %}"
-            class="{% if request.resolver_match.url_name == 'site_reviews' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'site_reviews' %}aria-current="page"{% endif %}
-          >{% trans "Отзывы" %}</a>
-          <a
-            href="{% url 'contacts' %}"
-            class="{% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'contacts' %}aria-current="page"{% endif %}
-          >{% trans "Контакты" %}</a>
+          <details class="header-menu nav-dropdown-menu">
+            <summary class="nav-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'site_reviews' or request.resolver_match.url_name == 'contacts' %}active{% endif %}">
+              {% if CURRENT_LANGUAGE == "az" %}Bizim haqqımızda{% elif CURRENT_LANGUAGE == "en" %}About{% else %}О нас{% endif %}
+              <span class="lang-arrow" aria-hidden="true"></span>
+            </summary>
+            <div class="nav-dropdown">
+              <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+                {% trans "О проекте" %}
+              </a>
+              <a href="{% url 'site_reviews' %}" class="{% if request.resolver_match.url_name == 'site_reviews' %}active{% endif %}">
+                {% trans "Отзывы" %}
+              </a>
+              <a href="{% url 'home' %}#faq">
+                FAQ
+              </a>
+              <a href="{% url 'contacts' %}" class="{% if request.resolver_match.url_name == 'contacts' %}active{% endif %}">
+                {% trans "Контакты" %}
+              </a>
+            </div>
+          </details>
         </nav>
 
         <div class="topbar-right">
@@ -248,6 +263,7 @@
               <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
                 <a href="{% url 'home' %}">{% trans "Главная" %}</a>
                 <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+                <a href="{% url 'events_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
                 <a href="{% url 'for_business' %}">{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
                 <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
                 <a href="{% url 'site_reviews' %}">{% trans "Отзывы" %}</a>

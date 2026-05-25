@@ -488,6 +488,7 @@
     const requiredCountNode = completion.querySelector('[data-owner-completion-count="required"]');
     const requiredBar = completion.querySelector('[data-owner-completion-bar="required"]');
     const requiredTip = completion.querySelector('[data-owner-completion-tip="required"]');
+    const nextStepBlock = completion.querySelector('[data-owner-next-step-block]');
     const overallPercentNode = completion.querySelector('[data-owner-completion-percent="overall"]');
     const overallCountNode = completion.querySelector('[data-owner-completion-count="overall"]');
     const overallBar = completion.querySelector('[data-owner-completion-bar="overall"]');
@@ -504,6 +505,9 @@
         form.dataset.ownerRequiredDoneText || ""
       );
     }
+    if (nextStepBlock) {
+      nextStepBlock.style.display = requiredMissing.length ? "flex" : "none";
+    }
 
     if (overallPercentNode) overallPercentNode.textContent = overallPercent + "%";
     if (overallCountNode) overallCountNode.textContent = overallFilled + "/" + overallTotal;
@@ -516,6 +520,14 @@
         form.dataset.ownerOverallDoneText || ""
       );
     }
+
+    // Update SVG ring arcs (circumference of r=15.9 circle ≈ 99.9)
+    var CIRC = 99.9;
+    completion.querySelectorAll('[data-owner-completion-ring]').forEach(function(ring) {
+      var kind = ring.getAttribute('data-owner-completion-ring');
+      var pct = kind === 'required' ? requiredPercent : overallPercent;
+      ring.setAttribute('stroke-dasharray', (CIRC * pct / 100).toFixed(1) + ' ' + CIRC);
+    });
   }
 
   function updateFinalSummary() {
@@ -631,7 +643,12 @@
       tab.disabled = !isUnlocked;
 
       if (indicator) {
-        indicator.textContent = state.complete ? completeLabel : state.warning ? warningLabel : String(target);
+        var isWzDot = indicator.classList.contains('wz-dot');
+        if (isWzDot) {
+          indicator.textContent = state.complete ? '' : state.warning ? warningLabel : String(target);
+        } else {
+          indicator.textContent = state.complete ? completeLabel : state.warning ? warningLabel : String(target);
+        }
         indicator.setAttribute("aria-label", state.complete ? completeLabel : state.warning ? warningLabel : neutralLabel);
       }
     });
@@ -760,9 +777,24 @@
     }
 
     if (!list) return;
+
+    if (list._previewUrls) {
+      list._previewUrls.forEach(function (url) {
+        URL.revokeObjectURL(url);
+      });
+    }
+    list._previewUrls = [];
+
     list.hidden = false;
     list.innerHTML = files.map(function (file) {
-      return '<span class="owner-file-uploader-item">' + escapeHtml(file.name) + '<em>' + escapeHtml(formatFileSize(file.size)) + "</em></span>";
+      let previewHtml = '';
+      if (file.type && file.type.indexOf('image/') === 0) {
+        const url = URL.createObjectURL(file);
+        list._previewUrls.push(url);
+        previewHtml = '<a href="' + url + '" target="_blank" title="' + escapeHtml(file.name) + '" style="display:block; overflow:hidden; border-radius:6px;"><img src="' + url + '" alt="" class="owner-file-uploader-mini-preview" /></a>';
+      }
+      const removeBtn = '<button type="button" data-remove-file style="background:none;border:none;cursor:pointer;color:#a0aeb1;font-size:20px;padding:0 8px;margin-left:auto;line-height:1;">&times;</button>';
+      return '<span class="owner-file-uploader-item" data-filename="' + escapeHtml(file.name) + '">' + previewHtml + '<span class="owner-file-uploader-item-name">' + escapeHtml(file.name) + ' <em>' + escapeHtml(formatFileSize(file.size)) + '</em></span>' + removeBtn + '</span>';
     }).join("");
   }
 
@@ -827,6 +859,58 @@
     const stepTab = event.target.closest("[data-owner-step-target]");
     const langTab = event.target.closest("[data-owner-lang-tab]");
     const listingType = event.target.closest("[data-owner-listing-type]");
+    const gotoNext = event.target.closest("[data-owner-goto-next]");
+    const removeFileBtn = event.target.closest("[data-remove-file]");
+
+    if (removeFileBtn) {
+      event.preventDefault();
+      const item = removeFileBtn.closest(".owner-file-uploader-item");
+      const filename = item.dataset.filename;
+      const uploader = removeFileBtn.closest("[data-file-uploader]");
+      const input = uploader.querySelector("[data-upload-input]");
+      
+      const dt = new DataTransfer();
+      const currentFiles = input._accumulatedFiles ? input._accumulatedFiles.files : input.files;
+      Array.from(currentFiles).forEach(f => {
+        if (f.name !== filename) dt.items.add(f);
+      });
+      input._accumulatedFiles = dt;
+      input.files = dt.files;
+      
+      renderUploaderState(uploader);
+      updateCompletion();
+      updateFinalSummary();
+      updateWizard(currentStep);
+      scheduleDraftSave();
+      return;
+    }
+
+    if (gotoNext) {
+      event.preventDefault();
+      const requiredNames = parseList(form.dataset.ownerRequiredFields);
+      for (let i = 0; i < requiredNames.length; i++) {
+        if (!isFieldFilledByName(requiredNames[i])) {
+          const field = getField(requiredNames[i]);
+          if (field) {
+            const step = field.closest("[data-owner-step]");
+            if (step) {
+              const target = Number(step.dataset.ownerStep || "1");
+              if (target <= maxReachableStep()) {
+                updateWizard(target);
+              }
+            }
+            openContainingDetails(field);
+            const targetEl = field.closest('.owner-form-field') || field;
+            targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            if (typeof field.focus === "function") {
+               field.focus({ preventScroll: true });
+            }
+            break;
+          }
+        }
+      }
+      return;
+    }
 
     if (listingType) {
       event.preventDefault();
@@ -882,6 +966,27 @@
   });
 
   form.addEventListener("change", function (event) {
+    if (event.target.type === "file" && event.target.multiple) {
+      const input = event.target;
+      if (!input._accumulatedFiles) input._accumulatedFiles = new DataTransfer();
+      
+      Array.from(input.files).forEach(file => {
+        let exists = false;
+        for (let i = 0; i < input._accumulatedFiles.files.length; i++) {
+          if (input._accumulatedFiles.files[i].name === file.name && input._accumulatedFiles.files[i].size === file.size) exists = true;
+        }
+        if (!exists) input._accumulatedFiles.items.add(file);
+      });
+      
+      if (input._accumulatedFiles.files.length > 10) {
+        const dt = new DataTransfer();
+        for (let i = 0; i < 10; i++) dt.items.add(input._accumulatedFiles.files[i]);
+        input._accumulatedFiles = dt;
+        alert(document.documentElement.lang === "az" ? "Maksimum 10 şəkil icazə verilir." : (document.documentElement.lang === "en" ? "Max 10 files allowed." : "Разрешено максимум 10 файлов."));
+      }
+      input.files = input._accumulatedFiles.files;
+    }
+
     markStepTouched(event.target);
     if (event.target.matches('[name="district"], [name="metro"]')) {
       setLocationValidity();
@@ -921,6 +1026,28 @@
   });
 
   restoreDraftState();
+
+  // Set up Azerbaijani phone format (+994)
+  const phoneInputs = form.querySelectorAll('input[type="tel"], input[name="phone1"], input[name="phone2"]');
+  function formatPhone(val) {
+    let v = val.replace(/\D/g, '');
+    if (v.startsWith('994')) v = v.substring(3);
+    else if (v.startsWith('0')) v = v.substring(1);
+    return v ? '+994 ' + v : '';
+  }
+  phoneInputs.forEach(function(input) {
+    if (input.value) input.value = formatPhone(input.value);
+    input.addEventListener('input', function() {
+      input.value = formatPhone(input.value) || '+994 ';
+    });
+    input.addEventListener('focus', function() {
+      if (!input.value) input.value = '+994 ';
+    });
+    input.addEventListener('blur', function() {
+      if (input.value === '+994 ' || input.value === '+994') input.value = '';
+    });
+  });
+
 
   steps.forEach(function (step) {
     if (step.querySelector(".auth-field-error, .auth-errors")) {

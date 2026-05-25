@@ -68,7 +68,7 @@
               placeholder="{% trans 'Место, занятие или ключевое слово...' %}"
             />
           </label>
-          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="catalog-filters" aria-label="{% trans 'Фильтры' %}"></button>
+          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-label="{% trans 'Фильтры' %}"></button>
         </form>
 
         <div class="mobile-quick-filters" aria-label="{% trans 'Быстрые фильтры' %}">
@@ -104,7 +104,7 @@
           type="button"
           class="btn mobile-filters-toggle"
           data-filters-open
-          aria-controls="catalog-filters"
+          aria-controls="filters-form"
           aria-expanded="false"
         >
           <span>{% trans "Фильтры" %}</span>
@@ -114,8 +114,9 @@
     {% endif %}
     <form
       method="get"
+      id="filters-form"
       class="filters {% if is_new_page %}filters-new{% else %}filters-catalog{% endif %}"
-      {% if not is_new_page %}id="catalog-filters" data-filters-drawer aria-hidden="false"{% endif %}
+      {% if not is_new_page %}data-filters-drawer aria-hidden="false"{% endif %}
     >
       {% if not is_new_page %}
         <div class="mobile-filters-head">
@@ -198,14 +199,36 @@
         {% trans "Регион / район" %}
         {% if not is_new_page %}
           <div class="filter-mobile-tools">
-            <input
-              class="field filter-option-search"
-              type="search"
-              inputmode="search"
-              autocomplete="off"
-              placeholder="{% trans 'Найти регион или район' %}"
-              data-option-search-for="district"
-            />
+            <div
+              class="filter-autocomplete"
+              data-autocomplete="district"
+              data-empty-label="{% if request.LANGUAGE_CODE == 'az' %}Nəticə tapılmadı{% elif request.LANGUAGE_CODE == 'en' %}No results found{% else %}Ничего не найдено{% endif %}"
+            >
+              <input
+                class="field filter-option-search"
+                type="search"
+                inputmode="search"
+                autocomplete="off"
+                placeholder="{% if request.LANGUAGE_CODE == 'az' %}Region və ya rayon tapın{% elif request.LANGUAGE_CODE == 'en' %}Find a region or district{% else %}Найти регион или район{% endif %}"
+                data-option-search-for="district"
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-controls="district-autocomplete-dropdown"
+              />
+              <div
+                id="district-autocomplete-dropdown"
+                class="filter-autocomplete-dropdown"
+                data-autocomplete-dropdown
+                role="listbox"
+                hidden
+              ></div>
+              <div class="filter-selected-chip-wrap" data-autocomplete-chip hidden>
+                <button type="button" class="filter-selected-chip" data-autocomplete-clear>
+                  <span class="filter-selected-chip-label" data-autocomplete-chip-label></span>
+                  <span class="filter-selected-chip-clear" aria-hidden="true">×</span>
+                </button>
+              </div>
+            </div>
             {% if popular_districts %}
               <div class="filter-popular-options" aria-label="{% trans 'Популярные регионы' %}">
                 {% for district_name in popular_districts %}
@@ -222,16 +245,43 @@
             {% endif %}
           </div>
         {% endif %}
-        <select class="filter-select" name="district">
+        <select class="filter-select filter-select-fallback" name="district" aria-hidden="true" tabindex="-1">
           <option value="">{% trans "Все" %}</option>
           {% for district_name in district_options %}
-            <option value="{{ district_name }}" {% if selected.district == district_name %}selected{% endif %}>{% trans district_name %}</option>
+            <option
+              value="{{ district_name }}"
+              data-label-current="{% trans district_name %}"
+              data-label-az="{% language 'az' %}{% trans district_name %}{% endlanguage %}"
+              data-label-ru="{% language 'ru' %}{% trans district_name %}{% endlanguage %}"
+              data-label-en="{% language 'en' %}{% trans district_name %}{% endlanguage %}"
+              {% if selected.district == district_name %}selected{% endif %}
+            >{% trans district_name %}</option>
           {% endfor %}
         </select>
       </label>
 
       <label class="filter-item filter-rating">
         {% trans "Рейтинг не ниже" %}
+        <div class="rating-filter-pills" aria-label="{% trans 'Рейтинг не ниже' %}">
+          <button type="button" class="rating-filter-pill{% if not selected.min_rating %} is-active{% endif %}" data-select-target="min_rating" data-select-value="">
+            <span class="rating-filter-pill-label">{% trans "Все" %}</span>
+          </button>
+          <button type="button" class="rating-filter-pill{% if selected.min_rating == '3' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="3">
+            <span class="rating-filter-pill-stars" aria-hidden="true">★★★</span>
+            <span class="rating-filter-pill-suffix">+</span>
+          </button>
+          <button type="button" class="rating-filter-pill{% if selected.min_rating == '4' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4">
+            <span class="rating-filter-pill-stars" aria-hidden="true">★★★★</span>
+            <span class="rating-filter-pill-suffix">+</span>
+          </button>
+          <button type="button" class="rating-filter-pill{% if selected.min_rating == '4.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4.5">
+            <span class="rating-filter-pill-stars" aria-hidden="true">★★★★½</span>
+            <span class="rating-filter-pill-suffix">+</span>
+          </button>
+          <button type="button" class="rating-filter-pill{% if selected.min_rating == '5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="5">
+            <span class="rating-filter-pill-stars" aria-hidden="true">★★★★★</span>
+          </button>
+        </div>
         <select class="filter-select" name="min_rating">
           <option value="">{% trans "Все" %}</option>
           <option value="3" {% if selected.min_rating == "3" %}selected{% endif %}>3.0+</option>
@@ -270,14 +320,36 @@
         <label class="filter-item filter-metro">
           {% trans "Метро" %}
           <div class="filter-mobile-tools">
-            <input
-              class="field filter-option-search"
-              type="search"
-              inputmode="search"
-              autocomplete="off"
-              placeholder="{% trans 'Найти метро' %}"
-              data-option-search-for="metro"
-            />
+            <div
+              class="filter-autocomplete"
+              data-autocomplete="metro"
+              data-empty-label="{% if request.LANGUAGE_CODE == 'az' %}Nəticə tapılmadı{% elif request.LANGUAGE_CODE == 'en' %}No results found{% else %}Ничего не найдено{% endif %}"
+            >
+              <input
+                class="field filter-option-search"
+                type="search"
+                inputmode="search"
+                autocomplete="off"
+                placeholder="{% trans 'Найти метро' %}"
+                data-option-search-for="metro"
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-controls="metro-autocomplete-dropdown"
+              />
+              <div
+                id="metro-autocomplete-dropdown"
+                class="filter-autocomplete-dropdown"
+                data-autocomplete-dropdown
+                role="listbox"
+                hidden
+              ></div>
+              <div class="filter-selected-chip-wrap" data-autocomplete-chip hidden>
+                <button type="button" class="filter-selected-chip" data-autocomplete-clear>
+                  <span class="filter-selected-chip-label" data-autocomplete-chip-label></span>
+                  <span class="filter-selected-chip-clear" aria-hidden="true">×</span>
+                </button>
+              </div>
+            </div>
             {% if popular_metro %}
               <div class="filter-popular-options" aria-label="{% trans 'Популярные станции метро' %}">
                 {% for metro_name in popular_metro %}
@@ -293,10 +365,17 @@
               </div>
             {% endif %}
           </div>
-          <select class="filter-select" name="metro">
+          <select class="filter-select filter-select-fallback" name="metro" aria-hidden="true" tabindex="-1">
             <option value="">{% trans "Все" %}</option>
             {% for metro_name in metro_options %}
-              <option value="{{ metro_name }}" {% if selected.metro == metro_name %}selected{% endif %}>{% trans metro_name %}</option>
+              <option
+                value="{{ metro_name }}"
+                data-label-current="{% trans metro_name %}"
+                data-label-az="{% language 'az' %}{% trans metro_name %}{% endlanguage %}"
+                data-label-ru="{% language 'ru' %}{% trans metro_name %}{% endlanguage %}"
+                data-label-en="{% language 'en' %}{% trans metro_name %}{% endlanguage %}"
+                {% if selected.metro == metro_name %}selected{% endif %}
+              >{% trans metro_name %}</option>
             {% endfor %}
           </select>
         </label>
@@ -351,15 +430,6 @@
           </div>
         </div>
 
-        <label class="filter-item filter-sort">
-          {% trans "Сортировка" %}
-          <select class="filter-select" name="sort">
-            <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% trans "Сначала новые" %}</option>
-            <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% trans "Цена по возрастанию" %}</option>
-            <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% trans "Цена по убыванию" %}</option>
-            <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% trans "По количеству отзывов" %}</option>
-          </select>
-        </label>
       {% endif %}
 
       <div class="actions">
@@ -413,9 +483,15 @@
         {{ results_count_label }}
       </p>
       <div class="results-toolbar-actions">
-        {% if active_filter_chips %}
-          <a class="link-btn icon-btn icon-reset results-reset-all" href="{{ reset_filters_url }}">{% trans "Сбросить всё" %}</a>
-        {% endif %}
+        <label class="results-toolbar-sort">
+          <span class="results-toolbar-sort-label">{% trans "Сортировка" %}</span>
+          <select class="filter-select results-toolbar-sort-select" name="sort" form="filters-form" data-sort-submit>
+            <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% trans "Сначала новые" %}</option>
+            <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% trans "Цена по возрастанию" %}</option>
+            <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% trans "Цена по убыванию" %}</option>
+            <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% trans "По количеству отзывов" %}</option>
+          </select>
+        </label>
         <button
           type="button"
           class="link-btn icon-btn icon-map results-map-toggle"
@@ -596,7 +672,7 @@
               <span class="chip">{{ event.get_category_display }}</span>
               <span class="event-badge temporary">{% if language == "az" %}Tədbir{% elif language == "en" %}Event{% else %}{% trans "Мероприятие" %}{% endif %}</span>
             </div>
-            <p class="meta card-location">{{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address|truncatechars:56 }}{% endif %}</p>
+            <p class="meta card-location">{{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address_i18n|truncatechars:56 }}{% endif %}</p>
             {% include "catalog/includes/event_countdown.html" with event=event language=language variant="compact" %}
             <div class="card-action-stack">
               <a class="details-btn card-go-btn" href="{{ event.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% if language == "az" %}Bax{% elif language == "en" %}Open{% else %}{% trans "Перейти" %}{% endif %}</a>
@@ -928,6 +1004,12 @@
         return document.querySelector(`select[name="${name}"]`);
       }
 
+      function syncTargetButtons(targetName, targetValue) {
+        document.querySelectorAll(`[data-select-target="${targetName}"]`).forEach(function (item) {
+          item.classList.toggle("is-active", (item.dataset.selectValue || "") === targetValue);
+        });
+      }
+
       function cacheSelectOptions(select) {
         if (!select || optionCache.has(select)) return;
         optionCache.set(
@@ -980,10 +1062,222 @@
         select.value = selectedValue && Array.from(select.options).some(function (option) { return option.value === selectedValue; }) ? selectedValue : "";
       }
 
+      function initFilterAutocomplete(input) {
+        const targetName = input.dataset.optionSearchFor;
+        if (targetName !== "district" && targetName !== "metro") return;
+
+        const container = input.closest(`[data-autocomplete="${targetName}"]`);
+        const targetSelect = getSelect(targetName);
+        const dropdown = container ? container.querySelector("[data-autocomplete-dropdown]") : null;
+        const chip = container ? container.querySelector("[data-autocomplete-chip]") : null;
+        const chipLabel = container ? container.querySelector("[data-autocomplete-chip-label]") : null;
+        const clearButton = container ? container.querySelector("[data-autocomplete-clear]") : null;
+        const popularOptions = container ? container.parentElement.querySelector(".filter-popular-options") : null;
+        if (!container || !targetSelect || !dropdown) return;
+
+        const emptyLabel = container.dataset.emptyLabel || "No results found";
+        const options = Array.from(targetSelect.options)
+          .filter(function (option, index) {
+            return index > 0 && option.value;
+          })
+          .map(function (option) {
+            return {
+              value: option.value,
+              label: option.dataset.labelCurrent || option.textContent.trim(),
+              searchTerms: normalize([
+                option.value,
+                option.textContent,
+                option.dataset.labelCurrent,
+                option.dataset.labelAz,
+                option.dataset.labelRu,
+                option.dataset.labelEn,
+              ].join(" ")),
+            };
+          });
+
+        let activeIndex = -1;
+        let filteredOptions = options.slice();
+
+        function getSelectedOption() {
+          return options.find(function (item) {
+            return item.value === targetSelect.value;
+          }) || null;
+        }
+
+        function setExpandedState(isExpanded) {
+          input.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+        }
+
+        function hideDropdown() {
+          dropdown.hidden = true;
+          dropdown.innerHTML = "";
+          activeIndex = -1;
+          setExpandedState(false);
+        }
+
+        function updateChip() {
+          const selected = getSelectedOption();
+          if (!chip || !chipLabel) return;
+          if (!selected) {
+            chip.hidden = true;
+            if (popularOptions) {
+              popularOptions.hidden = false;
+            }
+            return;
+          }
+          chipLabel.textContent = selected.label;
+          chip.hidden = false;
+          if (popularOptions) {
+            popularOptions.hidden = true;
+          }
+        }
+
+        function renderDropdown() {
+          dropdown.innerHTML = "";
+          if (!filteredOptions.length) {
+            const emptyState = document.createElement("div");
+            emptyState.className = "filter-autocomplete-empty";
+            emptyState.textContent = emptyLabel;
+            dropdown.appendChild(emptyState);
+            dropdown.hidden = false;
+            setExpandedState(true);
+            return;
+          }
+
+          filteredOptions.forEach(function (item, index) {
+            const optionButton = document.createElement("button");
+            optionButton.type = "button";
+            optionButton.className = "filter-autocomplete-option";
+            optionButton.textContent = item.label;
+            optionButton.setAttribute("role", "option");
+            optionButton.dataset.value = item.value;
+            optionButton.classList.toggle("is-active", index === activeIndex);
+            optionButton.addEventListener("mousedown", function (event) {
+              event.preventDefault();
+            });
+            optionButton.addEventListener("click", function () {
+              applySelection(item.value);
+            });
+            dropdown.appendChild(optionButton);
+          });
+
+          dropdown.hidden = false;
+          setExpandedState(true);
+        }
+
+        function filterOptions() {
+          const cleanQuery = normalize(input.value);
+          filteredOptions = options.filter(function (item) {
+            return !cleanQuery || item.searchTerms.includes(cleanQuery);
+          });
+          activeIndex = filteredOptions.length ? 0 : -1;
+          renderDropdown();
+        }
+
+        function applySelection(value) {
+          const selected = options.find(function (item) {
+            return item.value === value;
+          }) || null;
+          targetSelect.value = selected ? selected.value : "";
+          input.value = selected ? selected.label : "";
+          syncTargetButtons(targetName, targetSelect.value);
+          updateChip();
+          targetSelect.dispatchEvent(new Event("change", { bubbles: true }));
+          hideDropdown();
+        }
+
+        function clearSelection() {
+          targetSelect.value = "";
+          input.value = "";
+          syncTargetButtons(targetName, "");
+          updateChip();
+          targetSelect.dispatchEvent(new Event("change", { bubbles: true }));
+          filterOptions();
+        }
+
+        input.addEventListener("focus", function () {
+          filterOptions();
+        });
+
+        input.addEventListener("input", function () {
+          if (!input.value.trim()) {
+            targetSelect.value = "";
+            syncTargetButtons(targetName, "");
+            updateChip();
+          }
+          filterOptions();
+        });
+
+        input.addEventListener("keydown", function (event) {
+          if (dropdown.hidden && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
+            filterOptions();
+            return;
+          }
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (!filteredOptions.length) return;
+            activeIndex = Math.min(activeIndex + 1, filteredOptions.length - 1);
+            renderDropdown();
+            return;
+          }
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            if (!filteredOptions.length) return;
+            activeIndex = Math.max(activeIndex - 1, 0);
+            renderDropdown();
+            return;
+          }
+          if (event.key === "Enter" && !dropdown.hidden && activeIndex >= 0 && filteredOptions[activeIndex]) {
+            event.preventDefault();
+            applySelection(filteredOptions[activeIndex].value);
+            return;
+          }
+          if (event.key === "Escape") {
+            hideDropdown();
+          }
+        });
+
+        targetSelect.addEventListener("change", function () {
+          const selected = getSelectedOption();
+          if (selected && document.activeElement !== input) {
+            input.value = selected.label;
+          }
+          if (!selected && document.activeElement !== input) {
+            input.value = "";
+          }
+          syncTargetButtons(targetName, targetSelect.value);
+          updateChip();
+        });
+
+        if (clearButton) {
+          clearButton.addEventListener("click", function () {
+            clearSelection();
+            input.focus();
+          });
+        }
+
+        document.addEventListener("click", function (event) {
+          if (!container.contains(event.target)) {
+            hideDropdown();
+          }
+        });
+
+        const initiallySelected = getSelectedOption();
+        if (initiallySelected) {
+          input.value = initiallySelected.label;
+        }
+        updateChip();
+        syncTargetButtons(targetName, targetSelect.value);
+      }
+
       selectInputs.forEach(function (input) {
         const targetName = input.dataset.optionSearchFor;
         const targetSelect = getSelect(targetName);
         if (!targetSelect) return;
+        if (targetName === "district" || targetName === "metro") {
+          initFilterAutocomplete(input);
+          return;
+        }
         cacheSelectOptions(targetSelect);
 
         input.addEventListener("input", function () {
@@ -1006,10 +1300,7 @@
           rebuildOptions(targetSelect, "");
           targetSelect.value = targetValue;
           targetSelect.dispatchEvent(new Event("change", { bubbles: true }));
-
-          document.querySelectorAll(`[data-select-target="${targetName}"]`).forEach(function (item) {
-            item.classList.toggle("is-active", (item.dataset.selectValue || "") === targetValue);
-          });
+          syncTargetButtons(targetName, targetValue);
         });
       });
 
@@ -1041,6 +1332,13 @@
       const filtersForm = document.getElementById("filters-form");
       const resultsGrid = document.querySelector(".grid");
       const isListMode = document.body.classList.contains("results-list-mode") || (resultsGrid && resultsGrid.classList.contains("results-list-mode"));
+      document.querySelectorAll("[data-sort-submit]").forEach(function (select) {
+        select.addEventListener("change", function () {
+          if (filtersForm) {
+            filtersForm.requestSubmit ? filtersForm.requestSubmit() : filtersForm.submit();
+          }
+        });
+      });
       if (filtersForm && resultsGrid && !isListMode) {
         filtersForm.addEventListener("submit", function () {
           const skeletonHtml = Array(6).fill().map(function() {

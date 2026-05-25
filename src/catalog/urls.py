@@ -4,6 +4,7 @@ from django.urls import path, reverse_lazy
 from .forms import UserPasswordResetForm, UserSetPasswordForm
 from .views import (
     home,
+    events_landing,
     place_list,
     place_new,
     place_detail,
@@ -56,6 +57,7 @@ from .views import (
 
 urlpatterns = [
     path("", home, name="home"),
+    path("events/", events_landing, name="events_landing"),
     path("catalog/", place_list, name="place_list"),
     path("catalog/new/", place_new, name="place_new"),
     path("catalog/<slug:seo_slug>/", seo_landing, name="seo_landing"),

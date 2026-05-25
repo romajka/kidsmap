@@ -49,6 +49,11 @@
     if (end && now > end) {
       root.dataset.temporaryState = "ended";
       text.textContent = labels.ended;
+      /* Auto-hide the event card on the events landing page */
+      var card = root.closest(".events-card");
+      if (card) {
+        card.style.display = "none";
+      }
       return;
     }
 

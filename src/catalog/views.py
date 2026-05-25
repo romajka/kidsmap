@@ -158,6 +158,11 @@ def place_new(request):
     return _render_place_list(request, force_new_only=True)
 
 
+def events_landing(request):
+    context = place_controller.build_events_landing_context(request)
+    return render(request, "catalog/events_landing.html", context)
+
+
 def _render_place_list(request, force_new_only=False, created_after=None):
     if request.GET.getlist("view"):
         normalized_query = place_controller.build_normalized_list_query(
@@ -534,7 +539,7 @@ def owner_places_dashboard(request):
     context, access = owner_places_controller.build_dashboard_context(request=request)
     if not access.ok:
         messages.error(request, access.message)
-        return redirect("owner_cabinet")
+        return redirect("account_profile")
 
     owner_events = list(
         Event.objects.filter(owner=request.user, deleted_at__isnull=True)
@@ -666,8 +671,6 @@ def owner_place_create(request):
 
 def _owner_event_profile(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    if profile.role != UserProfile.ROLE_OWNER:
-        return None
     return profile
 
 
@@ -702,7 +705,7 @@ def owner_event_create(request):
 
     profile = _owner_event_profile(request)
     if profile is None:
-        messages.error(request, _("Этот раздел доступен только владельцам карточек."))
+        messages.error(request, _("Для доступа войдите в аккаунт и повторите действие."))
         return redirect("owner_places_dashboard")
 
     if request.method == "POST":
@@ -743,7 +746,7 @@ def owner_event_edit(request, pk):
 
     profile = _owner_event_profile(request)
     if profile is None:
-        messages.error(request, _("Этот раздел доступен только владельцам карточек."))
+        messages.error(request, _("Для доступа войдите в аккаунт и повторите действие."))
         return redirect("owner_places_dashboard")
 
     event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)

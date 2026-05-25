@@ -46,51 +46,27 @@
   <div class="owner-wizard-head">
     <div class="owner-wizard-progress">
       <p class="owner-form-intro-title visually-hidden">{% if CURRENT_LANGUAGE == "az" %}Kartın əsas dili: AZ{% elif CURRENT_LANGUAGE == "en" %}Main card language: AZ{% else %}{% trans "Основной язык карточки: AZ" %}{% endif %}</p>
-      <div class="owner-wizard-steps" role="tablist" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Form addımları{% elif CURRENT_LANGUAGE == 'en' %}Form steps{% else %}{% trans 'Шаги формы' %}{% endif %}">
-        <button
-          type="button"
-          class="owner-wizard-step-tab is-active"
-          data-owner-step-target="1"
-          data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basics{% else %}{% trans 'Основное' %}{% endif %}"
-        >
-          <span class="owner-wizard-step-number" data-owner-step-indicator>1</span>
-          <span class="owner-wizard-step-text">{% if CURRENT_LANGUAGE == "az" %}Əsas{% elif CURRENT_LANGUAGE == "en" %}Basics{% else %}{% trans "Основное" %}{% endif %}</span>
+      <nav class="wz-stepper" role="tablist" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Form addımları{% elif CURRENT_LANGUAGE == 'en' %}Form steps{% else %}Шаги формы{% endif %}">
+        <div class="wz-stepper-track" aria-hidden="true"><div class="wz-stepper-fill" data-owner-progress-bar></div></div>
+        <button type="button" class="wz-step is-active" data-owner-step-target="1" data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basics{% else %}Основное{% endif %}">
+          <span class="wz-dot" data-owner-step-indicator>1</span>
+          <span class="wz-label">{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basics{% else %}Основное{% endif %}</span>
         </button>
-        <button
-          type="button"
-          class="owner-wizard-step-tab"
-          data-owner-step-target="2"
-          data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Əlaqə{% elif CURRENT_LANGUAGE == 'en' %}Contact{% else %}{% trans 'Контакты' %}{% endif %}"
-        >
-          <span class="owner-wizard-step-number" data-owner-step-indicator>2</span>
-          <span class="owner-wizard-step-text">{% if CURRENT_LANGUAGE == "az" %}Əlaqə{% elif CURRENT_LANGUAGE == "en" %}Contact{% else %}{% trans "Контакты" %}{% endif %}</span>
+        <button type="button" class="wz-step" data-owner-step-target="2" data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Əlaqə{% elif CURRENT_LANGUAGE == 'en' %}Contact{% else %}Контакты{% endif %}">
+          <span class="wz-dot" data-owner-step-indicator>2</span>
+          <span class="wz-label">{% if CURRENT_LANGUAGE == 'az' %}Əlaqə{% elif CURRENT_LANGUAGE == 'en' %}Contact{% else %}Контакты{% endif %}</span>
         </button>
-        <button
-          type="button"
-          class="owner-wizard-step-tab"
-          data-owner-step-target="3"
-          data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Location{% else %}{% trans 'Локация' %}{% endif %}"
-        >
-          <span class="owner-wizard-step-number" data-owner-step-indicator>3</span>
-          <span class="owner-wizard-step-text">{% if CURRENT_LANGUAGE == "az" %}Məkan{% elif CURRENT_LANGUAGE == "en" %}Location{% else %}{% trans "Локация" %}{% endif %}</span>
+        <button type="button" class="wz-step" data-owner-step-target="3" data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Location{% else %}Локация{% endif %}">
+          <span class="wz-dot" data-owner-step-indicator>3</span>
+          <span class="wz-label">{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Location{% else %}Локация{% endif %}</span>
         </button>
-        <button
-          type="button"
-          class="owner-wizard-step-tab"
-          data-owner-step-target="4"
-          data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Şəkil{% elif CURRENT_LANGUAGE == 'en' %}Photo{% else %}{% trans 'Фото' %}{% endif %}"
-        >
-          <span class="owner-wizard-step-number" data-owner-step-indicator>4</span>
-          <span class="owner-wizard-step-text">{% if CURRENT_LANGUAGE == "az" %}Şəkil{% elif CURRENT_LANGUAGE == "en" %}Photo{% else %}{% trans "Фото" %}{% endif %}</span>
+        <button type="button" class="wz-step" data-owner-step-target="4" data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Şəkil{% elif CURRENT_LANGUAGE == 'en' %}Photo{% else %}Фото{% endif %}">
+          <span class="wz-dot" data-owner-step-indicator>4</span>
+          <span class="wz-label">{% if CURRENT_LANGUAGE == 'az' %}Şəkil{% elif CURRENT_LANGUAGE == 'en' %}Photo{% else %}Фото{% endif %}</span>
         </button>
-      </div>
-      <div class="owner-wizard-progress-footer">
-        <div class="owner-wizard-progressbar" aria-hidden="true">
-          <span data-owner-progress-bar></span>
-        </div>
-        <strong data-owner-progress-current>{% if CURRENT_LANGUAGE == "az" %}Addım 1/4{% elif CURRENT_LANGUAGE == "en" %}Step 1/4{% else %}{% trans "Шаг 1 из 4" %}{% endif %}</strong>
-        <span class="visually-hidden" data-owner-progress-title>{% if CURRENT_LANGUAGE == "az" %}Əsas{% elif CURRENT_LANGUAGE == "en" %}Basics{% else %}{% trans "Основное" %}{% endif %}</span>
-      </div>
+        <span class="wz-counter" data-owner-progress-current aria-live="polite">{% if CURRENT_LANGUAGE == 'az' %}Addım 1/4{% elif CURRENT_LANGUAGE == 'en' %}Step 1/4{% else %}Шаг 1/4{% endif %}</span>
+        <span class="visually-hidden" data-owner-progress-title>{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basics{% else %}Основное{% endif %}</span>
+      </nav>
       {% include "pages/includes/owner_wizard_completion.html" %}
     </div>
   </div>
@@ -178,9 +154,9 @@
         <span class="meta">{% if CURRENT_LANGUAGE == "az" %}Məcburi minimumu tamamlayın.{% elif CURRENT_LANGUAGE == "en" %}Complete the required minimum first.{% else %}{% trans "Сначала закройте обязательный минимум." %}{% endif %}</span>
         <div class="owner-wizard-actions-group">
           {% if wizard_mode == "create" or wizard_mode == "edit" %}
-            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</span></button>
           {% endif %}
-          <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</button>
+          <button type="button" class="btn wz-icon-btn" data-owner-next><span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
     </section>
@@ -246,12 +222,12 @@
       </details>
 
       <div class="owner-wizard-actions">
-        <button type="button" class="link-btn" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</button>
+        <button type="button" class="link-btn wz-icon-btn" data-owner-prev><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</span></button>
         <div class="owner-wizard-actions-group">
           {% if wizard_mode == "create" or wizard_mode == "edit" %}
-            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</span></button>
           {% endif %}
-          <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</button>
+          <button type="button" class="btn wz-icon-btn" data-owner-next><span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
     </section>
@@ -290,10 +266,10 @@
       </details>
 
       <div class="owner-wizard-actions">
-        <button type="button" class="link-btn" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</button>
+        <button type="button" class="link-btn wz-icon-btn" data-owner-prev><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</span></button>
         <div class="owner-wizard-actions-group">
           {% if wizard_mode == "create" or wizard_mode == "edit" %}
-            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</span></button>
           {% endif %}
           <button type="submit" name="form_action" value="{% if wizard_mode == 'edit' %}refresh_coordinates{% else %}check_coordinates{% endif %}" class="btn-secondary" data-loading-button>
             {% if wizard_mode == "edit" %}
@@ -302,7 +278,7 @@
               {% if CURRENT_LANGUAGE == "az" %}Koordinatları yoxla{% elif CURRENT_LANGUAGE == "en" %}Check coordinates{% else %}{% trans "Проверить координаты" %}{% endif %}
             {% endif %}
           </button>
-          <button type="button" class="btn" data-owner-next>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</button>
+          <button type="button" class="btn wz-icon-btn" data-owner-next><span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
         </div>
       </div>
       <p class="meta owner-wizard-note">
@@ -394,7 +370,7 @@
       {% endif %}
 
       <div class="owner-wizard-actions owner-wizard-actions-final">
-        <button type="button" class="link-btn" data-owner-prev>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</button>
+        <button type="button" class="link-btn wz-icon-btn" data-owner-prev><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</span></button>
         <div class="owner-wizard-actions-group">
           {% if wizard_mode == "edit" %}
             {% if place.is_active and not place.is_deleted %}
@@ -404,7 +380,7 @@
             {% endif %}
             <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Dəyişiklikləri saxla{% elif CURRENT_LANGUAGE == "en" %}Save changes{% else %}{% trans "Сохранить изменения" %}{% endif %}</button>
           {% else %}
-            <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</span></button>
             <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}{% trans "Мои места" %}{% endif %}</a>
             <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Yarat və yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Create and send for review{% else %}{% trans "Создать и отправить на проверку" %}{% endif %}</button>
           {% endif %}

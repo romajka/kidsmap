@@ -13,11 +13,22 @@
   data-label-minutes="{% if language == 'az' %}dəq{% elif language == 'en' %}min{% else %}мин{% endif %}"
   data-label-seconds="{% if language == 'az' %}san{% elif language == 'en' %}sec{% else %}сек{% endif %}"
 >
-  <span class="temporary-event-badge__icon" aria-hidden="true"></span>
+  <span class="temporary-event-badge__icon" aria-hidden="true">
+    <!-- Hourglass SVG for upcoming countdown -->
+    <svg class="badge-icon-hourglass" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 2h14" />
+      <path d="M5 22h14" />
+      <path d="M19 2v3a7 7 0 0 1-14 0V2" />
+      <path d="M5 22v-3a7 7 0 0 1 14 0v3" />
+    </svg>
+    <!-- Clock SVG for running/ended states -->
+    <svg class="badge-icon-clock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline class="clock-hand-hour" points="12 6 12 12" />
+      <polyline class="clock-hand-minute" points="12 12 16 14" />
+    </svg>
+  </span>
   <span class="temporary-event-badge__content">
-    <span class="temporary-event-badge__title">
-      {% if language == "az" %}Müvəqqəti tədbir{% elif language == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}
-    </span>
     <span class="temporary-event-badge__timer" data-temporary-event-timer-text>
       {% if event.start_datetime %}{{ event.start_datetime|date:"d.m.Y H:i" }}{% endif %}
     </span>
