@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+  {# ── HERO ── #}
+  <section class="panel events-hero" id="events-hero">
+    <div class="events-hero__copy">
+      <h1>{{ events_heading }}</h1>
+      <p>{{ events_intro }}</p>
+      <div class="events-hero__stat" aria-label="{% if language == 'az' %}Tədbir statistikası{% elif language == 'en' %}Event stats{% else %}Статистика мероприятий{% endif %}">
+        <span class="events-hero__stat-icon events-icon events-icon-stats" aria-hidden="true"></span>
+        <strong>{{ events_stat_label }}</strong>
+      </div>
+    </div>
+  </section>
+
+  {# ── QUICK CHIPS ── #}
+  <nav class="events-quick-chips" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
+    <a class="events-chip{% if selected.date_filter == 'today' %} events-chip--active{% endif %}"
+       href="?date_filter=today{% if selected.free %}&free=1{% endif %}"
+    >{% if language == "az" %}Bu gün{% elif language == "en" %}Today{% else %}Сегодня{% endif %}</a>
+    <a class="events-chip{% if selected.date_filter == 'tomorrow' %} events-chip--active{% endif %}"
+       href="?date_filter=tomorrow{% if selected.free %}&free=1{% endif %}"
+    >{% if language == "az" %}Sabah{% elif language == "en" %}Tomorrow{% else %}Завтра{% endif %}</a>
+    <a class="events-chip{% if selected.date_filter == 'this_week' %} events-chip--active{% endif %}"
+       href="?date_filter=this_week{% if selected.free %}&free=1{% endif %}"
+    >{% if language == "az" %}Bu həftə{% elif language == "en" %}This week{% else %}На этой неделе{% endif %}</a>
+    <a class="events-chip{% if selected.date_filter == 'weekend' %} events-chip--active{% endif %}"
+       href="?date_filter=weekend{% if selected.free %}&free=1{% endif %}"
+    >{% if language == "az" %}Həftəsonu{% elif language == "en" %}Weekend{% else %}Выходные{% endif %}</a>
+    <a class="events-chip{% if selected.free == '1' %} events-chip--active{% endif %}"
+       href="?free=1{% if selected.date_filter %}&date_filter={{ selected.date_filter|urlencode }}{% endif %}"
+    >{% if language == "az" %}Pulsuz{% elif language == "en" %}Free{% else %}Бесплатно{% endif %}</a>
+    {% if has_active_filters %}
+      <a class="events-chip events-chip--reset" href="{% url 'events_landing' %}"
+      >{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}Сбросить{% endif %}</a>
+    {% endif %}
+  </nav>
+
+  {# ── RESULTS ── #}
+  <section id="events-feed" class="events-feed">
+    {% if events %}
+      <p class="events-results-count">{{ results_count_label }}</p>
+
+      <div class="events-list-v2">
+        {% for event in events %}
+          <article class="panel events-card" id="event-card-{{ event.pk }}">
+            <a class="events-card__media" href="{{ event.get_absolute_url }}" aria-label="{{ event.name_i18n }}">
+              <span class="events-card__badge">{{ event.get_category_display }}</span>
+              {% if event.photo %}
+                <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" />
+              {% else %}
+                <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
+              {% endif %}
+            </a>
+            <div class="events-card__body">
+              <div class="events-card__meta-row">
+                <span class="events-card__date">
+                  <span class="events-icon events-icon-calendar" aria-hidden="true"></span> {{ event.start_datetime|date:"d.m.Y" }}
+                  <span class="events-card__time">{{ event.start_datetime|date:"H:i" }}</span>
+                </span>
+                {% if event.age_display %}
+                  <span class="events-card__age">
+                    <span class="events-icon events-icon-user" aria-hidden="true"></span> {{ event.age_display }}
+                    {% if language == "az" %}yaş{% elif language == "en" %}y.o.{% else %}лет{% endif %}
+                  </span>
+                {% endif %}
+              </div>
+
+              <h3 class="events-card__title"><a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a></h3>
+
+              <p class="events-card__desc">{{ event.description_i18n|striptags|truncatechars:180 }}</p>
+
+              <div class="events-card__info-row">
+                {% if event.address %}
+                  <span class="events-card__address"><span class="events-icon events-icon-address" aria-hidden="true"></span> {{ event.address_i18n|truncatechars:60 }}</span>
+                {% endif %}
+                {% if event.price_display %}
+                  <span class="events-card__price"><span class="events-icon events-icon-price" aria-hidden="true"></span> {{ event.price_display }}</span>
+                {% else %}
+                  <span class="events-card__price events-card__price--free">
+                    {% if language == "az" %}Pulsuz{% elif language == "en" %}Free{% else %}Бесплатно{% endif %}
+                  </span>
+                {% endif %}
+              </div>
+
+              {% include "catalog/includes/event_countdown.html" with event=event language=language variant="card" %}
+
+              <div class="events-card__actions">
+                <a class="events-card-btn events-card-btn--primary" href="{{ event.get_absolute_url }}">
+                  {% if language == "az" %}Ətraflı{% elif language == "en" %}Details{% else %}Подробнее{% endif %}
+                </a>
+                {% if event.phone %}
+                  <a class="events-card-btn events-card-btn--wa"
+                     href="https://wa.me/{{ event.phone|cut:' '|cut:'+' |cut:'-'|cut:'('|cut:')' }}"
+                     target="_blank" rel="noopener">
+                    WhatsApp
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      {# ── EMPTY STATE ── #}
+      <section class="panel events-empty" id="events-empty">
+        <div class="events-empty__icon events-icon" aria-hidden="true" style="mask-image: url('{% static 'img/icon/coolicons.iconjar/icons/calendar-remove.svg' %}'); -webkit-mask-image: url('{% static 'img/icon/coolicons.iconjar/icons/calendar-remove.svg' %}'); width: 3.4rem; height: 3.4rem; background-color: var(--brand-jet);"></div>
+        <h2>
+          {% if language == "az" %}Hələ aktiv tədbir yoxdur{% elif language == "en" %}No active events yet{% else %}Пока нет активных мероприятий{% endif %}
+        </h2>
+        <p>
+          {% if language == "az" %}Yeni tədbirlər əlavə olunduqda burada görünəcək.{% elif language == "en" %}New events will appear here when they are added.{% else %}Когда появятся новые события, они будут показаны здесь.{% endif %}
+        </p>
+        <a class="events-empty__cta" href="{% url 'place_list' %}">
+          {% if language == "az" %}Kataloqa bax{% elif language == "en" %}View catalog{% else %}Перейти в каталог{% endif %}
+        </a>
+      </section>
+    {% endif %}
+  </section>
+
+  {# ── PAGINATION ── #}
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination" aria-label="{% trans 'Пагинация' %}">
+      {% if page_obj.has_previous %}
+        <a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">‹ {% trans "Назад" %}</a>
+      {% else %}
+        <span class="page-nav disabled">‹ {% trans "Назад" %}</span>
+      {% endif %}
+
+      <div class="page-list">
+        {% for num in page_obj.paginator.page_range %}
+          {% if num == page_obj.number %}
+            <span class="page-item active">{{ num }}</span>
+          {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+            <a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+          {% elif num == 1 or num == page_obj.paginator.num_pages %}
+            <a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+          {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+            <span class="page-dots">…</span>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if page_obj.has_next %}
+        <a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Вперед" %} ›</a>
+      {% else %}
+        <span class="page-nav disabled">{% trans "Вперед" %} ›</span>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endblock %}
+
+{% block extra_body %}
+  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
+  <script>
+    /* Auto-open filters panel when filters are active */
+    (function () {
+      var details = document.getElementById("events-filters");
+      if (!details) return;
+      var hasActive = details.querySelector(".events-filters__badge");
+      var hasQuery = new URLSearchParams(window.location.search).get("q");
+      if (hasActive || hasQuery) {
+        details.setAttribute("open", "");
+      }
+    })();
+  </script>
+{% endblock %}
