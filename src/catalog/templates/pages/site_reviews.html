@@ -28,8 +28,8 @@
         >
       </picture>
       <div class="reviews-polished-copy">
-        <p class="site-reviews-eyebrow">{% trans "Отзывы о сервисе" %}</p>
-        <h1>{% trans "Общие отзывы о сайте" %}</h1>
+        <p class="site-reviews-eyebrow">{% if request.LANGUAGE_CODE == "az" %}Xidmət rəyləri{% elif request.LANGUAGE_CODE == "en" %}Service reviews{% else %}{% trans "Отзывы о сервисе" %}{% endif %}</p>
+        <h1>{% if request.LANGUAGE_CODE == "az" %}Sayt haqqında ümumi rəylər{% elif request.LANGUAGE_CODE == "en" %}General site reviews{% else %}{% trans "Общие отзывы о сайте" %}{% endif %}</h1>
         <p class="meta site-reviews-hero-meta">
           {% if request.LANGUAGE_CODE == "az" %}
             Burada konkret məkanlar yox, məhz KidsMap xidməti haqqında rəylər toplanıb.
@@ -38,8 +38,8 @@
           {% endif %}
         </p>
         <div class="reviews-polished-actions">
-          <a class="btn" href="#site-reviews">{% trans "Оставить отзыв" %}</a>
-          <a class="link-btn" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+          <a class="btn" href="#site-reviews">{% if request.LANGUAGE_CODE == "az" %}Rəy yazın{% elif request.LANGUAGE_CODE == "en" %}Leave a review{% else %}{% trans "Оставить отзыв" %}{% endif %}</a>
+          <a class="link-btn" href="{% url 'place_list' %}">{% if request.LANGUAGE_CODE == "az" %}Kataloqu aç{% elif request.LANGUAGE_CODE == "en" %}Open catalog{% else %}{% trans "Открыть каталог" %}{% endif %}</a>
         </div>
       </div>
 
@@ -58,8 +58,8 @@
       </aside>
     </div>
     <div class="mobile-page-hero-actions">
-      <a class="btn" href="#site-reviews">{% trans "Оставить отзыв" %}</a>
-      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+      <a class="btn" href="#site-reviews">{% if request.LANGUAGE_CODE == "az" %}Rəy yazın{% elif request.LANGUAGE_CODE == "en" %}Leave a review{% else %}{% trans "Оставить отзыв" %}{% endif %}</a>
+      <a class="link-btn" href="{% url 'place_list' %}">{% if request.LANGUAGE_CODE == "az" %}Kataloqu aç{% elif request.LANGUAGE_CODE == "en" %}Open catalog{% else %}{% trans "Открыть каталог" %}{% endif %}</a>
     </div>
 
     <div class="reviews-polished-toolbar-wrap">

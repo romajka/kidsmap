@@ -1726,7 +1726,8 @@ class TestCatalogEnhancements(TestCase):
             additional_info="Нужна спортивная форма",
         )
 
-        response = self.client.get(place.get_absolute_url(), follow=True)
+        with override("ru"):
+            response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Расписание и цена")
@@ -1792,18 +1793,16 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "static/js/place_gallery.js")
 
     def test_catalog_card_renders_more_details_block(self):
-        Place.objects.create(
-            name="More Details Place",
+        create_quality_place(
+            name="More Details Kids Club",
             name_ru="Карточка с блоком другое",
-            category="EDU",
-            is_active=True,
-            address="ул. Тестовая, 5",
-            phone1="+994501112233",
-            schedule="Вт/Чт",
+            address="Баку, улица Низами, 5",
+            schedule="Вторник и четверг 15:00-17:00",
             additional_info="Есть пробное занятие",
         )
 
-        response = self.client.get(reverse("place_list"), follow=True)
+        with override("ru"):
+            response = self.client.get(reverse("place_list"), follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "place-more-details")

@@ -59,6 +59,10 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
     qs = qs.filter(_has_price_q())
     qs = qs.filter(_has_description_q())
 
+    # Exclude temporary events that have already ended
+    from django.utils import timezone
+    qs = qs.exclude(is_temporary=True, temporary_end__lt=timezone.now())
+
     junk_fields = (
         "name",
         "name_ru",

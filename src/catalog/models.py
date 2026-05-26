@@ -221,6 +221,9 @@ class Place(models.Model):
             return self.description_az or self.description_ru or ""
         return self.description_ru or ""
 
+    def address_i18n(self, lang=None):
+        return _localize_public_address(self.address, self._normalize_lang(lang))
+
     def instagram_url(self):
         value = (self.instagram or "").strip()
         if not value:

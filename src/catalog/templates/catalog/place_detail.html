@@ -130,6 +130,9 @@
                 {% if place.instagram %}
                   <a class="cta-btn cta-instagram cta-secondary icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">Instagram</a>
                 {% endif %}
+                {% if map_open_url %}
+                  <a class="cta-btn cta-secondary icon-btn icon-map" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer" data-track-event="cta_map" data-track-place-id="{{ place.id }}" data-track-source="place-detail-hero">{% if language == "az" %}Xəritə{% elif language == "en" %}Map{% else %}Карта{% endif %}</a>
+                {% endif %}
                 {% if request.user.is_authenticated %}
                   <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form detail-like-form" data-like-form>
                     {% csrf_token %}
@@ -195,7 +198,7 @@
                 {% if place.address %}
                   <div class="detail-highlight-card">
                     <span class="detail-highlight-card__label">{% trans "Адрес" %}</span>
-                    <strong class="detail-highlight-card__value">{{ place.address|truncatechars:58 }}</strong>
+                    <strong class="detail-highlight-card__value">{{ place.address_i18n|truncatechars:58 }}</strong>
                   </div>
                 {% endif %}
 
@@ -304,7 +307,7 @@
               {% if place.address %}
                 <div class="detail-contact-row">
                   <span class="meta-label">{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</span>
-                  <span>{{ place.address }}</span>
+                  <span>{{ place.address_i18n }}</span>
                 </div>
               {% endif %}
               {% if place.website %}
@@ -323,7 +326,7 @@
                 <p class="meta">{% if language == "az" %}Ünvan və xəritədə baxış{% elif language == "en" %}Address and map preview{% else %}Ориентир по месту и быстрый переход в большую карту{% endif %}</p>
               </div>
               {% if place.address %}
-                <p class="detail-map-address">{{ place.address }}</p>
+                <p class="detail-map-address">{{ place.address_i18n }}</p>
               {% endif %}
               <iframe
                 class="detail-map-frame"
@@ -342,6 +345,17 @@
               </div>
             </section>
           {% endif %}
+
+          <section class="detail-side-card detail-owner-cta detail-body-card detail-body-card--owner">
+            <div class="detail-section-head detail-section-head-compact">
+              <h2>{% if language == "az" %}Bu məkan sizindir?{% elif language == "en" %}Is this your place?{% else %}Это ваша карточка?{% endif %}</h2>
+              <p class="meta">{% if language == "az" %}Kartı yeniləyin, foto əlavə edin və sorğuları daha tez alın.{% elif language == "en" %}Update the listing, add photos, and receive parent inquiries faster.{% else %}Обновляйте данные, добавляйте фото и быстрее получайте обращения родителей.{% endif %}</p>
+            </div>
+            <div class="detail-owner-cta__actions">
+              <a class="btn" href="{% url 'for_business' %}">{% if language == "az" %}Kartı idarə et{% elif language == "en" %}Manage listing{% else %}Управлять карточкой{% endif %}</a>
+              <a class="link-btn" href="{% url 'owner_place_create' %}?fresh=1">{% if language == "az" %}Məkan əlavə et{% elif language == "en" %}Add a place{% else %}Добавить кружок{% endif %}</a>
+            </div>
+          </section>
 
           <section id="reviews" class="detail-reviews detail-section detail-body-card detail-body-card--reviews">
             <div class="detail-section-head">

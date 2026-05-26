@@ -296,5 +296,13 @@
     ensureCatalogMapInitialized();
   };
 
+  window.kidsMapRefreshCatalogResultsMap = function () {
+    catalogMapState = null;
+    initCatalogMapUi();
+    const state = ensureCatalogMapState();
+    if (!state || state.panel.hidden) return;
+    ensureCatalogMapInitialized();
+  };
+
   initCatalogMapUi();
 })();

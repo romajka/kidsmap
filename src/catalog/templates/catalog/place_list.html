@@ -48,7 +48,7 @@
 
   {% if not is_new_page %}
     <div class="catalog-layout">
-      <section class="mobile-catalog-controls" aria-label="{% trans 'Фильтры каталога' %}">
+      <section class="mobile-catalog-controls" aria-label="{% if language == 'az' %}Kataloq filtrləri{% elif language == 'en' %}Catalog filters{% else %}{% trans 'Фильтры каталога' %}{% endif %}">
         <form class="mobile-catalog-search" method="get" action="{% url 'place_list' %}">
           {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
           {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
@@ -71,7 +71,7 @@
           <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-label="{% trans 'Фильтры' %}"></button>
         </form>
 
-        <div class="mobile-quick-filters" aria-label="{% trans 'Быстрые фильтры' %}">
+        <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}{% trans 'Быстрые фильтры' %}{% endif %}">
           <a class="mobile-quick-filter mobile-intent-filter{% if selected.event_type == 'permanent' %} is-active{% endif %}" href="{{ catalog_places_nearby_url }}">{% trans "Места рядом" %}</a>
           <a class="mobile-quick-filter mobile-intent-filter{% if selected.event_type == 'temporary' %} is-active{% endif %}" href="{{ catalog_events_url }}">{% trans "Мероприятия" %}</a>
           <button type="button" class="mobile-quick-filter{% if selected.category %} is-active{% endif %}" data-filters-open data-filter-focus="category">{% trans "Категория" %}</button>
@@ -97,8 +97,8 @@
     {% if not is_new_page %}
       <div class="mobile-filter-toolbar">
         <div class="mobile-filter-summary">
-          <strong>{% trans "Выберите фильтры" %}</strong>
-          <span>{% trans "Категория, регион, метро и возраст ребёнка." %}</span>
+          <strong>{% if language == "az" %}Filtrləri seçin{% elif language == "en" %}Choose filters{% else %}{% trans "Выберите фильтры" %}{% endif %}</strong>
+          <span>{% if language == "az" %}Kateqoriya, region və uşağın yaşı.{% elif language == "en" %}Category, district, and child's age.{% else %}{% trans "Категория, регион и возраст ребёнка." %}{% endif %}</span>
         </div>
         <button
           type="button"
@@ -107,7 +107,7 @@
           aria-controls="filters-form"
           aria-expanded="false"
         >
-          <span>{% trans "Фильтры" %}</span>
+          <span>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}{% trans "Фильтры" %}{% endif %}</span>
         </button>
       </div>
       <div class="mobile-filters-backdrop" data-filters-backdrop hidden></div>
@@ -121,21 +121,17 @@
       {% if not is_new_page %}
         <div class="mobile-filters-head">
           <span class="mobile-filters-handle" aria-hidden="true"></span>
-          <h2>{% trans "Фильтры" %}</h2>
-          <button type="button" class="mobile-filters-close" data-filters-close aria-label="{% trans 'Закрыть' %}">×</button>
+          <h2>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}{% trans "Фильтры" %}{% endif %}</h2>
+          <button type="button" class="mobile-filters-close" data-filters-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}{% trans 'Закрыть' %}{% endif %}">×</button>
         </div>
         <div class="desktop-filter-head">
           <span class="desktop-filter-head-icon" aria-hidden="true"></span>
           <div>
-            <h2>{% trans "Подобрать кружок" %}</h2>
-            <p>{% trans "Категория, район, метро, возраст и бюджет в одном месте." %}</p>
+            <h2>{% if language == "az" %}Dərnək seçin{% elif language == "en" %}Find a club{% else %}{% trans "Подобрать кружок" %}{% endif %}</h2>
+            <p>{% if language == "az" %}Kateqoriya, rayon, metro, yaş və büdcə bir yerdə.{% elif language == "en" %}Category, district, metro, age, and budget in one place.{% else %}{% trans "Категория, район, метро, возраст и бюджет в одном месте." %}{% endif %}</p>
           </div>
         </div>
       {% endif %}
-      <label class="filters-search">
-        {% trans "Поиск по названию" %}
-        <input class="field search-field" name="q" value="{{ selected.q }}" placeholder="{% trans 'например робототехника или english' %}" />
-      </label>
 
       <label class="filter-item filter-category">
         {% trans "Категория" %}
@@ -181,14 +177,17 @@
           <div class="event-type-filter" role="radiogroup" aria-label="{% if language == 'az' %}Məkan növü{% elif language == 'en' %}Place type{% else %}{% trans 'Тип места' %}{% endif %}">
             <label class="event-type-option{% if not selected.event_type %} is-active{% endif %}">
               <input type="radio" name="event_type" value="" {% if not selected.event_type %}checked{% endif %} />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
               <span>{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
             </label>
             <label class="event-type-option{% if selected.event_type == 'temporary' %} is-active{% endif %}">
               <input type="radio" name="event_type" value="temporary" {% if selected.event_type == "temporary" %}checked{% endif %} />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 5.2a1 1 0 0 0-1-1H3.8a1 1 0 0 0-1 1v2a1 1 0 0 0 .3.7l6.5 6.5a1 1 0 0 1 0 1.4l-6.5 6.5a1 1 0 0 0-.3.7v2a1 1 0 0 0 1 1h16.4a1 1 0 0 0 1-1v-2a1 1 0 0 0-.3-.7l-6.5-6.5a1 1 0 0 1 0-1.4l6.5-6.5a1 1 0 0 0 .3-.7v-2z"></path></svg>
               <span>{% if language == "az" %}Müvəqqəti{% elif language == "en" %}Temporary{% else %}{% trans "Временные" %}{% endif %}</span>
             </label>
             <label class="event-type-option{% if selected.event_type == 'permanent' %} is-active{% endif %}">
               <input type="radio" name="event_type" value="permanent" {% if selected.event_type == "permanent" %}checked{% endif %} />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
               <span>{% if language == "az" %}Daimi{% elif language == "en" %}Permanent{% else %}{% trans "Постоянные" %}{% endif %}</span>
             </label>
           </div>
@@ -196,7 +195,7 @@
       {% endif %}
 
       <label class="filter-item filter-district">
-        {% trans "Регион / район" %}
+        {% if language == "az" %}Region / rayon{% elif language == "en" %}Region / district{% else %}{% trans "Регион / район" %}{% endif %}
         {% if not is_new_page %}
           <div class="filter-mobile-tools">
             <div
@@ -230,8 +229,8 @@
               </div>
             </div>
             {% if popular_districts %}
-              <div class="filter-popular-options" aria-label="{% trans 'Популярные регионы' %}">
-                {% for district_name in popular_districts %}
+              <div class="filter-popular-options" aria-label="{% if language == 'az' %}Populyar regionlar{% elif language == 'en' %}Popular regions{% else %}{% trans 'Популярные регионы' %}{% endif %}">
+                {% for district_name in popular_districts|slice:":3" %}
                   <button
                     type="button"
                     class="filter-popular-chip"
@@ -260,35 +259,84 @@
         </select>
       </label>
 
+      {% if not is_new_page %}
+        <div class="range-filter filter-age-range" data-range data-min="0" data-max="18">
+          <div class="range-filter-head">
+            <span>{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}{% trans "Возраст" %}{% endif %}</span>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <div class="mobile-age-presets" aria-label="{% if language == 'az' %}Yaş{% elif language == 'en' %}Age{% else %}{% trans 'Возраст' %}{% endif %}">
+            <button type="button" class="mobile-age-option{% if not selected.age_from and not selected.age_to or selected.age_from == '0' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="0" data-age-to="18">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '0' and selected.age_to == '3' %} is-active{% endif %}" data-age-from="0" data-age-to="3">0–3</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '3' and selected.age_to == '6' %} is-active{% endif %}" data-age-from="3" data-age-to="6">3–6</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '6' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="6" data-age-to="18">6+</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '10' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="10" data-age-to="18">10+</button>
+            <button type="button" class="mobile-age-option{% if selected.age_from == '14' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="14" data-age-to="18">14+</button>
+          </div>
+          <div class="range-filter-inputs">
+            <label class="range-filter-mini">
+              <span>{% if language == "az" %}dan{% elif language == "en" %}from{% else %}{% trans "от" %}{% endif %}</span>
+              <input class="field" type="number" min="0" max="18" name="age_from" value="{{ selected.age_from|default:'0' }}" data-range-from-input />
+            </label>
+            <label class="range-filter-mini">
+              <span>{% if language == "az" %}dək{% elif language == "en" %}to{% else %}{% trans "до" %}{% endif %}</span>
+              <input class="field" type="number" min="0" max="18" name="age_to" value="{{ selected.age_to|default:'18' }}" data-range-to-input />
+            </label>
+          </div>
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="18" value="{{ selected.age_from|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="18" value="{{ selected.age_to|default:'18' }}" data-range-to-range />
+          </div>
+        </div>
+      {% endif %}
+
+      {% if not is_new_page %}
+        <details class="catalog-advanced-filters"{% if selected.min_rating or selected.metro or selected.price_from or selected.price_to %} open{% endif %}>
+          <summary>{% if language == "az" %}Əlavə filtrlər{% elif language == "en" %}More filters{% else %}Еще фильтры{% endif %}</summary>
+
+        <div class="range-filter filter-price-range" data-range data-min="0" data-max="500" data-unit="AZN">
+          <div class="range-filter-head">
+            <span>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}{% trans "Цена" %}{% endif %}</span>
+            <strong class="range-filter-current" data-range-caption></strong>
+          </div>
+          <div class="range-filter-inputs">
+            <label class="range-filter-mini">
+              <span>{% if language == "az" %}dan{% elif language == "en" %}from{% else %}{% trans "от" %}{% endif %}</span>
+              <input class="field" type="number" min="0" max="500" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
+            </label>
+            <label class="range-filter-mini">
+              <span>{% if language == "az" %}dək{% elif language == "en" %}to{% else %}{% trans "до" %}{% endif %}</span>
+              <input class="field" type="number" min="0" max="500" name="price_to" value="{{ selected.price_to|default:'500' }}" data-range-to-input />
+            </label>
+          </div>
+          <div class="range-filter-track">
+            <input class="range-slider range-slider-from" type="range" min="0" max="500" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="500" value="{{ selected.price_to|default:'500' }}" data-range-to-range />
+          </div>
+        </div>
+      {% endif %}
+
+
       <label class="filter-item filter-rating">
-        {% trans "Рейтинг не ниже" %}
-        <div class="rating-filter-pills" aria-label="{% trans 'Рейтинг не ниже' %}">
+        {% if language == "az" %}Reytinq ən azı{% elif language == "en" %}Minimum rating{% else %}{% trans "Рейтинг не ниже" %}{% endif %}
+        <div class="rating-filter-pills" aria-label="{% if language == 'az' %}Reytinq ən azı{% elif language == 'en' %}Minimum rating{% else %}{% trans 'Рейтинг не ниже' %}{% endif %}">
           <button type="button" class="rating-filter-pill{% if not selected.min_rating %} is-active{% endif %}" data-select-target="min_rating" data-select-value="">
             <span class="rating-filter-pill-label">{% trans "Все" %}</span>
           </button>
-          <button type="button" class="rating-filter-pill{% if selected.min_rating == '3' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="3">
-            <span class="rating-filter-pill-stars" aria-hidden="true">★★★</span>
-            <span class="rating-filter-pill-suffix">+</span>
+          <button type="button" class="rating-filter-pill{% if selected.min_rating == '4.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4.5">
+            <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            <span class="rating-filter-pill-label">4.5+</span>
           </button>
           <button type="button" class="rating-filter-pill{% if selected.min_rating == '4' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4">
-            <span class="rating-filter-pill-stars" aria-hidden="true">★★★★</span>
-            <span class="rating-filter-pill-suffix">+</span>
+            <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            <span class="rating-filter-pill-label">4.0+</span>
           </button>
-          <button type="button" class="rating-filter-pill{% if selected.min_rating == '4.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4.5">
-            <span class="rating-filter-pill-stars" aria-hidden="true">★★★★½</span>
-            <span class="rating-filter-pill-suffix">+</span>
-          </button>
-          <button type="button" class="rating-filter-pill{% if selected.min_rating == '5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="5">
-            <span class="rating-filter-pill-stars" aria-hidden="true">★★★★★</span>
+          <button type="button" class="rating-filter-pill{% if selected.min_rating == '3.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="3.5">
+            <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+            <span class="rating-filter-pill-label">3.5+</span>
           </button>
         </div>
-        <select class="filter-select" name="min_rating">
-          <option value="">{% trans "Все" %}</option>
-          <option value="3" {% if selected.min_rating == "3" %}selected{% endif %}>3.0+</option>
-          <option value="4" {% if selected.min_rating == "4" %}selected{% endif %}>4.0+</option>
-          <option value="4.5" {% if selected.min_rating == "4.5" %}selected{% endif %}>4.5+</option>
-          <option value="5" {% if selected.min_rating == "5" %}selected{% endif %}>5.0</option>
-        </select>
+        <input class="filter-select" type="hidden" name="min_rating" value="{{ selected.min_rating }}" />
       </label>
 
       {% if is_new_page %}
@@ -318,7 +366,7 @@
         </label>
       {% else %}
         <label class="filter-item filter-metro">
-          {% trans "Метро" %}
+          {% if language == "az" %}Metro{% elif language == "en" %}Metro{% else %}{% trans "Метро" %}{% endif %}
           <div class="filter-mobile-tools">
             <div
               class="filter-autocomplete"
@@ -330,7 +378,7 @@
                 type="search"
                 inputmode="search"
                 autocomplete="off"
-                placeholder="{% trans 'Найти метро' %}"
+                placeholder="{% if language == 'az' %}Metro tapın{% elif language == 'en' %}Find metro{% else %}{% trans 'Найти метро' %}{% endif %}"
                 data-option-search-for="metro"
                 aria-autocomplete="list"
                 aria-expanded="false"
@@ -351,8 +399,8 @@
               </div>
             </div>
             {% if popular_metro %}
-              <div class="filter-popular-options" aria-label="{% trans 'Популярные станции метро' %}">
-                {% for metro_name in popular_metro %}
+              <div class="filter-popular-options" aria-label="{% if language == 'az' %}Populyar metro stansiyaları{% elif language == 'en' %}Popular metro stations{% else %}{% trans 'Популярные станции метро' %}{% endif %}">
+                {% for metro_name in popular_metro|slice:":3" %}
                   <button
                     type="button"
                     class="filter-popular-chip"
@@ -380,64 +428,18 @@
           </select>
         </label>
 
-        <div class="range-filter filter-age-range" data-range data-min="0" data-max="18">
-          <div class="range-filter-head">
-            <span>{% trans "Возраст" %}</span>
-            <strong class="range-filter-current" data-range-caption></strong>
-          </div>
-          <div class="mobile-age-presets" aria-label="{% trans 'Возраст' %}">
-            <button type="button" class="mobile-age-option{% if not selected.age_from and not selected.age_to or selected.age_from == '0' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="0" data-age-to="18">{% trans "Все" %}</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '0' and selected.age_to == '3' %} is-active{% endif %}" data-age-from="0" data-age-to="3">0–3</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '3' and selected.age_to == '6' %} is-active{% endif %}" data-age-from="3" data-age-to="6">3–6</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '6' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="6" data-age-to="18">6+</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '10' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="10" data-age-to="18">10+</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '14' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="14" data-age-to="18">14+</button>
-          </div>
-          <div class="range-filter-inputs">
-            <label class="range-filter-mini">
-              <span>{% trans "от" %}</span>
-              <input class="field" type="number" min="0" max="18" name="age_from" value="{{ selected.age_from|default:'0' }}" data-range-from-input />
-            </label>
-            <label class="range-filter-mini">
-              <span>{% trans "до" %}</span>
-              <input class="field" type="number" min="0" max="18" name="age_to" value="{{ selected.age_to|default:'18' }}" data-range-to-input />
-            </label>
-          </div>
-          <div class="range-filter-track">
-            <input class="range-slider range-slider-from" type="range" min="0" max="18" value="{{ selected.age_from|default:'0' }}" data-range-from-range />
-            <input class="range-slider range-slider-to" type="range" min="0" max="18" value="{{ selected.age_to|default:'18' }}" data-range-to-range />
-          </div>
-        </div>
 
-        <div class="range-filter filter-price-range" data-range data-min="0" data-max="500" data-unit="AZN">
-          <div class="range-filter-head">
-            <span>{% trans "Цена" %}</span>
-            <strong class="range-filter-current" data-range-caption></strong>
-          </div>
-          <div class="range-filter-inputs">
-            <label class="range-filter-mini">
-              <span>{% trans "от" %}</span>
-              <input class="field" type="number" min="0" max="500" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
-            </label>
-            <label class="range-filter-mini">
-              <span>{% trans "до" %}</span>
-              <input class="field" type="number" min="0" max="500" name="price_to" value="{{ selected.price_to|default:'500' }}" data-range-to-input />
-            </label>
-          </div>
-          <div class="range-filter-track">
-            <input class="range-slider range-slider-from" type="range" min="0" max="500" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
-            <input class="range-slider range-slider-to" type="range" min="0" max="500" value="{{ selected.price_to|default:'500' }}" data-range-to-range />
-          </div>
-        </div>
+
+        </details>
 
       {% endif %}
 
       <div class="actions">
-        <button class="btn icon-btn icon-search icon-only-btn" type="submit" aria-label="{% trans 'Поиск' %}">
-          <span class="filter-submit-label">{% trans "Применить" %}</span>
-          <span class="visually-hidden">{% trans "Поиск" %}</span>
+        <button class="btn icon-btn icon-search icon-only-btn" type="submit" aria-label="{% if language == 'az' %}Axtar{% elif language == 'en' %}Search{% else %}{% trans 'Поиск' %}{% endif %}">
+          <span class="filter-submit-label">{% if language == "az" %}Tətbiq et{% elif language == "en" %}Apply{% else %}{% trans "Применить" %}{% endif %}</span>
+          <span class="visually-hidden">{% if language == "az" %}Axtar{% elif language == "en" %}Search{% else %}{% trans "Поиск" %}{% endif %}</span>
         </button>
-        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% trans "Сброс" %}</a>
+        <a class="link-btn icon-btn icon-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">{% if language == "az" %}Sıfırla{% elif language == "en" %}Reset{% else %}{% trans "Сброс" %}{% endif %}</a>
       </div>
     </form>
   </section>
@@ -446,13 +448,14 @@
     <div class="catalog-content-column">
   {% endif %}
 
-  <p class="filter-intro">
-    {% if is_new_page %}
-      {% trans "Выберите период и фильтры, чтобы увидеть только самые свежие добавления." %}
-    {% else %}
-      {% trans "Настройте фильтры и нажмите «Поиск», чтобы быстро найти подходящие кружки." %}
-    {% endif %}
-  </p>
+
+  <div class="top-search-wrapper">
+    <label class="top-search-label">
+      <span class="visually-hidden">{% if language == "az" %}Ada görə axtarış{% elif language == "en" %}Search by name{% else %}{% trans "Поиск по названию" %}{% endif %}</span>
+      <span class="top-search-icon" aria-hidden="true"></span>
+      <input class="field top-search-field" type="search" name="q" value="{{ selected.q }}" form="filters-form" placeholder="{% if language == 'az' %}Krujok və ya açar söz axtarın... məsələn robototexnika{% elif language == 'en' %}Search for a club or keyword... e.g., robotics{% else %}{% trans 'Искать кружок или ключевое слово... например робототехника' %}{% endif %}" />
+    </label>
+  </div>
 
   <div class="catalog-top-stack">
     {% if active_filter_chips %}
@@ -591,8 +594,14 @@
                   </p>
                 {% endwith %}
                 <div class="new-badge-row">
-                  <span class="new-badge">{% trans "Новое" %}</span>
-                  <span class="new-badge-meta">{% trans "Добавлено" %} {{ place.days_since_added }} {% trans "дн. назад" %}</span>
+                  <span class="new-badge">{% if language == "az" %}Yeni{% elif language == "en" %}New{% else %}{% trans "Новое" %}{% endif %}</span>
+                  <span class="new-badge-meta">{% if language == "az" %}Əlavə olunub{% elif language == "en" %}Added{% else %}{% trans "Добавлено" %}{% endif %} {{ place.days_since_added }} {% if language == "az" %}gün əvvəl{% elif language == "en" %}days ago{% else %}{% trans "дн. назад" %}{% endif %}</span>
+                </div>
+                <div class="card-trust-badges" aria-label="{% if language == 'az' %}Məkan üstünlükləri{% elif language == 'en' %}Place highlights{% else %}Преимущества места{% endif %}">
+                  {% if place.is_verified %}<span class="card-trust-icon card-trust-icon--verified" title="{% if language == 'az' %}Yoxlanılıb{% elif language == 'en' %}Verified{% else %}Проверено{% endif %}" aria-label="{% if language == 'az' %}Yoxlanılıb{% elif language == 'en' %}Verified{% else %}Проверено{% endif %}"></span>{% endif %}
+                  {% if place.photo or place.cover_photo %}<span class="card-trust-icon card-trust-icon--photo" title="{% if language == 'az' %}Foto var{% elif language == 'en' %}Has photos{% else %}Есть фото{% endif %}" aria-label="{% if language == 'az' %}Foto var{% elif language == 'en' %}Has photos{% else %}Есть фото{% endif %}"></span>{% endif %}
+                  {% if place.phone1 %}<span class="card-trust-icon card-trust-icon--whatsapp" title="WhatsApp" aria-label="WhatsApp"></span>{% endif %}
+                  {% if place.has_coordinates %}<span class="card-trust-icon card-trust-icon--map" title="{% if language == 'az' %}Xəritədə{% elif language == 'en' %}On map{% else %}На карте{% endif %}" aria-label="{% if language == 'az' %}Xəritədə{% elif language == 'en' %}On map{% else %}На карте{% endif %}"></span>{% endif %}
                 </div>
                 <div class="chip">{{ place.get_category_display }}</div>
                 <div class="event-badge-row">
@@ -602,12 +611,16 @@
                     <span class="event-badge permanent">{% if language == "az" %}Daimi məkan{% elif language == "en" %}Permanent place{% else %}{% trans "Постоянное место" %}{% endif %}</span>
                   {% endif %}
                 </div>
-                <div class="rating-row">
-                  <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
-                  <span class="rating-text">
-                    {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% trans "отзывов" %}
-                  </span>
-                </div>
+                {% if place.rating_count %}
+                  <div class="rating-row">
+                    <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+                    <span class="rating-text">
+                      {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% if language == "az" %}rəy{% elif language == "en" %}reviews{% else %}{% trans "отзывов" %}{% endif %}
+                    </span>
+                  </div>
+                {% else %}
+                  <p class="meta card-no-reviews">{% if language == "az" %}Hələ rəy yoxdur{% elif language == "en" %}No reviews yet{% else %}Пока нет отзывов{% endif %}</p>
+                {% endif %}
                 <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
                   {% if place.district %}{% trans place.district %}{% endif %}
                   {% if place.district and place.metro %} / {% endif %}
@@ -625,15 +638,14 @@
                 {% endif %}
                 <div class="card-cta-row">
                   {% if place.phone1 %}
-                    <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">{% trans "Позвонить" %}</a>
+                    <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">{% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}{% trans "Позвонить" %}{% endif %}</a>
                   {% endif %}
                   {% if place.instagram %}
                     <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">Instagram</a>
                   {% endif %}
                 </div>
                 <div class="card-action-stack">
-                  {% include "catalog/includes/place_more_panel.html" with place=place %}
-                  <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% trans "Перейти" %}</a>
+                  <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% if language == "az" %}Bax{% elif language == "en" %}Open{% else %}{% trans "Перейти" %}{% endif %}</a>
                 </div>
               </div>
             </article>
@@ -695,51 +707,23 @@
                 <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               {% endif %}
             </a>
-            {% if place.card_price_badge %}
-              <span class="card-price-pill">
-                <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
-                <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
-              </span>
-            {% endif %}
-          </div>
-          <div class="card-body">
-            <h3><a href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{{ place.name_i18n }}</a></h3>
-            {% with desc=place.description_i18n %}
-              <p class="card-description{% if not desc %} is-empty{% endif %}">
-                {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
-              </p>
-            {% endwith %}
-            <div class="card-headline">
-              <span class="chip">{{ place.get_category_display }}</span>
-              <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
+            <div class="card-category-overlay category-{{ place.category|lower }}">
+              <span class="category-icon"></span>
+              {{ place.get_category_display }}
             </div>
+            {% if place.is_verified %}
+              <span class="card-verified-badge" title="{% if language == 'az' %}Yoxlanılıb{% elif language == 'en' %}Verified{% else %}Проверено{% endif %}" aria-label="{% if language == 'az' %}Yoxlanılıb{% elif language == 'en' %}Verified{% else %}Проверено{% endif %}"></span>
+            {% endif %}
             {% if place.is_temporary %}
-              <div class="event-badge-row event-badge-row--card">
-                {% include "catalog/includes/temporary_event_badge.html" with place=place language=language variant="compact" %}
-              </div>
+              <span class="card-event-badge" title="{% if language == 'az' %}Müvəqqəti tədbir{% elif language == 'en' %}Temporary event{% else %}Временное мероприятие{% endif %}" aria-label="{% if language == 'az' %}Müvəqqəti tədbir{% elif language == 'en' %}Temporary event{% else %}Временное мероприятие{% endif %}"></span>
             {% endif %}
-            <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
-              {% if place.district %}{% trans place.district %}{% endif %}
-              {% if place.district and place.metro %} / {% endif %}
-              {% if place.metro %}{% trans place.metro %}{% endif %}
-              {% if not place.district and not place.metro %}&nbsp;{% endif %}
-            </p>
-            {% if is_new_page %}
-              <div class="new-badge-row">
-                <span class="new-badge">{% trans "Новое" %}</span>
-                <span class="new-badge-meta">{% trans "Добавлено" %} {{ place.days_since_added }} {% trans "дн. назад" %}</span>
-              </div>
-            {% endif %}
-            <div class="card-action-stack">
-              {% include "catalog/includes/place_more_panel.html" with place=place %}
-              <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% trans "Перейти" %}</a>
-            </div>
             {% if request.user.is_authenticated %}
               <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}" />
                 <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
-                  ♥ <span class="like-count">{{ place.likes_count }}</span>
+                  <span class="like-icon" aria-hidden="true"></span>
+                  <span class="like-count visually-hidden">{{ place.likes_count }}</span>
                 </button>
               </form>
             {% else %}
@@ -752,10 +736,71 @@
                   data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
                   data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
                 >
-                  ♥ <span class="like-count">{{ place.likes_count }}</span>
+                  <span class="like-icon" aria-hidden="true"></span>
+                  <span class="like-count visually-hidden">{{ place.likes_count }}</span>
                 </button>
               </div>
             {% endif %}
+          </div>
+          <div class="card-body">
+            <h3><a href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{{ place.name_i18n }}</a></h3>
+            {% with desc=place.description_i18n %}
+              <p class="card-description{% if not desc %} is-empty{% endif %}">
+                {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
+              </p>
+            {% endwith %}
+            <div class="card-tags-row">
+              {% if place.card_price_badge %}
+                <span class="card-tag-price">
+                  <span class="card-tag-price__amount">{{ place.card_price_badge_value }}</span>
+                  <span class="card-tag-price__currency">{{ place.card_price_badge_currency }}</span>
+                </span>
+              {% endif %}
+              {% if place.is_temporary %}
+                {% include "catalog/includes/temporary_event_badge.html" with place=place language=language variant="inline" %}
+              {% endif %}
+            </div>
+            <div class="card-headline">
+              {% if place.rating_count %}
+                <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
+              {% else %}
+                <span class="card-score card-score-empty">{% if language == "az" %}Rəy yoxdur{% elif language == "en" %}No reviews{% else %}Нет отзывов{% endif %}</span>
+              {% endif %}
+            </div>
+
+            <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
+              {% if place.district %}{% trans place.district %}{% endif %}
+              {% if place.district and place.metro %} / {% endif %}
+              {% if place.metro %}{% trans place.metro %}{% endif %}
+              {% if not place.district and not place.metro %}&nbsp;{% endif %}
+            </p>
+            {% if is_new_page %}
+              <div class="new-badge-row">
+                <span class="new-badge">{% if language == "az" %}Yeni{% elif language == "en" %}New{% else %}{% trans "Новое" %}{% endif %}</span>
+                <span class="new-badge-meta">{% if language == "az" %}Əlavə olunub{% elif language == "en" %}Added{% else %}{% trans "Добавлено" %}{% endif %} {{ place.days_since_added }} {% if language == "az" %}gün əvvəl{% elif language == "en" %}days ago{% else %}{% trans "дн. назад" %}{% endif %}</span>
+              </div>
+            {% endif %}
+            <div class="card-action-stack">
+              <div class="card-bottom-row">
+                <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% if language == "az" %}Bax{% elif language == "en" %}Open{% else %}{% trans "Перейти" %}{% endif %}</a>
+                {% if place.phone1 or place.instagram %}
+                  <button type="button" class="card-contact-toggle" data-contact-toggle aria-expanded="false" aria-label="{% if language == 'az' %}Əlaqə{% elif language == 'en' %}Contact{% else %}Связаться{% endif %}">
+                    <span class="card-contact-toggle-icon" aria-hidden="true"></span>
+                  </button>
+                {% endif %}
+              </div>
+              {% if place.phone1 or place.instagram %}
+                <div class="card-contact-drawer" data-contact-drawer hidden>
+                  {% if place.phone1 %}
+                    <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="catalog-card">{% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}{% trans "Позвонить" %}{% endif %}</a>
+                    <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}" data-track-source="catalog-card">WhatsApp</a>
+                  {% endif %}
+                  {% if place.instagram %}
+                    <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-card">Instagram</a>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
           </div>
         </article>
       {% endfor %}
@@ -778,7 +823,7 @@
         <p>{% trans "Попробуйте изменить фильтры или сбросить поиск." %}</p>
       {% endif %}
       <div class="empty-actions">
-        <a class="btn" style="background: var(--brand); color: #fff; border:none;" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">
+        <a class="btn catalog-empty-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">
           {% trans "Сбросить всё" %}
         </a>
       </div>
@@ -1002,6 +1047,10 @@
 
       function getSelect(name) {
         return document.querySelector(`select[name="${name}"]`);
+      }
+
+      function getFilterField(name) {
+        return getSelect(name) || document.querySelector(`input[name="${name}"]`);
       }
 
       function syncTargetButtons(targetName, targetValue) {
@@ -1290,16 +1339,21 @@
           const targetName = button.dataset.selectTarget;
           const targetValue = button.dataset.selectValue || "";
           const targetSelect = getSelect(targetName);
+          const targetField = getFilterField(targetName);
           const targetInput = document.querySelector(`[data-option-search-for="${targetName}"]`);
-          if (!targetSelect) return;
+          if (!targetField) return;
 
-          cacheSelectOptions(targetSelect);
+          if (targetSelect) {
+            cacheSelectOptions(targetSelect);
+          }
           if (targetInput) {
             targetInput.value = "";
           }
-          rebuildOptions(targetSelect, "");
-          targetSelect.value = targetValue;
-          targetSelect.dispatchEvent(new Event("change", { bubbles: true }));
+          if (targetSelect) {
+            rebuildOptions(targetSelect, "");
+          }
+          targetField.value = targetValue;
+          targetField.dispatchEvent(new Event("change", { bubbles: true }));
           syncTargetButtons(targetName, targetValue);
         });
       });
@@ -1330,27 +1384,166 @@
 
     (function() {
       const filtersForm = document.getElementById("filters-form");
-      const resultsGrid = document.querySelector(".grid");
+      let resultsGrid = document.querySelector(".grid");
       const isListMode = document.body.classList.contains("results-list-mode") || (resultsGrid && resultsGrid.classList.contains("results-list-mode"));
-      document.querySelectorAll("[data-sort-submit]").forEach(function (select) {
-        select.addEventListener("change", function () {
-          if (filtersForm) {
-            filtersForm.requestSubmit ? filtersForm.requestSubmit() : filtersForm.submit();
-          }
+      const mobileMedia = window.matchMedia("(max-width: 760px)");
+      let activeRequest = null;
+
+      function buildFiltersUrl() {
+        const formData = new FormData(filtersForm);
+        const params = new URLSearchParams();
+
+        formData.forEach(function (value, key) {
+          const cleanValue = String(value || "").trim();
+          if (!cleanValue || key === "page") return;
+          params.append(key, cleanValue);
         });
-      });
-      if (filtersForm && resultsGrid && !isListMode) {
-        filtersForm.addEventListener("submit", function () {
-          const skeletonHtml = Array(6).fill().map(function() {
-             return '<div class="skeleton-card">' +
-                      '<div class="skeleton-img"></div>' +
-                      '<div class="skeleton-text"></div>' +
-                      '<div class="skeleton-text short"></div>' +
-                    '</div>';
-          }).join("");
-          resultsGrid.innerHTML = skeletonHtml;
+
+        const action = filtersForm.getAttribute("action") || window.location.pathname;
+        const url = new URL(action, window.location.origin);
+        url.search = params.toString();
+        return url;
+      }
+
+      function showResultsLoading() {
+        const grid = document.querySelector(".grid");
+        if (!grid || isListMode) return;
+        const skeletonHtml = Array(6).fill().map(function() {
+          return '<div class="skeleton-card">' +
+                   '<div class="skeleton-img"></div>' +
+                   '<div class="skeleton-text"></div>' +
+                   '<div class="skeleton-text short"></div>' +
+                 '</div>';
+        }).join("");
+        grid.innerHTML = skeletonHtml;
+      }
+
+      function replaceCatalogFragment(nextDocument, scrollTop, url) {
+        const currentTopStack = document.querySelector(".catalog-top-stack");
+        const nextTopStack = nextDocument.querySelector(".catalog-top-stack");
+        const currentMainColumn = document.querySelector(".catalog-main-column");
+        const nextMainColumn = nextDocument.querySelector(".catalog-main-column");
+        const wasMapOpen = !!document.querySelector("[data-catalog-map-panel]:not([hidden])");
+
+        if (!currentTopStack || !nextTopStack || !currentMainColumn || !nextMainColumn) {
+          window.location.href = url.href;
+          return;
+        }
+
+        currentTopStack.replaceWith(nextTopStack);
+        currentMainColumn.replaceWith(nextMainColumn);
+
+        if (wasMapOpen) {
+          const panel = document.querySelector("[data-catalog-map-panel]");
+          const button = document.querySelector("[data-catalog-map-open]");
+          if (panel && button) {
+            panel.hidden = false;
+            button.setAttribute("aria-expanded", "true");
+            button.classList.add("is-active");
+          }
+        }
+
+        resultsGrid = document.querySelector(".grid");
+        bindDynamicCatalogControls();
+        if (window.kidsMapRefreshCatalogResultsMap) {
+          window.kidsMapRefreshCatalogResultsMap();
+        }
+        window.history.pushState({ catalogUrl: url.href }, "", url.href);
+        requestAnimationFrame(function () {
+          window.scrollTo(0, scrollTop);
         });
       }
+
+      function submitFiltersAjax() {
+        if (!filtersForm || mobileMedia.matches) return false;
+        const url = buildFiltersUrl();
+        const scrollTop = window.scrollY;
+
+        if (activeRequest) {
+          activeRequest.abort();
+        }
+        activeRequest = new AbortController();
+        showResultsLoading();
+
+        fetch(url.href, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+          signal: activeRequest.signal,
+        })
+          .then(function (response) {
+            if (!response.ok) throw new Error("Filter request failed");
+            return response.text();
+          })
+          .then(function (html) {
+            const nextDocument = new DOMParser().parseFromString(html, "text/html");
+            replaceCatalogFragment(nextDocument, scrollTop, url);
+          })
+          .catch(function (error) {
+            if (error.name === "AbortError") return;
+            window.location.href = url.href;
+          })
+          .finally(function () {
+            activeRequest = null;
+          });
+
+        return true;
+      }
+
+      function triggerSubmit() {
+        if (filtersForm && !mobileMedia.matches) {
+          if (!submitFiltersAjax()) {
+            filtersForm.requestSubmit ? filtersForm.requestSubmit() : filtersForm.submit();
+          }
+        }
+      }
+
+      function bindDynamicCatalogControls() {
+        document.querySelectorAll("[data-sort-submit]").forEach(function (select) {
+          if (select.dataset.ajaxBound === "true") return;
+          select.dataset.ajaxBound = "true";
+          select.addEventListener("change", function () {
+            if (filtersForm && !submitFiltersAjax()) {
+              filtersForm.requestSubmit ? filtersForm.requestSubmit() : filtersForm.submit();
+            }
+          });
+        });
+
+      }
+
+      if (filtersForm) {
+        filtersForm.addEventListener("submit", function (event) {
+          if (submitFiltersAjax()) {
+            event.preventDefault();
+          }
+        });
+      }
+
+      bindDynamicCatalogControls();
+
+      document.querySelectorAll(".event-type-filter input[type='radio']").forEach(function(radio) {
+        radio.addEventListener("change", triggerSubmit);
+      });
+
+      document.querySelectorAll(".filter-select:not([data-sort-submit])").forEach(function(select) {
+        select.addEventListener("change", triggerSubmit);
+      });
+
+      document.querySelectorAll("[data-age-from][data-age-to]").forEach(function(btn) {
+        btn.addEventListener("click", triggerSubmit);
+      });
+    })();
+    /* ── Card contact toggle ── */
+    (function () {
+      document.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-contact-toggle]");
+        if (!btn) return;
+        var stack = btn.closest(".card-action-stack");
+        if (!stack) return;
+        var drawer = stack.querySelector("[data-contact-drawer]");
+        if (!drawer) return;
+        var open = drawer.hidden;
+        drawer.hidden = !open;
+        btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
     })();
   </script>
 {% endblock %}

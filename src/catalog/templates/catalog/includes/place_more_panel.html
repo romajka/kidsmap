@@ -47,7 +47,7 @@
       <div class="place-more-section">
         <span class="place-more-label">{% trans "Локация" %}</span>
         {% if place.address %}
-          <p class="place-more-text">{{ place.address }}</p>
+          <p class="place-more-text">{{ place.address_i18n }}</p>
         {% endif %}
         {% if place.district or place.metro %}
           <p class="place-more-meta">

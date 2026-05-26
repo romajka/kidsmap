@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load i18n static %}
 
 {% block title %}{{ content.title }} — KidsMap{% endblock %}
 {% block title_plain %}{{ content.title }} — KidsMap{% endblock %}
@@ -63,6 +63,17 @@
         </ol>
       </section>
     </div>
+
+    <section class="business-owner-actions" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Sahiblər üçün hərəkətlər{% elif request.LANGUAGE_CODE == 'en' %}Owner actions{% else %}{% trans 'Действия для владельцев' %}{% endif %}">
+      <div class="business-owner-actions__copy">
+        <h2>{% if request.LANGUAGE_CODE == "az" %}Kartınızı KidsMap-də idarə edin{% elif request.LANGUAGE_CODE == "en" %}Manage your listing on KidsMap{% else %}Управляйте карточкой на KidsMap{% endif %}</h2>
+        <p>{% if request.LANGUAGE_CODE == "az" %}Yeni məkan əlavə edin, mövcud kart üzrə hüquqları sorğulayın və moderasiyadan sonra məlumatları yeniləyin.{% elif request.LANGUAGE_CODE == "en" %}Add a new place, claim an existing listing, and update details after moderation.{% else %}Добавьте новый кружок, заявите права на существующую карточку и обновляйте данные после модерации.{% endif %}</p>
+      </div>
+      <div class="business-owner-actions__buttons">
+        <a class="btn btn-primary" href="{% url 'owner_place_create' %}?fresh=1">{% if request.LANGUAGE_CODE == "az" %}Məkan əlavə et{% elif request.LANGUAGE_CODE == "en" %}Add a place{% else %}Добавить кружок{% endif %}</a>
+        <a class="btn btn-secondary" href="{% url 'place_list' %}">{% if request.LANGUAGE_CODE == "az" %}Mövcud kartı tap{% elif request.LANGUAGE_CODE == "en" %}Find existing listing{% else %}Найти свою карточку{% endif %}</a>
+      </div>
+    </section>
 
     <section class="content-page__band">
       <h2>{{ content.plans_title }}</h2>

@@ -544,6 +544,22 @@
   margin-top: 4px;
 }
 
+.detail-page .detail-owner-cta {
+  border-color: rgba(19, 111, 56, 0.16);
+  background: linear-gradient(180deg, rgba(246, 251, 247, 0.98), rgba(255, 255, 255, 0.94));
+}
+
+.detail-page .detail-owner-cta__actions {
+  display: grid;
+  gap: 10px;
+}
+
+.detail-page .detail-owner-cta__actions .btn,
+.detail-page .detail-owner-cta__actions .link-btn {
+  width: 100%;
+  justify-content: center;
+}
+
 .detail-mobile-sticky-bar {
   display: none;
 }
