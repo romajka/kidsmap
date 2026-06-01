@@ -1,28 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  --km-admin-accent: #136f38;
-  --km-admin-accent-strong: #0d4e27;
-  --km-admin-accent-soft: #eaf6ee;
-  --km-admin-border: #d6e4db;
-  --km-admin-muted: #62717d;
+  --km-admin-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --km-admin-accent: #009A4E;
+  --km-admin-accent-strong: #008F46;
+  --km-admin-accent-soft: #F3FBF6;
+  --km-admin-border: #CFE8D8;
+  --km-admin-muted: #6B7280;
   --km-admin-surface: #ffffff;
   --km-admin-warn-bg: #fff4e6;
-  --km-admin-warn-fg: #9a5d00;
-  --km-admin-page-bg: #eef3f8;
+  --km-admin-warn-fg: #F59E0B;
+  --km-admin-error-fg: #DC2626;
+  --km-admin-page-bg: #f9fafb;
   --km-admin-panel-bg: #ffffff;
-  --km-admin-panel-bg-soft: #f4f8f5;
-  --km-admin-panel-shadow: 0 8px 18px rgba(13, 73, 36, 0.05);
-  --km-admin-text: var(--body-fg);
-  --km-admin-link: var(--link-fg);
-  --km-admin-link-hover: var(--link-hover-color);
-  --km-admin-header-bg-start: #205b73;
-  --km-admin-header-bg-end: #2d7a98;
-  --km-admin-header-link: #d8edf7;
+  --km-admin-panel-bg-soft: #F6FCF8;
+  --km-admin-panel-shadow: 0 4px 12px rgba(0, 154, 78, 0.08);
+  --km-admin-text: #1F2A37;
+  --km-admin-link: #009A4E;
+  --km-admin-link-hover: #008F46;
+  --km-admin-header-bg-start: #009A4E;
+  --km-admin-header-bg-end: #008F46;
+  --km-admin-header-link: #F3FBF6;
   --km-admin-header-link-hover: #ffffff;
-  --km-admin-button-bg: #f6faf7;
-  --km-admin-button-fg: var(--body-fg);
-  --km-admin-button-border: var(--km-admin-border);
-  --km-admin-button-hover-bg: #edf4ef;
-  --km-admin-button-hover-fg: var(--body-fg);
+  --km-admin-button-bg: #ffffff;
+  --km-admin-button-fg: #1F2A37;
+  --km-admin-button-border: #CFE8D8;
+  --km-admin-button-hover-bg: #F3FBF6;
+  --km-admin-button-hover-fg: #009A4E;
   --km-admin-pill-bg: var(--km-admin-warn-bg);
   --km-admin-pill-fg: var(--km-admin-warn-fg);
   --km-admin-badge-good-bg: #e7f8ed;
@@ -171,11 +175,16 @@ body {
 
 body {
   background-image: none !important;
+  font-family: var(--km-admin-font) !important;
 }
 
 body.login {
   background: var(--km-admin-page-bg) !important;
   display: flow-root;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--km-admin-font) !important;
 }
 
 .login-logo img {
@@ -184,25 +193,85 @@ body.login {
   margin-bottom: 20px;
 }
 
-body,
-button,
-input,
-select,
-textarea,
-#site-name a,
+/* ===== Inter — единый шрифт для всей панели (без иконок!) ===== */
+body, p, span:not(.fas):not(.far):not(.fab):not(.fal):not(.fad):not([class*="fa-"]),
+a, div, section, article, aside, nav, header, footer,
+input, select, textarea, button, label, td, th, li,
+h1, h2, h3, h4, h5, h6,
+.module caption, .breadcrumbs, .helptext, .help, .vHelpText,
+.nav-item, .nav-link, .object-tools a,
+.changelink, .addlink, .deletelink,
+.submit-row input, .submit-row a,
+.paginator, .calendarbox, .clockbox,
+.select2-selection, .select2-results__option {
+  font-family: var(--km-admin-font) !important;
+}
+
+/* ===== FontAwesome — восстанавливаем для всех иконочных элементов ===== */
+i.fa, i.fas, i.far, i.fab, i.fal, i.fad,
+i[class*="fa-"],
+.fa, .fas, .far, .fab, .fal, .fad,
+[class*="fa-"] {
+  font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands", "Font Awesome 5 Pro", "FontAwesome" !important;
+}
+
+/* ===== Нормализация жирности: убираем хаос ===== */
+
+/* Обычный текст — 400 */
+body, p, td, li, span, a, label, input, select, textarea,
+button, .helptext, .help, .vHelpText, .breadcrumb,
+.nav-link, .nav-item a, .select2-selection,
+.select2-results__option, .paginator,
+#changelist-filter li, #changelist-filter h2,
+.object-tools a, .changelink, .addlink {
+  font-weight: 400 !important;
+}
+
+/* Средняя жирность (500) — метки, подписи, ссылки кнопок */
+th, .column-header a,
+.nav-sidebar .nav-link,
+.breadcrumb-item a,
+.submit-row input,
+.submit-row a.closelink,
+.result-list th a,
+.datetimeshortcuts a,
+.calendar caption {
+  font-weight: 500 !important;
+}
+
+/* Полужирный (600) — заголовки секций, имена приложений */
 .module caption,
-.breadcrumbs,
-#nav-sidebar,
-.object-tools a {
+.module h2,
+.app-label,
+h3.card-title,
+#content h1,
+#content h2,
+.nav-sidebar .nav-header,
+.nav-sidebar .nav-separator {
+  font-weight: 600 !important;
 }
 
-#header {
-  background: linear-gradient(90deg, var(--km-admin-header-bg-start), var(--km-admin-header-bg-end));
+/* Жирный (700) — только главные заголовки страниц */
+#content-main > h1,
+.content-title h1,
+.km-stat-value {
+  font-weight: 700 !important;
 }
 
+/* Очень жирный (800) — логотип */
 #site-name a {
-  font-weight: 800;
+  font-weight: 800 !important;
   letter-spacing: 0.01em;
+}
+
+/* ===== Шапка ===== */
+#header {
+  background: linear-gradient(90deg, var(--km-admin-header-bg-start), var(--km-admin-header-bg-end)) !important;
+}
+
+#header a, #header a:link, #header a:visited,
+#user-tools, #user-tools a {
+  font-weight: 500 !important;
 }
 
 #nav-sidebar,
@@ -306,49 +375,63 @@ textarea,
   box-shadow: var(--km-admin-panel-shadow);
 }
 
+/* ===== Панель фильтров (кнопки сверху) ===== */
 #toolbar {
-  display: grid;
-  gap: 10px;
-  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
 }
 
 #toolbar form {
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
 }
 
 #toolbar form > div {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
+/* Иконка поиска */
 #toolbar label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 38px;
-  min-height: 38px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   border: 1px solid var(--km-admin-border);
   background: var(--km-admin-panel-bg-soft);
+  flex-shrink: 0;
 }
 
 #toolbar label img {
   width: 16px;
   height: 16px;
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
+/* Поле ввода поиска */
 #changelist #toolbar form input[type="text"] {
-  min-height: 38px;
-  border-radius: 10px;
-  min-width: 240px;
-  flex: 1 1 320px;
-  padding-inline: 12px;
+  height: 36px;
+  border-radius: 8px;
+  min-width: 200px;
+  flex: 1 1 260px;
+  padding: 0 12px;
   background: var(--km-admin-input-bg);
   color: var(--km-admin-input-fg);
   border: 1px solid var(--km-admin-input-border);
+  font-size: 13px;
 }
 
 #changelist #toolbar form input[type="text"]::placeholder {
@@ -362,65 +445,162 @@ textarea,
   border-color: var(--km-admin-focus-ring);
 }
 
-#changelist #toolbar form input[type="submit"],
-.submit-row input,
-.submit-row a,
-.button,
-input[type="submit"],
-input[type="button"],
-.object-tools a {
-  border-radius: 999px;
-}
-
+/* Кнопка Найти */
 #changelist #toolbar form input[type="submit"] {
-  min-height: 38px;
+  height: 36px;
   padding: 0 16px;
-  background: var(--km-admin-accent-soft);
-  color: var(--km-admin-accent-strong);
-  border-color: color-mix(in srgb, var(--km-admin-accent) 28%, var(--km-admin-button-border));
+  border-radius: 8px;
+  background: #009A4E;
+  color: #fff;
+  border: 1px solid #008F46;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 #changelist #toolbar form input[type="submit"]:hover,
 #changelist #toolbar form input[type="submit"]:focus-visible {
-  background: color-mix(in srgb, var(--km-admin-accent-soft) 80%, var(--km-admin-panel-bg));
-  color: var(--km-admin-accent-strong);
+  background: #008F46;
+  color: #fff;
 }
 
+/* ===== Панель действий (Удалить выбранные + Выполнить) ===== */
+#changelist-form .actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+#changelist-form .actions label,
+#changelist-form .actions span,
+#changelist-form .actions .action-counter {
+  font-size: 13px;
+  color: #6B7280;
+}
+
+#changelist-form .actions select {
+  height: 34px;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+  border: 1px solid var(--km-admin-input-border);
+  background: var(--km-admin-input-bg);
+  color: var(--km-admin-text);
+  min-width: 200px;
+}
+
+#changelist-form .actions button[type="submit"],
+#changelist-form .actions input[type="submit"] {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: #F0FDF4;
+  color: #009A4E;
+  border: 1px solid #CFE8D8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+#changelist-form .actions button[type="submit"]:hover {
+  background: #DCFCE7;
+}
+
+/* Разделитель между фильтрами и действиями */
+#changelist-form .actions + p,
+.results {
+  margin-top: 8px;
+}
+
+
+/* ===== Кнопки — чистый единый стиль ===== */
+
+/* Базовые кнопки */
 .object-tools a,
-.submit-row input,
+.submit-row input[type="submit"],
 .submit-row a,
 .button,
 input[type="submit"],
 input[type="button"] {
-  background: var(--km-admin-button-bg);
-  color: var(--km-admin-button-fg);
-  border: 1px solid var(--km-admin-button-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
+/* Основная кнопка сохранения */
+.submit-row input[name="_save"],
+input[type="submit"].default,
+.default {
+  background: #009A4E !important;
+  color: #fff !important;
+  border-color: #008F46 !important;
+}
+.submit-row input[name="_save"]:hover,
+input[type="submit"].default:hover,
+.default:hover {
+  background: #008F46 !important;
+  box-shadow: 0 2px 8px rgba(0,154,78,0.25) !important;
+}
+
+/* Вторичные кнопки */
+.submit-row input[name="_continue"],
+.submit-row input[name="_addanother"] {
+  background: #F0FDF4 !important;
+  color: #009A4E !important;
+  border-color: #CFE8D8 !important;
+}
+.submit-row input[name="_continue"]:hover,
+.submit-row input[name="_addanother"]:hover {
+  background: #DCFCE7 !important;
+}
+
+/* Кнопка Удалить */
+.submit-row a.deletelink,
+.deletelink {
+  background: #FEF2F2 !important;
+  color: #DC2626 !important;
+  border-color: #FECACA !important;
+}
+.submit-row a.deletelink:hover,
+.deletelink:hover {
+  background: #FEE2E2 !important;
+}
+
+/* object-tools (кнопки "Добавить" сверху страницы) */
+.object-tools a {
+  background: #009A4E !important;
+  color: #fff !important;
+  border-color: #008F46 !important;
+  border-radius: 8px !important;
+}
+.object-tools a:hover {
+  background: #008F46 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(0,154,78,0.25) !important;
+}
+
+/* Кнопки disabled */
 .button:disabled,
 input[type="submit"]:disabled,
 input[type="button"]:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.object-tools a:hover,
-.object-tools a:focus-visible,
-.submit-row input:hover,
-.submit-row input:focus-visible,
-.submit-row a:hover,
-.submit-row a:focus-visible,
-.button:hover,
-.button:focus-visible,
-input[type="submit"]:hover,
-input[type="submit"]:focus-visible,
-input[type="button"]:hover,
-input[type="button"]:focus-visible {
-  background: var(--km-admin-button-hover-bg);
-  color: var(--km-admin-button-hover-fg);
-  border-color: var(--km-admin-button-border);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--km-admin-focus-ring) 18%, transparent);
-}
 
 input[type="text"],
 input[type="url"],
@@ -1552,3 +1732,162 @@ select:focus-visible {
         -webkit-overflow-scrolling: touch;
     }
 }
+
+/* ===== Разделение блоков changelist ===== */
+
+/* Отступы между панелями */
+#changelist #toolbar { margin-bottom: 6px; }
+#changelist-form .actions { margin-bottom: 6px; }
+
+/* Dropdown-фильтры Jazzmin (кнопки с треугольником) */
+.change-list .object-tools { margin-bottom: 8px; }
+
+/* Убираем слипание dropdown-фильтров */
+#changelist-search,
+#cl-search-bar,
+.changelist-filter-btns,
+.list-filter-btns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #CFE8D8;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+/* Dropdown-кнопки фильтрации (Статус модерации ▼, Категория ▼ ...) */
+.btn-group > .btn,
+.dropdown-toggle {
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  border: 1px solid #D1D5DB !important;
+  background: #F9FAFB !important;
+  color: #374151 !important;
+  font-weight: 500 !important;
+}
+.btn-group > .btn:hover,
+.dropdown-toggle:hover {
+  background: #F3F4F6 !important;
+  border-color: #9CA3AF !important;
+}
+
+/* Активный/выбранный фильтр */
+.btn-group > .btn.active,
+.dropdown-toggle.active {
+  background: #F0FDF4 !important;
+  color: #009A4E !important;
+  border-color: #CFE8D8 !important;
+}
+
+/* Меню dropdown */
+.dropdown-menu {
+  border-radius: 10px !important;
+  border: 1px solid #E5E7EB !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
+  padding: 6px !important;
+}
+.dropdown-item {
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  padding: 6px 10px !important;
+}
+.dropdown-item:hover {
+  background: #F0FDF4 !important;
+  color: #009A4E !important;
+}
+
+/* Счётчик выбранных ("Выбрано 0 из 8") */
+.action-counter {
+  font-size: 12px !important;
+  color: #9CA3AF !important;
+  padding: 4px 8px;
+  background: #F9FAFB;
+  border-radius: 6px;
+  border: 1px solid #E5E7EB;
+}
+
+/* Кнопка Выполнить в панели действий */
+#changelist-form .actions button.btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Таблица результатов */
+#result_list {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #CFE8D8;
+}
+#result_list thead {
+  background: #F6FCF8;
+}
+#result_list thead th {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid #CFE8D8;
+  white-space: nowrap;
+}
+#result_list tbody tr {
+  border-bottom: 1px solid #F3F4F6;
+  transition: background 0.1s;
+}
+#result_list tbody tr:hover {
+  background: #F6FCF8;
+}
+#result_list tbody td {
+  padding: 10px 14px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+#result_list tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Пагинация */
+.paginator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #6B7280;
+  background: #fff;
+  border: 1px solid #CFE8D8;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+.paginator a {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #F0FDF4;
+  color: #009A4E;
+  border: 1px solid #CFE8D8;
+  text-decoration: none;
+  font-weight: 500;
+}
+.paginator a:hover {
+  background: #DCFCE7;
+}
+.paginator .this-page {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #009A4E;
+  color: #fff;
+  font-weight: 600;
+}
+

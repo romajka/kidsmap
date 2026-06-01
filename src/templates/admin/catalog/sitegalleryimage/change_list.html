@@ -1,0 +1,224 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content_title %}<h1>Фото для блоков сайта</h1>{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">Главная</a></li>
+    <li class="breadcrumb-item">Фото для блоков сайта</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<style>
+  .km-gallery-hub { max-width: 960px; }
+  .km-gallery-group { margin-bottom: 32px; }
+  .km-gallery-group-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1F2A37;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #CFE8D8;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .km-gallery-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 700px) { .km-gallery-slots { grid-template-columns: 1fr; } }
+
+  .km-slot-card {
+    background: #fff;
+    border: 1px solid #CFE8D8;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,154,78,0.06);
+    display: flex;
+    flex-direction: column;
+  }
+  .km-slot-preview {
+    width: 100%;
+    height: 120px;
+    background: #F6FCF8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+    overflow: hidden;
+  }
+  .km-slot-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .km-slot-preview-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #9CA3AF;
+  }
+  .km-slot-preview-empty i { font-size: 28px; }
+  .km-slot-preview-empty span { font-size: 12px; }
+
+  .km-slot-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .km-slot-badge-set { background: #F0FDF4; color: #009A4E; border: 1px solid #CFE8D8; }
+  .km-slot-badge-empty { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+
+  .km-slot-body { padding: 14px 16px; flex: 1; }
+  .km-slot-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1F2A37;
+    margin: 0 0 4px 0;
+  }
+  .km-slot-location {
+    font-size: 12px;
+    color: #6B7280;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  .km-slot-size {
+    font-size: 11px;
+    color: #9CA3AF;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .km-slot-count {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .km-slot-count-good { color: #009A4E; }
+  .km-slot-count-warn { color: #D97706; }
+
+  .km-slot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .km-slot-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid;
+    transition: background 0.15s;
+  }
+  .km-slot-btn-primary {
+    background: #009A4E;
+    color: #fff;
+    border-color: #008F46;
+  }
+  .km-slot-btn-primary:hover { background: #008F46; color: #fff; text-decoration: none; }
+  .km-slot-btn-secondary {
+    background: #F0FDF4;
+    color: #009A4E;
+    border-color: #CFE8D8;
+  }
+  .km-slot-btn-secondary:hover { background: #DCFCE7; color: #009A4E; text-decoration: none; }
+</style>
+
+<div class="km-gallery-hub">
+
+  {% for group in photo_slots %}
+  <div class="km-gallery-group">
+    <div class="km-gallery-group-title">
+      <i class="fas {% if group.group == 'Одиночные фото сайта' %}fa-image{% else %}fa-images{% endif %}" style="color:#009A4E;"></i>
+      {{ group.group }}
+    </div>
+
+    <div class="km-gallery-slots">
+      {% for slot in group.slots %}
+      <div class="km-slot-card">
+
+        <div class="km-slot-preview">
+          {% if slot.image_url %}
+            <img src="{{ slot.image_url }}" alt="{{ slot.title }}">
+            <span class="km-slot-badge km-slot-badge-set"><i class="fas fa-check"></i> Загружено</span>
+          {% else %}
+            <div class="km-slot-preview-empty">
+              <i class="fas fa-image"></i>
+              <span>Нет фото</span>
+            </div>
+            <span class="km-slot-badge km-slot-badge-empty">Не загружено</span>
+          {% endif %}
+          {% if slot.is_gallery and slot.count > 0 %}
+            <span class="km-slot-badge km-slot-badge-set">{{ slot.count }} фото</span>
+          {% elif slot.is_gallery %}
+            <span class="km-slot-badge km-slot-badge-empty">Нет фото</span>
+          {% endif %}
+        </div>
+
+        <div class="km-slot-body">
+          <h4 class="km-slot-title">{{ slot.title }}</h4>
+
+          <p class="km-slot-location">
+            <i class="fas fa-map-pin" style="color:#009A4E; margin-top:1px; flex-shrink:0;"></i>
+            {{ slot.location }}
+          </p>
+
+          <div class="km-slot-size">
+            <i class="fas fa-ruler-combined" style="color:#9CA3AF;"></i>
+            {{ slot.size_hint }}
+          </div>
+
+          {% if slot.is_gallery %}
+          <div class="km-slot-count {% if slot.count > 0 %}km-slot-count-good{% else %}km-slot-count-warn{% endif %}">
+            <i class="fas {% if slot.count > 0 %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+            {{ slot.count_label }}
+          </div>
+          <div class="km-slot-actions">
+            <a href="{{ slot.add_url }}" class="km-slot-btn km-slot-btn-primary">
+              <i class="fas fa-plus"></i> Добавить фото
+            </a>
+            {% if slot.count > 0 %}
+            <a href="{{ slot.list_url }}" class="km-slot-btn km-slot-btn-secondary">
+              <i class="fas fa-list"></i> Смотреть все
+            </a>
+            {% endif %}
+          </div>
+          {% else %}
+          <div class="km-slot-count {% if slot.image_url %}km-slot-count-good{% else %}km-slot-count-warn{% endif %}">
+            <i class="fas {% if slot.image_url %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
+            {{ slot.count_label }}
+          </div>
+          <div class="km-slot-actions">
+            <a href="{{ slot.edit_url }}" class="km-slot-btn km-slot-btn-primary">
+              <i class="fas fa-upload"></i> {% if slot.image_url %}Заменить{% else %}Загрузить{% endif %}
+            </a>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

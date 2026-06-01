@@ -1,131 +1,265 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% trans "Регистрация" %}{% endblock %}
-{% block title_plain %}{% trans "Регистрация" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Регистрация" %} | KidsMap{% endblock %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat{% elif CURRENT_LANGUAGE == "en" %}Register{% else %}Регистрация{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Register | KidsMap{% else %}Регистрация | KidsMap{% endif %}{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Register | KidsMap{% else %}Регистрация | KidsMap{% endif %}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="panel auth-panel auth-panel-register">
-    <h1>{% trans "Регистрация" %}</h1>
-    {% if auth_intent == "owner_place" %}
-      <div class="auth-context-note">
-        <strong>{% trans "Чтобы разместить кружок, создайте аккаунт или войдите, если он уже есть." %}</strong>
-        <p>{% trans "После подтверждения email вы сможете добавить карточку кружка и управлять ею из кабинета." %}</p>
-      </div>
-    {% else %}
-      <p class="auth-subtitle">{% trans "Создайте аккаунт KidsMap. После регистрации мы отправим код подтверждения на email." %}</p>
-    {% endif %}
-    <p class="auth-register-note">{% trans "После входа вы сможете оставлять отзывы, добавлять кружки в избранное и при необходимости отправить заявку на управление карточкой." %}</p>
-    <p class="auth-required-note">Поля, отмеченные звездочкой, обязательны для заполнения.</p>
+  <section class="register-shell">
+    <div class="register-frame panel">
+      <div class="register-aside">
+        <div class="register-aside-copy">
+          <span class="register-kicker">KidsMap.az</span>
+          <h1>{% if CURRENT_LANGUAGE == "az" %}Qeydiyyat{% elif CURRENT_LANGUAGE == "en" %}Create account{% else %}Регистрация{% endif %}</h1>
+          <p class="register-lead">
+            {% if CURRENT_LANGUAGE == "az" %}
+              KidsMap hesabı yaradın və şəhərinizdəki ən yaxşı uşaq dostu məkanları kəşf edin.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Create your KidsMap account and discover the best family-friendly places in your city.
+            {% else %}
+              Создайте аккаунт KidsMap и открывайте лучшие детские и семейные места в вашем городе.
+            {% endif %}
+          </p>
 
-    <form method="post" class="auth-form auth-form-register" data-loading-form>
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next_url }}" />
-      <input type="hidden" name="intent" value="{{ auth_intent }}" />
+          {% if auth_intent == "owner_place" %}
+            <div class="register-owner-note">
+              <strong>
+                {% if CURRENT_LANGUAGE == "az" %}
+                  Məkan əlavə etmək üçün hesab yaradın və e-poçtunuzu təsdiqləyin.
+                {% elif CURRENT_LANGUAGE == "en" %}
+                  Create an account and verify your email to add a place.
+                {% else %}
+                  Чтобы добавить место, создайте аккаунт и подтвердите email.
+                {% endif %}
+              </strong>
+              <p>
+                {% if CURRENT_LANGUAGE == "az" %}
+                  Təsdiqdən sonra kart əlavə edib şəxsi kabinetdən idarə edə biləcəksiniz.
+                {% elif CURRENT_LANGUAGE == "en" %}
+                  After verification you will be able to add a listing and manage it from your dashboard.
+                {% else %}
+                  После подтверждения вы сможете добавить карточку и управлять ею из личного кабинета.
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
 
-      {% if form.non_field_errors %}
-        <div class="auth-errors">
-          {% for error in form.non_field_errors %}
-            <p class="auth-error">{{ error }}</p>
-          {% endfor %}
+          <div class="register-benefits">
+            <article class="register-benefit">
+              <span class="register-benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M7 4.75h10A2.25 2.25 0 0 1 19.25 7v12.25a.75.75 0 0 1-1.154.636L12 16.142l-6.096 3.744A.75.75 0 0 1 4.75 19.25V7A2.25 2.25 0 0 1 7 4.75Zm0 1.5A.75.75 0 0 0 6.25 7v10.914l5.358-3.289a.75.75 0 0 1 .784 0l5.358 3.289V7A.75.75 0 0 0 17 6.25H7Z"/></svg>
+              </span>
+              <div>
+                <h2>{% if CURRENT_LANGUAGE == "az" %}Favorilərinizi yadda saxlayın{% elif CURRENT_LANGUAGE == "en" %}Save your favorites{% else %}Сохраняйте избранное{% endif %}</h2>
+                <p>{% if CURRENT_LANGUAGE == "az" %}Bəyəndiyiniz məkanları saxlayın və istənilən vaxt qayıdın.{% elif CURRENT_LANGUAGE == "en" %}Keep the places you love and come back anytime.{% else %}Сохраняйте понравившиеся места и возвращайтесь к ним в любой момент.{% endif %}</p>
+              </div>
+            </article>
+
+            <article class="register-benefit">
+              <span class="register-benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75a6.75 6.75 0 0 1 6.75 6.75c0 4.638-5.032 9.71-6.108 10.75a.94.94 0 0 1-1.284 0C10.282 19.21 5.25 14.138 5.25 9.5A6.75 6.75 0 0 1 12 2.75Zm0 1.5A5.25 5.25 0 0 0 6.75 9.5c0 3.268 3.33 7.249 5.25 9.196 1.92-1.947 5.25-5.928 5.25-9.196A5.25 5.25 0 0 0 12 4.25Zm0 2.5a2.75 2.75 0 1 1 0 5.5 2.75 2.75 0 0 1 0-5.5Zm0 1.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Z"/></svg>
+              </span>
+              <div>
+                <h2>{% if CURRENT_LANGUAGE == "az" %}Məkanlar əlavə edin{% elif CURRENT_LANGUAGE == "en" %}Add places{% else %}Добавляйте места{% endif %}</h2>
+                <p>{% if CURRENT_LANGUAGE == "az" %}Sevdiyiniz məkanları əlavə edin və başqalarına tövsiyə edin.{% elif CURRENT_LANGUAGE == "en" %}Add places you love and recommend them to other families.{% else %}Добавляйте любимые места и советуйте их другим семьям.{% endif %}</p>
+              </div>
+            </article>
+
+            <article class="register-benefit">
+              <span class="register-benefit-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M4.75 6.5A2.75 2.75 0 0 1 7.5 3.75h9A2.75 2.75 0 0 1 19.25 6.5v11A2.75 2.75 0 0 1 16.5 20.25h-9A2.75 2.75 0 0 1 4.75 17.5v-11Zm2.75-1.25c-.69 0-1.25.56-1.25 1.25v.461l5.55 4.131a.35.35 0 0 0 .42 0l5.53-4.13V6.5c0-.69-.56-1.25-1.25-1.25h-9Zm10.25 3.579-4.634 3.46a1.85 1.85 0 0 1-2.222-.002L6.25 8.827V17.5c0 .69.56 1.25 1.25 1.25h9c.69 0 1.25-.56 1.25-1.25V8.829Z"/></svg>
+              </span>
+              <div>
+                <h2>{% if CURRENT_LANGUAGE == "az" %}E-poçtla aktivləşdirin{% elif CURRENT_LANGUAGE == "en" %}Activate by email{% else %}Активируйте по email{% endif %}</h2>
+                <p>{% if CURRENT_LANGUAGE == "az" %}Hesabınızı e-poçt təsdiqi ilə təhlükəsiz aktivləşdirin.{% elif CURRENT_LANGUAGE == "en" %}Securely activate your account with email confirmation.{% else %}Безопасно активируйте аккаунт через подтверждение email.{% endif %}</p>
+              </div>
+            </article>
+          </div>
         </div>
-      {% endif %}
 
-      <div class="auth-register-grid">
-        <label class="auth-span-full">
-          {{ form.username.label }}<span class="required-mark" aria-hidden="true">*</span>
-          {{ form.username }}
-          {% if form.username.help_text %}
-            <small class="auth-help">{{ form.username.help_text }}</small>
-          {% endif %}
-          {% if form.username.errors %}
-            <span class="auth-field-error">{{ form.username.errors|join:", " }}</span>
-          {% endif %}
-        </label>
-
-        <label>
-          {{ form.first_name.label }}<span class="required-mark" aria-hidden="true">*</span>
-          {{ form.first_name }}
-          {% if form.first_name.help_text %}
-            <small class="auth-help">{{ form.first_name.help_text }}</small>
-          {% endif %}
-          {% if form.first_name.errors %}
-            <span class="auth-field-error">{{ form.first_name.errors|join:", " }}</span>
-          {% endif %}
-        </label>
-
-        <label>
-          {{ form.last_name.label }}<span class="required-mark" aria-hidden="true">*</span>
-          {{ form.last_name }}
-          {% if form.last_name.help_text %}
-            <small class="auth-help">{{ form.last_name.help_text }}</small>
-          {% endif %}
-          {% if form.last_name.errors %}
-            <span class="auth-field-error">{{ form.last_name.errors|join:", " }}</span>
-          {% endif %}
-        </label>
-
-        <label>
-          {{ form.phone.label }}<span class="required-mark" aria-hidden="true">*</span>
-          {{ form.phone }}
-          {% if form.phone.help_text %}
-            <small class="auth-help">{{ form.phone.help_text }}</small>
-          {% endif %}
-          {% if form.phone.errors %}
-            <span class="auth-field-error">{{ form.phone.errors|join:", " }}</span>
-          {% endif %}
-        </label>
-
-        <label>
-          {{ form.email.label }}<span class="required-mark" aria-hidden="true">*</span>
-          {{ form.email }}
-          {% if form.email.help_text %}
-            <small class="auth-help">{{ form.email.help_text }}</small>
-          {% endif %}
-          {% if form.email.errors %}
-            <span class="auth-field-error">{{ form.email.errors|join:", " }}</span>
-          {% endif %}
-        </label>
-
-        <fieldset class="auth-role-group auth-register-inline-group auth-span-full">
-          <legend>{{ form.gender.label }}<span class="required-mark" aria-hidden="true">*</span></legend>
-          {{ form.gender }}
-          {% if form.gender.help_text %}
-            <small class="auth-help">{{ form.gender.help_text }}</small>
-          {% endif %}
-          {% if form.gender.errors %}
-            <span class="auth-field-error">{{ form.gender.errors|join:", " }}</span>
-          {% endif %}
-        </fieldset>
-
-        <label>
-          {{ form.password1.label }}<span class="required-mark" aria-hidden="true">*</span>
-          {{ form.password1 }}
-          {% if form.password1.help_text %}
-            <small class="auth-help">{{ form.password1.help_text|safe }}</small>
-          {% endif %}
-          {% if form.password1.errors %}
-            <span class="auth-field-error">{{ form.password1.errors|join:", " }}</span>
-          {% endif %}
-        </label>
-
-        <label>
-          {{ form.password2.label }}<span class="required-mark" aria-hidden="true">*</span>
-          {{ form.password2 }}
-          {% if form.password2.errors %}
-            <span class="auth-field-error">{{ form.password2.errors|join:", " }}</span>
-          {% endif %}
-        </label>
+        <div class="register-city-illustration" aria-hidden="true">
+          <div class="register-city-glow"></div>
+          <div class="register-city-grid"></div>
+          <div class="register-city-building register-city-building--tall"></div>
+          <div class="register-city-building register-city-building--mid"></div>
+          <div class="register-city-building register-city-building--small"></div>
+          <div class="register-city-road register-city-road--one"></div>
+          <div class="register-city-road register-city-road--two"></div>
+          <span class="register-city-pin register-city-pin--one"></span>
+          <span class="register-city-pin register-city-pin--two"></span>
+          <span class="register-city-pin register-city-pin--three"></span>
+          <span class="register-city-tree register-city-tree--one"></span>
+          <span class="register-city-tree register-city-tree--two"></span>
+          <span class="register-city-tree register-city-tree--three"></span>
+        </div>
       </div>
 
-      <button type="submit" class="btn" data-loading-button>{% trans "Создать аккаунт" %}</button>
-    </form>
+      <div class="register-form-card">
+        <div class="register-form-head">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Hesab yaradın{% elif CURRENT_LANGUAGE == "en" %}Create your account{% else %}Создайте аккаунт{% endif %}</h2>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məlumatları doldurun və hesabınızı bir neçə dəqiqəyə aktivləşdirin.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Fill in your details and activate your account in just a few minutes.
+            {% else %}
+              Заполните данные и активируйте аккаунт за несколько минут.
+            {% endif %}
+          </p>
+        </div>
 
-    <p class="auth-alt">
-      {% trans "Уже есть аккаунт?" %}
-      <a href="{% url 'account_login' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}">{% trans "Войти" %}</a>
-    </p>
+        <form method="post" class="auth-form register-form" data-loading-form novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next_url }}" />
+          <input type="hidden" name="intent" value="{{ auth_intent }}" />
+
+          {% if form.non_field_errors %}
+            <div class="auth-errors register-alert" role="alert">
+              {% for error in form.non_field_errors %}
+                <p class="auth-error">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="register-grid">
+            <label class="register-field {% if form.first_name.errors %}has-error{% endif %}">
+              <span class="register-label">{{ form.first_name.label }}</span>
+              <span class="register-input-wrap">
+                <span class="register-input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M12 4.75a4.25 4.25 0 1 1 0 8.5 4.25 4.25 0 0 1 0-8.5Zm0 1.5a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Zm0 8.75c4.278 0 7.75 2.334 7.75 5.25a.75.75 0 0 1-1.5 0c0-1.763-2.54-3.75-6.25-3.75S5.75 18.487 5.75 20.25a.75.75 0 0 1-1.5 0c0-2.916 3.472-5.25 7.75-5.25Z"/></svg>
+                </span>
+                {{ form.first_name }}
+              </span>
+              {% if form.first_name.errors %}<span class="auth-field-error">{{ form.first_name.errors|join:", " }}</span>{% endif %}
+            </label>
+
+            <label class="register-field {% if form.last_name.errors %}has-error{% endif %}">
+              <span class="register-label">{{ form.last_name.label }}</span>
+              <span class="register-input-wrap">
+                <span class="register-input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M12 4.75a4.25 4.25 0 1 1 0 8.5 4.25 4.25 0 0 1 0-8.5Zm0 1.5a2.75 2.75 0 1 0 0 5.5 2.75 2.75 0 0 0 0-5.5Zm0 8.75c4.278 0 7.75 2.334 7.75 5.25a.75.75 0 0 1-1.5 0c0-1.763-2.54-3.75-6.25-3.75S5.75 18.487 5.75 20.25a.75.75 0 0 1-1.5 0c0-2.916 3.472-5.25 7.75-5.25Z"/></svg>
+                </span>
+                {{ form.last_name }}
+              </span>
+              {% if form.last_name.errors %}<span class="auth-field-error">{{ form.last_name.errors|join:", " }}</span>{% endif %}
+            </label>
+
+            <label class="register-field {% if form.email.errors %}has-error{% endif %}">
+              <span class="register-label">{{ form.email.label }}</span>
+              <span class="register-input-wrap">
+                <span class="register-input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M4.75 6.5A2.75 2.75 0 0 1 7.5 3.75h9A2.75 2.75 0 0 1 19.25 6.5v11A2.75 2.75 0 0 1 16.5 20.25h-9A2.75 2.75 0 0 1 4.75 17.5v-11Zm2.75-1.25c-.69 0-1.25.56-1.25 1.25v.461l5.55 4.131a.35.35 0 0 0 .42 0l5.53-4.13V6.5c0-.69-.56-1.25-1.25-1.25h-9Zm10.25 3.579-4.634 3.46a1.85 1.85 0 0 1-2.222-.002L6.25 8.827V17.5c0 .69.56 1.25 1.25 1.25h9c.69 0 1.25-.56 1.25-1.25V8.829Z"/></svg>
+                </span>
+                {{ form.email }}
+              </span>
+              {% if form.email.errors %}<span class="auth-field-error">{{ form.email.errors|join:", " }}</span>{% endif %}
+            </label>
+
+            <label class="register-field {% if form.phone.errors %}has-error{% endif %}">
+              <span class="register-label">{{ form.phone.label }}</span>
+              <span class="register-input-wrap">
+                <span class="register-input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="m6.843 4.75 1.34-.001c.495 0 .925.343 1.035.826l.577 2.535c.085.372-.035.76-.314 1.018l-1.147 1.058a12.203 12.203 0 0 0 5.48 5.48l1.058-1.147c.257-.279.646-.399 1.018-.314l2.535.577c.483.11.826.54.826 1.035v1.34A2.093 2.093 0 0 1 19.158 19.25 14.408 14.408 0 0 1 4.75 4.842 2.093 2.093 0 0 1 6.843 4.75Zm1.34 1.499H6.844a.593.593 0 0 0-.594.594c0 6.045 4.905 10.907 10.908 10.907a.593.593 0 0 0 .592-.593v-1.34l-2.476-.563-1.227 1.33a.75.75 0 0 1-.81.192 13.705 13.705 0 0 1-6.014-6.013.75.75 0 0 1 .193-.811l1.329-1.227-.562-2.476Z"/></svg>
+                </span>
+                {{ form.phone }}
+              </span>
+              {% if form.phone.errors %}<span class="auth-field-error">{{ form.phone.errors|join:", " }}</span>{% endif %}
+            </label>
+
+            <label class="register-field register-field-full {% if form.password1.errors %}has-error{% endif %}">
+              <span class="register-label">{{ form.password1.label }}</span>
+              <span class="register-input-wrap register-input-wrap-password">
+                <span class="register-input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75A4.25 4.25 0 0 0 7.75 7v2H7.5A2.75 2.75 0 0 0 4.75 11.75v6.5A2.75 2.75 0 0 0 7.5 21h9a2.75 2.75 0 0 0 2.75-2.75v-6.5A2.75 2.75 0 0 0 16.5 9h-.25V7A4.25 4.25 0 0 0 12 2.75Zm-2.75 6.5V7a2.75 2.75 0 0 1 5.5 0v2.25h-5.5Zm-1.75 1.25h9c.69 0 1.25.56 1.25 1.25v6.5c0 .69-.56 1.25-1.25 1.25h-9c-.69 0-1.25-.56-1.25-1.25v-6.5c0-.69.56-1.25 1.25-1.25Zm4.5 2.25a1.75 1.75 0 0 0-.75 3.332V17.5a.75.75 0 0 0 1.5 0v-1.418A1.75 1.75 0 0 0 12 12.75Zm0 1.5a.25.25 0 1 1 0 .5.25.25 0 0 1 0-.5Z"/></svg>
+                </span>
+                {{ form.password1 }}
+                <button type="button" class="register-password-toggle" data-password-toggle data-target-input-id="{{ form.password1.id_for_label }}" aria-label="{% if CURRENT_LANGUAGE == "az" %}Şifrəni göstər və ya gizlət{% elif CURRENT_LANGUAGE == "en" %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
+                  <svg class="eye-open" viewBox="0 0 24 24" focusable="false"><path d="M12 5.25c4.61 0 8.431 3.047 9.587 6.513a1 1 0 0 1 0 .474C20.431 15.703 16.61 18.75 12 18.75c-4.61 0-8.431-3.047-9.587-6.513a1 1 0 0 1 0-.474C3.569 8.297 7.39 5.25 12 5.25Zm0 1.5c-3.85 0-7.07 2.452-8.086 5.25 1.015 2.798 4.236 5.25 8.086 5.25 3.85 0 7.07-2.452 8.086-5.25-1.015-2.798-4.236-5.25-8.086-5.25Zm0 2.25a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 1.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
+                  <svg class="eye-closed" viewBox="0 0 24 24" focusable="false"><path d="m4.28 3.22 16.5 16.5-1.06 1.06-2.37-2.37A11.46 11.46 0 0 1 12 19.25c-4.6 0-8.42-3.05-9.59-6.51a.99.99 0 0 1 0-.48 11.44 11.44 0 0 1 4.07-5.49L3.22 4.28l1.06-1.06Zm3.31 4.37a9.92 9.92 0 0 0-3.68 4.41c1.02 2.79 4.24 5.25 8.09 5.25a9.9 9.9 0 0 0 4.23-.92l-2.02-2.02A3.97 3.97 0 0 1 9.7 9.8L7.59 7.59Zm4.18 4.18a1.5 1.5 0 0 0 2.12 2.12l-2.12-2.12ZM12 4.75c4.6 0 8.42 3.05 9.59 6.51.06.16.09.32.09.48 0 .16-.03.32-.09.48a11.44 11.44 0 0 1-3.22 4.66l-1.07-1.07a9.95 9.95 0 0 0 2.79-3.81c-1.02-2.79-4.24-5.25-8.09-5.25-.95 0-1.87.15-2.73.42L8.05 6.1A11.4 11.4 0 0 1 12 4.75Z"/></svg>
+                </button>
+              </span>
+              <div class="register-password-rules" aria-label="{% if CURRENT_LANGUAGE == "az" %}Şifrə tələbləri{% elif CURRENT_LANGUAGE == "en" %}Password requirements{% else %}Требования к паролю{% endif %}">
+                <strong>{% if CURRENT_LANGUAGE == "az" %}Şifrə tələbləri:{% elif CURRENT_LANGUAGE == "en" %}Password requirements:{% else %}Требования к паролю:{% endif %}</strong>
+                <ul>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}ən az 8 simvol{% elif CURRENT_LANGUAGE == "en" %}at least 8 characters{% else %}не менее 8 символов{% endif %}</li>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}1 böyük hərf{% elif CURRENT_LANGUAGE == "en" %}1 uppercase letter{% else %}1 заглавная буква{% endif %}</li>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}1 kiçik hərf{% elif CURRENT_LANGUAGE == "en" %}1 lowercase letter{% else %}1 строчная буква{% endif %}</li>
+                  <li>{% if CURRENT_LANGUAGE == "az" %}1 rəqəm{% elif CURRENT_LANGUAGE == "en" %}1 number{% else %}1 цифра{% endif %}</li>
+                </ul>
+              </div>
+              {% if form.password1.errors %}<span class="auth-field-error">{{ form.password1.errors|join:", " }}</span>{% endif %}
+            </label>
+
+            <label class="register-field register-field-full {% if form.password2.errors %}has-error{% endif %}">
+              <span class="register-label">{{ form.password2.label }}</span>
+              <span class="register-input-wrap register-input-wrap-password">
+                <span class="register-input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75A4.25 4.25 0 0 0 7.75 7v2H7.5A2.75 2.75 0 0 0 4.75 11.75v6.5A2.75 2.75 0 0 0 7.5 21h9a2.75 2.75 0 0 0 2.75-2.75v-6.5A2.75 2.75 0 0 0 16.5 9h-.25V7A4.25 4.25 0 0 0 12 2.75Zm-2.75 6.5V7a2.75 2.75 0 0 1 5.5 0v2.25h-5.5Zm-1.75 1.25h9c.69 0 1.25.56 1.25 1.25v6.5c0 .69-.56 1.25-1.25 1.25h-9c-.69 0-1.25-.56-1.25-1.25v-6.5c0-.69.56-1.25 1.25-1.25Zm4.5 2.25a1.75 1.75 0 0 0-.75 3.332V17.5a.75.75 0 0 0 1.5 0v-1.418A1.75 1.75 0 0 0 12 12.75Zm0 1.5a.25.25 0 1 1 0 .5.25.25 0 0 1 0-.5Z"/></svg>
+                </span>
+                {{ form.password2 }}
+                <button type="button" class="register-password-toggle" data-password-toggle data-target-input-id="{{ form.password2.id_for_label }}" aria-label="{% if CURRENT_LANGUAGE == "az" %}Şifrəni göstər və ya gizlət{% elif CURRENT_LANGUAGE == "en" %}Show or hide password{% else %}Показать или скрыть пароль{% endif %}">
+                  <svg class="eye-open" viewBox="0 0 24 24" focusable="false"><path d="M12 5.25c4.61 0 8.431 3.047 9.587 6.513a1 1 0 0 1 0 .474C20.431 15.703 16.61 18.75 12 18.75c-4.61 0-8.431-3.047-9.587-6.513a1 1 0 0 1 0-.474C3.569 8.297 7.39 5.25 12 5.25Zm0 1.5c-3.85 0-7.07 2.452-8.086 5.25 1.015 2.798 4.236 5.25 8.086 5.25 3.85 0 7.07-2.452 8.086-5.25-1.015-2.798-4.236-5.25-8.086-5.25Zm0 2.25a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm0 1.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>
+                  <svg class="eye-closed" viewBox="0 0 24 24" focusable="false"><path d="m4.28 3.22 16.5 16.5-1.06 1.06-2.37-2.37A11.46 11.46 0 0 1 12 19.25c-4.6 0-8.42-3.05-9.59-6.51a.99.99 0 0 1 0-.48 11.44 11.44 0 0 1 4.07-5.49L3.22 4.28l1.06-1.06Zm3.31 4.37a9.92 9.92 0 0 0-3.68 4.41c1.02 2.79 4.24 5.25 8.09 5.25a9.9 9.9 0 0 0 4.23-.92l-2.02-2.02A3.97 3.97 0 0 1 9.7 9.8L7.59 7.59Zm4.18 4.18a1.5 1.5 0 0 0 2.12 2.12l-2.12-2.12ZM12 4.75c4.6 0 8.42 3.05 9.59 6.51.06.16.09.32.09.48 0 .16-.03.32-.09.48a11.44 11.44 0 0 1-3.22 4.66l-1.07-1.07a9.95 9.95 0 0 0 2.79-3.81c-1.02-2.79-4.24-5.25-8.09-5.25-.95 0-1.87.15-2.73.42L8.05 6.1A11.4 11.4 0 0 1 12 4.75Z"/></svg>
+                </button>
+              </span>
+              {% if form.password2.errors %}<span class="auth-field-error">{{ form.password2.errors|join:", " }}</span>{% endif %}
+            </label>
+
+            <div class="register-consent {% if form.agreement.errors %}has-error{% endif %}">
+              <label class="register-consent-label" for="{{ form.agreement.id_for_label }}">
+                {{ form.agreement }}
+                <span>
+                  {% if CURRENT_LANGUAGE == "az" %}
+                    <a href="{% url 'terms' %}">Qaydalar</a> və <a href="{% url 'privacy' %}">Şəxsi məlumatların mühafizəsi siyasəti</a> ilə razıyam.
+                  {% elif CURRENT_LANGUAGE == "en" %}
+                    I agree with the <a href="{% url 'terms' %}">Terms</a> and <a href="{% url 'privacy' %}">Privacy Policy</a>.
+                  {% else %}
+                    Я согласен с <a href="{% url 'terms' %}">правилами</a> и <a href="{% url 'privacy' %}">политикой конфиденциальности</a>.
+                  {% endif %}
+                </span>
+              </label>
+              {% if form.agreement.errors %}<span class="auth-field-error">{{ form.agreement.errors|join:", " }}</span>{% endif %}
+            </div>
+          </div>
+
+          <button type="submit" class="btn register-submit-btn" data-loading-button>
+            {% if CURRENT_LANGUAGE == "az" %}Hesab yarat{% elif CURRENT_LANGUAGE == "en" %}Create account{% else %}Создать аккаунт{% endif %}
+          </button>
+        </form>
+
+        <p class="register-login-note">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Artıq hesabınız var?
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Already have an account?
+          {% else %}
+            Уже есть аккаунт?
+          {% endif %}
+          <a href="{% url 'account_login' %}?intent={{ auth_intent|urlencode }}&next={{ next_url|urlencode }}">
+            {% if CURRENT_LANGUAGE == "az" %}Daxil ol{% elif CURRENT_LANGUAGE == "en" %}Sign in{% else %}Войти{% endif %}
+          </a>
+        </p>
+      </div>
+    </div>
   </section>
+
+  <script>
+    (function () {
+      document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var targetId = button.getAttribute("data-target-input-id");
+          if (!targetId) return;
+          var input = document.getElementById(targetId);
+          if (!input) return;
+          var nextType = input.type === "password" ? "text" : "password";
+          input.type = nextType;
+          button.classList.toggle("is-active", nextType === "text");
+          button.setAttribute("aria-pressed", nextType === "text" ? "true" : "false");
+        });
+      });
+    })();
+  </script>
 {% endblock %}

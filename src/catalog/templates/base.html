@@ -210,6 +210,7 @@
                     height="20"
                   />
                 </span>
+                <span class="lang-current-code" aria-hidden="true">{% if CURRENT_LANGUAGE == 'ru' %}RU{% elif CURRENT_LANGUAGE == 'az' %}AZ{% else %}EN{% endif %}</span>
                 <span class="visually-hidden">
                   {% if CURRENT_LANGUAGE == "ru" %}{% trans "Русский" %}{% elif CURRENT_LANGUAGE == "az" %}{% trans "Азербайджанский" %}{% else %}{% trans "Английский" %}{% endif %}
                 </span>

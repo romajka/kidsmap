@@ -48,10 +48,10 @@ User = get_user_model()
 
 class DjangoPlaceRepository(IPlaceRepository):
     def active_queryset(self) -> QuerySet:
-        return public_place_queryset(Place.objects.all())
+        return public_place_queryset(Place.objects.all()).select_related("owner")
 
     def active_queryset_with_gallery(self) -> QuerySet:
-        return public_place_queryset(Place.objects.all()).prefetch_related("gallery")
+        return public_place_queryset(Place.objects.all()).select_related("owner").prefetch_related("gallery", "events")
 
     def top_popular(self, limit: int) -> QuerySet:
         return self.active_queryset().order_by("-likes_count", "-updated_at")[:limit]
@@ -219,7 +219,7 @@ class DjangoAccountRepository(IAccountRepository):
     def list_user_favorite_likes(self, *, user) -> QuerySet:
         return (
             PlaceLike.objects.filter(user=user)
-            .select_related("place")
+            .select_related("place", "place__owner")
             .order_by("-created_at")
         )
 

@@ -18,10 +18,10 @@ sitemaps = {
 urlpatterns = [
     path("favicon.ico", RedirectView.as_view(url="/static/img/logo.svg", permanent=False)),
     path("i18n/", include("django.conf.urls.i18n")),  # set_language endpoint
-    path("admin/", admin.site.urls),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
     path("robots.txt", robots_txt, name="robots_txt"),
     path("healthz", healthz, name="healthz"),
+    path("admin/", admin.site.urls),
     re_path(
         rf"^{(settings.LANGUAGE_CODE or 'az').split('-')[0]}(?:/(?P<path>.*))?$",
         redirect_legacy_default_language_prefix,
@@ -30,6 +30,10 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
+    path(
+        "admin/",
+        include((admin.site.get_urls(), "localized_admin"), namespace="localized_admin"),
+    ),
     path("", include("catalog.urls")),
     prefix_default_language=False,
 )

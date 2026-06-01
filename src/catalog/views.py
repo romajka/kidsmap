@@ -23,6 +23,7 @@ from .controllers.auth_controller import AuthController
 from .controllers.engagement_controller import EngagementController
 from .controllers.home_controller import HomeController
 from .controllers.owner_places_controller import OwnerPlacesController
+from .controllers import owner_events_controller
 from .controllers.owner_reviews_controller import OwnerReviewsController
 from .controllers.owner_team_controller import OwnerTeamController
 from .controllers.ownership_controller import OwnershipController
@@ -669,63 +670,34 @@ def owner_place_create(request):
     return render(request, "pages/owner_place_create.html", context)
 
 
-def _owner_event_profile(request):
-    profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    return profile
-
-
-def _event_required_missing(event: Event) -> list[str]:
-    missing = []
-    if not event.name_az:
-        missing.append(_("название"))
-    if not event.category:
-        missing.append(_("категория"))
-    if not event.start_datetime or not event.end_datetime:
-        missing.append(_("дата и время"))
-    if event.end_datetime and event.end_datetime <= timezone.now():
-        missing.append(_("актуальная дата окончания"))
-    if event.age_from is None or event.age_to is None:
-        missing.append(_("возраст"))
-    if not event.price_text:
-        missing.append(_("цена"))
-    if not event.address:
-        missing.append(_("адрес"))
-    if not event.phone:
-        missing.append(_("телефон"))
-    if not event.description_az:
-        missing.append(_("описание"))
-    if not event.photo:
-        missing.append(_("фото"))
-    return missing
-
-
 def owner_event_create(request):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
-    profile = _owner_event_profile(request)
-    if profile is None:
-        messages.error(request, _("Для доступа войдите в аккаунт и повторите действие."))
-        return redirect("owner_places_dashboard")
-
     if request.method == "POST":
         form_action = (request.POST.get("form_action") or "").strip()
         draft_save_only = form_action == "save_draft"
-        form = OwnerEventForm(data=request.POST, files=request.FILES, user=request.user, draft_save_only=draft_save_only)
-        if form.is_valid():
-            event = form.save(commit=False)
-            event.owner = request.user
-            event.status = Event.STATUS_DRAFT if draft_save_only else Event.STATUS_PENDING
-            if not draft_save_only:
-                event.rejection_reason = ""
-                event.published_at = None
-            event.save()
-            messages.success(
-                request,
-                _("Qaralama saxlanıldı.") if draft_save_only else _("Tədbir moderasiyaya göndərildi."),
-            )
+        result = owner_events_controller.create_event(
+            request=request, 
+            data=request.POST, 
+            files=request.FILES, 
+            draft_save_only=draft_save_only
+        )
+        if result.ok:
+            messages.success(request, result.message)
             return redirect("owner_places_dashboard")
+        
+        if result.form is None:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+
+        form = result.form
+        profile = result.profile
     else:
+        profile = owner_events_controller.get_owner_profile(request.user)
+        if profile is None:
+            messages.error(request, _("Для доступа войдите в аккаунт и повторите действие."))
+            return redirect("owner_places_dashboard")
         form = OwnerEventForm(user=request.user)
 
     return render(
@@ -744,41 +716,38 @@ def owner_event_edit(request, pk):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
-    profile = _owner_event_profile(request)
-    if profile is None:
-        messages.error(request, _("Для доступа войдите в аккаунт и повторите действие."))
-        return redirect("owner_places_dashboard")
-
-    event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
-    if event.status in {Event.STATUS_PENDING, Event.STATUS_PUBLISHED} and request.method != "GET":
-        messages.error(request, _("Tədbir yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."))
-        return redirect("owner_places_dashboard")
-
     if request.method == "POST":
         form_action = (request.POST.get("form_action") or "").strip()
         draft_save_only = form_action == "save_draft"
-        form = OwnerEventForm(
-            data=request.POST,
-            files=request.FILES,
-            instance=event,
-            user=request.user,
-            draft_save_only=draft_save_only,
+        result = owner_events_controller.edit_event(
+            request=request, 
+            pk=pk, 
+            data=request.POST, 
+            files=request.FILES, 
+            draft_save_only=draft_save_only
         )
-        if form.is_valid():
-            event = form.save(commit=False)
-            if draft_save_only:
-                event.status = Event.STATUS_DRAFT
-            else:
-                event.status = Event.STATUS_PENDING
-                event.rejection_reason = ""
-                event.published_at = None
-            event.save()
-            messages.success(
-                request,
-                _("Qaralama saxlanıldı.") if draft_save_only else _("Tədbir moderasiyaya göndərildi."),
-            )
+        if result.ok:
+            messages.success(request, result.message)
             return redirect("owner_places_dashboard")
+            
+        if result.form is None:
+            messages.error(request, result.message)
+            return redirect("owner_places_dashboard")
+            
+        form = result.form
+        profile = result.profile
+        event = result.event
     else:
+        profile = owner_events_controller.get_owner_profile(request.user)
+        if profile is None:
+            messages.error(request, _("Для доступа войдите в аккаунт и повторите действие."))
+            return redirect("owner_places_dashboard")
+            
+        event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
+        if event.status in {Event.STATUS_PENDING, Event.STATUS_PUBLISHED}:
+            messages.error(request, _("Tədbir yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."))
+            return redirect("owner_places_dashboard")
+            
         form = OwnerEventForm(instance=event, user=request.user)
 
     return render(
@@ -798,21 +767,14 @@ def owner_event_submit_review(request, pk):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
-    event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
-    if event.status == Event.STATUS_PENDING:
-        messages.error(request, _("Это мероприятие уже на модерации."))
+    result = owner_events_controller.submit_event_for_review(request=request, pk=pk)
+    if result.ok:
+        messages.success(request, result.message)
         return redirect("owner_places_dashboard")
-
-    missing = _event_required_missing(event)
-    if missing:
-        messages.error(request, _("Заполните перед отправкой: %(fields)s.") % {"fields": ", ".join(str(item) for item in missing)})
-        return redirect("owner_event_edit", pk=event.pk)
-
-    event.status = Event.STATUS_PENDING
-    event.rejection_reason = ""
-    event.published_at = None
-    event.save(update_fields=["status", "rejection_reason", "published_at", "updated_at"])
-    messages.success(request, _("Tədbir moderasiyaya göndərildi."))
+        
+    messages.error(request, result.message)
+    if result.event and result.event.status != Event.STATUS_PENDING:
+        return redirect("owner_event_edit", pk=pk)
     return redirect("owner_places_dashboard")
 
 
@@ -821,10 +783,11 @@ def owner_event_delete(request, pk):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
-    event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
-    event.deleted_at = timezone.now()
-    event.save(update_fields=["deleted_at", "updated_at"])
-    messages.success(request, _("Tədbir silindi."))
+    result = owner_events_controller.delete_event(request=request, pk=pk)
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
     return redirect("owner_places_dashboard")
 
 
@@ -1327,6 +1290,7 @@ def account_register(request):
         return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
     auth_intent = _resolve_auth_intent(request)
+    language = (request.LANGUAGE_CODE or "az").split("-")[0]
     form = auth_controller.build_registration_form(data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         user = auth_controller.register_user_from_form(form=form)
@@ -1335,9 +1299,13 @@ def account_register(request):
             email=form.cleaned_data["email"],
         )
         if verification.ok:
+            success_message = {
+                "az": "Qeydiyyat demək olar ki, tamamlandı. E-poçta göndərilən kodu daxil edib hesabınızı təsdiqləyin.",
+                "en": "Registration is almost complete. Enter the code from your email to confirm your account.",
+            }.get(language, _("Регистрация почти завершена. Введите код из письма для подтверждения email."))
             messages.success(
                 request,
-                _("Регистрация почти завершена. Введите код из письма для подтверждения email."),
+                success_message,
             )
         else:
             messages.error(request, verification.message)
@@ -1355,7 +1323,10 @@ def account_register(request):
         "auth/register.html",
         {
             "form": form,
-            "meta_description": _("Регистрация в KidsMap: создайте аккаунт и начните пользоваться каталогом."),
+            "meta_description": {
+                "az": "KidsMap qeydiyyatı: hesab yaradın və kataloqdan rahat istifadə etməyə başlayın.",
+                "en": "Register on KidsMap and start using the catalog.",
+            }.get(language, _("Регистрация в KidsMap: создайте аккаунт и начните пользоваться каталогом.")),
             "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
             "auth_intent": auth_intent,
             "analytics_events": [
@@ -1375,6 +1346,7 @@ def account_login(request):
         return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
 
     auth_intent = _resolve_auth_intent(request)
+    language = (request.LANGUAGE_CODE or "az").split("-")[0]
     form = auth_controller.build_login_form(request=request, data=request.POST or None)
     if request.method == "POST" and form.is_valid():
         auth_login(request, form.get_user())
@@ -1382,15 +1354,27 @@ def account_login(request):
             request.session.set_expiry(int(getattr(settings, "SESSION_COOKIE_AGE", 1209600)))
         else:
             request.session.set_expiry(0)
-        messages.success(request, _("Вы вошли в аккаунт."))
+        if language == "az":
+            messages.success(request, "Hesabınıza daxil oldunuz.")
+        elif language == "en":
+            messages.success(request, "You are now signed in.")
+        else:
+            messages.success(request, _("Вы вошли в аккаунт."))
         return redirect(_resolve_safe_next_url(request, reverse("account_profile")))
+
+    if language == "az":
+        meta_description = "KidsMap hesabınıza daxil olun."
+    elif language == "en":
+        meta_description = "Sign in to your KidsMap account."
+    else:
+        meta_description = _("Вход в аккаунт KidsMap.")
 
     return render(
         request,
         "auth/login.html",
         {
             "form": form,
-            "meta_description": _("Вход в аккаунт KidsMap."),
+            "meta_description": meta_description,
             "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
             "auth_intent": auth_intent,
         },

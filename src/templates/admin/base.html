@@ -107,6 +107,35 @@
             {% endif %}
 
             <ul class="navbar-nav ml-auto">
+                {% if admin_language_switch_items %}
+                <li class="nav-item d-none d-md-flex align-items-center">
+                    <div class="km-admin-lang-switch">
+                        {% for item in admin_language_switch_items %}
+                            <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="language" value="{{ item.code }}">
+                                <input type="hidden" name="next" value="{{ item.url }}">
+                                <button
+                                    type="submit"
+                                    class="km-admin-lang-btn{% if item.active %} is-active{% endif %}"
+                                    {% if item.active %}aria-current="true"{% endif %}
+                                >{{ item.code|upper }}</button>
+                            </form>
+                            {% if not forloop.last %}
+                                <span class="km-admin-userlinks-sep">/</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </li>
+                {% endif %}
+
+                {% if ownership_pending_count %}
+                <li class="nav-item d-none d-md-flex align-items-center">
+                    <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}" class="km-admin-pending-pill">
+                        {% blocktranslate with count=ownership_pending_count %}На рассмотрении: {{ count }}{% endblocktranslate %}
+                    </a>
+                </li>
+                {% endif %}
 
                 {% if jazzmin_settings.show_ui_builder %}
                 <li class="nav-item">

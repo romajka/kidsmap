@@ -1,6 +1,16 @@
 {% extends "admin/change_form.html" %}
 {% load i18n %}
 
+{% block content %}
+  {% if not google_maps_api_key %}
+    <div class="alert alert-warning" style="margin-bottom: 1rem; border-radius: 4px; padding: 15px; background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;">
+      <i class="fas fa-exclamation-triangle"></i>
+      <strong>{% translate "Xəritə üçün hazır deyil" %}:</strong> {% translate "Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY." %}
+    </div>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
 {% block submit_buttons_top %}
   {{ block.super }}
   {% if not is_popup %}

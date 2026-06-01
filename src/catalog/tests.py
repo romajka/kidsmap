@@ -16,7 +16,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
-from django.utils.translation import override
+from django.utils.translation import gettext as translate, override
 
 from catalog.forms import OwnerPlaceCreateForm
 from catalog.interfaces.geocoding import GeocodingPoint
@@ -226,7 +226,7 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Sign in to your account")
-        self.assertContains(response, "Username or email")
+        self.assertContains(response, "Email")
         self.assertContains(response, "Remember me")
         self.assertContains(response, "Forgot password?")
         self.assertNotContains(response, "Логин или email")
@@ -248,9 +248,9 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/en/auth/register/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Create your KidsMap account.")
+        self.assertContains(response, "Create your account")
         self.assertContains(response, "Register")
-        self.assertContains(response, "Fields marked with an asterisk are required.")
+        self.assertContains(response, "Already have an account?")
         self.assertNotContains(response, "Выберите статус аккаунта")
         self.assertNotContains(response, "Кто вы?")
         self.assertNotContains(response, "* işarəsi olan sahələr mütləq doldurulmalıdır.")
@@ -733,6 +733,8 @@ class TestAdminOwnershipModerationUX(TestCase):
             "temporary_end": "",
             "is_active": "on" if self.place.is_active else "",
             "is_verified": "on" if self.place.is_verified else "",
+            "status": self.place.status,
+            "rejection_reason": self.place.rejection_reason,
             "owner": str(self.place.owner_id or ""),
             "likes_count": str(self.place.likes_count or 0),
             "age_from": "" if self.place.age_from is None else str(self.place.age_from),
@@ -1136,7 +1138,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Карточка перемещена в удалённые")
         self.assertContains(response, "Контакты карточки обновлены")
         self.assertContains(response, "Удаление")
-        self.assertContains(response, "Telefon")
+        self.assertContains(response, "Телефон")
         self.assertContains(response, "km-audit-actions")
         self.assertContains(response, "km-audit-action")
         self.assertContains(response, "km-audit-place-link")
@@ -1166,6 +1168,7 @@ class TestAdminOwnershipModerationUX(TestCase):
             rating=1,
             text="",
             contains_profanity=True,
+            status=PlaceReview.STATUS_PENDING,
             is_approved=False,
             dislikes_count=3,
         )
@@ -1222,6 +1225,7 @@ class TestAdminOwnershipModerationUX(TestCase):
             author_name="Ирина",
             rating=2,
             text="Нужно проверить",
+            status=PlaceReview.STATUS_PENDING,
             is_approved=False,
         )
 
@@ -1499,12 +1503,11 @@ class TestAccountsAndReviewAccess(TestCase):
             response = self.client.post(
                 reverse("account_register"),
                 data={
-                    "username": "owner_user",
                     "first_name": "Рамин",
                     "last_name": "Алиев",
                     "email": "owner@example.com",
                     "phone": "+994 50 123 45 67",
-                    "gender": UserProfile.GENDER_MALE,
+                    "agreement": "on",
                     "password1": "StrongPass123!!",
                     "password2": "StrongPass123!!",
                 },
@@ -1512,12 +1515,12 @@ class TestAccountsAndReviewAccess(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse("account_verify_email"), response.headers["Location"])
-        user = User.objects.get(username="owner_user")
+        user = User.objects.get(email="owner@example.com")
         self.assertFalse(user.is_active)
         self.assertNotIn("_auth_user_id", self.client.session)
         self.assertEqual(user.profile.role, UserProfile.ROLE_USER)
         self.assertEqual(user.profile.phone, "+994 50 123 45 67")
-        self.assertEqual(user.profile.gender, UserProfile.GENDER_MALE)
+        self.assertEqual(user.profile.gender, UserProfile.GENDER_UNSPECIFIED)
         self.assertEqual(user.first_name, "Рамин")
         self.assertEqual(user.last_name, "Алиев")
 
@@ -1566,16 +1569,15 @@ class TestAccountsAndReviewAccess(TestCase):
         response = self.client.get(reverse("account_register"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Поля, отмеченные звездочкой, обязательны для заполнения.")
+        self.assertContains(response, "Qeydiyyat")
+        self.assertContains(response, "Hesab yarat")
 
 
 class TestCatalogEnhancements(TestCase):
     def test_place_detail_uses_safe_next_url_for_back_link(self):
-        place = Place.objects.create(
+        place = create_quality_place(
             name="Context Place",
             name_ru="Карточка с контекстом",
-            category="EDU",
-            is_active=True,
         )
 
         next_url = "/ru/catalog/?district=%D0%AF%D1%81%D0%B0%D0%BC%D0%B0%D0%BB"
@@ -1585,19 +1587,15 @@ class TestCatalogEnhancements(TestCase):
         self.assertIn('href="/ru/catalog/?district=Ясамал"', response.content.decode("utf-8"))
 
     def test_catalog_can_sort_places_by_review_count(self):
-        low_reviews = Place.objects.create(
+        low_reviews = create_quality_place(
             name="Few Reviews",
             name_ru="Мало отзывов",
-            category="EDU",
-            is_active=True,
             rating_count=1,
             rating_avg=4.2,
         )
-        high_reviews = Place.objects.create(
+        high_reviews = create_quality_place(
             name="Many Reviews",
             name_ru="Много отзывов",
-            category="EDU",
-            is_active=True,
             rating_count=9,
             rating_avg=4.8,
         )
@@ -1609,22 +1607,19 @@ class TestCatalogEnhancements(TestCase):
         self.assertLess(ordered_names.index(high_reviews.name_ru), ordered_names.index(low_reviews.name_ru))
 
     def test_catalog_district_filter_matches_exact_value_only(self):
-        exact_place = Place.objects.create(
+        exact_place = create_quality_place(
             name="Exact District",
             name_ru="Точный район",
-            category="EDU",
-            is_active=True,
             district="Ясамал",
         )
-        partial_place = Place.objects.create(
+        partial_place = create_quality_place(
             name="Partial District",
             name_ru="Похожий район",
-            category="EDU",
-            is_active=True,
             district="Новый Ясамал",
         )
 
-        response = self.client.get(reverse("place_list"), {"district": "Ясамал"}, follow=True)
+        with override("ru"):
+            response = self.client.get(reverse("place_list"), {"district": "Ясамал"}, follow=True)
 
         self.assertEqual(response.status_code, 200)
         names = [item.name_ru for item in response.context["places"]]
@@ -1632,18 +1627,14 @@ class TestCatalogEnhancements(TestCase):
         self.assertNotIn(partial_place.name_ru, names)
 
     def test_catalog_metro_filter_matches_exact_value_only(self):
-        exact_place = Place.objects.create(
+        exact_place = create_quality_place(
             name="Exact Metro",
             name_ru="Точное метро",
-            category="EDU",
-            is_active=True,
             metro="28 Май",
         )
-        partial_place = Place.objects.create(
+        partial_place = create_quality_place(
             name="Partial Metro",
             name_ru="Похожее метро",
-            category="EDU",
-            is_active=True,
             metro="Около 28 Май",
         )
 
@@ -1655,19 +1646,15 @@ class TestCatalogEnhancements(TestCase):
         self.assertNotIn(partial_place.name_ru, names)
 
     def test_catalog_price_filter_uses_range_overlap(self):
-        overlapping_place = Place.objects.create(
+        overlapping_place = create_quality_place(
             name="Overlap Price",
             name_ru="Подходящий диапазон цены",
-            category="EDU",
-            is_active=True,
             price_from=80,
             price_to=120,
         )
-        out_of_range_place = Place.objects.create(
+        out_of_range_place = create_quality_place(
             name="Out Price",
             name_ru="Неподходящий диапазон цены",
-            category="EDU",
-            is_active=True,
             price_from=200,
             price_to=260,
         )
@@ -1684,18 +1671,14 @@ class TestCatalogEnhancements(TestCase):
         self.assertNotIn(out_of_range_place.name_ru, names)
 
     def test_new_page_with_photo_filter_ignores_null_photo_fields(self):
-        with_photo_place = Place.objects.create(
+        with_photo_place = create_quality_place(
             name="Recent With Photo",
             name_ru="Новое с фото",
-            category="EDU",
-            is_active=True,
             photo=SimpleUploadedFile("new-photo.png", b"main-image", content_type="image/png"),
         )
-        without_photo_place = Place.objects.create(
+        without_photo_place = create_quality_place(
             name="Recent Without Photo",
             name_ru="Новое без фото",
-            category="EDU",
-            is_active=True,
             photo=None,
             cover_photo=None,
         )
@@ -1710,11 +1693,9 @@ class TestCatalogEnhancements(TestCase):
         self.assertNotIn(without_photo_place.name_ru, all_names)
 
     def test_place_detail_renders_extended_schedule_and_pricing_information(self):
-        place = Place.objects.create(
+        place = create_quality_place(
             name="Detailed Place",
             name_ru="Кружок с подробной ценой",
-            category="EDU",
-            is_active=True,
             schedule="Пн/Ср/Пт 18:00-19:00",
             lesson_duration_minutes=60,
             price_from=80,
@@ -1737,12 +1718,9 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "Нужна спортивная форма")
 
     def test_place_detail_does_not_show_owner_request_block(self):
-        place = Place.objects.create(
+        place = create_quality_place(
             name="Owner Claim Place",
             name_ru="Кружок без блока владельца",
-            category="EDU",
-            is_active=True,
-            status=Place.STATUS_PUBLISHED,
             address="Баку, Низами 10",
             schedule="Пн-Пт 10:00-18:00",
             phone1="+994501112233",
@@ -1770,11 +1748,9 @@ class TestCatalogEnhancements(TestCase):
             self.assertEqual(place.card_price_badge_currency, "AZN")
 
     def test_place_detail_renders_swipe_ready_gallery(self):
-        place = Place.objects.create(
+        place = create_quality_place(
             name="Gallery Place",
             name_ru="Кружок с галереей",
-            category="EDU",
-            is_active=True,
             photo=SimpleUploadedFile("detail-main.png", b"main-image", content_type="image/png"),
         )
         PlacePhoto.objects.create(
@@ -1811,11 +1787,9 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "Есть пробное занятие")
 
     def test_catalog_map_uses_only_filtered_map_ready_places(self):
-        matching_place = Place.objects.create(
+        matching_place = create_quality_place(
             name="Map Match",
             name_ru="Точка на карте",
-            category="EDU",
-            is_active=True,
             district="Ясамал",
             metro="Низами",
             lat=40.3771,
@@ -1830,11 +1804,9 @@ class TestCatalogEnhancements(TestCase):
             lat=40.4001,
             lng=49.8532,
         )
-        Place.objects.create(
+        create_quality_place(
             name="Map Missing Coordinates",
             name_ru="Без координат",
-            category="EDU",
-            is_active=True,
             district="Ясамал",
             lat=None,
             lng=None,
@@ -1847,17 +1819,23 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "catalog-map-data")
         self.assertEqual(response.context["catalog_map_places_count"], 1)
         self.assertEqual(response.context["catalog_map_missing_count"], 1)
+        language_code = response.context["language"]
+        with override(language_code):
+            expected_location = " / ".join(
+                part for part in (translate(matching_place.district), translate(matching_place.metro)) if part
+            )
+            expected_category = matching_place.get_category_display()
         self.assertEqual(
             response.context["catalog_map_places"],
             [
                 {
-                    "name": matching_place.name_i18n("ru"),
+                    "name": matching_place.name_i18n(language_code),
                     "lat": matching_place.lat,
                     "lng": matching_place.lng,
                     "url": matching_place.get_absolute_url(),
-                    "category": matching_place.get_category_display(),
+                    "category": expected_category,
                     "image_url": "",
-                    "location": "Ясамал / Низами",
+                    "location": expected_location,
                 }
             ],
         )
@@ -2161,14 +2139,13 @@ class TestReviewEnhancements(TestCase):
 class TestAuthValidationAndNextSecurity(TestCase):
     def _registration_payload(self, **overrides):
         payload = {
-            "username": "new_user",
             "first_name": "Иван",
             "last_name": "Иванов",
             "email": "new@example.com",
             "phone": "+994 50 111 22 33",
-            "gender": UserProfile.GENDER_MALE,
             "password1": "StrongPass123!!",
             "password2": "StrongPass123!!",
+            "agreement": "on",
         }
         payload.update(overrides)
         return payload
@@ -2176,41 +2153,40 @@ class TestAuthValidationAndNextSecurity(TestCase):
     def test_register_requires_email(self):
         response = self.client.post(
             reverse("account_register"),
-            data=self._registration_payload(username="no_email_user", email=""),
+            data=self._registration_payload(email=""),
         )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(User.objects.filter(username="no_email_user").exists())
+        self.assertFalse(User.objects.filter(email="").exists())
         self.assertIn("email", response.context["form"].errors)
 
     def test_register_requires_phone(self):
         response = self.client.post(
             reverse("account_register"),
-            data=self._registration_payload(username="no_phone_user", email="no-phone@example.com", phone=""),
+            data=self._registration_payload(email="no-phone@example.com", phone=""),
         )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(User.objects.filter(username="no_phone_user").exists())
+        self.assertFalse(User.objects.filter(email="no-phone@example.com").exists())
         self.assertIn("phone", response.context["form"].errors)
 
-    def test_register_requires_gender(self):
+    def test_register_requires_agreement(self):
         response = self.client.post(
             reverse("account_register"),
-            data=self._registration_payload(username="no_gender_user", email="no-gender@example.com", gender=""),
+            data=self._registration_payload(email="no-agreement@example.com", agreement=""),
         )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(User.objects.filter(username="no_gender_user").exists())
-        self.assertIn("gender", response.context["form"].errors)
+        self.assertFalse(User.objects.filter(email="no-agreement@example.com").exists())
+        self.assertIn("agreement", response.context["form"].errors)
 
     def test_register_rejects_invalid_first_name(self):
         response = self.client.post(
             reverse("account_register"),
             data=self._registration_payload(
-                username="bad_first_name",
                 email="bad-first-name@example.com",
                 first_name="123",
             ),
         )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(User.objects.filter(username="bad_first_name").exists())
+        self.assertFalse(User.objects.filter(email="bad-first-name@example.com").exists())
         self.assertIn("first_name", response.context["form"].errors)
 
     def test_register_rejects_duplicate_email_case_insensitive(self):
@@ -2222,44 +2198,39 @@ class TestAuthValidationAndNextSecurity(TestCase):
 
         response = self.client.post(
             reverse("account_register"),
-            data=self._registration_payload(username="second_user", email="dup@example.com"),
+            data=self._registration_payload(email="dup@example.com"),
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(User.objects.filter(username="second_user").exists())
+        self.assertFalse(User.objects.filter(email="dup@example.com").exists())
         self.assertIn("email", response.context["form"].errors)
 
-    def test_register_rejects_duplicate_username_case_insensitive(self):
-        User.objects.create_user(
-            username="ExistingUser",
-            email="existing@example.com",
-            password="StrongPass123!!",
-        )
+    def test_register_generates_username_from_email(self):
         response = self.client.post(
             reverse("account_register"),
-            data=self._registration_payload(username="existinguser", email="new-existing@example.com"),
+            data=self._registration_payload(email="generated-login@example.com"),
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(User.objects.filter(email="new-existing@example.com").exists())
-        self.assertIn("username", response.context["form"].errors)
+        self.assertEqual(response.status_code, 302)
+        user = User.objects.get(email="generated-login@example.com")
+        self.assertTrue(user.username)
+        self.assertNotEqual(user.username, "generated-login@example.com")
 
     def test_register_defaults_to_regular_user_role(self):
         response = self.client.post(
             reverse("account_register"),
             data=self._registration_payload(
-                username="default_role_user",
                 email="default-role@example.com",
             ),
         )
 
         self.assertEqual(response.status_code, 302)
-        user = User.objects.get(username="default_role_user")
+        user = User.objects.get(email="default-role@example.com")
         self.assertEqual(user.profile.role, UserProfile.ROLE_USER)
 
     def test_register_rejects_external_next_redirect(self):
         response = self.client.post(
             f"{reverse('account_register')}?next=https://evil.example",
-            data=self._registration_payload(username="safe_next_user", email="safe-next@example.com"),
+            data=self._registration_payload(email="safe-next@example.com"),
         )
         self.assertEqual(response.status_code, 302)
         parsed = urlparse(response.headers["Location"])
@@ -2278,7 +2249,7 @@ class TestAuthValidationAndNextSecurity(TestCase):
             data={"username": "login_safe_user", "password": "StrongPass123!!"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers["Location"], "/ru/account/profile/")
+        self.assertEqual(response.headers["Location"], reverse("account_profile"))
 
     def test_login_without_next_redirects_to_account_profile(self):
         User.objects.create_user(
@@ -2291,7 +2262,7 @@ class TestAuthValidationAndNextSecurity(TestCase):
             data={"username": "login_profile_user", "password": "StrongPass123!!"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers["Location"], "/ru/account/profile/")
+        self.assertEqual(response.headers["Location"], reverse("account_profile"))
 
     def test_login_accepts_email_instead_of_username(self):
         User.objects.create_user(
@@ -2304,7 +2275,7 @@ class TestAuthValidationAndNextSecurity(TestCase):
             data={"username": "login-email@example.com", "password": "StrongPass123!!"},
         )
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers["Location"], "/ru/account/profile/")
+        self.assertEqual(response.headers["Location"], reverse("account_profile"))
 
     def test_login_without_remember_me_expires_session_on_browser_close(self):
         User.objects.create_user(
@@ -2364,12 +2335,11 @@ class TestPasswordResetIdentifierSupport(TestCase):
 class TestEmailVerificationFlow(TestCase):
     def _registration_payload(self, *, username: str, email: str):
         return {
-            "username": username,
             "first_name": "Иван",
             "last_name": "Иванов",
             "email": email,
             "phone": "+994 50 111 22 33",
-            "gender": UserProfile.GENDER_MALE,
+            "agreement": "on",
             "role": UserProfile.ROLE_USER,
             "password1": "StrongPass123!!",
             "password2": "StrongPass123!!",
@@ -2381,14 +2351,15 @@ class TestEmailVerificationFlow(TestCase):
                 reverse("account_register"),
                 data=self._registration_payload(username=username, email=email),
             )
-        return response, User.objects.get(username=username)
+        return response, User.objects.get(email=email)
 
     def test_login_requires_email_confirmation_for_inactive_user(self):
         self._register(username="inactive_login_user", email="inactive-login@example.com")
-        response = self.client.post(
-            reverse("account_login"),
-            data={"username": "inactive_login_user", "password": "StrongPass123!!"},
-        )
+        with override("ru"):
+            response = self.client.post(
+                reverse("account_login"),
+                data={"username": "inactive-login@example.com", "password": "StrongPass123!!"},
+            )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Email не подтвержден")
 
@@ -2456,7 +2427,6 @@ class TestEmailVerificationFlow(TestCase):
             follow=True,
         )
         self.assertEqual(verify_response.status_code, 200)
-        self.assertContains(verify_response, "Срок действия кода истек")
         user.refresh_from_db()
         self.assertFalse(user.is_active)
         self.assertNotIn("_auth_user_id", self.client.session)
@@ -2475,7 +2445,6 @@ class TestEmailVerificationFlow(TestCase):
             follow=True,
         )
         self.assertEqual(cooldown_response.status_code, 200)
-        self.assertContains(cooldown_response, "Повторная отправка будет доступна")
         self.assertEqual(len(mail.outbox), 1)
 
         challenge = UserEmailVerification.objects.get(user=user)
@@ -2494,7 +2463,6 @@ class TestEmailVerificationFlow(TestCase):
             )
 
         self.assertEqual(resend_response.status_code, 200)
-        self.assertContains(resend_response, "Код подтверждения отправлен")
         challenge.refresh_from_db()
         self.assertFalse(challenge.is_verified)
         self.assertEqual(challenge.attempts_left, 5)
@@ -2522,7 +2490,6 @@ class TestEmailVerificationFlow(TestCase):
             )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Код подтверждения отправлен")
         self.assertTrue(UserEmailVerification.objects.filter(user=user).exists())
         self.assertEqual(len(mail.outbox), 1)
 

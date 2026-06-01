@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from importlib.util import find_spec
+from django.utils.translation import gettext_lazy as _
 
 SRC_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = SRC_DIR.parent
@@ -81,7 +82,7 @@ INSTALLED_APPS = [
 ]
 
 JAZZMIN_SETTINGS = {
-    "site_title": "KidsMap Admin",
+    "site_title": "Панель управления KidsMap",
     "site_header": "KidsMap",
     "site_brand": "KidsMap",
     "site_logo": "img/logo.svg",
@@ -103,12 +104,16 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
     
     "icons": {
+        # Auth
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
+
+        # Catalog — основные модели
         "catalog.Place": "fas fa-map-marker-alt",
         "catalog.Event": "fas fa-calendar-alt",
         "catalog.PlaceReview": "fas fa-star",
+        "catalog.PlaceReviewsByClub": "fas fa-star-half-alt",
         "catalog.SiteReview": "fas fa-comment-dots",
         "catalog.SiteRegisteredUser": "fas fa-user-check",
         "catalog.StaffAccessUser": "fas fa-user-shield",
@@ -127,16 +132,45 @@ JAZZMIN_SETTINGS = {
         "catalog.SiteGalleryImage": "fas fa-images",
         "catalog.PlaceChangeAudit": "fas fa-history",
         "catalog.PlaceOwnershipRequestAudit": "fas fa-clipboard-list",
-        "catalog.PlaceReviewsByClub": "fas fa-star-half-alt",
         "catalog.CatalogContentSettings": "fas fa-sliders-h",
+        "catalog.PlacePhoto": "fas fa-camera",
+
+        # Модерация
+        "catalog_moderation.ModerationPlace": "fas fa-map-marker-alt",
+        "catalog_moderation.ModerationEvent": "fas fa-calendar-alt",
+        "catalog_moderation.ModerationReview": "fas fa-star",
+        "catalog_moderation.PlaceOwnershipRequest": "fas fa-key",
+        "catalog_moderation.ModerationPlaceOwnershipRequest": "fas fa-key",
+
+        # Пользователи
+        "catalog_users.UsersSiteRegisteredUser": "fas fa-user",
+        "catalog_users.UsersStaffAccessUser": "fas fa-user-shield",
+        "catalog_users.UsersEmailVerification": "fas fa-envelope-open-text",
+        "catalog_users.UsersOwnerTeamMembership": "fas fa-users",
+
+        # Контент сайта
+        "catalog_content.ContentCatalogSettings": "fas fa-sliders-h",
+        "catalog_content.ContentSiteGallery": "fas fa-images",
+        "catalog_content.ContentSiteReview": "fas fa-comment-dots",
+
+        # Система
+        "catalog_system.SystemSiteSettings": "fas fa-cogs",
+        "catalog_system.SystemSiteBranding": "fas fa-paint-brush",
+        "catalog_system.SystemSiteAbout": "fas fa-info-circle",
+        "catalog_system.SystemSiteContacts": "fas fa-address-book",
+        "catalog_system.SystemSiteFooter": "fas fa-shoe-prints",
+        "catalog_system.SystemSiteEmptyState": "fas fa-ghost",
+        "catalog_system.SystemSiteAnalytics": "fas fa-chart-line",
+        "catalog_system.SystemPlaceChangeAudit": "fas fa-history",
+        "catalog_system.SystemPlaceOwnershipRequestAudit": "fas fa-clipboard-list",
     },
     
-    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_parents": "fas fa-folder",
     "default_icon_children": "fas fa-circle",
     "related_modal_active": True,
     "custom_css": "admin/css/kidsmap_admin.css",
     "custom_js": None,
-    "show_ui_builder": True,
+    "show_ui_builder": False,
     "language_chooser": False,
 }
 
@@ -173,7 +207,10 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],  # опционально (общие шаблоны)
+        "DIRS": [
+            BASE_DIR / "templates",
+            BASE_DIR / "src/templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

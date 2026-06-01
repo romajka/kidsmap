@@ -108,7 +108,7 @@ class PlaceController:
                     ) % {"total": total_results}
             else:
                 if language_code == "az":
-                    results_count_label = f"{total_results} kart tapıldı"
+                    results_count_label = f"{total_results} məkan tapıldı"
                 elif language_code == "en":
                     results_count_label = f"{total_results} clubs found"
                 else:
@@ -449,41 +449,73 @@ class PlaceController:
 
         query = str(selected.get("q") or "").strip()
         if query:
-            chips.append({"label": _("Поиск: %(value)s") % {"value": query}, "remove_url": remove_url("q")})
+            if language_code == "az":
+                label = f"Axtarış: {query}"
+            elif language_code == "en":
+                label = f"Search: {query}"
+            else:
+                label = _("Поиск: %(value)s") % {"value": query}
+            chips.append({"label": label, "remove_url": remove_url("q")})
 
         category = str(selected.get("category") or "").strip()
         if category:
             category_label = dict(Place.CATEGORY_CHOICES).get(category, category)
+            if language_code == "az":
+                label = f"Kateqoriya: {category_label}"
+            elif language_code == "en":
+                label = f"Category: {category_label}"
+            else:
+                label = _("Категория: %(value)s") % {"value": category_label}
             chips.append(
                 {
-                    "label": _("Категория: %(value)s") % {"value": category_label},
+                    "label": label,
                     "remove_url": remove_url("category"),
                 }
             )
 
         district = str(selected.get("district") or "").strip()
         if district:
+            district_value = _(district)
+            if language_code == "az":
+                label = district_value
+            elif language_code == "en":
+                label = f"District: {district_value}"
+            else:
+                label = _("Регион / район: %(value)s") % {"value": district_value}
             chips.append(
                 {
-                    "label": _("Регион / район: %(value)s") % {"value": _(district)},
+                    "label": label,
                     "remove_url": remove_url("district"),
                 }
             )
 
         metro = str(selected.get("metro") or "").strip()
         if metro and not force_new_only:
+            metro_value = _(metro)
+            if language_code == "az":
+                label = metro_value
+            elif language_code == "en":
+                label = f"Metro: {metro_value}"
+            else:
+                label = _("Метро: %(value)s") % {"value": metro_value}
             chips.append(
                 {
-                    "label": _("Метро: %(value)s") % {"value": _(metro)},
+                    "label": label,
                     "remove_url": remove_url("metro"),
                 }
             )
 
         min_rating = str(selected.get("min_rating") or "").strip()
         if min_rating:
+            if language_code == "az":
+                label = f"{min_rating}+ reytinq"
+            elif language_code == "en":
+                label = f"Rating {min_rating}+"
+            else:
+                label = _("Рейтинг от %(value)s") % {"value": min_rating}
             chips.append(
                 {
-                    "label": _("Рейтинг от %(value)s") % {"value": min_rating},
+                    "label": label,
                     "remove_url": remove_url("min_rating"),
                 }
             )
@@ -501,14 +533,28 @@ class PlaceController:
         age_from = str(selected.get("age_from") or "").strip()
         age_to = str(selected.get("age_to") or "").strip()
         if not force_new_only and (age_from or age_to) and not (age_from in {"", "0"} and age_to in {"", "18"}):
-            age_label = _("%(from)s–%(to)s лет") % {"from": age_from or "0", "to": age_to or "18"}
-            chips.append({"label": _("Возраст: %(value)s") % {"value": age_label}, "remove_url": remove_url("age", "age_from", "age_to")})
+            if language_code == "az":
+                age_label = f"{age_from or '0'}–{age_to or '18'} yaş"
+                label = age_label
+            elif language_code == "en":
+                age_label = f"{age_from or '0'}–{age_to or '18'} years"
+                label = f"Age: {age_label}"
+            else:
+                age_label = _("%(from)s–%(to)s лет") % {"from": age_from or "0", "to": age_to or "18"}
+                label = _("Возраст: %(value)s") % {"value": age_label}
+            chips.append({"label": label, "remove_url": remove_url("age", "age_from", "age_to")})
 
         price_from = str(selected.get("price_from") or "").strip()
         price_to = str(selected.get("price_to") or "").strip()
         if not force_new_only and (price_from or price_to) and not (price_from in {"", "0"} and price_to in {"", "500"}):
             price_label = _("%(from)s–%(to)s AZN") % {"from": price_from or "0", "to": price_to or "500"}
-            chips.append({"label": _("Цена: %(value)s") % {"value": price_label}, "remove_url": remove_url("price_from", "price_to", "price_max")})
+            if language_code == "az":
+                label = price_label
+            elif language_code == "en":
+                label = f"Price: {price_label}"
+            else:
+                label = _("Цена: %(value)s") % {"value": price_label}
+            chips.append({"label": label, "remove_url": remove_url("price_from", "price_to", "price_max")})
 
         if force_new_only:
             days = str(selected.get("days") or "").strip()

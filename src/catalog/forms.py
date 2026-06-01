@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import hashlib
 import re
 
 from django import forms
@@ -15,8 +16,9 @@ from django.contrib.auth.forms import (
 )
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.utils.text import slugify
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.models import CatalogContentSettings, Event, Place, UserProfile
@@ -36,15 +38,27 @@ def _normalize_whitespace(value: str) -> str:
 
 def _validate_person_name(value: str, *, field_label: str) -> str:
     normalized = _normalize_whitespace(value)
+    language = (get_language() or "ru").split("-")[0]
     if not normalized:
+        if language == "az":
+            raise ValidationError("%(field)s daxil edilməlidir." % {"field": field_label})
         raise ValidationError(_("%(field)s обязательно для заполнения.") % {"field": field_label})
     if len(normalized) < 2:
+        if language == "az":
+            raise ValidationError("%(field)s çox qısadır. Ən azı 2 simvol daxil edin." % {"field": field_label})
         raise ValidationError(_("%(field)s слишком короткое. Укажите минимум 2 символа.") % {"field": field_label})
     if normalized[0] in _NAME_CONNECTORS or normalized[-1] in _NAME_CONNECTORS:
+        if language == "az":
+            raise ValidationError("%(field)s daxilində uyğun olmayan simvollar var." % {"field": field_label})
         raise ValidationError(_("%(field)s содержит недопустимые символы.") % {"field": field_label})
     for char in normalized:
         if char in _NAME_CONNECTORS or char.isalpha():
             continue
+        if language == "az":
+            raise ValidationError(
+                "%(field)s yalnız hərflər, boşluq, defis və ya apostrofdan ibarət olmalıdır."
+                % {"field": field_label}
+            )
         raise ValidationError(
             _("%(field)s должно содержать только буквы, пробел, дефис или апостроф.")
             % {"field": field_label}
@@ -54,14 +68,48 @@ def _validate_person_name(value: str, *, field_label: str) -> str:
 
 def _validate_phone(value: str) -> str:
     normalized = _normalize_whitespace(value)
+    language = (get_language() or "ru").split("-")[0]
     if not normalized:
+        if language == "az":
+            raise ValidationError("Mobil nömrənizi daxil edin.")
         raise ValidationError(_("Укажите номер телефона."))
     if not _PHONE_RE.fullmatch(normalized):
+        if language == "az":
+            raise ValidationError("Düzgün telefon nömrəsi daxil edin. Nümunə: +994 50 123 45 67")
         raise ValidationError(_("Введите корректный номер телефона. Пример: +994 50 123 45 67"))
     digits = "".join(char for char in normalized if char.isdigit())
     if len(digits) < 7 or len(digits) > 15:
+        if language == "az":
+            raise ValidationError("Telefon nömrəsi 7-dən 15-ə qədər rəqəmdən ibarət olmalıdır.")
         raise ValidationError(_("Номер телефона должен содержать от 7 до 15 цифр."))
     return normalized
+
+
+def _build_registration_username(email: str) -> str:
+    normalized_email = (email or "").strip().lower()
+    if not normalized_email:
+        return ""
+
+    if "@" in normalized_email:
+        local_part, domain_part = normalized_email.split("@", 1)
+    else:
+        local_part, domain_part = normalized_email, "kidsmap.az"
+
+    local_slug = slugify(local_part.replace(".", " ").replace("_", " ").replace("+", " "), allow_unicode=False)
+    local_slug = local_slug.replace("-", "_") or "user"
+    domain_slug = slugify(domain_part.replace(".", " "), allow_unicode=False).replace("-", "_") or "kidsmap"
+    digest = hashlib.sha1(normalized_email.encode("utf-8")).hexdigest()[:10]
+    candidate = f"{local_slug}_{domain_slug}_{digest}"[:150]
+    if not User.objects.filter(username__iexact=candidate).exists():
+        return candidate
+
+    base = candidate[:138].rstrip("_") or "user"
+    suffix = 2
+    while True:
+        value = f"{base}_{suffix}"[:150]
+        if not User.objects.filter(username__iexact=value).exists():
+            return value
+        suffix += 1
 
 
 def _validate_uploaded_image(file_obj, *, max_bytes: int = _OWNER_IMAGE_MAX_BYTES) -> None:
@@ -150,59 +198,112 @@ class RegistrationForm(UserCreationForm):
         error_messages={"required": _("Укажите номер телефона.")},
         widget=forms.TextInput(attrs={"class": "field", "autocomplete": "tel"}),
     )
-    gender = forms.ChoiceField(
-        label=_("Пол"),
-        choices=UserProfile.REGISTRATION_GENDER_CHOICES,
+    agreement = forms.BooleanField(
+        label=_("Я согласен с правилами и политикой конфиденциальности."),
         required=True,
         error_messages={
-            "required": _("Выберите пол."),
-            "invalid_choice": _("Выберите корректный вариант пола."),
+            "required": _("Подтвердите согласие с правилами и политикой конфиденциальности."),
         },
-        widget=forms.RadioSelect(attrs={"class": "auth-role-option"}),
     )
+
     class Meta:
         model = User
-        fields = ("username", "first_name", "last_name", "email")
-        widgets = {
-            "username": forms.TextInput(attrs={"class": "field", "autocomplete": "username"}),
-        }
+        fields = ("first_name", "last_name", "email")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["username"].label = _("Логин")
-        self.fields["username"].help_text = _("Только буквы, цифры и символы @/./+/-/_")
-        self.fields["username"].error_messages.update(
-            {
-                "required": _("Укажите логин. Пример: ramin_01."),
-                "invalid": _("Логин содержит недопустимые символы. Используйте буквы, цифры и @/./+/-/_."),
-                "max_length": _("Логин слишком длинный. Используйте не более 150 символов."),
-            }
-        )
+        for field_name in ("first_name", "last_name", "email", "phone", "password1", "password2"):
+            existing_class = self.fields[field_name].widget.attrs.get("class", "")
+            self.fields[field_name].widget.attrs["class"] = f"{existing_class} register-field-input".strip()
         self.fields["first_name"].help_text = _("Введите ваше настоящее имя.")
         self.fields["last_name"].help_text = _("Введите вашу настоящую фамилию.")
         self.fields["email"].help_text = _(
             "Укажите рабочий email: после регистрации на него придет код подтверждения."
         )
         self.fields["phone"].help_text = _("Номер нужен для связи по вашему аккаунту.")
-        self.fields["gender"].help_text = _("Укажите ваш пол.")
-        self.fields["password1"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
-        self.fields["password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
+        self.fields["email"].widget.attrs["inputmode"] = "email"
+        self.fields["phone"].widget.attrs["inputmode"] = "tel"
+        self.fields["password1"].widget.attrs.update({"class": "field register-field-input", "autocomplete": "new-password"})
+        self.fields["password2"].widget.attrs.update({"class": "field register-field-input", "autocomplete": "new-password"})
+        self.fields["agreement"].widget.attrs["class"] = "register-consent-checkbox"
         self.fields["password1"].label = _("Пароль")
         self.fields["password2"].label = _("Повторите пароль")
+        self.fields["password1"].help_text = ""
+        self.fields["password2"].help_text = ""
         self.fields["password1"].error_messages.update(
             {"required": _("Придумайте пароль, чтобы продолжить регистрацию.")}
         )
         self.fields["password2"].error_messages.update(
             {"required": _("Повторите пароль, чтобы подтвердить ввод.")}
         )
+        self._apply_registration_copy()
 
-    def clean_username(self):
-        username = (self.cleaned_data.get("username") or "").strip()
-        if not username:
-            raise ValidationError(_("Укажите логин. Пример: ramin_01."))
-        if User.objects.filter(username__iexact=username).exists():
-            raise ValidationError(_("Этот логин уже занят. Выберите другой, например добавьте цифры."))
-        return username
+    def _apply_registration_copy(self) -> None:
+        language = (get_language() or "az").split("-")[0]
+        placeholders = {
+            "first_name": {
+                "az": "Adınızı daxil edin",
+                "en": "Enter your first name",
+                "ru": "Введите имя",
+            },
+            "last_name": {
+                "az": "Soyadınızı daxil edin",
+                "en": "Enter your last name",
+                "ru": "Введите фамилию",
+            },
+            "email": {
+                "az": "E-poçt ünvanınızı daxil edin",
+                "en": "Enter your email address",
+                "ru": "Введите email",
+            },
+            "phone": {
+                "az": "Mobil nömrənizi daxil edin",
+                "en": "Enter your mobile number",
+                "ru": "Введите номер телефона",
+            },
+            "password1": {
+                "az": "Şifrənizi daxil edin",
+                "en": "Enter your password",
+                "ru": "Введите пароль",
+            },
+            "password2": {
+                "az": "Şifrənizi yenidən daxil edin",
+                "en": "Re-enter your password",
+                "ru": "Повторите пароль",
+            },
+        }
+        for field_name, variants in placeholders.items():
+            self.fields[field_name].widget.attrs["placeholder"] = variants.get(language, variants["ru"])
+
+        if language != "az":
+            return
+
+        self.fields["first_name"].label = "Ad"
+        self.fields["last_name"].label = "Soyad"
+        self.fields["email"].label = "E-poçt"
+        self.fields["phone"].label = "Telefon"
+        self.fields["password1"].label = "Şifrə"
+        self.fields["password2"].label = "Şifrəni təkrarlayın"
+        self.fields["agreement"].label = "Qaydalar və Şəxsi məlumatların mühafizəsi siyasəti ilə razıyam."
+        self.fields["first_name"].help_text = ""
+        self.fields["last_name"].help_text = ""
+        self.fields["email"].help_text = ""
+        self.fields["phone"].help_text = ""
+        self.fields["first_name"].error_messages["required"] = "Adınızı daxil edin."
+        self.fields["last_name"].error_messages["required"] = "Soyadınızı daxil edin."
+        self.fields["email"].error_messages.update(
+            {
+                "required": "E-poçt ünvanınızı daxil edin.",
+                "invalid": "Düzgün e-poçt ünvanı daxil edin.",
+            }
+        )
+        self.fields["phone"].error_messages["required"] = "Mobil nömrənizi daxil edin."
+        self.fields["password1"].error_messages["required"] = "Şifrəni daxil edin."
+        self.fields["password2"].error_messages["required"] = "Şifrəni yenidən daxil edin."
+        self.fields["agreement"].error_messages["required"] = (
+            "Qaydalar və məxfilik siyasəti ilə razı olduğunuzu təsdiqləyin."
+        )
+        self.error_messages["password_mismatch"] = "Şifrələr eyni deyil. Hər iki xanada eyni şifrəni yazın."
 
     def clean_email(self):
         email = (self.cleaned_data.get("email") or "").strip().lower()
@@ -223,15 +324,9 @@ class RegistrationForm(UserCreationForm):
     def clean_phone(self):
         return _validate_phone(self.cleaned_data.get("phone") or "")
 
-    def clean_gender(self):
-        gender = (self.cleaned_data.get("gender") or "").strip().upper()
-        valid_values = {value for value, _ in UserProfile.REGISTRATION_GENDER_CHOICES}
-        if gender not in valid_values:
-            raise ValidationError(_("Выберите корректный вариант пола."))
-        return gender
-
     def save(self, commit=True):
         user = super().save(commit=False)
+        user.username = _build_registration_username(self.cleaned_data["email"])
         user.email = self.cleaned_data["email"]
         user.first_name = self.cleaned_data["first_name"]
         user.last_name = self.cleaned_data["last_name"]
@@ -245,7 +340,7 @@ class LoginForm(AuthenticationForm):
         "invalid_login": _(
             "Не удалось войти. Проверьте логин и пароль (раскладку, Caps Lock) и попробуйте снова."
         ),
-        "inactive": _("Этот аккаунт временно отключен. Обратитесь к администратору."),
+        "inactive": _("Email не подтвержден. Подтвердите email кодом из письма, затем повторите вход."),
     }
     username = forms.CharField(
         label=_("Логин или email"),
@@ -268,6 +363,61 @@ class LoginForm(AuthenticationForm):
         initial=False,
     )
 
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(request=request, *args, **kwargs)
+        self.fields["username"].widget.attrs.update(
+            {
+                "class": "register-field-input",
+                "autocomplete": "username",
+                "inputmode": "email",
+            }
+        )
+        self.fields["password"].widget.attrs.update(
+            {
+                "class": "register-field-input",
+                "autocomplete": "current-password",
+            }
+        )
+        self.fields["remember_me"].widget.attrs.update({"class": "register-consent-checkbox"})
+        self._apply_login_copy()
+
+    def _apply_login_copy(self) -> None:
+        language = (get_language() or "ru").split("-")[0]
+        if language == "az":
+            self.fields["username"].label = "E-poçt"
+            self.fields["username"].widget.attrs["placeholder"] = "E-poçt ünvanınızı daxil edin"
+            self.fields["username"].error_messages.update(
+                {
+                    "required": "E-poçt ünvanı tələb olunur.",
+                    "invalid": "Düzgün e-poçt ünvanı daxil edin.",
+                }
+            )
+            self.fields["password"].label = "Şifrə"
+            self.fields["password"].widget.attrs["placeholder"] = "Şifrənizi daxil edin"
+            self.fields["password"].error_messages["required"] = "Şifrə tələb olunur."
+            self.fields["remember_me"].label = "Məni xatırla"
+            self.error_messages["invalid_login"] = "E-poçt və ya şifrə yanlışdır."
+            self.error_messages["inactive"] = "Bu hesab aktivləşdirilməyib. E-poçtunuzu yoxlayın."
+            return
+
+        if language == "en":
+            self.fields["username"].label = "Email"
+            self.fields["username"].widget.attrs["placeholder"] = "Enter your email address"
+            self.fields["username"].error_messages["required"] = "Enter your email."
+            self.fields["password"].label = "Password"
+            self.fields["password"].widget.attrs["placeholder"] = "Enter your password"
+            self.fields["password"].error_messages["required"] = "Enter your password."
+            self.fields["remember_me"].label = "Remember me"
+            self.error_messages["invalid_login"] = "Incorrect email or password."
+            self.error_messages["inactive"] = "This account has not been verified yet. Check your email."
+            return
+
+        self.fields["username"].label = "Email"
+        self.fields["username"].widget.attrs["placeholder"] = "Введите email"
+        self.fields["username"].error_messages["required"] = "Укажите email."
+        self.fields["password"].widget.attrs["placeholder"] = "Введите пароль"
+        self.error_messages["inactive"] = "Email не подтвержден. Подтвердите email кодом из письма, затем повторите вход."
+
     def clean(self):
         login_value = (self.cleaned_data.get("username") or "").strip()
         password = self.cleaned_data.get("password") or ""
@@ -284,7 +434,7 @@ class LoginForm(AuthenticationForm):
 
         if user and not user.is_active and user.check_password(password):
             raise ValidationError(
-                _("Email не подтвержден. Подтвердите email кодом из письма, затем повторите вход."),
+                self.error_messages["inactive"],
                 code="email_not_verified",
             )
 
@@ -297,7 +447,7 @@ class LoginForm(AuthenticationForm):
         except ValidationError as exc:
             if user and not user.is_active and user.check_password(password):
                 raise ValidationError(
-                    _("Email не подтвержден. Подтвердите email кодом из письма, затем повторите вход."),
+                    self.error_messages["inactive"],
                     code="email_not_verified",
                 )
             raise exc
