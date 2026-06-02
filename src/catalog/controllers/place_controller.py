@@ -643,15 +643,31 @@ class PlaceController:
             if place.metro:
                 location_parts.append(str(_(place.metro)))
 
+            address_parts = []
+            if place.address:
+                address_parts.append(place.address)
+            if place.district:
+                address_parts.append(str(_(place.district)))
+            elif place.metro:
+                address_parts.append(str(_(place.metro)))
+
             serialized.append(
                 {
+                    "id": place.id,
                     "name": place.name_i18n(language_code),
                     "lat": place.lat,
                     "lng": place.lng,
                     "url": place.get_absolute_url(),
                     "category": place.get_category_display(),
+                    "category_code": place.category,
                     "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
                     "location": " / ".join(location_parts),
+                    "address": ", ".join(part for part in address_parts if part),
+                    "district": str(_(place.district)) if place.district else "",
+                    "metro": str(_(place.metro)) if place.metro else "",
+                    "rating": float(place.rating_avg) if place.rating_avg is not None else None,
+                    "reviews_count": int(place.rating_count or 0),
+                    "phone": place.phone1 or "",
                 }
             )
         return serialized

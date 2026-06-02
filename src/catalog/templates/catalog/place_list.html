@@ -602,6 +602,12 @@
         data-catalog-map-panel
         data-map-provider="{% if google_maps_api_key %}google{% else %}fallback{% endif %}"
         data-details-label="{% if language == 'az' %}Ətraflı{% elif language == 'en' %}Details{% else %}{% trans 'Подробнее' %}{% endif %}"
+        data-route-label="{% if language == 'az' %}Marşrut{% elif language == 'en' %}Route{% else %}{% trans 'Маршрут' %}{% endif %}"
+        data-call-label="{% if language == 'az' %}Zəng et{% elif language == 'en' %}Call{% else %}{% trans 'Позвонить' %}{% endif %}"
+        data-close-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}{% trans 'Закрыть' %}{% endif %}"
+        data-no-rating-label="{% if language == 'az' %}Rəy yoxdur{% elif language == 'en' %}No reviews{% else %}{% trans 'Нет отзывов' %}{% endif %}"
+        data-no-address-label="{% if language == 'az' %}Ünvan dəqiqləşdirilir{% elif language == 'en' %}Address is being confirmed{% else %}{% trans 'Адрес уточняется' %}{% endif %}"
+        data-no-image-label="{% if language == 'az' %}Şəkil yoxdur{% elif language == 'en' %}No image{% else %}{% trans 'Нет фото' %}{% endif %}"
         data-empty-message="{% if language == 'az' %}Cari filtrlərə uyğun koordinatlı məkan tapılmadı.{% elif language == 'en' %}No places with coordinates match the current filters yet.{% else %}{% trans 'По текущим фильтрам пока нет карточек с координатами.' %}{% endif %}"
         data-fallback-message="{% if language == 'az' %}Google Maps qoşulduqdan sonra interaktiv xəritə açılacaq.{% elif language == 'en' %}The interactive map will be available after Google Maps is configured.{% else %}{% trans 'Интерактивная карта станет доступна после настройки Google Maps.' %}{% endif %}"
         data-loading-message="{% if language == 'az' %}Xəritə yüklənir…{% elif language == 'en' %}Loading map…{% else %}{% trans 'Загружаем карту…' %}{% endif %}"

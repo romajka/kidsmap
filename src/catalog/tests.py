@@ -18,6 +18,7 @@ from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
 from django.utils.translation import gettext as translate, override
 
+from catalog.controllers.place_controller import PlaceController
 from catalog.forms import OwnerPlaceCreateForm
 from catalog.interfaces.geocoding import GeocodingPoint
 from catalog.models import (
@@ -1829,13 +1830,66 @@ class TestCatalogEnhancements(TestCase):
             response.context["catalog_map_places"],
             [
                 {
+                    "id": matching_place.id,
                     "name": matching_place.name_i18n(language_code),
                     "lat": matching_place.lat,
                     "lng": matching_place.lng,
                     "url": matching_place.get_absolute_url(),
                     "category": expected_category,
+                    "category_code": matching_place.category,
                     "image_url": "",
                     "location": expected_location,
+                    "address": "Bakı şəhəri, Nizami küçəsi 10, " + translate(matching_place.district),
+                    "district": translate(matching_place.district),
+                    "metro": translate(matching_place.metro),
+                    "rating": 0.0,
+                    "reviews_count": 0,
+                    "phone": "+994501112233",
+                }
+            ],
+        )
+
+    def test_catalog_map_serialization_includes_card_fields(self):
+        place = create_quality_place(
+            name="Map Card Place",
+            name_ru="Карточка на карте",
+            district="Ясамал",
+            metro="Низами",
+            lat=40.3771,
+            lng=49.8412,
+            address="Bakı, Yasamal, Mərkəzi küçə 12",
+            phone1="+994501234567",
+            rating_avg=4.6,
+            rating_count=128,
+        )
+
+        with override("ru"):
+            serialized = PlaceController.build_default()._serialize_map_places(
+                Place.objects.filter(pk=place.pk),
+                language_code="ru",
+            )
+            expected_category = place.get_category_display()
+            expected_url = place.get_absolute_url()
+
+        self.assertEqual(
+            serialized,
+            [
+                {
+                    "id": place.id,
+                    "name": place.name_i18n("ru"),
+                    "lat": place.lat,
+                    "lng": place.lng,
+                    "url": expected_url,
+                    "category": expected_category,
+                    "category_code": place.category,
+                    "image_url": "",
+                    "location": "Ясамал / Низами",
+                    "address": "Bakı, Yasamal, Mərkəzi küçə 12, Ясамал",
+                    "district": "Ясамал",
+                    "metro": "Низами",
+                    "rating": 4.6,
+                    "reviews_count": 128,
+                    "phone": "+994501234567",
                 }
             ],
         )
