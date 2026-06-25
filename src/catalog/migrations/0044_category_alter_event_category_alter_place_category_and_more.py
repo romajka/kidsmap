@@ -74,10 +74,13 @@ class Migration(migrations.Migration):
                 'ordering': ('category', 'order', 'name'),
             },
         ),
+        migrations.RunSQL(
+            "UPDATE catalog_place SET subcategory = NULL WHERE subcategory = '';",
+            migrations.RunSQL.noop,
+        ),
         migrations.AlterField(
             model_name='place',
             name='subcategory',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='catalog.subcategory', verbose_name='Подкатегория'),
         ),
-        migrations.RunSQL("UPDATE catalog_place SET subcategory_id = NULL WHERE subcategory_id = '';", migrations.RunSQL.noop),
     ]
