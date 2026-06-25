@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.RunSQL(
-            "UPDATE catalog_place SET subcategory = NULL WHERE subcategory = '';",
+            "UPDATE catalog_place SET subcategory = NULL;",
             migrations.RunSQL.noop,
         ),
         migrations.AlterField(
