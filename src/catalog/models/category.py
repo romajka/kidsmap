@@ -9,7 +9,7 @@ class Category(models.Model):
     name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
     name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
-    icon = models.CharField(_("Иконка"), max_length=50, blank=True, default="", help_text=_("Класс иконки или название"))
+    icon = models.CharField(_("Иконка"), max_length=255, blank=True, default="", help_text=_("Класс иконки или название"))
     is_active = models.BooleanField(_("Активна"), default=True)
     order = models.PositiveIntegerField(_("Порядок"), default=0)
 

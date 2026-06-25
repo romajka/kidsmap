@@ -71,7 +71,7 @@ class HomeController:
                     for part in (
                         place.name_i18n(language_code),
                         place.get_category_display(),
-                        place.subcategory,
+                        place.subcategory.name_i18n(language_code) if place.subcategory_id else "",
                         place.district,
                         place.metro,
                     )

@@ -40,6 +40,7 @@ from catalog.models import (
     SiteReview,
     SiteReviewReaction,
     SiteVisit,
+    Subcategory,
     UserEmailVerification,
     UserProfile,
 )
@@ -685,6 +686,46 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.context["map_places"][0]["image_url"], place.photo.url)
         self.assertContains(response, "home-map-data")
         self.assertContains(response, place.photo.url)
+
+    def test_home_map_search_text_includes_subcategory_name(self):
+        category = Category.objects.create(code="SPORT", name="Sport", name_ru="Спорт")
+        subcategory = Subcategory.objects.create(
+            category=category,
+            code="judo-test",
+            name="Judo",
+            name_ru="Дзюдо",
+        )
+        Place.objects.create(
+            name="Judo Place",
+            name_ru="Секция дзюдо",
+            category=category.code,
+            subcategory=subcategory,
+            is_active=True,
+            status=Place.STATUS_PUBLISHED,
+            lat=40.4093,
+            lng=49.8671,
+            age_from=6,
+            age_to=12,
+            district="Ясамал",
+            address="Баку, ул. Низами, 10",
+            price_from=60,
+            price_to=90,
+            description_ru=(
+                "Достаточно подробное описание карточки, чтобы место прошло фильтры "
+                "публичной выдачи и отобразилось на главной карте. "
+                "Текст специально сделан длиннее минимального порога для public-выдачи. "
+                "Здесь есть формат занятий, возрастная группа, полезные детали для родителей "
+                "и ещё одна фраза, чтобы описание уверенно прошло проверку длины."
+            ),
+            phone1="+994501112233",
+            schedule="Пн-Пт 10:00-18:00",
+            website="https://example.com/judo-place",
+        )
+
+        response = self.client.get("/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("дзюдо", response.context["map_places"][0]["search_text"])
 
     def test_public_site_css_uses_subset_font_without_heavy_ttf(self):
         css_path = Path(settings.BASE_DIR) / "static" / "css" / "site.css"
