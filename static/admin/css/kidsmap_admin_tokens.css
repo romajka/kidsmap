@@ -1,0 +1,127 @@
+/* 
+  kidsmap_admin_tokens.css
+  Дизайн-система для Django Admin KidsMap 
+*/
+
+:root {
+  /* Типографика */
+  --km-admin-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  /* Цветовая палитра: Базовая */
+  --km-admin-bg: #F4F6F9;
+  --km-admin-surface: #FFFFFF;
+  --km-admin-surface-muted: #F8FAFC;
+  --km-admin-border: #E2E8F0;
+  
+  /* Текст */
+  --km-admin-text: #1E293B;
+  --km-admin-text-muted: #64748B;
+  
+  /* Акценты */
+  --km-admin-accent: #009A4E;
+  --km-admin-accent-strong: #008F46;
+  --km-admin-accent-soft: #F3FBF6;
+
+  /* Сайдбар */
+  --km-admin-sidebar-bg: #111827; /* Тёмно-синий/серый */
+  --km-admin-sidebar-surface: #1F2937;
+  --km-admin-sidebar-text: #F9FAFB;
+  --km-admin-sidebar-text-muted: #9CA3AF;
+  --km-admin-sidebar-active-bg: #009A4E;
+  --km-admin-sidebar-active-text: #ffffff;
+  --km-admin-sidebar-border: #374151;
+
+  /* Семантические статусы */
+  --km-admin-primary: #0EA5E9;       /* Информационный / Синий */
+  --km-admin-primary-hover: #0284C7;
+  --km-admin-success: #10B981;       /* Успех / Зеленый / Опубликовано */
+  --km-admin-success-bg: #D1FAE5;
+  --km-admin-success-border: #A7F3D0;
+  --km-admin-warning: #F59E0B;       /* Предупреждение / Оранжевый / Модерация */
+  --km-admin-warning-bg: #FEF3C7;
+  --km-admin-warning-border: #FDE68A;
+  --km-admin-danger: #EF4444;        /* Ошибка / Красный / Удалено / Отклонено */
+  --km-admin-danger-bg: #FEE2E2;
+  --km-admin-danger-border: #FECACA;
+  --km-admin-gray: #94A3B8;          /* Нейтральный / Серый / Черновик */
+  --km-admin-gray-bg: #F1F5F9;
+  --km-admin-gray-border: #E2E8F0;
+
+  /* Компоненты */
+  --km-admin-link: #009A4E;
+  --km-admin-link-hover: #008F46;
+  --km-admin-header-bg-start: #009A4E;
+  --km-admin-header-bg-end: #008F46;
+  --km-admin-header-link: #F3FBF6;
+  --km-admin-header-link-hover: #ffffff;
+  
+  --km-admin-button-bg: #ffffff;
+  --km-admin-button-fg: #1E293B;
+  --km-admin-button-border: #E2E8F0;
+  --km-admin-button-hover-bg: #F8FAFC;
+  --km-admin-button-hover-fg: #009A4E;
+
+  --km-admin-input-bg: #ffffff;
+  --km-admin-input-border: #CBD5E1;
+  --km-admin-input-fg: #1E293B;
+  --km-admin-input-placeholder: #94A3B8;
+  --km-admin-focus-ring: rgba(19, 111, 56, 0.34);
+
+  /* Метрики и Размеры */
+  --km-admin-radius-sm: 6px;
+  --km-admin-radius-md: 12px;
+  --km-admin-radius-lg: 16px;
+  --km-admin-shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+  --km-admin-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+
+  --km-admin-sidebar-width: 260px;
+  --km-admin-control-height: 38px;
+}
+
+/* Dark Theme overrides */
+html[data-theme="dark"],
+body[data-theme="dark"],
+html.theme-dark,
+body.theme-dark,
+[data-theme="dark"] {
+  --km-admin-bg: #0F172A;
+  --km-admin-surface: #1E293B;
+  --km-admin-surface-muted: #334155;
+  --km-admin-border: #475569;
+  
+  --km-admin-text: #F8FAFC;
+  --km-admin-text-muted: #94A3B8;
+
+  --km-admin-accent-soft: rgba(19, 111, 56, 0.22);
+  --km-admin-header-bg-start: #123847;
+  --km-admin-header-bg-end: #1a5367;
+
+  --km-admin-success-bg: rgba(16, 185, 129, 0.15);
+  --km-admin-success-border: rgba(16, 185, 129, 0.3);
+  --km-admin-success: #34D399;
+
+  --km-admin-warning-bg: rgba(245, 158, 11, 0.15);
+  --km-admin-warning-border: rgba(245, 158, 11, 0.3);
+  --km-admin-warning: #FBBF24;
+
+  --km-admin-danger-bg: rgba(239, 68, 68, 0.15);
+  --km-admin-danger-border: rgba(239, 68, 68, 0.3);
+  --km-admin-danger: #F87171;
+
+  --km-admin-gray-bg: rgba(148, 163, 184, 0.15);
+  --km-admin-gray-border: rgba(148, 163, 184, 0.3);
+  --km-admin-gray: #CBD5E1;
+
+  --km-admin-button-bg: #334155;
+  --km-admin-button-fg: #F8FAFC;
+  --km-admin-button-border: #475569;
+  --km-admin-button-hover-bg: #475569;
+  --km-admin-button-hover-fg: #F8FAFC;
+
+  --km-admin-input-bg: #1E293B;
+  --km-admin-input-border: #475569;
+  --km-admin-input-fg: #F8FAFC;
+  --km-admin-input-placeholder: #64748B;
+  --km-admin-shadow-sm: none;
+  --km-admin-shadow-md: none;
+}

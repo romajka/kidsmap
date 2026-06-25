@@ -106,7 +106,9 @@ class PlaceListFilters:
                 | Q(description_ru__icontains=self.query)
                 | Q(description_en__icontains=self.query)
                 | Q(description_az__icontains=self.query)
-                | Q(subcategory__icontains=self.query)
+                | Q(subcategory__name_ru__icontains=self.query)
+                | Q(subcategory__name_az__icontains=self.query)
+                | Q(subcategory__name_en__icontains=self.query)
                 | Q(address__icontains=self.query)
             )
 

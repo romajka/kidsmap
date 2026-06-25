@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, ngettext
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
@@ -10,6 +11,7 @@ from django.db.models import Q
 
 from catalog.models import PlaceReview, SiteReview
 from catalog.services.content_quality import review_quality_check
+from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
 
 def _localized_admin_url(path: str) -> str:
     from django.utils.translation import get_language
@@ -114,6 +116,8 @@ class ReviewRiskFilter(admin.SimpleListFilter):
 @admin.register(PlaceReview)
 class PlaceReviewAdmin(admin.ModelAdmin):
     change_list_template = "admin/catalog/placereview/change_list.html"
+    km_primary_filters = ("review_status", "risk_signal", "rating")
+    list_per_page = 15
     change_form_template = "admin/catalog/placereview/change_form.html"
     list_select_related = ("place", "user")
     list_display = (
@@ -151,10 +155,39 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     )
     actions = ("approve_selected", "hide_selected", "reject_selected", "delete_selected")
     fieldsets = (
-        (_("Отзыв"), {"fields": ("place", "user", "author_name", "is_anonymous", "rating", "text")}),
-        (_("Модерация"), {"fields": ("status", "is_approved", "rejection_reason", "contains_profanity", "moderation_status_summary")}),
-        (_("Реакции"), {"fields": ("likes_count", "dislikes_count", "popularity_score_display")}),
-        (_("Служебное"), {"classes": ("collapse",), "fields": ("session_key", "created_at", "updated_at")}),
+        (
+            _("Отзыв"),
+            {
+                "fields": (
+                    "place",
+                    "user",
+                    ("author_name", "is_anonymous"),
+                    "rating",
+                    "text",
+                )
+            },
+        ),
+        (
+            _("Модерация"),
+            {
+                "fields": (
+                    ("status", "is_approved"),
+                    "rejection_reason",
+                )
+            },
+        ),
+        (
+            _("Служебное и метрики"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    ("likes_count", "dislikes_count", "popularity_score_display"),
+                    ("contains_profanity", "moderation_status_summary"),
+                    "session_key",
+                    ("created_at", "updated_at"),
+                )
+            },
+        ),
     )
 
     def get_queryset(self, request):
@@ -300,6 +333,44 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     def popularity_score_display(self, obj):
         return obj.popularity_score
 
+    def _build_review_form_summary(self, obj) -> dict:
+        if not obj or not obj.pk:
+            return {}
+        
+        status_label, status_tone = self._review_status(obj)
+        flags = []
+        if obj.contains_profanity:
+            flags.append({"label": str(_("Скрытая лексика")), "tone": "warn"})
+        if obj.is_anonymous:
+            flags.append({"label": str(_("Анонимный")), "tone": "muted"})
+        if not self._review_has_text(obj):
+            flags.append({"label": str(_("Только оценка")), "tone": "info"})
+        if obj.rating <= 2:
+            flags.append({"label": str(_("Низкая оценка")), "tone": "warn"})
+
+        return {
+            "is_approved": obj.is_approved,
+            "status_label": status_label,
+            "status_tone": status_tone,
+            "author": self.display_author(obj),
+            "rating": obj.rating,
+            "has_text": self._review_has_text(obj),
+            "likes": obj.likes_count or 0,
+            "dislikes": obj.dislikes_count or 0,
+            "flags": flags,
+            "place_name": obj.place.name_ru or obj.place.name,
+            "place_url": self._place_admin_change_url(obj),
+        }
+
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        if obj:
+            context["km_review_form_summary"] = self._build_review_form_summary(obj)
+            context["km_action_approve_url"] = self._review_action_url(obj, "approve")
+            context["km_action_hide_url"] = self._review_action_url(obj, "hide")
+            context["km_action_reject_url"] = self._review_action_url(obj, "reject")
+            context["km_action_delete_url"] = self._review_delete_url(obj)
+        return super().render_change_form(request, context, add, change, form_url, obj)
+
     def _build_review_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
         params = request.GET.copy()
         params.pop("p", None)
@@ -345,7 +416,8 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
     def changelist_view(self, request, extra_context=None):
         extra_context = {
-            "review_quick_filters": self._review_quick_filters(request),
+            "km_primary_quick_filters": self._review_quick_filters(request),
+            "km_secondary_quick_filters": [],
             "review_bulk_actions": self._review_bulk_actions(),
             **(extra_context or {}),
         }
@@ -458,19 +530,24 @@ class PlaceReviewAdmin(admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
-    @admin.display(description=_("Действия"))
+    @admin.display(description="")
     def row_actions(self, obj):
-        actions = [
-            format_html('<a class="km-admin-action km-admin-action--primary" href="{}">{}</a>', self._review_change_url(obj), _("Открыть")),
-            format_html('<a class="km-admin-action km-admin-action--secondary" href="{}">{}</a>', self._place_admin_change_url(obj), _("К кружку")),
+        primary_action = render_primary_action(self._review_change_url(obj), _("Открыть"))
+        
+        menu_actions = [
+            (self._place_admin_change_url(obj), _("К кружку"), "")
         ]
+        
         if obj.is_approved:
-            actions.append(format_html('<a class="km-admin-action km-admin-action--muted" href="{}">{}</a>', self._review_action_url(obj, "hide"), _("Скрыть")))
+            menu_actions.append((self._review_action_url(obj, "hide"), _("Скрыть"), "km-admin-action-menu__link--warn"))
         else:
-            actions.append(format_html('<a class="km-admin-action km-admin-action--good" href="{}">{}</a>', self._review_action_url(obj, "approve"), _("Опубликовать")))
-            actions.append(format_html('<a class="km-admin-action km-admin-action--warn" href="{}">{}</a>', self._review_action_url(obj, "reject"), _("Отклонить")))
-        actions.append(format_html('<a class="km-admin-action km-admin-action--danger" href="{}">{}</a>', self._review_delete_url(obj), _("Удалить")))
-        return format_html('<div class="km-place-row-actions">{}</div>', format_html_join("", "{}", ((action,) for action in actions)))
+            menu_actions.append((self._review_action_url(obj, "approve"), _("Опубликовать"), "km-admin-action-menu__link--good"))
+            menu_actions.append((self._review_action_url(obj, "reject"), _("Отклонить"), "km-admin-action-menu__link--warn"))
+            
+        menu_actions.append((self._review_delete_url(obj), _("Удалить"), "km-admin-action-menu__link--danger"))
+        
+        menu_html = render_action_menu(menu_actions)
+        return render_row_actions_container(primary_action, menu_html)
 
 
 @admin.register(SiteReview)

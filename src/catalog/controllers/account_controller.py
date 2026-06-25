@@ -44,7 +44,8 @@ class AccountController:
         history_events: list[dict] = []
         seen_place_ids: set[int] = set()
         category_counter: Counter[str] = Counter()
-        category_labels = dict(Place.CATEGORY_CHOICES)
+        from catalog.models import Category
+        category_labels = {c.code: c.name_i18n() for c in Category.objects.all()}
 
         for event in events:
             if event.place_id is None or event.place is None or event.place_id in seen_place_ids:

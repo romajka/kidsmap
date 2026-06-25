@@ -93,7 +93,7 @@ class Command(BaseCommand):
         place.description_ru = template.description_ru
         place.description_az = template.description_az
         place.description_en = template.description_en
-        place.category = template.category
+        place.category_id = template.category
         place.district = template.district
         place.metro = template.metro
         place.address = template.address

@@ -1,25 +1,29 @@
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Count, Q
 from django import forms
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, ngettext
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 
-from catalog.models import Place, PlacePhoto, PlaceChangeAudit, Event, PlaceReviewsByClub
+from catalog.models import Place, PlacePhoto, PlaceChangeAudit, Event, PlaceReviewsByClub, Category, Subcategory
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from catalog.services.content_quality import place_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
 from .review import PlaceReviewInline
+from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
 
 
 class PlacePhotoInline(admin.TabularInline):
     model = PlacePhoto
+    template = "admin/catalog/place/placephoto_inline.html"
     extra = 0
+    max_num = 10
     fields = ("image", "caption", "order")
     ordering = ("order", "id")
 
@@ -48,6 +52,9 @@ class PlaceAdminForm(forms.ModelForm):
             "description_ru": _("Описание (Русский)"),
             "description_az": _("Описание (Азербайджанский)"),
             "description_en": _("Описание (English)"),
+            "photo": _("Главное фото"),
+            "cover_photo": _("Резервное фото"),
+            "phone1": _("Телефон"),
             "likes_count": _("Количество лайков"),
             "rating_avg": _("Средний рейтинг"),
             "rating_count": _("Количество отзывов"),
@@ -56,6 +63,54 @@ class PlaceAdminForm(forms.ModelForm):
             "price_per_8_lessons": _("Цена за 8 уроков"),
             "lesson_duration_minutes": _("Длительность урока (мин)"),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["photo"].help_text = _("Используется в каталоге, на карте и первым на странице места.")
+        self.fields["cover_photo"].help_text = _("Резервное изображение. Используется только если главное фото отсутствует.")
+        # Placeholders for location & contacts fields
+        _placeholders = {
+            "lat": _("Напр., 40.409264"),
+            "lng": _("Напр., 49.867092"),
+            "phone1": _("Напр., +994 50 123-45-67"),
+            "instagram": _("Напр., @kidsmap"),
+            "website": _("Напр., https://example.com"),
+            "schedule": _("Напр., Пн–Пт 10:00–20:00, Сб–Вс 11:00–19:00"),
+            "extra_conditions": _("Напр., Предварительная запись, наличие сертификата и т.п."),
+            "additional_info": _("Напр., Описание места, особенности, важные детали и т.п."),
+            "address": _("Напр., ул. Низами 10, Баку"),
+        }
+        for field_name, placeholder in _placeholders.items():
+            if field_name in self.fields and hasattr(self.fields[field_name].widget, "attrs"):
+                self.fields[field_name].widget.attrs.setdefault("placeholder", str(placeholder))
+
+
+class EventAdminForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = "__all__"
+        labels = {
+            "slug": _("URL-слаг"),
+            "name_ru": _("Название (Русский)"),
+            "name_az": _("Название (Азербайджанский)"),
+            "name_en": _("Название (English)"),
+            "description_ru": _("Описание (Русский)"),
+            "description_az": _("Описание (Азербайджанский)"),
+            "description_en": _("Описание (English)"),
+            "price_text": _("Стоимость и условия"),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["photo"].help_text = _(
+            "Основное изображение мероприятия для списка и детальной страницы."
+        )
+        self.fields["start_datetime"].help_text = _(
+            "Дата и время старта. Без этого поле мероприятие нельзя опубликовать."
+        )
+        self.fields["end_datetime"].help_text = _(
+            "Дата и время окончания. Используется для определения актуальности и завершения."
+        )
 
 
 class PlaceCoordinatesFilter(admin.SimpleListFilter):
@@ -117,70 +172,772 @@ class PlaceDeletedFilter(admin.SimpleListFilter):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
+    form = EventAdminForm
+    actions = ("mark_published", "mark_draft", "mark_pending")
     list_display = (
         "display_name",
         "category",
         "start_datetime",
         "end_datetime",
         "owner",
-        "status",
+        "lifecycle_status_display",
         "updated_at",
+        "row_actions",
     )
     list_filter = ("status", "category", "start_datetime", "owner")
     search_fields = ("name", "name_az", "name_ru", "name_en", "address", "phone", "owner__username", "owner__email")
     readonly_fields = ("slug", "created_at", "updated_at")
     list_select_related = ("owner", "related_place")
+    list_per_page = 15
+    change_form_template = "admin/catalog/event/change_form.html"
+    EVENT_FORM_PRIMARY_SECTIONS = (
+        {
+            "id": "basics",
+            "step": "01",
+            "title": _("Основное"),
+            "description": _("Название события, категория, владелец и связанное место."),
+            "fieldset_indexes": (0,),
+        },
+        {
+            "id": "copy",
+            "step": "02",
+            "title": _("Названия и описания"),
+            "description": _("Тексты мероприятия на языках сайта. Минимум один качественный язык обязателен."),
+            "fieldset_indexes": (1,),
+        },
+        {
+            "id": "schedule",
+            "step": "03",
+            "title": _("Дата и формат"),
+            "description": _("Время проведения, возраст, цена и формат участия."),
+            "fieldset_indexes": (2,),
+        },
+        {
+            "id": "location",
+            "step": "04",
+            "title": _("Локация и контакты"),
+            "description": _("Адрес, телефон, Instagram и комментарии для модерации."),
+            "fieldset_indexes": (3,),
+        },
+        {
+            "id": "media",
+            "step": "05",
+            "title": _("Фото и публикация"),
+            "description": _("Основное изображение, видимость на сайте и текущий статус публикации."),
+            "fieldset_indexes": (4,),
+        },
+    )
+    EVENT_FORM_SECONDARY_SECTIONS = (
+        {
+            "id": "system",
+            "title": _("Системные поля"),
+            "description": _("Служебные статусы, причины отклонения и временные метки."),
+            "fieldset_indexes": (5,),
+        },
+    )
     fieldsets = (
         (
             _("Основное"),
             {
                 "fields": (
-                    "owner",
-                    "related_place",
-                    "status",
-                    "rejection_reason",
-                    "published_at",
-                    "name",
+                    ("name", "category"),
+                    ("owner", "related_place"),
                     "slug",
-                    "name_az",
-                    "name_ru",
-                    "name_en",
-                    "description_az",
-                    "description_ru",
-                    "description_en",
-                    "category",
                 )
             },
         ),
         (
-            _("Дата, место и контакты"),
+            _("Названия и описания (i18n)"),
             {
+                "classes": ("collapse",),
                 "fields": (
-                    "start_datetime",
-                    "end_datetime",
-                    "age_from",
-                    "age_to",
-                    "price_text",
-                    "address",
-                    "phone",
-                    "instagram",
-                    "photo",
+                    ("name_az", "description_az"),
+                    ("name_ru", "description_ru"),
+                    ("name_en", "description_en"),
                 )
             },
         ),
-        (_("Служебное"), {"fields": ("moderation_note", "deleted_at", "created_at", "updated_at")}),
+        (
+            _("Дата и формат"),
+            {
+                "fields": (
+                    ("start_datetime", "end_datetime"),
+                    ("age_from", "age_to"),
+                    "price_text",
+                )
+            },
+        ),
+        (
+            _("Локация и контакты"),
+            {
+                "fields": (
+                    "address",
+                    ("phone", "instagram"),
+                    "moderation_note",
+                )
+            },
+        ),
+        (
+            _("Фото и публикация"),
+            {
+                "fields": (
+                    ("photo", "status"),
+                    "published_at",
+                ),
+            },
+        ),
+        (
+            _("Служебное"),
+            {
+                "classes": ("collapse",),
+                "fields": ("rejection_reason", ("deleted_at", "created_at", "updated_at")),
+            },
+        ),
     )
+    add_fieldsets = (
+        (
+            _("Основное"),
+            {
+                "fields": (
+                    ("name", "category"),
+                    ("owner", "related_place"),
+                    "slug",
+                ),
+            },
+        ),
+        (
+            _("Названия и описания (i18n)"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    ("name_az", "description_az"),
+                    ("name_ru", "description_ru"),
+                    ("name_en", "description_en"),
+                ),
+            },
+        ),
+        (
+            _("Дата и формат"),
+            {
+                "fields": (
+                    ("start_datetime", "end_datetime"),
+                    ("age_from", "age_to"),
+                    "price_text",
+                ),
+            },
+        ),
+        (
+            _("Локация и контакты"),
+            {
+                "fields": (
+                    "address",
+                    ("phone", "instagram"),
+                    "moderation_note",
+                ),
+            },
+        ),
+        (
+            _("Фото и публикация"),
+            {
+                "fields": (
+                    ("photo", "status"),
+                ),
+            },
+        ),
+        (
+            _("Служебное"),
+            {
+                "classes": ("collapse",),
+                "fields": ("rejection_reason",),
+            },
+        ),
+    )
+
+    def get_fieldsets(self, request, obj=None):
+        if obj is None:
+            return self.add_fieldsets
+        return super().get_fieldsets(request, obj)
+
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        initial.setdefault("status", Event.STATUS_DRAFT)
+        return initial
+
+    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        adminform = context.get("adminform")
+        if adminform is not None:
+            context["km_event_form_sections"] = self._build_event_form_sections(adminform)
+            context["km_event_secondary_sections"] = self._build_event_secondary_sections(adminform)
+            context["km_event_form_summary"] = self._build_event_form_summary(
+                form=adminform.form,
+                obj=obj,
+                add=add,
+            )
+        return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
+
+    def _fieldset_list(self, adminform):
+        return list(adminform) if adminform is not None else []
+
+    def _build_event_form_sections(self, adminform):
+        fieldsets = self._fieldset_list(adminform)
+        sections = []
+        for section in self.EVENT_FORM_PRIMARY_SECTIONS:
+            section_fieldsets = [
+                fieldsets[index]
+                for index in section["fieldset_indexes"]
+                if index < len(fieldsets)
+            ]
+            if not section_fieldsets:
+                continue
+            sections.append(
+                {
+                    "id": section["id"],
+                    "step": section["step"],
+                    "title": section["title"],
+                    "description": section["description"],
+                    "fieldsets": section_fieldsets,
+                }
+            )
+        return sections
+
+    def _build_event_secondary_sections(self, adminform):
+        fieldsets = self._fieldset_list(adminform)
+        sections = []
+        for section in self.EVENT_FORM_SECONDARY_SECTIONS:
+            section_fieldsets = [
+                fieldsets[index]
+                for index in section["fieldset_indexes"]
+                if index < len(fieldsets)
+            ]
+            if not section_fieldsets:
+                continue
+            sections.append(
+                {
+                    "id": section["id"],
+                    "title": section["title"],
+                    "description": section["description"],
+                    "fieldsets": section_fieldsets,
+                }
+            )
+        return sections
+
+    def _field_has_value(self, form, field_name: str, *, obj=None) -> bool:
+        if field_name in form.files and form.files.get(field_name):
+            return True
+
+        if form.is_bound:
+            raw_value = form.data.get(form.add_prefix(field_name))
+        else:
+            raw_value = form.initial.get(field_name, getattr(getattr(form, "instance", None), field_name, None))
+
+        if raw_value in (None, "", [], (), {}):
+            if obj is not None:
+                current_value = getattr(obj, field_name, None)
+                if current_value not in (None, "", [], (), {}):
+                    return True
+            return False
+
+        return True
+
+    def _event_visibility_state(self, obj=None):
+        if obj is None or not getattr(obj, "pk", None):
+            return {
+                "label": str(_("Черновик")),
+                "tone": "muted",
+                "hint": str(_("Мероприятие ещё не опубликовано на сайте.")),
+                "is_public": False,
+            }
+        if obj.deleted_at:
+            return {
+                "label": str(_("В удалённых")),
+                "tone": "muted",
+                "hint": str(_("Карточка удалена и не показывается на сайте.")),
+                "is_public": False,
+            }
+        if obj.status == Event.STATUS_PENDING:
+            return {
+                "label": str(_("На модерации")),
+                "tone": "warn",
+                "hint": str(_("Мероприятие сохранено, но ещё не доступно на сайте.")),
+                "is_public": False,
+            }
+        if obj.status == Event.STATUS_REJECTED:
+            return {
+                "label": str(_("Отклонено")),
+                "tone": "danger",
+                "hint": str(_("Нужно исправить карточку перед следующей публикацией.")),
+                "is_public": False,
+            }
+        if obj.status == Event.STATUS_CANCELLED:
+            return {
+                "label": str(_("Скрыто с сайта")),
+                "tone": "warn",
+                "hint": str(_("Мероприятие сохранено, но вручную снято с публикации.")),
+                "is_public": False,
+            }
+        if obj.is_public:
+            return {
+                "label": str(_("Опубликовано")),
+                "tone": "good",
+                "hint": str(_("Событие видно на сайте и участвует в афише мероприятий.")),
+                "is_public": True,
+            }
+        if obj.effective_status == Event.STATUS_EXPIRED:
+            return {
+                "label": str(_("Завершено")),
+                "tone": "muted",
+                "hint": str(_("Дата события уже прошла, поэтому оно не показывается как актуальное.")),
+                "is_public": False,
+            }
+        return {
+            "label": str(_("Черновик")),
+            "tone": "muted",
+            "hint": str(_("Событие пока не опубликовано на сайте.")),
+            "is_public": False,
+        }
+
+    def _event_publish_missing_fields(self, *, form, obj=None):
+        required = (
+            ("name", _("Название")),
+            ("category", _("Категория")),
+            ("description_az", _("Описание (AZ)")),
+            ("start_datetime", _("Дата начала")),
+            ("end_datetime", _("Дата окончания")),
+        )
+        missing = []
+        for field_name, label in required:
+            if not self._field_has_value(form, field_name, obj=obj):
+                missing.append(str(label))
+        return missing
+
+    def _build_event_form_summary(self, *, form, obj=None, add=False):
+        checklist = (
+            ("name", _("Название")),
+            ("category", _("Категория")),
+            ("description_az", _("Описание (AZ)")),
+            ("start_datetime", _("Дата начала")),
+            ("end_datetime", _("Дата окончания")),
+            ("address", _("Адрес")),
+            ("phone", _("Телефон")),
+            ("photo", _("Фото")),
+        )
+        completed = 0
+        missing = []
+        missing_fields = set()
+        for field_name, label in checklist:
+            if self._field_has_value(form, field_name, obj=obj):
+                completed += 1
+            else:
+                missing.append(str(label))
+                missing_fields.add(field_name)
+
+        total = len(checklist)
+        completion_pct = round(completed / total * 100) if total else 0
+        error_count = len(form.errors)
+        visibility = self._event_visibility_state(obj)
+        title = str(_("Новое мероприятие"))
+        state_badges = [{"label": visibility["label"], "tone": visibility["tone"]}]
+        meta_items = []
+
+        if obj is not None and obj.pk:
+            title = obj.name_ru or obj.name or title
+            state_badges.append(
+                {
+                    "label": str(obj.get_status_display()),
+                    "tone": "good" if obj.status == obj.STATUS_PUBLISHED else "muted",
+                }
+            )
+            if obj.start_datetime:
+                meta_items.append(
+                    {
+                        "label": str(_("Старт")),
+                        "value": timezone.localtime(obj.start_datetime).strftime("%d.%m.%Y %H:%M"),
+                    }
+                )
+            if obj.end_datetime:
+                meta_items.append(
+                    {
+                        "label": str(_("Завершение")),
+                        "value": timezone.localtime(obj.end_datetime).strftime("%d.%m.%Y %H:%M"),
+                    }
+                )
+            meta_items.append(
+                {
+                    "label": str(_("Владелец")),
+                    "value": obj.owner.username if obj.owner_id and obj.owner else str(_("Не назначен")),
+                }
+            )
+            if obj.related_place_id and obj.related_place:
+                meta_items.append(
+                    {
+                        "label": str(_("Связанное место")),
+                        "value": obj.related_place.name_ru or obj.related_place.name or str(obj.related_place),
+                    }
+                )
+        else:
+            state_badges.append({"label": str(_("Черновой режим")), "tone": "muted"})
+
+        meta_items.insert(
+            0,
+            {
+                "label": str(_("Режим")),
+                "value": str(_("Создание новой карточки")) if add else str(_("Редактирование карточки")),
+            },
+        )
+
+        return {
+            "title": title,
+            "completion_pct": completion_pct,
+            "completed": completed,
+            "total": total,
+            "error_count": error_count,
+            "visibility": visibility,
+            "checklist_items": [
+                {
+                    "field_name": field_name,
+                    "input_id": f"id_{field_name}",
+                    "label": str(label),
+                    "initial": field_name not in missing_fields,
+                }
+                for field_name, label in checklist
+            ],
+            "missing": missing[:5],
+            "readiness_label": str(_("Готово к публикации")) if not missing else str(_("Нужна доработка")),
+            "readiness_tone": "good" if not missing else "warn",
+            "state_badges": state_badges,
+            "meta_items": meta_items,
+        }
 
     @admin.display(description=_("Название"))
     def display_name(self, obj):
-        return obj.name_i18n()
+        title = obj.name_i18n()
+        meta = [f"ID {obj.pk}"]
+        if obj.deleted_at:
+            meta.append(str(_("Удалено")))
+        preview = ""
+        if obj.photo and getattr(obj.photo, "name", ""):
+            preview = format_html('<img src="{}" alt="" class="km-admin-thumb" loading="lazy">', obj.photo.url)
+        else:
+            preview = mark_safe('<span class="km-admin-thumb km-admin-thumb--placeholder" aria-hidden="true">•</span>')
+        return format_html(
+            '<div class="km-admin-entry">{}<div class="km-admin-stack"><span class="km-admin-title">{}</span>{}</div></div>',
+            preview,
+            title,
+            format_html_join("", '<span class="km-admin-meta">{}</span>', ((item,) for item in meta)),
+        )
+
+    @admin.display(description=_("Статус"))
+    def lifecycle_status_display(self, obj):
+        from django.utils.html import format_html
+        if obj.deleted_at:
+            tone, label = "danger", _("В удаленных")
+        elif obj.status == Event.STATUS_PUBLISHED:
+            tone, label = "good", _("Опубликовано")
+        elif obj.status == Event.STATUS_PENDING:
+            tone, label = "warn", _("На модерации")
+        elif obj.status == Event.STATUS_REJECTED:
+            tone, label = "danger", _("Отклонено")
+        elif obj.status == Event.STATUS_EXPIRED:
+            tone, label = "muted", _("Завершено")
+        else:
+            tone, label = "muted", dict(Event.STATUS_CHOICES).get(obj.status, obj.status)
+
+        return format_html(
+            '<div class="km-admin-badges"><span class="km-admin-badge km-admin-badge--{}">{}</span></div>',
+            tone,
+            label,
+        )
+
+    @admin.display(description="")
+    def row_actions(self, obj):
+        from django.urls import reverse
+        edit_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk])
+        primary_action = render_primary_action(edit_url, _("Редактировать"))
+        
+        menu_actions = []
+        if obj.is_public:
+            menu_actions.append((obj.get_absolute_url(), _("Открыть"), ""))
+            
+        menu_html = render_action_menu(menu_actions)
+        return render_row_actions_container(primary_action, menu_html)
 
     def save_model(self, request, obj, form, change):
+        if "_save_draft" in request.POST:
+            obj.status = Event.STATUS_DRAFT
+            obj.published_at = None
+            obj.rejection_reason = ""
+        if "_unpublish_event" in request.POST:
+            obj.status = Event.STATUS_CANCELLED
+            obj.published_at = None
         if obj.status == Event.STATUS_PUBLISHED and not obj.published_at:
             obj.published_at = timezone.now()
         if obj.status != Event.STATUS_REJECTED:
             obj.rejection_reason = obj.rejection_reason if obj.status == Event.STATUS_PUBLISHED else obj.rejection_reason
         super().save_model(request, obj, form, change)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        if "_save_draft" in request.POST:
+            return self._handle_event_save_draft_submit(
+                request,
+                obj,
+                message=_("Черновик мероприятия сохранён. Можно продолжить позже."),
+            )
+        if "_publish_event" in request.POST:
+            return self._handle_publish_event_submit(request, obj)
+        if "_unpublish_event" in request.POST:
+            return self._handle_unpublish_event_submit(request, obj)
+        return super().response_add(request, obj, post_url_continue=post_url_continue)
+
+    def response_change(self, request, obj):
+        if "_save_draft" in request.POST:
+            return self._handle_event_save_draft_submit(
+                request,
+                obj,
+                message=_("Изменения сохранены как черновик. Можно вернуться к мероприятию позже."),
+            )
+        if "_publish_event" in request.POST:
+            return self._handle_publish_event_submit(request, obj)
+        if "_unpublish_event" in request.POST:
+            return self._handle_unpublish_event_submit(request, obj)
+        return super().response_change(request, obj)
+
+    def _event_change_url(self, obj: Event) -> str:
+        return reverse(
+            f"admin:{self.opts.app_label}_{self.opts.model_name}_change",
+            args=[obj.pk],
+            current_app=self.admin_site.name,
+        )
+
+    def _handle_event_save_draft_submit(self, request, obj, *, message: str):
+        self.message_user(request, message, level=messages.SUCCESS)
+        return HttpResponseRedirect(self._event_change_url(obj))
+
+    def _handle_publish_event_submit(self, request, obj: Event):
+        missing_labels = []
+        for field_name, label in (
+            ("name", _("Название")),
+            ("category", _("Категория")),
+            ("description_az", _("Описание (AZ)")),
+            ("start_datetime", _("Дата начала")),
+            ("end_datetime", _("Дата окончания")),
+        ):
+            value = getattr(obj, field_name, None)
+            if value in (None, ""):
+                missing_labels.append(str(label))
+
+        if obj.end_datetime and obj.start_datetime and obj.end_datetime <= obj.start_datetime:
+            missing_labels.append(str(_("Корректный диапазон дат")))
+
+        if missing_labels:
+            obj.status = Event.STATUS_DRAFT
+            obj.published_at = None
+            obj.save(update_fields=["status", "published_at", "updated_at"])
+            self.message_user(
+                request,
+                _("Мероприятие сохранено, но не опубликовано. Заполните: %(fields)s.")
+                % {"fields": ", ".join(missing_labels[:5])},
+                level=messages.WARNING,
+            )
+            return HttpResponseRedirect(self._event_change_url(obj))
+
+        update_fields = ["status", "rejection_reason", "updated_at"]
+        obj.status = Event.STATUS_PUBLISHED
+        obj.rejection_reason = ""
+        if obj.published_at is None:
+            obj.published_at = timezone.now()
+            update_fields.append("published_at")
+        obj.save(update_fields=update_fields)
+        self.message_user(
+            request,
+            _("Мероприятие опубликовано и теперь может показываться на сайте."),
+            level=messages.SUCCESS,
+        )
+        return HttpResponseRedirect(self._event_change_url(obj))
+
+    def _handle_unpublish_event_submit(self, request, obj: Event):
+        obj.status = Event.STATUS_CANCELLED
+        obj.published_at = None
+        obj.save(update_fields=["status", "published_at", "updated_at"])
+        self.message_user(
+            request,
+            _("Мероприятие снято с публикации и скрыто с сайта."),
+            level=messages.SUCCESS,
+        )
+        return HttpResponseRedirect(self._event_change_url(obj))
+
+    change_list_template = "admin/catalog/event/change_list.html"
+    km_primary_filters = ("category", "status", "start_datetime")
+
+    def _event_dashboard_counts(self):
+        return Event.objects.aggregate(
+            total=Count("id"),
+            published=Count("id", filter=Q(status=Event.STATUS_PUBLISHED, deleted_at__isnull=True, end_datetime__gt=timezone.now()) | Q(status=Event.STATUS_PUBLISHED, deleted_at__isnull=True, end_datetime__isnull=True)),
+            pending=Count("id", filter=Q(status=Event.STATUS_PENDING, deleted_at__isnull=True)),
+            expired=Count("id", filter=Q(status=Event.STATUS_EXPIRED) | Q(end_datetime__lte=timezone.now())),
+            deleted=Count("id", filter=Q(deleted_at__isnull=False)),
+        )
+
+    def _event_dashboard_stats(self, request, counts: dict):
+        return (
+            {
+                "label": _("Всего мероприятий"),
+                "count": counts["total"],
+                "url": "?",
+                "tone": "info",
+            },
+            {
+                "label": _("Опубликовано (Актуальные)"),
+                "count": counts["published"],
+                "url": "?status__exact=published",
+                "tone": "good",
+            },
+            {
+                "label": _("На модерации"),
+                "count": counts["pending"],
+                "url": "?status__exact=pending",
+                "tone": "warn",
+            },
+            {
+                "label": _("Завершенные"),
+                "count": counts["expired"],
+                "url": "?status__exact=expired",
+                "tone": "muted",
+            },
+            {
+                "label": _("Удалённые"),
+                "count": counts["deleted"],
+                "url": "?deleted_at__isnull=False",
+                "tone": "danger",
+            },
+        )
+
+    def _event_quick_filters(self, request, counts: dict):
+        current_status = request.GET.get("status__exact")
+        current_deleted = request.GET.get("deleted_at__isnull")
+
+        return [
+            {
+                "key": "all",
+                "label": _("Все карточки"),
+                "count": counts["total"],
+                "url": "?",
+                "active": not current_status and not current_deleted,
+            },
+            {
+                "key": "published",
+                "label": _("Опубликовано"),
+                "count": counts["published"],
+                "url": "?status__exact=published",
+                "active": current_status == "published",
+            },
+            {
+                "key": "pending",
+                "label": _("На модерации"),
+                "count": counts["pending"],
+                "url": "?status__exact=pending",
+                "active": current_status == "pending",
+            },
+            {
+                "key": "deleted",
+                "label": _("Удалённые"),
+                "count": counts["deleted"],
+                "url": "?deleted_at__isnull=False",
+                "active": current_deleted == "False",
+            },
+        ]
+
+    def _event_bulk_actions(self):
+        return [
+            {
+                "name": "mark_published",
+                "label": _("Опубликовать"),
+                "tone": "good",
+                "description": _("Опубликовать выбранные мероприятия."),
+            },
+            {
+                "name": "mark_draft",
+                "label": _("В черновик"),
+                "tone": "muted",
+                "description": _("Снять выбранные мероприятия с публикации и вернуть в черновики."),
+            },
+            {
+                "name": "mark_pending",
+                "label": _("На модерацию"),
+                "tone": "warn",
+                "description": _("Отправить выбранные мероприятия на модерацию."),
+            },
+        ]
+
+    @admin.action(description=_("Опубликовать выбранные мероприятия"))
+    def mark_published(self, request, queryset):
+        now = timezone.now()
+        updated_count = 0
+        for event in queryset.iterator(chunk_size=100):
+            update_fields = ["status", "rejection_reason", "updated_at"]
+            event.status = Event.STATUS_PUBLISHED
+            event.rejection_reason = ""
+            if event.published_at is None:
+                event.published_at = now
+                update_fields.append("published_at")
+            event.save(update_fields=update_fields)
+            updated_count += 1
+        self.message_user(
+            request,
+            ngettext(
+                "Опубликовано %(count)d мероприятие.",
+                "Опубликовано %(count)d мероприятия.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Вернуть мероприятия в черновик"))
+    def mark_draft(self, request, queryset):
+        updated_count = queryset.update(
+            status=Event.STATUS_DRAFT,
+            updated_at=timezone.now(),
+        )
+        self.message_user(
+            request,
+            ngettext(
+                "%(count)d мероприятие переведено в черновик.",
+                "%(count)d мероприятия переведены в черновик.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Отправить мероприятия на модерацию"))
+    def mark_pending(self, request, queryset):
+        updated_count = queryset.update(
+            status=Event.STATUS_PENDING,
+            rejection_reason="",
+            updated_at=timezone.now(),
+        )
+        self.message_user(
+            request,
+            ngettext(
+                "%(count)d мероприятие отправлено на модерацию.",
+                "%(count)d мероприятия отправлены на модерацию.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    def changelist_view(self, request, extra_context=None):
+        counts = self._event_dashboard_counts()
+        quick_filters = self._event_quick_filters(request, counts=counts)
+        extra_context = {
+            "event_dashboard_stats": self._event_dashboard_stats(request, counts=counts),
+            "km_primary_quick_filters": quick_filters,
+            "km_secondary_quick_filters": [],
+            "event_bulk_actions": self._event_bulk_actions(),
+            **(extra_context or {}),
+        }
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 @admin.register(Place)
@@ -233,6 +990,7 @@ class PlaceAdmin(admin.ModelAdmin):
     change_list_template = "admin/catalog/place/change_list.html"
     change_form_template = "admin/catalog/place/change_form.html"
     delete_confirmation_template = "admin/catalog/place_delete_confirmation.html"
+    km_primary_filters = ("category", "district", "status")
     delete_selected_confirmation_template = "admin/catalog/place_delete_selected_confirmation.html"
     list_select_related = ("owner",)
     list_display = (
@@ -276,13 +1034,462 @@ class PlaceAdmin(admin.ModelAdmin):
         "updated_at",
     )
     ordering = ("-updated_at",)
-    list_per_page = 30
+    list_per_page = 15
     save_on_top = True
+
+    PLACE_FORM_PRIMARY_SECTIONS = (
+        {
+            "id": "basics",
+            "step": "01",
+            "title": _("Основное"),
+            "description": _("Базовая информация о карточке: название, категория, подкатегория, URL-слаг и тип размещения."),
+            "fieldset_indexes": (0,),
+        },
+        {
+            "id": "copy",
+            "step": "02",
+            "title": _("Названия и описания"),
+            "description": _("Тексты карточки на основных языках сайта. Минимум один качественный язык обязателен."),
+            "fieldset_indexes": (1,),
+        },
+        {
+            "id": "pricing",
+            "step": "03",
+            "title": _("Возраст и цена"),
+            "description": _("Возрастные рамки, стоимость и длительность занятий."),
+            "fieldset_indexes": (2,),
+        },
+        {
+            "id": "location",
+            "step": "04",
+            "title": _("Локация и контакты"),
+            "description": _("Район, метро, адрес, координаты и контакты для связи."),
+            "fieldset_indexes": (3, 4),
+        },
+        {
+            "id": "media",
+            "step": "05",
+            "title": _("Фотографии"),
+            "description": _("Добавьте главное изображение и дополнительные фотографии места."),
+            "fieldset_indexes": (5,),
+        },
+    )
+
+    PLACE_FORM_SECONDARY_SECTIONS = (
+        {
+            "id": "system",
+            "title": _("Системные поля"),
+            "description": _("Служебные и административные поля, которые не нужны в основном сценарии заполнения."),
+            "fieldset_indexes": (6, 7),
+        },
+    )
+
+    ADD_FIELDSETS = (
+        (
+            _("Основное"),
+            {
+                "fields": (
+                    "name",
+                    ("category", "subcategory"),
+                    "slug",
+                    ("is_temporary",),
+                    ("temporary_start", "temporary_end"),
+                )
+            },
+        ),
+        (
+            _("Названия и описания (i18n)"),
+            {
+                "fields": (
+                    ("name_az", "description_az"),
+                    ("name_ru", "description_ru"),
+                    ("name_en", "description_en"),
+                )
+            },
+        ),
+        (
+            _("Возраст и цена"),
+            {
+                "fields": (
+                    ("age_from", "age_to", "lesson_duration_minutes"),
+                    ("price_from", "price_to", "price_per_lesson"),
+                    ("price_per_month", "price_per_8_lessons"),
+                )
+            },
+        ),
+        (
+            _("Локация"),
+            {
+                "fields": (
+                    ("district", "metro"),
+                    "address",
+                    ("lat", "lng"),
+                    ("coordinates_status_display", "map_ready_status_display"),
+                )
+            },
+        ),
+        (
+            _("Контакты"),
+            {
+                "fields": (
+                    ("phone1", "instagram", "website"),
+                    "schedule",
+                    "extra_conditions",
+                    "additional_info",
+                )
+            },
+        ),
+        (_("Фотографии"), {"fields": ("photo",)}),
+        (
+            _("Системные поля"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "cover_photo",
+                    "is_active",
+                    "is_verified",
+                    "status",
+                    "rejection_reason",
+                    "owner",
+                    "last_verified_at",
+                    "published_at",
+                    "lifecycle_status_display",
+                    "quality_status_display",
+                ),
+            },
+        ),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("cover_photo", "created_at", "updated_at")}),
+    )
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         from django.conf import settings
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+        adminform = context.get("adminform")
+        if adminform is not None:
+            inline_admin_formsets = context.get("inline_admin_formsets", [])
+            context["km_place_gallery_inline"] = next(
+                (
+                    inline_admin_formset
+                    for inline_admin_formset in inline_admin_formsets
+                    if inline_admin_formset.opts.model.__name__ == "PlacePhoto"
+                ),
+                None,
+            )
+            context["km_place_form_sections"] = self._build_place_form_sections(adminform)
+            context["km_place_secondary_sections"] = self._build_place_secondary_sections(adminform)
+            context["km_place_inline_sections"] = self._build_place_inline_sections(inline_admin_formsets)
+            context["km_place_form_summary"] = self._build_place_form_summary(
+                form=adminform.form,
+                obj=obj,
+                add=add,
+            )
+            context["km_place_map_alert"] = self._build_place_map_alert(
+                form=adminform.form,
+                obj=obj,
+                has_google_maps_api_key=bool(context["google_maps_api_key"]),
+            )
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
+
+    def _fieldset_list(self, adminform):
+        return list(adminform) if adminform is not None else []
+
+    def _build_place_form_sections(self, adminform):
+        fieldsets = self._fieldset_list(adminform)
+        sections = []
+        for section in self.PLACE_FORM_PRIMARY_SECTIONS:
+            section_fieldsets = [
+                fieldsets[index]
+                for index in section["fieldset_indexes"]
+                if index < len(fieldsets)
+            ]
+            if not section_fieldsets:
+                continue
+            sections.append(
+                {
+                    "id": section["id"],
+                    "step": section["step"],
+                    "title": section["title"],
+                    "description": section["description"],
+                    "fieldsets": section_fieldsets,
+                }
+            )
+        return sections
+
+    def _build_place_secondary_sections(self, adminform):
+        fieldsets = self._fieldset_list(adminform)
+        sections = []
+        for section in self.PLACE_FORM_SECONDARY_SECTIONS:
+            section_fieldsets = [
+                fieldsets[index]
+                for index in section["fieldset_indexes"]
+                if index < len(fieldsets)
+            ]
+            if not section_fieldsets:
+                continue
+            sections.append(
+                {
+                    "id": section["id"],
+                    "title": section["title"],
+                    "description": section["description"],
+                    "fieldsets": section_fieldsets,
+                }
+            )
+        return sections
+
+    def _build_place_inline_sections(self, inline_admin_formsets):
+        sections = []
+        for inline_admin_formset in inline_admin_formsets or []:
+            model_name = inline_admin_formset.opts.model.__name__
+            if model_name == "PlacePhoto":
+                continue
+            elif model_name == "PlaceReview":
+                sections.append(
+                    {
+                        "id": "reviews",
+                        "title": _("Отзывы по кружкам"),
+                        "description": _("Связанные отзывы и их текущее состояние."),
+                        "items": [inline_admin_formset],
+                    }
+                )
+            elif model_name == "PlaceChangeAudit":
+                sections.append(
+                    {
+                        "id": "audit",
+                        "title": _("История изменений карточек"),
+                        "description": _("Аудит изменений по ключевым полям карточки."),
+                        "items": [inline_admin_formset],
+                    }
+                )
+            else:
+                sections.append(
+                    {
+                        "id": f"inline-{model_name.lower()}",
+                        "title": inline_admin_formset.opts.verbose_name_plural,
+                        "description": "",
+                        "items": [inline_admin_formset],
+                    }
+                )
+        return sections
+
+    def _field_has_value(self, form, field_name: str, *, obj=None) -> bool:
+        if field_name in form.files and form.files.get(field_name):
+            return True
+
+        if form.is_bound:
+            raw_value = form.data.get(form.add_prefix(field_name))
+        else:
+            raw_value = form.initial.get(field_name, getattr(getattr(form, "instance", None), field_name, None))
+
+        if not raw_value and raw_value != 0:
+            if obj is not None:
+                current_value = getattr(obj, field_name, None)
+                if current_value or current_value == 0:
+                    return True
+            return False
+
+        return True
+
+    def _place_visibility_state(self, obj=None):
+        if obj is None or not getattr(obj, "pk", None):
+            return {
+                "label": str(_("Черновик")),
+                "tone": "muted",
+                "hint": str(_("Карточка ещё не опубликована на сайте.")),
+                "is_public": False,
+            }
+        if obj.is_deleted:
+            return {
+                "label": str(_("В удалённых")),
+                "tone": "muted",
+                "hint": str(_("Карточка скрыта с сайта и перемещена в удалённые.")),
+                "is_public": False,
+            }
+        if obj.is_active and obj.status == obj.STATUS_PUBLISHED:
+            return {
+                "label": str(_("Опубликовано")),
+                "tone": "good",
+                "hint": str(_("Карточка видна на сайте при текущих правилах качества каталога.")),
+                "is_public": True,
+            }
+        if obj.status == obj.STATUS_PENDING:
+            return {
+                "label": str(_("На модерации")),
+                "tone": "warn",
+                "hint": str(_("Карточка сохранена, но ещё не показывается на сайте.")),
+                "is_public": False,
+            }
+        if obj.status == obj.STATUS_REJECTED:
+            return {
+                "label": str(_("Отклонено")),
+                "tone": "danger",
+                "hint": str(_("Карточка отклонена и не показывается на сайте.")),
+                "is_public": False,
+            }
+        if not obj.is_active:
+            return {
+                "label": str(_("Скрыто с сайта")),
+                "tone": "warn",
+                "hint": str(_("Карточка сохранена, но снята с публикации.")),
+                "is_public": False,
+            }
+        return {
+            "label": str(_("Черновик")),
+            "tone": "muted",
+            "hint": str(_("Карточка пока не опубликована на сайте.")),
+            "is_public": False,
+        }
+
+    def _build_place_map_alert(self, *, form, obj=None, has_google_maps_api_key: bool):
+        address_present = self._field_has_value(form, "address", obj=obj)
+        lat_present = self._field_has_value(form, "lat", obj=obj)
+        lng_present = self._field_has_value(form, "lng", obj=obj)
+        should_show_provider_warning = not has_google_maps_api_key and (
+            address_present or lat_present or lng_present or (obj is not None and obj.pk)
+        )
+        if should_show_provider_warning:
+            return {
+                "tone": "warning",
+                "title": str(_("Карта пока не активна")),
+                "message": str(
+                    _("Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY, чтобы рассчитывать координаты прямо из формы.")
+                ),
+            }
+
+        if obj is not None and obj.pk and not obj.is_map_ready:
+            if obj.is_deleted:
+                message = _("Карточка удалена и не может отображаться на карте, пока не будет восстановлена.")
+            elif not obj.has_coordinates:
+                message = _("Для публикации на карте нужно заполнить адрес или рассчитать координаты.")
+            elif not obj.is_active or obj.status != obj.STATUS_PUBLISHED:
+                message = _("Координаты есть, но карточка станет доступна на карте только после публикации.")
+            else:
+                message = _("Карта пока не готова для этой карточки.")
+            return {
+                "tone": "warning",
+                "title": str(_("Проверьте готовность карты")),
+                "message": str(message),
+            }
+
+        return None
+
+    def _build_place_form_summary(self, *, form, obj=None, add=False):
+        checklist = (
+            ("name", _("Название")),
+            ("category", _("Категория")),
+            ("description_az", _("Описание (AZ)")),
+            ("age_from", _("Возраст от")),
+            ("age_to", _("Возраст до")),
+            ("address", _("Адрес")),
+            ("phone1", _("Телефон")),
+            ("photo", _("Главное фото")),
+        )
+
+        completed = 0
+        missing = []
+        missing_fields = set()
+        for field_name, label in checklist:
+            if self._field_has_value(form, field_name, obj=obj):
+                completed += 1
+            else:
+                missing.append(str(label))
+                missing_fields.add(field_name)
+
+        total = len(checklist)
+        completion_pct = round(completed / total * 100) if total else 0
+
+        title = str(_("Новое место"))
+        state_badges = []
+        meta_items = []
+        error_count = len(form.errors)
+        visibility = self._place_visibility_state(obj)
+
+        if obj is not None and obj.pk:
+            title = obj.name_ru or obj.name or title
+            quality = place_quality_check(obj)
+            state_badges.append(
+                {
+                    "label": visibility["label"],
+                    "tone": visibility["tone"],
+                }
+            )
+            state_badges.append(
+                {
+                    "label": str(dict(obj.STATUS_CHOICES).get(obj.status, obj.status)),
+                    "tone": "good" if obj.status == obj.STATUS_PUBLISHED else "muted",
+                }
+            )
+            state_badges.append(
+                {
+                    "label": str(_("Есть координаты")) if obj.has_coordinates else str(_("Нужны координаты")),
+                    "tone": "good" if obj.has_coordinates else "warn",
+                }
+            )
+            meta_items.append(
+                {
+                    "label": str(_("Качество")),
+                    "value": f"{quality.score} / 100",
+                }
+            )
+            if obj.published_at:
+                meta_items.append(
+                    {
+                        "label": str(_("Опубликовано")),
+                        "value": timezone.localtime(obj.published_at).strftime("%d.%m.%Y %H:%M"),
+                    }
+                )
+            meta_items.append(
+                {
+                    "label": str(_("Владелец")),
+                    "value": obj.owner.username if obj.owner_id and obj.owner else str(_("Не назначен")),
+                }
+            )
+        else:
+            state_badges.append(
+                {
+                    "label": str(_("Черновой режим")),
+                    "tone": "muted",
+                }
+            )
+
+        if add:
+            meta_items.insert(
+                0,
+                {
+                    "label": str(_("Режим")),
+                    "value": str(_("Создание новой карточки")),
+                }
+            )
+        else:
+            meta_items.insert(
+                0,
+                {
+                    "label": str(_("Режим")),
+                    "value": str(_("Редактирование карточки")),
+                }
+            )
+
+        return {
+            "title": title,
+            "completion_pct": completion_pct,
+            "completed": completed,
+            "total": total,
+            "error_count": error_count,
+            "visibility": visibility,
+            "checklist_items": [
+                {
+                    "field_name": field_name,
+                    "input_id": f"id_{field_name}",
+                    "label": str(label),
+                    "initial": field_name not in missing_fields,
+                }
+                for field_name, label in checklist
+            ],
+            "missing": missing[:5],
+            "readiness_label": str(_("Готово к публикации")) if not missing else str(_("Нужна доработка")),
+            "readiness_tone": "good" if not missing else "warn",
+            "state_badges": state_badges,
+            "meta_items": meta_items,
+        }
 
     actions = (
         "mark_active",
@@ -304,16 +1511,11 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "name",
+                    ("category", "subcategory"),
                     "slug",
-                    "category",
-                    "subcategory",
-                    "is_temporary",
-                    "temporary_start",
-                    "temporary_end",
-                    "is_active",
-                    "is_verified",
-                    "status",
-                    "rejection_reason",
+                    ("is_temporary", "is_active", "is_verified"),
+                    ("temporary_start", "temporary_end"),
+                    ("status", "rejection_reason"),
                     "last_verified_at",
                     "published_at",
                     "owner",
@@ -325,41 +1527,78 @@ class PlaceAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        (_("Названия и описания (i18n)"), {"classes": ("collapse",), "fields": ("name_ru", "name_az", "name_en", "description_ru", "description_az", "description_en")}),
+        (
+            _("Названия и описания (i18n)"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    ("name_az", "description_az"),
+                    ("name_ru", "description_ru"),
+                    ("name_en", "description_en"),
+                ),
+            },
+        ),
         (
             _("Возраст и цена"),
             {
                 "fields": (
-                    "age_from",
-                    "age_to",
-                    "price_from",
-                    "price_to",
-                    "price_per_lesson",
-                    "price_per_month",
-                    "price_per_8_lessons",
-                    "lesson_duration_minutes",
+                    ("age_from", "age_to", "lesson_duration_minutes"),
+                    ("price_from", "price_to", "price_per_lesson"),
+                    ("price_per_month", "price_per_8_lessons"),
                 )
             },
         ),
-        (_("Локация"), {"fields": ("district", "metro", "address", "lat", "lng", "coordinates_status_display", "map_ready_status_display")}),
-        (_("Контакты"), {"fields": ("phone1", "instagram", "website", "schedule", "extra_conditions", "additional_info")}),
-        (_("Фото"), {"fields": ("cover_photo", "photo")}),
+        (_("Локация"), {"fields": (("district", "metro"), "address", ("lat", "lng"), ("coordinates_status_display", "map_ready_status_display"))}),
+        (_("Контакты"), {"fields": (("phone1", "instagram", "website"), "schedule", "extra_conditions", "additional_info")}),
+        (_("Фотографии"), {"fields": ("photo",)}),
         (_("Удаление"), {"classes": ("collapse",), "fields": ("deleted_at", "deleted_by")}),
-        (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("cover_photo", "created_at", "updated_at")}),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        if obj is None:
+            return self.ADD_FIELDSETS
+        return super().get_fieldsets(request, obj)
+
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        initial.setdefault("status", Place.STATUS_DRAFT)
+        initial.setdefault("is_active", False)
+        return initial
+
+    def get_inline_instances(self, request, obj=None):
+        inline_instances = super().get_inline_instances(request, obj)
+        if obj is None:
+            return [inline for inline in inline_instances if isinstance(inline, PlacePhotoInline)]
+        return inline_instances
 
     @admin.display(description=_("Название"))
     def display_name(self, obj):
         title = obj.name_ru or obj.name
-        meta: list[str] = []
-        if obj.slug:
-            meta.append(f"ID {obj.pk} · /{obj.slug}/")
-        else:
-            meta.append(f"ID {obj.pk}")
+        meta: list[str] = [f"ID {obj.pk}"]
         if obj.is_deleted:
             meta.append(str(_("Сейчас скрыта в разделе удалённых")))
+        preview = ""
+        image_field = obj.photo or obj.cover_photo
+        if image_field and getattr(image_field, "name", ""):
+            try:
+                preview = format_html(
+                    '<img src="{}" alt="" class="km-admin-thumb" loading="lazy">',
+                    image_field.url,
+                )
+            except Exception:
+                preview = ""
+        if not preview:
+            preview = mark_safe('<span class="km-admin-thumb km-admin-thumb--placeholder" aria-hidden="true">•</span>')
         return format_html(
-            '<div class="km-admin-stack"><span class="km-admin-title">{}</span>{}</div>',
+            '<div class="km-admin-entry">'
+            '{}'
+            '<div class="km-admin-stack">'
+            '<span class="km-admin-title">{}</span>'
+            '{}'
+            "</div>"
+            "</div>",
+            preview,
             title,
             format_html_join("", '<span class="km-admin-meta">{}</span>', ((item,) for item in meta)),
         )
@@ -456,40 +1695,55 @@ class PlaceAdmin(admin.ModelAdmin):
             obj.STATUS_PUBLISHED: "good",
             obj.STATUS_REJECTED: "danger",
         }.get(obj.status, "muted")
+        
         badges = [
             self._render_place_state_badge(label=obj.get_status_display(), tone=status_tone),
-            self.lifecycle_status(obj),
         ]
+        
+        if obj.is_deleted:
+            badges.append(self._render_place_state_badge(label=_("В удаленных"), tone="muted"))
+        elif not obj.is_active:
+            badges.append(self._render_place_state_badge(label=_("Неактивно"), tone="warn"))
+
         badges.append(
             self._render_place_state_badge(
                 label=_("Проверено") if obj.is_verified else _("Без проверки"),
                 tone="good" if obj.is_verified else "warn",
             )
         )
-        badges.append(
-            self._render_place_state_badge(
-                label=_("Временное") if obj.is_temporary else _("Постоянное"),
-                tone="info" if obj.is_temporary else "muted",
-            )
-        )
+        meta_bits: list[str] = []
+        if obj.is_temporary:
+            meta_bits.append(str(_("Временное")))
+        if obj.rejection_reason and obj.status == obj.STATUS_REJECTED:
+            meta_bits.append(str(_("Есть причина отклонения")))
+            
+        badges_html = mark_safe(" ".join(badges))
         return format_html(
-            '<div class="km-admin-stack"><div class="km-admin-badges">{} {} {} {}</div></div>',
-            badges[0],
-            badges[1],
-            badges[2],
-            badges[3],
+            '<div class="km-admin-stack"><div class="km-admin-badges">{}</div>{}</div>',
+            badges_html,
+            format_html(
+                '<span class="km-admin-meta">{}</span>',
+                " · ".join(meta_bits),
+            ) if meta_bits else "",
         )
 
     @admin.display(description=_("Карта"))
     def map_status_summary(self, obj):
         coords_line = _("lat %(lat)s, lng %(lng)s") % {"lat": round(obj.lat, 5), "lng": round(obj.lng, 5)} if obj.has_coordinates else _("Координаты не заполнены")
+        
+        if not obj.has_coordinates:
+            map_badge = self._render_place_state_badge(label=_("Нужны координаты"), tone="warn")
+        elif obj.is_map_ready:
+            map_badge = self._render_place_state_badge(label=_("Готово для карты"), tone="good")
+        else:
+            map_badge = self._render_place_state_badge(label=_("Не готово для карты"), tone="muted")
+
         return format_html(
             '<div class="km-admin-stack">'
-            '<div class="km-admin-badges">{} {}</div>'
+            '<div class="km-admin-badges">{}</div>'
             '<span class="km-admin-meta">{}</span>'
             "</div>",
-            self.coordinates_status(obj),
-            self.map_ready_status(obj),
+            map_badge,
             coords_line,
         )
 
@@ -648,7 +1902,8 @@ class PlaceAdmin(admin.ModelAdmin):
         encoded = params.urlencode()
         return f"?{encoded}" if encoded else ""
 
-    def _place_quick_filters(self, request):
+    def _place_quick_filters(self, request, *, counts: dict[str, int] | None = None):
+        counts = counts or self._place_dashboard_counts()
         status_keys = ("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")
         current_deleted = request.GET.get("deleted_state")
         current_active = request.GET.get("is_active__exact")
@@ -657,12 +1912,16 @@ class PlaceAdmin(admin.ModelAdmin):
         current_status = request.GET.get("status__exact")
         return (
             {
+                "key": "all",
                 "label": _("Все карточки"),
+                "count": int(counts["quick_all"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys),
                 "active": not any((current_deleted, current_active, current_coordinates, current_map_ready, current_status)),
             },
             {
+                "key": "published",
                 "label": _("Опубликованы"),
+                "count": int(counts["quick_published"]),
                 "url": self._build_changelist_query_string(
                     request,
                     clear=status_keys,
@@ -672,7 +1931,9 @@ class PlaceAdmin(admin.ModelAdmin):
                 "active": current_deleted == "active" and current_active == "1" and not current_coordinates and not current_map_ready and not current_status,
             },
             {
+                "key": "inactive",
                 "label": _("Неактивные"),
+                "count": int(counts["quick_inactive"]),
                 "url": self._build_changelist_query_string(
                     request,
                     clear=status_keys,
@@ -682,44 +1943,118 @@ class PlaceAdmin(admin.ModelAdmin):
                 "active": current_deleted == "active" and current_active == "0" and not current_coordinates and not current_map_ready and not current_status,
             },
             {
+                "key": "draft",
                 "label": _("Черновики"),
+                "count": int(counts["quick_draft"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys, status__exact=Place.STATUS_DRAFT),
                 "active": current_status == Place.STATUS_DRAFT and not current_deleted and not current_active and not current_coordinates and not current_map_ready,
             },
             {
+                "key": "pending",
                 "label": _("На модерации"),
+                "count": int(counts["quick_pending"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys, status__exact=Place.STATUS_PENDING),
                 "active": current_status == Place.STATUS_PENDING and not current_deleted and not current_active and not current_coordinates and not current_map_ready,
             },
             {
+                "key": "rejected",
                 "label": _("Отклонены"),
+                "count": int(counts["quick_rejected"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys, status__exact=Place.STATUS_REJECTED),
                 "active": current_status == Place.STATUS_REJECTED and not current_deleted and not current_active and not current_coordinates and not current_map_ready,
             },
             {
+                "key": "deleted",
                 "label": _("В удалённых"),
+                "count": int(counts["quick_deleted"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys, deleted_state="deleted"),
                 "active": current_deleted == "deleted" and not current_active and not current_coordinates and not current_map_ready and not current_status,
             },
             {
+                "key": "without_coordinates",
                 "label": _("Без координат"),
+                "count": int(counts["quick_without_coordinates"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys, coordinates_status="no"),
                 "active": current_coordinates == "no" and not current_deleted and not current_active and not current_map_ready and not current_status,
             },
             {
+                "key": "not_ready_for_map",
                 "label": _("Не готовы для карты"),
+                "count": int(counts["quick_not_ready_for_map"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys, map_ready_status="no"),
                 "active": current_map_ready == "no" and not current_deleted and not current_active and not current_coordinates and not current_status,
+            },
+        )
+
+    def _place_dashboard_counts(self) -> dict[str, int]:
+        counts = Place.objects.aggregate(
+            quick_all=Count("pk"),
+            quick_published=Count("pk", filter=Q(deleted_at__isnull=True, is_active=True)),
+            quick_inactive=Count("pk", filter=Q(deleted_at__isnull=True, is_active=False)),
+            quick_draft=Count("pk", filter=Q(status=Place.STATUS_DRAFT)),
+            quick_pending=Count("pk", filter=Q(status=Place.STATUS_PENDING)),
+            quick_rejected=Count("pk", filter=Q(status=Place.STATUS_REJECTED)),
+            quick_deleted=Count("pk", filter=Q(deleted_at__isnull=False)),
+            quick_without_coordinates=Count("pk", filter=Q(lat__isnull=True) | Q(lng__isnull=True)),
+            quick_not_ready_for_map=Count("pk", filter=Q(is_active=False) | Q(lat__isnull=True) | Q(lng__isnull=True)),
+            stat_total=Count("pk"),
+            stat_published=Count("pk", filter=Q(deleted_at__isnull=True, is_active=True)),
+            stat_pending=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_PENDING)),
+            stat_inactive=Count("pk", filter=Q(deleted_at__isnull=True, is_active=False)),
+            stat_without_coordinates=Count(
+                "pk",
+                filter=Q(deleted_at__isnull=True) & (Q(lat__isnull=True) | Q(lng__isnull=True)),
+            ),
+        )
+        return {key: int(value or 0) for key, value in counts.items()}
+
+    def _place_dashboard_stats(self, request, *, counts: dict[str, int] | None = None):
+        counts = counts or self._place_dashboard_counts()
+        return (
+            {
+                "label": _("Всего"),
+                "count": counts["stat_total"],
+                "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")),
+                "tone": "neutral",
+                "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>',
+            },
+            {
+                "label": _("Опубликовано"),
+                "count": counts["stat_published"],
+                "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), deleted_state="active", is_active__exact="1"),
+                "tone": "good",
+                "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+            },
+            {
+                "label": _("На модерации"),
+                "count": counts["stat_pending"],
+                "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), status__exact=Place.STATUS_PENDING),
+                "tone": "warn",
+                "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+            },
+            {
+                "label": _("Неактивные"),
+                "count": counts["stat_inactive"],
+                "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), deleted_state="active", is_active__exact="0"),
+                "tone": "muted",
+                "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>',
+            },
+            {
+                "label": _("Без координат"),
+                "count": counts["stat_without_coordinates"],
+                "url": self._build_changelist_query_string(request, clear=("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact"), coordinates_status="no"),
+                "tone": "info",
+                "icon": '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
             },
         )
 
     def _place_bulk_actions(self):
         return (
             {
-                "name": "mark_active",
+                "name": "mark_published",
                 "label": _("Опубликовать"),
                 "tone": "good",
-                "description": _("Сделать выбранные карточки активными и вернуть их в каталог."),
+                "description": _("Опубликовать выбранные карточки с проверкой качества."),
             },
             {
                 "name": "mark_inactive",
@@ -728,10 +2063,16 @@ class PlaceAdmin(admin.ModelAdmin):
                 "description": _("Оставить карточки в базе, но скрыть их с сайта."),
             },
             {
-                "name": "mark_verified",
-                "label": _("Отметить проверенными"),
-                "tone": "info",
-                "description": _("Показать, что карточки прошли проверку."),
+                "name": "mark_draft",
+                "label": _("Вернуть в черновик"),
+                "tone": "muted",
+                "description": _("Снять выбранные карточки с сайта и перевести в черновики."),
+            },
+            {
+                "name": "mark_pending",
+                "label": _("На модерацию"),
+                "tone": "warn",
+                "description": _("Отправить выбранные карточки на повторную модерацию."),
             },
             {
                 "name": "refresh_coordinates",
@@ -795,8 +2136,55 @@ class PlaceAdmin(admin.ModelAdmin):
         self.message_user(request, message, level=level)
         return HttpResponseRedirect(self._place_change_url(obj))
 
+    def _handle_publish_submit(self, request, obj: Place):
+        quality = place_quality_check(obj)
+        if not quality.is_ready:
+            obj.status = Place.STATUS_DRAFT
+            obj.is_active = False
+            obj.save(update_fields=["status", "is_active", "updated_at"])
+            self.message_user(
+                request,
+                _("Карточка сохранена, но не опубликована: сначала заполните обязательные поля и фото."),
+                level=messages.WARNING,
+            )
+            return HttpResponseRedirect(self._place_change_url(obj))
+
+        update_fields = ["status", "is_active", "rejection_reason", "updated_at"]
+        obj.status = Place.STATUS_PUBLISHED
+        obj.is_active = True
+        obj.rejection_reason = ""
+        if obj.published_at is None:
+            obj.published_at = timezone.now()
+            update_fields.append("published_at")
+        obj.save(update_fields=update_fields)
+        self.message_user(
+            request,
+            _("Карточка опубликована и теперь может показываться на сайте."),
+            level=messages.SUCCESS,
+        )
+        return HttpResponseRedirect(self._place_change_url(obj))
+
+    def _handle_unpublish_submit(self, request, obj: Place):
+        obj.is_active = False
+        if obj.status == Place.STATUS_PUBLISHED:
+            obj.status = Place.STATUS_DRAFT
+            obj.save(update_fields=["is_active", "status", "updated_at"])
+        else:
+            obj.save(update_fields=["is_active", "updated_at"])
+        self.message_user(
+            request,
+            _("Карточка снята с публикации и скрыта с сайта."),
+            level=messages.SUCCESS,
+        )
+        return HttpResponseRedirect(self._place_change_url(obj))
+
     def get_urls(self):
         custom_urls = [
+            path(
+                "search-suggestions/",
+                self.admin_site.admin_view(self.search_suggestions_view),
+                name="catalog_place_search_suggestions",
+            ),
             path(
                 "<path:object_id>/restore/",
                 self.admin_site.admin_view(self.restore_view),
@@ -805,9 +2193,51 @@ class PlaceAdmin(admin.ModelAdmin):
         ]
         return custom_urls + super().get_urls()
 
+    def search_suggestions_view(self, request):
+        term = (request.GET.get("q") or "").strip()
+        if len(term) < 2:
+            return JsonResponse({"results": []})
+
+        queryset = self.get_queryset(request)
+        queryset, _ = self.get_search_results(request, queryset, term)
+        queryset = queryset.select_related("owner").distinct()[:8]
+
+        results = []
+        for place in queryset:
+            title = (place.name_ru or place.name_az or place.name_en or place.name or "").strip()
+            if not title:
+                continue
+
+            meta_parts = []
+            if place.district:
+                meta_parts.append(str(place.district))
+            if place.address:
+                meta_parts.append(str(place.address))
+            if place.phone1:
+                meta_parts.append(str(place.phone1))
+            if getattr(place, "owner", None):
+                owner_label = place.owner.get_username() or getattr(place.owner, "email", "")
+                if owner_label:
+                    meta_parts.append(str(owner_label))
+
+            results.append(
+                {
+                    "value": title,
+                    "label": title,
+                    "meta": " • ".join(part for part in meta_parts if part)[:180],
+                }
+            )
+
+        return JsonResponse({"results": results})
+
     def changelist_view(self, request, extra_context=None):
+        dashboard_counts = self._place_dashboard_counts()
+        quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
+        primary_filter_keys = {"all", "published", "pending", "inactive", "without_coordinates", "deleted"}
         extra_context = {
-            "place_quick_filters": self._place_quick_filters(request),
+            "place_dashboard_stats": self._place_dashboard_stats(request, counts=dashboard_counts),
+            "km_primary_quick_filters": [item for item in quick_filters if item.get("key") in primary_filter_keys],
+            "km_secondary_quick_filters": [item for item in quick_filters if item.get("key") not in primary_filter_keys],
             "place_bulk_actions": self._place_bulk_actions(),
             **(extra_context or {}),
         }
@@ -903,7 +2333,7 @@ class PlaceAdmin(admin.ModelAdmin):
         now = timezone.now()
         published_count = 0
         skipped_count = 0
-        for place in queryset.prefetch_related("gallery").iterator():
+        for place in queryset.prefetch_related("gallery").iterator(chunk_size=100):
             if not place_quality_check(place).is_ready:
                 skipped_count += 1
                 continue
@@ -1145,6 +2575,11 @@ class PlaceAdmin(admin.ModelAdmin):
                 for field in self.AUDIT_TRACKED_FIELDS:
                     old_values[field] = getattr(old_obj, field)
 
+        if "_save_draft" in request.POST:
+            obj.status = Place.STATUS_DRAFT
+            obj.is_active = False
+            obj.published_at = None
+
         super().save_model(request, obj, form, change)
 
         if change and old_values:
@@ -1168,6 +2603,16 @@ class PlaceAdmin(admin.ModelAdmin):
                 PlaceChangeAudit.objects.bulk_create(audit_entries)
 
     def response_add(self, request, obj, post_url_continue=None):
+        if "_save_draft" in request.POST:
+            return self._handle_save_draft_submit(
+                request,
+                obj,
+                message=_("Черновик сохранён. Можно вернуться и продолжить заполнение позже."),
+            )
+        if "_publish_place" in request.POST:
+            return self._handle_publish_submit(request, obj)
+        if "_unpublish_place" in request.POST:
+            return self._handle_unpublish_submit(request, obj)
         if "_refresh_coordinates_from_address" in request.POST:
             return self._handle_refresh_coordinates_submit(
                 request,
@@ -1177,6 +2622,16 @@ class PlaceAdmin(admin.ModelAdmin):
         return super().response_add(request, obj, post_url_continue=post_url_continue)
 
     def response_change(self, request, obj):
+        if "_save_draft" in request.POST:
+            return self._handle_save_draft_submit(
+                request,
+                obj,
+                message=_("Изменения сохранены как черновик. Можно продолжить редактирование позже."),
+            )
+        if "_publish_place" in request.POST:
+            return self._handle_publish_submit(request, obj)
+        if "_unpublish_place" in request.POST:
+            return self._handle_unpublish_submit(request, obj)
         if "_refresh_coordinates_from_address" in request.POST:
             return self._handle_refresh_coordinates_submit(
                 request,
@@ -1185,43 +2640,25 @@ class PlaceAdmin(admin.ModelAdmin):
             )
         return super().response_change(request, obj)
 
+    def _handle_save_draft_submit(self, request, obj, *, message: str):
+        self.message_user(request, message, level=messages.SUCCESS)
+        return HttpResponseRedirect(self._place_change_url(obj))
+
     @admin.display(description=_("Действия"))
     def row_actions(self, obj):
         edit_url = self._place_change_url(obj)
-        action_links = [
-            format_html(
-                '<a class="km-admin-action km-admin-action--primary" href="{}">{}</a>',
-                edit_url,
-                _("Редактировать"),
-            )
-        ]
+        primary_action = render_primary_action(edit_url, _("Редактировать"))
+        
+        menu_actions = []
         if obj.is_deleted:
-            action_links.append(
-                format_html(
-                    '<a class="km-admin-action km-admin-action--good" href="{}">{}</a>',
-                    self._place_restore_url(obj),
-                    _("Восстановить"),
-                )
-            )
-            action_links.append(
-                format_html('<span class="km-admin-action km-admin-action--muted">{}</span>', _("В каталоге скрыта"))
-            )
+            menu_actions.append((self._place_restore_url(obj), _("Восстановить"), "km-admin-action-menu__link--good"))
+            menu_actions.append((None, _("Карточка скрыта из каталога"), "km-admin-action-menu__hint"))
         else:
-            action_links.append(
-                format_html(
-                    '<a class="km-admin-action km-admin-action--secondary" href="{}" target="_blank" rel="noopener">{}</a>',
-                    obj.get_absolute_url(),
-                    _("Открыть"),
-                )
-            )
-            action_links.append(
-                format_html(
-                    '<a class="km-admin-action km-admin-action--danger" href="{}">{}</a>',
-                    self._place_delete_url(obj),
-                    _("В удалённые"),
-                )
-            )
-        return format_html('<div class="km-place-row-actions">{}</div>', format_html_join("", "{}", ((link,) for link in action_links)))
+            menu_actions.append((obj.get_absolute_url(), _("Открыть"), ""))
+            menu_actions.append((self._place_delete_url(obj), _("В удалённые"), "km-admin-action-menu__link--danger"))
+            
+        menu_html = render_action_menu(menu_actions)
+        return render_row_actions_container(primary_action, menu_html)
 
 
 @admin.register(PlaceReviewsByClub)
@@ -1240,3 +2677,209 @@ class PlaceReviewsByClubAdmin(admin.ModelAdmin):
     def reviews_link(self, obj):
         url = reverse("admin:catalog_placereview_changelist")
         return format_html('<a href="{}?place__id__exact={}">{}</a>', url, obj.id, _("Открыть отзывы"))
+
+
+class SubcategoryInline(admin.TabularInline):
+    model = Subcategory
+    extra = 1
+    fields = ("name_ru", "name_az", "name_en", "order")
+
+
+class CategoryAdminForm(forms.ModelForm):
+    name = forms.CharField(widget=forms.HiddenInput(), required=False)
+    name_az = forms.CharField(label=_("Название (AZ)"), required=True)
+
+    class Meta:
+        model = Category
+        fields = "__all__"
+        widgets = {
+            "code": forms.TextInput(attrs={"autocomplete": "off", "placeholder": _("Например: education")}),
+            "order": forms.NumberInput(attrs={"min": 0, "step": 1, "inputmode": "numeric"}),
+            "name_ru": forms.TextInput(attrs={"placeholder": _("Например: Образование")}),
+            "name_en": forms.TextInput(attrs={"placeholder": _("Например: Education")}),
+            "icon": forms.TextInput(attrs={"autocomplete": "off", "placeholder": _("Например: icons/categories/sports.svg")}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        name_az = cleaned_data.get("name_az")
+        if name_az:
+            cleaned_data["name"] = name_az
+        return cleaned_data
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name_az"].widget.attrs.setdefault("placeholder", _("Например: Təhsil"))
+        self.fields["icon"].help_text = _(
+            "Укажите путь к SVG иконке. Например: icons/categories/sports.svg или img/icon/cooliocns SVG/System/Code.svg."
+        )
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    form = CategoryAdminForm
+    change_form_template = "admin/catalog/category/change_form.html"
+    list_display = ("code", "name_ru", "name_az", "name_en")
+    search_fields = ("code", "name_ru", "name_az", "name_en")
+    ordering = ("name_ru",)
+    inlines = [SubcategoryInline]
+
+    fieldsets = (
+        (None, {
+            "fields": (
+                ("code", "name_az"),
+                ("name_ru", "name_en"),
+                "icon",
+                "name",
+            )
+        }),
+    )
+
+    def get_inlines(self, request, obj=None):
+        if not obj or request.GET.get("_popup"):
+            return []
+        return self.inlines
+
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path('upload-icon/', self.admin_site.admin_view(self.upload_icon_view), name='catalog_category_upload_icon'),
+            path('toggle-active/', self.admin_site.admin_view(self.toggle_active_view), name='catalog_taxonomy_toggle_active'),
+        ]
+        return custom_urls + urls
+
+    def toggle_active_view(self, request):
+        from django.http import JsonResponse
+        from catalog.models.category import Category, Subcategory
+        
+        if request.method != "POST":
+            return JsonResponse({"error": "POST required"}, status=405)
+            
+        if not self.has_change_permission(request):
+            return JsonResponse({"error": "Permission denied"}, status=403)
+            
+        obj_type = request.POST.get('obj_type')
+        obj_id = request.POST.get('obj_id')
+        
+        if obj_type == 'category':
+            obj = Category.objects.filter(pk=obj_id).first()
+        elif obj_type == 'subcategory':
+            obj = Subcategory.objects.filter(pk=obj_id).first()
+        else:
+            return JsonResponse({"error": "Invalid obj_type"}, status=400)
+            
+        if not obj:
+            return JsonResponse({"error": "Object not found"}, status=404)
+            
+        obj.is_active = not obj.is_active
+        obj.save(update_fields=['is_active'])
+        
+        return JsonResponse({"status": "success", "is_active": obj.is_active})
+
+    def changelist_view(self, request, extra_context=None):
+        from django.db.models import Prefetch, Count, Q
+        from catalog.models.category import Category, Subcategory
+        from django.template.response import TemplateResponse
+        from django.utils.translation import gettext as _
+
+        search_query = request.GET.get('q', '').strip()
+        
+        categories = Category.objects.all()
+        subcategories = Subcategory.objects.all()
+
+        if search_query:
+            sub_matches = subcategories.filter(
+                Q(code__icontains=search_query) |
+                Q(name_ru__icontains=search_query) |
+                Q(name_az__icontains=search_query) |
+                Q(name_en__icontains=search_query)
+            )
+            cat_ids_from_subs = sub_matches.values_list('category_id', flat=True)
+            
+            categories = categories.filter(
+                Q(code__icontains=search_query) |
+                Q(name_ru__icontains=search_query) |
+                Q(name_az__icontains=search_query) |
+                Q(name_en__icontains=search_query) |
+                Q(code__in=cat_ids_from_subs)
+            )
+
+        # Annotate counts and optimize queries
+        categories = categories.annotate(
+            places_count=Count('place', distinct=True),
+            sub_count=Count('subcategories', distinct=True)
+        ).order_by('name_ru')
+
+        sub_qs = Subcategory.objects.annotate(
+            places_count=Count('place')
+        ).order_by('name_ru')
+
+        categories = categories.prefetch_related(
+            Prefetch('subcategories', queryset=sub_qs)
+        )
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': _('Категории и подкатегории'),
+            'categories': categories,
+            'search_query': search_query,
+            'opts': self.model._meta,
+            'has_add_permission': self.has_add_permission(request),
+            'has_change_permission': self.has_change_permission(request),
+            'app_label': self.model._meta.app_label,
+        }
+        context.update(extra_context or {})
+        return TemplateResponse(request, "admin/catalog/category/change_list.html", context)
+
+    def upload_icon_view(self, request):
+        from django.http import JsonResponse
+        import os
+        import uuid
+        from django.conf import settings
+
+        if request.method != "POST":
+            return JsonResponse({"error": "Method not allowed"}, status=405)
+
+        uploaded_file = request.FILES.get("file")
+        if not uploaded_file:
+            return JsonResponse({"error": "No file uploaded"}, status=400)
+
+        # Validate extension
+        ext = os.path.splitext(uploaded_file.name)[1].lower()
+        if ext not in [".svg", ".png", ".jpg", ".jpeg", ".webp"]:
+            return JsonResponse({"error": "Unsupported file format"}, status=400)
+
+        # Generate a unique short filename to fit in 50 character limit of Category.icon field
+        short_uuid = uuid.uuid4().hex[:8]
+        filename = f"cat_icons/{short_uuid}{ext}"
+        full_path = os.path.join(settings.MEDIA_ROOT, filename)
+
+        # Create directories if they do not exist
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+
+        # Save file
+        try:
+            with open(full_path, "wb+") as destination:
+                for chunk in uploaded_file.chunks():
+                    destination.write(chunk)
+        except Exception as e:
+            return JsonResponse({"error": f"Failed to save file: {str(e)}"}, status=500)
+
+        # Return the media URL
+        media_url = f"{settings.MEDIA_URL}{filename}"
+        return JsonResponse({"success": True, "url": media_url, "path": media_url})
+
+
+
+@admin.register(Subcategory)
+class SubcategoryAdmin(admin.ModelAdmin):
+    list_display = ("name_ru", "category", "name_az", "name_en")
+    list_filter = ("category",)
+    search_fields = ("name_ru", "name_az", "name_en")
+    ordering = ("category", "name_ru")
+    exclude = ("code", "order")
+
+    def has_module_permission(self, request):
+        # Скрываем подкатегории из бокового меню, так как они управляются из Категорий
+        return False

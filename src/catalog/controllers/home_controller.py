@@ -7,9 +7,9 @@ from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from catalog.content_data import HOME_CATEGORIES
+
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository, ISiteReviewRepository
-from catalog.models import Event, SiteGalleryImage
+from catalog.models import Event, SiteGalleryImage, Category
 from catalog.repositories.django_repositories import (
     DjangoPlaceRepository,
     DjangoSettingsRepository,
@@ -60,7 +60,7 @@ class HomeController:
                 "lng": place.lng,
                 "url": place.get_absolute_url(),
                 "category": place.get_category_display(),
-                "category_code": place.category,
+                "category_code": place.category_code,
                 "district": place.district,
                 "metro": place.metro,
                 "age_from": place.age_from,
@@ -99,7 +99,7 @@ class HomeController:
         )
 
         return {
-            "home_categories": sorted(HOME_CATEGORIES, key=lambda item: str(_(item["title"])).casefold()),
+            "home_categories": sorted([{"code": c.code, "title": c.name_i18n(language_code)} for c in Category.objects.filter(is_active=True).order_by('order')], key=lambda item: str(item["title"]).casefold()),
             "home_districts": sort_translated_values(content_settings.districts()),
             "home_metro_options": sort_translated_values(content_settings.metro_stations()),
             "home_age_options": [0, 6, 9, 12, 16],

@@ -1,0 +1,138 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}">
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}" defer></script>
+{% endblock %}
+
+{% block submit_buttons_top %}{% endblock %}
+{% block submit_buttons_bottom %}{% endblock %}
+
+{% block content %}
+  <div id="content-main" class="km-place-form-page">
+    <form
+      {% if has_file_field %}enctype="multipart/form-data"{% endif %}
+      {% if form_url %}action="{{ form_url }}"{% endif %}
+      method="post"
+      id="{{ opts.model_name }}_form"
+      novalidate
+    >
+      {% csrf_token %}
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+      <div class="km-place-form-shell">
+        <header class="km-place-form-hero">
+          <div class="km-place-form-hero__copy">
+            <p class="km-place-form-hero__eyebrow">
+              {% if km_settings_hub_url %}
+                <a href="{{ km_settings_hub_url }}" style="color: inherit; text-decoration: none;">&larr; {% translate "В настройки сайта" %}</a>
+              {% elif km_gallery_hub_url %}
+                <a href="{{ km_gallery_hub_url }}" style="color: inherit; text-decoration: none;">&larr; {% translate "В галерею" %}</a>
+              {% else %}
+                {% translate "Контент сайта" %}
+              {% endif %}
+            </p>
+            <h1 class="km-place-form-hero__title">
+              {{ km_settings_title|default:opts.verbose_name }}
+            </h1>
+            <p class="km-place-form-hero__subtitle" style="margin-top: 8px;">
+              {{ km_settings_subtitle|default:"Управление настройками раздела." }}
+            </p>
+          </div>
+        </header>
+
+        {% if errors %}
+          <div class="km-place-form-alert km-place-form-alert--danger">
+            <strong>{% translate "Форма содержит ошибки" %}.</strong>
+            <span>
+              {% blocktranslate count counter=errors|length %}
+                Исправьте проблему ниже и сохраните карточку ещё раз.
+              {% plural %}
+                Исправьте проблемы ниже и сохраните карточку ещё раз.
+              {% endblocktranslate %}
+            </span>
+            {{ adminform.form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="km-place-form-layout">
+          <main class="km-place-form-main">
+            {% block field_sets %}
+              {% for fieldset in adminform %}
+                <section class="km-place-form-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
+                  <h2 class="km-place-form-section__title">{{ fieldset.name }}</h2>
+                  {% if fieldset.description %}
+                    <p class="km-place-form-section__desc">{{ fieldset.description|safe }}</p>
+                  {% endif %}
+                  <div class="km-place-form-grid">
+                    {% for line in fieldset %}
+                      {% for field in line %}
+                        <div class="km-place-field-wrapper{% if line.fields|length == 1 and field.is_readonly %} km-place-field-wrapper--wide{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}">
+                          {% if field.is_checkbox %}
+                            {{ field.field }}{{ field.label_tag }}
+                            {% if field.field.help_text %}
+                              <div class="km-place-field-help">{{ field.field.help_text|safe }}</div>
+                            {% endif %}
+                          {% else %}
+                            {{ field.label_tag }}
+                            {% if field.is_readonly %}
+                              <div class="km-place-field-readonly">
+                                {{ field.contents }}
+                              </div>
+                            {% else %}
+                              {{ field.field }}
+                            {% endif %}
+                            {% if field.field.help_text %}
+                              <div class="km-place-field-help" id="{{ field.field.id_for_label }}_help">
+                                {{ field.field.help_text|safe }}
+                              </div>
+                            {% endif %}
+                          {% endif %}
+                          {% if field.errors %}
+                            <div class="km-place-field-error">
+                              {{ field.errors }}
+                            </div>
+                          {% endif %}
+                        </div>
+                      {% endfor %}
+                    {% endfor %}
+                  </div>
+                </section>
+              {% endfor %}
+            {% endblock %}
+
+            {% block inline_field_sets %}
+              {% for inline_admin_formset in inline_admin_formsets %}
+                {% include inline_admin_formset.opts.template %}
+              {% endfor %}
+            {% endblock %}
+          </main>
+
+          <aside class="km-place-form-sidebar">
+            <div class="km-place-sidebar-sticky">
+              <div class="km-place-sidebar-actions">
+                <button type="submit" name="_continue" class="km-place-btn km-place-btn--primary km-place-btn--block">
+                  {% translate "Сохранить и продолжить" %}
+                </button>
+                <button type="submit" name="_save" class="km-place-btn km-place-btn--secondary km-place-btn--block">
+                  {% translate "Сохранить и выйти" %}
+                </button>
+
+                {% if has_delete_permission and not add %}
+                  <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border); text-align: center;">
+                    <a href="delete/" class="km-place-sidebar-delete">
+                      {% translate "Удалить запись" %}
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock %}

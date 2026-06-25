@@ -84,8 +84,20 @@ class Place(models.Model):
     description_ru = models.TextField(_("Описание (RU)"), blank=True, default="")
     description_en = models.TextField(_("Описание (EN)"), blank=True, default="")
     description_az = models.TextField(_("Описание (AZ)"), blank=True, default="")
-    category = models.CharField(_("Категория"), max_length=10, choices=CATEGORY_CHOICES)
-    subcategory = models.CharField(_("Подкатегория"), max_length=255, blank=True)
+    category = models.ForeignKey(
+        "catalog.Category",
+        on_delete=models.PROTECT,
+        db_column="category",
+        to_field="code",
+        verbose_name=_("Категория"),
+    )
+    subcategory = models.ForeignKey(
+        "catalog.Subcategory",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("Подкатегория"),
+    )
 
     age_from = models.PositiveSmallIntegerField(_("Возраст от"), null=True, blank=True)
     age_to = models.PositiveSmallIntegerField(_("Возраст до"), null=True, blank=True)
@@ -149,6 +161,17 @@ class Place(models.Model):
             lang = get_language() or settings.LANGUAGE_CODE or "az"
         return lang.split("-")[0]
 
+    def __init__(self, *args, **kwargs):
+        category = kwargs.get("category")
+        if isinstance(category, str):
+            kwargs["category_id"] = kwargs.pop("category")
+
+        subcategory = kwargs.get("subcategory")
+        if isinstance(subcategory, str):
+            kwargs["subcategory_id"] = kwargs.pop("subcategory")
+
+        super().__init__(*args, **kwargs)
+
     def name_i18n(self, lang=None):
         lang = self._normalize_lang(lang)
         if lang == "en":
@@ -200,7 +223,8 @@ class Place(models.Model):
                     files.append(file_field)
 
         add_file(self.photo)
-        add_file(self.cover_photo)
+        if not files:
+            add_file(self.cover_photo)
         for item in self.gallery.order_by("order", "id"):
             add_file(item.image)
         return files
@@ -347,6 +371,15 @@ class Place(models.Model):
     def __str__(self):
         return self.name_i18n()
 
+    def get_category_display(self):
+        if not self.category_id:
+            return ""
+        return str(self.category)
+
+    @property
+    def category_code(self):
+        return self.category_id
+
     def get_absolute_url(self):
         return reverse("place_detail", kwargs={"pk": self.pk, "slug": self.slug})
 
@@ -436,7 +469,13 @@ class Event(models.Model):
     description_az = models.TextField(_("Описание (AZ)"), blank=True, default="")
     description_ru = models.TextField(_("Описание (RU)"), blank=True, default="")
     description_en = models.TextField(_("Описание (EN)"), blank=True, default="")
-    category = models.CharField(_("Категория"), max_length=10, choices=Place.CATEGORY_CHOICES)
+    category = models.ForeignKey(
+        "catalog.Category",
+        on_delete=models.PROTECT,
+        db_column="category",
+        to_field="code",
+        verbose_name=_("Категория"),
+    )
     start_datetime = models.DateTimeField(_("Начало мероприятия"), null=True, blank=True, db_index=True)
     end_datetime = models.DateTimeField(_("Окончание мероприятия"), null=True, blank=True, db_index=True)
     age_from = models.PositiveSmallIntegerField(_("Возраст от"), null=True, blank=True)
@@ -458,6 +497,13 @@ class Event(models.Model):
         if not lang:
             lang = get_language() or settings.LANGUAGE_CODE or "az"
         return lang.split("-")[0]
+
+    def __init__(self, *args, **kwargs):
+        category = kwargs.get("category")
+        if isinstance(category, str):
+            kwargs["category_id"] = kwargs.pop("category")
+
+        super().__init__(*args, **kwargs)
 
     def name_i18n(self, lang=None):
         lang = self._normalize_lang(lang)
@@ -553,6 +599,15 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name_i18n()
+
+    def get_category_display(self):
+        if not self.category_id:
+            return ""
+        return str(self.category)
+
+    @property
+    def category_code(self):
+        return self.category_id
 
     class Meta:
         ordering = ("start_datetime", "-created_at")

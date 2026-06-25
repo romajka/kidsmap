@@ -9,19 +9,31 @@
 {% block content %}
   <section class="panel info-hero">
     <picture class="info-hero-picture">
-      <source
-        media="(max-width: 760px)"
-        srcset="{% static 'img/banners/about-hero-mobile.webp' %}?v=mobile-20260519"
-      >
-      <img
-        class="info-hero-image"
-        src="{% static 'img/banners/about-hero.webp' %}"
-        width="1600"
-        height="700"
-        alt=""
-        fetchpriority="high"
-        decoding="async"
-      >
+      {% if site_settings.about_hero_image %}
+        <img
+          class="info-hero-image"
+          src="{{ site_settings.about_hero_image.url }}"
+          width="1600"
+          height="700"
+          alt=""
+          fetchpriority="high"
+          decoding="async"
+        >
+      {% else %}
+        <source
+          media="(max-width: 760px)"
+          srcset="{% static 'img/banners/about-hero-mobile.webp' %}?v=mobile-20260519"
+        >
+        <img
+          class="info-hero-image"
+          src="{% static 'img/banners/about-hero.webp' %}"
+          width="1600"
+          height="700"
+          alt=""
+          fetchpriority="high"
+          decoding="async"
+        >
+      {% endif %}
     </picture>
     <div class="info-hero-copy">
       <h1>{% trans "О проекте" %}</h1>

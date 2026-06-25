@@ -21,7 +21,11 @@
   <section class="panel auth-panel profile-panel account-dashboard">
     <header class="account-dashboard__hero">
       <div class="account-dashboard__hero-surface">
-        <img src="{% static 'img/banners/owner-dashboard-hero.webp' %}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+        {% if site_settings.dashboard_hero_image %}
+          <img src="{{ site_settings.dashboard_hero_image.url }}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+        {% else %}
+          <img src="{% static 'img/banners/owner-dashboard-hero.webp' %}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+        {% endif %}
         <div class="account-dashboard__hero-copy">
           <div class="account-dashboard__hero-badge" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -21,7 +21,7 @@ from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 
 from catalog.content_data import BAKU_METRO_STATIONS
-from catalog.models import CatalogContentSettings, Event, Place, UserProfile
+from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory
 from catalog.services.options import sort_translated_values
 
 
@@ -685,7 +685,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "description_az": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "description_en": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "category": forms.Select(attrs={"class": "field"}),
-            "subcategory": forms.TextInput(attrs={"class": "field"}),
+            "subcategory": forms.Select(attrs={"class": "field"}),
             "age_from": forms.TextInput(
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "0"}
             ),
@@ -786,6 +786,18 @@ class OwnerPlaceEditForm(forms.ModelForm):
                     mutable_data["lng"] = "" if instance.lng is None else str(instance.lng)
                 kwargs["data"] = mutable_data
         super().__init__(*args, **kwargs)
+        if "category" in self.fields:
+            qs = Category.objects.filter(is_active=True)
+            if instance and getattr(instance, "category_id", None):
+                qs = Category.objects.filter(Q(is_active=True) | Q(code=instance.category_id))
+            self.fields["category"].queryset = qs.order_by("order", "name")
+            
+        if "subcategory" in self.fields:
+            qs = Subcategory.objects.filter(is_active=True)
+            if instance and getattr(instance, "subcategory_id", None):
+                qs = Subcategory.objects.filter(Q(is_active=True) | Q(id=instance.subcategory_id))
+            self.fields["subcategory"].queryset = qs.order_by("category__order", "order", "name")
+
         self.fields["temporary_start"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
         self.fields["temporary_end"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
         self._configure_location_choices()
@@ -916,6 +928,15 @@ class OwnerPlaceEditForm(forms.ModelForm):
 
         if lng is not None and not -180 <= float(lng) <= 180:
             self.add_error("lng", _("Долгота должна быть в диапазоне от -180 до 180."))
+
+        category = cleaned.get("category")
+        subcategory = cleaned.get("subcategory")
+        if category and subcategory:
+            if subcategory.category_id != category.pk:
+                self.add_error(
+                    "subcategory", 
+                    _("Выбранная подкатегория не принадлежит к указанной категории.")
+                )
 
         if self.geocoding_check_only:
             return cleaned

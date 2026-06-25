@@ -1,0 +1,339 @@
+/* 
+  kidsmap_admin_layout.css
+  Глобальные лэйауты: Sidebar, Topbar, Wrapper 
+*/
+
+/* Базовые стили для документа */
+html,
+body {
+  min-height: 100%;
+  background: var(--km-admin-bg);
+}
+
+body {
+  background-image: none !important;
+  font-family: var(--km-admin-font) !important;
+}
+
+/* Login Page Customizations */
+body.jazzmin-login-page {
+  background: var(--km-admin-bg) !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+body.jazzmin-login-page .login-box {
+  margin-top: 0 !important;
+  width: 400px !important;
+  max-width: 90% !important;
+}
+
+body.jazzmin-login-page .login-logo {
+  margin-bottom: 24px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+body.jazzmin-login-page .login-logo h1 {
+  margin: 0 !important;
+  display: flex;
+  justify-content: center;
+}
+
+body.jazzmin-login-page .login-logo img {
+  max-width: 140px !important;
+  width: 140px !important;
+  height: auto !important;
+  display: block;
+}
+
+body.jazzmin-login-page .card {
+  border-radius: var(--km-admin-radius-lg, 16px) !important;
+  border: 1px solid var(--km-admin-border) !important;
+  box-shadow: var(--km-admin-shadow-md) !important;
+  overflow: hidden;
+  background: var(--km-admin-surface) !important;
+}
+
+body.jazzmin-login-page .card-body {
+  padding: 32px 28px !important;
+  background: var(--km-admin-surface) !important;
+  color: var(--km-admin-text) !important;
+}
+
+body.jazzmin-login-page .login-box-msg {
+  font-weight: 700 !important;
+  color: var(--km-admin-text) !important;
+  font-size: 1.125rem !important;
+  margin-bottom: 24px !important;
+  padding: 0 !important;
+  text-align: center;
+}
+
+body.jazzmin-login-page .input-group {
+  margin-bottom: 20px !important;
+  border-radius: var(--km-admin-radius-md, 12px) !important;
+  border: 1px solid var(--km-admin-input-border, #CBD5E1) !important;
+  background-color: var(--km-admin-input-bg, #ffffff) !important;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  display: flex;
+}
+
+body.jazzmin-login-page .input-group:focus-within {
+  border-color: var(--km-admin-accent, #009A4E) !important;
+  box-shadow: 0 0 0 3px var(--km-admin-focus-ring) !important;
+}
+
+body.jazzmin-login-page .input-group .form-control {
+  border: none !important;
+  background: transparent !important;
+  color: var(--km-admin-text) !important;
+  padding: 12px 16px !important;
+  height: auto !important;
+  font-size: 0.875rem !important;
+  flex: 1;
+}
+
+body.jazzmin-login-page .input-group .form-control:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+body.jazzmin-login-page .input-group .input-group-text {
+  border: none !important;
+  background: transparent !important;
+  color: var(--km-admin-text-muted) !important;
+  padding-right: 16px !important;
+}
+
+body.jazzmin-login-page .btn-primary {
+  background-color: var(--km-admin-accent, #009A4E) !important;
+  border-color: var(--km-admin-accent, #009A4E) !important;
+  border-radius: var(--km-admin-radius-md, 12px) !important;
+  padding: 12px 20px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  width: 100% !important;
+  transition: all 0.2s ease;
+  border: none !important;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 154, 78, 0.15) !important;
+}
+
+body.jazzmin-login-page .btn-primary:hover,
+body.jazzmin-login-page .btn-primary:focus {
+  background-color: var(--km-admin-accent-strong, #008F46) !important;
+  border-color: var(--km-admin-accent-strong, #008F46) !important;
+  box-shadow: 0 4px 12px rgba(0, 154, 78, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+body.jazzmin-login-page .btn-primary:active {
+  transform: translateY(0);
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--km-admin-font) !important;
+}
+
+/* Переопределение типографики на Inter */
+body, p, span:not(.fas):not(.far):not(.fab):not(.fal):not(.fad):not([class*="fa-"]),
+a, div, section, article, aside, nav, header, footer,
+input, select, textarea, button, label, td, th, li,
+.module caption, .breadcrumbs, .helptext, .help, .vHelpText,
+.nav-item, .nav-link, .object-tools a,
+.changelink, .addlink, .deletelink,
+.submit-row input, .submit-row a,
+.paginator, .calendarbox, .clockbox,
+.select2-selection, .select2-results__option {
+  font-family: var(--km-admin-font) !important;
+}
+
+i.fa, i.fas, i.far, i.fab, i.fal, i.fad,
+i[class*="fa-"],
+.fa, .fas, .far, .fab, .fal, .fad,
+[class*="fa-"] {
+  font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands", "Font Awesome 5 Pro", "FontAwesome" !important;
+}
+
+/* Нормализация жирности */
+body, p, td, li, span, a, label, input, select, textarea,
+button, .helptext, .help, .vHelpText, .breadcrumb,
+.nav-link, .nav-item a, .select2-selection,
+.select2-results__option, .paginator,
+#changelist-filter li, #changelist-filter h2,
+.object-tools a, .changelink, .addlink {
+  font-weight: 400 !important;
+}
+
+th, .column-header a,
+.nav-sidebar .nav-link,
+.breadcrumb-item a,
+.submit-row input,
+.submit-row a.closelink,
+.result-list th a,
+.datetimeshortcuts a,
+.calendar caption {
+  font-weight: 500 !important;
+}
+
+.module caption,
+.module h2,
+.app-label,
+h3.card-title,
+#content h1,
+#content h2,
+.nav-sidebar .nav-header,
+.nav-sidebar .nav-separator {
+  font-weight: 600 !important;
+}
+
+#content-main > h1,
+.content-title h1,
+.km-stat-value {
+  font-weight: 700 !important;
+}
+
+/* Navbar / Header */
+.main-header.navbar {
+  background: var(--km-admin-surface);
+  border-bottom: 1px solid var(--km-admin-border);
+}
+
+.main-header .nav-link {
+  color: var(--km-admin-text-muted);
+}
+
+.main-header .nav-link:hover {
+  color: var(--km-admin-text);
+}
+
+/* Sidebar */
+.main-sidebar {
+  background: var(--km-admin-sidebar-bg);
+  border-right: 1px solid var(--km-admin-sidebar-border);
+  width: var(--km-admin-sidebar-width);
+  overflow-x: hidden !important;
+}
+
+.brand-link {
+  border-bottom: 1px solid var(--km-admin-sidebar-border) !important;
+  color: var(--km-admin-sidebar-text) !important;
+  font-weight: 800 !important;
+}
+
+.brand-link .brand-image {
+  opacity: 1 !important;
+}
+
+.user-panel {
+  border-bottom: 1px solid var(--km-admin-sidebar-border) !important;
+}
+
+.user-panel .info a {
+  color: var(--km-admin-sidebar-text);
+  font-weight: 600;
+}
+
+.nav-sidebar .nav-item > a.nav-link {
+  color: var(--km-admin-sidebar-text-muted);
+}
+
+.nav-sidebar .nav-item > a.nav-link p {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.nav-sidebar .nav-item > a.nav-link:hover {
+  color: var(--km-admin-sidebar-text);
+  background: var(--km-admin-sidebar-surface);
+}
+
+.nav-sidebar .nav-item > a.nav-link.active {
+  background: var(--km-admin-sidebar-active-bg) !important;
+  color: var(--km-admin-sidebar-active-text) !important;
+  font-weight: 600 !important;
+  border-radius: 8px;
+  margin: 0 8px;
+}
+
+.nav-sidebar .nav-header {
+  color: var(--km-admin-sidebar-text-muted);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 1rem 1rem 0.5rem;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.4;
+}
+
+/* Content Area */
+.content-wrapper {
+  background: var(--km-admin-bg);
+}
+
+.content-header h1 {
+  color: var(--km-admin-text);
+}
+
+/* Контейнеры панелей */
+.module,
+#changelist-filter,
+#changelist-form .actions,
+#toolbar,
+.paginator,
+.submit-row {
+  background: var(--km-admin-surface);
+  border: 1px solid var(--km-admin-border);
+  border-radius: var(--km-admin-radius-md);
+  box-shadow: var(--km-admin-shadow-sm);
+}
+
+/* Списки объектов */
+#content,
+#content-main,
+#content-related,
+.module,
+.results,
+.module table,
+.module caption,
+.breadcrumbs,
+#content h1,
+#content h2,
+#content h3,
+#content h4,
+#content h5,
+#content p,
+#content li,
+#content td,
+#content th,
+#content label,
+#content .help,
+#content .helptext {
+  color: var(--km-admin-text);
+}
+
+#content a,
+#content-main a:link,
+#content-main a:visited {
+  color: var(--km-admin-link);
+}
+
+#content a:hover,
+#content-main a:hover,
+#content-main a:focus {
+  color: var(--km-admin-link-hover);
+}

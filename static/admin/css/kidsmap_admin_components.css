@@ -1,0 +1,172 @@
+/* 
+  kidsmap_admin_components.css
+  Кнопки, формы, бейджи, инпуты
+*/
+
+/* ===== Кнопки ===== */
+.object-tools a,
+.submit-row input[type="submit"],
+.submit-row a,
+.button,
+input[type="submit"],
+input[type="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--km-admin-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Основная кнопка сохранения */
+.submit-row input[name="_save"],
+input[type="submit"].default,
+.default {
+  background: var(--km-admin-success) !important;
+  color: #fff !important;
+  border-color: var(--km-admin-success) !important;
+}
+.submit-row input[name="_save"]:hover,
+input[type="submit"].default:hover,
+.default:hover {
+  background: var(--km-admin-accent-strong) !important;
+  border-color: var(--km-admin-accent-strong) !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Вторичные кнопки */
+.submit-row input[name="_continue"],
+.submit-row input[name="_addanother"] {
+  background: var(--km-admin-success-bg) !important;
+  color: var(--km-admin-success) !important;
+  border-color: var(--km-admin-success-border) !important;
+}
+.submit-row input[name="_continue"]:hover,
+.submit-row input[name="_addanother"]:hover {
+  background: var(--km-admin-success-border) !important;
+}
+
+/* Кнопка Удалить */
+.submit-row a.deletelink,
+.deletelink {
+  background: var(--km-admin-danger-bg) !important;
+  color: var(--km-admin-danger) !important;
+  border-color: var(--km-admin-danger-border) !important;
+}
+.submit-row a.deletelink:hover,
+.deletelink:hover {
+  background: var(--km-admin-danger-border) !important;
+}
+
+/* object-tools (кнопки "Добавить" сверху страницы) */
+.object-tools a {
+  background: var(--km-admin-success) !important;
+  color: #fff !important;
+  border-color: var(--km-admin-success) !important;
+  border-radius: var(--km-admin-radius-sm) !important;
+}
+.object-tools a:hover {
+  background: var(--km-admin-accent-strong) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Кнопки disabled */
+.button:disabled,
+input[type="submit"]:disabled,
+input[type="button"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Формы и Инпуты ===== */
+input[type="text"],
+input[type="url"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="password"],
+textarea,
+select {
+  background: var(--km-admin-input-bg);
+  color: var(--km-admin-input-fg);
+  border: 1px solid var(--km-admin-input-border);
+  border-radius: var(--km-admin-radius-sm);
+  padding: 8px 12px;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--km-admin-input-placeholder);
+  opacity: 1;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--km-admin-primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+}
+
+/* ===== Badges / Статусы ===== */
+.km-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+
+.km-admin-badge--good {
+  background: var(--km-admin-success-bg);
+  color: var(--km-admin-success);
+  border-color: var(--km-admin-success-border);
+}
+
+.km-admin-badge--warn {
+  background: var(--km-admin-warning-bg);
+  color: var(--km-admin-warning);
+  border-color: var(--km-admin-warning-border);
+}
+
+.km-admin-badge--danger {
+  background: var(--km-admin-danger-bg);
+  color: var(--km-admin-danger);
+  border-color: var(--km-admin-danger-border);
+}
+
+.km-admin-badge--info {
+  background: rgba(14, 165, 233, 0.15);
+  color: var(--km-admin-primary);
+  border-color: rgba(14, 165, 233, 0.3);
+}
+
+.km-admin-badge--muted,
+.km-admin-badge--neutral {
+  background: var(--km-admin-gray-bg);
+  color: var(--km-admin-gray);
+  border-color: var(--km-admin-gray-border);
+}
+
+/* Stack (группировка элементов в столбцах) */
+.km-admin-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

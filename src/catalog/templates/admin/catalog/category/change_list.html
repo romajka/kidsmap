@@ -1,0 +1,270 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_urls %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_taxonomy.css' %}">
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'admin/js/kidsmap_taxonomy.js' %}" defer></script>
+{% endblock %}
+
+{% block content_title %}
+<div class="km-tax-header">
+  <div class="km-tax-header-left">
+    <h1>{{ title }}</h1>
+    <p class="km-tax-subtitle">{% trans "Управление основными категориями и их подкатегориями" %}</p>
+  </div>
+  {% if has_add_permission %}
+  <div class="km-tax-header-right">
+    <a href="{% url 'admin:catalog_category_add' %}" class="km-tax-btn km-tax-btn-primary">
+      <i class="fas fa-plus"></i> {% trans "Добавить категорию" %}
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans "Главная" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+    <li class="breadcrumb-item active">{{ title }}</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div class="km-taxonomy-page" id="content-main">
+  <form id="km-delete-form" method="POST" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="post" value="yes">
+  </form>
+  
+  <div class="km-tax-toolbar">
+    <form method="get" class="km-tax-search">
+      <div class="km-tax-search-box">
+        <i class="fas fa-search km-tax-search-icon"></i>
+        <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="{% trans 'Поиск по категориям и подкатегориям...' %}">
+        {% if search_query %}
+          <a href="?" class="km-tax-search-clear" title="{% trans 'Очистить' %}"><i class="fas fa-times"></i></a>
+        {% endif %}
+      </div>
+      <button type="submit" style="display:none;"></button>
+    </form>
+    
+    <div class="km-tax-toolbar-actions">
+      <div class="km-tax-dropdown-container" id="km-tax-status-filter">
+        <button class="km-tax-btn km-tax-btn-outline km-tax-menu-btn" type="button">
+          <span class="km-current-status">{% trans "Все статусы" %}</span> <i class="fas fa-chevron-down" style="margin-left: 6px;"></i>
+        </button>
+        <div class="km-tax-dropdown-menu" style="right: auto; left: 0;">
+          <button class="km-tax-dropdown-item active" type="button" data-status="all">
+            {% trans "Все статусы" %}
+          </button>
+          <button class="km-tax-dropdown-item" type="button" data-status="active">
+            {% trans "Активные" %}
+          </button>
+          <button class="km-tax-dropdown-item" type="button" data-status="inactive">
+            {% trans "Неактивные" %}
+          </button>
+        </div>
+      </div>
+      <button class="km-tax-btn km-tax-btn-outline" id="km-tax-expand-all">
+        <i class="fas fa-expand-alt"></i> <span>{% trans "Развернуть все" %}</span>
+      </button>
+      <button class="km-tax-btn km-tax-btn-icon" title="{% trans 'Настройки' %}">
+        <i class="fas fa-cog"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="km-tax-table">
+    <div class="km-tax-table-header">
+      <div class="km-th km-th-name">{% trans "Название" %}</div>
+      <div class="km-th km-th-code">{% trans "Код" %}</div>
+      <div class="km-th km-th-subs">{% trans "Подкатегорий" %}</div>
+      <div class="km-th km-th-places">{% trans "Мест" %}</div>
+      <div class="km-th km-th-status">{% trans "Статус" %}</div>
+      <div class="km-th km-th-order">{% trans "Порядок" %}</div>
+      <div class="km-th km-th-actions">{% trans "Действия" %}</div>
+    </div>
+
+    <div class="km-tax-list" data-search-active="{% if search_query %}true{% else %}false{% endif %}">
+      {% for cat in categories %}
+        <div class="km-tax-group" data-status="{% if cat.is_active %}active{% else %}inactive{% endif %}">
+          <!-- Category Row -->
+          <div class="km-tax-row km-tax-row-parent">
+            <div class="km-td km-td-name">
+              <button class="km-tax-expander" type="button" aria-expanded="false">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+              
+              <div class="km-tax-icon-wrapper">
+                {% if cat.icon and cat.icon|slice:"-4:" == ".svg" %}
+                  <div class="category-mask-icon" style="mask-image: url('{% static cat.icon %}'); -webkit-mask-image: url('{% static cat.icon %}');"></div>
+                {% elif cat.icon %}
+                  <i class="{{ cat.icon }}"></i>
+                {% else %}
+                  <i class="fas fa-folder"></i>
+                {% endif %}
+              </div>
+
+              <div class="km-tax-title">
+                <strong>{{ cat.name_i18n }}</strong>
+                <span class="km-tax-subtitle-mobile">{{ cat.code }}</span>
+              </div>
+            </div>
+
+            <div class="km-td km-td-code">{{ cat.code }}</div>
+            <div class="km-td km-td-subs">{{ cat.sub_count }}</div>
+            <div class="km-td km-td-places">
+              {% if cat.places_count > 0 %}
+                <a href="{% url 'admin:catalog_place_changelist' %}?category__code__exact={{ cat.code }}">{{ cat.places_count }}</a>
+              {% else %}
+                0
+              {% endif %}
+            </div>
+            
+            <div class="km-td km-td-status">
+              {% if cat.is_active %}
+                <span class="km-tax-badge km-tax-badge-active">{% trans "Активна" %}</span>
+              {% else %}
+                <span class="km-tax-badge km-tax-badge-inactive">{% trans "Неактивна" %}</span>
+              {% endif %}
+            </div>
+
+            <div class="km-td km-td-order">{{ cat.order }}</div>
+
+            <div class="km-td km-td-actions">
+              <a href="{% url 'admin:catalog_subcategory_add' %}?category={{ cat.pk }}" class="km-tax-btn km-tax-btn-sm km-tax-btn-outline" title="{% trans 'Добавить подкатегорию в эту категорию' %}">
+                <i class="fas fa-plus"></i> <span class="km-tax-btn-text">{% trans "Подкатегория" %}</span>
+              </a>
+              <a href="{% url 'admin:catalog_category_change' cat.pk %}" class="km-tax-btn km-tax-btn-sm km-tax-btn-outline km-tax-btn-icon-only" title="{% trans 'Изменить' %}">
+                <i class="fas fa-pen"></i>
+              </a>
+              <div class="km-tax-dropdown-container">
+                <button class="km-tax-btn km-tax-btn-sm km-tax-btn-outline km-tax-btn-icon-only km-tax-menu-btn" type="button">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="km-tax-dropdown-menu">
+                  <button class="km-tax-dropdown-item km-tax-toggle-btn" type="button" data-type="category" data-id="{{ cat.pk }}" data-url="{% url 'admin:catalog_taxonomy_toggle_active' %}">
+                    {% if cat.is_active %}
+                      <i class="fas fa-eye-slash"></i> <span class="km-toggle-text">{% trans "Деактивировать" %}</span>
+                    {% else %}
+                      <i class="fas fa-eye"></i> <span class="km-toggle-text">{% trans "Активировать" %}</span>
+                    {% endif %}
+                  </button>
+                  {% if not cat.places_count and not cat.sub_count %}
+                    <a href="{% url 'admin:catalog_category_delete' cat.pk %}" class="km-tax-dropdown-item km-text-danger">
+                      <i class="fas fa-trash"></i> {% trans "Удалить" %}
+                    </a>
+                  {% else %}
+                    <div class="km-tax-dropdown-item km-text-muted km-tax-tooltip" title="{% trans 'Нельзя удалить: есть подкатегории или места' %}">
+                      <i class="fas fa-trash"></i> {% trans "Удалить" %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subcategories Container -->
+          <div class="km-tax-children" style="display: none;">
+            {% if cat.subcategories.all %}
+              {% for sub in cat.subcategories.all %}
+                <div class="km-tax-row km-tax-row-child" data-status="{% if sub.is_active %}active{% else %}inactive{% endif %}">
+                  <div class="km-td km-td-name">
+                    <div class="km-tax-tree-line"></div>
+                    <div class="km-tax-icon-wrapper km-tax-icon-wrapper-sm km-tax-icon-sub">
+                      {% if cat.icon and cat.icon|slice:"-4:" == ".svg" %}
+                        <div class="category-mask-icon" style="mask-image: url('{% static cat.icon %}'); -webkit-mask-image: url('{% static cat.icon %}');"></div>
+                      {% elif cat.icon %}
+                        <i class="{{ cat.icon }}"></i>
+                      {% else %}
+                        <i class="fas fa-caret-right km-text-muted"></i>
+                      {% endif %}
+                    </div>
+                    <div class="km-tax-title">
+                      <strong>{{ sub.name_i18n }}</strong>
+                    </div>
+                  </div>
+                  
+                  <div class="km-td km-td-code">{{ sub.code|default:"—" }}</div>
+                  <div class="km-td km-td-subs"></div> <!-- empty -->
+                  
+                  <div class="km-td km-td-places">
+                    {% if sub.places_count > 0 %}
+                      <a href="{% url 'admin:catalog_place_changelist' %}?subcategory__id__exact={{ sub.pk }}">{{ sub.places_count }}</a>
+                    {% else %}
+                      0
+                    {% endif %}
+                  </div>
+                  
+                  <div class="km-td km-td-status">
+                    {% if sub.is_active %}
+                      <span class="km-tax-badge km-tax-badge-active">{% trans "Активна" %}</span>
+                    {% else %}
+                      <span class="km-tax-badge km-tax-badge-inactive">{% trans "Неактивна" %}</span>
+                    {% endif %}
+                  </div>
+                  
+                  <div class="km-td km-td-order">{{ sub.order }}</div>
+                  
+                  <div class="km-td km-td-actions">
+                    <a href="{% url 'admin:catalog_subcategory_change' sub.pk %}" class="km-tax-btn km-tax-btn-sm km-tax-btn-outline km-tax-btn-icon-only" title="{% trans 'Изменить' %}">
+                      <i class="fas fa-pen"></i>
+                    </a>
+                    <div class="km-tax-dropdown-container">
+                      <button class="km-tax-btn km-tax-btn-sm km-tax-btn-outline km-tax-btn-icon-only km-tax-menu-btn" type="button">
+                        <i class="fas fa-ellipsis-v"></i>
+                      </button>
+                      <div class="km-tax-dropdown-menu">
+                        <button class="km-tax-dropdown-item km-tax-toggle-btn" type="button" data-type="subcategory" data-id="{{ sub.pk }}" data-url="{% url 'admin:catalog_taxonomy_toggle_active' %}">
+                          {% if sub.is_active %}
+                            <i class="fas fa-eye-slash"></i> <span class="km-toggle-text">{% trans "Деактивировать" %}</span>
+                          {% else %}
+                            <i class="fas fa-eye"></i> <span class="km-toggle-text">{% trans "Активировать" %}</span>
+                          {% endif %}
+                        </button>
+                        {% if not sub.places_count %}
+                          <a href="{% url 'admin:catalog_subcategory_delete' sub.pk %}" class="km-tax-dropdown-item km-text-danger">
+                            <i class="fas fa-trash"></i> {% trans "Удалить" %}
+                          </a>
+                        {% else %}
+                          <div class="km-tax-dropdown-item km-text-muted km-tax-tooltip" title="{% trans 'Нельзя удалить: используются в местах' %}">
+                            <i class="fas fa-trash"></i> {% trans "Удалить" %}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="km-tax-row km-tax-row-child km-tax-row-empty">
+                <div class="km-td" style="grid-column: 1 / -1;">
+                  <span class="km-text-muted"><i class="fas fa-info-circle"></i> {% trans "Нет подкатегорий" %}</span>
+                  <a href="{% url 'admin:catalog_subcategory_add' %}?category={{ cat.pk }}" class="km-tax-text-link">{% trans "Добавить первую подкатегорию" %}</a>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="km-tax-empty-state">
+          <i class="fas fa-folder-open"></i>
+          <p>{% trans "Не найдено ни одной категории." %}</p>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="km-tax-footer">
+      <div class="km-tax-footer-left">
+        {% trans "Всего категорий:" %} {{ categories|length }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

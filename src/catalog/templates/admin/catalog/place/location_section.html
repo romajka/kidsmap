@@ -1,0 +1,150 @@
+{% load i18n %}
+{% with form=adminform.form obj=adminform.form.instance %}
+  <div class="km-location-section" data-km-location-section>
+    <div class="km-location-grid km-location-grid--two">
+      {% with field=form.district %}
+        <div class="km-location-field km-location-field--district">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      {% with field=form.metro %}
+        <div class="km-location-field km-location-field--metro">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+    </div>
+
+    {% with field=form.address %}
+      <div class="km-location-field km-location-field--address">
+        {{ field.label_tag }}
+        {{ field }}
+        {{ field.errors }}
+      </div>
+    {% endwith %}
+
+    <div class="km-location-coordinates">
+      {% with field=form.lat %}
+        <div class="km-location-field km-location-field--coord km-location-field--lat">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      {% with field=form.lng %}
+        <div class="km-location-field km-location-field--coord km-location-field--lng">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      <button
+        type="submit"
+        name="_refresh_coordinates_from_address"
+        class="km-location-refresh-btn"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M12 2C8.68 2 5.74 3.62 3.82 6.16L2 4v6h6L5.82 7.82A8 8 0 0 1 20 12h2a10 10 0 0 0-10-10z"></path>
+          <path d="M12 22a10 10 0 0 0 8.18-4.16L22 20v-6h-6l2.18 2.18A8 8 0 0 1 4 12H2a10 10 0 0 0 10 10z"></path>
+        </svg>
+        <span>{% translate "Обновить координаты" %}</span>
+      </button>
+    </div>
+
+    <div class="km-location-status">
+      <div class="km-location-status-item">
+        <span class="km-location-status-item__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"></path>
+            <circle cx="12" cy="9" r="3"></circle>
+          </svg>
+        </span>
+        <span class="km-location-status-item__label">{% translate "Координаты" %}</span>
+        <span
+          class="km-location-badge km-location-badge--{% if obj.has_coordinates %}good{% else %}warn{% endif %}"
+          data-location-coordinates-label-filled="{% translate 'Координаты заполнены' %}"
+          data-location-coordinates-label-missing="{% translate 'Нужны координаты' %}"
+          data-location-coordinates-badge
+        >
+          {% if obj.has_coordinates %}
+            {% translate "Координаты заполнены" %}
+          {% else %}
+            {% translate "Нужны координаты" %}
+          {% endif %}
+        </span>
+      </div>
+      <div class="km-location-status-item">
+        <span class="km-location-status-item__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M1 6 8 2l8 4 7-4v16l-7 4-8-4-7 4z"></path>
+            <path d="M8 2v16M16 6v16"></path>
+          </svg>
+        </span>
+        <span class="km-location-status-item__label">{% translate "Карта" %}</span>
+        <span
+          class="km-location-badge km-location-badge--{% if obj.is_map_ready %}good{% else %}muted{% endif %}"
+          data-location-map-badge
+        >
+          {% if obj.is_map_ready %}
+            {% translate "Готово для карты" %}
+          {% else %}
+            {% translate "Не готово для карты" %}
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="km-location-grid km-location-contacts">
+      {% with field=form.phone1 %}
+        <div class="km-location-field km-location-field--phone">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      {% with field=form.instagram %}
+        <div class="km-location-field km-location-field--instagram">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      {% with field=form.website %}
+        <div class="km-location-field km-location-field--website">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+    </div>
+
+    <div class="km-location-grid km-location-textareas">
+      {% with field=form.schedule %}
+        <div class="km-location-field km-location-field--schedule">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      {% with field=form.extra_conditions %}
+        <div class="km-location-field km-location-field--extra-conditions">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+    </div>
+
+    {% with field=form.additional_info %}
+      <div class="km-location-field km-location-field--additional-info">
+        {{ field.label_tag }}
+        {{ field }}
+        {{ field.errors }}
+      </div>
+    {% endwith %}
+  </div>
+{% endwith %}

@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
 from django.utils.html import format_html, format_html_join
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, ngettext
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
@@ -17,6 +18,7 @@ from catalog.models import (
     PlaceOwnershipRequestAudit,
     Place
 )
+from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
 from .user import _HiddenFromAdminIndexMixin
 
 User = get_user_model()
@@ -406,6 +408,9 @@ class PlaceOwnershipRequestAuditInline(admin.TabularInline):
 
 @admin.register(PlaceOwnershipRequest)
 class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
+    change_list_template = "admin/catalog/placeownershiprequest/change_list.html"
+    km_primary_filters = ("status", "created_at", "moderated_at")
+    list_per_page = 15
     list_display = (
         "id",
         "place",
@@ -414,7 +419,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         "created_at",
         "moderated_at_display",
         "moderated_by_display",
-        "moderation_actions",
+        "row_actions",
     )
     list_filter = ("status", "created_at", "moderated_at")
     search_fields = (
@@ -431,7 +436,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         "status",
         "note",
         "place_completion_summary",
-        "moderation_actions",
+        "row_actions",
         "created_at",
         "updated_at",
         "moderated_at",
@@ -441,10 +446,39 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     actions = ("approve_requests", "reject_requests")
     inlines = (PlaceOwnershipRequestAuditInline,)
     fieldsets = (
-        (_("Заявка"), {"fields": ("place", "applicant", "status", "note")}),
-        (_("Заполненность карточки"), {"fields": ("place_completion_summary",)}),
-        (_("Модерация"), {"fields": ("moderation_note", "moderation_actions", "moderated_by", "moderated_at")}),
-        (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
+        (
+            _("Заявка"),
+            {
+                "fields": (
+                    "place",
+                    "applicant",
+                    "status",
+                    "note",
+                )
+            },
+        ),
+        (
+            _("Заполненность карточки"),
+            {
+                "fields": ("place_completion_summary",)
+            },
+        ),
+        (
+            _("Модерация"),
+            {
+                "fields": (
+                    "moderation_note",
+                    ("moderated_by", "moderated_at"),
+                )
+            },
+        ),
+        (
+            _("Служебное"),
+            {
+                "classes": ("collapse",),
+                "fields": (("created_at", "updated_at"),)
+            },
+        ),
     )
 
     def get_queryset(self, request):
@@ -468,17 +502,43 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     @admin.display(description=_("Статус"))
     def status_badge(self, obj):
         palette = {
-            PlaceOwnershipRequest.STATUS_PENDING: ("#ffefcc", "#8a5a00"),
-            PlaceOwnershipRequest.STATUS_APPROVED: ("#e7f8ed", "#17663d"),
-            PlaceOwnershipRequest.STATUS_REJECTED: ("#fde8e8", "#9b1c1c"),
+            PlaceOwnershipRequest.STATUS_PENDING: "warn",
+            PlaceOwnershipRequest.STATUS_APPROVED: "good",
+            PlaceOwnershipRequest.STATUS_REJECTED: "danger",
         }
-        bg, fg = palette.get(obj.status, ("#eef2f7", "#243447"))
+        tone = palette.get(obj.status, "muted")
         return format_html(
-            '<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:{};color:{};font-weight:600;">{}</span>',
-            bg,
-            fg,
+            '<div class="km-admin-badges"><span class="km-admin-badge km-admin-badge--{}">{}</span></div>',
+            tone,
             obj.get_status_display(),
         )
+
+    def _build_request_form_summary(self, obj) -> dict:
+        if not obj or not obj.pk:
+            return {}
+        
+        palette = {
+            PlaceOwnershipRequest.STATUS_PENDING: "warn",
+            PlaceOwnershipRequest.STATUS_APPROVED: "good",
+            PlaceOwnershipRequest.STATUS_REJECTED: "danger",
+        }
+        status_tone = palette.get(obj.status, "muted")
+
+        return {
+            "is_pending": obj.is_pending,
+            "status_label": obj.get_status_display(),
+            "status_tone": status_tone,
+            "place_name": obj.place.name_ru or obj.place.name,
+            "place_url": reverse("admin:catalog_place_change", args=[obj.place_id], current_app=self.admin_site.name),
+            "applicant": obj.applicant.get_full_name() or obj.applicant.email or obj.applicant.username,
+        }
+
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        if obj:
+            context["km_request_form_summary"] = self._build_request_form_summary(obj)
+            context["km_action_approve_url"] = reverse("admin:catalog_placeownershiprequest_approve", args=[obj.pk], current_app=self.admin_site.name)
+            context["km_action_reject_url"] = reverse("admin:catalog_placeownershiprequest_reject", args=[obj.pk], current_app=self.admin_site.name)
+        return super().render_change_form(request, context, add, change, form_url, obj)
 
     @admin.display(description=_("Дата решения"))
     def moderated_at_display(self, obj):
@@ -592,20 +652,60 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         )
 
     @admin.display(description=_("Действия"))
-    def moderation_actions(self, obj):
+    def row_actions(self, obj):
         if not obj or not obj.pk:
             return "-"
-        if not obj.is_pending:
-            return _("Заявка уже обработана")
-        approve_url = reverse("admin:catalog_placeownershiprequest_approve", args=[obj.pk])
-        reject_url = reverse("admin:catalog_placeownershiprequest_reject", args=[obj.pk])
-        return format_html(
-            '<a class="button" href="{}">{}</a>&nbsp;'
-            '<a class="button" href="{}" style="background:#ba2121;color:#fff;">{}</a>',
-            approve_url,
-            _("Принять"),
-            reject_url,
-            _("Отклонить"),
+            
+        change_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk])
+        primary_action = render_primary_action(change_url, _("Открыть"))
+
+        menu_actions = []
+        if obj.is_pending:
+            approve_url = reverse("admin:catalog_placeownershiprequest_approve", args=[obj.pk])
+            reject_url = reverse("admin:catalog_placeownershiprequest_reject", args=[obj.pk])
+            menu_actions.append((approve_url, _("Принять"), "km-admin-action-menu__link--good"))
+            menu_actions.append((reject_url, _("Отклонить"), "km-admin-action-menu__link--danger"))
+        else:
+            menu_actions.append((None, _("Заявка уже обработана"), "km-admin-action-menu__hint"))
+        
+        menu_html = render_action_menu(menu_actions)
+
+        return render_row_actions_container(primary_action, menu_html)
+
+    def _build_request_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
+        params = request.GET.copy()
+        params.pop("p", None)
+        for key in clear:
+            params.pop(key, None)
+        for key, value in updates.items():
+            params.pop(key, None)
+            if value not in (None, ""):
+                params[key] = value
+        encoded = params.urlencode()
+        return f"?{encoded}" if encoded else ""
+
+    def _request_quick_filters(self, request):
+        current_status = request.GET.get("status__exact")
+        keys = ("status__exact",)
+        
+        counts = {
+            "all": PlaceOwnershipRequest.objects.count(),
+            "pending": PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count(),
+            "approved": PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_APPROVED).count(),
+            "rejected": PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_REJECTED).count(),
+        }
+        
+        return (
+            {"label": _("Все заявки"), "url": self._build_request_changelist_query_string(request, clear=keys), "active": not current_status, "count": counts["all"]},
+            {"label": _("Ожидают решения"), "url": self._build_request_changelist_query_string(request, clear=keys, status__exact=PlaceOwnershipRequest.STATUS_PENDING), "active": current_status == PlaceOwnershipRequest.STATUS_PENDING, "count": counts["pending"]},
+            {"label": _("Одобрены"), "url": self._build_request_changelist_query_string(request, clear=keys, status__exact=PlaceOwnershipRequest.STATUS_APPROVED), "active": current_status == PlaceOwnershipRequest.STATUS_APPROVED, "count": counts["approved"]},
+            {"label": _("Отклонены"), "url": self._build_request_changelist_query_string(request, clear=keys, status__exact=PlaceOwnershipRequest.STATUS_REJECTED), "active": current_status == PlaceOwnershipRequest.STATUS_REJECTED, "count": counts["rejected"]},
+        )
+
+    def _request_bulk_actions(self):
+        return (
+            {"name": "approve_requests", "label": _("Одобрить"), "tone": "good", "description": _("Одобрить выбранные заявки.")},
+            {"name": "reject_requests", "label": _("Отклонить"), "tone": "danger", "description": _("Отклонить выбранные заявки.")},
         )
 
     def changelist_view(self, request, extra_context=None):
@@ -616,6 +716,13 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
                 _("Ожидают проверки заявок на владение: %(count)s") % {"count": pending_count},
                 level=messages.WARNING,
             )
+            
+        extra_context = {
+            "km_primary_quick_filters": self._request_quick_filters(request),
+            "km_secondary_quick_filters": [],
+            "request_bulk_actions": self._request_bulk_actions(),
+            **(extra_context or {}),
+        }
         return super().changelist_view(request, extra_context=extra_context)
 
     def has_add_permission(self, request):

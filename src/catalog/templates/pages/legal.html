@@ -1,20 +1,114 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}{{ legal_title }} — KidsMap{% endblock %}
-{% block title_plain %}{{ legal_title }} — KidsMap{% endblock %}
-{% block meta_description %}{{ legal_title }}{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block title_plain %}{{ page_title }}{% endblock %}
+{% block title_plain_twitter %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
   <section class="panel content-page legal-page">
-    <div class="content-page__hero">
-      <p class="eyebrow">KidsMap</p>
+    <nav class="legal-page__breadcrumb" aria-label="{{ breadcrumb_aria_label|default:'Хлебные крошки' }}">
+      <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">{{ legal_title }}</span>
+    </nav>
+
+    <header class="legal-page__hero">
+      <p class="legal-page__eyebrow">{{ hero_label|default:"KidsMap" }}</p>
       <h1>{{ legal_title }}</h1>
-    </div>
-    <div class="legal-page__body">
-      {% for item in legal_sections %}
-        <p>{{ item }}</p>
-      {% endfor %}
-      <p>{{ footer_email }}</p>
-    </div>
+      {% if is_privacy_document %}
+        <div class="legal-page__dates" aria-label="{{ dates_aria_label }}">
+          <div class="legal-page__date-chip">
+            <span>{{ effective_label }}</span>
+            <strong>{{ effective_date }}</strong>
+          </div>
+          <div class="legal-page__date-chip">
+            <span>{{ updated_label }}</span>
+            <strong>{{ updated_date }}</strong>
+          </div>
+        </div>
+        <p class="legal-page__summary">{{ summary }}</p>
+      {% endif %}
+    </header>
+
+    {% if is_privacy_document %}
+      <div class="legal-page__layout">
+        <aside class="legal-toc" aria-labelledby="legal-toc-title">
+          <div class="legal-toc__card">
+            <h2 id="legal-toc-title">{{ toc_title }}</h2>
+            <ol class="legal-toc__list">
+              {% for item in toc_items %}
+                <li><a href="#{{ item.id }}">{{ item.title }}</a></li>
+              {% endfor %}
+            </ol>
+          </div>
+        </aside>
+
+        <div class="legal-document">
+          <section class="legal-contact-card" aria-label="{{ contact_title }}">
+            <div>
+              <p class="legal-contact-card__label">{{ contact_title }}</p>
+              <p>{{ contact_body }}</p>
+            </div>
+            <a class="legal-contact-card__email" href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+          </section>
+
+          {% for item in sections %}
+            <article id="{{ item.id }}" class="legal-document__section">
+              <h2>{{ item.title }}</h2>
+
+              {% for block in item.content %}
+                {% if block.type == "paragraph" %}
+                  <p>{{ block.text }}</p>
+                {% elif block.type == "bullets" %}
+                  <ul>
+                    {% for bullet in block.items %}
+                      <li>{{ bullet }}</li>
+                    {% endfor %}
+                  </ul>
+                {% elif block.type == "email" %}
+                  <div class="legal-inline-contact">
+                    <p>{{ block.label }}</p>
+                    <a href="mailto:{{ block.email }}">{{ block.email }}</a>
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              {% for child in item.children %}
+                <section id="{{ child.id }}" class="legal-document__subsection">
+                  <h3>{{ child.title }}</h3>
+                  {% for block in child.content %}
+                    {% if block.type == "paragraph" %}
+                      <p>{{ block.text }}</p>
+                    {% elif block.type == "bullets" %}
+                      <ul>
+                        {% for bullet in block.items %}
+                          <li>{{ bullet }}</li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  {% endfor %}
+                </section>
+              {% endfor %}
+            </article>
+          {% endfor %}
+
+          <section class="legal-contact-card legal-contact-card--footer" aria-label="{{ contact_title }}">
+            <div>
+              <p class="legal-contact-card__label">{{ contact_title }}</p>
+              <p>{{ contact_body }}</p>
+            </div>
+            <a class="legal-contact-card__email" href="mailto:{{ contact_email }}">{{ contact_email }}</a>
+          </section>
+        </div>
+      </div>
+    {% else %}
+      <div class="legal-page__body">
+        {% for item in legal_sections %}
+          <p>{{ item }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
   </section>
 {% endblock %}

@@ -1,0 +1,203 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls admin_modify static %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {% if is_popup %}
+    <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_category_popup.css' %}?v=4">
+    <script src="{% static 'admin/js/kidsmap_category_popup.js' %}?v=4" defer></script>
+  {% else %}
+    <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_category_form.css' %}?v=1">
+    <script src="{% static 'admin/js/kidsmap_category_form.js' %}?v=1" defer></script>
+  {% endif %}
+{% endblock %}
+
+{% block submit_buttons_top %}{% endblock %}
+{% block submit_buttons_bottom %}
+  {% if is_popup %}
+    <div class="km-popup-footer">
+      <button type="button" class="km-popup-btn-cancel" onclick="if(window.parent && window.parent.dismissRelatedObjectModal){window.parent.dismissRelatedObjectModal();}else{window.dismissRelatedObjectModal();}">
+        {% translate "Отмена" %}
+      </button>
+      <button type="submit" class="km-popup-btn-save" name="_save">
+        <i class="fas fa-save"></i> {% translate "Сохранить" %}
+      </button>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block form_top %}
+  {% if is_popup %}
+    <header class="km-popup-header">
+      <div class="km-popup-header__info">
+        <div class="km-popup-header__title">
+          {% if add %}{% translate "Добавить категорию" %}{% else %}{% translate "Редактировать категорию" %}{% endif %}
+        </div>
+        <p class="km-popup-header__subtitle">
+          {% translate "Заполните основную информацию. После сохранения вы сможете использовать категорию в каталоге." %}
+        </p>
+      </div>
+      <button type="button" class="km-popup-header__close" onclick="if(window.parent && window.parent.dismissRelatedObjectModal){window.parent.dismissRelatedObjectModal();}else{window.dismissRelatedObjectModal();}">
+        &times;
+      </button>
+    </header>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if is_popup %}
+    {{ block.super }}
+  {% else %}
+    <div id="content-main" class="km-category-form-page">
+      <form
+        {% if has_file_field %}enctype="multipart/form-data"{% endif %}
+        {% if form_url %}action="{{ form_url }}"{% endif %}
+        method="post"
+        id="{{ opts.model_name }}_form"
+        novalidate
+      >
+        {% csrf_token %}
+        {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+        {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+        {% for hidden_field in adminform.form.hidden_fields %}
+          {{ hidden_field }}
+        {% endfor %}
+
+        {% if errors %}
+          <div class="km-category-alert km-category-alert--danger" role="alert">
+            <strong>{% translate "Форма содержит ошибки" %}.</strong>
+            <span>
+              {% blocktranslate count counter=errors|length %}
+                Исправьте проблему ниже и сохраните категорию ещё раз.
+              {% plural %}
+                Исправьте проблемы ниже и сохраните категорию ещё раз.
+              {% endblocktranslate %}
+            </span>
+            {{ adminform.form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="km-category-form-shell">
+          <div class="km-category-form-layout">
+            <main class="km-category-form-main">
+              <section class="km-category-card">
+                <header class="km-category-card__head">
+                  <span class="km-category-card__step">01</span>
+                  <div class="km-category-card__head-copy">
+                    <h2>{% translate "Основная информация" %}</h2>
+                    <p>{% translate "Код, названия и иконка категории." %}</p>
+                  </div>
+                </header>
+
+                <div class="km-category-grid">
+                  <div class="km-category-field{% if adminform.form.code.errors %} km-category-field--error{% endif %}">
+                    {{ adminform.form.code.label_tag }}
+                    {{ adminform.form.code }}
+                    {% if adminform.form.code.help_text %}
+                      <div class="km-category-field__help">{{ adminform.form.code.help_text|safe }}</div>
+                    {% endif %}
+                    {{ adminform.form.code.errors }}
+                  </div>
+
+                  <div class="km-category-field{% if adminform.form.name_az.errors %} km-category-field--error{% endif %}">
+                    {{ adminform.form.name_az.label_tag }}
+                    {{ adminform.form.name_az }}
+                    {% if adminform.form.name_az.help_text %}
+                      <div class="km-category-field__help">{{ adminform.form.name_az.help_text|safe }}</div>
+                    {% endif %}
+                    {{ adminform.form.name_az.errors }}
+                  </div>
+
+                  <div class="km-category-field km-category-field--compact{% if adminform.form.order.errors %} km-category-field--error{% endif %}">
+                    {{ adminform.form.order.label_tag }}
+                    {{ adminform.form.order }}
+                    {% if adminform.form.order.help_text %}
+                      <div class="km-category-field__help">{{ adminform.form.order.help_text|safe }}</div>
+                    {% endif %}
+                    {{ adminform.form.order.errors }}
+                  </div>
+
+                  <div class="km-category-field{% if adminform.form.name_ru.errors %} km-category-field--error{% endif %}">
+                    {{ adminform.form.name_ru.label_tag }}
+                    {{ adminform.form.name_ru }}
+                    {% if adminform.form.name_ru.help_text %}
+                      <div class="km-category-field__help">{{ adminform.form.name_ru.help_text|safe }}</div>
+                    {% endif %}
+                    {{ adminform.form.name_ru.errors }}
+                  </div>
+
+                  <div class="km-category-field{% if adminform.form.name_en.errors %} km-category-field--error{% endif %}">
+                    {{ adminform.form.name_en.label_tag }}
+                    {{ adminform.form.name_en }}
+                    {% if adminform.form.name_en.help_text %}
+                      <div class="km-category-field__help">{{ adminform.form.name_en.help_text|safe }}</div>
+                    {% endif %}
+                    {{ adminform.form.name_en.errors }}
+                  </div>
+
+                  <div class="km-category-field km-category-field--icon{% if adminform.form.icon.errors %} km-category-field--error{% endif %}">
+                    {{ adminform.form.icon.label_tag }}
+                    <div class="km-category-icon-control" data-km-category-icon-field>
+                      <div class="km-category-icon-control__input">
+                        {{ adminform.form.icon }}
+                      </div>
+                      <div class="km-category-icon-preview" data-km-category-icon-preview aria-live="polite">
+                        <span class="km-category-icon-preview__glyph" data-km-category-icon-glyph aria-hidden="true">
+                          <i class="fas fa-image"></i>
+                        </span>
+                        <span class="km-category-icon-preview__text" data-km-category-icon-text>
+                          {% translate "Нет иконки" %}
+                        </span>
+                      </div>
+                    </div>
+                    {% if adminform.form.icon.help_text %}
+                      <div class="km-category-field__help">{{ adminform.form.icon.help_text|safe }}</div>
+                    {% endif %}
+                    {{ adminform.form.icon.errors }}
+                  </div>
+                </div>
+              </section>
+
+              {% if inline_admin_formsets %}
+                <section class="km-category-inline-card">
+                  <header class="km-category-inline-card__head">
+                    <h2>{% translate "Подкатегории" %}</h2>
+                    <p>{% translate "Список подкатегорий для этой категории." %}</p>
+                  </header>
+                  <div class="km-category-inline-card__body">
+                    {% for inline_admin_formset in inline_admin_formsets %}
+                      {% include inline_admin_formset.opts.template %}
+                    {% endfor %}
+                  </div>
+                </section>
+              {% endif %}
+            </main>
+
+            <aside class="km-category-form-sidebar">
+              <div class="km-category-form-sidebar__sticky">
+                <section class="km-category-actions-card">
+                  <header class="km-category-actions-card__head">
+                    <h2>{% translate "Действия" %}</h2>
+                  </header>
+
+                  <div class="km-category-actions-card__buttons">
+                    <button type="submit" name="_save" class="km-category-action-btn km-category-action-btn--primary">
+                      {% translate "Сохранить" %}
+                    </button>
+                    <button type="submit" name="_addanother" class="km-category-action-btn km-category-action-btn--secondary">
+                      {% translate "Сохранить и добавить другой" %}
+                    </button>
+                    <button type="submit" name="_continue" class="km-category-action-btn km-category-action-btn--secondary">
+                      {% translate "Сохранить и продолжить" %}
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </form>
+    </div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,133 @@
+{% load i18n static admin_list admin_urls jazzmin admin_dashboard_tags %}
+
+<section class="place-admin-dashboard__search-panel" aria-labelledby="changelist-search-heading">
+  <div class="place-admin-dashboard__search-form-wrapper km-place-search-panel">
+    <form id="changelist-search" method="get" role="search" class="place-admin-dashboard__search-form">
+      <!-- Единая строка: Широкий поиск + Выпадающие фильтры + Доп фильтры + Сброс -->
+      <div class="place-admin-dashboard__row-search place-admin-dashboard__row-search--unified">
+        <div
+          class="place-admin-dashboard__search-combined"
+          data-search-suggest-root
+          data-suggestions-url="{% url 'admin:catalog_place_search_suggestions' %}"
+          data-suggestions-empty="{% translate 'Ничего не найдено' %}"
+        >
+          <span class="place-admin-dashboard__search-icon" aria-hidden="true">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </span>
+          <input
+            type="text"
+            name="q"
+            value="{{ cl.query }}"
+            id="searchbar"
+            class="place-admin-dashboard__search-input"
+            aria-label="{% translate 'Поиск' %}"
+            placeholder="{% translate 'Поиск...' %}"
+            autocomplete="off"
+            spellcheck="false"
+            {% if cl.search_help_text %}aria-describedby="searchbar_helptext"{% endif %}
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-controls="place-search-suggestions"
+          >
+          <button type="submit" class="place-admin-dashboard__search-submit">
+            {% translate "Найти" %}
+          </button>
+          <div
+            id="place-search-suggestions"
+            class="place-admin-dashboard__search-suggestions"
+            data-search-suggestions
+            role="listbox"
+            hidden
+          ></div>
+        </div>
+        
+        <div class="place-admin-dashboard__selects-group">
+          {% if cl.has_filters %}
+            {% for spec in cl.filter_specs %}
+              {% if spec.field_path in cl.model_admin.km_primary_filters %}
+                <label class="place-admin-dashboard__filter-control" aria-label="{{ spec.title }}">
+                  <span class="place-admin-dashboard__filter-label">{{ spec.title }}</span>
+                  {% admin_filter_choices cl spec as spec_choices %}
+                  <select class="place-admin-dashboard__filter-select km-admin-select-placeholder" data-filter-select data-field="{{ spec.field_path }}">
+                    {% for choice in spec_choices %}
+                      <option value="{{ choice.query_string }}"{% if choice.selected %} selected{% endif %}>{{ choice.display }}</option>
+                    {% endfor %}
+                  </select>
+                </label>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="place-admin-dashboard__top-actions">
+          {% if cl.has_filters %}
+            <details class="place-admin-dashboard__extra-filters">
+              <summary>
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                <span>{% translate "Фильтры" %}</span>
+              </summary>
+              <div class="place-admin-dashboard__extra-filters-grid">
+                {% for spec in cl.filter_specs %}
+                  {% if spec.field_path not in cl.model_admin.km_primary_filters %}
+                    {% jazzmin_list_filter cl spec %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </details>
+          {% endif %}
+
+          <a href="?" class="place-admin-dashboard__reset-link">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>{% translate "Сбросить" %}</span>
+          </a>
+        </div>
+      </div>
+
+      {% if cl.has_filters and cl.search_help_text %}
+        <div class="help place-admin-dashboard__search-help" id="searchbar_helptext">{{ cl.search_help_text }}</div>
+      {% endif %}
+
+      {% admin_extra_filters cl as extra_filters %}
+      {% for pair in extra_filters.items %}
+        {% if pair.0 != 'q' %}
+          <input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">
+        {% endif %}
+      {% endfor %}
+    </form>
+
+    <!-- Третья строка: Быстрые фильтры (табы) -->
+    {% if km_primary_quick_filters %}
+    <div class="place-admin-dashboard__row-tabs">
+      <div class="place-admin-dashboard__quick-filters km-place-quick-filters" aria-label="{% translate 'Быстрые фильтры' %}">
+        {% for item in km_primary_quick_filters %}
+          <a
+            href="{{ item.url|default:'?' }}"
+            class="place-admin-dashboard__quick-filter km-place-quick-filter{% if item.active %} is-active{% endif %}"
+            {% if item.active %}aria-current="true"{% endif %}
+          >
+            <span>{{ item.label }}</span>
+            <strong>{{ item.count }}</strong>
+          </a>
+        {% endfor %}
+      </div>
+      {% if km_secondary_quick_filters %}
+        <details class="place-admin-dashboard__quick-filters-more">
+          <summary>{% translate "Ещё" %} ▾</summary>
+          <div class="place-admin-dashboard__quick-filters-dropdown">
+            {% for item in km_secondary_quick_filters %}
+              <a
+                href="{{ item.url|default:'?' }}"
+                class="place-admin-dashboard__quick-filter km-place-quick-filter{% if item.active %} is-active{% endif %}"
+                {% if item.active %}aria-current="true"{% endif %}
+              >
+                <span>{{ item.label }}</span>
+                <strong>{{ item.count }}</strong>
+              </a>
+            {% endfor %}
+          </div>
+        </details>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>

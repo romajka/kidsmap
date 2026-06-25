@@ -23,13 +23,13 @@
     <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}KidsMap{% endblock %}{% endblock %}{% endblock %}" />
     <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
     <meta property="og:url" content="{{ canonical_url }}" />
-    {% block og_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}" />{% endblock %}
+    {% block og_image %}<meta property="og:image" content="{% if site_settings.logo %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.logo.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}KidsMap{% endblock %}{% endblock %}" />
     <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
-    {% block twitter_image %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}" />{% endblock %}
-    <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}" />
-    <link rel="apple-touch-icon" href="{% static 'img/logo.svg' %}" />
+    {% block twitter_image %}<meta name="twitter:image" content="{% if site_settings.logo %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.logo.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
+    <link rel="icon" type="image/svg+xml" href="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />
+    <link rel="apple-touch-icon" href="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />
     <link
       rel="preload"
       href="{% static 'fonts/chiron/ChironGoRoundTC-PublicSubset.woff2' %}"
@@ -644,7 +644,7 @@
           if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
           const targets = Array.from(
-            document.querySelectorAll(".panel, .card, .home-tile, .trust-card, .faq-card")
+            document.querySelectorAll(".panel:not(.content-page):not(.legal-page), .card, .home-tile, .trust-card, .faq-card")
           );
           if (!targets.length) return;
 

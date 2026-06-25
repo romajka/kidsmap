@@ -1,0 +1,56 @@
+{% load i18n admin_urls %}
+
+<div class="km-admin-sidebar-actions">
+    {% if show_save %}
+        <button type="submit" class="km-btn--sidebar km-btn--success" name="_save">
+            <i class="fas fa-save"></i> {% trans 'Сохранить' %}
+        </button>
+    {% endif %}
+
+    {% if show_delete_link and original %}
+        {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+        <a href="{% add_preserved_filters delete_url %}" class="km-btn--sidebar km-btn--danger">
+            <i class="fas fa-trash-alt"></i> {% trans 'Удалить' %}
+        </a>
+    {% endif %}
+
+    {% if show_save_as_new %}
+        <button type="submit" class="km-btn--sidebar km-btn--info" name="_saveasnew">
+            <i class="fas fa-copy"></i> {% trans 'Сохранить как новый' %}
+        </button>
+    {% endif %}
+
+    {% if show_save_and_add_another %}
+        <button type="submit" class="km-btn--sidebar km-btn--info" name="_addanother">
+            <i class="fas fa-plus"></i> {% trans 'Сохранить и добавить другой' %}
+        </button>
+    {% endif %}
+
+    {% if show_save_and_continue %}
+        <button type="submit" class="km-btn--sidebar km-btn--info" name="_continue">
+            <i class="fas fa-edit"></i> {% if can_change %}{% trans 'Сохранить и продолжить' %}{% else %}{% trans 'Сохранить и просмотреть' %}{% endif %}
+        </button>
+    {% endif %}
+
+    {% if show_close %}
+        <a href="{% url opts|admin_urlname:'changelist' %}" class="km-btn--sidebar km-btn--danger">
+            <i class="fas fa-times"></i> {% trans 'Закрыть' %}
+        </a>
+    {% endif %}
+
+    {% block extra-actions %}{% endblock %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const actionButtons = document.querySelectorAll('.km-btn--sidebar');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            let actionText = this.innerText.trim();
+            if (!confirm('Вы действительно хотите выполнить действие: "' + actionText + '"?')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>

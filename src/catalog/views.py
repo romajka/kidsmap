@@ -32,6 +32,7 @@ from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
 from .forms import OwnerEventForm
+from .legal_content import get_legal_page_content
 from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile
 from .models import FunnelEvent
 from .services.content_quality import approved_review_queryset
@@ -489,30 +490,6 @@ FOR_BUSINESS_CONTENT = {
 }
 
 
-LEGAL_CONTENT = {
-    "privacy": {
-        "az": ("Məxfilik siyasəti", ["Email və telefon yalnız hesab, əlaqə və moderasiya üçün istifadə olunur.", "İstifadəçi məlumatlarının silinməsi üçün administrasiya ilə əlaqə saxlaya bilərsiniz."]),
-        "ru": ("Политика конфиденциальности", ["Email и телефон используются для аккаунта, связи и модерации.", "Пользователь может запросить удаление данных через администрацию."]),
-        "en": ("Privacy Policy", ["Email and phone are used for accounts, contact and moderation.", "Users can request data removal by contacting the administration."]),
-    },
-    "terms": {
-        "az": ("İstifadə şərtləri", ["KidsMap kataloq və əlaqə platformasıdır.", "Məlumatların aktuallığı barədə səhv görsəniz, bizə bildirin."]),
-        "ru": ("Условия использования", ["KidsMap является каталогом и площадкой для контакта.", "Если вы нашли ошибку в данных, сообщите администрации."]),
-        "en": ("Terms of Use", ["KidsMap is a catalog and contact platform.", "If you find incorrect information, report it to the administration."]),
-    },
-    "review-rules": {
-        "az": ("Rəy qaydaları", ["Rəylər moderasiyadan sonra dərc olunur.", "Test, təhqiredici və mənasız mətnlər dərc edilmir."]),
-        "ru": ("Правила отзывов", ["Отзывы публикуются после модерации.", "Тестовые, оскорбительные и бессмысленные тексты не публикуются."]),
-        "en": ("Review Rules", ["Reviews are published after moderation.", "Test, offensive and meaningless texts are not published."]),
-    },
-    "listing-rules": {
-        "az": ("Yerləşdirmə qaydaları", ["Kartda ad, kateqoriya, ünvan, kontakt, yaş, qiymət və cədvəl olmalıdır.", "Natamam və test kartları kataloqda göstərilmir."]),
-        "ru": ("Правила размещения", ["В карточке нужны название, категория, адрес, контакт, возраст, цена и расписание.", "Неполные и тестовые карточки не показываются в каталоге."]),
-        "en": ("Listing Rules", ["A listing needs name, category, address, contact, age, price and schedule.", "Incomplete and test listings are not shown in the catalog."]),
-    },
-}
-
-
 def for_business(request):
     language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in FOR_BUSINESS_CONTENT else "az"
     content = FOR_BUSINESS_CONTENT[language]
@@ -521,9 +498,8 @@ def for_business(request):
 
 def legal_page(request, page_slug):
     language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in {"az", "ru", "en"} else "az"
-    page = LEGAL_CONTENT[page_slug]
-    title, sections = page[language]
-    return render(request, "pages/legal.html", {"legal_title": title, "legal_sections": sections, "meta_description": title})
+    context = get_legal_page_content(page_slug=page_slug, language=language)
+    return render(request, "pages/legal.html", context)
 
 
 def owner_cabinet(request):

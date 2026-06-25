@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext, override
 
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
-from catalog.models import Event, FunnelEvent, Place
+from catalog.models import Event, FunnelEvent, Place, Category
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
 from catalog.services.options import sort_choice_tuples, sort_translated_values
@@ -135,7 +135,7 @@ class PlaceController:
             "catalog_breadcrumb_schema_json": seo_payload["catalog_breadcrumb_schema_json"],
             "catalog_item_list_schema_json": seo_payload["catalog_item_list_schema_json"],
             "selected": selected,
-            "categories": sort_choice_tuples(Place.CATEGORY_CHOICES),
+            "categories": sort_choice_tuples([(c.code, c.name_i18n(language_code)) for c in Category.objects.filter(is_active=True)]),
             "district_options": sort_translated_values(content_settings.districts()),
             "metro_options": sort_translated_values(content_settings.metro_stations()),
             "is_new_page": force_new_only,
@@ -299,7 +299,7 @@ class PlaceController:
                 "total": active_total,
             },
             "selected": selected,
-            "categories": sort_choice_tuples(Place.CATEGORY_CHOICES),
+            "categories": sort_choice_tuples([(c.code, c.name_i18n(language_code)) for c in Category.objects.filter(is_active=True)]),
             "district_options": sort_translated_values(self.settings_repository.get_catalog_settings().districts()),
             "has_active_filters": any(v for k, v in selected.items() if k != "sort" and v),
         }
@@ -459,7 +459,8 @@ class PlaceController:
 
         category = str(selected.get("category") or "").strip()
         if category:
-            category_label = dict(Place.CATEGORY_CHOICES).get(category, category)
+            cat_obj = Category.objects.filter(code=category).first()
+            category_label = cat_obj.name_i18n(language_code) if cat_obj else category
             if language_code == "az":
                 label = f"Kateqoriya: {category_label}"
             elif language_code == "en":
@@ -659,7 +660,7 @@ class PlaceController:
                     "lng": place.lng,
                     "url": place.get_absolute_url(),
                     "category": place.get_category_display(),
-                    "category_code": place.category,
+                    "category_code": place.category_code,
                     "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
                     "location": " / ".join(location_parts),
                     "address": ", ".join(part for part in address_parts if part),
@@ -719,7 +720,7 @@ class PlaceController:
                     "params": {
                         "page_type": "place_detail",
                         "place_id": place.id,
-                        "place_category": place.category,
+                        "place_category": place.category_code,
                         "has_phone": bool(place.phone1),
                         "has_instagram": bool(place.instagram),
                         "has_coordinates": bool(place.has_coordinates),

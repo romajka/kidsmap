@@ -127,6 +127,41 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется PNG/WebP 600x400 px, до 500 KB."),
     )
+    catalog_hero_image = models.FileField(
+        _("Баннер каталога"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется в каталоге."),
+    )
+    about_hero_image = models.FileField(
+        _("Баннер страницы 'О проекте'"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется на странице О проекте."),
+    )
+    reviews_hero_image = models.FileField(
+        _("Баннер страницы отзывов"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется на странице отзывов."),
+    )
+    for_business_hero_image = models.FileField(
+        _("Баннер страницы владельцам"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется на странице владельцев."),
+    )
+    dashboard_hero_image = models.FileField(
+        _("Баннер личного кабинета"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется в личном кабинете."),
+    )
     footer_phone = models.CharField(_("Телефон в футере"), max_length=60, blank=True, default="")
     footer_email = models.EmailField(_("Email в футере"), blank=True, default="")
     footer_instagram = models.CharField(_("Instagram в футере"), max_length=255, blank=True, default="")

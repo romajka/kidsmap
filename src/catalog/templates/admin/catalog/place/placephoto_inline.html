@@ -1,0 +1,148 @@
+{% load i18n %}
+{% with formset=inline_admin_formset.formset %}
+  <div class="km-gallery-inline" data-gallery-root data-gallery-prefix="{{ formset.prefix }}">
+    {{ formset.management_form }}
+    {% if formset.non_form_errors %}
+      <div class="km-gallery-inline__errors">
+        {{ formset.non_form_errors }}
+      </div>
+    {% endif %}
+
+    <div class="km-gallery-grid" data-gallery-grid>
+      {% for inline_admin_form in inline_admin_formset %}
+        {% with form=inline_admin_form.form %}
+          <article
+            class="km-photo-card{% if not inline_admin_form.original and not form.instance.image and not form.has_changed %} km-photo-card--empty{% endif %}"
+            data-gallery-card
+            data-gallery-card-state="{% if inline_admin_form.original or form.instance.image %}filled{% else %}empty{% endif %}"
+            draggable="true"
+          >
+            <button type="button" class="km-photo-card__remove" data-gallery-remove aria-label="{% translate 'Удалить фото' %}">
+              <span aria-hidden="true">×</span>
+            </button>
+
+            <div class="km-photo-card__handle" data-gallery-drag-handle aria-label="{% translate 'Порядок фото' %}">
+              <span aria-hidden="true">⋮⋮</span>
+            </div>
+
+            <div class="km-photo-card__preview" data-gallery-dropzone>
+              {% if inline_admin_form.original and inline_admin_form.original.image and inline_admin_form.original.image.name %}
+                <img
+                  src="{{ inline_admin_form.original.image.url }}"
+                  alt=""
+                  class="km-photo-card__image"
+                  data-gallery-preview
+                  data-gallery-initial-url="{{ inline_admin_form.original.image.url }}"
+                  data-gallery-initial-name="{{ inline_admin_form.original.image.name }}"
+                  {% if inline_admin_form.original.image.size %}data-gallery-initial-size="{{ inline_admin_form.original.image.size }}"{% endif %}
+                >
+              {% else %}
+                <img class="km-photo-card__image" alt="" hidden data-gallery-preview>
+              {% endif %}
+
+              <div class="km-photo-card__overlay-replace" data-gallery-replace-trigger aria-label="{% translate 'Заменить фото' %}">
+                <span class="km-photo-card__replace-icon" aria-hidden="true">📷</span>
+              </div>
+
+              <span class="km-photo-card__placeholder" data-gallery-placeholder>
+                <strong>{% translate "Добавить фото" %}</strong>
+                <span>{% translate "Перетащите файл или выберите его вручную." %}</span>
+              </span>
+              <div class="km-photo-card__input">
+                {{ form.image }}
+              </div>
+            </div>
+
+            <div class="km-photo-card__fields">
+              {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+              {% endfor %}
+              <label class="km-photo-card__field km-photo-card__field--order">
+                <span>{% translate "Порядок" %}</span>
+                {{ form.order }}
+              </label>
+              <label class="km-photo-card__field km-photo-card__field--caption">
+                <span>{% translate "Подпись" %}</span>
+                {{ form.caption }}
+              </label>
+              <div class="km-photo-card__delete">
+                {{ form.DELETE }}
+                <small>{% translate "Удалить" %}</small>
+              </div>
+              {% if form.non_field_errors %}
+                <div class="km-photo-card__errors">{{ form.non_field_errors }}</div>
+              {% endif %}
+            </div>
+
+            <p class="km-photo-card__meta" data-gallery-file-meta>
+              {% if inline_admin_form.original and inline_admin_form.original.image and inline_admin_form.original.image.name %}
+                {{ inline_admin_form.original.image.name|slice:"-64:" }}
+              {% else %}
+                {% translate "Файл не выбран" %}
+              {% endif %}
+            </p>
+          </article>
+        {% endwith %}
+      {% endfor %}
+      <!-- Add photo card placeholder/trigger -->
+      <div class="km-photo-card km-photo-card--add-trigger" data-gallery-add-button-card style="display: none;">
+        <div class="km-photo-card__preview">
+          <span class="km-photo-card__placeholder">
+            <span class="km-photo-card__add-plus-icon">+</span>
+            <strong>{% translate "Добавить фото" %}</strong>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {% with empty_form=formset.empty_form %}
+      <template data-gallery-empty-template>
+        <article class="km-photo-card km-photo-card--empty" data-gallery-card data-gallery-card-state="empty" draggable="true">
+          <button type="button" class="km-photo-card__remove" data-gallery-remove aria-label="{% translate 'Удалить фото' %}">
+            <span aria-hidden="true">×</span>
+          </button>
+
+          <div class="km-photo-card__handle" data-gallery-drag-handle aria-label="{% translate 'Порядок фото' %}">
+            <span aria-hidden="true">⋮⋮</span>
+          </div>
+
+          <div class="km-photo-card__preview" data-gallery-dropzone>
+            <img class="km-photo-card__image" alt="" hidden data-gallery-preview>
+            
+            <div class="km-photo-card__overlay-replace" data-gallery-replace-trigger aria-label="{% translate 'Заменить фото' %}">
+              <span class="km-photo-card__replace-icon" aria-hidden="true">📷</span>
+            </div>
+
+            <span class="km-photo-card__placeholder" data-gallery-placeholder>
+              <strong>{% translate "Добавить фото" %}</strong>
+              <span>{% translate "Перетащите файл или выберите его вручную." %}</span>
+            </span>
+            <div class="km-photo-card__input">
+              {{ empty_form.image }}
+            </div>
+          </div>
+
+          <div class="km-photo-card__fields">
+            {% for hidden in empty_form.hidden_fields %}
+              {{ hidden }}
+            {% endfor %}
+            <label class="km-photo-card__field km-photo-card__field--order">
+              <span>{% translate "Порядок" %}</span>
+              {{ empty_form.order }}
+            </label>
+            <label class="km-photo-card__field km-photo-card__field--caption">
+              <span>{% translate "Подпись" %}</span>
+              {{ empty_form.caption }}
+            </label>
+            <div class="km-photo-card__delete">
+              {{ empty_form.DELETE }}
+              <small>{% translate "Удалить" %}</small>
+            </div>
+          </div>
+
+          <p class="km-photo-card__meta" data-gallery-file-meta>{% translate "Файл не выбран" %}</p>
+        </article>
+      </template>
+    {% endwith %}
+  </div>
+{% endwith %}

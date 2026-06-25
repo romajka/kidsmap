@@ -1,38 +1,347 @@
 {% extends "admin/change_form.html" %}
-{% load i18n %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=14">
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=13" defer></script>
+  <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}" defer></script>
+{% endblock %}
+
+{% block submit_buttons_top %}{% endblock %}
+{% block submit_buttons_bottom %}{% endblock %}
 
 {% block content %}
-  {% if not google_maps_api_key %}
-    <div class="alert alert-warning" style="margin-bottom: 1rem; border-radius: 4px; padding: 15px; background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba;">
-      <i class="fas fa-exclamation-triangle"></i>
-      <strong>{% translate "Xəritə üçün hazır deyil" %}:</strong> {% translate "Геокодирование не настроено. Заполните GOOGLE_MAPS_API_KEY." %}
-    </div>
-  {% endif %}
-  {{ block.super }}
-{% endblock %}
+  <div id="content-main" class="km-place-form-page">
+    {{ km_place_form_summary.checklist_items|json_script:"km-place-progress-config" }}
+    <form
+      {% if has_file_field %}enctype="multipart/form-data"{% endif %}
+      {% if form_url %}action="{{ form_url }}"{% endif %}
+      method="post"
+      id="{{ opts.model_name }}_form"
+      novalidate
+      data-progress-ready-label="{{ km_place_form_summary.readiness_label }}"
+      data-progress-ready-tone="{{ km_place_form_summary.readiness_tone }}"
+      data-progress-complete-label="{% translate 'Готово к публикации' %}"
+      data-progress-complete-tone="good"
+      data-progress-incomplete-label="{% translate 'Нужна доработка' %}"
+      data-progress-incomplete-tone="warn"
+      data-progress-empty-text="{% translate 'Ключевые поля заполнены. Можно переходить к финальной проверке и публикации.' %}"
+      data-rejected-status="{{ adminform.form.instance.STATUS_REJECTED|default:'rejected' }}"
+    >
+      {% csrf_token %}
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
 
-{% block submit_buttons_top %}
-  {{ block.super }}
-  {% if not is_popup %}
-    <div class="submit-row km-admin-submit-row km-admin-submit-row--secondary">
-      <input
-        type="submit"
-        value="{% translate 'Сохранить и рассчитать координаты' %}"
-        name="_refresh_coordinates_from_address"
-      />
-    </div>
-  {% endif %}
-{% endblock %}
+      <div class="km-place-form-shell">
+        <header class="km-place-form-hero">
+          <div class="km-place-form-hero__copy">
+            <p class="km-place-form-hero__eyebrow">
+              {% if add %}{% translate "Новая карточка" %}{% else %}{% translate "Редактирование карточки" %}{% endif %}
+            </p>
+            <h1 class="km-place-form-hero__title">
+              {% if add %}
+                {% translate "Добавить место" %}
+              {% else %}
+                {{ original|default:km_place_form_summary.title }}
+              {% endif %}
+            </h1>
+            <p class="km-place-form-hero__subtitle">
+              {% blocktranslate trimmed %}
+                Соберите карточку по шагам: основное, тексты, цены, локация и медиа. Служебные поля вынесены ниже, чтобы не мешать основному сценарию.
+              {% endblocktranslate %}
+            </p>
+          </div>
+          <div class="km-place-form-hero__progress">
+            <div
+              class="km-place-progress-ring"
+              aria-hidden="true"
+              style="--km-place-progress: {{ km_place_form_summary.completion_pct }};"
+              data-progress-ring
+            >
+              <span data-progress-pct>{{ km_place_form_summary.completion_pct }}%</span>
+            </div>
+            <div class="km-place-form-hero__progress-copy">
+              <strong>{% translate "Заполненность" %}</strong>
+              <span data-progress-hero-copy>
+                {% translate "Готово" %}
+                <span data-progress-done>{{ km_place_form_summary.completed }}</span>
+                {% translate "из" %}
+                <span data-progress-total>{{ km_place_form_summary.total }}</span>
+                {% translate "ключевых пунктов" %}
+              </span>
+            </div>
+          </div>
+        </header>
 
-{% block submit_buttons_bottom %}
-  {{ block.super }}
-  {% if not is_popup %}
-    <div class="submit-row km-admin-submit-row km-admin-submit-row--secondary">
-      <input
-        type="submit"
-        value="{% translate 'Сохранить и рассчитать координаты' %}"
-        name="_refresh_coordinates_from_address"
-      />
-    </div>
-  {% endif %}
+        {% if km_place_map_alert %}
+          <div class="km-place-form-alert km-place-form-alert--warning" data-map-alert>
+            <strong>{{ km_place_map_alert.title }}.</strong>
+            <span>{{ km_place_map_alert.message }}</span>
+          </div>
+        {% endif %}
+
+        {% if errors %}
+          <div class="km-place-form-alert km-place-form-alert--danger">
+            <strong>{% translate "Форма содержит ошибки" %}.</strong>
+            <span>
+              {% blocktranslate count counter=errors|length %}
+                Исправьте проблему ниже и сохраните карточку ещё раз.
+              {% plural %}
+                Исправьте проблемы ниже и сохраните карточку ещё раз.
+              {% endblocktranslate %}
+            </span>
+            {{ adminform.form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="km-place-form-layout">
+          <main class="km-place-form-main">
+            <nav class="km-place-form-steps" aria-label="{% translate 'Шаги формы' %}">
+              {% for section in km_place_form_sections %}
+                <a
+                  href="#{{ section.id }}"
+                  class="km-place-form-step"
+                  data-place-step-link
+                  data-step-tooltip="{{ section.description }}"
+                  aria-label="{{ section.step }}. {{ section.title }}. {{ section.description }}"
+                >
+                  <span class="km-place-form-step__index">{{ section.step }}</span>
+                  <span class="km-place-form-step__body" title="{{ section.description }}">
+                    <strong>{{ section.title }}</strong>
+                  </span>
+                </a>
+              {% endfor %}
+            </nav>
+
+            <div class="km-place-form-sections">
+              {% for section in km_place_form_sections %}
+                <section id="{{ section.id }}" class="km-place-section" data-place-section>
+                  <header class="km-place-section__head">
+                    <span class="km-place-section__step">{{ section.step }}</span>
+                    <div>
+                      <h2 class="km-place-section__title">{{ section.title }}</h2>
+                      <p class="km-place-section__description">{{ section.description }}</p>
+                    </div>
+                  </header>
+                  <div class="km-place-section__body">
+                    {% if section.id == "location" %}
+                      {% include "admin/catalog/place/location_section.html" with adminform=adminform %}
+                    {% elif section.id == "media" %}
+                      {% include "admin/catalog/place/media_section.html" with adminform=adminform gallery_inline=km_place_gallery_inline %}
+                    {% else %}
+                      {% for fieldset in section.fieldsets %}
+                        {% include "admin/includes/fieldset.html" with heading_level=3 prefix="place-section" id_prefix=forloop.parentloop.counter0 id_suffix=forloop.counter0 %}
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                </section>
+              {% endfor %}
+
+              {% for inline_section in km_place_inline_sections %}
+                <section id="{{ inline_section.id }}" class="km-place-section km-place-section--inline">
+                  <header class="km-place-section__head">
+                    <span class="km-place-section__step">+</span>
+                    <div>
+                      <h2 class="km-place-section__title">{{ inline_section.title }}</h2>
+                      {% if inline_section.description %}
+                        <p class="km-place-section__description">{{ inline_section.description }}</p>
+                      {% endif %}
+                    </div>
+                  </header>
+                  <div class="km-place-section__body km-place-section__body--inline">
+                    {% for inline_admin_formset in inline_section.items %}
+                      {% include inline_admin_formset.opts.template %}
+                    {% endfor %}
+                  </div>
+                </section>
+              {% endfor %}
+
+              {% for section in km_place_secondary_sections %}
+                <details class="km-place-secondary" {% if not add %}open{% endif %}>
+                  <summary class="km-place-secondary__summary">
+                    <span>{{ section.title }}</span>
+                    <small>{{ section.description }}</small>
+                  </summary>
+                  <div class="km-place-secondary__body">
+                    {% for fieldset in section.fieldsets %}
+                      {% include "admin/includes/fieldset.html" with heading_level=3 prefix="place-secondary" id_prefix=forloop.parentloop.counter0 id_suffix=forloop.counter0 %}
+                    {% endfor %}
+                  </div>
+                </details>
+              {% endfor %}
+            </div>
+
+            <div class="km-place-form-mobile-actions">
+              {% submit_row %}
+              {% if km_place_form_summary.visibility.is_public %}
+                <button
+                  type="submit"
+                  name="_unpublish_place"
+                  class="km-place-form-mobile-button km-place-form-mobile-button--warn"
+                >
+                  {% translate 'Снять с публикации' %}
+                </button>
+              {% else %}
+                <button
+                  type="submit"
+                  name="_publish_place"
+                  class="km-place-form-mobile-button km-place-form-mobile-button--success"
+                >
+                  {% translate 'Опубликовать на сайте' %}
+                </button>
+              {% endif %}
+              <button
+                type="submit"
+                name="_save_draft"
+                class="km-place-form-mobile-button km-place-form-mobile-button--draft"
+              >
+                {% translate 'Сохранить как черновик' %}
+              </button>
+              {% if not is_popup %}
+                <button
+                  type="submit"
+                  name="_refresh_coordinates_from_address"
+                  class="km-place-form-mobile-button km-place-form-mobile-button--ghost"
+                >
+                  {% translate 'Сохранить и рассчитать координаты' %}
+                </button>
+              {% endif %}
+            </div>
+
+            {% block admin_change_form_document_ready %}
+              <script id="django-admin-form-add-constants"
+                      src="{% static 'admin/js/change_form.js' %}"
+                      {% if adminform and add %}
+                          data-model-name="{{ opts.model_name }}"
+                      {% endif %}
+                      async>
+              </script>
+            {% endblock %}
+            {% prepopulated_fields_js %}
+          </main>
+
+          <aside class="km-place-form-sidebar">
+            <div class="km-place-sidebar-card km-place-sidebar-card--summary">
+              <div class="km-place-sidebar-eyebrow">{% translate "Сводка карточки" %}</div>
+              <p class="km-place-sidebar-card__title">{{ km_place_form_summary.title }}</p>
+              <div class="km-place-sidebar-visibility">
+                <span class="km-place-sidebar-readiness__label">{% translate "Видимость на сайте" %}</span>
+                <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ km_place_form_summary.visibility.tone }}">
+                  {{ km_place_form_summary.visibility.label }}
+                </span>
+              </div>
+              <p class="km-place-sidebar-note">{{ km_place_form_summary.visibility.hint }}</p>
+              <div class="km-place-sidebar-readiness">
+                <span class="km-place-sidebar-readiness__label">{% translate "Готовность" %}</span>
+                <span
+                  class="km-place-sidebar-badge km-place-sidebar-badge--{{ km_place_form_summary.readiness_tone }}"
+                  data-progress-readiness
+                >
+                  {{ km_place_form_summary.readiness_label }}
+                </span>
+              </div>
+              <div class="km-place-sidebar-progress">
+                <div class="km-place-sidebar-progress__bar">
+                  <span style="width: {{ km_place_form_summary.completion_pct }}%;" data-progress-bar></span>
+                </div>
+                <div class="km-place-sidebar-progress__meta">
+                  <strong data-progress-pct>{{ km_place_form_summary.completion_pct }}%</strong>
+                  <span data-progress-sidebar-copy>
+                    <span data-progress-done>{{ km_place_form_summary.completed }}</span>
+                    {% translate "из" %}
+                    <span data-progress-total>{{ km_place_form_summary.total }}</span>
+                    {% translate "ключевых полей" %}
+                  </span>
+                </div>
+              </div>
+              <div class="km-place-sidebar-badges">
+                {% for badge in km_place_form_summary.state_badges %}
+                  <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ badge.tone }}">{{ badge.label }}</span>
+                {% endfor %}
+              </div>
+              {% if km_place_form_summary.meta_items %}
+                <dl class="km-place-sidebar-meta">
+                  {% for item in km_place_form_summary.meta_items %}
+                    <div>
+                      <dt>{{ item.label }}</dt>
+                      <dd>{{ item.value }}</dd>
+                    </div>
+                  {% endfor %}
+                </dl>
+              {% endif %}
+              {% if km_place_form_summary.error_count %}
+                <div class="km-place-sidebar-errors">
+                  <span class="km-place-sidebar-badge km-place-sidebar-badge--danger">
+                    {% blocktranslate count counter=km_place_form_summary.error_count trimmed %}
+                      {{ counter }} ошибка
+                    {% plural %}
+                      {{ counter }} ошибки
+                    {% endblocktranslate %}
+                  </span>
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="km-place-sidebar-card">
+              <div class="km-place-sidebar-eyebrow">{% translate "Checklist" %}</div>
+              <h2>{% translate "Что ещё заполнить" %}</h2>
+              <ul class="km-place-sidebar-checklist" data-progress-missing-list {% if not km_place_form_summary.missing %}hidden{% endif %}>
+                {% for item in km_place_form_summary.missing %}
+                  <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
+              <p class="km-place-sidebar-empty" data-progress-empty {% if km_place_form_summary.missing %}hidden{% endif %}>
+                {% translate "Ключевые поля заполнены. Можно переходить к финальной проверке и публикации." %}
+              </p>
+            </div>
+
+            <div class="km-place-sidebar-card km-place-sidebar-card--actions">
+              <div class="km-place-sidebar-eyebrow">{% translate "Управление" %}</div>
+              <h2>{% translate "Действия" %}</h2>
+              <p class="km-place-sidebar-actions-note">
+                {% translate "Сначала сохраняйте карточку как черновик, затем переходите к координатам и финальной проверке." %}
+              </p>
+              <div class="km-place-visibility-actions">
+                {% if km_place_form_summary.visibility.is_public %}
+                  <button
+                    type="submit"
+                    name="_unpublish_place"
+                    class="km-btn--sidebar km-btn--warn"
+                  >
+                    <i class="fas fa-eye-slash"></i> {% translate 'Снять с публикации' %}
+                  </button>
+                {% else %}
+                  <button
+                    type="submit"
+                    name="_publish_place"
+                    class="km-btn--sidebar km-btn--success-alt"
+                  >
+                    <i class="fas fa-globe"></i> {% translate 'Опубликовать на сайте' %}
+                  </button>
+                {% endif %}
+              </div>
+              <button
+                type="submit"
+                name="_save_draft"
+                class="km-btn--sidebar km-btn--draft"
+              >
+                <i class="fas fa-file"></i> {% translate 'Сохранить как черновик' %}
+              </button>
+              {% submit_row %}
+              {% if not is_popup %}
+                <button
+                  type="submit"
+                  name="_refresh_coordinates_from_address"
+                  class="km-btn--sidebar km-btn--info"
+                >
+                  <i class="fas fa-map-marker-alt"></i> {% translate 'Сохранить и рассчитать координаты' %}
+                </button>
+              {% endif %}
+            </div>
+          </aside>
+        </div>
+      </div>
+    </form>
+  </div>
 {% endblock %}

@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import reverse, path
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.template.response import TemplateResponse
+from django.http import JsonResponse
 
 from catalog.models import (
     SiteSettings,
@@ -16,11 +17,12 @@ from catalog.models import (
     SiteGalleryImage,
     CatalogContentSettings
 )
-from catalog.services.admin_analytics import build_site_analytics_context
+from catalog.services.admin_analytics import build_statistics_context
 from .user import _HiddenFromAdminIndexMixin
 
 
 class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
+    change_form_template = "admin/catalog/shared_settings_change_form.html"
     list_display = ("brand_name", "updated_at")
     readonly_fields = (
         "updated_at",
@@ -28,6 +30,11 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
         "site_background_image_preview",
         "home_hero_image_preview",
         "empty_results_image_preview",
+        "catalog_hero_image_preview",
+        "about_hero_image_preview",
+        "reviews_hero_image_preview",
+        "for_business_hero_image_preview",
+        "dashboard_hero_image_preview",
     )
 
     def get_model_perms(self, request):
@@ -45,6 +52,12 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
         opts = self.model._meta
         url = reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk])
         return redirect(url)
+
+    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        context["km_settings_title"] = self.model._meta.verbose_name.capitalize()
+        context["km_settings_subtitle"] = _("Заполните настройки для этого раздела сайта.")
+        context["km_settings_hub_url"] = reverse("admin:catalog_sitesettings_changelist")
+        return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
     def _render_image_preview(self, obj, field_name):
         if not obj:
@@ -84,6 +97,26 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
     @admin.display(description=_("Текущая картинка пустого результата"))
     def empty_results_image_preview(self, obj):
         return self._render_image_preview(obj, "empty_results_image")
+
+    @admin.display(description=_("Текущий баннер каталога"))
+    def catalog_hero_image_preview(self, obj):
+        return self._render_image_preview(obj, "catalog_hero_image")
+
+    @admin.display(description=_("Текущий баннер страницы 'О проекте'"))
+    def about_hero_image_preview(self, obj):
+        return self._render_image_preview(obj, "about_hero_image")
+
+    @admin.display(description=_("Текущий баннер отзывов"))
+    def reviews_hero_image_preview(self, obj):
+        return self._render_image_preview(obj, "reviews_hero_image")
+
+    @admin.display(description=_("Текущий баннер владельцам"))
+    def for_business_hero_image_preview(self, obj):
+        return self._render_image_preview(obj, "for_business_hero_image")
+
+    @admin.display(description=_("Текущий баннер личного кабинета"))
+    def dashboard_hero_image_preview(self, obj):
+        return self._render_image_preview(obj, "dashboard_hero_image")
 
 
 @admin.register(SiteSettings)
@@ -166,7 +199,22 @@ class SiteBrandingSettingsAdmin(_BaseSiteSettingsSectionAdmin):
         (_("Лого и бренд"), {"fields": ("brand_name", "logo", "logo_preview")}),
         (
             _("Дизайн-картинки"),
-            {"fields": ("site_background_image", "site_background_image_preview", "home_hero_image", "home_hero_image_preview")},
+            {
+                "fields": (
+                    "site_background_image",
+                    "site_background_image_preview",
+                    "home_hero_image",
+                    "home_hero_image_preview",
+                    "catalog_hero_image",
+                    "catalog_hero_image_preview",
+                    "reviews_hero_image",
+                    "reviews_hero_image_preview",
+                    "for_business_hero_image",
+                    "for_business_hero_image_preview",
+                    "dashboard_hero_image",
+                    "dashboard_hero_image_preview",
+                )
+            },
         ),
         (
             _("Hero главной страницы (i18n)"),
@@ -199,6 +247,7 @@ class SiteBrandingSettingsAdmin(_BaseSiteSettingsSectionAdmin):
 class SiteAboutSettingsAdmin(_BaseSiteSettingsSectionAdmin):
     fieldsets = (
         (_("О проекте (i18n)"), {"fields": ("about_text_ru", "about_text_az", "about_text_en")}),
+        (_("Баннер страницы"), {"fields": ("about_hero_image", "about_hero_image_preview")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
     )
 
@@ -262,18 +311,23 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
         return False
 
     def changelist_view(self, request, extra_context=None):
+        try:
+            period_days = int(request.GET.get("period", 30))
+        except (ValueError, TypeError):
+            period_days = 30
+
         context = {
             **self.admin_site.each_context(request),
             "title": _("Статистика"),
             "opts": self.model._meta,
-            **build_site_analytics_context(),
+            **build_statistics_context(period_days),
         }
         return TemplateResponse(request, "admin/catalog/site_analytics.html", context)
 
 
 @admin.register(SiteGalleryImage)
 class SiteGalleryImageAdmin(admin.ModelAdmin):
-    change_list_template = "admin/catalog/sitegalleryimage/change_list.html"
+    change_form_template = "admin/catalog/shared_settings_change_form.html"
     list_display = (
         "image_preview",
         "placement",
@@ -322,93 +376,167 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
     )
 
     def changelist_view(self, request, extra_context=None):
-        from django.db.models import Count
+        if request.GET.get("placement__exact"):
+            return super().changelist_view(request, extra_context)
+
+        from django.template.defaultfilters import filesizeformat
+        import os
+
+        def get_file_info(file_field, fallback_static_path=None):
+            if not file_field:
+                if fallback_static_path:
+                    from django.templatetags.static import static
+                    return {
+                        "url": static(fallback_static_path),
+                        "name": fallback_static_path.split("/")[-1],
+                        "size": "По умолчанию",
+                        "is_fallback": True
+                    }
+                return None
+            try:
+                size = filesizeformat(file_field.size)
+                name = os.path.basename(file_field.name)
+                url = file_field.url
+                return {"url": url, "name": name, "size": size, "is_fallback": False}
+            except Exception:
+                # Fallback if file is missing on disk
+                return {
+                    "url": getattr(file_field, "url", ""),
+                    "name": os.path.basename(getattr(file_field, "name", "")) if getattr(file_field, "name", "") else "",
+                    "size": "N/A",
+                    "is_fallback": False
+                }
 
         site = SiteSettings.get_solo()
-        gallery_counts = dict(
-            SiteGalleryImage.objects
-            .values("placement")
-            .annotate(cnt=Count("id"))
-            .values_list("placement", "cnt")
-        )
-
-        # Describe each photo slot on the site
-        photo_slots = [
+        
+        # Oдиночные фото
+        main_images = [
             {
-                "group": "Одиночные фото сайта",
-                "slots": [
-                    {
-                        "title": "Логотип сайта",
-                        "location": "Шапка сайта (header) — слева",
-                        "size_hint": "SVG или PNG, 256×256 px, мин. 128×128 px, до 500 KB",
-                        "count_label": "1 файл",
-                        "image_url": site.logo.url if site.logo else None,
-                        "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
-                        "field": "logo",
-                    },
-                    {
-                        "title": "Фон сайта",
-                        "location": "Декоративный фон всего сайта",
-                        "size_hint": "JPG/WebP, 1920×1080 px, до 2 MB",
-                        "count_label": "1 файл",
-                        "image_url": site.site_background_image.url if site.site_background_image else None,
-                        "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
-                        "field": "site_background_image",
-                    },
-                    {
-                        "title": "Фон hero-баннера",
-                        "location": "Главная страница — большой баннер с поиском",
-                        "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
-                        "count_label": "1 файл",
-                        "image_url": site.home_hero_image.url if site.home_hero_image else None,
-                        "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
-                        "field": "home_hero_image",
-                    },
-                    {
-                        "title": "Картинка пустого результата",
-                        "location": "Каталог — когда ничего не найдено по поиску/фильтру",
-                        "size_hint": "PNG/WebP, 600×400 px, до 500 KB",
-                        "count_label": "1 файл",
-                        "image_url": site.empty_results_image.url if site.empty_results_image else None,
-                        "edit_url": reverse("admin:catalog_siteemptystatesettings_changelist"),
-                        "field": "empty_results_image",
-                    },
-                ],
+                "title": "Логотип сайта",
+                "field_name": "logo",
+                "location": "Отображается в шапке сайта (header) слева на всех страницах",
+                "size_hint": "SVG или PNG, 256×256 px (минимум 128×128), до 500 KB",
+                "file": get_file_info(site.logo, "img/logo.svg"),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
             },
             {
-                "group": "Галерея блоков (несколько фото)",
-                "slots": [
-                    {
-                        "title": "Hero-слайдер",
-                        "location": "Главная страница — фото-карточки с категориями рядом с баннером",
-                        "size_hint": "JPG/WebP/PNG, рекомендуется 1200×900 или 900×1200 px, до 2 MB",
-                        "count_label": f"{gallery_counts.get(SiteGalleryImage.PLACEMENT_HOME_HERO, 0)} фото",
-                        "count": gallery_counts.get(SiteGalleryImage.PLACEMENT_HOME_HERO, 0),
-                        "image_url": None,
-                        "add_url": reverse("admin:catalog_sitegalleryimage_add") + f"?placement={SiteGalleryImage.PLACEMENT_HOME_HERO}",
-                        "list_url": reverse("admin:catalog_sitegalleryimage_changelist") + f"?placement__exact={SiteGalleryImage.PLACEMENT_HOME_HERO}",
-                        "is_gallery": True,
-                    },
-                    {
-                        "title": "Блок «Партнёры»",
-                        "location": "Главная страница — горизонтальный ряд логотипов партнёров",
-                        "size_hint": "PNG/SVG с прозрачным фоном, 300×150 px, до 500 KB",
-                        "count_label": f"{gallery_counts.get(SiteGalleryImage.PLACEMENT_HOME_PARTNERS, 0)} фото",
-                        "count": gallery_counts.get(SiteGalleryImage.PLACEMENT_HOME_PARTNERS, 0),
-                        "image_url": None,
-                        "add_url": reverse("admin:catalog_sitegalleryimage_add") + f"?placement={SiteGalleryImage.PLACEMENT_HOME_PARTNERS}",
-                        "list_url": reverse("admin:catalog_sitegalleryimage_changelist") + f"?placement__exact={SiteGalleryImage.PLACEMENT_HOME_PARTNERS}",
-                        "is_gallery": True,
-                    },
-                ],
+                "title": "Фон сайта",
+                "field_name": "site_background_image",
+                "location": "Декоративный фон всего сайта",
+                "size_hint": "JPG/WebP, 1920×1080 px, до 2 MB",
+                "file": get_file_info(site.site_background_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон hero-баннера",
+                "field_name": "home_hero_image",
+                "location": "Фоновое изображение главной страницы (большой баннер)",
+                "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
+                "file": get_file_info(site.home_hero_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Баннер каталога",
+                "field_name": "catalog_hero_image",
+                "location": "Фоновое изображение вверху страницы каталога кружков",
+                "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
+                "file": get_file_info(site.catalog_hero_image, "img/banners/catalog-hero.webp"),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("place_list"),
+            },
+            {
+                "title": "Баннер страницы 'О проекте'",
+                "field_name": "about_hero_image",
+                "location": "Фоновое изображение вверху страницы «О проекте»",
+                "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
+                "file": get_file_info(site.about_hero_image, "img/banners/about-hero.webp"),
+                "edit_url": reverse("admin:catalog_siteaboutsettings_changelist"),
+                "preview_url": reverse("about"),
+            },
+            {
+                "title": "Баннер страницы отзывов",
+                "field_name": "reviews_hero_image",
+                "location": "Фоновое изображение вверху страницы отзывов о проекте",
+                "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
+                "file": get_file_info(site.reviews_hero_image, "img/banners/reviews-hero.webp"),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("site_reviews"),
+            },
+            {
+                "title": "Баннер страницы владельцам",
+                "field_name": "for_business_hero_image",
+                "location": "Фоновое изображение вверху страницы «Для бизнеса»",
+                "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
+                "file": get_file_info(site.for_business_hero_image, "img/banners/for-business-hero.webp"),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("for_business"),
+            },
+            {
+                "title": "Баннер личного кабинета",
+                "field_name": "dashboard_hero_image",
+                "location": "Фоновое изображение в шапке личного кабинета (дашборда)",
+                "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
+                "file": get_file_info(site.dashboard_hero_image, "img/banners/owner-dashboard-hero.webp"),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("account_profile"),
+            },
+            {
+                "title": "Картинка пустого результата",
+                "field_name": "empty_results_image",
+                "location": "Отображается, когда ничего не найдено по поиску/фильтру",
+                "size_hint": "PNG/WebP, 600×400 px, до 500 KB",
+                "file": get_file_info(site.empty_results_image, "img/banners/listing-placeholder.webp"),
+                "edit_url": reverse("admin:catalog_siteemptystatesettings_changelist"),
+                "preview_url": reverse("place_list"),
             },
         ]
+
+        # Галереи
+        galleries_qs = list(SiteGalleryImage.objects.all().order_by("placement", "order", "id"))
+        
+        # Группируем
+        hero_gallery = []
+        partners_gallery = []
+        for img in galleries_qs:
+            info = {
+                "id": img.id,
+                "title": img.title_i18n(),
+                "file": get_file_info(img.image),
+                "edit_url": reverse("admin:catalog_sitegalleryimage_change", args=[img.id]),
+                "delete_url": reverse("admin:catalog_sitegalleryimage_delete", args=[img.id]),
+            }
+            if img.placement == SiteGalleryImage.PLACEMENT_HOME_HERO:
+                hero_gallery.append(info)
+            elif img.placement == SiteGalleryImage.PLACEMENT_HOME_PARTNERS:
+                partners_gallery.append(info)
+
+        galleries = []
+        if hero_gallery or not partners_gallery: # Показываем hero по умолчанию, даже если пусто
+            galleries.append({
+                "title": "Hero-слайдер",
+                "placement": SiteGalleryImage.PLACEMENT_HOME_HERO,
+                "add_url": reverse("admin:catalog_sitegalleryimage_add") + f"?placement={SiteGalleryImage.PLACEMENT_HOME_HERO}",
+                "images": hero_gallery,
+                "size_hint": "JPG, PNG или WebP до 2 MB",
+            })
+        if partners_gallery:
+            galleries.append({
+                "title": "Партнёры",
+                "placement": SiteGalleryImage.PLACEMENT_HOME_PARTNERS,
+                "add_url": reverse("admin:catalog_sitegalleryimage_add") + f"?placement={SiteGalleryImage.PLACEMENT_HOME_PARTNERS}",
+                "images": partners_gallery,
+                "size_hint": "PNG или SVG с прозрачным фоном, до 500 KB",
+            })
 
         context = {
             **self.admin_site.each_context(request),
             "title": "Фото для блоков сайта",
             "opts": self.model._meta,
-            "photo_slots": photo_slots,
+            "main_images": main_images,
+            "galleries": galleries,
         }
         return TemplateResponse(request, "admin/catalog/sitegalleryimage/change_list.html", context)
 
@@ -434,9 +562,110 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
             image_url,
         )
 
+    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        context["km_settings_title"] = _("Фото для галереи")
+        context["km_settings_subtitle"] = _("Изображение для слайдеров или партнеров.")
+        context["km_gallery_hub_url"] = reverse("admin:catalog_sitegalleryimage_changelist")
+        return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "ajax-upload/",
+                self.admin_site.admin_view(self.ajax_upload),
+                name="catalog_sitegalleryimage_ajax_upload",
+            ),
+        ]
+        return custom_urls + urls
+
+    def ajax_upload(self, request):
+        if request.method != "POST":
+            return JsonResponse({"success": False, "error": "Only POST requests are allowed"}, status=400)
+        
+        image_file = request.FILES.get("image")
+        placement = request.POST.get("placement")
+        field_name = request.POST.get("field")
+        
+        if not image_file:
+            return JsonResponse({"success": False, "error": "Missing image file"}, status=400)
+            
+        try:
+            from django.template.defaultfilters import filesizeformat
+            import os
+            
+            if field_name:
+                valid_fields = {
+                    "logo", "site_background_image", "home_hero_image", "empty_results_image",
+                    "catalog_hero_image", "about_hero_image", "reviews_hero_image", "for_business_hero_image", "dashboard_hero_image"
+                }
+                if field_name not in valid_fields:
+                    return JsonResponse({"success": False, "error": "Invalid field name"}, status=400)
+                
+                site = SiteSettings.get_solo()
+                setattr(site, field_name, image_file)
+                site.save()
+                
+                # Clear singleton cache
+                from catalog.models.site import clear_singleton_caches
+                clear_singleton_caches()
+                
+                updated_field = getattr(site, field_name)
+                size = filesizeformat(updated_field.size)
+                name = os.path.basename(updated_field.name)
+                
+                return JsonResponse({
+                    "success": True,
+                    "field": field_name,
+                    "file": {
+                        "url": updated_field.url,
+                        "name": name,
+                        "size": size
+                    }
+                })
+                
+            if not placement:
+                return JsonResponse({"success": False, "error": "Missing placement or field parameter"}, status=400)
+                
+            from django.db.models import Max
+            
+            max_order = SiteGalleryImage.objects.filter(placement=placement).aggregate(Max('order'))['order__max']
+            next_order = (max_order or 0) + 1
+            
+            title = os.path.splitext(image_file.name)[0]
+            
+            instance = SiteGalleryImage.objects.create(
+                placement=placement,
+                image=image_file,
+                order=next_order,
+                is_active=True,
+                title_ru=title,
+            )
+            
+            size = filesizeformat(instance.image.size)
+            
+            edit_url = reverse("admin:catalog_sitegalleryimage_change", args=[instance.id])
+            delete_url = reverse("admin:catalog_sitegalleryimage_delete", args=[instance.id])
+            
+            return JsonResponse({
+                "success": True,
+                "id": instance.id,
+                "title": instance.title_ru,
+                "file": {
+                    "url": instance.image.url,
+                    "name": os.path.basename(instance.image.name),
+                    "size": size
+                },
+                "edit_url": edit_url,
+                "delete_url": delete_url,
+            })
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+
 
 @admin.register(CatalogContentSettings)
 class CatalogContentSettingsAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
+    change_form_template = "admin/catalog/shared_settings_change_form.html"
     list_display = ("id", "updated_at")
     readonly_fields = ("updated_at",)
     fieldsets = (
@@ -464,3 +693,8 @@ class CatalogContentSettingsAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        context["km_settings_title"] = _("Контент и SEO")
+        context["km_settings_subtitle"] = _("Настройки фильтров и SEO-данных каталога (JSON).")
+        return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)

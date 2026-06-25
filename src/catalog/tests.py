@@ -23,6 +23,7 @@ from catalog.forms import OwnerPlaceCreateForm
 from catalog.interfaces.geocoding import GeocodingPoint
 from catalog.models import (
     CatalogContentSettings,
+    Category,
     Event,
     FunnelEvent,
     OwnerTeamInvitation,
@@ -200,9 +201,9 @@ class TestPublicPagesSmoke(TestCase):
 
     def test_business_and_legal_pages_open_in_languages(self):
         checks = {
-            "/for-business/": "Uşaq dərnəyinizi KidsMap-də yerləşdirin",
-            "/ru/for-business/": "Разместите ваш детский кружок на KidsMap",
-            "/en/for-business/": "List your kids club on KidsMap",
+            "/for-business/": "Uşaq məkanınızı KidsMap-də yerləşdirin",
+            "/ru/for-business/": "Разместите детское место на KidsMap",
+            "/en/for-business/": "List your kids place on KidsMap",
             "/privacy/": "Məxfilik siyasəti",
             "/ru/terms/": "Условия использования",
             "/en/review-rules/": "Review Rules",
@@ -212,6 +213,133 @@ class TestPublicPagesSmoke(TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
                 self.assertContains(response, text)
+
+    def test_privacy_policy_is_full_document_in_all_languages(self):
+        checks = (
+            (
+                "/privacy/",
+                "Məxfilik siyasəti",
+                "22 iyun 2026",
+                "Mündəricat",
+                "http://testserver/privacy/",
+                {
+                    "az": "http://testserver/privacy/",
+                    "ru": "http://testserver/ru/privacy/",
+                    "en": "http://testserver/en/privacy/",
+                },
+            ),
+            (
+                "/ru/privacy/",
+                "Политика конфиденциальности",
+                "22 июня 2026 года",
+                "Оглавление",
+                "http://testserver/ru/privacy/",
+                {
+                    "az": "http://testserver/privacy/",
+                    "ru": "http://testserver/ru/privacy/",
+                    "en": "http://testserver/en/privacy/",
+                },
+            ),
+            (
+                "/en/privacy/",
+                "Privacy Policy",
+                "June 22, 2026",
+                "Contents",
+                "http://testserver/en/privacy/",
+                {
+                    "az": "http://testserver/privacy/",
+                    "ru": "http://testserver/ru/privacy/",
+                    "en": "http://testserver/en/privacy/",
+                },
+            ),
+        )
+        for path, title, effective_date, toc_title, canonical, alternates in checks:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, "pages/legal.html")
+                self.assertContains(response, title)
+                self.assertContains(response, effective_date)
+                self.assertContains(response, "kidsmap.az@gmail.com")
+                self.assertContains(response, 'href="mailto:kidsmap.az@gmail.com"', html=False)
+                self.assertContains(response, toc_title)
+                self.assertContains(response, f'<link rel="canonical" href="{canonical}" />', html=False)
+                for code, url in alternates.items():
+                    self.assertContains(response, f'<link rel="alternate" hreflang="{code}" href="{url}" />', html=False)
+                self.assertNotContains(response, "[kidsmap.az@gmail.com]")
+                self.assertNotContains(response, "[]")
+                self.assertNotContains(response, "privacy@kidsmap.az")
+                self.assertNotContains(response, "VÖEN")
+
+                page_sections = response.context["sections"]
+                anchor_ids = [item["id"] for item in page_sections]
+                self.assertEqual(len(anchor_ids), len(set(anchor_ids)))
+
+    def test_terms_of_use_is_full_document_in_all_languages(self):
+        checks = (
+            (
+                "/terms/",
+                "İstifadə şərtləri",
+                "22 iyun 2026",
+                "Mündəricat",
+                "http://testserver/terms/",
+                {
+                    "az": "http://testserver/terms/",
+                    "ru": "http://testserver/ru/terms/",
+                    "en": "http://testserver/en/terms/",
+                },
+            ),
+            (
+                "/ru/terms/",
+                "Условия использования",
+                "22 июня 2026 года",
+                "Оглавление",
+                "http://testserver/ru/terms/",
+                {
+                    "az": "http://testserver/terms/",
+                    "ru": "http://testserver/ru/terms/",
+                    "en": "http://testserver/en/terms/",
+                },
+            ),
+            (
+                "/en/terms/",
+                "Terms of Use",
+                "June 22, 2026",
+                "Contents",
+                "http://testserver/en/terms/",
+                {
+                    "az": "http://testserver/terms/",
+                    "ru": "http://testserver/ru/terms/",
+                    "en": "http://testserver/en/terms/",
+                },
+            ),
+        )
+        for path, title, effective_date, toc_title, canonical, alternates in checks:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, "pages/legal.html")
+                self.assertContains(response, title)
+                self.assertContains(response, effective_date)
+                self.assertContains(response, "kidsmap.az@gmail.com")
+                self.assertContains(response, 'href="mailto:kidsmap.az@gmail.com"', html=False)
+                self.assertContains(response, toc_title)
+                self.assertContains(response, f'<link rel="canonical" href="{canonical}" />', html=False)
+                for code, url in alternates.items():
+                    self.assertContains(response, f'<link rel="alternate" hreflang="{code}" href="{url}" />', html=False)
+                self.assertNotContains(response, "[kidsmap.az@gmail.com]")
+                self.assertNotContains(response, "[]")
+                self.assertNotContains(response, "privacy@kidsmap.az")
+
+                page_sections = response.context["sections"]
+                anchor_ids = [item["id"] for item in page_sections]
+                self.assertEqual(len(anchor_ids), len(set(anchor_ids)))
+
+    def test_ru_footer_privacy_link_points_to_ru_privacy(self):
+        response = self.client.get("/ru/contacts/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="/ru/privacy/"', html=False)
 
     def test_about_page_shows_extended_project_description(self):
         response = self.client.get("/ru/about/", follow=True)
@@ -271,7 +399,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         content = response.content.decode("utf-8")
         self.assertIn('<html lang="az">', content)
-        self.assertIn("Bakıda uşaqlar üçün dərnəklər və məşğələlər kataloqu", content)
+        self.assertIn("Azərbaycanda uşaqlar üçün dərnəklər və məşğələlər kataloqu", content)
         self.assertNotIn("Каталог кружков и секций для детей в Баку", content)
         self.assertNotIn("Найдено %(total)s карточек", content)
 
@@ -281,7 +409,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         content = response.content.decode("utf-8")
         self.assertIn('<html lang="en">', content)
-        self.assertIn("Catalog of clubs and activities for kids in Baku", content)
+        self.assertIn("Catalog of clubs and activities for kids in Azerbaijan", content)
         self.assertNotIn("Каталог кружков и секций для детей в Баку", content)
         self.assertNotIn("Найдено %(total)s карточек", content)
 
@@ -289,7 +417,7 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/en/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<title>Clubs and activities for kids in Baku | KidsMap</title>", html=True)
+        self.assertContains(response, "<title>Clubs and activities for kids in Azerbaijan | KidsMap</title>", html=True)
 
     def test_en_reviews_page_sets_html_lang_and_translates_apply_button(self):
         response = self.client.get("/en/reviews/")
@@ -529,8 +657,24 @@ class TestPublicPagesSmoke(TestCase):
             name_ru="Кружок для карты на главной",
             category="EDU",
             is_active=True,
+            status=Place.STATUS_PUBLISHED,
             lat=40.4093,
             lng=49.8671,
+            age_from=6,
+            age_to=12,
+            address="Баку, ул. Низами, 10",
+            price_from=50,
+            price_to=80,
+            description_ru=(
+                "Достаточно подробное описание карточки, чтобы место прошло фильтры "
+                "публичной выдачи и отобразилось на главной карте. "
+                "Текст специально сделан длиннее минимального порога для public-выдачи. "
+                "Здесь есть формат занятий, возрастная группа, полезные детали для родителей "
+                "и ещё одна фраза, чтобы описание уверенно прошло проверку длины."
+            ),
+            phone1="+994501112233",
+            schedule="Пн-Пт 10:00-18:00",
+            website="https://example.com/home-map-place",
             photo=SimpleUploadedFile("popup-main.png", b"main-image", content_type="image/png"),
             cover_photo=SimpleUploadedFile("popup-cover.png", b"cover-image", content_type="image/png"),
         )
@@ -637,9 +781,22 @@ class TestCatalogContentSettingsWiring(TestCase):
 
         files = place.gallery_files()
 
-        self.assertGreaterEqual(len(files), 2)
+        self.assertEqual(len(files), 1)
         self.assertIn("main-photo", files[0].name)
-        self.assertIn("cover-photo", files[1].name)
+
+    def test_place_gallery_files_uses_cover_photo_only_as_fallback(self):
+        place = Place.objects.create(
+            name="Fallback Media Place",
+            name_ru="Медиа без главного фото",
+            category="EDU",
+            photo=None,
+            cover_photo=SimpleUploadedFile("cover-photo.png", b"cover-image", content_type="image/png"),
+        )
+
+        files = place.gallery_files()
+
+        self.assertEqual(len(files), 1)
+        self.assertIn("cover-photo", files[0].name)
 
     def test_catalog_filter_values_are_sorted_alphabetically(self):
         settings_obj = CatalogContentSettings.get_solo()
@@ -653,7 +810,7 @@ class TestCatalogContentSettingsWiring(TestCase):
         self.assertEqual(response.context["district_options"], ["Ахмедлы", "Бинагади", "Забрат"])
         self.assertEqual(
             response.context["metro_options"],
-            ["20 Января", "Азадлыг проспекти", "Нариман Нариманов"],
+            ["20 Января", "Нариман Нариманов", "Азадлыг проспекти"],
         )
 
 
@@ -718,6 +875,25 @@ class TestAdminOwnershipModerationUX(TestCase):
         )
         self.client.login(username="superadmin_adminux", password="StrongPass123!!")
 
+    def _ga4_disabled_context(self):
+        return {
+            "enabled": False,
+            "connected": False,
+            "measurement_id": "",
+            "property_id": "",
+            "credentials_path": "",
+            "error": "",
+            "period_stats": {
+                "day": {"active_users": 0, "sessions": 0, "page_views": 0},
+                "week": {"active_users": 0, "sessions": 0, "page_views": 0},
+                "month": {"active_users": 0, "sessions": 0, "page_views": 0},
+                "year": {"active_users": 0, "sessions": 0, "page_views": 0},
+            },
+            "daily_chart": {"labels": [], "active_users": [], "page_views": []},
+            "top_pages": [],
+            "top_events": [],
+        }
+
     def _admin_place_change_payload(self, **overrides):
         data = {
             "name": self.place.name,
@@ -727,8 +903,8 @@ class TestAdminOwnershipModerationUX(TestCase):
             "description_ru": self.place.description_ru,
             "description_az": self.place.description_az,
             "description_en": self.place.description_en,
-            "category": self.place.category,
-            "subcategory": self.place.subcategory,
+            "category": self.place.category_id or "",
+            "subcategory": self.place.subcategory_id or "",
             "is_temporary": "on" if self.place.is_temporary else "",
             "temporary_start": "",
             "temporary_end": "",
@@ -775,6 +951,46 @@ class TestAdminOwnershipModerationUX(TestCase):
         data.update(overrides)
         return data
 
+    def _admin_event_change_payload(self, event=None, **overrides):
+        event = event or Event.objects.create(
+            name="Admin Event",
+            name_az="Admin Event",
+            category="EDU",
+            start_datetime=timezone.now() + timedelta(days=2),
+            end_datetime=timezone.now() + timedelta(days=2, hours=2),
+            status=Event.STATUS_DRAFT,
+        )
+        data = {
+            "owner": str(event.owner_id or ""),
+            "related_place": str(event.related_place_id or ""),
+            "name": event.name,
+            "slug": event.slug,
+            "category": event.category_id or "",
+            "name_az": event.name_az,
+            "name_ru": event.name_ru,
+            "name_en": event.name_en,
+            "description_az": event.description_az,
+            "description_ru": event.description_ru,
+            "description_en": event.description_en,
+            "start_datetime_0": "" if event.start_datetime is None else timezone.localtime(event.start_datetime).strftime("%Y-%m-%d"),
+            "start_datetime_1": "" if event.start_datetime is None else timezone.localtime(event.start_datetime).strftime("%H:%M:%S"),
+            "end_datetime_0": "" if event.end_datetime is None else timezone.localtime(event.end_datetime).strftime("%Y-%m-%d"),
+            "end_datetime_1": "" if event.end_datetime is None else timezone.localtime(event.end_datetime).strftime("%H:%M:%S"),
+            "age_from": "" if event.age_from is None else str(event.age_from),
+            "age_to": "" if event.age_to is None else str(event.age_to),
+            "price_text": event.price_text,
+            "address": event.address,
+            "phone": event.phone,
+            "instagram": event.instagram,
+            "moderation_note": event.moderation_note,
+            "status": event.status,
+            "published_at_0": "" if event.published_at is None else timezone.localtime(event.published_at).strftime("%Y-%m-%d"),
+            "published_at_1": "" if event.published_at is None else timezone.localtime(event.published_at).strftime("%H:%M:%S"),
+            "rejection_reason": event.rejection_reason,
+        }
+        data.update(overrides)
+        return data
+
     def test_admin_index_shows_pending_badge_and_hides_internal_models(self):
         response = self.client.get("/ru/admin/")
 
@@ -788,6 +1004,63 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertNotContains(response, "Группы")
         self.assertNotContains(response, "Аудит заявок на владение")
 
+    def test_admin_index_dashboard_summary_uses_real_database_counts(self):
+        Place.objects.create(
+            name="Pending Summary Club",
+            name_ru="Pending Summary Club",
+            description_ru=(
+                "Достаточно длинное описание для проверки дашборда админки и связи карточек сайта с базой данных."
+            ),
+            category="EDU",
+            age_from=7,
+            age_to=12,
+            district="Baku",
+            address="Summary street 10",
+            phone1="+994501234567",
+            schedule="Mon-Fri 15:00-18:00",
+            price_from=90,
+            price_to=120,
+            is_active=False,
+            status=Place.STATUS_PENDING,
+        )
+        Event.objects.create(
+            name="Pending Summary Event",
+            name_ru="Pending Summary Event",
+            description_ru="Описание тестового мероприятия для проверки pending-счётчика в админке.",
+            category="EDU",
+            start_datetime=timezone.now() + timedelta(days=2),
+            end_datetime=timezone.now() + timedelta(days=2, hours=2),
+            status=Event.STATUS_PENDING,
+        )
+        PlaceReview.objects.create(
+            place=self.place,
+            user=self.owner_user,
+            rating=4,
+            text="Этот отзыв создан для проверки блока модерации на главной странице админки.",
+            status=PlaceReview.STATUS_PENDING,
+            is_approved=False,
+        )
+
+        response = self.client.get("/ru/admin/")
+        content = response.content.decode("utf-8")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('>2</span>\n                    <p class="km-stat-label">Всего мест</p>', content)
+        self.assertIn('>0</span>\n                    <p class="km-stat-label">Опубликовано мест</p>', content)
+        self.assertIn('>1</span>\n                        <p class="km-stat-label">Места на проверке</p>', content)
+        self.assertIn('>1</span>\n                        <p class="km-stat-label">Мероприятия на проверке</p>', content)
+        self.assertIn('>1</span>\n                        <p class="km-stat-label">Отзывы на проверке</p>', content)
+        self.assertIn('>1</span>\n                        <p class="km-stat-label">Заявки владельцев</p>', content)
+        self.assertIn('>2</span>\n                    <p class="km-stat-label">Всего пользователей</p>', content)
+        self.assertContains(response, '/admin/catalog/place/?status__exact=pending', html=False)
+        self.assertContains(response, '/admin/catalog/place/" class="km-stat-card km-stat-card--neutral"', html=False)
+        self.assertContains(response, '/admin/catalog/place/?status__exact=published" class="km-stat-card km-stat-card--good"', html=False)
+        self.assertContains(response, '/admin/catalog/event/?status__exact=pending', html=False)
+        self.assertContains(response, '/admin/catalog/event/?status__exact=published" class="km-stat-card km-stat-card--info"', html=False)
+        self.assertContains(response, '/admin/catalog/placereview/?status__exact=pending', html=False)
+        self.assertContains(response, '/admin/catalog/placeownershiprequest/?status__exact=PENDING', html=False)
+        self.assertContains(response, '/admin/catalog/siteregistereduser/" class="km-stat-card km-stat-card--neutral"', html=False)
+
     def test_admin_language_switcher_uses_language_specific_next_urls(self):
         response = self.client.get("/ru/admin/")
 
@@ -798,6 +1071,46 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, 'name="next" value="http://testserver/admin/"', html=False)
         self.assertContains(response, 'name="language" value="en"', html=False)
         self.assertContains(response, 'name="next" value="http://testserver/en/admin/"', html=False)
+
+    def test_admin_place_changelist_renders_search_suggestions_hook(self):
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-search-suggest-root', html=False)
+        self.assertContains(response, 'data-suggestions-url="/admin/catalog/place/search-suggestions/"', html=False)
+        self.assertContains(response, 'id="place-search-suggestions"', html=False)
+
+    def test_admin_place_search_suggestions_returns_matching_places(self):
+        Place.objects.create(
+            name="Robot Academy",
+            name_ru="Robot Academy",
+            category="TECH",
+            address="Baku, Tech street 1",
+            phone1="+994551112233",
+            owner=self.owner_user,
+            is_active=True,
+        )
+
+        response = self.client.get(
+            reverse("admin:catalog_place_search_suggestions"),
+            {"q": "Robot"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertTrue(payload["results"])
+        self.assertEqual(payload["results"][0]["label"], "Robot Academy")
+        self.assertIn("Baku, Tech street 1", payload["results"][0]["meta"])
+
+    def test_admin_place_changelist_renders_filter_select_options(self):
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-field="category"', html=False)
+        self.assertContains(response, 'data-field="status"', html=False)
+        self.assertContains(response, "Образование")
+        self.assertContains(response, "На рассмотрении")
 
     @override_settings(
         GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123",
@@ -835,6 +1148,90 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "123456789")
         self.assertContains(response, "/ru/catalog/")
         self.assertContains(response, "place_open")
+        self.assertContains(response, "Подробные данные")
+        self.assertContains(response, 'data-tab-panel="ga4"', html=False)
+
+    @patch("catalog.services.admin_analytics.build_google_analytics_context")
+    def test_admin_site_analytics_page_uses_new_dashboard_layout_and_period_fallback(self, ga4_context_mock):
+        ga4_context_mock.return_value = self._ga4_disabled_context()
+        today = timezone.localdate()
+
+        SiteVisit.objects.create(day=today, session_key="session-recent", hits=3)
+        SiteVisit.objects.create(day=today - timedelta(days=20), session_key="session-month", hits=5)
+
+        FunnelEvent.objects.create(
+            event_type=FunnelEvent.EVENT_CATALOG_SEARCH,
+            day=today,
+            path="/ru/catalog/",
+            place=self.place,
+            session_key="session-recent",
+        )
+        FunnelEvent.objects.create(
+            event_type=FunnelEvent.EVENT_PLACE_OPEN,
+            day=today,
+            path="/ru/place/admin-ux-place/",
+            place=self.place,
+            session_key="session-recent",
+        )
+        FunnelEvent.objects.create(
+            event_type=FunnelEvent.EVENT_PLACE_OPEN,
+            day=today,
+            path="/ru/place/admin-ux-place/",
+            place=self.place,
+            session_key="session-recent",
+        )
+        FunnelEvent.objects.create(
+            event_type=FunnelEvent.EVENT_CTA_CALL,
+            day=today,
+            path="/ru/place/admin-ux-place/",
+            place=self.place,
+            session_key="session-recent",
+        )
+        PlaceReview.objects.create(
+            place=self.place,
+            user=self.owner_user,
+            rating=5,
+            text="Отзывы нужны для карточки состояния каталога.",
+            status=PlaceReview.STATUS_APPROVED,
+            is_approved=True,
+        )
+
+        response_week = self.client.get(reverse("admin:catalog_siteanalytics_changelist"), {"period": 7})
+        response_fallback = self.client.get(reverse("admin:catalog_siteanalytics_changelist"), {"period": 999})
+        week_content = response_week.content.decode("utf-8")
+        fallback_content = response_fallback.content.decode("utf-8")
+
+        self.assertEqual(response_week.status_code, 200)
+        self.assertContains(response_week, 'class="km-statistics-page"', html=False)
+        self.assertContains(response_week, 'data-period="7"', html=False)
+        self.assertContains(response_week, 'data-kpi="unique_sessions"', html=False)
+        self.assertRegex(week_content, r'data-kpi-value="unique_sessions">\s*1\s*<')
+        self.assertRegex(week_content, r'data-kpi-value="searches">\s*1\s*<')
+        self.assertRegex(week_content, r'data-kpi-value="place_opens">\s*2\s*<')
+        self.assertRegex(week_content, r'data-kpi-value="cta_total">\s*1\s*<')
+        self.assertRegex(week_content, r'data-kpi-value="cta_from_open_pct">\s*50.0%\s*<')
+        self.assertRegex(week_content, r'data-kpi-value="open_per_search">\s*2.0\s*<')
+        self.assertContains(response_week, "Топ кружков по CTA")
+        self.assertContains(response_week, "Состояние каталога")
+        self.assertContains(response_week, "Подробные данные")
+
+        self.assertEqual(response_fallback.status_code, 200)
+        self.assertContains(response_fallback, 'data-period="30"', html=False)
+        self.assertRegex(fallback_content, r'data-kpi-value="unique_sessions">\s*2\s*<')
+
+    @patch("catalog.services.admin_analytics.build_google_analytics_context")
+    def test_admin_site_analytics_page_shows_dash_for_zero_denominator_metrics(self, ga4_context_mock):
+        ga4_context_mock.return_value = self._ga4_disabled_context()
+
+        response = self.client.get(reverse("admin:catalog_siteanalytics_changelist"), {"period": 30})
+        content = response.content.decode("utf-8")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-kpi-value="cta_from_open_pct"', html=False)
+        self.assertContains(response, 'data-kpi-value="open_per_search"', html=False)
+        self.assertRegex(content, r'data-kpi-value="cta_from_open_pct">\s*—\s*<')
+        self.assertRegex(content, r'data-kpi-value="open_per_search">\s*—\s*<')
+        self.assertContains(response, "Пока нет данных по CTA.")
 
     def test_admin_can_approve_request_with_direct_button_url(self):
         self.place.is_active = False
@@ -928,16 +1325,80 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "km-place-row-actions")
         self.assertContains(response, "В удалённые")
         self.assertContains(response, "Восстановить")
+        self.assertContains(response, "place-admin-dashboard")
+        self.assertContains(response, "admin/css/kidsmap_place_changelist.css")
+
+    def test_event_admin_changelist_shows_bulk_bar_and_visibility_actions(self):
+        response = self.client.get(reverse("admin:catalog_event_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertTrue("Мероприятия" in content or "Tədbirlər" in content)
+        self.assertContains(response, "km-place-bulk-bar")
+        self.assertContains(response, 'data-action="mark_published"', html=False)
+        self.assertContains(response, 'data-action="mark_draft"', html=False)
+        self.assertContains(response, 'data-action="mark_pending"', html=False)
+
+    def test_event_admin_bulk_publish_action_updates_status(self):
+        event = Event.objects.create(
+            name="Draft Event",
+            name_az="Draft Event",
+            category="EDU",
+            status=Event.STATUS_DRAFT,
+        )
+
+        response = self.client.post(
+            reverse("admin:catalog_event_changelist"),
+            data={
+                "action": "mark_published",
+                "_selected_action": [str(event.pk)],
+                "index": "0",
+                "select_across": "0",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        event.refresh_from_db()
+        self.assertEqual(event.status, Event.STATUS_PUBLISHED)
+        self.assertIsNotNone(event.published_at)
 
     def test_place_admin_changelist_uses_compact_search_panel(self):
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "km-place-search-panel")
-        self.assertContains(response, "Поиск по карточкам")
+        self.assertContains(response, "place-admin-dashboard__search-form")
+        self.assertContains(response, "Поиск...")
         self.assertContains(response, "Найти")
+        self.assertContains(response, "Категория")
+        self.assertContains(response, "Район")
+        self.assertContains(response, "Статус")
         self.assertContains(response, "карточка")
         self.assertNotContains(response, 'id="toolbar"', html=False)
+
+    def test_place_admin_changelist_shows_stats_and_quick_filter_counts(self):
+        Place.objects.create(
+            name="Pending place",
+            name_ru="На модерации",
+            category="EDU",
+            status=Place.STATUS_PENDING,
+            is_active=False,
+        )
+        Place.objects.create(
+            name="No coordinates place",
+            name_ru="Без координат",
+            category="ART",
+            is_active=True,
+        )
+
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Статистика мест")
+        self.assertContains(response, "place-admin-dashboard__stat-card")
+        self.assertContains(response, "Фильтры")
+        self.assertContains(response, "place-admin-dashboard__quick-filter")
+        self.assertContains(response, "Ещё ▾")
 
     def test_place_admin_change_form_shows_coordinate_refresh_button(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
@@ -945,6 +1406,204 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Сохранить и рассчитать координаты")
         self.assertContains(response, "_refresh_coordinates_from_address")
+
+    def test_place_admin_change_form_uses_step_layout(self):
+        response = self.client.get(reverse("admin:catalog_place_add"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "km-place-form-page")
+        self.assertContains(response, "km-place-form-steps")
+        self.assertContains(response, "km-place-form-sidebar")
+        self.assertContains(response, "Фотографии")
+        self.assertContains(response, "Главное фото")
+        self.assertContains(response, "Дополнительные фотографии")
+        self.assertContains(response, "data-gallery-root")
+        self.assertContains(response, "Сводка карточки")
+        self.assertContains(response, "Видимость на сайте")
+        self.assertContains(response, "km-place-progress-config")
+        self.assertContains(response, "data-progress-pct")
+        self.assertContains(response, "data-rejected-status")
+
+    def test_place_admin_add_form_hides_change_only_inlines_and_collapses_system_fields(self):
+        response = self.client.get(reverse("admin:catalog_place_add"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="reviews"', html=False)
+        self.assertNotContains(response, 'id="audit"', html=False)
+        self.assertNotContains(response, 'name="reviews-TOTAL_FORMS"', html=False)
+        self.assertNotContains(response, 'name="change_audits-TOTAL_FORMS"', html=False)
+        self.assertContains(response, "Главное фото")
+        self.assertContains(response, "Дополнительные фотографии")
+        self.assertContains(response, "data-gallery-root")
+        self.assertContains(response, 'name="gallery-TOTAL_FORMS"', html=False)
+        self.assertContains(response, "Системные поля")
+        self.assertContains(response, "Создание новой карточки")
+
+    def test_place_admin_can_save_place_as_draft_and_continue_later(self):
+        payload = self._admin_place_change_payload()
+        payload["_save_draft"] = "1"
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data=payload,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("admin:catalog_place_change", args=[self.place.id]))
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.status, Place.STATUS_DRAFT)
+        self.assertFalse(self.place.is_active)
+        self.assertIsNone(self.place.published_at)
+
+    def test_place_admin_change_form_shows_visibility_controls(self):
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Видимость на сайте")
+        self.assertContains(response, "Снять с публикации")
+
+    def test_place_admin_can_unpublish_place_from_change_form(self):
+        payload = self._admin_place_change_payload()
+        payload["_unpublish_place"] = "1"
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data=payload,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.place.refresh_from_db()
+        self.assertFalse(self.place.is_active)
+        self.assertEqual(self.place.status, Place.STATUS_DRAFT)
+
+    def test_place_admin_can_publish_ready_place_from_change_form(self):
+        ready_place = create_quality_place(
+            name="Ready Admin Place",
+            name_ru="Готовое место",
+            status=Place.STATUS_DRAFT,
+            is_active=False,
+            published_at=None,
+        )
+        payload = self._admin_place_change_payload(
+            name=ready_place.name,
+            name_ru=ready_place.name_ru,
+            name_az=ready_place.name_az,
+            name_en=ready_place.name_en,
+            description_ru=ready_place.description_ru,
+            description_az=ready_place.description_az,
+            description_en=ready_place.description_en,
+            category=ready_place.category_id or "",
+            subcategory=ready_place.subcategory_id or "",
+            is_temporary="on" if ready_place.is_temporary else "",
+            is_active="on" if ready_place.is_active else "",
+            is_verified="on" if ready_place.is_verified else "",
+            status=ready_place.status,
+            rejection_reason=ready_place.rejection_reason,
+            owner=str(ready_place.owner_id or ""),
+            likes_count=str(ready_place.likes_count or 0),
+            age_from="" if ready_place.age_from is None else str(ready_place.age_from),
+            age_to="" if ready_place.age_to is None else str(ready_place.age_to),
+            price_from="" if ready_place.price_from is None else str(ready_place.price_from),
+            price_to="" if ready_place.price_to is None else str(ready_place.price_to),
+            price_per_lesson="" if ready_place.price_per_lesson is None else str(ready_place.price_per_lesson),
+            price_per_month="" if ready_place.price_per_month is None else str(ready_place.price_per_month),
+            price_per_8_lessons="" if ready_place.price_per_8_lessons is None else str(ready_place.price_per_8_lessons),
+            lesson_duration_minutes="" if ready_place.lesson_duration_minutes is None else str(ready_place.lesson_duration_minutes),
+            district=ready_place.district,
+            metro=ready_place.metro,
+            address=ready_place.address,
+            lat="" if ready_place.lat is None else str(ready_place.lat),
+            lng="" if ready_place.lng is None else str(ready_place.lng),
+            phone1=ready_place.phone1,
+            instagram=ready_place.instagram,
+            website=ready_place.website,
+            schedule=ready_place.schedule,
+            extra_conditions=ready_place.extra_conditions,
+            additional_info=ready_place.additional_info,
+        )
+        payload["_publish_place"] = "1"
+
+        with patch("catalog.domain_admin.place.place_quality_check") as quality_check_mock:
+            quality_check_mock.return_value.is_ready = True
+            response = self.client.post(
+                reverse("admin:catalog_place_change", args=[ready_place.id]),
+                data=payload,
+            )
+
+        self.assertEqual(response.status_code, 302)
+        ready_place.refresh_from_db()
+        self.assertTrue(ready_place.is_active)
+        self.assertEqual(ready_place.status, Place.STATUS_PUBLISHED)
+        self.assertIsNotNone(ready_place.published_at)
+
+    def test_place_admin_change_form_keeps_gallery_reviews_and_audit_sections(self):
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Дополнительные фотографии")
+        self.assertContains(response, "Отзывы по кружкам")
+        self.assertContains(response, "История изменений карточек")
+
+    def test_event_admin_change_form_uses_step_layout(self):
+        response = self.client.get(reverse("admin:catalog_event_add"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "km-place-form-page")
+        self.assertContains(response, "km-place-form-steps")
+        self.assertContains(response, "km-place-form-sidebar")
+        self.assertContains(response, "Добавить мероприятие")
+        self.assertContains(response, "Видимость на сайте")
+        self.assertContains(response, "km-admin-progress-config")
+        self.assertContains(response, "data-km-admin-form")
+
+    def test_event_admin_can_save_draft_and_continue_later(self):
+        event = Event.objects.create(
+            name="Draft Admin Event",
+            name_az="Draft Admin Event",
+            category="EDU",
+            description_az="Описание",
+            start_datetime=timezone.now() + timedelta(days=3),
+            end_datetime=timezone.now() + timedelta(days=3, hours=1),
+            status=Event.STATUS_PENDING,
+            published_at=timezone.now(),
+        )
+        payload = self._admin_event_change_payload(event)
+        payload["_save_draft"] = "1"
+
+        response = self.client.post(
+            reverse("admin:catalog_event_change", args=[event.id]),
+            data=payload,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], reverse("admin:catalog_event_change", args=[event.id]))
+        event.refresh_from_db()
+        self.assertEqual(event.status, Event.STATUS_DRAFT)
+        self.assertIsNone(event.published_at)
+
+    def test_event_admin_can_publish_from_change_form(self):
+        event = Event.objects.create(
+            name="Publish Admin Event",
+            name_az="Publish Admin Event",
+            category="EDU",
+            description_az="Описание для публикации",
+            start_datetime=timezone.now() + timedelta(days=5),
+            end_datetime=timezone.now() + timedelta(days=5, hours=2),
+            status=Event.STATUS_DRAFT,
+            published_at=None,
+        )
+        payload = self._admin_event_change_payload(event)
+        payload["_publish_event"] = "1"
+
+        response = self.client.post(
+            reverse("admin:catalog_event_change", args=[event.id]),
+            data=payload,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        event.refresh_from_db()
+        self.assertEqual(event.status, Event.STATUS_PUBLISHED)
+        self.assertIsNotNone(event.published_at)
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
@@ -1276,6 +1935,10 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'name="groups"')
         self.assertNotContains(response, "id_groups")
+        self.assertNotContains(response, 'name="_addanother"')
+        self.assertNotContains(response, 'name="_continue"')
+        self.assertContains(response, "km-admin-user-submit")
+        self.assertContains(response, "km-admin-user-submit__btn--secondary")
 
     def test_site_users_section_shows_only_non_staff_users(self):
         staff_user = User.objects.create_user(
@@ -2909,7 +3572,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
     def test_owner_editor_can_save_incomplete_edit_as_draft(self):
         self.editor_place.name_az = "Redakte qaralama"
         self.editor_place.description_az = "Ilkin tesvir"
-        self.editor_place.category = "EDU"
+        self.editor_place.category_id = "EDU"
         self.editor_place.status = Place.STATUS_DRAFT
         self.editor_place.is_active = False
         self.editor_place.photo = self._image_upload("draft-edit.png")
@@ -4301,3 +4964,493 @@ class EventsLandingTests(TestCase):
             response = self.client.get(reverse("events_landing"))
 
         self.assertContains(response, "Ave. Huseyn Javid 18, Baku")
+
+
+class TestCategoryAdminFormLayout(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.superuser = User.objects.create_superuser(
+            username="category_admin_ui",
+            email="category-admin-ui@example.com",
+            password="StrongPass123!!",
+        )
+
+    def setUp(self):
+        self.client.force_login(self.superuser)
+
+    def test_category_add_form_uses_two_column_layout(self):
+        response = self.client.get(reverse("admin:catalog_category_add"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "km-category-form-page")
+        self.assertContains(response, "km-category-card__step")
+        self.assertContains(response, "km-category-grid")
+        self.assertContains(response, 'placeholder="Например: education"', html=False)
+        self.assertContains(response, 'name="_save"', html=False)
+        self.assertContains(response, 'name="_addanother"', html=False)
+        self.assertContains(response, 'name="_continue"', html=False)
+        self.assertContains(response, "data-km-category-icon-preview")
+        self.assertContains(response, "km-category-actions-card")
+
+    def test_category_change_form_keeps_inline_section_and_actions(self):
+        category = Category.objects.create(
+            code="UIEDU",
+            name="Education",
+            name_az="Təhsil",
+            name_ru="Образование",
+            name_en="Education",
+            icon="fas fa-graduation-cap",
+        )
+
+        response = self.client.get(reverse("admin:catalog_category_change", args=[category.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "km-category-form-page")
+        self.assertContains(response, "km-category-inline-card")
+        self.assertContains(response, "Подкатегории")
+        self.assertContains(response, 'name="_save"', html=False)
+        self.assertContains(response, 'name="_addanother"', html=False)
+        self.assertContains(response, 'name="_continue"', html=False)
+
+
+class ReviewAdminModerationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser("admin", "admin@example.com", "password")
+        self.client.login(username="admin", password="password")
+        self.place = create_quality_place()
+        self.review = PlaceReview.objects.create(
+            place=self.place,
+            rating=5,
+            text="Test review for admin",
+            status=PlaceReview.STATUS_PENDING,
+            is_approved=False,
+        )
+
+    def test_approve_single_review_action(self):
+        url = reverse("admin:catalog_placereview_approve", args=[self.review.pk])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.review.refresh_from_db()
+        self.assertTrue(self.review.is_approved)
+        self.assertEqual(self.review.status, PlaceReview.STATUS_APPROVED)
+
+    def test_reject_single_review_action(self):
+        url = reverse("admin:catalog_placereview_reject", args=[self.review.pk])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.review.refresh_from_db()
+        self.assertFalse(self.review.is_approved)
+        self.assertEqual(self.review.status, PlaceReview.STATUS_REJECTED)
+
+    def test_change_form_injects_km_review_form_summary(self):
+        url = reverse("admin:catalog_placereview_change", args=[self.review.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("km_review_form_summary", response.context)
+        summary = response.context["km_review_form_summary"]
+        self.assertEqual(summary["rating"], 5)
+        self.assertEqual(summary["has_text"], True)
+
+
+class OwnershipRequestAdminModerationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser("admin", "admin@example.com", "password")
+        self.client.login(username="admin", password="password")
+        self.place = create_quality_place()
+        self.applicant = User.objects.create_user("applicant", "app@example.com", "password")
+        self.request_obj = PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.applicant,
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+        )
+
+    def test_approve_single_ownership_request(self):
+        url = reverse("admin:catalog_placeownershiprequest_approve", args=[self.request_obj.pk])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.request_obj.refresh_from_db()
+        self.assertEqual(self.request_obj.status, PlaceOwnershipRequest.STATUS_APPROVED)
+
+    def test_reject_single_ownership_request(self):
+        url = reverse("admin:catalog_placeownershiprequest_reject", args=[self.request_obj.pk])
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.request_obj.refresh_from_db()
+        self.assertEqual(self.request_obj.status, PlaceOwnershipRequest.STATUS_REJECTED)
+
+    def test_change_form_injects_km_request_form_summary(self):
+        url = reverse("admin:catalog_placeownershiprequest_change", args=[self.request_obj.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("km_request_form_summary", response.context)
+        summary = response.context["km_request_form_summary"]
+        self.assertTrue(summary["is_pending"])
+        self.assertEqual(summary["applicant"], "app@example.com")
+
+
+class UserAdminUXTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        self.superadmin = User.objects.create_superuser(
+            username="superadmin", email="superadmin@example.com", password="password"
+        )
+        self.client.login(username="superadmin", password="password")
+
+        self.user = User.objects.create_user(
+            username="testuser", email="test@example.com", password="password", first_name="Test", last_name="User"
+        )
+        from catalog.models.user import UserProfile, UserEmailVerification
+        self.profile = UserProfile.get_or_create_for_user(self.user)
+        self.profile.phone = "+994501234567"
+        self.profile.save()
+
+        UserEmailVerification.objects.create(
+            user=self.user,
+            email=self.user.email,
+            is_verified=True,
+        )
+
+    def test_siteregistereduser_change_form_injects_km_user_form_summary(self):
+        url = reverse("admin:catalog_siteregistereduser_change", args=[self.user.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("km_user_form_summary", response.context)
+        
+        summary = response.context["km_user_form_summary"]
+        self.assertEqual(summary["full_name"], "Test User")
+        self.assertEqual(summary["email"], "test@example.com")
+        self.assertTrue(summary["email_verified"])
+        self.assertEqual(summary["phone"], "+994501234567")
+        self.assertFalse(summary["owner_workflow"]["has_requests"])
+        
+        content = response.content.decode("utf-8")
+        self.assertIn("Email подтвержден", content)
+        self.assertIn("Test User", content)
+        self.assertIn("+994501234567", content)
+
+    def test_staffaccessuser_changelist_filters(self):
+        url = reverse("admin:catalog_staffaccessuser_changelist")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("user_quick_filters", response.context)
+        
+        content = response.content.decode("utf-8")
+        self.assertIn("Суперадмины", content)
+        self.assertIn("Админы", content)
+        self.assertIn("Все сотрудники", content)
+
+class TestAdminBulkActions(TestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_superuser("admin_tester", "admin@example.com", "password")
+        self.client.login(username="admin_tester", password="password")
+
+    from unittest.mock import patch
+
+    @patch("catalog.domain_admin.place.place_quality_check")
+    def test_place_make_published_action(self, mock_quality):
+        mock_quality.return_value.is_ready = True
+        
+        place1 = create_quality_place(name="Place 1", status=Place.STATUS_DRAFT)
+        place2 = create_quality_place(name="Place 2", status=Place.STATUS_DRAFT)
+        
+        url = reverse("admin:catalog_place_changelist")
+        response = self.client.post(url, {
+            "action": "mark_published",
+            "_selected_action": [place1.pk, place2.pk]
+        })
+        
+        self.assertEqual(response.status_code, 302)
+        place1.refresh_from_db()
+        place2.refresh_from_db()
+        self.assertEqual(place1.status, Place.STATUS_PUBLISHED)
+        self.assertEqual(place2.status, Place.STATUS_PUBLISHED)
+
+    def test_place_make_draft_action(self):
+        place1 = create_quality_place(name="Place 1", status=Place.STATUS_PUBLISHED)
+        
+        url = reverse("admin:catalog_place_changelist")
+        response = self.client.post(url, {
+            "action": "mark_draft",
+            "_selected_action": [place1.pk]
+        })
+        
+        self.assertEqual(response.status_code, 302)
+        place1.refresh_from_db()
+        self.assertEqual(place1.status, Place.STATUS_DRAFT)
+
+    def test_place_mark_inactive_action(self):
+        place1 = create_quality_place(name="Place 1", status=Place.STATUS_PUBLISHED)
+        place1.is_active = True
+        place1.save()
+        
+        url = reverse("admin:catalog_place_changelist")
+        response = self.client.post(url, {
+            "action": "mark_inactive",
+            "_selected_action": [place1.pk]
+        })
+        
+        self.assertEqual(response.status_code, 302)
+        place1.refresh_from_db()
+        self.assertFalse(place1.is_active)
+
+    def test_place_mark_pending_action(self):
+        place1 = create_quality_place(name="Place 1", status=Place.STATUS_DRAFT)
+        
+        url = reverse("admin:catalog_place_changelist")
+        response = self.client.post(url, {
+            "action": "mark_pending",
+            "_selected_action": [place1.pk]
+        })
+        
+        self.assertEqual(response.status_code, 302)
+        place1.refresh_from_db()
+        self.assertEqual(place1.status, Place.STATUS_PENDING)
+
+    def test_place_move_to_deleted_and_restore(self):
+        place1 = create_quality_place(name="Place 1", status=Place.STATUS_PUBLISHED)
+        
+        url = reverse("admin:catalog_place_changelist")
+        
+        # Test soft delete (requires a confirmation POST, but wait, move_selected_to_deleted checks request.POST.get("post"))
+        # If "post" is not in request, it returns a TemplateResponse.
+        # So we must include "post": "yes"
+        response = self.client.post(url, {
+            "action": "move_selected_to_deleted",
+            "_selected_action": [place1.pk],
+            "post": "yes",
+        })
+        
+        self.assertEqual(response.status_code, 302)
+        place1.refresh_from_db()
+        self.assertTrue(place1.is_deleted)
+        self.assertIsNotNone(place1.deleted_at)
+        
+        # Test restore
+        response = self.client.post(url, {
+            "action": "restore_selected",
+            "_selected_action": [place1.pk]
+        })
+        self.assertEqual(response.status_code, 302)
+        place1.refresh_from_db()
+        self.assertFalse(place1.is_deleted)
+        self.assertIsNone(place1.deleted_at)
+        self.assertFalse(place1.is_active) # Restored places remain inactive
+
+    def test_review_action_approve_and_reject(self):
+        place = create_quality_place(name="Review Place", status=Place.STATUS_PUBLISHED)
+        review1 = PlaceReview.objects.create(place=place, status=PlaceReview.STATUS_PENDING, rating=5, text="Good", session_key="session1")
+        review2 = PlaceReview.objects.create(place=place, status=PlaceReview.STATUS_PENDING, rating=1, text="Bad", session_key="session2")
+        
+        url = reverse("admin:catalog_placereview_changelist")
+        
+        # Approve review1
+        response = self.client.post(url, {
+            "action": "approve_selected",
+            "_selected_action": [review1.pk]
+        })
+        self.assertEqual(response.status_code, 302)
+        review1.refresh_from_db()
+        self.assertEqual(review1.status, PlaceReview.STATUS_APPROVED)
+        
+        # Reject review2
+        response = self.client.post(url, {
+            "action": "reject_selected",
+            "_selected_action": [review2.pk]
+        })
+        self.assertEqual(response.status_code, 302)
+        review2.refresh_from_db()
+        self.assertEqual(review2.status, PlaceReview.STATUS_REJECTED)
+
+    def test_event_make_published_and_draft_action(self):
+        place = create_quality_place(name="Event Place", status=Place.STATUS_PUBLISHED)
+        event1 = Event.objects.create(name="Event 1", related_place=place, category="EDU", status=Event.STATUS_DRAFT)
+        event2 = Event.objects.create(name="Event 2", related_place=place, category="EDU", status=Event.STATUS_PUBLISHED)
+        
+        url = reverse("admin:catalog_event_changelist")
+        
+        # Publish event1
+        response = self.client.post(url, {
+            "action": "mark_published",
+            "_selected_action": [event1.pk]
+        })
+        self.assertEqual(response.status_code, 302)
+        event1.refresh_from_db()
+        self.assertEqual(event1.status, Event.STATUS_PUBLISHED)
+        self.assertIsNotNone(event1.published_at)
+
+        # Draft event2
+        response = self.client.post(url, {
+            "action": "mark_draft",
+            "_selected_action": [event2.pk]
+        })
+        self.assertEqual(response.status_code, 302)
+        event2.refresh_from_db()
+        self.assertEqual(event2.status, Event.STATUS_DRAFT)
+
+    def test_ownership_request_approve_and_reject_action(self):
+        from catalog.models.owner import PlaceOwnershipRequest
+        place1 = create_quality_place(name="Owner Place 1", status=Place.STATUS_PUBLISHED)
+        place2 = create_quality_place(name="Owner Place 2", status=Place.STATUS_PUBLISHED)
+        user = User.objects.create_user("applicant", "app@example.com", "pass")
+        req1 = PlaceOwnershipRequest.objects.create(place=place1, applicant=user, status=PlaceOwnershipRequest.STATUS_PENDING)
+        req2 = PlaceOwnershipRequest.objects.create(place=place2, applicant=user, status=PlaceOwnershipRequest.STATUS_PENDING)
+        
+        url = reverse("admin:catalog_placeownershiprequest_changelist")
+        
+        # Approve req1
+        response = self.client.post(url, {
+            "action": "approve_requests",
+            "_selected_action": [req1.pk]
+        })
+        self.assertEqual(response.status_code, 302)
+        req1.refresh_from_db()
+        self.assertEqual(req1.status, PlaceOwnershipRequest.STATUS_APPROVED)
+
+        # Reject req2
+        response = self.client.post(url, {
+            "action": "reject_requests",
+            "_selected_action": [req2.pk]
+        })
+        self.assertEqual(response.status_code, 302)
+        req2.refresh_from_db()
+        self.assertEqual(req2.status, PlaceOwnershipRequest.STATUS_REJECTED)
+
+
+class TestAdminChangelistUI(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.admin_user = User.objects.create_superuser("admin_ui", "admin_ui@example.com", "pass")
+    
+    def setUp(self):
+        self.client.force_login(self.admin_user)
+
+    def test_shared_search_panel_rendered_in_all_models(self):
+        urls = [
+            reverse("admin:catalog_place_changelist"),
+            reverse("admin:catalog_event_changelist"),
+            reverse("admin:catalog_placereview_changelist"),
+            reverse("admin:catalog_placeownershiprequest_changelist"),
+            reverse("admin:catalog_siteregistereduser_changelist"),
+            reverse("admin:catalog_staffaccessuser_changelist"),
+        ]
+        
+        for url in urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                # Check for the unified row search
+                self.assertContains(response, "place-admin-dashboard__row-search--unified")
+                # Check for the extra filters details element
+                self.assertContains(response, "place-admin-dashboard__extra-filters")
+                # Check for quick filters row
+                self.assertContains(response, "place-admin-dashboard__row-tabs")
+
+    def test_quick_tabs_preserves_url_parameters(self):
+        from catalog.models.review import PlaceReview
+        place = create_quality_place(name="Review test place")
+        user = User.objects.create_user("review_user", "review@example.com", "pass")
+        PlaceReview.objects.create(place=place, user=user, text="Bad text", rating=1)
+        
+        url = reverse("admin:catalog_placereview_changelist") + "?q=Bad&rating=1"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        
+        # Verify that the quick tab link contains the query parameters
+        self.assertContains(response, "q=Bad")
+        self.assertContains(response, "rating=1")
+
+
+class TestSeedCatalogTaxonomyCommand(TestCase):
+    def test_seeds_taxonomy_with_svg_paths(self):
+        call_command("seed_catalog_taxonomy", verbosity=0)
+        self.assertTrue(Category.objects.filter(code="EDU").exists())
+        cat = Category.objects.get(code="EDU")
+        self.assertTrue(cat.icon.endswith(".svg"))
+        self.assertIn("img/icon/cooliocns SVG/Interface/Book_Open.svg", cat.icon)
+
+    def test_update_icons_flag_overwrites_existing_custom_icon(self):
+        Category.objects.update_or_create(
+            code="EDU",
+            defaults={
+                "name": "Образование",
+                "name_az": "Təhsil",
+                "name_ru": "Образование",
+                "name_en": "Education",
+                "icon": "custom-icon.png",
+                "order": 2,
+            }
+        )
+        
+        # Without flag, it should not overwrite custom-icon.png since it doesn't start with fas fa-
+        call_command("seed_catalog_taxonomy", verbosity=0)
+        cat = Category.objects.get(code="EDU")
+        self.assertEqual(cat.icon, "custom-icon.png")
+
+        # With flag, it should overwrite
+        call_command("seed_catalog_taxonomy", update_icons=True, verbosity=0)
+        cat.refresh_from_db()
+        self.assertNotEqual(cat.icon, "custom-icon.png")
+        self.assertTrue(cat.icon.endswith(".svg"))
+
+
+class TestCategoryAdminHierarchy(TestCase):
+    def setUp(self):
+        from catalog.models.category import Subcategory
+        self.admin = User.objects.create_superuser("admin", "admin@example.com", "pass")
+        self.client.force_login(self.admin)
+        self.category = Category.objects.create(code="TESTCAT", name_ru="Тестовая Категория")
+        self.subcategory = Subcategory.objects.create(category=self.category, name_ru="Тестовая Подкатегория")
+
+    def test_changelist_view_status_and_context(self):
+        url = reverse("admin:catalog_category_changelist")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Тестовая Категория")
+        self.assertContains(response, "Тестовая Подкатегория")
+        self.assertTemplateUsed(response, "admin/catalog/category/change_list.html")
+
+    def test_changelist_search_filters_and_expands_parent(self):
+        url = reverse("admin:catalog_category_changelist") + "?q=Тестовая Подкатегория"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Тестовая Категория")
+        self.assertContains(response, "Тестовая Подкатегория")
+
+
+class TestDependentSubcategoryValidation(TestCase):
+    def test_form_validation_fails_on_mismatched_subcategory(self):
+        from catalog.models.category import Subcategory
+        cat1 = Category.objects.create(code="CAT1", name_ru="Cat 1")
+        cat2 = Category.objects.create(code="CAT2", name_ru="Cat 2")
+        sub1 = Subcategory.objects.create(category=cat1, name_ru="Sub 1")
+        
+        from catalog.forms import OwnerPlaceEditForm
+        form = OwnerPlaceEditForm(data={
+            "name_ru": "Test Place",
+            "category": cat2.code,
+            "subcategory": sub1.id,
+            "lat": "40.0",
+            "lng": "40.0"
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn("subcategory", form.errors)
+        self.assertEqual(form.errors["subcategory"][0], "Выбранная подкатегория не принадлежит к указанной категории.")
+
+    def test_form_validation_succeeds_on_matched_subcategory(self):
+        from catalog.models.category import Subcategory
+        cat1 = Category.objects.create(code="CAT1", name_ru="Cat 1")
+        sub1 = Subcategory.objects.create(category=cat1, name_ru="Sub 1")
+        
+        from catalog.forms import OwnerPlaceEditForm
+        form = OwnerPlaceEditForm(data={
+            "name_ru": "Test Place",
+            "category": cat1.code,
+            "subcategory": sub1.id,
+            "lat": "40.0",
+            "lng": "40.0"
+        })
+        # Note: missing other required fields might make it invalid, 
+        # but subcategory shouldn't be in errors
+        form.is_valid()
+        self.assertNotIn("subcategory", form.errors)

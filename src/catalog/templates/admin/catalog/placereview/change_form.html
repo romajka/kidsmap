@@ -1,23 +1,186 @@
 {% extends "admin/change_form.html" %}
-{% load i18n %}
+{% load i18n admin_urls static admin_modify %}
 
-{% block form_top %}
-  {% if original %}
-    <section class="km-review-detail">
-      <div class="km-review-detail__head">
-        <h2>{% translate "Полный текст отзыва" %}</h2>
-        <div class="km-place-row-actions">
-          <a class="km-admin-action km-admin-action--secondary" href="{% url 'admin:catalog_place_change' original.place_id %}">{% translate "К карточке кружка" %}</a>
-          <a class="km-admin-action km-admin-action--secondary" href="{{ original.place.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Открыть кружок на сайте" %}</a>
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}">
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}" defer></script>
+{% endblock %}
+
+{% block submit_buttons_top %}{% endblock %}
+{% block submit_buttons_bottom %}{% endblock %}
+
+{% block content %}
+  <div id="content-main" class="km-place-form-page">
+    <form
+      {% if has_file_field %}enctype="multipart/form-data"{% endif %}
+      {% if form_url %}action="{{ form_url }}"{% endif %}
+      method="post"
+      id="{{ opts.model_name }}_form"
+      novalidate
+      data-rejected-status="{{ adminform.form.instance.STATUS_REJECTED|default:'rejected' }}"
+    >
+      {% csrf_token %}
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+      <div class="km-place-form-shell">
+        <header class="km-place-form-hero">
+          <div class="km-place-form-hero__copy">
+            <p class="km-place-form-hero__eyebrow">
+              {% if add %}{% translate "Новый отзыв" %}{% else %}{% translate "Отзыв" %} &mdash; {{ km_review_form_summary.author }}{% endif %}
+            </p>
+            <h1 class="km-place-form-hero__title">
+              {% if add %}
+                {% translate "Добавить отзыв" %}
+              {% else %}
+                <a href="{{ km_review_form_summary.place_url }}" class="km-review-place-link">{{ km_review_form_summary.place_name }}</a>
+              {% endif %}
+            </h1>
+            <p class="km-place-form-hero__subtitle">
+              {% blocktranslate trimmed %}
+                Модерация отзыва. Вы можете редактировать текст, изменить статус (опубликовать, скрыть, отклонить) или просмотреть метрики и реакции.
+              {% endblocktranslate %}
+            </p>
+          </div>
+          {% if not add %}
+          <div class="km-place-form-hero__metrics" style="display: flex; gap: 16px; align-items: center; justify-content: flex-end; padding-right: 24px;">
+            <div style="text-align: right;">
+              <span class="km-admin-meta">{% translate "Оценка" %}</span><br>
+              <strong style="font-size: 24px; line-height: 1.2;">&#9733; {{ km_review_form_summary.rating }}</strong>
+            </div>
+            <div style="text-align: right; border-left: 1px solid var(--km-border); padding-left: 16px;">
+              <span class="km-admin-meta">{% translate "Реакции" %}</span><br>
+              <strong style="font-size: 18px; line-height: 1.2;">&plus;{{ km_review_form_summary.likes }} &middot; &minus;{{ km_review_form_summary.dislikes }}</strong>
+            </div>
+          </div>
+          {% endif %}
+        </header>
+
+        {% if errors %}
+          <div class="km-place-form-alert km-place-form-alert--danger">
+            <strong>{% translate "Форма содержит ошибки" %}.</strong>
+            <span>
+              {% blocktranslate count counter=errors|length %}
+                Исправьте проблему ниже и сохраните карточку ещё раз.
+              {% plural %}
+                Исправьте проблемы ниже и сохраните карточку ещё раз.
+              {% endblocktranslate %}
+            </span>
+            {{ adminform.form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="km-place-form-layout">
+          <main class="km-place-form-main">
+            {% block field_sets %}
+              {% for fieldset in adminform %}
+                <section class="km-place-form-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
+                  <h2 class="km-place-form-section__title">{{ fieldset.name }}</h2>
+                  {% if fieldset.description %}
+                    <p class="km-place-form-section__desc">{{ fieldset.description|safe }}</p>
+                  {% endif %}
+                  <div class="km-place-form-grid">
+                    {% for line in fieldset %}
+                      {% for field in line %}
+                        <div class="km-place-field-wrapper{% if line.fields|length == 1 and field.is_readonly %} km-place-field-wrapper--wide{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}">
+                          {% if field.is_checkbox %}
+                            {{ field.field }}{{ field.label_tag }}
+                            {% if field.field.help_text %}
+                              <div class="km-place-field-help">{{ field.field.help_text|safe }}</div>
+                            {% endif %}
+                          {% else %}
+                            {{ field.label_tag }}
+                            {% if field.is_readonly %}
+                              <div class="km-place-field-readonly">
+                                {{ field.contents }}
+                              </div>
+                            {% else %}
+                              {{ field.field }}
+                            {% endif %}
+                            {% if field.field.help_text %}
+                              <div class="km-place-field-help" id="{{ field.field.id_for_label }}_help">
+                                {{ field.field.help_text|safe }}
+                              </div>
+                            {% endif %}
+                          {% endif %}
+                          {% if field.errors %}
+                            <div class="km-place-field-error">
+                              {{ field.errors }}
+                            </div>
+                          {% endif %}
+                        </div>
+                      {% endfor %}
+                    {% endfor %}
+                  </div>
+                </section>
+              {% endfor %}
+            {% endblock %}
+
+            {% block inline_field_sets %}
+              {% for inline_admin_formset in inline_admin_formsets %}
+                {% include inline_admin_formset.opts.template %}
+              {% endfor %}
+            {% endblock %}
+          </main>
+
+          <aside class="km-place-form-sidebar">
+            <div class="km-place-sidebar-sticky">
+              {% if not add %}
+              <div class="km-place-sidebar-box">
+                <div class="km-place-sidebar-status">
+                  <span class="km-place-sidebar-status__indicator km-place-sidebar-status__indicator--{{ km_review_form_summary.status_tone }}"></span>
+                  <div class="km-place-sidebar-status__text">
+                    <strong>{{ km_review_form_summary.status_label }}</strong>
+                    <span class="km-admin-meta">
+                      {% if km_review_form_summary.is_approved %}{% translate "Виден на сайте" %}{% else %}{% translate "Скрыт с сайта" %}{% endif %}
+                    </span>
+                  </div>
+                </div>
+                
+                {% if km_review_form_summary.flags %}
+                <div class="km-place-sidebar-flags" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
+                  <strong class="km-admin-title" style="margin-bottom: 8px; display: block;">{% translate "Сигналы" %}</strong>
+                  <div class="km-admin-badges" style="flex-wrap: wrap;">
+                    {% for flag in km_review_form_summary.flags %}
+                      <span class="km-admin-badge km-admin-badge--{{ flag.tone }}">{{ flag.label }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+
+              <div class="km-place-sidebar-actions">
+                <button type="submit" name="_continue" class="km-place-btn km-place-btn--primary km-place-btn--block">
+                  {% translate "Сохранить и продолжить" %}
+                </button>
+                <button type="submit" name="_save" class="km-place-btn km-place-btn--secondary km-place-btn--block">
+                  {% translate "Сохранить и выйти" %}
+                </button>
+                
+                {% if not add %}
+                  <div class="km-place-sidebar-moderation" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
+                    <strong class="km-admin-title" style="margin-bottom: 8px; display: block;">{% translate "Быстрые действия" %}</strong>
+                    {% if km_review_form_summary.is_approved %}
+                      <a href="{{ km_action_hide_url }}" class="km-place-btn km-place-btn--block" style="border: 1px solid var(--km-warn); color: var(--km-warn); text-align: center; justify-content: center;">{% translate "Скрыть отзыв" %}</a>
+                    {% else %}
+                      <a href="{{ km_action_approve_url }}" class="km-place-btn km-place-btn--block" style="background: var(--km-good); color: var(--km-bg); text-align: center; justify-content: center; margin-bottom: 8px;">{% translate "Опубликовать" %}</a>
+                      <a href="{{ km_action_reject_url }}" class="km-place-btn km-place-btn--block" style="border: 1px solid var(--km-danger); color: var(--km-danger); text-align: center; justify-content: center;">{% translate "Отклонить" %}</a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                {% if has_delete_permission and not add %}
+                  <a href="{{ km_action_delete_url }}" class="km-place-sidebar-delete">
+                    {% translate "Удалить отзыв навсегда" %}
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
-      <div class="km-review-detail__body">
-        {% if original.text %}
-          <blockquote class="km-review-detail__quote">{{ original.text }}</blockquote>
-        {% else %}
-          <p class="km-admin-meta">{% translate "Этот отзыв содержит только оценку без комментария." %}</p>
-        {% endif %}
-      </div>
-    </section>
-  {% endif %}
+    </form>
+  </div>
 {% endblock %}

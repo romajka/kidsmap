@@ -70,8 +70,11 @@ def _build_item_list_schema(*, name: str, item_urls: list[dict], total_count: in
 
 
 def _catalog_category_label(category_code: str) -> str:
-    labels = dict(Place.CATEGORY_CHOICES)
-    return str(labels.get(category_code, category_code))
+    from catalog.models import Category
+    category = Category.objects.filter(code=category_code).first()
+    if category:
+        return str(category.name_i18n())
+    return str(category_code)
 
 
 def _catalog_title_base(*, selected: dict, is_new_page: bool) -> str:

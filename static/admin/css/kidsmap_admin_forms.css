@@ -1,0 +1,418 @@
+/* Form Layout & Cards */
+.change-form #content-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 100px; /* Space for sticky submit row */
+}
+
+.change-form fieldset {
+    background: var(--km-admin-panel-bg);
+    border: 1px solid var(--km-admin-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.change-form fieldset h2 {
+    color: var(--km-admin-text-primary);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--km-admin-border);
+}
+
+/* Form Rows & Labels */
+.change-form .form-row {
+    border-bottom: 1px solid var(--km-admin-border-light, #f1f5f9);
+    padding: 16px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.change-form .form-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.change-form .form-row > div {
+    flex: 1 1 100%;
+}
+
+.change-form label {
+    font-weight: 500;
+    color: var(--km-admin-text-primary);
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.change-form .required label::after {
+    content: " *";
+    color: var(--km-admin-danger);
+}
+
+/* Inputs & Selects */
+.change-form input[type="text"],
+.change-form input[type="email"],
+.change-form input[type="password"],
+.change-form input[type="number"],
+.change-form input[type="url"],
+.change-form select,
+.change-form textarea {
+    width: 100%;
+    max-width: 600px;
+    padding: 10px 14px;
+    border: 1px solid var(--km-admin-border);
+    border-radius: 8px;
+    background-color: var(--km-admin-bg);
+    color: var(--km-admin-text-primary);
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.change-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.change-form input:focus,
+.change-form select:focus,
+.change-form textarea:focus {
+    outline: none;
+    border-color: var(--km-admin-primary);
+    box-shadow: 0 0 0 3px rgba(0, 154, 78, 0.15); /* Primary color with opacity */
+}
+
+/* Checkboxes & Radios */
+.change-form input[type="checkbox"],
+.change-form input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--km-admin-primary);
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.change-form .checkbox-row {
+    display: flex;
+    align-items: center;
+}
+
+.change-form .checkbox-row label {
+    margin-bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    font-weight: normal;
+}
+
+/* Help text */
+.change-form .help {
+    color: var(--km-admin-text-meta);
+    font-size: 0.8125rem;
+    margin-top: 6px;
+    display: block;
+}
+
+/* Errors */
+.change-form .errors {
+    color: var(--km-admin-danger);
+    font-size: 0.8125rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.change-form .errors input,
+.change-form .errors select,
+.change-form .errors textarea {
+    border-color: var(--km-admin-danger);
+}
+
+/* Sidebar Actions (Global overriding default Jazzmin right panel) */
+#jazzy-actions {
+    background: var(--km-admin-panel-bg, #ffffff);
+    border: 1px solid var(--km-admin-border, #e2e8f0);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.km-admin-sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.km-btn--sidebar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    gap: 10px;
+}
+.km-btn--sidebar i {
+    width: 16px;
+    text-align: center;
+}
+
+.km-btn--success {
+    background: var(--km-admin-primary, #009a4e);
+    color: white !important;
+}
+.km-btn--success:hover {
+    background: var(--km-admin-primary-hover, #008242);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 154, 78, 0.2);
+    color: white !important;
+}
+
+.km-btn--danger {
+    background: #ef4444;
+    color: white !important;
+}
+.km-btn--danger:hover {
+    background: #dc2626;
+    color: white !important;
+}
+
+.km-btn--info {
+    background: #f8fafc;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0;
+}
+.km-btn--info:hover {
+    background: #f1f5f9;
+    color: #0f172a !important;
+}
+
+/* Object Tools in Sidebar */
+#jazzy-actions .object-tools {
+    margin: 16px 0 0 0;
+    padding: 16px 0 0 0;
+    border-top: 1px solid var(--km-admin-border, #e2e8f0);
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#jazzy-actions .object-tools li {
+    display: block;
+    height: auto;
+}
+#jazzy-actions .object-tools a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+#jazzy-actions .object-tools a:hover {
+    background: #f1f5f9;
+    color: #0f172a !important;
+}
+#jazzy-actions .object-tools .historylink::before {
+    content: "\f1da";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    width: 16px;
+    text-align: center;
+}
+#jazzy-actions .object-tools .viewsitelink::before {
+    content: "\f08e";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    width: 16px;
+    text-align: center;
+}
+
+/* Inlines */
+.change-form .inline-group {
+    background: var(--km-admin-panel-bg);
+    border: 1px solid var(--km-admin-border);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.change-form .inline-group > h2 {
+    background: var(--km-admin-bg);
+    padding: 16px 24px;
+    margin: 0;
+    font-size: 1.125rem;
+    color: var(--km-admin-text-primary);
+    border-bottom: 1px solid var(--km-admin-border);
+}
+
+.change-form .inline-related {
+    padding: 24px;
+    border-bottom: 1px solid var(--km-admin-border);
+}
+
+.change-form .inline-related:last-child {
+    border-bottom: none;
+}
+
+/* ==========================================================================
+   Popup & Modal Custom Styles (SAMEORIGIN frames for Django/Jazzmin)
+   ========================================================================== */
+body.popup {
+    background-color: var(--km-admin-page-bg, #f8fafc) !important;
+    padding: 10px !important;
+    overflow-x: hidden !important;
+}
+
+/* Hide default Jazzmin/AdminLTE headers, titles, and breadcrumbs in popup iframes */
+body.popup .content-header,
+body.popup .breadcrumb,
+body.popup h1,
+body.popup .brand-link {
+    display: none !important;
+}
+
+/* Strip card styles so form takes full width/height of popup */
+body.popup .card {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    background: transparent !important;
+}
+
+body.popup .card-body {
+    padding: 0 !important;
+}
+
+body.popup .card-header {
+    display: none !important;
+}
+
+body.popup #content-main {
+    max-width: 100% !important;
+    padding-bottom: 0 !important;
+    margin: 0 !important;
+}
+
+body.popup fieldset {
+    padding: 14px 18px !important;
+    margin-bottom: 12px !important;
+    border-radius: 8px !important;
+}
+
+body.popup fieldset h2 {
+    font-size: 0.95rem !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 8px !important;
+}
+
+/* Horizontal Compact Rows for Popup Form fields */
+body.popup .form-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    padding: 8px 0 !important;
+    gap: 12px !important;
+    border-bottom: 1px solid var(--km-admin-border-light, #f1f5f9) !important;
+}
+
+body.popup .form-row:last-child {
+    border-bottom: none !important;
+}
+
+body.popup .form-row > div {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 12px !important;
+    flex: 1 1 auto !important;
+}
+
+body.popup .form-row label {
+    flex: 0 0 160px !important;
+    width: 160px !important;
+    margin-bottom: 0 !important;
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    color: var(--km-admin-text-primary) !important;
+}
+
+body.popup .form-row input[type="text"],
+body.popup .form-row input[type="number"],
+body.popup .form-row input[type="url"],
+body.popup .form-row select,
+body.popup .form-row textarea {
+    flex: 1 1 auto !important;
+    max-width: 100% !important;
+    height: 34px !important;
+    padding: 6px 12px !important;
+    font-size: 0.8125rem !important;
+    border-radius: 6px !important;
+}
+
+body.popup .form-row textarea {
+    height: 70px !important;
+    min-height: 70px !important;
+}
+
+body.popup .help {
+    margin-top: 2px !important;
+    font-size: 0.75rem !important;
+}
+
+/* Compact Tab Controls */
+body.popup .nav-tabs {
+    margin-bottom: 10px !important;
+}
+
+body.popup .nav-link {
+    padding: 5px 12px !important;
+    font-size: 0.8125rem !important;
+}
+
+/* Compact Submit Row inside Popups */
+body.popup .submit-row {
+    margin-top: 12px !important;
+    padding: 8px 12px !important;
+    background: var(--km-admin-panel-bg, #ffffff) !important;
+    border: 1px solid var(--km-admin-border, #e2e8f0) !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    box-shadow: none !important;
+}
+
+body.popup .submit-row button,
+body.popup .submit-row input[type="submit"],
+body.popup .submit-row a {
+    width: auto !important;
+    height: 34px !important;
+    padding: 0 16px !important;
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}

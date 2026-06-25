@@ -1,643 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-:root {
-  --km-admin-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --km-admin-accent: #009A4E;
-  --km-admin-accent-strong: #008F46;
-  --km-admin-accent-soft: #F3FBF6;
-  --km-admin-border: #CFE8D8;
-  --km-admin-muted: #6B7280;
-  --km-admin-surface: #ffffff;
-  --km-admin-warn-bg: #fff4e6;
-  --km-admin-warn-fg: #F59E0B;
-  --km-admin-error-fg: #DC2626;
-  --km-admin-page-bg: #f9fafb;
-  --km-admin-panel-bg: #ffffff;
-  --km-admin-panel-bg-soft: #F6FCF8;
-  --km-admin-panel-shadow: 0 4px 12px rgba(0, 154, 78, 0.08);
-  --km-admin-text: #1F2A37;
-  --km-admin-link: #009A4E;
-  --km-admin-link-hover: #008F46;
-  --km-admin-header-bg-start: #009A4E;
-  --km-admin-header-bg-end: #008F46;
-  --km-admin-header-link: #F3FBF6;
-  --km-admin-header-link-hover: #ffffff;
-  --km-admin-button-bg: #ffffff;
-  --km-admin-button-fg: #1F2A37;
-  --km-admin-button-border: #CFE8D8;
-  --km-admin-button-hover-bg: #F3FBF6;
-  --km-admin-button-hover-fg: #009A4E;
-  --km-admin-pill-bg: var(--km-admin-warn-bg);
-  --km-admin-pill-fg: var(--km-admin-warn-fg);
-  --km-admin-badge-good-bg: #e7f8ed;
-  --km-admin-badge-good-border: #cdebd7;
-  --km-admin-badge-good-fg: #17663d;
-  --km-admin-badge-warn-bg: var(--km-admin-warn-bg);
-  --km-admin-badge-warn-border: #f1d8b3;
-  --km-admin-badge-warn-fg: var(--km-admin-warn-fg);
-  --km-admin-badge-muted-bg: #eef2f7;
-  --km-admin-badge-muted-border: #d8e0ea;
-  --km-admin-badge-muted-fg: #49515a;
-  --km-admin-badge-info-bg: #e8f3fb;
-  --km-admin-badge-info-border: #c9dfef;
-  --km-admin-badge-info-fg: #1f5d80;
-  --km-admin-input-bg: #ffffff;
-  --km-admin-input-border: #cfd9d2;
-  --km-admin-input-fg: var(--body-fg);
-  --km-admin-input-placeholder: #7a8691;
-  --km-admin-focus-ring: rgba(19, 111, 56, 0.34);
-  --km-admin-gallery-card-bg: linear-gradient(180deg, #ffffff, #f7fbf8);
-  --km-admin-gallery-thumb-bg: #fff;
-  --km-admin-gallery-thumb-border: #d8e0ea;
-  --km-admin-gallery-empty-bg: #f8fbf9;
-  --km-admin-gallery-empty-fg: var(--km-admin-muted);
-  --km-admin-submit-secondary-bg: #f8fbf9;
-  --km-admin-submit-secondary-border: var(--km-admin-border);
-  --km-admin-submit-secondary-btn-bg: var(--km-admin-accent-soft);
-  --km-admin-submit-secondary-btn-fg: var(--km-admin-accent-strong);
-  --km-admin-submit-secondary-btn-hover-bg: #dff1e6;
-  --km-admin-submit-secondary-btn-hover-fg: #0c4d27;
-}
-
-html[data-theme="dark"],
-body[data-theme="dark"],
-html.theme-dark,
-body.theme-dark,
-[data-theme="dark"] {
-  --km-admin-page-bg: var(--body-bg);
-  --km-admin-panel-bg: color-mix(in srgb, var(--darkened-bg) 94%, var(--body-fg) 6%);
-  --km-admin-panel-bg-soft: color-mix(in srgb, var(--darkened-bg) 84%, var(--body-fg) 16%);
-  --km-admin-panel-shadow: none;
-  --km-admin-text: var(--body-fg);
-  --km-admin-muted: color-mix(in srgb, var(--body-fg) 72%, var(--body-bg) 28%);
-  --km-admin-accent-soft: rgba(19, 111, 56, 0.22);
-  --km-admin-link: var(--link-fg);
-  --km-admin-link-hover: var(--link-hover-color);
-  --km-admin-header-bg-start: #123847;
-  --km-admin-header-bg-end: #1a5367;
-  --km-admin-header-link: var(--header-link-color);
-  --km-admin-header-link-hover: var(--header-link-hover-color);
-  --km-admin-button-bg: color-mix(in srgb, var(--darkened-bg) 88%, var(--body-fg) 12%);
-  --km-admin-button-fg: var(--body-fg);
-  --km-admin-button-border: var(--hairline-color);
-  --km-admin-button-hover-bg: color-mix(in srgb, var(--selected-bg) 88%, var(--body-fg) 12%);
-  --km-admin-button-hover-fg: var(--body-fg);
-  --km-admin-pill-bg: color-mix(in srgb, var(--message-warning-bg) 72%, var(--body-bg) 28%);
-  --km-admin-pill-fg: var(--message-warning-fg);
-  --km-admin-badge-good-bg: rgba(25, 135, 84, 0.18);
-  --km-admin-badge-good-border: rgba(25, 135, 84, 0.35);
-  --km-admin-badge-good-fg: #9fe3b4;
-  --km-admin-badge-warn-bg: rgba(255, 193, 7, 0.16);
-  --km-admin-badge-warn-border: rgba(255, 193, 7, 0.33);
-  --km-admin-badge-warn-fg: #ffd98a;
-  --km-admin-badge-muted-bg: rgba(108, 117, 125, 0.18);
-  --km-admin-badge-muted-border: rgba(108, 117, 125, 0.33);
-  --km-admin-badge-muted-fg: #c6cdd6;
-  --km-admin-badge-info-bg: rgba(13, 110, 253, 0.18);
-  --km-admin-badge-info-border: rgba(13, 110, 253, 0.33);
-  --km-admin-badge-info-fg: #aad0ff;
-  --km-admin-input-bg: color-mix(in srgb, var(--darkened-bg) 88%, var(--body-fg) 12%);
-  --km-admin-input-border: var(--hairline-color);
-  --km-admin-input-fg: var(--body-fg);
-  --km-admin-input-placeholder: var(--body-quiet-color);
-  --km-admin-focus-ring: var(--link-fg);
-  --km-admin-gallery-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
-  --km-admin-gallery-thumb-bg: var(--body-bg);
-  --km-admin-gallery-thumb-border: var(--hairline-color);
-  --km-admin-gallery-empty-bg: rgba(255, 255, 255, 0.03);
-  --km-admin-gallery-empty-fg: var(--body-quiet-color);
-  --km-admin-submit-secondary-bg: rgba(255, 255, 255, 0.03);
-  --km-admin-submit-secondary-border: var(--hairline-color);
-  --km-admin-submit-secondary-btn-bg: rgba(255, 255, 255, 0.08);
-  --km-admin-submit-secondary-btn-fg: var(--body-fg);
-  --km-admin-submit-secondary-btn-hover-bg: rgba(255, 255, 255, 0.14);
-  --km-admin-submit-secondary-btn-hover-fg: var(--body-fg);
-}
-
-@media (prefers-color-scheme: dark) {
-  html:not([data-theme="light"]) {
-    --km-admin-page-bg: var(--body-bg);
-    --km-admin-panel-bg: color-mix(in srgb, var(--darkened-bg) 94%, var(--body-fg) 6%);
-    --km-admin-panel-bg-soft: color-mix(in srgb, var(--darkened-bg) 84%, var(--body-fg) 16%);
-    --km-admin-panel-shadow: none;
-    --km-admin-text: var(--body-fg);
-    --km-admin-muted: color-mix(in srgb, var(--body-fg) 72%, var(--body-bg) 28%);
-    --km-admin-accent-soft: rgba(19, 111, 56, 0.22);
-    --km-admin-link: var(--link-fg);
-    --km-admin-link-hover: var(--link-hover-color);
-    --km-admin-header-bg-start: #123847;
-    --km-admin-header-bg-end: #1a5367;
-    --km-admin-header-link: var(--header-link-color);
-    --km-admin-header-link-hover: var(--header-link-hover-color);
-    --km-admin-button-bg: color-mix(in srgb, var(--darkened-bg) 88%, var(--body-fg) 12%);
-    --km-admin-button-fg: var(--body-fg);
-    --km-admin-button-border: var(--hairline-color);
-    --km-admin-button-hover-bg: color-mix(in srgb, var(--selected-bg) 88%, var(--body-fg) 12%);
-    --km-admin-button-hover-fg: var(--body-fg);
-    --km-admin-pill-bg: color-mix(in srgb, var(--message-warning-bg) 72%, var(--body-bg) 28%);
-    --km-admin-pill-fg: var(--message-warning-fg);
-    --km-admin-badge-good-bg: rgba(25, 135, 84, 0.18);
-    --km-admin-badge-good-border: rgba(25, 135, 84, 0.35);
-    --km-admin-badge-good-fg: #9fe3b4;
-    --km-admin-badge-warn-bg: rgba(255, 193, 7, 0.16);
-    --km-admin-badge-warn-border: rgba(255, 193, 7, 0.33);
-    --km-admin-badge-warn-fg: #ffd98a;
-    --km-admin-badge-muted-bg: rgba(108, 117, 125, 0.18);
-    --km-admin-badge-muted-border: rgba(108, 117, 125, 0.33);
-    --km-admin-badge-muted-fg: #c6cdd6;
-    --km-admin-badge-info-bg: rgba(13, 110, 253, 0.18);
-    --km-admin-badge-info-border: rgba(13, 110, 253, 0.33);
-    --km-admin-badge-info-fg: #aad0ff;
-    --km-admin-input-bg: color-mix(in srgb, var(--darkened-bg) 88%, var(--body-fg) 12%);
-    --km-admin-input-border: var(--hairline-color);
-    --km-admin-input-fg: var(--body-fg);
-    --km-admin-input-placeholder: var(--body-quiet-color);
-    --km-admin-focus-ring: var(--link-fg);
-    --km-admin-gallery-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
-    --km-admin-gallery-thumb-bg: var(--body-bg);
-    --km-admin-gallery-thumb-border: var(--hairline-color);
-    --km-admin-gallery-empty-bg: rgba(255, 255, 255, 0.03);
-    --km-admin-gallery-empty-fg: var(--body-quiet-color);
-    --km-admin-submit-secondary-bg: rgba(255, 255, 255, 0.03);
-    --km-admin-submit-secondary-border: var(--hairline-color);
-    --km-admin-submit-secondary-btn-bg: rgba(255, 255, 255, 0.08);
-    --km-admin-submit-secondary-btn-fg: var(--body-fg);
-    --km-admin-submit-secondary-btn-hover-bg: rgba(255, 255, 255, 0.14);
-    --km-admin-submit-secondary-btn-hover-fg: var(--body-fg);
-  }
-}
-
-html,
-body {
-  min-height: 100%;
-  background: var(--km-admin-page-bg);
-}
-
-body {
-  background-image: none !important;
-  font-family: var(--km-admin-font) !important;
-}
-
-body.login {
-  background: var(--km-admin-page-bg) !important;
-  display: flow-root;
-}
-
-h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-  font-family: var(--km-admin-font) !important;
-}
-
-.login-logo img {
-  max-width: 120px !important;
-  height: auto;
-  margin-bottom: 20px;
-}
-
-/* ===== Inter — единый шрифт для всей панели (без иконок!) ===== */
-body, p, span:not(.fas):not(.far):not(.fab):not(.fal):not(.fad):not([class*="fa-"]),
-a, div, section, article, aside, nav, header, footer,
-input, select, textarea, button, label, td, th, li,
-h1, h2, h3, h4, h5, h6,
-.module caption, .breadcrumbs, .helptext, .help, .vHelpText,
-.nav-item, .nav-link, .object-tools a,
-.changelink, .addlink, .deletelink,
-.submit-row input, .submit-row a,
-.paginator, .calendarbox, .clockbox,
-.select2-selection, .select2-results__option {
-  font-family: var(--km-admin-font) !important;
-}
-
-/* ===== FontAwesome — восстанавливаем для всех иконочных элементов ===== */
-i.fa, i.fas, i.far, i.fab, i.fal, i.fad,
-i[class*="fa-"],
-.fa, .fas, .far, .fab, .fal, .fad,
-[class*="fa-"] {
-  font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands", "Font Awesome 5 Pro", "FontAwesome" !important;
-}
-
-/* ===== Нормализация жирности: убираем хаос ===== */
-
-/* Обычный текст — 400 */
-body, p, td, li, span, a, label, input, select, textarea,
-button, .helptext, .help, .vHelpText, .breadcrumb,
-.nav-link, .nav-item a, .select2-selection,
-.select2-results__option, .paginator,
-#changelist-filter li, #changelist-filter h2,
-.object-tools a, .changelink, .addlink {
-  font-weight: 400 !important;
-}
-
-/* Средняя жирность (500) — метки, подписи, ссылки кнопок */
-th, .column-header a,
-.nav-sidebar .nav-link,
-.breadcrumb-item a,
-.submit-row input,
-.submit-row a.closelink,
-.result-list th a,
-.datetimeshortcuts a,
-.calendar caption {
-  font-weight: 500 !important;
-}
-
-/* Полужирный (600) — заголовки секций, имена приложений */
-.module caption,
-.module h2,
-.app-label,
-h3.card-title,
-#content h1,
-#content h2,
-.nav-sidebar .nav-header,
-.nav-sidebar .nav-separator {
-  font-weight: 600 !important;
-}
-
-/* Жирный (700) — только главные заголовки страниц */
-#content-main > h1,
-.content-title h1,
-.km-stat-value {
-  font-weight: 700 !important;
-}
-
-/* Очень жирный (800) — логотип */
-#site-name a {
-  font-weight: 800 !important;
-  letter-spacing: 0.01em;
-}
-
-/* ===== Шапка ===== */
-#header {
-  background: linear-gradient(90deg, var(--km-admin-header-bg-start), var(--km-admin-header-bg-end)) !important;
-}
-
-#header a, #header a:link, #header a:visited,
-#user-tools, #user-tools a {
-  font-weight: 500 !important;
-}
-
-#nav-sidebar,
-.module,
-#changelist-filter,
-#changelist-form .actions,
-#toolbar,
-.paginator,
-.submit-row {
-  border-radius: 14px;
-}
-
-#content,
-#content-main,
-#container,
-#main {
-  background: transparent;
-}
-
-#content,
-#content-main,
-#content-related,
-.module,
-.results,
-.module table,
-.module caption,
-.breadcrumbs,
-#content h1,
-#content h2,
-#content h3,
-#content h4,
-#content h5,
-#content p,
-#content li,
-#content td,
-#content th,
-#content label,
-#content .help,
-#content .helptext {
-  color: var(--km-admin-text);
-}
-
-#content a,
-#content-main a:link,
-#content-main a:visited {
-  color: var(--km-admin-link);
-}
-
-#content a:hover,
-#content-main a:hover,
-#content-main a:focus {
-  color: var(--km-admin-link-hover);
-}
-
-#nav-sidebar {
-  border-right: 1px solid var(--km-admin-border);
-  background: var(--km-admin-panel-bg);
-}
-
-#nav-sidebar .current-app .section:link,
-#nav-sidebar .current-app .section:visited,
-#nav-sidebar .current-model {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--km-admin-accent-soft) 88%, transparent), color-mix(in srgb, var(--km-admin-accent-soft) 60%, transparent));
-  color: var(--km-admin-accent-strong) !important;
-  font-weight: 800;
-  box-shadow: inset 4px 0 0 var(--km-admin-accent);
-}
-
-#nav-sidebar .current-app .section,
-#nav-sidebar .current-model {
-  position: relative;
-}
-
-#nav-sidebar .current-app .section:hover,
-#nav-sidebar .current-model:hover,
-#nav-sidebar .current-app .section:focus-visible,
-#nav-sidebar .current-model:focus-visible {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--km-admin-accent-soft) 80%, var(--km-admin-panel-bg)), color-mix(in srgb, var(--km-admin-accent-soft) 48%, var(--km-admin-panel-bg)));
-  color: var(--km-admin-accent-strong) !important;
-  text-decoration: none;
-}
-
-#nav-sidebar a {
-  color: var(--km-admin-text);
-}
-
-#nav-sidebar a:hover,
-#nav-sidebar a:focus-visible {
-  color: var(--km-admin-link-hover);
-}
-
-#nav-sidebar .addlink {
-  color: var(--km-admin-link);
-}
-
-#toolbar,
-#changelist-form .actions,
-#changelist-filter {
-  background: var(--km-admin-panel-bg);
-  border: 1px solid var(--km-admin-border);
-  box-shadow: var(--km-admin-panel-shadow);
-}
-
-/* ===== Панель фильтров (кнопки сверху) ===== */
-#toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  margin-bottom: 8px;
-}
-
-#toolbar form {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-#toolbar form > div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-/* Иконка поиска */
-#toolbar label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: 1px solid var(--km-admin-border);
-  background: var(--km-admin-panel-bg-soft);
-  flex-shrink: 0;
-}
-
-#toolbar label img {
-  width: 16px;
-  height: 16px;
-  opacity: 0.7;
-}
-
-/* Поле ввода поиска */
-#changelist #toolbar form input[type="text"] {
-  height: 36px;
-  border-radius: 8px;
-  min-width: 200px;
-  flex: 1 1 260px;
-  padding: 0 12px;
-  background: var(--km-admin-input-bg);
-  color: var(--km-admin-input-fg);
-  border: 1px solid var(--km-admin-input-border);
-  font-size: 13px;
-}
-
-#changelist #toolbar form input[type="text"]::placeholder {
-  color: var(--km-admin-input-placeholder);
-  opacity: 1;
-}
-
-#changelist #toolbar form input[type="text"]:focus-visible {
-  outline: 2px solid var(--km-admin-focus-ring);
-  outline-offset: 1px;
-  border-color: var(--km-admin-focus-ring);
-}
-
-/* Кнопка Найти */
-#changelist #toolbar form input[type="submit"] {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 8px;
-  background: #009A4E;
-  color: #fff;
-  border: 1px solid #008F46;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-#changelist #toolbar form input[type="submit"]:hover,
-#changelist #toolbar form input[type="submit"]:focus-visible {
-  background: #008F46;
-  color: #fff;
-}
-
-/* ===== Панель действий (Удалить выбранные + Выполнить) ===== */
-#changelist-form .actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-}
-
-#changelist-form .actions label,
-#changelist-form .actions span,
-#changelist-form .actions .action-counter {
-  font-size: 13px;
-  color: #6B7280;
-}
-
-#changelist-form .actions select {
-  height: 34px;
-  border-radius: 8px;
-  padding: 0 10px;
-  font-size: 13px;
-  border: 1px solid var(--km-admin-input-border);
-  background: var(--km-admin-input-bg);
-  color: var(--km-admin-text);
-  min-width: 200px;
-}
-
-#changelist-form .actions button[type="submit"],
-#changelist-form .actions input[type="submit"] {
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 8px;
-  background: #F0FDF4;
-  color: #009A4E;
-  border: 1px solid #CFE8D8;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-#changelist-form .actions button[type="submit"]:hover {
-  background: #DCFCE7;
-}
-
-/* Разделитель между фильтрами и действиями */
-#changelist-form .actions + p,
-.results {
-  margin-top: 8px;
-}
-
-
-/* ===== Кнопки — чистый единый стиль ===== */
-
-/* Базовые кнопки */
-.object-tools a,
-.submit-row input[type="submit"],
-.submit-row a,
-.button,
-input[type="submit"],
-input[type="button"] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-/* Основная кнопка сохранения */
-.submit-row input[name="_save"],
-input[type="submit"].default,
-.default {
-  background: #009A4E !important;
-  color: #fff !important;
-  border-color: #008F46 !important;
-}
-.submit-row input[name="_save"]:hover,
-input[type="submit"].default:hover,
-.default:hover {
-  background: #008F46 !important;
-  box-shadow: 0 2px 8px rgba(0,154,78,0.25) !important;
-}
-
-/* Вторичные кнопки */
-.submit-row input[name="_continue"],
-.submit-row input[name="_addanother"] {
-  background: #F0FDF4 !important;
-  color: #009A4E !important;
-  border-color: #CFE8D8 !important;
-}
-.submit-row input[name="_continue"]:hover,
-.submit-row input[name="_addanother"]:hover {
-  background: #DCFCE7 !important;
-}
-
-/* Кнопка Удалить */
-.submit-row a.deletelink,
-.deletelink {
-  background: #FEF2F2 !important;
-  color: #DC2626 !important;
-  border-color: #FECACA !important;
-}
-.submit-row a.deletelink:hover,
-.deletelink:hover {
-  background: #FEE2E2 !important;
-}
-
-/* object-tools (кнопки "Добавить" сверху страницы) */
-.object-tools a {
-  background: #009A4E !important;
-  color: #fff !important;
-  border-color: #008F46 !important;
-  border-radius: 8px !important;
-}
-.object-tools a:hover {
-  background: #008F46 !important;
-  color: #fff !important;
-  box-shadow: 0 2px 8px rgba(0,154,78,0.25) !important;
-}
-
-/* Кнопки disabled */
-.button:disabled,
-input[type="submit"]:disabled,
-input[type="button"]:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-
-input[type="text"],
-input[type="url"],
-input[type="email"],
-input[type="number"],
-input[type="search"],
-input[type="password"],
-textarea,
-select {
-  background: var(--km-admin-input-bg);
-  color: var(--km-admin-input-fg);
-  border: 1px solid var(--km-admin-input-border);
-}
-
-input[type="text"]::placeholder,
-input[type="url"]::placeholder,
-input[type="email"]::placeholder,
-input[type="number"]::placeholder,
-input[type="search"]::placeholder,
-input[type="password"]::placeholder,
-textarea::placeholder {
-  color: var(--km-admin-input-placeholder);
-  opacity: 1;
-}
-
-input[type="text"]:focus-visible,
-input[type="url"]:focus-visible,
-input[type="email"]:focus-visible,
-input[type="number"]:focus-visible,
-input[type="search"]:focus-visible,
-input[type="password"]:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid var(--km-admin-focus-ring);
-  outline-offset: 1px;
-  border-color: var(--km-admin-focus-ring);
-}
+@import 'kidsmap_admin_tokens.css?v=2';
+@import 'kidsmap_admin_layout.css?v=2';
+@import 'kidsmap_admin_components.css?v=2';
+@import 'kidsmap_admin_tables.css?v=2';
+@import 'kidsmap_admin_forms.css?v=3';
+@import 'pages/kidsmap_dashboard.css?v=2';
 
 #result_list thead th {
   white-space: nowrap;
@@ -872,9 +239,6 @@ select:focus-visible {
 }
 
 .km-place-bulk-bar {
-  position: sticky;
-  top: 12px;
-  z-index: 7;
   display: grid;
   gap: 12px;
   margin-bottom: 14px;
@@ -1549,6 +913,159 @@ select:focus-visible {
   color: var(--km-admin-submit-secondary-btn-hover-fg);
 }
 
+.km-admin-user-compact .breadcrumb {
+  margin-bottom: 14px;
+}
+
+.km-admin-user-compact .content-header {
+  padding-bottom: 10px;
+}
+
+.km-admin-user-card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.km-admin-user-card .card-body {
+  padding: 20px 22px;
+}
+
+.km-admin-user-actions {
+  margin-bottom: 14px;
+}
+
+.km-admin-user-actions--bottom {
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+.km-admin-user-submit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.km-admin-user-submit__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.km-admin-user-submit__btn--primary {
+  background: var(--km-admin-accent);
+  border-color: var(--km-admin-accent-strong);
+  color: #fff !important;
+}
+
+.km-admin-user-submit__btn--primary:hover,
+.km-admin-user-submit__btn--primary:focus-visible {
+  background: var(--km-admin-accent-strong);
+  color: #fff !important;
+  box-shadow: 0 6px 16px rgba(0, 154, 78, 0.18);
+}
+
+.km-admin-user-submit__btn--secondary,
+.km-admin-user-submit__btn--ghost {
+  background: #fff;
+  border-color: var(--km-admin-border);
+  color: var(--km-admin-text) !important;
+}
+
+.km-admin-user-submit__btn--secondary:hover,
+.km-admin-user-submit__btn--secondary:focus-visible,
+.km-admin-user-submit__btn--ghost:hover,
+.km-admin-user-submit__btn--ghost:focus-visible {
+  background: var(--km-admin-accent-soft);
+  border-color: var(--km-admin-accent);
+  color: var(--km-admin-accent-strong) !important;
+}
+
+.km-admin-user-submit__btn--danger {
+  background: #fff5f5;
+  border-color: #fecaca;
+  color: #dc2626 !important;
+}
+
+.km-admin-user-submit__btn--danger:hover,
+.km-admin-user-submit__btn--danger:focus-visible {
+  background: #fee2e2;
+  color: #b91c1c !important;
+}
+
+.km-admin-user-compact .nav-tabs {
+  gap: 4px;
+  border-bottom: 1px solid #e7edf3;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-wrap: nowrap;
+  scrollbar-width: thin;
+}
+
+.km-admin-user-compact .nav-tabs .nav-link {
+  margin-bottom: 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: transparent;
+  color: var(--km-admin-muted);
+  font-size: 13px;
+  font-weight: 600 !important;
+}
+
+.km-admin-user-compact .nav-tabs .nav-link.active {
+  background: var(--km-admin-accent-soft);
+  color: var(--km-admin-accent-strong);
+}
+
+.km-admin-user-compact .tab-content .form-row,
+.km-admin-user-compact .inline-group .tabular tr.form-row {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.km-admin-user-compact .card .form-group {
+  margin-bottom: 12px;
+}
+
+.km-admin-user-compact .readonly {
+  font-size: 14px;
+}
+
+.km-admin-link-inline {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.km-admin-user-compact #jazzy-actions,
+.km-admin-user-compact .object-tools,
+.km-admin-user-compact .submit-row {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .km-admin-user-card .card-body {
+    padding: 16px;
+  }
+
+  .km-admin-user-submit {
+    gap: 8px;
+  }
+
+  .km-admin-user-submit__btn {
+    width: 100%;
+  }
+}
+
 .km-gallery-hub,
 .km-gallery-empty-hint {
   margin-bottom: 16px;
@@ -1650,9 +1167,7 @@ select:focus-visible {
     border-radius: 0;
   }
 
-  .km-place-bulk-bar {
-    top: 8px;
-  }
+
 
   .km-place-bulk-bar__count {
     font-size: 20px;
@@ -1889,5 +1404,24 @@ select:focus-visible {
   background: #009A4E;
   color: #fff;
   font-weight: 600;
+}
+
+/* Related Lookup Modal Overrides specifically for Category */
+.modal:has(iframe[src*="/category/"]) .modal-dialog {
+    max-width: 1120px !important;
+    width: 95% !important;
+}
+
+.modal:has(iframe[src*="/category/"]) .modal-content {
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    border: none !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+.modal:has(iframe[src*="/category/"]) iframe {
+    height: 540px !important;
+    width: 100% !important;
+    border: none !important;
 }
 

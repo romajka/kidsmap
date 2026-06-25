@@ -257,35 +257,35 @@
                                 {% elif app.app_label == 'catalog' %}
                                     <li class="nav-header">Каталог (Catalog)</li>
                                     {% for model in app.models %}
-                                        {% if model.object_name in "Place,Event,Category,PlaceReview,PlaceReviewsByClub" %}
+                                        {% if model.object_name == "Place" or model.object_name == "Event" or model.object_name == "Category" or model.object_name == "PlaceReview" or model.object_name == "PlaceReviewsByClub" %}
                                             <li class="nav-item"><a href="{% if model.url %}{{ model.url }}{% else %}javascript:void(0){% endif %}" class="nav-link"><i class="nav-icon {{ model.icon }}"></i><p>{{ model.name }}</p></a></li>
                                         {% endif %}
                                     {% endfor %}
 
-                                    <li class="nav-header">Модерация (Moderation)</li>
+                                    <li class="nav-header">Модерация и заявки (Moderation)</li>
                                     {% for model in app.models %}
-                                        {% if model.object_name in "PlaceOwnershipRequest" %}
+                                        {% if model.object_name == "PlaceOwnershipRequest" %}
                                             <li class="nav-item"><a href="{% if model.url %}{{ model.url }}{% else %}javascript:void(0){% endif %}" class="nav-link"><i class="nav-icon {{ model.icon }}"></i><p>{{ model.name }}</p></a></li>
                                         {% endif %}
                                     {% endfor %}
 
                                     <li class="nav-header">Пользователи (Users)</li>
                                     {% for model in app.models %}
-                                        {% if model.object_name in "SiteRegisteredUser,StaffAccessUser,OwnerTeamMembership,OwnerTeamInvitation,UserEmailVerification,UserProfile" %}
+                                        {% if model.object_name == "SiteRegisteredUser" or model.object_name == "StaffAccessUser" or model.object_name == "OwnerTeamMembership" or model.object_name == "OwnerTeamInvitation" or model.object_name == "UserEmailVerification" or model.object_name == "UserProfile" %}
                                             <li class="nav-item"><a href="{% if model.url %}{{ model.url }}{% else %}javascript:void(0){% endif %}" class="nav-link"><i class="nav-icon {{ model.icon }}"></i><p>{{ model.name }}</p></a></li>
                                         {% endif %}
                                     {% endfor %}
 
                                     <li class="nav-header">Контент (Content)</li>
                                     {% for model in app.models %}
-                                        {% if model.object_name in "CatalogContentSettings,SiteGalleryImage,SiteReview" %}
+                                        {% if model.object_name == "CatalogContentSettings" or model.object_name == "SiteGalleryImage" or model.object_name == "SiteReview" %}
                                             <li class="nav-item"><a href="{% if model.url %}{{ model.url }}{% else %}javascript:void(0){% endif %}" class="nav-link"><i class="nav-icon {{ model.icon }}"></i><p>{{ model.name }}</p></a></li>
                                         {% endif %}
                                     {% endfor %}
 
                                     <li class="nav-header">Система (System)</li>
                                     {% for model in app.models %}
-                                        {% if model.object_name in "SiteSettings,SiteBrandingSettings,SiteAboutSettings,SiteContactsSettings,SiteFooterSettings,SiteEmptyStateSettings,SiteAnalytics,PlaceChangeAudit,PlaceOwnershipRequestAudit" %}
+                                        {% if model.object_name == "SiteSettings" or model.object_name == "SiteBrandingSettings" or model.object_name == "SiteAboutSettings" or model.object_name == "SiteContactsSettings" or model.object_name == "SiteFooterSettings" or model.object_name == "SiteEmptyStateSettings" or model.object_name == "SiteAnalytics" or model.object_name == "PlaceChangeAudit" or model.object_name == "PlaceOwnershipRequestAudit" %}
                                             <li class="nav-item"><a href="{% if model.url %}{{ model.url }}{% else %}javascript:void(0){% endif %}" class="nav-link"><i class="nav-icon {{ model.icon }}"></i><p>{{ model.name }}</p></a></li>
                                         {% endif %}
                                     {% endfor %}

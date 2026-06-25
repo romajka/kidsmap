@@ -181,7 +181,7 @@ class TrackingService:
             request=request,
             event_type=FunnelEvent.EVENT_PLACE_OPEN,
             place=place,
-            meta={"category": place.category},
+            meta={"category": place.category_code},
         )
 
     def track_click_event(

@@ -1,0 +1,82 @@
+{% load i18n %}
+{% with form=adminform.form obj=adminform.form.instance %}
+  <div class="km-media-section" data-place-media-section>
+    <div class="km-media-section__lead">
+      <div>
+        <h3 class="km-media-section__title">{% translate "Главное фото" %}</h3>
+        <p class="km-media-section__description">{% translate "Используется в каталоге, на карте и первым на странице места." %}</p>
+      </div>
+      <p class="km-media-section__hint">{% translate "Рекомендуется квадратное или вертикальное изображение хорошего качества, не меньше 1200×1200 px." %}</p>
+    </div>
+
+    <div class="km-media-main{% if obj.photo and obj.photo.name %} has-photo{% endif %}" data-main-photo-root>
+      <!-- Technical fields for Django -->
+      <div class="km-media-main__fields" style="display: none;">
+        {{ form.photo }}
+      </div>
+
+      <div class="km-media-main__container" data-main-photo-preview-wrap>
+        <div class="km-media-main__placeholder"{% if obj.photo and obj.photo.name %} hidden{% endif %} data-main-photo-placeholder>
+          <span class="km-media-main__placeholder-icon" aria-hidden="true">📷</span>
+          <strong>{% translate "Добавить главное фото" %}</strong>
+          <span class="km-media-main__placeholder-sub">{% translate "Перетащите изображение или выберите файл" %}</span>
+          <span class="km-media-main__placeholder-hint">{% translate "Рекомендуется квадратное или вертикальное изображение хорошего качества, не меньше 1200×1200 px." %}</span>
+        </div>
+
+        {% if obj.photo and obj.photo.name %}
+          <img
+            src="{{ obj.photo.url }}"
+            alt="{{ obj.name_i18n }}"
+            class="km-media-main__image"
+            data-main-photo-preview
+            data-main-photo-initial-url="{{ obj.photo.url }}"
+            data-main-photo-initial-name="{{ obj.photo.name }}"
+            {% if obj.photo.size %}data-main-photo-initial-size="{{ obj.photo.size }}"{% endif %}
+          >
+        {% else %}
+          <img class="km-media-main__image" alt="" hidden data-main-photo-preview>
+        {% endif %}
+      </div>
+
+      <div class="km-media-main__bottom">
+        <div class="km-media-main__actions">
+          <button type="button" class="km-media-main__pick" data-main-photo-pick>{% translate "Заменить" %}</button>
+          <button type="button" class="km-media-main__clear" data-main-photo-clear>{% translate "Удалить" %}</button>
+        </div>
+        <p class="km-media-main__meta">
+          <span>{% translate "Используется в каталоге, на карте и на странице места" %}</span>
+          <span data-main-photo-file-name style="display: none;"></span>
+          <span data-main-photo-file-size style="display: none;"></span>
+        </p>
+      </div>
+    </div>
+
+    <section class="km-gallery-section" aria-labelledby="km-gallery-title">
+      <div class="km-gallery-section__head">
+        <div>
+          <h3 id="km-gallery-title" class="km-gallery-section__title">{% translate "Дополнительные фотографии" %}</h3>
+          <p class="km-gallery-section__description">{% translate "Перетаскивайте фотографии, чтобы изменить порядок." %}</p>
+        </div>
+        <button type="button" class="km-gallery-section__add" data-gallery-add-button>
+          <span aria-hidden="true">+</span>
+          <span>{% translate "Добавить фото" %}</span>
+        </button>
+      </div>
+
+      <!-- Empty state for gallery -->
+      <div class="km-gallery-empty-state" data-gallery-empty-state style="display: none;">
+        <p class="km-gallery-empty-state__text">{% translate "Дополнительные фотографии не добавлены" %}</p>
+        <button type="button" class="km-gallery-empty-state__btn" data-gallery-add-button-empty>
+          <span aria-hidden="true">+</span>
+          <span>{% translate "Добавить фото" %}</span>
+        </button>
+      </div>
+
+      {% if gallery_inline %}
+        {% include "admin/catalog/place/placephoto_inline.html" with inline_admin_formset=gallery_inline %}
+      {% else %}
+        <p class="km-gallery-section__empty">{% translate "Пока нет дополнительных фотографий." %}</p>
+      {% endif %}
+    </section>
+  </div>
+{% endwith %}

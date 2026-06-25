@@ -1,7 +1,17 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
-{% block content_title %}<h1>Фото для блоков сайта</h1>{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_site_media.css' %}">
+{% endblock %}
+
+{% block content_title %}
+  <div style="margin-bottom: 24px;">
+    <h1 style="margin:0 0 6px 0; font-size:24px; font-weight:700; color:#1F2A37;">Фото для блоков сайта</h1>
+    <p style="margin:0; font-size:14px; color:#6B7280;">Управляйте изображениями, которые отображаются в ключевых блоках публичного сайта.</p>
+  </div>
+{% endblock %}
 
 {% block breadcrumbs %}
 <ol class="breadcrumb">
@@ -11,214 +21,165 @@
 {% endblock %}
 
 {% block content %}
-<style>
-  .km-gallery-hub { max-width: 960px; }
-  .km-gallery-group { margin-bottom: 32px; }
-  .km-gallery-group-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1F2A37;
-    margin-bottom: 14px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #CFE8D8;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .km-gallery-slots {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-  @media (max-width: 700px) { .km-gallery-slots { grid-template-columns: 1fr; } }
+<div class="km-site-media-page">
+  <div class="km-media-layout">
+    
+    <!-- Основной контент (Слева) -->
+    <div class="km-media-main">
+      
+      <!-- Секция 1: Одиночные фото -->
+      <section class="km-media-section">
+        <div class="km-media-section-header">
+          <div class="km-media-section-number">1</div>
+          <div>
+            <h2 class="km-media-section-title">Основные изображения сайта</h2>
+            <p class="km-media-section-subtitle">Эти изображения отображаются в ключевых местах сайта</p>
+          </div>
+        </div>
 
-  .km-slot-card {
-    background: #fff;
-    border: 1px solid #CFE8D8;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,154,78,0.06);
-    display: flex;
-    flex-direction: column;
-  }
-  .km-slot-preview {
-    width: 100%;
-    height: 120px;
-    background: #F6FCF8;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-bottom: 1px solid #e5e7eb;
-    position: relative;
-    overflow: hidden;
-  }
-  .km-slot-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .km-slot-preview-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    color: #9CA3AF;
-  }
-  .km-slot-preview-empty i { font-size: 28px; }
-  .km-slot-preview-empty span { font-size: 12px; }
-
-  .km-slot-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .km-slot-badge-set { background: #F0FDF4; color: #009A4E; border: 1px solid #CFE8D8; }
-  .km-slot-badge-empty { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
-
-  .km-slot-body { padding: 14px 16px; flex: 1; }
-  .km-slot-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1F2A37;
-    margin: 0 0 4px 0;
-  }
-  .km-slot-location {
-    font-size: 12px;
-    color: #6B7280;
-    margin: 0 0 8px 0;
-    display: flex;
-    align-items: flex-start;
-    gap: 5px;
-  }
-  .km-slot-size {
-    font-size: 11px;
-    color: #9CA3AF;
-    background: #F9FAFB;
-    border: 1px solid #E5E7EB;
-    border-radius: 6px;
-    padding: 4px 8px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .km-slot-count {
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 12px;
-  }
-  .km-slot-count-good { color: #009A4E; }
-  .km-slot-count-warn { color: #D97706; }
-
-  .km-slot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .km-slot-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: none;
-    border: 1px solid;
-    transition: background 0.15s;
-  }
-  .km-slot-btn-primary {
-    background: #009A4E;
-    color: #fff;
-    border-color: #008F46;
-  }
-  .km-slot-btn-primary:hover { background: #008F46; color: #fff; text-decoration: none; }
-  .km-slot-btn-secondary {
-    background: #F0FDF4;
-    color: #009A4E;
-    border-color: #CFE8D8;
-  }
-  .km-slot-btn-secondary:hover { background: #DCFCE7; color: #009A4E; text-decoration: none; }
-</style>
-
-<div class="km-gallery-hub">
-
-  {% for group in photo_slots %}
-  <div class="km-gallery-group">
-    <div class="km-gallery-group-title">
-      <i class="fas {% if group.group == 'Одиночные фото сайта' %}fa-image{% else %}fa-images{% endif %}" style="color:#009A4E;"></i>
-      {{ group.group }}
-    </div>
-
-    <div class="km-gallery-slots">
-      {% for slot in group.slots %}
-      <div class="km-slot-card">
-
-        <div class="km-slot-preview">
-          {% if slot.image_url %}
-            <img src="{{ slot.image_url }}" alt="{{ slot.title }}">
-            <span class="km-slot-badge km-slot-badge-set"><i class="fas fa-check"></i> Загружено</span>
-          {% else %}
-            <div class="km-slot-preview-empty">
-              <i class="fas fa-image"></i>
-              <span>Нет фото</span>
+        <div class="km-media-list">
+          {% for img in main_images %}
+          <div class="km-media-row">
+            
+            <div class="km-media-preview {% if img.title == 'Логотип сайта' or img.title == 'Картинка пустого результата' %}{% else %}cover{% endif %}">
+              {% if img.file and img.file.url %}
+                <img src="{{ img.file.url }}" alt="{{ img.title }}">
+              {% else %}
+                <div class="km-media-preview-empty"><i class="fas fa-image"></i></div>
+              {% endif %}
             </div>
-            <span class="km-slot-badge km-slot-badge-empty">Не загружено</span>
-          {% endif %}
-          {% if slot.is_gallery and slot.count > 0 %}
-            <span class="km-slot-badge km-slot-badge-set">{{ slot.count }} фото</span>
-          {% elif slot.is_gallery %}
-            <span class="km-slot-badge km-slot-badge-empty">Нет фото</span>
-          {% endif %}
+
+            <div class="km-media-info">
+              <h3 class="km-media-title">{{ img.title }}</h3>
+              <p class="km-media-location">{{ img.location }}</p>
+              <div class="km-media-hint">
+                <i class="far fa-image"></i>
+                <span>Рекомендуемый размер:<br>{{ img.size_hint }}</span>
+              </div>
+            </div>
+
+            <div class="km-media-status-wrapper">
+              {% if img.file and img.file.url %}
+                <span class="km-media-status km-media-status-active"><i class="fas fa-check-circle"></i> Активно</span>
+                <span class="km-media-filename" title="{{ img.file.name }}">{{ img.file.name }} &bull; {{ img.file.size }}</span>
+              {% else %}
+                <span class="km-media-status km-media-status-empty">Не загружено</span>
+              {% endif %}
+            </div>
+
+            <div class="km-media-actions">
+              <a href="{{ img.edit_url }}" class="km-btn-outline">
+                <i class="fas fa-upload"></i> Заменить файл
+              </a>
+              {% if img.preview_url %}
+              <a href="{{ img.preview_url }}" class="km-btn-link" target="_blank" rel="noopener noreferrer">
+                <i class="fas fa-external-link-alt"></i> Открыть сайт
+              </a>
+              {% endif %}
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Секция 2: Галереи -->
+      <section class="km-media-section" style="margin-top: 32px;">
+        <div class="km-media-section-header">
+          <div class="km-media-section-number">2</div>
+          <div>
+            <h2 class="km-media-section-title">Галерея блоков</h2>
+            <p class="km-media-section-subtitle">Изображения для каруселей, подборок и других блоков сайта</p>
+          </div>
         </div>
 
-        <div class="km-slot-body">
-          <h4 class="km-slot-title">{{ slot.title }}</h4>
+        {% for gallery in galleries %}
+        <div class="km-gallery-container">
+          <h3 style="font-size: 14px; font-weight: 600; margin: 0 0 16px 0;">{{ gallery.title }}</h3>
+          <div class="km-gallery-grid">
+            
+            {% for item in gallery.images %}
+            <div class="km-gallery-card">
+              <div class="km-gallery-card-preview">
+                {% if item.file and item.file.url %}
+                  <img src="{{ item.file.url }}" alt="{{ item.title }}">
+                {% else %}
+                  <div style="color:#9CA3AF;"><i class="fas fa-image fa-2x"></i></div>
+                {% endif %}
+              </div>
+              <div class="km-gallery-card-body">
+                <h4 class="km-gallery-card-title" title="{{ item.title }}">{{ item.title }}</h4>
+                <div class="km-gallery-card-footer">
+                  <span class="km-gallery-card-size">{% if item.file %}{{ item.file.size }}{% else %}N/A{% endif %}</span>
+                  <div class="km-gallery-card-actions">
+                    <a href="{{ item.edit_url }}" class="km-gallery-card-btn" title="Редактировать"><i class="fas fa-pencil-alt"></i></a>
+                    <a href="{{ item.delete_url }}" class="km-gallery-card-btn delete" title="Удалить"><i class="far fa-trash-alt"></i></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
 
-          <p class="km-slot-location">
-            <i class="fas fa-map-pin" style="color:#009A4E; margin-top:1px; flex-shrink:0;"></i>
-            {{ slot.location }}
-          </p>
+            <!-- Добавить новое изображение -->
+            <a href="{{ gallery.add_url }}" class="km-gallery-add">
+              <i class="fas fa-plus-circle"></i>
+              <span class="km-gallery-add-title">Добавить изображение</span>
+              <span class="km-gallery-add-hint">{{ gallery.size_hint }}</span>
+            </a>
 
-          <div class="km-slot-size">
-            <i class="fas fa-ruler-combined" style="color:#9CA3AF;"></i>
-            {{ slot.size_hint }}
           </div>
-
-          {% if slot.is_gallery %}
-          <div class="km-slot-count {% if slot.count > 0 %}km-slot-count-good{% else %}km-slot-count-warn{% endif %}">
-            <i class="fas {% if slot.count > 0 %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
-            {{ slot.count_label }}
-          </div>
-          <div class="km-slot-actions">
-            <a href="{{ slot.add_url }}" class="km-slot-btn km-slot-btn-primary">
-              <i class="fas fa-plus"></i> Добавить фото
-            </a>
-            {% if slot.count > 0 %}
-            <a href="{{ slot.list_url }}" class="km-slot-btn km-slot-btn-secondary">
-              <i class="fas fa-list"></i> Смотреть все
-            </a>
-            {% endif %}
-          </div>
-          {% else %}
-          <div class="km-slot-count {% if slot.image_url %}km-slot-count-good{% else %}km-slot-count-warn{% endif %}">
-            <i class="fas {% if slot.image_url %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
-            {{ slot.count_label }}
-          </div>
-          <div class="km-slot-actions">
-            <a href="{{ slot.edit_url }}" class="km-slot-btn km-slot-btn-primary">
-              <i class="fas fa-upload"></i> {% if slot.image_url %}Заменить{% else %}Загрузить{% endif %}
-            </a>
-          </div>
-          {% endif %}
         </div>
+        {% endfor %}
 
-      </div>
-      {% endfor %}
+      </section>
+
     </div>
-  </div>
-  {% endfor %}
 
+    <!-- Справочная панель (Справа) -->
+    <div class="km-media-sidebar">
+      <h3 class="km-sidebar-title">Как выбрать изображение?</h3>
+      
+      <div class="km-sidebar-item">
+        <div class="km-sidebar-item-header">
+          <i class="far fa-image"></i> Размер и качество
+        </div>
+        <p class="km-sidebar-item-text">
+          Используйте рекомендованные размеры для лучшего отображения на всех устройствах. Оптимизируйте изображения для быстрой загрузки (до 2 МБ).
+        </p>
+      </div>
+
+      <div class="km-sidebar-item">
+        <div class="km-sidebar-item-header">
+          <i class="far fa-file-image"></i> Форматы
+        </div>
+        <p class="km-sidebar-item-text">
+          Лучше всего подходят: <strong>JPG, PNG, WebP</strong>.<br>
+          Для логотипа используйте <strong>SVG или PNG</strong> с прозрачным фоном.
+        </p>
+      </div>
+
+      <div style="margin-top:24px; padding-top:20px; border-top:1px solid #CFE8D8;">
+        <h4 style="font-size:13px; font-weight:700; color:#1F2A37; margin:0 0 12px 0;">Что влияет каждое изображение?</h4>
+        <ul class="km-sidebar-list">
+          <li><strong>Логотип сайта</strong><br>Отображается в шапке слева на всех страницах.</li>
+          <li><strong>Фон сайта</strong><br>Задает общий декоративный фон сайта.</li>
+          <li><strong>Фон hero-баннера</strong><br>Большой баннер на главной странице.</li>
+          <li><strong>Картинка пустого результата</strong><br>Показывается, когда поиск ничего не находит.</li>
+          <li><strong>Галерея блоков</strong><br>Изображения для каруселей и подборок в разных разделах.</li>
+        </ul>
+      </div>
+
+      <div class="km-sidebar-tip">
+        <div class="km-sidebar-tip-header">
+          <i class="far fa-lightbulb"></i> Совет
+        </div>
+        <p class="km-sidebar-tip-text">
+          Используйте изображения в едином стиле и цветовой гамме для гармоничного вида сайта.
+        </p>
+      </div>
+      
+    </div>
+
+  </div>
 </div>
 {% endblock %}

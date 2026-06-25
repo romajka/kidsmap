@@ -1,513 +1,553 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block extrastyle %}
   {{ block.super }}
-  <style>
-    .kidsmap-analytics .module {
-      background: var(--darkened-bg);
-      border: 1px solid var(--hairline-color);
-    }
-
-    .kidsmap-analytics [style*="background:#f9fcff"],
-    .kidsmap-analytics [style*="background:#fff"] {
-      background: var(--body-bg) !important;
-      border-color: var(--hairline-color) !important;
-      color: var(--body-fg) !important;
-    }
-
-    .kidsmap-analytics [style*="border-bottom:1px solid #d9e3ec"],
-    .kidsmap-analytics [style*="border-bottom:1px solid #eef3f8"] {
-      border-bottom-color: var(--hairline-color) !important;
-    }
-
-    .kidsmap-analytics [style*="color:#617084"] {
-      color: var(--body-quiet-color) !important;
-    }
-
-    .kidsmap-analytics table th,
-    .kidsmap-analytics table td,
-    .kidsmap-analytics h2,
-    .kidsmap-analytics h3,
-    .kidsmap-analytics p,
-    .kidsmap-analytics li,
-    .kidsmap-analytics div {
-      color: var(--body-fg);
-    }
-
-    .kidsmap-analytics a {
-      color: var(--link-fg);
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_statistics.css' %}" />
 {% endblock %}
 
 {% block content %}
-  <div id="content-main" class="kidsmap-analytics">
-    <div class="module" style="padding:14px;">
-      <h2 style="margin-top:0;">{% trans "Общая статистика" %}</h2>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
-        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-          <h3 style="margin:0 0 8px;">{% trans "Кружки и курсы" %}</h3>
-          <div><b>{% trans "Всего" %}:</b> {{ places_stats.total }}</div>
-          <div><b>{% trans "Активные" %}:</b> {{ places_stats.active }}</div>
-          <div><b>{% trans "Проверенные" %}:</b> {{ places_stats.verified }}</div>
-          <div><b>{% trans "Новые за 7 дней" %}:</b> {{ places_stats.new_7 }}</div>
-          <div><b>{% trans "Новые за 30 дней" %}:</b> {{ places_stats.new_30 }}</div>
-          <div><b>{% trans "Всего лайков" %}:</b> {{ places_stats.likes_total }}</div>
-          <div><b>{% trans "Средний рейтинг" %}:</b> {{ places_stats.avg_rating }}</div>
+  <div id="content-main" class="km-statistics-page">
+    <div class="km-statistics-wrap">
+      <header class="km-statistics-header">
+        <div class="km-statistics-header__titles">
+          <h1>{% trans "Статистика" %}</h1>
+          <p class="km-statistics-header__subtitle">{% trans "Обзор трафика и активности сайта" %}</p>
         </div>
-
-        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-          <h3 style="margin:0 0 8px;">{% trans "Отзывы по кружкам" %}</h3>
-          <div><b>{% trans "Всего" %}:</b> {{ place_reviews_stats.total }}</div>
-          <div><b>{% trans "Средняя оценка" %}:</b> {{ place_reviews_stats.avg_rating }}</div>
-          <div style="margin-top:8px;">
-            <a href="{% url 'admin:catalog_placereview_changelist' %}">{% trans "Открыть отзывы по кружкам" %}</a>
+        <div class="km-statistics-header__controls">
+          <nav class="km-period-selector" aria-label="{% trans 'Выбор периода' %}">
+            <a href="?period=7" class="km-period-selector__btn{% if period_days == 7 %} is-active{% endif %}" data-period="7">7 {% trans "дней" %}</a>
+            <a href="?period=30" class="km-period-selector__btn{% if period_days == 30 %} is-active{% endif %}" data-period="30">30 {% trans "дней" %}</a>
+            <a href="?period=90" class="km-period-selector__btn{% if period_days == 90 %} is-active{% endif %}" data-period="90">90 {% trans "дней" %}</a>
+            <a href="?period=365" class="km-period-selector__btn{% if period_days == 365 %} is-active{% endif %}" data-period="365">365 {% trans "дней" %}</a>
+          </nav>
+          <div class="km-updated-label">
+            <span>↻</span>
+            <span>{% trans "Обновлено сегодня" %}</span>
           </div>
         </div>
+      </header>
 
-        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-          <h3 style="margin:0 0 8px;">{% trans "Отзывы о сайте" %}</h3>
-          <div><b>{% trans "Всего" %}:</b> {{ site_reviews_stats.total }}</div>
-          <div><b>{% trans "Средняя оценка" %}:</b> {{ site_reviews_stats.avg_rating }}</div>
-          <div style="margin-top:8px;">
-            <a href="{% url 'admin:catalog_sitereview_changelist' %}">{% trans "Открыть отзывы о сайте" %}</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">Google Analytics 4</h2>
-      {% if ga4.enabled %}
-        <p style="margin:8px 0 0;color:#617084;">
-          <b>Measurement ID:</b> {{ ga4.measurement_id|default:"-" }}
-          <span style="margin-left:12px;"><b>{% trans "Property ID" %}:</b> {{ ga4.property_id|default:"-" }}</span>
-          {% if ga4.credentials_path %}
-            <span style="margin-left:12px;"><b>{% trans "Credentials" %}:</b> {{ ga4.credentials_path }}</span>
-          {% endif %}
-        </p>
-        {% if ga4.connected %}
-          {% if ga4.conversion_event_names %}
-            <p style="margin:10px 0 0;color:#617084;">
-              <b>{% trans "GA4 conversions" %}:</b>
-              {{ ga4.conversion_event_names|join:", " }}
+      <section class="km-statistics-kpis">
+        {% for card in kpi_cards %}
+          <article class="km-kpi-card" data-kpi="{{ card.key }}">
+            <div class="km-kpi-card__header">
+              <span class="km-kpi-card__label">{{ card.label }}</span>
+              <span class="km-kpi-card__icon {{ card.icon_class }}">{{ card.icon }}</span>
+            </div>
+            <p class="km-kpi-card__value" data-kpi-value="{{ card.key }}">
+              {% if card.formatted_value %}
+                {{ card.formatted_value }}
+              {% else %}
+                {{ card.value }}
+              {% endif %}
             </p>
+            <div class="km-kpi-card__delta {{ card.delta.class_name }}">
+              {% if card.delta.arrow %}<span>{{ card.delta.arrow }}</span>{% endif %}
+              <span>{{ card.delta.text }}</span>
+            </div>
+          </article>
+        {% endfor %}
+      </section>
+
+      <section class="km-statistics-main-grid">
+        <article class="km-statistics-card km-statistics-chart">
+          <header class="km-statistics-card__header">
+            <div>
+              <h2 class="km-statistics-card__title">{% trans "Посещаемость" %}</h2>
+              <p class="km-statistics-card__subtitle">
+                {{ period_start|date:"d.m.Y" }} - {{ period_end|date:"d.m.Y" }}
+              </p>
+            </div>
+          </header>
+          <div class="km-chart-legend">
+            <span class="km-chart-legend__item">
+              <span class="km-chart-legend__dot" style="background:#2563EB;"></span>
+              <span>{% trans "Уникальные" %}</span>
+            </span>
+            <span class="km-chart-legend__item">
+              <span class="km-chart-legend__dot" style="background:#009A4E;"></span>
+              <span>{% trans "Просмотры" %}</span>
+            </span>
+          </div>
+          {% if visits_daily_chart.labels %}
+            <canvas id="km-visits-chart" height="280"></canvas>
+          {% else %}
+            <div class="km-chart-empty">{% trans "Пока нет данных по посещаемости." %}</div>
           {% endif %}
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
-            <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-              <h3 style="margin:0 0 8px;">{% trans "Сегодня" %}</h3>
-              <div><b>{% trans "Активные пользователи" %}:</b> {{ ga4.period_stats.day.active_users }}</div>
-              <div><b>{% trans "Сессии" %}:</b> {{ ga4.period_stats.day.sessions }}</div>
-              <div><b>{% trans "Просмотры страниц" %}:</b> {{ ga4.period_stats.day.page_views }}</div>
+        </article>
+
+        <article class="km-statistics-card km-statistics-funnel">
+          <header class="km-statistics-card__header">
+            <div>
+              <h2 class="km-statistics-card__title">{% blocktranslate with days=period_days %}Воронка ({{ days }} дней){% endblocktranslate %}</h2>
+              <p class="km-statistics-card__subtitle">{% trans "Текущий период" %}</p>
             </div>
-            <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-              <h3 style="margin:0 0 8px;">{% trans "За 7 дней" %}</h3>
-              <div><b>{% trans "Активные пользователи" %}:</b> {{ ga4.period_stats.week.active_users }}</div>
-              <div><b>{% trans "Сессии" %}:</b> {{ ga4.period_stats.week.sessions }}</div>
-              <div><b>{% trans "Просмотры страниц" %}:</b> {{ ga4.period_stats.week.page_views }}</div>
+          </header>
+          {% if funnel_steps %}
+            <div class="km-funnel-steps">
+              {% for step in funnel_steps %}
+                <div class="km-funnel-step">
+                  <div class="km-funnel-step__bar-wrap">
+                    <div class="km-funnel-step__label">{{ step.label }}</div>
+                    <div class="km-funnel-step__bar-track">
+                      <div
+                        class="km-funnel-step__bar-fill"
+                        style="width: {{ step.bar_pct }}%; background:
+                          {% if step.tone == 'purple' %}#DDD6FE
+                          {% elif step.tone == 'blue' %}#BFDBFE
+                          {% elif step.tone == 'green' %}#BBF7D0
+                          {% else %}#FDE68A{% endif %};"
+                      ></div>
+                    </div>
+                  </div>
+                  <div class="km-funnel-step__count">{{ step.count }}</div>
+                </div>
+              {% endfor %}
             </div>
-            <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-              <h3 style="margin:0 0 8px;">{% trans "За 30 дней" %}</h3>
-              <div><b>{% trans "Активные пользователи" %}:</b> {{ ga4.period_stats.month.active_users }}</div>
-              <div><b>{% trans "Сессии" %}:</b> {{ ga4.period_stats.month.sessions }}</div>
-              <div><b>{% trans "Просмотры страниц" %}:</b> {{ ga4.period_stats.month.page_views }}</div>
+          {% else %}
+            <div class="km-empty-state">{% trans "Пока нет данных по событиям воронки." %}</div>
+          {% endif %}
+          <div class="km-funnel-cta-ratio" data-kpi="open_per_search">
+            <div>
+              <div class="km-funnel-cta-ratio__label">{% trans "Открытий на поиск" %}</div>
+              <div class="km-funnel-ratio-note">{% trans "Коэффициент без знака %" %}</div>
             </div>
-            <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-              <h3 style="margin:0 0 8px;">{% trans "За 365 дней" %}</h3>
-              <div><b>{% trans "Активные пользователи" %}:</b> {{ ga4.period_stats.year.active_users }}</div>
-              <div><b>{% trans "Сессии" %}:</b> {{ ga4.period_stats.year.sessions }}</div>
-              <div><b>{% trans "Просмотры страниц" %}:</b> {{ ga4.period_stats.year.page_views }}</div>
+            <div class="km-funnel-cta-ratio__value" data-kpi-value="open_per_search">{{ open_per_search_display }}</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="km-statistics-bottom-grid">
+        <article class="km-statistics-card">
+          <header class="km-statistics-card__header">
+            <div>
+              <h2 class="km-statistics-card__title">{% blocktranslate with days=period_days %}Топ кружков по CTA ({{ days }} дней){% endblocktranslate %}</h2>
+              <p class="km-statistics-card__subtitle">{% trans "Карточки с наибольшим числом целевых действий" %}</p>
             </div>
+          </header>
+          {% if top_cta_places %}
+            <table class="km-top-places-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>{% trans "Кружок" %}</th>
+                  <th>{% trans "Категория" %}</th>
+                  <th>{% trans "Район" %}</th>
+                  <th>{% trans "CTA" %}</th>
+                  <th>{% trans "CTA / Open" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in top_cta_places %}
+                  <tr>
+                    <td class="km-top-places-table__rank">{{ forloop.counter }}</td>
+                    <td class="km-top-places-table__name">
+                      <a href="{% url 'admin:catalog_place_change' item.place_id %}">{{ item.name }}</a>
+                    </td>
+                    <td class="km-top-places-table__cat">{{ item.category }}</td>
+                    <td>{{ item.district }}</td>
+                    <td class="km-top-places-table__num">{{ item.cta_count }}</td>
+                    <td class="km-top-places-table__num">
+                      {% if item.cta_from_open_pct is not None %}
+                        {{ item.cta_from_open_pct|floatformat:1 }}%
+                      {% else %}
+                        —
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <a href="{% url 'admin:catalog_place_changelist' %}" class="km-see-all-link">{% trans "Смотреть все" %}</a>
+          {% else %}
+            <div class="km-empty-state">{% trans "Пока нет данных по CTA." %}</div>
+          {% endif %}
+        </article>
+
+        <article class="km-statistics-card">
+          <header class="km-statistics-card__header">
+            <div>
+              <h2 class="km-statistics-card__title">{% trans "Состояние каталога" %}</h2>
+              <p class="km-statistics-card__subtitle">{% trans "Текущее состояние базы мест" %}</p>
+            </div>
+          </header>
+          <div class="km-catalog-state-rows">
+            <div class="km-catalog-state-row">
+              <div class="km-catalog-state-row__left">
+                <span class="km-catalog-state-row__icon km-kpi-icon--blue">📍</span>
+                <span>{% trans "Всего мест" %}</span>
+              </div>
+              <div class="km-catalog-state-row__value">{{ catalog_state.total }}</div>
+            </div>
+            <div class="km-catalog-state-row">
+              <div class="km-catalog-state-row__left">
+                <span class="km-catalog-state-row__icon km-kpi-icon--green">✓</span>
+                <span>{% trans "Опубликовано" %}</span>
+              </div>
+              <div class="km-catalog-state-row__value">{{ catalog_state.active }}</div>
+            </div>
+            <div class="km-catalog-state-row">
+              <div class="km-catalog-state-row__left">
+                <span class="km-catalog-state-row__icon km-kpi-icon--teal">⛳</span>
+                <span>{% trans "Проверено" %}</span>
+              </div>
+              <div class="km-catalog-state-row__value">{{ catalog_state.verified }}</div>
+            </div>
+            <div class="km-catalog-state-row">
+              <div class="km-catalog-state-row__left">
+                <span class="km-catalog-state-row__icon km-kpi-icon--orange">⏳</span>
+                <span>{% trans "На модерации" %}</span>
+              </div>
+              <div class="km-catalog-state-row__value">{{ catalog_state.pending }}</div>
+            </div>
+            <div class="km-catalog-state-row">
+              <div class="km-catalog-state-row__left">
+                <span class="km-catalog-state-row__icon km-kpi-icon--purple">◎</span>
+                <span>{% trans "Без координат" %}</span>
+              </div>
+              <div class="km-catalog-state-row__value">{{ catalog_state.no_coords }}</div>
+            </div>
+            <div class="km-catalog-state-row">
+              <div class="km-catalog-state-row__left">
+                <span class="km-catalog-state-row__icon km-kpi-icon--pink">★</span>
+                <span>{% trans "Средний рейтинг" %}</span>
+              </div>
+              <div class="km-catalog-state-row__value">{{ catalog_state.avg_rating|floatformat:2 }}</div>
+            </div>
+          </div>
+          <div class="km-catalog-state-links">
+            <a href="{% url 'admin:catalog_place_changelist' %}" class="km-catalog-state-link">{% trans "Все места" %}</a>
+            <a href="{% url 'admin:catalog_place_changelist' %}?status__exact=pending" class="km-catalog-state-link">{% trans "На модерации" %}</a>
+            <a href="{% url 'admin:catalog_placereview_changelist' %}" class="km-catalog-state-link">{% trans "Отзывы" %}</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="km-statistics-two-col-grid">
+        <article class="km-statistics-card">
+          <header class="km-statistics-card__header">
+            <div>
+              <h2 class="km-statistics-card__title">{% trans "Категории каталога" %}</h2>
+              <p class="km-statistics-card__subtitle">{% trans "По количеству мест" %}</p>
+            </div>
+          </header>
+          {% if top_categories %}
+            <div class="km-bar-list">
+              {% for item in top_categories %}
+                <div class="km-bar-list__row">
+                  <div class="km-bar-list__label">{{ item.name }}</div>
+                  <div class="km-bar-list__track">
+                    <div class="km-bar-list__fill" style="width: {{ item.bar_pct }}%; background:#6EE7B7;"></div>
+                  </div>
+                  <div class="km-bar-list__num">{{ item.total }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="km-empty-state">{% trans "Пока нет данных по категориям." %}</div>
+          {% endif %}
+        </article>
+
+        <article class="km-statistics-card">
+          <header class="km-statistics-card__header">
+            <div>
+              <h2 class="km-statistics-card__title">{% trans "Районы" %}</h2>
+              <p class="km-statistics-card__subtitle">{% trans "По количеству мест" %}</p>
+            </div>
+          </header>
+          {% if top_districts %}
+            <div class="km-bar-list">
+              {% for item in top_districts %}
+                <div class="km-bar-list__row">
+                  <div class="km-bar-list__label">{{ item.district }}</div>
+                  <div class="km-bar-list__track">
+                    <div class="km-bar-list__fill" style="width: {{ item.bar_pct }}%; background:#93C5FD;"></div>
+                  </div>
+                  <div class="km-bar-list__num">{{ item.total }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="km-empty-state">{% trans "Пока нет данных по районам." %}</div>
+          {% endif %}
+        </article>
+      </section>
+
+      <details class="km-details-collapse">
+        <summary>
+          <span>▣</span>
+          <span>{% trans "Подробные данные" %}</span>
+          <span class="km-details-chevron">⌄</span>
+        </summary>
+        <div class="km-details-collapse__body">
+          <div class="km-details-tabs" role="tablist">
+            <button type="button" class="km-details-tab-btn is-active" data-tab-target="traffic">{% trans "Трафик" %}</button>
+            <button type="button" class="km-details-tab-btn" data-tab-target="funnel">{% trans "Воронка" %}</button>
+            <button type="button" class="km-details-tab-btn" data-tab-target="ga4">GA4</button>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px;">
-            <div>
-              <h3 style="margin:0 0 8px;">{% trans "GA4: динамика за 30 дней" %}</h3>
-              <canvas id="ga4VisitsChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
-            </div>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px;">
-            <div>
-              <h3 style="margin:0 0 8px;">{% trans "GA4: топ страниц за 30 дней" %}</h3>
-              {% if ga4.top_pages %}
-                <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+          <section class="km-details-tab-panel is-active" data-tab-panel="traffic">
+            <article class="km-statistics-card">
+              <h3 class="km-statistics-card__title">{% trans "Посещаемость по неделям" %}</h3>
+              {% if weekly_visits %}
+                <table class="km-detail-table">
                   <thead>
                     <tr>
-                      <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Путь" %}</th>
-                      <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Просмотры" %}</th>
+                      <th>{% trans "Неделя от" %}</th>
+                      <th>{% trans "Уникальные посетители" %}</th>
+                      <th>{% trans "Просмотры страниц" %}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {% for row in ga4.top_pages %}
+                    {% for row in weekly_visits %}
                       <tr>
-                        <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.page_path }}</td>
-                        <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.page_views }}</td>
+                        <td>{{ row.period|date:"d.m.Y" }}</td>
+                        <td>{{ row.unique_sessions }}</td>
+                        <td>{{ row.page_views }}</td>
                       </tr>
                     {% endfor %}
                   </tbody>
                 </table>
               {% else %}
-                <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+                <div class="km-empty-state">{% trans "Нет недельной статистики." %}</div>
               {% endif %}
-            </div>
-            <div>
-              <h3 style="margin:0 0 8px;">{% trans "GA4: события за 30 дней" %}</h3>
-              {% if ga4.top_events %}
-                <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+            </article>
+
+            <article class="km-statistics-card km-statistics-card--spaced">
+              <h3 class="km-statistics-card__title">{% trans "Посещаемость по месяцам" %}</h3>
+              {% if monthly_visits %}
+                <table class="km-detail-table">
                   <thead>
                     <tr>
-                      <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Событие" %}</th>
-                      <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Количество" %}</th>
+                      <th>{% trans "Месяц" %}</th>
+                      <th>{% trans "Уникальные посетители" %}</th>
+                      <th>{% trans "Просмотры страниц" %}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {% for row in ga4.top_events %}
+                    {% for row in monthly_visits %}
                       <tr>
-                        <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.event_name }}</td>
-                        <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.event_count }}</td>
+                        <td>{{ row.period|date:"m.Y" }}</td>
+                        <td>{{ row.unique_sessions }}</td>
+                        <td>{{ row.page_views }}</td>
                       </tr>
                     {% endfor %}
                   </tbody>
                 </table>
               {% else %}
-                <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
+                <div class="km-empty-state">{% trans "Нет месячной статистики." %}</div>
               {% endif %}
-            </div>
-          </div>
-          {{ ga4.daily_chart|json_script:"ga4-visits-chart-data" }}
-        {% else %}
-          <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;margin-top:12px;">
-            <p style="margin:0 0 8px;"><b>{% trans "GA4 пока не подключен к админке." %}</b></p>
-            <p style="margin:0;color:#617084;">{{ ga4.error }}</p>
-            <ul style="margin:10px 0 0;padding-left:18px;">
-              <li>{% trans "Укажите GOOGLE_ANALYTICS_PROPERTY_ID в окружении сервера." %}</li>
-              <li>{% trans "Создайте service account в Google Cloud и сохраните JSON-ключ на сервере." %}</li>
-              <li>{% trans "Добавьте путь к JSON-ключу в GOOGLE_APPLICATION_CREDENTIALS." %}</li>
-              <li>{% trans "Выдайте service account доступ Viewer/Analyst к ресурсу GA4." %}</li>
-            </ul>
-          </div>
-        {% endif %}
-      {% else %}
-        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;margin-top:12px;">
-          <p style="margin:0;"><b>{% trans "GA4 не настроен." %}</b></p>
-          <p style="margin:8px 0 0;color:#617084;">{% trans "Сначала подключите внешний Google Analytics tag к сайту и задайте Measurement ID." %}</p>
+            </article>
+          </section>
+
+          <section class="km-details-tab-panel" data-tab-panel="funnel">
+            <article class="km-statistics-card">
+              <h3 class="km-statistics-card__title">{% trans "Воронка по неделям" %}</h3>
+              {% if weekly_funnel %}
+                <table class="km-detail-table">
+                  <thead>
+                    <tr>
+                      <th>{% trans "Неделя от" %}</th>
+                      <th>{% trans "Поиски" %}</th>
+                      <th>{% trans "Фильтры" %}</th>
+                      <th>{% trans "Открытия карточек" %}</th>
+                      <th>{% trans "CTA" %}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in weekly_funnel %}
+                      <tr>
+                        <td>{{ row.period|date:"d.m.Y" }}</td>
+                        <td>{{ row.search }}</td>
+                        <td>{{ row.catalog_filter }}</td>
+                        <td>{{ row.place_open }}</td>
+                        <td>{{ row.cta_total }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                <div class="km-empty-state">{% trans "Нет недельной воронки." %}</div>
+              {% endif %}
+            </article>
+
+            <article class="km-statistics-card km-statistics-card--spaced">
+              <h3 class="km-statistics-card__title">{% trans "Воронка по месяцам" %}</h3>
+              {% if monthly_funnel %}
+                <table class="km-detail-table">
+                  <thead>
+                    <tr>
+                      <th>{% trans "Месяц" %}</th>
+                      <th>{% trans "Поиски" %}</th>
+                      <th>{% trans "Фильтры" %}</th>
+                      <th>{% trans "Открытия карточек" %}</th>
+                      <th>{% trans "CTA" %}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in monthly_funnel %}
+                      <tr>
+                        <td>{{ row.period|date:"m.Y" }}</td>
+                        <td>{{ row.search }}</td>
+                        <td>{{ row.catalog_filter }}</td>
+                        <td>{{ row.place_open }}</td>
+                        <td>{{ row.cta_total }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                <div class="km-empty-state">{% trans "Нет месячной воронки." %}</div>
+              {% endif %}
+            </article>
+
+            <article class="km-statistics-card km-statistics-card--spaced">
+              <h3 class="km-statistics-card__title">{% trans "Последние добавленные кружки" %}</h3>
+              {% if recent_places %}
+                <div class="km-recent-list">
+                  {% for place in recent_places %}
+                    <div class="km-recent-row">
+                      <div class="km-recent-row__name">
+                        <a href="{% url 'admin:catalog_place_change' place.pk %}">{{ place.name_ru|default:place.name }}</a>
+                      </div>
+                      <div class="km-recent-row__cat">{{ place.get_category_display }}</div>
+                      <div class="km-recent-row__dist">{{ place.district|default:"-" }}</div>
+                      <div class="km-recent-row__date">{{ place.created_at|date:"d.m.Y H:i" }}</div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="km-empty-state">{% trans "Пока нет новых карточек." %}</div>
+              {% endif %}
+            </article>
+          </section>
+
+          <section class="km-details-tab-panel" data-tab-panel="ga4">
+            {% if ga4.enabled %}
+              {% if ga4.connected %}
+                <div class="km-ga4-connected">
+                  <span>✓</span>
+                  <span>{% trans "Google Analytics 4 подключен к админке" %}</span>
+                </div>
+                <article class="km-statistics-card">
+                  <header class="km-statistics-card__header">
+                    <div>
+                      <h3 class="km-statistics-card__title">Google Analytics 4</h3>
+                      <p class="km-statistics-card__subtitle">
+                        {% trans "Внешняя аналитика, сохранена на странице в отдельном блоке" %}
+                      </p>
+                    </div>
+                  </header>
+                  <div class="km-ga4-meta">
+                    <span><strong>Measurement ID:</strong> {{ ga4.measurement_id|default:"-" }}</span>
+                    <span><strong>{% trans "Property ID" %}:</strong> {{ ga4.property_id|default:"-" }}</span>
+                    {% if ga4.credentials_path %}
+                      <span><strong>{% trans "Credentials" %}:</strong> {{ ga4.credentials_path }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="km-ga4-mini-grid">
+                    <div class="km-kpi-card">
+                      <span class="km-kpi-card__label">{% trans "Сегодня" %}</span>
+                      <p class="km-kpi-card__value">{{ ga4.period_stats.day.active_users }}</p>
+                      <div class="km-kpi-card__delta km-delta--none">{% trans "Активные пользователи" %}</div>
+                    </div>
+                    <div class="km-kpi-card">
+                      <span class="km-kpi-card__label">{% trans "7 дней" %}</span>
+                      <p class="km-kpi-card__value">{{ ga4.period_stats.week.page_views }}</p>
+                      <div class="km-kpi-card__delta km-delta--none">{% trans "Просмотры страниц" %}</div>
+                    </div>
+                    <div class="km-kpi-card">
+                      <span class="km-kpi-card__label">{% trans "30 дней" %}</span>
+                      <p class="km-kpi-card__value">{{ ga4.period_stats.month.sessions }}</p>
+                      <div class="km-kpi-card__delta km-delta--none">{% trans "Сессии" %}</div>
+                    </div>
+                  </div>
+                  {% if ga4.daily_chart.labels %}
+                    <div class="km-statistics-card--spaced">
+                      <canvas id="km-ga4-chart" height="240"></canvas>
+                    </div>
+                  {% endif %}
+                  <div class="km-ga4-grid">
+                    <div class="km-statistics-card km-statistics-card--inset">
+                      <h4 class="km-statistics-card__title">{% trans "Топ страниц за 30 дней" %}</h4>
+                      {% if ga4.top_pages %}
+                        <table class="km-detail-table">
+                          <thead>
+                            <tr>
+                              <th>{% trans "Путь" %}</th>
+                              <th>{% trans "Просмотры" %}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for row in ga4.top_pages %}
+                              <tr>
+                                <td>{{ row.page_path }}</td>
+                                <td>{{ row.page_views }}</td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      {% else %}
+                        <div class="km-empty-state">{% trans "Пока нет данных." %}</div>
+                      {% endif %}
+                    </div>
+                    <div class="km-statistics-card km-statistics-card--inset">
+                      <h4 class="km-statistics-card__title">{% trans "События за 30 дней" %}</h4>
+                      {% if ga4.top_events %}
+                        <table class="km-detail-table">
+                          <thead>
+                            <tr>
+                              <th>{% trans "Событие" %}</th>
+                              <th>{% trans "Количество" %}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for row in ga4.top_events %}
+                              <tr>
+                                <td>{{ row.event_name }}</td>
+                                <td>{{ row.event_count }}</td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      {% else %}
+                        <div class="km-empty-state">{% trans "Пока нет данных." %}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </article>
+              {% else %}
+                <div class="km-ga4-notice">
+                  <span class="km-ga4-notice__icon">⚠</span>
+                  <div class="km-ga4-notice__text">
+                    <strong>{% trans "GA4 пока не подключен к админке." %}</strong>
+                    <div>{{ ga4.error }}</div>
+                  </div>
+                </div>
+              {% endif %}
+            {% else %}
+              <div class="km-ga4-notice">
+                <span class="km-ga4-notice__icon">⚠</span>
+                <div class="km-ga4-notice__text">
+                  <strong>{% trans "GA4 не настроен." %}</strong>
+                  <div>{% trans "Сначала подключите внешний Google Analytics tag к сайту и задайте Measurement ID." %}</div>
+                </div>
+              </div>
+            {% endif %}
+          </section>
         </div>
-      {% endif %}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Посещаемость сайта" %}</h2>
-      <p style="margin:8px 0 0;color:#617084;">{% trans "Это локальная серверная статистика проекта. Для маркетинговой и внешней аналитики используйте блок Google Analytics 4 выше." %}</p>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
-        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-          <h3 style="margin:0 0 8px;">{% trans "Сегодня" %}</h3>
-          <div><b>{% trans "Уникальные посетители" %}:</b> {{ visits_stats.day.unique_sessions }}</div>
-          <div><b>{% trans "Просмотры страниц" %}:</b> {{ visits_stats.day.page_views }}</div>
-        </div>
-        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-          <h3 style="margin:0 0 8px;">{% trans "За 7 дней" %}</h3>
-          <div><b>{% trans "Уникальные посетители" %}:</b> {{ visits_stats.week.unique_sessions }}</div>
-          <div><b>{% trans "Просмотры страниц" %}:</b> {{ visits_stats.week.page_views }}</div>
-        </div>
-        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-          <h3 style="margin:0 0 8px;">{% trans "За 30 дней" %}</h3>
-          <div><b>{% trans "Уникальные посетители" %}:</b> {{ visits_stats.month.unique_sessions }}</div>
-          <div><b>{% trans "Просмотры страниц" %}:</b> {{ visits_stats.month.page_views }}</div>
-        </div>
-        <div style="border:1px solid #d9e3ec;border-radius:10px;padding:12px;background:#f9fcff;">
-          <h3 style="margin:0 0 8px;">{% trans "За 365 дней" %}</h3>
-          <div><b>{% trans "Уникальные посетители" %}:</b> {{ visits_stats.year.unique_sessions }}</div>
-          <div><b>{% trans "Просмотры страниц" %}:</b> {{ visits_stats.year.page_views }}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Динамика за 30 дней" %}</h2>
-      <div style="display:grid;grid-template-columns:1fr;gap:16px;">
-        <div>
-          <h3 style="margin:0 0 8px;">{% trans "Посещения" %}</h3>
-          <canvas id="visitsChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
-        </div>
-        <div>
-          <h3 style="margin:0 0 8px;">{% trans "Воронка: поиск → карточка → CTA" %}</h3>
-          <canvas id="funnelChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:16px;">
-        <div>
-          <h3 style="margin:0 0 8px;">{% trans "Посещения по периодам (1/7/30/365 дней)" %}</h3>
-          <canvas id="visitsPeriodChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
-        </div>
-        <div>
-          <h3 style="margin:0 0 8px;">{% trans "Воронка по периодам (1/7/30/365 дней)" %}</h3>
-          <canvas id="funnelPeriodChart" height="220" style="width:100%;max-width:100%;border:1px solid #d9e3ec;border-radius:10px;background:#fff;"></canvas>
-        </div>
-      </div>
-      {{ visits_daily_chart|json_script:"visits-chart-data" }}
-      {{ funnel_daily_chart|json_script:"funnel-chart-data" }}
-      {{ visits_period_chart|json_script:"visits-period-chart-data" }}
-      {{ funnel_period_chart|json_script:"funnel-period-chart-data" }}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Конверсионная воронка" %}</h2>
-      <table style="width:100%;border-collapse:collapse;margin-top:10px;">
-        <thead>
-          <tr>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Период" %}</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Поиски" %}</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Фильтры" %}</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Открытия карточек" %}</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "CTA (звонок/WA/IG)" %}</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Open/Search %" %}</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "CTA/Open %" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{% trans "Сегодня" %}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.search }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.filter }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.open }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.cta_total }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.open_from_search_pct }}%</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.day.cta_from_open_pct }}%</td>
-          </tr>
-          <tr>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{% trans "За 7 дней" %}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.search }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.filter }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.open }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.cta_total }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.open_from_search_pct }}%</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.week.cta_from_open_pct }}%</td>
-          </tr>
-          <tr>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{% trans "За 30 дней" %}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.search }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.filter }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.open }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.cta_total }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.open_from_search_pct }}%</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.month.cta_from_open_pct }}%</td>
-          </tr>
-          <tr>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{% trans "За 365 дней" %}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.search }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.filter }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.open }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.cta_total }}</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.open_from_search_pct }}%</td>
-            <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ funnel_stats.year.cta_from_open_pct }}%</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Топ кружков по CTA (30 дней)" %}</h2>
-      {% if top_cta_places %}
-        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
-          <thead>
-            <tr>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Кружок" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Клики CTA" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in top_cta_places %}
-              <tr>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">
-                  <a href="{% url 'admin:catalog_place_change' item.place_id %}">
-                    {% if item.place__name_ru %}{{ item.place__name_ru }}{% else %}{{ item.place__name }}{% endif %}
-                  </a>
-                </td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ item.total }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
-      {% endif %}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Топ категорий" %}</h2>
-      {% if top_categories %}
-        <ul style="margin:10px 0 0;padding-left:18px;">
-          {% for item in top_categories %}
-            <li>{{ item.name }} — {{ item.total }}</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
-      {% endif %}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Топ районов" %}</h2>
-      {% if top_districts %}
-        <ul style="margin:10px 0 0;padding-left:18px;">
-          {% for item in top_districts %}
-            <li>{{ item.district }} — {{ item.total }}</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
-      {% endif %}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Посещаемость по неделям" %}</h2>
-      {% if weekly_visits %}
-        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
-          <thead>
-            <tr>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Неделя от" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Уникальные посетители" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Просмотры страниц" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in weekly_visits %}
-              <tr>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.period|date:"d.m.Y" }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.unique_sessions }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.page_views }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
-      {% endif %}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Посещаемость по месяцам" %}</h2>
-      {% if monthly_visits %}
-        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
-          <thead>
-            <tr>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Месяц" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Уникальные посетители" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Просмотры страниц" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in monthly_visits %}
-              <tr>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.period|date:"m.Y" }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.unique_sessions }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.page_views }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
-      {% endif %}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Воронка по неделям" %}</h2>
-      {% if weekly_funnel %}
-        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
-          <thead>
-            <tr>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Неделя от" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Поиски" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Фильтры" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Открытия карточек" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "CTA" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in weekly_funnel %}
-              <tr>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.period|date:"d.m.Y" }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.search }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.catalog_filter }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.place_open }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.cta_total }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
-      {% endif %}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Воронка по месяцам" %}</h2>
-      {% if monthly_funnel %}
-        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
-          <thead>
-            <tr>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Месяц" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Поиски" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Фильтры" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Открытия карточек" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "CTA" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in monthly_funnel %}
-              <tr>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.period|date:"m.Y" }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.search }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.catalog_filter }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.place_open }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ row.cta_total }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
-      {% endif %}
-    </div>
-
-    <div class="module" style="padding:14px;margin-top:12px;">
-      <h2 style="margin-top:0;">{% trans "Последние добавленные кружки" %}</h2>
-      {% if recent_places %}
-        <table style="width:100%;border-collapse:collapse;margin-top:10px;">
-          <thead>
-            <tr>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Название" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Категория" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Район" %}</th>
-              <th style="text-align:left;padding:8px;border-bottom:1px solid #d9e3ec;">{% trans "Дата" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for place in recent_places %}
-              <tr>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">
-                  <a href="{% url 'admin:catalog_place_change' place.pk %}">{{ place.name_ru|default:place.name }}</a>
-                </td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ place.get_category_display }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ place.district|default:"-" }}</td>
-                <td style="padding:8px;border-bottom:1px solid #eef3f8;">{{ place.created_at|date:"d.m.Y H:i" }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p style="margin:8px 0 0;color:#617084;">{% trans "Пока нет данных." %}</p>
-      {% endif %}
+      </details>
     </div>
   </div>
+
+  {{ visits_daily_chart|json_script:"km-visits-chart-data" }}
+  {{ ga4.daily_chart|json_script:"km-ga4-chart-data" }}
 
   <script>
     (function () {
       function parseJsonScript(id) {
-        const el = document.getElementById(id);
+        var el = document.getElementById(id);
         if (!el) return null;
         try {
           return JSON.parse(el.textContent || "{}");
@@ -516,116 +556,112 @@
         }
       }
 
-      function drawLineChart(canvas, chartData, series) {
+      function renderLineChart(canvasId, chartData, series, height) {
+        var canvas = document.getElementById(canvasId);
         if (!canvas || !chartData || !chartData.labels || !chartData.labels.length) return;
-        const ctx = canvas.getContext("2d");
+
+        var ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        const ratio = window.devicePixelRatio || 1;
-        const cssWidth = canvas.clientWidth || 900;
-        const cssHeight = 220;
+        var cssWidth = canvas.clientWidth || 900;
+        var cssHeight = height || 240;
+        var ratio = window.devicePixelRatio || 1;
         canvas.width = Math.round(cssWidth * ratio);
         canvas.height = Math.round(cssHeight * ratio);
+        canvas.style.height = cssHeight + "px";
         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         ctx.clearRect(0, 0, cssWidth, cssHeight);
 
-        const padding = { top: 18, right: 14, bottom: 28, left: 34 };
-        const width = cssWidth - padding.left - padding.right;
-        const height = cssHeight - padding.top - padding.bottom;
+        var padding = { top: 18, right: 18, bottom: 32, left: 38 };
+        var width = cssWidth - padding.left - padding.right;
+        var chartHeight = cssHeight - padding.top - padding.bottom;
 
-        let maxValue = 0;
+        var maxValue = 0;
         series.forEach(function (item) {
-          const values = chartData[item.key] || [];
-          values.forEach(function (val) {
-            maxValue = Math.max(maxValue, Number(val) || 0);
+          (chartData[item.key] || []).forEach(function (raw) {
+            maxValue = Math.max(maxValue, Number(raw) || 0);
           });
         });
         if (maxValue < 5) maxValue = 5;
-        const yMax = Math.ceil(maxValue * 1.1);
+        var yMax = Math.ceil(maxValue * 1.15);
+        var gridSteps = 4;
 
-        ctx.strokeStyle = "#dbe5ef";
+        ctx.strokeStyle = "#E5E7EB";
         ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(padding.left, padding.top);
-        ctx.lineTo(padding.left, padding.top + height);
-        ctx.lineTo(padding.left + width, padding.top + height);
-        ctx.stroke();
+        for (var step = 0; step <= gridSteps; step += 1) {
+          var y = padding.top + (chartHeight / gridSteps) * step;
+          ctx.beginPath();
+          ctx.moveTo(padding.left, y);
+          ctx.lineTo(padding.left + width, y);
+          ctx.stroke();
+        }
 
-        ctx.fillStyle = "#637487";
-        ctx.font = "12px sans-serif";
-        ctx.fillText("0", 10, padding.top + height + 4);
-        ctx.fillText(String(yMax), 6, padding.top + 4);
+        ctx.fillStyle = "#9CA3AF";
+        ctx.font = "11px sans-serif";
+        for (var labelStep = 0; labelStep <= gridSteps; labelStep += 1) {
+          var labelValue = Math.round(yMax - (yMax / gridSteps) * labelStep);
+          var labelY = padding.top + (chartHeight / gridSteps) * labelStep + 4;
+          ctx.fillText(String(labelValue), 6, labelY);
+        }
 
-        const points = chartData.labels.length;
-        const stepX = points > 1 ? width / (points - 1) : width;
+        var points = chartData.labels.length;
+        var stepX = points > 1 ? width / (points - 1) : width;
 
         series.forEach(function (item) {
-          const values = chartData[item.key] || [];
-          ctx.strokeStyle = item.color;
-          ctx.lineWidth = 2;
+          var values = chartData[item.key] || [];
           ctx.beginPath();
-          values.forEach(function (raw, idx) {
-            const val = Number(raw) || 0;
-            const x = padding.left + stepX * idx;
-            const y = padding.top + height - (val / yMax) * height;
-            if (idx === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+          ctx.strokeStyle = item.color;
+          ctx.lineWidth = 2.5;
+          values.forEach(function (raw, index) {
+            var value = Number(raw) || 0;
+            var x = padding.left + stepX * index;
+            var y = padding.top + chartHeight - (value / yMax) * chartHeight;
+            if (index === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
           });
           ctx.stroke();
         });
 
+        ctx.fillStyle = "#6B7280";
         ctx.font = "11px sans-serif";
-        ctx.fillStyle = "#637487";
-        const lastLabel = chartData.labels[chartData.labels.length - 1] || "";
-        if (lastLabel) {
-          ctx.fillText(lastLabel, padding.left + width - 36, padding.top + height + 16);
-        }
-
-        let legendX = padding.left;
-        series.forEach(function (item) {
-          ctx.fillStyle = item.color;
-          ctx.fillRect(legendX, 6, 12, 12);
-          ctx.fillStyle = "#3a4958";
-          ctx.font = "12px sans-serif";
-          ctx.fillText(item.label, legendX + 16, 16);
-          legendX += Math.max(110, item.label.length * 7 + 34);
+        var skip = points > 10 ? Math.ceil(points / 6) : 1;
+        chartData.labels.forEach(function (label, index) {
+          if (index % skip !== 0 && index !== points - 1) return;
+          var x = padding.left + stepX * index;
+          ctx.fillText(label, x - 10, padding.top + chartHeight + 18);
         });
       }
 
-      const visitsData = parseJsonScript("visits-chart-data");
-      const ga4VisitsData = parseJsonScript("ga4-visits-chart-data");
-      const funnelData = parseJsonScript("funnel-chart-data");
-      const visitsPeriodData = parseJsonScript("visits-period-chart-data");
-      const funnelPeriodData = parseJsonScript("funnel-period-chart-data");
-      const ga4VisitsCanvas = document.getElementById("ga4VisitsChart");
-      const visitsCanvas = document.getElementById("visitsChart");
-      const funnelCanvas = document.getElementById("funnelChart");
-      const visitsPeriodCanvas = document.getElementById("visitsPeriodChart");
-      const funnelPeriodCanvas = document.getElementById("funnelPeriodChart");
+      var detailsButtons = document.querySelectorAll(".km-details-tab-btn");
+      var detailsPanels = document.querySelectorAll(".km-details-tab-panel");
+      detailsButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          var target = button.getAttribute("data-tab-target");
+          detailsButtons.forEach(function (item) {
+            item.classList.toggle("is-active", item === button);
+          });
+          detailsPanels.forEach(function (panel) {
+            panel.classList.toggle("is-active", panel.getAttribute("data-tab-panel") === target);
+          });
+        });
+      });
 
-      drawLineChart(ga4VisitsCanvas, ga4VisitsData, [
-        { key: "active_users", color: "#2b7fd3", label: "{% trans 'Активные пользователи' %}" },
-        { key: "page_views", color: "#2ca24f", label: "{% trans 'Просмотры страниц' %}" },
-      ]);
-      drawLineChart(visitsCanvas, visitsData, [
-        { key: "unique_sessions", color: "#2b7fd3", label: "{% trans 'Уникальные' %}" },
-        { key: "page_views", color: "#2ca24f", label: "{% trans 'Просмотры' %}" },
-      ]);
-      drawLineChart(funnelCanvas, funnelData, [
-        { key: "search", color: "#7b5ed9", label: "{% trans 'Поиск' %}" },
-        { key: "open", color: "#2b7fd3", label: "{% trans 'Карточки' %}" },
-        { key: "cta", color: "#2ca24f", label: "{% trans 'CTA' %}" },
-      ]);
-      drawLineChart(visitsPeriodCanvas, visitsPeriodData, [
-        { key: "unique_sessions", color: "#2b7fd3", label: "{% trans 'Уникальные' %}" },
-        { key: "page_views", color: "#2ca24f", label: "{% trans 'Просмотры' %}" },
-      ]);
-      drawLineChart(funnelPeriodCanvas, funnelPeriodData, [
-        { key: "search", color: "#7b5ed9", label: "{% trans 'Поиск' %}" },
-        { key: "filter", color: "#ef8f2d", label: "{% trans 'Фильтры' %}" },
-        { key: "open", color: "#2b7fd3", label: "{% trans 'Карточки' %}" },
-        { key: "cta", color: "#2ca24f", label: "{% trans 'CTA' %}" },
-      ]);
+      function drawAllCharts() {
+        renderLineChart("km-visits-chart", parseJsonScript("km-visits-chart-data"), [
+          { key: "unique_sessions", color: "#2563EB" },
+          { key: "page_views", color: "#009A4E" }
+        ], 280);
+        renderLineChart("km-ga4-chart", parseJsonScript("km-ga4-chart-data"), [
+          { key: "active_users", color: "#2563EB" },
+          { key: "page_views", color: "#009A4E" }
+        ], 240);
+      }
+
+      drawAllCharts();
+      window.addEventListener("resize", drawAllCharts);
     })();
   </script>
 {% endblock %}

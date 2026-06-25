@@ -1,0 +1,76 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static admin_list admin_urls jazzmin admin_dashboard_tags %}
+
+{% block content_title %}{% endblock %}
+{% block page_actions %}{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}">
+  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}" defer></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} km-custom-changelist{% endblock %}
+
+{% block search %}
+  <div class="place-admin-dashboard">
+    <section class="place-admin-dashboard__header">
+      <div class="place-admin-dashboard__title-block">
+        <h1 class="place-admin-dashboard__title">{% translate "Заявки на владение" %}</h1>
+        <p class="place-admin-dashboard__subtitle">
+          {% blocktranslate trimmed %}
+            Модерация заявок на владение кружком от пользователей. Вы можете принять или отклонить заявку.
+          {% endblocktranslate %}
+        </p>
+      </div>
+    </section>
+
+    {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
+  </div>
+{% endblock %}
+
+{% block result_list %}
+  <div class="place-admin-dashboard">
+    <section
+      class="place-admin-dashboard__bulk-bar km-place-bulk-bar"
+      data-empty-label="{% translate 'Выберите заявки, чтобы массовые действия стали доступны.' %}"
+      data-selected-label="{% translate 'Массовые действия доступны' %}"
+    >
+      <div class="place-admin-dashboard__bulk-summary">
+        <span class="place-admin-dashboard__bulk-count-label">{% translate "Выбрано:" %}</span>
+        <strong class="place-admin-dashboard__bulk-count">0</strong>
+        <span class="place-admin-dashboard__bulk-text">{% translate "Выберите заявки, чтобы массовые действия стали доступны." %}</span>
+        <div class="place-admin-dashboard__bulk-selection">
+          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="page">{% translate "Выбрать все на странице" %}</button>
+          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="clear">{% translate "Снять выделение" %}</button>
+        </div>
+      </div>
+      <div class="place-admin-dashboard__bulk-controls">
+        <div class="place-admin-dashboard__bulk-actions" role="group" aria-label="{% translate 'Массовые действия' %}">
+          {% for item in request_bulk_actions %}
+            <button
+              type="button"
+              class="place-admin-dashboard__bulk-action place-admin-dashboard__bulk-action--{{ item.tone }}"
+              data-action="{{ item.name }}"
+              {% if item.confirm %}data-confirm="{{ item.confirm }}"{% endif %}
+              title="{{ item.description }}"
+              disabled
+            >{{ item.label }}</button>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    {% if action_form and actions_on_top and cl.show_admin_actions %}
+      <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
+    {% endif %}
+
+    <div class="place-admin-dashboard__table-wrap">
+      {% result_list cl %}
+    </div>
+
+    {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+      <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -8,8 +8,23 @@
   }
 
   ready(function () {
+    Array.prototype.slice.call(
+      document.querySelectorAll("[data-filter-select]")
+    ).forEach(function (select) {
+      select.addEventListener("pointerdown", function () {
+        select.focus();
+      });
+
+      select.addEventListener("change", function () {
+        if (!select.value) {
+          return;
+        }
+        window.location.href = select.value;
+      });
+    });
+
     var form = document.getElementById("changelist-form");
-    var bulkBar = document.querySelector(".km-place-bulk-bar");
+    var bulkBar = document.querySelector(".place-admin-dashboard__bulk-bar");
     if (!form || !bulkBar) {
       return;
     }
@@ -23,8 +38,8 @@
     var actionButtons = Array.prototype.slice.call(
       bulkBar.querySelectorAll("[data-action]")
     );
-    var countNode = bulkBar.querySelector(".km-place-bulk-bar__count");
-    var textNode = bulkBar.querySelector(".km-place-bulk-bar__text");
+    var countNode = bulkBar.querySelector(".place-admin-dashboard__bulk-count");
+    var textNode = bulkBar.querySelector(".place-admin-dashboard__bulk-text");
     var emptyLabel = bulkBar.dataset.emptyLabel || "";
     var selectedLabel = bulkBar.dataset.selectedLabel || "{count}";
 
@@ -58,7 +73,11 @@
       bulkBar.classList.toggle("is-active", count > 0);
       countNode.textContent = String(count);
       textNode.textContent = count > 0
-        ? selectedLabel.replace("{count}", String(count))
+        ? (
+          selectedLabel.indexOf("{count}") >= 0
+            ? selectedLabel.replace("{count}", String(count))
+            : selectedLabel
+        )
         : emptyLabel;
       actionButtons.forEach(function (button) {
         button.disabled = count === 0;
@@ -128,5 +147,191 @@
     }
 
     refreshState();
+    refreshState();
+  });
+
+  // Placeholder labels for selects
+  ready(function () {
+    var placeholders = {
+      'category': 'Все категории',
+      'district': 'Все районы',
+      'status': 'Все статусы'
+    };
+    
+    var selects = document.querySelectorAll('.km-admin-select-placeholder');
+    for (var i = 0; i < selects.length; i++) {
+      var select = selects[i];
+      var field = select.dataset.field;
+      if (!field || !placeholders[field]) continue;
+      
+      var options = select.options;
+      if (options.length > 0) {
+        options[0].text = placeholders[field];
+      }
+    }
+  });
+
+  ready(function () {
+    var root = document.querySelector("[data-search-suggest-root]");
+    if (!root) {
+      return;
+    }
+
+    var input = root.querySelector(".place-admin-dashboard__search-input");
+    var form = document.getElementById("changelist-search");
+    var dropdown = root.querySelector("[data-search-suggestions]");
+    var suggestionsUrl = root.dataset.suggestionsUrl || "";
+    var emptyLabel = root.dataset.suggestionsEmpty || "Nothing found";
+    var requestTimer = null;
+    var activeIndex = -1;
+
+    if (!input || !form || !dropdown || !suggestionsUrl) {
+      return;
+    }
+
+    function items() {
+      return Array.prototype.slice.call(
+        dropdown.querySelectorAll("[data-search-suggestion-item]")
+      );
+    }
+
+    function closeDropdown() {
+      dropdown.hidden = true;
+      dropdown.innerHTML = "";
+      activeIndex = -1;
+      input.setAttribute("aria-expanded", "false");
+    }
+
+    function markActive(nextIndex) {
+      var nodes = items();
+      activeIndex = nextIndex;
+      nodes.forEach(function (node, index) {
+        var isActive = index === activeIndex;
+        node.classList.toggle("is-active", isActive);
+        if (isActive) {
+          input.setAttribute("aria-activedescendant", node.id);
+        }
+      });
+      if (activeIndex < 0) {
+        input.removeAttribute("aria-activedescendant");
+      }
+    }
+
+    function applySuggestion(value) {
+      input.value = value || "";
+      closeDropdown();
+      if (typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+      } else {
+        form.submit();
+      }
+    }
+
+    function renderResults(results) {
+      if (!results.length) {
+        dropdown.innerHTML =
+          '<div class="place-admin-dashboard__search-suggestion-empty">' +
+          emptyLabel +
+          "</div>";
+        dropdown.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+        markActive(-1);
+        return;
+      }
+
+      dropdown.innerHTML = results.map(function (item, index) {
+        var safeLabel = String(item.label || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        var safeMeta = String(item.meta || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        var safeValue = String(item.value || "").replace(/"/g, "&quot;");
+        return (
+          '<button type="button" class="place-admin-dashboard__search-suggestion" ' +
+          'id="place-search-suggestion-' + index + '" ' +
+          'data-search-suggestion-item data-value="' + safeValue + '" role="option">' +
+          '<span class="place-admin-dashboard__search-suggestion-title">' + safeLabel + '</span>' +
+          (safeMeta ? '<span class="place-admin-dashboard__search-suggestion-meta">' + safeMeta + "</span>" : "") +
+          "</button>"
+        );
+      }).join("");
+
+      dropdown.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+      markActive(-1);
+    }
+
+    function fetchSuggestions() {
+      var query = (input.value || "").trim();
+      if (query.length < 2) {
+        closeDropdown();
+        return;
+      }
+
+      var url = suggestionsUrl + "?q=" + encodeURIComponent(query);
+      window.fetch(url, {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+        credentials: "same-origin"
+      })
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("bad_response");
+          }
+          return response.json();
+        })
+        .then(function (payload) {
+          renderResults(Array.isArray(payload.results) ? payload.results : []);
+        })
+        .catch(function () {
+          closeDropdown();
+        });
+    }
+
+    input.addEventListener("input", function () {
+      if (requestTimer) {
+        window.clearTimeout(requestTimer);
+      }
+      requestTimer = window.setTimeout(fetchSuggestions, 140);
+    });
+
+    input.addEventListener("keydown", function (event) {
+      var nodes = items();
+      if (!nodes.length || dropdown.hidden) {
+        return;
+      }
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        markActive(Math.min(activeIndex + 1, nodes.length - 1));
+        return;
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        markActive(Math.max(activeIndex - 1, 0));
+        return;
+      }
+
+      if (event.key === "Enter" && activeIndex >= 0 && nodes[activeIndex]) {
+        event.preventDefault();
+        applySuggestion(nodes[activeIndex].dataset.value || "");
+        return;
+      }
+
+      if (event.key === "Escape") {
+        closeDropdown();
+      }
+    });
+
+    dropdown.addEventListener("click", function (event) {
+      var button = event.target.closest("[data-search-suggestion-item]");
+      if (!button) {
+        return;
+      }
+      applySuggestion(button.dataset.value || "");
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!root.contains(event.target)) {
+        closeDropdown();
+      }
+    });
   });
 })();

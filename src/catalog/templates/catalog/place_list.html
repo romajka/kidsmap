@@ -13,21 +13,33 @@
 {% block content %}
   <section class="hero">
     <picture class="catalog-hero-picture">
-      {% if not is_new_page %}
-        <source
-          media="(max-width: 760px)"
-          srcset="{% static 'img/banners/catalog-hero-mobile.webp' %}?v=family-map-mobile-20260519"
+      {% if site_settings.catalog_hero_image %}
+        <img
+          class="catalog-hero-image"
+          src="{{ site_settings.catalog_hero_image.url }}"
+          width="1600"
+          height="500"
+          alt=""
+          {% if is_new_page %}loading="lazy"{% else %}fetchpriority="high"{% endif %}
+          decoding="async"
+        >
+      {% else %}
+        {% if not is_new_page %}
+          <source
+            media="(max-width: 760px)"
+            srcset="{% static 'img/banners/catalog-hero-mobile.webp' %}?v=family-map-mobile-20260519"
+          >
+        {% endif %}
+        <img
+          class="catalog-hero-image"
+          src="{% static 'img/banners/catalog-hero.webp' %}?v=family-map-20260519"
+          width="1600"
+          height="500"
+          alt=""
+          {% if is_new_page %}loading="lazy"{% else %}fetchpriority="high"{% endif %}
+          decoding="async"
         >
       {% endif %}
-      <img
-        class="catalog-hero-image"
-        src="{% static 'img/banners/catalog-hero.webp' %}?v=family-map-20260519"
-        width="1600"
-        height="500"
-        alt=""
-        {% if is_new_page %}loading="lazy"{% else %}fetchpriority="high"{% endif %}
-        decoding="async"
-      >
     </picture>
     <div class="hero-text">
       {% if is_new_page %}
@@ -40,15 +52,15 @@
     </div>
     {% if not is_new_page %}
       <div class="mobile-hero-caption">
-        <h1>{% if language == "az" %}Uşağınız üçün uyğun məkan tapın{% elif language == "en" %}Find the right place for your child{% else %}{% trans "Найдите подходящее место для ребёнка" %}{% endif %}</h1>
-        <p>{% if language == "az" %}Kursları və məşğələləri yaş, rayon və metroya görə rahat seçin.{% elif language == "en" %}Choose classes by age, district, and metro with ease.{% else %}{% trans "Выбирайте курсы и занятия по возрасту, району и метро." %}{% endif %}</p>
+        <h1>{% if language == "az" %}Uşağınız üçün uyğun məkan tapın{% elif language == "en" %}Find the right place for your child{% else %}Найдите подходящее место для ребёнка{% endif %}</h1>
+        <p>{% if language == "az" %}Kursları və məşğələləri yaş, rayon və metroya görə rahat seçin.{% elif language == "en" %}Choose classes by age, district, and metro with ease.{% else %}Выбирайте курсы и занятия по возрасту, району и метро.{% endif %}</p>
       </div>
     {% endif %}
   </section>
 
   {% if not is_new_page %}
     <div class="catalog-layout">
-      <section class="mobile-catalog-controls" aria-label="{% if language == 'az' %}Kataloq filtrləri{% elif language == 'en' %}Catalog filters{% else %}{% trans 'Фильтры каталога' %}{% endif %}">
+      <section class="mobile-catalog-controls" aria-label="{% if language == 'az' %}Kataloq filtrləri{% elif language == 'en' %}Catalog filters{% else %}Фильтры каталога{% endif %}">
         <form class="mobile-catalog-search" method="get" action="{% url 'place_list' %}">
           {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
           {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
@@ -60,18 +72,18 @@
           {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
           {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
           <label class="mobile-search-field">
-            <span class="visually-hidden">{% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}{% trans "Поиск" %}{% endif %}</span>
+            <span class="visually-hidden">{% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}Поиск{% endif %}</span>
             <input
               id="catalog-mobile-search"
               name="q"
               value="{{ selected.q }}"
-              placeholder="{% if language == 'az' %}Məkan, məşğələ və ya açar söz...{% elif language == 'en' %}Place, class, or keyword...{% else %}{% trans 'Место, занятие или ключевое слово...' %}{% endif %}"
+              placeholder="{% if language == 'az' %}Məkan, məşğələ və ya açar söz...{% elif language == 'en' %}Place, class, or keyword...{% else %}Место, занятие или ключевое слово...{% endif %}"
             />
           </label>
-          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-label="{% if language == 'az' %}Filtrlər{% elif language == 'en' %}Filters{% else %}{% trans 'Фильтры' %}{% endif %}"></button>
+          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-label="{% if language == 'az' %}Filtrlər{% elif language == 'en' %}Filters{% else %}Фильтры{% endif %}"></button>
         </form>
 
-        <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}{% trans 'Быстрые фильтры' %}{% endif %}">
+        <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.metro %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="metro" aria-expanded="false" aria-controls="quick-menu-metro">{% if language == "az" %}Metro{% elif language == "en" %}Metro{% else %}Метро{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="age" aria-expanded="false" aria-controls="quick-menu-age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
@@ -154,7 +166,7 @@
         </div>
 
         {% if active_filter_chips %}
-          <div class="mobile-active-chips" aria-label="{% if language == 'az' %}Seçilmiş filtrlər{% elif language == 'en' %}Selected filters{% else %}{% trans 'Выбранные фильтры' %}{% endif %}">
+          <div class="mobile-active-chips" aria-label="{% if language == 'az' %}Seçilmiş filtrlər{% elif language == 'en' %}Selected filters{% else %}Выбранные фильтры{% endif %}">
             {% for chip in active_filter_chips %}
               <a class="mobile-active-chip" href="{{ chip.remove_url }}">
                 <span>{{ chip.label }}</span>
@@ -173,8 +185,8 @@
     {% if not is_new_page %}
       <div class="mobile-filter-toolbar">
         <div class="mobile-filter-summary">
-          <strong>{% if language == "az" %}Filtrləri seçin{% elif language == "en" %}Choose filters{% else %}{% trans "Выберите фильтры" %}{% endif %}</strong>
-          <span>{% if language == "az" %}Kateqoriya, region və uşağın yaşı.{% elif language == "en" %}Category, district, and child's age.{% else %}{% trans "Категория, регион и возраст ребёнка." %}{% endif %}</span>
+          <strong>{% if language == "az" %}Filtrləri seçin{% elif language == "en" %}Choose filters{% else %}Выберите фильтры{% endif %}</strong>
+          <span>{% if language == "az" %}Kateqoriya, region və uşağın yaşı.{% elif language == "en" %}Category, district, and child's age.{% else %}Категория, регион и возраст ребёнка.{% endif %}</span>
         </div>
         <button
           type="button"
@@ -183,7 +195,7 @@
           aria-controls="filters-form"
           aria-expanded="false"
         >
-          <span>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}{% trans "Фильтры" %}{% endif %}</span>
+          <span>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</span>
         </button>
       </div>
       <div class="mobile-filters-backdrop" data-filters-backdrop hidden></div>
@@ -197,14 +209,14 @@
       {% if not is_new_page %}
         <div class="mobile-filters-head">
           <span class="mobile-filters-handle" aria-hidden="true"></span>
-          <h2>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}{% trans "Фильтры" %}{% endif %}</h2>
-          <button type="button" class="mobile-filters-close" data-filters-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}{% trans 'Закрыть' %}{% endif %}">×</button>
+          <h2>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</h2>
+          <button type="button" class="mobile-filters-close" data-filters-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}">×</button>
         </div>
         <div class="desktop-filter-head">
           <span class="desktop-filter-head-icon" aria-hidden="true"></span>
           <div>
-            <h2>{% if language == "az" %}Dərnək seçin{% elif language == "en" %}Find a club{% else %}{% trans "Подобрать кружок" %}{% endif %}</h2>
-            <p>{% if language == "az" %}Kateqoriya, rayon, metro, yaş və büdcə bir yerdə.{% elif language == "en" %}Category, district, metro, age, and budget in one place.{% else %}{% trans "Категория, район, метро, возраст и бюджет в одном месте." %}{% endif %}</p>
+            <h2>{% if language == "az" %}Dərnək seçin{% elif language == "en" %}Find a club{% else %}Подобрать кружок{% endif %}</h2>
+            <p>{% if language == "az" %}Kateqoriya, rayon, metro, yaş və büdcə bir yerdə.{% elif language == "en" %}Category, district, metro, age, and budget in one place.{% else %}Категория, район, метро, возраст и бюджет в одном месте.{% endif %}</p>
           </div>
         </div>
       {% endif %}
@@ -601,22 +613,22 @@
         class="panel catalog-map-panel"
         data-catalog-map-panel
         data-map-provider="{% if google_maps_api_key %}google{% else %}fallback{% endif %}"
-        data-details-label="{% if language == 'az' %}Ətraflı{% elif language == 'en' %}Details{% else %}{% trans 'Подробнее' %}{% endif %}"
-        data-route-label="{% if language == 'az' %}Marşrut{% elif language == 'en' %}Route{% else %}{% trans 'Маршрут' %}{% endif %}"
-        data-call-label="{% if language == 'az' %}Zəng et{% elif language == 'en' %}Call{% else %}{% trans 'Позвонить' %}{% endif %}"
-        data-close-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}{% trans 'Закрыть' %}{% endif %}"
-        data-no-rating-label="{% if language == 'az' %}Rəy yoxdur{% elif language == 'en' %}No reviews{% else %}{% trans 'Нет отзывов' %}{% endif %}"
-        data-no-address-label="{% if language == 'az' %}Ünvan dəqiqləşdirilir{% elif language == 'en' %}Address is being confirmed{% else %}{% trans 'Адрес уточняется' %}{% endif %}"
-        data-no-image-label="{% if language == 'az' %}Şəkil yoxdur{% elif language == 'en' %}No image{% else %}{% trans 'Нет фото' %}{% endif %}"
-        data-empty-message="{% if language == 'az' %}Cari filtrlərə uyğun koordinatlı məkan tapılmadı.{% elif language == 'en' %}No places with coordinates match the current filters yet.{% else %}{% trans 'По текущим фильтрам пока нет карточек с координатами.' %}{% endif %}"
-        data-fallback-message="{% if language == 'az' %}Google Maps qoşulduqdan sonra interaktiv xəritə açılacaq.{% elif language == 'en' %}The interactive map will be available after Google Maps is configured.{% else %}{% trans 'Интерактивная карта станет доступна после настройки Google Maps.' %}{% endif %}"
-        data-loading-message="{% if language == 'az' %}Xəritə yüklənir…{% elif language == 'en' %}Loading map…{% else %}{% trans 'Загружаем карту…' %}{% endif %}"
+        data-details-label="{% if language == 'az' %}Ətraflı{% elif language == 'en' %}Details{% else %}Подробнее{% endif %}"
+        data-route-label="{% if language == 'az' %}Marşrut{% elif language == 'en' %}Route{% else %}Маршрут{% endif %}"
+        data-call-label="{% if language == 'az' %}Zəng et{% elif language == 'en' %}Call{% else %}Позвонить{% endif %}"
+        data-close-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}"
+        data-no-rating-label="{% if language == 'az' %}Rəy yoxdur{% elif language == 'en' %}No reviews{% else %}Нет отзывов{% endif %}"
+        data-no-address-label="{% if language == 'az' %}Ünvan dəqiqləşdirilir{% elif language == 'en' %}Address is being confirmed{% else %}Адрес уточняется{% endif %}"
+        data-no-image-label="{% if language == 'az' %}Şəkil yoxdur{% elif language == 'en' %}No image{% else %}Нет фото{% endif %}"
+        data-empty-message="{% if language == 'az' %}Cari filtrlərə uyğun koordinatlı məkan tapılmadı.{% elif language == 'en' %}No places with coordinates match the current filters yet.{% else %}По текущим фильтрам пока нет карточек с координатами.{% endif %}"
+        data-fallback-message="{% if language == 'az' %}Google Maps qoşulduqdan sonra interaktiv xəritə açılacaq.{% elif language == 'en' %}The interactive map will be available after Google Maps is configured.{% else %}Интерактивная карта станет доступна после настройки Google Maps.{% endif %}"
+        data-loading-message="{% if language == 'az' %}Xəritə yüklənir…{% elif language == 'en' %}Loading map…{% else %}Загружаем карту…{% endif %}"
         hidden
       >
         <div class="catalog-map-head">
           <div class="catalog-map-copy">
-            <h2>{% if language == "az" %}Xəritədə nəticələr{% elif language == "en" %}Results on the map{% else %}{% trans "Результаты на карте" %}{% endif %}</h2>
-            <p class="meta">{% if language == "az" %}Yalnız cari filtrlərə uyğun məkanlar göstərilir.{% elif language == "en" %}Only places matching the current filters are shown.{% else %}{% trans "Показаны только кружки, которые соответствуют текущим фильтрам." %}{% endif %}</p>
+            <h2>{% if language == "az" %}Xəritədə nəticələr{% elif language == "en" %}Results on the map{% else %}Результаты на карте{% endif %}</h2>
+            <p class="meta">{% if language == "az" %}Yalnız cari filtrlərə uyğun məkanlar göstərilir.{% elif language == "en" %}Only places matching the current filters are shown.{% else %}Показаны только кружки, которые соответствуют текущим фильтрам.{% endif %}</p>
           </div>
           <button type="button" class="catalog-map-close" data-catalog-map-close aria-label="{% if language == 'az' %}Xəritəni bağla{% elif language == 'en' %}Close map{% else %}{% trans 'Закрыть карту' %}{% endif %}">×</button>
         </div>

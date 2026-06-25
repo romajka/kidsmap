@@ -1,0 +1,24 @@
+{% load i18n admin_urls %}
+
+<div class="km-admin-user-submit">
+  {% if show_save %}
+    <input type="submit" value="{% trans 'Save' %}" class="km-admin-user-submit__btn km-admin-user-submit__btn--primary" name="_save">
+  {% endif %}
+
+  {% if km_password_change_url and original %}
+    <a href="{{ km_password_change_url }}" class="km-admin-user-submit__btn km-admin-user-submit__btn--secondary">
+      {% trans "Change password" %}
+    </a>
+  {% endif %}
+
+  <a href="{% url opts|admin_urlname:'changelist' %}" class="km-admin-user-submit__btn km-admin-user-submit__btn--ghost">
+    {% trans "Close" %}
+  </a>
+
+  {% if show_delete_link and original %}
+    {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+    <a href="{% add_preserved_filters delete_url %}" class="km-admin-user-submit__btn km-admin-user-submit__btn--danger">
+      {% trans "Delete" %}
+    </a>
+  {% endif %}
+</div>
