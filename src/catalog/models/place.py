@@ -631,23 +631,29 @@ class PlaceLike(models.Model):
         blank=True,
     )
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
+    session_key_unique = models.CharField(max_length=64, null=True, blank=True, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("place", "session_key"),
-                condition=~Q(session_key=""),
+                fields=("place", "session_key_unique"),
                 name="unique_place_like_per_session",
             ),
             models.UniqueConstraint(
                 fields=("place", "user"),
-                condition=Q(user__isnull=False),
                 name="unique_place_like_per_user",
             ),
         ]
         verbose_name = _("Лайк")
         verbose_name_plural = _("Лайки")
+
+    def save(self, *args, **kwargs):
+        self.session_key_unique = (self.session_key or "").strip() or None
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and "session_key" in update_fields:
+            kwargs["update_fields"] = set(update_fields) | {"session_key_unique"}
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.place_id}:{self.session_key}"

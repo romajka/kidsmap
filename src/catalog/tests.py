@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import IntegrityError, transaction
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
@@ -90,6 +91,129 @@ def create_quality_place(**overrides):
     }
     defaults.update(overrides)
     return Place.objects.create(**defaults)
+
+
+class MariaDbCompatibleUniquenessTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="mariadb_unique_user",
+            email="mariadb_unique_user@example.com",
+            password="StrongPass123!!",
+        )
+        self.owner = User.objects.create_user(
+            username="mariadb_unique_owner",
+            email="owner@example.com",
+            password="StrongPass123!!",
+        )
+        self.place = create_quality_place(name="MariaDB Unique Place", name_ru="MariaDB Unique Place")
+
+    def test_place_like_constraints_use_normalized_session_and_nullable_user(self):
+        like = PlaceLike.objects.create(place=self.place, session_key="session-1")
+        self.assertEqual(like.session_key_unique, "session-1")
+
+        blank_like = PlaceLike.objects.create(place=self.place, session_key="")
+        self.assertIsNone(blank_like.session_key_unique)
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                PlaceLike.objects.create(place=self.place, session_key="session-1")
+
+        PlaceLike.objects.create(place=self.place, user=self.user)
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                PlaceLike.objects.create(place=self.place, user=self.user)
+
+    def test_review_constraints_enforce_single_authenticated_author(self):
+        PlaceReview.objects.create(place=self.place, user=self.user, rating=5, text="First")
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                PlaceReview.objects.create(place=self.place, user=self.user, rating=4, text="Second")
+
+        SiteReview.objects.create(user=self.user, rating=5, text="Site first")
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                SiteReview.objects.create(user=self.user, rating=3, text="Site second")
+
+    def test_reaction_constraints_enforce_unique_user_and_session(self):
+        place_review = PlaceReview.objects.create(place=self.place, rating=5, text="Review")
+        site_review = SiteReview.objects.create(author_name="Guest", rating=5, text="Site review")
+
+        PlaceReviewReaction.objects.create(review=place_review, session_key="session-r")
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                PlaceReviewReaction.objects.create(review=place_review, session_key="session-r")
+
+        PlaceReviewReaction.objects.create(review=place_review, user=self.user)
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                PlaceReviewReaction.objects.create(review=place_review, user=self.user)
+
+        SiteReviewReaction.objects.create(review=site_review, session_key="session-s")
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                SiteReviewReaction.objects.create(review=site_review, session_key="session-s")
+
+        SiteReviewReaction.objects.create(review=site_review, user=self.user)
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                SiteReviewReaction.objects.create(review=site_review, user=self.user)
+
+    def test_only_one_pending_ownership_request_per_place_and_applicant(self):
+        request_item = PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.user,
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+        )
+        self.assertEqual(request_item.pending_constraint_key, PlaceOwnershipRequest.STATUS_PENDING)
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                PlaceOwnershipRequest.objects.create(
+                    place=self.place,
+                    applicant=self.user,
+                    status=PlaceOwnershipRequest.STATUS_PENDING,
+                )
+
+        request_item.status = PlaceOwnershipRequest.STATUS_APPROVED
+        request_item.save(update_fields=["status", "pending_constraint_key", "updated_at"])
+        request_item.refresh_from_db()
+        self.assertIsNone(request_item.pending_constraint_key)
+
+        PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.user,
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+        )
+
+    def test_only_one_pending_team_invitation_per_owner_and_email(self):
+        invitation = OwnerTeamInvitation.objects.create(
+            owner=self.owner,
+            invited_by=self.owner,
+            email="Member@Example.com",
+            status=OwnerTeamInvitation.STATUS_PENDING,
+        )
+        self.assertEqual(invitation.pending_email, "member@example.com")
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                OwnerTeamInvitation.objects.create(
+                    owner=self.owner,
+                    invited_by=self.owner,
+                    email="member@example.com",
+                    status=OwnerTeamInvitation.STATUS_PENDING,
+                )
+
+        invitation.status = OwnerTeamInvitation.STATUS_ACCEPTED
+        invitation.save(update_fields=["status", "pending_email", "updated_at"])
+        invitation.refresh_from_db()
+        self.assertIsNone(invitation.pending_email)
+
+        OwnerTeamInvitation.objects.create(
+            owner=self.owner,
+            invited_by=self.owner,
+            email="member@example.com",
+            status=OwnerTeamInvitation.STATUS_PENDING,
+        )
 
 
 class ContentModerationPublicVisibilityTests(TestCase):
@@ -756,6 +880,10 @@ class TestPublicPagesSmoke(TestCase):
             self.assertIn("img/logo.svg", paths)
             self.assertIn("fonts/chiron/ChironGoRoundTC-PublicSubset.woff2", paths)
             self.assertIn("js/bg_scene.js", paths)
+            self.assertIn("admin/css/pages/kidsmap_changelist.css", paths)
+            self.assertIn("admin/css/kidsmap_taxonomy.css", paths)
+            self.assertIn("admin/js/kidsmap_place_changelist.js", paths)
+            self.assertIn("admin/js/kidsmap_place_form.js", paths)
 
     @override_settings(MEDIA_CACHE_MAX_AGE=3600)
     def test_media_serve_view_sets_cache_headers(self):

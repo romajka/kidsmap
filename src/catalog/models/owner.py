@@ -66,6 +66,7 @@ class PlaceOwnershipRequest(models.Model):
         blank=True,
     )
     moderated_at = models.DateTimeField(_("Дата модерации"), null=True, blank=True)
+    pending_constraint_key = models.CharField(max_length=16, null=True, blank=True, editable=False)
     created_at = models.DateTimeField(_("Создана"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлена"), auto_now=True)
 
@@ -73,8 +74,7 @@ class PlaceOwnershipRequest(models.Model):
         ordering = ("-created_at",)
         constraints = [
             models.UniqueConstraint(
-                fields=("place", "applicant"),
-                condition=Q(status="PENDING"),
+                fields=("place", "applicant", "pending_constraint_key"),
                 name="unique_pending_ownership_request_per_user_place",
             ),
         ]
@@ -130,6 +130,10 @@ class PlaceOwnershipRequest(models.Model):
         )
 
     def save(self, *args, **kwargs):
+        self.pending_constraint_key = self.STATUS_PENDING if self.status == self.STATUS_PENDING else None
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and "status" in update_fields:
+            kwargs["update_fields"] = set(update_fields) | {"pending_constraint_key"}
         is_new = self.pk is None
         super().save(*args, **kwargs)
         if is_new:
@@ -301,6 +305,7 @@ class OwnerTeamInvitation(models.Model):
         blank=True,
     )
     responded_at = models.DateTimeField(_("Дата ответа"), null=True, blank=True)
+    pending_email = models.EmailField(null=True, blank=True, editable=False)
     created_at = models.DateTimeField(_("Создано"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
 
@@ -310,8 +315,7 @@ class OwnerTeamInvitation(models.Model):
         ordering = ("-created_at",)
         constraints = [
             models.UniqueConstraint(
-                fields=("owner", "email"),
-                condition=Q(status="PENDING"),
+                fields=("owner", "pending_email"),
                 name="unique_pending_team_invitation_per_owner_email",
             ),
             models.CheckConstraint(condition=~Q(owner=models.F("invited_user")), name="owner_invited_user_not_owner"),
@@ -328,6 +332,10 @@ class OwnerTeamInvitation(models.Model):
         if not self.token:
             self.token = uuid.uuid4().hex
         self.email = (self.email or "").strip().lower()
+        self.pending_email = self.email if self.status == self.STATUS_PENDING else None
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and ("status" in update_fields or "email" in update_fields):
+            kwargs["update_fields"] = set(update_fields) | {"pending_email", "email"}
         super().save(*args, **kwargs)
 
 
