@@ -23,7 +23,7 @@
   <h2>{% translate "Кратко" %}</h2>
   <ul>
     <li><strong>{% translate "Кружок" %}:</strong> {{ object.place }}</li>
-    <li><strong>{% translate "Автор" %}:</strong> {% if object.is_anonymous %}{% translate "Анонимный" %}{% else %}{{ object.author_name|default:_("Без имени") }}{% endif %}</li>
+    <li><strong>{% translate "Автор" %}:</strong> {{ object.author_name|default:_("Без имени") }}</li>
     <li><strong>{% translate "Оценка" %}:</strong> {{ object.rating }}</li>
   </ul>
   <p>

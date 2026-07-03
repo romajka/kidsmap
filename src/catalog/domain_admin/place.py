@@ -1,5 +1,9 @@
+import os
+
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
+from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django import forms
@@ -11,10 +15,12 @@ from django.utils.translation import gettext_lazy as _, ngettext
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 
+from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect
 from catalog.models import Place, PlacePhoto, PlaceChangeAudit, Event, PlaceReviewsByClub, Category, Subcategory
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from catalog.services.content_quality import place_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
+from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
 from .review import PlaceReviewInline
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
 
@@ -40,7 +46,20 @@ class PlaceChangeAuditInline(admin.TabularInline):
         return False
 
 
-class PlaceAdminForm(forms.ModelForm):
+class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+    region = forms.ChoiceField(
+        label=_("Город / регион"),
+        required=False,
+        choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-region": ""}),
+    )
+    district = forms.ChoiceField(
+        label=_("Район города"),
+        required=False,
+        choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-district": ""}),
+    )
+
     class Meta:
         model = Place
         fields = "__all__"
@@ -64,8 +83,32 @@ class PlaceAdminForm(forms.ModelForm):
             "lesson_duration_minutes": _("Длительность урока (мин)"),
         }
 
+    def clean(self):
+        cleaned = super().clean()
+        cleaned = self._clean_schedule_editor(cleaned)
+        from catalog.services.locations import clean_location_fields
+        self.draft_save_only = False
+        cleaned = clean_location_fields(self, cleaned)
+        return cleaned
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        from catalog.services.locations import init_location_fields, configure_location_choices
+        init_location_fields(self, self.instance)
+        configure_location_choices(self)
+
+        if "category" in self.fields:
+            self.fields["category"].queryset = Category.objects.order_by("order", "name_ru", "name")
+            self.fields["category"].label_from_instance = lambda obj: obj.name_i18n()
+        if "subcategory" in self.fields:
+            self.fields["subcategory"].queryset = Subcategory.objects.select_related("category").order_by(
+                "category__order",
+                "order",
+                "name_ru",
+                "name",
+            )
+            self.fields["subcategory"].label_from_instance = lambda obj: obj.name_i18n()
+            self.fields["subcategory"].widget = SubcategorySelect(attrs=self.fields["subcategory"].widget.attrs)
         self.fields["photo"].help_text = _("Используется в каталоге, на карте и первым на странице места.")
         self.fields["cover_photo"].help_text = _("Резервное изображение. Используется только если главное фото отсутствует.")
         # Placeholders for location & contacts fields
@@ -83,6 +126,7 @@ class PlaceAdminForm(forms.ModelForm):
         for field_name, placeholder in _placeholders.items():
             if field_name in self.fields and hasattr(self.fields[field_name].widget, "attrs"):
                 self.fields[field_name].widget.attrs.setdefault("placeholder", str(placeholder))
+        self._init_schedule_editor()
 
 
 class EventAdminForm(forms.ModelForm):
@@ -1028,6 +1072,8 @@ class PlaceAdmin(admin.ModelAdmin):
         "coordinates_status_display",
         "map_ready_status_display",
         "quality_status_display",
+        "last_verified_at_display",
+        "published_at_display",
         "deleted_at",
         "deleted_by",
         "created_at",
@@ -1151,8 +1197,8 @@ class PlaceAdmin(admin.ModelAdmin):
                     "status",
                     "rejection_reason",
                     "owner",
-                    "last_verified_at",
-                    "published_at",
+                    "last_verified_at_display",
+                    "published_at_display",
                     "lifecycle_status_display",
                     "quality_status_display",
                 ),
@@ -1162,7 +1208,6 @@ class PlaceAdmin(admin.ModelAdmin):
     )
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
-        from django.conf import settings
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
         adminform = context.get("adminform")
         if adminform is not None:
@@ -1188,6 +1233,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 obj=obj,
                 has_google_maps_api_key=bool(context["google_maps_api_key"]),
             )
+            context["km_place_public_link"] = self._build_public_place_link(request, obj=obj)
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
     def _fieldset_list(self, adminform):
@@ -1372,6 +1418,38 @@ class PlaceAdmin(admin.ModelAdmin):
 
         return None
 
+    def _resolve_public_site_host(self, request) -> str:
+        current_host = request.get_host()
+        current_hostname, separator, port = current_host.partition(":")
+        admin_host = (getattr(settings, "ADMIN_HOST", "") or "").strip().lower()
+
+        if admin_host and current_hostname.lower() == admin_host and admin_host.startswith("admin."):
+            public_hostname = admin_host[len("admin."):]
+            return f"{public_hostname}{separator}{port}" if separator else public_hostname
+
+        return current_host
+
+    def _build_public_place_link(self, request, *, obj=None):
+        if obj is None or not getattr(obj, "pk", None):
+            return None
+
+        visibility = self._place_visibility_state(obj)
+        relative_url = obj.get_absolute_url()
+        public_host = self._resolve_public_site_host(request)
+        absolute_url = f"{'https' if request.is_secure() else request.scheme}://{public_host}{relative_url}"
+
+        return {
+            "url": absolute_url,
+            "path": relative_url,
+            "is_public": visibility["is_public"],
+            "label": str(_("Открыть карточку на сайте")),
+            "hint": (
+                str(_("Карточка опубликована. Ссылка откроет её публичную страницу в новой вкладке."))
+                if visibility["is_public"]
+                else str(_("Карточка сейчас не видна пользователям. Кнопка появится после публикации."))
+            ),
+        }
+
     def _build_place_form_summary(self, *, form, obj=None, add=False):
         checklist = (
             ("name", _("Название")),
@@ -1516,8 +1594,6 @@ class PlaceAdmin(admin.ModelAdmin):
                     ("is_temporary", "is_active", "is_verified"),
                     ("temporary_start", "temporary_end"),
                     ("status", "rejection_reason"),
-                    "last_verified_at",
-                    "published_at",
                     "owner",
                     "likes_count",
                     "rating_avg",
@@ -1552,7 +1628,19 @@ class PlaceAdmin(admin.ModelAdmin):
         (_("Контакты"), {"fields": (("phone1", "instagram", "website"), "schedule", "extra_conditions", "additional_info")}),
         (_("Фотографии"), {"fields": ("photo",)}),
         (_("Удаление"), {"classes": ("collapse",), "fields": ("deleted_at", "deleted_by")}),
-        (_("Служебное"), {"classes": ("collapse",), "fields": ("cover_photo", "created_at", "updated_at")}),
+        (
+            _("Служебное"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "cover_photo",
+                    "last_verified_at_display",
+                    "published_at_display",
+                    "created_at",
+                    "updated_at",
+                ),
+            },
+        ),
     )
 
     def get_fieldsets(self, request, obj=None):
@@ -1657,6 +1745,18 @@ class PlaceAdmin(admin.ModelAdmin):
             label,
             details,
         )
+
+    @admin.display(description=_("Проверено модератором"))
+    def last_verified_at_display(self, obj):
+        if not obj or not obj.last_verified_at:
+            return _("Ещё не отмечено")
+        return timezone.localtime(obj.last_verified_at).strftime("%d.%m.%Y %H:%M")
+
+    @admin.display(description=_("Дата публикации"))
+    def published_at_display(self, obj):
+        if not obj or not obj.published_at:
+            return _("Ещё не опубликовано")
+        return timezone.localtime(obj.published_at).strftime("%d.%m.%Y %H:%M")
 
     @admin.display(description=_("Локация"))
     def location_summary(self, obj):
@@ -2197,6 +2297,7 @@ class PlaceAdmin(admin.ModelAdmin):
         term = (request.GET.get("q") or "").strip()
         if len(term) < 2:
             return JsonResponse({"results": []})
+        language_code = getattr(request, "LANGUAGE_CODE", None)
 
         queryset = self.get_queryset(request)
         queryset, _ = self.get_search_results(request, queryset, term)
@@ -2204,13 +2305,14 @@ class PlaceAdmin(admin.ModelAdmin):
 
         results = []
         for place in queryset:
-            title = (place.name_ru or place.name_az or place.name_en or place.name or "").strip()
+            title = (place.name_i18n(language_code) or place.name or "").strip()
             if not title:
                 continue
 
             meta_parts = []
             if place.district:
-                meta_parts.append(str(place.district))
+                from catalog.services.locations import get_location_translation
+                meta_parts.append(get_location_translation(place.district, language_code))
             if place.address:
                 meta_parts.append(str(place.address))
             if place.phone1:
@@ -2292,7 +2394,9 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Отметить как проверенные"))
     def mark_verified(self, request, queryset):
-        updated_count = queryset.update(is_verified=True, updated_at=timezone.now())
+        now = timezone.now()
+        updated_count = queryset.update(is_verified=True, updated_at=now)
+        queryset.filter(last_verified_at__isnull=True).update(last_verified_at=now)
         self.message_user(
             request,
             ngettext(
@@ -2569,24 +2673,37 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         old_values = {}
+        old_schedule_value = ""
         if change and obj.pk:
             old_obj = Place.objects.filter(pk=obj.pk).first()
             if old_obj:
                 for field in self.AUDIT_TRACKED_FIELDS:
                     old_values[field] = getattr(old_obj, field)
+                if old_obj.has_structured_schedule:
+                    old_schedule_value = build_schedule_summary(serialize_place_schedule(old_obj))
+                else:
+                    old_schedule_value = (old_obj.schedule or "").strip()
 
         if "_save_draft" in request.POST:
             obj.status = Place.STATUS_DRAFT
             obj.is_active = False
-            obj.published_at = None
+
+        if obj.is_verified and obj.last_verified_at is None:
+            obj.last_verified_at = timezone.now()
 
         super().save_model(request, obj, form, change)
+        if hasattr(form, "save_schedule"):
+            form.save_schedule(obj)
+        new_schedule_value = build_schedule_summary(serialize_place_schedule(obj)) if obj.has_structured_schedule else (obj.schedule or "").strip()
 
         if change and old_values:
             audit_entries = []
             for field_name in self.AUDIT_TRACKED_FIELDS:
                 old_value = old_values.get(field_name)
                 new_value = getattr(obj, field_name)
+                if field_name == "schedule":
+                    old_value = old_schedule_value
+                    new_value = new_schedule_value
                 if old_value == new_value:
                     continue
                 audit_entries.append(
@@ -2685,9 +2802,27 @@ class SubcategoryInline(admin.TabularInline):
     fields = ("name_ru", "name_az", "name_en", "order")
 
 
+def save_uploaded_category_icon(uploaded_file, category_code="category-icon"):
+    ext = (uploaded_file.name.rsplit(".", 1)[-1] if "." in uploaded_file.name else "").lower()
+    if f".{ext}" not in [".svg", ".png", ".jpg", ".jpeg", ".webp"]:
+        raise forms.ValidationError(_("Поддерживаются только SVG, PNG, JPG, JPEG и WEBP."))
+
+    storage = FileSystemStorage(location=settings.MEDIA_ROOT, base_url=settings.MEDIA_URL)
+    safe_code = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in (category_code or "category-icon")).strip("-")
+    safe_code = safe_code or "category-icon"
+    filename = storage.get_available_name(f"cat_icons/{safe_code}.{ext}")
+    saved_name = storage.save(filename, uploaded_file)
+    return storage.url(saved_name)
+
+
 class CategoryAdminForm(forms.ModelForm):
     name = forms.CharField(widget=forms.HiddenInput(), required=False)
     name_az = forms.CharField(label=_("Название (AZ)"), required=True)
+    icon_upload = forms.FileField(
+        label=_("Файл иконки"),
+        required=False,
+        help_text=_("Загрузите SVG, PNG, JPG, JPEG или WEBP. Это поле сохраняет файл отдельно, а текстовое поле ниже остаётся запасным вариантом для пути или CSS-класса."),
+    )
 
     class Meta:
         model = Category
@@ -2707,12 +2842,32 @@ class CategoryAdminForm(forms.ModelForm):
             cleaned_data["name"] = name_az
         return cleaned_data
 
+    def clean_icon_upload(self):
+        uploaded_file = self.cleaned_data.get("icon_upload")
+        if not uploaded_file:
+            return uploaded_file
+        ext = os.path.splitext(uploaded_file.name)[1].lower()
+        if ext not in [".svg", ".png", ".jpg", ".jpeg", ".webp"]:
+            raise forms.ValidationError(_("Поддерживаются только SVG, PNG, JPG, JPEG и WEBP."))
+        return uploaded_file
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["name_az"].widget.attrs.setdefault("placeholder", _("Например: Təhsil"))
+        self.fields["icon"].label = _("Путь или CSS-класс")
         self.fields["icon"].help_text = _(
-            "Укажите путь к SVG иконке. Например: icons/categories/sports.svg или img/icon/cooliocns SVG/System/Code.svg."
+            "Можно указать относительный путь к иконке или CSS-класс. Например: icons/categories/sports.svg или fas fa-futbol."
         )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        uploaded_file = self.cleaned_data.get("icon_upload")
+        if uploaded_file:
+            instance.icon = save_uploaded_category_icon(uploaded_file, self.cleaned_data.get("code") or instance.code)
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
 
 
 @admin.register(Category)
@@ -2833,11 +2988,6 @@ class CategoryAdmin(admin.ModelAdmin):
         return TemplateResponse(request, "admin/catalog/category/change_list.html", context)
 
     def upload_icon_view(self, request):
-        from django.http import JsonResponse
-        import os
-        import uuid
-        from django.conf import settings
-
         if request.method != "POST":
             return JsonResponse({"error": "Method not allowed"}, status=405)
 
@@ -2845,29 +2995,13 @@ class CategoryAdmin(admin.ModelAdmin):
         if not uploaded_file:
             return JsonResponse({"error": "No file uploaded"}, status=400)
 
-        # Validate extension
-        ext = os.path.splitext(uploaded_file.name)[1].lower()
-        if ext not in [".svg", ".png", ".jpg", ".jpeg", ".webp"]:
-            return JsonResponse({"error": "Unsupported file format"}, status=400)
-
-        # Generate a unique short filename to fit in 50 character limit of Category.icon field
-        short_uuid = uuid.uuid4().hex[:8]
-        filename = f"cat_icons/{short_uuid}{ext}"
-        full_path = os.path.join(settings.MEDIA_ROOT, filename)
-
-        # Create directories if they do not exist
-        os.makedirs(os.path.dirname(full_path), exist_ok=True)
-
-        # Save file
         try:
-            with open(full_path, "wb+") as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-        except Exception as e:
-            return JsonResponse({"error": f"Failed to save file: {str(e)}"}, status=500)
+            media_url = save_uploaded_category_icon(uploaded_file, request.POST.get("code") or "category-icon")
+        except forms.ValidationError as exc:
+            return JsonResponse({"error": exc.messages[0]}, status=400)
+        except Exception as exc:
+            return JsonResponse({"error": f"Failed to save file: {str(exc)}"}, status=500)
 
-        # Return the media URL
-        media_url = f"{settings.MEDIA_URL}{filename}"
         return JsonResponse({"success": True, "url": media_url, "path": media_url})
 
 

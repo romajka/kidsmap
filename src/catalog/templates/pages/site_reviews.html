@@ -171,10 +171,6 @@
               {% trans "Ваше имя" %}
               <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
             </label>
-            <label class="review-anon">
-              <input type="checkbox" name="is_anonymous" value="1" />
-              <span>{% trans "Оставить анонимно" %}</span>
-            </label>
           </div>
           <label>
             {% trans "Текст отзыва" %}

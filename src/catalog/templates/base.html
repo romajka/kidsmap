@@ -46,7 +46,7 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20260525b" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=11" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     {% if organization_schema_json %}
       <script type="application/ld+json">{{ organization_schema_json|safe }}</script>
@@ -58,9 +58,6 @@
     {% block extra_head %}{% endblock %}
   </head>
   <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');"{% endif %}>
-    <div class="bg-scene" aria-hidden="true">
-      <div class="bg-floaters" data-bg-floaters></div>
-    </div>
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div class="site-shell">
       <header class="topbar">
@@ -159,29 +156,30 @@
         <div class="topbar-right">
           <div class="auth-switch" aria-label="{% trans 'Аккаунт' %}">
             {% if request.user.is_authenticated %}
-              <details class="account-menu header-menu">
-                <summary class="menu-trigger auth-current auth-trigger-icononly" aria-label="{% trans 'Аккаунт' %}">
+              <details class="account-menu header-menu" id="account-menu-details">
+                <summary class="menu-trigger auth-current auth-trigger-icononly" id="account-menu-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="account-menu-dropdown" aria-label="{% trans 'Аккаунт' %}">
                   <img class="user-entry-icon" src="{% static 'img/ui/user.png' %}" alt="" aria-hidden="true" />
                   <span class="visually-hidden">{% trans "Профиль" %}</span>
                   <span class="lang-arrow" aria-hidden="true"></span>
                 </summary>
-                <div class="auth-dropdown menu-dropdown">
+                <div class="auth-dropdown menu-dropdown" id="account-menu-dropdown" role="menu">
                   <a
-                    class="auth-pill {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}active{% endif %}"
+                    class="auth-pill auth-pill-dashboard {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}active{% endif %}"
                     href="{% url 'account_profile' %}"
                     {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}aria-current="page"{% endif %}
                   >{% trans "Личный кабинет" %}</a>
                   <a
-                    class="auth-pill {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
+                    class="auth-pill auth-pill-places {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
                     href="{% url 'owner_places_dashboard' %}"
                     {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
                   >
                     {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
                   </a>
+                  <hr class="auth-dropdown-divider" />
                   <form method="post" action="{% url 'account_logout' %}" class="auth-logout-form">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                    <button type="submit" class="auth-pill auth-logout">{% trans "Выйти" %}</button>
+                    <button type="submit" class="auth-pill auth-logout auth-pill-logout">{% trans "Выйти" %}</button>
                   </form>
                 </div>
               </details>
@@ -259,51 +257,70 @@
               <a class="footer-primary-link" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
             </section>
 
-            <section class="footer-links-block">
-              <h3>{% trans "Разделы" %}</h3>
-              <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
-                <a href="{% url 'home' %}">{% trans "Главная" %}</a>
-                <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
-                <a href="{% url 'events_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
-                <a href="{% url 'for_business' %}">{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
-                <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
-                <a href="{% url 'site_reviews' %}">{% trans "Отзывы" %}</a>
-                <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
-                <a href="{% url 'home' %}#faq">{% trans "FAQ" %}</a>
-                <a href="{% url 'privacy' %}">{% if CURRENT_LANGUAGE == "en" %}Privacy Policy{% elif CURRENT_LANGUAGE == "az" %}Məxfilik siyasəti{% else %}Политика конфиденциальности{% endif %}</a>
-                <a href="{% url 'terms' %}">{% if CURRENT_LANGUAGE == "en" %}Terms of Use{% elif CURRENT_LANGUAGE == "az" %}İstifadə şərtləri{% else %}Условия использования{% endif %}</a>
-                <a href="{% url 'review_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Review Rules{% elif CURRENT_LANGUAGE == "az" %}Rəy qaydaları{% else %}Правила отзывов{% endif %}</a>
-                <a href="{% url 'listing_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Listing Rules{% elif CURRENT_LANGUAGE == "az" %}Yerləşdirmə qaydaları{% else %}Правила размещения{% endif %}</a>
-              </nav>
-            </section>
-
-            <section class="footer-links-block">
-              <h3>{% trans "Контакты" %}</h3>
-              <div class="footer-contact-list">
-                {% if footer_phone %}
-                  <a class="icon-btn icon-phone" href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
-                {% endif %}
-                {% if footer_email %}
-                  <a class="icon-btn icon-mail" href="mailto:{{ footer_email }}">{{ footer_email }}</a>
-                {% endif %}
-                {% if footer_whatsapp_url %}
-                  <a href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">WhatsApp</a>
-                {% endif %}
+            <section class="footer-links-block" data-footer-accordion>
+              <h3 class="footer-accordion-trigger" role="button" aria-expanded="false" tabindex="0">
+                {% trans "Разделы" %}
+                <span class="footer-accordion-icon" aria-hidden="true"></span>
+              </h3>
+              <div class="footer-accordion-content">
+                <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
+                  <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+                  <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+                  <a href="{% url 'events_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
+                  <a href="{% url 'for_business' %}">{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
+                  <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
+                  <a href="{% url 'site_reviews' %}">{% trans "Отзывы" %}</a>
+                  <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
+                  <a href="{% url 'home' %}#faq">{% trans "FAQ" %}</a>
+                </nav>
               </div>
             </section>
 
-            <section class="footer-links-block">
-              <h3>{% trans "Соцсети" %}</h3>
-              {% if footer_social_links %}
-                <div class="footer-social-links">
-                  {% include "pages/includes/site_social_links.html" with link_class="footer-social-link" %}
+            <section class="footer-links-block" data-footer-accordion>
+              <h3 class="footer-accordion-trigger" role="button" aria-expanded="false" tabindex="0">
+                {% trans "Контакты" %}
+                <span class="footer-accordion-icon" aria-hidden="true"></span>
+              </h3>
+              <div class="footer-accordion-content">
+                <div class="footer-contact-list">
+                  {% if footer_phone %}
+                    <a class="icon-btn icon-phone" href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
+                  {% endif %}
+                  {% if footer_email %}
+                    <a class="icon-btn icon-mail" href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+                  {% endif %}
+                  {% if footer_whatsapp_url %}
+                    <a href="{{ footer_whatsapp_url }}" class="icon-btn icon-whatsapp-text" target="_blank" rel="noopener">WhatsApp</a>
+                  {% endif %}
                 </div>
-              {% endif %}
+              </div>
+            </section>
+
+            <section class="footer-links-block" data-footer-accordion>
+              <h3 class="footer-accordion-trigger" role="button" aria-expanded="false" tabindex="0">
+                {% trans "Соцсети" %}
+                <span class="footer-accordion-icon" aria-hidden="true"></span>
+              </h3>
+              <div class="footer-accordion-content">
+                {% if footer_social_links %}
+                  <div class="footer-social-links">
+                    {% include "pages/includes/site_social_links.html" with link_class="footer-social-link" %}
+                  </div>
+                {% endif %}
+              </div>
             </section>
           </div>
 
           <div class="footer-bottom-row">
-            <p>© {% now "Y" %} KidsMap</p>
+            <div class="footer-bottom-left">
+              <p>© {% now "Y" %} KidsMap</p>
+              <div class="footer-legal-links">
+                <a href="{% url 'privacy' %}">{% if CURRENT_LANGUAGE == "en" %}Privacy Policy{% elif CURRENT_LANGUAGE == "az" %}Məxfilik siyasəti{% else %}Политика конфиденциальности{% endif %}</a>
+                <a href="{% url 'terms' %}">{% if CURRENT_LANGUAGE == "en" %}Terms of Use{% elif CURRENT_LANGUAGE == "az" %}İstifadə şərtləri{% else %}Условия использования{% endif %}</a>
+                <a href="{% url 'review_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Review Rules{% elif CURRENT_LANGUAGE == "az" %}Rəy qaydaları{% else %}Правила отзывов{% endif %}</a>
+                <a href="{% url 'listing_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Listing Rules{% elif CURRENT_LANGUAGE == "az" %}Yerləşdirmə qaydaları{% else %}Правила размещения{% endif %}</a>
+              </div>
+            </div>
             <a class="footer-bottom-link icon-only-link" href="#top">
               <span class="visually-hidden">{% trans "Наверх" %}</span>
             </a>
@@ -614,7 +631,14 @@
           if (!headerMenus.length) return;
 
           headerMenus.forEach(function (menu) {
+            const summary = menu.querySelector("summary");
+            if (summary) {
+              summary.setAttribute("aria-expanded", menu.hasAttribute("open") ? "true" : "false");
+            }
             menu.addEventListener("toggle", function () {
+              if (summary) {
+                summary.setAttribute("aria-expanded", menu.hasAttribute("open") ? "true" : "false");
+              }
               if (!menu.hasAttribute("open")) return;
               headerMenus.forEach(function (other) {
                 if (other === menu) return;
@@ -729,6 +753,34 @@
           });
         })();
 
+        // Footer Accordion toggles
+        (function () {
+          const triggers = document.querySelectorAll(".footer-accordion-trigger");
+          triggers.forEach(trigger => {
+            trigger.addEventListener("click", function () {
+              if (window.innerWidth > 820) return;
+              const isExpanded = this.getAttribute("aria-expanded") === "true";
+              const content = this.nextElementSibling;
+              
+              this.setAttribute("aria-expanded", isExpanded ? "false" : "true");
+              if (content) {
+                if (isExpanded) {
+                  content.style.maxHeight = null;
+                } else {
+                  content.style.maxHeight = content.scrollHeight + "px";
+                }
+              }
+            });
+            
+            trigger.addEventListener("keydown", function (e) {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                this.click();
+              }
+            });
+          });
+        })();
+
       })();
     </script>
     {% if analytics_events %}
@@ -791,8 +843,6 @@
         });
       })();
     </script>
-    <script defer src="{% static 'js/bg_scene.js' %}"></script>
-    <script defer src="{% static 'js/scroll_animations.js' %}"></script>
     {% block extra_body %}{% endblock %}
   </body>
 </html>

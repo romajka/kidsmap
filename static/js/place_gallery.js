@@ -49,10 +49,6 @@
       watchOverflow: true,
       allowTouchMove: true,
       autoHeight: false,
-      keyboard: {
-        enabled: true,
-        onlyInViewport: true,
-      },
       navigation:
         prevEl && nextEl
           ? {

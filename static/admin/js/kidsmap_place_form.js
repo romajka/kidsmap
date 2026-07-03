@@ -331,6 +331,14 @@
       });
     });
 
+    var pageLang = (document.documentElement.lang || 'ru').toLowerCase();
+    var freeRangePriceHint = '0 — 0 будет показано как «Бесплатно».';
+    if (pageLang.indexOf('az') === 0) {
+      freeRangePriceHint = '0 — 0 pulsuz olaraq göstəriləcək.';
+    } else if (pageLang.indexOf('en') === 0) {
+      freeRangePriceHint = '0 — 0 will be shown as Free.';
+    }
+
     // 1. Добавляем суффиксы к полям
     var suffixMap = [
       { id: 'id_age_from', text: 'лет' },
@@ -446,6 +454,11 @@
         
         rangeContainer.appendChild(toInputWrap);
         priceGroup.appendChild(rangeContainer);
+
+        var helpText = document.createElement('p');
+        helpText.className = 'help';
+        helpText.textContent = freeRangePriceHint;
+        priceGroup.appendChild(helpText);
         
         // Копируем ошибки, если они есть
         var errorList = fromBox.querySelector('.errorlist') || toBox.querySelector('.errorlist');
@@ -1168,6 +1181,38 @@
     renumberVisibleCards();
     updateGalleryEmptyState();
     updateAddCardVisibility();
+  });
+
+  ready(function () {
+    document.addEventListener("keydown", function (e) {
+      var target = e.target;
+      if (target && target.tagName === "INPUT" && target.getAttribute("inputmode") === "numeric") {
+        if (
+          [46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
+          (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+          (e.keyCode === 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+          (e.keyCode === 86 && (e.ctrlKey === true || e.metaKey === true)) ||
+          (e.keyCode === 88 && (e.ctrlKey === true || e.metaKey === true)) ||
+          (e.keyCode >= 35 && e.keyCode <= 40)
+        ) {
+          return;
+        }
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+          e.preventDefault();
+        }
+      }
+    });
+
+    document.addEventListener("input", function (e) {
+      var target = e.target;
+      if (target && target.tagName === "INPUT" && target.getAttribute("inputmode") === "numeric") {
+        var val = target.value;
+        var clean = val.replace(/\D/g, "");
+        if (val !== clean) {
+          target.value = clean;
+        }
+      }
+    });
   });
 
 })();

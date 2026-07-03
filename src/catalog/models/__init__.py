@@ -1,5 +1,5 @@
 from .category import Category, Subcategory
-from .place import Place, PlacePhoto, Event, PlaceLike, PlaceReviewsByClub
+from .place import Place, PlacePhoto, PlaceScheduleDay, PlaceScheduleInterval, Event, PlaceLike, PlaceReviewsByClub
 from .user import UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVerification
 from .review import PlaceReview, PlaceReviewReaction, SiteReview, SiteReviewReaction
 from .owner import PlaceOwnershipRequest, PlaceOwnershipRequestAudit, OwnerTeamMembership, OwnerTeamInvitation, PlaceChangeAudit
@@ -10,6 +10,8 @@ __all__ = [
     'Subcategory',
     'Place',
     'PlacePhoto',
+    'PlaceScheduleDay',
+    'PlaceScheduleInterval',
     'Event',
     'PlaceLike',
     'PlaceReviewsByClub',

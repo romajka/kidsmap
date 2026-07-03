@@ -18,10 +18,15 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.text import slugify
 from django.utils import timezone
-from django.utils.translation import get_language, gettext_lazy as _
+from django.utils.translation import get_language, gettext as translate, gettext_lazy as _
 
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory
+from catalog.services.place_schedule import (
+    dump_schedule_payload,
+    serialize_place_schedule,
+    validate_schedule_payload,
+)
 from catalog.services.options import sort_translated_values
 
 
@@ -30,6 +35,89 @@ _NAME_CONNECTORS = {" ", "-", "'"}
 _PHONE_RE = re.compile(r"^\+?[0-9()\-\s]{7,25}$")
 _OWNER_IMAGE_MAX_BYTES = 2 * 1024 * 1024
 _OWNER_GALLERY_MAX_FILES = 10
+
+
+class LocalizedModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        if hasattr(obj, "name_i18n"):
+            return obj.name_i18n(get_language())
+        return super().label_from_instance(obj)
+
+
+class SubcategorySelect(forms.Select):
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex=subindex, attrs=attrs)
+        instance = getattr(value, "instance", None)
+        if instance is not None:
+            option.setdefault("attrs", {})
+            option["attrs"]["data-category"] = instance.category_id
+            option["attrs"]["data-label-az"] = instance.name_i18n("az")
+            option["attrs"]["data-label-ru"] = instance.name_i18n("ru")
+            option["attrs"]["data-label-en"] = instance.name_i18n("en")
+        return option
+
+
+class PlaceScheduleEditorFormMixin:
+    def _init_schedule_editor(self):
+        from catalog.services.place_schedule import parse_schedule_payload
+        if "structured_schedule" not in self.fields:
+            self.fields["structured_schedule"] = forms.CharField(
+                required=False,
+                widget=forms.HiddenInput(attrs={"data-km-schedule-editor-input": "1"}),
+            )
+        instance = getattr(self, "instance", None)
+        payload = serialize_place_schedule(instance) if instance is not None else []
+        raw_value = self.data.get("structured_schedule") if getattr(self, "is_bound", False) else None
+
+        if not raw_value:
+            raw_value = dump_schedule_payload(payload)
+        else:
+            payload = parse_schedule_payload(raw_value)
+
+        self.fields["structured_schedule"].initial = raw_value
+        self.schedule_editor_payload = raw_value
+        self.schedule_editor_errors = {}
+        self.cleaned_schedule_days = payload
+        self.schedule_editor_days = [
+            {
+                "weekday": day["weekday"],
+                "is_closed": day["is_closed"],
+                "is_24_hours": day["is_24_hours"],
+                "intervals": day["intervals"],
+                "errors": [],
+            }
+            for day in payload
+        ]
+        self.schedule_legacy_value = (getattr(instance, "schedule", "") or "").strip()
+        self.fields["schedule"].widget = forms.HiddenInput()
+
+    def _clean_schedule_editor(self, cleaned):
+        raw_value = cleaned.get("structured_schedule") or self.data.get("structured_schedule") or self.fields["structured_schedule"].initial or ""
+        validation = validate_schedule_payload(raw_value)
+        self.schedule_editor_payload = raw_value
+        self.schedule_editor_errors = validation.errors
+        self.cleaned_schedule_days = validation.days
+        self.schedule_editor_days = [
+            {
+                "weekday": day["weekday"],
+                "is_closed": day["is_closed"],
+                "is_24_hours": day["is_24_hours"],
+                "intervals": day["intervals"],
+                "errors": validation.errors.get(day["weekday"], []),
+            }
+            for day in validation.days
+        ]
+
+        if validation.errors:
+            self.add_error("structured_schedule", _("Проверьте расписание работы."))
+
+        cleaned["structured_schedule"] = dump_schedule_payload(validation.days)
+        return cleaned
+
+    def save_schedule(self, place):
+        from catalog.services.place_schedule import sync_place_schedule
+
+        sync_place_schedule(place, self.cleaned_schedule_days)
 
 
 def _normalize_whitespace(value: str) -> str:
@@ -618,14 +706,20 @@ class UserSetPasswordForm(SetPasswordForm):
         self.fields["new_password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
 
 
-class OwnerPlaceEditForm(forms.ModelForm):
+class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     draft_save_only = False
 
-    district = forms.ChoiceField(
-        label=_("Регион / район"),
+    region = forms.ChoiceField(
+        label=_("Город / регион"),
         required=False,
         choices=(),
-        widget=forms.Select(attrs={"class": "field"}),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-region": ""}),
+    )
+    district = forms.ChoiceField(
+        label=_("Район города"),
+        required=False,
+        choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-district": ""}),
     )
     metro = forms.ChoiceField(
         label=_("Метро"),
@@ -657,6 +751,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "age_to",
             "price_from",
             "price_to",
+            "region",
             "district",
             "metro",
             "address",
@@ -685,7 +780,7 @@ class OwnerPlaceEditForm(forms.ModelForm):
             "description_az": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "description_en": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "category": forms.Select(attrs={"class": "field"}),
-            "subcategory": forms.Select(attrs={"class": "field"}),
+            "subcategory": SubcategorySelect(attrs={"class": "field"}),
             "age_from": forms.TextInput(
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "0"}
             ),
@@ -786,17 +881,23 @@ class OwnerPlaceEditForm(forms.ModelForm):
                     mutable_data["lng"] = "" if instance.lng is None else str(instance.lng)
                 kwargs["data"] = mutable_data
         super().__init__(*args, **kwargs)
+
+        from catalog.services.locations import init_location_fields
+        init_location_fields(self, instance)
+
         if "category" in self.fields:
             qs = Category.objects.filter(is_active=True)
             if instance and getattr(instance, "category_id", None):
                 qs = Category.objects.filter(Q(is_active=True) | Q(code=instance.category_id))
-            self.fields["category"].queryset = qs.order_by("order", "name")
+            self.fields["category"].queryset = qs.order_by("order", "name_ru", "name")
+            self.fields["category"].label_from_instance = lambda obj: obj.name_i18n(get_language())
             
         if "subcategory" in self.fields:
             qs = Subcategory.objects.filter(is_active=True)
             if instance and getattr(instance, "subcategory_id", None):
                 qs = Subcategory.objects.filter(Q(is_active=True) | Q(id=instance.subcategory_id))
-            self.fields["subcategory"].queryset = qs.order_by("category__order", "order", "name")
+            self.fields["subcategory"].queryset = qs.select_related("category").order_by("category__order", "order", "name_ru", "name")
+            self.fields["subcategory"].label_from_instance = lambda obj: obj.name_i18n(get_language())
 
         self.fields["temporary_start"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
         self.fields["temporary_end"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
@@ -849,9 +950,21 @@ class OwnerPlaceEditForm(forms.ModelForm):
         self.fields["description_en"].help_text = _("Можно добавить позже.")
         self.fields["schedule"].help_text = _("Например: Пн/Ср/Пт 18:00-19:00.")
         self.fields["lesson_duration_minutes"].help_text = _("Например: 60 минут.")
-        self.fields["price_per_lesson"].help_text = _("Если есть отдельная цена.")
-        self.fields["price_per_month"].help_text = _("Если есть абонемент.")
-        self.fields["price_per_8_lessons"].help_text = _("Если есть пакет занятий.")
+        current_language = (get_language() or "ru").split("-")[0]
+        if current_language == "az":
+            free_price_hint = "Pulsuzdursa, 0 yazın."
+            free_range_hint = "Məkan pulsuzdursa, hər iki sahədə 0 yazın."
+        elif current_language == "en":
+            free_price_hint = "Enter 0 if it is free."
+            free_range_hint = "Enter 0 in both fields if the place is free."
+        else:
+            free_price_hint = "Если бесплатно, укажите 0."
+            free_range_hint = "Если место бесплатное, укажите 0 в обоих полях."
+        self.fields["price_from"].help_text = free_range_hint
+        self.fields["price_to"].help_text = free_range_hint
+        self.fields["price_per_lesson"].help_text = f"{_('Если есть отдельная цена.')} {free_price_hint}"
+        self.fields["price_per_month"].help_text = f"{_('Если есть абонемент.')} {free_price_hint}"
+        self.fields["price_per_8_lessons"].help_text = f"{_('Если есть пакет занятий.')} {free_price_hint}"
         self.fields["extra_conditions"].help_text = _("Скидки, пробный урок, форма.")
         self.fields["additional_info"].help_text = _("Только если есть важные детали.")
         self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
@@ -864,36 +977,27 @@ class OwnerPlaceEditForm(forms.ModelForm):
                     "invalid": _("Укажите дату и время в формате ГГГГ-ММ-ДД ЧЧ:ММ."),
                 }
             )
+        self._init_schedule_editor()
 
     def _configure_location_choices(self):
-        district_options = []
-        metro_options = sort_translated_values(BAKU_METRO_STATIONS)
+        from catalog.services.locations import configure_location_choices
+        configure_location_choices(self)
 
+        metro_options = sort_translated_values(BAKU_METRO_STATIONS)
         try:
             content_settings = CatalogContentSettings.get_solo()
-            district_options = sort_translated_values(content_settings.districts())
             metro_options = sort_translated_values(content_settings.metro_stations())
         except Exception:
-            # If DB is not available (e.g., management command pre-setup), keep empty options.
-            district_options = []
+            pass
 
-        district_current = (self.initial.get("district") or getattr(self.instance, "district", "") or "").strip()
         metro_current = (self.initial.get("metro") or getattr(self.instance, "metro", "") or "").strip()
 
-        self.fields["district"].choices = self._build_location_choices(
-            options=district_options,
-            current_value=district_current,
-            empty_label=_("Выберите регион или район"),
-        )
         self.fields["metro"].choices = self._build_location_choices(
             options=metro_options,
             current_value=metro_current,
             empty_label=_("Выберите метро"),
         )
-
-        self.fields["district"].help_text = _("Выберите регион или район, либо укажите ниже ближайшее метро.")
         self.fields["metro"].help_text = _("Если район не выбран, укажите ближайшую станцию метро.")
-        self.fields["district"].error_messages.update({"invalid_choice": _("Выберите регион или район из списка.")})
         self.fields["metro"].error_messages.update({"invalid_choice": _("Выберите станцию метро из списка.")})
 
     @staticmethod
@@ -906,15 +1010,20 @@ class OwnerPlaceEditForm(forms.ModelForm):
             if not value or value in seen:
                 continue
             seen.add(value)
-            choices.append((value, _(value)))
+            choices.append((value, translate(value)))
 
         if current_value and current_value not in seen:
-            choices.insert(1, (current_value, _(current_value)))
+            choices.insert(1, (current_value, translate(current_value)))
 
         return choices
 
     def clean(self):
         cleaned = super().clean()
+        cleaned = self._clean_schedule_editor(cleaned)
+        
+        from catalog.services.locations import clean_location_fields
+        cleaned = clean_location_fields(self, cleaned)
+
         lat = cleaned.get("lat")
         lng = cleaned.get("lng")
 

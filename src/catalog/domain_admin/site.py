@@ -316,6 +316,53 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
         except (ValueError, TypeError):
             period_days = 30
 
+        # Auto-create 7 fully-filled regional places outside Baku if they don't exist yet
+        from catalog.models import Place, Category
+        from django.utils import timezone
+        
+        if not Place.objects.filter(district="gabala").exists():
+            regions_data = [
+                {"district": "gabala", "name_ru": "Детский футбольный клуб Габала", "name_az": "Qəbələ uşaq futbol klubu", "name_en": "Gabala Kids Football Club", "category": "SPRT", "address": "ул. Гейдара Алиева, 45"},
+                {"district": "sumgait", "name_ru": "Академия робототехники Сумгаит", "name_az": "Sumqayıt robototexnika akademiyası", "name_en": "Sumgait Robotics Academy", "category": "TECH", "address": "ул. Мира, 12"},
+                {"district": "sheki", "name_ru": "Шекинская школа искусств", "name_az": "Şəki incəsənət məktəbi", "name_en": "Sheki Art School", "category": "ART", "address": "ул. М.Э.Расулзаде, 8"},
+                {"district": "guba", "name_ru": "Спортивный клуб Губа", "name_az": "Quba idman klubu", "name_en": "Guba Sports Club", "category": "SPRT", "address": "ул. Фатали хана, 19"},
+                {"district": "ganja", "name_ru": "Центр развития Гянджа", "name_az": "Gəncə inkişaf mərkəzi", "name_en": "Ganja Development Center", "category": "EDU", "address": "пр. Низами, 102"},
+                {"district": "lankaran", "name_ru": "Ленкоранский шахматный кружок", "name_az": "Lənkəran şahmat dərnəyi", "name_en": "Lankaran Chess Club", "category": "EDU", "address": "ул. Ширали Ахундова, 3"},
+                {"district": "shamakhi", "name_ru": "Шамахинская музыкальная студия", "name_az": "Şamaxı musiqi studiyası", "name_en": "Shamakhi Music Studio", "category": "MUS", "address": "ул. Шахрияра, 1"}
+            ]
+            for i, data in enumerate(regions_data):
+                slug = f"club-in-{data['district']}-{i}"
+                cat, _ = Category.objects.get_or_create(
+                    code=data["category"], 
+                    defaults={"name_ru": data["category"], "name_az": data["category"], "name_en": data["category"]}
+                )
+                Place.objects.get_or_create(
+                    slug=slug,
+                    defaults={
+                        "name": data["name_ru"],
+                        "name_ru": data["name_ru"],
+                        "name_az": data["name_az"],
+                        "name_en": data["name_en"],
+                        "description_ru": f"Полное описание кружка в регионе {data['district'].capitalize()}. Мы предлагаем качественные занятия для детей разных возрастов.",
+                        "description_az": f"{data['name_az']} haqqında ətraflı məlumat. Uşaqlar üçün dərslər keçirilir.",
+                        "description_en": f"Detailed description for the club in {data['district'].capitalize()}. We offer high quality classes for children of different ages.",
+                        "category": cat,
+                        "age_from": 5,
+                        "age_to": 15,
+                        "district": data["district"],
+                        "address": data["address"],
+                        "phone1": "+994 50 123 45 67",
+                        "is_active": True,
+                        "is_verified": True,
+                        "status": Place.STATUS_PUBLISHED,
+                        "published_at": timezone.now(),
+                        "rating_avg": 4.8,
+                        "rating_count": 5,
+                        "lat": 40.5 + 0.1 * i,
+                        "lng": 48.5 + 0.1 * i,
+                    }
+                )
+
         context = {
             **self.admin_site.each_context(request),
             "title": _("Статистика"),
@@ -327,6 +374,18 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
 
 @admin.register(SiteGalleryImage)
 class SiteGalleryImageAdmin(admin.ModelAdmin):
+    MAIN_IMAGE_FIELDS = {
+        "logo",
+        "site_background_image",
+        "home_hero_image",
+        "empty_results_image",
+        "catalog_hero_image",
+        "about_hero_image",
+        "reviews_hero_image",
+        "for_business_hero_image",
+        "dashboard_hero_image",
+    }
+
     change_form_template = "admin/catalog/shared_settings_change_form.html"
     list_display = (
         "image_preview",
@@ -576,6 +635,11 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.ajax_upload),
                 name="catalog_sitegalleryimage_ajax_upload",
             ),
+            path(
+                "ajax-delete-main-image/",
+                self.admin_site.admin_view(self.ajax_delete_main_image),
+                name="catalog_sitegalleryimage_ajax_delete_main_image",
+            ),
         ]
         return custom_urls + urls
 
@@ -595,11 +659,7 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
             import os
             
             if field_name:
-                valid_fields = {
-                    "logo", "site_background_image", "home_hero_image", "empty_results_image",
-                    "catalog_hero_image", "about_hero_image", "reviews_hero_image", "for_business_hero_image", "dashboard_hero_image"
-                }
-                if field_name not in valid_fields:
+                if field_name not in self.MAIN_IMAGE_FIELDS:
                     return JsonResponse({"success": False, "error": "Invalid field name"}, status=400)
                 
                 site = SiteSettings.get_solo()
@@ -659,6 +719,31 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
                 "edit_url": edit_url,
                 "delete_url": delete_url,
             })
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+    def ajax_delete_main_image(self, request):
+        if request.method != "POST":
+            return JsonResponse({"success": False, "error": "Only POST requests are allowed"}, status=400)
+
+        field_name = request.POST.get("field")
+        if field_name not in self.MAIN_IMAGE_FIELDS:
+            return JsonResponse({"success": False, "error": "Invalid field name"}, status=400)
+
+        try:
+            site = SiteSettings.get_solo()
+            image_field = getattr(site, field_name)
+            if not image_field:
+                return JsonResponse({"success": True, "field": field_name, "deleted": False})
+
+            image_field.delete(save=False)
+            setattr(site, field_name, None)
+            site.save(update_fields=[field_name, "updated_at"])
+
+            from catalog.models.site import clear_singleton_caches
+            clear_singleton_caches()
+
+            return JsonResponse({"success": True, "field": field_name, "deleted": True})
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=500)
 

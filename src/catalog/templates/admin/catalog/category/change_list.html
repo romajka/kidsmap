@@ -102,9 +102,13 @@
               </button>
               
               <div class="km-tax-icon-wrapper">
-                {% if cat.icon and cat.icon|slice:"-4:" == ".svg" %}
-                  <div class="category-mask-icon" style="mask-image: url('{% static cat.icon %}'); -webkit-mask-image: url('{% static cat.icon %}');"></div>
-                {% elif cat.icon %}
+                {% if cat.icon_file_url %}
+                  {% if cat.icon_is_svg %}
+                    <div class="category-mask-icon" style="mask-image: url('{{ cat.icon_file_url }}'); -webkit-mask-image: url('{{ cat.icon_file_url }}');"></div>
+                  {% else %}
+                    <img src="{{ cat.icon_file_url }}" alt="" class="category-mask-icon" style="mask-image:none; -webkit-mask-image:none; object-fit:contain;" />
+                  {% endif %}
+                {% elif cat.icon_is_font_class %}
                   <i class="{{ cat.icon }}"></i>
                 {% else %}
                   <i class="fas fa-folder"></i>
@@ -178,9 +182,13 @@
                   <div class="km-td km-td-name">
                     <div class="km-tax-tree-line"></div>
                     <div class="km-tax-icon-wrapper km-tax-icon-wrapper-sm km-tax-icon-sub">
-                      {% if cat.icon and cat.icon|slice:"-4:" == ".svg" %}
-                        <div class="category-mask-icon" style="mask-image: url('{% static cat.icon %}'); -webkit-mask-image: url('{% static cat.icon %}');"></div>
-                      {% elif cat.icon %}
+                      {% if cat.icon_file_url %}
+                        {% if cat.icon_is_svg %}
+                          <div class="category-mask-icon" style="mask-image: url('{{ cat.icon_file_url }}'); -webkit-mask-image: url('{{ cat.icon_file_url }}');"></div>
+                        {% else %}
+                          <img src="{{ cat.icon_file_url }}" alt="" class="category-mask-icon" style="mask-image:none; -webkit-mask-image:none; object-fit:contain;" />
+                        {% endif %}
+                      {% elif cat.icon_is_font_class %}
                         <i class="{{ cat.icon }}"></i>
                       {% else %}
                         <i class="fas fa-caret-right km-text-muted"></i>

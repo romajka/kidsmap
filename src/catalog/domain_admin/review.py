@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin, messages
+from django.db import models
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, ngettext
@@ -39,9 +41,43 @@ def _localized_admin_url(path: str) -> str:
 class PlaceReviewInline(admin.TabularInline):
     model = PlaceReview
     extra = 0
-    fields = ("author_name", "is_anonymous", "rating", "text", "is_approved", "created_at")
-    readonly_fields = ("created_at",)
+    fields = ("review_author_display", "rating", "text", "is_approved", "created_at_display")
+    readonly_fields = ("review_author_display", "created_at_display")
     ordering = ("-created_at",)
+    show_change_link = True
+    formfield_overrides = {
+        models.TextField: {"widget": forms.Textarea(attrs={"rows": 4, "cols": 52})},
+    }
+
+    @admin.display(description=_("Автор"))
+    def review_author_display(self, obj):
+        if not obj or not obj.pk:
+            return _("Без автора")
+
+        primary = (obj.author_name or "").strip()
+        if not primary and obj.user_id:
+            primary = obj.user.get_full_name().strip() or obj.user.username or obj.user.email or ""
+        if not primary:
+            primary = str(_("Без имени"))
+
+        meta_bits = []
+        if obj.user_id:
+            if obj.user.username:
+                meta_bits.append(f"@{obj.user.username}")
+            if obj.user.email:
+                meta_bits.append(obj.user.email)
+        else:
+            meta_bits.append(str(_("Без аккаунта")))
+
+        return format_html(
+            '<div class="km-inline-review-author"><strong>{}</strong><span>{}</span></div>',
+            primary,
+            " · ".join(bit for bit in meta_bits if bit),
+        )
+
+    @admin.display(description=_("Создан"))
+    def created_at_display(self, obj):
+        return getattr(obj, "created_at", None)
 
 
 class ReviewModerationStatusFilter(admin.SimpleListFilter):
@@ -95,7 +131,6 @@ class ReviewRiskFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return (
             ("profanity", _("Есть скрытая лексика")),
-            ("anonymous", _("Анонимный")),
             ("low_rating", _("Низкая оценка")),
             ("many_dislikes", _("Много дизлайков")),
         )
@@ -104,8 +139,6 @@ class ReviewRiskFilter(admin.SimpleListFilter):
         value = self.value()
         if value == "profanity":
             return queryset.filter(contains_profanity=True)
-        if value == "anonymous":
-            return queryset.filter(is_anonymous=True)
         if value == "low_rating":
             return queryset.filter(rating__lte=2)
         if value == "many_dislikes":
@@ -135,7 +168,6 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         ReviewTextPresenceFilter,
         ReviewRiskFilter,
         "rating",
-        "is_anonymous",
         "contains_profanity",
         "is_approved",
         "status",
@@ -161,7 +193,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
                 "fields": (
                     "place",
                     "user",
-                    ("author_name", "is_anonymous"),
+                    "author_name",
                     "rating",
                     "text",
                 )
@@ -250,15 +282,11 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Автор"))
     def display_author(self, obj):
-        if obj.is_anonymous:
-            return _("Аноним")
         return obj.author_name or _("Без имени")
 
     @admin.display(description=_("Автор"))
     def author_summary(self, obj):
         badges = []
-        if obj.is_anonymous:
-            badges.append(self._render_review_badge(label=_("Анонимный"), tone="muted"))
         if obj.user_id:
             badges.append(self._render_review_badge(label=_("Есть аккаунт"), tone="info"))
         name = self.display_author(obj)
@@ -302,8 +330,6 @@ class PlaceReviewAdmin(admin.ModelAdmin):
             flags.append(self._render_review_badge(label=_("Есть скрытая лексика"), tone="warn"))
         if not quality.is_ready:
             flags.append(self._render_review_badge(label=_("Низкое качество"), tone="warn"))
-        if obj.is_anonymous:
-            flags.append(self._render_review_badge(label=_("Анонимный"), tone="muted"))
         if not self._review_has_text(obj):
             flags.append(self._render_review_badge(label=_("Только оценка"), tone="info"))
         if obj.rating <= 2:
@@ -341,8 +367,6 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         flags = []
         if obj.contains_profanity:
             flags.append({"label": str(_("Скрытая лексика")), "tone": "warn"})
-        if obj.is_anonymous:
-            flags.append({"label": str(_("Анонимный")), "tone": "muted"})
         if not self._review_has_text(obj):
             flags.append({"label": str(_("Только оценка")), "tone": "info"})
         if obj.rating <= 2:
@@ -553,11 +577,11 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 @admin.register(SiteReview)
 class SiteReviewAdmin(admin.ModelAdmin):
     list_display = ("display_author", "rating", "status", "is_approved", "likes_count", "dislikes_count", "contains_profanity", "created_at")
-    list_filter = ("status", "is_approved", "rating", "is_anonymous", "contains_profanity", "created_at")
+    list_filter = ("status", "is_approved", "rating", "contains_profanity", "created_at")
     search_fields = ("author_name", "text")
     readonly_fields = ("likes_count", "dislikes_count", "contains_profanity", "created_at", "updated_at", "session_key")
     fieldsets = (
-        (_("Отзыв"), {"fields": ("user", "author_name", "is_anonymous", "rating", "text")}),
+        (_("Отзыв"), {"fields": ("user", "author_name", "rating", "text")}),
         (_("Модерация"), {"fields": ("status", "is_approved", "rejection_reason", "contains_profanity")}),
         (_("Реакции"), {"fields": ("likes_count", "dislikes_count")}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("session_key", "created_at", "updated_at")}),
@@ -565,6 +589,4 @@ class SiteReviewAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Автор"))
     def display_author(self, obj):
-        if obj.is_anonymous:
-            return _("Аноним")
         return obj.author_name or _("Без имени")

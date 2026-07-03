@@ -54,6 +54,15 @@ def _localize_public_address(raw_value: str, lang: str) -> str:
     return re.sub(r"\s{2,}", " ", value).strip(" ,")
 
 
+def _localized_free_label(lang: str | None = None) -> str:
+    normalized_lang = (lang or get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
+    if normalized_lang == "az":
+        return "Pulsuz"
+    if normalized_lang == "en":
+        return "Free"
+    return "Бесплатно"
+
+
 class Place(models.Model):
     STATUS_DRAFT = "draft"
     STATUS_PENDING = "pending"
@@ -241,6 +250,9 @@ class Place(models.Model):
 
     @property
     def price_range_display(self) -> str:
+        values = [value for value in (self.price_from, self.price_to) if value is not None]
+        if values and all(value == 0 for value in values):
+            return _localized_free_label(self._normalize_lang(None))
         if self.price_from is not None and self.price_to is not None:
             if self.price_from == self.price_to:
                 return f"{self.price_from} AZN"
@@ -260,7 +272,11 @@ class Place(models.Model):
     @property
     def card_price_badge(self) -> str:
         if self.price_per_lesson is not None:
+            if self.price_per_lesson == 0:
+                return _localized_free_label(self._normalize_lang(None))
             return _("1 урок · %(price)s AZN") % {"price": self.price_per_lesson}
+        if self.price_range_display == _localized_free_label(self._normalize_lang(None)):
+            return self.price_range_display
         if self.price_from is not None:
             return _("от %(price)s AZN") % {"price": self.price_from}
         if self.price_to is not None:
@@ -270,7 +286,11 @@ class Place(models.Model):
     @property
     def card_price_badge_label(self) -> str:
         if self.price_per_lesson is not None:
+            if self.price_per_lesson == 0:
+                return ""
             return str(_("1 урок"))
+        if self.price_range_display == _localized_free_label(self._normalize_lang(None)):
+            return ""
         if self.price_from is not None:
             return str(_("от"))
         if self.price_to is not None:
@@ -280,7 +300,11 @@ class Place(models.Model):
     @property
     def card_price_badge_value(self) -> str:
         if self.price_per_lesson is not None:
+            if self.price_per_lesson == 0:
+                return _localized_free_label(self._normalize_lang(None))
             return str(self.price_per_lesson)
+        if self.price_range_display == _localized_free_label(self._normalize_lang(None)):
+            return self.price_range_display
         if self.price_from is not None:
             return str(self.price_from)
         if self.price_to is not None:
@@ -289,6 +313,8 @@ class Place(models.Model):
 
     @property
     def card_price_badge_currency(self) -> str:
+        if self.card_price_badge_value == _localized_free_label(self._normalize_lang(None)):
+            return ""
         if self.card_price_badge:
             return "AZN"
         return ""
@@ -297,11 +323,11 @@ class Place(models.Model):
     def pricing_options(self) -> list[tuple[str, str]]:
         options: list[tuple[str, str]] = []
         if self.price_per_lesson is not None:
-            options.append((str(_("1 урок")), f"{self.price_per_lesson} AZN"))
+            options.append((str(_("1 урок")), _localized_free_label(self._normalize_lang(None)) if self.price_per_lesson == 0 else f"{self.price_per_lesson} AZN"))
         if self.price_per_month is not None:
-            options.append((str(_("1 месяц")), f"{self.price_per_month} AZN"))
+            options.append((str(_("1 месяц")), _localized_free_label(self._normalize_lang(None)) if self.price_per_month == 0 else f"{self.price_per_month} AZN"))
         if self.price_per_8_lessons is not None:
-            options.append((str(_("8 уроков")), f"{self.price_per_8_lessons} AZN"))
+            options.append((str(_("8 уроков")), _localized_free_label(self._normalize_lang(None)) if self.price_per_8_lessons == 0 else f"{self.price_per_8_lessons} AZN"))
         if self.price_range_display:
             options.append((str(_("Диапазон цены")), self.price_range_display))
         return options
@@ -314,7 +340,7 @@ class Place(models.Model):
                 self.phone1,
                 self.instagram,
                 self.website,
-                self.schedule,
+                self.has_schedule_content,
                 self.lesson_duration_minutes is not None,
                 self.price_per_lesson is not None,
                 self.price_per_month is not None,
@@ -325,6 +351,32 @@ class Place(models.Model):
                 self.price_to is not None,
             )
         )
+
+    @property
+    def has_structured_schedule(self) -> bool:
+        if not getattr(self, "pk", None):
+            return False
+        return self.schedule_days.exists()
+
+    @property
+    def has_schedule_content(self) -> bool:
+        return self.has_structured_schedule or bool((self.schedule or "").strip())
+
+    @property
+    def schedule_rows(self) -> list[dict[str, object]]:
+        if not self.has_structured_schedule:
+            return []
+        from catalog.services.place_schedule import build_schedule_rows, serialize_place_schedule
+
+        return build_schedule_rows(serialize_place_schedule(self))
+
+    @property
+    def schedule_summary(self) -> str:
+        if self.has_structured_schedule:
+            from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
+
+            return build_schedule_summary(serialize_place_schedule(self))
+        return (self.schedule or "").strip()
 
     @property
     def has_coordinates(self) -> bool:
@@ -396,6 +448,9 @@ class Place(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._build_unique_slug()
+        if self.district:
+            from catalog.services.locations import normalize_to_key
+            self.district = normalize_to_key(self.district)
         super().save(*args, **kwargs)
 
     def refresh_rating_stats(self):
@@ -427,6 +482,55 @@ class PlacePhoto(models.Model):
 
     def __str__(self):
         return f"{self.place.name_i18n()} #{self.order}"
+
+
+class PlaceScheduleDay(models.Model):
+    WEEKDAY_CHOICES = (
+        ("mon", _("Понедельник")),
+        ("tue", _("Вторник")),
+        ("wed", _("Среда")),
+        ("thu", _("Четверг")),
+        ("fri", _("Пятница")),
+        ("sat", _("Суббота")),
+        ("sun", _("Воскресенье")),
+    )
+
+    place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="schedule_days", verbose_name=_("Место"))
+    weekday = models.CharField(_("День недели"), max_length=3, choices=WEEKDAY_CHOICES)
+    is_closed = models.BooleanField(_("Закрыто"), default=True)
+    is_24_hours = models.BooleanField(_("24 часа"), default=False)
+    order = models.PositiveSmallIntegerField(_("Порядок"), default=0)
+
+    class Meta:
+        ordering = ("order", "id")
+        verbose_name = _("День расписания")
+        verbose_name_plural = _("Дни расписания")
+        constraints = [
+            models.UniqueConstraint(fields=("place", "weekday"), name="unique_place_schedule_weekday"),
+        ]
+
+    def __str__(self):
+        return f"{self.place} · {self.get_weekday_display()}"
+
+
+class PlaceScheduleInterval(models.Model):
+    schedule_day = models.ForeignKey(
+        PlaceScheduleDay,
+        on_delete=models.CASCADE,
+        related_name="intervals",
+        verbose_name=_("День расписания"),
+    )
+    start_time = models.TimeField(_("Начало"))
+    end_time = models.TimeField(_("Окончание"))
+    order = models.PositiveSmallIntegerField(_("Порядок"), default=0)
+
+    class Meta:
+        ordering = ("order", "id")
+        verbose_name = _("Интервал расписания")
+        verbose_name_plural = _("Интервалы расписания")
+
+    def __str__(self):
+        return f"{self.schedule_day} · {self.start_time:%H:%M}-{self.end_time:%H:%M}"
 
 
 class Event(models.Model):

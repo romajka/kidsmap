@@ -74,7 +74,7 @@
 }
 
 /* ─── Period Selector ───────────────────────────────── */
-.km-period-selector {
+#content-main .km-period-selector {
   display: inline-flex;
   border: 1px solid var(--km-s-border);
   border-radius: 8px;
@@ -82,11 +82,11 @@
   background: #fff;
 }
 
-.km-period-selector__btn {
+#content-main .km-period-selector__btn {
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: #374151;
+  color: var(--km-s-green);
   border: none;
   background: none;
   cursor: pointer;
@@ -96,27 +96,25 @@
   border-right: 1px solid var(--km-s-border);
 }
 
-.km-period-selector__btn:last-child {
+#content-main .km-period-selector__btn:last-child {
   border-right: none;
 }
 
-.km-period-selector__btn:hover {
+#content-main .km-period-selector__btn:hover {
   background: #F9FAFB;
-  color: #111827;
+  color: var(--km-s-green);
   text-decoration: none;
 }
 
-.km-period-selector__btn.is-active {
-  background: var(--km-s-green);
-  color: #fff;
-}
-
-.km-period-selector__btn.is-active:link,
-.km-period-selector__btn.is-active:visited,
-.km-period-selector__btn.is-active:hover,
-.km-period-selector__btn.is-active:focus {
-  color: #fff;
-  text-decoration: none;
+#content-main .km-period-selector__btn.is-active,
+#content-main a.km-period-selector__btn.is-active,
+#content-main a.km-period-selector__btn.is-active:link,
+#content-main a.km-period-selector__btn.is-active:visited,
+#content-main a.km-period-selector__btn.is-active:hover,
+#content-main a.km-period-selector__btn.is-active:focus {
+  background: var(--km-s-green) !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 .km-updated-label {

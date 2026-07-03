@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".km-media-row").forEach(row => {
         const field = row.dataset.field;
         const uploadUrl = row.dataset.uploadUrl;
+        const deleteUrl = row.dataset.deleteUrl;
         const uploadBtn = row.querySelector(".km-media-upload-btn");
         const fileInput = row.querySelector(".km-media-file-input");
         if (!uploadBtn || !fileInput) return;
@@ -92,6 +93,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (e.dataTransfer.files.length > 0) {
                 uploadSingleFile(e.dataTransfer.files[0], row, field, uploadUrl, csrfToken);
             }
+        });
+
+        row.addEventListener("click", (e) => {
+            const deleteBtn = e.target.closest(".km-media-delete-btn");
+            if (!deleteBtn) return;
+            deleteSingleFile(row, field, deleteUrl, csrfToken);
         });
     });
 });
@@ -215,6 +222,7 @@ function uploadSingleFile(file, row, field, uploadUrl, csrfToken) {
                 <span class="km-media-status km-media-status-active"><i class="fas fa-check-circle"></i> Активно</span>
                 <span class="km-media-filename" title="${data.file.name}">${data.file.name} &bull; ${data.file.size}</span>
             `;
+            ensureDeleteButton(row);
         } else {
             throw new Error(data.error || "Неизвестная ошибка");
         }
@@ -227,5 +235,64 @@ function uploadSingleFile(file, row, field, uploadUrl, csrfToken) {
     })
     .finally(() => {
         if (uploadBtn) uploadBtn.disabled = false;
+    });
+}
+
+function ensureDeleteButton(row) {
+    if (row.querySelector(".km-media-delete-btn")) return;
+
+    const settingsLink = row.querySelector(".km-media-actions .km-btn-link");
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "km-btn-link km-btn-link-danger km-media-delete-btn";
+    deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> Удалить';
+
+    if (settingsLink) {
+        settingsLink.before(deleteBtn);
+    } else {
+        row.querySelector(".km-media-actions")?.appendChild(deleteBtn);
+    }
+}
+
+function deleteSingleFile(row, field, deleteUrl, csrfToken) {
+    if (!deleteUrl) return;
+    if (!window.confirm("Удалить загруженное изображение?")) return;
+
+    const deleteBtn = row.querySelector(".km-media-delete-btn");
+    if (deleteBtn) {
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Удаление...';
+    }
+
+    const formData = new FormData();
+    formData.append("field", field);
+
+    fetch(deleteUrl, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrfToken
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || `Ошибка сервера (${response.status})`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!data.success) {
+            throw new Error(data.error || "Неизвестная ошибка");
+        }
+        window.location.reload();
+    })
+    .catch(err => {
+        alert(`Не удалось удалить изображение: ${err.message}`);
+        if (deleteBtn) {
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> Удалить';
+        }
     });
 }

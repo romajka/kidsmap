@@ -30,15 +30,15 @@ def _get_solo_site_settings():
         about_text_ru="KidsMap — каталог детских кружков и секций по Азербайджану.",
         about_text_en="KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
         about_text_az="KidsMap Azərbaycanda uşaqlar üçün dərnək və kurs kataloqudur.",
-        home_title_ru="Найдите кружок для ребёнка в Азербайджане",
-        home_title_en="Find a club for your child in Azerbaijan",
-        home_title_az="Azərbaycanda uşağınız üçün dərnək tapın",
-        home_subtitle_ru="Спорт, творчество, музыка, образование по всем регионам — всё в одном месте.",
-        home_subtitle_en="Sports, creativity, music, and education across all regions in one place.",
-        home_subtitle_az="Bütün regionlarda idman, yaradıcılıq, musiqi və təhsil — hamısı bir yerdə.",
-        home_search_label_ru="Искать кружок, курс или школу",
-        home_search_label_en="Find a club, course, or school",
-        home_search_label_az="Dərnək, kurs və ya məktəb axtarın",
+        home_title_ru="Найдите подходящее занятие для ребёнка",
+        home_title_en="Find the right activity for your child",
+        home_title_az="Uşağınız üçün uyğun məşğələni tapın",
+        home_subtitle_ru="Кружки, курсы и события рядом — всё в одном месте.",
+        home_subtitle_en="Nearby clubs, classes and events — all in one place.",
+        home_subtitle_az="Yaxınlıqdakı dərnək, kurs və tədbirlər — hamısı bir yerdə.",
+        home_search_label_ru="Найти занятие",
+        home_search_label_en="Find activities",
+        home_search_label_az="Məşğələ tap",
         home_search_placeholder_ru="например шахматы, футбол, рисование",
         home_search_placeholder_en="for example chess, football, drawing",
         home_search_placeholder_az="məsələn şahmat, futbol, rəsm",
@@ -457,11 +457,27 @@ class CatalogContentSettings(models.Model):
         return _get_solo_catalog_content_settings()
 
     def districts(self):
-        if isinstance(self.districts_json, list) and self.districts_json:
-            return self.districts_json
-        from catalog.content_data import AZERBAIJAN_REGIONS
+        raw_list = self.districts_json
+        if not raw_list:
+            from catalog.services.locations import get_all_districts_flat_choices
+            return [k for k, _ in get_all_districts_flat_choices()]
 
-        return AZERBAIJAN_REGIONS
+        flat_keys = []
+        for item in raw_list:
+            if isinstance(item, dict):
+                key = item.get("key")
+                if key:
+                    flat_keys.append(key)
+                for sub in item.get("districts") or []:
+                    if isinstance(sub, dict):
+                        sub_key = sub.get("key")
+                        if sub_key:
+                            flat_keys.append(sub_key)
+                    elif isinstance(sub, str):
+                        flat_keys.append(sub)
+            elif isinstance(item, str):
+                flat_keys.append(item)
+        return flat_keys
 
     def metro_stations(self):
         if isinstance(self.metro_stations_json, list) and self.metro_stations_json:

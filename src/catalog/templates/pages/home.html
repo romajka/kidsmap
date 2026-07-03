@@ -22,7 +22,6 @@
 
     <div class="home-hero-grid">
       <div class="home-hero-copy">
-        <p class="home-hero-eyebrow">{% trans "Поиск детских занятий и мест рядом" %}</p>
         <h1>{{ hero_title }}</h1>
         <p>{{ hero_subtitle }}</p>
 
@@ -189,18 +188,43 @@
         {% trans "Начать поиск" as default_search_label %}
         <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
         <div class="home-search-row">
-          <input
-            id="home-search-district"
-            class="filter-select home-filter-select home-filter-district"
-            name="district"
-            type="text"
-            value="{{ selected.district }}"
-            placeholder="{% trans 'Регион / район' %}"
-            list="home-district-options"
-            autocomplete="off"
-            spellcheck="false"
-            inputmode="search"
-          />
+          <select name="district" class="home-filter-district-select" hidden>
+            <option value="">{% if request.LANGUAGE_CODE == "az" %}Region / rayon{% elif request.LANGUAGE_CODE == "en" %}Region / district{% else %}{% trans "Регион / район" %}{% endif %}</option>
+            {% for district in home_districts %}
+              <option
+                value="{{ district.value }}"
+                data-label-current="{{ district.label }}"
+                data-label-az="{{ district.label_az }}"
+                data-label-ru="{{ district.label_ru }}"
+                data-label-en="{{ district.label_en }}"
+                {% if selected.district == district.value %}selected{% endif %}
+              >
+                {% firstof district.label_with_count district.label %}
+              </option>
+            {% endfor %}
+          </select>
+
+          <div class="km-location-tree" data-tree-select="district">
+            <button
+              type="button"
+              class="km-tree-trigger"
+              id="district-tree-trigger"
+              aria-haspopup="tree"
+              aria-expanded="false"
+              aria-controls="district-tree-dropdown"
+            >
+              <span class="km-tree-trigger-text">
+                {% if request.LANGUAGE_CODE == "az" %}Region / rayon{% elif request.LANGUAGE_CODE == "en" %}Region / district{% else %}{% trans "Регион / район" %}{% endif %}
+              </span>
+            </button>
+            <div
+              id="district-tree-dropdown"
+              class="km-tree-dropdown"
+              role="tree"
+              tabindex="-1"
+              hidden
+            ></div>
+          </div>
 
           <div class="home-age-presets" role="group" aria-label="{% trans 'Возраст' %}">
             <input type="hidden" name="age" value="{{ selected_age }}" />
@@ -220,9 +244,9 @@
           </div>
 
           <select id="home-search-category" class="filter-select home-filter-select home-filter-category" name="category">
-            <option value="">{% trans "Категория" %}</option>
+            <option value="">{% if request.LANGUAGE_CODE == "az" %}Bütün kateqoriyalar{% elif request.LANGUAGE_CODE == "en" %}All categories{% else %}Все категории{% endif %}</option>
             {% for item in home_categories %}
-              <option value="{{ item.code }}">{% trans item.title %}</option>
+              <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
             {% endfor %}
           </select>
 
@@ -235,11 +259,6 @@
             <span class="visually-hidden">{% firstof hero_cta_text default_search_label %}</span>
           </button>
         </div>
-        <datalist id="home-district-options">
-          {% for district in home_districts %}
-            <option value="{{ district }}"></option>
-          {% endfor %}
-        </datalist>
       </form>
 
     </div>
@@ -538,11 +557,7 @@
           <article class="review-item site-review-teaser-card">
             <div class="review-head">
               <strong class="review-author">
-                {% if review.is_anonymous %}
-                  {% trans "Аноним" %}
-                {% else %}
-                  {{ review.author_name_i18n }}
-                {% endif %}
+                {{ review.author_name|default:review.author_name_i18n }}
               </strong>
               <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
               <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
@@ -750,6 +765,354 @@
 
         paint(Number(input.value || 0));
       });
+    })();
+
+    (function () {
+      function initLocationTreeSelect() {
+        const container = document.querySelector('[data-tree-select="district"]');
+        if (!container) return;
+        const trigger = container.querySelector('.km-tree-trigger');
+        const triggerText = container.querySelector('.km-tree-trigger-text');
+        const dropdown = container.querySelector('.km-tree-dropdown');
+        const targetSelect = document.querySelector('select[name="district"]');
+        if (!trigger || !dropdown || !targetSelect) return;
+
+        const currentLang = document.documentElement.lang || 'az';
+
+        function getBütünBakıRayonlarıLabel() {
+          if (currentLang === 'az') return 'Bütün Bakı rayonları';
+          if (currentLang === 'en') return 'All Baku districts';
+          return 'Все районы Баку';
+        }
+
+        function cleanDistrictLabel(label) {
+          if (label && label.includes(':')) {
+            return label.split(':')[1].trim();
+          }
+          return label;
+        }
+
+        function getOptions() {
+          return Array.from(targetSelect.options).map(function(opt) {
+            const label = opt.dataset.labelCurrent || opt.textContent.trim();
+            const labelWithCount = opt.textContent.trim();
+            return {
+              value: opt.value,
+              label: label,
+              labelWithCount: labelWithCount,
+              count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null
+            };
+          });
+        }
+
+        function createNodeRow(value, label, labelWithCount, hasChildren, isChild, isBakuAll, isLastChild) {
+          const row = document.createElement('div');
+          row.className = 'km-tree-row';
+          row.setAttribute('role', 'treeitem');
+          row.setAttribute('tabindex', '-1');
+          row.dataset.value = value;
+          
+          if (isChild) {
+            row.classList.add('km-tree-row--child');
+            if (isBakuAll) {
+              row.classList.add('km-tree-row--baku-all');
+            }
+            if (isLastChild) {
+              row.classList.add('km-tree-row--last-child');
+            }
+          }
+
+          let isSelected = false;
+          if (value === 'baku') {
+            if (targetSelect.value === 'baku' && isBakuAll) {
+              isSelected = true;
+            }
+          } else {
+            if (targetSelect.value === value) {
+              isSelected = true;
+            }
+          }
+
+          if (isSelected) {
+            row.classList.add('is-selected');
+            row.setAttribute('aria-selected', 'true');
+          } else {
+            row.setAttribute('aria-selected', 'false');
+          }
+
+          if (hasChildren) {
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'km-tree-chevron';
+            toggle.setAttribute('aria-label', 'Toggle');
+            toggle.setAttribute('tabindex', '-1');
+            toggle.innerHTML = `
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="km-tree-chevron-icon">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            `;
+            row.appendChild(toggle);
+          } else if (!isChild) {
+            const spacer = document.createElement('div');
+            spacer.className = 'km-tree-spacer';
+            row.appendChild(spacer);
+          }
+
+          if (isChild) {
+            const branch = document.createElement('div');
+            branch.className = 'km-tree-branch';
+            row.appendChild(branch);
+          }
+
+          const labelSpan = document.createElement('span');
+          labelSpan.className = 'km-tree-label';
+          
+          const text = label;
+          const countPart = labelWithCount ? (labelWithCount.split('—')[1] || '').trim() : '';
+          labelSpan.innerHTML = text + (countPart ? ` <span class="km-tree-count">— ${countPart}</span>` : '');
+          row.appendChild(labelSpan);
+
+          row.addEventListener('click', function(e) {
+            if (hasChildren) {
+              toggleNode(row);
+            } else {
+              selectValue(value);
+            }
+          });
+
+          return row;
+        }
+
+        function toggleNode(row) {
+          const parentNode = row.closest('.km-tree-node');
+          if (!parentNode) return;
+          const children = parentNode.querySelector('.km-tree-children');
+          if (!children) return;
+          
+          const isExpanded = row.getAttribute('aria-expanded') === 'true';
+          row.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+          children.hidden = isExpanded;
+        }
+
+        function selectValue(value) {
+          targetSelect.value = value;
+          targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          closeDropdown();
+        }
+
+        function buildTreeHTML() {
+          dropdown.innerHTML = '';
+          const options = getOptions();
+
+          const bakuOption = options.find(o => o.value === 'baku');
+          const bakuDistricts = options.filter(o => o.value.startsWith('baku_'));
+          const otherRegions = options.filter(o => o.value && o.value !== 'baku' && !o.value.startsWith('baku_'));
+
+          if (bakuOption) {
+            const bakuNode = document.createElement('div');
+            bakuNode.className = 'km-tree-node km-tree-parent';
+            
+            const hasChildren = bakuDistricts.length > 0;
+            const bakuRow = createNodeRow(bakuOption.value, bakuOption.label, bakuOption.labelWithCount, hasChildren);
+            bakuNode.appendChild(bakuRow);
+
+            if (hasChildren) {
+              const childrenContainer = document.createElement('div');
+              childrenContainer.className = 'km-tree-children';
+              childrenContainer.setAttribute('role', 'group');
+
+              const isBakuSelected = targetSelect.value === 'baku' || targetSelect.value.startsWith('baku_');
+              bakuRow.setAttribute('aria-expanded', isBakuSelected ? 'true' : 'false');
+              childrenContainer.hidden = !isBakuSelected;
+
+              const bakuCountPart = bakuOption.labelWithCount.split('—')[1] || '';
+              const allBakuLabel = getBütünBakıRayonlarıLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
+              const allBakuRow = createNodeRow('baku', getBütünBakıRayonlarıLabel(), allBakuLabel, false, true, true);
+              childrenContainer.appendChild(allBakuRow);
+
+              bakuDistricts.forEach((dist, idx) => {
+                const isLast = idx === bakuDistricts.length - 1;
+                const distRow = createNodeRow(dist.value, cleanDistrictLabel(dist.label), cleanDistrictLabel(dist.labelWithCount), false, true, false, isLast);
+                childrenContainer.appendChild(distRow);
+              });
+
+              bakuNode.appendChild(childrenContainer);
+            }
+            dropdown.appendChild(bakuNode);
+          }
+
+          otherRegions.forEach(reg => {
+            const regRow = createNodeRow(reg.value, reg.label, reg.labelWithCount, false);
+            dropdown.appendChild(regRow);
+          });
+        }
+
+        function toggleDropdown() {
+          const isHidden = dropdown.hidden;
+          if (isHidden) {
+            openDropdown();
+          } else {
+            closeDropdown();
+          }
+        }
+
+        function openDropdown() {
+          dropdown.hidden = false;
+          trigger.setAttribute('aria-expanded', 'true');
+          buildTreeHTML();
+          
+          const firstItem = dropdown.querySelector('.km-tree-row');
+          if (firstItem) {
+            focusItem(firstItem);
+          }
+        }
+
+        function closeDropdown() {
+          dropdown.hidden = true;
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus();
+        }
+
+        function getVisibleItems() {
+          const items = [];
+          const rows = Array.from(dropdown.querySelectorAll('.km-tree-row'));
+          rows.forEach(row => {
+            const parentChildren = row.closest('.km-tree-children');
+            if (!parentChildren || !parentChildren.hidden) {
+              items.push(row);
+            }
+          });
+          return items;
+        }
+
+        function focusItem(item) {
+          if (!item) return;
+          const allRows = dropdown.querySelectorAll('.km-tree-row');
+          allRows.forEach(row => {
+            row.setAttribute('tabindex', '-1');
+          });
+          item.setAttribute('tabindex', '0');
+          item.focus();
+        }
+
+        dropdown.addEventListener('keydown', function(e) {
+          const active = document.activeElement;
+          if (!active || !active.classList.contains('km-tree-row')) return;
+
+          const visibleItems = getVisibleItems();
+          const index = visibleItems.indexOf(active);
+
+          switch (e.key) {
+            case 'ArrowDown':
+              e.preventDefault();
+              if (index < visibleItems.length - 1) {
+                focusItem(visibleItems[index + 1]);
+              }
+              break;
+            case 'ArrowUp':
+              e.preventDefault();
+              if (index > 0) {
+                focusItem(visibleItems[index - 1]);
+              }
+              break;
+            case 'ArrowRight':
+              e.preventDefault();
+              if (active.querySelector('.km-tree-chevron')) {
+                const isExpanded = active.getAttribute('aria-expanded') === 'true';
+                if (!isExpanded) {
+                  toggleNode(active);
+                } else {
+                  if (index < visibleItems.length - 1) {
+                    focusItem(visibleItems[index + 1]);
+                  }
+                }
+              }
+              break;
+            case 'ArrowLeft':
+              e.preventDefault();
+              if (active.querySelector('.km-tree-chevron')) {
+                const isExpanded = active.getAttribute('aria-expanded') === 'true';
+                if (isExpanded) {
+                  toggleNode(active);
+                }
+              } else if (active.classList.contains('km-tree-row--child')) {
+                const parentRow = dropdown.querySelector('.km-tree-node > .km-tree-row');
+                if (parentRow) {
+                  focusItem(parentRow);
+                }
+              }
+              break;
+            case 'Enter':
+            case ' ':
+              e.preventDefault();
+              active.click();
+              break;
+            case 'Escape':
+              e.preventDefault();
+              closeDropdown();
+              break;
+            case 'Home':
+              e.preventDefault();
+              if (visibleItems.length > 0) {
+                focusItem(visibleItems[0]);
+              }
+              break;
+            case 'End':
+              e.preventDefault();
+              if (visibleItems.length > 0) {
+                focusItem(visibleItems[visibleItems.length - 1]);
+              }
+              break;
+          }
+        });
+
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleDropdown();
+        });
+
+        trigger.addEventListener('keydown', function(e) {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openDropdown();
+          }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!container.contains(e.target)) {
+            dropdown.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        function updateTriggerLabel() {
+          const selectedVal = targetSelect.value;
+          const options = getOptions();
+          const selectedOpt = options.find(o => o.value === selectedVal);
+          if (selectedOpt && selectedVal !== '') {
+            if (selectedVal.startsWith('baku_')) {
+              const bakuOpt = options.find(o => o.value === 'baku');
+              const bakuLabel = bakuOpt ? bakuOpt.label : 'Bakı';
+              triggerText.textContent = `${bakuLabel} · ${cleanDistrictLabel(selectedOpt.label)}`;
+            } else {
+              triggerText.textContent = selectedOpt.label;
+            }
+            container.classList.add('is-active');
+          } else {
+            let defaultLabel = 'Region / rayon';
+            if (currentLang === 'az') defaultLabel = 'Region / rayon';
+            else if (currentLang === 'en') defaultLabel = 'Region / district';
+            else defaultLabel = 'Регион / район';
+            triggerText.textContent = defaultLabel;
+            container.classList.remove('is-active');
+          }
+        }
+
+        targetSelect.addEventListener('change', updateTriggerLabel);
+        updateTriggerLabel();
+      }
+
+      initLocationTreeSelect();
     })();
   </script>
 {% endblock %}

@@ -53,7 +53,8 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
         deleted_at__isnull=True,
         status=PLACE_STATUS_PUBLISHED,
     )
-    qs = qs.exclude(category="").exclude(address="").exclude(schedule="")
+    qs = qs.exclude(category="").exclude(address="")
+    qs = qs.filter(Q(schedule__gt="") | Q(schedule_days__isnull=False)).distinct()
     qs = qs.filter(Q(phone1__gt="") | Q(instagram__gt="") | Q(website__gt=""))
     qs = qs.filter(Q(age_from__isnull=False) | Q(age_to__isnull=False))
     qs = qs.filter(_has_price_q())
@@ -185,7 +186,7 @@ def place_quality_check(place) -> QualityCheck:
     else:
         errors.append("missing_price")
 
-    if (place.schedule or "").strip():
+    if getattr(place, "has_schedule_content", False):
         score += 10
     else:
         errors.append("missing_schedule")

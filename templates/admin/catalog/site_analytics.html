@@ -33,7 +33,7 @@
           <article class="km-kpi-card" data-kpi="{{ card.key }}">
             <div class="km-kpi-card__header">
               <span class="km-kpi-card__label">{{ card.label }}</span>
-              <span class="km-kpi-card__icon {{ card.icon_class }}">{{ card.icon }}</span>
+              <span class="km-kpi-card__icon {{ card.icon_class }}">{{ card.icon|safe }}</span>
             </div>
             <p class="km-kpi-card__value" data-kpi-value="{{ card.key }}">
               {% if card.formatted_value %}

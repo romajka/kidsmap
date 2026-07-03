@@ -33,11 +33,14 @@ from catalog.models import (
     PlaceChangeAudit,
     PlaceLike,
     PlacePhoto,
+    PlaceScheduleDay,
+    PlaceScheduleInterval,
     PlaceOwnershipRequest,
     PlaceOwnershipRequestAudit,
     PlaceReview,
     PlaceReviewReaction,
     SiteGalleryImage,
+    SiteSettings,
     SiteReview,
     SiteReviewReaction,
     SiteVisit,
@@ -47,6 +50,7 @@ from catalog.models import (
 )
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.content_quality import public_place_queryset, public_review_queryset, review_quality_check
+from catalog.services.place_schedule import dump_schedule_payload
 from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, TRACKED_EVENT_NAMES
 from config.views import serve_media_file
 
@@ -91,6 +95,20 @@ def create_quality_place(**overrides):
     }
     defaults.update(overrides)
     return Place.objects.create(**defaults)
+
+
+def build_structured_schedule_payload():
+    return dump_schedule_payload(
+        [
+            {"weekday": "mon", "is_closed": False, "is_24_hours": False, "intervals": [{"start": "09:00", "end": "18:00"}]},
+            {"weekday": "tue", "is_closed": False, "is_24_hours": False, "intervals": [{"start": "09:00", "end": "18:00"}]},
+            {"weekday": "wed", "is_closed": False, "is_24_hours": False, "intervals": [{"start": "09:00", "end": "18:00"}]},
+            {"weekday": "thu", "is_closed": False, "is_24_hours": False, "intervals": [{"start": "09:00", "end": "18:00"}]},
+            {"weekday": "fri", "is_closed": False, "is_24_hours": False, "intervals": [{"start": "09:00", "end": "18:00"}]},
+            {"weekday": "sat", "is_closed": False, "is_24_hours": False, "intervals": [{"start": "10:00", "end": "16:00"}]},
+            {"weekday": "sun", "is_closed": True, "is_24_hours": False, "intervals": []},
+        ]
+    )
 
 
 class MariaDbCompatibleUniquenessTests(TestCase):
@@ -229,6 +247,15 @@ class ContentModerationPublicVisibilityTests(TestCase):
         create_quality_place(name="test club")
 
         self.assertEqual(public_place_queryset(Place.objects.all()).count(), 0)
+
+    def test_structured_schedule_counts_as_public_schedule_content(self):
+        place = create_quality_place(schedule="")
+        day = PlaceScheduleDay.objects.create(place=place, weekday="mon", is_closed=False, is_24_hours=False, order=0)
+        PlaceScheduleInterval.objects.create(schedule_day=day, start_time="09:00", end_time="18:00", order=0)
+
+        public_ids = list(public_place_queryset(Place.objects.all()).values_list("id", flat=True))
+
+        self.assertIn(place.id, public_ids)
 
     def test_review_public_queryset_requires_approved_status_and_quality_text(self):
         place = create_quality_place()
@@ -616,7 +643,7 @@ class TestPublicPagesSmoke(TestCase):
         )
 
     def test_home_page_renders_interactive_map_without_google_maps_key(self):
-        Place.objects.create(
+        create_quality_place(
             name="Home Map Place",
             name_ru="Кружок для карты на главной",
             category="EDU",
@@ -635,7 +662,7 @@ class TestPublicPagesSmoke(TestCase):
 
     def test_home_page_limits_recommended_places_to_three_cards(self):
         for idx in range(4):
-            Place.objects.create(
+            create_quality_place(
                 name=f"Popular Place {idx + 1}",
                 name_ru=f"Популярный кружок {idx + 1}",
                 category="EDU",
@@ -650,7 +677,7 @@ class TestPublicPagesSmoke(TestCase):
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     def test_home_page_prefers_google_maps_when_key_is_configured(self):
-        Place.objects.create(
+        create_quality_place(
             name="Home Map Place",
             name_ru="Кружок для карты на главной",
             category="EDU",
@@ -732,7 +759,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, '<meta name="googlebot" content="noindex,follow" />', html=False)
 
     def test_filtered_catalog_page_uses_noindex_and_itemlist_schema(self):
-        Place.objects.create(
+        create_quality_place(
             name="Seo Place",
             name_ru="SEO кружок",
             category="EDU",
@@ -744,12 +771,12 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<meta name="robots" content="noindex,follow" />', html=False)
-        self.assertContains(response, "<title>Образование для детей в Баку | KidsMap</title>", html=False)
+        self.assertContains(response, "<title>Образование для детей в Азербайджане | KidsMap</title>", html=False)
         self.assertContains(response, '"@type": "ItemList"', html=False)
         self.assertContains(response, '"@type": "BreadcrumbList"', html=False)
 
     def test_place_detail_page_includes_breadcrumb_and_aggregate_rating_schema(self):
-        place = Place.objects.create(
+        place = create_quality_place(
             name="Seo Place",
             name_ru="SEO кружок",
             category="EDU",
@@ -764,7 +791,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '"@type": "BreadcrumbList"', html=False)
         self.assertContains(response, '"AggregateRating"', html=False)
-        self.assertContains(response, "<title>SEO кружок — Образование для детей в Ясамал, Баку | KidsMap</title>", html=False)
+        self.assertContains(response, "<title>SEO кружок — Образование для детей в регионе Ясамал | KidsMap</title>", html=False)
 
     def test_robots_txt_disallows_private_sections(self):
         response = self.client.get("/robots.txt")
@@ -915,12 +942,16 @@ class TestCatalogContentSettingsWiring(TestCase):
         settings_obj = CatalogContentSettings.get_solo()
         settings_obj.districts_json = ["Тестовый район"]
         settings_obj.save(update_fields=["districts_json", "updated_at"])
+        create_quality_place(
+            name="District Visible",
+            name_ru="Район в фильтре",
+            district="Тестовый район",
+        )
 
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'option value="Тестовый район"', html=False)
-        self.assertEqual(response.context["home_districts"], ["Тестовый район"])
+        self.assertEqual([item["value"] for item in response.context["home_districts"]], ["Тестовый район"])
 
     def test_owner_place_form_uses_catalog_settings_metro_options(self):
         settings_obj = CatalogContentSettings.get_solo()
@@ -972,15 +1003,300 @@ class TestCatalogContentSettingsWiring(TestCase):
         settings_obj.districts_json = ["Забрат", "Ахмедлы", "Бинагади"]
         settings_obj.metro_stations_json = ["Нариман Нариманов", "20 Января", "Азадлыг проспекти"]
         settings_obj.save(update_fields=["districts_json", "metro_stations_json", "updated_at"])
+        create_quality_place(name="District 1", name_ru="District 1", district="Забрат", metro="Нариман Нариманов")
+        create_quality_place(name="District 2", name_ru="District 2", district="Ахмедлы", metro="20 Января")
+        create_quality_place(name="District 3", name_ru="District 3", district="Бинагади", metro="Азадлыг проспекти")
 
         response = self.client.get(reverse("place_list"), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["district_options"], ["Ахмедлы", "Бинагади", "Забрат"])
+        self.assertEqual([item["value"] for item in response.context["district_options"]], ["Бинагади", "Ахмедлы", "Забрат"])
         self.assertEqual(
-            response.context["metro_options"],
+            [item["value"] for item in response.context["metro_options"]],
             ["20 Января", "Нариман Нариманов", "Азадлыг проспекти"],
         )
+
+
+class TestLocalizedFilterOptions(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        settings_obj = CatalogContentSettings.get_solo()
+        settings_obj.districts_json = ["Баку", "Нариманов"]
+        settings_obj.metro_stations_json = ["Ичеришехер"]
+        settings_obj.save(update_fields=["districts_json", "metro_stations_json", "updated_at"])
+        cls.category = Category.objects.create(
+            code="L10N",
+            name="Тестовая категория",
+            name_az="Kateqoriya test",
+            name_ru="Тестовая категория",
+            name_en="Category test",
+            is_active=True,
+            order=999,
+        )
+        cls.subcategory = Subcategory.objects.create(
+            category=cls.category,
+            code="localized-filter-test",
+            name="Подготовка к школе",
+            name_az="Məktəbə hazırlıq",
+            name_ru="Подготовка к школе",
+            name_en="School prep",
+            is_active=True,
+            order=999,
+        )
+        cls.public_place = create_quality_place(
+            name="Localized Public Place",
+            name_ru="Локализованное место",
+            name_az="Lokallaşdırılmış məkan",
+            name_en="Localized place",
+            category="L10N",
+            subcategory=cls.subcategory,
+            district="Баку",
+            metro="Ичеришехер",
+        )
+        cls.public_place_two = create_quality_place(
+            name="Localized Public Place Two",
+            name_ru="Локализованное место 2",
+            name_az="Lokallaşdırılmış məkan 2",
+            name_en="Localized place 2",
+            category="L10N",
+            district="Нариманов",
+            metro="Ичеришехер",
+        )
+
+    def test_az_catalog_and_home_render_localized_labels_with_stable_values(self):
+        catalog_response = self.client.get("/az/catalog/", follow=True)
+        home_response = self.client.get("/az/", follow=True)
+
+        self.assertEqual(catalog_response.status_code, 200)
+        self.assertContains(catalog_response, 'value="baku"', html=False)
+        self.assertContains(catalog_response, 'data-label-current="Bakı"', html=False)
+        self.assertContains(catalog_response, "Bakı — 2")
+        self.assertContains(catalog_response, "Nərimanov", html=False)
+        self.assertTrue(any(item["value"] == "L10N" and item["label"] == "Kateqoriya test" and item["count"] == 2 for item in catalog_response.context["categories"]))
+        self.assertContains(home_response, 'data-value="baku"', html=False)
+        self.assertContains(home_response, 'data-label-current="Bakı"', html=False)
+        self.assertContains(home_response, 'value="Bakı — 2"', html=False)
+        self.assertNotContains(home_response, 'label="Bakı — 2"', html=False)
+        self.assertContains(home_response, '<option value="">Bütün kateqoriyalar</option>', html=False)
+
+    def test_ru_catalog_renders_russian_labels(self):
+        response = self.client.get("/ru/catalog/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-label-current="Баку"', html=False)
+        self.assertContains(response, "Баку — 2")
+        self.assertContains(response, "Нариманов", html=False)
+        self.assertTrue(any(item["value"] == "L10N" and item["label"] == "Тестовая категория" and item["count"] == 2 for item in response.context["categories"]))
+
+    def test_en_catalog_renders_english_labels(self):
+        response = self.client.get("/en/catalog/", follow=True)
+        home_response = self.client.get("/en/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-label-current="Baku"', html=False)
+        self.assertContains(response, "Baku — 2")
+        self.assertContains(response, "Narimanov", html=False)
+        self.assertTrue(any(item["value"] == "L10N" and item["label"] == "Category test" and item["count"] == 2 for item in response.context["categories"]))
+        self.assertContains(home_response, '<option value="">All categories</option>', html=False)
+
+    def test_ru_home_uses_single_all_categories_option(self):
+        response = self.client.get("/ru/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<option value="">Все категории</option>', html=False)
+        self.assertNotContains(response, '<option value="">Категория</option>', html=False)
+
+    def test_catalog_autocomplete_options_include_fallback_labels_for_search(self):
+        response = self.client.get("/az/catalog/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-label-current="Bakı"', html=False)
+        self.assertContains(response, 'data-label-ru="Баку"', html=False)
+        self.assertContains(response, 'data-label-en="Baku"', html=False)
+        self.assertContains(response, 'data-label-current="İçərişəhər"', html=False)
+        self.assertContains(response, 'data-label-ru="Ичеришехер"', html=False)
+        self.assertContains(response, 'data-label-en="Icherisheher"', html=False)
+
+    def test_owner_place_form_uses_current_language_labels_and_stable_codes(self):
+        with override("en"):
+            form = OwnerPlaceCreateForm()
+            category_html = form["category"].as_widget()
+            subcategory_html = form["subcategory"].as_widget()
+            district_choices = dict(form.fields["district"].choices)
+            region_choices = dict(form.fields["region"].choices)
+
+            self.assertIn('value="L10N"', category_html)
+            self.assertIn(">Category test<", category_html)
+            self.assertIn(f'value="{self.subcategory.pk}"', subcategory_html)
+            self.assertIn(">School prep<", subcategory_html)
+            self.assertIn(f'data-category="{self.category.code}"', subcategory_html)
+            self.assertEqual(region_choices["baku"], "Baku")
+            self.assertEqual(district_choices["baku_yasamal"], "Yasamal")
+
+    def test_catalog_keeps_category_filter_by_stable_code_on_localized_pages(self):
+        response = self.client.get("/az/catalog/?category=L10N", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["selected"]["category"], "L10N")
+        self.assertContains(response, 'option value="L10N" selected', html=False)
+
+
+class TestPublicFilterCounts(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        settings_obj = CatalogContentSettings.get_solo()
+        settings_obj.districts_json = ["Баку", "Нариманов", "Пустой район"]
+        settings_obj.metro_stations_json = ["Ичеришехер", "28 Май", "Пустое метро"]
+        settings_obj.save(update_fields=["districts_json", "metro_stations_json", "updated_at"])
+
+        cls.visible_category = Category.objects.create(
+            code="COUNTED",
+            name="Счетная категория",
+            name_az="Sayılan kateqoriya",
+            name_ru="Счетная категория",
+            name_en="Counted category",
+            is_active=True,
+            order=1000,
+        )
+        cls.empty_category = Category.objects.create(
+            code="EMPTYCAT",
+            name="Пустая категория",
+            name_az="Boş kateqoriya",
+            name_ru="Пустая категория",
+            name_en="Empty category",
+            is_active=True,
+            order=1001,
+        )
+        cls.visible_subcategory = Subcategory.objects.create(
+            category=cls.visible_category,
+            code="counted-subcategory",
+            name="Счетная подкатегория",
+            name_az="Sayılan alt kateqoriya",
+            name_ru="Счетная подкатегория",
+            name_en="Counted subcategory",
+            is_active=True,
+            order=1000,
+        )
+        cls.empty_subcategory = Subcategory.objects.create(
+            category=cls.empty_category,
+            code="empty-subcategory",
+            name="Пустая подкатегория",
+            name_az="Boş alt kateqoriya",
+            name_ru="Пустая подкатегория",
+            name_en="Empty subcategory",
+            is_active=True,
+            order=1001,
+        )
+
+        cls.visible_place_one = create_quality_place(
+            name="Counted One",
+            name_ru="Счетное место 1",
+            category="COUNTED",
+            subcategory=cls.visible_subcategory,
+            district="Баку",
+            metro="Ичеришехер",
+        )
+        cls.visible_place_two = create_quality_place(
+            name="Counted Two",
+            name_ru="Счетное место 2",
+            category="COUNTED",
+            district="Нариманов",
+            metro="Ичеришехер",
+        )
+        cls.visible_place_three = create_quality_place(
+            name="Education One",
+            name_ru="Образовательное место",
+            category="EDU",
+            district="Баку",
+            metro="28 Май",
+        )
+
+        create_quality_place(
+            name="Draft Counted",
+            name_ru="Черновик счетной категории",
+            category="COUNTED",
+            subcategory=cls.visible_subcategory,
+            district="Пустой район",
+            metro="Пустое метро",
+            status=Place.STATUS_DRAFT,
+        )
+        create_quality_place(
+            name="Inactive Counted",
+            name_ru="Неактивное счетное место",
+            category="COUNTED",
+            district="Пустой район",
+            metro="Пустое метро",
+            is_active=False,
+        )
+        create_quality_place(
+            name="Deleted Counted",
+            name_ru="Удаленное счетное место",
+            category="COUNTED",
+            district="Пустой район",
+            metro="Пустое метро",
+            deleted_at=timezone.now(),
+        )
+        create_quality_place(
+            name="Low Quality Counted",
+            name_ru="Некачественное счетное место",
+            category="COUNTED",
+            district="Пустой район",
+            metro="Пустое метро",
+            description_az="Qisa tesvir",
+        )
+
+    def test_catalog_filters_hide_zero_options_and_show_public_counts(self):
+        response = self.client.get("/ru/catalog/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            {item["value"]: item["count"] for item in response.context["categories"] if item.get("count") is not None},
+            {"COUNTED": 2, "EDU": 1},
+        )
+        self.assertEqual(
+            {item["value"]: item["count"] for item in response.context["district_options"] if item.get("count") is not None},
+            {"baku": 3, "baku_narimanov": 1},
+        )
+        self.assertEqual(
+            {item["value"]: item["count"] for item in response.context["metro_options"] if item.get("count") is not None},
+            {"28 Май": 1, "Ичеришехер": 2},
+        )
+        self.assertEqual(
+            {item["value"]: item["count"] for item in response.context["subcategory_options"] if item.get("count") is not None},
+            {str(self.visible_subcategory.pk): 1},
+        )
+        self.assertContains(response, "Пустая категория")
+        self.assertNotContains(response, "Пустой район")
+        self.assertNotContains(response, "Пустое метро")
+
+    def test_home_filters_use_same_public_counts(self):
+        response = self.client.get("/ru/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Счетная категория — 2")
+        self.assertContains(response, "Баку — 3")
+        self.assertContains(response, "Пустая категория")
+        self.assertNotContains(response, "Пустой район")
+
+    def test_selected_zero_value_is_preserved_in_catalog_form(self):
+        response = self.client.get("/ru/catalog/?category=EMPTYCAT&district=Пустой район&metro=Пустое метро", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(any(item["value"] == "EMPTYCAT" and item.get("count") is None for item in response.context["categories"]))
+        self.assertTrue(any(item["value"] == "пустой район" and item.get("count") is None for item in response.context["district_options"]))
+        self.assertTrue(any(item["value"] == "Пустое метро" and item.get("count") is None for item in response.context["metro_options"]))
+        self.assertContains(response, 'option value="EMPTYCAT" selected', html=False)
+        self.assertContains(response, 'name="district" value="пустой район"', html=False)
+        self.assertContains(response, 'name="metro" value="Пустое метро"', html=False)
+
+    def test_public_filter_counts_are_localized_in_all_languages(self):
+        az_response = self.client.get("/az/catalog/", follow=True)
+        en_response = self.client.get("/en/catalog/", follow=True)
+
+        self.assertTrue(any(item["value"] == "COUNTED" and item["label_with_count"] == "Sayılan kateqoriya — 2" for item in az_response.context["categories"]))
+        self.assertTrue(any(item["value"] == "COUNTED" and item["label_with_count"] == "Counted category — 2" for item in en_response.context["categories"]))
+        self.assertTrue(any(item["value"] == "baku" and item["label_with_count"] == "Bakı — 3" for item in az_response.context["district_options"]))
+        self.assertTrue(any(item["value"] == "baku" and item["label_with_count"] == "Baku — 3" for item in en_response.context["district_options"]))
 
 
 class TestPlaceGeocodingService(TestCase):
@@ -1064,6 +1380,37 @@ class TestAdminOwnershipModerationUX(TestCase):
         }
 
     def _admin_place_change_payload(self, **overrides):
+        overridden_district = overrides.pop("district", None)
+        overridden_region = overrides.pop("region", None)
+
+        from catalog.services.locations import normalize_to_key
+        db_district = normalize_to_key(overridden_district or self.place.district or "")
+
+        if not db_district:
+            region_val = "baku"
+            district_val = "baku_yasamal"
+        elif db_district.startswith("baku_"):
+            region_val = "baku"
+            district_val = db_district
+        elif db_district == "baku":
+            region_val = "baku"
+            district_val = "baku_yasamal"
+        else:
+            region_val = db_district
+            district_val = ""
+
+        if overridden_region:
+            region_val = overridden_region
+        if overridden_district and overridden_district != "baku":
+            # If overridden_district is a key like baku_yasamal or a normalized key, use it
+            norm_overridden = normalize_to_key(overridden_district)
+            if norm_overridden.startswith("baku_"):
+                region_val = "baku"
+                district_val = norm_overridden
+            elif norm_overridden != "baku":
+                region_val = norm_overridden
+                district_val = ""
+
         data = {
             "name": self.place.name,
             "name_ru": self.place.name_ru,
@@ -1093,7 +1440,8 @@ class TestAdminOwnershipModerationUX(TestCase):
             "lesson_duration_minutes": (
                 "" if self.place.lesson_duration_minutes is None else str(self.place.lesson_duration_minutes)
             ),
-            "district": self.place.district,
+            "region": region_val,
+            "district": district_val,
             "metro": self.place.metro,
             "address": self.place.address,
             "lat": "" if self.place.lat is None else str(self.place.lat),
@@ -1172,6 +1520,32 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertNotContains(response, "Профили пользователей")
         self.assertNotContains(response, "Группы")
         self.assertNotContains(response, "Аудит заявок на владение")
+
+    def test_admin_navigation_pending_count_uses_only_ownership_requests(self):
+        Place.objects.create(
+            name="Pending Nav Place",
+            name_ru="Pending Nav Place",
+            category="EDU",
+            is_active=False,
+            status=Place.STATUS_PENDING,
+        )
+        Event.objects.create(
+            name="Pending Nav Event",
+            name_ru="Pending Nav Event",
+            description_ru="Тестовое pending-мероприятие для проверки счётчика в меню админки.",
+            category="EDU",
+            start_datetime=timezone.now() + timedelta(days=3),
+            end_datetime=timezone.now() + timedelta(days=3, hours=2),
+            status=Event.STATUS_PENDING,
+        )
+
+        response = self.client.get("/ru/admin/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "На рассмотрении: 1")
+        self.assertContains(response, "Заявки на владение кружком (на рассмотрении: 1)")
+        self.assertNotContains(response, "На рассмотрении: 3")
+        self.assertNotContains(response, "Заявки на владение кружком (на рассмотрении: 3)")
 
     def test_admin_index_dashboard_summary_uses_real_database_counts(self):
         Place.objects.create(
@@ -1495,7 +1869,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "В удалённые")
         self.assertContains(response, "Восстановить")
         self.assertContains(response, "place-admin-dashboard")
-        self.assertContains(response, "admin/css/kidsmap_place_changelist.css")
+        self.assertContains(response, "admin/css/pages/kidsmap_changelist.css")
 
     def test_event_admin_changelist_shows_bulk_bar_and_visibility_actions(self):
         response = self.client.get(reverse("admin:catalog_event_changelist"))
@@ -1540,7 +1914,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Поиск...")
         self.assertContains(response, "Найти")
         self.assertContains(response, "Категория")
-        self.assertContains(response, "Район")
+        self.assertContains(response, "Регион / район")
         self.assertContains(response, "Статус")
         self.assertContains(response, "карточка")
         self.assertNotContains(response, 'id="toolbar"', html=False)
@@ -1575,6 +1949,85 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Сохранить и рассчитать координаты")
         self.assertContains(response, "_refresh_coordinates_from_address")
+
+    def test_place_admin_change_form_shows_public_site_link_for_published_place(self):
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Публичная страница")
+        self.assertContains(response, "Открыть карточку на сайте")
+        self.assertContains(response, f'href="http://testserver/ru/place/{self.place.id}-', html=False)
+
+    def test_place_admin_change_form_uses_readonly_service_dates_instead_of_raw_datetime_widgets(self):
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Проверено модератором")
+        self.assertContains(response, "Дата публикации")
+        self.assertNotContains(response, "Информация проверена")
+        self.assertNotContains(response, 'name="last_verified_at_0"', html=False)
+        self.assertNotContains(response, 'name="last_verified_at_1"', html=False)
+        self.assertNotContains(response, 'name="published_at_0"', html=False)
+        self.assertNotContains(response, 'name="published_at_1"', html=False)
+
+    def test_place_publish_timestamp_is_preserved_after_unpublish_and_draft_save(self):
+        initial_published_at = timezone.now() - timedelta(days=2)
+        self.place.published_at = initial_published_at
+        self.place.status = Place.STATUS_PUBLISHED
+        self.place.is_active = True
+        self.place.save(update_fields=["published_at", "status", "is_active", "updated_at"])
+
+        unpublish_response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data={**self._admin_place_change_payload(), "_unpublish_place": "1"},
+            follow=True,
+        )
+        self.assertEqual(unpublish_response.status_code, 200)
+
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.published_at, initial_published_at)
+
+        draft_response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data={**self._admin_place_change_payload(), "_save_draft": "1"},
+            follow=True,
+        )
+        self.assertEqual(draft_response.status_code, 200)
+
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.published_at, initial_published_at)
+
+    def test_place_first_verification_timestamp_is_preserved(self):
+        first_verified_at = timezone.now() - timedelta(days=1)
+        self.place.is_verified = True
+        self.place.last_verified_at = first_verified_at
+        self.place.save(update_fields=["is_verified", "last_verified_at", "updated_at"])
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data={**self._admin_place_change_payload(), "is_verified": "on", "_save": "1"},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.last_verified_at, first_verified_at)
+
+    def test_place_admin_change_form_hides_public_site_button_for_unpublished_place(self):
+        draft_place = Place.objects.create(
+            name="Draft admin preview",
+            name_ru="Черновик для админки",
+            category="ART",
+            is_active=False,
+            status=Place.STATUS_DRAFT,
+        )
+
+        response = self.client.get(reverse("admin:catalog_place_change", args=[draft_place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Публичная страница")
+        self.assertContains(response, "Сначала опубликуйте карточку")
+        self.assertNotContains(response, "Открыть карточку на сайте")
 
     def test_place_admin_change_form_uses_step_layout(self):
         response = self.client.get(reverse("admin:catalog_place_add"))
@@ -1712,6 +2165,25 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Дополнительные фотографии")
         self.assertContains(response, "Отзывы по кружкам")
         self.assertContains(response, "История изменений карточек")
+
+    def test_place_admin_review_inline_hides_anonymous_and_shows_readable_author(self):
+        PlaceReview.objects.create(
+            place=self.place,
+            user=self.owner_user,
+            author_name="Leyla",
+            rating=5,
+            text="Подробный отзыв для проверки компактного inline-блока в админке.",
+            is_anonymous=True,
+        )
+
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Leyla")
+        self.assertContains(response, "@owner_adminux")
+        self.assertContains(response, "owner-adminux@example.com")
+        self.assertContains(response, "column-review_author_display")
+        self.assertNotContains(response, "Анонимно")
 
     def test_event_admin_change_form_uses_step_layout(self):
         response = self.client.get(reverse("admin:catalog_event_add"))
@@ -2173,6 +2645,36 @@ class TestAdminOwnershipModerationUX(TestCase):
         )
 
 
+class TestSiteGalleryImageAdminMedia(TestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_superuser("media_admin", "media@example.com", "password")
+        self.client.force_login(self.admin_user)
+
+    def test_ajax_delete_main_image_clears_uploaded_site_settings_file(self):
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            site = SiteSettings.get_solo()
+            site.site_background_image = SimpleUploadedFile(
+                "background.jpg",
+                b"image-content",
+                content_type="image/jpeg",
+            )
+            site.save()
+            self.assertTrue(site.site_background_image)
+
+            response = self.client.post(
+                reverse("admin:catalog_sitegalleryimage_ajax_delete_main_image"),
+                {"field": "site_background_image"},
+            )
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {"success": True, "field": "site_background_image", "deleted": True},
+            )
+            site.refresh_from_db()
+            self.assertFalse(site.site_background_image)
+
+
 class TestTrackingController(TestCase):
     def setUp(self):
         self.place = Place.objects.create(
@@ -2550,6 +3052,27 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "Пробный урок бесплатно")
         self.assertContains(response, "Нужна спортивная форма")
 
+    def test_place_detail_renders_structured_schedule_rows(self):
+        place = create_quality_place(
+            name="Structured Detail Place",
+            name_ru="Кружок со структурированным расписанием",
+            schedule="",
+            lesson_duration_minutes=60,
+        )
+        payload = json.loads(build_structured_schedule_payload())
+        from catalog.services.place_schedule import sync_place_schedule
+
+        sync_place_schedule(place, payload)
+
+        with override("ru"):
+            response = self.client.get(place.get_absolute_url(), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Пн-Пт")
+        self.assertContains(response, "09:00-18:00")
+        self.assertContains(response, "Сб")
+        self.assertContains(response, "10:00-16:00")
+
     def test_place_detail_does_not_show_owner_request_block(self):
         place = create_quality_place(
             name="Owner Claim Place",
@@ -2579,6 +3102,50 @@ class TestCatalogEnhancements(TestCase):
             self.assertEqual(place.card_price_badge_label, "от")
             self.assertEqual(place.card_price_badge_value, "80")
             self.assertEqual(place.card_price_badge_currency, "AZN")
+
+    def test_free_place_prices_are_localized_in_model_helpers(self):
+        with override("ru"):
+            ru_place = Place(category="EDU", price_from=0, price_to=0)
+            self.assertEqual(ru_place.price_range_display, "Бесплатно")
+            self.assertEqual(ru_place.card_price_badge_value, "Бесплатно")
+            self.assertEqual(ru_place.card_price_badge_currency, "")
+
+        with override("az"):
+            az_place = Place(category="EDU", price_from=0, price_to=0, price_per_month=0)
+            self.assertEqual(az_place.price_range_display, "Pulsuz")
+            self.assertEqual(az_place.card_price_badge_value, "Pulsuz")
+            self.assertIn(("1 ay", "Pulsuz"), az_place.pricing_options)
+
+        with override("en"):
+            en_place = Place(category="EDU", price_per_lesson=0)
+            self.assertEqual(en_place.card_price_badge, "Free")
+            self.assertEqual(en_place.card_price_badge_value, "Free")
+            self.assertEqual(en_place.card_price_badge_currency, "")
+
+    def test_place_detail_and_catalog_show_free_instead_of_zero_price(self):
+        place = create_quality_place(
+            name="Free Place",
+            name_ru="Бесплатный кружок",
+            price_from=0,
+            price_to=0,
+            price_per_month=0,
+        )
+
+        with override("ru"):
+            detail_response = self.client.get(place.get_absolute_url(), follow=True)
+            catalog_response = self.client.get(reverse("place_list"), follow=True)
+
+        self.assertEqual(detail_response.status_code, 200)
+        self.assertContains(detail_response, "Бесплатно")
+        self.assertNotContains(detail_response, "0 AZN")
+        self.assertContains(catalog_response, "Бесплатно")
+
+    def test_owner_place_form_explains_how_to_mark_free_price(self):
+        with override("ru"):
+            form = OwnerPlaceCreateForm()
+
+        self.assertIn("0 в обоих полях", form.fields["price_from"].help_text)
+        self.assertIn("Если бесплатно, укажите 0.", form.fields["price_per_lesson"].help_text)
 
     def test_place_detail_renders_swipe_ready_gallery(self):
         place = create_quality_place(
@@ -2653,9 +3220,10 @@ class TestCatalogEnhancements(TestCase):
         self.assertEqual(response.context["catalog_map_places_count"], 1)
         self.assertEqual(response.context["catalog_map_missing_count"], 1)
         language_code = response.context["language"]
+        from catalog.services.locations import get_location_translation
         with override(language_code):
             expected_location = " / ".join(
-                part for part in (translate(matching_place.district), translate(matching_place.metro)) if part
+                part for part in (get_location_translation(matching_place.district, language_code), translate(matching_place.metro)) if part
             )
             expected_category = matching_place.get_category_display()
         self.assertEqual(
@@ -2668,11 +3236,11 @@ class TestCatalogEnhancements(TestCase):
                     "lng": matching_place.lng,
                     "url": matching_place.get_absolute_url(),
                     "category": expected_category,
-                    "category_code": matching_place.category,
+                    "category_code": matching_place.category_code,
                     "image_url": "",
                     "location": expected_location,
-                    "address": "Bakı şəhəri, Nizami küçəsi 10, " + translate(matching_place.district),
-                    "district": translate(matching_place.district),
+                    "address": "Bakı şəhəri, Nizami küçəsi 10, " + get_location_translation(matching_place.district, language_code),
+                    "district": get_location_translation(matching_place.district, language_code),
                     "metro": translate(matching_place.metro),
                     "rating": 0.0,
                     "reviews_count": 0,
@@ -2713,11 +3281,11 @@ class TestCatalogEnhancements(TestCase):
                     "lng": place.lng,
                     "url": expected_url,
                     "category": expected_category,
-                    "category_code": place.category,
+                    "category_code": place.category_code,
                     "image_url": "",
-                    "location": "Ясамал / Низами",
-                    "address": "Bakı, Yasamal, Mərkəzi küçə 12, Ясамал",
-                    "district": "Ясамал",
+                    "location": "Баку: Ясамальский / Низами",
+                    "address": "Bakı, Yasamal, Mərkəzi küçə 12, Баку: Ясамальский",
+                    "district": "Баку: Ясамальский",
                     "metro": "Низами",
                     "rating": 4.6,
                     "reviews_count": 128,
@@ -2821,6 +3389,29 @@ class TestReviewEnhancements(TestCase):
         self.assertIn(reverse("account_login"), payload["redirect_url"])
         self.assertIn("message", payload)
         self.assertEqual(PlaceReviewReaction.objects.filter(review=review).count(), 0)
+
+    def test_review_models_disable_anonymous_flag_and_keep_author_name(self):
+        place_review = PlaceReview.objects.create(
+            place=self.place,
+            author_name="Мария",
+            rating=5,
+            text="Текст отзыва",
+            is_anonymous=True,
+        )
+        site_review = SiteReview.objects.create(
+            author_name="Ирина",
+            rating=4,
+            text="Текст отзыва о сайте",
+            is_anonymous=True,
+        )
+
+        place_review.refresh_from_db()
+        site_review.refresh_from_db()
+
+        self.assertFalse(place_review.is_anonymous)
+        self.assertFalse(site_review.is_anonymous)
+        self.assertEqual(place_review.author_name_i18n, "Мария")
+        self.assertEqual(site_review.author_name_i18n, "Ирина")
 
     def test_site_reviews_page_can_sort_reviews_by_likes(self):
         SiteReview.objects.create(author_name="Low", rating=4, text="Нормально", likes_count=1, dislikes_count=0)
@@ -3826,16 +4417,60 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
         self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
-        self.assertContains(response, "data-owner-completion")
-        self.assertContains(response, "owner-form-step-lead")
-        self.assertContains(response, "owner-form-details-secondary")
-        self.assertContains(response, 'data-owner-step="4"', html=False)
-        self.assertContains(response, "owner-language-tablist")
-        self.assertContains(response, 'data-owner-step="2"', html=False)
-        html = response.content.decode("utf-8")
-        self.assertLess(html.index('name="name_az"'), html.index('name="name_ru"'))
-        self.assertLess(html.index('name="description_az"'), html.index('name="description_ru"'))
-        self.assertNotIn('name="is_temporary"', html)
+
+    def test_owner_edit_saves_structured_schedule_and_creates_schedule_audit(self):
+        self.editor_place.status = Place.STATUS_DRAFT
+        self.editor_place.save(update_fields=["status", "updated_at"])
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.editor_place.id]),
+            data={
+                "name_ru": "Кружок редактора",
+                "name_az": "Редактор dərnəyi",
+                "name_en": "",
+                "description_ru": "Описание редактора",
+                "description_az": "Redaktor təsviri",
+                "description_en": "",
+                "category": "TECH",
+                "subcategory": "",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "50",
+                "price_to": "70",
+                "region": "baku",
+                "district": "baku_yasamal",
+                "metro": "",
+                "address": "Баку, Низами 10",
+                "phone1": "+994501112233",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "structured_schedule": build_structured_schedule_payload(),
+                "lesson_duration_minutes": "60",
+                "price_per_lesson": "",
+                "price_per_month": "",
+                "price_per_8_lessons": "",
+                "extra_conditions": "",
+                "additional_info": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.editor_place.refresh_from_db()
+        self.assertTrue(self.editor_place.schedule_days.filter(weekday="mon", is_closed=False).exists())
+        self.assertTrue(
+            PlaceChangeAudit.objects.filter(
+                place=self.editor_place,
+                changed_by=self.editor_user,
+                source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
+                field_name="schedule",
+            ).exists()
+        )
 
     def test_owner_place_create_opens_listing_type_choice_first(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
@@ -5159,6 +5794,9 @@ class TestCategoryAdminFormLayout(TestCase):
         self.assertContains(response, 'name="_addanother"', html=False)
         self.assertContains(response, 'name="_continue"', html=False)
         self.assertContains(response, "data-km-category-icon-preview")
+        self.assertContains(response, 'name="icon_upload"', html=False)
+        self.assertContains(response, 'type="file"', html=False)
+        self.assertContains(response, 'enctype="multipart/form-data"', html=False)
         self.assertContains(response, "km-category-actions-card")
 
     def test_category_change_form_keeps_inline_section_and_actions(self):
@@ -5180,6 +5818,33 @@ class TestCategoryAdminFormLayout(TestCase):
         self.assertContains(response, 'name="_save"', html=False)
         self.assertContains(response, 'name="_addanother"', html=False)
         self.assertContains(response, 'name="_continue"', html=False)
+
+    def test_category_add_form_saves_uploaded_icon_into_media_and_sets_icon_url(self):
+        with TemporaryDirectory() as media_root:
+            with override_settings(MEDIA_ROOT=media_root):
+                response = self.client.post(
+                    reverse("admin:catalog_category_add"),
+                    data={
+                        "code": "UPLOADCAT",
+                        "name": "",
+                        "name_az": "Kateqoriya",
+                        "name_ru": "Категория",
+                        "name_en": "Category",
+                        "order": "0",
+                        "icon": "",
+                        "icon_upload": SimpleUploadedFile(
+                            "category-icon.svg",
+                            b"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'></svg>",
+                            content_type="image/svg+xml",
+                        ),
+                        "_save": "Save",
+                    },
+                )
+
+        self.assertEqual(response.status_code, 302)
+        category = Category.objects.get(pk="UPLOADCAT")
+        self.assertTrue(category.icon.startswith("/media/cat_icons/"))
+        self.assertTrue(category.icon.endswith(".svg"))
 
 
 class ReviewAdminModerationTests(TestCase):

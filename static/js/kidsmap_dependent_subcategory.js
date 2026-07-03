@@ -25,10 +25,7 @@
       var allOptions = Array.prototype.slice.call(subcategorySelect.options);
       
       function updateSubcategories() {
-        var selectedCategoryText = "";
-        if (categorySelect.selectedIndex >= 0) {
-          selectedCategoryText = categorySelect.options[categorySelect.selectedIndex].text.trim();
-        }
+        var selectedCategoryValue = categorySelect.value;
         
         var currentValue = subcategorySelect.value;
         
@@ -43,17 +40,9 @@
             subcategorySelect.appendChild(option.cloneNode(true));
             return;
           }
-          
-          // Subcategory __str__ format is usually: "Category Name -> Subcategory Name"
-          var optionText = option.text.trim();
-          var prefix = selectedCategoryText + " -> ";
-          
-          if (selectedCategoryText && optionText.indexOf(prefix) === 0) {
+
+          if (selectedCategoryValue && option.dataset.category === selectedCategoryValue) {
             var newOption = option.cloneNode(true);
-            
-            // Clean up the text for better UX (remove category prefix)
-            newOption.text = optionText.substring(prefix.length);
-            
             subcategorySelect.appendChild(newOption);
             
             if (newOption.value === currentValue) {

@@ -84,11 +84,11 @@
         </form>
 
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
-          <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.metro %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="metro" aria-expanded="false" aria-controls="quick-menu-metro">{% if language == "az" %}Metro{% elif language == "en" %}Metro{% else %}Метро{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="age" aria-expanded="false" aria-controls="quick-menu-age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.min_rating %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="min_rating" aria-expanded="false" aria-controls="quick-menu-min_rating">{% if language == "az" %}Reytinq{% elif language == "en" %}Rating{% else %}Рейтинг{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %}{% if selected.price_from != '0' or selected.price_to != '500' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="price" aria-expanded="false" aria-controls="quick-menu-price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" data-filter-focus="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.metro %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="metro" data-filter-focus="metro" aria-expanded="false" aria-controls="quick-menu-metro">{% if language == "az" %}Metro{% elif language == "en" %}Metro{% else %}Метро{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="age" data-filter-focus="age" aria-expanded="false" aria-controls="quick-menu-age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.min_rating %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="min_rating" data-filter-focus="min_rating" aria-expanded="false" aria-controls="quick-menu-min_rating">{% if language == "az" %}Reytinq{% elif language == "en" %}Rating{% else %}Рейтинг{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %}{% if selected.price_from != '0' or selected.price_to != '500' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="price" data-filter-focus="price" aria-expanded="false" aria-controls="quick-menu-price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
         </div>
 
         <div class="mobile-quick-menus" data-quick-menus>
@@ -99,8 +99,8 @@
             </div>
             <div class="mobile-quick-menu-options">
               <button type="button" class="mobile-quick-option{% if not selected.district %} is-active{% endif %}" data-select-target="district" data-select-value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}Все{% endif %}</button>
-              {% for district_name in popular_districts|slice:":5" %}
-                <button type="button" class="mobile-quick-option{% if selected.district == district_name %} is-active{% endif %}" data-select-target="district" data-select-value="{{ district_name }}">{% trans district_name %}</button>
+              {% for district in popular_districts|slice:":5" %}
+                <button type="button" class="mobile-quick-option{% if selected.district == district.value %} is-active{% endif %}" data-select-target="district" data-select-value="{{ district.value }}">{% firstof district.label_with_count district.label %}</button>
               {% endfor %}
             </div>
             <button type="button" class="mobile-quick-menu-more" data-filters-open data-filter-focus="district">{% if language == "az" %}Bütün rayonlar{% elif language == "en" %}All districts{% else %}Все районы{% endif %}</button>
@@ -113,8 +113,8 @@
             </div>
             <div class="mobile-quick-menu-options">
               <button type="button" class="mobile-quick-option{% if not selected.metro %} is-active{% endif %}" data-select-target="metro" data-select-value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}Все{% endif %}</button>
-              {% for metro_name in popular_metro|slice:":5" %}
-                <button type="button" class="mobile-quick-option{% if selected.metro == metro_name %} is-active{% endif %}" data-select-target="metro" data-select-value="{{ metro_name }}">{% trans metro_name %}</button>
+              {% for metro in popular_metro|slice:":5" %}
+                <button type="button" class="mobile-quick-option{% if selected.metro == metro.value %} is-active{% endif %}" data-select-target="metro" data-select-value="{{ metro.value }}">{% firstof metro.label_with_count metro.label %}</button>
               {% endfor %}
             </div>
             <button type="button" class="mobile-quick-menu-more" data-filters-open data-filter-focus="metro">{% if language == "az" %}Bütün metro stansiyaları{% elif language == "en" %}All metro stations{% else %}Все станции метро{% endif %}</button>
@@ -229,10 +229,10 @@
               <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
               <span>{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
             </button>
-            {% for code, label in categories %}
-              <button type="button" class="mobile-category-chip{% if selected.category == code %} is-active{% endif %}" data-select-target="category" data-select-value="{{ code }}">
-                <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=code %}</span>
-                <span>{{ label }}</span>
+            {% for category in categories %}
+              <button type="button" class="mobile-category-chip{% if selected.category == category.value %} is-active{% endif %}" data-select-target="category" data-select-value="{{ category.value }}">
+                <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=category.value %}</span>
+                <span>{% firstof category.label_with_count category.label %}</span>
               </button>
             {% endfor %}
           </div>
@@ -243,18 +243,18 @@
               <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
               <span>{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
             </button>
-            {% for code, label in categories %}
-              <button type="button" class="desktop-category-chip{% if selected.category == code %} is-active{% endif %}" data-select-target="category" data-select-value="{{ code }}" data-category-code="{{ code }}">
-                <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=code %}</span>
-                <span>{{ label }}</span>
+            {% for category in categories %}
+              <button type="button" class="desktop-category-chip{% if selected.category == category.value %} is-active{% endif %}" data-select-target="category" data-select-value="{{ category.value }}" data-category-code="{{ category.value }}">
+                <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=category.value %}</span>
+                <span>{% firstof category.label_with_count category.label %}</span>
               </button>
             {% endfor %}
           </div>
         {% endif %}
         <select class="filter-select" name="category">
           <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
-          {% for code, label in categories %}
-            <option value="{{ code }}" {% if selected.category == code %}selected{% endif %}>{{ label }}</option>
+          {% for category in categories %}
+            <option value="{{ category.value }}" {% if selected.category == category.value %}selected{% endif %}>{% firstof category.label_with_count category.label %}</option>
           {% endfor %}
         </select>
       </label>
@@ -286,46 +286,37 @@
         {% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}{% trans "Регион / район" %}{% endif %}
         {% if not is_new_page %}
           <div class="filter-mobile-tools">
-            <div
-              class="filter-autocomplete"
-              data-autocomplete="district"
-              data-empty-label="{% if request.LANGUAGE_CODE == 'az' %}Nəticə tapılmadı{% elif request.LANGUAGE_CODE == 'en' %}No results found{% else %}Ничего не найдено{% endif %}"
-            >
-              <input
-                class="field filter-option-search"
-                type="search"
-                inputmode="search"
-                autocomplete="off"
-                placeholder="{% if request.LANGUAGE_CODE == 'az' %}Region və ya rayon tapın{% elif request.LANGUAGE_CODE == 'en' %}Find a region or district{% else %}Найти регион или район{% endif %}"
-                data-option-search-for="district"
-                aria-autocomplete="list"
+            <div class="km-location-tree" data-tree-select="district">
+              <button
+                type="button"
+                class="km-tree-trigger"
+                id="district-tree-trigger"
+                aria-haspopup="tree"
                 aria-expanded="false"
-                aria-controls="district-autocomplete-dropdown"
-              />
+                aria-controls="district-tree-dropdown"
+              >
+                <span class="km-tree-trigger-text">
+                  {% if language == "az" %}Region / rayon{% elif language == "en" %}Region / district{% else %}{% trans "Регион / район" %}{% endif %}
+                </span>
+              </button>
               <div
-                id="district-autocomplete-dropdown"
-                class="filter-autocomplete-dropdown"
-                data-autocomplete-dropdown
-                role="listbox"
+                id="district-tree-dropdown"
+                class="km-tree-dropdown"
+                role="tree"
+                tabindex="-1"
                 hidden
               ></div>
-              <div class="filter-selected-chip-wrap" data-autocomplete-chip hidden>
-                <button type="button" class="filter-selected-chip" data-autocomplete-clear>
-                  <span class="filter-selected-chip-label" data-autocomplete-chip-label></span>
-                  <span class="filter-selected-chip-clear" aria-hidden="true">×</span>
-                </button>
-              </div>
             </div>
             {% if popular_districts %}
               <div class="filter-popular-options" aria-label="{% if language == 'az' %}Populyar regionlar{% elif language == 'en' %}Popular regions{% else %}{% trans 'Популярные регионы' %}{% endif %}">
-                {% for district_name in popular_districts|slice:":3" %}
+                {% for district in popular_districts|slice:":3" %}
                   <button
                     type="button"
                     class="filter-popular-chip"
                     data-select-target="district"
-                    data-select-value="{{ district_name }}"
+                    data-select-value="{{ district.value }}"
                   >
-                    {% trans district_name %}
+                    {% firstof district.label_with_count district.label %}
                   </button>
                 {% endfor %}
               </div>
@@ -334,15 +325,15 @@
         {% endif %}
         <select class="filter-select filter-select-fallback" name="district" aria-hidden="true" tabindex="-1">
           <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
-          {% for district_name in district_options %}
+          {% for district in district_options %}
             <option
-              value="{{ district_name }}"
-              data-label-current="{% trans district_name %}"
-              data-label-az="{% language 'az' %}{% trans district_name %}{% endlanguage %}"
-              data-label-ru="{% language 'ru' %}{% trans district_name %}{% endlanguage %}"
-              data-label-en="{% language 'en' %}{% trans district_name %}{% endlanguage %}"
-              {% if selected.district == district_name %}selected{% endif %}
-            >{% trans district_name %}</option>
+              value="{{ district.value }}"
+              data-label-current="{{ district.label }}"
+              data-label-az="{{ district.label_az }}"
+              data-label-ru="{{ district.label_ru }}"
+              data-label-en="{{ district.label_en }}"
+              {% if selected.district == district.value %}selected{% endif %}
+            >{% firstof district.label_with_count district.label %}</option>
           {% endfor %}
         </select>
       </label>
@@ -502,14 +493,14 @@
             </div>
             {% if popular_metro %}
               <div class="filter-popular-options" aria-label="{% if language == 'az' %}Populyar metro stansiyaları{% elif language == 'en' %}Popular metro stations{% else %}{% trans 'Популярные станции метро' %}{% endif %}">
-                {% for metro_name in popular_metro|slice:":3" %}
+                {% for metro in popular_metro|slice:":3" %}
                   <button
                     type="button"
                     class="filter-popular-chip"
                     data-select-target="metro"
-                    data-select-value="{{ metro_name }}"
+                    data-select-value="{{ metro.value }}"
                   >
-                    {% trans metro_name %}
+                    {% firstof metro.label_with_count metro.label %}
                   </button>
                 {% endfor %}
               </div>
@@ -517,15 +508,15 @@
           </div>
           <select class="filter-select filter-select-fallback" name="metro" aria-hidden="true" tabindex="-1">
             <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
-            {% for metro_name in metro_options %}
+            {% for metro in metro_options %}
               <option
-                value="{{ metro_name }}"
-                data-label-current="{% trans metro_name %}"
-                data-label-az="{% language 'az' %}{% trans metro_name %}{% endlanguage %}"
-                data-label-ru="{% language 'ru' %}{% trans metro_name %}{% endlanguage %}"
-                data-label-en="{% language 'en' %}{% trans metro_name %}{% endlanguage %}"
-                {% if selected.metro == metro_name %}selected{% endif %}
-              >{% trans metro_name %}</option>
+                value="{{ metro.value }}"
+                data-label-current="{{ metro.label }}"
+                data-label-az="{{ metro.label_az }}"
+                data-label-ru="{{ metro.label_ru }}"
+                data-label-en="{{ metro.label_en }}"
+                {% if selected.metro == metro.value %}selected{% endif %}
+              >{% firstof metro.label_with_count metro.label %}</option>
             {% endfor %}
           </select>
         </label>
@@ -811,6 +802,9 @@
           </div>
         </article>
       {% endfor %}
+      {% for _ in ""|ljust:catalog_grid_placeholders %}
+        <article class="card card-placeholder" aria-hidden="true"></article>
+      {% endfor %}
     </section>
   {% elif places %}
     <section class="grid">
@@ -826,8 +820,8 @@
                 <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               {% endif %}
             </a>
-            <div class="card-category-overlay category-{{ place.category|lower }}">
-              <span class="category-icon"></span>
+            <div class="card-category-overlay category-{{ place.category_code|lower }}">
+              <span class="category-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=place.category_code %}</span>
               {{ place.get_category_display }}
             </div>
             {% if place.is_verified %}
@@ -935,6 +929,9 @@
             </div>
           </div>
         </article>
+      {% endfor %}
+      {% for _ in ""|ljust:catalog_grid_placeholders %}
+        <article class="card card-placeholder" aria-hidden="true"></article>
       {% endfor %}
     </section>
   {% else %}
@@ -1235,7 +1232,27 @@
       const optionCache = new Map();
 
       function normalize(text) {
+        const translitMap = {
+          "ə": "e",
+          "Ə": "e",
+          "ı": "i",
+          "I": "i",
+          "İ": "i",
+          "ö": "o",
+          "Ö": "o",
+          "ü": "u",
+          "Ü": "u",
+          "ş": "s",
+          "Ş": "s",
+          "ç": "c",
+          "Ç": "c",
+          "ğ": "g",
+          "Ğ": "g"
+        };
         return String(text || "")
+          .replace(/[ƏəIİıÖöÜüŞşÇçĞğ]/g, function (char) {
+            return translitMap[char] || char;
+          })
           .toLowerCase()
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
@@ -1760,6 +1777,352 @@
           }
         });
       }
+
+      function initLocationTreeSelect() {
+        const container = document.querySelector('[data-tree-select="district"]');
+        if (!container) return;
+        const trigger = container.querySelector('.km-tree-trigger');
+        const triggerText = container.querySelector('.km-tree-trigger-text');
+        const dropdown = container.querySelector('.km-tree-dropdown');
+        const targetSelect = document.querySelector('select[name="district"]');
+        if (!trigger || !dropdown || !targetSelect) return;
+
+        const currentLang = document.documentElement.lang || 'az';
+
+        function getBütünBakıRayonlarıLabel() {
+          if (currentLang === 'az') return 'Bütün Bakı rayonları';
+          if (currentLang === 'en') return 'All Baku districts';
+          return 'Все районы Баку';
+        }
+
+        function cleanDistrictLabel(label) {
+          if (label && label.includes(':')) {
+            return label.split(':')[1].trim();
+          }
+          return label;
+        }
+
+        function getOptions() {
+          return Array.from(targetSelect.options).map(function(opt) {
+            const label = opt.dataset.labelCurrent || opt.textContent.trim();
+            const labelWithCount = opt.textContent.trim();
+            return {
+              value: opt.value,
+              label: label,
+              labelWithCount: labelWithCount,
+              count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null
+            };
+          });
+        }
+
+        function createNodeRow(value, label, labelWithCount, hasChildren, isChild, isBakuAll, isLastChild) {
+          const row = document.createElement('div');
+          row.className = 'km-tree-row';
+          row.setAttribute('role', 'treeitem');
+          row.setAttribute('tabindex', '-1');
+          row.dataset.value = value;
+          
+          if (isChild) {
+            row.classList.add('km-tree-row--child');
+            if (isBakuAll) {
+              row.classList.add('km-tree-row--baku-all');
+            }
+            if (isLastChild) {
+              row.classList.add('km-tree-row--last-child');
+            }
+          }
+
+          let isSelected = false;
+          if (value === 'baku') {
+            if (targetSelect.value === 'baku' && isBakuAll) {
+              isSelected = true;
+            }
+          } else {
+            if (targetSelect.value === value) {
+              isSelected = true;
+            }
+          }
+
+          if (isSelected) {
+            row.classList.add('is-selected');
+            row.setAttribute('aria-selected', 'true');
+          } else {
+            row.setAttribute('aria-selected', 'false');
+          }
+
+          if (hasChildren) {
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'km-tree-chevron';
+            toggle.setAttribute('aria-label', 'Toggle');
+            toggle.setAttribute('tabindex', '-1');
+            toggle.innerHTML = `
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="km-tree-chevron-icon">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            `;
+            row.appendChild(toggle);
+          } else if (!isChild) {
+            const spacer = document.createElement('div');
+            spacer.className = 'km-tree-spacer';
+            row.appendChild(spacer);
+          }
+
+          if (isChild) {
+            const branch = document.createElement('div');
+            branch.className = 'km-tree-branch';
+            row.appendChild(branch);
+          }
+
+          const labelSpan = document.createElement('span');
+          labelSpan.className = 'km-tree-label';
+          
+          const text = label;
+          const countPart = labelWithCount ? (labelWithCount.split('—')[1] || '').trim() : '';
+          labelSpan.innerHTML = text + (countPart ? ` <span class="km-tree-count">— ${countPart}</span>` : '');
+          row.appendChild(labelSpan);
+
+          row.addEventListener('click', function(e) {
+            if (hasChildren) {
+              toggleNode(row);
+            } else {
+              selectValue(value);
+            }
+          });
+
+          return row;
+        }
+
+        function toggleNode(row) {
+          const parentNode = row.closest('.km-tree-node');
+          if (!parentNode) return;
+          const children = parentNode.querySelector('.km-tree-children');
+          if (!children) return;
+          
+          const isExpanded = row.getAttribute('aria-expanded') === 'true';
+          row.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+          children.hidden = isExpanded;
+        }
+
+        function selectValue(value) {
+          targetSelect.value = value;
+          targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          closeDropdown();
+        }
+
+        function buildTreeHTML() {
+          dropdown.innerHTML = '';
+          const options = getOptions();
+
+          const bakuOption = options.find(o => o.value === 'baku');
+          const bakuDistricts = options.filter(o => o.value.startsWith('baku_'));
+          const otherRegions = options.filter(o => o.value && o.value !== 'baku' && !o.value.startsWith('baku_'));
+
+          if (bakuOption) {
+            const bakuNode = document.createElement('div');
+            bakuNode.className = 'km-tree-node km-tree-parent';
+            
+            const hasChildren = bakuDistricts.length > 0;
+            const bakuRow = createNodeRow(bakuOption.value, bakuOption.label, bakuOption.labelWithCount, hasChildren);
+            bakuNode.appendChild(bakuRow);
+
+            if (hasChildren) {
+              const childrenContainer = document.createElement('div');
+              childrenContainer.className = 'km-tree-children';
+              childrenContainer.setAttribute('role', 'group');
+
+              const isBakuSelected = targetSelect.value === 'baku' || targetSelect.value.startsWith('baku_');
+              bakuRow.setAttribute('aria-expanded', isBakuSelected ? 'true' : 'false');
+              childrenContainer.hidden = !isBakuSelected;
+
+              const bakuCountPart = bakuOption.labelWithCount.split('—')[1] || '';
+              const allBakuLabel = getBütünBakıRayonlarıLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
+              const allBakuRow = createNodeRow('baku', getBütünBakıRayonlarıLabel(), allBakuLabel, false, true, true);
+              childrenContainer.appendChild(allBakuRow);
+
+              bakuDistricts.forEach((dist, idx) => {
+                const isLast = idx === bakuDistricts.length - 1;
+                const distRow = createNodeRow(dist.value, cleanDistrictLabel(dist.label), cleanDistrictLabel(dist.labelWithCount), false, true, false, isLast);
+                childrenContainer.appendChild(distRow);
+              });
+
+              bakuNode.appendChild(childrenContainer);
+            }
+            dropdown.appendChild(bakuNode);
+          }
+
+          otherRegions.forEach(reg => {
+            const regRow = createNodeRow(reg.value, reg.label, reg.labelWithCount, false);
+            dropdown.appendChild(regRow);
+          });
+        }
+
+        function toggleDropdown() {
+          const isHidden = dropdown.hidden;
+          if (isHidden) {
+            openDropdown();
+          } else {
+            closeDropdown();
+          }
+        }
+
+        function openDropdown() {
+          dropdown.hidden = false;
+          trigger.setAttribute('aria-expanded', 'true');
+          buildTreeHTML();
+          
+          const firstItem = dropdown.querySelector('.km-tree-row');
+          if (firstItem) {
+            focusItem(firstItem);
+          }
+        }
+
+        function closeDropdown() {
+          dropdown.hidden = true;
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus();
+        }
+
+        function getVisibleItems() {
+          const items = [];
+          const rows = Array.from(dropdown.querySelectorAll('.km-tree-row'));
+          rows.forEach(row => {
+            const parentChildren = row.closest('.km-tree-children');
+            if (!parentChildren || !parentChildren.hidden) {
+              items.push(row);
+            }
+          });
+          return items;
+        }
+
+        function focusItem(item) {
+          if (!item) return;
+          const allRows = dropdown.querySelectorAll('.km-tree-row');
+          allRows.forEach(row => {
+            row.setAttribute('tabindex', '-1');
+          });
+          item.setAttribute('tabindex', '0');
+          item.focus();
+        }
+
+        dropdown.addEventListener('keydown', function(e) {
+          const active = document.activeElement;
+          if (!active || !active.classList.contains('km-tree-row')) return;
+
+          const visibleItems = getVisibleItems();
+          const index = visibleItems.indexOf(active);
+
+          switch (e.key) {
+            case 'ArrowDown':
+              e.preventDefault();
+              if (index < visibleItems.length - 1) {
+                focusItem(visibleItems[index + 1]);
+              }
+              break;
+            case 'ArrowUp':
+              e.preventDefault();
+              if (index > 0) {
+                focusItem(visibleItems[index - 1]);
+              }
+              break;
+            case 'ArrowRight':
+              e.preventDefault();
+              if (active.querySelector('.km-tree-chevron')) {
+                const isExpanded = active.getAttribute('aria-expanded') === 'true';
+                if (!isExpanded) {
+                  toggleNode(active);
+                } else {
+                  if (index < visibleItems.length - 1) {
+                    focusItem(visibleItems[index + 1]);
+                  }
+                }
+              }
+              break;
+            case 'ArrowLeft':
+              e.preventDefault();
+              if (active.querySelector('.km-tree-chevron')) {
+                const isExpanded = active.getAttribute('aria-expanded') === 'true';
+                if (isExpanded) {
+                  toggleNode(active);
+                }
+              } else if (active.classList.contains('km-tree-row--child')) {
+                const parentRow = dropdown.querySelector('.km-tree-node > .km-tree-row');
+                if (parentRow) {
+                  focusItem(parentRow);
+                }
+              }
+              break;
+            case 'Enter':
+            case ' ':
+              e.preventDefault();
+              active.click();
+              break;
+            case 'Escape':
+              e.preventDefault();
+              closeDropdown();
+              break;
+            case 'Home':
+              e.preventDefault();
+              if (visibleItems.length > 0) {
+                focusItem(visibleItems[0]);
+              }
+              break;
+            case 'End':
+              e.preventDefault();
+              if (visibleItems.length > 0) {
+                focusItem(visibleItems[visibleItems.length - 1]);
+              }
+              break;
+          }
+        });
+
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleDropdown();
+        });
+
+        trigger.addEventListener('keydown', function(e) {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openDropdown();
+          }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!container.contains(e.target)) {
+            dropdown.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        function updateTriggerLabel() {
+          const selectedVal = targetSelect.value;
+          const options = getOptions();
+          const selectedOpt = options.find(o => o.value === selectedVal);
+          if (selectedOpt && selectedVal !== '') {
+            if (selectedVal.startsWith('baku_')) {
+              const bakuOpt = options.find(o => o.value === 'baku');
+              const bakuLabel = bakuOpt ? bakuOpt.label : 'Bakı';
+              triggerText.textContent = `${bakuLabel} · ${cleanDistrictLabel(selectedOpt.label)}`;
+            } else {
+              triggerText.textContent = selectedOpt.label;
+            }
+            container.classList.add('is-active');
+          } else {
+            let defaultLabel = 'Region / rayon';
+            if (currentLang === 'az') defaultLabel = 'Region / rayon';
+            else if (currentLang === 'en') defaultLabel = 'Region / district';
+            else defaultLabel = 'Регион / район';
+            triggerText.textContent = defaultLabel;
+            container.classList.remove('is-active');
+          }
+        }
+
+        targetSelect.addEventListener('change', updateTriggerLabel);
+        updateTriggerLabel();
+      }
+
+      initLocationTreeSelect();
 
       bindDynamicCatalogControls();
 

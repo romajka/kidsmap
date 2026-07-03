@@ -215,6 +215,7 @@
     syncListingMode();
     syncTemporaryRequiredState();
     syncOptionalDetailsState();
+    syncLocationCascading();
     syncLanguagePanels();
 
     if (Array.isArray(state.detailsOpen)) {
@@ -566,17 +567,93 @@
     }
   }
 
+  function syncLocationCascading() {
+    const regionSelect = form.querySelector('[name="region"]');
+    const districtSelect = form.querySelector('[name="district"]');
+    const metroSelect = form.querySelector('[name="metro"]');
+    if (!regionSelect) return;
+
+    const isBaku = regionSelect.value === "baku";
+
+    // Show/hide district
+    const districtWrapper = districtSelect ? districtSelect.closest(".owner-form-field") : null;
+    if (districtWrapper) {
+      districtWrapper.style.display = isBaku ? "" : "none";
+      if (districtSelect) {
+        districtSelect.disabled = !isBaku;
+        if (!isBaku) {
+          districtSelect.value = "";
+        }
+      }
+    }
+
+    // Show/hide metro
+    const metroWrapper = metroSelect ? metroSelect.closest(".owner-form-field") : null;
+    if (metroWrapper) {
+      metroWrapper.style.display = isBaku ? "" : "none";
+      if (metroSelect) {
+        metroSelect.disabled = !isBaku;
+        if (!isBaku) {
+          metroSelect.value = "";
+        }
+      }
+    }
+
+    // Dynamically adjust step 3's required groups
+    const step3 = steps.find(s => s.dataset.ownerStep === "3");
+    if (step3) {
+      if (isBaku) {
+        step3.dataset.ownerStepRequiredGroups = "district|metro";
+        step3.dataset.ownerStepPermanentRequiredGroups = "district|metro";
+        step3.dataset.ownerStepTemporaryRequiredGroups = "district|metro";
+      } else {
+        step3.dataset.ownerStepRequiredGroups = "";
+        step3.dataset.ownerStepPermanentRequiredGroups = "";
+        step3.dataset.ownerStepTemporaryRequiredGroups = "";
+      }
+    }
+
+    // Also update form's top-level dataset properties so updateCompletion reads the correct values
+    if (isBaku) {
+      form.dataset.ownerRequiredGroups = "district|metro";
+      form.dataset.ownerPermanentRequiredGroups = "district|metro";
+      form.dataset.ownerTemporaryRequiredGroups = "district|metro";
+    } else {
+      form.dataset.ownerRequiredGroups = "";
+      form.dataset.ownerPermanentRequiredGroups = "";
+      form.dataset.ownerTemporaryRequiredGroups = "";
+    }
+
+    setLocationValidity();
+  }
+
   function setLocationValidity() {
+    const region = form.querySelector('[name="region"]');
     const district = form.querySelector('[name="district"]');
     const metro = form.querySelector('[name="metro"]');
-    if (!district || !metro) return;
-    if ((district.value || "").trim() || (metro.value || "").trim()) {
-      district.setCustomValidity("");
-      metro.setCustomValidity("");
+    if (!region) return;
+
+    if (!region.value) {
+      region.setCustomValidity(locationRequiredMessage || "Выберите регион");
+      if (district) district.setCustomValidity("");
+      if (metro) metro.setCustomValidity("");
       return;
     }
-    district.setCustomValidity(locationRequiredMessage);
-    metro.setCustomValidity(locationRequiredMessage);
+    region.setCustomValidity("");
+
+    if (region.value === "baku") {
+      if ((district && district.value) || (metro && metro.value)) {
+        if (district) district.setCustomValidity("");
+        if (metro) metro.setCustomValidity("");
+      } else {
+        const msg = form.dataset.ownerBakuLocationRequiredMessage || "Для Баку выберите район или метро";
+        if (district) district.setCustomValidity(msg);
+        if (metro) metro.setCustomValidity(msg);
+      }
+    } else {
+      if (district) district.setCustomValidity("");
+      if (metro) metro.setCustomValidity("");
+    }
   }
 
   function getStepState(step) {
@@ -614,6 +691,33 @@
       reachable = index + 2;
     }
     return Math.min(reachable, steps.length);
+  }
+
+  function alignStepperTrack() {
+    const stepper = form.querySelector(".wz-stepper");
+    const track = form.querySelector(".wz-stepper-track");
+    const dots = Array.from(form.querySelectorAll(".wz-step .wz-dot"));
+    if (!stepper || !track || dots.length < 2) return;
+
+    const firstDot = dots[0];
+    const lastDot = dots[dots.length - 1];
+
+    const stepperRect = stepper.getBoundingClientRect();
+    const firstRect = firstDot.getBoundingClientRect();
+    const lastRect = lastDot.getBoundingClientRect();
+
+    if (firstRect.width === 0 || lastRect.width === 0) {
+      return;
+    }
+
+    const leftOffset = (firstRect.left + firstRect.width / 2) - stepperRect.left;
+    const rightOffset = stepperRect.right - (lastRect.left + lastRect.width / 2);
+    const verticalCenter = (firstRect.top + firstRect.height / 2) - stepperRect.top;
+
+    track.style.left = leftOffset + "px";
+    track.style.right = rightOffset + "px";
+    track.style.top = verticalCenter + "px";
+    track.style.transform = "translateY(-50%)";
   }
 
   function updateWizard(stepNumber) {
@@ -662,8 +766,10 @@
       progressTitle.textContent = steps[currentStep - 1].dataset.ownerStepTitle || "";
     }
     if (progressBar) {
-      progressBar.style.width = ((currentStep / steps.length) * 100).toFixed(2) + "%";
+      const fillPercent = steps.length > 1 ? ((currentStep - 1) / (steps.length - 1) * 100).toFixed(2) : 0;
+      progressBar.style.width = fillPercent + "%";
     }
+    alignStepperTrack();
   }
 
   function openContainingDetails(element) {
@@ -988,6 +1094,9 @@
     }
 
     markStepTouched(event.target);
+    if (event.target.matches('[name="region"]')) {
+      syncLocationCascading();
+    }
     if (event.target.matches('[name="district"], [name="metro"]')) {
       setLocationValidity();
     }
@@ -1056,9 +1165,43 @@
     }
   });
 
+  document.addEventListener("keydown", function (e) {
+    var target = e.target;
+    if (target && target.tagName === "INPUT" && target.getAttribute("inputmode") === "numeric") {
+      if (
+        [46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
+        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+        (e.keyCode === 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+        (e.keyCode === 86 && (e.ctrlKey === true || e.metaKey === true)) ||
+        (e.keyCode === 88 && (e.ctrlKey === true || e.metaKey === true)) ||
+        (e.keyCode >= 35 && e.keyCode <= 40)
+      ) {
+        return;
+      }
+      if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault();
+      }
+    }
+  });
+
+  document.addEventListener("input", function (e) {
+    var target = e.target;
+    if (target && target.tagName === "INPUT" && target.getAttribute("inputmode") === "numeric") {
+      var val = target.value;
+      var clean = val.replace(/\D/g, "");
+      if (val !== clean) {
+        target.value = clean;
+      }
+    }
+  });
+
+  window.addEventListener("resize", alignStepperTrack);
+  window.addEventListener("load", alignStepperTrack);
+
   syncListingMode();
   syncTemporaryRequiredState();
   syncOptionalDetailsState();
+  syncLocationCascading();
   syncLanguagePanels();
   updateCompletion();
   updateFinalSummary();

@@ -229,6 +229,23 @@
     color: #1F2A37;
 }
 
+.km-btn-link-danger {
+    color: #DC2626;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.km-btn-link-danger:hover {
+    color: #B91C1C;
+}
+
+.km-btn-link-danger:disabled {
+    color: #9CA3AF;
+    cursor: wait;
+}
+
 /* Gallery Grid */
 .km-gallery-container {
     background: #fff;

@@ -1,3 +1,4 @@
+# Reload server
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -9,13 +10,14 @@ from django.utils.translation import gettext as _
 
 
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository, ISiteReviewRepository
-from catalog.models import Event, SiteGalleryImage, Category
+from catalog.models import Event, SiteGalleryImage
 from catalog.repositories.django_repositories import (
     DjangoPlaceRepository,
     DjangoSettingsRepository,
     DjangoSiteReviewRepository,
 )
-from catalog.services.options import sort_translated_values
+from catalog.services.options import find_localized_label
+from catalog.services.public_filter_options import build_public_place_filter_options
 from catalog.services.reactions import liked_place_ids, mark_liked_flags, mark_site_review_reactions
 from catalog.services.seo import build_home_seo_payload
 
@@ -97,13 +99,22 @@ class HomeController:
             ),
             language_code=language_code,
         )
+        from catalog.services.locations import normalize_to_key
+        selected_district = normalize_to_key(request.GET.get("district", ""))
+        public_filter_options = build_public_place_filter_options(
+            language_code=language_code,
+            selected_category=request.GET.get("category", ""),
+            selected_district=selected_district,
+        )
+        home_districts = public_filter_options.districts
 
         return {
-            "home_categories": sorted([{"code": c.code, "title": c.name_i18n(language_code)} for c in Category.objects.filter(is_active=True).order_by('order')], key=lambda item: str(item["title"]).casefold()),
-            "home_districts": sort_translated_values(content_settings.districts()),
-            "home_metro_options": sort_translated_values(content_settings.metro_stations()),
+            "home_categories": public_filter_options.categories,
+            "home_districts": home_districts,
+            "home_metro_options": public_filter_options.metro,
             "home_age_options": [0, 6, 9, 12, 16],
             "selected_age": self._selected_age(request),
+            "selected_district_label": find_localized_label(home_districts, selected_district, language_code),
             "meta_description": seo_payload["meta_description"],
             "seo_title": seo_payload["seo_title"],
             "home_featured_schema_json": seo_payload["home_featured_schema_json"],
@@ -116,10 +127,10 @@ class HomeController:
             "site_reviews_avg": float(site_reviews_avg),
             "site_reviews_count": site_reviews_count,
             "google_maps_api_key": google_maps_api_key,
-            "hero_title": site_settings.home_title_i18n(language_code) or _("Найдите кружок для ребёнка в Азербайджане"),
+            "hero_title": site_settings.home_title_i18n(language_code) or _("Найдите подходящее занятие для ребёнка"),
             "hero_subtitle": site_settings.home_subtitle_i18n(language_code)
-            or _("Спорт, творчество, музыка, образование — всё в одном месте."),
-            "hero_search_label": site_settings.home_search_label_i18n(language_code) or _("Искать кружок, курс или школу"),
+            or _("Кружки, курсы и события рядом — всё в одном месте."),
+            "hero_search_label": site_settings.home_search_label_i18n(language_code) or _("Найти занятие"),
             "hero_search_placeholder": self._hero_search_placeholder(
                 site_settings.home_search_placeholder_i18n(language_code)
             ),

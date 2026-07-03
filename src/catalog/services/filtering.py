@@ -28,10 +28,11 @@ class PlaceListFilters:
 
     @classmethod
     def from_request(cls, request, force_new_only=False):
+        from catalog.services.locations import normalize_to_key
         data = cls(
             category=(request.GET.get("category") or "").strip(),
             query=(request.GET.get("q") or "").strip(),
-            district=(request.GET.get("district") or "").strip(),
+            district=normalize_to_key((request.GET.get("district") or "").strip()),
             metro=(request.GET.get("metro") or "").strip(),
             age=(request.GET.get("age") or "").strip(),
             age_from=(request.GET.get("age_from") or "").strip(),
@@ -113,7 +114,10 @@ class PlaceListFilters:
             )
 
         if self.district:
-            qs = qs.filter(district__iexact=self.district)
+            if self.district.lower() == "baku":
+                qs = qs.filter(Q(district__iexact="baku") | Q(district__startswith="baku_"))
+            else:
+                qs = qs.filter(district__iexact=self.district)
 
         if self.min_rating:
             try:

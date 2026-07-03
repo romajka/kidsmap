@@ -1,4 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const elements = document.querySelectorAll(".animate-on-scroll");
+  if (!elements.length) return;
+
+  if (document.body && document.body.classList.contains("page-home")) {
+    elements.forEach((el) => el.classList.add("is-visible"));
+    return;
+  }
+
   const observerOptions = {
     root: null,
     rootMargin: "0px",
@@ -14,6 +22,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }, observerOptions);
 
-  const elements = document.querySelectorAll(".animate-on-scroll");
   elements.forEach(el => observer.observe(el));
 });

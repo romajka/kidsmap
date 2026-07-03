@@ -21,14 +21,12 @@ class ReviewPayload:
     rating: int
     text: str
     author_name: str
-    is_anonymous: bool
 
 
 def _build_review_payload(request, *, require_text: bool = False) -> tuple[ReviewPayload | None, str]:
     rating_raw = (request.POST.get("rating") or "").strip()
     review_text = (request.POST.get("text") or "").strip()
     author_name = (request.POST.get("author_name") or "").strip()
-    is_anonymous = request.POST.get("is_anonymous") == "1"
 
     if not rating_raw:
         return None, _("Выберите оценку от 1 до 5, чтобы отправить отзыв.")
@@ -41,9 +39,7 @@ def _build_review_payload(request, *, require_text: bool = False) -> tuple[Revie
     if rating < 1 or rating > 5:
         return None, _("Оценка вне диапазона. Укажите значение от 1 до 5.")
 
-    if is_anonymous:
-        author_name = ""
-    elif not author_name:
+    if not author_name:
         author_name = _("Гость")
     elif len(author_name) > 80:
         return None, _("Имя слишком длинное. Используйте до 80 символов.")
@@ -58,7 +54,6 @@ def _build_review_payload(request, *, require_text: bool = False) -> tuple[Revie
             rating=rating,
             text=review_text,
             author_name=author_name,
-            is_anonymous=is_anonymous,
         ),
         "",
     )
@@ -88,7 +83,7 @@ def submit_place_review(*, request, place, require_auth: bool) -> ReviewSubmissi
         rating=payload.rating,
         review_text=moderated.text,
         author_name=moderated.author_name,
-        is_anonymous=payload.is_anonymous,
+        is_anonymous=False,
         contains_profanity=moderated.contains_profanity,
     )
     review_obj.status = PlaceReview.STATUS_PENDING
@@ -126,7 +121,7 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
         "rating": payload.rating,
         "text": moderated.text,
         "author_name": moderated.author_name,
-        "is_anonymous": payload.is_anonymous,
+        "is_anonymous": False,
         "contains_profanity": moderated.contains_profanity,
         "is_approved": False,
         "status": SiteReview.STATUS_PENDING,

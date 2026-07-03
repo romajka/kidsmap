@@ -309,7 +309,8 @@ class PlaceChangeAuditAdmin(admin.ModelAdmin):
         edit_url = reverse("admin:catalog_place_change", args=[obj.place_id], current_app=self.admin_site.name)
         meta_bits = [obj.place.get_category_display()]
         if obj.place.district:
-            meta_bits.append(obj.place.district)
+            from catalog.services.locations import get_location_translation
+            meta_bits.append(get_location_translation(obj.place.district))
         meta = " · ".join(bit for bit in meta_bits if bit)
         return format_html(
             '<div class="km-admin-stack">'
@@ -590,7 +591,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             (_("Возраст"), bool(place.age_display), place.age_display),
             (_("Цены"), bool(place.pricing_options), price_value),
             (_("Длительность урока"), place.lesson_duration_minutes is not None, place.lesson_duration_display),
-            (_("Регион / район"), bool(self._place_text_value(place.district)), self._place_text_value(place.district)),
+            (_("Регион / район"), bool(self._place_text_value(place.district)), get_location_translation(place.district) if place.district else ""),
             (_("Метро"), bool(self._place_text_value(place.metro)), self._place_text_value(place.metro)),
             (_("Адрес"), bool(self._place_text_value(place.address)), self._place_text_value(place.address)),
             (_("Координаты"), place.has_coordinates, coordinates_value),

@@ -74,15 +74,32 @@ def _build_login_redirect_url(request, fallback_url: str) -> str:
 
 
 def _build_owner_create_draft_key(request, *, prefix: str) -> str:
+    has_session = hasattr(request, "session")
     if request.method == "GET" and request.GET.get("fresh") == "1":
-        return f"{prefix}-{uuid4().hex}"
+        key = f"{prefix}-{uuid4().hex}"
+        if has_session:
+            request.session[f"{prefix}_last_key"] = key
+        return key
 
     existing = (request.POST.get("draft_client_key") or request.GET.get("draft_session") or "").strip()
     if existing.startswith(prefix + "-"):
+        if has_session:
+            request.session[f"{prefix}_last_key"] = existing
         return existing
     if existing:
-        return f"{prefix}-{existing}"
-    return f"{prefix}-{uuid4().hex}"
+        key = f"{prefix}-{existing}"
+        if has_session:
+            request.session[f"{prefix}_last_key"] = key
+        return key
+
+    session_key = request.session.get(f"{prefix}_last_key") if has_session else None
+    if session_key and session_key.startswith(prefix + "-"):
+        return session_key
+
+    key = f"{prefix}-{uuid4().hex}"
+    if has_session:
+        request.session[f"{prefix}_last_key"] = key
+    return key
 
 
 def _engagement_login_required_response(request, fallback_url: str):

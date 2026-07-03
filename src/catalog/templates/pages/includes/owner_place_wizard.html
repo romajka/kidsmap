@@ -193,12 +193,14 @@
       <details
         class="owner-form-details owner-form-details-secondary"
         data-owner-mode-panel="permanent"
-        {% if form.schedule.value or form.lesson_duration_minutes.value or form.price_per_lesson.value or form.price_per_month.value or form.price_per_8_lessons.value or form.schedule.errors or form.lesson_duration_minutes.errors or form.price_per_lesson.errors or form.price_per_month.errors or form.price_per_8_lessons.errors %} open{% endif %}
+        {% if form.schedule.value or form.structured_schedule.value or form.lesson_duration_minutes.value or form.price_per_lesson.value or form.price_per_month.value or form.price_per_8_lessons.value or form.schedule.errors or form.structured_schedule.errors or form.lesson_duration_minutes.errors or form.price_per_lesson.errors or form.price_per_month.errors or form.price_per_8_lessons.errors %} open{% endif %}
       >
         <summary>{% if CURRENT_LANGUAGE == "az" %}Məşğələ məlumatları{% elif CURRENT_LANGUAGE == "en" %}Class details{% else %}{% trans "Информация о занятиях" %}{% endif %}</summary>
         <div class="owner-form-details-grid">
           <div class="owner-form-grid owner-form-grid-tight">
-            {% include "pages/includes/owner_form_field.html" with field=form.schedule full_width=True %}
+            <div class="owner-form-field owner-form-field-full">
+              {% include "includes/place_schedule_editor.html" with form=form variant="owner" editor_id="owner-place-schedule" %}
+            </div>
             {% include "pages/includes/owner_form_field.html" with field=form.lesson_duration_minutes %}
             {% include "pages/includes/owner_form_field.html" with field=form.price_per_lesson %}
             {% include "pages/includes/owner_form_field.html" with field=form.price_per_month %}
@@ -236,9 +238,9 @@
       class="owner-wizard-step"
       data-owner-step="3"
       data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Məkan{% elif CURRENT_LANGUAGE == 'en' %}Location{% else %}{% trans 'Локация' %}{% endif %}"
-      data-owner-step-required-fields="address"
-      data-owner-step-permanent-required-fields="address"
-      data-owner-step-temporary-required-fields="address"
+      data-owner-step-required-fields="address,region"
+      data-owner-step-permanent-required-fields="address,region"
+      data-owner-step-temporary-required-fields="address,region"
       data-owner-step-required-groups="district|metro"
       data-owner-step-permanent-required-groups="district|metro"
       data-owner-step-temporary-required-groups="district|metro"
@@ -250,6 +252,7 @@
           <p class="meta owner-form-step-lead">{% if CURRENT_LANGUAGE == "az" %}Rayon, metro və ünvan.{% elif CURRENT_LANGUAGE == "en" %}District, metro, and address.{% else %}{% trans "Сначала адресный минимум." %}{% endif %}</p>
         </div>
         <div class="owner-form-grid owner-form-grid-tight">
+          {% include "pages/includes/owner_form_field.html" with field=form.region %}
           {% include "pages/includes/owner_form_field.html" with field=form.district %}
           {% include "pages/includes/owner_form_field.html" with field=form.metro %}
           {% include "pages/includes/owner_form_field.html" with field=form.address full_width=True %}

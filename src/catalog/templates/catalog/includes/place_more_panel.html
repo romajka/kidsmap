@@ -14,10 +14,14 @@
       </div>
     {% endif %}
 
-    {% if place.schedule or place.lesson_duration_display %}
+    {% if place.has_schedule_content or place.lesson_duration_display %}
       <div class="place-more-section">
         <span class="place-more-label">{% trans "Расписание" %}</span>
-        {% if place.schedule %}
+        {% if place.has_structured_schedule %}
+          {% for row in place.schedule_rows %}
+            <p class="place-more-text"><b>{{ row.days }}</b>: {{ row.lines|join:", " }}</p>
+          {% endfor %}
+        {% elif place.schedule %}
           <p class="place-more-text">{{ place.schedule|linebreaksbr }}</p>
         {% endif %}
         {% if place.lesson_duration_display %}

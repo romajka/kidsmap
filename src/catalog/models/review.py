@@ -78,6 +78,7 @@ class PlaceReview(models.Model):
         self.save(update_fields=["likes_count", "dislikes_count"])
 
     def save(self, *args, **kwargs):
+        self.is_anonymous = False
         if self.status == self.STATUS_APPROVED:
             self.is_approved = True
         elif self.status in {self.STATUS_PENDING, self.STATUS_REJECTED}:
@@ -90,6 +91,15 @@ class PlaceReview(models.Model):
         place = self.place
         super().delete(*args, **kwargs)
         place.refresh_rating_stats()
+
+    @property
+    def author_name_i18n(self) -> str:
+        return self.author_name or str(_("Гость"))
+
+    @property
+    def text_i18n(self) -> str:
+        return self.text or ""
+
 
 
 class PlaceReviewReaction(models.Model):
@@ -193,7 +203,7 @@ class SiteReview(models.Model):
         verbose_name_plural = _("Отзывы")
 
     def __str__(self):
-        who = _("Аноним") if self.is_anonymous else (self.author_name or _("Гость"))
+        who = self.author_name or _("Гость")
         return f"{who}: {self.rating}"
 
     _AUTHOR_NAME_TRANSLATIONS = {
@@ -227,8 +237,6 @@ class SiteReview(models.Model):
 
     @property
     def author_name_i18n(self) -> str:
-        if self.is_anonymous:
-            return str(_("Аноним"))
         raw_value = str(_(self.author_name or "Гость"))
         return self._localized_demo_value(raw_value, self._AUTHOR_NAME_TRANSLATIONS)
 
@@ -251,6 +259,7 @@ class SiteReview(models.Model):
         self.save(update_fields=["likes_count", "dislikes_count"])
 
     def save(self, *args, **kwargs):
+        self.is_anonymous = False
         if self.status == self.STATUS_APPROVED:
             self.is_approved = True
         elif self.status in {self.STATUS_PENDING, self.STATUS_REJECTED}:

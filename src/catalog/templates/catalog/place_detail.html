@@ -187,11 +187,11 @@
                     <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
                   </div>
                 {% endif %}
-                {% if place.schedule or place.lesson_duration_display %}
+                {% if place.has_schedule_content or place.lesson_duration_display %}
                   <div class="detail-highlight-card">
                     <span class="detail-highlight-card__label">{% trans "Расписание" %}</span>
                     <strong class="detail-highlight-card__value">
-                      {% if place.lesson_duration_display %}{{ place.lesson_duration_display }}{% elif place.schedule %}{{ place.schedule|striptags|truncatechars:42 }}{% endif %}
+                      {% if place.lesson_duration_display %}{{ place.lesson_duration_display }}{% elif place.has_schedule_content %}{{ place.schedule_summary|striptags|truncatechars:42 }}{% endif %}
                     </strong>
                   </div>
                 {% endif %}
@@ -221,7 +221,7 @@
 
       <div class="detail-body">
         {% with language=request.LANGUAGE_CODE %}
-          {% if place.pricing_options or place.schedule or place.lesson_duration_display or place.extra_conditions or place.additional_info %}
+          {% if place.pricing_options or place.has_schedule_content or place.lesson_duration_display or place.extra_conditions or place.additional_info %}
             <section class="detail-pricing-panel detail-section detail-body-card detail-body-card--pricing">
               <div class="detail-section-head">
                 <h2>{% if language == "az" %}Cədvəl və qiymət{% elif language == "en" %}Schedule and pricing{% else %}Расписание и цена{% endif %}</h2>
@@ -250,10 +250,16 @@
                   </div>
                 {% endif %}
 
-                {% if place.schedule or place.lesson_duration_display %}
+                {% if place.has_schedule_content or place.lesson_duration_display %}
                   <div class="detail-pricing-card detail-pricing-card--schedule">
                     <span class="meta-label">{% if language == "az" %}Dərs cədvəli{% elif language == "en" %}Schedule{% else %}Расписание{% endif %}</span>
-                    {% if place.schedule %}
+                    {% if place.has_structured_schedule %}
+                      <div class="detail-schedule-copy">
+                        {% for row in place.schedule_rows %}
+                          <p><strong>{{ row.days }}</strong>: {{ row.lines|join:", " }}</p>
+                        {% endfor %}
+                      </div>
+                    {% elif place.schedule %}
                       <div class="detail-schedule-copy">{{ place.schedule|linebreaksbr }}</div>
                     {% endif %}
                     {% if place.lesson_duration_display %}
@@ -453,10 +459,6 @@
                       {% trans "Ваше имя" %}
                       <input class="field" type="text" name="author_name" maxlength="80" value="{{ request.user.username }}" placeholder="{% trans 'например Алина' %}" />
                     </label>
-                    <label class="review-anon">
-                      <input type="checkbox" name="is_anonymous" value="1" />
-                      <span>{% trans "Оставить анонимно" %}</span>
-                    </label>
                   </div>
                   <label>
                     {% trans "Текст отзыва" %}
@@ -525,21 +527,6 @@
       </div>
     </article>
 
-    {% with language=request.LANGUAGE_CODE %}
-      {% if place.phone1 or place.instagram %}
-        <div class="detail-mobile-sticky-bar" aria-label="{% trans 'Быстрые действия' %}">
-          <div class="detail-mobile-sticky-bar__inner">
-            {% if place.phone1 %}
-              <a class="btn detail-mobile-sticky-bar__btn" href="tel:{{ place.phone1 }}">{% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}Позвонить{% endif %}</a>
-              <a class="btn detail-mobile-sticky-bar__btn detail-mobile-sticky-bar__btn--ghost" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}" target="_blank" rel="noopener">WhatsApp</a>
-            {% endif %}
-            {% if place.instagram %}
-              <a class="btn detail-mobile-sticky-bar__btn detail-mobile-sticky-bar__btn--ghost" href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
-            {% endif %}
-          </div>
-        </div>
-      {% endif %}
-    {% endwith %}
   </section>
   <script>
     (function () {

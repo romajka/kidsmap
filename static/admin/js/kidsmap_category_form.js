@@ -4,6 +4,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
   const iconInput = document.getElementById("id_icon");
+  const iconUploadInput = document.getElementById("id_icon_upload");
   const preview = document.querySelector("[data-km-category-icon-preview]");
   const glyph = document.querySelector("[data-km-category-icon-glyph]");
   const text = document.querySelector("[data-km-category-icon-text]");
@@ -18,6 +19,42 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function render() {
+    const uploadedFile = iconUploadInput && iconUploadInput.files && iconUploadInput.files[0];
+    if (uploadedFile) {
+      preview.classList.remove("is-empty");
+
+      const extension = (uploadedFile.name.split(".").pop() || "").toLowerCase();
+      if (["svg", "png", "jpg", "jpeg", "webp"].includes(extension)) {
+        const url = URL.createObjectURL(uploadedFile);
+        if (extension === "svg") {
+          const div = document.createElement("div");
+          div.className = "category-mask-icon";
+          div.style.width = "24px";
+          div.style.height = "24px";
+          div.style.backgroundColor = "currentColor";
+          div.style.maskImage = `url('${url}')`;
+          div.style.webkitMaskImage = `url('${url}')`;
+          div.style.maskSize = "contain";
+          div.style.webkitMaskSize = "contain";
+          div.style.maskRepeat = "no-repeat";
+          div.style.webkitMaskRepeat = "no-repeat";
+          div.style.maskPosition = "center";
+          div.style.webkitMaskPosition = "center";
+          setGlyph(div, true);
+        } else {
+          const image = document.createElement("img");
+          image.src = url;
+          image.alt = "";
+          image.width = 24;
+          image.height = 24;
+          image.style.objectFit = "contain";
+          setGlyph(image, true);
+        }
+      }
+      text.textContent = uploadedFile.name;
+      return;
+    }
+
     const raw = iconInput.value.trim();
 
     if (!raw) {
@@ -67,5 +104,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   iconInput.addEventListener("input", render);
   iconInput.addEventListener("change", render);
+  if (iconUploadInput) {
+    iconUploadInput.addEventListener("change", render);
+  }
   render();
 });

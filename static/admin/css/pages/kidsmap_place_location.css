@@ -1,0 +1,346 @@
+.km-place-location {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid rgba(207, 223, 214, 0.96);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(13, 138, 82, 0.08), transparent 32%),
+    linear-gradient(180deg, #ffffff, #f8fcfa);
+  box-shadow: 0 14px 32px rgba(17, 40, 29, 0.06);
+}
+
+.km-place-location__hero {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.km-place-location__hero-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(13, 138, 82, 0.12), rgba(13, 138, 82, 0.05));
+  color: #0d8a52;
+}
+
+.km-place-location__hero-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.km-place-location__hero-copy {
+  min-width: 0;
+}
+
+.km-place-location__title {
+  margin: 0 0 4px;
+  color: #193126;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.km-place-location__subtitle {
+  margin: 0;
+  color: #658071;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.km-place-location__field input,
+.km-place-location__field textarea,
+.km-place-location__field select {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.km-place-location__coord-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.km-place-location__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.km-place-location__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 15px;
+  border: 1px solid rgba(184, 214, 195, 0.96);
+  border-radius: 12px;
+  background: #fff;
+  color: #244536;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 8px 16px rgba(26, 56, 40, 0.04);
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+}
+
+.km-place-location__action:hover,
+.km-place-location__action:focus-visible {
+  border-color: rgba(13, 138, 82, 0.34);
+  box-shadow: 0 10px 18px rgba(13, 138, 82, 0.08);
+  outline: none;
+}
+
+.km-place-location__action svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.km-place-location__action--primary {
+  border-color: rgba(13, 138, 82, 0.28);
+  background: linear-gradient(180deg, #0e9360, #0b7d4b);
+  color: #fff;
+}
+
+.km-place-location__action--primary:hover,
+.km-place-location__action--primary:focus-visible {
+  background: linear-gradient(180deg, #109a64, #0c8350);
+  color: #fff;
+}
+
+.km-place-location__action--secondary {
+  background: linear-gradient(180deg, #fefefe, #f3faf6);
+}
+
+.km-place-location__action--ghost {
+  background: #fff;
+  color: #50695b;
+}
+
+.km-place-location__fallback {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #6f8579;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.km-place-location__fallback:hover,
+.km-place-location__fallback:focus-visible {
+  color: #0d8a52;
+  outline: none;
+}
+
+.km-place-location__status-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.km-place-location__status-card {
+  min-height: 68px;
+  border-radius: 16px;
+  background: rgba(244, 249, 246, 0.9);
+  border: 1px solid rgba(211, 226, 218, 0.96);
+}
+
+.km-place-location__status-card--wide {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+}
+
+.km-place-location__status-copy {
+  color: #476354;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.km-place-location__map-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(206, 223, 214, 0.96);
+  border-radius: 18px;
+  background: rgba(252, 254, 253, 0.96);
+}
+
+.km-place-location__map-panel[hidden] {
+  display: none;
+}
+
+.km-place-location__map-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.km-place-location__map-hint {
+  display: grid;
+  gap: 4px;
+  max-width: 560px;
+  color: #5b7265;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.km-place-location__map-hint strong {
+  color: #405c4d;
+  font-size: 13px;
+}
+
+.km-place-location__map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.km-place-location__map {
+  min-height: 340px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(214, 227, 220, 0.96);
+  background: linear-gradient(180deg, #edf4ef, #f8fbf9);
+}
+
+.km-place-location .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.km-place-location .leaflet-control-zoom a {
+  color: #244536;
+}
+
+.km-place-location__found {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(203, 223, 213, 0.96);
+  background: linear-gradient(180deg, rgba(13, 138, 82, 0.06), rgba(13, 138, 82, 0.02));
+}
+
+.km-place-location__found[hidden] {
+  display: none;
+}
+
+.km-place-location__found-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.km-place-location__found-label {
+  color: #5e7769;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.km-place-location__found-copy strong {
+  color: #1d3529;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.km-place-location .km-location-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.km-place-location .km-location-status-item {
+  padding: 14px 16px;
+}
+
+.km-place-location .km-location-field label {
+  min-height: auto;
+  color: #365243;
+}
+
+.km-place-location .km-location-field--address textarea,
+.km-place-location .km-location-field--additional-info textarea {
+  min-height: 108px;
+}
+
+.km-place-location .km-location-badge {
+  margin-left: auto;
+}
+
+@media (max-width: 1180px) {
+  .km-place-location__status-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .km-place-location__status-card--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .km-place-location .km-location-grid--three,
+  .km-place-location__coord-grid,
+  .km-place-location__status-row {
+    grid-template-columns: 1fr;
+  }
+
+  .km-place-location__map {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .km-place-location {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .km-place-location__hero {
+    grid-template-columns: 1fr;
+  }
+
+  .km-place-location__hero-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .km-place-location__actions,
+  .km-place-location__map-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .km-place-location__action {
+    width: 100%;
+  }
+
+  .km-place-location__fallback {
+    text-align: left;
+  }
+}

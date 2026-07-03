@@ -136,7 +136,16 @@
                     {{ adminform.form.name_en.errors }}
                   </div>
 
-                  <div class="km-category-field km-category-field--icon{% if adminform.form.icon.errors %} km-category-field--error{% endif %}">
+                  <div class="km-category-field km-category-field--icon{% if adminform.form.icon.errors or adminform.form.icon_upload.errors %} km-category-field--error{% endif %}">
+                    {{ adminform.form.icon_upload.label_tag }}
+                    <div class="km-category-icon-control__input">
+                      {{ adminform.form.icon_upload }}
+                    </div>
+                    {% if adminform.form.icon_upload.help_text %}
+                      <div class="km-category-field__help">{{ adminform.form.icon_upload.help_text|safe }}</div>
+                    {% endif %}
+                    {{ adminform.form.icon_upload.errors }}
+
                     {{ adminform.form.icon.label_tag }}
                     <div class="km-category-icon-control" data-km-category-icon-field>
                       <div class="km-category-icon-control__input">

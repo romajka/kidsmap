@@ -170,7 +170,7 @@ JAZZMIN_SETTINGS = {
     "default_icon_children": "fas fa-circle",
     "related_modal_active": True,
     "custom_css": "admin/css/kidsmap_admin.css",
-    "custom_js": None,
+    "custom_js": "admin/js/kidsmap_admin_sidebar.js",
     "show_ui_builder": False,
     "language_chooser": False,
 }

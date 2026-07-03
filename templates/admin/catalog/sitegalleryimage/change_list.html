@@ -47,7 +47,7 @@
 
         <div class="km-media-list">
           {% for img in main_images %}
-          <div class="km-media-row" data-field="{{ img.field_name }}" data-upload-url="{% url 'admin:catalog_sitegalleryimage_ajax_upload' %}">
+          <div class="km-media-row" data-field="{{ img.field_name }}" data-upload-url="{% url 'admin:catalog_sitegalleryimage_ajax_upload' %}" data-delete-url="{% url 'admin:catalog_sitegalleryimage_ajax_delete_main_image' %}">
             
             <div class="km-media-preview {% if img.title == 'Логотип сайта' or img.title == 'Картинка пустого результата' %}{% else %}cover{% endif %}">
               {% if img.file and img.file.url %}
@@ -85,6 +85,11 @@
               <button type="button" class="km-btn-outline km-media-upload-btn">
                 <i class="fas fa-upload"></i> Заменить файл
               </button>
+              {% if img.file and not img.file.is_fallback %}
+              <button type="button" class="km-btn-link km-btn-link-danger km-media-delete-btn">
+                <i class="far fa-trash-alt"></i> Удалить
+              </button>
+              {% endif %}
               <a href="{{ img.edit_url }}" class="km-btn-link" style="margin-left:8px;">
                 <i class="fas fa-cog"></i> В настройки
               </a>

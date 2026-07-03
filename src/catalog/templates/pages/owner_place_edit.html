@@ -15,6 +15,7 @@
       crossorigin=""
     />
   {% endif %}
+  <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=21">
 {% endblock %}
 
 {% block content %}
@@ -37,8 +38,8 @@
       data-loading-form
       data-owner-wizard
       data-owner-mode="permanent"
-      data-owner-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
-      data-owner-permanent-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,phone1,photo"
+      data-owner-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,region,phone1,photo"
+      data-owner-permanent-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to,address,region,phone1,photo"
       data-owner-temporary-required-fields=""
       data-owner-required-groups="district|metro"
       data-owner-permanent-required-groups="district|metro"
@@ -91,7 +92,8 @@
 {% endblock %}
 
 {% block extra_body %}
-  <script src="{% static 'js/owner_place_wizard.js' %}"></script>
+  <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=21"></script>
+  <script src="{% static 'js/owner_place_wizard.js' %}?v=2"></script>
   <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}"></script>
   <script src="{% static 'js/owner_place_map_picker.js' %}"></script>
   {% if google_maps_api_key %}

@@ -1,0 +1,323 @@
+.km-admin-sidebar {
+  position: fixed !important;
+  top: 0;
+  bottom: 0;
+  height: 100vh;
+  background: linear-gradient(180deg, #101923 0%, #0f1720 100%);
+  border-right: 1px solid rgba(148, 163, 184, 0.18);
+  overflow: hidden;
+}
+
+.km-admin-sidebar .brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 62px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+  color: #f8fafc !important;
+}
+
+.km-admin-sidebar .brand-link .brand-image {
+  margin: 0 !important;
+  max-height: 30px;
+  width: 30px;
+  object-fit: contain;
+}
+
+.km-admin-sidebar .brand-link .brand-text {
+  font-size: 24px;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+
+.km-admin-sidebar .sidebar {
+  height: calc(100vh - 62px);
+  padding: 0;
+  overflow: hidden;
+}
+
+.km-admin-sidebar .km-admin-sidebar__shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.km-admin-sidebar .km-admin-sidebar__user-card {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 18px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.km-admin-sidebar .km-admin-sidebar__avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  font-size: 28px;
+  overflow: hidden;
+}
+
+.km-admin-sidebar .km-admin-sidebar__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.km-admin-sidebar .km-admin-sidebar__user-copy {
+  min-width: 0;
+}
+
+.km-admin-sidebar .km-admin-sidebar__user-name {
+  display: block;
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.km-admin-sidebar .km-admin-sidebar__user-name:hover,
+.km-admin-sidebar .km-admin-sidebar__user-name:focus-visible {
+  color: #ffffff;
+}
+
+.km-admin-sidebar .km-admin-sidebar__user-role {
+  display: block;
+  margin-top: 3px;
+  color: #9fb0bf;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.km-admin-sidebar .km-admin-sidebar__scroller {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 10px 16px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__nav,
+.km-admin-sidebar .km-admin-sidebar__sections {
+  display: grid;
+  gap: 8px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__list,
+.km-admin-sidebar .km-admin-sidebar__sublist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.km-admin-sidebar .km-admin-sidebar__group {
+  padding-top: 8px;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.km-admin-sidebar .km-admin-sidebar__group:first-child {
+  padding-top: 10px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 8px 8px 10px;
+  border: 0;
+  background: transparent;
+  color: #d5dee7;
+  text-align: left;
+  cursor: pointer;
+}
+
+.km-admin-sidebar .km-admin-sidebar__group-toggle:hover,
+.km-admin-sidebar .km-admin-sidebar__group-toggle:focus-visible {
+  color: #ffffff;
+}
+
+.km-admin-sidebar .km-admin-sidebar__group-title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.km-admin-sidebar .km-admin-sidebar__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  color: #7f93a6;
+  font-size: 13px;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.km-admin-sidebar .km-admin-sidebar__group[data-open='true'] .km-admin-sidebar__chevron,
+.km-admin-sidebar .km-admin-sidebar__group.is-active .km-admin-sidebar__chevron {
+  transform: rotate(180deg);
+  color: #c3d2de;
+}
+
+.km-admin-sidebar .km-admin-sidebar__panel {
+  padding-top: 4px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__entry {
+  margin: 0;
+}
+
+.km-admin-sidebar .km-admin-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 11px;
+  color: #a9bac9;
+  text-decoration: none;
+  transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.km-admin-sidebar .km-admin-sidebar__link:hover,
+.km-admin-sidebar .km-admin-sidebar__link:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.km-admin-sidebar .km-admin-sidebar__link.is-active {
+  background: linear-gradient(180deg, rgba(0, 154, 78, 0.26) 0%, rgba(0, 154, 78, 0.2) 100%);
+  color: #6df0ae;
+  box-shadow: inset 0 0 0 1px rgba(17, 213, 110, 0.18);
+}
+
+.km-admin-sidebar .km-admin-sidebar__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 18px;
+  width: 18px;
+  color: currentColor;
+  font-size: 14px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__text {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+}
+
+.km-admin-sidebar .km-admin-sidebar__label {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.km-admin-sidebar .km-admin-sidebar__group-toggle .km-admin-sidebar__label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.km-admin-sidebar .km-admin-sidebar__sublist {
+  display: grid;
+  gap: 3px;
+  padding-left: 28px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(17, 213, 110, 0.16);
+  color: #6df0ae;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.km-admin-sidebar .km-admin-sidebar__group .km-admin-sidebar__link.is-active .km-admin-sidebar__badge {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.km-admin-sidebar .km-admin-sidebar__scroller::-webkit-scrollbar {
+  width: 8px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__scroller::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.35);
+  background-clip: padding-box;
+}
+
+.km-admin-sidebar .km-admin-sidebar__scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .brand-link {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .brand-link .brand-text,
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__user-copy,
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__text,
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__chevron,
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__badge,
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__panel {
+  display: none !important;
+}
+
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__user-card {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  padding-inline: 0;
+}
+
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__group {
+  padding-top: 4px;
+  border-top-color: transparent;
+}
+
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__group-toggle,
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__link {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+body.sidebar-mini.sidebar-collapse .km-admin-sidebar .km-admin-sidebar__icon-wrap {
+  flex-basis: 20px;
+  width: 20px;
+}
+
+@media (max-width: 991.98px) {
+  .km-admin-sidebar {
+    position: fixed !important;
+  }
+
+  .km-admin-sidebar .sidebar {
+    height: calc(100vh - 57px);
+  }
+
+  .km-admin-sidebar .km-admin-sidebar__scroller {
+    padding-bottom: 24px;
+  }
+}

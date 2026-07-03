@@ -126,6 +126,16 @@ class Command(BaseCommand):
                 "is_active": True,
                 "order": 11,
             },
+            {
+                "code": "PARK",
+                "name": "Парки",
+                "name_az": "Parklar",
+                "name_ru": "Парки",
+                "name_en": "Parks",
+                "icon": "icons/categories/parks.svg",
+                "is_active": True,
+                "order": 12,
+            },
         ]
 
         subcategories_data = [
@@ -274,6 +284,11 @@ class Command(BaseCommand):
             {"cat": "CAMP", "code": "weekend-program", "az": "Həftəsonu proqramı", "ru": "Программа выходного дня", "en": "Weekend program", "order": 9},
             {"cat": "CAMP", "code": "summer-school", "az": "Yay məktəbi", "ru": "Летняя школа", "en": "Summer school", "order": 10},
             {"cat": "CAMP", "code": "international-camp", "az": "Xaricdə və beynəlxalq düşərgə", "ru": "Выездной и международный лагерь", "en": "International camp", "order": 11},
+
+            # Парки
+            {"cat": "PARK", "code": "amusement-parks", "az": "Attraksionlar", "ru": "Аттракционы", "en": "Amusement parks", "order": 1},
+            {"cat": "PARK", "code": "public-parks", "az": "Milli parklar", "ru": "Городские парки", "en": "Public parks", "order": 2},
+            {"cat": "PARK", "code": "rope-parks", "az": "Kanat parkları", "ru": "Веревочные парки", "en": "Rope parks", "order": 3},
         ]
 
         with transaction.atomic():

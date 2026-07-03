@@ -17,7 +17,7 @@ from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepositor
 from catalog.models import Event, FunnelEvent, Place, Category
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
-from catalog.services.options import sort_choice_tuples, sort_translated_values
+from catalog.services.public_filter_options import build_public_place_filter_options
 from catalog.services.content_quality import public_review_queryset, published_place_queryset
 from catalog.services.reactions import (
     liked_place_ids,
@@ -56,7 +56,6 @@ class PlaceController:
     ) -> dict:
         liked_ids = liked_place_ids(request)
         language_code = request.LANGUAGE_CODE
-        content_settings = self.settings_repository.get_catalog_settings()
         filters = PlaceListFilters.from_request(request, force_new_only=force_new_only)
 
         qs = filters.apply(self.place_repository.filtered_active_queryset(created_after=created_after))
@@ -78,7 +77,7 @@ class PlaceController:
                 language_code=language_code,
             )
 
-        paginator = Paginator(qs, 10)
+        paginator = Paginator(qs, 12)
         page_obj = paginator.get_page(request.GET.get("page"))
         if showing_events:
             events = page_obj.object_list
@@ -118,6 +117,15 @@ class PlaceController:
                         total_results,
                     ) % {"total": total_results}
 
+        public_filter_options = build_public_place_filter_options(
+            language_code=language_code,
+            selected_category=selected.get("category", ""),
+            selected_district=selected.get("district", ""),
+            selected_metro=selected.get("metro", ""),
+        )
+        district_options = public_filter_options.districts
+        metro_options = public_filter_options.metro
+
         context = {
             "places": [] if showing_events else page_obj.object_list,
             "events": events,
@@ -135,9 +143,10 @@ class PlaceController:
             "catalog_breadcrumb_schema_json": seo_payload["catalog_breadcrumb_schema_json"],
             "catalog_item_list_schema_json": seo_payload["catalog_item_list_schema_json"],
             "selected": selected,
-            "categories": sort_choice_tuples([(c.code, c.name_i18n(language_code)) for c in Category.objects.filter(is_active=True)]),
-            "district_options": sort_translated_values(content_settings.districts()),
-            "metro_options": sort_translated_values(content_settings.metro_stations()),
+            "categories": public_filter_options.categories,
+            "subcategory_options": public_filter_options.subcategories,
+            "district_options": district_options,
+            "metro_options": metro_options,
             "is_new_page": force_new_only,
             "reset_filters_url": self._base_list_url(force_new_only=force_new_only),
             "catalog_places_nearby_url": self._build_event_type_url(
@@ -156,11 +165,11 @@ class PlaceController:
                 language_code=language_code,
             ),
             "popular_districts": self._build_popular_options(
-                available=content_settings.districts(),
+                available=district_options,
                 preferred=("Ясамал", "Нариманов", "Насими", "Сабаиль"),
             ),
             "popular_metro": self._build_popular_options(
-                available=content_settings.metro_stations(),
+                available=metro_options,
                 preferred=("28 Май", "Гянджлик", "Эльмляр Академиясы", "Нариман Нариманов", "Иншаатчылар"),
             ),
             "catalog_map_places": map_places,
@@ -172,6 +181,8 @@ class PlaceController:
                 force_new_only=force_new_only,
             ),
         }
+        visible_items_count = len(events) if showing_events else len(context["places"])
+        context["catalog_grid_placeholders"] = (3 - (visible_items_count % 3)) % 3
 
         self.tracking_service.track_catalog_funnel_events(
             request=request,
@@ -204,7 +215,8 @@ class PlaceController:
         # --- read filter params ---
         q = (request.GET.get("q") or "").strip()
         category = (request.GET.get("category") or "").strip()
-        district = (request.GET.get("district") or "").strip()
+        from catalog.services.locations import normalize_to_key
+        district = normalize_to_key((request.GET.get("district") or "").strip())
         date_filter = (request.GET.get("date_filter") or "").strip()
         age_from = (request.GET.get("age_from") or "").strip()
         age_to = (request.GET.get("age_to") or "").strip()
@@ -250,6 +262,11 @@ class PlaceController:
         if sort and sort != "date":
             query_params["sort"] = sort
         query_without_page = urlencode(query_params)
+        public_filter_options = build_public_place_filter_options(
+            language_code=language_code,
+            selected_category=selected.get("category", ""),
+            selected_district=selected.get("district", ""),
+        )
 
         # --- i18n strings ---
         if language_code == "az":
@@ -299,8 +316,8 @@ class PlaceController:
                 "total": active_total,
             },
             "selected": selected,
-            "categories": sort_choice_tuples([(c.code, c.name_i18n(language_code)) for c in Category.objects.filter(is_active=True)]),
-            "district_options": sort_translated_values(self.settings_repository.get_catalog_settings().districts()),
+            "categories": public_filter_options.categories,
+            "district_options": public_filter_options.districts,
             "has_active_filters": any(v for k, v in selected.items() if k != "sort" and v),
         }
 
@@ -340,7 +357,10 @@ class PlaceController:
             qs = qs.filter(category=category)
 
         if district:
-            qs = qs.filter(related_place__district=district)
+            if district.lower() == "baku":
+                qs = qs.filter(Q(related_place__district__iexact="baku") | Q(related_place__district__startswith="baku_"))
+            else:
+                qs = qs.filter(related_place__district=district)
 
         if date_filter == "today":
             qs = qs.filter(start_datetime__date=now.date())
@@ -584,9 +604,13 @@ class PlaceController:
         base_url = self._base_list_url(force_new_only=force_new_only)
         return f"{base_url}?{query}" if query else base_url
 
-    def _build_popular_options(self, *, available, preferred: tuple[str, ...]) -> list[str]:
-        available_values = {str(item).strip() for item in available if str(item).strip()}
-        return [item for item in preferred if item in available_values]
+    def _build_popular_options(self, *, available, preferred: tuple[str, ...]) -> list[dict[str, str]]:
+        available_by_value = {
+            str(item.get("value") or "").strip(): item
+            for item in available or []
+            if str(item.get("value") or "").strip()
+        }
+        return [available_by_value[item] for item in preferred if item in available_by_value]
 
     def _build_list_analytics_events(self, *, selected: dict, results_total: int, force_new_only: bool) -> list[dict]:
         page_type = "catalog_new" if force_new_only else "catalog"
@@ -637,10 +661,11 @@ class PlaceController:
 
     def _serialize_map_places(self, qs, *, language_code: str) -> list[dict]:
         serialized = []
+        from catalog.services.locations import get_location_translation
         for place in qs:
             location_parts = []
             if place.district:
-                location_parts.append(str(_(place.district)))
+                location_parts.append(get_location_translation(place.district, language_code))
             if place.metro:
                 location_parts.append(str(_(place.metro)))
 
@@ -648,7 +673,7 @@ class PlaceController:
             if place.address:
                 address_parts.append(place.address)
             if place.district:
-                address_parts.append(str(_(place.district)))
+                address_parts.append(get_location_translation(place.district, language_code))
             elif place.metro:
                 address_parts.append(str(_(place.metro)))
 
@@ -664,7 +689,7 @@ class PlaceController:
                     "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
                     "location": " / ".join(location_parts),
                     "address": ", ".join(part for part in address_parts if part),
-                    "district": str(_(place.district)) if place.district else "",
+                    "district": get_location_translation(place.district, language_code) if place.district else "",
                     "metro": str(_(place.metro)) if place.metro else "",
                     "rating": float(place.rating_avg) if place.rating_avg is not None else None,
                     "reviews_count": int(place.rating_count or 0),

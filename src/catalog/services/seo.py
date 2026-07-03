@@ -280,7 +280,8 @@ def _place_description(place, language_code: str) -> str:
 
     bits = [place.name_i18n(language_code), str(place.get_category_display())]
     if place.district:
-        bits.append(_("регион %(district)s") % {"district": str(_(place.district))})
+        from catalog.services.locations import get_location_translation
+        bits.append(_("регион %(district)s") % {"district": get_location_translation(place.district, language_code)})
     if place.metro:
         bits.append(_("метро %(metro)s") % {"metro": str(_(place.metro))})
     if place.age_display:
@@ -296,10 +297,11 @@ def build_place_seo_payload(place, request, language_code):
     description = _place_description(place, language_code)
 
     if place.district:
+        from catalog.services.locations import get_location_translation
         title = _("%(name)s — %(category)s для детей в регионе %(district)s | KidsMap") % {
             "name": place.name_i18n(language_code),
             "category": place.get_category_display(),
-            "district": str(_(place.district)),
+            "district": get_location_translation(place.district, language_code),
         }
     else:
         title = _("%(name)s — кружок и секция для детей в Азербайджане | KidsMap") % {
@@ -317,7 +319,7 @@ def build_place_seo_payload(place, request, language_code):
         "address": {
             "@type": "PostalAddress",
             "streetAddress": place.address or "",
-            "addressLocality": place.district or "Azerbaijan",
+            "addressLocality": get_location_translation(place.district, language_code) if place.district else "Azerbaijan",
             "addressCountry": "AZ",
         },
         "areaServed": {"@type": "Country", "name": "Azerbaijan"},

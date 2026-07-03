@@ -39,8 +39,36 @@
     return String(value || "").trim();
   }
 
+  function normalizeLocaleSearch(value) {
+    const translitMap = {
+      "ə": "e",
+      "Ə": "e",
+      "ı": "i",
+      "I": "i",
+      "İ": "i",
+      "ö": "o",
+      "Ö": "o",
+      "ü": "u",
+      "Ü": "u",
+      "ş": "s",
+      "Ş": "s",
+      "ç": "c",
+      "Ç": "c",
+      "ğ": "g",
+      "Ğ": "g"
+    };
+
+    return normalizeValue(value)
+      .replace(/[ƏəIİıÖöÜüŞşÇçĞğ]/g, function (char) {
+        return translitMap[char] || char;
+      })
+      .toLocaleLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
   function normalizeSearch(value) {
-    return normalizeValue(value).toLocaleLowerCase();
+    return normalizeLocaleSearch(value);
   }
 
   function getDistrictOptions(form) {
@@ -49,29 +77,44 @@
 
     return Array.from(districtOptionsEl.querySelectorAll("option"))
       .map(function (option) {
-        return normalizeValue(option.value);
+        const displayLabel = normalizeValue(option.value);
+
+        return {
+          label: displayLabel,
+          value: normalizeValue(option.dataset.value || option.value),
+          searchTerms: normalizeSearch([
+            option.value,
+            option.dataset.value,
+            option.dataset.labelCurrent,
+            option.dataset.labelAz,
+            option.dataset.labelRu,
+            option.dataset.labelEn
+          ].join(" "))
+        };
       })
-      .filter(Boolean);
+      .filter(function (option) {
+        return option.value && option.label;
+      });
   }
 
   function resolveDistrictValue(value, options) {
     const current = normalizeValue(value);
-    if (!current) return "";
+    if (!current) return null;
 
     const normalizedCurrent = normalizeSearch(current);
     const exactMatch = options.find(function (option) {
-      return normalizeSearch(option) === normalizedCurrent;
+      return normalizeSearch(option.label) === normalizedCurrent || option.searchTerms.includes(normalizedCurrent);
     });
     if (exactMatch) return exactMatch;
 
     const prefixMatches = options.filter(function (option) {
-      return normalizeSearch(option).startsWith(normalizedCurrent);
+      return normalizeSearch(option.label).startsWith(normalizedCurrent) || option.searchTerms.includes(normalizedCurrent);
     });
     if (prefixMatches.length === 1) {
       return prefixMatches[0];
     }
 
-    return "";
+    return null;
   }
 
   function getAgeInput(form) {
@@ -335,6 +378,7 @@
     let searchTimer = null;
     const queryInput = form.querySelector('[name="q"]');
     const districtInput = form.querySelector('[name="district"]');
+    const districtVisibleInput = form.querySelector("[data-home-district-input]");
     const districtOptions = getDistrictOptions(form);
     const categorySelect = form.querySelector('select[name="category"]');
     const ageInput = getAgeInput(form);
@@ -352,21 +396,32 @@
     }
 
     if (districtInput) {
-      districtInput.addEventListener("input", function () {
-        const resolvedValue = resolveDistrictValue(districtInput.value, districtOptions);
-        if (!normalizeValue(districtInput.value) || resolvedValue) {
+      if (districtVisibleInput) {
+        districtVisibleInput.addEventListener("input", function () {
+          const resolvedOption = resolveDistrictValue(districtVisibleInput.value, districtOptions);
+          districtInput.value = resolvedOption ? resolvedOption.value : "";
+          if (!normalizeValue(districtVisibleInput.value) || resolvedOption) {
+            scheduleUpdate();
+          }
+        });
+
+        districtVisibleInput.addEventListener("change", function () {
+          const resolvedOption = resolveDistrictValue(districtVisibleInput.value, districtOptions);
+          districtInput.value = resolvedOption ? resolvedOption.value : "";
+          districtVisibleInput.value = resolvedOption ? resolvedOption.label : "";
           scheduleUpdate();
-        }
-      });
+        });
 
-      districtInput.addEventListener("change", function () {
-        districtInput.value = resolveDistrictValue(districtInput.value, districtOptions);
-        scheduleUpdate();
-      });
-
-      form.addEventListener("submit", function () {
-        districtInput.value = resolveDistrictValue(districtInput.value, districtOptions);
-      });
+        form.addEventListener("submit", function () {
+          const resolvedOption = resolveDistrictValue(districtVisibleInput.value, districtOptions);
+          districtInput.value = resolvedOption ? resolvedOption.value : "";
+          districtVisibleInput.value = resolvedOption ? resolvedOption.label : "";
+        });
+      } else {
+        districtInput.addEventListener("change", function () {
+          scheduleUpdate();
+        });
+      }
     }
 
     if (categorySelect) {

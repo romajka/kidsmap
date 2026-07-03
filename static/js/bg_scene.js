@@ -1,4 +1,8 @@
 (() => {
+  if (document.body && document.body.classList.contains("page-home")) {
+    return;
+  }
+
   const root = document.querySelector("[data-bg-floaters]");
   if (!root) return;
 

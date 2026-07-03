@@ -1,6 +1,8 @@
 from django.db import models
+from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
+import os
 
 
 class Category(models.Model):
@@ -22,11 +24,40 @@ class Category(models.Model):
         if not lang:
             lang = get_language() or "ru"
         lang = lang.split("-")[0]
+        from django.utils.translation import gettext as _
         if lang == "az":
-            return self.name_az or self.name
-        if lang == "en":
-            return self.name_en or self.name
-        return self.name_ru or self.name
+            val = self.name_az or self.name
+        elif lang == "en":
+            val = self.name_en or self.name
+        else:
+            val = self.name_ru or self.name
+        return _(val)
+
+    @property
+    def icon_name(self):
+        return (self.icon or "").strip()
+
+    @property
+    def icon_file_url(self):
+        icon_name = self.icon_name
+        if not icon_name:
+            return ""
+
+        ext = os.path.splitext(icon_name)[1].lower()
+        if ext not in {".svg", ".png", ".jpg", ".jpeg", ".webp"}:
+            return ""
+
+        if icon_name.startswith(("http://", "https://", "/")):
+            return icon_name
+        return static(icon_name)
+
+    @property
+    def icon_is_svg(self):
+        return self.icon_file_url.lower().endswith(".svg")
+
+    @property
+    def icon_is_font_class(self):
+        return bool(self.icon_name and not self.icon_file_url)
 
     def __str__(self):
         return self.name_i18n()
@@ -51,11 +82,14 @@ class Subcategory(models.Model):
         if not lang:
             lang = get_language() or "ru"
         lang = lang.split("-")[0]
+        from django.utils.translation import gettext as _
         if lang == "az":
-            return self.name_az or self.name
-        if lang == "en":
-            return self.name_en or self.name
-        return self.name_ru or self.name
+            val = self.name_az or self.name
+        elif lang == "en":
+            val = self.name_en or self.name
+        else:
+            val = self.name_ru or self.name
+        return _(val)
 
     def __str__(self):
         return f"{self.category} -> {self.name_i18n()}"

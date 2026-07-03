@@ -19,6 +19,7 @@ from catalog.repositories.django_repositories import (
     DjangoUserProfileRepository,
 )
 from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
+from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
 from catalog.services.owner_place_use_cases import (
     OwnerAccessResult,
     build_owner_places_stats,
@@ -86,6 +87,12 @@ class OwnerPlacesController:
     @staticmethod
     def _format_coordinate_value(value: float) -> str:
         return f"{value:.6f}"
+
+    @staticmethod
+    def _schedule_audit_value(place: Place) -> str:
+        if getattr(place, "has_structured_schedule", False):
+            return build_schedule_summary(serialize_place_schedule(place))
+        return (place.schedule or "").strip()
 
     def _build_create_geocoding_message(self, *, geocoding_result) -> str:
         point = geocoding_result.point
@@ -340,6 +347,7 @@ class OwnerPlacesController:
             place.rejection_reason = ""
         place.published_at = None
         place.save()
+        result.form.save_schedule(place)
 
         coordinate_changes: dict[str, tuple[object, object]] = {}
         geocoding_result: PlaceGeocodingResult | None = None
@@ -425,8 +433,10 @@ class OwnerPlacesController:
         if not result.ok or result.form is None:
             return result
 
-        tracked_fields = list(result.form.fields.keys())
+        model_field_names = {field.name for field in Place._meta.fields}
+        tracked_fields = [field_name for field_name in result.form.fields.keys() if field_name in model_field_names]
         old_snapshot = {field: getattr(result.place, field) for field in tracked_fields}
+        old_schedule_value = self._schedule_audit_value(result.place)
 
         if not result.form.is_valid():
             return OwnerPlaceActionResult(
@@ -438,6 +448,8 @@ class OwnerPlacesController:
             )
 
         place = result.form.save()
+        result.form.save_schedule(place)
+        new_schedule_value = self._schedule_audit_value(place)
         location_changed = place_location_fields_changed(previous_values=old_snapshot, place=place)
         manual_coordinates_changed = self._coordinates_changed(previous_values=old_snapshot, place=place)
         should_refresh_coordinates = not draft_save_only and (
@@ -458,6 +470,7 @@ class OwnerPlacesController:
         changes: dict[str, tuple[object, object]] = {}
         for field in tracked_fields:
             changes[field] = (old_snapshot.get(field), getattr(place, field))
+        changes["schedule"] = (old_schedule_value, new_schedule_value)
         self.place_audit_repository.create_entries(
             place=place,
             changed_by=request.user,
