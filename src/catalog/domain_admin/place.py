@@ -25,6 +25,9 @@ from .review import PlaceReviewInline
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
 
 
+ADMIN_DATETIME_LOCAL_FORMAT = "%Y-%m-%dT%H:%M"
+
+
 class PlacePhotoInline(admin.TabularInline):
     model = PlacePhoto
     template = "admin/catalog/place/placephoto_inline.html"
@@ -47,6 +50,8 @@ class PlaceChangeAuditInline(admin.TabularInline):
 
 
 class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+    DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
+
     region = forms.ChoiceField(
         label=_("Город / регион"),
         required=False,
@@ -63,6 +68,16 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     class Meta:
         model = Place
         fields = "__all__"
+        widgets = {
+            "temporary_start": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "step": "900"},
+                format=ADMIN_DATETIME_LOCAL_FORMAT,
+            ),
+            "temporary_end": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "step": "900"},
+                format=ADMIN_DATETIME_LOCAL_FORMAT,
+            ),
+        }
         labels = {
             "slug": _("URL-слаг"),
             "name_ru": _("Название (Русский)"),
@@ -111,6 +126,18 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             self.fields["subcategory"].widget = SubcategorySelect(attrs=self.fields["subcategory"].widget.attrs)
         self.fields["photo"].help_text = _("Используется в каталоге, на карте и первым на странице места.")
         self.fields["cover_photo"].help_text = _("Резервное изображение. Используется только если главное фото отсутствует.")
+        for field_name in ("temporary_start", "temporary_end"):
+            if field_name in self.fields:
+                self.fields[field_name].input_formats = [
+                    self.DATETIME_LOCAL_FORMAT,
+                    "%Y-%m-%d %H:%M",
+                    "%Y-%m-%dT%H:%M:%S",
+                    "%Y-%m-%d %H:%M:%S",
+                ]
+                value = getattr(self.instance, field_name, None)
+                if value:
+                    localized_value = timezone.localtime(value) if timezone.is_aware(value) else value
+                    self.initial[field_name] = localized_value.strftime(self.DATETIME_LOCAL_FORMAT)
         # Placeholders for location & contacts fields
         _placeholders = {
             "lat": _("Напр., 40.409264"),
@@ -130,9 +157,25 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
 
 class EventAdminForm(forms.ModelForm):
+    DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
+
     class Meta:
         model = Event
         fields = "__all__"
+        widgets = {
+            "start_datetime": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "step": "900"},
+                format=ADMIN_DATETIME_LOCAL_FORMAT,
+            ),
+            "end_datetime": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "step": "900"},
+                format=ADMIN_DATETIME_LOCAL_FORMAT,
+            ),
+            "published_at": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "step": "900"},
+                format=ADMIN_DATETIME_LOCAL_FORMAT,
+            ),
+        }
         labels = {
             "slug": _("URL-слаг"),
             "name_ru": _("Название (Русский)"),
@@ -146,6 +189,18 @@ class EventAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        for field_name in ("start_datetime", "end_datetime", "published_at"):
+            if field_name in self.fields:
+                self.fields[field_name].input_formats = [
+                    self.DATETIME_LOCAL_FORMAT,
+                    "%Y-%m-%d %H:%M",
+                    "%Y-%m-%dT%H:%M:%S",
+                    "%Y-%m-%d %H:%M:%S",
+                ]
+                value = getattr(self.instance, field_name, None)
+                if value:
+                    localized_value = timezone.localtime(value) if timezone.is_aware(value) else value
+                    self.initial[field_name] = localized_value.strftime(self.DATETIME_LOCAL_FORMAT)
         self.fields["photo"].help_text = _(
             "Основное изображение мероприятия для списка и детальной страницы."
         )
@@ -2833,6 +2888,8 @@ class CategoryAdminForm(forms.ModelForm):
             "name_ru": forms.TextInput(attrs={"placeholder": _("Например: Образование")}),
             "name_en": forms.TextInput(attrs={"placeholder": _("Например: Education")}),
             "icon": forms.TextInput(attrs={"autocomplete": "off", "placeholder": _("Например: icons/categories/sports.svg")}),
+            "color_bg": forms.TextInput(attrs={"type": "color"}),
+            "color_text": forms.TextInput(attrs={"type": "color"}),
         }
 
     def clean(self):
@@ -2885,6 +2942,7 @@ class CategoryAdmin(admin.ModelAdmin):
                 ("code", "name_az"),
                 ("name_ru", "name_en"),
                 "icon",
+                ("color_bg", "color_text"),
                 "name",
             )
         }),

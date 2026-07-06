@@ -46,7 +46,7 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=11" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     {% if organization_schema_json %}
       <script type="application/ld+json">{{ organization_schema_json|safe }}</script>

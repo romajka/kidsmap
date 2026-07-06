@@ -243,12 +243,56 @@
             {% endfor %}
           </div>
 
-          <select id="home-search-category" class="filter-select home-filter-select home-filter-category" name="category">
+          <select id="home-search-category" name="category" hidden>
             <option value="">{% if request.LANGUAGE_CODE == "az" %}Bütün kateqoriyalar{% elif request.LANGUAGE_CODE == "en" %}All categories{% else %}Все категории{% endif %}</option>
             {% for item in home_categories %}
               <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
             {% endfor %}
           </select>
+
+          <!-- Custom Category Dropdown -->
+          <div class="km-category-select" data-category-select>
+            <button type="button" class="km-category-trigger" id="category-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="category-dropdown-menu">
+              <span class="km-category-trigger-icon" data-category-trigger-icon>
+                <span class="km-category-option-icon all-categories-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                  </svg>
+                </span>
+              </span>
+              <span class="km-category-trigger-text" data-category-trigger-text>
+                {% if request.LANGUAGE_CODE == "az" %}Bütün kateqoriyalar{% elif request.LANGUAGE_CODE == "en" %}All categories{% else %}Все категории{% endif %}
+              </span>
+            </button>
+            <div class="km-category-dropdown" id="category-dropdown-menu" role="listbox" hidden>
+              <div class="km-category-option is-active" data-value="" role="option">
+                <span class="km-category-option-icon all-categories-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                  </svg>
+                </span>
+                <span class="km-category-option-text">
+                  {% if request.LANGUAGE_CODE == "az" %}Bütün kateqoriyalar{% elif request.LANGUAGE_CODE == "en" %}All categories{% else %}Все категории{% endif %}
+                </span>
+              </div>
+              {% for item in home_categories %}
+                <div class="km-category-option" data-value="{{ item.value }}" role="option" data-color-bg="{{ item.color_bg|default:'#F3F4F6' }}" data-color-text="{{ item.color_text|default:'#6B7280' }}">
+                  <span class="km-category-option-icon" style="background-color: {{ item.color_bg|default:'#F3F4F6' }}; color: {{ item.color_text|default:'#6B7280' }};">
+                    {% include "catalog/includes/category_icon.html" with code=item.value %}
+                  </span>
+                  <span class="km-category-option-text">
+                    {% firstof item.label_with_count item.label %}
+                  </span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
 
           <button
             class="btn icon-btn icon-search icon-only-btn home-search-btn"
@@ -557,7 +601,7 @@
           <article class="review-item site-review-teaser-card">
             <div class="review-head">
               <strong class="review-author">
-                {{ review.author_name|default:review.author_name_i18n }}
+                {{ review.author_name_i18n }}
               </strong>
               <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
               <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
@@ -1113,6 +1157,139 @@
       }
 
       initLocationTreeSelect();
+
+      function initCategorySelect() {
+        const container = document.querySelector('[data-category-select]');
+        if (!container) return;
+        const trigger = container.querySelector('.km-category-trigger');
+        const triggerIcon = container.querySelector('[data-category-trigger-icon]');
+        const triggerText = container.querySelector('[data-category-trigger-text]');
+        const dropdown = container.querySelector('.km-category-dropdown');
+        const targetSelect = document.querySelector('select[name="category"]');
+        if (!trigger || !dropdown || !targetSelect) return;
+
+        function toggleDropdown() {
+          const isHidden = dropdown.hidden;
+          if (isHidden) {
+            openDropdown();
+          } else {
+            closeDropdown();
+          }
+        }
+
+        function openDropdown() {
+          dropdown.hidden = false;
+          trigger.setAttribute('aria-expanded', 'true');
+          const activeOpt = dropdown.querySelector('.km-category-option.is-active') || dropdown.querySelector('.km-category-option');
+          if (activeOpt) {
+            activeOpt.setAttribute('tabindex', '0');
+            activeOpt.focus();
+          }
+        }
+
+        function closeDropdown() {
+          dropdown.hidden = true;
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus();
+        }
+
+        dropdown.querySelectorAll('.km-category-option').forEach(option => {
+          option.setAttribute('tabindex', '-1');
+          option.addEventListener('click', function(e) {
+            const value = option.dataset.value;
+            selectValue(value);
+          });
+        });
+
+        function selectValue(value) {
+          targetSelect.value = value;
+          targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          closeDropdown();
+        }
+
+        function updateTrigger() {
+          const selectedVal = targetSelect.value;
+          dropdown.querySelectorAll('.km-category-option').forEach(opt => {
+            if (opt.dataset.value === selectedVal) {
+              opt.classList.add('is-active');
+              opt.setAttribute('aria-selected', 'true');
+            } else {
+              opt.classList.remove('is-active');
+              opt.setAttribute('aria-selected', 'false');
+            }
+          });
+
+          const activeOpt = dropdown.querySelector(`.km-category-option[data-value="${selectedVal}"]`) || dropdown.querySelector('.km-category-option[data-value=""]');
+          if (activeOpt) {
+            triggerText.textContent = activeOpt.querySelector('.km-category-option-text').textContent.trim();
+            triggerIcon.innerHTML = activeOpt.querySelector('.km-category-option-icon').innerHTML;
+            if (selectedVal !== '') {
+              container.classList.add('is-active');
+            } else {
+              container.classList.remove('is-active');
+            }
+          }
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          toggleDropdown();
+        });
+
+        trigger.addEventListener('keydown', function(e) {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openDropdown();
+          }
+        });
+
+        dropdown.addEventListener('keydown', function(e) {
+          const active = document.activeElement;
+          if (!active || !active.classList.contains('km-category-option')) return;
+          const options = Array.from(dropdown.querySelectorAll('.km-category-option'));
+          const index = options.indexOf(active);
+
+          switch (e.key) {
+            case 'ArrowDown':
+              e.preventDefault();
+              if (index < options.length - 1) {
+                options.forEach(opt => opt.setAttribute('tabindex', '-1'));
+                options[index + 1].setAttribute('tabindex', '0');
+                options[index + 1].focus();
+              }
+              break;
+            case 'ArrowUp':
+              e.preventDefault();
+              if (index > 0) {
+                options.forEach(opt => opt.setAttribute('tabindex', '-1'));
+                options[index - 1].setAttribute('tabindex', '0');
+                options[index - 1].focus();
+              }
+              break;
+            case 'Enter':
+            case ' ':
+              e.preventDefault();
+              active.click();
+              break;
+            case 'Escape':
+              e.preventDefault();
+              closeDropdown();
+              break;
+          }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!container.contains(e.target)) {
+            dropdown.hidden = true;
+            trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        targetSelect.addEventListener('change', updateTrigger);
+        updateTrigger();
+      }
+
+      initCategorySelect();
     })();
   </script>
 {% endblock %}

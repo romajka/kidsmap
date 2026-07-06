@@ -356,3 +356,145 @@
     max-width: 100%;
   }
 }
+
+/* Color picker specific styles */
+.km-category-color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.km-category-color-picker-wrapper input[type="color"] {
+  border: 1px solid var(--km-admin-input-border);
+  background: var(--km-admin-input-bg);
+  border-radius: 8px;
+  width: 54px;
+  height: 44px;
+  padding: 4px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.km-category-color-value {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--km-admin-text);
+  background: var(--km-admin-surface-muted);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--km-admin-border);
+}
+
+/* Card Layout splitting Fields and Live Preview */
+.km-category-card-content {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .km-category-card-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.km-category-fields-side {
+  width: 100%;
+}
+
+.km-category-preview-side {
+  width: 100%;
+  position: sticky;
+  top: 20px;
+}
+
+.km-category-preview-box {
+  background: var(--km-admin-surface-muted, #f8fafc);
+  border: 1px dashed var(--km-admin-border, #e2e8f0);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.km-category-preview-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--km-admin-text, #1e293b);
+  border-bottom: 1px solid var(--km-admin-border, #e2e8f0);
+  padding-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.km-category-preview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.km-category-preview-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--km-admin-text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.km-category-preview-pin-wrap,
+.km-category-preview-badge-wrap {
+  background: #ffffff;
+  border: 1px solid var(--km-admin-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Pin Preview Container & Overlay */
+.km-preview-pin-container {
+  position: relative;
+  width: 38px;
+  height: 48px;
+  margin: 0 auto;
+}
+
+.km-preview-pin-icon-overlay {
+  position: absolute;
+  top: 9px;
+  left: 10px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.km-preview-pin-icon-overlay i,
+.km-preview-pin-icon-overlay div,
+.km-preview-pin-icon-overlay img {
+  display: block;
+}
+
+/* Badge Preview */
+.km-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+}

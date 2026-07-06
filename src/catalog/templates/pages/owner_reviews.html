@@ -34,7 +34,7 @@
           <article class="owner-review-item">
             <h3><a href="{{ review.place.get_absolute_url }}">{{ review.place.name_i18n }}</a></h3>
             <p class="meta">
-              {% if review.author_name %}{{ review.author_name }}{% else %}{% trans "Гость" %}{% endif %} · ★ {{ review.rating }} · {{ review.created_at|date:"d.m.Y H:i" }}
+              {{ review.author_name_i18n }} · ★ {{ review.rating }} · {{ review.created_at|date:"d.m.Y H:i" }}
             </p>
             <p>{{ review.text|default:"—" }}</p>
             <p class="meta">

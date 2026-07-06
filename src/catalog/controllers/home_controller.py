@@ -63,11 +63,20 @@ class HomeController:
                 "url": place.get_absolute_url(),
                 "category": place.get_category_display(),
                 "category_code": place.category_code,
+                "category_color_bg": place.category.color_bg if place.category else "#F3F4F6",
+                "category_color_text": place.category.color_text if place.category else "#6B7280",
+                "category_icon_url": place.category.icon_file_url if place.category else "",
+                "category_icon_is_svg": place.category.icon_is_svg if place.category else False,
+                "category_icon_is_font": place.category.icon_is_font_class if place.category else False,
+                "category_icon_name": (place.category.icon or "") if place.category else "",
                 "district": place.district,
                 "metro": place.metro,
                 "age_from": place.age_from,
                 "age_to": place.age_to,
                 "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
+                "phone": place.phone1 or "",
+                "address": place.address_i18n(language_code) or "",
+                "schedule": place.schedule_summary or "",
                 "search_text": " ".join(
                     part
                     for part in (

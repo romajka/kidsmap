@@ -81,6 +81,11 @@ def build_localized_option(raw, language_code: str | None = None) -> dict[str, s
         "label_ru": labels["ru"],
         "label_en": labels["en"],
     }
+    if isinstance(raw, dict):
+        for k, v in raw.items():
+            if k not in option and not k.startswith("label_") and k != "label" and k != "value":
+                option[k] = v
+
     if count is not None:
         option["count"] = count
         option["label_with_count"] = f"{option['label']} — {count}"

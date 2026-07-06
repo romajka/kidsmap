@@ -5455,8 +5455,8 @@ msgstr "Məkanın xəritəsi"
 #, python-format
 msgid "%(total)s отзыв помогает понять место лучше."
 msgid_plural "%(total)s отзыва помогают понять место лучше."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(total)s rəy bu məkanı daha yaxşı anlamağa kömək edir."
+msgstr[1] "%(total)s rəy bu məkanı daha yaxşı anlamağa kömək edir."
 
 #: src/catalog/templates/catalog/place_detail.html:428
 #: src/catalog/templates/catalog/place_detail.html:430
@@ -5504,13 +5504,33 @@ msgstr "Yazılı rəylər yalnız hesaba daxil olduqdan sonra mümkündür."
 #, fuzzy
 #| msgid "Постоянное"
 msgid "Постоянное место"
-msgstr "Daimi"
+msgstr "Daimi məkan"
 
 #: src/catalog/templates/catalog/place_detail.html:516
 #, fuzzy
 #| msgid "Код действует до"
 msgid "Быстрые действия"
 msgstr "Kodun etibarlılıq müddəti"
+
+#: src/catalog/templates/catalog/place_detail.html:172
+msgid "Отзывы помогут другим родителям быстрее сориентироваться."
+msgstr "Rəylər digər valideynlərə daha tez qərar verməyə kömək edəcək."
+
+#: src/catalog/templates/catalog/place_detail.html:196
+msgid "Короткий отзыв поможет другим родителям быстрее выбрать место."
+msgstr "Qısa rəy digər valideynlərə məkanı daha tez seçməyə kömək edəcək."
+
+#: src/catalog/templates/catalog/place_detail.html:198
+msgid "Чтобы оставить отзыв, нужно войти в аккаунт."
+msgstr "Rəy yazmaq üçün hesaba daxil olmaq lazımdır."
+
+#: src/catalog/templates/catalog/place_detail.html:242
+msgid "Последние отзывы"
+msgstr "Son rəylər"
+
+#: src/catalog/templates/catalog/place_detail.html:268
+msgid "Пока нет опубликованных отзывов."
+msgstr "Hələ dərc olunmuş rəy yoxdur."
 
 #: src/catalog/templates/catalog/place_list.html:43
 msgid "Найдите подходящее место для ребёнка"

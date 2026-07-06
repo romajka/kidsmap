@@ -242,9 +242,17 @@
       return !!field.checked;
     }
     if (field.type === "file") {
-      return !!(field.files && field.files.length);
+      return getSelectedFiles(field).length > 0;
     }
     return !!String(field.value || "").trim();
+  }
+
+  function getSelectedFiles(input) {
+    if (!input) return [];
+    if (input.multiple && input._accumulatedFiles) {
+      return Array.from(input._accumulatedFiles.files || []);
+    }
+    return Array.from(input.files || []);
   }
 
   function parseList(value) {
@@ -281,7 +289,7 @@
 
   function isPhotoFieldFilled(field) {
     if (!field) return false;
-    if (field.files && field.files.length) return true;
+    if (getSelectedFiles(field).length) return true;
     const uploader = field.closest("[data-file-uploader]");
     if (!uploader) return false;
     const clearCheckbox = uploader.querySelector(".owner-image-clear-checkbox");
@@ -296,7 +304,7 @@
       return isPhotoFieldFilled(field);
     }
     if (name === "gallery_images") {
-      return !!(field.files && field.files.length);
+      return getSelectedFiles(field).length > 0;
     }
     return hasFieldValue(field);
   }
@@ -550,7 +558,7 @@
     }
 
     if (gallerySummary) {
-      const count = galleryField && galleryField.files ? galleryField.files.length : 0;
+      const count = getSelectedFiles(galleryField).length;
       if (count === 1) {
         gallerySummary.textContent = form.dataset.ownerSummaryGalleryOne || "";
       } else if (count > 1) {
@@ -863,7 +871,9 @@
     const emptyMessage = uploader.dataset.uploadEmpty || "";
     const summaryLabel = uploader.dataset.uploadSummary || "";
     const pendingMessage = uploader.dataset.uploadPending || "";
-    const files = Array.from(input.files || []);
+    const cropNote = uploader.dataset.uploadCropNote || "";
+    const files = getSelectedFiles(input);
+    const isSingleUploader = uploader.dataset.uploadMode === "single";
 
     if (!files.length) {
       meta.textContent = emptyMessage;
@@ -871,6 +881,7 @@
       if (list) {
         list.hidden = true;
         list.innerHTML = "";
+        list.classList.remove("owner-file-uploader-list--single");
       }
       return;
     }
@@ -883,6 +894,7 @@
     }
 
     if (!list) return;
+    list.classList.toggle("owner-file-uploader-list--single", isSingleUploader);
 
     if (list._previewUrls) {
       list._previewUrls.forEach(function (url) {
@@ -892,6 +904,27 @@
     list._previewUrls = [];
 
     list.hidden = false;
+    if (isSingleUploader && files.length === 1) {
+      const file = files[0];
+      let previewHtml = "";
+      if (file.type && file.type.indexOf("image/") === 0) {
+        const url = URL.createObjectURL(file);
+        list._previewUrls.push(url);
+        previewHtml = '<img src="' + url + '" alt="" class="owner-file-uploader-square-preview" />';
+      }
+      list.innerHTML =
+        '<div class="owner-file-uploader-preview-card" data-filename="' + escapeHtml(file.name) + '">' +
+          previewHtml +
+          '<div class="owner-file-uploader-preview-copy">' +
+            '<strong class="owner-file-uploader-preview-name">' + escapeHtml(file.name) + '</strong>' +
+            '<span class="owner-file-uploader-preview-meta">' + escapeHtml(formatFileSize(file.size)) + '</span>' +
+            (cropNote ? '<span class="owner-file-uploader-preview-note">' + escapeHtml(cropNote) + '</span>' : '') +
+          '</div>' +
+          '<button type="button" class="owner-file-uploader-preview-remove" data-remove-file aria-label="Remove file">&times;</button>' +
+        '</div>';
+      return;
+    }
+
     list.innerHTML = files.map(function (file) {
       let previewHtml = '';
       if (file.type && file.type.indexOf('image/') === 0) {
@@ -954,6 +987,11 @@
   });
 
   form.addEventListener("submit", function () {
+    form.querySelectorAll('input[type="file"][multiple]').forEach(function (input) {
+      if (input._accumulatedFiles) {
+        input.files = input._accumulatedFiles.files;
+      }
+    });
     allowNavigation = true;
     window.clearTimeout(draftSaveTimer);
     saveDraftNow();
@@ -967,11 +1005,23 @@
     const listingType = event.target.closest("[data-owner-listing-type]");
     const gotoNext = event.target.closest("[data-owner-goto-next]");
     const removeFileBtn = event.target.closest("[data-remove-file]");
+    const uploadTrigger = event.target.closest("[data-upload-trigger]");
+
+    if (uploadTrigger) {
+      event.preventDefault();
+      const uploader = uploadTrigger.closest("[data-file-uploader]");
+      const input = uploader ? uploader.querySelector("[data-upload-input]") : null;
+      if (input) {
+        input.click();
+      }
+      return;
+    }
 
     if (removeFileBtn) {
       event.preventDefault();
       const item = removeFileBtn.closest(".owner-file-uploader-item");
-      const filename = item.dataset.filename;
+      const previewCard = removeFileBtn.closest(".owner-file-uploader-preview-card");
+      const filename = (item || previewCard).dataset.filename;
       const uploader = removeFileBtn.closest("[data-file-uploader]");
       const input = uploader.querySelector("[data-upload-input]");
       
@@ -980,8 +1030,12 @@
       Array.from(currentFiles).forEach(f => {
         if (f.name !== filename) dt.items.add(f);
       });
-      input._accumulatedFiles = dt;
-      input.files = dt.files;
+      if (input.multiple) {
+        input._accumulatedFiles = dt;
+        input.value = "";
+      } else {
+        input.files = dt.files;
+      }
       
       renderUploaderState(uploader);
       updateCompletion();
@@ -1090,7 +1144,7 @@
         input._accumulatedFiles = dt;
         alert(document.documentElement.lang === "az" ? "Maksimum 10 şəkil icazə verilir." : (document.documentElement.lang === "en" ? "Max 10 files allowed." : "Разрешено максимум 10 файлов."));
       }
-      input.files = input._accumulatedFiles.files;
+      input.value = "";
     }
 
     markStepTouched(event.target);

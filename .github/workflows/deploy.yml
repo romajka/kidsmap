@@ -59,7 +59,7 @@ jobs:
         run: python manage.py check
 
       - name: Run tests
-        run: python manage.py test
+        run: python manage.py test --parallel auto
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

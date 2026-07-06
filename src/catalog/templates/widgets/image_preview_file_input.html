@@ -3,9 +3,12 @@
 <div
   class="owner-file-uploader owner-file-uploader-single js-file-uploader"
   data-file-uploader
+  data-upload-mode="single"
+  data-upload-preview-shape="square"
   data-upload-empty="{% if CURRENT_LANGUAGE == 'az' %}Şəkil seçmək üçün klikləyin. JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == 'en' %}Click to choose an image. JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans 'Нажмите, чтобы выбрать изображение JPG, PNG или WEBP до 2 МБ.' %}{% endif %}"
   data-upload-summary="{% if CURRENT_LANGUAGE == 'az' %}Yeni fayl:{% elif CURRENT_LANGUAGE == 'en' %}New file:{% else %}{% trans 'Новый файл:' %}{% endif %}"
   data-upload-pending="{% if CURRENT_LANGUAGE == 'az' %}Fayl forma göndəriləndə saxlanacaq.{% elif CURRENT_LANGUAGE == 'en' %}The file will be saved after submitting the form.{% else %}{% trans 'Файл выбран и будет сохранён после отправки формы.' %}{% endif %}"
+  data-upload-crop-note="{% if CURRENT_LANGUAGE == 'az' %}Kataloqda şəkil kvadrat göstərilir. Ön baxış kəsiləcək hissəni göstərir.{% elif CURRENT_LANGUAGE == 'en' %}The catalog shows this photo as a square. This preview shows the visible crop.{% else %}{% trans 'В каталоге фото показывается квадратом. Это превью показывает видимый кроп.' %}{% endif %}"
 >
   {% if widget.is_initial and widget.value.url %}
     <div class="owner-file-uploader-current">
@@ -63,7 +66,7 @@
         {% if CURRENT_LANGUAGE == "az" %}Şəkil seçmək üçün klikləyin. JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == "en" %}Click to choose an image. JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans "Нажмите, чтобы выбрать изображение JPG, PNG или WEBP до 2 МБ." %}{% endif %}
       </span>
     </span>
-    <span class="owner-file-uploader-action">{% if CURRENT_LANGUAGE == "az" %}Şəkil seçin{% elif CURRENT_LANGUAGE == "en" %}Choose photo{% else %}{% trans "Выбрать фото" %}{% endif %}</span>
+    <span class="owner-file-uploader-action" data-upload-trigger role="button" tabindex="0">{% if CURRENT_LANGUAGE == "az" %}Şəkil seçin{% elif CURRENT_LANGUAGE == "en" %}Choose photo{% else %}{% trans "Выбрать фото" %}{% endif %}</span>
     <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
   </label>
   <div class="owner-file-uploader-list" data-upload-list hidden></div>

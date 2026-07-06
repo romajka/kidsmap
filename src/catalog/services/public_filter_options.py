@@ -39,6 +39,12 @@ def _build_category_option(category: Category, *, language_code: str, count: int
         "label_az": category.name_i18n("az"),
         "label_ru": category.name_i18n("ru"),
         "label_en": category.name_i18n("en"),
+        "color_bg": category.color_bg,
+        "color_text": category.color_text,
+        "icon_file_url": category.icon_file_url,
+        "icon_is_svg": category.icon_is_svg,
+        "icon_is_font": category.icon_is_font_class,
+        "icon_name": category.icon_name,
     }
     if count is not None:
         raw["count"] = count
@@ -71,13 +77,13 @@ def build_public_place_filter_options(
 ) -> PublicPlaceFilterOptions:
     public_qs = public_place_queryset(Place.objects.all())
 
-    category_counts = dict(public_qs.values_list("category").annotate(total=Count("id")))
+    category_counts = dict(public_qs.order_by().values_list("category").annotate(total=Count("id")))
     subcategory_counts = {
         str(item["subcategory"]): int(item["total"])
-        for item in public_qs.exclude(subcategory__isnull=True).values("subcategory").annotate(total=Count("id"))
+        for item in public_qs.order_by().exclude(subcategory__isnull=True).values("subcategory").annotate(total=Count("id"))
     }
     raw_district_counts = {}
-    for item in public_qs.exclude(district="").exclude(district__isnull=True).values("district").annotate(total=Count("id")):
+    for item in public_qs.order_by().exclude(district="").exclude(district__isnull=True).values("district").annotate(total=Count("id")):
         raw_val = str(item["district"]).strip()
         from catalog.services.locations import normalize_to_key
         norm_key = normalize_to_key(raw_val)
@@ -104,13 +110,14 @@ def build_public_place_filter_options(
 
     metro_counts = {
         str(item["metro"]).strip(): int(item["total"])
-        for item in public_qs.exclude(metro="").exclude(metro__isnull=True).values("metro").annotate(total=Count("id"))
+        for item in public_qs.order_by().exclude(metro="").exclude(metro__isnull=True).values("metro").annotate(total=Count("id"))
     }
 
     categories = [
         _build_category_option(category, language_code=language_code, count=category_counts.get(category.code))
         for category in Category.objects.filter(is_active=True).order_by("order", "name_ru", "name")
     ]
+    categories = [cat for cat in categories if cat.get("count", 0) > 0]
     categories = sorted(categories, key=lambda item: str(item["label"]).casefold())
 
     subcategories = [
@@ -121,6 +128,7 @@ def build_public_place_filter_options(
             .order_by("category__order", "order", "name_ru", "name")
         )
     ]
+    subcategories = [sub for sub in subcategories if sub.get("count", 0) > 0]
     subcategories = sorted(
         subcategories,
         key=lambda item: (str(item.get("category") or ""), str(item["label"]).casefold()),

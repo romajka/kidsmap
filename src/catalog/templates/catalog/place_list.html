@@ -231,7 +231,9 @@
             </button>
             {% for category in categories %}
               <button type="button" class="mobile-category-chip{% if selected.category == category.value %} is-active{% endif %}" data-select-target="category" data-select-value="{{ category.value }}">
-                <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=category.value %}</span>
+                <span class="mobile-category-chip-icon" style="background-color: {{ category.color_bg|default:'#F3F4F6' }}; color: {{ category.color_text|default:'#6B7280' }};" aria-hidden="true">
+                  {% include "catalog/includes/category_icon.html" with code=category.value %}
+                </span>
                 <span>{% firstof category.label_with_count category.label %}</span>
               </button>
             {% endfor %}
@@ -245,7 +247,9 @@
             </button>
             {% for category in categories %}
               <button type="button" class="desktop-category-chip{% if selected.category == category.value %} is-active{% endif %}" data-select-target="category" data-select-value="{{ category.value }}" data-category-code="{{ category.value }}">
-                <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=category.value %}</span>
+                <span class="desktop-category-chip-icon" style="background-color: {{ category.color_bg|default:'#F3F4F6' }}; color: {{ category.color_text|default:'#6B7280' }};" aria-hidden="true">
+                  {% include "catalog/includes/category_icon.html" with code=category.value %}
+                </span>
                 <span>{% firstof category.label_with_count category.label %}</span>
               </button>
             {% endfor %}
@@ -820,7 +824,7 @@
                 <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               {% endif %}
             </a>
-            <div class="card-category-overlay category-{{ place.category_code|lower }}">
+            <div class="card-category-overlay" style="background-color: {{ place.category.color_bg|default:'#F3F4F6' }}; color: {{ place.category.color_text|default:'#6B7280' }};">
               <span class="category-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code=place.category_code %}</span>
               {{ place.get_category_display }}
             </div>

@@ -48,7 +48,7 @@ User = get_user_model()
 
 class DjangoPlaceRepository(IPlaceRepository):
     def active_queryset(self) -> QuerySet:
-        return public_place_queryset(Place.objects.all()).select_related("owner")
+        return public_place_queryset(Place.objects.all()).select_related("owner", "category")
 
     def active_queryset_with_gallery(self) -> QuerySet:
         return public_place_queryset(Place.objects.all()).select_related("owner").prefetch_related("gallery", "events")

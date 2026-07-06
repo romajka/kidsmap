@@ -207,13 +207,18 @@ marimo/_lsp/
 __marimo__/
 
 /media/
-
+!/media/.gitkeep
 # Local UI/debug artifacts
 /tmp/
+/.tmp/
 /.playwright-cli/
 /output/
 /scratch/
 /staticfiles/
 /stitch*.zip
+/server.log
+/test_output.txt
+/test_output.log
+/test_fail.txt
 /zzz_test.txt
 /src/db.sqlite3

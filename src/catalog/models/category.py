@@ -12,6 +12,8 @@ class Category(models.Model):
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
     name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
     icon = models.CharField(_("Иконка"), max_length=255, blank=True, default="", help_text=_("Класс иконки или название"))
+    color_bg = models.CharField(_("Цвет фона (HEX)"), max_length=20, blank=True, default="#F3F4F6", help_text=_("Например: #E8F5EE"))
+    color_text = models.CharField(_("Цвет иконки (HEX)"), max_length=20, blank=True, default="#6B7280", help_text=_("Например: #0C7A47"))
     is_active = models.BooleanField(_("Активна"), default=True)
     order = models.PositiveIntegerField(_("Порядок"), default=0)
 

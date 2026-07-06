@@ -101,7 +101,7 @@
                 <i class="fas fa-chevron-right"></i>
               </button>
               
-              <div class="km-tax-icon-wrapper">
+              <div class="km-tax-icon-wrapper" style="background-color: {{ cat.color_bg|default:'#F3F4F6' }}; color: {{ cat.color_text|default:'#6B7280' }};">
                 {% if cat.icon_file_url %}
                   {% if cat.icon_is_svg %}
                     <div class="category-mask-icon" style="mask-image: url('{{ cat.icon_file_url }}'); -webkit-mask-image: url('{{ cat.icon_file_url }}');"></div>
@@ -111,7 +111,9 @@
                 {% elif cat.icon_is_font_class %}
                   <i class="{{ cat.icon }}"></i>
                 {% else %}
-                  <i class="fas fa-folder"></i>
+                  <span style="display:flex; width:100%; height:100%; align-items:center; justify-content:center;">
+                    {% include "catalog/includes/category_icon.html" with code=cat.code %}
+                  </span>
                 {% endif %}
               </div>
 
@@ -181,7 +183,7 @@
                 <div class="km-tax-row km-tax-row-child" data-status="{% if sub.is_active %}active{% else %}inactive{% endif %}">
                   <div class="km-td km-td-name">
                     <div class="km-tax-tree-line"></div>
-                    <div class="km-tax-icon-wrapper km-tax-icon-wrapper-sm km-tax-icon-sub">
+                    <div class="km-tax-icon-wrapper km-tax-icon-wrapper-sm km-tax-icon-sub" style="background-color: {{ cat.color_bg|default:'#F3F4F6' }}; color: {{ cat.color_text|default:'#6B7280' }};">
                       {% if cat.icon_file_url %}
                         {% if cat.icon_is_svg %}
                           <div class="category-mask-icon" style="mask-image: url('{{ cat.icon_file_url }}'); -webkit-mask-image: url('{{ cat.icon_file_url }}');"></div>
@@ -191,7 +193,9 @@
                       {% elif cat.icon_is_font_class %}
                         <i class="{{ cat.icon }}"></i>
                       {% else %}
-                        <i class="fas fa-caret-right km-text-muted"></i>
+                        <span style="display:flex; width:100%; height:100%; align-items:center; justify-content:center;">
+                          {% include "catalog/includes/category_icon.html" with code=cat.code %}
+                        </span>
                       {% endif %}
                     </div>
                     <div class="km-tax-title">

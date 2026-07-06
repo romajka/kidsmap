@@ -13,7 +13,6 @@ GOOGLE_MAPS_API_KEY="YOUR_KEY" python manage.py runserver 0.0.0.0:8000
 cd C:\path\to\kidsmap
 .venv\Scripts\activate
 python manage.py migrate
-python manage.py collectstatic --clear --noinput
 $env:GOOGLE_MAPS_API_KEY="YOUR_KEY"
 python manage.py runserver 0.0.0.0:8000
 ```
@@ -25,6 +24,19 @@ git commit -m "update"
 git push origin main
 ```
 
+## Fast local suites
+Для локальной проверки и AI-сессий используйте выборочные сьюты вместо полного `manage.py test`:
+
+```bash
+./scripts/run_kidsmap_tests.sh smoke
+./scripts/run_kidsmap_tests.sh auth
+./scripts/run_kidsmap_tests.sh public
+./scripts/run_kidsmap_tests.sh admin
+./scripts/run_kidsmap_tests.sh owner
+./scripts/run_kidsmap_tests.sh catalog
+./scripts/run_kidsmap_tests.sh full
+```
+
 ## Server Deploy (one command)
 Run this on server after each `git push`:
 ```bash
@@ -34,7 +46,7 @@ cd /opt/kidsmap
 What it does:
 1. Stashes local server edits (if any).
 2. Fetches and fast-forwards the selected branch from `origin`.
-3. Rebuilds/restarts Docker containers.
+3. Rebuilds the web image, runs explicit release tasks, then starts containers.
 4. Verifies there is no model/migration drift (`makemigrations --check --dry-run`).
 5. Runs `python manage.py check`.
 6. Restores the three featured public clubs if they were quarantined or edited.
@@ -140,11 +152,13 @@ Set these repository secrets in GitHub (`Settings -> Secrets and variables -> Ac
 # one-time: copy env template
 cp .env.example .env
 
-# build + run
-docker compose up --build
+# build image and run release tasks
+docker compose build web
+docker compose up -d db
+docker compose run --rm web ./scripts/release-server.sh
 
 # run in background
-docker compose up -d --build
+docker compose up -d web
 
 # stop
 docker compose down
@@ -162,8 +176,9 @@ docker compose run --rm web ./scripts/migrate.sh
 3. Ensure server can access GitHub via SSH (`./scripts/setup-github-ssh.sh` + `ssh -T git@github.com`).
 4. Install/update nginx config from `deploy/nginx/kidsmap.az.conf`.
 5. Run `./scripts/deploy-server.sh`.
-6. Run `python manage.py check` (optional extra).
-7. Verify:
+6. Run `docker compose run --rm web ./scripts/release-server.sh` manually only if you need to re-apply release tasks.
+7. Run `python manage.py check` (optional extra).
+8. Verify:
    - `/healthz`
    - `/sitemap.xml`
    - `/robots.txt`
@@ -174,7 +189,7 @@ After deploy, validate that static/media are not the new bottleneck:
 
 ```bash
 cd /opt/kidsmap
-docker compose exec -T web python manage.py collectstatic --clear --noinput
+docker compose run --rm web ./scripts/release-server.sh
 curl -I https://kidsmap.az/static/css/site.css
 curl -I https://kidsmap.az/static/js/home_map.js
 curl -I https://kidsmap.az/media/site/your-heavy-file.png

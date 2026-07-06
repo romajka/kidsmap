@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from importlib.util import find_spec
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 SRC_DIR = Path(__file__).resolve().parent.parent
@@ -19,6 +20,30 @@ def _env_list(name: str) -> list[str]:
     return [item.strip() for item in os.getenv(name, "").split(",") if item.strip()]
 
 
+def _is_placeholder_secret(value: str) -> bool:
+    normalized = (value or "").strip()
+    return normalized in {
+        "",
+        "dev-only-change-me",
+        "replace-with-long-random-secret",
+        "changeme",
+        "change-me",
+    }
+
+
+def _has_default_db_credentials() -> bool:
+    if DB_ENGINE not in {"mysql", "mariadb"}:
+        return False
+    db_name = (os.getenv("DB_NAME", "kidsmap") or "").strip()
+    db_user = (os.getenv("DB_USER", "kidsmap") or "").strip()
+    db_password = (os.getenv("DB_PASSWORD", "kidsmap") or "").strip()
+    return (
+        db_name == "kidsmap"
+        and db_user == "kidsmap"
+        and db_password == "kidsmap"
+    )
+
+
 # SECURITY: в проде ключ хранить только в env
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 
@@ -27,6 +52,8 @@ SERVE_MEDIA_FILES = _env_bool("SERVE_MEDIA_FILES", True)
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 GOOGLE_ANALYTICS_MEASUREMENT_ID = (os.getenv("GOOGLE_ANALYTICS_MEASUREMENT_ID", "") or "").strip()
 GOOGLE_ANALYTICS_PROPERTY_ID = (os.getenv("GOOGLE_ANALYTICS_PROPERTY_ID", "") or "").strip()
+TRACKING_EVENT_RATE_LIMIT = int(os.getenv("TRACKING_EVENT_RATE_LIMIT", "60"))
+TRACKING_EVENT_RATE_WINDOW_SECONDS = int(os.getenv("TRACKING_EVENT_RATE_WINDOW_SECONDS", "60"))
 REVIEWS_REQUIRE_AUTH = _env_bool("REVIEWS_REQUIRE_AUTH", True)
 ADMIN_HOST = (os.getenv("DJANGO_ADMIN_HOST", "") or "").strip().lower()
 
@@ -50,6 +77,13 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", True)
 SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", not DEBUG)
 CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE", not DEBUG)
+SESSION_COOKIE_HTTPONLY = _env_bool("SESSION_COOKIE_HTTPONLY", True)
+SECURE_CONTENT_TYPE_NOSNIFF = _env_bool("SECURE_CONTENT_TYPE_NOSNIFF", not DEBUG)
+SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "same-origin" if not DEBUG else "same-origin")
+SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT", not DEBUG)
+SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000" if not DEBUG else "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", not DEBUG)
+SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False)
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 EMAIL_BACKEND = os.getenv(
@@ -251,6 +285,12 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
+
+if not DEBUG:
+    if _is_placeholder_secret(SECRET_KEY):
+        raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set to a strong non-placeholder value when DJANGO_DEBUG=0.")
+    if _has_default_db_credentials():
+        raise ImproperlyConfigured("Replace default MariaDB credentials before running with DJANGO_DEBUG=0.")
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

@@ -161,9 +161,13 @@
       }
 
       missingListNode.innerHTML = "";
-      missing.slice(0, 5).forEach(function (label) {
+      missing.slice(0, 5).forEach(function (item) {
         var itemNode = document.createElement("li");
-        itemNode.textContent = label;
+        var linkNode = document.createElement("a");
+        linkNode.href = "#" + item.input_id;
+        linkNode.textContent = item.label;
+        linkNode.className = "km-place-sidebar-missing-link";
+        itemNode.appendChild(linkNode);
         missingListNode.appendChild(itemNode);
       });
 
@@ -181,11 +185,16 @@
       var total = checklistItems.length;
 
       checklistItems.forEach(function (item) {
+        var input = document.getElementById(item.input_id);
+        var fieldGroup = input ? input.closest('.form-group, .fieldBox') : null;
+        
         if (hasFieldValue(item)) {
           completed += 1;
+          if (fieldGroup) fieldGroup.classList.remove('km-field-missing-highlight');
           return;
         }
-        missing.push(item.label);
+        missing.push(item);
+        if (fieldGroup) fieldGroup.classList.add('km-field-missing-highlight');
       });
 
       var pct = total ? Math.round((completed / total) * 100) : 0;
@@ -698,9 +707,12 @@
     if (!galleryRoot) {
       return;
     }
+    var mediaSection = galleryRoot.closest("[data-place-media-section]") || galleryRoot.closest(".km-gallery-section") || galleryRoot.parentElement;
 
     var grid = galleryRoot.querySelector("[data-gallery-grid]");
-    var addButton = galleryRoot.querySelector("[data-gallery-add-button]");
+    var emptyState = mediaSection ? mediaSection.querySelector("[data-gallery-empty-state]") : null;
+    var galleryCountValue = mediaSection ? mediaSection.querySelector("[data-gallery-count-value]") : null;
+    var galleryEmptyCount = mediaSection ? mediaSection.querySelector("[data-gallery-count-empty]") : null;
     var totalFormsInput = galleryRoot.querySelector('input[name$="-TOTAL_FORMS"]');
     var template = galleryRoot.querySelector("[data-gallery-empty-template]");
     var uploadPicker = document.createElement("input");
@@ -741,6 +753,25 @@
       return Array.prototype.slice.call(grid.querySelectorAll("[data-gallery-card]"));
     }
 
+    function getActivePhotosCount() {
+      return getCards().filter(function (card) {
+        var deleteInput = card.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        var previewEl = card.querySelector("[data-gallery-preview]");
+        var hasFile = hasAssignedFile(card) || (previewEl ? previewEl.getAttribute("data-gallery-initial-url") : null);
+        return !card.hidden && !(deleteInput && deleteInput.checked) && hasFile;
+      }).length;
+    }
+
+    function updateGalleryCounter() {
+      var activeCount = getActivePhotosCount();
+      if (galleryCountValue) {
+        galleryCountValue.textContent = activeCount + " / 10";
+      }
+      if (galleryEmptyCount) {
+        galleryEmptyCount.textContent = "Сейчас загружено " + activeCount + " из 10 фото";
+      }
+    }
+
     function renumberVisibleCards() {
       var order = 1;
       getCards().forEach(function (card) {
@@ -756,21 +787,16 @@
     }
 
     function updateGalleryEmptyState() {
-      var emptyState = galleryRoot.querySelector("[data-gallery-empty-state]");
       if (!emptyState) {
         return;
       }
-      var visibleCards = getCards().filter(function (card) {
-        var deleteInput = card.querySelector('input[type="checkbox"][name$="-DELETE"]');
-        var previewEl = card.querySelector("[data-gallery-preview]");
-        var hasFile = hasAssignedFile(card) || (previewEl ? previewEl.getAttribute("data-gallery-initial-url") : null);
-        return !card.hidden && !(deleteInput && deleteInput.checked) && hasFile;
-      });
-      if (visibleCards.length === 0) {
+      var visibleCards = getActivePhotosCount();
+      if (visibleCards === 0) {
         emptyState.style.display = "block";
       } else {
         emptyState.style.display = "none";
       }
+      updateGalleryCounter();
     }
 
     function setCardPreview(card, file, url) {
@@ -862,6 +888,8 @@
       var placeholder = card.querySelector("[data-gallery-placeholder]");
 
       function syncFromInput() {
+        var idInput = getPersistedIdInput(card);
+        var persisted = !!(idInput && String(idInput.value || "").trim());
         if (deleteInput && deleteInput.checked) {
           setCardHiddenState(card, true);
           return;
@@ -905,6 +933,7 @@
           if (card.querySelector("[data-gallery-file-meta]")) {
             card.querySelector("[data-gallery-file-meta]").textContent = "Файл не выбран";
           }
+          setCardHiddenState(card, !persisted);
         }
       }
 
@@ -1023,12 +1052,7 @@
 
     function addFiles(files) {
       var list = Array.prototype.slice.call(files || []);
-      var activeCount = getCards().filter(function (c) {
-        var deleteInput = c.querySelector('input[type="checkbox"][name$="-DELETE"]');
-        var previewEl = c.querySelector("[data-gallery-preview]");
-        var hasFile = hasAssignedFile(c) || (previewEl ? previewEl.getAttribute("data-gallery-initial-url") : null);
-        return !c.hidden && !(deleteInput && deleteInput.checked) && hasFile;
-      }).length;
+      var activeCount = getActivePhotosCount();
 
       var allowedToAdd = 10 - activeCount;
       if (allowedToAdd <= 0) {
@@ -1065,14 +1089,9 @@
 
     function updateAddCardVisibility() {
       var addCard = galleryRoot.querySelector("[data-gallery-add-button-card]");
-      var topAddButton = galleryRoot.querySelector("[data-gallery-add-button]");
+      var topAddButton = mediaSection ? mediaSection.querySelector("[data-gallery-add-button]") : null;
       
-      var activePhotosCount = getCards().filter(function (c) {
-        var deleteInput = c.querySelector('input[type="checkbox"][name$="-DELETE"]');
-        var previewEl = c.querySelector("[data-gallery-preview]");
-        var hasFile = hasAssignedFile(c) || (previewEl ? previewEl.getAttribute("data-gallery-initial-url") : null);
-        return !c.hidden && !(deleteInput && deleteInput.checked) && hasFile;
-      }).length;
+      var activePhotosCount = getActivePhotosCount();
 
       if (activePhotosCount >= 10) {
         if (addCard) addCard.style.display = "none";
@@ -1091,8 +1110,11 @@
     }
 
     getCards().forEach(wireCard);
+    updateGalleryCounter();
 
-    var addButtons = galleryRoot.querySelectorAll("[data-gallery-add-button], [data-gallery-add-button-empty]");
+    var addButtons = mediaSection
+      ? mediaSection.querySelectorAll("[data-gallery-add-button], [data-gallery-add-button-empty]")
+      : galleryRoot.querySelectorAll("[data-gallery-add-button], [data-gallery-add-button-empty]");
     addButtons.forEach(function (btn) {
       btn.addEventListener("click", function () {
         uploadPicker.value = "";
@@ -1112,6 +1134,41 @@
       addFiles(uploadPicker.files);
       uploadPicker.value = "";
     });
+
+    function handleEmptyStateDragOver(event) {
+      event.preventDefault();
+      if (emptyState) {
+        emptyState.classList.add("is-dragover");
+      }
+    }
+
+    function handleEmptyStateDragLeave(event) {
+      if (!emptyState) {
+        return;
+      }
+      if (event.relatedTarget && emptyState.contains(event.relatedTarget)) {
+        return;
+      }
+      emptyState.classList.remove("is-dragover");
+    }
+
+    function handleEmptyStateDrop(event) {
+      var droppedFiles = event.dataTransfer && event.dataTransfer.files ? event.dataTransfer.files : null;
+      if (!droppedFiles || !droppedFiles.length) {
+        return;
+      }
+      event.preventDefault();
+      if (emptyState) {
+        emptyState.classList.remove("is-dragover");
+      }
+      addFiles(droppedFiles);
+    }
+
+    if (emptyState) {
+      emptyState.addEventListener("dragover", handleEmptyStateDragOver);
+      emptyState.addEventListener("dragleave", handleEmptyStateDragLeave);
+      emptyState.addEventListener("drop", handleEmptyStateDrop);
+    }
 
     grid.addEventListener("dragover", function (event) {
       event.preventDefault();

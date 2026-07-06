@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=14">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=21">
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=14" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=15" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=21" defer></script>
   {% if google_maps_api_key %}
     <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>
@@ -249,24 +249,31 @@
 
           <aside class="km-place-form-sidebar">
             <div class="km-place-sidebar-card km-place-sidebar-card--summary">
-              <div class="km-place-sidebar-eyebrow">{% translate "Сводка карточки" %}</div>
+              <div class="km-place-sidebar-header">
+                <div class="km-place-sidebar-eyebrow">{% translate "Сводка карточки" %}</div>
+                {% if km_place_public_link and km_place_public_link.is_public %}
+                  <a href="{{ km_place_public_link.url }}" class="km-place-sidebar-link-icon" target="_blank" rel="noopener noreferrer" title="{{ km_place_public_link.label }}">
+                    <i class="fas fa-external-link-alt"></i>
+                  </a>
+                {% endif %}
+              </div>
               <p class="km-place-sidebar-card__title">{{ km_place_form_summary.title }}</p>
-              <div class="km-place-sidebar-visibility">
-                <span class="km-place-sidebar-readiness__label">{% translate "Видимость на сайте" %}</span>
-                <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ km_place_form_summary.visibility.tone }}">
-                  {{ km_place_form_summary.visibility.label }}
-                </span>
+
+              <div class="km-place-sidebar-status-row">
+                <div class="km-place-sidebar-status-item">
+                  <span class="km-place-sidebar-status-label">{% translate "Видимость" %}</span>
+                  <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ km_place_form_summary.visibility.tone }}">
+                    {{ km_place_form_summary.visibility.label }}
+                  </span>
+                </div>
+                <div class="km-place-sidebar-status-item">
+                  <span class="km-place-sidebar-status-label">{% translate "Готовность" %}</span>
+                  <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ km_place_form_summary.readiness_tone }}" data-progress-readiness>
+                    {{ km_place_form_summary.readiness_label }}
+                  </span>
+                </div>
               </div>
-              <p class="km-place-sidebar-note">{{ km_place_form_summary.visibility.hint }}</p>
-              <div class="km-place-sidebar-readiness">
-                <span class="km-place-sidebar-readiness__label">{% translate "Готовность" %}</span>
-                <span
-                  class="km-place-sidebar-badge km-place-sidebar-badge--{{ km_place_form_summary.readiness_tone }}"
-                  data-progress-readiness
-                >
-                  {{ km_place_form_summary.readiness_label }}
-                </span>
-              </div>
+
               <div class="km-place-sidebar-progress">
                 <div class="km-place-sidebar-progress__bar">
                   <span style="width: {{ km_place_form_summary.completion_pct }}%;" data-progress-bar></span>
@@ -274,18 +281,19 @@
                 <div class="km-place-sidebar-progress__meta">
                   <strong data-progress-pct>{{ km_place_form_summary.completion_pct }}%</strong>
                   <span data-progress-sidebar-copy>
-                    <span data-progress-done>{{ km_place_form_summary.completed }}</span>
-                    {% translate "из" %}
-                    <span data-progress-total>{{ km_place_form_summary.total }}</span>
-                    {% translate "ключевых полей" %}
+                    <span data-progress-done>{{ km_place_form_summary.completed }}</span> / <span data-progress-total>{{ km_place_form_summary.total }}</span>
                   </span>
                 </div>
               </div>
-              <div class="km-place-sidebar-badges">
-                {% for badge in km_place_form_summary.state_badges %}
-                  <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ badge.tone }}">{{ badge.label }}</span>
-                {% endfor %}
-              </div>
+
+              {% if km_place_form_summary.state_badges %}
+                <div class="km-place-sidebar-badges">
+                  {% for badge in km_place_form_summary.state_badges %}
+                    <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ badge.tone }}">{{ badge.label }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
               {% if km_place_form_summary.meta_items %}
                 <dl class="km-place-sidebar-meta">
                   {% for item in km_place_form_summary.meta_items %}
@@ -296,6 +304,7 @@
                   {% endfor %}
                 </dl>
               {% endif %}
+
               {% if km_place_form_summary.error_count %}
                 <div class="km-place-sidebar-errors">
                   <span class="km-place-sidebar-badge km-place-sidebar-badge--danger">
@@ -307,86 +316,43 @@
                   </span>
                 </div>
               {% endif %}
-            </div>
 
-            {% if km_place_public_link %}
-              <div class="km-place-sidebar-card km-place-sidebar-card--public-link">
-                <div class="km-place-sidebar-eyebrow">{% translate "Переход на сайт" %}</div>
-                <h2>{% translate "Публичная страница" %}</h2>
-                <p class="km-place-sidebar-note km-place-sidebar-note--spaced">{{ km_place_public_link.hint }}</p>
-                {% if km_place_public_link.is_public %}
-                  <a
-                    href="{{ km_place_public_link.url }}"
-                    class="km-btn--sidebar km-btn--success-alt km-place-sidebar-link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <i class="fas fa-globe"></i> {{ km_place_public_link.label }}
-                  </a>
-                {% else %}
-                  <div class="km-place-sidebar-badge km-place-sidebar-badge--muted">
-                    {% translate "Сначала опубликуйте карточку" %}
-                  </div>
-                {% endif %}
-                <code class="km-place-sidebar-url">{{ km_place_public_link.path }}</code>
-              </div>
-            {% endif %}
-
-            <div class="km-place-sidebar-card">
-              <div class="km-place-sidebar-eyebrow">{% translate "Checklist" %}</div>
-              <h2>{% translate "Что ещё заполнить" %}</h2>
-              <ul class="km-place-sidebar-checklist" data-progress-missing-list {% if not km_place_form_summary.missing %}hidden{% endif %}>
-                {% for item in km_place_form_summary.missing %}
-                  <li>{{ item }}</li>
-                {% endfor %}
-              </ul>
-              <p class="km-place-sidebar-empty" data-progress-empty {% if km_place_form_summary.missing %}hidden{% endif %}>
-                {% translate "Ключевые поля заполнены. Можно переходить к финальной проверке и публикации." %}
-              </p>
+              <details class="km-place-sidebar-checklist-wrap">
+                <summary>{% translate "Что ещё заполнить" %}</summary>
+                <ul class="km-place-sidebar-checklist" data-progress-missing-list {% if not km_place_form_summary.missing %}hidden{% endif %}>
+                  {% for item in km_place_form_summary.missing %}
+                    <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+                <p class="km-place-sidebar-empty" data-progress-empty {% if km_place_form_summary.missing %}hidden{% endif %}>
+                  {% translate "Ключевые поля заполнены." %}
+                </p>
+              </details>
             </div>
 
             <div class="km-place-sidebar-card km-place-sidebar-card--actions">
-              <div class="km-place-sidebar-eyebrow">{% translate "Управление" %}</div>
-              <h2>{% translate "Действия" %}</h2>
-              <p class="km-place-sidebar-actions-note">
-                {% translate "Сначала сохраняйте карточку как черновик, затем переходите к координатам и финальной проверке." %}
-              </p>
-              <div class="km-place-visibility-actions">
-                {% if km_place_form_summary.visibility.is_public %}
-                  <button
-                    type="submit"
-                    name="_unpublish_place"
-                    class="km-btn--sidebar km-btn--warn"
-                  >
-                    <i class="fas fa-eye-slash"></i> {% translate 'Снять с публикации' %}
-                  </button>
-                {% else %}
-                  <button
-                    type="submit"
-                    name="_publish_place"
-                    class="km-btn--sidebar km-btn--success-alt"
-                  >
-                    <i class="fas fa-globe"></i> {% translate 'Опубликовать на сайте' %}
+              <div class="km-place-sidebar-action-buttons">
+                {% submit_row %}
+                <button type="submit" name="_save_draft" class="km-btn--sidebar km-btn--draft">
+                  <i class="fas fa-file"></i> {% translate 'Черновик' %}
+                </button>
+                {% if not is_popup %}
+                  <button type="submit" name="_refresh_coordinates_from_address" class="km-btn--sidebar km-btn--info">
+                    <i class="fas fa-map-marker-alt"></i> {% translate 'Координаты' %}
                   </button>
                 {% endif %}
+                <div class="km-place-visibility-actions">
+                  {% if km_place_form_summary.visibility.is_public %}
+                    <button type="submit" name="_unpublish_place" class="km-btn--sidebar km-btn--warn">
+                      <i class="fas fa-eye-slash"></i> {% translate 'Снять с публикации' %}
+                    </button>
+                  {% else %}
+                    <button type="submit" name="_publish_place" class="km-btn--sidebar km-btn--success-alt">
+                      <i class="fas fa-globe"></i> {% translate 'Опубликовать' %}
+                    </button>
+                  {% endif %}
+                </div>
               </div>
-              <button
-                type="submit"
-                name="_save_draft"
-                class="km-btn--sidebar km-btn--draft"
-              >
-                <i class="fas fa-file"></i> {% translate 'Сохранить как черновик' %}
-              </button>
-              {% submit_row %}
-              {% if not is_popup %}
-                <button
-                  type="submit"
-                  name="_refresh_coordinates_from_address"
-                  class="km-btn--sidebar km-btn--info"
-                >
-                  <i class="fas fa-map-marker-alt"></i> {% translate 'Сохранить и рассчитать координаты' %}
-                </button>
-              {% endif %}
             </div>
           </aside>
         </div>

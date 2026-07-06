@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_category_popup.css' %}?v=4">
     <script src="{% static 'admin/js/kidsmap_category_popup.js' %}?v=4" defer></script>
   {% else %}
-    <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_category_form.css' %}?v=1">
-    <script src="{% static 'admin/js/kidsmap_category_form.js' %}?v=1" defer></script>
+    <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_category_form.css' %}?v=4">
+    <script src="{% static 'admin/js/kidsmap_category_form.js' %}?v=4" defer></script>
   {% endif %}
 {% endblock %}
 
@@ -90,80 +90,128 @@
                   </div>
                 </header>
 
-                <div class="km-category-grid">
-                  <div class="km-category-field{% if adminform.form.code.errors %} km-category-field--error{% endif %}">
-                    {{ adminform.form.code.label_tag }}
-                    {{ adminform.form.code }}
-                    {% if adminform.form.code.help_text %}
-                      <div class="km-category-field__help">{{ adminform.form.code.help_text|safe }}</div>
-                    {% endif %}
-                    {{ adminform.form.code.errors }}
-                  </div>
-
-                  <div class="km-category-field{% if adminform.form.name_az.errors %} km-category-field--error{% endif %}">
-                    {{ adminform.form.name_az.label_tag }}
-                    {{ adminform.form.name_az }}
-                    {% if adminform.form.name_az.help_text %}
-                      <div class="km-category-field__help">{{ adminform.form.name_az.help_text|safe }}</div>
-                    {% endif %}
-                    {{ adminform.form.name_az.errors }}
-                  </div>
-
-                  <div class="km-category-field km-category-field--compact{% if adminform.form.order.errors %} km-category-field--error{% endif %}">
-                    {{ adminform.form.order.label_tag }}
-                    {{ adminform.form.order }}
-                    {% if adminform.form.order.help_text %}
-                      <div class="km-category-field__help">{{ adminform.form.order.help_text|safe }}</div>
-                    {% endif %}
-                    {{ adminform.form.order.errors }}
-                  </div>
-
-                  <div class="km-category-field{% if adminform.form.name_ru.errors %} km-category-field--error{% endif %}">
-                    {{ adminform.form.name_ru.label_tag }}
-                    {{ adminform.form.name_ru }}
-                    {% if adminform.form.name_ru.help_text %}
-                      <div class="km-category-field__help">{{ adminform.form.name_ru.help_text|safe }}</div>
-                    {% endif %}
-                    {{ adminform.form.name_ru.errors }}
-                  </div>
-
-                  <div class="km-category-field{% if adminform.form.name_en.errors %} km-category-field--error{% endif %}">
-                    {{ adminform.form.name_en.label_tag }}
-                    {{ adminform.form.name_en }}
-                    {% if adminform.form.name_en.help_text %}
-                      <div class="km-category-field__help">{{ adminform.form.name_en.help_text|safe }}</div>
-                    {% endif %}
-                    {{ adminform.form.name_en.errors }}
-                  </div>
-
-                  <div class="km-category-field km-category-field--icon{% if adminform.form.icon.errors or adminform.form.icon_upload.errors %} km-category-field--error{% endif %}">
-                    {{ adminform.form.icon_upload.label_tag }}
-                    <div class="km-category-icon-control__input">
-                      {{ adminform.form.icon_upload }}
-                    </div>
-                    {% if adminform.form.icon_upload.help_text %}
-                      <div class="km-category-field__help">{{ adminform.form.icon_upload.help_text|safe }}</div>
-                    {% endif %}
-                    {{ adminform.form.icon_upload.errors }}
-
-                    {{ adminform.form.icon.label_tag }}
-                    <div class="km-category-icon-control" data-km-category-icon-field>
-                      <div class="km-category-icon-control__input">
-                        {{ adminform.form.icon }}
+                <div class="km-category-card-content">
+                  <div class="km-category-fields-side">
+                    <div class="km-category-grid">
+                      <div class="km-category-field{% if adminform.form.code.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.code.label_tag }}
+                        {{ adminform.form.code }}
+                        {% if adminform.form.code.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.code.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.code.errors }}
                       </div>
-                      <div class="km-category-icon-preview" data-km-category-icon-preview aria-live="polite">
-                        <span class="km-category-icon-preview__glyph" data-km-category-icon-glyph aria-hidden="true">
-                          <i class="fas fa-image"></i>
-                        </span>
-                        <span class="km-category-icon-preview__text" data-km-category-icon-text>
-                          {% translate "Нет иконки" %}
-                        </span>
+
+                      <div class="km-category-field{% if adminform.form.name_az.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.name_az.label_tag }}
+                        {{ adminform.form.name_az }}
+                        {% if adminform.form.name_az.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.name_az.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.name_az.errors }}
+                      </div>
+
+                      <div class="km-category-field km-category-field--compact{% if adminform.form.order.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.order.label_tag }}
+                        {{ adminform.form.order }}
+                        {% if adminform.form.order.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.order.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.order.errors }}
+                      </div>
+
+                      <div class="km-category-field{% if adminform.form.name_ru.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.name_ru.label_tag }}
+                        {{ adminform.form.name_ru }}
+                        {% if adminform.form.name_ru.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.name_ru.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.name_ru.errors }}
+                      </div>
+
+                      <div class="km-category-field{% if adminform.form.name_en.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.name_en.label_tag }}
+                        {{ adminform.form.name_en }}
+                        {% if adminform.form.name_en.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.name_en.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.name_en.errors }}
+                      </div>
+
+                      <div class="km-category-field{% if adminform.form.color_bg.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.color_bg.label_tag }}
+                        <div class="km-category-color-picker-wrapper">
+                          {{ adminform.form.color_bg }}
+                          <span id="color-bg-val" class="km-category-color-value">{{ adminform.form.color_bg.value|default:'#136F38' }}</span>
+                        </div>
+                        {% if adminform.form.color_bg.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.color_bg.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.color_bg.errors }}
+                      </div>
+
+                      <div class="km-category-field{% if adminform.form.color_text.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.color_text.label_tag }}
+                        <div class="km-category-color-picker-wrapper">
+                          {{ adminform.form.color_text }}
+                          <span id="color-text-val" class="km-category-color-value">{{ adminform.form.color_text.value|default:'#FFFFFF' }}</span>
+                        </div>
+                        {% if adminform.form.color_text.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.color_text.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.color_text.errors }}
+                      </div>
+
+                      <div class="km-category-field km-category-field--icon{% if adminform.form.icon.errors or adminform.form.icon_upload.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.icon_upload.label_tag }}
+                        <div class="km-category-icon-control__input">
+                          {{ adminform.form.icon_upload }}
+                        </div>
+                        {% if adminform.form.icon_upload.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.icon_upload.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.icon_upload.errors }}
+
+                        {{ adminform.form.icon.label_tag }}
+                        <div class="km-category-icon-control" data-km-category-icon-field>
+                          <div class="km-category-icon-control__input">
+                            {{ adminform.form.icon }}
+                          </div>
+                          <div class="km-category-icon-preview" data-km-category-icon-preview aria-live="polite">
+                            <span class="km-category-icon-preview__glyph" data-km-category-icon-glyph aria-hidden="true">
+                              <i class="fas fa-image"></i>
+                            </span>
+                            <span class="km-category-icon-preview__text" data-km-category-icon-text>
+                              {% translate "Нет иконки" %}
+                            </span>
+                          </div>
+                        </div>
+                        {% if adminform.form.icon.help_text %}
+                          <div class="km-category-field__help">{{ adminform.form.icon.help_text|safe }}</div>
+                        {% endif %}
+                        {{ adminform.form.icon.errors }}
                       </div>
                     </div>
-                    {% if adminform.form.icon.help_text %}
-                      <div class="km-category-field__help">{{ adminform.form.icon.help_text|safe }}</div>
-                    {% endif %}
-                    {{ adminform.form.icon.errors }}
+                  </div>
+
+                  <div class="km-category-preview-side">
+                    <div class="km-category-preview-box">
+                      <h3 class="km-category-preview-title">{% translate "Живой предпросмотр" %}</h3>
+                      
+                      <div class="km-category-preview-item">
+                        <div class="km-category-preview-label">{% translate "Пин на карте" %}</div>
+                        <div class="km-category-preview-pin-wrap">
+                          <div id="preview-pin-container" class="km-preview-pin-container"></div>
+                        </div>
+                      </div>
+
+                      <div class="km-category-preview-item">
+                        <div class="km-category-preview-label">{% translate "Ярлык в каталоге" %}</div>
+                        <div class="km-category-preview-badge-wrap">
+                          <span id="preview-badge" class="km-preview-badge"></span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </section>

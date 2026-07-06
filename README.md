@@ -122,7 +122,6 @@ KidsMap — не просто список карточек. Это сервис
 cd /home/ramin/kidsmap
 source .venv/bin/activate
 python manage.py migrate
-python manage.py collectstatic --clear --noinput
 python manage.py runserver 0.0.0.0:8000
 ```
 
@@ -131,6 +130,7 @@ python manage.py runserver 0.0.0.0:8000
 ```bash
 cd /home/ramin/kidsmap
 cp .env.example .env
+docker compose run --rm web ./scripts/release-server.sh
 docker compose up -d --build
 ```
 
@@ -157,6 +157,24 @@ cd /home/ramin/kidsmap
 ./.venv/bin/python manage.py check
 ./.venv/bin/python manage.py makemigrations --check --dry-run
 ./.venv/bin/python manage.py test
+```
+
+Для локальной и AI-проверки не обязательно гонять весь набор. Быстрые сьюты:
+
+```bash
+./scripts/run_kidsmap_tests.sh smoke
+./scripts/run_kidsmap_tests.sh auth
+./scripts/run_kidsmap_tests.sh public
+./scripts/run_kidsmap_tests.sh admin
+./scripts/run_kidsmap_tests.sh owner
+./scripts/run_kidsmap_tests.sh catalog
+./scripts/run_kidsmap_tests.sh full
+```
+
+Можно передавать дополнительные флаги дальше в `manage.py test`, например:
+
+```bash
+./scripts/run_kidsmap_tests.sh smoke --keepdb
 ```
 
 Если менялись переводы:
@@ -188,10 +206,10 @@ git stash push -m "before-deploy"
 git fetch origin
 git checkout main
 git pull --ff-only origin main
-docker compose up -d --build
-docker compose exec -T web python manage.py migrate --noinput
-docker compose exec -T web python manage.py collectstatic --clear --noinput
-docker compose exec -T web python manage.py check
+docker compose build web
+docker compose up -d db
+docker compose run --rm web ./scripts/release-server.sh
+docker compose up -d web
 ```
 
 Smoke-check:

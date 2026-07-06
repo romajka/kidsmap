@@ -967,7 +967,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.fields["price_per_8_lessons"].help_text = f"{_('Если есть пакет занятий.')} {free_price_hint}"
         self.fields["extra_conditions"].help_text = _("Скидки, пробный урок, форма.")
         self.fields["additional_info"].help_text = _("Только если есть важные детали.")
-        self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
+        self.fields["photo"].help_text = _("JPG, PNG или WEBP до 2 МБ. В каталоге главное фото показывается квадратом.")
         if self.draft_save_only:
             for field in self.fields.values():
                 field.required = False

@@ -3,6 +3,7 @@
 <div
   class="owner-file-uploader owner-file-uploader-multiple js-file-uploader"
   data-file-uploader
+  data-upload-mode="multiple"
   data-upload-empty="{% if CURRENT_LANGUAGE == 'az' %}10-dək şəkil əlavə edin. Hər biri JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == 'en' %}Add up to 10 images. Each JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans 'Добавьте до 10 изображений в формате JPG, PNG или WEBP, каждое до 2 МБ.' %}{% endif %}"
   data-upload-summary="{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş fayllar:{% elif CURRENT_LANGUAGE == 'en' %}Selected files:{% else %}{% trans 'Выбрано файлов:' %}{% endif %}"
 >
@@ -19,7 +20,7 @@
         {% if CURRENT_LANGUAGE == "az" %}10-dək şəkil əlavə edin. Hər biri JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == "en" %}Add up to 10 images. Each JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans "Добавьте до 10 изображений в формате JPG, PNG или WEBP, каждое до 2 МБ." %}{% endif %}
       </span>
     </span>
-    <span class="owner-file-uploader-action">{% if CURRENT_LANGUAGE == "az" %}Faylları seçin{% elif CURRENT_LANGUAGE == "en" %}Choose files{% else %}{% trans "Выбрать файлы" %}{% endif %}</span>
+    <span class="owner-file-uploader-action" data-upload-trigger role="button" tabindex="0">{% if CURRENT_LANGUAGE == "az" %}Faylları seçin{% elif CURRENT_LANGUAGE == "en" %}Choose files{% else %}{% trans "Выбрать файлы" %}{% endif %}</span>
     <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
   </label>
   <div class="owner-file-uploader-list" data-upload-list hidden></div>

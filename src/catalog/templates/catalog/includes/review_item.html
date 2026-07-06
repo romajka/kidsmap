@@ -2,10 +2,12 @@
 
 <article class="review-item">
   <div class="review-head">
-    <strong class="review-author">
-      {{ review.author_name|default:review.author_name_i18n }}
-    </strong>
-    <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
+    <div class="review-head-main">
+      <strong class="review-author">
+        {{ review.author_name_i18n }}
+      </strong>
+      <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
+    </div>
     <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
   </div>
 

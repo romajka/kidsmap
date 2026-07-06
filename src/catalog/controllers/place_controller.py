@@ -677,6 +677,13 @@ class PlaceController:
             elif place.metro:
                 address_parts.append(str(_(place.metro)))
 
+            cat_color_bg = place.category.color_bg if place.category else "#F3F4F6"
+            cat_color_text = place.category.color_text if place.category else "#6B7280"
+            cat_icon_url = place.category.icon_file_url if place.category else ""
+            cat_icon_is_svg = place.category.icon_is_svg if place.category else False
+            cat_icon_is_font = place.category.icon_is_font_class if place.category else False
+            cat_icon_name = (place.category.icon or "") if place.category else ""
+
             serialized.append(
                 {
                     "id": place.id,
@@ -686,6 +693,12 @@ class PlaceController:
                     "url": place.get_absolute_url(),
                     "category": place.get_category_display(),
                     "category_code": place.category_code,
+                    "category_color_bg": cat_color_bg,
+                    "category_color_text": cat_color_text,
+                    "category_icon_url": cat_icon_url,
+                    "category_icon_is_svg": cat_icon_is_svg,
+                    "category_icon_is_font": cat_icon_is_font,
+                    "category_icon_name": cat_icon_name,
                     "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
                     "location": " / ".join(location_parts),
                     "address": ", ".join(part for part in address_parts if part),
@@ -694,6 +707,7 @@ class PlaceController:
                     "rating": float(place.rating_avg) if place.rating_avg is not None else None,
                     "reviews_count": int(place.rating_count or 0),
                     "phone": place.phone1 or "",
+                    "schedule": place.schedule_summary or "",
                 }
             )
         return serialized

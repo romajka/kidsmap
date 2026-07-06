@@ -5251,8 +5251,8 @@ msgstr "Additional details"
 #, python-format
 msgid "%(total)s отзыв помогает понять место лучше."
 msgid_plural "%(total)s отзыва помогают понять место лучше."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(total)s review helps parents understand this place better."
+msgstr[1] "%(total)s reviews help parents understand this place better."
 
 #: src/catalog/templates/catalog/place_detail.html:264
 #, fuzzy
@@ -5278,7 +5278,7 @@ msgstr "No reviews yet. Be the first!"
 #, fuzzy
 #| msgid "Отправить отзыв"
 msgid "Оставить отзыв"
-msgstr "Submit review"
+msgstr "Leave a review"
 
 #: src/catalog/templates/catalog/place_detail.html:307
 #: src/catalog/templates/catalog/place_detail.html:309
@@ -5343,15 +5343,35 @@ msgstr "Open dashboard"
 #, fuzzy
 #| msgid "Проверено"
 msgid "Основные данные"
-msgstr "Verified"
+msgstr "Basic details"
 
 #: src/catalog/templates/catalog/place_detail.html:394
 msgid "Короткая сводка по формату, локации и условиям."
-msgstr ""
+msgstr "A short summary of format, location, and essentials."
 
 #: src/catalog/templates/catalog/place_detail.html:398
 msgid "Формат"
 msgstr "Format"
+
+#: src/catalog/templates/catalog/place_detail.html:172
+msgid "Отзывы помогут другим родителям быстрее сориентироваться."
+msgstr "Reviews help other parents make a faster decision."
+
+#: src/catalog/templates/catalog/place_detail.html:196
+msgid "Короткий отзыв поможет другим родителям быстрее выбрать место."
+msgstr "A short review helps other parents choose a place faster."
+
+#: src/catalog/templates/catalog/place_detail.html:198
+msgid "Чтобы оставить отзыв, нужно войти в аккаунт."
+msgstr "You need to sign in to leave a review."
+
+#: src/catalog/templates/catalog/place_detail.html:242
+msgid "Последние отзывы"
+msgstr "Latest reviews"
+
+#: src/catalog/templates/catalog/place_detail.html:268
+msgid "Пока нет опубликованных отзывов."
+msgstr "No published reviews yet."
 
 #: src/catalog/templates/catalog/place_detail.html:410
 #: src/catalog/templates/catalog/place_list.html:121

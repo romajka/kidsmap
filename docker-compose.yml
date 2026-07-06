@@ -4,16 +4,16 @@ services:
     container_name: kidsmap-db
     restart: unless-stopped
     environment:
-      MARIADB_DATABASE: ${DB_NAME:-kidsmap}
-      MARIADB_USER: ${DB_USER:-kidsmap}
-      MARIADB_PASSWORD: ${DB_PASSWORD:-kidsmap}
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpass}
+      MARIADB_DATABASE: ${DB_NAME:-kidsmap_prod}
+      MARIADB_USER: ${DB_USER:-kidsmap_app}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-replace-with-strong-db-password}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-replace-with-strong-root-password}
     volumes:
       - mariadb_data:/var/lib/mysql
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u${DB_USER:-kidsmap}", "-p${DB_PASSWORD:-kidsmap}"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u${DB_USER:-kidsmap_app}", "-p${DB_PASSWORD:-replace-with-strong-db-password}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -30,13 +30,20 @@ services:
     environment:
       DJANGO_DEBUG: "${DJANGO_DEBUG:-0}"
       SERVE_MEDIA_FILES: "${SERVE_MEDIA_FILES:-1}"
-      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-dev-only-change-me}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-replace-with-long-random-secret}"
       DJANGO_ALLOWED_HOSTS: "${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost,0.0.0.0}"
       DJANGO_CSRF_TRUSTED_ORIGINS: "${DJANGO_CSRF_TRUSTED_ORIGINS:-}"
       DJANGO_ADMIN_HOST: "${DJANGO_ADMIN_HOST:-}"
       USE_X_FORWARDED_HOST: "${USE_X_FORWARDED_HOST:-1}"
       SESSION_COOKIE_SECURE: "${SESSION_COOKIE_SECURE:-1}"
       CSRF_COOKIE_SECURE: "${CSRF_COOKIE_SECURE:-1}"
+      SESSION_COOKIE_HTTPONLY: "${SESSION_COOKIE_HTTPONLY:-1}"
+      SECURE_CONTENT_TYPE_NOSNIFF: "${SECURE_CONTENT_TYPE_NOSNIFF:-1}"
+      SECURE_REFERRER_POLICY: "${SECURE_REFERRER_POLICY:-same-origin}"
+      SECURE_SSL_REDIRECT: "${SECURE_SSL_REDIRECT:-1}"
+      SECURE_HSTS_SECONDS: "${SECURE_HSTS_SECONDS:-31536000}"
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: "${SECURE_HSTS_INCLUDE_SUBDOMAINS:-1}"
+      SECURE_HSTS_PRELOAD: "${SECURE_HSTS_PRELOAD:-0}"
       GOOGLE_MAPS_API_KEY: "${GOOGLE_MAPS_API_KEY:-}"
       GOOGLE_ANALYTICS_MEASUREMENT_ID: "${GOOGLE_ANALYTICS_MEASUREMENT_ID:-}"
       GOOGLE_ANALYTICS_PROPERTY_ID: "${GOOGLE_ANALYTICS_PROPERTY_ID:-}"
@@ -56,13 +63,13 @@ services:
       SERVER_EMAIL: "${SERVER_EMAIL:-noreply@kidsmap.az}"
       MEDIA_CACHE_MAX_AGE: "${MEDIA_CACHE_MAX_AGE:-86400}"
       DB_ENGINE: "mariadb"
-      DB_NAME: "${DB_NAME:-kidsmap}"
-      DB_USER: "${DB_USER:-kidsmap}"
-      DB_PASSWORD: "${DB_PASSWORD:-kidsmap}"
+      DB_NAME: "${DB_NAME:-kidsmap_prod}"
+      DB_USER: "${DB_USER:-kidsmap_app}"
+      DB_PASSWORD: "${DB_PASSWORD:-replace-with-strong-db-password}"
       DB_HOST: "db"
       DB_PORT: "3306"
       USE_RUNSERVER: "${USE_RUNSERVER:-0}"
-      RUN_COLLECTSTATIC_ON_START: "${RUN_COLLECTSTATIC_ON_START:-0}"
+      RUN_COLLECTSTATIC_ON_RELEASE: "${RUN_COLLECTSTATIC_ON_RELEASE:-1}"
       GUNICORN_WORKERS: "${GUNICORN_WORKERS:-3}"
       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
     volumes:

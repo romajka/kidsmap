@@ -9,8 +9,6 @@ else
   PYTHON_BIN="python3"
 fi
 
-./scripts/build-server.sh
-
 if [ "${USE_RUNSERVER:-0}" = "1" ]; then
   exec "${PYTHON_BIN}" manage.py runserver 0.0.0.0:${PORT:-8000}
 fi

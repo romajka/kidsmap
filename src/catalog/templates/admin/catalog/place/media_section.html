@@ -6,7 +6,7 @@
         <h3 class="km-media-section__title">{% translate "Главное фото" %}</h3>
         <p class="km-media-section__description">{% translate "Используется в каталоге, на карте и первым на странице места." %}</p>
       </div>
-      <p class="km-media-section__hint">{% translate "Рекомендуется квадратное или вертикальное изображение хорошего качества, не меньше 1200×1200 px." %}</p>
+      <p class="km-media-section__hint">{% translate "Главное фото в каталоге показывается квадратом. Рекомендуется изображение не меньше 1200×1200 px." %}</p>
     </div>
 
     <div class="km-media-main{% if obj.photo and obj.photo.name %} has-photo{% endif %}" data-main-photo-root>
@@ -20,7 +20,7 @@
           <span class="km-media-main__placeholder-icon" aria-hidden="true">📷</span>
           <strong>{% translate "Добавить главное фото" %}</strong>
           <span class="km-media-main__placeholder-sub">{% translate "Перетащите изображение или выберите файл" %}</span>
-          <span class="km-media-main__placeholder-hint">{% translate "Рекомендуется квадратное или вертикальное изображение хорошего качества, не меньше 1200×1200 px." %}</span>
+          <span class="km-media-main__placeholder-hint">{% translate "Превью показывает квадратный кроп, который будет виден в каталоге. Рекомендуется изображение не меньше 1200×1200 px." %}</span>
         </div>
 
         {% if obj.photo and obj.photo.name %}
@@ -40,11 +40,15 @@
 
       <div class="km-media-main__bottom">
         <div class="km-media-main__actions">
+          {% if obj.pk and obj.get_absolute_url %}
+            <a class="km-media-main__view" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Посмотреть как на сайте" %}</a>
+          {% endif %}
           <button type="button" class="km-media-main__pick" data-main-photo-pick>{% translate "Заменить" %}</button>
           <button type="button" class="km-media-main__clear" data-main-photo-clear>{% translate "Удалить" %}</button>
         </div>
         <p class="km-media-main__meta">
-          <span>{% translate "Используется в каталоге, на карте и на странице места" %}</span>
+          <span>{% translate "Квадратное превью каталога" %}</span>
+          <span class="km-media-main__drop-note">{% translate "Можно перетащить новое фото прямо на превью" %}</span>
           <span data-main-photo-file-name style="display: none;"></span>
           <span data-main-photo-file-size style="display: none;"></span>
         </p>
@@ -57,15 +61,16 @@
           <h3 id="km-gallery-title" class="km-gallery-section__title">{% translate "Дополнительные фотографии" %}</h3>
           <p class="km-gallery-section__description">{% translate "Перетаскивайте фотографии, чтобы изменить порядок." %}</p>
         </div>
-        <button type="button" class="km-gallery-section__add" data-gallery-add-button>
-          <span aria-hidden="true">+</span>
-          <span>{% translate "Добавить фото" %}</span>
-        </button>
+        <div class="km-gallery-section__status">
+          <span class="km-gallery-section__counter" data-gallery-count-label>{% translate "Загружено" %}</span>
+          <strong class="km-gallery-section__counter-value" data-gallery-count-value>0 / 10</strong>
+        </div>
       </div>
 
       <!-- Empty state for gallery -->
       <div class="km-gallery-empty-state" data-gallery-empty-state style="display: none;">
         <p class="km-gallery-empty-state__text">{% translate "Дополнительные фотографии не добавлены" %}</p>
+        <p class="km-gallery-empty-state__meta" data-gallery-count-empty>{% translate "Сейчас загружено 0 из 10 фото" %}</p>
         <button type="button" class="km-gallery-empty-state__btn" data-gallery-add-button-empty>
           <span aria-hidden="true">+</span>
           <span>{% translate "Добавить фото" %}</span>

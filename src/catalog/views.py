@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -36,6 +37,7 @@ from .legal_content import get_legal_page_content
 from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile
 from .models import FunnelEvent
 from .services.content_quality import approved_review_queryset
+from .services.reactions import ensure_session_key
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 
 home_controller = HomeController.build_default()
@@ -117,6 +119,59 @@ def _engagement_login_required_response(request, fallback_url: str):
             status=401,
         )
     return redirect(login_url)
+
+
+def _allowed_tracking_hosts(request) -> set[str]:
+    hosts = {request.get_host().split(":", 1)[0].lower()}
+    for origin in getattr(settings, "CSRF_TRUSTED_ORIGINS", []):
+        if "://" not in origin:
+            continue
+        host = origin.split("://", 1)[1].split("/", 1)[0].split(":", 1)[0].lower()
+        if host:
+            hosts.add(host)
+    return hosts
+
+
+def _has_allowed_tracking_origin(request) -> bool:
+    allowed_hosts = _allowed_tracking_hosts(request)
+    origin = (request.headers.get("Origin") or "").strip()
+    referer = (request.headers.get("Referer") or "").strip()
+
+    if origin and origin.lower() != "null":
+        return url_has_allowed_host_and_scheme(
+            origin,
+            allowed_hosts=allowed_hosts,
+            require_https=request.is_secure(),
+        )
+
+    if referer:
+        return url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts=allowed_hosts,
+            require_https=request.is_secure(),
+        )
+
+    fetch_site = (request.headers.get("Sec-Fetch-Site") or "").strip().lower()
+    return fetch_site in {"", "same-origin", "same-site", "none"}
+
+
+def _tracking_rate_limit_exceeded(request) -> bool:
+    limit = max(int(getattr(settings, "TRACKING_EVENT_RATE_LIMIT", 60) or 60), 1)
+    window_seconds = max(int(getattr(settings, "TRACKING_EVENT_RATE_WINDOW_SECONDS", 60) or 60), 1)
+    session_key = ensure_session_key(request) or "anonymous"
+    remote_addr = (request.META.get("REMOTE_ADDR") or "unknown").strip()
+    cache_key = f"tracking-rate:{session_key}:{remote_addr}"
+
+    added = cache.add(cache_key, 1, timeout=window_seconds)
+    if added:
+        return False
+
+    try:
+        current_count = cache.incr(cache_key)
+    except ValueError:
+        cache.set(cache_key, 1, timeout=window_seconds)
+        return False
+    return current_count > limit
 
 
 def _redirect_to_login(request):
@@ -400,6 +455,10 @@ def vote_site_review(request, review_id):
 @csrf_exempt
 @require_POST
 def track_event(request):
+    if not _has_allowed_tracking_origin(request):
+        return JsonResponse({"ok": False, "error": "forbidden_origin"}, status=403)
+    if _tracking_rate_limit_exceeded(request):
+        return JsonResponse({"ok": False, "error": "rate_limited"}, status=429)
     result = tracking_controller.track_event_from_json(request=request, raw_body=request.body)
     return JsonResponse(result.as_payload(), status=result.status_code)
 

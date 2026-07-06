@@ -224,37 +224,96 @@
         "</a>"
       : "";
 
+    const addressHtml = place.address
+      ? '<div class="home-map-popup-info-row">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>' +
+        '<span class="home-map-popup-info-text">' + escapeHtml(place.address) + '</span>' +
+        '</div>'
+      : "";
+
+    const scheduleHtml = place.schedule
+      ? '<div class="home-map-popup-info-row">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' +
+        '<span class="home-map-popup-info-text">' + escapeHtml(place.schedule) + '</span>' +
+        '</div>'
+      : "";
+
+    const phoneHtml = place.phone
+      ? '<div class="home-map-popup-info-row">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>' +
+        '<a href="tel:' + escapeHtml(place.phone) + '" class="home-map-popup-phone-link">' + escapeHtml(place.phone) + '</a>' +
+        '</div>'
+      : "";
+
     return (
       '<div class="home-map-popup">' +
       image +
       '<div class="home-map-popup-body">' +
+      '<span class="home-map-popup-category" style="color: ' + escapeHtml(place.category_color_text || "var(--brand-turf)") + ';">' +
+      escapeHtml(place.category) +
+      "</span>" +
       '<strong class="home-map-popup-title">' +
       escapeHtml(place.name) +
       "</strong>" +
-      '<span class="home-map-popup-category">' +
-      escapeHtml(place.category) +
-      "</span>" +
-      '<a class="home-map-popup-link" href="' +
+      '<div class="home-map-popup-details">' +
+      addressHtml +
+      scheduleHtml +
+      phoneHtml +
+      '</div>' +
+      '<a class="home-map-popup-link-btn" href="' +
       escapeHtml(place.url || "") +
       '">' +
       escapeHtml(detailsLabel) +
+      ' <span class="arrow">→</span>' +
       "</a>" +
       "</div>" +
       "</div>"
     );
   }
 
-  function buildGoogleMarkerIcon() {
-    const svg =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44" fill="none">' +
-      '<path d="M18 1.5C9.44 1.5 2.5 8.44 2.5 17c0 11.41 12.35 23.56 14.3 25.39a1.75 1.75 0 0 0 2.4 0C21.15 40.56 33.5 28.41 33.5 17 33.5 8.44 26.56 1.5 18 1.5Z" fill="' + BRAND_MARKER_COLOR + '" stroke="white" stroke-width="3"/>' +
-      '<circle cx="18" cy="17" r="6" fill="' + BRAND_MARKER_INNER_COLOR + '" stroke="white" stroke-width="2"/>' +
-      "</svg>";
+  const CATEGORY_SVGS = {
+    CAMP: '<path d="m3 21 8.5-16.5a1 1 0 0 1 1 0L21 21"></path><path d="m8 12 4 8"></path><path d="m16 12-4 8"></path>',
+    SPRT: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7c0 6 4 9 6 9s6-3 6-9V2Z"></path>',
+    MUS: '<path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle>',
+    TECH: '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>',
+    EDU: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>',
+    ART: '<circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>',
+    FUN: '<rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><circle cx="15" cy="13" r="1"></circle><circle cx="18" cy="11" r="1"></circle>',
+    'early-development': '<path d="M12 22V12"></path><path d="M12 12C12 12 10 6 5 6C5 6 4 10 12 12Z"></path><path d="M12 16C12 16 15 10 19 10C19 10 20 14 12 16Z"></path>',
+    dance: '<circle cx="12" cy="4" r="2" /><path d="M6 10c2-3 4-4 6-4s4 1 6 4" /><path d="M12 8c-3 4-5 7-6 11h12c-1-4-3-7-6-11z" /><path d="M10 19v3" /><path d="M14 19v3" />',
+    'intellect-skills': '<path d="M20 7H17.8486C17.3511 7 17 6.49751 17 6C17 4.34315 15.6569 3 14 3C12.3431 3 11 4.34315 11 6C11 6.49751 10.6488 7 10.1513 7H8C7.44771 7 7 7.44772 7 8V10.1513C7 10.6488 6.49751 11 6 11C4.34315 11 3 12.3431 3 14C3 15.6569 4.34315 17 6 17C6.49751 17 7 17.3511 7 17.8486V20C7 20.5523 7.44771 21 8 21L20 21C20.5523 21 21 20.5523 21 20V17.8486C21 17.3511 20.4975 17 20 17C18.3431 17 17 15.6569 17 14C17 12.3431 18.3431 11 20 11C20.4975 11 21 10.6488 21 10.1513L21 8C21 7.44772 20.5523 7 20 7Z"/>',
+    PARK: '<path d="M10 22v-6.5M18 22v-5M10 15.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /><path d="M18 17a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z" />'
+  };
 
+  function buildMarkerGlyph(place, colorText) {
+    const categoryCode = place && place.category_code;
+    const iconSvgContent = CATEGORY_SVGS[categoryCode] || '<rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect>';
+    return (
+      '<g transform="translate(11, 10) scale(0.667)">' +
+      '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="' + colorText + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+      iconSvgContent +
+      "</svg>" +
+      "</g>"
+    );
+  }
+
+  function buildDynamicMarkerSvg(place) {
+    const bg = (place && place.category_color_bg) || "#F3F4F6";
+    const text = (place && place.category_color_text) || "#6B7280";
+
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="38" height="48" viewBox="0 0 38 48" fill="none">' +
+      '<path d="M19 47C13.5 39 3 31 3 18C3 8.5 10 1 19 1C28 1 35 8.5 35 18C35 31 24.5 39 19 47Z" fill="' + text + '" stroke="white" stroke-width="2.2"/>' +
+      '<circle cx="19" cy="18" r="11" fill="' + bg + '" />' +
+      buildMarkerGlyph(place, text) +
+      '</svg>';
+  }
+
+  function buildGoogleMarkerIcon(place) {
+    const svg = buildDynamicMarkerSvg(place);
     return {
       url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-      scaledSize: new google.maps.Size(36, 44),
-      anchor: new google.maps.Point(18, 44),
+      scaledSize: new google.maps.Size(38, 48),
+      anchor: new google.maps.Point(19, 48),
     };
   }
 
@@ -459,7 +518,6 @@
       gestureHandling: "cooperative",
     });
     const infoWindow = new google.maps.InfoWindow();
-    const markerIcon = buildGoogleMarkerIcon();
     const markerItems = [];
 
     places.forEach(function (place) {
@@ -468,7 +526,7 @@
         position: position,
         map: null,
         title: place.name || "",
-        icon: markerIcon,
+        icon: buildGoogleMarkerIcon(place),
       });
 
       marker.addListener("click", function () {
@@ -554,13 +612,15 @@
 
     places.forEach(function (place) {
       const position = [place.lat, place.lng];
-      const marker = L.circleMarker(position, {
-        radius: 8,
-        color: "#ffffff",
-        weight: 2,
-        fillColor: "#1f8640",
-        fillOpacity: 0.9,
+      const svg = buildDynamicMarkerSvg(place);
+      const customIcon = L.divIcon({
+        html: svg,
+        className: 'custom-leaflet-marker',
+        iconSize: [38, 48],
+        iconAnchor: [19, 48],
+        popupAnchor: [0, -42]
       });
+      const marker = L.marker(position, { icon: customIcon });
 
       marker.bindPopup(renderPopupContent(place, mapEl.dataset.detailsLabel || "Details"));
       markerItems.push({
