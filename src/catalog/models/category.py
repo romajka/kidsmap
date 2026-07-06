@@ -5,6 +5,25 @@ from django.utils.translation import get_language
 import os
 
 
+CATEGORY_COLOR_PRESETS = {
+    "ALL": {"bg": "#DDF3E5", "text": "#0F8A43"},
+    "SPRT": {"bg": "#E4F0FF", "text": "#1473E6"},
+    "ART": {"bg": "#F3E8FF", "text": "#8B5CF6"},
+    "MUS": {"bg": "#F8E3FF", "text": "#C026D3"},
+    "EDU": {"bg": "#E6ECFF", "text": "#4F46E5"},
+    "TECH": {"bg": "#EEE7FF", "text": "#7C3AED"},
+    "FUN": {"bg": "#FFE8D9", "text": "#DD6B20"},
+    "PARK": {"bg": "#DFF6E8", "text": "#198754"},
+}
+
+NEUTRAL_BG_VALUES = {"", "#fff", "#ffffff", "#f3f4f6", "#fcfcfc", "#f9fafb"}
+NEUTRAL_TEXT_VALUES = {"", "#000", "#000000", "#111827", "#1f2933", "#6b7280", "#9ca3af"}
+
+
+def _normalize_hex(value: str) -> str:
+    return str(value or "").strip().lower()
+
+
 class Category(models.Model):
     code = models.CharField(_("Код"), max_length=50, primary_key=True)
     name = models.CharField(_("Название"), max_length=255)
@@ -60,6 +79,22 @@ class Category(models.Model):
     @property
     def icon_is_font_class(self):
         return bool(self.icon_name and not self.icon_file_url)
+
+    @property
+    def color_preset(self):
+        return CATEGORY_COLOR_PRESETS.get((self.code or "").strip().upper(), {})
+
+    @property
+    def resolved_color_bg(self):
+        raw = (self.color_bg or "").strip()
+        preset = self.color_preset.get("bg", "#F3F4F6")
+        return preset if _normalize_hex(raw) in NEUTRAL_BG_VALUES else raw
+
+    @property
+    def resolved_color_text(self):
+        raw = (self.color_text or "").strip()
+        preset = self.color_preset.get("text", "#6B7280")
+        return preset if _normalize_hex(raw) in NEUTRAL_TEXT_VALUES else raw
 
     def __str__(self):
         return self.name_i18n()

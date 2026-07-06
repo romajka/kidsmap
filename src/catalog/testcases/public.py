@@ -1060,6 +1060,19 @@ class TestPublicFilterCounts(TestCase):
         self.assertTrue(any(item["value"] == "baku" and item["label_with_count"] == "Bakı — 3" for item in az_response.context["district_options"]))
         self.assertTrue(any(item["value"] == "baku" and item["label_with_count"] == "Baku — 3" for item in en_response.context["district_options"]))
 
+    def test_catalog_category_colors_fall_back_to_preset_palette(self):
+        category = Category.objects.get(code="EDU")
+        category.color_bg = "#FFFFFF"
+        category.color_text = "#111827"
+        category.save(update_fields=["color_bg", "color_text"])
+
+        response = self.client.get("/ru/catalog/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        edu_option = next(item for item in response.context["categories"] if item["value"] == "EDU")
+        self.assertEqual(edu_option["color_bg"], "#E6ECFF")
+        self.assertEqual(edu_option["color_text"], "#4F46E5")
+
 class TestCatalogEnhancements(TestCase):
     def test_place_detail_uses_safe_next_url_for_back_link(self):
         place = create_quality_place(

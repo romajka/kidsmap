@@ -677,8 +677,8 @@ class PlaceController:
             elif place.metro:
                 address_parts.append(str(_(place.metro)))
 
-            cat_color_bg = place.category.color_bg if place.category else "#F3F4F6"
-            cat_color_text = place.category.color_text if place.category else "#6B7280"
+            cat_color_bg = place.category.resolved_color_bg if place.category else "#F3F4F6"
+            cat_color_text = place.category.resolved_color_text if place.category else "#6B7280"
             cat_icon_url = place.category.icon_file_url if place.category else ""
             cat_icon_is_svg = place.category.icon_is_svg if place.category else False
             cat_icon_is_font = place.category.icon_is_font_class if place.category else False
