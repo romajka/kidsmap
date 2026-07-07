@@ -299,14 +299,32 @@ def build_statistics_context(period_days: int = 30) -> dict:
     prev_start = current_start - timedelta(days=period_days)
     prev_end = current_start - timedelta(days=1)
 
-    visits_qs = SiteVisit.objects.all()
+    visits_qs = SiteVisit.objects.none()  # Stubbed to avoid heavy database scans
     events_qs = FunnelEvent.objects.all()
     places_qs = Place.objects.all()
     place_reviews_qs = PlaceReview.objects.all()
 
-    # ── 1. Visits: current & previous period ──────────────────────────────
-    visits_current = _build_visits_for_period(visits_qs, current_start)
-    visits_prev = _build_visits_for_period(visits_qs.filter(day__lte=prev_end), prev_start)
+    # ── 11. GA4 (Fetch first so we can use its data) ──────────────────────
+    ga4 = build_google_analytics_context()
+
+    # ── 1. Visits: Map from GA4 to avoid heavy DB queries ──────────────────
+    visits_current = {"unique_sessions": 0, "page_views": 0}
+    visits_prev = {"unique_sessions": 0, "page_views": 0}
+
+    if ga4.get("connected"):
+        # Map period_days to GA4 period keys
+        p_key = "month"
+        if period_days <= 7:
+            p_key = "week"
+        elif period_days <= 30:
+            p_key = "month"
+        else:
+            p_key = "year"
+
+        p_stats = ga4["period_stats"].get(p_key, {"active_users": 0, "page_views": 0, "sessions": 0})
+        visits_current["unique_sessions"] = p_stats.get("active_users") or p_stats.get("sessions") or 0
+        visits_current["page_views"] = p_stats.get("page_views") or 0
+
 
     # ── 2. Funnel: current & previous period ──────────────────────────────
     funnel_current = _build_funnel_for_period(events_qs.filter(day__gte=current_start), current_start)
@@ -388,7 +406,14 @@ def build_statistics_context(period_days: int = 30) -> dict:
     open_per_search_display = f'{kpi["open_per_search"]:.1f}' if kpi["open_per_search"] is not None else "—"
 
     # ── 4. Daily chart ────────────────────────────────────────────────────
-    visits_daily_chart = _build_daily_visits_chart(visits_qs, current_start, today)
+    if ga4.get("connected") and ga4.get("daily_chart"):
+        visits_daily_chart = {
+            "labels": ga4["daily_chart"].get("labels", []),
+            "unique_sessions": ga4["daily_chart"].get("active_users", []),
+            "page_views": ga4["daily_chart"].get("page_views", []),
+        }
+    else:
+        visits_daily_chart = {"labels": [], "unique_sessions": [], "page_views": []}
 
     # ── 5. Places (catalog state) ─────────────────────────────────────────
     places_agg = places_qs.aggregate(
@@ -489,16 +514,14 @@ def build_statistics_context(period_days: int = 30) -> dict:
     recent_places = list(places_qs.order_by("-created_at").select_related()[:5])
 
     # ── 10. Detailed tables (weekly/monthly) ─────────────────────────────
-    # Use a longer lookback for detailed data regardless of selected period
+    # Use GA4 for traffic, only local funnel here
+    weekly_visits = []
+    monthly_visits = []
     detailed_start = today - timedelta(days=364)
-    weekly_visits = _build_weekly_visits(visits_qs, detailed_start)
-    monthly_visits = _build_monthly_visits(visits_qs, detailed_start)
     weekly_funnel = _build_weekly_funnel_stats(events_qs, detailed_start)
     monthly_funnel = _build_monthly_funnel_stats(events_qs, detailed_start)
     funnel_steps = _build_funnel_steps(funnel_current)
 
-    # ── 11. GA4 ───────────────────────────────────────────────────────────
-    ga4 = build_google_analytics_context()
 
     return {
         "period_days": period_days,

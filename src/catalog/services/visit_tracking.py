@@ -31,6 +31,8 @@ class SiteVisitTracker:
         return f"/{remainder}" if sep else "/"
 
     def track_request(self, request) -> None:
+        if getattr(settings, "DISABLE_SITE_VISIT_TRACKING", False):
+            return
         original_path = (request.path or "").lower()
         if not original_path:
             return

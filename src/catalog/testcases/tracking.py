@@ -179,6 +179,7 @@ class TestGoogleAnalyticsEvents(TestCase):
         )
 
 
+@override_settings(DISABLE_SITE_VISIT_TRACKING=False)
 class TestSiteVisitMiddleware(TestCase):
     def test_site_visit_increments_for_same_session(self):
         self.client.get("/ru/")
