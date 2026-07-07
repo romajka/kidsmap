@@ -332,7 +332,7 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
             ]
             for i, data in enumerate(regions_data):
                 slug = f"club-in-{data['district']}-{i}"
-                cat, _ = Category.objects.get_or_create(
+                cat, created = Category.objects.get_or_create(
                     code=data["category"], 
                     defaults={"name_ru": data["category"], "name_az": data["category"], "name_en": data["category"]}
                 )
