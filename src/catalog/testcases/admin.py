@@ -512,50 +512,34 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_siteanalytics_changelist"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Google Analytics 4")
-        self.assertContains(response, "G-TEST123")
-        self.assertContains(response, "123456789")
+        self.assertContains(response, "Статистика")
         self.assertContains(response, "/ru/catalog/")
         self.assertContains(response, "place_open")
-        self.assertContains(response, "Подробные данные")
-        self.assertContains(response, 'data-tab-panel="ga4"', html=False)
 
     @patch("catalog.services.admin_analytics.build_google_analytics_context")
     def test_admin_site_analytics_page_uses_new_dashboard_layout_and_period_fallback(self, ga4_context_mock):
-        ga4_context_mock.return_value = self._ga4_disabled_context()
-        today = timezone.localdate()
+        ga4_context_mock.return_value = {
+            "enabled": True,
+            "connected": True,
+            "measurement_id": "G-TEST123",
+            "property_id": "123456789",
+            "credentials_path": "/app/.secrets/ga4.json",
+            "error": "",
+            "period_stats": {
+                "day": {"active_users": 4, "sessions": 5, "page_views": 9},
+                "week": {"active_users": 14, "sessions": 18, "page_views": 42},
+                "month": {"active_users": 40, "sessions": 57, "page_views": 130},
+                "year": {"active_users": 180, "sessions": 260, "page_views": 920},
+            },
+            "daily_chart": {
+                "labels": ["01.04", "02.04"],
+                "active_users": [3, 4],
+                "page_views": [7, 9],
+            },
+            "top_pages": [{"page_path": "/ru/catalog/", "page_views": 55}],
+            "top_events": [{"event_name": "place_open", "event_count": 17}],
+        }
 
-        SiteVisit.objects.create(day=today, session_key="session-recent", hits=3)
-        SiteVisit.objects.create(day=today - timedelta(days=20), session_key="session-month", hits=5)
-
-        FunnelEvent.objects.create(
-            event_type=FunnelEvent.EVENT_CATALOG_SEARCH,
-            day=today,
-            path="/ru/catalog/",
-            place=self.place,
-            session_key="session-recent",
-        )
-        FunnelEvent.objects.create(
-            event_type=FunnelEvent.EVENT_PLACE_OPEN,
-            day=today,
-            path="/ru/place/admin-ux-place/",
-            place=self.place,
-            session_key="session-recent",
-        )
-        FunnelEvent.objects.create(
-            event_type=FunnelEvent.EVENT_PLACE_OPEN,
-            day=today,
-            path="/ru/place/admin-ux-place/",
-            place=self.place,
-            session_key="session-recent",
-        )
-        FunnelEvent.objects.create(
-            event_type=FunnelEvent.EVENT_CTA_CALL,
-            day=today,
-            path="/ru/place/admin-ux-place/",
-            place=self.place,
-            session_key="session-recent",
-        )
         PlaceReview.objects.create(
             place=self.place,
             user=self.owner_user,
@@ -574,33 +558,26 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response_week, 'class="km-statistics-page"', html=False)
         self.assertContains(response_week, 'data-period="7"', html=False)
         self.assertContains(response_week, 'data-kpi="unique_sessions"', html=False)
-        self.assertRegex(week_content, r'data-kpi-value="unique_sessions">\s*1\s*<')
-        self.assertRegex(week_content, r'data-kpi-value="searches">\s*1\s*<')
-        self.assertRegex(week_content, r'data-kpi-value="place_opens">\s*2\s*<')
-        self.assertRegex(week_content, r'data-kpi-value="cta_total">\s*1\s*<')
-        self.assertRegex(week_content, r'data-kpi-value="cta_from_open_pct">\s*50.0%\s*<')
-        self.assertRegex(week_content, r'data-kpi-value="open_per_search">\s*2.0\s*<')
-        self.assertContains(response_week, "Топ кружков по CTA")
-        self.assertContains(response_week, "Состояние каталога")
-        self.assertContains(response_week, "Подробные данные")
+        self.assertRegex(week_content, r'data-kpi-value="unique_sessions">\s*14\s*<')
+        self.assertRegex(week_content, r'data-kpi-value="sessions">\s*18\s*<')
+        self.assertRegex(week_content, r'data-kpi-value="page_views">\s*42\s*<')
+        self.assertContains(response_week, "Популярные страницы GA4")
+        self.assertContains(response_week, "/ru/catalog/")
+        self.assertContains(response_week, "place_open")
 
         self.assertEqual(response_fallback.status_code, 200)
         self.assertContains(response_fallback, 'data-period="30"', html=False)
-        self.assertRegex(fallback_content, r'data-kpi-value="unique_sessions">\s*2\s*<')
+        self.assertRegex(fallback_content, r'data-kpi-value="unique_sessions">\s*40\s*<')
 
     @patch("catalog.services.admin_analytics.build_google_analytics_context")
-    def test_admin_site_analytics_page_shows_dash_for_zero_denominator_metrics(self, ga4_context_mock):
+    def test_admin_site_analytics_page_shows_empty_ga_blocks_without_local_fallback(self, ga4_context_mock):
         ga4_context_mock.return_value = self._ga4_disabled_context()
 
         response = self.client.get(reverse("admin:catalog_siteanalytics_changelist"), {"period": 30})
-        content = response.content.decode("utf-8")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'data-kpi-value="cta_from_open_pct"', html=False)
-        self.assertContains(response, 'data-kpi-value="open_per_search"', html=False)
-        self.assertRegex(content, r'data-kpi-value="cta_from_open_pct">\s*—\s*<')
-        self.assertRegex(content, r'data-kpi-value="open_per_search">\s*—\s*<')
-        self.assertContains(response, "Пока нет данных по CTA.")
+        self.assertContains(response, "GA4 пока не вернул событийные данные.")
+        self.assertContains(response, "GA4 пока не вернул данные по страницам.")
 
     def test_admin_can_approve_request_with_direct_button_url(self):
         self.place.is_active = False

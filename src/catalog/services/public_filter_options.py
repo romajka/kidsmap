@@ -33,6 +33,18 @@ def _with_selected_option(
     return [fallback_option, *options]
 
 
+def _move_baku_first(options: list[dict[str, object]]) -> list[dict[str, object]]:
+    baku_items = [item for item in options if str(item.get("value") or "").strip() == "baku"]
+    baku_district_items = [item for item in options if str(item.get("value") or "").strip().startswith("baku_")]
+    other_items = [
+        item
+        for item in options
+        if str(item.get("value") or "").strip() != "baku"
+        and not str(item.get("value") or "").strip().startswith("baku_")
+    ]
+    return baku_items + baku_district_items + other_items
+
+
 def _build_category_option(category: Category, *, language_code: str, count: int | None) -> dict[str, object]:
     raw = {
         "value": category.code,
@@ -106,7 +118,7 @@ def build_public_place_filter_options(
             "count": count
         })
 
-    districts = build_localized_options(raw_districts, language_code)
+    districts = _move_baku_first(build_localized_options(raw_districts, language_code))
 
     metro_counts = {
         str(item["metro"]).strip(): int(item["total"])
@@ -117,7 +129,6 @@ def build_public_place_filter_options(
         _build_category_option(category, language_code=language_code, count=category_counts.get(category.code))
         for category in Category.objects.filter(is_active=True).order_by("order", "name_ru", "name")
     ]
-    categories = [cat for cat in categories if cat.get("count", 0) > 0]
     categories = sorted(categories, key=lambda item: str(item["label"]).casefold())
 
     subcategories = [

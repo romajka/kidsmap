@@ -69,8 +69,9 @@ class HomeController:
                 "category_icon_is_svg": place.category.icon_is_svg if place.category else False,
                 "category_icon_is_font": place.category.icon_is_font_class if place.category else False,
                 "category_icon_name": (place.category.icon or "") if place.category else "",
-                "district": place.district,
+                "district_label": place.district_i18n(language_code) if place.district else "",
                 "metro": place.metro,
+                "metro_label": place.metro_i18n(language_code) if place.metro else "",
                 "age_from": place.age_from,
                 "age_to": place.age_to,
                 "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
@@ -83,8 +84,9 @@ class HomeController:
                         place.name_i18n(language_code),
                         place.get_category_display(),
                         place.subcategory.name_i18n(language_code) if place.subcategory_id else "",
-                        place.district,
+                        place.district_i18n(language_code),
                         place.metro,
+                        place.metro_i18n(language_code),
                     )
                     if part
                 ).casefold(),

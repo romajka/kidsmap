@@ -12,7 +12,7 @@
       <header class="km-statistics-header">
         <div class="km-statistics-header__titles">
           <h1>{% trans "Статистика" %}</h1>
-          <p class="km-statistics-header__subtitle">{% trans "Обзор трафика и активности сайта" %}</p>
+          <p class="km-statistics-header__subtitle">{% trans "Обзор Google Analytics 4" %}</p>
         </div>
         <div class="km-statistics-header__controls">
           <nav class="km-period-selector" aria-label="{% trans 'Выбор периода' %}">
@@ -55,9 +55,7 @@
           <header class="km-statistics-card__header">
             <div>
               <h2 class="km-statistics-card__title">{% trans "Посещаемость" %}</h2>
-              <p class="km-statistics-card__subtitle">
-                {{ period_start|date:"d.m.Y" }} - {{ period_end|date:"d.m.Y" }}
-              </p>
+              <p class="km-statistics-card__subtitle">{{ visits_chart_subtitle }}</p>
             </div>
           </header>
           <div class="km-chart-legend">
@@ -80,41 +78,30 @@
         <article class="km-statistics-card km-statistics-funnel">
           <header class="km-statistics-card__header">
             <div>
-              <h2 class="km-statistics-card__title">{% blocktranslate with days=period_days %}Воронка ({{ days }} дней){% endblocktranslate %}</h2>
-              <p class="km-statistics-card__subtitle">{% trans "Текущий период" %}</p>
+              <h2 class="km-statistics-card__title">{% trans "События GA4" %}</h2>
+              <p class="km-statistics-card__subtitle">{% trans "Топ событий за последние 30 дней" %}</p>
             </div>
           </header>
-          {% if funnel_steps %}
+          {% if ga4_top_events %}
             <div class="km-funnel-steps">
-              {% for step in funnel_steps %}
+              {% for step in ga4_top_events %}
                 <div class="km-funnel-step">
                   <div class="km-funnel-step__bar-wrap">
-                    <div class="km-funnel-step__label">{{ step.label }}</div>
+                    <div class="km-funnel-step__label">{{ step.event_name }}</div>
                     <div class="km-funnel-step__bar-track">
                       <div
                         class="km-funnel-step__bar-fill"
-                        style="width: {{ step.bar_pct }}%; background:
-                          {% if step.tone == 'purple' %}#DDD6FE
-                          {% elif step.tone == 'blue' %}#BFDBFE
-                          {% elif step.tone == 'green' %}#BBF7D0
-                          {% else %}#FDE68A{% endif %};"
+                        style="width: {% widthratio step.event_count ga4_top_events.0.event_count 100 %}%; background:#DDD6FE;"
                       ></div>
                     </div>
                   </div>
-                  <div class="km-funnel-step__count">{{ step.count }}</div>
+                  <div class="km-funnel-step__count">{{ step.event_count }}</div>
                 </div>
               {% endfor %}
             </div>
           {% else %}
-            <div class="km-empty-state">{% trans "Пока нет данных по событиям воронки." %}</div>
+            <div class="km-empty-state">{% trans "GA4 пока не вернул событийные данные." %}</div>
           {% endif %}
-          <div class="km-funnel-cta-ratio" data-kpi="open_per_search">
-            <div>
-              <div class="km-funnel-cta-ratio__label">{% trans "Открытий на поиск" %}</div>
-              <div class="km-funnel-ratio-note">{% trans "Коэффициент без знака %" %}</div>
-            </div>
-            <div class="km-funnel-cta-ratio__value" data-kpi-value="open_per_search">{{ open_per_search_display }}</div>
-          </div>
         </article>
       </section>
 
@@ -122,427 +109,38 @@
         <article class="km-statistics-card">
           <header class="km-statistics-card__header">
             <div>
-              <h2 class="km-statistics-card__title">{% blocktranslate with days=period_days %}Топ кружков по CTA ({{ days }} дней){% endblocktranslate %}</h2>
-              <p class="km-statistics-card__subtitle">{% trans "Карточки с наибольшим числом целевых действий" %}</p>
+              <h2 class="km-statistics-card__title">{% trans "Популярные страницы GA4" %}</h2>
+              <p class="km-statistics-card__subtitle">{% trans "Топ страниц за последние 30 дней" %}</p>
             </div>
           </header>
-          {% if top_cta_places %}
+          {% if ga4_top_pages %}
             <table class="km-top-places-table">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>{% trans "Кружок" %}</th>
-                  <th>{% trans "Категория" %}</th>
-                  <th>{% trans "Район" %}</th>
-                  <th>{% trans "CTA" %}</th>
-                  <th>{% trans "CTA / Open" %}</th>
+                  <th>{% trans "Страница" %}</th>
+                  <th>{% trans "Просмотры" %}</th>
                 </tr>
               </thead>
               <tbody>
-                {% for item in top_cta_places %}
+                {% for item in ga4_top_pages %}
                   <tr>
                     <td class="km-top-places-table__rank">{{ forloop.counter }}</td>
-                    <td class="km-top-places-table__name">
-                      <a href="{% url 'admin:catalog_place_change' item.place_id %}">{{ item.name }}</a>
-                    </td>
-                    <td class="km-top-places-table__cat">{{ item.category }}</td>
-                    <td>{{ item.district }}</td>
-                    <td class="km-top-places-table__num">{{ item.cta_count }}</td>
-                    <td class="km-top-places-table__num">
-                      {% if item.cta_from_open_pct is not None %}
-                        {{ item.cta_from_open_pct|floatformat:1 }}%
-                      {% else %}
-                        —
-                      {% endif %}
-                    </td>
+                    <td class="km-top-places-table__name">{{ item.page_path }}</td>
+                    <td class="km-top-places-table__num">{{ item.page_views }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
             </table>
-            <a href="{% url 'admin:catalog_place_changelist' %}" class="km-see-all-link">{% trans "Смотреть все" %}</a>
           {% else %}
-            <div class="km-empty-state">{% trans "Пока нет данных по CTA." %}</div>
-          {% endif %}
-        </article>
-
-        <article class="km-statistics-card">
-          <header class="km-statistics-card__header">
-            <div>
-              <h2 class="km-statistics-card__title">{% trans "Состояние каталога" %}</h2>
-              <p class="km-statistics-card__subtitle">{% trans "Текущее состояние базы мест" %}</p>
-            </div>
-          </header>
-          <div class="km-catalog-state-rows">
-            <div class="km-catalog-state-row">
-              <div class="km-catalog-state-row__left">
-                <span class="km-catalog-state-row__icon km-kpi-icon--blue">📍</span>
-                <span>{% trans "Всего мест" %}</span>
-              </div>
-              <div class="km-catalog-state-row__value">{{ catalog_state.total }}</div>
-            </div>
-            <div class="km-catalog-state-row">
-              <div class="km-catalog-state-row__left">
-                <span class="km-catalog-state-row__icon km-kpi-icon--green">✓</span>
-                <span>{% trans "Опубликовано" %}</span>
-              </div>
-              <div class="km-catalog-state-row__value">{{ catalog_state.active }}</div>
-            </div>
-            <div class="km-catalog-state-row">
-              <div class="km-catalog-state-row__left">
-                <span class="km-catalog-state-row__icon km-kpi-icon--teal">⛳</span>
-                <span>{% trans "Проверено" %}</span>
-              </div>
-              <div class="km-catalog-state-row__value">{{ catalog_state.verified }}</div>
-            </div>
-            <div class="km-catalog-state-row">
-              <div class="km-catalog-state-row__left">
-                <span class="km-catalog-state-row__icon km-kpi-icon--orange">⏳</span>
-                <span>{% trans "На модерации" %}</span>
-              </div>
-              <div class="km-catalog-state-row__value">{{ catalog_state.pending }}</div>
-            </div>
-            <div class="km-catalog-state-row">
-              <div class="km-catalog-state-row__left">
-                <span class="km-catalog-state-row__icon km-kpi-icon--purple">◎</span>
-                <span>{% trans "Без координат" %}</span>
-              </div>
-              <div class="km-catalog-state-row__value">{{ catalog_state.no_coords }}</div>
-            </div>
-            <div class="km-catalog-state-row">
-              <div class="km-catalog-state-row__left">
-                <span class="km-catalog-state-row__icon km-kpi-icon--pink">★</span>
-                <span>{% trans "Средний рейтинг" %}</span>
-              </div>
-              <div class="km-catalog-state-row__value">{{ catalog_state.avg_rating|floatformat:2 }}</div>
-            </div>
-          </div>
-          <div class="km-catalog-state-links">
-            <a href="{% url 'admin:catalog_place_changelist' %}" class="km-catalog-state-link">{% trans "Все места" %}</a>
-            <a href="{% url 'admin:catalog_place_changelist' %}?status__exact=pending" class="km-catalog-state-link">{% trans "На модерации" %}</a>
-            <a href="{% url 'admin:catalog_placereview_changelist' %}" class="km-catalog-state-link">{% trans "Отзывы" %}</a>
-          </div>
-        </article>
-      </section>
-
-      <section class="km-statistics-two-col-grid">
-        <article class="km-statistics-card">
-          <header class="km-statistics-card__header">
-            <div>
-              <h2 class="km-statistics-card__title">{% trans "Категории каталога" %}</h2>
-              <p class="km-statistics-card__subtitle">{% trans "По количеству мест" %}</p>
-            </div>
-          </header>
-          {% if top_categories %}
-            <div class="km-bar-list">
-              {% for item in top_categories %}
-                <div class="km-bar-list__row">
-                  <div class="km-bar-list__label">{{ item.name }}</div>
-                  <div class="km-bar-list__track">
-                    <div class="km-bar-list__fill" style="width: {{ item.bar_pct }}%; background:#6EE7B7;"></div>
-                  </div>
-                  <div class="km-bar-list__num">{{ item.total }}</div>
-                </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="km-empty-state">{% trans "Пока нет данных по категориям." %}</div>
-          {% endif %}
-        </article>
-
-        <article class="km-statistics-card">
-          <header class="km-statistics-card__header">
-            <div>
-              <h2 class="km-statistics-card__title">{% trans "Районы" %}</h2>
-              <p class="km-statistics-card__subtitle">{% trans "По количеству мест" %}</p>
-            </div>
-          </header>
-          {% if top_districts %}
-            <div class="km-bar-list">
-              {% for item in top_districts %}
-                <div class="km-bar-list__row">
-                  <div class="km-bar-list__label">{{ item.district }}</div>
-                  <div class="km-bar-list__track">
-                    <div class="km-bar-list__fill" style="width: {{ item.bar_pct }}%; background:#93C5FD;"></div>
-                  </div>
-                  <div class="km-bar-list__num">{{ item.total }}</div>
-                </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="km-empty-state">{% trans "Пока нет данных по районам." %}</div>
+            <div class="km-empty-state">{% trans "GA4 пока не вернул данные по страницам." %}</div>
           {% endif %}
         </article>
       </section>
-
-      <details class="km-details-collapse">
-        <summary>
-          <span>▣</span>
-          <span>{% trans "Подробные данные" %}</span>
-          <span class="km-details-chevron">⌄</span>
-        </summary>
-        <div class="km-details-collapse__body">
-          <div class="km-details-tabs" role="tablist">
-            <button type="button" class="km-details-tab-btn is-active" data-tab-target="traffic">{% trans "Трафик" %}</button>
-            <button type="button" class="km-details-tab-btn" data-tab-target="funnel">{% trans "Воронка" %}</button>
-            <button type="button" class="km-details-tab-btn" data-tab-target="ga4">GA4</button>
-          </div>
-
-          <section class="km-details-tab-panel is-active" data-tab-panel="traffic">
-            <article class="km-statistics-card">
-              <h3 class="km-statistics-card__title">{% trans "Посещаемость по неделям" %}</h3>
-              {% if weekly_visits %}
-                <table class="km-detail-table">
-                  <thead>
-                    <tr>
-                      <th>{% trans "Неделя от" %}</th>
-                      <th>{% trans "Уникальные посетители" %}</th>
-                      <th>{% trans "Просмотры страниц" %}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for row in weekly_visits %}
-                      <tr>
-                        <td>{{ row.period|date:"d.m.Y" }}</td>
-                        <td>{{ row.unique_sessions }}</td>
-                        <td>{{ row.page_views }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              {% else %}
-                <div class="km-empty-state">{% trans "Нет недельной статистики." %}</div>
-              {% endif %}
-            </article>
-
-            <article class="km-statistics-card km-statistics-card--spaced">
-              <h3 class="km-statistics-card__title">{% trans "Посещаемость по месяцам" %}</h3>
-              {% if monthly_visits %}
-                <table class="km-detail-table">
-                  <thead>
-                    <tr>
-                      <th>{% trans "Месяц" %}</th>
-                      <th>{% trans "Уникальные посетители" %}</th>
-                      <th>{% trans "Просмотры страниц" %}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for row in monthly_visits %}
-                      <tr>
-                        <td>{{ row.period|date:"m.Y" }}</td>
-                        <td>{{ row.unique_sessions }}</td>
-                        <td>{{ row.page_views }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              {% else %}
-                <div class="km-empty-state">{% trans "Нет месячной статистики." %}</div>
-              {% endif %}
-            </article>
-          </section>
-
-          <section class="km-details-tab-panel" data-tab-panel="funnel">
-            <article class="km-statistics-card">
-              <h3 class="km-statistics-card__title">{% trans "Воронка по неделям" %}</h3>
-              {% if weekly_funnel %}
-                <table class="km-detail-table">
-                  <thead>
-                    <tr>
-                      <th>{% trans "Неделя от" %}</th>
-                      <th>{% trans "Поиски" %}</th>
-                      <th>{% trans "Фильтры" %}</th>
-                      <th>{% trans "Открытия карточек" %}</th>
-                      <th>{% trans "CTA" %}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for row in weekly_funnel %}
-                      <tr>
-                        <td>{{ row.period|date:"d.m.Y" }}</td>
-                        <td>{{ row.search }}</td>
-                        <td>{{ row.catalog_filter }}</td>
-                        <td>{{ row.place_open }}</td>
-                        <td>{{ row.cta_total }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              {% else %}
-                <div class="km-empty-state">{% trans "Нет недельной воронки." %}</div>
-              {% endif %}
-            </article>
-
-            <article class="km-statistics-card km-statistics-card--spaced">
-              <h3 class="km-statistics-card__title">{% trans "Воронка по месяцам" %}</h3>
-              {% if monthly_funnel %}
-                <table class="km-detail-table">
-                  <thead>
-                    <tr>
-                      <th>{% trans "Месяц" %}</th>
-                      <th>{% trans "Поиски" %}</th>
-                      <th>{% trans "Фильтры" %}</th>
-                      <th>{% trans "Открытия карточек" %}</th>
-                      <th>{% trans "CTA" %}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for row in monthly_funnel %}
-                      <tr>
-                        <td>{{ row.period|date:"m.Y" }}</td>
-                        <td>{{ row.search }}</td>
-                        <td>{{ row.catalog_filter }}</td>
-                        <td>{{ row.place_open }}</td>
-                        <td>{{ row.cta_total }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              {% else %}
-                <div class="km-empty-state">{% trans "Нет месячной воронки." %}</div>
-              {% endif %}
-            </article>
-
-            <article class="km-statistics-card km-statistics-card--spaced">
-              <h3 class="km-statistics-card__title">{% trans "Последние добавленные кружки" %}</h3>
-              {% if recent_places %}
-                <div class="km-recent-list">
-                  {% for place in recent_places %}
-                    <div class="km-recent-row">
-                      <div class="km-recent-row__name">
-                        <a href="{% url 'admin:catalog_place_change' place.pk %}">{{ place.name_ru|default:place.name }}</a>
-                      </div>
-                      <div class="km-recent-row__cat">{{ place.get_category_display }}</div>
-                      <div class="km-recent-row__dist">{{ place.district|default:"-" }}</div>
-                      <div class="km-recent-row__date">{{ place.created_at|date:"d.m.Y H:i" }}</div>
-                    </div>
-                  {% endfor %}
-                </div>
-              {% else %}
-                <div class="km-empty-state">{% trans "Пока нет новых карточек." %}</div>
-              {% endif %}
-            </article>
-          </section>
-
-          <section class="km-details-tab-panel" data-tab-panel="ga4">
-            {% if ga4.enabled %}
-              {% if ga4.connected %}
-                <div class="km-ga4-connected">
-                  <span>✓</span>
-                  <span>{% trans "Google Analytics 4 подключен к админке" %}</span>
-                </div>
-                <article class="km-statistics-card">
-                  <header class="km-statistics-card__header">
-                    <div>
-                      <h3 class="km-statistics-card__title">Google Analytics 4</h3>
-                      <p class="km-statistics-card__subtitle">
-                        {% trans "Внешняя аналитика, сохранена на странице в отдельном блоке" %}
-                      </p>
-                    </div>
-                  </header>
-                  <div class="km-ga4-meta">
-                    <span><strong>Measurement ID:</strong> {{ ga4.measurement_id|default:"-" }}</span>
-                    <span><strong>{% trans "Property ID" %}:</strong> {{ ga4.property_id|default:"-" }}</span>
-                    {% if ga4.credentials_path %}
-                      <span><strong>{% trans "Credentials" %}:</strong> {{ ga4.credentials_path }}</span>
-                    {% endif %}
-                  </div>
-                  <div class="km-ga4-mini-grid">
-                    <div class="km-kpi-card">
-                      <span class="km-kpi-card__label">{% trans "Сегодня" %}</span>
-                      <p class="km-kpi-card__value">{{ ga4.period_stats.day.active_users }}</p>
-                      <div class="km-kpi-card__delta km-delta--none">{% trans "Активные пользователи" %}</div>
-                    </div>
-                    <div class="km-kpi-card">
-                      <span class="km-kpi-card__label">{% trans "7 дней" %}</span>
-                      <p class="km-kpi-card__value">{{ ga4.period_stats.week.page_views }}</p>
-                      <div class="km-kpi-card__delta km-delta--none">{% trans "Просмотры страниц" %}</div>
-                    </div>
-                    <div class="km-kpi-card">
-                      <span class="km-kpi-card__label">{% trans "30 дней" %}</span>
-                      <p class="km-kpi-card__value">{{ ga4.period_stats.month.sessions }}</p>
-                      <div class="km-kpi-card__delta km-delta--none">{% trans "Сессии" %}</div>
-                    </div>
-                  </div>
-                  {% if ga4.daily_chart.labels %}
-                    <div class="km-statistics-card--spaced">
-                      <canvas id="km-ga4-chart" height="240"></canvas>
-                    </div>
-                  {% endif %}
-                  <div class="km-ga4-grid">
-                    <div class="km-statistics-card km-statistics-card--inset">
-                      <h4 class="km-statistics-card__title">{% trans "Топ страниц за 30 дней" %}</h4>
-                      {% if ga4.top_pages %}
-                        <table class="km-detail-table">
-                          <thead>
-                            <tr>
-                              <th>{% trans "Путь" %}</th>
-                              <th>{% trans "Просмотры" %}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {% for row in ga4.top_pages %}
-                              <tr>
-                                <td>{{ row.page_path }}</td>
-                                <td>{{ row.page_views }}</td>
-                              </tr>
-                            {% endfor %}
-                          </tbody>
-                        </table>
-                      {% else %}
-                        <div class="km-empty-state">{% trans "Пока нет данных." %}</div>
-                      {% endif %}
-                    </div>
-                    <div class="km-statistics-card km-statistics-card--inset">
-                      <h4 class="km-statistics-card__title">{% trans "События за 30 дней" %}</h4>
-                      {% if ga4.top_events %}
-                        <table class="km-detail-table">
-                          <thead>
-                            <tr>
-                              <th>{% trans "Событие" %}</th>
-                              <th>{% trans "Количество" %}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {% for row in ga4.top_events %}
-                              <tr>
-                                <td>{{ row.event_name }}</td>
-                                <td>{{ row.event_count }}</td>
-                              </tr>
-                            {% endfor %}
-                          </tbody>
-                        </table>
-                      {% else %}
-                        <div class="km-empty-state">{% trans "Пока нет данных." %}</div>
-                      {% endif %}
-                    </div>
-                  </div>
-                </article>
-              {% else %}
-                <div class="km-ga4-notice">
-                  <span class="km-ga4-notice__icon">⚠</span>
-                  <div class="km-ga4-notice__text">
-                    <strong>{% trans "GA4 пока не подключен к админке." %}</strong>
-                    <div>{{ ga4.error }}</div>
-                  </div>
-                </div>
-              {% endif %}
-            {% else %}
-              <div class="km-ga4-notice">
-                <span class="km-ga4-notice__icon">⚠</span>
-                <div class="km-ga4-notice__text">
-                  <strong>{% trans "GA4 не настроен." %}</strong>
-                  <div>{% trans "Сначала подключите внешний Google Analytics tag к сайту и задайте Measurement ID." %}</div>
-                </div>
-              </div>
-            {% endif %}
-          </section>
-        </div>
-      </details>
     </div>
   </div>
 
   {{ visits_daily_chart|json_script:"km-visits-chart-data" }}
-  {{ ga4.daily_chart|json_script:"km-ga4-chart-data" }}
 
   <script>
     (function () {
@@ -635,29 +233,11 @@
         });
       }
 
-      var detailsButtons = document.querySelectorAll(".km-details-tab-btn");
-      var detailsPanels = document.querySelectorAll(".km-details-tab-panel");
-      detailsButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-          var target = button.getAttribute("data-tab-target");
-          detailsButtons.forEach(function (item) {
-            item.classList.toggle("is-active", item === button);
-          });
-          detailsPanels.forEach(function (panel) {
-            panel.classList.toggle("is-active", panel.getAttribute("data-tab-panel") === target);
-          });
-        });
-      });
-
       function drawAllCharts() {
         renderLineChart("km-visits-chart", parseJsonScript("km-visits-chart-data"), [
           { key: "unique_sessions", color: "#2563EB" },
           { key: "page_views", color: "#009A4E" }
         ], 280);
-        renderLineChart("km-ga4-chart", parseJsonScript("km-ga4-chart-data"), [
-          { key: "active_users", color: "#2563EB" },
-          { key: "page_views", color: "#009A4E" }
-        ], 240);
       }
 
       drawAllCharts();

@@ -565,7 +565,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '"@type": "BreadcrumbList"', html=False)
         self.assertContains(response, '"AggregateRating"', html=False)
-        self.assertContains(response, "<title>SEO кружок — Образование для детей в регионе Баку: Ясамальский | KidsMap</title>", html=False)
+        self.assertContains(response, "<title>SEO кружок — Образование для детей в регионе Баку, Ясамальский район | KidsMap</title>", html=False)
 
     def test_robots_txt_disallows_private_sections(self):
         response = self.client.get("/robots.txt")
@@ -845,9 +845,10 @@ class TestLocalizedFilterOptions(TestCase):
         self.assertContains(catalog_response, "Bakı — 2")
         self.assertContains(catalog_response, "Nərimanov", html=False)
         self.assertTrue(any(item["value"] == "L10N" and item["label"] == "Kateqoriya test" and item["count"] == 2 for item in catalog_response.context["categories"]))
-        self.assertContains(home_response, 'value="baku"', html=False)
+        self.assertContains(home_response, 'value="Bakı"', html=False)
         self.assertContains(home_response, 'data-label-current="Bakı"', html=False)
         self.assertContains(home_response, 'Bakı — 2', html=False)
+        self.assertNotContains(home_response, 'value="baku"', html=False)
         self.assertContains(home_response, '<option value="">Bütün kateqoriyalar</option>', html=False)
 
     def test_ru_catalog_renders_russian_labels(self):
@@ -1068,6 +1069,114 @@ class TestPublicFilterCounts(TestCase):
         self.assertTrue(any(item["value"] == "baku" and item["label_with_count"] == "Bakı — 3" for item in az_response.context["district_options"]))
         self.assertTrue(any(item["value"] == "baku" and item["label_with_count"] == "Baku — 3" for item in en_response.context["district_options"]))
 
+    def test_home_page_uses_consistent_localized_ui_for_az_ru_en(self):
+        Category.objects.create(
+            code="L10N",
+            name="Локализованная категория",
+            name_az="Lokalizasiya kateqoriyası",
+            name_ru="Локализованная категория",
+            name_en="Localized category",
+            is_active=True,
+            order=1002,
+        )
+        structured_place = create_quality_place(
+            name="Structured Place",
+            name_ru="Структурированное место",
+            name_az="Strukturlaşdırılmış məkan",
+            name_en="Structured place",
+            category="L10N",
+            district="baku_narimanov",
+            metro="28 Май",
+            schedule="",
+            lat=40.4093,
+            lng=49.8671,
+        )
+        for order, weekday in enumerate(("mon", "tue", "wed", "thu", "fri", "sat", "sun")):
+            day = PlaceScheduleDay.objects.create(
+                place=structured_place,
+                weekday=weekday,
+                is_closed=(weekday == "sun"),
+                is_24_hours=False,
+                order=order,
+            )
+            if weekday != "sun":
+                PlaceScheduleInterval.objects.create(
+                    schedule_day=day,
+                    start_time="09:00",
+                    end_time="18:00",
+                    order=0,
+                )
+
+        second_place = create_quality_place(
+            name="Sabail Place",
+            name_ru="Место в Сабаиле",
+            name_az="Səbaildə məkan",
+            name_en="Sabail place",
+            category="L10N",
+            district="baku_sabail",
+            lat=40.3700,
+            lng=49.8400,
+        )
+        third_place = create_quality_place(
+            name="Khatai Place",
+            name_ru="Место в Хатаи",
+            name_az="Xətaidə məkan",
+            name_en="Khatai place",
+            category="L10N",
+            district="baku_khatai",
+            lat=40.3850,
+            lng=49.8900,
+        )
+
+        az_response = self.client.get("/", follow=True)
+        ru_response = self.client.get("/ru/", follow=True)
+        en_response = self.client.get("/en/", follow=True)
+
+        for response in (az_response, ru_response, en_response):
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, "baku_narimanov")
+            self.assertNotContains(response, "baku_sabail")
+            self.assertNotContains(response, "baku_khatai")
+
+        self.assertContains(az_response, "Bakı, Nərimanov rayonu")
+        self.assertContains(az_response, "Bakı, Səbail rayonu")
+        self.assertContains(az_response, "Bakı, Xətai rayonu")
+        self.assertContains(az_response, "Bazar ertəsi")
+        self.assertContains(az_response, "Hələ rəy yoxdur")
+        self.assertNotContains(az_response, "Пока нет отзывов")
+        self.assertNotContains(az_response, "No reviews yet")
+        self.assertNotContains(az_response, "Monday")
+
+        self.assertContains(ru_response, "Баку, Наримановский район")
+        self.assertContains(ru_response, "Баку, Сабаильский район")
+        self.assertContains(ru_response, "Баку, Хатаинский район")
+        self.assertContains(ru_response, "Понедельник")
+        self.assertContains(ru_response, "Пока нет отзывов")
+        self.assertNotContains(ru_response, "Hələ rəy yoxdur")
+        self.assertNotContains(ru_response, "No reviews yet")
+        self.assertNotContains(ru_response, "Monday")
+
+        self.assertContains(en_response, "Narimanov District, Baku")
+        self.assertContains(en_response, "Sabail District, Baku")
+        self.assertContains(en_response, "Khatai District, Baku")
+        self.assertContains(en_response, "Monday")
+        self.assertContains(en_response, "No reviews yet")
+        self.assertNotContains(en_response, "Hələ rəy yoxdur")
+        self.assertNotContains(en_response, "Пока нет отзывов")
+        self.assertNotContains(en_response, "Понедельник")
+
+        self.assertEqual(len(az_response.context["map_places"]), 3)
+        self.assertEqual(len(ru_response.context["map_places"]), 3)
+        self.assertEqual(len(en_response.context["map_places"]), 3)
+        self.assertEqual(
+            {item["value"]: item.get("count") for item in az_response.context["home_categories"]},
+            {item["value"]: item.get("count") for item in ru_response.context["home_categories"]},
+        )
+        self.assertEqual(
+            {item["value"]: item.get("count") for item in az_response.context["home_categories"]},
+            {item["value"]: item.get("count") for item in en_response.context["home_categories"]},
+        )
+
     def test_catalog_category_colors_fall_back_to_preset_palette(self):
         category = Category.objects.get(code="EDU")
         category.color_bg = "#FFFFFF"
@@ -1241,9 +1350,9 @@ class TestCatalogEnhancements(TestCase):
             response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Пн-Пт")
+        self.assertContains(response, "Понедельник-Пятница")
         self.assertContains(response, "09:00-18:00")
-        self.assertContains(response, "Сб")
+        self.assertContains(response, "Суббота")
         self.assertContains(response, "10:00-16:00")
 
     def test_place_detail_does_not_show_owner_request_block(self):
@@ -1276,8 +1385,8 @@ class TestCatalogEnhancements(TestCase):
         response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Часть данных на этой странице может быть получена из открытых источников и от третьих лиц.")
-        self.assertContains(response, "уточняйте расписание, цену, адрес и условия напрямую у организации")
+        self.assertContains(response, "Bu səhifədəki məlumatların bir hissəsi açıq mənbələrdən və üçüncü şəxslərdən əldə oluna bilər.")
+        self.assertContains(response, "Cədvəli, qiyməti, ünvanı və şərtləri ziyarətdən əvvəl birbaşa təşkilatla dəqiqləşdirin.")
         self.assertNotContains(response, reverse("request_place_ownership", args=[place.id]))
 
     def test_card_price_badge_label_keeps_from_prefix_for_lower_bound_price(self):
@@ -1422,6 +1531,12 @@ class TestCatalogEnhancements(TestCase):
                     "url": matching_place.get_absolute_url(),
                     "category": expected_category,
                     "category_code": matching_place.category_code,
+                    "category_color_bg": matching_place.category.resolved_color_bg,
+                    "category_color_text": matching_place.category.resolved_color_text,
+                    "category_icon_url": matching_place.category.icon_file_url,
+                    "category_icon_is_svg": matching_place.category.icon_is_svg,
+                    "category_icon_is_font": matching_place.category.icon_is_font_class,
+                    "category_icon_name": matching_place.category.icon or "",
                     "image_url": "",
                     "location": expected_location,
                     "address": "Bakı şəhəri, Nizami küçəsi 10, " + get_location_translation(matching_place.district, language_code),
@@ -1430,6 +1545,7 @@ class TestCatalogEnhancements(TestCase):
                     "rating": 0.0,
                     "reviews_count": 0,
                     "phone": "+994501112233",
+                    "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
                 }
             ],
         )
@@ -1467,14 +1583,21 @@ class TestCatalogEnhancements(TestCase):
                     "url": expected_url,
                     "category": expected_category,
                     "category_code": place.category_code,
+                    "category_color_bg": place.category.resolved_color_bg,
+                    "category_color_text": place.category.resolved_color_text,
+                    "category_icon_url": place.category.icon_file_url,
+                    "category_icon_is_svg": place.category.icon_is_svg,
+                    "category_icon_is_font": place.category.icon_is_font_class,
+                    "category_icon_name": place.category.icon or "",
                     "image_url": "",
-                    "location": "Баку: Ясамальский / Низами",
-                    "address": "Bakı, Yasamal, Mərkəzi küçə 12, Баку: Ясамальский",
-                    "district": "Баку: Ясамальский",
+                    "location": "Баку, Ясамальский район / Низами",
+                    "address": "Bakı, Yasamal, Mərkəzi küçə 12, Баку, Ясамальский район",
+                    "district": "Баку, Ясамальский район",
                     "metro": "Низами",
                     "rating": 4.6,
                     "reviews_count": 128,
                     "phone": "+994501234567",
+                    "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
                 }
             ],
         )

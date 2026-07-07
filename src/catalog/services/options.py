@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import unicodedata
+
 from django.utils.translation import gettext as _
 from django.utils.translation import override
 
@@ -107,7 +109,7 @@ def build_localized_options(values, language_code: str | None = None) -> list[di
         seen.add(value)
         options.append(option)
 
-    return sorted(options, key=lambda item: str(item["label"]).casefold())
+    return sorted(options, key=lambda item: _sortable_label(item["label"]))
 
 
 def find_localized_label(options, value: str, language_code: str | None = None) -> str:
@@ -138,4 +140,96 @@ def sort_translated_values(values) -> list[str]:
 
 
 def sort_choice_tuples(choices) -> list[tuple[str, object]]:
-    return sorted(list(choices or ()), key=lambda item: str(item[1]).casefold())
+    return sorted(list(choices or ()), key=lambda item: _sortable_label(item[1]))
+
+
+_SORT_TRANSLIT_MAP = str.maketrans(
+    {
+        "ə": "e",
+        "Ə": "E",
+        "ı": "i",
+        "İ": "I",
+        "ö": "o",
+        "Ö": "O",
+        "ü": "u",
+        "Ü": "U",
+        "ş": "s",
+        "Ş": "S",
+        "ç": "c",
+        "Ç": "C",
+        "ğ": "g",
+        "Ğ": "G",
+        "а": "a",
+        "А": "A",
+        "б": "b",
+        "Б": "B",
+        "в": "v",
+        "В": "V",
+        "г": "g",
+        "Г": "G",
+        "д": "d",
+        "Д": "D",
+        "е": "e",
+        "Е": "E",
+        "ё": "e",
+        "Ё": "E",
+        "ж": "zh",
+        "Ж": "Zh",
+        "з": "z",
+        "З": "Z",
+        "и": "i",
+        "И": "I",
+        "й": "i",
+        "Й": "I",
+        "к": "k",
+        "К": "K",
+        "л": "l",
+        "Л": "L",
+        "м": "m",
+        "М": "M",
+        "н": "n",
+        "Н": "N",
+        "о": "o",
+        "О": "O",
+        "п": "p",
+        "П": "P",
+        "р": "r",
+        "Р": "R",
+        "с": "s",
+        "С": "S",
+        "т": "t",
+        "Т": "T",
+        "у": "u",
+        "У": "U",
+        "ф": "f",
+        "Ф": "F",
+        "х": "h",
+        "Х": "H",
+        "ц": "c",
+        "Ц": "C",
+        "ч": "ch",
+        "Ч": "Ch",
+        "ш": "sh",
+        "Ш": "Sh",
+        "щ": "sh",
+        "Щ": "Sh",
+        "ы": "y",
+        "Ы": "Y",
+        "э": "e",
+        "Э": "E",
+        "ю": "yu",
+        "Ю": "Yu",
+        "я": "ya",
+        "Я": "Ya",
+        "ъ": "",
+        "Ъ": "",
+        "ь": "",
+        "Ь": "",
+    }
+)
+
+
+def _sortable_label(value) -> str:
+    text = str(value or "").translate(_SORT_TRANSLIT_MAP)
+    normalized = unicodedata.normalize("NFKD", text)
+    return "".join(char for char in normalized if not unicodedata.combining(char)).casefold()

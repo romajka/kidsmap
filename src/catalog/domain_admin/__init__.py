@@ -21,7 +21,6 @@ from django.utils.translation import gettext_lazy as _, ngettext
 
 from catalog.models import *
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
-from catalog.services.admin_analytics import build_site_analytics_context
 from catalog.services.content_quality import place_quality_check, review_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
 

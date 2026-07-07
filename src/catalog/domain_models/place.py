@@ -1,4 +1,3 @@
-import re
 import uuid
 from functools import lru_cache
 
@@ -7,52 +6,13 @@ from django.db import models
 from django.db.models import Avg, Count, Q
 from django.db.models.signals import post_delete, post_save
 from django.conf import settings
+from django.utils.translation import gettext as translate
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.utils.text import slugify
 from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
-
-def _localize_public_address(raw_value: str, lang: str) -> str:
-    value = (raw_value or "").strip()
-    if not value:
-        return ""
-
-    normalized_lang = (lang or settings.LANGUAGE_CODE or "az").split("-")[0]
-    if normalized_lang == "ru":
-        return value
-
-    common_replacements = {
-        "Баку": "Baku" if normalized_lang == "en" else "Bakı",
-        "Ясамал": "Yasamal",
-        "Школьная": "School" if normalized_lang == "en" else "Məktəb",
-        "Ататюрка": "Ataturk" if normalized_lang == "en" else "Atatürk",
-        "Гусейна Джавида": "Huseyn Javid" if normalized_lang == "en" else "Hüseyn Cavid",
-    }
-    for source, target in common_replacements.items():
-        value = value.replace(source, target)
-
-    if normalized_lang == "en":
-        replacements = [
-            (r"\bул\.\s*", "St. "),
-            (r"\bулица\s+", ""),
-            (r"\bпр\.\s*", "Ave. "),
-            (r"\bпроспект\s+", ""),
-        ]
-    else:
-        replacements = [
-            (r"\bул\.\s*", "küç. "),
-            (r"\bулица\s+", ""),
-            (r"\bпр\.\s*", "prospekti "),
-            (r"\bпроспект\s+", ""),
-        ]
-
-    for pattern, replacement in replacements:
-        value = re.sub(pattern, replacement, value, flags=re.IGNORECASE)
-
-    return re.sub(r"\s{2,}", " ", value).strip(" ,")
-
 
 def _localized_free_label(lang: str | None = None) -> str:
     normalized_lang = (lang or get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
@@ -187,7 +147,23 @@ class Place(models.Model):
         return self.description_ru or ""
 
     def address_i18n(self, lang=None):
-        return _localize_public_address(self.address, self._normalize_lang(lang))
+        from catalog.services.locations import localize_address_text
+
+        return localize_address_text(self.address, self._normalize_lang(lang))
+
+    def district_i18n(self, lang=None):
+        if not self.district:
+            return ""
+        from catalog.services.locations import get_location_translation
+
+        return get_location_translation(self.district, self._normalize_lang(lang))
+
+    def metro_i18n(self, lang=None):
+        if not self.metro:
+            return ""
+        normalized_lang = self._normalize_lang(lang)
+        with_translation = str(translate(self.metro))
+        return with_translation or self.metro
 
     def instagram_url(self):
         value = (self.instagram or "").strip()
@@ -602,7 +578,9 @@ class Event(models.Model):
         return self.description_az or self.description_ru or self.description_en or ""
 
     def address_i18n(self, lang=None):
-        return _localize_public_address(self.address, self._normalize_lang(lang))
+        from catalog.services.locations import localize_address_text
+
+        return localize_address_text(self.address, self._normalize_lang(lang))
 
     @property
     def age_display(self) -> str:

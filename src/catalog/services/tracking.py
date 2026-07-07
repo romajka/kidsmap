@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from django.conf import settings
+
 from catalog.interfaces.tracking import IEventPlaceRepository, IFunnelEventRepository
 from catalog.models import FunnelEvent, Place
 from catalog.repositories.tracking_repositories import DjangoEventPlaceRepository, DjangoFunnelEventRepository
@@ -119,6 +121,9 @@ class TrackingService:
     ) -> bool:
         if event_type not in FUNNEL_EVENT_TYPES:
             return False
+
+        if not getattr(settings, "LOCAL_ANALYTICS_STORAGE_ENABLED", False):
+            return True
 
         session_key = ensure_session_key(request) or ""
         user = request.user if request.user.is_authenticated else None

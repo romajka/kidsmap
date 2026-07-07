@@ -55,9 +55,9 @@
         {% endif %}
         {% if place.district or place.metro %}
           <p class="place-more-meta">
-            {% if place.district %}{% trans place.district %}{% endif %}
+            {% if place.district %}{{ place.district_i18n }}{% endif %}
             {% if place.district and place.metro %} / {% endif %}
-            {% if place.metro %}{% trans place.metro %}{% endif %}
+            {% if place.metro %}{{ place.metro_i18n }}{% endif %}
           </p>
         {% endif %}
       </div>

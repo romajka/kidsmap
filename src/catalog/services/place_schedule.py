@@ -11,23 +11,23 @@ WEEKDAY_ORDER = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 WEEKDAY_CHOICES = tuple((value, value) for value in WEEKDAY_ORDER)
 
 FULL_DAY_LABELS = {
-    "mon": _("Понедельник"),
-    "tue": _("Вторник"),
-    "wed": _("Среда"),
-    "thu": _("Четверг"),
-    "fri": _("Пятница"),
-    "sat": _("Суббота"),
-    "sun": _("Воскресенье"),
+    "mon": "Понедельник",
+    "tue": "Вторник",
+    "wed": "Среда",
+    "thu": "Четверг",
+    "fri": "Пятница",
+    "sat": "Суббота",
+    "sun": "Воскресенье",
 }
 
 SHORT_DAY_LABELS = {
-    "mon": _("Пн"),
-    "tue": _("Вт"),
-    "wed": _("Ср"),
-    "thu": _("Чт"),
-    "fri": _("Пт"),
-    "sat": _("Сб"),
-    "sun": _("Вс"),
+    "mon": "Пн",
+    "tue": "Вт",
+    "wed": "Ср",
+    "thu": "Чт",
+    "fri": "Пт",
+    "sat": "Сб",
+    "sun": "Вс",
 }
 
 
@@ -79,11 +79,11 @@ def is_meaningful_schedule(days: list[dict[str, object]]) -> bool:
 
 
 def weekday_full_label(weekday: str) -> str:
-    return str(FULL_DAY_LABELS.get(weekday, weekday))
+    return str(_(FULL_DAY_LABELS.get(weekday, weekday)))
 
 
 def weekday_short_label(weekday: str) -> str:
-    return str(SHORT_DAY_LABELS.get(weekday, weekday))
+    return str(_(SHORT_DAY_LABELS.get(weekday, weekday)))
 
 
 def _coerce_bool(value) -> bool:
@@ -294,9 +294,9 @@ def build_schedule_rows(days: list[dict[str, object]]) -> list[dict[str, object]
         first_weekday = current_group[0]["weekday"]
         last_weekday = current_group[-1]["weekday"]
         if len(current_group) == 1:
-            day_label = weekday_short_label(first_weekday)
+            day_label = weekday_full_label(first_weekday)
         else:
-            day_label = f"{weekday_short_label(first_weekday)}-{weekday_short_label(last_weekday)}"
+            day_label = f"{weekday_full_label(first_weekday)}-{weekday_full_label(last_weekday)}"
 
         if current_group[0]["is_closed"]:
             lines = [str(_("Закрыто"))]

@@ -182,7 +182,7 @@
       return false;
     }
 
-    if (filters.district && normalizeValue(place.district) !== filters.district) {
+    if (filters.district && normalizeValue(place.district_label) !== filters.district) {
       return false;
     }
 

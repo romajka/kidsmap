@@ -31,12 +31,12 @@
             <span>{% trans "мест и занятий на карте" %}</span>
           </div>
           <div class="home-hero-stat">
-            <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.8{% endif %}</strong>
+            <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}—{% endif %}</strong>
             <span>
               {% if site_reviews_count %}
                 {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва{% plural %}на основе {{ total }} отзывов{% endblocktrans %}
               {% else %}
-                {% trans "средняя оценка" %}
+                {% trans "Пока нет отзывов" %}
               {% endif %}
             </span>
           </div>
@@ -189,15 +189,17 @@
         <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
         <div class="home-search-row">
           <select name="district" class="home-filter-district-select" hidden>
-            <option value="">{% if request.LANGUAGE_CODE == "az" %}Region / rayon{% elif request.LANGUAGE_CODE == "en" %}Region / district{% else %}{% trans "Регион / район" %}{% endif %}</option>
+            <option value="">{% trans "Регион / район" %}</option>
             {% for district in home_districts %}
               <option
-                value="{{ district.value }}"
+                value="{{ district.label }}"
                 data-label-current="{{ district.label }}"
                 data-label-az="{{ district.label_az }}"
                 data-label-ru="{{ district.label_ru }}"
                 data-label-en="{{ district.label_en }}"
-                {% if selected.district == district.value %}selected{% endif %}
+                data-is-baku-city="{% if district.value == 'baku' %}1{% else %}0{% endif %}"
+                data-is-baku-district="{% if district.value|slice:':5' == 'baku_' %}1{% else %}0{% endif %}"
+                {% if request.GET.district == district.value or request.GET.district == district.label %}selected{% endif %}
               >
                 {% firstof district.label_with_count district.label %}
               </option>
@@ -214,7 +216,7 @@
               aria-controls="district-tree-dropdown"
             >
               <span class="km-tree-trigger-text">
-                {% if request.LANGUAGE_CODE == "az" %}Region / rayon{% elif request.LANGUAGE_CODE == "en" %}Region / district{% else %}{% trans "Регион / район" %}{% endif %}
+                {% trans "Регион / район" %}
               </span>
             </button>
             <div
@@ -222,6 +224,9 @@
               class="km-tree-dropdown"
               role="tree"
               tabindex="-1"
+              data-all-baku-label="{% trans 'Все районы Баку' %}"
+              data-default-label="{% trans 'Регион / район' %}"
+              data-toggle-label="{% trans 'Переключить раздел' %}"
               hidden
             ></div>
           </div>
@@ -244,7 +249,7 @@
           </div>
 
           <select id="home-search-category" name="category" hidden>
-            <option value="">{% if request.LANGUAGE_CODE == "az" %}Bütün kateqoriyalar{% elif request.LANGUAGE_CODE == "en" %}All categories{% else %}Все категории{% endif %}</option>
+            <option value="">{% trans "Все категории" %}</option>
             {% for item in home_categories %}
               <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
             {% endfor %}
@@ -264,7 +269,7 @@
                 </span>
               </span>
               <span class="km-category-trigger-text" data-category-trigger-text>
-                {% if request.LANGUAGE_CODE == "az" %}Bütün kateqoriyalar{% elif request.LANGUAGE_CODE == "en" %}All categories{% else %}Все категории{% endif %}
+                {% trans "Все категории" %}
               </span>
             </button>
             <div class="km-category-dropdown" id="category-dropdown-menu" role="listbox" hidden>
@@ -278,7 +283,7 @@
                   </svg>
                 </span>
                 <span class="km-category-option-text">
-                  {% if request.LANGUAGE_CODE == "az" %}Bütün kateqoriyalar{% elif request.LANGUAGE_CODE == "en" %}All categories{% else %}Все категории{% endif %}
+                  {% trans "Все категории" %}
                 </span>
               </div>
               {% for item in home_categories %}
@@ -377,13 +382,13 @@
     <section class="panel home-events">
       <div class="home-events-head">
         <div>
-          <p class="home-events-kicker">{% if request.LANGUAGE_CODE == "az" %}Yaxın tarixlər{% elif request.LANGUAGE_CODE == "en" %}Upcoming{% else %}Скоро{% endif %}</p>
-          <h2>{% if request.LANGUAGE_CODE == "az" %}Yaxın tədbirlər{% elif request.LANGUAGE_CODE == "en" %}Upcoming events{% else %}Ближайшие мероприятия{% endif %}</h2>
-          <p>{% if request.LANGUAGE_CODE == "az" %}Vaxtı məhdud olan maraqlı məkanları və tədbirləri izləyin.{% elif request.LANGUAGE_CODE == "en" %}Track time-limited activities and events near you.{% else %}Интересные события и активности рядом с вами с понятным таймером.{% endif %}</p>
+          <p class="home-events-kicker">{% trans "Скоро" %}</p>
+          <h2>{% trans "Ближайшие мероприятия" %}</h2>
+          <p>{% trans "Интересные события и активности рядом с вами с понятным таймером." %}</p>
         </div>
-        <a class="home-events-all" href="{% url 'events_landing' %}">{% if request.LANGUAGE_CODE == "az" %}Bütün tədbirlər{% elif request.LANGUAGE_CODE == "en" %}All events{% else %}Все мероприятия{% endif %}</a>
+        <a class="home-events-all" href="{% url 'events_landing' %}">{% trans "Все мероприятия" %}</a>
       </div>
-      <div class="home-events-rail" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Yaxın tədbirlər{% elif request.LANGUAGE_CODE == 'en' %}Upcoming events{% else %}Ближайшие мероприятия{% endif %}">
+      <div class="home-events-rail" aria-label="{% trans 'Ближайшие мероприятия' %}">
         {% for event in upcoming_events %}
           <article class="home-event-card">
             <a class="home-event-card__media" href="{{ event.get_absolute_url }}" aria-label="{{ event.name_i18n }}">
@@ -445,12 +450,21 @@
               {% endwith %}
               <div class="card-headline">
                 <span class="chip">{{ place.get_category_display }}</span>
-                <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
+                {% if place.rating_count %}
+                  <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
+                {% endif %}
               </div>
+              {% if place.rating_count %}
+                <p class="meta card-reviews-count">
+                  {% blocktrans count total=place.rating_count %}{{ total }} отзыв{% plural %}{{ total }} отзывов{% endblocktrans %}
+                </p>
+              {% else %}
+                <p class="meta card-no-reviews">{% trans "Пока нет отзывов" %}</p>
+              {% endif %}
               <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
-                {% if place.district %}{% trans place.district %}{% endif %}
+                {% if place.district %}{{ place.district_i18n }}{% endif %}
                 {% if place.district and place.metro %} / {% endif %}
-                {% if place.metro %}{% trans place.metro %}{% endif %}
+                {% if place.metro %}{{ place.metro_i18n }}{% endif %}
                 {% if not place.district and not place.metro %}&nbsp;{% endif %}
               </p>
               <p class="meta card-created">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
@@ -565,13 +579,13 @@
   <section class="home-trust panel">
     <h2>{% trans "Почему нам доверяют" %}</h2>
     <div class="trust-score">
-      <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}4.9{% endif %}</strong>
+      <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}—{% endif %}</strong>
       <span class="trust-stars" aria-hidden="true">★★★★★</span>
       <span>
         {% if site_reviews_count %}
           {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва о сервисе{% plural %}на основе {{ total }} отзывов о сервисе{% endblocktrans %}
         {% else %}
-          {% trans "удобный выбор для родителей" %}
+          {% trans "Пока нет отзывов" %}
         {% endif %}
       </span>
     </div>
@@ -823,16 +837,15 @@
 
         const currentLang = document.documentElement.lang || 'az';
 
-        function getBütünBakıRayonlarıLabel() {
-          if (currentLang === 'az') return 'Bütün Bakı rayonları';
-          if (currentLang === 'en') return 'All Baku districts';
-          return 'Все районы Баку';
+        const allBakuDistrictsLabel = dropdown.dataset.allBakuLabel || '';
+        const defaultDistrictLabel = dropdown.dataset.defaultLabel || '';
+        const toggleSectionLabel = dropdown.dataset.toggleLabel || '';
+
+        function getAllBakuDistrictsLabel() {
+          return allBakuDistrictsLabel;
         }
 
         function cleanDistrictLabel(label) {
-          if (label && label.includes(':')) {
-            return label.split(':')[1].trim();
-          }
           return label;
         }
 
@@ -844,7 +857,9 @@
               value: opt.value,
               label: label,
               labelWithCount: labelWithCount,
-              count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null
+              count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null,
+              isBakuCity: opt.dataset.isBakuCity === '1',
+              isBakuDistrict: opt.dataset.isBakuDistrict === '1'
             };
           });
         }
@@ -867,8 +882,8 @@
           }
 
           let isSelected = false;
-          if (value === 'baku') {
-            if (targetSelect.value === 'baku' && isBakuAll) {
+          if (isBakuAll) {
+            if (targetSelect.value === getAllBakuDistrictsLabel()) {
               isSelected = true;
             }
           } else {
@@ -888,7 +903,7 @@
             const toggle = document.createElement('button');
             toggle.type = 'button';
             toggle.className = 'km-tree-chevron';
-            toggle.setAttribute('aria-label', 'Toggle');
+            toggle.setAttribute('aria-label', toggleSectionLabel);
             toggle.setAttribute('tabindex', '-1');
             toggle.innerHTML = `
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="km-tree-chevron-icon">
@@ -948,9 +963,9 @@
           dropdown.innerHTML = '';
           const options = getOptions();
 
-          const bakuOption = options.find(o => o.value === 'baku');
-          const bakuDistricts = options.filter(o => o.value.startsWith('baku_'));
-          const otherRegions = options.filter(o => o.value && o.value !== 'baku' && !o.value.startsWith('baku_'));
+          const bakuOption = options.find(o => o.isBakuCity);
+          const bakuDistricts = options.filter(o => o.isBakuDistrict);
+          const otherRegions = options.filter(o => o.value && !o.isBakuCity && !o.isBakuDistrict);
 
           if (bakuOption) {
             const bakuNode = document.createElement('div');
@@ -965,13 +980,15 @@
               childrenContainer.className = 'km-tree-children';
               childrenContainer.setAttribute('role', 'group');
 
-              const isBakuSelected = targetSelect.value === 'baku' || targetSelect.value.startsWith('baku_');
+              const isBakuSelected = targetSelect.value === getAllBakuDistrictsLabel() || targetSelect.value === bakuOption.value || bakuDistricts.some(function(dist) {
+                return targetSelect.value === dist.value;
+              });
               bakuRow.setAttribute('aria-expanded', isBakuSelected ? 'true' : 'false');
               childrenContainer.hidden = !isBakuSelected;
 
               const bakuCountPart = bakuOption.labelWithCount.split('—')[1] || '';
-              const allBakuLabel = getBütünBakıRayonlarıLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
-              const allBakuRow = createNodeRow('baku', getBütünBakıRayonlarıLabel(), allBakuLabel, false, true, true);
+              const allBakuLabel = getAllBakuDistrictsLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
+              const allBakuRow = createNodeRow(getAllBakuDistrictsLabel(), getAllBakuDistrictsLabel(), allBakuLabel, false, true, true);
               childrenContainer.appendChild(allBakuRow);
 
               bakuDistricts.forEach((dist, idx) => {
@@ -1134,20 +1151,10 @@
           const options = getOptions();
           const selectedOpt = options.find(o => o.value === selectedVal);
           if (selectedOpt && selectedVal !== '') {
-            if (selectedVal.startsWith('baku_')) {
-              const bakuOpt = options.find(o => o.value === 'baku');
-              const bakuLabel = bakuOpt ? bakuOpt.label : 'Bakı';
-              triggerText.textContent = `${bakuLabel} · ${cleanDistrictLabel(selectedOpt.label)}`;
-            } else {
-              triggerText.textContent = selectedOpt.label;
-            }
+            triggerText.textContent = selectedOpt.label;
             container.classList.add('is-active');
           } else {
-            let defaultLabel = 'Region / rayon';
-            if (currentLang === 'az') defaultLabel = 'Region / rayon';
-            else if (currentLang === 'en') defaultLabel = 'Region / district';
-            else defaultLabel = 'Регион / район';
-            triggerText.textContent = defaultLabel;
+            triggerText.textContent = defaultDistrictLabel;
             container.classList.remove('is-active');
           }
         }

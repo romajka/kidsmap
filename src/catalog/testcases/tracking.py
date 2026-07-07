@@ -42,7 +42,7 @@ class TestTrackingController(TestCase):
         self.assertEqual(response.json(), {"ok": False, "error": "forbidden_origin"})
         self.assertEqual(FunnelEvent.objects.count(), 0)
 
-    def test_track_event_saves_supported_cta_event(self):
+    def test_track_event_accepts_supported_cta_event_without_local_persistence(self):
         payload = {
             "event_type": FunnelEvent.EVENT_CTA_CALL,
             "place_id": self.place.id,
@@ -57,15 +57,9 @@ class TestTrackingController(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"ok": True})
-        self.assertEqual(FunnelEvent.objects.count(), 1)
+        self.assertEqual(FunnelEvent.objects.count(), 0)
 
-        event = FunnelEvent.objects.first()
-        self.assertEqual(event.event_type, FunnelEvent.EVENT_CTA_CALL)
-        self.assertEqual(event.place_id, self.place.id)
-        self.assertEqual(event.path, "/ru/catalog/")
-        self.assertEqual(event.event_meta.get("source"), "catalog-list")
-
-    def test_track_event_saves_claim_place_start_event(self):
+    def test_track_event_accepts_claim_place_start_event_without_local_persistence(self):
         payload = {
             "event_type": FunnelEvent.EVENT_CLAIM_PLACE_START,
             "place_id": self.place.id,
@@ -81,10 +75,7 @@ class TestTrackingController(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"ok": True})
-        event = FunnelEvent.objects.get()
-        self.assertEqual(event.event_type, FunnelEvent.EVENT_CLAIM_PLACE_START)
-        self.assertEqual(event.place_id, self.place.id)
-        self.assertEqual(event.event_meta.get("source"), "place-claim-auth")
+        self.assertEqual(FunnelEvent.objects.count(), 0)
 
     @override_settings(TRACKING_EVENT_RATE_LIMIT=1, TRACKING_EVENT_RATE_WINDOW_SECONDS=60)
     def test_track_event_applies_rate_limit(self):
@@ -109,7 +100,7 @@ class TestTrackingController(TestCase):
         self.assertEqual(first.status_code, 200)
         self.assertEqual(second.status_code, 429)
         self.assertEqual(second.json(), {"ok": False, "error": "rate_limited"})
-        self.assertEqual(FunnelEvent.objects.count(), 1)
+        self.assertEqual(FunnelEvent.objects.count(), 0)
 
 
 class TestGoogleAnalyticsEvents(TestCase):
@@ -179,15 +170,12 @@ class TestGoogleAnalyticsEvents(TestCase):
         )
 
 
-@override_settings(DISABLE_SITE_VISIT_TRACKING=False)
 class TestSiteVisitMiddleware(TestCase):
-    def test_site_visit_increments_for_same_session(self):
+    def test_site_visit_is_not_collected_for_same_session(self):
         self.client.get("/ru/")
         self.client.get("/ru/catalog/")
 
-        self.assertEqual(SiteVisit.objects.count(), 1)
-        visit = SiteVisit.objects.first()
-        self.assertEqual(visit.hits, 2)
+        self.assertEqual(SiteVisit.objects.count(), 0)
 
     def test_site_visit_skips_excluded_path(self):
         self.client.get("/favicon.ico")

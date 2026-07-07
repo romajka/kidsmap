@@ -56,7 +56,9 @@ GOOGLE_APPLICATION_CREDENTIALS = os.getenv(
     "GOOGLE_APPLICATION_CREDENTIALS",
     default=str(BASE_DIR / "kidsmap-488406-247f7d0bb069.json")
 )
-DISABLE_SITE_VISIT_TRACKING = True
+# Admin analytics should rely on GA4 only. Local tracking persistence is disabled
+# to avoid unbounded growth of visit/session/event tables on the server.
+LOCAL_ANALYTICS_STORAGE_ENABLED = _env_bool("LOCAL_ANALYTICS_STORAGE_ENABLED", False)
 TRACKING_EVENT_RATE_LIMIT = int(os.getenv("TRACKING_EVENT_RATE_LIMIT", "60"))
 TRACKING_EVENT_RATE_WINDOW_SECONDS = int(os.getenv("TRACKING_EVENT_RATE_WINDOW_SECONDS", "60"))
 REVIEWS_REQUIRE_AUTH = _env_bool("REVIEWS_REQUIRE_AUTH", True)
@@ -230,7 +232,6 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "catalog.middleware.AdminHostRedirectMiddleware",
-    "catalog.middleware.SiteVisitMiddleware",
     "django.middleware.locale.LocaleMiddleware",  # языки
     "config.middleware.AdminLocaleMiddleware",
     "django.middleware.common.CommonMiddleware",

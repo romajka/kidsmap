@@ -1,3 +1,5 @@
+import re
+
 from django.utils.translation import gettext as _
 
 AZERBAIJAN_REGIONS_MAP = {
@@ -168,10 +170,13 @@ def get_location_translation(value: str, language_code: str = None) -> str:
         lang = "az"
         
     if key in BAKU_DISTRICTS_MAP:
-        baku_labels = {"az": "Bakı", "ru": "Баку", "en": "Baku"}
-        prefix = baku_labels.get(lang, "Baku")
-        val = BAKU_DISTRICTS_MAP[key].get(lang, value)
-        return f"{prefix}: {val}"
+        city_label = {"az": "Bakı", "ru": "Баку", "en": "Baku"}[lang]
+        district_label = BAKU_DISTRICTS_MAP[key].get(lang, value)
+        if lang == "az":
+            return f"{city_label}, {district_label} rayonu"
+        if lang == "en":
+            return f"{district_label} District, {city_label}"
+        return f"{city_label}, {district_label} район"
     if key in AZERBAIJAN_REGIONS_MAP:
         return AZERBAIJAN_REGIONS_MAP[key].get(lang, value)
     
@@ -179,6 +184,89 @@ def get_location_translation(value: str, language_code: str = None) -> str:
     from django.utils.translation import override
     with override(lang):
         return _(value)
+
+
+def localize_address_text(value: str, language_code: str = None) -> str:
+    if not value:
+        return ""
+
+    from django.conf import settings
+
+    lang = ((language_code or settings.LANGUAGE_CODE or "az").split("-", 1)[0] or "az").lower()
+    if lang not in ("az", "ru", "en"):
+        lang = "az"
+    if lang == "ru":
+        return str(value).strip()
+
+    localized = str(value).strip()
+
+    proper_name_replacements = {
+        "az": {
+            "Школьная": "Məktəb",
+            "Ататюрка": "Atatürk",
+            "Гусейна Джавида": "Hüseyn Cavid",
+        },
+        "en": {
+            "Школьная": "School",
+            "Ататюрка": "Ataturk",
+            "Гусейна Джавида": "Huseyn Javid",
+        },
+    }
+    for source, target in proper_name_replacements.get(lang, {}).items():
+        localized = localized.replace(source, target)
+
+    replacements = {
+        "az": [
+            (r"\bАзербайджан\b", "Azərbaycan"),
+            (r"\bБаку\b", "Bakı"),
+            (r"\bгород\b", "şəhəri"),
+            (r"\bрайон\b", "rayonu"),
+            (r"\bул\.\s*", "küç. "),
+            (r"\bулица\s+", ""),
+            (r"\bпр\.\s*", "prospekti "),
+            (r"\bпроспект\s+", ""),
+            (r"\bпер\.\s*", "döngə "),
+            (r"\bшоссе\b", "şossesi"),
+        ],
+        "en": [
+            (r"\bАзербайджан\b", "Azerbaijan"),
+            (r"\bБаку\b", "Baku"),
+            (r"\bгород\b", "city"),
+            (r"\bрайон\b", "district"),
+            (r"\bул\.\s*", "St. "),
+            (r"\bулица\s+", ""),
+            (r"\bпр\.\s*", "Ave. "),
+            (r"\bпроспект\s+", ""),
+            (r"\bпер\.\s*", "Lane "),
+            (r"\bшоссе\b", "Highway"),
+        ],
+    }
+    for pattern, replacement in replacements[lang]:
+        localized = re.sub(pattern, replacement, localized, flags=re.IGNORECASE)
+
+    for key, labels in BAKU_DISTRICTS_MAP.items():
+        variants = {
+            key,
+            labels["ru"],
+            labels["az"],
+            labels["en"],
+            f"{labels['ru']} район",
+            f"{labels['az']} rayonu",
+            f"{labels['en']} District",
+        }
+        target = get_location_translation(key, lang)
+        for variant in sorted(variants, key=len, reverse=True):
+            localized = re.sub(re.escape(variant), target, localized, flags=re.IGNORECASE)
+
+    for key, labels in AZERBAIJAN_REGIONS_MAP.items():
+        variants = {key, labels["ru"], labels["az"], labels["en"]}
+        target = get_location_translation(key, lang)
+        for variant in sorted(variants, key=len, reverse=True):
+            localized = re.sub(re.escape(variant), target, localized, flags=re.IGNORECASE)
+
+    localized = re.sub(r"\s{2,}", " ", localized)
+    localized = re.sub(r"\s+,", ",", localized)
+    return localized.strip(" ,")
 
 def get_regions_choices(language_code: str = "az") -> list[tuple[str, str]]:
     choices = []
@@ -286,4 +374,3 @@ def clean_location_fields(form, cleaned):
         # For non-Baku regions, the district column stores the region key itself.
         cleaned["district"] = region or ""
     return cleaned
-
