@@ -1732,6 +1732,16 @@ main {
   flex-wrap: wrap;
 }
 
+.footer-disclaimer {
+  flex-basis: 100%;
+  max-width: 860px;
+  margin: -4px 0 0;
+  color: rgba(31, 41, 51, 0.72);
+  font-size: 12px;
+  line-height: 1.55;
+  font-weight: 600;
+}
+
 .footer-legal-links {
   display: flex;
   align-items: center;
@@ -4802,6 +4812,31 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   color: #1e5b97;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.detail-disclaimer {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(19, 111, 56, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(168, 213, 155, 0.16));
+}
+
+.detail-disclaimer strong {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--brand-spruce);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-disclaimer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .detail-map-wrap {
@@ -24606,4 +24641,3 @@ body.page-events_landing .topbar {
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
-

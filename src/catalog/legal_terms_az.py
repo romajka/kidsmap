@@ -40,6 +40,7 @@ def _terms_sections_az() -> list[dict]:
             "accuracy",
             "3. Məlumatın düzgünlüyü",
             paragraph("KidsMap məlumatları aktual saxlamağa çalışır, lakin təşkilatlar və istifadəçilər tərəfindən təqdim edilən bütün məlumatların mütləq dəqiqliyinə zəmanət verə bilməz."),
+            paragraph("Kartlarda yerləşdirilən məlumatların bir hissəsi açıq mənbələrdən, təşkilat nümayəndələrindən, istifadəçilərdən və digər üçüncü şəxslərdən əldə oluna bilər."),
             paragraph("Qeydiyyatdan və ya ödənişdən əvvəl istifadəçiyə müstəqil şəkildə aşağıdakıları təsdiqləmək tövsiyə olunur:"),
             bullets(
                 "aktual qiyməti;",
@@ -53,6 +54,7 @@ def _terms_sections_az() -> list[dict]:
                 "ləğvetmə və qaytarılma şərtlərini;",
                 "təhlükəsizlik tələblərini."
             ),
+            paragraph("KidsMap administrasiyası bütün məlumatların hər an tam, aktual və səhvsiz olmasına zəmanət vermir. Qeydiyyatdan, ödənişdən və ya ziyarətdən əvvəl istifadəçi əsas şərtləri birbaşa təşkilatla özü dəqiqləşdirməlidir."),
             paragraph("Əgər istifadəçi səhv aşkar edərsə, bu barədə aşağıdakı ünvana yaza bilər:"),
             email_block("kidsmap.az@gmail.com"),
             paragraph("Bu bölmədəki heç bir müddəa KidsMap-ı qanunla istisna edilə bilməyən məsuliyyətdən azad etmir.")
@@ -291,6 +293,7 @@ def _terms_sections_az() -> list[dict]:
                 "KidsMap konkret təhsil, idman və ya digər nəticəyə zəmanət vermir;",
                 "KidsMap platformanı xəbərdar etmədən təşkilat tərəfindən şərtlərin dəyişdirilməsinə görə məsuliyyət daşımır."
             ),
+            paragraph("Tətbiq olunan qanunvericilikdə birbaşa başqa hal nəzərdə tutulmadıqda, KidsMap açıq mənbələrdən və ya üçüncü şəxslərdən əldə edilmiş köhnəlmiş, natamam və ya xəbərdarlıq edilmədən dəyişdirilmiş məlumatlara görə də məsuliyyət daşımır."),
             paragraph("Şərtlərin heç bir müddəası qanunla istisna edilə bilməyən məsuliyyəti, istehlakçının məcburi hüquqlarını və ya qəsdən edilmiş hüquqazidd hərəkətlərə görə məsuliyyəti istisna etmir.")
         ),
         section(

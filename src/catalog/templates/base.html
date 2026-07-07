@@ -320,6 +320,15 @@
                 <a href="{% url 'review_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Review Rules{% elif CURRENT_LANGUAGE == "az" %}Rəy qaydaları{% else %}Правила отзывов{% endif %}</a>
                 <a href="{% url 'listing_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Listing Rules{% elif CURRENT_LANGUAGE == "az" %}Yerləşdirmə qaydaları{% else %}Правила размещения{% endif %}</a>
               </div>
+              <p class="footer-disclaimer">
+                {% if CURRENT_LANGUAGE == "az" %}
+                  Saytdakı məlumatların bir hissəsi açıq mənbələrdən və üçüncü şəxslərdən götürülə bilər. Qeydiyyatdan və ya ödənişdən əvvəl məlumatları təşkilatla dəqiqləşdirin.
+                {% elif CURRENT_LANGUAGE == "en" %}
+                  Some information on the site may come from public sources and third parties. Please verify key details with the organization before booking or paying.
+                {% else %}
+                  Часть информации на сайте может быть получена из открытых источников и от третьих лиц. Перед записью или оплатой уточняйте данные у организации.
+                {% endif %}
+              </p>
             </div>
             <a class="footer-bottom-link icon-only-link" href="#top">
               <span class="visually-hidden">{% trans "Наверх" %}</span>

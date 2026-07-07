@@ -354,6 +354,21 @@
                 </div>
               {% endif %}
 
+              <div class="detail-disclaimer">
+                <strong>
+                  {% if language == "az" %}Vacib qeyd{% elif language == "en" %}Important note{% else %}Важно{% endif %}
+                </strong>
+                <p>
+                  {% if language == "az" %}
+                    Bu səhifədəki məlumatların bir hissəsi açıq mənbələrdən və üçüncü şəxslərdən əldə oluna bilər. Cədvəli, qiyməti, ünvanı və şərtləri ziyarətdən əvvəl birbaşa təşkilatla dəqiqləşdirin.
+                  {% elif language == "en" %}
+                    Some information on this page may come from public sources and third parties. Please verify the schedule, price, address, and terms directly with the organization before visiting.
+                  {% else %}
+                    Часть данных на этой странице может быть получена из открытых источников и от третьих лиц. Перед посещением уточняйте расписание, цену, адрес и условия напрямую у организации.
+                  {% endif %}
+                </p>
+              </div>
+
               <section class="detail-highlights" aria-label="{% trans 'Основные характеристики' %}">
                 {% if place.age_display %}
                   <div class="detail-highlight-card detail-highlight-card--age">

@@ -253,11 +253,19 @@ class TestPublicPagesSmoke(TestCase):
                 anchor_ids = [item["id"] for item in page_sections]
                 self.assertEqual(len(anchor_ids), len(set(anchor_ids)))
 
+    def test_terms_page_mentions_public_sources_disclaimer(self):
+        response = self.client.get("/ru/terms/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "может быть получена из открытых источников")
+        self.assertContains(response, "не гарантирует полноту, актуальность и безошибочность")
+
     def test_ru_footer_privacy_link_points_to_ru_privacy(self):
         response = self.client.get("/ru/contacts/")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'href="/ru/privacy/"', html=False)
+        self.assertContains(response, "Часть информации на сайте может быть получена из открытых источников и от третьих лиц.")
 
     def test_about_page_shows_extended_project_description(self):
         response = self.client.get("/ru/about/", follow=True)
@@ -1258,6 +1266,18 @@ class TestCatalogEnhancements(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Вы представитель этого кружка?")
         self.assertNotContains(response, "intent=owner_place")
+
+    def test_place_detail_shows_information_disclaimer(self):
+        place = create_quality_place(
+            name="Place With Disclaimer",
+            name_ru="Кружок с дисклеймером",
+        )
+
+        response = self.client.get(place.get_absolute_url(), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Часть данных на этой странице может быть получена из открытых источников и от третьих лиц.")
+        self.assertContains(response, "уточняйте расписание, цену, адрес и условия напрямую у организации")
         self.assertNotContains(response, reverse("request_place_ownership", args=[place.id]))
 
     def test_card_price_badge_label_keeps_from_prefix_for_lower_bound_price(self):

@@ -15,11 +15,22 @@ from django.utils.translation import gettext_lazy as _, ngettext
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 
+from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect
-from catalog.models import Place, PlacePhoto, PlaceChangeAudit, Event, PlaceReviewsByClub, Category, Subcategory
+from catalog.models import (
+    Place,
+    PlacePhoto,
+    PlaceChangeAudit,
+    Event,
+    PlaceReviewsByClub,
+    Category,
+    Subcategory,
+    CatalogContentSettings,
+)
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from catalog.services.content_quality import place_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
+from catalog.services.options import sort_translated_values
 from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
 from .review import PlaceReviewInline
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
@@ -63,6 +74,12 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         required=False,
         choices=(),
         widget=forms.Select(attrs={"class": "field", "data-km-location-district": ""}),
+    )
+    metro = forms.ChoiceField(
+        label=_("Метро"),
+        required=False,
+        choices=(),
+        widget=forms.Select(attrs={"class": "field"}),
     )
 
     class Meta:
@@ -111,6 +128,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         from catalog.services.locations import init_location_fields, configure_location_choices
         init_location_fields(self, self.instance)
         configure_location_choices(self)
+        self._configure_metro_choices()
 
         if "category" in self.fields:
             self.fields["category"].queryset = Category.objects.order_by("order", "name_ru", "name")
@@ -123,7 +141,9 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 "name",
             )
             self.fields["subcategory"].label_from_instance = lambda obj: obj.name_i18n()
-            self.fields["subcategory"].widget = SubcategorySelect(attrs=self.fields["subcategory"].widget.attrs)
+            subcategory_widget = SubcategorySelect(attrs=self.fields["subcategory"].widget.attrs)
+            subcategory_widget.choices = self.fields["subcategory"].choices
+            self.fields["subcategory"].widget = subcategory_widget
         self.fields["photo"].help_text = _("Используется в каталоге, на карте и первым на странице места.")
         self.fields["cover_photo"].help_text = _("Резервное изображение. Используется только если главное фото отсутствует.")
         for field_name in ("temporary_start", "temporary_end"):
@@ -154,6 +174,32 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             if field_name in self.fields and hasattr(self.fields[field_name].widget, "attrs"):
                 self.fields[field_name].widget.attrs.setdefault("placeholder", str(placeholder))
         self._init_schedule_editor()
+
+    def _configure_metro_choices(self):
+        metro_options = sort_translated_values(BAKU_METRO_STATIONS)
+        try:
+            content_settings = CatalogContentSettings.get_solo()
+            metro_options = sort_translated_values(content_settings.metro_stations())
+        except Exception:
+            pass
+
+        metro_current = (self.initial.get("metro") or getattr(self.instance, "metro", "") or "").strip()
+        choices = [("", _("Выберите метро"))]
+        seen = set()
+
+        for raw in metro_options or []:
+            value = str(raw or "").strip()
+            if not value or value in seen:
+                continue
+            seen.add(value)
+            choices.append((value, _(value)))
+
+        if metro_current and metro_current not in seen:
+            choices.insert(1, (metro_current, _(metro_current)))
+
+        self.fields["metro"].choices = choices
+        self.fields["metro"].help_text = _("Если район не выбран, укажите ближайшую станцию метро.")
+        self.fields["metro"].error_messages.update({"invalid_choice": _("Выберите станцию метро из списка.")})
 
 
 class EventAdminForm(forms.ModelForm):

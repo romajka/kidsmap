@@ -40,6 +40,7 @@ def _terms_sections_en() -> list[dict]:
             "accuracy",
             "3. Accuracy of information",
             paragraph("KidsMap strives to keep information up to date but cannot guarantee the absolute accuracy of all data provided by organizations and users."),
+            paragraph("Some information published in listings may be obtained from public sources, organization representatives, users, and other third parties."),
             paragraph("Before enrolling or paying, the user is advised to independently confirm:"),
             bullets(
                 "current price;",
@@ -53,6 +54,7 @@ def _terms_sections_en() -> list[dict]:
                 "cancellation and refund conditions;",
                 "safety requirements."
             ),
+            paragraph("The KidsMap administration does not guarantee that all information is complete, current, and error-free at every moment. Before booking, paying, or visiting, the user must independently verify the key conditions directly with the organization."),
             paragraph("If a user finds an error, they can report it to:"),
             email_block("kidsmap.az@gmail.com"),
             paragraph("Nothing in this section releases KidsMap from liability that cannot be excluded by law.")
@@ -291,6 +293,7 @@ def _terms_sections_en() -> list[dict]:
                 "KidsMap does not guarantee a specific educational, sports, or other outcome;",
                 "KidsMap is not responsible for changes in conditions by an organization without notifying the platform."
             ),
+            paragraph("Unless otherwise expressly required by applicable law, KidsMap is also not responsible for outdated, incomplete, or changed without notice information received from public sources or third parties."),
             paragraph("No provision of the Terms excludes liability that cannot be excluded by law, mandatory consumer rights, or liability for intentional unlawful actions.")
         ),
         section(

@@ -485,6 +485,17 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("place", "applicant", "moderated_by").prefetch_related("place__gallery")
 
+    def get_deleted_objects(self, objs, request):
+        deleted_objects, model_count, perms_needed, protected = super().get_deleted_objects(objs, request)
+        # The request audit is intentionally non-deletable directly from admin,
+        # but it should not block deleting its parent ownership request.
+        perms_needed = {
+            perm
+            for perm in perms_needed
+            if perm != str(PlaceOwnershipRequestAudit._meta.verbose_name)
+        }
+        return deleted_objects, model_count, perms_needed, protected
+
     def get_urls(self):
         custom_urls = [
             path(

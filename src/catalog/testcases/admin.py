@@ -1941,3 +1941,53 @@ class TestCategoryAdminHierarchy(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Тестовая Категория")
         self.assertContains(response, "Тестовая Подкатегория")
+
+    def test_place_add_form_renders_subcategory_options(self):
+        url = reverse("admin:catalog_place_add")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="subcategory"', html=False)
+        self.assertContains(response, f'value="{self.subcategory.pk}"', html=False)
+        self.assertContains(response, 'data-category="TESTCAT"', html=False)
+
+    def test_place_add_form_renders_metro_select_options(self):
+        url = reverse("admin:catalog_place_add")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<select name="metro"', html=False)
+        self.assertContains(response, 'Выберите метро', html=False)
+        self.assertNotContains(response, '<input type="text" name="metro"', html=False)
+
+
+class TestAdminDeleteFlows(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_superuser("admin_delete", "admin_delete@example.com", "pass")
+        self.client.force_login(self.admin)
+
+    def test_can_delete_ownership_request_with_audit_entries(self):
+        place = create_quality_place(name="Delete ownership request place")
+        applicant = User.objects.create_user("delete_req_user", "delete_req@example.com", "pass")
+        request_item = PlaceOwnershipRequest.objects.create(place=place, applicant=applicant)
+
+        response = self.client.post(
+            reverse("admin:catalog_placeownershiprequest_delete", args=[request_item.pk]),
+            {"post": "yes"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(PlaceOwnershipRequest.objects.filter(pk=request_item.pk).exists())
+
+    def test_can_delete_user_with_ownership_request_audit_history(self):
+        place = create_quality_place(name="Delete user place")
+        target_user = User.objects.create_user("delete_target", "delete_target@example.com", "pass")
+        PlaceOwnershipRequest.objects.create(place=place, applicant=target_user)
+
+        response = self.client.post(
+            reverse("admin:auth_user_delete", args=[target_user.pk]),
+            {"post": "yes"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(User.objects.filter(pk=target_user.pk).exists())

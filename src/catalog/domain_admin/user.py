@@ -9,7 +9,13 @@ from django.contrib.admin.sites import NotRegistered
 from django.db.models import Q
 from django.urls import reverse
 
-from catalog.models import UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVerification
+from catalog.models import (
+    UserProfile,
+    SiteRegisteredUser,
+    StaffAccessUser,
+    UserEmailVerification,
+    PlaceOwnershipRequestAudit,
+)
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
 
 User = get_user_model()
@@ -49,6 +55,17 @@ class _BaseKidsMapUserAdmin(UserAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("profile")
+
+    def get_deleted_objects(self, objs, request):
+        deleted_objects, model_count, perms_needed, protected = super().get_deleted_objects(objs, request)
+        # User deletion can cascade through ownership requests into their audit trail.
+        # Audit rows are read-only in admin, but they must not block deleting the parent user.
+        perms_needed = {
+            perm
+            for perm in perms_needed
+            if perm != str(PlaceOwnershipRequestAudit._meta.verbose_name)
+        }
+        return deleted_objects, model_count, perms_needed, protected
 
     def get_urls(self):
         from django.urls import path
