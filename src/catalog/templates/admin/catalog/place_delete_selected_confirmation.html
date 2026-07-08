@@ -19,29 +19,200 @@
 {% endblock %}
 
 {% block content %}
-  <p>
-    {% blocktranslate %}
-      Выбранные кружки будут перемещены в раздел удаленных. Они исчезнут с сайта, но останутся в базе и их можно будет восстановить из админки.
-    {% endblocktranslate %}
-  </p>
-  {% if undo_hint %}
-    <p>{{ undo_hint }}</p>
-  {% endif %}
-  <h2>{% translate "Objects" %}</h2>
-  <ul>
-    {% for obj in queryset %}
-      <li>{{ obj }}</li>
-    {% endfor %}
-  </ul>
-  <form method="post">{% csrf_token %}
-    <div>
+  <style>
+    /* Premium confirm card styling */
+    .delete-confirmation #content {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 50vh;
+        padding: 20px;
+    }
+    .km-confirm-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eef2f5;
+        max-width: 550px;
+        width: 100%;
+        padding: 40px;
+        text-align: center;
+        box-sizing: border-box;
+    }
+    .dark-mode .km-confirm-card {
+        background: #1e293b;
+        border-color: #334155;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .km-confirm-icon-wrap {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #fef2f2;
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px auto;
+    }
+    .dark-mode .km-confirm-icon-wrap {
+        background: rgba(239, 68, 68, 0.15);
+    }
+    .km-confirm-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 16px 0 !important;
+        line-height: 1.3;
+    }
+    .dark-mode .km-confirm-title {
+        color: #f8fafc;
+    }
+    .km-confirm-text {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #475569;
+        margin: 0 0 24px 0 !important;
+    }
+    .dark-mode .km-confirm-text {
+        color: #94a3b8;
+    }
+    .km-confirm-list-title {
+        font-size: 14px;
+        font-weight: 600;
+        text-align: left;
+        color: #334155;
+        margin: 0 0 8px 0;
+    }
+    .dark-mode .km-confirm-list-title {
+        color: #cbd5e1;
+    }
+    .km-confirm-list {
+        text-align: left;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin: 0 0 30px 0;
+        border: 1px solid #f1f5f9;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .dark-mode .km-confirm-list {
+        background: #0f172a;
+        border-color: #1e293b;
+    }
+    .km-confirm-list ul {
+        list-style: none !important;
+        padding-left: 0 !important;
+        margin: 0 !important;
+    }
+    .km-confirm-list li {
+        font-size: 14px;
+        color: #475569;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        word-break: break-all;
+    }
+    .dark-mode .km-confirm-list li {
+        color: #94a3b8;
+        border-color: #1e293b;
+    }
+    .km-confirm-list li:last-child {
+        border-bottom: none;
+    }
+    .km-confirm-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .km-btn-confirm {
+        padding: 12px 28px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none !important;
+    }
+    .km-btn-confirm--danger {
+        background: #ef4444;
+        color: #ffffff !important;
+    }
+    .km-btn-confirm--danger:hover {
+        background: #dc2626;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+    .km-btn-confirm--cancel {
+        background: #f1f5f9;
+        color: #475569 !important;
+    }
+    .km-btn-confirm--cancel:hover {
+        background: #e2e8f0;
+    }
+    .dark-mode .km-btn-confirm--cancel {
+        background: #334155;
+        color: #cbd5e1 !important;
+    }
+    .dark-mode .km-btn-confirm--cancel:hover {
+        background: #475569;
+    }
+  </style>
+
+  <div class="km-confirm-card">
+    <div class="km-confirm-icon-wrap">
+      <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg>
+    </div>
+    
+    <h1 class="km-confirm-title">{% trans "Переместить выбранные кружки в удаленные?" %}</h1>
+    
+    <p class="km-confirm-text">
+      {% blocktranslate %}
+        Выбранные кружки будут перемещены в раздел удаленных. Они исчезнут с сайта, но останутся в базе и их можно будет восстановить из админки.
+      {% endblocktranslate %}
+      {% if undo_hint %}
+        <br><small style="opacity: 0.8;">{{ undo_hint }}</small>
+      {% endif %}
+    </p>
+
+    <h2 class="km-confirm-list-title">{% translate "Выбранные кружки" %}</h2>
+    <div class="km-confirm-list">
+      <ul>
+        {% for obj in queryset %}
+          <li>{{ obj }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <form method="post">{% csrf_token %}
       {% for obj in queryset %}
         <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}">
       {% endfor %}
       <input type="hidden" name="action" value="{{ action_name }}">
       <input type="hidden" name="post" value="yes">
-      <input type="submit" value="{% trans 'Переместить в удаленные' %}">
-      <a role="button" href="#" class="button cancel-link">{% translate "No, take me back" %}</a>
-    </div>
-  </form>
+      
+      <div class="km-confirm-actions">
+        <button type="submit" class="km-btn-confirm km-btn-confirm--danger">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          {% trans 'Переместить в удаленные' %}
+        </button>
+        <a role="button" href="#" class="button cancel-link km-btn-confirm km-btn-confirm--cancel">
+          {% translate "Отмена" %}
+        </a>
+      </div>
+    </form>
+  </div>
 {% endblock %}
+

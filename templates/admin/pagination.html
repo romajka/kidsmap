@@ -1,0 +1,26 @@
+{% load admin_list jazzmin admin_dashboard_tags i18n %}
+<div class="km-changelist-pagination">
+  <div class="km-changelist-pagination__info">
+    <span class="km-changelist-pagination__count">{% paginator_count_label cl %}</span>
+    {% if show_all_url %}
+      <a href="{{ show_all_url }}" class="km-changelist-pagination__show-all-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        {% translate "Show all" %}
+      </a>
+    {% endif %}
+  </div>
+  
+  {% if pagination_required %}
+    <nav class="km-changelist-pagination__nav" aria-label="Pagination">
+      <ul class="km-pagination-list">
+        {% for i in page_range %}
+          {% jazzmin_paginator_number cl i %}
+        {% endfor %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>

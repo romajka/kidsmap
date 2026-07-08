@@ -48,3 +48,85 @@ def get_dashboard_stats():
             'requests': requests_pending,
         }
     }
+
+
+PLURAL_MAP = {
+    'place': {
+        'ru': ('место', 'места', 'мест'),
+        'az': ('məkan', 'məkan', 'məkan'),
+        'en': ('place', 'places', 'places'),
+    },
+    'event': {
+        'ru': ('мероприятие', 'мероприятия', 'мероприятий'),
+        'az': ('tədbir', 'tədbir', 'tədbir'),
+        'en': ('event', 'events', 'events'),
+    },
+    'placereview': {
+        'ru': ('отзыв', 'отзыва', 'отзывов'),
+        'az': ('rəy', 'rəy', 'rəy'),
+        'en': ('review', 'reviews', 'reviews'),
+    },
+    'sitereview': {
+        'ru': ('отзыв', 'отзыва', 'отзывов'),
+        'az': ('rəy', 'rəy', 'rəy'),
+        'en': ('review', 'reviews', 'reviews'),
+    },
+    'user': {
+        'ru': ('пользователь', 'пользователя', 'пользователей'),
+        'az': ('istifadəçi', 'istifadəçi', 'istifadəçi'),
+        'en': ('user', 'users', 'users'),
+    },
+    'group': {
+        'ru': ('группа', 'группы', 'групп'),
+        'az': ('qrup', 'qrup', 'qrup'),
+        'en': ('group', 'groups', 'groups'),
+    },
+    'placeownershiprequest': {
+        'ru': ('запрос', 'запроса', 'запросов'),
+        'az': ('sorğu', 'sorğu', 'sorğu'),
+        'en': ('request', 'requests', 'requests'),
+    },
+    'placechangeaudit': {
+        'ru': ('действие', 'действия', 'действий'),
+        'az': ('əməliyyat', 'əməliyyat', 'əməliyyat'),
+        'en': ('action', 'actions', 'actions'),
+    }
+}
+
+
+def get_plural_form(count, forms, lang='ru'):
+    if lang == 'az':
+        return forms[0]
+    if lang == 'en':
+        return forms[0] if count == 1 else forms[1]
+    
+    # Russian plural rules
+    n = abs(count) % 100
+    n1 = n % 10
+    if 10 < n < 20:
+        return forms[2]
+    if 1 < n1 < 5:
+        return forms[1]
+    if n1 == 1:
+        return forms[0]
+    return forms[2]
+
+
+@register.simple_tag
+def paginator_count_label(cl):
+    from django.utils import translation
+    count = cl.result_count
+    model_name = cl.opts.model_name.lower()
+    lang = translation.get_language() or 'ru'
+    lang = lang[:2].lower()
+    
+    if model_name in PLURAL_MAP:
+        forms = PLURAL_MAP[model_name].get(lang, PLURAL_MAP[model_name]['en'])
+        word = get_plural_form(count, forms, lang)
+        return f"{count} {word}"
+    
+    # Fallback to model's verbose name
+    if count == 1:
+        return f"{count} {cl.opts.verbose_name}"
+    else:
+        return f"{count} {cl.opts.verbose_name_plural}"

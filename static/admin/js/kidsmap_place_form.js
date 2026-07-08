@@ -1648,6 +1648,39 @@
         }
       }
     });
+
+    // Intercept deletelink clicks to show SweetAlert2 before navigating to delete confirmation page
+    document.addEventListener("click", function (event) {
+      var deleteLink = event.target.closest(".deletelink");
+      if (!deleteLink) {
+        return;
+      }
+      event.preventDefault();
+      var href = deleteLink.getAttribute("href");
+
+      if (typeof Swal !== "undefined") {
+        Swal.fire({
+          title: "Переместить в удаленные?",
+          text: "Вы будете перенаправлены на страницу подтверждения удаления.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#475569",
+          confirmButtonText: "Да, продолжить",
+          cancelButtonText: "Отмена",
+          background: document.body.classList.contains("dark-mode") ? "#1e293b" : "#ffffff",
+          color: document.body.classList.contains("dark-mode") ? "#f8fafc" : "#0f172a",
+        }).then(function (result) {
+          if (result.isConfirmed) {
+            window.location.href = href;
+          }
+        });
+      } else {
+        if (window.confirm("Вы уверены, что хотите перейти к удалению?")) {
+          window.location.href = href;
+        }
+      }
+    });
   });
 
 })();

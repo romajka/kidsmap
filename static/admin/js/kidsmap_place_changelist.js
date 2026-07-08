@@ -120,20 +120,95 @@
         return;
       }
 
-      var confirmTemplate = actionButton.dataset.confirm;
-      if (confirmTemplate) {
-        var confirmMessage = confirmTemplate.replace("{count}", String(count));
-        if (!window.confirm(confirmMessage)) {
-          return;
+      function executeBulkAction() {
+        setActionValue(actionButton.dataset.action);
+        ensureIndexField();
+        if (typeof form.requestSubmit === "function") {
+          form.requestSubmit();
+        } else {
+          form.submit();
         }
       }
 
-      setActionValue(actionButton.dataset.action);
-      ensureIndexField();
-      if (typeof form.requestSubmit === "function") {
-        form.requestSubmit();
+      var confirmTemplate = actionButton.dataset.confirm;
+      if (confirmTemplate) {
+        var confirmMessage = confirmTemplate.replace("{count}", String(count));
+        if (typeof Swal !== "undefined") {
+          var isDanger = actionButton.classList.contains("place-admin-dashboard__bulk-action--danger");
+          Swal.fire({
+            title: isDanger ? "Переместить в удаленные?" : "Подтвердите действие",
+            text: confirmMessage,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: isDanger ? "#ef4444" : "#10b981",
+            cancelButtonColor: "#475569",
+            confirmButtonText: "Да, продолжить",
+            cancelButtonText: "Отмена",
+            background: document.body.classList.contains("dark-mode") ? "#1e293b" : "#ffffff",
+            color: document.body.classList.contains("dark-mode") ? "#f8fafc" : "#0f172a",
+          }).then(function (result) {
+            if (result.isConfirmed) {
+              executeBulkAction();
+            }
+          });
+        } else {
+          if (window.confirm(confirmMessage)) {
+            executeBulkAction();
+          }
+        }
       } else {
-        form.submit();
+        executeBulkAction();
+      }
+    });
+
+    // Intercept individual row delete action to show SweetAlert2
+    document.addEventListener("click", function (event) {
+      var deleteLink = event.target.closest(".km-admin-action-menu__link--danger");
+      if (!deleteLink) {
+        return;
+      }
+      event.preventDefault();
+      var href = deleteLink.href;
+
+      if (typeof Swal !== "undefined") {
+        Swal.fire({
+          title: "Переместить в удаленные?",
+          text: "Карточка скроется с сайта, но её можно будет восстановить из админки.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#475569",
+          confirmButtonText: "Да, переместить",
+          cancelButtonText: "Отмена",
+          background: document.body.classList.contains("dark-mode") ? "#1e293b" : "#ffffff",
+          color: document.body.classList.contains("dark-mode") ? "#f8fafc" : "#0f172a",
+        }).then(function (result) {
+          if (result.isConfirmed) {
+            // Direct POST to Django delete url bypasses confirmation page
+            var directForm = document.createElement("form");
+            directForm.method = "POST";
+            directForm.action = href;
+
+            var csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "csrfmiddlewaretoken";
+            csrfInput.value = document.querySelector("[name=csrfmiddlewaretoken]")?.value || "";
+            directForm.appendChild(csrfInput);
+
+            var postInput = document.createElement("input");
+            postInput.type = "hidden";
+            postInput.name = "post";
+            postInput.value = "yes";
+            directForm.appendChild(postInput);
+
+            document.body.appendChild(directForm);
+            directForm.submit();
+          }
+        });
+      } else {
+        if (window.confirm("Переместить в удаленные? Карточка скроется с сайта.")) {
+          window.location.href = href;
+        }
       }
     });
 
