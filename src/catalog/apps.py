@@ -65,5 +65,9 @@ class CatalogConfig(AppConfig):
                 return mark_safe(html_str)
             
             jazzmin_tags.jazzmin_paginator_number = patched_paginator_number
+            jazzmin_tags.register.simple_tag(
+                patched_paginator_number,
+                name="jazzmin_paginator_number",
+            )
         except ImportError:
             pass
