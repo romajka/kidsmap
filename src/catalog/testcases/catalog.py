@@ -302,6 +302,13 @@ class TestSeedCatalogTaxonomyCommand(TestCase):
         cat = Category.objects.get(code="EDU")
         self.assertTrue(cat.icon.endswith(".svg"))
         self.assertIn("img/icon/cooliocns SVG/Interface/Book_Open.svg", cat.icon)
+        beach = Category.objects.get(code="BEACH")
+        self.assertEqual(beach.name_ru, "Пляжи")
+        self.assertEqual(beach.name_az, "Çimərliklər")
+        self.assertEqual(beach.name_en, "Beaches")
+        self.assertEqual(beach.icon, "icons/categories/beach.svg")
+        self.assertTrue(beach.is_active)
+        self.assertFalse(beach.subcategories.exists())
 
     def test_update_icons_flag_overwrites_existing_custom_icon(self):
         Category.objects.update_or_create(

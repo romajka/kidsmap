@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from catalog.models import Category, Subcategory
+from catalog.models.category import NEUTRAL_BG_VALUES, NEUTRAL_TEXT_VALUES
 
 class Command(BaseCommand):
     help = "Seeds catalog taxonomy: Categories and Subcategories"
@@ -23,6 +24,8 @@ class Command(BaseCommand):
                 "name_ru": "Раннее развитие",
                 "name_en": "Early development",
                 "icon": "icons/categories/early-development.svg",
+                "color_bg": "#DCFCE7",
+                "color_text": "#15803D",
                 "is_active": True,
                 "order": 1,
             },
@@ -33,6 +36,8 @@ class Command(BaseCommand):
                 "name_ru": "Образование",
                 "name_en": "Education",
                 "icon": "img/icon/cooliocns SVG/Interface/Book_Open.svg",
+                "color_bg": "#E0E7FF",
+                "color_text": "#4338CA",
                 "is_active": True,
                 "order": 2,
             },
@@ -43,6 +48,8 @@ class Command(BaseCommand):
                 "name_ru": "Спорт",
                 "name_en": "Sports",
                 "icon": "icons/categories/sports.svg",
+                "color_bg": "#E0F2FE",
+                "color_text": "#0284C7",
                 "is_active": True,
                 "order": 3,
             },
@@ -53,6 +60,8 @@ class Command(BaseCommand):
                 "name_ru": "Танцы",
                 "name_en": "Dance",
                 "icon": "icons/categories/dance.svg",
+                "color_bg": "#FFE4E6",
+                "color_text": "#E11D48",
                 "is_active": True,
                 "order": 4,
             },
@@ -63,6 +72,8 @@ class Command(BaseCommand):
                 "name_ru": "Музыка и сцена",
                 "name_en": "Music & stage",
                 "icon": "icons/categories/music.svg",
+                "color_bg": "#FAE8FF",
+                "color_text": "#A21CAF",
                 "is_active": True,
                 "order": 5,
             },
@@ -73,6 +84,8 @@ class Command(BaseCommand):
                 "name_ru": "Технологии",
                 "name_en": "Technology",
                 "icon": "img/icon/cooliocns SVG/System/Code.svg",
+                "color_bg": "#F3E8FF",
+                "color_text": "#7E22CE",
                 "is_active": True,
                 "order": 6,
             },
@@ -83,6 +96,8 @@ class Command(BaseCommand):
                 "name_ru": "Творчество",
                 "name_en": "Creativity",
                 "icon": "img/icon/cooliocns SVG/Edit/Swatches_Palette.svg",
+                "color_bg": "#FCE7F3",
+                "color_text": "#BE185D",
                 "is_active": True,
                 "order": 7,
             },
@@ -93,6 +108,8 @@ class Command(BaseCommand):
                 "name_ru": "Интеллект и навыки",
                 "name_en": "Intellect & skills",
                 "icon": "img/icon/cooliocns SVG/Environment/Puzzle.svg",
+                "color_bg": "#FEF3C7",
+                "color_text": "#B45309",
                 "is_active": True,
                 "order": 8,
             },
@@ -103,6 +120,8 @@ class Command(BaseCommand):
                 "name_ru": "Развитие и поддержка",
                 "name_en": "Development & support",
                 "icon": "img/icon/cooliocns SVG/Interface/Heart_01.svg",
+                "color_bg": "#F3F4F6",
+                "color_text": "#6B7280",
                 "is_active": False,
                 "order": 9,
             },
@@ -113,6 +132,8 @@ class Command(BaseCommand):
                 "name_ru": "Развлечения и досуг",
                 "name_en": "Entertainment & leisure",
                 "icon": "img/icon/cooliocns SVG/Interface/Ticket_Voucher.svg",
+                "color_bg": "#FFEDD5",
+                "color_text": "#C2410C",
                 "is_active": True,
                 "order": 10,
             },
@@ -123,6 +144,8 @@ class Command(BaseCommand):
                 "name_ru": "Лагеря",
                 "name_en": "Camps",
                 "icon": "icons/categories/camp.svg",
+                "color_bg": "#FFF3DF",
+                "color_text": "#9A6700",
                 "is_active": True,
                 "order": 11,
             },
@@ -132,9 +155,23 @@ class Command(BaseCommand):
                 "name_az": "Parklar",
                 "name_ru": "Парки",
                 "name_en": "Parks",
-                "icon": "icons/categories/parks.svg",
+                "icon": "",
+                "color_bg": "#E8F5EE",
+                "color_text": "#0C7A47",
                 "is_active": True,
                 "order": 12,
+            },
+            {
+                "code": "BEACH",
+                "name": "Пляжи",
+                "name_az": "Çimərliklər",
+                "name_ru": "Пляжи",
+                "name_en": "Beaches",
+                "icon": "icons/categories/beach.svg",
+                "color_bg": "#CCFBF1",
+                "color_text": "#0F766E",
+                "is_active": True,
+                "order": 13,
             },
         ]
 
@@ -312,9 +349,21 @@ class Command(BaseCommand):
                     should_update_icon = True
                 elif not existing_cat.icon or existing_cat.icon.startswith("fas fa-"):
                     should_update_icon = True
-                    
+
                 if should_update_icon:
                     defaults["icon"] = cat_data.get("icon", "")
+
+                if (
+                    not existing_cat
+                    or str((existing_cat.color_bg or "")).strip().lower() in NEUTRAL_BG_VALUES
+                ):
+                    defaults["color_bg"] = cat_data.get("color_bg", "#F3F4F6")
+
+                if (
+                    not existing_cat
+                    or str((existing_cat.color_text or "")).strip().lower() in NEUTRAL_TEXT_VALUES
+                ):
+                    defaults["color_text"] = cat_data.get("color_text", "#6B7280")
 
                 category, created = Category.objects.update_or_create(
                     code=cat_data["code"],
