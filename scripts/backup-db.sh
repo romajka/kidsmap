@@ -14,3 +14,12 @@ if ! docker compose exec -T db sh -lc 'exec mariadb-dump --single-transaction --
 fi
 
 printf '[backup] database saved to %s\n' "$OUT_FILE"
+
+# Clean up older database backups
+KEEP_BACKUPS="${KEEP_BACKUPS:-5}"
+log_cleanup() {
+  printf '[backup] cleaning up old database backups (keeping last %s)\n' "$KEEP_BACKUPS"
+}
+log_cleanup
+ls -1tr "$BACKUP_DIR"/kidsmap-db-*.sql.gz 2>/dev/null | head -n -"$KEEP_BACKUPS" | xargs -r rm || true
+
