@@ -212,6 +212,7 @@ python manage.py send_test_email your-address@example.com
 If SMTP is configured correctly, command prints `Test email sent ...`.
 
 ## Backup suggestion
-1. Run `./scripts/backup-db.sh` before each deploy. It writes a timestamped MariaDB dump to `backups/`.
-2. Back up `media/` on the same schedule as the database.
-3. To restore the three featured demo clubs manually on the target server, run `docker compose exec -T web python manage.py restore_featured_places`.
+1. The database backups are run separately from deployments (removed from `./scripts/deploy-server.sh`).
+2. Set up a daily cron job to run `./scripts/backup-db.sh` once a day, which automatically retains a maximum of 5 backups.
+3. Back up `media/` on the same schedule as the database.
+4. To restore the three featured demo clubs manually on the target server, run `docker compose exec -T web python manage.py restore_featured_places`.

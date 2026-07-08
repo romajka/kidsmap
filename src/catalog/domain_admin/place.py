@@ -408,11 +408,32 @@ class PlaceDeletedFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value == "active":
-            return queryset.filter(deleted_at__isnull=True)
         if value == "deleted":
             return queryset.filter(deleted_at__isnull=False)
-        return queryset
+        if value == "active":
+            return queryset.filter(deleted_at__isnull=True)
+        # Default behavior: hide deleted places!
+        return queryset.filter(deleted_at__isnull=True)
+
+
+class EventDeletedFilter(admin.SimpleListFilter):
+    title = _("Удаление")
+    parameter_name = "deleted_at__isnull"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("True", _("Не удалено")),
+            ("False", _("В удаленных")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "False":
+            return queryset.filter(deleted_at__isnull=False)
+        if value == "True":
+            return queryset.filter(deleted_at__isnull=True)
+        # Default behavior: hide deleted events!
+        return queryset.filter(deleted_at__isnull=True)
 
 
 @admin.register(Event)
@@ -429,7 +450,7 @@ class EventAdmin(admin.ModelAdmin):
         "updated_at",
         "row_actions",
     )
-    list_filter = ("status", "category", "start_datetime", "owner")
+    list_filter = (EventDeletedFilter, "status", "category", "start_datetime", "owner")
     search_fields = ("name", "name_az", "name_ru", "name_en", "address", "phone", "owner__username", "owner__email")
     readonly_fields = ("slug", "created_at", "updated_at")
     list_select_related = ("owner", "related_place")
@@ -1032,10 +1053,10 @@ class EventAdmin(admin.ModelAdmin):
 
     def _event_dashboard_counts(self):
         return Event.objects.aggregate(
-            total=Count("id"),
+            total=Count("id", filter=Q(deleted_at__isnull=True)),
             published=Count("id", filter=Q(status=Event.STATUS_PUBLISHED, deleted_at__isnull=True, end_datetime__gt=timezone.now()) | Q(status=Event.STATUS_PUBLISHED, deleted_at__isnull=True, end_datetime__isnull=True)),
             pending=Count("id", filter=Q(status=Event.STATUS_PENDING, deleted_at__isnull=True)),
-            expired=Count("id", filter=Q(status=Event.STATUS_EXPIRED) | Q(end_datetime__lte=timezone.now())),
+            expired=Count("id", filter=Q(deleted_at__isnull=True) & (Q(status=Event.STATUS_EXPIRED) | Q(end_datetime__lte=timezone.now()))),
             deleted=Count("id", filter=Q(deleted_at__isnull=False)),
         )
 
@@ -2357,19 +2378,19 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def _place_dashboard_counts(self) -> dict[str, int]:
         counts = Place.objects.aggregate(
-            quick_all=Count("pk"),
+            quick_all=Count("pk", filter=Q(deleted_at__isnull=True)),
             quick_published=Count("pk", filter=Q(deleted_at__isnull=True, is_active=True, status=Place.STATUS_PUBLISHED)),
             quick_inactive=Count("pk", filter=Q(deleted_at__isnull=True, is_active=False)),
             quick_draft=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_DRAFT)),
             quick_pending=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_PENDING)),
             quick_rejected=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_REJECTED)),
             quick_deleted=Count("pk", filter=Q(deleted_at__isnull=False)),
-            quick_without_coordinates=Count("pk", filter=Q(lat__isnull=True) | Q(lng__isnull=True)),
+            quick_without_coordinates=Count("pk", filter=Q(deleted_at__isnull=True) & (Q(lat__isnull=True) | Q(lng__isnull=True))),
             quick_not_ready_for_map=Count(
                 "pk",
                 filter=Q(deleted_at__isnull=True) & (~Q(is_active=True, status=Place.STATUS_PUBLISHED) | Q(lat__isnull=True) | Q(lng__isnull=True)),
             ),
-            stat_total=Count("pk"),
+            stat_total=Count("pk", filter=Q(deleted_at__isnull=True)),
             stat_published=Count("pk", filter=Q(deleted_at__isnull=True, is_active=True, status=Place.STATUS_PUBLISHED)),
             stat_pending=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_PENDING)),
             stat_inactive=Count("pk", filter=Q(deleted_at__isnull=True, is_active=False)),

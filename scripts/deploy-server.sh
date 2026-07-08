@@ -59,12 +59,6 @@ if ! git pull --ff-only "$REMOTE" "$BRANCH"; then
   log "git pull failed. Check branch state and GitHub SSH access."
   exit 1
 fi
-
-if [[ "${RUN_BACKUP:-0}" == "1" ]]; then
-  log "Creating database backup"
-  ./scripts/backup-db.sh
-fi
-
 log "Starting database"
 docker compose up -d db
 

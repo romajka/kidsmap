@@ -136,6 +136,7 @@ def _build_sidebar_item(
     badge_count: int = 0,
     url_name: str | None = None,
     active_models: tuple | list | None = None,
+    query_params: str | None = None,
 ):
     model_admin = admin.site._registry.get(model) if model is not None else None
     if model_admin is not None and not model_admin.has_view_or_change_permission(request):
@@ -151,10 +152,12 @@ def _build_sidebar_item(
 
     try:
         url = reverse(resolved_url_name)
+        if query_params:
+            url = f"{url}?{query_params}"
     except NoReverseMatch:
         return None
 
-    prefixes = [url]
+    prefixes = [url.split("?", 1)[0]]
     for active_model in active_models or (() if model is None else (model,)):
         try:
             prefixes.append(
@@ -165,16 +168,24 @@ def _build_sidebar_item(
         except NoReverseMatch:
             continue
 
+    is_active_path = _path_matches_any_prefix(request.path, prefixes)
+    if query_params:
+        from urllib.parse import parse_qsl
+        expected_params = dict(parse_qsl(query_params))
+        active = is_active_path and all(request.GET.get(k) == v for k, v in expected_params.items())
+    else:
+        active = is_active_path and not (request.GET.get("deleted_state") == "deleted" or request.GET.get("deleted_at__isnull") == "False")
+
     return {
         "label": str(label),
         "url": url,
         "icon": icon,
-        "active": _path_matches_any_prefix(request.path, prefixes),
+        "active": active,
         "badge_count": max(int(badge_count or 0), 0),
     }
 
 
-def _build_sidebar_sections(request, *, ownership_pending_count: int) -> list[dict]:
+def _build_sidebar_sections(request, *, ownership_pending_count: int, deleted_count: int) -> list[dict]:
     if not request.user.is_authenticated or not request.user.is_staff:
         return []
 
@@ -188,6 +199,14 @@ def _build_sidebar_sections(request, *, ownership_pending_count: int) -> list[di
                 _build_sidebar_item(request, model=Category, label=_("Категории"), icon="far fa-copy"),
                 _build_sidebar_item(request, model=PlaceReview, label=_("Отзывы о местах"), icon="far fa-comment-alt"),
                 _build_sidebar_item(request, model=PlaceReviewsByClub, label=_("Рейтинги"), icon="far fa-star"),
+                _build_sidebar_item(
+                    request,
+                    model=Place,
+                    label=_("Корзина"),
+                    icon="fas fa-trash-alt",
+                    query_params="deleted_state=deleted",
+                    badge_count=deleted_count,
+                ),
             ],
         },
         {
@@ -295,8 +314,10 @@ def _kidsmap_each_context(self, request):
         ownership_pending_count = PlaceOwnershipRequest.objects.filter(
             status=PlaceOwnershipRequest.STATUS_PENDING
         ).count()
+        deleted_count = Place.objects.filter(deleted_at__isnull=False).count()
     else:
         ownership_pending_count = 0
+        deleted_count = 0
     context["ownership_pending_count"] = ownership_pending_count
 
     current_language = (get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
@@ -305,6 +326,7 @@ def _kidsmap_each_context(self, request):
     context["kidsmap_sidebar_sections"] = _build_sidebar_sections(
         request,
         ownership_pending_count=ownership_pending_count,
+        deleted_count=deleted_count,
     )
     context["kidsmap_admin_role_label"] = _admin_role_label(request.user)
     return context
