@@ -60,8 +60,10 @@ if ! git pull --ff-only "$REMOTE" "$BRANCH"; then
   exit 1
 fi
 
-log "Creating database backup"
-./scripts/backup-db.sh
+if [[ "${RUN_BACKUP:-0}" == "1" ]]; then
+  log "Creating database backup"
+  ./scripts/backup-db.sh
+fi
 
 log "Starting database"
 docker compose up -d db
