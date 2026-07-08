@@ -16,11 +16,14 @@ fi
 exec gunicorn config.wsgi:application \
   --bind 0.0.0.0:${PORT:-8000} \
   --workers ${GUNICORN_WORKERS:-3} \
+  --worker-class ${GUNICORN_WORKER_CLASS:-gthread} \
+  --threads ${GUNICORN_THREADS:-4} \
   --timeout ${GUNICORN_TIMEOUT:-120} \
   --graceful-timeout ${GUNICORN_GRACEFUL_TIMEOUT:-30} \
   --worker-tmp-dir ${GUNICORN_WORKER_TMP_DIR:-/dev/shm} \
   --max-requests ${GUNICORN_MAX_REQUESTS:-1000} \
   --max-requests-jitter ${GUNICORN_MAX_REQUESTS_JITTER:-100} \
+  --log-level ${GUNICORN_LOG_LEVEL:-info} \
   --access-logfile - \
   --error-logfile - \
   --capture-output

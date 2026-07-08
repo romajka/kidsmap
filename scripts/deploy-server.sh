@@ -17,6 +17,18 @@ if [[ ! -d .git ]]; then
   exit 1
 fi
 
+ensure_web_running_on_failure() {
+  local status=$?
+  if [[ "$status" -eq 0 ]]; then
+    return 0
+  fi
+
+  log "Deploy failed with status ${status}; ensuring web service is running"
+  docker compose up -d web >/dev/null 2>&1 || true
+}
+
+trap ensure_web_running_on_failure EXIT
+
 if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --others --exclude-standard)" ]]; then
   STASH_NAME="auto-deploy-$(date +%Y%m%d-%H%M%S)"
   git stash push -u -m "$STASH_NAME" >/dev/null
