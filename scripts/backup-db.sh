@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eu
 
+# Ensure standard paths are loaded (critical for cron jobs executing docker compose)
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH"
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP_DIR="${BACKUP_DIR:-$ROOT_DIR/backups}"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
