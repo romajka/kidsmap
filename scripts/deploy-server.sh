@@ -49,18 +49,17 @@ fi
 log "Creating database backup"
 ./scripts/backup-db.sh
 
-log "Rebuilding containers"
-docker compose down
-docker compose build web
-
 log "Starting database"
 docker compose up -d db
+
+log "Building new web image while current app stays online"
+docker compose build web
 
 log "Running release tasks"
 docker compose run --rm web ./scripts/release-server.sh
 
-log "Starting application"
-docker compose up -d web
+log "Starting updated application"
+docker compose up -d --no-deps web
 
 log "Checking migrations drift"
 docker compose exec -T web python manage.py makemigrations --check --dry-run
