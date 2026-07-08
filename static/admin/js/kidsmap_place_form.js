@@ -426,6 +426,24 @@
         barNode.style.width = pct + "%";
       }
 
+      var publishBtn = document.getElementById("km-publish-btn");
+      if (publishBtn) {
+        if (missing.length === 0) {
+          publishBtn.removeAttribute("disabled");
+        } else {
+          publishBtn.setAttribute("disabled", "disabled");
+        }
+      }
+
+      var publishMobileBtn = document.getElementById("km-publish-mobile-btn");
+      if (publishMobileBtn) {
+        if (missing.length === 0) {
+          publishMobileBtn.removeAttribute("disabled");
+        } else {
+          publishMobileBtn.setAttribute("disabled", "disabled");
+        }
+      }
+
       if (readinessNode) {
         var isComplete = missing.length === 0;
         readinessNode.textContent = isComplete

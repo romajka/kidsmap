@@ -11,13 +11,13 @@
       crossorigin=""
     />
   {% endif %}
-  <link rel="stylesheet" href="https://unpkg.com/filepond@4.32.12/dist/filepond.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.css">
+  {# <link rel="stylesheet" href="https://unpkg.com/filepond@4.32.12/dist/filepond.min.css"> #}
+  {# <link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.css"> #}
+  {# <script src="https://unpkg.com/filepond@4.32.12/dist/filepond.min.js" defer></script> #}
+  {# <script src="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.js" defer></script> #}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=17">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=21">
-  <script src="https://unpkg.com/filepond@4.32.12/dist/filepond.min.js" defer></script>
-  <script src="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.js" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=17" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=21" defer></script>
   {% if google_maps_api_key %}
@@ -204,9 +204,7 @@
             </div>
 
             <div class="km-place-form-mobile-actions">
-              {% if not add %}
-                {% submit_row %}
-              {% endif %}
+              {% submit_row %}
               {% if km_place_form_summary.visibility.is_public %}
                 <button
                   type="submit"
@@ -216,15 +214,15 @@
                   {% translate 'Снять с публикации' %}
                 </button>
               {% else %}
-                {% if not km_place_form_summary.missing %}
                 <button
                   type="submit"
+                  id="km-publish-mobile-btn"
                   name="_publish_place"
                   class="km-place-form-mobile-button km-place-form-mobile-button--success"
+                  {% if km_place_form_summary.missing %}disabled{% endif %}
                 >
                   {% translate 'Опубликовать на сайте' %}
                 </button>
-                {% endif %}
               {% endif %}
               <button
                 type="submit"
@@ -238,6 +236,7 @@
                   type="submit"
                   name="_refresh_coordinates_from_address"
                   class="km-place-form-mobile-button km-place-form-mobile-button--ghost"
+                  title="{% translate 'Быстрое геокодирование: автоматически определить координаты на основе введённого адреса' %}"
                 >
                   {% translate 'Сохранить и рассчитать координаты' %}
                 </button>
@@ -341,14 +340,12 @@
 
             <div class="km-place-sidebar-card km-place-sidebar-card--actions">
               <div class="km-place-sidebar-action-buttons">
-                {% if not add %}
-                  {% submit_row %}
-                {% endif %}
+                {% submit_row %}
                 <button type="submit" name="_save_draft" class="km-btn--sidebar {% if add %}km-btn--success-alt{% else %}km-btn--draft{% endif %}">
                   <i class="fas fa-file"></i> {% translate 'Черновик' %}
                 </button>
                 {% if not is_popup %}
-                  <button type="submit" name="_refresh_coordinates_from_address" class="km-btn--sidebar km-btn--info">
+                  <button type="submit" name="_refresh_coordinates_from_address" class="km-btn--sidebar km-btn--info" title="{% translate 'Быстрое геокодирование: автоматически определить координаты на основе введённого адреса' %}">
                     <i class="fas fa-map-marker-alt"></i> {% translate 'Координаты' %}
                   </button>
                 {% endif %}
@@ -358,11 +355,9 @@
                       <i class="fas fa-eye-slash"></i> {% translate 'Снять с публикации' %}
                     </button>
                   {% else %}
-                    {% if not km_place_form_summary.missing %}
-                    <button type="submit" name="_publish_place" class="km-btn--sidebar km-btn--success-alt">
+                    <button type="submit" id="km-publish-btn" name="_publish_place" class="km-btn--sidebar km-btn--success-alt" {% if km_place_form_summary.missing %}disabled{% endif %}>
                       <i class="fas fa-globe"></i> {% translate 'Опубликовать' %}
                     </button>
-                    {% endif %}
                   {% endif %}
                 </div>
               </div>

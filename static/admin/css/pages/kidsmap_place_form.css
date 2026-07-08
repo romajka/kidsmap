@@ -2281,6 +2281,13 @@
   text-decoration: none;
 }
 .km-btn--sidebar i { font-size: 12px; }
+.km-btn--sidebar[disabled] {
+  opacity: 0.65 !important;
+  cursor: not-allowed !important;
+  background: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-color: #e5e7eb !important;
+}
 
 .km-btn--draft {
   background: #f1f7f3;
@@ -2581,6 +2588,13 @@
   color: var(--km-place-text);
   font-weight: 700;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.km-place-form-mobile-button[disabled] {
+  opacity: 0.65 !important;
+  cursor: not-allowed !important;
+  background: #f3f4f6 !important;
+  color: #9ca3af !important;
+  border-color: #e5e7eb !important;
 }
 
 .km-place-form-mobile-button--ghost {

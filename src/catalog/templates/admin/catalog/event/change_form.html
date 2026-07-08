@@ -146,9 +146,7 @@
             </div>
 
             <div class="km-place-form-mobile-actions">
-              {% if not add %}
-                {% submit_row %}
-              {% endif %}
+              {% submit_row %}
               {% if km_event_form_summary.visibility.is_public %}
                 <button
                   type="submit"
@@ -158,15 +156,15 @@
                   {% translate 'Снять с публикации' %}
                 </button>
               {% else %}
-                {% if not km_event_form_summary.missing %}
                 <button
                   type="submit"
+                  id="km-publish-mobile-btn"
                   name="_publish_event"
                   class="km-place-form-mobile-button km-place-form-mobile-button--success"
+                  {% if km_event_form_summary.missing %}disabled{% endif %}
                 >
                   {% translate 'Опубликовать на сайте' %}
                 </button>
-                {% endif %}
               {% endif %}
               <button
                 type="submit"
@@ -269,9 +267,7 @@
 
             <div class="km-place-sidebar-card km-place-sidebar-card--actions">
               <div class="km-place-sidebar-action-buttons">
-                {% if not add %}
-                  {% submit_row %}
-                {% endif %}
+                {% submit_row %}
                 <button type="submit" name="_save_draft" class="km-btn--sidebar {% if add %}km-btn--success-alt{% else %}km-btn--draft{% endif %}">
                   <i class="fas fa-file"></i> {% translate 'Черновик' %}
                 </button>
@@ -281,11 +277,9 @@
                       <i class="fas fa-eye-slash"></i> {% translate 'Снять с публикации' %}
                     </button>
                   {% else %}
-                    {% if not km_event_form_summary.missing %}
-                    <button type="submit" name="_publish_event" class="km-btn--sidebar km-btn--success-alt">
+                    <button type="submit" id="km-publish-btn" name="_publish_event" class="km-btn--sidebar km-btn--success-alt" {% if km_event_form_summary.missing %}disabled{% endif %}>
                       <i class="fas fa-globe"></i> {% translate 'Опубликовать' %}
                     </button>
-                    {% endif %}
                   {% endif %}
                 </div>
               </div>

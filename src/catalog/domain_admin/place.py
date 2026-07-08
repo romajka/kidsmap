@@ -133,9 +133,9 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         else:
             self.add_error("name_az", _("Заполните хотя бы одно название, лучше азербайджанское как основное."))
 
-        self.draft_save_only = False
+        is_save_draft = bool(self.data and "_save_draft" in self.data)
+        self.draft_save_only = is_save_draft
         cleaned = clean_location_fields(self, cleaned)
-
         is_active = cleaned.get("is_active")
         if is_active is None:
             is_active = getattr(self.instance, "is_active", False)
@@ -144,7 +144,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             status = getattr(self.instance, "status", "")
         # Use getattr to safely access STATUS_PUBLISHED from instance or just string
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
-        if is_active or status == status_published:
+        if (is_active or status == status_published) and not is_save_draft:
             checklist = (
                 ("name", _("Название")),
                 ("category", _("Категория")),
@@ -300,6 +300,7 @@ class EventAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        is_save_draft = bool(self.data and "_save_draft" in self.data)
         is_active = cleaned.get("is_active")
         if is_active is None:
             is_active = getattr(self.instance, "is_active", False)
@@ -307,7 +308,7 @@ class EventAdminForm(forms.ModelForm):
         if status is None:
             status = getattr(self.instance, "status", "")
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
-        if is_active or status == status_published:
+        if (is_active or status == status_published) and not is_save_draft:
             checklist = (
                 ("name", _("Название")),
                 ("category", _("Категория")),
@@ -666,11 +667,24 @@ class EventAdmin(admin.ModelAdmin):
         return sections
 
     def _field_has_value(self, form, field_name: str, *, obj=None) -> bool:
+        if field_name == "name":
+            return (
+                self._field_has_value(form, "name_az", obj=obj)
+                or self._field_has_value(form, "name_ru", obj=obj)
+                or self._field_has_value(form, "name_en", obj=obj)
+                or bool(form.is_bound and form.data.get(form.add_prefix("name")))
+                or bool(form.initial.get("name"))
+                or bool(obj and getattr(obj, "name", None))
+            )
+
         if field_name in form.files and form.files.get(field_name):
             return True
 
         if form.is_bound:
-            raw_value = form.data.get(form.add_prefix(field_name))
+            if hasattr(form, "cleaned_data") and field_name in form.cleaned_data:
+                raw_value = form.cleaned_data.get(field_name)
+            else:
+                raw_value = form.data.get(form.add_prefix(field_name))
         else:
             raw_value = form.initial.get(field_name, getattr(getattr(form, "instance", None), field_name, None))
 
@@ -772,9 +786,10 @@ class EventAdmin(admin.ModelAdmin):
             if self._field_has_value(form, field_name, obj=obj):
                 completed += 1
             else:
+                field_id = "id_name_az" if field_name == "name" else f"id_{field_name}"
                 missing.append({
                     "label": str(label),
-                    "field_id": f"id_{field_name}"
+                    "field_id": field_id
                 })
                 missing_fields.add(field_name)
 
@@ -842,7 +857,7 @@ class EventAdmin(admin.ModelAdmin):
             "checklist_items": [
                 {
                     "field_name": field_name,
-                    "input_id": f"id_{field_name}",
+                    "input_id": "id_name_az" if field_name == "name" else f"id_{field_name}",
                     "label": str(label),
                     "initial": field_name not in missing_fields,
                 }
@@ -1721,9 +1736,10 @@ class PlaceAdmin(admin.ModelAdmin):
             if self._field_has_value(form, field_name, obj=obj):
                 completed += 1
             else:
+                field_id = "id_name_az" if field_name == "name" else f"id_{field_name}"
                 missing.append({
                     "label": str(label),
-                    "field_id": f"id_{field_name}"
+                    "field_id": field_id
                 })
                 missing_fields.add(field_name)
 
@@ -1811,7 +1827,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "checklist_items": [
                 {
                     "field_name": field_name,
-                    "input_id": f"id_{field_name}",
+                    "input_id": "id_name_az" if field_name == "name" else f"id_{field_name}",
                     "label": str(label),
                     "initial": field_name not in missing_fields,
                 }
