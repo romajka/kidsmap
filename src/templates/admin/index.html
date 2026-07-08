@@ -24,8 +24,13 @@
     <div class="col-12 mb-4 km-dashboard">
         <!-- ROW 1: ACTION CENTER (Highest Priority) -->
         <h4 class="km-dashboard__section-title">
-            <i class="fas fa-exclamation-triangle text-warning mr-2" style="font-size: 1.1em; transform: translateY(1px);"></i> 
-            Требует внимания
+            {% if stats.pending.total > 0 %}
+                <i class="fas fa-exclamation-triangle text-warning mr-2" style="font-size: 1.1em; transform: translateY(1px);"></i> 
+                Требует внимания
+            {% else %}
+                <i class="fas fa-check-circle text-success mr-2" style="font-size: 1.1em; transform: translateY(1px);"></i> 
+                Модерация
+            {% endif %}
         </h4>
         
         {% if stats.pending.total == 0 %}

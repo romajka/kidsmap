@@ -182,7 +182,9 @@
                     <div class="km-admin-sidebar__shell">
                         <div class="km-admin-sidebar__user-card">
                             <div class="km-admin-sidebar__avatar">
-                                {% if jazzmin_settings|has_jazzmin_setting:'user_avatar' %}
+                                {% if request.user.profile.avatar %}
+                                    <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user }}" class="img-circle elevation-2">
+                                {% elif jazzmin_settings|has_jazzmin_setting:'user_avatar' %}
                                     <img src="{% get_user_avatar request.user %}" alt="{{ request.user }}" class="img-circle elevation-2">
                                 {% else %}
                                     <i class="fas fa-user-circle" aria-hidden="true"></i>

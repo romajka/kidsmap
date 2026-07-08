@@ -107,6 +107,26 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertNotContains(response, 'name="temporary_end_0"', html=False)
 
 
+class TestAzerbaijanPhoneFormatting(TestCase):
+    def test_place_admin_form_formats_existing_phone_for_input(self):
+        place = Place(
+            name="Phone Formatting Club",
+            name_az="Phone Formatting Club",
+            category="EDU",
+            phone1="+994501234567",
+        )
+
+        form = PlaceAdminForm(instance=place)
+
+        self.assertEqual(form.initial["phone1"], "+994 50 123 45 67")
+
+    def test_place_admin_form_normalizes_local_azerbaijan_phone(self):
+        form = PlaceAdminForm()
+        form.cleaned_data = {"phone1": "050 123 45 67"}
+
+        self.assertEqual(form.clean_phone1(), "+994501234567")
+
+
 class TestAdminEventInputs(TestCase):
     def setUp(self):
         self.superuser = User.objects.create_superuser(
@@ -1670,12 +1690,64 @@ class UserAdminUXTests(TestCase):
         url = reverse("admin:catalog_staffaccessuser_changelist")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("user_quick_filters", response.context)
+        self.assertIn("km_primary_quick_filters", response.context)
         
         content = response.content.decode("utf-8")
         self.assertIn("Суперадмины", content)
         self.assertIn("Админы", content)
         self.assertIn("Все сотрудники", content)
+
+    def test_superadmin_can_create_staff_user_with_profile_fields(self):
+        response = self.client.get(reverse("admin:catalog_staffaccessuser_add"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'enctype="multipart/form-data"', html=False)
+        self.assertContains(response, 'name="email"', html=False)
+        self.assertContains(response, 'name="profile-0-avatar"', html=False)
+        self.assertContains(response, 'name="profile-0-phone"', html=False)
+
+        response = self.client.post(
+            reverse("admin:catalog_staffaccessuser_add"),
+            data={
+                "username": "new_staff_admin",
+                "email": "new-staff@example.com",
+                "first_name": "New",
+                "last_name": "Staff",
+                "password1": "StrongPass123!!",
+                "password2": "StrongPass123!!",
+                "is_active": "on",
+                "is_staff": "on",
+                "profile-TOTAL_FORMS": "1",
+                "profile-INITIAL_FORMS": "0",
+                "profile-MIN_NUM_FORMS": "0",
+                "profile-MAX_NUM_FORMS": "1",
+                "profile-0-role": UserProfile.ROLE_USER,
+                "profile-0-owner_role": UserProfile.OWNER_ROLE_MANAGER,
+                "profile-0-owner_permissions_override": "[]",
+                "profile-0-phone": "+994 50 111 22 33",
+                "profile-0-gender": UserProfile.GENDER_UNSPECIFIED,
+                "_save": "Save",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        created_user = User.objects.get(username="new_staff_admin")
+        self.assertTrue(created_user.is_staff)
+        self.assertFalse(created_user.is_superuser)
+        self.assertEqual(created_user.email, "new-staff@example.com")
+        self.assertEqual(created_user.profile.phone, "+994 50 111 22 33")
+
+    def test_non_superuser_staff_cannot_open_user_add_form(self):
+        staff_user = User.objects.create_user(
+            username="limited_staff",
+            email="limited-staff@example.com",
+            password="password",
+            is_staff=True,
+        )
+        self.client.force_login(staff_user)
+
+        response = self.client.get(reverse("admin:catalog_staffaccessuser_add"))
+
+        self.assertEqual(response.status_code, 403)
 
 class TestAdminBulkActions(TestCase):
     def setUp(self):

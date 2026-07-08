@@ -42,8 +42,41 @@ class UserProfileInline(admin.StackedInline):
     can_delete = False
     extra = 0
     max_num = 1
-    fields = ("role", "owner_role", "owner_permissions_override", "phone", "gender", "created_at", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
+    fields = (
+        "avatar_preview",
+        "avatar",
+        "role",
+        "owner_role",
+        "owner_permissions_override",
+        "phone",
+        "gender",
+        "created_at",
+        "updated_at",
+    )
+    readonly_fields = ("avatar_preview", "created_at", "updated_at")
+
+    def get_extra(self, request, obj=None, **kwargs):
+        if obj is None or not hasattr(obj, "profile"):
+            return 1
+        return 0
+
+    @admin.display(description=_("Текущее фото"))
+    def avatar_preview(self, obj):
+        if not obj or not obj.avatar:
+            return format_html(
+                '<div class="km-user-avatar-preview km-user-avatar-preview--empty">'
+                '<i class="fas fa-user" aria-hidden="true"></i>'
+                '<span>{}</span>'
+                "</div>",
+                _("Фото не загружено"),
+            )
+        return format_html(
+            '<div class="km-user-avatar-preview">'
+            '<img src="{}" alt="{}">'
+            "</div>",
+            obj.avatar.url,
+            _("Фото профиля"),
+        )
 
 
 class _BaseKidsMapUserAdmin(UserAdmin):
@@ -66,6 +99,13 @@ class _BaseKidsMapUserAdmin(UserAdmin):
             if perm != str(PlaceOwnershipRequestAudit._meta.verbose_name)
         }
         return deleted_objects, model_count, perms_needed, protected
+
+    def has_add_permission(self, request):
+        return bool(request.user and request.user.is_superuser)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        UserProfile.get_or_create_for_user(form.instance)
 
     def get_urls(self):
         from django.urls import path
@@ -100,6 +140,7 @@ class _BaseKidsMapUserAdmin(UserAdmin):
         email_verification = getattr(obj, "email_verification", None)
         title = obj.username or "-"
         details: list[str] = []
+        avatar_html = self._avatar_html(obj, size=38)
 
         full_name = " ".join(part for part in (obj.first_name, obj.last_name) if part).strip()
         if obj.email:
@@ -123,14 +164,38 @@ class _BaseKidsMapUserAdmin(UserAdmin):
         badge_html = f'<div style="margin-top:6px;">{"".join(badges)}</div>' if badges else ""
 
         if not details and not badges:
-            return format_html('<div class="km-admin-stack"><span class="km-admin-title">{}</span></div>', title)
+            return format_html(
+                '<div class="km-user-identity">{}<div class="km-admin-stack">'
+                '<span class="km-admin-title">{}</span></div></div>',
+                avatar_html,
+                title,
+            )
 
         return format_html(
-            '<div class="km-admin-stack"><span class="km-admin-title" style="margin-bottom:2px;">{}</span>{}{}'
-            '</div>',
+            '<div class="km-user-identity">{}<div class="km-admin-stack">'
+            '<span class="km-admin-title" style="margin-bottom:2px;">{}</span>{}{}'
+            "</div></div>",
+            avatar_html,
             title,
             format_html_join("", '<span class="km-admin-meta">{}</span>', ((detail,) for detail in details)),
             mark_safe(badge_html)
+        )
+
+    def _avatar_html(self, obj, *, size=56):
+        profile = getattr(obj, "profile", None)
+        if profile and profile.avatar:
+            return format_html(
+                '<span class="km-user-avatar" style="width:{0}px;height:{0}px;">'
+                '<img src="{1}" alt="{2}"></span>',
+                size,
+                profile.avatar.url,
+                obj.get_username(),
+            )
+        initials = (obj.get_full_name() or obj.get_username() or "?").strip()[:1].upper()
+        return format_html(
+            '<span class="km-user-avatar km-user-avatar--empty" style="width:{0}px;height:{0}px;">{1}</span>',
+            size,
+            initials or "?",
         )
 
     @admin.display(description=_("Пароль"))
@@ -180,6 +245,8 @@ class _BaseKidsMapUserAdmin(UserAdmin):
                 "email": obj.email,
                 "email_verified": email_verification.is_verified if email_verification else False,
                 "phone": profile.phone if profile else "",
+                "avatar_url": profile.avatar.url if profile and profile.avatar else "",
+                "avatar_initial": (obj.get_full_name() or obj.get_username() or "?").strip()[:1].upper(),
                 "role": profile.get_role_display() if profile else "",
                 "is_active": obj.is_active,
                 "is_staff": obj.is_staff,
@@ -320,6 +387,16 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(Q(is_staff=True) | Q(is_superuser=True))
+
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        initial.setdefault("is_active", True)
+        initial.setdefault("is_staff", True)
+        return initial
+
+    def save_model(self, request, obj, form, change):
+        obj.is_staff = True
+        super().save_model(request, obj, form, change)
 
     def _build_user_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
         params = request.GET.copy()

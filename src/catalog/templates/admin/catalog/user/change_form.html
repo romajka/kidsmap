@@ -62,6 +62,13 @@
           </div>
           {% if not add %}
           <div class="km-place-form-hero__metrics" style="display: flex; gap: 16px; align-items: center; justify-content: flex-end; padding-right: 24px;">
+            <div class="km-user-form-avatar" aria-hidden="true">
+              {% if km_user_form_summary.avatar_url %}
+                <img src="{{ km_user_form_summary.avatar_url }}" alt="">
+              {% else %}
+                {{ km_user_form_summary.avatar_initial|default:"?" }}
+              {% endif %}
+            </div>
             <div style="text-align: right;">
               <span class="km-admin-meta">{% translate "Email" %}</span><br>
               <strong style="font-size: 16px; line-height: 1.4;">{{ km_user_form_summary.email|default:"-" }}</strong>

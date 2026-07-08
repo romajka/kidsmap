@@ -7,61 +7,81 @@
     document.addEventListener("DOMContentLoaded", fn);
   }
 
-  ready(function () {
-    var categorySelects = document.querySelectorAll('select[name="category"]');
-    var subcategorySelects = document.querySelectorAll('select[name="subcategory"]');
-
-    if (categorySelects.length === 0 || subcategorySelects.length === 0) {
+  function bindCategorySubcategoryPair(categorySelect, subcategorySelect) {
+    if (!categorySelect || !subcategorySelect || subcategorySelect.dataset.kmSubcategoryBound === "1") {
       return;
     }
 
-    categorySelects.forEach(function (categorySelect, index) {
-      // Find matching subcategory select (usually same index)
-      // Sometimes there's only one of each on the page
-      var subcategorySelect = subcategorySelects.length === 1 ? subcategorySelects[0] : subcategorySelects[index];
-      if (!subcategorySelect) return;
-
-      // Store all original subcategory options
-      var allOptions = Array.prototype.slice.call(subcategorySelect.options);
-      
-      function updateSubcategories() {
-        var selectedCategoryValue = categorySelect.value;
-        
-        var currentValue = subcategorySelect.value;
-        
-        // Clear current options
-        subcategorySelect.innerHTML = "";
-        
-        var hasValidSelection = false;
-        
-        allOptions.forEach(function (option) {
-          // Empty option (---------) is always shown
-          if (!option.value) {
-            subcategorySelect.appendChild(option.cloneNode(true));
-            return;
-          }
-
-          if (selectedCategoryValue && option.dataset.category === selectedCategoryValue) {
-            var newOption = option.cloneNode(true);
-            subcategorySelect.appendChild(newOption);
-            
-            if (newOption.value === currentValue) {
-              hasValidSelection = true;
-            }
-          }
-        });
-        
-        if (hasValidSelection) {
-          subcategorySelect.value = currentValue;
-        } else {
-          subcategorySelect.value = "";
-        }
-      }
-
-      categorySelect.addEventListener("change", updateSubcategories);
-      
-      // Initial trigger to filter on page load
-      updateSubcategories();
+    var allOptions = Array.prototype.slice.call(subcategorySelect.options).map(function (option) {
+      return option.cloneNode(true);
     });
+
+    function syncSelect2(select) {
+      if (!(window.$ && window.$.fn && typeof window.$.fn.select2 !== "undefined")) {
+        return;
+      }
+      try {
+        window.$(select).trigger("change.select2");
+      } catch (error) {}
+    }
+
+    function rebuildSubcategories() {
+      var selectedCategoryValue = String(categorySelect.value || "");
+      var currentValue = String(subcategorySelect.value || "");
+      var fragment = document.createDocumentFragment();
+      var hasValidSelection = false;
+      var visibleOptions = 0;
+
+      allOptions.forEach(function (option) {
+        if (!option.value) {
+          fragment.appendChild(option.cloneNode(true));
+          return;
+        }
+
+        if (selectedCategoryValue && String(option.dataset.category || "") === selectedCategoryValue) {
+          var clonedOption = option.cloneNode(true);
+          fragment.appendChild(clonedOption);
+          visibleOptions += 1;
+          if (clonedOption.value === currentValue) {
+            hasValidSelection = true;
+          }
+        }
+      });
+
+      subcategorySelect.innerHTML = "";
+      subcategorySelect.appendChild(fragment);
+      subcategorySelect.disabled = !selectedCategoryValue || visibleOptions === 0;
+      subcategorySelect.value = hasValidSelection ? currentValue : "";
+      syncSelect2(subcategorySelect);
+    }
+
+    categorySelect.addEventListener("change", rebuildSubcategories);
+    if (window.$ && window.$.fn && typeof window.$.fn.select2 !== "undefined") {
+      try {
+        window.$(categorySelect).on(
+          "select2:select select2:unselect select2:clear change.select2",
+          rebuildSubcategories
+        );
+      } catch (error) {}
+    }
+
+    subcategorySelect.dataset.kmSubcategoryBound = "1";
+    rebuildSubcategories();
+  }
+
+  ready(function () {
+    var forms = Array.prototype.slice.call(document.querySelectorAll("form"));
+    forms.forEach(function (form) {
+      var categorySelect = form.querySelector('select[name="category"]');
+      var subcategorySelect = form.querySelector('select[name="subcategory"]');
+      bindCategorySubcategoryPair(categorySelect, subcategorySelect);
+    });
+
+    if (!forms.length) {
+      bindCategorySubcategoryPair(
+        document.querySelector('select[name="category"]'),
+        document.querySelector('select[name="subcategory"]')
+      );
+    }
   });
 })();

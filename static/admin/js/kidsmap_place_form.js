@@ -87,6 +87,217 @@
 
   ready(function () {
     var form = document.querySelector("[data-km-admin-form]") || document.getElementById("place_form");
+    var configNode = document.getElementById("km-place-taxonomy-config");
+    if (!form || !configNode || form.dataset.kmTaxonomyPickerBound === "1") {
+      return;
+    }
+
+    var categorySelect = form.querySelector('select[name="category"]');
+    var subcategorySelect = form.querySelector('select[name="subcategory"]');
+    if (!categorySelect || !subcategorySelect) {
+      return;
+    }
+
+    var config = {};
+    try {
+      config = JSON.parse(configNode.textContent || "{}");
+    } catch (error) {
+      config = {};
+    }
+
+    var categories = Array.isArray(config.categories) ? config.categories : [];
+    var subcategories = Array.isArray(config.subcategories) ? config.subcategories : [];
+    if (!categories.length) {
+      return;
+    }
+
+    var categoryField = categorySelect.closest(".field-category") || categorySelect.closest(".form-group");
+    var subcategoryField = subcategorySelect.closest(".field-subcategory") || subcategorySelect.closest(".form-group");
+    var anchor = categoryField && categoryField.parentElement ? categoryField.parentElement : categoryField;
+    if (!anchor || !anchor.parentElement) {
+      return;
+    }
+
+    function dispatchChange(select) {
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      if (window.$ && window.$.fn) {
+        try {
+          window.$(select).trigger("change");
+        } catch (error) {}
+      }
+    }
+
+    function optionExists(select, value) {
+      return Array.prototype.some.call(select.options, function (option) {
+        return String(option.value) === String(value);
+      });
+    }
+
+    function makeIcon(category) {
+      var iconWrap = document.createElement("span");
+      iconWrap.className = "km-taxonomy-card__icon";
+      iconWrap.style.backgroundColor = category.color_bg || "#eef7f1";
+      iconWrap.style.color = category.color_text || "#087443";
+
+      if (category.icon && /\.svg(?:$|\?)/i.test(category.icon)) {
+        var mask = document.createElement("span");
+        mask.className = "km-taxonomy-card__icon-mask";
+        mask.style.webkitMaskImage = "url('" + category.icon.replace(/'/g, "%27") + "')";
+        mask.style.maskImage = "url('" + category.icon.replace(/'/g, "%27") + "')";
+        iconWrap.appendChild(mask);
+      } else if (category.icon) {
+        var img = document.createElement("img");
+        img.src = category.icon;
+        img.alt = "";
+        img.loading = "lazy";
+        iconWrap.appendChild(img);
+      } else if (category.icon_class) {
+        var icon = document.createElement("i");
+        icon.className = category.icon_class;
+        icon.setAttribute("aria-hidden", "true");
+        iconWrap.appendChild(icon);
+      } else {
+        iconWrap.textContent = String(category.label || "?").slice(0, 1).toUpperCase();
+      }
+
+      return iconWrap;
+    }
+
+    var picker = document.createElement("section");
+    picker.className = "km-taxonomy-picker";
+    picker.setAttribute("aria-label", "Выбор категории и подкатегории");
+
+    var heading = document.createElement("div");
+    heading.className = "km-taxonomy-picker__head";
+    heading.innerHTML =
+      '<div><strong>Выберите категорию</strong><span>Подкатегории появятся сразу после выбора.</span></div>';
+    picker.appendChild(heading);
+
+    var categoryGrid = document.createElement("div");
+    categoryGrid.className = "km-taxonomy-grid";
+    picker.appendChild(categoryGrid);
+
+    var subcategoryPanel = document.createElement("div");
+    subcategoryPanel.className = "km-taxonomy-subpanel";
+    subcategoryPanel.innerHTML =
+      '<div class="km-taxonomy-subpanel__head"><strong>Подкатегория</strong><span data-km-taxonomy-subhint></span></div>' +
+      '<div class="km-taxonomy-subgrid" data-km-taxonomy-subgrid></div>';
+    picker.appendChild(subcategoryPanel);
+
+    var subcategoryGrid = subcategoryPanel.querySelector("[data-km-taxonomy-subgrid]");
+    var subcategoryHint = subcategoryPanel.querySelector("[data-km-taxonomy-subhint]");
+    var categoryButtons = {};
+    var subcategoryButtons = {};
+
+    categories.forEach(function (category) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "km-taxonomy-card";
+      button.dataset.categoryCode = category.code;
+      button.style.setProperty("--km-taxonomy-accent", category.color_text || "#087443");
+      button.appendChild(makeIcon(category));
+
+      var copy = document.createElement("span");
+      copy.className = "km-taxonomy-card__copy";
+      var title = document.createElement("strong");
+      title.textContent = category.label || category.code;
+      var meta = document.createElement("small");
+      var count = Number(category.subcategory_count || 0);
+      meta.textContent = count
+        ? count + " подкатегорий"
+        : "без подкатегорий";
+      copy.appendChild(title);
+      copy.appendChild(meta);
+      button.appendChild(copy);
+
+      button.addEventListener("click", function () {
+        categorySelect.value = category.code;
+        if (!optionExists(categorySelect, category.code)) {
+          return;
+        }
+        dispatchChange(categorySelect);
+        if (!subcategories.some(function (item) { return item.category === category.code; })) {
+          subcategorySelect.value = "";
+          dispatchChange(subcategorySelect);
+        }
+        window.setTimeout(render, 0);
+      });
+
+      categoryButtons[category.code] = button;
+      categoryGrid.appendChild(button);
+    });
+
+    function renderSubcategories(selectedCategory) {
+      subcategoryGrid.innerHTML = "";
+      subcategoryButtons = {};
+
+      var items = subcategories.filter(function (item) {
+        return String(item.category) === String(selectedCategory || "");
+      });
+
+      subcategoryPanel.classList.toggle("is-disabled", !selectedCategory);
+      if (!selectedCategory) {
+        subcategoryHint.textContent = "Сначала выберите категорию.";
+        return;
+      }
+      if (!items.length) {
+        subcategoryHint.textContent = "Для этой категории подкатегории не нужны.";
+        return;
+      }
+
+      subcategoryHint.textContent = items.length + " вариантов";
+      items.forEach(function (item) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "km-taxonomy-chip";
+        button.dataset.subcategoryId = item.id;
+        button.textContent = item.label;
+        button.addEventListener("click", function () {
+          if (!optionExists(subcategorySelect, item.id)) {
+            return;
+          }
+          subcategorySelect.value = item.id;
+          dispatchChange(subcategorySelect);
+          render();
+        });
+        subcategoryButtons[item.id] = button;
+        subcategoryGrid.appendChild(button);
+      });
+    }
+
+    function render() {
+      var selectedCategory = String(categorySelect.value || "");
+      var selectedSubcategory = String(subcategorySelect.value || "");
+
+      Object.keys(categoryButtons).forEach(function (code) {
+        var active = code === selectedCategory;
+        categoryButtons[code].classList.toggle("is-active", active);
+        categoryButtons[code].setAttribute("aria-pressed", active ? "true" : "false");
+      });
+
+      renderSubcategories(selectedCategory);
+
+      Object.keys(subcategoryButtons).forEach(function (id) {
+        var active = id === selectedSubcategory;
+        subcategoryButtons[id].classList.toggle("is-active", active);
+        subcategoryButtons[id].setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+
+    anchor.parentElement.insertBefore(picker, anchor);
+    if (categoryField) categoryField.classList.add("km-taxonomy-native-field");
+    if (subcategoryField) subcategoryField.classList.add("km-taxonomy-native-field");
+    form.dataset.kmTaxonomyPickerBound = "1";
+
+    categorySelect.addEventListener("change", function () {
+      window.setTimeout(render, 0);
+    });
+    subcategorySelect.addEventListener("change", render);
+    render();
+  });
+
+  ready(function () {
+    var form = document.querySelector("[data-km-admin-form]") || document.getElementById("place_form");
     var configNode =
       document.getElementById("km-admin-progress-config") ||
       document.getElementById("km-place-progress-config");
@@ -233,6 +444,61 @@
     form.addEventListener("input", updateProgress);
     form.addEventListener("change", updateProgress);
     updateProgress();
+  });
+
+  ready(function () {
+    var phoneInputs = Array.prototype.slice.call(
+      document.querySelectorAll('input[data-km-az-phone="1"]')
+    );
+
+    function formatAzerbaijanPhone(value) {
+      var digits = String(value || "").replace(/\D/g, "");
+      var national = digits;
+
+      if (national.slice(0, 3) === "994") {
+        national = national.slice(3);
+      } else if (national.slice(0, 1) === "0") {
+        national = national.slice(1);
+      }
+
+      national = national.slice(0, 9);
+      if (!national) {
+        return "";
+      }
+
+      var parts = [];
+      [[0, 2], [2, 5], [5, 7], [7, 9]].forEach(function (range) {
+        var chunk = national.slice(range[0], range[1]);
+        if (chunk) {
+          parts.push(chunk);
+        }
+      });
+      return "+994 " + parts.join(" ");
+    }
+
+    function syncPhoneInput(input) {
+      if (!input) {
+        return;
+      }
+      var formatted = formatAzerbaijanPhone(input.value);
+      input.value = formatted;
+      var nationalLength = formatted.replace(/\D/g, "").replace(/^994/, "").length;
+      if (!formatted || nationalLength === 9) {
+        input.setCustomValidity("");
+      } else {
+        input.setCustomValidity("Введите номер в формате +994 50 123 45 67");
+      }
+    }
+
+    phoneInputs.forEach(function (input) {
+      syncPhoneInput(input);
+      input.addEventListener("input", function () {
+        syncPhoneInput(input);
+      });
+      input.addEventListener("blur", function () {
+        syncPhoneInput(input);
+      });
+    });
   });
 
   ready(function () {
@@ -1238,6 +1504,100 @@
     renumberVisibleCards();
     updateGalleryEmptyState();
     updateAddCardVisibility();
+  });
+
+  ready(function () {
+    var uploadInput = document.querySelector("[data-filepond-gallery-upload]");
+    var panel = document.querySelector("[data-filepond-gallery-panel]");
+    var meta = document.querySelector("[data-filepond-gallery-meta]");
+    if (!uploadInput || !panel || panel.dataset.filepondReady === "1") {
+      return;
+    }
+
+    function getExistingGalleryCount() {
+      var cards = Array.prototype.slice.call(document.querySelectorAll("[data-gallery-card]"));
+      return cards.filter(function (card) {
+        if (card.hidden) {
+          return false;
+        }
+        var deleteInput = card.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (deleteInput && deleteInput.checked) {
+          return false;
+        }
+        var preview = card.querySelector("[data-gallery-preview]");
+        var fileInput = card.querySelector('input[type="file"]');
+        return !!(
+          (preview && preview.getAttribute("data-gallery-initial-url")) ||
+          (fileInput && fileInput.files && fileInput.files.length)
+        );
+      }).length;
+    }
+
+    function updateMeta(count, maxFiles) {
+      if (!meta) {
+        return;
+      }
+      if (maxFiles <= 0) {
+        meta.textContent = "Лимит галереи заполнен. Удалите одно фото, чтобы добавить новое.";
+        return;
+      }
+      meta.textContent = count
+        ? "Будет добавлено новых фото: " + count + " из " + maxFiles + ". Сохраните карточку, чтобы применить."
+        : "Новые фото добавятся в галерею после сохранения карточки. Можно изменить порядок перетаскиванием.";
+    }
+
+    var maxFiles = Math.max(10 - getExistingGalleryCount(), 0);
+    uploadInput.dataset.allowReorder = "true";
+    uploadInput.dataset.storeAsFile = "true";
+    uploadInput.dataset.maxFiles = String(maxFiles);
+
+    if (!window.FilePond) {
+      panel.classList.add("km-filepond-gallery--fallback");
+      updateMeta(0, maxFiles);
+      return;
+    }
+
+    try {
+      if (window.FilePondPluginImagePreview) {
+        window.FilePond.registerPlugin(window.FilePondPluginImagePreview);
+      }
+    } catch (error) {}
+
+    var pond = window.FilePond.create(uploadInput, {
+      allowMultiple: true,
+      allowReorder: true,
+      allowImagePreview: true,
+      credits: false,
+      imagePreviewHeight: 118,
+      itemInsertLocation: "after",
+      maxFiles: maxFiles || 1,
+      storeAsFile: true,
+      labelIdle: maxFiles > 0
+        ? 'Перетащите фото сюда или <span class="filepond--label-action">выберите файлы</span>'
+        : "Лимит галереи заполнен",
+      labelMaxFileCountExceeded: "Можно добавить не больше {maxFiles} фото",
+      labelMaxFileCount: "Максимум {maxFiles} фото",
+      labelTapToCancel: "нажмите для отмены",
+      labelTapToRetry: "нажмите для повтора",
+      labelTapToUndo: "нажмите для отмены",
+      labelButtonRemoveItem: "Удалить",
+      labelButtonAbortItemLoad: "Отменить",
+      labelButtonRetryItemLoad: "Повторить",
+      labelButtonAbortItemProcessing: "Отменить",
+      labelButtonUndoItemProcessing: "Отменить",
+      labelButtonRetryItemProcessing: "Повторить",
+      labelButtonProcessItem: "Загрузить"
+    });
+
+    if (maxFiles <= 0) {
+      pond.setOptions({ disabled: true });
+    }
+
+    pond.on("updatefiles", function (files) {
+      updateMeta(files.length, maxFiles);
+    });
+    panel.dataset.filepondReady = "1";
+    updateMeta(0, maxFiles);
   });
 
   ready(function () {

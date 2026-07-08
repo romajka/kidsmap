@@ -5,6 +5,8 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REMOTE="${REMOTE:-origin}"
 BRANCH="${1:-main}"
 APP_BASE_URL="${APP_BASE_URL:-http://127.0.0.1:8000}"
+PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-https://kidsmap.az}"
+ADMIN_BASE_URL="${ADMIN_BASE_URL:-https://admin.kidsmap.az}"
 
 log() {
   printf '[deploy] %s\n' "$*"
@@ -94,9 +96,46 @@ smoke() {
   fi
 }
 
+purge_cloudflare_cache() {
+  if [[ -z "${CF_API_TOKEN:-}" || -z "${CF_ZONE_ID:-}" ]]; then
+    log "Skipping Cloudflare cache purge: CF_API_TOKEN or CF_ZONE_ID is not set"
+    return 0
+  fi
+
+  if ! command -v curl >/dev/null 2>&1; then
+    log "Skipping Cloudflare cache purge: curl is not installed"
+    return 0
+  fi
+
+  local payload
+  payload="$(cat <<JSON
+{
+  "files": [
+    "${PUBLIC_BASE_URL}/",
+    "${PUBLIC_BASE_URL}/az/",
+    "${PUBLIC_BASE_URL}/en/",
+    "${PUBLIC_BASE_URL}/ru/",
+    "${PUBLIC_BASE_URL}/static/css/site.css",
+    "${PUBLIC_BASE_URL}/static/admin/css/kidsmap_admin.css",
+    "${ADMIN_BASE_URL}/admin/",
+    "${ADMIN_BASE_URL}/admin/catalog/category/"
+  ]
+}
+JSON
+)"
+
+  log "Purging Cloudflare cache for key public and admin URLs"
+  curl -fsS -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+    -H "Authorization: Bearer ${CF_API_TOKEN}" \
+    -H "Content-Type: application/json" \
+    --data "${payload}" >/dev/null
+}
+
 log "Running smoke checks"
 smoke "/"
 smoke "/catalog/"
 smoke "/admin/"
+
+purge_cloudflare_cache
 
 log "Deploy complete"

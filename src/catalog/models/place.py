@@ -362,8 +362,26 @@ class Place(models.Model):
         return self.deleted_at is not None
 
     @property
+    def is_public(self) -> bool:
+        return self.is_active and self.status == self.STATUS_PUBLISHED and not self.is_deleted
+
+    @property
+    def publication_state(self) -> str:
+        if self.is_deleted:
+            return "deleted"
+        if self.is_public:
+            return "published"
+        if self.status == self.STATUS_PENDING:
+            return "pending"
+        if self.status == self.STATUS_REJECTED:
+            return "rejected"
+        if self.status == self.STATUS_PUBLISHED and not self.is_active:
+            return "unpublished"
+        return "draft"
+
+    @property
     def is_map_ready(self) -> bool:
-        return self.is_active and self.status == self.STATUS_PUBLISHED and not self.is_deleted and self.has_coordinates
+        return self.is_public and self.has_coordinates
 
     @property
     def map_readiness_reason(self) -> str:

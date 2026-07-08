@@ -8,6 +8,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
@@ -217,6 +218,21 @@ class TestOwnershipWorkflow(TestCase):
         self.assertEqual(PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).count(), 2)
         latest_audit = PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).first()
         self.assertEqual(latest_audit.action, PlaceOwnershipRequestAudit.ACTION_REJECTED)
+
+
+class TestOwnerPhoneValidation(TestCase):
+    def test_owner_place_create_form_normalizes_azerbaijan_phone(self):
+        form = OwnerPlaceCreateForm()
+        form.cleaned_data = {"phone1": "055 123 45 67"}
+
+        self.assertEqual(form.clean_phone1(), "+994551234567")
+
+    def test_owner_place_create_form_rejects_non_azerbaijan_phone(self):
+        form = OwnerPlaceCreateForm()
+        form.cleaned_data = {"phone1": "+1 202 555 0100"}
+
+        with self.assertRaisesMessage(ValidationError, "+994 50 123 45 67"):
+            form.clean_phone1()
 
 class TestOwnerPlaceManagementAndPermissions(TestCase):
     def setUp(self):

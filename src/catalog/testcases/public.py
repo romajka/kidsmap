@@ -1803,6 +1803,14 @@ class TestReviewEnhancements(TestCase):
         self.assertNotContains(en_home, "Приведите новых родителей через KidsMap")
         self.assertNotContains(en_home, "Полная лента и реакции")
 
+        ru_home = self.client.get("/ru/", follow=True)
+        self.assertEqual(ru_home.status_code, 200)
+        self.assertContains(ru_home, "Для владельцев детских мест")
+        self.assertContains(ru_home, "Помогите родителям найти вас рядом")
+        self.assertContains(ru_home, "Разместить место")
+        self.assertNotContains(ru_home, "Valideynlərə sizi yaxınlıqda tapmağa kömək edin")
+        self.assertNotContains(ru_home, "Məkan yerləşdir")
+
         az_catalog = self.client.get("/az/catalog/", follow=True)
         self.assertEqual(az_catalog.status_code, 200)
         self.assertContains(az_catalog, "kart tapıldı")

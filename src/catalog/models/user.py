@@ -3,6 +3,7 @@ import uuid
 from functools import lru_cache
 
 from django.contrib.auth.models import User
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import Avg, Count, Q
 from django.db.models.signals import post_delete, post_save
@@ -111,6 +112,14 @@ class UserProfile(models.Model):
         max_length=32,
         blank=True,
         default="",
+    )
+    avatar = models.FileField(
+        _("Фото профиля"),
+        upload_to="user_avatars/",
+        blank=True,
+        default="",
+        validators=[FileExtensionValidator(["jpg", "jpeg", "png", "webp"])],
+        help_text=_("Загрузите JPG, PNG или WebP. Используется в админке и профиле пользователя."),
     )
     gender = models.CharField(
         _("Пол"),

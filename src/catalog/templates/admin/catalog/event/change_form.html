@@ -146,7 +146,9 @@
             </div>
 
             <div class="km-place-form-mobile-actions">
-              {% submit_row %}
+              {% if not add %}
+                {% submit_row %}
+              {% endif %}
               {% if km_event_form_summary.visibility.is_public %}
                 <button
                   type="submit"
@@ -156,6 +158,7 @@
                   {% translate 'Снять с публикации' %}
                 </button>
               {% else %}
+                {% if not km_event_form_summary.missing %}
                 <button
                   type="submit"
                   name="_publish_event"
@@ -163,11 +166,12 @@
                 >
                   {% translate 'Опубликовать на сайте' %}
                 </button>
+                {% endif %}
               {% endif %}
               <button
                 type="submit"
                 name="_save_draft"
-                class="km-place-form-mobile-button km-place-form-mobile-button--draft"
+                class="km-place-form-mobile-button {% if add %}km-place-form-mobile-button--success{% else %}km-place-form-mobile-button--draft{% endif %}"
               >
                 {% translate 'Сохранить как черновик' %}
               </button>
@@ -254,7 +258,7 @@
                 <summary>{% translate "Что ещё заполнить" %}</summary>
                 <ul class="km-place-sidebar-checklist" data-progress-missing-list {% if not km_event_form_summary.missing %}hidden{% endif %}>
                   {% for item in km_event_form_summary.missing %}
-                    <li>{{ item }}</li>
+                    <li><a href="#{{ item.field_id }}" class="km-place-sidebar-missing-link">{{ item.label }}</a></li>
                   {% endfor %}
                 </ul>
                 <p class="km-place-sidebar-empty" data-progress-empty {% if km_event_form_summary.missing %}hidden{% endif %}>
@@ -265,8 +269,10 @@
 
             <div class="km-place-sidebar-card km-place-sidebar-card--actions">
               <div class="km-place-sidebar-action-buttons">
-                {% submit_row %}
-                <button type="submit" name="_save_draft" class="km-btn--sidebar km-btn--draft">
+                {% if not add %}
+                  {% submit_row %}
+                {% endif %}
+                <button type="submit" name="_save_draft" class="km-btn--sidebar {% if add %}km-btn--success-alt{% else %}km-btn--draft{% endif %}">
                   <i class="fas fa-file"></i> {% translate 'Черновик' %}
                 </button>
                 <div class="km-place-visibility-actions">
@@ -275,9 +281,11 @@
                       <i class="fas fa-eye-slash"></i> {% translate 'Снять с публикации' %}
                     </button>
                   {% else %}
+                    {% if not km_event_form_summary.missing %}
                     <button type="submit" name="_publish_event" class="km-btn--sidebar km-btn--success-alt">
                       <i class="fas fa-globe"></i> {% translate 'Опубликовать' %}
                     </button>
+                    {% endif %}
                   {% endif %}
                 </div>
               </div>

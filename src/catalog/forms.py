@@ -29,6 +29,14 @@ from catalog.services.place_schedule import (
 )
 from catalog.services.options import sort_translated_values
 
+try:
+    import phonenumbers
+    from phonenumbers import NumberParseException, PhoneNumberFormat
+except ImportError:  # pragma: no cover - dependency should be installed in normal runtime
+    phonenumbers = None
+    NumberParseException = Exception
+    PhoneNumberFormat = None
+
 
 User = get_user_model()
 _NAME_CONNECTORS = {" ", "-", "'"}
@@ -171,6 +179,91 @@ def _validate_phone(value: str) -> str:
             raise ValidationError("Telefon nömrəsi 7-dən 15-ə qədər rəqəmdən ibarət olmalıdır.")
         raise ValidationError(_("Номер телефона должен содержать от 7 до 15 цифр."))
     return normalized
+
+
+def _normalize_azerbaijan_phone_candidate(value: str) -> str:
+    normalized = _normalize_whitespace(value)
+    if normalized.startswith("00"):
+        normalized = f"+{normalized[2:]}"
+    return normalized
+
+
+def _azerbaijan_phone_error() -> ValidationError:
+    language = (get_language() or "ru").split("-")[0]
+    if language == "az":
+        return ValidationError("Azərbaycan nömrəsini düzgün daxil edin. Nümunə: +994 50 123 45 67")
+    if language == "en":
+        return ValidationError("Enter a valid Azerbaijan phone number. Example: +994 50 123 45 67")
+    return ValidationError(_("Укажите корректный номер Азербайджана. Пример: +994 50 123 45 67"))
+
+
+def _format_azerbaijan_phone_for_input(value: str) -> str:
+    normalized = _normalize_azerbaijan_phone_candidate(value)
+    if not normalized:
+        return ""
+
+    if phonenumbers is not None:
+        try:
+            parsed = phonenumbers.parse(normalized, "AZ")
+        except NumberParseException:
+            parsed = None
+        if parsed and parsed.country_code == 994 and phonenumbers.is_possible_number(parsed):
+            return phonenumbers.format_number(parsed, PhoneNumberFormat.INTERNATIONAL)
+
+    digits = "".join(char for char in normalized if char.isdigit())
+    if digits.startswith("994"):
+        national = digits[3:]
+    elif digits.startswith("0"):
+        national = digits[1:]
+    else:
+        national = digits
+
+    national = national[:9]
+    if not national:
+        return ""
+
+    chunks = []
+    for start, end in ((0, 2), (2, 5), (5, 7), (7, 9)):
+        part = national[start:end]
+        if part:
+            chunks.append(part)
+    return "+994 " + " ".join(chunks)
+
+
+def _validate_azerbaijan_phone(value: str, *, required: bool = False) -> str:
+    normalized = _normalize_azerbaijan_phone_candidate(value)
+    if not normalized:
+        if required:
+            language = (get_language() or "ru").split("-")[0]
+            if language == "az":
+                raise ValidationError("Telefon nömrəsini daxil edin.")
+            if language == "en":
+                raise ValidationError("Enter the phone number.")
+            raise ValidationError(_("Укажите номер телефона."))
+        return ""
+
+    if phonenumbers is not None:
+        try:
+            parsed = phonenumbers.parse(normalized, "AZ")
+        except NumberParseException as exc:
+            raise _azerbaijan_phone_error() from exc
+        if parsed.country_code != 994:
+            raise _azerbaijan_phone_error()
+        if not phonenumbers.is_valid_number_for_region(parsed, "AZ"):
+            raise _azerbaijan_phone_error()
+        return phonenumbers.format_number(parsed, PhoneNumberFormat.E164)
+
+    digits = "".join(char for char in normalized if char.isdigit())
+    if digits.startswith("994"):
+        national = digits[3:]
+    elif digits.startswith("0"):
+        national = digits[1:]
+    else:
+        national = digits
+
+    if len(national) != 9 or not national.isdigit():
+        raise _azerbaijan_phone_error()
+    return f"+994{national}"
 
 
 def _build_registration_username(email: str) -> str:
@@ -941,6 +1034,18 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 "autocomplete": "street-address",
             }
         )
+        self.fields["phone1"].widget.attrs.update(
+            {
+                "autocomplete": "tel",
+                "inputmode": "tel",
+                "placeholder": "+994 50 123 45 67",
+                "data-km-az-phone": "1",
+                "maxlength": "17",
+            }
+        )
+        phone_value = self.initial.get("phone1") or getattr(self.instance, "phone1", "") or ""
+        if phone_value:
+            self.initial["phone1"] = _format_azerbaijan_phone_for_input(phone_value)
         self.fields["address"].help_text = _("Улица, дом, ориентир.")
         self.fields["name_az"].help_text = _("Обязательно для публикации.")
         self.fields["name_ru"].help_text = _("Можно добавить позже.")
@@ -1094,6 +1199,12 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 self.add_error("photo", exc)
 
         return cleaned
+
+    def clean_phone1(self):
+        value = self.cleaned_data.get("phone1") or ""
+        if self.draft_save_only and not value:
+            return ""
+        return _validate_azerbaijan_phone(value, required=not self.draft_save_only)
 
 
 class OwnerPlaceCreateForm(OwnerPlaceEditForm):
