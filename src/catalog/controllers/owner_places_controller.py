@@ -311,6 +311,11 @@ class OwnerPlacesController:
             district=result.form.cleaned_data.get("district", ""),
             metro=result.form.cleaned_data.get("metro", ""),
         )
+        if geocoding_result.resolved and geocoding_result.point is not None:
+            form_data = result.form.data.copy()
+            form_data["lat"] = self._format_coordinate_value(geocoding_result.point.lat)
+            form_data["lng"] = self._format_coordinate_value(geocoding_result.point.lng)
+            result.form.data = form_data
         return OwnerPlaceActionResult(
             ok=geocoding_result.resolved,
             message=self._build_create_geocoding_message(geocoding_result=geocoding_result),

@@ -70,7 +70,7 @@
       </div>
     {% endwith %}
 
-    <div class="km-place-location__coord-grid">
+    <div class="km-place-location__coord-grid" style="display: none;">
       {% with field=form.lat %}
         <div class="km-location-field km-location-field--coord km-location-field--lat km-place-location__field">
           {{ field.label_tag }}
@@ -93,7 +93,7 @@
           <circle cx="11" cy="11" r="6"></circle>
           <path d="m20 20-4.2-4.2"></path>
         </svg>
-        <span>{% translate "Найти по адресу" %}</span>
+        <span>{% translate "Рассчитать по адресу" %}</span>
       </button>
       <button
         type="button"
@@ -120,55 +120,14 @@
       </button>
     </div>
 
-    <div class="km-location-status km-place-location__status-row">
-      <div class="km-location-status-item km-place-location__status-card">
-        <span class="km-location-status-item__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"></path>
-            <circle cx="12" cy="9" r="3"></circle>
-          </svg>
-        </span>
-        <span class="km-location-status-item__label">{% translate "Координаты" %}</span>
-        <span
-          class="km-location-badge km-location-badge--{% if obj.has_coordinates %}good{% else %}warn{% endif %}"
-          data-location-coordinates-label-filled="{% translate 'Координаты указаны' %}"
-          data-location-coordinates-label-missing="{% translate 'Координаты не указаны' %}"
-          data-location-coordinates-badge
-        >
-          {% if obj.has_coordinates %}
-            {% translate "Координаты указаны" %}
-          {% else %}
-            {% translate "Координаты не указаны" %}
-          {% endif %}
-        </span>
+    <div class="km-location-status-compact">
+      <div class="km-location-status-compact__badge" id="km-location-status-compact-badge">
+        <i class="fas fa-map-marker-alt" id="km-location-status-compact-icon"></i>
+        <span id="km-location-status-compact-text">{% translate "Нет координат" %}</span>
       </div>
-      <div class="km-location-status-item km-place-location__status-card">
-        <span class="km-location-status-item__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M1 6 8 2l8 4 7-4v16l-7 4-8-4-7 4z"></path>
-            <path d="M8 2v16M16 6v16"></path>
-          </svg>
-        </span>
-        <span class="km-location-status-item__label">{% translate "Карта" %}</span>
-        <span
-          class="km-location-badge km-location-badge--{% if obj.is_map_ready %}good{% else %}muted{% endif %}"
-          data-location-map-badge
-        >
-          {% if obj.is_map_ready %}
-            {% translate "Готово для карты" %}
-          {% else %}
-            {% translate "Не готово для карты" %}
-          {% endif %}
-        </span>
-      </div>
-      <div class="km-place-location__status-card km-place-location__status-card--wide">
-        <span class="km-place-location__status-copy" data-km-place-location-status>
-          {% if obj.has_coordinates %}
-            {% blocktranslate with lat=obj.lat lng=obj.lng %}Выбрана точка: {{ lat }}, {{ lng }}{% endblocktranslate %}
-          {% else %}
-            {% translate "Нажмите на карту или введите адрес, чтобы выбрать точку." %}
-          {% endif %}
-        </span>
+      <div class="km-location-status-compact__coords" id="km-location-status-compact-coords" style="display: none;">
+        <i class="fas fa-compass"></i>
+        <span id="km-location-status-compact-coords-val"></span>
       </div>
     </div>
 
@@ -176,7 +135,7 @@
       class="km-place-location__map-panel"
       id="km-admin-place-map-panel"
       data-km-place-location-panel
-      {% if not obj.has_coordinates %}hidden{% endif %}
+      hidden
     >
       <div class="km-place-location__map-head">
         <div class="km-place-location__map-hint">

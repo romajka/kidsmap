@@ -24,7 +24,7 @@
       <span class="owner-listing-type-card__copy">
         <strong>{% if CURRENT_LANGUAGE == "az" %}Daimi məkan{% elif CURRENT_LANGUAGE == "en" %}Permanent place{% else %}Постоянное место{% endif %}</strong>
         <span>{% if CURRENT_LANGUAGE == "az" %}Klub, kurs, mərkəz və ya müntəzəm fəaliyyət göstərən məkan.{% elif CURRENT_LANGUAGE == "en" %}A club, course, center, or regular place.{% else %}Кружок, курс, центр или место, которое работает регулярно.{% endif %}</span>
-        <em>{% if CURRENT_LANGUAGE == "az" %}4 addım · daha ətraflı{% elif CURRENT_LANGUAGE == "en" %}4 steps · more detailed{% else %}4 шага · подробнее{% endif %}</em>
+        <em>{% if CURRENT_LANGUAGE == "az" %}5 addım · daha ətraflı{% elif CURRENT_LANGUAGE == "en" %}5 steps · more detailed{% else %}5 шагов · подробнее{% endif %}</em>
       </span>
     </button>
     <button
@@ -64,9 +64,14 @@
           <span class="wz-dot" data-owner-step-indicator>4</span>
           <span class="wz-label">{% if CURRENT_LANGUAGE == 'az' %}Şəkil{% elif CURRENT_LANGUAGE == 'en' %}Photo{% else %}Фото{% endif %}</span>
         </button>
-        <span class="wz-counter" data-owner-progress-current aria-live="polite">{% if CURRENT_LANGUAGE == 'az' %}Addım 1/4{% elif CURRENT_LANGUAGE == 'en' %}Step 1/4{% else %}Шаг 1/4{% endif %}</span>
+        <button type="button" class="wz-step" data-owner-step-target="5" data-owner-step-label="{% if CURRENT_LANGUAGE == 'az' %}Yoxlama{% elif CURRENT_LANGUAGE == 'en' %}Verification{% else %}Проверка{% endif %}">
+          <span class="wz-dot" data-owner-step-indicator>5</span>
+          <span class="wz-label">{% if CURRENT_LANGUAGE == 'az' %}Yoxlama{% elif CURRENT_LANGUAGE == 'en' %}Verification{% else %}Проверка{% endif %}</span>
+        </button>
+        <span class="wz-counter" data-owner-progress-current aria-live="polite">{% if CURRENT_LANGUAGE == 'az' %}Addım 1/5{% elif CURRENT_LANGUAGE == 'en' %}Step 1/5{% else %}Шаг 1/5{% endif %}</span>
         <span class="visually-hidden" data-owner-progress-title>{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basics{% else %}Основное{% endif %}</span>
       </nav>
+      <span class="owner-wizard-progressbar owner-wizard-progressbar--legacy" hidden aria-hidden="true"></span>
       {% include "pages/includes/owner_wizard_completion.html" %}
     </div>
   </div>
@@ -255,11 +260,19 @@
           {% include "pages/includes/owner_form_field.html" with field=form.region %}
           {% include "pages/includes/owner_form_field.html" with field=form.district %}
           {% include "pages/includes/owner_form_field.html" with field=form.metro %}
-          {% include "pages/includes/owner_form_field.html" with field=form.address full_width=True %}
+          <div class="owner-form-field owner-form-field-full km-address-search-row">
+            <div class="km-address-field-wrap">
+              {% include "pages/includes/owner_form_field.html" with field=form.address full_width=True %}
+            </div>
+            <button type="button" class="btn km-btn-find-on-map" data-action-find-on-map>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/></svg>
+              <span>{% if CURRENT_LANGUAGE == 'az' %}Xəritədə tap{% elif CURRENT_LANGUAGE == 'en' %}Find on map{% else %}Найти на карте{% endif %}</span>
+            </button>
+          </div>
         </div>
       </section>
 
-      <details class="owner-form-details owner-form-details-secondary owner-form-details-map"{% if form.lat.value or form.lng.value or form.lat.errors or form.lng.errors %} open{% endif %}>
+      <details class="owner-form-details owner-form-details-secondary owner-form-details-map"{% if form.lat.errors or form.lng.errors %} open{% endif %}>
         <summary>{% if CURRENT_LANGUAGE == "az" %}Nöqtəni dəqiqləşdir{% elif CURRENT_LANGUAGE == "en" %}Refine map point{% else %}{% trans "Уточнить точку" %}{% endif %}</summary>
         <div class="owner-form-details-grid">
         <div class="owner-form-field owner-form-field-full">
@@ -296,7 +309,7 @@
     <section
       class="owner-wizard-step"
       data-owner-step="4"
-      data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Şəkil{% elif CURRENT_LANGUAGE == 'en' %}Photo{% else %}{% trans 'Фото и отправка' %}{% endif %}"
+      data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Şəkil{% elif CURRENT_LANGUAGE == 'en' %}Photo{% else %}{% trans 'Фото' %}{% endif %}"
       data-owner-step-required-fields="photo"
       data-owner-step-permanent-required-fields="photo"
       data-owner-step-temporary-required-fields="photo"
@@ -304,51 +317,11 @@
     >
       <section class="owner-form-section owner-form-section-primary">
         <div class="owner-form-section-head">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Foto və göndərmə{% elif CURRENT_LANGUAGE == "en" %}Photo and submission{% else %}{% trans "Фото и отправка" %}{% endif %}</h2>
-          <p class="meta owner-form-step-lead">{% if CURRENT_LANGUAGE == "az" %}Əsas şəkil və yekun yoxlama.{% elif CURRENT_LANGUAGE == "en" %}Main photo and final check.{% else %}{% trans "Главный шаг перед отправкой." %}{% endif %}</p>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Foto{% elif CURRENT_LANGUAGE == "en" %}Photo{% else %}{% trans "Фото" %}{% endif %}</h2>
+          <p class="meta owner-form-step-lead">{% if CURRENT_LANGUAGE == "az" %}Əsas şəkil əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}Upload the main photo.{% else %}{% trans "Загрузите главное фото." %}{% endif %}</p>
         </div>
         <div class="owner-form-grid owner-form-grid-tight">
           {% include "pages/includes/owner_form_field.html" with field=form.photo %}
-          <div class="owner-wizard-final-card" data-owner-final-summary>
-            <p class="owner-wizard-final-title">{% if CURRENT_LANGUAGE == "az" %}Göndərmədən əvvəl{% elif CURRENT_LANGUAGE == "en" %}Before submitting{% else %}{% trans "Перед отправкой" %}{% endif %}</p>
-            <p class="meta">
-              {% if wizard_mode == "edit" %}
-                {% if CURRENT_LANGUAGE == "az" %}Şəkli yoxlayın və dəyişiklikləri saxlayın.{% elif CURRENT_LANGUAGE == "en" %}Check the photo and save changes.{% else %}{% trans "Проверьте фото и сохраните карточку. После модерации изменения обновятся в каталоге." %}{% endif %}
-              {% else %}
-                {% if CURRENT_LANGUAGE == "az" %}Şəkli yoxlayın və məkanı moderasiyaya göndərin.{% elif CURRENT_LANGUAGE == "en" %}Check the photo and submit the place for review.{% else %}{% trans "Проверьте фото и отправьте карточку на модерацию." %}{% endif %}
-              {% endif %}
-            </p>
-            <div class="owner-wizard-final-summary">
-              <div class="owner-wizard-final-item">
-                <span class="owner-wizard-final-label">{% if CURRENT_LANGUAGE == "az" %}Əsas şəkil{% elif CURRENT_LANGUAGE == "en" %}Main photo{% else %}{% trans "Главное фото" %}{% endif %}</span>
-                <strong class="owner-wizard-final-value" data-owner-summary-photo>
-                  {% if form.photo.value %}
-                    {% if CURRENT_LANGUAGE == "az" %}Fayl əlavə olunub{% elif CURRENT_LANGUAGE == "en" %}File is already added{% else %}{% trans "Файл уже добавлен" %}{% endif %}
-                  {% else %}
-                    {% if CURRENT_LANGUAGE == "az" %}Əsas şəkil seçilməyib{% elif CURRENT_LANGUAGE == "en" %}Main photo is not selected{% else %}{% trans "Фото ещё не выбрано" %}{% endif %}
-                  {% endif %}
-                </strong>
-              </div>
-              {% if wizard_mode == "create" %}
-                <div class="owner-wizard-final-item">
-                  <span class="owner-wizard-final-label">{% if CURRENT_LANGUAGE == "az" %}Galereya{% elif CURRENT_LANGUAGE == "en" %}Gallery{% else %}{% trans "Галерея" %}{% endif %}</span>
-                  <strong class="owner-wizard-final-value" data-owner-summary-gallery>
-                    {% if CURRENT_LANGUAGE == "az" %}Galereya boşdur{% elif CURRENT_LANGUAGE == "en" %}Gallery is empty{% else %}{% trans "Пока без дополнительных фото" %}{% endif %}
-                  </strong>
-                </div>
-                <div class="owner-wizard-final-item">
-                  <span class="owner-wizard-final-label">{% if CURRENT_LANGUAGE == "az" %}Moderasiya üçün şərh{% elif CURRENT_LANGUAGE == "en" %}Moderation comment{% else %}{% trans "Комментарий модератору" %}{% endif %}</span>
-                  <strong class="owner-wizard-final-value" data-owner-summary-note>
-                    {% if form.moderation_note.value %}
-                      {% if CURRENT_LANGUAGE == "az" %}Şərh əlavə olunub{% elif CURRENT_LANGUAGE == "en" %}Comment added{% else %}{% trans "Комментарий добавлен" %}{% endif %}
-                    {% else %}
-                      {% if CURRENT_LANGUAGE == "az" %}Şərh yoxdur{% elif CURRENT_LANGUAGE == "en" %}No comment{% else %}{% trans "Комментария нет" %}{% endif %}
-                    {% endif %}
-                  </strong>
-                </div>
-              {% endif %}
-            </div>
-          </div>
         </div>
       </section>
 
@@ -372,6 +345,86 @@
         </details>
       {% endif %}
 
+      <div class="owner-wizard-actions">
+        <button type="button" class="link-btn wz-icon-btn" data-owner-prev><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</span></button>
+        <div class="owner-wizard-actions-group">
+          {% if wizard_mode == "create" or wizard_mode == "edit" %}
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</span></button>
+          {% endif %}
+          <button type="button" class="btn wz-icon-btn" data-owner-next><span>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}{% trans "Дальше" %}{% endif %}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="owner-wizard-step"
+      data-owner-step="5"
+      data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Yoxlama{% elif CURRENT_LANGUAGE == 'en' %}Verification{% else %}Проверка{% endif %}"
+      hidden
+    >
+      <section class="owner-form-section owner-form-section-primary">
+        <div class="owner-form-section-head">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Yoxlama{% elif CURRENT_LANGUAGE == "en" %}Verification{% else %}Проверка{% endif %}</h2>
+          <p class="meta owner-form-step-lead">{% if CURRENT_LANGUAGE == "az" %}Göndərmədən əvvəl məlumatları yoxlayın.{% elif CURRENT_LANGUAGE == "en" %}Review the details before submitting.{% else %}Проверьте данные перед отправкой.{% endif %}</p>
+        </div>
+
+        <div class="km-verification-container">
+          <!-- Card Preview Column -->
+          <div class="km-verification-preview-col">
+            <h3 class="km-verification-subheading">{% if CURRENT_LANGUAGE == "az" %}Kartın ön görünüşü{% elif CURRENT_LANGUAGE == "en" %}Card preview{% else %}Превью карточки{% endif %}</h3>
+            
+            <div class="km-preview-card">
+              <div class="km-preview-card__image-container">
+                <img id="km-preview-image" src="" alt="Preview" style="display:none;" />
+                <div id="km-preview-image-placeholder" class="km-preview-image-placeholder">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 48px; height: 48px; color: #a0aeb1;"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span>{% if CURRENT_LANGUAGE == 'az' %}Foto yoxdur{% elif CURRENT_LANGUAGE == 'en' %}No photo{% else %}Нет фото{% endif %}</span>
+                </div>
+              </div>
+              <div class="km-preview-card__body">
+                <div class="km-preview-card__category" id="km-preview-cat">-</div>
+                <h4 class="km-preview-card__title" id="km-preview-title">-</h4>
+                <div class="km-preview-card__meta">
+                  <span class="km-preview-card__age" id="km-preview-age">-</span>
+                  <span class="km-preview-card__price" id="km-preview-price">-</span>
+                </div>
+                <div class="km-preview-card__location" id="km-preview-loc">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle;"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 00-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 00-8-8z"/></svg>
+                  <span id="km-preview-loc-text">-</span>
+                </div>
+                <div class="km-preview-card__contact" id="km-preview-phone" style="display:none; margin-top: 6px; font-size: 13px; color: #5b6a63;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+                  <span id="km-preview-phone-text">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checklist Column -->
+          <div class="km-verification-checklist-col">
+            <h3 class="km-verification-subheading">{% if CURRENT_LANGUAGE == "az" %}Yoxlama statusları{% elif CURRENT_LANGUAGE == "en" %}Verification status{% else %}Статусы проверки{% endif %}</h3>
+
+            <div class="km-verification-status-panel">
+              <div class="km-verification-status-row">
+                <span class="km-verification-status-label">{% if CURRENT_LANGUAGE == "az" %}Ünvan və koordinat{% elif CURRENT_LANGUAGE == "en" %}Address & coordinates{% else %}Адрес и координаты{% endif %}</span>
+                <span class="km-verification-badge" id="km-status-badge-coords">-</span>
+              </div>
+              <div class="km-verification-status-row">
+                <span class="km-verification-status-label">{% if CURRENT_LANGUAGE == "az" %}Şəkillər{% elif CURRENT_LANGUAGE == "en" %}Photos status{% else %}Фотографии{% endif %}</span>
+                <span class="km-verification-badge" id="km-status-badge-photos">-</span>
+              </div>
+            </div>
+
+            <div class="km-verification-todo" id="km-verification-todo-block" style="display:none;">
+              <h4 class="km-verification-todo-title">{% if CURRENT_LANGUAGE == "az" %}Doldurulmalı sahələr{% elif CURRENT_LANGUAGE == "en" %}Remaining fields to fill{% else %}Осталось заполнить{% endif %}</h4>
+              <ul class="km-verification-todo-list" id="km-verification-todo-list">
+                <!-- Filled dynamically by wizard.js -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div class="owner-wizard-actions owner-wizard-actions-final">
         <button type="button" class="link-btn wz-icon-btn" data-owner-prev><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}{% trans "Назад" %}{% endif %}</span></button>
         <div class="owner-wizard-actions-group">
@@ -385,7 +438,7 @@
           {% else %}
             <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</span></button>
             <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}{% trans "Мои места" %}{% endif %}</a>
-            <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Yarat və yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Create and send for review{% else %}{% trans "Создать и отправить на проверку" %}{% endif %}</button>
+            <button type="submit" class="btn btn-primary-submit" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Yarat və yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Create and send for review{% else %}{% trans "Создать и отправить на проверку" %}{% endif %}</button>
           {% endif %}
         </div>
       </div>

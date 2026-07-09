@@ -5,7 +5,7 @@ from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Max, Q
+from django.db.models import Count, Max, Prefetch, Q
 from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import path, reverse
@@ -22,6 +22,7 @@ from catalog.models import (
     Place,
     PlacePhoto,
     PlaceChangeAudit,
+    PlaceOwnershipRequest,
     Event,
     PlaceReviewsByClub,
     Category,
@@ -496,7 +497,7 @@ class EventAdmin(admin.ModelAdmin):
     EVENT_FORM_SECONDARY_SECTIONS = (
         {
             "id": "system",
-            "title": _("Системные поля"),
+            "title": _("Служебное"),
             "description": _("Служебные статусы, причины отклонения и временные метки."),
             "fieldset_indexes": (5,),
         },
@@ -1275,15 +1276,22 @@ class PlaceAdmin(admin.ModelAdmin):
     delete_confirmation_template = "admin/catalog/place_delete_confirmation.html"
     km_primary_filters = ("category", "district", "status")
     delete_selected_confirmation_template = "admin/catalog/place_delete_selected_confirmation.html"
-    list_select_related = ("owner",)
+    list_select_related = ("owner", "category", "subcategory")
     list_display = (
         "display_name",
-        "category",
+        "category_summary",
         "location_summary",
         "publication_status",
         "map_status_summary",
         "owner_display",
         "engagement_summary",
+        "updated_summary",
+        "row_actions",
+    )
+    trash_list_display = (
+        "display_name",
+        "deleted_at_display",
+        "deleted_by_display",
         "updated_at",
         "row_actions",
     )
@@ -1302,7 +1310,8 @@ class PlaceAdmin(admin.ModelAdmin):
         "age_from",
         "age_to",
     )
-    search_fields = ("name_ru", "name_en", "name", "address", "instagram", "phone1", "owner__username", "owner__email")
+    search_fields = ("name_az", "name_ru", "name_en", "name", "slug", "address", "instagram", "phone1", "owner__username", "owner__email")
+    search_help_text = _("Ищет по названию места на AZ, RU или EN. Можно также искать по адресу, телефону или владельцу.")
     readonly_fields = (
         "slug",
         "rating_avg",
@@ -1333,28 +1342,28 @@ class PlaceAdmin(admin.ModelAdmin):
         {
             "id": "copy",
             "step": "02",
-            "title": _("Названия и описания"),
+            "title": _("Тексты"),
             "description": _("Тексты карточки на основных языках сайта. Минимум один качественный язык обязателен."),
             "fieldset_indexes": (1,),
         },
         {
             "id": "pricing",
             "step": "03",
-            "title": _("Возраст и цена"),
+            "title": _("Цена"),
             "description": _("Возрастные рамки, стоимость и длительность занятий."),
             "fieldset_indexes": (2,),
         },
         {
             "id": "location",
             "step": "04",
-            "title": _("Локация и контакты"),
+            "title": _("Локация"),
             "description": _("Район, метро, адрес, координаты и контакты для связи."),
             "fieldset_indexes": (3, 4),
         },
         {
             "id": "media",
             "step": "05",
-            "title": _("Фотографии"),
+            "title": _("Фото"),
             "description": _("Добавьте главное изображение и дополнительные фотографии места."),
             "fieldset_indexes": (5,),
         },
@@ -1363,7 +1372,7 @@ class PlaceAdmin(admin.ModelAdmin):
     PLACE_FORM_SECONDARY_SECTIONS = (
         {
             "id": "system",
-            "title": _("Системные поля"),
+            "title": _("Служебное"),
             "description": _("Служебные и административные поля, которые не нужны в основном сценарии заполнения."),
             "fieldset_indexes": (6, 7),
         },
@@ -1425,7 +1434,7 @@ class PlaceAdmin(admin.ModelAdmin):
         ),
         (_("Фотографии"), {"fields": ("photo",)}),
         (
-            _("Системные поля"),
+            _("Служебное"),
             {
                 "classes": ("collapse",),
                 "fields": (
@@ -1945,6 +1954,29 @@ class PlaceAdmin(admin.ModelAdmin):
         initial.setdefault("is_active", False)
         return initial
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.prefetch_related(
+            Prefetch(
+                "ownership_requests",
+                queryset=PlaceOwnershipRequest.objects.select_related("applicant").order_by("created_at"),
+                to_attr="km_prefetched_ownership_requests",
+            ),
+            Prefetch(
+                "change_audits",
+                queryset=PlaceChangeAudit.objects.select_related("changed_by").order_by("-created_at"),
+                to_attr="km_prefetched_change_audits",
+            ),
+        )
+
+    def _is_trash_changelist(self, request) -> bool:
+        return request.GET.get("deleted_state") == "deleted"
+
+    def get_list_display(self, request):
+        if self._is_trash_changelist(request):
+            return self.trash_list_display
+        return super().get_list_display(request)
+
     def get_inline_instances(self, request, obj=None):
         inline_instances = super().get_inline_instances(request, obj)
         if obj is None:
@@ -1953,9 +1985,10 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Название"))
     def display_name(self, obj):
-        title = obj.name_ru or obj.name
+        title = obj.name_az or obj.name_ru or obj.name_en or obj.name
         meta: list[str] = [f"ID {obj.pk}"]
         if obj.is_deleted:
+            meta.append(str(_("В удаленных")))
             meta.append(str(_("Сейчас скрыта в разделе удалённых")))
         preview = ""
         image_field = obj.photo or obj.cover_photo
@@ -2049,33 +2082,56 @@ class PlaceAdmin(admin.ModelAdmin):
             return _("Ещё не опубликовано")
         return timezone.localtime(obj.published_at).strftime("%d.%m.%Y %H:%M")
 
+    def _user_label(self, user) -> str:
+        if not user:
+            return ""
+        return user.get_full_name() or user.get_username() or user.email or str(user.pk)
+
+    def _latest_place_audit(self, obj):
+        audits = getattr(obj, "km_prefetched_change_audits", None)
+        if audits is not None:
+            return audits[0] if audits else None
+        return obj.change_audits.select_related("changed_by").order_by("-created_at").first()
+
+    def _first_ownership_request(self, obj):
+        requests = getattr(obj, "km_prefetched_ownership_requests", None)
+        if requests is not None:
+            return requests[0] if requests else None
+        return obj.ownership_requests.select_related("applicant").order_by("created_at").first()
+
+    @admin.display(description=_("Категория"))
+    def category_summary(self, obj):
+        category = obj.category
+        label = category.name_i18n() if category else obj.get_category_display()
+        icon = (getattr(category, "icon", "") or "").strip() if category else ""
+        if icon:
+            icon_src = icon if icon.startswith(("http://", "https://", "/")) else f"{settings.STATIC_URL}{icon}"
+            icon_html = format_html('<img src="{}" alt="" class="km-admin-category-icon" loading="lazy">', icon_src)
+        else:
+            icon_html = mark_safe('<span class="km-admin-category-icon km-admin-category-icon--fallback" aria-hidden="true">#</span>')
+        subcategory = obj.subcategory.name_i18n() if getattr(obj, "subcategory_id", None) and obj.subcategory else ""
+        return format_html(
+            '<div class="km-admin-category-cell">{}<div class="km-admin-stack"><span class="km-admin-title">{}</span>{}</div></div>',
+            icon_html,
+            label,
+            format_html('<span class="km-admin-meta">{}</span>', subcategory) if subcategory else "",
+        )
+
     @admin.display(description=_("Локация"))
     def location_summary(self, obj):
-        lines: list[str] = []
-        if obj.district:
-            lines.append(str(obj.district))
-        if obj.metro:
-            lines.append(str(obj.metro))
-        if obj.address:
-            lines.append(str(obj.address))
-
-        if not lines:
-            return format_html('<div class="km-admin-stack"><span class="km-admin-meta">{}</span></div>', _("Локация не заполнена"))
-
-        title = " / ".join(lines[:2])
-        address_line = lines[2] if len(lines) > 2 else ""
-        if address_line:
+        address = (obj.address or "").strip()
+        if address:
             return format_html(
-                '<div class="km-admin-stack">'
-                '<span class="km-admin-title">{}</span>'
-                '<span class="km-admin-meta">{}</span>'
-                "</div>",
-                title,
-                address_line,
+                '<span class="km-admin-address" title="{}">{}</span>',
+                address,
+                address,
             )
+        fallback = " / ".join(part for part in (obj.district, obj.metro) if part)
+        if fallback:
+            return format_html('<span class="km-admin-address km-admin-address--muted">{}</span>', fallback)
         return format_html(
-            '<div class="km-admin-stack"><span class="km-admin-title">{}</span></div>',
-            title,
+            '<span class="km-admin-address km-admin-address--empty">{}</span>',
+            _("Адрес не заполнен"),
         )
 
     @admin.display(description=_("Публикация"))
@@ -2108,69 +2164,104 @@ class PlaceAdmin(admin.ModelAdmin):
             
         badges_html = mark_safe(" ".join(badges))
         return format_html(
-            '<div class="km-admin-stack"><div class="km-admin-badges">{}</div>{}</div>',
+            '<div class="km-admin-status-line">{}</div>{}',
             badges_html,
             format_html(
-                '<span class="km-admin-meta">{}</span>',
+                '<span class="km-admin-meta km-admin-status-note">{}</span>',
                 " · ".join(meta_bits),
             ) if meta_bits else "",
         )
 
     @admin.display(description=_("Карта"))
     def map_status_summary(self, obj):
-        coords_line = _("lat %(lat)s, lng %(lng)s") % {"lat": round(obj.lat, 5), "lng": round(obj.lng, 5)} if obj.has_coordinates else _("Координаты не заполнены")
-        
-        if not obj.has_coordinates:
-            map_badge = self._render_place_state_badge(label=_("Нужны координаты"), tone="warn")
-        elif obj.is_map_ready:
-            map_badge = self._render_place_state_badge(label=_("Готово для карты"), tone="good")
-        else:
-            map_badge = self._render_place_state_badge(label=_("Не готово для карты"), tone="muted")
+        if obj.is_map_ready:
+            label = _("Готово для карты")
+            return format_html('<span class="km-admin-map-state km-admin-map-state--good" title="{}" aria-label="{}"><i class="fas fa-check"></i></span>', label, label)
+        label = _("Нужны координаты") if not obj.has_coordinates else _("Не готово для карты")
+        return format_html('<span class="km-admin-map-state km-admin-map-state--bad" title="{}" aria-label="{}"><i class="fas fa-times"></i></span>', label, label)
 
-        return format_html(
-            '<div class="km-admin-stack">'
-            '<div class="km-admin-badges">{}</div>'
-            '<span class="km-admin-meta">{}</span>'
-            "</div>",
-            map_badge,
-            coords_line,
-        )
-
-    @admin.display(description=_("Владелец"))
+    @admin.display(description=_("Добавил"))
     def owner_display(self, obj):
-        if not obj.owner:
-            return format_html('<div class="km-admin-stack"><span class="km-admin-meta">{}</span></div>', _("Не назначен"))
-
-        owner_email = (obj.owner.email or "").strip()
-        if owner_email:
+        request = self._first_ownership_request(obj)
+        if request and request.applicant_id:
             return format_html(
                 '<div class="km-admin-stack">'
                 '<span class="km-admin-title">{}</span>'
                 '<span class="km-admin-meta">{}</span>'
                 "</div>",
-                obj.owner.username,
-                owner_email,
+                self._user_label(request.applicant),
+                _("заявка владельца"),
             )
-        return format_html(
-            '<div class="km-admin-stack"><span class="km-admin-title">{}</span></div>',
-            obj.owner.username,
-        )
+        if obj.owner_id:
+            return format_html(
+                '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span></div>',
+                self._user_label(obj.owner),
+                _("владелец карточки"),
+            )
+        audit = self._latest_place_audit(obj)
+        if audit and audit.changed_by_id:
+            return format_html(
+                '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span></div>',
+                self._user_label(audit.changed_by),
+                audit.get_source_display(),
+            )
+        return format_html('<span class="km-admin-meta">{}</span>', _("Не указан"))
 
-    @admin.display(description=_("Вовлеченность"))
+    @admin.display(description=_("Статистика"))
     def engagement_summary(self, obj):
         likes_value = int(obj.likes_count or 0)
         rating_value = f"{float(obj.rating_avg or 0):.1f}"
         reviews_value = int(obj.rating_count or 0)
         return format_html(
-            '<div class="km-admin-stack">'
-            '<span class="km-admin-title">♥ {} · ★ {}</span>'
-            '<span class="km-admin-meta">{}: {}</span>'
+            '<div class="km-admin-stats" aria-label="{}">'
+            '<span title="{}"><i class="far fa-comment-dots"></i>{}</span>'
+            '<span title="{}"><i class="fas fa-star"></i>{}</span>'
+            '<span title="{}"><i class="far fa-heart"></i>{}</span>'
             "</div>",
-            likes_value,
-            rating_value,
+            _("Статистика карточки"),
             _("Отзывы"),
             reviews_value,
+            _("Средний рейтинг"),
+            rating_value,
+            _("Лайки"),
+            likes_value,
         )
+
+    @admin.display(description=_("Обновлено"), ordering="updated_at")
+    def updated_summary(self, obj):
+        audit = self._latest_place_audit(obj)
+        if audit:
+            actor = self._user_label(audit.changed_by) or _("Система")
+            source = audit.get_source_display()
+            dt = timezone.localtime(audit.created_at)
+            return format_html(
+                '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{} · {}</span></div>',
+                dt.strftime("%d.%m.%Y %H:%M"),
+                actor,
+                source,
+            )
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span></div>',
+            timezone.localtime(obj.updated_at).strftime("%d.%m.%Y %H:%M"),
+            _("без истории изменений"),
+        )
+
+    @admin.display(description=_("Удалено"))
+    def deleted_at_display(self, obj):
+        if not obj.deleted_at:
+            return format_html('<span class="km-admin-meta">{}</span>', _("Нет данных"))
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span></div>',
+            timezone.localtime(obj.deleted_at).strftime("%d.%m.%Y"),
+            timezone.localtime(obj.deleted_at).strftime("%H:%M"),
+        )
+
+    @admin.display(description=_("Удалил"))
+    def deleted_by_display(self, obj):
+        if not obj.deleted_by:
+            return format_html('<span class="km-admin-meta">{}</span>', _("Не указано"))
+        label = obj.deleted_by.get_username() or obj.deleted_by.email or str(obj.deleted_by_id)
+        return format_html('<span class="km-admin-title">{}</span>', label)
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -2447,36 +2538,42 @@ class PlaceAdmin(admin.ModelAdmin):
                 "name": "mark_published",
                 "label": _("Опубликовать"),
                 "tone": "good",
+                "icon": "fas fa-bullhorn",
                 "description": _("Опубликовать выбранные карточки с проверкой качества."),
             },
             {
                 "name": "mark_inactive",
                 "label": _("Снять с публикации"),
                 "tone": "muted",
+                "icon": "fas fa-eye-slash",
                 "description": _("Оставить карточки в базе, но скрыть их с сайта."),
             },
             {
                 "name": "mark_draft",
                 "label": _("Вернуть в черновик"),
                 "tone": "muted",
+                "icon": "far fa-file-alt",
                 "description": _("Снять выбранные карточки с сайта и перевести в черновики."),
             },
             {
                 "name": "mark_pending",
                 "label": _("На модерацию"),
                 "tone": "warn",
+                "icon": "fas fa-hourglass-half",
                 "description": _("Отправить выбранные карточки на повторную модерацию."),
             },
             {
                 "name": "refresh_coordinates",
                 "label": _("Обновить координаты"),
                 "tone": "info",
+                "icon": "fas fa-location-arrow",
                 "description": _("Повторно рассчитать координаты по адресу."),
             },
             {
                 "name": "restore_selected",
                 "label": _("Восстановить"),
                 "tone": "good",
+                "icon": "fas fa-undo",
                 "confirm": _("Вы собираетесь восстановить {count} выбранных карточек из удалённых.\n\nПосле восстановления карточки останутся неактивными, их можно будет отдельно опубликовать.\n\nПродолжить?"),
                 "description": _("Вернуть карточки из удалённых в базовый список."),
             },
@@ -2484,8 +2581,21 @@ class PlaceAdmin(admin.ModelAdmin):
                 "name": "move_selected_to_deleted",
                 "label": _("В удалённые"),
                 "tone": "danger",
+                "icon": "far fa-trash-alt",
                 "confirm": _("Вы собираетесь переместить в удалённые {count} выбранных карточек.\n\nКарточки исчезнут с сайта, но останутся в базе и их можно будет восстановить.\n\nПродолжить?"),
                 "description": _("Безопасное мягкое удаление с возможностью восстановления."),
+            },
+        )
+
+    def _place_trash_bulk_actions(self):
+        return (
+            {
+                "name": "restore_selected",
+                "label": _("Восстановить"),
+                "tone": "good",
+                "icon": "fas fa-undo",
+                "confirm": _("Вы собираетесь восстановить {count} выбранных карточек из удалённых.\n\nПосле восстановления карточки останутся неактивными, их можно будет отдельно опубликовать.\n\nПродолжить?"),
+                "description": _("Вернуть карточки из удалённых в базовый список."),
             },
         )
 
@@ -2628,12 +2738,17 @@ class PlaceAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         dashboard_counts = self._place_dashboard_counts()
         quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
+        is_trash = self._is_trash_changelist(request)
         primary_filter_keys = {"all", "published", "pending", "inactive", "without_coordinates", "deleted"}
+        if is_trash:
+            primary_filter_keys = {"all", "deleted"}
         extra_context = {
             "place_dashboard_stats": self._place_dashboard_stats(request, counts=dashboard_counts),
             "km_primary_quick_filters": [item for item in quick_filters if item.get("key") in primary_filter_keys],
             "km_secondary_quick_filters": [item for item in quick_filters if item.get("key") not in primary_filter_keys],
-            "place_bulk_actions": self._place_bulk_actions(),
+            "place_bulk_actions": self._place_trash_bulk_actions() if is_trash else self._place_bulk_actions(),
+            "km_is_trash_changelist": is_trash,
+            "km_changelist_reset_url": "?deleted_state=deleted" if is_trash else "?",
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)
@@ -2761,7 +2876,7 @@ class PlaceAdmin(admin.ModelAdmin):
     def mark_rejected(self, request, queryset):
         default_reason = _("Məkan admin moderasiyasından keçmədi. Zəhmət olmasa məlumatları yeniləyin.")
         updated_count = 0
-        for place in queryset.iterator():
+        for place in queryset.iterator(chunk_size=100):
             place.status = Place.STATUS_REJECTED
             place.is_active = False
             if not (place.rejection_reason or "").strip():
@@ -2778,7 +2893,7 @@ class PlaceAdmin(admin.ModelAdmin):
     def move_selected_to_deleted(self, request, queryset):
         if request.POST.get("post"):
             moved_count = 0
-            for place in queryset.iterator():
+            for place in queryset.iterator(chunk_size=100):
                 if self._soft_delete_place(place=place, user=request.user):
                     moved_count += 1
 
@@ -2810,8 +2925,12 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Восстановить выбранные кружки из удаленных"))
     def restore_selected(self, request, queryset):
+        selected_ids = request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
+        if selected_ids:
+            queryset = Place.objects.filter(pk__in=selected_ids, deleted_at__isnull=False)
+
         restored_count = 0
-        for place in queryset.iterator():
+        for place in queryset.iterator(chunk_size=100):
             if self._restore_place(place=place, user=request.user, activate=False):
                 restored_count += 1
 
@@ -2841,7 +2960,7 @@ class PlaceAdmin(admin.ModelAdmin):
         missing_query_count = 0
         not_found_count = 0
 
-        for place in queryset.iterator():
+        for place in queryset.iterator(chunk_size=100):
             geocoding_result = self._refresh_place_coordinates_with_audit(
                 place=place,
                 changed_by=request.user,
@@ -2963,7 +3082,7 @@ class PlaceAdmin(admin.ModelAdmin):
         self._soft_delete_place(place=obj, user=request.user)
 
     def delete_queryset(self, request, queryset):
-        for place in queryset.iterator():
+        for place in queryset.iterator(chunk_size=100):
             self._soft_delete_place(place=place, user=request.user)
 
     def _stringify_audit_value(self, value):
@@ -3131,18 +3250,45 @@ class PlaceAdmin(admin.ModelAdmin):
     @admin.display(description=_("Действия"))
     def row_actions(self, obj):
         edit_url = self._place_change_url(obj)
-        primary_action = render_primary_action(edit_url, _("Редактировать"))
-        
-        menu_actions = []
+        actions = [
+            format_html(
+                '<a class="km-admin-icon-action km-admin-icon-action--edit" href="{}" title="{}" aria-label="{}"><i class="fas fa-pen"></i></a>',
+                edit_url,
+                _("Редактировать"),
+                _("Редактировать"),
+            )
+        ]
         if obj.is_deleted:
-            menu_actions.append((self._place_restore_url(obj), _("Восстановить"), "km-admin-action-menu__link--good"))
-            menu_actions.append((None, _("Карточка скрыта из каталога"), "km-admin-action-menu__hint"))
+            actions.append(
+                format_html(
+                    '<a class="km-admin-icon-action km-admin-icon-action--restore" href="{}" title="{}" aria-label="{}"><i class="fas fa-undo"></i></a>',
+                    self._place_restore_url(obj),
+                    _("Восстановить"),
+                    _("Восстановить"),
+                )
+            )
         else:
-            menu_actions.append((obj.get_absolute_url(), _("Открыть"), ""))
-            menu_actions.append((self._place_delete_url(obj), _("В удалённые"), "km-admin-action-menu__link--danger"))
-            
-        menu_html = render_action_menu(menu_actions)
-        return render_row_actions_container(primary_action, menu_html)
+            actions.extend(
+                [
+                    format_html(
+                        '<a class="km-admin-icon-action km-admin-icon-action--open" href="{}" title="{}" aria-label="{}" target="_blank" rel="noopener"><i class="fas fa-eye"></i></a>',
+                        obj.get_absolute_url(),
+                        _("Открыть"),
+                        _("Открыть"),
+                    ),
+                    format_html(
+                        '<a class="km-admin-icon-action km-admin-icon-action--delete km-admin-action-menu__link--danger" href="{}" title="{}" aria-label="{}"><i class="far fa-trash-alt"></i></a>',
+                        self._place_delete_url(obj),
+                        _("В удалённые"),
+                        _("В удалённые"),
+                    ),
+                ]
+            )
+
+        return format_html(
+            '<div class="km-place-row-actions km-place-row-actions--icons">{}</div>',
+            format_html_join("", "{}", ((action,) for action in actions)),
+        )
 
 
 @admin.register(PlaceReviewsByClub)

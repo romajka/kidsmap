@@ -139,6 +139,38 @@
     var addressValue = String(state.addressInput.value || "").trim();
     var isReady = hasCoordinates && !!addressValue;
 
+    var compactBadge = document.getElementById("km-location-status-compact-badge");
+    var compactIcon = document.getElementById("km-location-status-compact-icon");
+    var compactText = document.getElementById("km-location-status-compact-text");
+    var compactCoords = document.getElementById("km-location-status-compact-coords");
+    var compactCoordsVal = document.getElementById("km-location-status-compact-coords-val");
+
+    if (compactBadge && compactText && compactIcon) {
+      if (!addressValue) {
+        compactBadge.className = "km-location-status-compact__badge km-location-status-compact__badge--danger";
+        compactIcon.className = "fas fa-exclamation-triangle";
+        compactText.textContent = "Нужен адрес";
+      } else if (!hasCoordinates) {
+        compactBadge.className = "km-location-status-compact__badge km-location-status-compact__badge--warn";
+        compactIcon.className = "fas fa-map-pin";
+        compactText.textContent = "Нет координат";
+      } else {
+        compactBadge.className = "km-location-status-compact__badge km-location-status-compact__badge--good";
+        compactIcon.className = "fas fa-check-circle";
+        compactText.textContent = "На карте";
+      }
+    }
+
+    if (compactCoords && compactCoordsVal) {
+      if (hasCoordinates) {
+        compactCoords.style.display = "inline-flex";
+        compactCoordsVal.textContent = formatCoordinate(lat) + ", " + formatCoordinate(lng);
+      } else {
+        compactCoords.style.display = "none";
+        compactCoordsVal.textContent = "";
+      }
+    }
+
     if (state.coordBadge) {
       state.coordBadge.className = "km-location-badge km-location-badge--" + (hasCoordinates ? "good" : "warn");
       state.coordBadge.textContent = hasCoordinates ? state.coordFilledLabel : state.coordMissingLabel;
@@ -158,6 +190,10 @@
 
   function setToggleState(state, expanded) {
     state.mapPanel.hidden = !expanded;
+    var coordGrid = state.root.querySelector(".km-place-location__coord-grid");
+    if (coordGrid) {
+      coordGrid.style.display = expanded ? "grid" : "none";
+    }
     if (state.toggleButton) {
       state.toggleButton.setAttribute("aria-expanded", expanded ? "true" : "false");
       var label = state.toggleButton.querySelector("span");
@@ -502,6 +538,8 @@
     bindActions(state);
     updateBadges(state);
     updateFoundAddress(state, "");
+
+    setToggleState(state, !state.mapPanel.hidden);
 
     if (!state.mapPanel.hidden) {
       initMap(state);

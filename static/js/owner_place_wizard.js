@@ -57,7 +57,7 @@
     if (!draftStatus || !message) return;
     draftStatus.textContent = message;
     draftStatus.hidden = false;
-    draftStatus.classList.remove("is-restored", "is-saved", "is-offline");
+    draftStatus.classList.remove("is-restored", "is-saved", "is-offline", "is-saving");
     if (mode) {
       draftStatus.classList.add("is-" + mode);
     }
@@ -148,7 +148,7 @@
     if (!draftStatus) return;
     draftStatus.hidden = true;
     draftStatus.textContent = "";
-    draftStatus.classList.remove("is-restored", "is-saved", "is-offline");
+    draftStatus.classList.remove("is-restored", "is-saved", "is-offline", "is-saving");
   }
 
   function saveDraftNow() {
@@ -171,6 +171,9 @@
   function scheduleDraftSave() {
     if (!draftStorage || isRestoringDraft) return;
     window.clearTimeout(draftSaveTimer);
+    const lang = document.documentElement.lang || "ru";
+    const savingText = lang === "az" ? "Yadda saxlanılır..." : (lang === "en" ? "Saving..." : "Сохранение...");
+    showDraftStatus(savingText, "saving");
     draftSaveTimer = window.setTimeout(saveDraftNow, 250);
   }
 
@@ -539,6 +542,74 @@
     });
   }
 
+  function updateTodoList() {
+    const listEl = document.getElementById("km-verification-todo-list");
+    const blockEl = document.getElementById("km-verification-todo-block");
+    if (!listEl) return;
+
+    listEl.innerHTML = "";
+    const missingItems = [];
+    const lang = document.documentElement.lang || "ru";
+    const locationLabels = {
+      region: lang === "az" ? "Region" : (lang === "en" ? "Region" : "Город / регион"),
+      district: lang === "az" ? "Rayon" : (lang === "en" ? "District" : "Район"),
+      metro: lang === "az" ? "Metro" : (lang === "en" ? "Metro" : "Метро"),
+    };
+
+    for (let i = 0; i < 4; i++) {
+      const step = steps[i];
+      if (!step) continue;
+
+      const requiredList = parseList(step.dataset.ownerStepRequiredFields);
+      requiredList.forEach(function (name) {
+        if (!isFieldFilledByName(name)) {
+          const field = getField(name);
+          const wrapper = field ? field.closest(".owner-form-field") : null;
+          const labelEl = wrapper ? wrapper.querySelector(".owner-form-label") : null;
+          let labelText = labelEl ? labelEl.textContent.trim().replace(/\*$/, "").trim() : name;
+          labelText = locationLabels[name] || labelText;
+          if (!labelText) labelText = name;
+          missingItems.push({ name: name, label: labelText, stepIndex: i + 1 });
+        }
+      });
+
+      const requiredGroups = parseGroups(step.dataset.ownerStepRequiredGroups);
+      requiredGroups.forEach(function (groupNames) {
+        let isAnyFilled = false;
+        groupNames.forEach(function (name) {
+          if (isFieldFilledByName(name)) {
+            isAnyFilled = true;
+          }
+        });
+        if (!isAnyFilled) {
+          const labelText = form.dataset.ownerLocationGroupLabel || (document.documentElement.lang === "az" ? "Rayon və ya metro" : (document.documentElement.lang === "en" ? "District or Metro" : "Район или метро"));
+          missingItems.push({ name: groupNames.join("|"), label: labelText, stepIndex: i + 1 });
+        }
+      });
+    }
+
+    if (missingItems.length > 0) {
+      if (blockEl) blockEl.style.display = "block";
+      missingItems.forEach(function (item) {
+        const li = document.createElement("li");
+        li.className = "km-verification-todo-item";
+        
+        const link = document.createElement("a");
+        link.href = "#";
+        link.textContent = item.label;
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          updateWizard(item.stepIndex);
+        });
+
+        li.appendChild(link);
+        listEl.appendChild(li);
+      });
+    } else {
+      if (blockEl) blockEl.style.display = "none";
+    }
+  }
+
   function updateFinalSummary() {
     const photoSummary = form.querySelector("[data-owner-summary-photo]");
     const gallerySummary = form.querySelector("[data-owner-summary-gallery]");
@@ -573,6 +644,136 @@
         ? (form.dataset.ownerSummaryNoteFilled || "Comment added")
         : (form.dataset.ownerSummaryNoteEmpty || "");
     }
+
+    // Update Step 5 Card Preview
+    const previewImgEl = document.getElementById("km-preview-image");
+    const previewPlaceholderEl = document.getElementById("km-preview-image-placeholder");
+
+    if (previewImgEl) {
+      if (previewImgEl._tempUrl) {
+        URL.revokeObjectURL(previewImgEl._tempUrl);
+        previewImgEl._tempUrl = null;
+      }
+      const files = getSelectedFiles(photoField);
+      if (files.length && files[0].type.startsWith("image/")) {
+        const url = URL.createObjectURL(files[0]);
+        previewImgEl._tempUrl = url;
+        previewImgEl.src = url;
+        previewImgEl.style.display = "block";
+        if (previewPlaceholderEl) previewPlaceholderEl.style.display = "none";
+      } else {
+        const uploader = photoField ? photoField.closest("[data-file-uploader]") : null;
+        const currentPreview = uploader ? uploader.querySelector(".owner-file-uploader-current-preview img") : null;
+        if (currentPreview && currentPreview.src) {
+          previewImgEl.src = currentPreview.src;
+          previewImgEl.style.display = "block";
+          if (previewPlaceholderEl) previewPlaceholderEl.style.display = "none";
+        } else {
+          previewImgEl.style.display = "none";
+          if (previewPlaceholderEl) previewPlaceholderEl.style.display = "flex";
+        }
+      }
+    }
+
+    const catEl = document.getElementById("km-preview-cat");
+    if (catEl) {
+      const categorySelect = getField("category");
+      const categoryText = categorySelect ? categorySelect.options[categorySelect.selectedIndex]?.text : "";
+      catEl.textContent = categoryText || "-";
+    }
+
+    const titleEl = document.getElementById("km-preview-title");
+    if (titleEl) {
+      const lang = document.documentElement.lang || "ru";
+      const nameField = getField("name_" + lang) || getField("name_az") || getField("name_ru") || getField("name_en");
+      titleEl.textContent = (nameField ? nameField.value : "") || "-";
+    }
+
+    const ageEl = document.getElementById("km-preview-age");
+    if (ageEl) {
+      const ageFrom = getField("age_from")?.value;
+      const ageTo = getField("age_to")?.value;
+      if (ageFrom && ageTo) {
+        const label = document.documentElement.lang === "az" ? "yaş" : (document.documentElement.lang === "en" ? "years" : "лет");
+        ageEl.textContent = `${ageFrom}-${ageTo} ${label}`;
+      } else if (ageFrom) {
+        const label = document.documentElement.lang === "az" ? "yaşdan" : (document.documentElement.lang === "en" ? "years+" : "лет+");
+        ageEl.textContent = `${ageFrom} ${label}`;
+      } else {
+        ageEl.textContent = "-";
+      }
+    }
+
+    const priceEl = document.getElementById("km-preview-price");
+    if (priceEl) {
+      const priceFrom = getField("price_from")?.value;
+      const priceTo = getField("price_to")?.value;
+      if (priceFrom && priceTo) {
+        priceEl.textContent = `${priceFrom}-${priceTo} AZN`;
+      } else if (priceFrom) {
+        priceEl.textContent = `${priceFrom} AZN`;
+      } else {
+        priceEl.textContent = "-";
+      }
+    }
+
+    const locEl = document.getElementById("km-preview-loc-text");
+    if (locEl) {
+      const address = getField("address")?.value;
+      locEl.textContent = address || "-";
+    }
+
+    const phoneContainer = document.getElementById("km-preview-phone");
+    const phoneText = document.getElementById("km-preview-phone-text");
+    if (phoneContainer && phoneText) {
+      const phone = getField("phone1")?.value || getField("phone2")?.value;
+      if (phone) {
+        phoneText.textContent = phone;
+        phoneContainer.style.display = "block";
+      } else {
+        phoneContainer.style.display = "none";
+      }
+    }
+
+    // Verification badges
+    const badgeCoords = document.getElementById("km-status-badge-coords");
+    const badgePhotos = document.getElementById("km-status-badge-photos");
+    const lang = document.documentElement.lang || "ru";
+
+    if (badgeCoords) {
+      const latVal = getField("lat")?.value;
+      const lngVal = getField("lng")?.value;
+      const addressVal = getField("address")?.value;
+
+      badgeCoords.className = "km-verification-badge";
+      if (latVal && lngVal && addressVal) {
+        badgeCoords.classList.add("is-success");
+        badgeCoords.textContent = lang === "az" ? "Doldurulub" : (lang === "en" ? "Filled" : "Заполнено");
+      } else if (addressVal) {
+        badgeCoords.classList.add("is-warning");
+        badgeCoords.textContent = lang === "az" ? "Xəritədə tap" : (lang === "en" ? "Find on map" : "Найти на карте");
+      } else if (latVal && lngVal) {
+        badgeCoords.classList.add("is-warning");
+        badgeCoords.textContent = lang === "az" ? "Ünvan yoxdur" : (lang === "en" ? "No address" : "Нужен адрес");
+      } else {
+        badgeCoords.classList.add("is-error");
+        badgeCoords.textContent = lang === "az" ? "Boşdur" : (lang === "en" ? "Empty" : "Не заполнено");
+      }
+    }
+
+    if (badgePhotos) {
+      badgePhotos.className = "km-verification-badge";
+      if (isPhotoFieldFilled(photoField)) {
+        badgePhotos.classList.add("is-success");
+        badgePhotos.textContent = lang === "az" ? "Əlavə edilib" : (lang === "en" ? "Added" : "Добавлено");
+      } else {
+        badgePhotos.classList.add("is-error");
+        badgePhotos.textContent = lang === "az" ? "Əsas şəkil yoxdur" : (lang === "en" ? "No main photo" : "Нет главного фото");
+      }
+    }
+
+    // Remaining fields checklist
+    updateTodoList();
   }
 
   function syncLocationCascading() {
@@ -743,7 +944,7 @@
       const target = Number(tab.dataset.ownerStepTarget || "1");
       const step = steps[target - 1];
       const state = getStepState(step);
-      const isUnlocked = target <= reachableStep;
+      const isUnlocked = target <= reachableStep || target === steps.length;
       const indicator = tab.querySelector("[data-owner-step-indicator]");
 
       tab.classList.toggle("is-active", target === currentStep);
@@ -875,15 +1076,34 @@
     const files = getSelectedFiles(input);
     const isSingleUploader = uploader.dataset.uploadMode === "single";
 
+    const hasCurrentPreview = !!uploader.querySelector(".owner-file-uploader-current-preview");
+    const clearCheckbox = uploader.querySelector(".owner-image-clear-checkbox");
+    const hasInitial = hasCurrentPreview && !(clearCheckbox && clearCheckbox.checked);
+
     if (!files.length) {
       meta.textContent = emptyMessage;
       uploader.classList.remove("is-selected");
       if (list) {
-        list.hidden = true;
-        list.innerHTML = "";
+        if (!hasInitial) {
+          list.hidden = false;
+          list.classList.add("is-empty");
+          const lang = document.documentElement.lang || "ru";
+          const emptyText = lang === "az" ? "Şəkillər əlavə olunmayıb" : (lang === "en" ? "No photos added yet" : "Фотографии не добавлены");
+          list.innerHTML = '<div class="owner-file-uploader-empty-state">' +
+            '<svg viewBox="0 0 24 24" fill="none" style="width:24px;height:24px;color:#a0aeb1;margin-bottom:4px;"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '<span>' + emptyText + '</span>' +
+          '</div>';
+        } else {
+          list.hidden = true;
+          list.innerHTML = "";
+          list.classList.remove("is-empty");
+        }
         list.classList.remove("owner-file-uploader-list--single");
       }
       return;
+    }
+    if (list) {
+      list.classList.remove("is-empty");
     }
 
     uploader.classList.add("is-selected");
@@ -986,7 +1206,23 @@
     event.preventDefault();
   });
 
-  form.addEventListener("submit", function () {
+  form.addEventListener("submit", function (event) {
+    const submitter = event.submitter || document.activeElement;
+    const isDraft = submitter && (submitter.value === "save_draft" || (submitter.name === "form_action" && submitter.value === "save_draft"));
+    
+    if (!isDraft) {
+      for (let i = 1; i <= 4; i++) {
+        const step = steps[i - 1];
+        const state = getStepState(step);
+        if (!state.complete) {
+          event.preventDefault();
+          updateWizard(i);
+          focusFirstProblem(step);
+          return;
+        }
+      }
+    }
+
     form.querySelectorAll('input[type="file"][multiple]').forEach(function (input) {
       if (input._accumulatedFiles) {
         input.files = input._accumulatedFiles.files;
@@ -1098,7 +1334,7 @@
     if (stepTab) {
       event.preventDefault();
       const target = Number(stepTab.dataset.ownerStepTarget || "1");
-      if (target <= maxReachableStep()) {
+      if (target <= maxReachableStep() || target === steps.length) {
         updateWizard(target);
         scheduleDraftSave();
       }
@@ -1184,8 +1420,79 @@
     scheduleDraftSave();
   }, true);
 
+  function initDragAndDrop(uploader) {
+    const dropZone = uploader.querySelector(".owner-file-uploader-drop");
+    const input = uploader.querySelector("[data-upload-input]");
+    if (!dropZone || !input) return;
+
+    ["dragenter", "dragover"].forEach(function (eventName) {
+      dropZone.addEventListener(eventName, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("is-dragover");
+      }, false);
+    });
+
+    ["dragleave", "drop"].forEach(function (eventName) {
+      dropZone.addEventListener(eventName, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("is-dragover");
+      }, false);
+    });
+
+    dropZone.addEventListener("drop", function (e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (!files || !files.length) return;
+
+      if (input.multiple) {
+        const inputFiles = input._accumulatedFiles ? input._accumulatedFiles.files : input.files;
+        const newDt = new DataTransfer();
+        Array.from(inputFiles).forEach(function (file) {
+          newDt.items.add(file);
+        });
+        Array.from(files).forEach(function (file) {
+          let exists = false;
+          for (let i = 0; i < newDt.files.length; i++) {
+            if (newDt.files[i].name === file.name && newDt.files[i].size === file.size) {
+              exists = true;
+            }
+          }
+          if (!exists) {
+            newDt.items.add(file);
+          }
+        });
+
+        if (newDt.files.length > 10) {
+          const dtLimited = new DataTransfer();
+          for (let i = 0; i < 10; i++) {
+            dtLimited.items.add(newDt.files[i]);
+          }
+          input._accumulatedFiles = dtLimited;
+          const lang = document.documentElement.lang || "ru";
+          alert(lang === "az" ? "Maksimum 10 şəkil icazə verilir." : (lang === "en" ? "Max 10 files allowed." : "Разрешено максимум 10 файлов."));
+        } else {
+          input._accumulatedFiles = newDt;
+        }
+        input.value = "";
+      } else {
+        const dtSingle = new DataTransfer();
+        dtSingle.items.add(files[0]);
+        input.files = dtSingle.files;
+      }
+
+      renderUploaderState(uploader);
+      updateCompletion();
+      updateFinalSummary();
+      updateWizard(currentStep);
+      scheduleDraftSave();
+    }, false);
+  }
+
   Array.from(document.querySelectorAll("[data-file-uploader]")).forEach(function (uploader) {
     renderUploaderState(uploader);
+    initDragAndDrop(uploader);
   });
 
   restoreDraftState();

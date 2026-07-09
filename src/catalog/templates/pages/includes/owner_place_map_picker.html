@@ -45,13 +45,16 @@
   </div>
 
   <div class="owner-map-picker-toolbar">
-    <span class="owner-map-picker-status" data-map-status>
-      {% if form.lat.value and form.lng.value %}
-        {% if CURRENT_LANGUAGE == "az" %}Seçilmiş nöqtə: {{ form.lat.value }}, {{ form.lng.value }}{% elif CURRENT_LANGUAGE == "en" %}Selected point: {{ form.lat.value }}, {{ form.lng.value }}{% else %}{% blocktrans with lat=form.lat.value lng=form.lng.value %}Выбрана точка: {{ lat }}, {{ lng }}{% endblocktrans %}{% endif %}
-      {% else %}
-        {% if CURRENT_LANGUAGE == "az" %}Xəritədə nöqtə seçilməyib.{% elif CURRENT_LANGUAGE == "en" %}No map point selected.{% else %}{% trans "Точка на карте не выбрана." %}{% endif %}
-      {% endif %}
-    </span>
+    <div class="owner-map-picker-status-wrap">
+      <span class="owner-map-picker-status" data-map-status>
+        {% if form.lat.value and form.lng.value %}
+          {% if CURRENT_LANGUAGE == "az" %}Seçilmiş nöqtə: {{ form.lat.value }}, {{ form.lng.value }}{% elif CURRENT_LANGUAGE == "en" %}Selected point: {{ form.lat.value }}, {{ form.lng.value }}{% else %}{% blocktrans with lat=form.lat.value lng=form.lng.value %}Выбрана точка: {{ lat }}, {{ lng }}{% endblocktrans %}{% endif %}
+        {% else %}
+          {% if CURRENT_LANGUAGE == "az" %}Xəritədə nöqtə seçilməyib.{% elif CURRENT_LANGUAGE == "en" %}No map point selected.{% else %}{% trans "Точка на карте не выбрана." %}{% endif %}
+        {% endif %}
+      </span>
+      <span class="km-map-geocoding-status" data-geocoding-status-badge></span>
+    </div>
     <span class="owner-map-picker-hint meta">{% if CURRENT_LANGUAGE == "az" %}Markeri sürüşdürmək olar.{% elif CURRENT_LANGUAGE == "en" %}The marker can be dragged.{% else %}{% trans "Маркер можно перетаскивать." %}{% endif %}</span>
   </div>
 

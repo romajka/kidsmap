@@ -801,6 +801,7 @@ class UserSetPasswordForm(SetPasswordForm):
 
 class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     draft_save_only = False
+    require_location_region = False
 
     region = forms.ChoiceField(
         label=_("Город / регион"),
@@ -963,6 +964,24 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
         instance = kwargs.get("instance")
         data = kwargs.get("data")
+        if data is not None:
+            from catalog.services.locations import normalize_to_key
+
+            mutable_data = data.copy()
+            region_value = (mutable_data.get("region") or "").strip()
+            district_value = (mutable_data.get("district") or "").strip()
+            metro_value = (mutable_data.get("metro") or "").strip()
+            normalized_district = normalize_to_key(district_value)
+
+            if district_value and normalized_district != district_value:
+                mutable_data["district"] = normalized_district
+                district_value = normalized_district
+
+            if not region_value and (district_value.startswith("baku_") or metro_value):
+                mutable_data["region"] = "baku"
+
+            kwargs["data"] = mutable_data
+            data = mutable_data
         if data is not None and instance is not None and getattr(instance, "pk", None):
             missing_lat = "lat" not in data
             missing_lng = "lng" not in data
@@ -991,6 +1010,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 qs = Subcategory.objects.filter(Q(is_active=True) | Q(id=instance.subcategory_id))
             self.fields["subcategory"].queryset = qs.select_related("category").order_by("category__order", "order", "name_ru", "name")
             self.fields["subcategory"].label_from_instance = lambda obj: obj.name_i18n(get_language())
+            self._coerce_bound_subcategory_value()
 
         self.fields["temporary_start"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
         self.fields["temporary_end"].input_formats = ["%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M"]
@@ -1088,14 +1108,22 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         from catalog.services.locations import configure_location_choices
         configure_location_choices(self)
 
-        metro_options = sort_translated_values(BAKU_METRO_STATIONS)
+        default_metro_options = sort_translated_values(BAKU_METRO_STATIONS)
+        metro_options = default_metro_options
         try:
             content_settings = CatalogContentSettings.get_solo()
             metro_options = sort_translated_values(content_settings.metro_stations())
         except Exception:
             pass
 
-        metro_current = (self.initial.get("metro") or getattr(self.instance, "metro", "") or "").strip()
+        metro_current = (
+            (self.data.get("metro") if getattr(self, "is_bound", False) else "")
+            or self.initial.get("metro")
+            or getattr(self.instance, "metro", "")
+            or ""
+        ).strip()
+        if metro_current and metro_current not in metro_options and metro_current not in default_metro_options:
+            metro_current = ""
 
         self.fields["metro"].choices = self._build_location_choices(
             options=metro_options,
@@ -1121,6 +1149,29 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             choices.insert(1, (current_value, translate(current_value)))
 
         return choices
+
+    def _coerce_bound_subcategory_value(self):
+        if not getattr(self, "is_bound", False):
+            return
+        raw_value = str(self.data.get("subcategory") or "").strip()
+        if not raw_value or raw_value.isdigit():
+            return
+
+        category_id = str(self.data.get("category") or "").strip()
+        lookup = (
+            Q(name__iexact=raw_value)
+            | Q(name_ru__iexact=raw_value)
+            | Q(name_az__iexact=raw_value)
+            | Q(name_en__iexact=raw_value)
+        )
+        queryset = Subcategory.objects.filter(is_active=True).filter(lookup)
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        subcategory = queryset.order_by("order", "id").first()
+
+        mutable_data = self.data.copy()
+        mutable_data["subcategory"] = str(subcategory.pk) if subcategory else ""
+        self.data = mutable_data
 
     def clean(self):
         cleaned = super().clean()
@@ -1202,12 +1253,14 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def clean_phone1(self):
         value = self.cleaned_data.get("phone1") or ""
-        if self.draft_save_only and not value:
+        if not value:
             return ""
-        return _validate_azerbaijan_phone(value, required=not self.draft_save_only)
+        return _validate_azerbaijan_phone(value, required=False)
 
 
 class OwnerPlaceCreateForm(OwnerPlaceEditForm):
+    require_location_region = True
+
     moderation_note = forms.CharField(
         label=_("Комментарий для модерации"),
         required=False,
@@ -1281,6 +1334,15 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
                 break
 
         return cleaned
+
+    def clean_phone1(self):
+        value = self.cleaned_data.get("phone1") or ""
+        if (self.draft_save_only or self.geocoding_check_only) and not value:
+            return ""
+        return _validate_azerbaijan_phone(
+            value,
+            required=not self.draft_save_only and not self.geocoding_check_only,
+        )
 
     def save(self, commit=True):
         place = super().save(commit=False)

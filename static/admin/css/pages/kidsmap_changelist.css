@@ -78,6 +78,12 @@
   color: #fff !important;
 }
 
+.km-custom-changelist .place-admin-dashboard__add-link--secondary {
+  background: #fff;
+  border-color: var(--km-admin-border);
+  color: var(--km-admin-text) !important;
+}
+
 .km-custom-changelist .place-admin-dashboard__add-link:hover,
 .km-custom-changelist .place-admin-dashboard__add-link:focus-visible,
 .km-custom-changelist .place-admin-dashboard__search-submit:hover,
@@ -560,78 +566,127 @@
 }
 
 .km-custom-changelist .place-admin-dashboard__bulk-bar {
-  display: grid;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--km-admin-panel-bg-soft);
-  border: 1px solid var(--km-admin-border);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.055);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #dfe7e2;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.045);
 }
 
 .km-custom-changelist .place-admin-dashboard__bulk-summary {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
+  min-width: 250px;
 }
 
-.km-custom-changelist .place-admin-dashboard__bulk-count-label {
-  color: var(--km-admin-text);
-  font-size: 13px;
-  font-weight: 700;
+.km-custom-changelist .place-admin-dashboard__selection-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 10px 0 8px;
+  border-radius: 12px;
+  border: 1px solid #d7e5dd;
+  background: #f7fbf8;
 }
 
-.km-custom-changelist .place-admin-dashboard__bulk-count {
-  font-size: 26px;
-  line-height: 1;
-  color: var(--km-admin-text);
-}
-
-.km-custom-changelist .place-admin-dashboard__bulk-text {
-  color: var(--km-admin-text);
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0.85;
-}
-
-.km-custom-changelist .place-admin-dashboard__bulk-help {
+.km-custom-changelist .place-admin-dashboard__selection-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  margin-left: auto;
-  border: 1px solid #d6dde5;
-  border-radius: 999px;
-  color: #6b7280;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: #e8f6ee;
+  color: #0f8f52;
+  font-size: 13px;
+}
+
+.km-custom-changelist .place-admin-dashboard__bulk-count-label {
+  color: #475569;
   font-size: 12px;
-  font-weight: 800;
-  cursor: help;
+  font-weight: 750;
+}
+
+.km-custom-changelist .place-admin-dashboard__bulk-count {
+  min-width: 20px;
+  font-size: 22px;
+  line-height: 1;
+  color: #0f172a;
+  text-align: right;
+}
+
+.km-custom-changelist .place-admin-dashboard__bulk-text {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 650;
 }
 
 .km-custom-changelist .place-admin-dashboard__bulk-controls {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px 14px;
+  justify-content: flex-end;
+  gap: 12px;
   flex-wrap: wrap;
+  flex: 1 1 auto;
 }
 
 .km-custom-changelist .place-admin-dashboard__bulk-selection,
 .km-custom-changelist .place-admin-dashboard__bulk-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+}
+
+.km-custom-changelist .place-admin-dashboard__bulk-selection {
+  padding-right: 12px;
+  border-right: 1px solid #e2e8f0;
+}
+
+.km-custom-changelist .place-admin-dashboard__selection-btn {
+  min-height: 36px;
+  padding: 0 11px;
+  border-radius: 10px;
+  background: #fff;
+  color: #334155;
+  font-weight: 750;
+  gap: 7px;
+}
+
+.km-custom-changelist .place-admin-dashboard__selection-btn i {
+  color: #64748b;
+  font-size: 12px;
 }
 
 .km-custom-changelist .place-admin-dashboard__bulk-action {
-  min-height: 40px;
-  padding: 0 15px;
+  min-height: 36px;
+  padding: 0 11px;
+  border-radius: 10px;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s, transform 0.15s;
+}
+
+.km-custom-changelist .place-admin-dashboard__bulk-action i {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.km-custom-changelist .place-admin-dashboard__bulk-action:not([disabled]):hover,
+.km-custom-changelist .place-admin-dashboard__bulk-action:not([disabled]):focus-visible {
+  transform: translateY(-1px);
 }
 
 .km-custom-changelist .place-admin-dashboard__bulk-action[disabled] {
-  opacity: 0.62;
+  opacity: 0.42;
   cursor: not-allowed;
+  filter: grayscale(0.25);
 }
 
 .km-custom-changelist .place-admin-dashboard__bulk-action--good {
@@ -769,6 +824,51 @@
   font-weight: 700;
 }
 
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-category-cell {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  min-width: 130px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-category-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  object-fit: contain;
+  padding: 5px;
+  background: #eef8f2;
+  border: 1px solid #d5eadc;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-category-icon--fallback {
+  color: #0f8f52;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-address {
+  display: -webkit-box;
+  max-width: 260px;
+  overflow: hidden;
+  color: var(--km-admin-text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-address--muted,
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-address--empty {
+  color: #64748b;
+  font-weight: 600;
+}
+
 @media (max-width: 1280px) {
   .km-custom-changelist .place-admin-dashboard__stats {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -835,7 +935,8 @@
 
 .km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-badges {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 6px;
   align-items: flex-start;
 }
@@ -851,6 +952,67 @@
   font-weight: 700;
   white-space: nowrap;
   letter-spacing: 0.02em;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-status-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-width: 170px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-status-note {
+  display: block;
+  margin-top: 5px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-map-state {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 13px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-map-state--good {
+  background: #edf8f1;
+  border-color: #bfe2cc;
+  color: #168246;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-map-state--bad {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #c2410c;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 118px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 25px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-stats i {
+  color: #0f8f52;
+  font-size: 11px;
 }
 
 .km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-badge--good {
@@ -887,6 +1049,53 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-place-row-actions--icons {
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid #d6dde5;
+  background: #fff;
+  color: #475569;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-icon-action:hover,
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-icon-action:focus-visible {
+  transform: translateY(-1px);
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-icon-action--edit {
+  color: #008f55;
+  border-color: #bfe2cc;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-icon-action--open {
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-icon-action--restore {
+  color: #168246;
+  border-color: #bfe2cc;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-icon-action--delete {
+  color: #be123c;
+  border-color: #fecdd3;
 }
 
 .km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-action {
@@ -979,6 +1188,111 @@
 .km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-action-menu__hint {
   color: #6b7280;
   font-weight: 600;
+}
+
+.km-place-trash-changelist .place-admin-dashboard {
+  gap: 14px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__header {
+  align-items: center;
+  padding: 6px 0 2px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__title {
+  color: #334155;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__subtitle {
+  max-width: 640px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__search-panel {
+  padding: 12px 14px;
+  border-color: #d7dee8;
+  background: #f8fafc;
+  box-shadow: none;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__row-search--unified {
+  gap: 10px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__search-combined {
+  flex-basis: 420px;
+  min-height: 42px;
+  border-radius: 12px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__search-submit {
+  min-height: 36px;
+  border-radius: 9px;
+  background: #475569;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__search-submit:hover {
+  background: #334155;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__row-tabs {
+  padding-top: 10px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__quick-filter.is-active {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-color: #d7dee8;
+  background: #fff;
+  box-shadow: none;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__bulk-summary {
+  gap: 10px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__bulk-help {
+  display: none;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__bulk-count {
+  font-size: 22px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__bulk-controls {
+  justify-content: flex-end;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__bulk-action--good {
+  background: #edf8f1;
+  border-color: #a7d9ba;
+  color: #17663d;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__table-wrap {
+  border: 1px solid #d7dee8;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__table-wrap #result_list {
+  min-width: 840px;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__table-wrap #result_list thead th {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.km-place-trash-changelist .place-admin-dashboard__table-wrap #result_list tbody tr:hover {
+  background: #f8fafc;
 }
 
 .km-custom-changelist .km-changelist-pagination {

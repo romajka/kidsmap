@@ -66,42 +66,48 @@
       {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
 
       <div class="km-place-form-shell">
-        <header class="km-place-form-hero">
-          <div class="km-place-form-hero__copy">
+        <header class="km-place-form-header-compact">
+          <div class="km-place-form-header-left">
             <p class="km-place-form-hero__eyebrow">
               {% if add %}{% translate "Новая карточка" %}{% else %}{% translate "Редактирование карточки" %}{% endif %}
             </p>
-            <h1 class="km-place-form-hero__title">
-              {% if add %}
-                {% translate "Добавить место" %}
-              {% else %}
-                {{ original|default:km_place_form_summary.title }}
-              {% endif %}
-            </h1>
-            <p class="km-place-form-hero__subtitle">
-              {% blocktranslate trimmed %}
-                Соберите карточку по шагам: основное, тексты, цены, локация и медиа. Служебные поля вынесены ниже, чтобы не мешать основному сценарию.
-              {% endblocktranslate %}
+            <div class="km-place-form-title-row">
+              <h1 class="km-place-form-title-compact">
+                {% if add %}
+                  {% translate "Добавить место" %}
+                {% else %}
+                  {{ original|default:km_place_form_summary.title }}
+                {% endif %}
+              </h1>
+              <div class="km-place-form-status-badges-compact">
+                <span class="km-badge-compact km-badge-compact--{{ km_place_form_summary.visibility.tone }}">
+                  {{ km_place_form_summary.visibility.label }}
+                </span>
+                <span class="km-badge-compact km-badge-compact--{{ km_place_form_summary.readiness_tone }}" data-progress-readiness>
+                  {{ km_place_form_summary.readiness_label }}
+                </span>
+                <span id="km-header-coords-badge" class="km-badge-compact km-badge-compact--{% if adminform.form.instance.has_coordinates %}good{% else %}warn{% endif %}">
+                  {% if adminform.form.instance.has_coordinates %}{% translate "Координаты указаны" %}{% else %}{% translate "Нужны координаты" %}{% endif %}
+                </span>
+              </div>
+            </div>
+            <p class="km-place-form-subtitle-compact">
+              {% translate "Заполните ключевые поля по шагам и проверьте карточку перед публикацией." %}
             </p>
           </div>
-          <div class="km-place-form-hero__progress">
-            <div
-              class="km-place-progress-ring"
-              aria-hidden="true"
-              style="--km-place-progress: {{ km_place_form_summary.completion_pct }};"
-              data-progress-ring
-            >
-              <span data-progress-pct>{{ km_place_form_summary.completion_pct }}%</span>
-            </div>
-            <div class="km-place-form-hero__progress-copy">
-              <strong>{% translate "Заполненность" %}</strong>
-              <span data-progress-hero-copy>
-                {% translate "Готово" %}
-                <span data-progress-done>{{ km_place_form_summary.completed }}</span>
-                {% translate "из" %}
-                <span data-progress-total>{{ km_place_form_summary.total }}</span>
-                {% translate "ключевых пунктов" %}
-              </span>
+          
+          <div class="km-place-form-header-right">
+            <div class="km-place-progress-compact">
+              <div class="km-place-progress-text">
+                <span class="label">{% translate "Прогресс:" %}</span>
+                <strong class="percentage" data-progress-pct>{{ km_place_form_summary.completion_pct }}%</strong>
+                <span class="counts">
+                  (<span data-progress-done>{{ km_place_form_summary.completed }}</span>/<span data-progress-total>{{ km_place_form_summary.total }}</span>)
+                </span>
+              </div>
+              <div class="km-place-progress-bar-wrap">
+                <div class="km-place-progress-bar-fill" style="width: {{ km_place_form_summary.completion_pct }}%;" data-progress-bar></div>
+              </div>
             </div>
           </div>
         </header>
@@ -138,19 +144,57 @@
                   data-step-tooltip="{{ section.description }}"
                   aria-label="{{ section.step }}. {{ section.title }}. {{ section.description }}"
                 >
-                  <span class="km-place-form-step__index">{{ section.step }}</span>
+                  <span class="km-place-form-step__index">
+                    {% if section.id == 'basics' %}
+                      <i class="fas fa-cog"></i>
+                    {% elif section.id == 'copy' %}
+                      <i class="fas fa-align-left"></i>
+                    {% elif section.id == 'pricing' %}
+                      <i class="fas fa-money-bill-wave"></i>
+                    {% elif section.id == 'location' %}
+                      <i class="fas fa-map-marker-alt"></i>
+                    {% elif section.id == 'media' %}
+                      <i class="fas fa-images"></i>
+                    {% endif %}
+                  </span>
                   <span class="km-place-form-step__body" title="{{ section.description }}">
                     <strong>{{ section.title }}</strong>
                   </span>
                 </a>
               {% endfor %}
+              <a
+                href="#verification"
+                class="km-place-form-step"
+                data-place-step-link
+                data-step-tooltip="{% translate 'Проверка карточки перед публикацией' %}"
+                aria-label="06. {% translate 'Проверка' %}. {% translate 'Проверка карточки перед публикацией' %}"
+              >
+                <span class="km-place-form-step__index">
+                  <i class="fas fa-clipboard-check"></i>
+                </span>
+                <span class="km-place-form-step__body" title="{% translate 'Проверка карточки перед публикацией' %}">
+                  <strong>{% translate "Проверка" %}</strong>
+                </span>
+              </a>
             </nav>
 
             <div class="km-place-form-sections">
               {% for section in km_place_form_sections %}
                 <section id="{{ section.id }}" class="km-place-section" data-place-section>
                   <header class="km-place-section__head">
-                    <span class="km-place-section__step">{{ section.step }}</span>
+                    <span class="km-place-section__step">
+                      {% if section.id == 'basics' %}
+                        <i class="fas fa-cog"></i>
+                      {% elif section.id == 'copy' %}
+                        <i class="fas fa-align-left"></i>
+                      {% elif section.id == 'pricing' %}
+                        <i class="fas fa-money-bill-wave"></i>
+                      {% elif section.id == 'location' %}
+                        <i class="fas fa-map-marker-alt"></i>
+                      {% elif section.id == 'media' %}
+                        <i class="fas fa-images"></i>
+                      {% endif %}
+                    </span>
                     <div>
                       <h2 class="km-place-section__title">{{ section.title }}</h2>
                       <p class="km-place-section__description">{{ section.description }}</p>
@@ -169,6 +213,135 @@
                   </div>
                 </section>
               {% endfor %}
+
+              <!-- Шаг 6: Проверка -->
+              <section id="verification" class="km-place-section km-place-section--verification" data-place-section>
+                <header class="km-place-section__head">
+                  <span class="km-place-section__step"><i class="fas fa-clipboard-check"></i></span>
+                  <div>
+                    <h2 class="km-place-section__title">{% translate "Проверка" %}</h2>
+                    <p class="km-place-section__description">{% translate "Финальный шаг: просмотрите внешний вид карточки и проверьте заполнение обязательных полей." %}</p>
+                  </div>
+                </header>
+                <div class="km-place-section__body">
+                  <div class="km-verification-grid">
+                    <!-- Left: Card Preview -->
+                    <div class="km-verification-preview-col">
+                      <h3 class="km-verification-subtitle">{% translate "Превью карточки места" %}</h3>
+                      
+                      <!-- Place Card Mockup -->
+                      <article class="km-preview-card">
+                        <div class="km-preview-card__media">
+                          <img id="km-preview-img" src="" alt="" class="km-preview-card__img" style="display: none;">
+                          <div id="km-preview-img-placeholder" class="km-preview-card__img-placeholder">
+                            <i class="fas fa-camera"></i>
+                            <span>{% translate "Нет фото" %}</span>
+                          </div>
+                          <div class="km-preview-card__category" id="km-preview-category" style="background-color: #f3f4f6; color: #6b7280;">
+                            {% translate "Категория не выбрана" %}
+                          </div>
+                          <div class="km-preview-card__badges">
+                            <span id="km-preview-badge-verified" class="km-preview-badge km-preview-badge--verified" style="display: none;" title="{% translate 'Проверено' %}"><i class="fas fa-check-circle"></i></span>
+                            <span id="km-preview-badge-temporary" class="km-preview-badge km-preview-badge--temp" style="display: none;" title="{% translate 'Временное' %}"><i class="fas fa-calendar-alt"></i></span>
+                          </div>
+                        </div>
+                        <div class="km-preview-card__body">
+                          <h4 class="km-preview-card__title" id="km-preview-title">{% translate "Название места" %}</h4>
+                          
+                          <div class="km-preview-card__tags">
+                            <span class="km-preview-tag">
+                              <span class="label">{% translate "Возраст" %}</span>
+                              <span class="value" id="km-preview-age">—</span>
+                            </span>
+                            <span class="km-preview-tag" id="km-preview-price-tag">
+                              <span class="value" id="km-preview-price">—</span>
+                            </span>
+                          </div>
+                          
+                          <div class="km-preview-card__rating">
+                            <span class="stars">★ 5.0</span>
+                            <span class="count">(0)</span>
+                          </div>
+                          
+                          <p class="km-preview-card__address">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="km-preview-address">{% translate "Адрес не указан" %}</span>
+                          </p>
+                          
+                          <div class="km-preview-card__footer">
+                            <span class="km-preview-card__btn">{% translate "Подробнее" %}</span>
+                          </div>
+                        </div>
+                      </article>
+                    </div>
+                    
+                    <!-- Right: Checklist and Statuses -->
+                    <div class="km-verification-status-col">
+                      <h3 class="km-verification-subtitle">{% translate "Статусы готовности" %}</h3>
+                      
+                      <div class="km-verification-statuses">
+                        <!-- Publication Status -->
+                        <div class="km-verification-status-item">
+                          <div class="status-icon"><i class="fas fa-globe"></i></div>
+                          <div class="status-info">
+                            <strong>{% translate "Статус публикации" %}</strong>
+                            <span class="badge km-badge-compact km-badge-compact--{{ km_place_form_summary.visibility.tone }}">
+                              {{ km_place_form_summary.visibility.label }}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <!-- Coordinates Status -->
+                        <div class="km-verification-status-item" id="km-status-coordinates">
+                          <div class="status-icon"><i class="fas fa-map-marked-alt"></i></div>
+                          <div class="status-info">
+                            <strong>{% translate "Статус координат" %}</strong>
+                            <span class="badge km-badge-compact" id="km-status-coordinates-badge">
+                              <!-- Will be updated by JS -->
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <!-- Photos Status -->
+                        <div class="km-verification-status-item" id="km-status-photo">
+                          <div class="status-icon"><i class="fas fa-images"></i></div>
+                          <div class="status-info">
+                            <strong>{% translate "Статус фото" %}</strong>
+                            <span class="badge km-badge-compact" id="km-status-photo-badge">
+                              <!-- Will be updated by JS -->
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Unfilled Important Fields -->
+                      <div class="km-verification-checklist-box">
+                        <h3 class="km-verification-subtitle">{% translate "Обязательные поля для заполнения" %}</h3>
+                        
+                        <div class="km-verification-checklist-list" id="km-verification-checklist">
+                          <!-- Will be populated by JS with links & go-to buttons -->
+                        </div>
+                        <p class="km-verification-all-filled" id="km-verification-all-filled" style="display: none;">
+                          <i class="fas fa-check-circle"></i>
+                          {% translate "Все обязательные поля заполнены! Карточку можно публиковать." %}
+                        </p>
+                      </div>
+                      
+                      <!-- Quick Navigation Links to Steps -->
+                      <div class="km-verification-quick-nav">
+                        <h3 class="km-verification-subtitle">{% translate "Быстрый переход к шагам" %}</h3>
+                        <div class="quick-nav-buttons">
+                          <a href="#basics" class="km-quick-nav-btn"><i class="fas fa-cog"></i> <span>{% translate "Основное" %}</span></a>
+                          <a href="#copy" class="km-quick-nav-btn"><i class="fas fa-align-left"></i> <span>{% translate "Тексты" %}</span></a>
+                          <a href="#pricing" class="km-quick-nav-btn"><i class="fas fa-money-bill-wave"></i> <span>{% translate "Цена" %}</span></a>
+                          <a href="#location" class="km-quick-nav-btn"><i class="fas fa-map-marker-alt"></i> <span>{% translate "Локация" %}</span></a>
+                          <a href="#media" class="km-quick-nav-btn"><i class="fas fa-images"></i> <span>{% translate "Фото" %}</span></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
 
               {% for inline_section in km_place_inline_sections %}
                 <section id="{{ inline_section.id }}" class="km-place-section km-place-section--inline">
@@ -190,7 +363,7 @@
               {% endfor %}
 
               {% for section in km_place_secondary_sections %}
-                <details class="km-place-secondary" {% if not add %}open{% endif %}>
+                <details class="km-place-secondary">
                   <summary class="km-place-secondary__summary">
                     <span>{{ section.title }}</span>
                     <small>{{ section.description }}</small>
@@ -341,16 +514,34 @@
 
             <div class="km-place-sidebar-card km-place-sidebar-card--actions">
               <div class="km-place-sidebar-action-buttons">
-                {% submit_row %}
-                <button type="submit" name="_save_draft" class="km-btn--sidebar {% if add %}km-btn--success-alt{% else %}km-btn--draft{% endif %}">
-                  <i class="fas fa-file"></i> {% translate 'Черновик' %}
-                </button>
-                {% if not is_popup %}
-                  <button type="submit" name="_refresh_coordinates_from_address" class="km-btn--sidebar km-btn--info" title="{% translate 'Быстрое геокодирование: автоматически определить координаты на основе введённого адреса' %}">
-                    <i class="fas fa-map-marker-alt"></i> {% translate 'Координаты' %}
+                <!-- Группа 1: Основное действие -->
+                <div class="km-sidebar-action-group km-sidebar-action-group--primary">
+                  <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
+                    <i class="fas fa-save"></i> {% translate 'Сохранить и продолжить' %}
                   </button>
-                {% endif %}
-                <div class="km-place-visibility-actions">
+                </div>
+
+                <!-- Группа 2: Вторичные действия -->
+                <div class="km-sidebar-action-group km-sidebar-action-group--secondary">
+                  <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
+                    <i class="fas fa-check-double"></i> {% translate 'Сохранить и выйти' %}
+                  </button>
+                  
+                  <button type="submit" name="_save_draft" class="km-btn--sidebar km-btn--draft">
+                    <i class="fas fa-file-alt"></i> {% translate 'Сохранить как черновик' %}
+                  </button>
+                </div>
+
+                <!-- Группа 3: Служебные действия -->
+                <div class="km-sidebar-action-group km-sidebar-action-group--service">
+                  <div class="km-sidebar-group-title">{% translate 'Служебные действия' %}</div>
+                  
+                  {% if not is_popup %}
+                    <button type="submit" name="_refresh_coordinates_from_address" class="km-btn--sidebar km-btn--info" title="{% translate 'Быстрое геокодирование: автоматически определить координаты на основе введённого адреса' %}">
+                      <i class="fas fa-map-marker-alt"></i> {% translate 'Рассчитать координаты' %}
+                    </button>
+                  {% endif %}
+
                   {% if km_place_form_summary.visibility.is_public %}
                     <button type="submit" name="_unpublish_place" class="km-btn--sidebar km-btn--warn">
                       <i class="fas fa-eye-slash"></i> {% translate 'Снять с публикации' %}
@@ -361,6 +552,15 @@
                     </button>
                   {% endif %}
                 </div>
+
+                <!-- Группа 4: Опасные действия -->
+                {% if has_delete_permission and not is_popup and original %}
+                  <div class="km-sidebar-action-group km-sidebar-action-group--danger">
+                    <a href="{% url opts|admin_urlname:'delete' original.pk|admin_urlquote %}" class="km-btn--sidebar km-btn--danger-delete deletelink">
+                      <i class="fas fa-trash-alt"></i> {% translate 'Удалить место' %}
+                    </a>
+                  </div>
+                {% endif %}
               </div>
             </div>
           </aside>

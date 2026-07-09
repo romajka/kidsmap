@@ -361,7 +361,7 @@ def clean_location_fields(form, cleaned):
         )
         district = ""
 
-    if not getattr(form, "draft_save_only", False):
+    if not getattr(form, "draft_save_only", False) and getattr(form, "require_location_region", True):
         if not region:
             form.add_error("region", _("Выберите регион или город."))
         elif region == "baku":

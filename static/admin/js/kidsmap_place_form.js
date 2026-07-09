@@ -167,6 +167,44 @@
     picker.className = "km-taxonomy-picker";
     picker.setAttribute("aria-label", "Выбор категории и подкатегории");
 
+    var selectedBanner = document.createElement("div");
+    selectedBanner.className = "km-taxonomy-selected-banner";
+    selectedBanner.style.display = "none";
+
+    var bannerLeft = document.createElement("div");
+    bannerLeft.className = "km-taxonomy-selected-banner__left";
+
+    var bannerIconWrap = document.createElement("div");
+    bannerIconWrap.className = "km-taxonomy-selected-banner__icon-wrap";
+    bannerLeft.appendChild(bannerIconWrap);
+
+    var bannerText = document.createElement("div");
+    bannerText.className = "km-taxonomy-selected-banner__text";
+
+    var bannerLabel = document.createElement("span");
+    bannerLabel.className = "km-taxonomy-selected-banner__label";
+    bannerText.appendChild(bannerLabel);
+
+    var bannerSublabel = document.createElement("span");
+    bannerSublabel.className = "km-taxonomy-selected-banner__sublabel";
+    bannerText.appendChild(bannerSublabel);
+
+    bannerLeft.appendChild(bannerText);
+    selectedBanner.appendChild(bannerLeft);
+
+    var bannerToggleBtn = document.createElement("button");
+    bannerToggleBtn.type = "button";
+    bannerToggleBtn.className = "km-taxonomy-selected-banner__toggle-btn";
+    bannerToggleBtn.textContent = "Изменить";
+    bannerToggleBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      picker.classList.toggle("is-collapsed");
+      bannerToggleBtn.textContent = picker.classList.contains("is-collapsed") ? "Изменить" : "Свернуть";
+    });
+    selectedBanner.appendChild(bannerToggleBtn);
+
+    picker.appendChild(selectedBanner);
+
     var heading = document.createElement("div");
     heading.className = "km-taxonomy-picker__head";
     heading.innerHTML =
@@ -265,6 +303,8 @@
       });
     }
 
+    var initialCollapsedApplied = false;
+
     function render() {
       var selectedCategory = String(categorySelect.value || "");
       var selectedSubcategory = String(subcategorySelect.value || "");
@@ -282,6 +322,33 @@
         subcategoryButtons[id].classList.toggle("is-active", active);
         subcategoryButtons[id].setAttribute("aria-pressed", active ? "true" : "false");
       });
+
+      if (selectedCategory) {
+        var catObj = categories.find(function (c) { return String(c.code) === selectedCategory; });
+        if (catObj) {
+          bannerIconWrap.innerHTML = "";
+          bannerIconWrap.appendChild(makeIcon(catObj));
+          bannerLabel.textContent = catObj.label || catObj.code;
+
+          var subObj = subcategories.find(function (s) { return String(s.id) === selectedSubcategory; });
+          if (subObj) {
+            bannerSublabel.textContent = " › " + subObj.label;
+          } else {
+            bannerSublabel.textContent = "";
+          }
+          selectedBanner.style.display = "flex";
+
+          if (!initialCollapsedApplied) {
+            picker.classList.add("is-collapsed");
+            bannerToggleBtn.textContent = "Изменить";
+            initialCollapsedApplied = true;
+          }
+        }
+      } else {
+        selectedBanner.style.display = "none";
+        picker.classList.remove("is-collapsed");
+        initialCollapsedApplied = true;
+      }
     }
 
     anchor.parentElement.insertBefore(picker, anchor);
@@ -1678,6 +1745,579 @@
       } else {
         if (window.confirm("Вы уверены, что хотите перейти к удалению?")) {
           window.location.href = href;
+        }
+      }
+    });
+  });
+
+  ready(function () {
+    var form = document.querySelector("[data-km-admin-form]") || document.getElementById("place_form");
+    if (!form) return;
+
+    var nameFields = ["id_name_ru", "id_name_az", "id_name_en", "id_name"];
+    var categorySelect = form.querySelector('select[name="category"]');
+
+    var CHECKLIST_CONFIG = [
+      {
+        field: "name",
+        label: "Название",
+        getTargetInput: function() {
+          return document.getElementById("id_name_ru") || document.getElementById("id_name_az") || document.getElementById("id_name_en") || document.getElementById("id_name");
+        },
+        isFilled: function() {
+          for (var i = 0; i < nameFields.length; i++) {
+            var el = document.getElementById(nameFields[i]);
+            if (el && el.value.trim()) return true;
+          }
+          return false;
+        }
+      },
+      {
+        field: "category",
+        label: "Категория",
+        getTargetInput: function() {
+          return document.querySelector('select[name="category"]');
+        },
+        isFilled: function() {
+          var el = document.querySelector('select[name="category"]');
+          return !!(el && el.value);
+        }
+      },
+      {
+        field: "description_az",
+        label: "Описание (AZ)",
+        getTargetInput: function() {
+          return document.getElementById("id_description_az");
+        },
+        isFilled: function() {
+          var el = document.getElementById("id_description_az");
+          return !!(el && el.value.trim());
+        }
+      },
+      {
+        field: "age_from",
+        label: "Возраст от",
+        getTargetInput: function() {
+          return document.getElementById("id_age_from");
+        },
+        isFilled: function() {
+          var el = document.getElementById("id_age_from");
+          return !!(el && el.value.trim());
+        }
+      },
+      {
+        field: "age_to",
+        label: "Возраст до",
+        getTargetInput: function() {
+          return document.getElementById("id_age_to");
+        },
+        isFilled: function() {
+          var el = document.getElementById("id_age_to");
+          return !!(el && el.value.trim());
+        }
+      },
+      {
+        field: "address",
+        label: "Адрес",
+        getTargetInput: function() {
+          return document.getElementById("id_address");
+        },
+        isFilled: function() {
+          var el = document.getElementById("id_address");
+          return !!(el && el.value.trim());
+        }
+      },
+      {
+        field: "phone1",
+        label: "Телефон",
+        getTargetInput: function() {
+          return document.getElementById("id_phone1");
+        },
+        isFilled: function() {
+          var el = document.getElementById("id_phone1");
+          return !!(el && el.value.trim());
+        }
+      },
+      {
+        field: "photo",
+        label: "Главное фото",
+        getTargetInput: function() {
+          return document.getElementById("id_photo");
+        },
+        isFilled: function() {
+          var mainInput = document.getElementById("id_photo");
+          var mainPreview = document.querySelector("[data-main-photo-preview]");
+          var mainClearCheckbox = document.getElementById("id_photo-clear");
+          var hasPhoto = !!(
+            (mainInput && mainInput.files && mainInput.files.length) || 
+            (mainPreview && mainPreview.getAttribute("data-main-photo-initial-url") && !(mainClearCheckbox && mainClearCheckbox.checked))
+          );
+          return hasPhoto;
+        }
+      }
+    ];
+
+    function updateMockupTitle() {
+      var titleEl = document.getElementById("km-preview-title");
+      if (!titleEl) return;
+      var val = "";
+      for (var i = 0; i < nameFields.length; i++) {
+        var input = document.getElementById(nameFields[i]);
+        if (input && input.value.trim()) {
+          val = input.value.trim();
+          break;
+        }
+      }
+      titleEl.textContent = val || "Название места";
+    }
+
+    function updateMockupCategory() {
+      var catEl = document.getElementById("km-preview-category");
+      if (!catEl || !categorySelect) return;
+      var selectedOption = categorySelect.options[categorySelect.selectedIndex];
+      if (selectedOption && selectedOption.value) {
+        catEl.textContent = selectedOption.text;
+        var configNode = document.getElementById("km-place-taxonomy-config");
+        if (configNode) {
+          try {
+            var config = JSON.parse(configNode.textContent || "{}");
+            var categories = config.categories || [];
+            var matched = categories.find(function(c) { return String(c.code) === String(selectedOption.value); });
+            if (matched) {
+              catEl.style.backgroundColor = matched.color_bg || "#f3f4f6";
+              catEl.style.color = matched.color_text || "#1f2937";
+            } else {
+              catEl.style.backgroundColor = "#f3f4f6";
+              catEl.style.color = "#1f2937";
+            }
+          } catch(e) {
+            catEl.style.backgroundColor = "#f3f4f6";
+            catEl.style.color = "#1f2937";
+          }
+        }
+      } else {
+        catEl.textContent = "Категория не выбрана";
+        catEl.style.backgroundColor = "#f3f4f6";
+        catEl.style.color = "#6b7280";
+      }
+    }
+
+    function updateMockupAge() {
+      var ageEl = document.getElementById("km-preview-age");
+      if (!ageEl) return;
+      var fromVal = (document.getElementById("id_age_from") || {}).value;
+      var toVal = (document.getElementById("id_age_to") || {}).value;
+      if (fromVal || toVal) {
+        if (fromVal && toVal) {
+          ageEl.textContent = fromVal + " – " + toVal;
+        } else if (fromVal) {
+          ageEl.textContent = fromVal + "+";
+        } else {
+          ageEl.textContent = "до " + toVal;
+        }
+      } else {
+        ageEl.textContent = "—";
+      }
+    }
+
+    function updateMockupPrice() {
+      var priceEl = document.getElementById("km-preview-price");
+      var priceTag = document.getElementById("km-preview-price-tag");
+      if (!priceEl || !priceTag) return;
+      var pFrom = (document.getElementById("id_price_from") || {}).value;
+      var pTo = (document.getElementById("id_price_to") || {}).value;
+      var pLesson = (document.getElementById("id_price_per_lesson") || {}).value;
+      
+      var labelSpan = priceTag.querySelector(".label");
+      if (!labelSpan) {
+        labelSpan = document.createElement("span");
+        labelSpan.className = "label";
+        priceTag.insertBefore(labelSpan, priceEl);
+      }
+      
+      if (pFrom || pTo) {
+        priceTag.style.display = "";
+        labelSpan.textContent = "Цена ";
+        if (pFrom && pTo) {
+          priceEl.textContent = pFrom + " – " + pTo + " ₼";
+        } else if (pFrom) {
+          priceEl.textContent = "от " + pFrom + " ₼";
+        } else {
+          priceEl.textContent = "до " + pTo + " ₼";
+        }
+      } else if (pLesson) {
+        priceTag.style.display = "";
+        labelSpan.textContent = "Урок ";
+        priceEl.textContent = pLesson + " ₼";
+      } else {
+        priceTag.style.display = "none";
+        priceEl.textContent = "—";
+      }
+    }
+
+    function updateMockupAddress() {
+      var addrEl = document.getElementById("km-preview-address");
+      if (!addrEl) return;
+      var val = (document.getElementById("id_address") || {}).value || "";
+      addrEl.textContent = val.trim() || "Адрес не указан";
+    }
+
+    function updateMockupBadges() {
+      var verifiedCheckbox = document.getElementById("id_is_verified");
+      var tempCheckbox = document.getElementById("id_is_temporary");
+      
+      var verifiedBadge = document.getElementById("km-preview-badge-verified");
+      var tempBadge = document.getElementById("km-preview-badge-temporary");
+      
+      if (verifiedBadge) {
+        verifiedBadge.style.display = (verifiedCheckbox && verifiedCheckbox.checked) ? "" : "none";
+      }
+      if (tempBadge) {
+        tempBadge.style.display = (tempCheckbox && tempCheckbox.checked) ? "" : "none";
+      }
+    }
+
+    function updateMockupPhoto() {
+      var previewImg = document.getElementById("km-preview-img");
+      var placeholder = document.getElementById("km-preview-img-placeholder");
+      var photoStatusBadge = document.getElementById("km-status-photo-badge");
+      if (!previewImg || !placeholder) return;
+      
+      var mainInput = document.getElementById("id_photo");
+      var mainPreview = document.querySelector("[data-main-photo-preview]");
+      var mainClearCheckbox = document.getElementById("id_photo-clear");
+      var hasPhoto = !!(
+        (mainInput && mainInput.files && mainInput.files.length) || 
+        (mainPreview && mainPreview.getAttribute("data-main-photo-initial-url") && !(mainClearCheckbox && mainClearCheckbox.checked))
+      );
+      
+      if (hasPhoto) {
+        var src = "";
+        if (mainInput && mainInput.files && mainInput.files.length) {
+          src = mainPreview && mainPreview.src ? mainPreview.src : "";
+        } else if (mainPreview) {
+          src = mainPreview.getAttribute("data-main-photo-initial-url") || "";
+        }
+        
+        if (src) {
+          previewImg.src = src;
+          previewImg.style.display = "";
+          placeholder.style.display = "none";
+        } else {
+          previewImg.style.display = "none";
+          placeholder.style.display = "";
+        }
+        
+        if (photoStatusBadge) {
+          photoStatusBadge.className = "badge km-badge-compact km-badge-compact--good";
+          photoStatusBadge.textContent = "Главное фото загружено";
+        }
+      } else {
+        previewImg.style.display = "none";
+        placeholder.style.display = "";
+        if (photoStatusBadge) {
+          photoStatusBadge.className = "badge km-badge-compact km-badge-compact--warn";
+          photoStatusBadge.textContent = "Главное фото отсутствует";
+        }
+      }
+    }
+
+    function updateVerificationCoordinates() {
+      var latInput = document.getElementById("id_lat");
+      var lngInput = document.getElementById("id_lng");
+      var latVal = latInput ? latInput.value.trim() : "";
+      var lngVal = lngInput ? lngInput.value.trim() : "";
+      var hasCoords = !!(latVal && lngVal);
+      
+      var statusBadge = document.getElementById("km-status-coordinates-badge");
+      if (statusBadge) {
+        if (hasCoords) {
+          statusBadge.className = "badge km-badge-compact km-badge-compact--good";
+          statusBadge.textContent = "Координаты указаны";
+        } else {
+          statusBadge.className = "badge km-badge-compact km-badge-compact--warn";
+          statusBadge.textContent = "Координаты не указаны";
+        }
+      }
+      
+      var headerBadge = document.getElementById("km-header-coords-badge");
+      if (headerBadge) {
+        if (hasCoords) {
+          headerBadge.className = "km-badge-compact km-badge-compact--good";
+          headerBadge.textContent = "Координаты указаны";
+        } else {
+          headerBadge.className = "km-badge-compact km-badge-compact--warn";
+          headerBadge.textContent = "Нужны координаты";
+        }
+      }
+    }
+
+    function updateVerificationChecklist() {
+      var checklistContainer = document.getElementById("km-verification-checklist");
+      var allFilledContainer = document.getElementById("km-verification-all-filled");
+      if (!checklistContainer || !allFilledContainer) return;
+      
+      checklistContainer.innerHTML = "";
+      var missingCount = 0;
+      
+      CHECKLIST_CONFIG.forEach(function(item) {
+        var filled = item.isFilled();
+        if (!filled) {
+          missingCount++;
+          var link = document.createElement("a");
+          link.href = "#";
+          link.className = "km-checklist-link";
+          link.innerHTML = "<span>" + item.label + "</span> <i class=\"fas fa-arrow-right\"></i>";
+          link.addEventListener("click", function(e) {
+            e.preventDefault();
+            var targetInput = item.getTargetInput();
+            var targetScroll = null;
+
+            if (item.field === "photo") {
+              targetScroll = document.querySelector("[data-main-photo-root]");
+            }
+
+            if (!targetScroll && targetInput) {
+              targetScroll = targetInput.closest(".form-row") || targetInput;
+            }
+
+            if (targetScroll) {
+              var fieldset = targetScroll.closest("fieldset.collapse");
+              if (fieldset && fieldset.classList.contains("collapsed")) {
+                var toggleLink = fieldset.querySelector("a.collapse-toggle");
+                if (toggleLink) {
+                  toggleLink.click();
+                } else {
+                  fieldset.classList.remove("collapsed");
+                }
+              }
+
+              targetScroll.scrollIntoView({ behavior: "smooth", block: "center" });
+              
+              targetScroll.classList.add("km-highlight-flash");
+              setTimeout(function() {
+                targetScroll.classList.remove("km-highlight-flash");
+              }, 2500);
+
+              if (targetInput) {
+                setTimeout(function() {
+                  try {
+                    targetInput.focus();
+                  } catch(err) {}
+                  if (targetInput.classList.contains("select2-hidden-accessible")) {
+                    try {
+                      window.$(targetInput).select2("open");
+                    } catch(err) {}
+                  }
+                }, 400);
+              }
+            }
+          });
+
+          checklistContainer.appendChild(link);
+        }
+      });
+
+      if (missingCount === 0) {
+        allFilledContainer.style.display = "";
+      } else {
+        allFilledContainer.style.display = "none";
+      }
+    }
+
+    function updateRealtimeProgress() {
+      var total = CHECKLIST_CONFIG.length;
+      var completed = 0;
+      CHECKLIST_CONFIG.forEach(function(item) {
+        if (item.isFilled()) completed++;
+      });
+      
+      var pct = Math.round((completed / total) * 100);
+      
+      var pctNodes = document.querySelectorAll("[data-progress-pct]");
+      var doneNodes = document.querySelectorAll("[data-progress-done]");
+      var totalNodes = document.querySelectorAll("[data-progress-total]");
+      var barFillNodes = document.querySelectorAll("[data-progress-bar]");
+      
+      pctNodes.forEach(function(node) {
+        node.textContent = pct + "%";
+      });
+      doneNodes.forEach(function(node) {
+        node.textContent = completed;
+      });
+      totalNodes.forEach(function(node) {
+        node.textContent = total;
+      });
+      barFillNodes.forEach(function(node) {
+        node.style.width = pct + "%";
+      });
+      
+      var readinessBadge = document.querySelector("[data-progress-readiness]");
+      if (readinessBadge) {
+        var readyLabel = form.dataset.progressReadyLabel || "Готово к публикации";
+        var incompleteLabel = form.dataset.progressIncompleteLabel || "Нужна доработка";
+        var readyTone = form.dataset.progressReadyTone || "good";
+        var incompleteTone = form.dataset.progressIncompleteTone || "warn";
+        
+        if (completed === total) {
+          readinessBadge.textContent = readyLabel;
+          readinessBadge.className = "km-badge-compact km-badge-compact--" + readyTone;
+        } else {
+          readinessBadge.textContent = incompleteLabel;
+          readinessBadge.className = "km-badge-compact km-badge-compact--" + incompleteTone;
+        }
+      }
+      
+      var publishMobileBtn = document.getElementById("km-publish-mobile-btn");
+      if (publishMobileBtn) {
+        if (completed === total) {
+          publishMobileBtn.removeAttribute("disabled");
+        } else {
+          publishMobileBtn.setAttribute("disabled", "disabled");
+        }
+      }
+    }
+
+    function updateAllVerificationAndMockupStates() {
+      updateMockupTitle();
+      updateMockupCategory();
+      updateMockupAge();
+      updateMockupPrice();
+      updateMockupAddress();
+      updateMockupBadges();
+      updateMockupPhoto();
+      updateVerificationCoordinates();
+      updateVerificationChecklist();
+      updateRealtimeProgress();
+    }
+
+    form.addEventListener("input", updateAllVerificationAndMockupStates);
+    form.addEventListener("change", updateAllVerificationAndMockupStates);
+
+    document.addEventListener("click", function(e) {
+      var target = e.target;
+      if (target && target.closest("[data-main-photo-clear], [data-main-photo-pick]")) {
+        setTimeout(updateAllVerificationAndMockupStates, 100);
+      }
+    });
+
+    // Execute immediately
+    setTimeout(updateAllVerificationAndMockupStates, 100);
+
+    setInterval(updateAllVerificationAndMockupStates, 1000);
+
+    // Expand collapsed secondary details if there are errors inside
+    var secondaryDetails = document.querySelectorAll("details.km-place-secondary");
+    secondaryDetails.forEach(function (details) {
+      if (details.querySelector(".errors, .errorlist, .errornote")) {
+        details.open = true;
+      }
+    });
+
+    // Unsaved changes confirmation dialog
+    var initialSerializedForm = "";
+    var formSubmitted = false;
+
+    function serializeForm(f) {
+      var parts = [];
+      for (var i = 0; i < f.elements.length; i++) {
+        var el = f.elements[i];
+        if (!el.name || el.disabled || el.type === "submit" || el.type === "button") continue;
+        if (el.type === "checkbox" || el.type === "radio") {
+          parts.push(encodeURIComponent(el.name) + "=" + (el.checked ? "1" : "0"));
+        } else if (el.type === "file") {
+          parts.push(encodeURIComponent(el.name) + "=" + (el.files ? el.files.length : "0"));
+        } else {
+          parts.push(encodeURIComponent(el.name) + "=" + encodeURIComponent(el.value));
+        }
+      }
+      return parts.join("&");
+    }
+
+    // Set initial serialized form after a short delay to allow default values and scripts to initialize
+    setTimeout(function() {
+      if (form) {
+        initialSerializedForm = serializeForm(form);
+      }
+    }, 1000);
+
+    function isFormDirty() {
+      if (!form || !initialSerializedForm) return false;
+      return serializeForm(form) !== initialSerializedForm;
+    }
+
+    form.addEventListener("submit", function() {
+      formSubmitted = true;
+    });
+
+    window.addEventListener("beforeunload", function(e) {
+      if (!formSubmitted && isFormDirty()) {
+        e.preventDefault();
+        e.returnValue = "";
+        return "";
+      }
+    });
+
+    document.addEventListener("click", function(event) {
+      if (formSubmitted) return;
+      var anchor = event.target.closest("a");
+      if (!anchor) return;
+
+      var href = anchor.getAttribute("href");
+      if (!href || href === "#" || href.startsWith("javascript:") || href.startsWith("#")) {
+        return;
+      }
+
+      if (anchor.getAttribute("target") === "_blank") {
+        return;
+      }
+
+      // Do not intercept click on delete links or popup widget links
+      if (anchor.closest(".deletelink") ||
+          anchor.classList.contains("related-widget-wrapper-link") || 
+          anchor.classList.contains("add-related") || 
+          anchor.classList.contains("change-related") || 
+          anchor.classList.contains("delete-related") ||
+          anchor.closest(".related-widget-wrapper-link")) {
+        return;
+      }
+
+      if (isFormDirty()) {
+        event.preventDefault();
+        if (typeof Swal !== "undefined") {
+          Swal.fire({
+            title: "Несохраненные изменения",
+            text: "У вас есть несохраненные изменения. Сохранить их перед выходом?",
+            icon: "warning",
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Сохранить и выйти",
+            denyButtonText: "Выйти без сохранения",
+            cancelButtonText: "Остаться и продолжить",
+            confirmButtonColor: "#10b981",
+            denyButtonColor: "#ef4444",
+            cancelButtonColor: "#64748b",
+            background: document.body.classList.contains("dark-mode") ? "#1e293b" : "#ffffff",
+            color: document.body.classList.contains("dark-mode") ? "#f8fafc" : "#0f172a",
+          }).then(function(result) {
+            if (result.isConfirmed) {
+              var saveInput = document.createElement("input");
+              saveInput.type = "hidden";
+              saveInput.name = "_save";
+              saveInput.value = "Save";
+              form.appendChild(saveInput);
+              formSubmitted = true;
+              form.submit();
+            } else if (result.isDenied) {
+              formSubmitted = true;
+              window.location.href = href;
+            }
+          });
+        } else {
+          if (confirm("У вас есть несохраненные изменения. Выйти без сохранения?")) {
+            formSubmitted = true;
+            window.location.href = href;
+          }
         }
       }
     });

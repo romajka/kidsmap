@@ -11,20 +11,36 @@
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}" defer></script>
 {% endblock %}
 
-{% block bodyclass %}{{ block.super }} km-custom-changelist{% endblock %}
+{% block bodyclass %}{{ block.super }} km-custom-changelist{% if km_is_trash_changelist %} km-place-trash-changelist{% endif %}{% endblock %}
 
 {% block search %}
   <div class="place-admin-dashboard">
     <section class="place-admin-dashboard__header">
       <div class="place-admin-dashboard__title-block">
-        <h1 class="place-admin-dashboard__title">{% translate "Места" %}</h1>
+        <h1 class="place-admin-dashboard__title">
+          {% if km_is_trash_changelist %}
+            {% translate "Корзина" %}
+          {% else %}
+            {% translate "Места" %}
+          {% endif %}
+        </h1>
         <p class="place-admin-dashboard__subtitle">
-          {% blocktranslate trimmed %}
-            Управляйте публикацией, качеством данных, координатами и удалёнными карточками без изменения существующего moderation flow.
-          {% endblocktranslate %}
+          {% if km_is_trash_changelist %}
+            {% blocktranslate trimmed %}
+              Здесь только удалённые карточки. Выберите нужные и восстановите их, если они снова должны вернуться в работу.
+            {% endblocktranslate %}
+          {% else %}
+            {% blocktranslate trimmed %}
+              Управляйте публикацией, качеством данных, координатами и удалёнными карточками без изменения существующего moderation flow.
+            {% endblocktranslate %}
+          {% endif %}
         </p>
       </div>
-      {% if has_add_permission %}
+      {% if km_is_trash_changelist %}
+        <a href="?" class="place-admin-dashboard__add-link place-admin-dashboard__add-link--secondary">
+          {% translate "К местам" %}
+        </a>
+      {% elif has_add_permission %}
         {% url cl.opts|admin_urlname:'add' as add_url %}
         <a href="{% add_preserved_filters add_url %}" class="place-admin-dashboard__add-link">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
@@ -33,19 +49,21 @@
       {% endif %}
     </section>
 
-    <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика мест' %}">
-      {% for item in place_dashboard_stats %}
-        <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}">
-          {% if item.icon %}
-            <div class="place-admin-dashboard__stat-icon" aria-hidden="true">{{ item.icon|safe }}</div>
-          {% endif %}
-          <div class="place-admin-dashboard__stat-content">
-            <span class="place-admin-dashboard__stat-label">{{ item.label }}</span>
-            <strong class="place-admin-dashboard__stat-value">{{ item.count }}</strong>
-          </div>
-        </a>
-      {% endfor %}
-    </section>
+    {% if not km_is_trash_changelist %}
+      <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика мест' %}">
+        {% for item in place_dashboard_stats %}
+          <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}">
+            {% if item.icon %}
+              <div class="place-admin-dashboard__stat-icon" aria-hidden="true">{{ item.icon|safe }}</div>
+            {% endif %}
+            <div class="place-admin-dashboard__stat-content">
+              <span class="place-admin-dashboard__stat-label">{{ item.label }}</span>
+              <strong class="place-admin-dashboard__stat-value">{{ item.count }}</strong>
+            </div>
+          </a>
+        {% endfor %}
+      </section>
+    {% endif %}
 
     {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
   </div>
@@ -55,20 +73,30 @@
   <div class="place-admin-dashboard">
     <section
       class="place-admin-dashboard__bulk-bar km-place-bulk-bar"
-      data-empty-label="{% translate 'Выберите карточки, чтобы массовые действия стали доступны.' %}"
-      data-selected-label="{% translate 'Массовые действия доступны' %}"
+      data-empty-label="{% translate 'Выберите карточки, чтобы действия стали доступны.' %}"
+      data-selected-label="{% if km_is_trash_changelist %}{% translate 'Можно восстановить выбранные карточки' %}{% else %}{% translate 'Массовые действия доступны' %}{% endif %}"
     >
-      <div class="place-admin-dashboard__bulk-summary">
-        <span class="place-admin-dashboard__bulk-count-label">{% translate "Выбрано:" %}</span>
-        <strong class="place-admin-dashboard__bulk-count">0</strong>
-        <span class="place-admin-dashboard__bulk-text">{% translate "Выберите карточки, чтобы массовые действия стали доступны." %}</span>
-        <div class="place-admin-dashboard__bulk-selection">
-          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="page">{% translate "Выбрать все на странице" %}</button>
-          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="clear">{% translate "Снять выделение" %}</button>
+      <div class="place-admin-dashboard__bulk-summary" aria-live="polite">
+        <div class="place-admin-dashboard__selection-state">
+          <span class="place-admin-dashboard__selection-icon" aria-hidden="true">
+            <i class="far fa-check-square"></i>
+          </span>
+          <span class="place-admin-dashboard__bulk-count-label">{% translate "Выбрано" %}</span>
+          <strong class="place-admin-dashboard__bulk-count">0</strong>
         </div>
-        <span class="place-admin-dashboard__bulk-help" title="{% translate 'Для перемещения в удалённые и восстановления используется стандартное подтверждение Django Admin.' %}">?</span>
+        <span class="place-admin-dashboard__bulk-text">{% translate "Выберите карточки, чтобы действия стали доступны." %}</span>
       </div>
       <div class="place-admin-dashboard__bulk-controls">
+        <div class="place-admin-dashboard__bulk-selection">
+          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="page">
+            <i class="far fa-check-square" aria-hidden="true"></i>
+            <span>{% translate "Все на странице" %}</span>
+          </button>
+          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="clear">
+            <i class="fas fa-times" aria-hidden="true"></i>
+            <span>{% translate "Снять выбор" %}</span>
+          </button>
+        </div>
         <div class="place-admin-dashboard__bulk-actions" role="group" aria-label="{% translate 'Массовые действия' %}">
           {% for item in place_bulk_actions %}
             <button
@@ -78,7 +106,10 @@
               {% if item.confirm %}data-confirm="{{ item.confirm }}"{% endif %}
               title="{{ item.description }}"
               disabled
-            >{{ item.label }}</button>
+            >
+              {% if item.icon %}<i class="{{ item.icon }}" aria-hidden="true"></i>{% endif %}
+              <span>{{ item.label }}</span>
+            </button>
           {% endfor %}
         </div>
       </div>

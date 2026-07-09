@@ -34,6 +34,23 @@
     const searchEmptyLabel = root.dataset.searchEmpty || "";
     const searchUnsupportedLabel = root.dataset.searchUnsupported || "";
 
+    const badgeEl = root.querySelector("[data-geocoding-status-badge]");
+
+    function updateGeocodingStatus(statusType) {
+      if (!badgeEl) return;
+      const lang = document.documentElement.lang || "ru";
+      badgeEl.className = "km-map-geocoding-status";
+      if (statusType === "found") {
+        badgeEl.classList.add("is-found");
+        badgeEl.textContent = lang === "az" ? "Məkan tapıldı" : (lang === "en" ? "Place found" : "Место найдено");
+      } else if (statusType === "refine") {
+        badgeEl.classList.add("is-refine");
+        badgeEl.textContent = lang === "az" ? "Nöqtəni dəqiqləşdirin" : (lang === "en" ? "Refine point" : "Уточните точку");
+      } else {
+        badgeEl.textContent = "";
+      }
+    }
+
     function updateStatus(lat, lng) {
       if (lat === null || lng === null) {
         statusEl.textContent = emptyLabel;
@@ -60,25 +77,49 @@
       searchEmptyLabel: searchEmptyLabel,
       searchUnsupportedLabel: searchUnsupportedLabel,
       updateStatus: updateStatus,
+      updateGeocodingStatus: updateGeocodingStatus,
     };
   }
 
-  function bindUnsupportedSearch(shared) {
-    function showUnsupported() {
-      shared.statusEl.textContent = shared.searchUnsupportedLabel;
+  function bindOsmSearch(shared, options) {
+    if (!shared.searchInput || !options || typeof options.setPoint !== "function") return;
+
+    function search() {
+      const rawQuery = (shared.searchInput.value || shared.addressInput?.value || "").trim();
+      if (!rawQuery) {
+        shared.statusEl.textContent = shared.searchEmptyLabel;
+        return;
+      }
+
+      shared.statusEl.textContent = document.documentElement.lang === "az" ? "Axtarılır..." : (document.documentElement.lang === "en" ? "Searching..." : "Поиск...");
+
+      const url = "https://nominatim.openstreetmap.org/search?format=json&countrycodes=az&q=" + encodeURIComponent(rawQuery);
+      fetch(url)
+        .then(function (response) { return response.json(); })
+        .then(function (results) {
+          if (!results || !results.length) {
+            shared.statusEl.textContent = shared.searchErrorLabel;
+            return;
+          }
+          const res = results[0];
+          const lat = parseFloat(res.lat);
+          const lng = parseFloat(res.lon);
+          options.setPoint(lat, lng, { isGeocoded: true });
+        })
+        .catch(function () {
+          shared.statusEl.textContent = shared.searchErrorLabel;
+        });
     }
 
     if (shared.searchBtn) {
-      shared.searchBtn.addEventListener("click", showUnsupported);
+      shared.searchBtn.addEventListener("click", search);
     }
 
-    if (shared.searchInput) {
-      shared.searchInput.addEventListener("keydown", function (event) {
-        if (event.key !== "Enter") return;
-        event.preventDefault();
-        showUnsupported();
-      });
-    }
+    shared.searchInput.addEventListener("keydown", function (event) {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      search();
+    });
   }
 
   function bindGoogleSearch(shared, options) {
@@ -95,7 +136,7 @@
         return;
       }
 
-      options.setPoint(location.lat(), location.lng());
+      options.setPoint(location.lat(), location.lng(), { isGeocoded: true });
       if (shared.addressInput && place.formatted_address) {
         shared.addressInput.value = place.formatted_address;
       }
@@ -219,6 +260,7 @@
 
     function setPoint(lat, lng, options) {
       const recenter = !options || options.recenter !== false;
+      const isGeocoded = options && options.isGeocoded;
       shared.latInput.value = formatCoordinate(lat);
       shared.lngInput.value = formatCoordinate(lng);
 
@@ -233,6 +275,7 @@
       }
 
       shared.updateStatus(lat, lng);
+      shared.updateGeocodingStatus(isGeocoded ? "found" : "refine");
       if (recenter) {
         map.setView([lat, lng], Math.max(map.getZoom(), 15));
       }
@@ -246,6 +289,7 @@
         marker = null;
       }
       shared.updateStatus(null, null);
+      shared.updateGeocodingStatus(null);
     }
 
     map.on("click", function (event) {
@@ -253,7 +297,7 @@
     });
 
     bindLocateButton(shared, setPoint);
-    bindUnsupportedSearch(shared);
+    bindOsmSearch(shared, { setPoint: setPoint, map: map });
 
     if (shared.clearBtn) {
       shared.clearBtn.addEventListener("click", function () {
@@ -311,6 +355,7 @@
 
     function setPoint(lat, lng, options) {
       const recenter = !options || options.recenter !== false;
+      const isGeocoded = options && options.isGeocoded;
       shared.latInput.value = formatCoordinate(lat);
       shared.lngInput.value = formatCoordinate(lng);
 
@@ -329,6 +374,7 @@
       }
 
       shared.updateStatus(lat, lng);
+      shared.updateGeocodingStatus(isGeocoded ? "found" : "refine");
       if (recenter) {
         map.setCenter({ lat: lat, lng: lng });
         if (map.getZoom() < 15) {
@@ -345,6 +391,7 @@
         marker = null;
       }
       shared.updateStatus(null, null);
+      shared.updateGeocodingStatus(null);
     }
 
     map.addListener("click", function (event) {

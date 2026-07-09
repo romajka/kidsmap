@@ -661,7 +661,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertTrue("Не готово для карты" in content or "Xəritə üçün hazır deyil" in content)
         self.assertContains(response, "Локация")
         self.assertContains(response, "Публикация")
-        self.assertContains(response, "Вовлеченность")
+        self.assertContains(response, "Статистика")
         self.assertContains(response, "admin/css/kidsmap_admin.css")
 
     def test_place_admin_changelist_shows_bulk_bar_quick_filters_and_row_actions(self):
@@ -678,16 +678,21 @@ class TestAdminOwnershipModerationUX(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "km-place-bulk-bar")
-        self.assertContains(response, "Выберите карточки, чтобы массовые действия стали доступны.")
+        self.assertContains(response, "Выберите карточки, чтобы действия стали доступны.")
         self.assertContains(response, 'data-action="move_selected_to_deleted"', html=False)
         self.assertContains(response, 'data-action="restore_selected"', html=False)
-        self.assertContains(response, "Выбрать все на странице")
-        self.assertContains(response, "Снять выделение")
+        self.assertContains(response, "Все на странице")
+        self.assertContains(response, "Снять выбор")
         self.assertContains(response, "Опубликованы")
         self.assertContains(response, "В удалённых")
         self.assertContains(response, "Без координат")
         self.assertContains(response, reverse("admin:catalog_place_delete", args=[self.place.id]))
-        self.assertContains(response, reverse("admin:catalog_place_restore", args=[deleted_place.id]))
+
+        deleted_response = self.client.get(
+            reverse("admin:catalog_place_changelist"),
+            data={"deleted_state": "deleted"},
+        )
+        self.assertContains(deleted_response, reverse("admin:catalog_place_restore", args=[deleted_place.id]))
         self.assertContains(response, "km-place-row-actions")
         self.assertContains(response, "В удалённые")
         self.assertContains(response, "Восстановить")
@@ -734,13 +739,29 @@ class TestAdminOwnershipModerationUX(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "place-admin-dashboard__search-form")
-        self.assertContains(response, "Поиск...")
-        self.assertContains(response, "Найти")
+        self.assertContains(response, "Название места...")
+        self.assertContains(response, "Ищет по названию места")
+        self.assertContains(response, "Искать")
         self.assertContains(response, "Категория")
         self.assertContains(response, "Регион / район")
         self.assertContains(response, "Статус")
         self.assertContains(response, "карточка")
         self.assertNotContains(response, 'id="toolbar"', html=False)
+
+    def test_place_admin_changelist_searches_by_azerbaijani_name(self):
+        Place.objects.create(
+            name="English fallback",
+            name_az="Balaca Rəssamlar Studiyası",
+            name_ru="Студия маленьких художников",
+            category="ART",
+            is_active=True,
+        )
+
+        response = self.client.get(reverse("admin:catalog_place_changelist"), data={"q": "Rəssamlar"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Balaca Rəssamlar Studiyası")
+        self.assertNotContains(response, "Кружок для модерации")
 
     def test_place_admin_changelist_shows_stats_and_quick_filter_counts(self):
         Place.objects.create(
