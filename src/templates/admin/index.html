@@ -89,6 +89,32 @@
                 </a>
                 {% endif %}
             </div>
+
+            {% if stats.pending_reviews %}
+            <section class="km-dashboard-review-alerts" aria-label="Последние отзывы на проверке">
+                <div class="km-dashboard-review-alerts__head">
+                    <div>
+                        <h5>Отзывы ждут решения</h5>
+                        <p>Проверьте текст, рейтинг, автора и место. До одобрения отзывы скрыты на сайте.</p>
+                    </div>
+                    <a href="{% url 'admin:catalog_placereview_changelist' %}?status__exact=pending" class="km-dashboard-review-alerts__link">
+                        Открыть все
+                    </a>
+                </div>
+                <div class="km-dashboard-review-alerts__list">
+                    {% for review in stats.pending_reviews %}
+                    <a href="{% url 'admin:catalog_placereview_change' review.id %}" class="km-dashboard-review-item">
+                        <span class="km-dashboard-review-item__rating">★ {{ review.rating }}</span>
+                        <span class="km-dashboard-review-item__body">
+                            <strong>{{ review.place }}</strong>
+                            <span>{{ review.author }}{% if review.text %} · {{ review.text|truncatechars:96 }}{% else %} · Только оценка{% endif %}</span>
+                        </span>
+                        <span class="km-dashboard-review-item__action">Проверить</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
         {% endif %}
 
         <!-- ROW 2: GENERAL KPIs (Informational) -->

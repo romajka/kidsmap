@@ -4892,6 +4892,14 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   margin-bottom: 12px;
 }
 
+.review-form-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  margin-bottom: 12px;
+}
+
 .review-form label {
   display: grid;
   gap: 6px;
@@ -4933,6 +4941,86 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 
 .review-star:hover {
   transform: translateY(-1px) scale(1.06);
+}
+
+.review-rating-field {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.review-rating-field legend {
+  padding: 0;
+  font-weight: 800;
+  color: var(--brand-spruce, #0d4924);
+}
+
+.review-rating-stars {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 4px;
+  width: fit-content;
+  padding: 7px 10px;
+  border: 1px solid #cfe7d6;
+  border-radius: 999px;
+  background: #fdfefd;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.review-rating-stars input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.review-rating-stars label {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  color: #c9d7ce;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.16s ease, transform 0.16s ease, background 0.16s ease;
+}
+
+.review-rating-stars label:hover,
+.review-rating-stars label:hover ~ label,
+.review-rating-stars input:checked ~ label {
+  color: #f2b01e;
+}
+
+.review-rating-stars label:hover {
+  transform: translateY(-1px) scale(1.06);
+}
+
+.review-rating-stars input:focus-visible + label {
+  background: rgba(242, 176, 30, 0.14);
+  box-shadow:
+    0 0 0 4px rgba(242, 176, 30, 0.16),
+    0 0 0 1px rgba(98, 72, 8, 0.16);
+}
+
+.review-author-note {
+  flex: 1 1 260px;
+  margin: 24px 0 0;
+  color: var(--muted, #52615a);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.review-author-note strong {
+  color: var(--brand-spruce, #0d4924);
+  font-weight: 800;
 }
 
 .review-anon {
@@ -24964,4 +25052,3 @@ body.page-events_landing .topbar {
 .km-verification-todo-item a:hover {
   color: #78350f;
 }
-

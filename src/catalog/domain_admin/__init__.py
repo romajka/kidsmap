@@ -65,6 +65,7 @@ def _kidsmap_get_app_list(self, request, app_label=None):
     ownership_pending_count = PlaceOwnershipRequest.objects.filter(
         status=PlaceOwnershipRequest.STATUS_PENDING
     ).count()
+    review_pending_count = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
     for app in app_list:
         if app.get("app_label") == "auth":
             app["name"] = _("Пользователи")
@@ -101,6 +102,11 @@ def _kidsmap_get_app_list(self, request, app_label=None):
                 model["name"] = _("%(name)s (на рассмотрении: %(count)s)") % {
                     "name": model["name"],
                     "count": ownership_pending_count,
+                }
+            if object_name == "placereview" and review_pending_count:
+                model["name"] = _("%(name)s (на проверке: %(count)s)") % {
+                    "name": model["name"],
+                    "count": review_pending_count,
                 }
         app["models"].sort(
             key=lambda model: (
@@ -185,7 +191,7 @@ def _build_sidebar_item(
     }
 
 
-def _build_sidebar_sections(request, *, ownership_pending_count: int, deleted_count: int) -> list[dict]:
+def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pending_count: int, deleted_count: int) -> list[dict]:
     if not request.user.is_authenticated or not request.user.is_staff:
         return []
 
@@ -197,7 +203,13 @@ def _build_sidebar_sections(request, *, ownership_pending_count: int, deleted_co
             "items": [
                 _build_sidebar_item(request, model=Place, label=_("Места"), icon="fas fa-map-marker-alt"),
                 _build_sidebar_item(request, model=Category, label=_("Категории"), icon="far fa-copy"),
-                _build_sidebar_item(request, model=PlaceReview, label=_("Отзывы о местах"), icon="far fa-comment-alt"),
+                _build_sidebar_item(
+                    request,
+                    model=PlaceReview,
+                    label=_("Отзывы о местах"),
+                    icon="far fa-comment-alt",
+                    badge_count=review_pending_count,
+                ),
                 _build_sidebar_item(request, model=PlaceReviewsByClub, label=_("Рейтинги"), icon="far fa-star"),
                 _build_sidebar_item(
                     request,
@@ -220,6 +232,14 @@ def _build_sidebar_sections(request, *, ownership_pending_count: int, deleted_co
                     label=_("Заявки на владение"),
                     icon="far fa-clipboard",
                     badge_count=ownership_pending_count,
+                ),
+                _build_sidebar_item(
+                    request,
+                    model=PlaceReview,
+                    label=_("Отзывы на проверке"),
+                    icon="fas fa-star-half-alt",
+                    query_params="status__exact=pending",
+                    badge_count=review_pending_count,
                 ),
                 _build_sidebar_item(request, model=SiteReview, label=_("Отзывы о сайте"), icon="far fa-comment-dots"),
                 _build_sidebar_item(
@@ -314,11 +334,14 @@ def _kidsmap_each_context(self, request):
         ownership_pending_count = PlaceOwnershipRequest.objects.filter(
             status=PlaceOwnershipRequest.STATUS_PENDING
         ).count()
+        review_pending_count = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
         deleted_count = Place.objects.filter(deleted_at__isnull=False).count()
     else:
         ownership_pending_count = 0
+        review_pending_count = 0
         deleted_count = 0
     context["ownership_pending_count"] = ownership_pending_count
+    context["review_pending_count"] = review_pending_count
 
     current_language = (get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
     context["admin_current_language"] = current_language
@@ -326,6 +349,7 @@ def _kidsmap_each_context(self, request):
     context["kidsmap_sidebar_sections"] = _build_sidebar_sections(
         request,
         ownership_pending_count=ownership_pending_count,
+        review_pending_count=review_pending_count,
         deleted_count=deleted_count,
     )
     context["kidsmap_admin_role_label"] = _admin_role_label(request.user)

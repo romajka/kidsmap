@@ -86,6 +86,7 @@ class TestAccountsAndReviewAccess(TestCase):
         self.assertEqual(PlaceReview.objects.count(), 1)
         review = PlaceReview.objects.first()
         self.assertEqual(review.user, user)
+        self.assertEqual(review.author_name, "member")
         self.assertContains(response, '"name": "review_submit"')
         self.assertContains(response, '"review_scope": "place"')
 

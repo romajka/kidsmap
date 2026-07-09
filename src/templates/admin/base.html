@@ -137,6 +137,14 @@
                 </li>
                 {% endif %}
 
+                {% if review_pending_count %}
+                <li class="nav-item d-none d-md-flex align-items-center">
+                    <a href="{% url 'admin:catalog_placereview_changelist' %}?status__exact=pending" class="km-admin-pending-pill km-admin-pending-pill--reviews">
+                        {% blocktranslate with count=review_pending_count %}Отзывы на проверке: {{ count }}{% endblocktranslate %}
+                    </a>
+                </li>
+                {% endif %}
+
                 {% if jazzmin_settings.show_ui_builder %}
                 <li class="nav-item">
                     <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
@@ -214,13 +222,73 @@
         {% if jazzmin_settings.show_sidebar %}
             {% get_side_menu as side_menu_list %}
 
-            <aside class="main-sidebar elevation-4 {{ jazzmin_ui.sidebar_classes }}" id="jazzy-sidebar">
+            <aside class="main-sidebar elevation-4 {{ jazzmin_ui.sidebar_classes }} km-admin-sidebar" id="jazzy-sidebar">
                 <a href="{% url 'admin:index' %}" class="brand-link {{ jazzmin_ui.brand_classes }}" id="jazzy-logo">
                     <img src="{% static jazzmin_settings.site_logo %}" alt="{{ jazzmin_settings.site_header }} Logo" class="{{ jazzmin_settings.site_logo_classes }} brand-image elevation-3" style="opacity: .8">
                     <span class="brand-text font-weight-light">{{ jazzmin_settings.site_brand }}</span>
                 </a>
 
                 <div class="sidebar">
+                    {% if kidsmap_sidebar_sections %}
+                    <div class="km-admin-sidebar__shell">
+                        <div class="km-admin-sidebar__user-card">
+                            <div class="km-admin-sidebar__avatar">
+                                {% if request.user.profile.avatar %}
+                                    <img src="{{ request.user.profile.avatar.url }}" alt="">
+                                {% elif jazzmin_settings|has_jazzmin_setting:"user_avatar" %}
+                                    <img src="{% get_user_avatar request.user %}" alt="">
+                                {% else %}
+                                    <i class="fas fa-user-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="km-admin-sidebar__user-copy">
+                                {% if perms|can_view_self %}
+                                    <a href="{% jazzy_admin_url request.user request.current_app|default:"admin" %}" class="km-admin-sidebar__user-name">{{ request.user }}</a>
+                                {% else %}
+                                    <span class="km-admin-sidebar__user-name">{{ request.user }}</span>
+                                {% endif %}
+                                <span class="km-admin-sidebar__user-role">{{ kidsmap_admin_role_label }}</span>
+                            </div>
+                        </div>
+
+                        <nav class="km-admin-sidebar__scroller" aria-label="{% translate 'Админ-навигация' %}">
+                            <ul class="km-admin-sidebar__nav">
+                                <li class="km-admin-sidebar__entry">
+                                    <a href="{% url 'admin:index' %}" class="km-admin-sidebar__link{% if request.resolver_match.url_name == 'index' %} is-active{% endif %}">
+                                        <span class="km-admin-sidebar__icon-wrap"><i class="fas fa-th-large"></i></span>
+                                        <span class="km-admin-sidebar__text"><span class="km-admin-sidebar__label">{% trans 'Dashboard' %}</span></span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="km-admin-sidebar__sections">
+                                {% for section in kidsmap_sidebar_sections %}
+                                    <div class="km-admin-sidebar__group{% if section.active %} is-active{% endif %}" data-km-sidebar-group data-km-sidebar-key="{{ section.key }}" data-default-open="{% if section.active %}true{% else %}false{% endif %}" data-open="{% if section.active %}true{% else %}false{% endif %}">
+                                        <button type="button" class="km-admin-sidebar__group-toggle" data-km-sidebar-toggle>
+                                            <span class="km-admin-sidebar__icon-wrap"><i class="{{ section.icon }}"></i></span>
+                                            <span class="km-admin-sidebar__text"><span class="km-admin-sidebar__label">{{ section.label }}</span></span>
+                                            <i class="fas fa-chevron-down km-admin-sidebar__chevron"></i>
+                                        </button>
+                                        <div class="km-admin-sidebar__panel" data-km-sidebar-panel>
+                                            <ul class="km-admin-sidebar__sublist">
+                                                {% for item in section.items %}
+                                                    <li class="km-admin-sidebar__entry">
+                                                        <a href="{{ item.url }}" class="km-admin-sidebar__link{% if item.active %} is-active{% endif %}">
+                                                            <span class="km-admin-sidebar__icon-wrap"><i class="{{ item.icon }}"></i></span>
+                                                            <span class="km-admin-sidebar__text"><span class="km-admin-sidebar__label">{{ item.label }}</span></span>
+                                                            {% if item.badge_count %}
+                                                                <span class="km-admin-sidebar__badge">{{ item.badge_count }}</span>
+                                                            {% endif %}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </nav>
+                    </div>
+                    {% else %}
                     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                         <div class="image">
                             {% if request.user.profile.avatar %}
@@ -300,6 +368,7 @@
                             {% endfor %}
                         </ul>
                     </nav>
+                    {% endif %}
                 </div>
             </aside>
         {% endif %}

@@ -10,6 +10,18 @@ def render_primary_action(url: str, label: str) -> str:
         label,
     )
 
+def render_inline_action(url: str, label: str, tone: str = "secondary", icon: str = "") -> str:
+    icon_html = ""
+    if icon:
+        icon_html = format_html('<i class="{}" aria-hidden="true"></i>', icon)
+    return format_html(
+        '<a class="km-admin-action km-admin-action--{}" href="{}">{}{}</a>',
+        tone,
+        url,
+        icon_html,
+        label,
+    )
+
 def render_action_menu(actions: list[tuple[str | None, str, str]]) -> str:
     """
     Renders the three-dot dropdown menu for row actions.

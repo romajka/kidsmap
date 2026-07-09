@@ -13,7 +13,7 @@ from django.db.models import Q
 
 from catalog.models import PlaceReview, SiteReview
 from catalog.services.content_quality import review_quality_check
-from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
+from .ui_utils import render_primary_action, render_inline_action, render_action_menu, render_row_actions_container, build_admin_query_string
 
 def _localized_admin_url(path: str) -> str:
     from django.utils.translation import get_language
@@ -255,6 +255,14 @@ class PlaceReviewAdmin(admin.ModelAdmin):
             return text
         return f"{text[:177].rstrip()}..."
 
+    def _place_public_link(self, obj) -> str:
+        if not obj.place_id:
+            return ""
+        try:
+            return obj.place.get_absolute_url()
+        except Exception:
+            return ""
+
     def _review_status(self, obj) -> tuple[str, str]:
         if obj.status == obj.STATUS_REJECTED:
             return str(_("Отклонен")), "danger"
@@ -270,14 +278,24 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     def review_summary(self, obj):
         place_name = obj.place.name_ru or obj.place.name
         preview = self._review_preview_text(obj)
+        public_link = self._place_public_link(obj)
+        public_html = ""
+        if public_link:
+            public_html = format_html(
+                '<a class="km-admin-meta-link" href="{}" target="_blank" rel="noopener noreferrer">{}</a>',
+                public_link,
+                _("На сайте"),
+            )
         return format_html(
             '<div class="km-admin-stack">'
             '<a class="km-review-place-link" href="{}">{}</a>'
             '<span class="km-admin-meta">{}</span>'
+            '<div class="km-admin-inline-links">{}</div>'
             "</div>",
             self._place_admin_change_url(obj),
             place_name,
             preview,
+            public_html,
         )
 
     @admin.display(description=_("Автор"))
@@ -289,8 +307,18 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         badges = []
         if obj.user_id:
             badges.append(self._render_review_badge(label=_("Есть аккаунт"), tone="info"))
+        else:
+            badges.append(self._render_review_badge(label=_("Гость"), tone="muted"))
         name = self.display_author(obj)
-        meta = obj.user.email if obj.user_id and obj.user.email else (obj.user.username if obj.user_id else _("Гость"))
+        if obj.user_id:
+            meta_parts = []
+            if obj.user.username:
+                meta_parts.append(f"@{obj.user.username}")
+            if obj.user.email:
+                meta_parts.append(obj.user.email)
+            meta = " · ".join(meta_parts) or _("Профиль без email")
+        else:
+            meta = _("Без профиля пользователя")
         return format_html(
             '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span><div class="km-admin-badges">{}</div></div>',
             name,
@@ -301,10 +329,12 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     @admin.display(description=_("Рейтинг"))
     def rating_summary(self, obj):
         tone = "warn" if obj.rating <= 2 else "info" if obj.rating == 3 else "good"
+        stars = "★" * int(obj.rating or 0) + "☆" * max(0, 5 - int(obj.rating or 0))
         return format_html(
-            '<div class="km-admin-stack"><span class="km-admin-badge km-admin-badge--{}">★ {}</span>{}</div>',
+            '<div class="km-admin-stack"><span class="km-review-rating km-review-rating--{}" title="{}">{}</span>{}</div>',
             tone,
-            obj.rating,
+            _("Оценка: %(rating)s из 5") % {"rating": obj.rating},
+            stars,
             format_html(
                 '<span class="km-admin-meta">{}</span>',
                 _("Только оценка") if not self._review_has_text(obj) else _("Есть комментарий"),
@@ -314,7 +344,12 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     @admin.display(description=_("Статус"))
     def moderation_status_summary(self, obj):
         label, tone = self._review_status(obj)
-        help_text = _("Виден на сайте") if obj.is_approved else _("На сайте скрыт")
+        if obj.status == obj.STATUS_PENDING:
+            help_text = _("Ждёт решения администратора")
+        elif obj.status == obj.STATUS_REJECTED:
+            help_text = _("Отклонён и скрыт")
+        else:
+            help_text = _("Виден на сайте") if obj.is_approved else _("На сайте скрыт")
         return format_html(
             '<div class="km-admin-stack"><span class="km-admin-badge km-admin-badge--{}">{}</span><span class="km-admin-meta">{}</span></div>',
             tone,
@@ -344,11 +379,12 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     def engagement_summary(self, obj):
         balance_value = f"{int(obj.popularity_score or 0):+d}"
         return format_html(
-            '<div class="km-admin-stack"><span class="km-admin-title">👍 {} · 👎 {}</span><span class="km-admin-meta">{} {}</span></div>',
+            '<div class="km-admin-stack"><span class="km-admin-title"><i class="fas fa-thumbs-up text-warning"></i> {} · <i class="fas fa-thumbs-down text-warning"></i> {}</span><span class="km-admin-meta">{} {}</span><span class="km-admin-meta">{}</span></div>',
             int(obj.likes_count or 0),
             int(obj.dislikes_count or 0),
             _("Баланс:"),
             balance_value,
+            _("Лайки и дизлайки к отзыву"),
         )
 
     @admin.display(description=_("Создан"))
@@ -557,6 +593,12 @@ class PlaceReviewAdmin(admin.ModelAdmin):
     @admin.display(description="")
     def row_actions(self, obj):
         primary_action = render_primary_action(self._review_change_url(obj), _("Открыть"))
+        visible_actions = [primary_action]
+        if obj.status == obj.STATUS_PENDING or not obj.is_approved:
+            visible_actions.append(render_inline_action(self._review_action_url(obj, "approve"), _("Одобрить"), "good", "fas fa-check"))
+            visible_actions.append(render_inline_action(self._review_action_url(obj, "reject"), _("Отклонить"), "warn", "fas fa-ban"))
+        elif obj.is_approved:
+            visible_actions.append(render_inline_action(self._review_action_url(obj, "hide"), _("Скрыть"), "secondary", "fas fa-eye-slash"))
         
         menu_actions = [
             (self._place_admin_change_url(obj), _("К кружку"), "")
@@ -571,7 +613,7 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         menu_actions.append((self._review_delete_url(obj), _("Удалить"), "km-admin-action-menu__link--danger"))
         
         menu_html = render_action_menu(menu_actions)
-        return render_row_actions_container(primary_action, menu_html)
+        return render_row_actions_container(format_html_join(" ", "{}", ((item,) for item in visible_actions)), menu_html)
 
 
 @admin.register(SiteReview)

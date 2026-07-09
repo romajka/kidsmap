@@ -96,6 +96,22 @@
             {% endif %}
 
             <ul class="navbar-nav ml-auto">
+                {% if ownership_pending_count %}
+                    <li class="nav-item d-none d-md-flex align-items-center">
+                        <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}" class="km-admin-pending-pill">
+                            {% blocktranslate with count=ownership_pending_count %}На рассмотрении: {{ count }}{% endblocktranslate %}
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% if review_pending_count %}
+                    <li class="nav-item d-none d-md-flex align-items-center">
+                        <a href="{% url 'admin:catalog_placereview_changelist' %}?status__exact=pending" class="km-admin-pending-pill km-admin-pending-pill--reviews">
+                            {% blocktranslate with count=review_pending_count %}Отзывы на проверке: {{ count }}{% endblocktranslate %}
+                        </a>
+                    </li>
+                {% endif %}
+
                 {% if jazzmin_settings.show_ui_builder %}
                     <li class="nav-item">
                         <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">

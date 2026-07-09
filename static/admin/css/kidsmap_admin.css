@@ -461,14 +461,49 @@
 }
 
 .app-catalog.model-placereview.change-list .km-place-row-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
+  justify-content: flex-end;
 }
 
 .app-catalog.model-placereview.change-list .km-place-row-actions .km-admin-action {
-  width: 100%;
+  width: auto;
   box-sizing: border-box;
+}
+
+.app-catalog.model-placereview.change-list #result_list {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.app-catalog.model-placereview.change-list #result_list th,
+.app-catalog.model-placereview.change-list #result_list td {
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.app-catalog.model-placereview.change-list #result_list .field-review_summary {
+  width: 21%;
+}
+
+.app-catalog.model-placereview.change-list #result_list .field-author_summary,
+.app-catalog.model-placereview.change-list #result_list .field-moderation_status_summary {
+  width: 13%;
+}
+
+.app-catalog.model-placereview.change-list #result_list .field-rating_summary,
+.app-catalog.model-placereview.change-list #result_list .field-engagement_summary,
+.app-catalog.model-placereview.change-list #result_list .field-created_at_display {
+  width: 10%;
+}
+
+.app-catalog.model-placereview.change-list #result_list .field-risk_flags_summary {
+  width: 14%;
+}
+
+.app-catalog.model-placereview.change-list #result_list .field-row_actions {
+  width: 17%;
 }
 
 .app-catalog.model-placereview.change-list .km-admin-stack {
@@ -492,6 +527,75 @@
 
 .app-catalog.model-placereview.change-list .km-admin-badges {
   gap: 4px;
+}
+
+.app-catalog.model-placereview.change-list .km-admin-action i {
+  margin-right: 5px;
+  font-size: 11px;
+}
+
+.app-catalog.model-placereview.change-list .km-admin-action--good {
+  border: 1px solid var(--km-admin-success-border);
+  background: var(--km-admin-success-bg);
+  color: var(--km-admin-success);
+}
+
+.app-catalog.model-placereview.change-list .km-admin-action--good:hover,
+.app-catalog.model-placereview.change-list .km-admin-action--good:focus-visible {
+  background: var(--km-admin-success);
+  color: #ffffff;
+}
+
+.app-catalog.model-placereview.change-list .km-admin-action--warn {
+  border: 1px solid var(--km-admin-warning-border);
+  background: var(--km-admin-warning-bg);
+  color: var(--km-admin-warning);
+}
+
+.app-catalog.model-placereview.change-list .km-admin-action--warn:hover,
+.app-catalog.model-placereview.change-list .km-admin-action--warn:focus-visible {
+  background: var(--km-admin-warning);
+  color: #ffffff;
+}
+
+.km-review-rating {
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 1px;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.km-review-rating--good {
+  color: var(--km-admin-success);
+}
+
+.km-review-rating--info {
+  color: var(--km-admin-primary);
+}
+
+.km-review-rating--warn {
+  color: var(--km-admin-warning);
+}
+
+.km-admin-inline-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.km-admin-meta-link {
+  color: var(--km-admin-link);
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.km-admin-meta-link:hover,
+.km-admin-meta-link:focus-visible {
+  color: var(--km-admin-link-hover);
+  text-decoration: underline;
 }
 
 .km-review-place-link {

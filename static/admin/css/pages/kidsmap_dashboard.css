@@ -198,6 +198,115 @@
   gap: 8px;
 }
 
+.km-dashboard-review-alerts {
+  display: grid;
+  gap: 12px;
+  margin: -12px 0 30px;
+  padding: 16px;
+  border: 1px solid var(--km-admin-warning-border);
+  border-radius: var(--km-admin-radius-lg);
+  background: color-mix(in srgb, var(--km-admin-warning-bg) 52%, var(--km-admin-surface));
+  box-shadow: var(--km-admin-shadow-sm);
+}
+
+.km-dashboard-review-alerts__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.km-dashboard-review-alerts__head h5 {
+  margin: 0 0 3px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--km-admin-text);
+}
+
+.km-dashboard-review-alerts__head p {
+  margin: 0;
+  color: var(--km-admin-text-muted);
+  font-size: 13px;
+}
+
+.km-dashboard-review-alerts__link,
+.km-dashboard-review-item__action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--km-admin-warning-border);
+  background: var(--km-admin-surface);
+  color: var(--km-admin-warning);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.km-dashboard-review-alerts__link:hover,
+.km-dashboard-review-item:hover .km-dashboard-review-item__action {
+  color: #ffffff;
+  background: var(--km-admin-warning);
+  text-decoration: none;
+}
+
+.km-dashboard-review-alerts__list {
+  display: grid;
+  gap: 8px;
+}
+
+.km-dashboard-review-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: var(--km-admin-radius-md);
+  background: var(--km-admin-surface);
+  color: var(--km-admin-text);
+  text-decoration: none;
+}
+
+.km-dashboard-review-item:hover,
+.km-dashboard-review-item:focus-visible {
+  border-color: var(--km-admin-warning-border);
+  box-shadow: var(--km-admin-shadow-sm);
+  color: var(--km-admin-text);
+  text-decoration: none;
+}
+
+.km-dashboard-review-item__rating {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--km-admin-warning-bg);
+  color: var(--km-admin-warning);
+  font-weight: 900;
+}
+
+.km-dashboard-review-item__body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.km-dashboard-review-item__body strong,
+.km-dashboard-review-item__body span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.km-dashboard-review-item__body span {
+  color: var(--km-admin-text-muted);
+  font-size: 13px;
+}
+
 /* Списки приложений (Модули) */
 .km-app-grid {
   display: flex;

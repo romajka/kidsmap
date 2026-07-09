@@ -23,10 +23,34 @@ class ReviewPayload:
     author_name: str
 
 
-def _build_review_payload(request, *, require_text: bool = False) -> tuple[ReviewPayload | None, str]:
+def _author_name_from_account(user) -> str:
+    if not getattr(user, "is_authenticated", False):
+        return ""
+
+    candidates = (
+        user.get_full_name(),
+        user.get_username(),
+        getattr(user, "email", ""),
+    )
+    for value in candidates:
+        value = (value or "").strip()
+        if value:
+            return value[:80]
+    return str(_("Гость"))
+
+
+def _build_review_payload(
+    request,
+    *,
+    require_text: bool = False,
+    use_account_author: bool = False,
+) -> tuple[ReviewPayload | None, str]:
     rating_raw = (request.POST.get("rating") or "").strip()
     review_text = (request.POST.get("text") or "").strip()
-    author_name = (request.POST.get("author_name") or "").strip()
+    if use_account_author:
+        author_name = _author_name_from_account(request.user)
+    else:
+        author_name = (request.POST.get("author_name") or "").strip()
 
     if not rating_raw:
         return None, _("Выберите оценку от 1 до 5, чтобы отправить отзыв.")
@@ -67,7 +91,11 @@ def submit_place_review(*, request, place, require_auth: bool) -> ReviewSubmissi
             message=_("Оставлять отзывы могут только зарегистрированные пользователи."),
         )
 
-    payload, error_message = _build_review_payload(request, require_text=True)
+    payload, error_message = _build_review_payload(
+        request,
+        require_text=True,
+        use_account_author=request.user.is_authenticated,
+    )
     if payload is None:
         return ReviewSubmissionResult(
             ok=False,

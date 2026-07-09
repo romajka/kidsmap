@@ -29,6 +29,24 @@ def get_dashboard_stats():
     events_pending = Event.objects.filter(status=Event.STATUS_PENDING).count()
     reviews_pending = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
     requests_pending = PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
+    pending_reviews = []
+    for review in (
+        PlaceReview.objects
+        .filter(status=PlaceReview.STATUS_PENDING)
+        .select_related("place", "user")
+        .order_by("-created_at")[:3]
+    ):
+        author = (review.author_name or "").strip()
+        if not author and review.user_id:
+            author = review.user.get_full_name() or review.user.username or review.user.email
+        pending_reviews.append({
+            "id": review.pk,
+            "place": review.place.name_ru or review.place.name,
+            "author": author or "Без имени",
+            "rating": review.rating,
+            "text": (review.text or "").strip(),
+            "created_at": review.created_at,
+        })
     
     total_pending = places_pending + events_pending + reviews_pending + requests_pending
 
@@ -46,7 +64,8 @@ def get_dashboard_stats():
             'events': events_pending,
             'reviews': reviews_pending,
             'requests': requests_pending,
-        }
+        },
+        'pending_reviews': pending_reviews,
     }
 
 
