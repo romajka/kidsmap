@@ -3,14 +3,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from django.db.models import Avg, Count
+from django.db.models import Q
 from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
 
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository, ISiteReviewRepository
-from catalog.models import Event, SiteGalleryImage
+from catalog.models import Event, PlaceReview, SiteGalleryImage
 from catalog.repositories.django_repositories import (
     DjangoPlaceRepository,
     DjangoSettingsRepository,
@@ -18,7 +18,7 @@ from catalog.repositories.django_repositories import (
 )
 from catalog.services.options import find_localized_label
 from catalog.services.public_filter_options import build_public_place_filter_options
-from catalog.services.reactions import liked_place_ids, mark_liked_flags, mark_site_review_reactions
+from catalog.services.reactions import liked_place_ids, mark_liked_flags
 from catalog.services.seo import build_home_seo_payload
 
 
@@ -69,6 +69,7 @@ class HomeController:
                 "category_icon_is_svg": place.category.icon_is_svg if place.category else False,
                 "category_icon_is_font": place.category.icon_is_font_class if place.category else False,
                 "category_icon_name": (place.category.icon or "") if place.category else "",
+                "district": place.district or "",
                 "district_label": place.district_i18n(language_code) if place.district else "",
                 "metro": place.metro,
                 "metro_label": place.metro_i18n(language_code) if place.metro else "",
@@ -94,13 +95,10 @@ class HomeController:
             for place in self.place_repository.map_ready_queryset()
         ]
 
-        site_reviews_qs = self.review_repository.approved_queryset()
-        site_reviews_teaser_qs = site_reviews_qs.filter(text__isnull=False).exclude(text="")
-        site_reviews = mark_site_review_reactions(site_reviews_qs[:4], request)
-        site_reviews_teaser = mark_site_review_reactions(site_reviews_teaser_qs[:2], request)
-        site_reviews_stats = site_reviews_qs.aggregate(avg=Avg("rating"), count=Count("id"))
-        site_reviews_avg = site_reviews_stats.get("avg") or 0
-        site_reviews_count = site_reviews_stats.get("count") or 0
+        total_place_reviews_count = PlaceReview.objects.filter(
+            is_approved=True,
+            status=PlaceReview.STATUS_APPROVED,
+        ).count()
         seo_payload = build_home_seo_payload(request=request, popular_places=popular_places)
         hero_gallery_slides = self._build_hero_gallery_slides(
             gallery_images=list(
@@ -133,10 +131,7 @@ class HomeController:
             "popular_places": popular_places,
             "upcoming_events": upcoming_events,
             "map_places": map_places,
-            "site_reviews": site_reviews,
-            "site_reviews_teaser": site_reviews_teaser,
-            "site_reviews_avg": float(site_reviews_avg),
-            "site_reviews_count": site_reviews_count,
+            "total_place_reviews_count": total_place_reviews_count,
             "google_maps_api_key": google_maps_api_key,
             "hero_title": site_settings.home_title_i18n(language_code) or _("Найдите подходящее занятие для ребёнка"),
             "hero_subtitle": site_settings.home_subtitle_i18n(language_code)

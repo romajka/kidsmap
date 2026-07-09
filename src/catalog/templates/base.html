@@ -97,11 +97,7 @@
               class="mobile-nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
               {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
             >{% trans "О проекте" %}</a>
-            <a
-              href="{% url 'site_reviews' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'site_reviews' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'site_reviews' %}aria-current="page"{% endif %}
-            >{% trans "Отзывы" %}</a>
+
             <a
               href="{% url 'contacts' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
@@ -132,16 +128,13 @@
             {% if request.resolver_match.url_name == 'for_business' %}aria-current="page"{% endif %}
           >{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
           <details class="header-menu nav-dropdown-menu">
-            <summary class="nav-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'site_reviews' or request.resolver_match.url_name == 'contacts' %}active{% endif %}">
+            <summary class="nav-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'contacts' %}active{% endif %}">
               {% if CURRENT_LANGUAGE == "az" %}Bizim haqqımızda{% elif CURRENT_LANGUAGE == "en" %}About{% else %}О нас{% endif %}
               <span class="lang-arrow" aria-hidden="true"></span>
             </summary>
             <div class="nav-dropdown">
               <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">
                 {% trans "О проекте" %}
-              </a>
-              <a href="{% url 'site_reviews' %}" class="{% if request.resolver_match.url_name == 'site_reviews' %}active{% endif %}">
-                {% trans "Отзывы" %}
               </a>
               <a href="{% url 'home' %}#faq">
                 FAQ
@@ -269,7 +262,7 @@
                   <a href="{% url 'events_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
                   <a href="{% url 'for_business' %}">{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
                   <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
-                  <a href="{% url 'site_reviews' %}">{% trans "Отзывы" %}</a>
+
                   <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
                   <a href="{% url 'home' %}#faq">{% trans "FAQ" %}</a>
                 </nav>

@@ -31,10 +31,10 @@
             <span>{% trans "мест и занятий на карте" %}</span>
           </div>
           <div class="home-hero-stat">
-            <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}—{% endif %}</strong>
+            <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}+{% else %}—{% endif %}</strong>
             <span>
-              {% if site_reviews_count %}
-                {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва{% plural %}на основе {{ total }} отзывов{% endblocktrans %}
+              {% if total_place_reviews_count %}
+                {% blocktrans count total=total_place_reviews_count %}{{ total }} отзыв о местах{% plural %}{{ total }} отзывов о местах{% endblocktrans %}
               {% else %}
                 {% trans "Пока нет отзывов" %}
               {% endif %}
@@ -192,14 +192,12 @@
             <option value="">{% trans "Регион / район" %}</option>
             {% for district in home_districts %}
               <option
-                value="{{ district.label }}"
+                value="{{ district.value }}"
                 data-label-current="{{ district.label }}"
                 data-label-az="{{ district.label_az }}"
                 data-label-ru="{{ district.label_ru }}"
                 data-label-en="{{ district.label_en }}"
-                data-is-baku-city="{% if district.value == 'baku' %}1{% else %}0{% endif %}"
-                data-is-baku-district="{% if district.value|slice:':5' == 'baku_' %}1{% else %}0{% endif %}"
-                {% if request.GET.district == district.value or request.GET.district == district.label %}selected{% endif %}
+                {% if request.GET.district == district.value %}selected{% endif %}
               >
                 {% firstof district.label_with_count district.label %}
               </option>
@@ -579,11 +577,11 @@
   <section class="home-trust panel">
     <h2>{% trans "Почему нам доверяют" %}</h2>
     <div class="trust-score">
-      <strong>{% if site_reviews_count %}{{ site_reviews_avg|floatformat:1 }}{% else %}—{% endif %}</strong>
+      <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}+{% else %}—{% endif %}</strong>
       <span class="trust-stars" aria-hidden="true">★★★★★</span>
       <span>
-        {% if site_reviews_count %}
-          {% blocktrans count total=site_reviews_count %}на основе {{ total }} отзыва о сервисе{% plural %}на основе {{ total }} отзывов о сервисе{% endblocktrans %}
+        {% if total_place_reviews_count %}
+          {% blocktrans count total=total_place_reviews_count %}{{ total }} отзыв о кружках{% plural %}{{ total }} отзывов о кружках{% endblocktrans %}
         {% else %}
           {% trans "Пока нет отзывов" %}
         {% endif %}
@@ -597,112 +595,7 @@
     </div>
   </section>
 
-  <section id="site-reviews" class="panel site-reviews-teaser">
-    <div class="site-reviews-teaser-head">
-      <div class="site-reviews-teaser-copy">
-        <p class="site-reviews-teaser-eyebrow">{% trans "Отзывы о сервисе" %}</p>
-        <h2>{% trans "Общие отзывы о сайте" %}</h2>
-        <p class="meta site-reviews-teaser-meta">{% trans "Отдельная страница со всеми отзывами, сортировкой и возможностью поставить лайк или дизлайк." %}</p>
-      </div>
-      <div class="site-reviews-teaser-side">
-        <p class="site-reviews-teaser-side-label">{% trans "Полная лента и реакции" %}</p>
-        <a class="btn" href="{% url 'site_reviews' %}">{% trans "Открыть отзывы" %}</a>
-      </div>
-    </div>
-    <div class="site-reviews-teaser-list">
-      {% if site_reviews_teaser %}
-        {% for review in site_reviews_teaser %}
-          <article class="review-item site-review-teaser-card">
-            <div class="review-head">
-              <strong class="review-author">
-                {{ review.author_name_i18n }}
-              </strong>
-              <span class="rating-stars small" style="--rating: {{ review.rating }};" aria-hidden="true"></span>
-              <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
-            </div>
 
-            {% if review.text %}
-              <p class="review-text site-review-teaser-text">{{ review.text_i18n|truncatechars:140 }}</p>
-            {% else %}
-              <p class="review-text site-review-teaser-text">{% trans "Пользователь оставил оценку без текстового комментария." %}</p>
-            {% endif %}
-
-            <div class="review-footer site-review-teaser-footer">
-              {% if review.contains_profanity %}
-                <span class="review-flag">{% trans "Текст отзыва отфильтрован" %}</span>
-              {% endif %}
-
-              {% if request.user.is_authenticated %}
-                <form method="post" action="{% url 'vote_site_review' review.id %}" class="review-reactions-form" data-review-reaction-form>
-                  {% csrf_token %}
-                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-                  <button type="submit" name="value" value="1" class="review-reaction-btn{% if review.current_reaction == 1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == 1 %}true{% else %}false{% endif %}">
-                    <span class="review-reaction-icon" aria-hidden="true">
-                      <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
-                        <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
-                        <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
-                      </svg>
-                    </span>
-                    <span class="visually-hidden">{% trans "Лайк" %}</span>
-                    <span class="review-reaction-count" data-review-like-count>{{ review.likes_count }}</span>
-                  </button>
-                  <button type="submit" name="value" value="-1" class="review-reaction-btn dislike{% if review.current_reaction == -1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == -1 %}true{% else %}false{% endif %}">
-                    <span class="review-reaction-icon" aria-hidden="true">
-                      <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
-                        <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
-                        <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
-                      </svg>
-                    </span>
-                    <span class="visually-hidden">{% trans "Дизлайк" %}</span>
-                    <span class="review-reaction-count" data-review-dislike-count>{{ review.dislikes_count }}</span>
-                  </button>
-                </form>
-              {% else %}
-                <div class="review-reactions-form">
-                  <button
-                    type="button"
-                    class="review-reaction-btn"
-                    aria-pressed="false"
-                    data-auth-required-trigger
-                    data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
-                    data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
-                  >
-                    <span class="review-reaction-icon" aria-hidden="true">
-                      <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
-                        <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
-                        <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
-                      </svg>
-                    </span>
-                    <span class="visually-hidden">{% trans "Лайк" %}</span>
-                    <span class="review-reaction-count">{{ review.likes_count }}</span>
-                  </button>
-                  <button
-                    type="button"
-                    class="review-reaction-btn dislike"
-                    aria-pressed="false"
-                    data-auth-required-trigger
-                    data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
-                    data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
-                  >
-                    <span class="review-reaction-icon" aria-hidden="true">
-                      <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
-                        <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
-                        <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
-                      </svg>
-                    </span>
-                    <span class="visually-hidden">{% trans "Дизлайк" %}</span>
-                    <span class="review-reaction-count">{{ review.dislikes_count }}</span>
-                  </button>
-                </div>
-              {% endif %}
-            </div>
-          </article>
-        {% endfor %}
-      {% else %}
-        <p class="meta">{% trans "Пока нет общих отзывов о сайте." %}</p>
-      {% endif %}
-    </div>
-  </section>
 
   <section class="panel home-faq-panel" id="faq">
     <div class="home-faq-grid">
@@ -734,7 +627,7 @@
 
         <div class="home-faq-actions" aria-label="{% trans 'Быстрые переходы' %}">
           <a class="home-faq-action" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
-          <a class="home-faq-action" href="{% url 'site_reviews' %}">{% trans "Читать отзывы" %}</a>
+          <a class="home-faq-action" href="{% url 'place_list' %}">{% trans "Читать отзывы" %}</a>
           <a class="home-faq-action home-faq-action-wide" href="#for-owners">{% trans "Размещение для владельцев" %}</a>
         </div>
       </div>
@@ -837,15 +730,16 @@
 
         const currentLang = document.documentElement.lang || 'az';
 
-        const allBakuDistrictsLabel = dropdown.dataset.allBakuLabel || '';
-        const defaultDistrictLabel = dropdown.dataset.defaultLabel || '';
-        const toggleSectionLabel = dropdown.dataset.toggleLabel || '';
-
-        function getAllBakuDistrictsLabel() {
-          return allBakuDistrictsLabel;
+        function getBütünBakıRayonlarıLabel() {
+          if (currentLang === 'az') return 'Bütün Bakı rayonları';
+          if (currentLang === 'en') return 'All Baku districts';
+          return 'Все районы Баку';
         }
 
         function cleanDistrictLabel(label) {
+          if (label && label.includes(':')) {
+            return label.split(':')[1].trim();
+          }
           return label;
         }
 
@@ -857,9 +751,7 @@
               value: opt.value,
               label: label,
               labelWithCount: labelWithCount,
-              count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null,
-              isBakuCity: opt.dataset.isBakuCity === '1',
-              isBakuDistrict: opt.dataset.isBakuDistrict === '1'
+              count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null
             };
           });
         }
@@ -882,8 +774,8 @@
           }
 
           let isSelected = false;
-          if (isBakuAll) {
-            if (targetSelect.value === getAllBakuDistrictsLabel()) {
+          if (value === 'baku') {
+            if (targetSelect.value === 'baku' && isBakuAll) {
               isSelected = true;
             }
           } else {
@@ -903,7 +795,7 @@
             const toggle = document.createElement('button');
             toggle.type = 'button';
             toggle.className = 'km-tree-chevron';
-            toggle.setAttribute('aria-label', toggleSectionLabel);
+            toggle.setAttribute('aria-label', 'Toggle');
             toggle.setAttribute('tabindex', '-1');
             toggle.innerHTML = `
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="km-tree-chevron-icon">
@@ -963,9 +855,9 @@
           dropdown.innerHTML = '';
           const options = getOptions();
 
-          const bakuOption = options.find(o => o.isBakuCity);
-          const bakuDistricts = options.filter(o => o.isBakuDistrict);
-          const otherRegions = options.filter(o => o.value && !o.isBakuCity && !o.isBakuDistrict);
+          const bakuOption = options.find(o => o.value === 'baku');
+          const bakuDistricts = options.filter(o => o.value.startsWith('baku_'));
+          const otherRegions = options.filter(o => o.value && o.value !== 'baku' && !o.value.startsWith('baku_'));
 
           if (bakuOption) {
             const bakuNode = document.createElement('div');
@@ -980,15 +872,13 @@
               childrenContainer.className = 'km-tree-children';
               childrenContainer.setAttribute('role', 'group');
 
-              const isBakuSelected = targetSelect.value === getAllBakuDistrictsLabel() || targetSelect.value === bakuOption.value || bakuDistricts.some(function(dist) {
-                return targetSelect.value === dist.value;
-              });
+              const isBakuSelected = targetSelect.value === 'baku' || targetSelect.value.startsWith('baku_');
               bakuRow.setAttribute('aria-expanded', isBakuSelected ? 'true' : 'false');
               childrenContainer.hidden = !isBakuSelected;
 
               const bakuCountPart = bakuOption.labelWithCount.split('—')[1] || '';
-              const allBakuLabel = getAllBakuDistrictsLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
-              const allBakuRow = createNodeRow(getAllBakuDistrictsLabel(), getAllBakuDistrictsLabel(), allBakuLabel, false, true, true);
+              const allBakuLabel = getBütünBakıRayonlarıLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
+              const allBakuRow = createNodeRow('baku', getBütünBakıRayonlarıLabel(), allBakuLabel, false, true, true);
               childrenContainer.appendChild(allBakuRow);
 
               bakuDistricts.forEach((dist, idx) => {
@@ -1151,10 +1041,20 @@
           const options = getOptions();
           const selectedOpt = options.find(o => o.value === selectedVal);
           if (selectedOpt && selectedVal !== '') {
-            triggerText.textContent = selectedOpt.label;
+            if (selectedVal.startsWith('baku_')) {
+              const bakuOpt = options.find(o => o.value === 'baku');
+              const bakuLabel = bakuOpt ? bakuOpt.label : 'Bakı';
+              triggerText.textContent = `${bakuLabel} · ${cleanDistrictLabel(selectedOpt.label)}`;
+            } else {
+              triggerText.textContent = selectedOpt.label;
+            }
             container.classList.add('is-active');
           } else {
-            triggerText.textContent = defaultDistrictLabel;
+            let defaultLabel = 'Region / район';
+            if (currentLang === 'az') defaultLabel = 'Region / rayon';
+            else if (currentLang === 'en') defaultLabel = 'Region / district';
+            else defaultLabel = 'Регион / район';
+            triggerText.textContent = defaultLabel;
             container.classList.remove('is-active');
           }
         }

@@ -97,15 +97,13 @@ def published_place_queryset(queryset: QuerySet) -> QuerySet:
 
 
 def public_review_queryset(queryset: QuerySet) -> QuerySet:
-    """Return only moderated reviews that are useful enough for public pages."""
+    """Return only moderated reviews that are approved and have a valid rating."""
 
-    qs = queryset.annotate(review_text_len=Length("text"))
-    qs = qs.filter(
+    qs = qs = queryset.filter(
         is_approved=True,
         status=REVIEW_STATUS_APPROVED,
         rating__gte=1,
         rating__lte=5,
-        review_text_len__gte=20,
     )
     for token in ("aaa", "aaaa", "aaaaa", "test", "lorem", "123456", "qwerty"):
         qs = qs.exclude(Q(text__icontains=token) | Q(author_name__icontains=token))

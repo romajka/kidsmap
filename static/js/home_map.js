@@ -182,8 +182,15 @@
       return false;
     }
 
-    if (filters.district && normalizeValue(place.district_label) !== filters.district) {
-      return false;
+    if (filters.district) {
+      const placeDist = normalizeValue(place.district || place.district_label);
+      if (filters.district === "baku") {
+        if (placeDist !== "baku" && !placeDist.startsWith("baku_")) {
+          return false;
+        }
+      } else if (placeDist !== filters.district) {
+        return false;
+      }
     }
 
     if (filters.metro && normalizeValue(place.metro) !== filters.metro) {
