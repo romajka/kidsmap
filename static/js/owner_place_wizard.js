@@ -29,6 +29,7 @@
   let currentStep = 1;
   let allowNavigation = false;
   let pendingNavigationUrl = "";
+  let pendingNavigationForm = null;
   let leaveGuardLastFocus = null;
   let draftSaveTimer = null;
   let isRestoringDraft = false;
@@ -1429,7 +1430,11 @@
     if (!leaveGuard) return false;
     pendingNavigationUrl = url || "";
     leaveGuardLastFocus = document.activeElement;
+    if (leaveGuard.parentElement !== document.body) {
+      document.body.appendChild(leaveGuard);
+    }
     leaveGuard.hidden = false;
+    leaveGuard.classList.add("is-open");
     document.documentElement.classList.add("owner-leave-guard-open");
     if (leaveGuardSave) {
       leaveGuardSave.focus({ preventScroll: true });
@@ -1440,8 +1445,10 @@
   function closeLeaveGuard() {
     if (!leaveGuard) return;
     leaveGuard.hidden = true;
+    leaveGuard.classList.remove("is-open");
     document.documentElement.classList.remove("owner-leave-guard-open");
     pendingNavigationUrl = "";
+    pendingNavigationForm = null;
     if (leaveGuardLastFocus && typeof leaveGuardLastFocus.focus === "function") {
       leaveGuardLastFocus.focus({ preventScroll: true });
     }
@@ -1497,6 +1504,7 @@
     if (!link || shouldBypassNavigationWarning(link)) return;
     if (allowNavigation || !hasUnsavedChanges()) return;
     event.preventDefault();
+    pendingNavigationForm = null;
     if (openLeaveGuard(link.href)) {
       return;
     }
@@ -1525,6 +1533,12 @@
   if (leaveGuardDiscard) {
     leaveGuardDiscard.addEventListener("click", function () {
       allowNavigation = true;
+      if (pendingNavigationForm) {
+        const formToSubmit = pendingNavigationForm;
+        closeLeaveGuard();
+        formToSubmit.submit();
+        return;
+      }
       const targetUrl = pendingNavigationUrl || "/";
       closeLeaveGuard();
       window.location.href = targetUrl;
@@ -1545,6 +1559,23 @@
       closeLeaveGuard();
     }
   });
+
+  document.addEventListener("submit", function (event) {
+    const submitForm = event.target;
+    if (
+      !(submitForm instanceof HTMLFormElement)
+      || submitForm === form
+      || !submitForm.matches(".auth-logout-form")
+      || allowNavigation
+      || !hasUnsavedChanges()
+    ) {
+      return;
+    }
+    event.preventDefault();
+    pendingNavigationForm = submitForm;
+    pendingNavigationUrl = "";
+    openLeaveGuard("");
+  }, true);
 
   form.addEventListener("submit", function (event) {
     const submitter = event.submitter || document.activeElement;

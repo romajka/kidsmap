@@ -581,6 +581,33 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.context["draft_client_key"], draft_key)
         self.assertContains(response, f'data-owner-draft-key="{draft_key}"', html=False)
 
+    def test_owner_can_save_and_exit_create_draft_before_category_is_selected(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "form_action": "save_draft_exit",
+                "name_az": "Erkən saxlanan qaralama",
+                "category": "",
+                "description_az": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("owner_places_dashboard"))
+        place = Place.objects.get(owner=self.manager_user, name_az="Erkən saxlanan qaralama")
+        self.assertEqual(place.status, Place.STATUS_DRAFT)
+        self.assertIsNotNone(place.category_id)
+
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     def test_owner_create_page_uses_google_maps_when_key_is_configured(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")

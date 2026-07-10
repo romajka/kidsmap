@@ -11,7 +11,7 @@ from catalog.interfaces.repositories import (
     IPlaceOwnershipRequestRepository,
     IUserProfileRepository,
 )
-from catalog.models import Place, PlaceChangeAudit, PlaceOwnershipRequest, UserProfile
+from catalog.models import Category, Place, PlaceChangeAudit, PlaceOwnershipRequest, UserProfile
 from catalog.repositories.django_repositories import (
     DjangoOwnerPlaceRepository,
     DjangoPlaceChangeAuditRepository,
@@ -79,6 +79,10 @@ class OwnerPlacesController:
     @staticmethod
     def _has_manual_coordinates(place: Place) -> bool:
         return place.lat is not None and place.lng is not None
+
+    @staticmethod
+    def _draft_fallback_category() -> Category | None:
+        return Category.objects.order_by("order", "name", "code").first()
 
     @staticmethod
     def _coordinates_changed(*, previous_values: dict[str, object], place: Place) -> bool:
@@ -344,6 +348,10 @@ class OwnerPlacesController:
         place = result.form.save(commit=False)
         manual_coordinates_selected = self._has_manual_coordinates(place)
         place.owner = request.user
+        if draft_save_only and not place.category_id:
+            fallback_category = self._draft_fallback_category()
+            if fallback_category is not None:
+                place.category = fallback_category
         place.is_active = False
         place.is_verified = False
         place.status = Place.STATUS_DRAFT if draft_save_only else Place.STATUS_PENDING
