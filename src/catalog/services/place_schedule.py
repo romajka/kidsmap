@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from datetime import time
 
-from django.utils.translation import gettext as _
+from django.utils.translation import get_language, gettext as _
 
 
 WEEKDAY_ORDER = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
@@ -109,6 +109,24 @@ def _parse_time(raw_value: str) -> time | None:
 
 def _format_time(value: time) -> str:
     return value.strftime("%H:%M")
+
+
+def _localized_closed_label() -> str:
+    lang = (get_language() or "").split("-")[0]
+    if lang == "az":
+        return "Bağlıdır"
+    if lang == "en":
+        return "Closed"
+    return str(_("Закрыто"))
+
+
+def _localized_around_clock_label() -> str:
+    lang = (get_language() or "").split("-")[0]
+    if lang == "az":
+        return "24 saat"
+    if lang == "en":
+        return "24 hours"
+    return str(_("24 часа"))
 
 
 @dataclass(slots=True)
@@ -299,9 +317,9 @@ def build_schedule_rows(days: list[dict[str, object]]) -> list[dict[str, object]
             day_label = f"{weekday_full_label(first_weekday)}-{weekday_full_label(last_weekday)}"
 
         if current_group[0]["is_closed"]:
-            lines = [str(_("Закрыто"))]
+            lines = [_localized_closed_label()]
         elif current_group[0]["is_24_hours"]:
-            lines = [str(_("24 часа"))]
+            lines = [_localized_around_clock_label()]
         else:
             lines = [f"{item['start']}-{item['end']}" for item in current_group[0]["intervals"]]
         rows.append({"days": day_label, "lines": lines})

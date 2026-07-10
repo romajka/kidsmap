@@ -4,9 +4,20 @@
   class="owner-file-uploader owner-file-uploader-multiple js-file-uploader"
   data-file-uploader
   data-upload-mode="multiple"
+  data-upload-max-files="10"
+  data-upload-max-size="2097152"
   data-upload-empty="{% if CURRENT_LANGUAGE == 'az' %}10-dək şəkil əlavə edin. Hər biri JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == 'en' %}Add up to 10 images. Each JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans 'Добавьте до 10 изображений в формате JPG, PNG или WEBP, каждое до 2 МБ.' %}{% endif %}"
   data-upload-summary="{% if CURRENT_LANGUAGE == 'az' %}Seçilmiş fayllar:{% elif CURRENT_LANGUAGE == 'en' %}Selected files:{% else %}{% trans 'Выбрано файлов:' %}{% endif %}"
+  data-upload-pending="{% if CURRENT_LANGUAGE == 'az' %}Şəkillər forma göndəriləndə saxlanacaq.{% elif CURRENT_LANGUAGE == 'en' %}Photos will be saved after submitting the form.{% else %}{% trans 'Фото будут сохранены после отправки формы.' %}{% endif %}"
+  data-upload-count-label="{% if CURRENT_LANGUAGE == 'az' %}Seçildi{% elif CURRENT_LANGUAGE == 'en' %}Selected{% else %}{% trans 'Выбрано' %}{% endif %}"
+  data-upload-limit-label="{% if CURRENT_LANGUAGE == 'az' %}Limit{% elif CURRENT_LANGUAGE == 'en' %}Limit{% else %}{% trans 'Лимит' %}{% endif %}"
+  data-upload-too-many="{% if CURRENT_LANGUAGE == 'az' %}Qalereyaya maksimum 10 şəkil əlavə etmək olar.{% elif CURRENT_LANGUAGE == 'en' %}Gallery accepts up to 10 photos.{% else %}{% trans 'В галерею можно добавить максимум 10 фото.' %}{% endif %}"
+  data-upload-too-large="{% if CURRENT_LANGUAGE == 'az' %}Bəzi şəkillər 2 MB-dan böyükdür və əlavə olunmadı.{% elif CURRENT_LANGUAGE == 'en' %}Some photos are larger than 2 MB and were not added.{% else %}{% trans 'Некоторые фото больше 2 МБ и не были добавлены.' %}{% endif %}"
+  data-upload-bad-type="{% if CURRENT_LANGUAGE == 'az' %}Yalnız JPG, PNG və WEBP şəkilləri yükləyin.{% elif CURRENT_LANGUAGE == 'en' %}Upload JPG, PNG, or WEBP images only.{% else %}{% trans 'Загружайте только изображения JPG, PNG или WEBP.' %}{% endif %}"
 >
+  <div class="owner-file-uploader-head">
+    <span class="owner-file-uploader-count" data-upload-count>0 / 10</span>
+  </div>
   <label class="owner-file-uploader-drop">
     <span class="owner-file-uploader-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none">
@@ -23,5 +34,6 @@
     <span class="owner-file-uploader-action" data-upload-trigger role="button" tabindex="0">{% if CURRENT_LANGUAGE == "az" %}Faylları seçin{% elif CURRENT_LANGUAGE == "en" %}Choose files{% else %}{% trans "Выбрать файлы" %}{% endif %}</span>
     <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
   </label>
+  <div class="owner-file-uploader-error" data-upload-error hidden></div>
   <div class="owner-file-uploader-list" data-upload-list hidden></div>
 </div>

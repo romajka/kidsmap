@@ -1,0 +1,268 @@
+.km-user-access-page {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.km-user-access-form {
+  margin: 0;
+}
+
+.km-user-access-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.km-user-access-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 2px 0 4px;
+}
+
+.km-user-access-header__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--km-admin-success-border);
+  border-radius: 12px;
+  background: var(--km-admin-success-bg);
+  color: var(--km-admin-success);
+  font-size: 20px;
+}
+
+.km-user-access-header p,
+.km-user-access-header h1 {
+  margin: 0;
+}
+
+.km-user-access-header p {
+  color: var(--km-admin-muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.km-user-access-header h1 {
+  margin-top: 3px;
+  color: var(--km-admin-text);
+  font-size: 26px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.km-user-access-card {
+  padding: 18px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: var(--km-admin-radius-md);
+  background: var(--km-admin-panel-bg);
+  box-shadow: var(--km-admin-shadow-sm);
+}
+
+.km-user-access-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.km-user-access-field {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  color: var(--km-admin-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.km-user-access-field span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.km-user-access-field span i {
+  width: 15px;
+  color: var(--km-admin-success);
+  text-align: center;
+}
+
+.km-user-access-field input {
+  width: 100%;
+  min-height: 42px;
+  margin: 0;
+  font-size: 15px;
+}
+
+.km-user-access-field .errorlist,
+.km-user-access-role .errorlist,
+.km-user-access-page .errorlist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--km-admin-danger);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.km-user-access-role {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--km-admin-border);
+}
+
+.km-user-access-role__option {
+  display: block;
+  margin: 0;
+  cursor: pointer;
+}
+
+.km-user-access-role__option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.km-user-access-role__visual {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  height: 100%;
+  padding: 12px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: var(--km-admin-radius-sm);
+  background: var(--km-admin-panel-bg-soft);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.km-user-access-role__option input:checked + .km-user-access-role__visual {
+  border-color: var(--km-admin-success);
+  background: var(--km-admin-success-bg);
+  box-shadow: inset 0 0 0 1px var(--km-admin-success-border);
+}
+
+.km-user-access-role__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--km-admin-surface);
+  color: var(--km-admin-success);
+  font-size: 16px;
+}
+
+.km-user-access-role strong,
+.km-user-access-role small {
+  display: block;
+}
+
+.km-user-access-role strong {
+  color: var(--km-admin-text);
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.km-user-access-role small {
+  margin-top: 2px;
+  color: var(--km-admin-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.km-user-access-role > .errorlist {
+  grid-column: 1 / -1;
+}
+
+.km-user-access-alert {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border: 1px solid var(--km-admin-danger-border);
+  border-radius: var(--km-admin-radius-sm);
+  background: var(--km-admin-danger-bg);
+  color: var(--km-admin-danger);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.km-user-access-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  justify-content: flex-end;
+}
+
+.km-user-access-btn,
+.km-user-access-btn:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: var(--km-admin-radius-sm);
+  background: var(--km-admin-surface);
+  color: var(--km-admin-text);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.km-user-access-btn:hover,
+.km-user-access-btn:focus-visible {
+  border-color: var(--km-admin-success-border);
+  background: var(--km-admin-success-bg);
+  color: var(--km-admin-success);
+  outline: 0;
+  text-decoration: none;
+}
+
+.km-user-access-btn--primary,
+.km-user-access-btn--primary:visited {
+  border-color: var(--km-admin-success);
+  background: var(--km-admin-success);
+  color: #ffffff;
+}
+
+.km-user-access-btn--primary:hover,
+.km-user-access-btn--primary:focus-visible {
+  background: var(--km-admin-accent-strong);
+  color: #ffffff;
+}
+
+.km-user-access-btn--ghost,
+.km-user-access-btn--ghost:visited {
+  background: transparent;
+}
+
+@media (max-width: 760px) {
+  .km-user-access-page {
+    max-width: none;
+  }
+
+  .km-user-access-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .km-user-access-role {
+    grid-template-columns: 1fr;
+  }
+
+  .km-user-access-actions {
+    justify-content: stretch;
+  }
+
+  .km-user-access-btn {
+    flex: 1;
+  }
+}

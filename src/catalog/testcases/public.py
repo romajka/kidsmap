@@ -711,6 +711,17 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "lang-trigger-icononly")
 
 class TestCatalogContentSettingsWiring(TestCase):
+    def test_default_metro_station_list_contains_all_open_baku_metro_stations(self):
+        settings_obj = CatalogContentSettings.get_solo()
+        settings_obj.metro_stations_json = []
+        settings_obj.save(update_fields=["metro_stations_json", "updated_at"])
+
+        form = OwnerPlaceCreateForm()
+        metro_values = [value for value, _label in form.fields["metro"].choices if value]
+
+        self.assertEqual(len(metro_values), 27)
+        self.assertIn("Memar Əcəmi-2", metro_values)
+
     def test_home_page_uses_catalog_settings_districts(self):
         settings_obj = CatalogContentSettings.get_solo()
         settings_obj.districts_json = ["Тестовый район"]
@@ -981,6 +992,13 @@ class TestPublicFilterCounts(TestCase):
             district="Баку",
             metro="28 Май",
         )
+        for order, weekday in enumerate(("mon", "tue", "wed", "thu", "fri", "sat", "sun")):
+            PlaceScheduleDay.objects.create(
+                place=cls.visible_place_three,
+                weekday=weekday,
+                is_closed=False,
+                order=order,
+            )
 
         create_quality_place(
             name="Draft Counted",
@@ -1134,9 +1152,9 @@ class TestPublicFilterCounts(TestCase):
 
         for response in (az_response, ru_response, en_response):
             self.assertEqual(response.status_code, 200)
-            self.assertNotContains(response, "baku_narimanov")
-            self.assertNotContains(response, "baku_sabail")
-            self.assertNotContains(response, "baku_khatai")
+            self.assertNotContains(response, ">baku_narimanov<", html=False)
+            self.assertNotContains(response, ">baku_sabail<", html=False)
+            self.assertNotContains(response, ">baku_khatai<", html=False)
 
         self.assertContains(az_response, "Bakı, Nərimanov rayonu")
         self.assertContains(az_response, "Bakı, Səbail rayonu")

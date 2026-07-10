@@ -98,6 +98,72 @@
   line-height: 1.25;
 }
 
+.km-admin-sidebar .km-admin-sidebar__access-card {
+  margin: 10px 10px 0;
+  padding: 10px;
+  border: 1px solid rgba(17, 213, 110, 0.18);
+  border-radius: 12px;
+  background: rgba(0, 154, 78, 0.1);
+}
+
+.km-admin-sidebar .km-admin-sidebar__access-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #dffbea;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.km-admin-sidebar .km-admin-sidebar__access-head i {
+  color: #6df0ae;
+  font-size: 13px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__access-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.km-admin-sidebar .km-admin-sidebar__access-action,
+.km-admin-sidebar .km-admin-sidebar__access-action:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 30px;
+  padding: 6px 8px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d5dee7;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.km-admin-sidebar .km-admin-sidebar__access-action:hover,
+.km-admin-sidebar .km-admin-sidebar__access-action:focus-visible {
+  border-color: rgba(109, 240, 174, 0.42);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  outline: 0;
+  text-decoration: none;
+}
+
+.km-admin-sidebar .km-admin-sidebar__access-action--primary,
+.km-admin-sidebar .km-admin-sidebar__access-action--primary:visited {
+  border-color: rgba(109, 240, 174, 0.48);
+  background: #009a4e;
+  color: #ffffff;
+}
+
 .km-admin-sidebar .km-admin-sidebar__scroller {
   flex: 1;
   min-height: 0;

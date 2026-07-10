@@ -599,6 +599,17 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "GA4 пока не вернул событийные данные.")
         self.assertContains(response, "GA4 пока не вернул данные по страницам.")
 
+    @patch("catalog.services.admin_analytics.build_google_analytics_context")
+    def test_admin_site_analytics_page_does_not_create_demo_places(self, ga4_context_mock):
+        ga4_context_mock.return_value = self._ga4_disabled_context()
+        before_count = Place.objects.count()
+
+        response = self.client.get(reverse("admin:catalog_siteanalytics_changelist"), {"period": 30})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Place.objects.count(), before_count)
+        self.assertFalse(Place.objects.filter(slug__startswith="club-in-").exists())
+
     def test_admin_can_approve_request_with_direct_button_url(self):
         self.place.is_active = False
         self.place.save(update_fields=["is_active"])
@@ -1721,10 +1732,15 @@ class UserAdminUXTests(TestCase):
     def test_superadmin_can_create_staff_user_with_profile_fields(self):
         response = self.client.get(reverse("admin:catalog_staffaccessuser_add"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'enctype="multipart/form-data"', html=False)
+        self.assertContains(response, "km-user-access-page")
+        self.assertContains(response, "Новый сотрудник")
         self.assertContains(response, 'name="email"', html=False)
-        self.assertContains(response, 'name="profile-0-avatar"', html=False)
-        self.assertContains(response, 'name="profile-0-phone"', html=False)
+        self.assertContains(response, 'name="admin_role"', html=False)
+        self.assertContains(response, "Модератор")
+        self.assertContains(response, "Контент-менеджер")
+        self.assertContains(response, "Суперадмин")
+        self.assertContains(response, 'name="profile-0-role"', html=False)
+        self.assertNotContains(response, "Профили пользователей")
 
         response = self.client.post(
             reverse("admin:catalog_staffaccessuser_add"),
@@ -1735,6 +1751,7 @@ class UserAdminUXTests(TestCase):
                 "last_name": "Staff",
                 "password1": "StrongPass123!!",
                 "password2": "StrongPass123!!",
+                "admin_role": "moderator",
                 "is_active": "on",
                 "is_staff": "on",
                 "profile-TOTAL_FORMS": "1",
@@ -1744,7 +1761,7 @@ class UserAdminUXTests(TestCase):
                 "profile-0-role": UserProfile.ROLE_USER,
                 "profile-0-owner_role": UserProfile.OWNER_ROLE_MANAGER,
                 "profile-0-owner_permissions_override": "[]",
-                "profile-0-phone": "+994 50 111 22 33",
+                "profile-0-phone": "",
                 "profile-0-gender": UserProfile.GENDER_UNSPECIFIED,
                 "_save": "Save",
             },
@@ -1755,7 +1772,57 @@ class UserAdminUXTests(TestCase):
         self.assertTrue(created_user.is_staff)
         self.assertFalse(created_user.is_superuser)
         self.assertEqual(created_user.email, "new-staff@example.com")
-        self.assertEqual(created_user.profile.phone, "+994 50 111 22 33")
+        self.assertEqual(created_user.profile.role, UserProfile.ROLE_USER)
+        self.assertTrue(created_user.has_perm("catalog.change_placereview"))
+        self.assertFalse(created_user.has_perm("catalog.change_place"))
+
+    def test_superadmin_can_create_content_manager_and_superadmin_roles(self):
+        base_payload = {
+            "email": "role-staff@example.com",
+            "password1": "StrongPass123!!",
+            "password2": "StrongPass123!!",
+            "is_active": "on",
+            "is_staff": "on",
+            "profile-TOTAL_FORMS": "1",
+            "profile-INITIAL_FORMS": "0",
+            "profile-MIN_NUM_FORMS": "0",
+            "profile-MAX_NUM_FORMS": "1",
+            "profile-0-role": UserProfile.ROLE_USER,
+            "profile-0-owner_role": UserProfile.OWNER_ROLE_MANAGER,
+            "profile-0-owner_permissions_override": "[]",
+            "profile-0-phone": "",
+            "profile-0-gender": UserProfile.GENDER_UNSPECIFIED,
+            "_save": "Save",
+        }
+
+        response = self.client.post(
+            reverse("admin:catalog_staffaccessuser_add"),
+            data={
+                **base_payload,
+                "username": "content_manager_admin",
+                "admin_role": "content_manager",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        content_manager = User.objects.get(username="content_manager_admin")
+        self.assertTrue(content_manager.is_staff)
+        self.assertFalse(content_manager.is_superuser)
+        self.assertTrue(content_manager.has_perm("catalog.change_place"))
+        self.assertFalse(content_manager.has_perm("catalog.change_placereview"))
+
+        response = self.client.post(
+            reverse("admin:catalog_staffaccessuser_add"),
+            data={
+                **base_payload,
+                "username": "super_role_admin",
+                "email": "super-role@example.com",
+                "admin_role": "superadmin",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        super_role = User.objects.get(username="super_role_admin")
+        self.assertTrue(super_role.is_staff)
+        self.assertTrue(super_role.is_superuser)
 
     def test_non_superuser_staff_cannot_open_user_add_form(self):
         staff_user = User.objects.create_user(

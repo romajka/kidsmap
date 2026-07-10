@@ -1,7 +1,10 @@
 from django.contrib import admin
+from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import AdminUserCreationForm
 from django.contrib.auth.models import Group
+from django.contrib.auth.models import Permission
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -19,6 +22,72 @@ from catalog.models import (
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
 
 User = get_user_model()
+
+ADMIN_ROLE_SUPERADMIN = "superadmin"
+ADMIN_ROLE_MODERATOR = "moderator"
+ADMIN_ROLE_CONTENT_MANAGER = "content_manager"
+
+ADMIN_ROLE_CHOICES = (
+    (ADMIN_ROLE_MODERATOR, _("Модератор")),
+    (ADMIN_ROLE_CONTENT_MANAGER, _("Контент-менеджер")),
+    (ADMIN_ROLE_SUPERADMIN, _("Суперадмин")),
+)
+
+ADMIN_ROLE_PERMISSION_PRESETS = {
+    ADMIN_ROLE_MODERATOR: {
+        "view_place",
+        "view_event",
+        "view_placereview",
+        "change_placereview",
+        "view_sitereview",
+        "change_sitereview",
+        "view_placeownershiprequest",
+        "change_placeownershiprequest",
+    },
+    ADMIN_ROLE_CONTENT_MANAGER: {
+        "view_place",
+        "add_place",
+        "change_place",
+        "view_event",
+        "add_event",
+        "change_event",
+        "view_category",
+        "add_category",
+        "change_category",
+        "view_subcategory",
+        "add_subcategory",
+        "change_subcategory",
+        "view_placephoto",
+        "add_placephoto",
+        "change_placephoto",
+        "delete_placephoto",
+        "view_sitegalleryimage",
+        "add_sitegalleryimage",
+        "change_sitegalleryimage",
+        "delete_sitegalleryimage",
+        "view_sitesettings",
+        "change_sitesettings",
+        "view_sitebrandingsettings",
+        "change_sitebrandingsettings",
+        "view_siteaboutsettings",
+        "change_siteaboutsettings",
+        "view_sitecontactssettings",
+        "change_sitecontactssettings",
+        "view_sitefootersettings",
+        "change_sitefootersettings",
+        "view_siteemptystatesettings",
+        "change_siteemptystatesettings",
+    },
+}
+
+
+class StaffAccessUserCreationForm(AdminUserCreationForm):
+    admin_role = forms.ChoiceField(
+        label=_("Роль"),
+        choices=ADMIN_ROLE_CHOICES,
+        initial=ADMIN_ROLE_MODERATOR,
+        widget=forms.RadioSelect,
+    )
 
 try:
     admin.site.unregister(Group)
@@ -357,6 +426,8 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
 
 @admin.register(StaffAccessUser)
 class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
+    add_form_template = "admin/catalog/user/change_form.html"
+    add_form = StaffAccessUserCreationForm
     change_list_template = "admin/catalog/siteregistereduser/change_list.html"
     km_primary_filters = ("is_staff", "is_superuser", "is_active", "date_joined")
     list_per_page = 15
@@ -370,7 +441,7 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("username", "email", "password1", "password2", "is_staff", "is_superuser", "is_active"),
+                "fields": ("username", "email", "password1", "password2", "admin_role"),
             },
         ),
     )
@@ -395,8 +466,26 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
         return initial
 
     def save_model(self, request, obj, form, change):
+        selected_role = form.cleaned_data.get("admin_role") if not change else ""
         obj.is_staff = True
+        obj.is_active = True
+        if not change and selected_role:
+            obj.is_superuser = selected_role == ADMIN_ROLE_SUPERADMIN
         super().save_model(request, obj, form, change)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        if change:
+            return
+        selected_role = form.cleaned_data.get("admin_role") or ADMIN_ROLE_MODERATOR
+        if selected_role == ADMIN_ROLE_SUPERADMIN:
+            form.instance.user_permissions.clear()
+            return
+        permissions = Permission.objects.filter(
+            content_type__app_label="catalog",
+            codename__in=ADMIN_ROLE_PERMISSION_PRESETS.get(selected_role, set()),
+        )
+        form.instance.user_permissions.set(permissions)
 
     def _build_user_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
         params = request.GET.copy()

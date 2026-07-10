@@ -24,6 +24,7 @@ from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory
 from catalog.services.place_schedule import (
     dump_schedule_payload,
+    is_meaningful_schedule,
     serialize_place_schedule,
     validate_schedule_payload,
 )
@@ -249,9 +250,10 @@ def _validate_azerbaijan_phone(value: str, *, required: bool = False) -> str:
             raise _azerbaijan_phone_error() from exc
         if parsed.country_code != 994:
             raise _azerbaijan_phone_error()
-        if not phonenumbers.is_valid_number_for_region(parsed, "AZ"):
+        national = str(parsed.national_number)
+        if len(national) != 9 or not national.isdigit() or not phonenumbers.is_possible_number(parsed):
             raise _azerbaijan_phone_error()
-        return phonenumbers.format_number(parsed, PhoneNumberFormat.E164)
+        return f"+994{national}"
 
     digits = "".join(char for char in normalized if char.isdigit())
     if digits.startswith("994"):
@@ -1060,7 +1062,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 "inputmode": "tel",
                 "placeholder": "+994 50 123 45 67",
                 "data-km-az-phone": "1",
-                "maxlength": "17",
+                "maxlength": "20",
             }
         )
         phone_value = self.initial.get("phone1") or getattr(self.instance, "phone1", "") or ""
@@ -1205,6 +1207,13 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
         if self.geocoding_check_only:
             return cleaned
+
+        if (
+            not self.draft_save_only
+            and not cleaned.get("is_temporary")
+            and not is_meaningful_schedule(self.cleaned_schedule_days)
+        ):
+            self.add_error("structured_schedule", _("Укажите, когда место работает."))
 
         age_from = cleaned.get("age_from")
         age_to = cleaned.get("age_to")

@@ -189,6 +189,134 @@
   border-bottom: 1px solid var(--km-admin-warning-border);
 }
 
+.km-dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 8px;
+}
+
+.km-dashboard-action,
+.km-dashboard-action:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px 13px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: var(--km-admin-radius-sm);
+  background: var(--km-admin-surface);
+  color: var(--km-admin-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  box-shadow: var(--km-admin-shadow-sm);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.km-dashboard-action:hover,
+.km-dashboard-action:focus-visible {
+  border-color: var(--km-admin-success-border);
+  background: var(--km-admin-success-bg);
+  color: var(--km-admin-success);
+  outline: 0;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.km-dashboard-action--primary,
+.km-dashboard-action--primary:visited,
+.km-dashboard-action--access,
+.km-dashboard-action--access:visited {
+  border-color: var(--km-admin-success);
+  background: var(--km-admin-success);
+  color: #ffffff !important;
+}
+
+.km-dashboard-action--primary:hover,
+.km-dashboard-action--primary:focus-visible,
+.km-dashboard-action--access:hover,
+.km-dashboard-action--access:focus-visible {
+  background: var(--km-admin-accent-strong);
+  color: #ffffff !important;
+}
+
+.km-admin-access-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 13px 14px;
+  border: 1px solid var(--km-admin-success-border);
+  border-radius: var(--km-admin-radius-md);
+  background: var(--km-admin-success-bg);
+}
+
+.km-admin-access-strip__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.km-admin-access-strip__copy strong {
+  color: var(--km-admin-text);
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.km-admin-access-strip__copy span {
+  color: var(--km-admin-muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.km-admin-access-strip__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.km-admin-access-strip__actions a,
+.km-admin-access-strip__actions a:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 7px 11px;
+  border: 1px solid var(--km-admin-success-border);
+  border-radius: var(--km-admin-radius-sm);
+  background: var(--km-admin-surface);
+  color: var(--km-admin-success-text);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.km-admin-access-strip__actions a:hover,
+.km-admin-access-strip__actions a:focus-visible {
+  background: var(--km-admin-success);
+  color: #ffffff;
+  outline: 0;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .km-admin-access-strip {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .km-admin-access-strip__actions a {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
 .km-attention-panel__title {
   margin: 0;
   font-size: 16px;
@@ -402,7 +530,7 @@
 
 .km-app-model__btn--add {
   background: var(--km-admin-success-bg);
-  color: var(--km-admin-success);
+  color: var(--km-admin-success-text);
   border: 1px solid var(--km-admin-success-border);
 }
 

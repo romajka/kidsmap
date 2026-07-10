@@ -6,6 +6,11 @@
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'css/events_landing.css' %}">
+{% endblock %}
+
 {% block content %}
   {# ── HERO ── #}
   <section class="panel events-hero" id="events-hero">
@@ -110,7 +115,7 @@
     {% else %}
       {# ── EMPTY STATE ── #}
       <section class="panel events-empty" id="events-empty">
-        <div class="events-empty__icon events-icon" aria-hidden="true" style="mask-image: url('{% static 'img/icon/coolicons.iconjar/icons/calendar-remove.svg' %}'); -webkit-mask-image: url('{% static 'img/icon/coolicons.iconjar/icons/calendar-remove.svg' %}'); width: 3.4rem; height: 3.4rem; background-color: var(--brand-jet);"></div>
+        <div class="events-empty__icon events-icon events-icon-empty" aria-hidden="true"></div>
         <h2>
           {% if language == "az" %}Hələ aktiv tədbir yoxdur{% elif language == "en" %}No active events yet{% else %}Пока нет активных мероприятий{% endif %}
         </h2>

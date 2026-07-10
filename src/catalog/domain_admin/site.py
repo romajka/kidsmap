@@ -143,36 +143,48 @@ class SiteSettingsCompatAdmin(admin.ModelAdmin):
         empty_ok = self._is_section_complete(obj, ["empty_results_text_ru"])
         return [
             {
+                "key": "branding",
+                "icon": "fas fa-paint-brush",
                 "title": _("Лого и бренд"),
                 "description": _("Название проекта и логотип в шапке."),
                 "url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "complete": branding_ok,
             },
             {
+                "key": "about",
+                "icon": "fas fa-info-circle",
                 "title": _("О проекте"),
                 "description": _("Текст страницы «О проекте»."),
                 "url": reverse("admin:catalog_siteaboutsettings_changelist"),
                 "complete": about_ok,
             },
             {
+                "key": "contacts",
+                "icon": "fas fa-address-book",
                 "title": _("Контакты"),
                 "description": _("Контакты для страницы «Контакты»."),
                 "url": reverse("admin:catalog_sitecontactssettings_changelist"),
                 "complete": contacts_ok,
             },
             {
+                "key": "footer",
+                "icon": "fas fa-share-alt",
                 "title": _("Футер и соцсети"),
                 "description": _("Телефон, email, соцсети и мессенджеры в футере."),
                 "url": reverse("admin:catalog_sitefootersettings_changelist"),
                 "complete": footer_ok,
             },
             {
+                "key": "empty",
+                "icon": "far fa-window-minimize",
                 "title": _("Пустой результат"),
                 "description": _("Картинка и текст, если в каталоге ничего не найдено."),
                 "url": reverse("admin:catalog_siteemptystatesettings_changelist"),
                 "complete": empty_ok,
             },
             {
+                "key": "analytics",
+                "icon": "fas fa-chart-line",
                 "title": _("Статистика"),
                 "description": _("Сводные показатели по кружкам, лайкам и отзывам."),
                 "url": reverse("admin:catalog_siteanalytics_changelist"),
@@ -315,53 +327,6 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
             period_days = int(request.GET.get("period", 30))
         except (ValueError, TypeError):
             period_days = 30
-
-        # Auto-create 7 fully-filled regional places outside Baku if they don't exist yet
-        from catalog.models import Place, Category
-        from django.utils import timezone
-        
-        if not Place.objects.filter(district="gabala").exists():
-            regions_data = [
-                {"district": "gabala", "name_ru": "Детский футбольный клуб Габала", "name_az": "Qəbələ uşaq futbol klubu", "name_en": "Gabala Kids Football Club", "category": "SPRT", "address": "ул. Гейдара Алиева, 45"},
-                {"district": "sumgait", "name_ru": "Академия робототехники Сумгаит", "name_az": "Sumqayıt robototexnika akademiyası", "name_en": "Sumgait Robotics Academy", "category": "TECH", "address": "ул. Мира, 12"},
-                {"district": "sheki", "name_ru": "Шекинская школа искусств", "name_az": "Şəki incəsənət məktəbi", "name_en": "Sheki Art School", "category": "ART", "address": "ул. М.Э.Расулзаде, 8"},
-                {"district": "guba", "name_ru": "Спортивный клуб Губа", "name_az": "Quba idman klubu", "name_en": "Guba Sports Club", "category": "SPRT", "address": "ул. Фатали хана, 19"},
-                {"district": "ganja", "name_ru": "Центр развития Гянджа", "name_az": "Gəncə inkişaf mərkəzi", "name_en": "Ganja Development Center", "category": "EDU", "address": "пр. Низами, 102"},
-                {"district": "lankaran", "name_ru": "Ленкоранский шахматный кружок", "name_az": "Lənkəran şahmat dərnəyi", "name_en": "Lankaran Chess Club", "category": "EDU", "address": "ул. Ширали Ахундова, 3"},
-                {"district": "shamakhi", "name_ru": "Шамахинская музыкальная студия", "name_az": "Şamaxı musiqi studiyası", "name_en": "Shamakhi Music Studio", "category": "MUS", "address": "ул. Шахрияра, 1"}
-            ]
-            for i, data in enumerate(regions_data):
-                slug = f"club-in-{data['district']}-{i}"
-                cat, created = Category.objects.get_or_create(
-                    code=data["category"], 
-                    defaults={"name_ru": data["category"], "name_az": data["category"], "name_en": data["category"]}
-                )
-                Place.objects.get_or_create(
-                    slug=slug,
-                    defaults={
-                        "name": data["name_ru"],
-                        "name_ru": data["name_ru"],
-                        "name_az": data["name_az"],
-                        "name_en": data["name_en"],
-                        "description_ru": f"Полное описание кружка в регионе {data['district'].capitalize()}. Мы предлагаем качественные занятия для детей разных возрастов.",
-                        "description_az": f"{data['name_az']} haqqında ətraflı məlumat. Uşaqlar üçün dərslər keçirilir.",
-                        "description_en": f"Detailed description for the club in {data['district'].capitalize()}. We offer high quality classes for children of different ages.",
-                        "category": cat,
-                        "age_from": 5,
-                        "age_to": 15,
-                        "district": data["district"],
-                        "address": data["address"],
-                        "phone1": "+994 50 123 45 67",
-                        "is_active": True,
-                        "is_verified": True,
-                        "status": Place.STATUS_PUBLISHED,
-                        "published_at": timezone.now(),
-                        "rating_avg": 4.8,
-                        "rating_count": 5,
-                        "lat": 40.5 + 0.1 * i,
-                        "lng": 48.5 + 0.1 * i,
-                    }
-                )
 
         context = {
             **self.admin_site.each_context(request),

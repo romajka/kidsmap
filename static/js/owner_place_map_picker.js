@@ -318,6 +318,9 @@
     setTimeout(function () {
       map.invalidateSize();
     }, 0);
+    root._kidsMapRefreshMap = function () {
+      map.invalidateSize();
+    };
 
     window.addEventListener("resize", function () {
       map.invalidateSize();
@@ -413,6 +416,14 @@
     } else {
       shared.updateStatus(null, null);
     }
+    root._kidsMapRefreshMap = function () {
+      google.maps.event.trigger(map, "resize");
+      const lat = parseCoordinate(shared.latInput.value);
+      const lng = parseCoordinate(shared.lngInput.value);
+      map.setCenter(lat !== null && lng !== null
+        ? { lat: lat, lng: lng }
+        : { lat: shared.defaultLat, lng: shared.defaultLng });
+    };
   }
 
   function initMapPicker(root) {
@@ -432,6 +443,14 @@
   }
 
   window.kidsMapInitOwnerMapPickers = initAllMapPickers;
+  window.kidsMapRefreshOwnerMapPickers = function () {
+    initAllMapPickers();
+    document.querySelectorAll("[data-owner-map-picker]").forEach(function (root) {
+      if (typeof root._kidsMapRefreshMap === "function") {
+        root._kidsMapRefreshMap();
+      }
+    });
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAllMapPickers);

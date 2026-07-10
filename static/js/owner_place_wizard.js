@@ -22,8 +22,14 @@
   const draftOnlineMessage = form.dataset.ownerDraftOnlineMessage || "";
   const draftFilesMessage = form.dataset.ownerDraftFilesMessage || "";
   const hasServerErrors = !!form.querySelector(".auth-field-error, .auth-errors");
+  const leaveGuard = form.querySelector("[data-owner-leave-guard]");
+  const leaveGuardSave = leaveGuard ? leaveGuard.querySelector("[data-owner-leave-save]") : null;
+  const leaveGuardCancel = leaveGuard ? leaveGuard.querySelector("[data-owner-leave-cancel]") : null;
+  const leaveGuardDiscard = leaveGuard ? leaveGuard.querySelector("[data-owner-leave-discard]") : null;
   let currentStep = 1;
   let allowNavigation = false;
+  let pendingNavigationUrl = "";
+  let leaveGuardLastFocus = null;
   let draftSaveTimer = null;
   let isRestoringDraft = false;
   let restoredStep = null;
@@ -282,6 +288,10 @@
   }
 
   function getFieldLabel(name) {
+    if (name === "structured_schedule") {
+      const lang = document.documentElement.lang || "ru";
+      return lang === "az" ? "İş qrafiki" : (lang === "en" ? "Opening hours" : "Расписание работы");
+    }
     const field = getField(name);
     if (!field) return "";
     const wrapper = field.closest(".owner-form-field, .owner-form-toggle-field, .owner-form-file-field");
@@ -303,6 +313,9 @@
   function isFieldFilledByName(name) {
     const field = getField(name);
     if (!field) return null;
+    if (name === "structured_schedule") {
+      return isStructuredScheduleFilled(field);
+    }
     if (name === "photo") {
       return isPhotoFieldFilled(field);
     }
@@ -310,6 +323,23 @@
       return getSelectedFiles(field).length > 0;
     }
     return hasFieldValue(field);
+  }
+
+  function isStructuredScheduleFilled(field) {
+    let days = [];
+    try {
+      const parsed = JSON.parse(field.value || "[]");
+      days = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.days) ? parsed.days : []);
+    } catch (error) {
+      return false;
+    }
+    return days.some(function (day) {
+      if (!day || day.is_closed) return false;
+      if (day.is_24_hours) return true;
+      return Array.isArray(day.intervals) && day.intervals.some(function (interval) {
+        return String(interval.start || "").trim() && String(interval.end || "").trim();
+      });
+    });
   }
 
   function evaluateFields(names) {
@@ -464,11 +494,25 @@
 
   function syncLanguagePanels() {
     form.querySelectorAll("[data-owner-lang-tabs]").forEach(function (tabsRoot) {
-      const preferred = ["ru", "en"].find(function (language) {
+      const hasAz = !!tabsRoot.querySelector('[data-owner-lang-panel="az"]');
+      let preferred = ["ru", "en", "az"].find(function (language) {
         const panel = tabsRoot.querySelector('[data-owner-lang-panel="' + language + '"]');
         if (!panel) return false;
-        return !!panel.querySelector(".auth-field-error") || Array.from(panel.querySelectorAll("input, textarea")).some(hasFieldValue);
-      }) || "ru";
+        return !!panel.querySelector(".auth-field-error");
+      });
+
+      if (!preferred) {
+        preferred = ["ru", "en"].find(function (language) {
+          const panel = tabsRoot.querySelector('[data-owner-lang-panel="' + language + '"]');
+          if (!panel) return false;
+          return Array.from(panel.querySelectorAll("input, textarea")).some(hasFieldValue);
+        });
+      }
+
+      if (!preferred) {
+        preferred = hasAz ? "az" : "ru";
+      }
+
       activateLanguagePanel(tabsRoot, preferred);
     });
   }
@@ -979,6 +1023,9 @@
       progressBar.style.width = fillPercent + "%";
     }
     alignStepperTrack();
+    if (currentStep === 3 && window.kidsMapRefreshOwnerMapPickers) {
+      window.setTimeout(window.kidsMapRefreshOwnerMapPickers, 40);
+    }
   }
 
   function openContainingDetails(element) {
@@ -989,6 +1036,117 @@
       }
       parent = parent.parentElement;
     }
+  }
+
+  function getCustomValidationMessage(field) {
+    const lang = document.documentElement.lang || "ru";
+    
+    // Check if it's the category field
+    if (field.name === "category") {
+      if (lang === "az") return "Zəhmət olmasa kateqoriya seçin";
+      if (lang === "en") return "Please select a category";
+      return "Пожалуйста, выберите категорию";
+    }
+    
+    // Check if empty required field
+    if (field.validity && field.validity.valueMissing) {
+      if (lang === "az") return "Zəhmət olmasa bu sahəni doldurun";
+      if (lang === "en") return "Please fill in this field";
+      return "Пожалуйста, заполните это поле";
+    }
+    
+    // Check if email error
+    if (field.type === "email" && field.validity && field.validity.typeMismatch) {
+      if (lang === "az") return "Zəhmət olmasa düzgün e-poçt ünvanı daxil edin";
+      if (lang === "en") return "Please enter a valid email address";
+      return "Пожалуйста, введите корректный адрес электронной почты";
+    }
+
+    // Default message
+    return field.validationMessage || "Некорректное значение";
+  }
+
+  function showFieldError(field) {
+    const wrapper = field.closest(".owner-form-field, .owner-form-toggle-field, .owner-form-file-field") || field.parentElement;
+    if (!wrapper) return;
+    
+    if (field.name === "category") {
+      const customPicker = wrapper.parentElement.querySelector(".km-taxonomy-picker");
+      if (customPicker) {
+        customPicker.classList.add("has-client-error");
+        let errorMsg = customPicker.querySelector(".client-side-error");
+        if (!errorMsg) {
+          errorMsg = document.createElement("small");
+          errorMsg.className = "auth-field-error client-side-error";
+          customPicker.appendChild(errorMsg);
+        }
+        errorMsg.textContent = getCustomValidationMessage(field);
+        errorMsg.style.display = "block";
+        return;
+      }
+    }
+
+    wrapper.classList.add("has-client-error");
+    
+    // Check if there is already a client error displayed
+    let errorMsg = wrapper.querySelector(".client-side-error");
+    if (!errorMsg) {
+      errorMsg = document.createElement("small");
+      errorMsg.className = "auth-field-error client-side-error";
+      wrapper.appendChild(errorMsg);
+    }
+    errorMsg.textContent = getCustomValidationMessage(field);
+    errorMsg.style.display = "block";
+  }
+
+  function clearFieldError(field) {
+    const wrapper = field.closest(".owner-form-field, .owner-form-toggle-field, .owner-form-file-field") || field.parentElement;
+    if (!wrapper) return;
+    
+    if (field.name === "category") {
+      const customPicker = wrapper.parentElement.querySelector(".km-taxonomy-picker");
+      if (customPicker) {
+        customPicker.classList.remove("has-client-error");
+        const errorMsg = customPicker.querySelector(".client-side-error");
+        if (errorMsg) {
+          errorMsg.style.display = "none";
+          errorMsg.textContent = "";
+        }
+      }
+    }
+
+    wrapper.classList.remove("has-client-error");
+    const errorMsg = wrapper.querySelector(".client-side-error");
+    if (errorMsg) {
+      errorMsg.style.display = "none";
+      errorMsg.textContent = "";
+    }
+    
+    // Also hide server-side errors if the field is now valid
+    wrapper.querySelectorAll(".auth-field-error:not(.client-side-error)").forEach(function (srvErr) {
+      srvErr.style.display = "none";
+    });
+  }
+
+  function setScheduleClientError(show) {
+    const editor = form.querySelector("[data-km-schedule-editor]");
+    if (!editor) return;
+    let error = editor.querySelector(".km-schedule-client-error");
+    if (!show) {
+      if (error) error.remove();
+      editor.classList.remove("has-client-error");
+      return;
+    }
+    if (!error) {
+      error = document.createElement("small");
+      error.className = "auth-field-error km-schedule-client-error";
+      editor.appendChild(error);
+    }
+    const lang = document.documentElement.lang || "ru";
+    error.textContent = lang === "az"
+      ? "Məkanın nə vaxt işlədiyini seçin."
+      : (lang === "en" ? "Select when this place is open." : "Выберите, когда место работает.");
+    editor.classList.add("has-client-error");
   }
 
   function focusFirstProblem(step) {
@@ -1002,7 +1160,6 @@
     target.scrollIntoView({ behavior: "smooth", block: "center" });
     if (invalidField && typeof invalidField.focus === "function") {
       invalidField.focus({ preventScroll: true });
-      invalidField.reportValidity();
     }
   }
 
@@ -1017,15 +1174,33 @@
       return field.type !== "hidden" && !field.disabled;
     });
 
+    let firstInvalid = null;
+    
+    // Clear previous client errors on this step
+    fields.forEach(clearFieldError);
+
     for (const field of fields) {
       if (typeof field.checkValidity === "function" && !field.checkValidity()) {
-        focusFirstProblem(activeStep);
-        return false;
+        showFieldError(field);
+        if (!firstInvalid) {
+          firstInvalid = field;
+        }
       }
+    }
+
+    if (firstInvalid) {
+      focusFirstProblem(activeStep);
+      return false;
     }
 
     const stepState = getStepState(activeStep);
     if (!stepState.complete) {
+      if (
+        parseList(activeStep.dataset.ownerStepRequiredFields).includes("structured_schedule")
+        && !isFieldFilledByName("structured_schedule")
+      ) {
+        setScheduleClientError(true);
+      }
       focusFirstProblem(activeStep);
       return false;
     }
@@ -1067,6 +1242,8 @@
     const input = uploader.querySelector("[data-upload-input]");
     const meta = uploader.querySelector("[data-upload-meta]");
     const list = uploader.querySelector("[data-upload-list]");
+    const countEl = uploader.querySelector("[data-upload-count]");
+    const errorEl = uploader.querySelector("[data-upload-error]");
     if (!input || !meta) return;
 
     const emptyMessage = uploader.dataset.uploadEmpty || "";
@@ -1075,10 +1252,19 @@
     const cropNote = uploader.dataset.uploadCropNote || "";
     const files = getSelectedFiles(input);
     const isSingleUploader = uploader.dataset.uploadMode === "single";
+    const maxFiles = Number(uploader.dataset.uploadMaxFiles || (isSingleUploader ? 1 : 10));
 
     const hasCurrentPreview = !!uploader.querySelector(".owner-file-uploader-current-preview");
     const clearCheckbox = uploader.querySelector(".owner-image-clear-checkbox");
     const hasInitial = hasCurrentPreview && !(clearCheckbox && clearCheckbox.checked);
+    if (countEl) {
+      countEl.textContent = files.length + " / " + maxFiles;
+      countEl.classList.toggle("is-full", files.length >= maxFiles);
+    }
+    if (errorEl && !uploader.dataset.uploadErrorActive) {
+      errorEl.hidden = true;
+      errorEl.textContent = "";
+    }
 
     if (!files.length) {
       meta.textContent = emptyMessage;
@@ -1108,9 +1294,9 @@
 
     uploader.classList.add("is-selected");
     if (files.length === 1) {
-      meta.textContent = summaryLabel + " " + files[0].name + " (" + formatFileSize(files[0].size) + "). " + pendingMessage;
+      meta.textContent = [summaryLabel + " " + files[0].name + " (" + formatFileSize(files[0].size) + ").", pendingMessage].filter(Boolean).join(" ");
     } else {
-      meta.textContent = summaryLabel + " " + files.length + ". " + pendingMessage;
+      meta.textContent = [summaryLabel + " " + files.length + ".", pendingMessage].filter(Boolean).join(" ");
     }
 
     if (!list) return;
@@ -1152,9 +1338,77 @@
         list._previewUrls.push(url);
         previewHtml = '<a href="' + url + '" target="_blank" title="' + escapeHtml(file.name) + '" style="display:block; overflow:hidden; border-radius:6px;"><img src="' + url + '" alt="" class="owner-file-uploader-mini-preview" /></a>';
       }
-      const removeBtn = '<button type="button" data-remove-file style="background:none;border:none;cursor:pointer;color:#a0aeb1;font-size:20px;padding:0 8px;margin-left:auto;line-height:1;">&times;</button>';
+      const removeBtn = '<button type="button" class="owner-file-uploader-item-remove" data-remove-file aria-label="Remove file">&times;</button>';
       return '<span class="owner-file-uploader-item" data-filename="' + escapeHtml(file.name) + '">' + previewHtml + '<span class="owner-file-uploader-item-name">' + escapeHtml(file.name) + ' <em>' + escapeHtml(formatFileSize(file.size)) + '</em></span>' + removeBtn + '</span>';
     }).join("");
+  }
+
+  function setUploaderError(uploader, messages) {
+    const errorEl = uploader.querySelector("[data-upload-error]");
+    const cleanMessages = Array.from(new Set((messages || []).filter(Boolean)));
+    uploader.dataset.uploadErrorActive = cleanMessages.length ? "1" : "";
+    if (!errorEl) return;
+    if (!cleanMessages.length) {
+      errorEl.hidden = true;
+      errorEl.textContent = "";
+      return;
+    }
+    errorEl.hidden = false;
+    errorEl.textContent = cleanMessages.join(" ");
+  }
+
+  function fileKey(file) {
+    return [file.name, file.size, file.lastModified].join(":");
+  }
+
+  function filterUploaderFiles(uploader, incomingFiles, existingFiles) {
+    const input = uploader.querySelector("[data-upload-input]");
+    const isSingle = uploader.dataset.uploadMode === "single";
+    const maxFiles = Number(uploader.dataset.uploadMaxFiles || (isSingle ? 1 : 10));
+    const maxSize = Number(uploader.dataset.uploadMaxSize || 0);
+    const accepted = new DataTransfer();
+    const errors = [];
+    const seen = new Set();
+
+    function tryAdd(file) {
+      if (!file) return;
+      if (file.type && file.type.indexOf("image/") !== 0) {
+        errors.push(uploader.dataset.uploadBadType || "");
+        return;
+      }
+      if (maxSize && file.size > maxSize) {
+        errors.push(uploader.dataset.uploadTooLarge || "");
+        return;
+      }
+      if (seen.has(fileKey(file))) return;
+      if (accepted.files.length >= maxFiles) {
+        errors.push(uploader.dataset.uploadTooMany || "");
+        return;
+      }
+      accepted.items.add(file);
+      seen.add(fileKey(file));
+    }
+
+    if (!isSingle) {
+      Array.from(existingFiles || []).forEach(tryAdd);
+    }
+    Array.from(incomingFiles || []).forEach(tryAdd);
+
+    if (isSingle && accepted.files.length > 1) {
+      errors.push(uploader.dataset.uploadTooMany || "");
+      while (accepted.items.length > 1) {
+        accepted.items.remove(1);
+      }
+    }
+
+    if (input && input.multiple) {
+      input._accumulatedFiles = accepted;
+      input.value = "";
+    } else if (input) {
+      input.files = accepted.files;
+    }
+    setUploaderError(uploader, errors);
+    return accepted.files;
   }
 
   function shouldBypassNavigationWarning(target) {
@@ -1165,6 +1419,48 @@
     if (href.indexOf("javascript:") === 0) return true;
     if ((target.getAttribute("target") || "").toLowerCase() === "_blank") return true;
     return false;
+  }
+
+  function isPlainPrimaryClick(event) {
+    return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+  }
+
+  function openLeaveGuard(url) {
+    if (!leaveGuard) return false;
+    pendingNavigationUrl = url || "";
+    leaveGuardLastFocus = document.activeElement;
+    leaveGuard.hidden = false;
+    document.documentElement.classList.add("owner-leave-guard-open");
+    if (leaveGuardSave) {
+      leaveGuardSave.focus({ preventScroll: true });
+    }
+    return true;
+  }
+
+  function closeLeaveGuard() {
+    if (!leaveGuard) return;
+    leaveGuard.hidden = true;
+    document.documentElement.classList.remove("owner-leave-guard-open");
+    pendingNavigationUrl = "";
+    if (leaveGuardLastFocus && typeof leaveGuardLastFocus.focus === "function") {
+      leaveGuardLastFocus.focus({ preventScroll: true });
+    }
+  }
+
+  function submitDraftAndExit() {
+    const button = document.createElement("button");
+    button.type = "submit";
+    button.name = "form_action";
+    button.value = "save_draft_exit";
+    button.formNoValidate = true;
+    button.hidden = true;
+    button.setAttribute("data-loading-button", "");
+    form.appendChild(button);
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit(button);
+    } else {
+      button.click();
+    }
   }
 
   window.addEventListener("beforeunload", function (event) {
@@ -1197,18 +1493,66 @@
 
   document.addEventListener("click", function (event) {
     const link = event.target.closest("a[href]");
+    if (!isPlainPrimaryClick(event)) return;
     if (!link || shouldBypassNavigationWarning(link)) return;
     if (allowNavigation || !hasUnsavedChanges()) return;
-    if (window.confirm(unsavedChangesMessage)) {
-      allowNavigation = true;
+    event.preventDefault();
+    if (openLeaveGuard(link.href)) {
       return;
     }
-    event.preventDefault();
+    if (window.confirm(unsavedChangesMessage)) {
+      allowNavigation = true;
+      window.location.href = link.href;
+      return;
+    }
+  });
+
+  if (leaveGuardSave) {
+    leaveGuardSave.addEventListener("click", function () {
+      allowNavigation = true;
+      window.clearTimeout(draftSaveTimer);
+      saveDraftNow();
+      submitDraftAndExit();
+    });
+  }
+
+  if (leaveGuardCancel) {
+    leaveGuardCancel.addEventListener("click", function () {
+      closeLeaveGuard();
+    });
+  }
+
+  if (leaveGuardDiscard) {
+    leaveGuardDiscard.addEventListener("click", function () {
+      allowNavigation = true;
+      const targetUrl = pendingNavigationUrl || "/";
+      closeLeaveGuard();
+      window.location.href = targetUrl;
+    });
+  }
+
+  if (leaveGuard) {
+    leaveGuard.addEventListener("click", function (event) {
+      if (event.target === leaveGuard) {
+        closeLeaveGuard();
+      }
+    });
+  }
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && leaveGuard && !leaveGuard.hidden) {
+      event.preventDefault();
+      closeLeaveGuard();
+    }
   });
 
   form.addEventListener("submit", function (event) {
     const submitter = event.submitter || document.activeElement;
-    const isDraft = submitter && (submitter.value === "save_draft" || (submitter.name === "form_action" && submitter.value === "save_draft"));
+    const isDraft = submitter && (
+      submitter.value === "save_draft"
+      || submitter.value === "save_draft_exit"
+      || (submitter.name === "form_action" && (submitter.value === "save_draft" || submitter.value === "save_draft_exit"))
+    );
     
     if (!isDraft) {
       for (let i = 1; i <= 4; i++) {
@@ -1242,6 +1586,7 @@
     const gotoNext = event.target.closest("[data-owner-goto-next]");
     const removeFileBtn = event.target.closest("[data-remove-file]");
     const uploadTrigger = event.target.closest("[data-upload-trigger]");
+    const findOnMapBtn = event.target.closest("[data-action-find-on-map]");
 
     if (uploadTrigger) {
       event.preventDefault();
@@ -1249,6 +1594,27 @@
       const input = uploader ? uploader.querySelector("[data-upload-input]") : null;
       if (input) {
         input.click();
+      }
+      return;
+    }
+
+    if (findOnMapBtn) {
+      event.preventDefault();
+      const mapPicker = form.querySelector("[data-owner-map-picker]");
+      const searchInput = mapPicker ? mapPicker.querySelector("[data-map-search-input]") : null;
+      const searchBtn = mapPicker ? mapPicker.querySelector("[data-map-search]") : null;
+      const addressInput = getField("address");
+      if (searchInput && addressInput) {
+        searchInput.value = addressInput.value || searchInput.value || "";
+      }
+      if (window.kidsMapRefreshOwnerMapPickers) {
+        window.kidsMapRefreshOwnerMapPickers();
+      }
+      if (searchBtn) {
+        searchBtn.click();
+      }
+      if (mapPicker) {
+        mapPicker.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       return;
     }
@@ -1364,23 +1730,16 @@
   form.addEventListener("change", function (event) {
     if (event.target.type === "file" && event.target.multiple) {
       const input = event.target;
-      if (!input._accumulatedFiles) input._accumulatedFiles = new DataTransfer();
-      
-      Array.from(input.files).forEach(file => {
-        let exists = false;
-        for (let i = 0; i < input._accumulatedFiles.files.length; i++) {
-          if (input._accumulatedFiles.files[i].name === file.name && input._accumulatedFiles.files[i].size === file.size) exists = true;
-        }
-        if (!exists) input._accumulatedFiles.items.add(file);
-      });
-      
-      if (input._accumulatedFiles.files.length > 10) {
-        const dt = new DataTransfer();
-        for (let i = 0; i < 10; i++) dt.items.add(input._accumulatedFiles.files[i]);
-        input._accumulatedFiles = dt;
-        alert(document.documentElement.lang === "az" ? "Maksimum 10 şəkil icazə verilir." : (document.documentElement.lang === "en" ? "Max 10 files allowed." : "Разрешено максимум 10 файлов."));
+      const uploader = input.closest("[data-file-uploader]");
+      if (uploader) {
+        filterUploaderFiles(uploader, input.files, input._accumulatedFiles ? input._accumulatedFiles.files : []);
       }
-      input.value = "";
+    } else if (event.target.type === "file") {
+      const input = event.target;
+      const uploader = input.closest("[data-file-uploader]");
+      if (uploader) {
+        filterUploaderFiles(uploader, input.files, []);
+      }
     }
 
     markStepTouched(event.target);
@@ -1401,6 +1760,9 @@
     if (uploader) {
       renderUploaderState(uploader);
     }
+    if (event.target && typeof event.target.checkValidity === "function" && event.target.checkValidity()) {
+      clearFieldError(event.target);
+    }
     updateCompletion();
     updateFinalSummary();
     updateWizard(currentStep);
@@ -1409,6 +1771,21 @@
 
   form.addEventListener("input", function (event) {
     markStepTouched(event.target);
+    if (event.target && typeof event.target.checkValidity === "function" && event.target.checkValidity()) {
+      clearFieldError(event.target);
+    }
+    updateCompletion();
+    updateFinalSummary();
+    updateWizard(currentStep);
+    scheduleDraftSave();
+  });
+
+  form.addEventListener("km:schedule-change", function () {
+    const scheduleField = getField("structured_schedule");
+    if (scheduleField) {
+      markStepTouched(scheduleField);
+      setScheduleClientError(!isStructuredScheduleFilled(scheduleField));
+    }
     updateCompletion();
     updateFinalSummary();
     updateWizard(currentStep);
@@ -1418,6 +1795,13 @@
   form.addEventListener("toggle", function (event) {
     if (!event.target.matches("details.owner-form-details")) return;
     scheduleDraftSave();
+  }, true);
+
+  form.addEventListener("invalid", function (event) {
+    event.preventDefault();
+    if (event.target) {
+      showFieldError(event.target);
+    }
   }, true);
 
   function initDragAndDrop(uploader) {
@@ -1447,39 +1831,9 @@
       if (!files || !files.length) return;
 
       if (input.multiple) {
-        const inputFiles = input._accumulatedFiles ? input._accumulatedFiles.files : input.files;
-        const newDt = new DataTransfer();
-        Array.from(inputFiles).forEach(function (file) {
-          newDt.items.add(file);
-        });
-        Array.from(files).forEach(function (file) {
-          let exists = false;
-          for (let i = 0; i < newDt.files.length; i++) {
-            if (newDt.files[i].name === file.name && newDt.files[i].size === file.size) {
-              exists = true;
-            }
-          }
-          if (!exists) {
-            newDt.items.add(file);
-          }
-        });
-
-        if (newDt.files.length > 10) {
-          const dtLimited = new DataTransfer();
-          for (let i = 0; i < 10; i++) {
-            dtLimited.items.add(newDt.files[i]);
-          }
-          input._accumulatedFiles = dtLimited;
-          const lang = document.documentElement.lang || "ru";
-          alert(lang === "az" ? "Maksimum 10 şəkil icazə verilir." : (lang === "en" ? "Max 10 files allowed." : "Разрешено максимум 10 файлов."));
-        } else {
-          input._accumulatedFiles = newDt;
-        }
-        input.value = "";
+        filterUploaderFiles(uploader, files, input._accumulatedFiles ? input._accumulatedFiles.files : input.files);
       } else {
-        const dtSingle = new DataTransfer();
-        dtSingle.items.add(files[0]);
-        input.files = dtSingle.files;
+        filterUploaderFiles(uploader, files, []);
       }
 
       renderUploaderState(uploader);
@@ -1497,26 +1851,110 @@
 
   restoreDraftState();
 
-  // Set up Azerbaijani phone format (+994)
-  const phoneInputs = form.querySelectorAll('input[type="tel"], input[name="phone1"], input[name="phone2"]');
-  function formatPhone(val) {
-    let v = val.replace(/\D/g, '');
-    if (v.startsWith('994')) v = v.substring(3);
-    else if (v.startsWith('0')) v = v.substring(1);
-    return v ? '+994 ' + v : '';
+  // Set up Azerbaijani phone format: +994 50 123 45 67
+  const phoneInputs = form.querySelectorAll('[data-km-az-phone], input[type="tel"], input[name="phone1"], input[name="phone2"]');
+  function formatAzerbaijanPhone(value, keepPrefix) {
+    let digits = String(value || "").replace(/\D/g, "");
+    if (digits.startsWith("994")) {
+      digits = digits.slice(3);
+    }
+    if (digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+    digits = digits.slice(0, 9);
+
+    const chunks = [];
+    [[0, 2], [2, 5], [5, 7], [7, 9]].forEach(function (range) {
+      const part = digits.slice(range[0], range[1]);
+      if (part) {
+        chunks.push(part);
+      }
+    });
+
+    if (!chunks.length) {
+      return keepPrefix ? "+994 " : "";
+    }
+    return "+994 " + chunks.join(" ");
   }
   phoneInputs.forEach(function(input) {
-    if (input.value) input.value = formatPhone(input.value);
-    input.addEventListener('input', function() {
-      input.value = formatPhone(input.value) || '+994 ';
+    input.setAttribute("autocomplete", "tel");
+    input.setAttribute("inputmode", "tel");
+    input.setAttribute("maxlength", "20");
+    if (input.value) {
+      input.value = formatAzerbaijanPhone(input.value, false);
+    }
+    input.addEventListener("input", function() {
+      input.value = formatAzerbaijanPhone(input.value, true);
     });
-    input.addEventListener('focus', function() {
-      if (!input.value) input.value = '+994 ';
+    input.addEventListener("focus", function() {
+      if (!input.value) {
+        input.value = "+994 ";
+      }
     });
-    input.addEventListener('blur', function() {
-      if (input.value === '+994 ' || input.value === '+994') input.value = '';
+    input.addEventListener("blur", function() {
+      if (!String(input.value || "").replace(/\D/g, "").replace(/^994/, "")) {
+        input.value = "";
+      } else {
+        input.value = formatAzerbaijanPhone(input.value, false);
+      }
     });
   });
+
+  // Set up Price Free Checkbox
+  const priceFreeCheckbox = document.getElementById("km-price-free-checkbox");
+  if (priceFreeCheckbox) {
+    const priceFromInput = form.querySelector('[name="price_from"]');
+    const priceToInput = form.querySelector('[name="price_to"]');
+    const priceGrid = form.querySelector('[data-price-inputs-grid]');
+
+    function updatePriceGridVisibility() {
+      const isFree = priceFreeCheckbox.checked;
+      if (priceGrid) {
+        priceGrid.style.display = isFree ? "none" : "";
+      }
+      if (isFree) {
+        if (priceFromInput) {
+          priceFromInput.value = "0";
+          priceFromInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        if (priceToInput) {
+          priceToInput.value = "0";
+          priceToInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }
+    }
+
+    // Initialize state
+    if (priceFromInput && priceToInput) {
+      if (priceFromInput.value === "0" && priceToInput.value === "0") {
+        priceFreeCheckbox.checked = true;
+      }
+      updatePriceGridVisibility();
+    } else if (priceFromInput) {
+      if (priceFromInput.value === "0") {
+        priceFreeCheckbox.checked = true;
+      }
+      updatePriceGridVisibility();
+    }
+
+    priceFreeCheckbox.addEventListener("change", function () {
+      if (priceFreeCheckbox.checked) {
+        updatePriceGridVisibility();
+      } else {
+        if (priceFromInput) {
+          priceFromInput.value = "";
+          priceFromInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        if (priceToInput) {
+          priceToInput.value = "";
+          priceToInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        updatePriceGridVisibility();
+      }
+      updateCompletion();
+      updateFinalSummary();
+    });
+  }
 
 
   steps.forEach(function (step) {

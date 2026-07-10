@@ -363,4 +363,5 @@ from .user import *
 from .review import *
 from .owner import *
 from .site import *
+from .category import *
 from .place import *

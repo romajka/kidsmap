@@ -4,6 +4,7 @@
 {% block extrahead %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_user_access_form.css' %}">
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}" defer></script>
 {% endblock %}
 
@@ -11,6 +12,125 @@
 {% block submit_buttons_bottom %}{% endblock %}
 
 {% block content %}
+  {% if add and opts.model_name == "staffaccessuser" %}
+  <div id="content-main" class="km-user-access-page">
+    <form
+      {% if form_url %}action="{{ form_url }}"{% endif %}
+      method="post"
+      id="{{ opts.model_name }}_form"
+      class="km-user-access-form"
+      novalidate
+    >
+      {% csrf_token %}
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+      <input type="hidden" name="is_staff" value="on">
+      <input type="hidden" name="is_active" value="on">
+      {% for inline_admin_formset in inline_admin_formsets %}
+        {{ inline_admin_formset.formset.management_form }}
+      {% endfor %}
+      <input type="hidden" name="profile-0-role" value="USER">
+      <input type="hidden" name="profile-0-owner_role" value="MANAGER">
+      <input type="hidden" name="profile-0-owner_permissions_override" value="[]">
+      <input type="hidden" name="profile-0-gender" value="U">
+      <input type="hidden" name="profile-0-phone" value="">
+
+      <div class="km-user-access-shell">
+        <header class="km-user-access-header">
+          <div class="km-user-access-header__icon" aria-hidden="true">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div>
+            <p>{% translate "Доступ в админку" %}</p>
+            <h1>{% translate "Новый сотрудник" %}</h1>
+          </div>
+        </header>
+
+        {% if errors %}
+          <div class="km-user-access-alert">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <span>{% translate "Проверьте поля ниже и сохраните ещё раз." %}</span>
+          </div>
+          {{ adminform.form.non_field_errors }}
+        {% endif %}
+
+        <section class="km-user-access-card" aria-label="{% translate 'Основные поля' %}">
+          <div class="km-user-access-grid">
+            <label class="km-user-access-field" for="{{ adminform.form.username.id_for_label }}">
+              <span><i class="fas fa-user" aria-hidden="true"></i>{% translate "Логин" %}</span>
+              {{ adminform.form.username }}
+              {{ adminform.form.username.errors }}
+            </label>
+
+            <label class="km-user-access-field" for="{{ adminform.form.email.id_for_label }}">
+              <span><i class="fas fa-envelope" aria-hidden="true"></i>Email</span>
+              {{ adminform.form.email }}
+              {{ adminform.form.email.errors }}
+            </label>
+
+            <label class="km-user-access-field" for="{{ adminform.form.password1.id_for_label }}">
+              <span><i class="fas fa-key" aria-hidden="true"></i>{% translate "Пароль" %}</span>
+              {{ adminform.form.password1 }}
+              {{ adminform.form.password1.errors }}
+            </label>
+
+            <label class="km-user-access-field" for="{{ adminform.form.password2.id_for_label }}">
+              <span><i class="fas fa-check" aria-hidden="true"></i>{% translate "Повтор пароля" %}</span>
+              {{ adminform.form.password2 }}
+              {{ adminform.form.password2.errors }}
+            </label>
+          </div>
+
+          <div class="km-user-access-role" aria-label="{% translate 'Роль сотрудника' %}">
+            {% for choice in adminform.form.admin_role %}
+              <label class="km-user-access-role__option" for="{{ choice.id_for_label }}">
+                {{ choice.tag }}
+                <span class="km-user-access-role__visual">
+                  <span class="km-user-access-role__icon">
+                    {% if forloop.counter == 1 %}
+                      <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                    {% elif forloop.counter == 2 %}
+                      <i class="fas fa-pen-nib" aria-hidden="true"></i>
+                    {% else %}
+                      <i class="fas fa-crown" aria-hidden="true"></i>
+                    {% endif %}
+                  </span>
+                  <span>
+                    <strong>{{ choice.choice_label }}</strong>
+                    <small>
+                      {% if forloop.counter == 1 %}
+                        {% translate "Проверяет отзывы и заявки." %}
+                      {% elif forloop.counter == 2 %}
+                        {% translate "Редактирует места, события и контент." %}
+                      {% else %}
+                        {% translate "Полный доступ ко всем разделам." %}
+                      {% endif %}
+                    </small>
+                  </span>
+                </span>
+              </label>
+            {% endfor %}
+            {{ adminform.form.admin_role.errors }}
+          </div>
+        </section>
+
+        <footer class="km-user-access-actions">
+          <button type="submit" name="_save" class="km-user-access-btn km-user-access-btn--primary">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            {% translate "Создать сотрудника" %}
+          </button>
+          <button type="submit" name="_continue" class="km-user-access-btn">
+            <i class="fas fa-pen" aria-hidden="true"></i>
+            {% translate "Создать и открыть" %}
+          </button>
+          <a href="{% url opts|admin_urlname:'changelist' %}" class="km-user-access-btn km-user-access-btn--ghost">
+            {% translate "Отмена" %}
+          </a>
+        </footer>
+      </div>
+    </form>
+  </div>
+  {% else %}
   <div id="content-main" class="km-place-form-page">
     <form
       {% if has_file_field %}enctype="multipart/form-data"{% endif %}
@@ -216,4 +336,5 @@
       </div>
     </form>
   </div>
+  {% endif %}
 {% endblock %}

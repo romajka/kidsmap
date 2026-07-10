@@ -255,6 +255,193 @@
             </section>
           {% endif %}
 
+
+          <section class="detail-highlights" aria-label="{% trans 'Основные характеристики' %}">
+            {% if place.age_display %}
+              <div class="detail-highlight-card detail-highlight-card--age">
+                <span class="detail-highlight-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="7.25" r="3.25" stroke="currentColor" stroke-width="1.9"/>
+                    <path d="M6.75 18.25c.92-2.65 2.82-3.98 5.25-3.98s4.33 1.33 5.25 3.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <div class="detail-highlight-card__body">
+                  <span class="detail-highlight-card__label">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</span>
+                  <strong class="detail-highlight-card__value">{{ place.age_display }}</strong>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if place.price_range_display %}
+              <div class="detail-highlight-card detail-highlight-card--price">
+                <span class="detail-highlight-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <rect x="3.75" y="6.25" width="16.5" height="11.5" rx="2.75" stroke="currentColor" stroke-width="1.9"/>
+                    <path d="M3.75 10.25h16.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <div class="detail-highlight-card__body">
+                  <span class="detail-highlight-card__label">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</span>
+                  <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
+                </div>
+              </div>
+            {% endif %}
+            {% if place.has_schedule_content or place.lesson_duration_display %}
+              <div class="detail-highlight-card detail-highlight-card--schedule">
+                <span class="detail-highlight-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.9"/>
+                    <path d="M12 7.75v4.65l3.1 1.85" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <div class="detail-highlight-card__body">
+                  <span class="detail-highlight-card__label">{% trans "Расписание" %}</span>
+                  <strong class="detail-highlight-card__value">
+                    {% if place.lesson_duration_display %}{{ place.lesson_duration_display }}{% elif place.has_schedule_content %}{{ place.schedule_summary|striptags|truncatechars:42 }}{% endif %}
+                  </strong>
+                </div>
+              </div>
+            {% endif %}
+            {% if place.address %}
+              <div class="detail-highlight-card detail-highlight-card--address">
+                <span class="detail-highlight-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>
+                    <circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.9"/>
+                  </svg>
+                </span>
+                <div class="detail-highlight-card__body">
+                  <span class="detail-highlight-card__label">{% trans "Адрес" %}</span>
+                  <strong class="detail-highlight-card__value">{{ place.address_i18n|truncatechars:58 }}</strong>
+                </div>
+              </div>
+            {% endif %}
+
+            <div class="detail-highlight-card detail-highlight-card--category">
+              <span class="detail-highlight-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="4" y="4" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.9"/>
+                  <rect x="14" y="4" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.9"/>
+                  <rect x="4" y="14" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.9"/>
+                  <rect x="14" y="14" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.9"/>
+                </svg>
+              </span>
+              <div class="detail-highlight-card__body">
+                <span class="detail-highlight-card__label">{% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}Категория{% endif %}</span>
+                <strong class="detail-highlight-card__value">{{ place.get_category_display }}</strong>
+              </div>
+            </div>
+
+            {% if place.subcategory %}
+              <div class="detail-highlight-card detail-highlight-card--subcategory detail-highlight-card--muted">
+                <span class="detail-highlight-card__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8.25 8.25a3.5 3.5 0 1 1 5.3 2.98l-3.06 4.52a3.5 3.5 0 1 0 5.3 2.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="8.25" cy="8.25" r="1.15" fill="currentColor"/>
+                    <circle cx="15.75" cy="15.75" r="1.15" fill="currentColor"/>
+                  </svg>
+                </span>
+                <div class="detail-highlight-card__body">
+                  <span class="detail-highlight-card__label">{% if language == "az" %}Alt kateqoriya{% elif language == "en" %}Subcategory{% else %}Подкатегория{% endif %}</span>
+                  <strong class="detail-highlight-card__value">{{ place.subcategory.name_i18n }}</strong>
+                </div>
+              </div>
+            {% endif %}
+          </section>
+
+          <section class="detail-side-card detail-contact-panel detail-body-card detail-body-card--contact">
+        <div class="detail-section-head detail-section-head-compact">
+          <h2>{% if language == "az" %}Əlaqə məlumatları{% elif language == "en" %}Contact details{% else %}Контакты и связь{% endif %}</h2>
+          <p class="meta">{% if language == "az" %}Əsas əlaqə kanalları bir yerdə{% elif language == "en" %}Core contact channels in one place{% else %}Короткий список контактов без лишних дублей{% endif %}</p>
+        </div>
+        <div class="detail-contact-list">
+          {% if place.phone1 %}
+            <div class="detail-contact-row">
+              <span class="detail-contact-row__icon detail-contact-row__icon--phone" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <div class="detail-contact-row__body">
+                <span class="meta-label">{% if language == "az" %}Telefon{% elif language == "en" %}Phone{% else %}Телефон{% endif %}</span>
+                <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a>
+              </div>
+            </div>
+          {% endif %}
+          {% if place.instagram %}
+            <div class="detail-contact-row">
+              <span class="detail-contact-row__icon detail-contact-row__icon--instagram" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="4.75" y="4.75" width="14.5" height="14.5" rx="4.25" stroke="currentColor" stroke-width="1.8"/>
+                  <circle cx="12" cy="12" r="3.35" stroke="currentColor" stroke-width="1.8"/>
+                  <circle cx="16.55" cy="7.45" r="1" fill="currentColor"/>
+                </svg>
+              </span>
+              <div class="detail-contact-row__body">
+                <span class="meta-label">Instagram</span>
+                <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a>
+              </div>
+            </div>
+          {% endif %}
+          {% if place.address %}
+            <div class="detail-contact-row">
+              <span class="detail-contact-row__icon detail-contact-row__icon--address" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  <circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+              </span>
+              <div class="detail-contact-row__body">
+                <span class="meta-label">{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</span>
+                <span class="detail-contact-value detail-contact-value--address">{{ place.address_i18n }}</span>
+              </div>
+            </div>
+          {% endif %}
+          {% if place.website %}
+            <div class="detail-contact-row">
+              <span class="detail-contact-row__icon detail-contact-row__icon--website" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M3.9 12h16.2M12 3.75c2.1 2.28 3.15 5 3.15 8.25S14.1 17.97 12 20.25c-2.1-2.28-3.15-5-3.15-8.25S9.9 6.03 12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <div class="detail-contact-row__body">
+                <span class="meta-label">{% if language == "az" %}Sayt{% elif language == "en" %}Website{% else %}Сайт{% endif %}</span>
+                <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+          </section>
+
+          {% if map_embed_url %}
+        <section class="detail-side-card detail-map-wrap detail-body-card detail-body-card--map">
+          <div class="detail-section-head detail-section-head-compact">
+            <h2 class="detail-map-title">{% if language == "az" %}Xəritədə{% elif language == "en" %}On the map{% else %}На карте{% endif %}</h2>
+            <p class="meta">{% if language == "az" %}Ünvan və xəritədə baxış{% elif language == "en" %}Address and map preview{% else %}Ориентир по месту и быстрый переход в большую карту{% endif %}</p>
+          </div>
+          {% if place.address %}
+            <p class="detail-map-address detail-map-address--compact">{{ place.address_i18n }}</p>
+          {% endif %}
+          <iframe
+            class="detail-map-frame"
+            src="{{ map_embed_url }}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="{% trans 'Карта места' %}"
+          ></iframe>
+          <div class="detail-map-foot">
+            <p class="detail-map-link">
+              <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% if language == "az" %}Böyük xəritədə aç{% elif language == "en" %}Open larger map{% else %}Открыть большую карту{% endif %}</a>
+            </p>
+            {% if place.lat and place.lng %}
+              <p class="detail-map-coordinates">{{ place.lat }}, {{ place.lng }}</p>
+            {% endif %}
+          </div>
+        </section>
+          {% endif %}
+
+
           <section id="reviews" class="detail-reviews detail-section detail-body-card detail-body-card--reviews">
             <div class="detail-section-head">
               <h2>{% trans "Отзывы" %}</h2>
@@ -290,15 +477,14 @@
                 <h3>{% trans "Последние отзывы" %}</h3>
                 {% if place_reviews %}
                   <form method="get" class="reviews-toolbar">
-                    <label class="filter-item filter-sort">
-                      {% trans "Сортировка" %}
-                      <select class="filter-select" name="review_sort">
+                    <label class="filter-item filter-sort filter-sort--inline">
+                      <span class="filter-sort-label">{% trans "Сортировка" %}:</span>
+                      <select class="filter-select" name="review_sort" onchange="this.form.submit()">
                         {% for value, label in review_sort_choices %}
                           <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                       </select>
                     </label>
-                    <button class="link-btn" type="submit">{% if language == "az" %}Tətbiq et{% elif language == "en" %}Apply{% else %}Применить{% endif %}</button>
                   </form>
                 {% endif %}
               </div>
@@ -551,217 +737,23 @@
               </div>
 
               {% if place.description_i18n %}
-                <div class="detail-description detail-description--lead">
-                  <p>{{ place.description_i18n|linebreaksbr }}</p>
-                </div>
+              <div class="detail-description detail-description--lead">
+              <p>{{ place.description_i18n|linebreaksbr }}</p>
+              </div>
               {% endif %}
 
-              <div class="detail-disclaimer">
-                <strong>
-                  {% if language == "az" %}Vacib qeyd{% elif language == "en" %}Important note{% else %}Важно{% endif %}
-                </strong>
-                <p>
-                  {% if language == "az" %}
-                    Bu səhifədəki məlumatların bir hissəsi açıq mənbələrdən və üçüncü şəxslərdən əldə oluna bilər. Cədvəli, qiyməti, ünvanı və şərtləri ziyarətdən əvvəl birbaşa təşkilatla dəqiqləşdirin.
-                  {% elif language == "en" %}
-                    Some information on this page may come from public sources and third parties. Please verify the schedule, price, address, and terms directly with the organization before visiting.
-                  {% else %}
-                    Часть данных на этой странице может быть получена из открытых источников и от третьих лиц. Перед посещением уточняйте расписание, цену, адрес и условия напрямую у организации.
-                  {% endif %}
-                </p>
-              </div>
 
-              <section class="detail-highlights" aria-label="{% trans 'Основные характеристики' %}">
-                {% if place.age_display %}
-                  <div class="detail-highlight-card detail-highlight-card--age">
-                    <span class="detail-highlight-card__icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="7.25" r="3.25" stroke="currentColor" stroke-width="1.9"/>
-                        <path d="M6.75 18.25c.92-2.65 2.82-3.98 5.25-3.98s4.33 1.33 5.25 3.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
-                      </svg>
-                    </span>
-                    <div class="detail-highlight-card__body">
-                      <span class="detail-highlight-card__label">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</span>
-                      <strong class="detail-highlight-card__value">{{ place.age_display }}</strong>
-                    </div>
-                  </div>
-                {% endif %}
 
-                {% if place.price_range_display %}
-                  <div class="detail-highlight-card detail-highlight-card--price">
-                    <span class="detail-highlight-card__icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <rect x="3.75" y="6.25" width="16.5" height="11.5" rx="2.75" stroke="currentColor" stroke-width="1.9"/>
-                        <path d="M3.75 10.25h16.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
-                      </svg>
-                    </span>
-                    <div class="detail-highlight-card__body">
-                      <span class="detail-highlight-card__label">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</span>
-                      <strong class="detail-highlight-card__value">{{ place.price_range_display }}</strong>
-                    </div>
-                  </div>
-                {% endif %}
-                {% if place.has_schedule_content or place.lesson_duration_display %}
-                  <div class="detail-highlight-card detail-highlight-card--schedule">
-                    <span class="detail-highlight-card__icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.9"/>
-                        <path d="M12 7.75v4.65l3.1 1.85" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </span>
-                    <div class="detail-highlight-card__body">
-                      <span class="detail-highlight-card__label">{% trans "Расписание" %}</span>
-                      <strong class="detail-highlight-card__value">
-                        {% if place.lesson_duration_display %}{{ place.lesson_duration_display }}{% elif place.has_schedule_content %}{{ place.schedule_summary|striptags|truncatechars:42 }}{% endif %}
-                      </strong>
-                    </div>
-                  </div>
-                {% endif %}
-                {% if place.address %}
-                  <div class="detail-highlight-card detail-highlight-card--address">
-                    <span class="detail-highlight-card__icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>
-                        <circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.9"/>
-                      </svg>
-                    </span>
-                    <div class="detail-highlight-card__body">
-                      <span class="detail-highlight-card__label">{% trans "Адрес" %}</span>
-                      <strong class="detail-highlight-card__value">{{ place.address_i18n|truncatechars:58 }}</strong>
-                    </div>
-                  </div>
-                {% endif %}
 
-                <div class="detail-highlight-card detail-highlight-card--category">
-                  <span class="detail-highlight-card__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <rect x="4" y="4" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.9"/>
-                      <rect x="14" y="4" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.9"/>
-                      <rect x="4" y="14" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.9"/>
-                      <rect x="14" y="14" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.9"/>
-                    </svg>
-                  </span>
-                  <div class="detail-highlight-card__body">
-                    <span class="detail-highlight-card__label">{% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}Категория{% endif %}</span>
-                    <strong class="detail-highlight-card__value">{{ place.get_category_display }}</strong>
-                  </div>
-                </div>
-
-                {% if place.subcategory %}
-                  <div class="detail-highlight-card detail-highlight-card--subcategory detail-highlight-card--muted">
-                    <span class="detail-highlight-card__icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M8.25 8.25a3.5 3.5 0 1 1 5.3 2.98l-3.06 4.52a3.5 3.5 0 1 0 5.3 2.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="8.25" cy="8.25" r="1.15" fill="currentColor"/>
-                        <circle cx="15.75" cy="15.75" r="1.15" fill="currentColor"/>
-                      </svg>
-                    </span>
-                    <div class="detail-highlight-card__body">
-                      <span class="detail-highlight-card__label">{% if language == "az" %}Alt kateqoriya{% elif language == "en" %}Subcategory{% else %}Подкатегория{% endif %}</span>
-                      <strong class="detail-highlight-card__value">{{ place.subcategory.name_i18n }}</strong>
-                    </div>
-                  </div>
-                {% endif %}
-              </section>
             </section>
           </div>
 
-          <section class="detail-side-card detail-contact-panel detail-body-card detail-body-card--contact">
-            <div class="detail-section-head detail-section-head-compact">
-              <h2>{% if language == "az" %}Əlaqə məlumatları{% elif language == "en" %}Contact details{% else %}Контакты и связь{% endif %}</h2>
-              <p class="meta">{% if language == "az" %}Əsas əlaqə kanalları bir yerdə{% elif language == "en" %}Core contact channels in one place{% else %}Короткий список контактов без лишних дублей{% endif %}</p>
-            </div>
-            <div class="detail-contact-list">
-              {% if place.phone1 %}
-                <div class="detail-contact-row">
-                  <span class="detail-contact-row__icon detail-contact-row__icon--phone" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                  <div class="detail-contact-row__body">
-                    <span class="meta-label">{% if language == "az" %}Telefon{% elif language == "en" %}Phone{% else %}Телефон{% endif %}</span>
-                    <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a>
-                  </div>
-                </div>
-              {% endif %}
-              {% if place.instagram %}
-                <div class="detail-contact-row">
-                  <span class="detail-contact-row__icon detail-contact-row__icon--instagram" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <rect x="4.75" y="4.75" width="14.5" height="14.5" rx="4.25" stroke="currentColor" stroke-width="1.8"/>
-                      <circle cx="12" cy="12" r="3.35" stroke="currentColor" stroke-width="1.8"/>
-                      <circle cx="16.55" cy="7.45" r="1" fill="currentColor"/>
-                    </svg>
-                  </span>
-                  <div class="detail-contact-row__body">
-                    <span class="meta-label">Instagram</span>
-                    <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a>
-                  </div>
-                </div>
-              {% endif %}
-              {% if place.address %}
-                <div class="detail-contact-row">
-                  <span class="detail-contact-row__icon detail-contact-row__icon--address" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                      <circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.8"/>
-                    </svg>
-                  </span>
-                  <div class="detail-contact-row__body">
-                    <span class="meta-label">{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</span>
-                    <span class="detail-contact-value detail-contact-value--address">{{ place.address_i18n }}</span>
-                  </div>
-                </div>
-              {% endif %}
-              {% if place.website %}
-                <div class="detail-contact-row">
-                  <span class="detail-contact-row__icon detail-contact-row__icon--website" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/>
-                      <path d="M3.9 12h16.2M12 3.75c2.1 2.28 3.15 5 3.15 8.25S14.1 17.97 12 20.25c-2.1-2.28-3.15-5-3.15-8.25S9.9 6.03 12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                  <div class="detail-contact-row__body">
-                    <span class="meta-label">{% if language == "az" %}Sayt{% elif language == "en" %}Website{% else %}Сайт{% endif %}</span>
-                    <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a>
-                  </div>
-                </div>
-              {% endif %}
-            </div>
-          </section>
 
-          {% if map_embed_url %}
-            <section class="detail-side-card detail-map-wrap detail-body-card detail-body-card--map">
-              <div class="detail-section-head detail-section-head-compact">
-                <h2 class="detail-map-title">{% if language == "az" %}Xəritədə{% elif language == "en" %}On the map{% else %}На карте{% endif %}</h2>
-                <p class="meta">{% if language == "az" %}Ünvan və xəritədə baxış{% elif language == "en" %}Address and map preview{% else %}Ориентир по месту и быстрый переход в большую карту{% endif %}</p>
-              </div>
-              {% if place.address %}
-                <p class="detail-map-address detail-map-address--compact">{{ place.address_i18n }}</p>
-              {% endif %}
-              <iframe
-                class="detail-map-frame"
-                src="{{ map_embed_url }}"
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-                title="{% trans 'Карта места' %}"
-              ></iframe>
-              <div class="detail-map-foot">
-                <p class="detail-map-link">
-                  <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% if language == "az" %}Böyük xəritədə aç{% elif language == "en" %}Open larger map{% else %}Открыть большую карту{% endif %}</a>
-                </p>
-                {% if place.lat and place.lng %}
-                  <p class="detail-map-coordinates">{{ place.lat }}, {{ place.lng }}</p>
-                {% endif %}
-              </div>
-            </section>
-          {% endif %}
 
           <section class="detail-side-card detail-facts-panel detail-body-card detail-body-card--facts">
             <div class="detail-section-head detail-section-head-compact">
-              <h2>{% if language == "az" %}Əsas məlumatlar{% elif language == "en" %}Basic details{% else %}Основные данные{% endif %}</h2>
-              <p class="meta">{% if language == "az" %}Format, məkan və şərtlər üzrə qısa məlumat{% elif language == "en" %}Short summary of format, location, and essentials{% else %}Короткая сводка по формату, локации и условиям{% endif %}</p>
+              <h2>{% if language == "az" %}Əlavə məlumat{% elif language == "en" %}Additional details{% else %}Дополнительно{% endif %}</h2>
+              <p class="meta">{% if language == "az" %}Format, növ və əlavə qeydlər{% elif language == "en" %}Format, place type and metadata{% else %}Формат, тип места и дата публикации{% endif %}</p>
             </div>
             {% if place.is_temporary %}
               {% include "catalog/includes/temporary_event_badge.html" with place=place language=language variant="detail" %}
@@ -795,6 +787,22 @@
               </div>
             </div>
           </section>
+
+          <div class="detail-disclaimer">
+          <strong>
+          {% if language == "az" %}Vacib qeyd{% elif language == "en" %}Important note{% else %}Важно{% endif %}
+          </strong>
+          <p>
+          {% if language == "az" %}
+          Bu səhifədəki məlumatların bir hissəsi açıq mənbələrdən və üçüncü şəxslərdən əldə oluna bilər. Cədvəli, qiyməti, ünvanı və şərtləri ziyarətdən əvvəl birbaşa təşkilatla dəqiqləşdirin.
+          {% elif language == "en" %}
+          Some information on this page may come from public sources and third parties. Please verify the schedule, price, address, and terms directly with the organization before visiting.
+          {% else %}
+          Часть данных на этой странице может быть получена из открытых источников и от третьих лиц. Перед посещением уточняйте расписание, цену, адрес и условия напрямую у организации.
+          {% endif %}
+          </p>
+          </div>
+
 
         </div><!-- /detail-column-right -->
 

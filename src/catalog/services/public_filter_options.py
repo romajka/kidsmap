@@ -89,40 +89,65 @@ def build_public_place_filter_options(
 ) -> PublicPlaceFilterOptions:
     public_qs = public_place_queryset(Place.objects.all())
 
-    category_counts = dict(public_qs.order_by().values_list("category").annotate(total=Count("id")))
+    category_counts = dict(
+        public_qs.order_by()
+        .values_list("category")
+        .annotate(total=Count("id", distinct=True))
+    )
     subcategory_counts = {
         str(item["subcategory"]): int(item["total"])
-        for item in public_qs.order_by().exclude(subcategory__isnull=True).values("subcategory").annotate(total=Count("id"))
+        for item in public_qs.order_by()
+        .exclude(subcategory__isnull=True)
+        .values("subcategory")
+        .annotate(total=Count("id", distinct=True))
     }
     raw_district_counts = {}
-    for item in public_qs.order_by().exclude(district="").exclude(district__isnull=True).values("district").annotate(total=Count("id")):
+    for item in (
+        public_qs.order_by()
+        .exclude(district="")
+        .exclude(district__isnull=True)
+        .values("district")
+        .annotate(total=Count("id", distinct=True))
+    ):
         raw_val = str(item["district"]).strip()
         from catalog.services.locations import normalize_to_key
+
         norm_key = normalize_to_key(raw_val)
         if norm_key:
             raw_district_counts[norm_key] = raw_district_counts.get(norm_key, 0) + int(item["total"])
 
     # Sum all Baku counts
-    baku_total = sum(count for key, count in raw_district_counts.items() if key == "baku" or key.startswith("baku_"))
+    baku_total = sum(
+        count
+        for key, count in raw_district_counts.items()
+        if key == "baku" or key.startswith("baku_")
+    )
     if baku_total > 0:
         raw_district_counts["baku"] = baku_total
 
     raw_districts = []
     from catalog.services.locations import get_location_translation
+
     for key, count in raw_district_counts.items():
-        raw_districts.append({
-            "value": key,
-            "label_az": get_location_translation(key, "az"),
-            "label_ru": get_location_translation(key, "ru"),
-            "label_en": get_location_translation(key, "en"),
-            "count": count
-        })
+        raw_districts.append(
+            {
+                "value": key,
+                "label_az": get_location_translation(key, "az"),
+                "label_ru": get_location_translation(key, "ru"),
+                "label_en": get_location_translation(key, "en"),
+                "count": count,
+            }
+        )
 
     districts = _move_baku_first(build_localized_options(raw_districts, language_code))
 
     metro_counts = {
         str(item["metro"]).strip(): int(item["total"])
-        for item in public_qs.order_by().exclude(metro="").exclude(metro__isnull=True).values("metro").annotate(total=Count("id"))
+        for item in public_qs.order_by()
+        .exclude(metro="")
+        .exclude(metro__isnull=True)
+        .values("metro")
+        .annotate(total=Count("id", distinct=True))
     }
 
     categories = [

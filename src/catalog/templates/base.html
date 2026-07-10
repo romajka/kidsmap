@@ -168,7 +168,6 @@
                   >
                     {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
                   </a>
-                  <hr class="auth-dropdown-divider" />
                   <form method="post" action="{% url 'account_logout' %}" class="auth-logout-form">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}" />

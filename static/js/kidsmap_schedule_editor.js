@@ -459,6 +459,7 @@
 
   function updateInput(state) {
     state.input.value = dumpPayload(state.days);
+    state.input.dispatchEvent(new Event("km:schedule-change", { bubbles: true }));
   }
 
   function weekdayLabel(state, weekday, mode) {

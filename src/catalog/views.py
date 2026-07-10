@@ -614,6 +614,52 @@ def owner_places_dashboard(request):
     return render(request, "pages/owner_places.html", context)
 
 
+def _build_owner_taxonomy_picker_config(form):
+    from .models import Category, Subcategory
+    from django.db.models import Count
+
+    category_field = form.fields.get("category")
+    subcategory_field = form.fields.get("subcategory")
+    if category_field is None or subcategory_field is None:
+        return {"categories": [], "subcategories": []}
+
+    categories = []
+    category_queryset = category_field.queryset.order_by("order", "name_ru", "name")
+    subcategory_counts = {
+        item["category_id"]: item["total"]
+        for item in Subcategory.objects.filter(category__in=category_queryset)
+        .values("category_id")
+        .annotate(total=Count("pk"))
+    }
+    for category in category_queryset:
+        categories.append(
+            {
+                "code": category.pk,
+                "label": str(category.name_i18n()),
+                "icon": category.icon_file_url,
+                "icon_class": category.icon_name if category.icon_is_font_class else "",
+                "color_bg": category.resolved_color_bg,
+                "color_text": category.resolved_color_text,
+                "subcategory_count": int(subcategory_counts.get(category.pk, 0) or 0),
+            }
+        )
+
+    subcategories = []
+    for subcategory in subcategory_field.queryset.order_by("category__order", "order", "name_ru", "name"):
+        subcategories.append(
+            {
+                "id": str(subcategory.pk),
+                "category": subcategory.category_id,
+                "label": str(subcategory.name_i18n()),
+            }
+        )
+
+    return {
+        "categories": categories,
+        "subcategories": subcategories,
+    }
+
+
 def owner_place_create(request):
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
@@ -658,10 +704,11 @@ def owner_place_create(request):
                 "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
                 "meta_description": _("Создание места в личном кабинете KidsMap."),
                 "draft_client_key": draft_client_key,
+                "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
             }
             return render(request, "pages/owner_place_create.html", context)
 
-        if form_action == "save_draft":
+        if form_action in {"save_draft", "save_draft_exit"}:
             result = owner_places_controller.create_place(
                 request=request,
                 data=place_post_data,
@@ -682,6 +729,7 @@ def owner_place_create(request):
                 "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
                 "meta_description": _("Создание места в личном кабинете KidsMap."),
                 "draft_client_key": draft_client_key,
+                "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
             }
             return render(request, "pages/owner_place_create.html", context)
 
@@ -704,6 +752,7 @@ def owner_place_create(request):
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Создание места в личном кабинете KidsMap."),
             "draft_client_key": draft_client_key,
+            "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
         }
         return render(request, "pages/owner_place_create.html", context)
 
@@ -718,6 +767,7 @@ def owner_place_create(request):
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         "meta_description": _("Создание места в личном кабинете KidsMap."),
         "draft_client_key": _build_owner_create_draft_key(request, prefix="owner-place-create"),
+        "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
     }
     return render(request, "pages/owner_place_create.html", context)
 
@@ -882,10 +932,12 @@ def owner_place_edit(request, pk):
             data=place_post_data,
             files=request.FILES,
             force_coordinate_refresh=form_action == "refresh_coordinates",
-            draft_save_only=form_action == "save_draft",
+            draft_save_only=form_action in {"save_draft", "save_draft_exit"},
         )
         if result.ok:
             messages.success(request, result.message)
+            if form_action == "save_draft_exit":
+                return redirect("owner_places_dashboard")
             if form_action in {"refresh_coordinates", "save_draft"}:
                 return redirect("owner_place_edit", pk=pk)
             return redirect("owner_places_dashboard")
@@ -900,6 +952,7 @@ def owner_place_edit(request, pk):
             "owner_profile": result.profile,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Редактирование места в личном кабинете KidsMap."),
+            "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
         }
         return render(request, "pages/owner_place_edit.html", context)
 
@@ -914,6 +967,7 @@ def owner_place_edit(request, pk):
         "owner_profile": result.profile,
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         "meta_description": _("Редактирование места в личном кабинете KidsMap."),
+        "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
     }
     return render(request, "pages/owner_place_edit.html", context)
 

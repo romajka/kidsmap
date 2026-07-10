@@ -4,12 +4,22 @@
   class="owner-file-uploader owner-file-uploader-single js-file-uploader"
   data-file-uploader
   data-upload-mode="single"
+  data-upload-max-files="1"
+  data-upload-max-size="2097152"
   data-upload-preview-shape="square"
   data-upload-empty="{% if CURRENT_LANGUAGE == 'az' %}Şəkil seçmək üçün klikləyin. JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == 'en' %}Click to choose an image. JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans 'Нажмите, чтобы выбрать изображение JPG, PNG или WEBP до 2 МБ.' %}{% endif %}"
   data-upload-summary="{% if CURRENT_LANGUAGE == 'az' %}Yeni fayl:{% elif CURRENT_LANGUAGE == 'en' %}New file:{% else %}{% trans 'Новый файл:' %}{% endif %}"
   data-upload-pending="{% if CURRENT_LANGUAGE == 'az' %}Fayl forma göndəriləndə saxlanacaq.{% elif CURRENT_LANGUAGE == 'en' %}The file will be saved after submitting the form.{% else %}{% trans 'Файл выбран и будет сохранён после отправки формы.' %}{% endif %}"
   data-upload-crop-note="{% if CURRENT_LANGUAGE == 'az' %}Kataloqda şəkil kvadrat göstərilir. Ön baxış kəsiləcək hissəni göstərir.{% elif CURRENT_LANGUAGE == 'en' %}The catalog shows this photo as a square. This preview shows the visible crop.{% else %}{% trans 'В каталоге фото показывается квадратом. Это превью показывает видимый кроп.' %}{% endif %}"
+  data-upload-count-label="{% if CURRENT_LANGUAGE == 'az' %}Seçildi{% elif CURRENT_LANGUAGE == 'en' %}Selected{% else %}{% trans 'Выбрано' %}{% endif %}"
+  data-upload-limit-label="{% if CURRENT_LANGUAGE == 'az' %}Limit{% elif CURRENT_LANGUAGE == 'en' %}Limit{% else %}{% trans 'Лимит' %}{% endif %}"
+  data-upload-too-many="{% if CURRENT_LANGUAGE == 'az' %}Yalnız 1 əsas şəkil seçilə bilər.{% elif CURRENT_LANGUAGE == 'en' %}Only 1 main photo can be selected.{% else %}{% trans 'Можно выбрать только 1 главное фото.' %}{% endif %}"
+  data-upload-too-large="{% if CURRENT_LANGUAGE == 'az' %}Şəkil 2 MB-dan böyükdür.{% elif CURRENT_LANGUAGE == 'en' %}The photo is larger than 2 MB.{% else %}{% trans 'Фото больше 2 МБ.' %}{% endif %}"
+  data-upload-bad-type="{% if CURRENT_LANGUAGE == 'az' %}Yalnız JPG, PNG və WEBP şəkilləri yükləyin.{% elif CURRENT_LANGUAGE == 'en' %}Upload JPG, PNG, or WEBP images only.{% else %}{% trans 'Загружайте только изображения JPG, PNG или WEBP.' %}{% endif %}"
 >
+  <div class="owner-file-uploader-head">
+    <span class="owner-file-uploader-count" data-upload-count>0 / 1</span>
+  </div>
   {% if widget.is_initial and widget.value.url %}
     <div class="owner-file-uploader-current">
       <div class="owner-file-uploader-current-copy">
@@ -69,5 +79,6 @@
     <span class="owner-file-uploader-action" data-upload-trigger role="button" tabindex="0">{% if CURRENT_LANGUAGE == "az" %}Şəkil seçin{% elif CURRENT_LANGUAGE == "en" %}Choose photo{% else %}{% trans "Выбрать фото" %}{% endif %}</span>
     <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} data-upload-input />
   </label>
+  <div class="owner-file-uploader-error" data-upload-error hidden></div>
   <div class="owner-file-uploader-list" data-upload-list hidden></div>
 </div>

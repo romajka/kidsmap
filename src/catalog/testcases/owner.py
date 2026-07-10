@@ -227,6 +227,12 @@ class TestOwnerPhoneValidation(TestCase):
 
         self.assertEqual(form.clean_phone1(), "+994551234567")
 
+    def test_owner_place_create_form_accepts_possible_azerbaijan_contact_phone(self):
+        form = OwnerPlaceCreateForm()
+        form.cleaned_data = {"phone1": "+994 66 666 66 66"}
+
+        self.assertEqual(form.clean_phone1(), "+994666666666")
+
     def test_owner_place_create_form_rejects_non_azerbaijan_phone(self):
         form = OwnerPlaceCreateForm()
         form.cleaned_data = {"phone1": "+1 202 555 0100"}
@@ -329,6 +335,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "data-owner-wizard")
         self.assertContains(response, "data-owner-completion")
         self.assertContains(response, "data-owner-wizard-shell")
+        self.assertContains(response, "data-owner-leave-guard")
+        self.assertContains(response, "Saxla və çıx")
         self.assertContains(response, 'data-owner-step="4"', html=False)
         self.assertContains(response, "owner-wizard-progressbar")
         self.assertContains(response, "owner_place_wizard.js")
@@ -387,6 +395,59 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.editor_place.refresh_from_db()
         self.assertEqual(self.editor_place.name_az, "Redakte qaralama")
         self.assertEqual(self.editor_place.description_az, "Yenilenmis qaralama tesviri")
+        self.assertEqual(self.editor_place.status, Place.STATUS_DRAFT)
+
+    def test_owner_editor_can_save_draft_and_exit_to_dashboard(self):
+        self.editor_place.name_az = "Redakte qaralama"
+        self.editor_place.description_az = "Ilkin tesvir"
+        self.editor_place.category_id = "EDU"
+        self.editor_place.status = Place.STATUS_DRAFT
+        self.editor_place.is_active = False
+        self.editor_place.save()
+
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.editor_place.id]),
+            data={
+                "form_action": "save_draft_exit",
+                "name_ru": "",
+                "name_az": "Redakte qaralama cixis",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "Yenilenmis cixis qaralamasi",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "lat": "",
+                "lng": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "lesson_duration_minutes": "",
+                "price_per_lesson": "",
+                "price_per_month": "",
+                "price_per_8_lessons": "",
+                "extra_conditions": "",
+                "additional_info": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("owner_places_dashboard"))
+        self.editor_place.refresh_from_db()
+        self.assertEqual(self.editor_place.name_az, "Redakte qaralama cixis")
+        self.assertEqual(self.editor_place.description_az, "Yenilenmis cixis qaralamasi")
         self.assertEqual(self.editor_place.status, Place.STATUS_DRAFT)
 
     def test_owner_edit_page_hides_public_link_for_inactive_place(self):
@@ -1035,6 +1096,49 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("photo", form.errors)
         self.assertIn("2 МБ", form.errors["photo"][0])
+
+    def test_owner_place_create_requires_structured_schedule_for_permanent_place(self):
+        base_data = {
+            "name_ru": "",
+            "name_az": "Is qrafiki teleb olunur",
+            "name_en": "",
+            "description_ru": "",
+            "description_az": "Daimi mekan ucun is qrafiki mutleq secilmelidir.",
+            "description_en": "",
+            "category": "EDU",
+            "subcategory": "",
+            "age_from": "6",
+            "age_to": "12",
+            "price_from": "10",
+            "price_to": "20",
+            "region": "baku",
+            "district": "Yasamal",
+            "metro": "",
+            "address": "Baki, Nizami kucesi 10",
+            "phone1": "+994501112233",
+            "instagram": "",
+            "website": "",
+            "schedule": "",
+            "is_temporary": "",
+            "temporary_start": "",
+            "temporary_end": "",
+            "moderation_note": "",
+        }
+
+        form = OwnerPlaceCreateForm(
+            data=base_data,
+            files=MultiValueDict({"photo": [self._image_upload("main.png")]}),
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("structured_schedule", form.errors)
+
+        form = OwnerPlaceCreateForm(
+            data={**base_data, "structured_schedule": build_structured_schedule_payload()},
+            files=MultiValueDict({"photo": [self._image_upload("main-with-schedule.png")]}),
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_owner_place_create_requires_description_in_azerbaijani(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")

@@ -45,7 +45,7 @@ input[type="submit"].default:hover,
 .submit-row input[name="_continue"],
 .submit-row input[name="_addanother"] {
   background: var(--km-admin-success-bg) !important;
-  color: var(--km-admin-success) !important;
+  color: var(--km-admin-success-text) !important;
   border-color: var(--km-admin-success-border) !important;
 }
 .submit-row input[name="_continue"]:hover,
@@ -57,7 +57,7 @@ input[type="submit"].default:hover,
 .submit-row a.deletelink,
 .deletelink {
   background: var(--km-admin-danger-bg) !important;
-  color: var(--km-admin-danger) !important;
+  color: var(--km-admin-danger-text) !important;
   border-color: var(--km-admin-danger-border) !important;
 }
 .submit-row a.deletelink:hover,
@@ -135,25 +135,25 @@ select:focus-visible {
 
 .km-admin-badge--good {
   background: var(--km-admin-success-bg);
-  color: var(--km-admin-success);
+  color: var(--km-admin-success-text);
   border-color: var(--km-admin-success-border);
 }
 
 .km-admin-badge--warn {
   background: var(--km-admin-warning-bg);
-  color: var(--km-admin-warning);
+  color: var(--km-admin-warning-text);
   border-color: var(--km-admin-warning-border);
 }
 
 .km-admin-badge--danger {
   background: var(--km-admin-danger-bg);
-  color: var(--km-admin-danger);
+  color: var(--km-admin-danger-text);
   border-color: var(--km-admin-danger-border);
 }
 
 .km-admin-badge--info {
   background: rgba(14, 165, 233, 0.15);
-  color: var(--km-admin-primary);
+  color: var(--km-admin-primary-text);
   border-color: rgba(14, 165, 233, 0.3);
 }
 
