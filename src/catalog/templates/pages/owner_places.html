@@ -28,7 +28,7 @@
       {% if can_create_more_places %}
         <a class="btn owner-dashboard-add" href="{% url 'owner_place_create' %}?fresh=1">
           <span aria-hidden="true">+</span>
-          {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}
+          {% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}
         </a>
       {% else %}
         <span class="btn-secondary owner-dashboard-add owner-dashboard-add-disabled">
@@ -157,6 +157,25 @@
           {% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}
         </a>
       </article>
+
+      <article class="owner-action-card owner-action-card--specialist">
+        <div class="owner-action-card__mark" aria-hidden="true">👤</div>
+        <div>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a specialist{% else %}Добавить специалиста{% endif %}</h2>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Uşaq psixoloqu, loqoped, pediatr, repetitor və ya məşqçi profilini əlavə edin.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Add a profile for a child psychologist, speech therapist, pediatrician, tutor, or coach.
+            {% else %}
+              Добавьте профиль детского психолога, логопеда, педиатра, репетитора или тренера.
+            {% endif %}
+          </p>
+        </div>
+        <a class="btn-secondary owner-action-card__button" href="/admin/catalog/specialist/add/">
+          {% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %}
+        </a>
+      </article>
     </section>
 
     {% if can_view_stats %}
@@ -232,7 +251,7 @@
             <strong>{% if CURRENT_LANGUAGE == "az" %}Hələ dərc olunmuş məkan yoxdur{% elif CURRENT_LANGUAGE == "en" %}No published places yet{% else %}Пока нет опубликованных мест{% endif %}</strong>
             <p>{% if CURRENT_LANGUAGE == "az" %}İlk məkanınızı dərc edin və burada görünsün.{% elif CURRENT_LANGUAGE == "en" %}Publish your first place, and it will appear here.{% else %}Опубликуйте своё первое место, и оно появится здесь.{% endif %}</p>
             {% if can_create_more_places %}
-              <a class="btn owner-dashboard-empty__button" href="{% url 'owner_place_create' %}?fresh=1">{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}</a>
+              <a class="btn owner-dashboard-empty__button" href="{% url 'owner_place_create' %}?fresh=1">{% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}</a>
             {% endif %}
           </div>
         {% endif %}

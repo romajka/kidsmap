@@ -4,6 +4,7 @@ from .user import UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVer
 from .review import PlaceReview, PlaceReviewReaction, SiteReview, SiteReviewReaction
 from .owner import PlaceOwnershipRequest, PlaceOwnershipRequestAudit, OwnerTeamMembership, OwnerTeamInvitation, PlaceChangeAudit
 from .site import SiteSettings, SiteGalleryImage, SiteBrandingSettings, SiteAboutSettings, SiteContactsSettings, SiteFooterSettings, SiteEmptyStateSettings, SiteAnalytics, SiteVisit, FunnelEvent, CatalogContentSettings
+from .specialist import Region, District, MetroStation, SpecialistSpecialization, Specialist, SpecialistPracticeLocation, SpecialistScheduleDay, SpecialistScheduleInterval, SpecialistDocument, SpecialistReview
 
 __all__ = [
     'Category',
@@ -39,4 +40,14 @@ __all__ = [
     'SiteVisit',
     'FunnelEvent',
     'CatalogContentSettings',
+    'Region',
+    'District',
+    'MetroStation',
+    'SpecialistSpecialization',
+    'Specialist',
+    'SpecialistPracticeLocation',
+    'SpecialistScheduleDay',
+    'SpecialistScheduleInterval',
+    'SpecialistDocument',
+    'SpecialistReview',
 ]

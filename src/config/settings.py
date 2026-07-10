@@ -176,6 +176,9 @@ JAZZMIN_SETTINGS = {
         "catalog.PlaceOwnershipRequestAudit": "fas fa-clipboard-list",
         "catalog.CatalogContentSettings": "fas fa-sliders-h",
         "catalog.PlacePhoto": "fas fa-camera",
+        "catalog.Region": "fas fa-globe",
+        "catalog.District": "fas fa-map-signs",
+        "catalog.MetroStation": "fas fa-subway",
 
         # Модерация
         "catalog_moderation.ModerationPlace": "fas fa-map-marker-alt",

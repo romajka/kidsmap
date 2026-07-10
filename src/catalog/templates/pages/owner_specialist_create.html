@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %} | KidsMap{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+<section class="panel owner-event-page">
+  <div class="owner-page-head">
+    <div>
+      <h1>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis{% elif CURRENT_LANGUAGE == "en" %}Specialist{% else %}Специалист{% endif %}</h1>
+      <p class="auth-subtitle">
+        {% if CURRENT_LANGUAGE == "az" %}Profili doldurun, moderasiyaya göndərin — yoxlamadan sonra kataloqunuzda görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Fill in the profile and send for review — it will appear in the catalog after approval.{% else %}Заполните профиль и отправьте на модерацию — после проверки он появится в каталоге.{% endif %}
+      </p>
+    </div>
+    <div class="owner-page-actions">
+      <a class="link-btn" href="{% url 'owner_place_create' %}">← {% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</a>
+    </div>
+  </div>
+
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    class="owner-event-form"
+    data-loading-form
+    id="specialist-create-form"
+  >
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="auth-errors">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="owner-event-layout">
+      <div class="owner-event-main">
+
+        <!-- Stepper -->
+        <div class="owner-event-stepper" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Addımlar{% elif CURRENT_LANGUAGE == 'en' %}Steps{% else %}Шаги{% endif %}">
+          <span class="is-active">1 · {% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Basic info{% else %}Основное{% endif %}</span>
+          <span>2 · {% if CURRENT_LANGUAGE == "az" %}Format və dil{% elif CURRENT_LANGUAGE == "en" %}Format & language{% else %}Формат и язык{% endif %}</span>
+          <span>3 · {% if CURRENT_LANGUAGE == "az" %}Qiymət və əlaqə{% elif CURRENT_LANGUAGE == "en" %}Price & contacts{% else %}Цена и контакты{% endif %}</span>
+        </div>
+
+        <!-- ─── STEP 1: Основное ─── -->
+        <section class="owner-event-section">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Şəxsi məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Personal info{% else %}Личные данные{% endif %}</h2>
+          <div class="owner-event-grid">
+
+            <label class="owner-event-full">
+              {% if CURRENT_LANGUAGE == "az" %}Ad və soyad{% elif CURRENT_LANGUAGE == "en" %}Full name{% else %}Имя и фамилия{% endif %} *
+              {{ form.name }}
+              {% for e in form.name.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Staj (il){% elif CURRENT_LANGUAGE == "en" %}Experience (yrs){% else %}Стаж (лет){% endif %} *
+              {{ form.experience_years }}
+              {% for e in form.experience_years.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Foto{% elif CURRENT_LANGUAGE == "en" %}Photo{% else %}Фото{% endif %}
+              {{ form.photo }}
+              {% for e in form.photo.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+              {% if form.photo.help_text %}<small class="helptext">{{ form.photo.help_text }}</small>{% endif %}
+            </label>
+
+          </div>
+        </section>
+
+        <!-- Bio -->
+        <section class="owner-event-section">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Özü haqqında{% elif CURRENT_LANGUAGE == "en" %}About{% else %}О себе{% endif %}</h2>
+          <div class="owner-event-grid">
+            <label class="owner-event-full">
+              {% if CURRENT_LANGUAGE == "az" %}Azərbaycanca{% elif CURRENT_LANGUAGE == "en" %}In Azerbaijani{% else %}На азербайджанском{% endif %}
+              {{ form.bio_az }}
+              {% for e in form.bio_az.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label class="owner-event-full">
+              {% if CURRENT_LANGUAGE == "az" %}Rusca{% elif CURRENT_LANGUAGE == "en" %}In Russian{% else %}На русском{% endif %}
+              {{ form.bio_ru }}
+              {% for e in form.bio_ru.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+          </div>
+        </section>
+
+        <!-- Specializations -->
+        <section class="owner-event-section">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}İxtisaslaşma{% elif CURRENT_LANGUAGE == "en" %}Specializations{% else %}Специализации{% endif %}</h2>
+          <div class="owner-specialist-chips">
+            {% for checkbox in form.specializations %}
+              <label class="owner-specialist-chip">
+                {{ checkbox.tag }}
+                <span>{{ checkbox.choice_label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+          {% for e in form.specializations.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+        </section>
+
+        <!-- ─── STEP 2: Формат, язык, возраст ─── -->
+        <section class="owner-event-section">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Format, dil, yaş{% elif CURRENT_LANGUAGE == "en" %}Format, language & age{% else %}Формат, язык, возраст{% endif %}</h2>
+          <div class="owner-event-grid">
+
+            <label class="owner-event-full">
+              {% if CURRENT_LANGUAGE == "az" %}İş formatı{% elif CURRENT_LANGUAGE == "en" %}Work format{% else %}Формат работы{% endif %} *
+              {{ form.consultation_format }}
+              {% for e in form.consultation_format.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Yaş (min){% elif CURRENT_LANGUAGE == "en" %}Age from{% else %}Возраст от{% endif %} *
+              {{ form.age_from }}
+              {% for e in form.age_from.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Yaş (max){% elif CURRENT_LANGUAGE == "en" %}Age to{% else %}Возраст до{% endif %} *
+              {{ form.age_to }}
+              {% for e in form.age_to.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+
+          </div>
+
+          <!-- Language checkboxes as inline row -->
+          <div class="owner-specialist-lang-row" style="margin-top:12px;">
+            <span class="owner-specialist-lang-label">{% if CURRENT_LANGUAGE == "az" %}Konsultasiya dili{% elif CURRENT_LANGUAGE == "en" %}Language{% else %}Язык консультации{% endif %} *</span>
+            <label class="owner-specialist-chip">{{ form.language_az }} <span>{% if CURRENT_LANGUAGE == "az" %}AZ{% elif CURRENT_LANGUAGE == "en" %}AZ{% else %}Азерб.{% endif %}</span></label>
+            <label class="owner-specialist-chip">{{ form.language_ru }} <span>{% if CURRENT_LANGUAGE == "az" %}RU{% elif CURRENT_LANGUAGE == "en" %}RU{% else %}Русский{% endif %}</span></label>
+            <label class="owner-specialist-chip">{{ form.language_en }} <span>{% if CURRENT_LANGUAGE == "az" %}EN{% elif CURRENT_LANGUAGE == "en" %}EN{% else %}Англ.{% endif %}</span></label>
+            {% for e in form.language_az.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+          </div>
+        </section>
+
+        <!-- Location (only for offline/both) -->
+        <section class="owner-event-section" id="spec-location-block">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Qəbul yeri{% elif CURRENT_LANGUAGE == "en" %}Practice location{% else %}Место приёма{% endif %}</h2>
+          <p class="helptext" style="margin-bottom:12px;">{% if CURRENT_LANGUAGE == "az" %}Şəxsi qəbul üçün doldurun.{% elif CURRENT_LANGUAGE == "en" %}Fill in for in-person sessions.{% else %}Заполняется для очного приёма.{% endif %}</p>
+          <div class="owner-event-grid">
+            <label class="owner-event-full">
+              {% if CURRENT_LANGUAGE == "az" %}Uşaq mərkəzi (KidsMap){% elif CURRENT_LANGUAGE == "en" %}Children's center (KidsMap){% else %}Детский центр (KidsMap){% endif %}
+              {{ form.location_place }}
+              {% for e in form.location_place.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+              <small class="helptext">{% if CURRENT_LANGUAGE == "az" %}Mərkəz artıq KidsMap-dədirsə, seçin — ünvan avtomatik doldurulacaq.{% elif CURRENT_LANGUAGE == "en" %}If the center is on KidsMap, select it.{% else %}Если центр уже есть в KidsMap — выберите, адрес подставится автоматически.{% endif %}</small>
+            </label>
+            <label class="owner-event-full">
+              {% if CURRENT_LANGUAGE == "az" %}Öz ünvanı{% elif CURRENT_LANGUAGE == "en" %}Own address{% else %}Собственный адрес/кабинет{% endif %}
+              {{ form.location_address }}
+              {% for e in form.location_address.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Şəhər / Bölgə{% elif CURRENT_LANGUAGE == "en" %}City / Region{% else %}Город / Регион{% endif %}
+              {{ form.location_region }}
+              {% for e in form.location_region.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Rayon{% elif CURRENT_LANGUAGE == "en" %}District{% else %}Район{% endif %}
+              {{ form.location_district }}
+              {% for e in form.location_district.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Metro{% elif CURRENT_LANGUAGE == "en" %}Metro{% else %}Метро{% endif %}
+              {{ form.location_metro }}
+              {% for e in form.location_metro.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+          </div>
+        </section>
+
+        <!-- ─── STEP 3: Цена и контакты ─── -->
+        <section class="owner-event-section">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Qiymət və müddət{% elif CURRENT_LANGUAGE == "en" %}Price & duration{% else %}Стоимость и длительность{% endif %}</h2>
+          <div class="owner-event-grid">
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Qiymət (min, AZN){% elif CURRENT_LANGUAGE == "en" %}Price from (AZN){% else %}Стоимость от (AZN){% endif %} *
+              {{ form.price_from }}
+              {% for e in form.price_from.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Qiymət (max, AZN){% elif CURRENT_LANGUAGE == "en" %}Price to (AZN){% else %}Стоимость до (AZN){% endif %} *
+              {{ form.price_to }}
+              {% for e in form.price_to.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Qəbul müddəti (dəq.){% elif CURRENT_LANGUAGE == "en" %}Session (min){% else %}Длительность (мин){% endif %} *
+              {{ form.duration_minutes }}
+              {% for e in form.duration_minutes.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+          </div>
+        </section>
+
+        <section class="owner-event-section">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Əlaqə{% elif CURRENT_LANGUAGE == "en" %}Contacts{% else %}Контакты{% endif %}</h2>
+          <div class="owner-event-grid">
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Telefon{% elif CURRENT_LANGUAGE == "en" %}Phone{% else %}Телефон{% endif %} *
+              {{ form.phone }}
+              {% for e in form.phone.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label>
+              WhatsApp
+              {{ form.whatsapp }}
+              {% for e in form.whatsapp.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label>
+              Instagram
+              {{ form.instagram }}
+              {% for e in form.instagram.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+            <label>
+              {% if CURRENT_LANGUAGE == "az" %}Sayt{% elif CURRENT_LANGUAGE == "en" %}Website{% else %}Сайт{% endif %}
+              {{ form.website }}
+              {% for e in form.website.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}
+            </label>
+          </div>
+        </section>
+
+        <!-- Actions -->
+        <div class="owner-event-actions">
+          <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Geri{% elif CURRENT_LANGUAGE == "en" %}Back{% else %}Назад{% endif %}</a>
+          <button type="submit" name="form_action" value="save_draft" class="btn-secondary" data-loading-button formnovalidate>
+            {% if CURRENT_LANGUAGE == "az" %}Qaralama saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}Сохранить черновик{% endif %}
+          </button>
+          <button type="submit" name="form_action" value="submit" class="btn" data-loading-button>
+            {% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}
+          </button>
+        </div>
+
+      </div><!-- /.owner-event-main -->
+
+      <!-- Sidebar -->
+      <aside class="owner-event-side">
+        <article class="owner-event-help-card">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis nə vaxt seçilir?{% elif CURRENT_LANGUAGE == "en" %}When to choose Specialist?{% else %}Когда выбирать «Специалист»?{% endif %}</h2>
+          <ul>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Uşaq psixoloqu, loqoped, pediatr{% elif CURRENT_LANGUAGE == "en" %}Child psychologist, speech therapist, pediatrician{% else %}Детский психолог, логопед, педиатр{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Repetitor, məşqçi, terapevt{% elif CURRENT_LANGUAGE == "en" %}Tutor, coach, therapist{% else %}Репетитор, тренер, терапевт{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Onlayn və ya şəxsi qəbul{% elif CURRENT_LANGUAGE == "en" %}Online or in-person sessions{% else %}Онлайн или очный приём{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Fərdi profil: diplom, reytinq, rəylər{% elif CURRENT_LANGUAGE == "en" %}Personal profile: diplomas, rating, reviews{% else %}Личный профиль с дипломами, рейтингом, отзывами{% endif %}</li>
+          </ul>
+        </article>
+
+        <article class="owner-event-help-card" style="margin-top:16px;">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Məcburi sahələr{% elif CURRENT_LANGUAGE == "en" %}Required fields{% else %}Обязательные поля{% endif %}</h2>
+          <ul>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Ad, staj, format{% elif CURRENT_LANGUAGE == "en" %}Name, experience, format{% else %}Имя, стаж, формат{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Yaş aralığı, qiymət, müddət{% elif CURRENT_LANGUAGE == "en" %}Age range, price, duration{% else %}Возраст, стоимость, длительность{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Ən azı 1 konsultasiya dili{% elif CURRENT_LANGUAGE == "en" %}At least 1 consultation language{% else %}Минимум 1 язык консультации{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Telefon{% elif CURRENT_LANGUAGE == "en" %}Phone{% else %}Телефон{% endif %}</li>
+          </ul>
+        </article>
+      </aside>
+
+    </div><!-- /.owner-event-layout -->
+  </form>
+</section>
+
+<style>
+/* Specialist chip checkboxes */
+.owner-specialist-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.owner-specialist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border-color, #e5e7eb);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  background: var(--card-bg, #fff);
+  user-select: none;
+}
+.owner-specialist-chip input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--accent, #6d28d9);
+}
+.owner-specialist-chip:has(input:checked) {
+  border-color: var(--accent, #6d28d9);
+  background: color-mix(in srgb, var(--accent, #6d28d9) 8%, transparent);
+}
+/* Language row */
+.owner-specialist-lang-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.owner-specialist-lang-label {
+  font-size: 0.85rem;
+  color: var(--text-muted, #6b7280);
+  margin-right: 4px;
+}
+</style>
+
+<script>
+(function () {
+  var fmt = document.getElementById('id_consultation_format');
+  var loc = document.getElementById('spec-location-block');
+  function toggle() {
+    if (!fmt || !loc) return;
+    loc.style.display = (fmt.value === 'online') ? 'none' : '';
+  }
+  if (fmt) { fmt.addEventListener('change', toggle); toggle(); }
+})();
+</script>
+{% endblock %}

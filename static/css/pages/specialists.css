@@ -1,0 +1,1241 @@
+/* 
+   KidsMap Specialists Public Section Stylesheet (Scoped)
+   Handles styling for:
+   - Specialists Catalog List (.km-specialists-catalog)
+   - Specialists Detail Page (.km-specialists-detail)
+*/
+
+/* ----------------------------------------------------
+   1. COMMON UTILITIES & DESIGN SYSTEM TOKENS
+   ---------------------------------------------------- */
+:root {
+  --km-primary: #4f46e5;
+  --km-primary-hover: #4338ca;
+  --km-primary-light: #e0e7ff;
+  --km-secondary: #7c3aed;
+  --km-success: #10b981;
+  --km-success-bg: #ecfdf5;
+  --km-warning: #fbbf24;
+  --km-gray-50: #f9fafb;
+  --km-gray-100: #f3f4f6;
+  --km-gray-200: #e5e7eb;
+  --km-gray-300: #d1d5db;
+  --km-gray-600: #4b5563;
+  --km-gray-700: #374151;
+  --km-gray-900: #111827;
+  --km-font-sans: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --km-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --km-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --km-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --km-radius-md: 12px;
+  --km-radius-lg: 16px;
+  --km-radius-xl: 24px;
+}
+
+/* ----------------------------------------------------
+   2. SPECIALISTS CATALOG LIST (.km-specialists-catalog)
+   ---------------------------------------------------- */
+.km-specialists-catalog {
+  font-family: var(--km-font-sans);
+  color: var(--km-gray-700);
+  background-color: #fafbfc;
+  padding: 1.5rem 0;
+}
+
+.km-specialists-catalog * {
+  box-sizing: border-box;
+}
+
+/* Hero Section */
+.km-specialists-hero {
+  background: linear-gradient(135deg, var(--km-primary) 0%, var(--km-secondary) 100%);
+  color: #ffffff;
+  padding: 3.5rem 2rem;
+  border-radius: var(--km-radius-lg);
+  margin-bottom: 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--km-shadow-md);
+}
+
+.km-specialists-hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.12) 0%, transparent 80%);
+  pointer-events: none;
+}
+
+.km-specialists-hero h1 {
+  font-size: 2.75rem;
+  font-weight: 800;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.km-specialists-hero p {
+  font-size: 1.15rem;
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.92;
+  line-height: 1.6;
+}
+
+/* Layout Grid */
+.km-specialists-layout {
+  display: grid;
+  grid-template-columns: 310px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Sidebar / Filters */
+.km-filters-panel {
+  background: #ffffff;
+  padding: 1.75rem;
+  border-radius: var(--km-radius-lg);
+  border: 1px solid var(--km-gray-200);
+  box-shadow: var(--km-shadow-sm);
+  position: sticky;
+  top: 20px;
+}
+
+.km-filters-panel h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  color: var(--km-gray-900);
+  border-bottom: 2px solid var(--km-gray-100);
+  padding-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.km-filters-panel h2 svg {
+  color: var(--km-primary);
+}
+
+.km-filter-group {
+  margin-bottom: 1.25rem;
+}
+
+.km-filter-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--km-gray-600);
+  margin-bottom: 0.5rem;
+}
+
+.km-filter-input, 
+.km-filter-select {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--km-gray-300);
+  border-radius: var(--km-radius-md);
+  font-size: 0.95rem;
+  font-family: var(--km-font-sans);
+  background-color: #ffffff;
+  color: var(--km-gray-900);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.km-filter-input:focus, 
+.km-filter-select:focus {
+  border-color: var(--km-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Double input wrapper (for prices) */
+.km-filter-range-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+/* Checkbox Style */
+.km-filter-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.km-filter-checkbox-wrapper input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--km-primary);
+  cursor: pointer;
+}
+
+.km-filter-checkbox-wrapper span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--km-gray-700);
+}
+
+/* Buttons inside filters */
+.km-filter-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.km-btn-apply {
+  background: var(--km-primary);
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem;
+  border-radius: var(--km-radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.km-btn-apply:hover {
+  background: var(--km-primary-hover);
+}
+
+.km-btn-apply:active {
+  transform: scale(0.98);
+}
+
+.km-btn-reset {
+  background: #ffffff;
+  color: var(--km-gray-600);
+  border: 1px solid var(--km-gray-300);
+  padding: 0.8rem;
+  border-radius: var(--km-radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  text-align: center;
+  transition: background-color 0.2s, border-color 0.2s;
+  display: block;
+}
+
+.km-btn-reset:hover {
+  background-color: var(--km-gray-50);
+  border-color: var(--km-gray-600);
+  color: var(--km-gray-900);
+}
+
+/* Toolbar (Results count and sort) */
+.km-catalog-toolbar {
+  background: #ffffff;
+  padding: 1rem 1.5rem;
+  border-radius: var(--km-radius-lg);
+  border: 1px solid var(--km-gray-200);
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-shadow: var(--km-shadow-sm);
+}
+
+.km-results-count {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--km-gray-900);
+  margin: 0;
+}
+
+.km-sort-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.km-sort-wrapper label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--km-gray-600);
+}
+
+/* Filter Chips Bar */
+.km-chips-bar {
+  background: var(--km-gray-50);
+  padding: 0.75rem 1rem;
+  border-radius: var(--km-radius-md);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border: 1px solid var(--km-gray-200);
+}
+
+.km-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.km-chip {
+  background: #ffffff;
+  border: 1px solid var(--km-gray-200);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--km-gray-600);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 500;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.km-chip:hover {
+  border-color: var(--km-primary);
+  color: var(--km-primary);
+  background-color: var(--km-primary-light);
+}
+
+.km-chip-remove {
+  color: #9ca3af;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.km-chips-reset-link {
+  color: var(--km-primary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.km-chips-reset-link:hover {
+  text-decoration: underline;
+}
+
+/* Specialist Cards Grid */
+.km-specialists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1.75rem;
+}
+
+/* Specialist Card styling */
+.km-specialist-card {
+  background: #ffffff;
+  border: 1px solid var(--km-gray-200);
+  border-radius: var(--km-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--km-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.km-specialist-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--km-shadow-lg);
+}
+
+/* Card Avatar Block */
+.km-card-photo-wrapper {
+  position: relative;
+  height: 230px;
+  background: var(--km-gray-100);
+  overflow: hidden;
+}
+
+.km-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.km-specialist-card:hover .km-card-photo {
+  transform: scale(1.04);
+}
+
+.km-card-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--km-primary);
+}
+
+/* Top badges on image */
+.km-card-top-badges {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  z-index: 2;
+}
+
+.km-badge-verified {
+  background: var(--km-success);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+/* Bottom badges on image */
+.km-card-bottom-badges {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  gap: 0.35rem;
+  z-index: 2;
+}
+
+.km-badge-format-online {
+  background: rgba(79, 70, 229, 0.95);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.km-badge-format-offline {
+  background: rgba(31, 41, 55, 0.95);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+/* Card Content Body */
+.km-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.km-card-specializations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.km-spec-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--km-primary-light);
+  color: var(--km-primary-hover);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.km-card-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem 0;
+  color: var(--km-gray-900);
+  line-height: 1.35;
+}
+
+.km-card-name a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.km-card-name a:hover {
+  color: var(--km-primary);
+}
+
+.km-card-name-alt {
+  font-size: 0.85rem;
+  color: #888;
+  margin: -0.25rem 0 0.5rem 0;
+}
+
+/* Stars Rating */
+.km-rating-stars-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.km-stars {
+  color: var(--km-warning);
+  font-size: 1.1rem;
+}
+
+.km-rating-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--km-gray-600);
+}
+
+.km-rating-none {
+  font-size: 0.85rem;
+  color: #9c9c9c;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Card Bio text */
+.km-card-bio {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--km-gray-600);
+  margin: 0 0 1rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Card details (meta details box) */
+.km-card-details-box {
+  background: var(--km-gray-50);
+  padding: 0.85rem;
+  border-radius: var(--km-radius-md);
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.km-card-detail-item {
+  font-size: 0.85rem;
+  color: var(--km-gray-700);
+  margin: 0 0 0.4rem 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.km-card-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.km-card-detail-item span.label {
+  font-weight: 600;
+  color: var(--km-gray-600);
+}
+
+.km-card-detail-item span.value {
+  font-weight: 700;
+  color: var(--km-gray-900);
+}
+
+/* Card locations text list */
+.km-card-locations-list {
+  font-size: 0.8rem;
+  color: #888;
+  display: flex;
+  align-items: start;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.35;
+}
+
+.km-card-locations-list svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Card View Button */
+.km-card-action {
+  margin-top: auto;
+}
+
+.km-btn-card-view {
+  display: block;
+  text-align: center;
+  background: var(--km-gray-100);
+  color: var(--km-gray-900);
+  text-decoration: none;
+  padding: 0.7rem;
+  border-radius: var(--km-radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.km-btn-card-view:hover {
+  background: var(--km-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+}
+
+/* Pagination bar */
+.km-pagination {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.km-pagination-btn {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--km-gray-300);
+  border-radius: var(--km-radius-md);
+  text-decoration: none;
+  color: var(--km-gray-600);
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: #ffffff;
+  transition: all 0.2s;
+}
+
+.km-pagination-btn:hover {
+  border-color: var(--km-primary);
+  color: var(--km-primary);
+}
+
+.km-pagination-btn.active {
+  background: var(--km-primary);
+  border-color: var(--km-primary);
+  color: #ffffff;
+}
+
+/* No results state */
+.km-no-results {
+  text-align: center;
+  padding: 5rem 2rem;
+  background: #ffffff;
+  border-radius: var(--km-radius-lg);
+  border: 1px solid var(--km-gray-200);
+  grid-column: 1 / -1;
+  box-shadow: var(--km-shadow-sm);
+}
+
+.km-no-results svg {
+  color: #9c9c9c;
+  margin-bottom: 1.5rem;
+}
+
+.km-no-results h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--km-gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.km-no-results p {
+  color: var(--km-gray-600);
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+
+/* ----------------------------------------------------
+   3. SPECIALISTS DETAIL PAGE (.km-specialists-detail)
+   ---------------------------------------------------- */
+.km-specialists-detail {
+  font-family: var(--km-font-sans);
+  color: var(--km-gray-700);
+  background-color: #fafbfc;
+  padding: 1.5rem 0;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.km-specialists-detail * {
+  box-sizing: border-box;
+}
+
+/* Back Link */
+.km-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--km-gray-600);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  transition: color 0.2s;
+}
+
+.km-back-link:hover {
+  color: var(--km-primary);
+}
+
+/* Profile Header Card */
+.km-detail-header-card {
+  background: #ffffff;
+  border: 1px solid var(--km-gray-200);
+  border-radius: var(--km-radius-xl);
+  padding: 2.25rem;
+  box-shadow: var(--km-shadow-md);
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.km-detail-photo-wrapper {
+  width: 200px;
+  height: 200px;
+  border-radius: var(--km-radius-lg);
+  overflow: hidden;
+  background: var(--km-gray-100);
+  border: 4px solid #ffffff;
+  box-shadow: var(--km-shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.km-detail-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.km-detail-header-info {
+  flex-grow: 1;
+}
+
+.km-detail-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.km-detail-name {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--km-gray-900);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.km-detail-name-alt {
+  font-size: 1.15rem;
+  color: var(--km-gray-600);
+  font-style: italic;
+  margin: -0.25rem 0 1rem 0;
+}
+
+.km-detail-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  border-top: 1px solid var(--km-gray-100);
+  padding-top: 1rem;
+}
+
+.km-detail-stat-item {
+  font-size: 0.95rem;
+  color: var(--km-gray-700);
+}
+
+.km-detail-stat-item b {
+  color: var(--km-gray-900);
+}
+
+/* Two Column Layout */
+.km-detail-columns {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2.25rem;
+  align-items: start;
+}
+
+/* Sections in main column */
+.km-detail-section {
+  background: #ffffff;
+  border: 1px solid var(--km-gray-200);
+  border-radius: var(--km-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--km-shadow-sm);
+  margin-bottom: 2rem;
+}
+
+.km-detail-section h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--km-gray-900);
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--km-gray-100);
+  padding-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.km-detail-section h2 svg {
+  color: var(--km-primary);
+}
+
+.km-bio-content {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--km-gray-700);
+  white-space: pre-line;
+}
+
+/* Education and Experience content blocks */
+.km-detail-info-block {
+  margin-bottom: 1.5rem;
+}
+
+.km-detail-info-block:last-child {
+  margin-bottom: 0;
+}
+
+.km-detail-info-block h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--km-gray-900);
+  margin: 0 0 0.5rem 0;
+}
+
+.km-detail-info-block p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--km-gray-700);
+  white-space: pre-line;
+  margin: 0;
+}
+
+/* Documents Grid */
+.km-documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+.km-document-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--km-gray-200);
+  border-radius: var(--km-radius-md);
+  text-decoration: none;
+  color: var(--km-gray-900);
+  background: var(--km-gray-50);
+  transition: all 0.2s;
+}
+
+.km-document-card:hover {
+  border-color: var(--km-primary);
+  background: #ffffff;
+  box-shadow: var(--km-shadow-sm);
+  transform: translateY(-2px);
+}
+
+.km-doc-icon {
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.km-doc-info p.doc-type {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.km-doc-info p.doc-name {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--km-gray-600);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+/* Sidebar Cards */
+.km-side-card {
+  background: #ffffff;
+  border: 1px solid var(--km-gray-200);
+  border-radius: var(--km-radius-lg);
+  padding: 1.75rem;
+  box-shadow: var(--km-shadow-sm);
+  margin-bottom: 1.75rem;
+}
+
+.km-side-card h3 {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--km-gray-900);
+  border-bottom: 2px solid var(--km-gray-100);
+  padding-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.km-side-card h3 svg {
+  color: var(--km-primary);
+}
+
+/* Practice locations list in detail */
+.km-detail-locations-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.km-detail-location-item {
+  border-left: 3px solid var(--km-primary);
+  padding-left: 0.85rem;
+}
+
+.km-detail-location-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--km-gray-900);
+  margin: 0 0 0.25rem 0;
+}
+
+.km-detail-location-title a {
+  color: var(--km-primary);
+  text-decoration: none;
+}
+
+.km-detail-location-title a:hover {
+  text-decoration: underline;
+}
+
+.km-detail-location-address {
+  font-size: 0.875rem;
+  color: var(--km-gray-600);
+  line-height: 1.4;
+  margin: 0 0 0.5rem 0;
+}
+
+.km-detail-location-price-tag {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #065f46;
+  background: var(--km-success-bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--km-success);
+}
+
+/* Online Only Big Banner */
+.km-online-only-banner {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: var(--km-radius-md);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #1e3a8a;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.km-online-only-banner svg {
+  color: var(--km-primary);
+  flex-shrink: 0;
+}
+
+/* Contacts Card Details */
+.km-contact-item {
+  margin-bottom: 1.25rem;
+}
+
+.km-contact-item:last-child {
+  margin-bottom: 0;
+}
+
+.km-contact-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.km-contact-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--km-gray-900);
+  text-decoration: none;
+}
+
+.km-contact-value.km-link {
+  color: var(--km-primary);
+}
+
+.km-contact-value.km-link:hover {
+  text-decoration: underline;
+}
+
+/* Floating/Sticking CTA box for phone & whatsapp on Mobile */
+.km-mobile-sticky-cta {
+  display: none; /* Hidden on desktop */
+}
+
+/* Interactive Star Rating Selector */
+.km-stars-selector {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 2rem;
+  color: var(--km-gray-300);
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.km-star-btn {
+  transition: color 0.15s, transform 0.1s;
+}
+
+.km-star-btn:hover {
+  transform: scale(1.15);
+}
+
+/* Disclaimer text block */
+.km-disclaimer-box {
+  background: #fdf2f2;
+  border: 1px solid #fde8e8;
+  border-radius: var(--km-radius-md);
+  padding: 1.25rem;
+  margin-top: 2rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.km-disclaimer-box svg {
+  color: #ef4444;
+  flex-shrink: 0;
+}
+
+.km-disclaimer-text {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #9b1c1c;
+  margin: 0;
+}
+
+.km-disclaimer-text b {
+  font-weight: 700;
+}
+
+/* Map frame container */
+.km-detail-map-container {
+  height: 250px;
+  width: 100%;
+  border-radius: var(--km-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--km-gray-200);
+  margin-top: 1rem;
+}
+
+/* Reviews List styles */
+.km-review-item {
+  background: var(--km-gray-50);
+  border: 1px solid var(--km-gray-200);
+  border-radius: var(--km-radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.km-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 0.75rem;
+}
+
+.km-review-author {
+  font-weight: 700;
+  color: var(--km-gray-900);
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+}
+
+.km-review-date {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.km-review-text {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--km-gray-700);
+  margin: 0;
+}
+
+/* WhatsApp CTA Button styling */
+.km-whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #25d366;
+  color: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: var(--km-radius-md);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: 0 4px 6px rgba(37, 211, 102, 0.15);
+  margin-top: 0.5rem;
+}
+
+.km-whatsapp-btn:hover {
+  background-color: #20ba5a;
+}
+
+.km-whatsapp-btn:active {
+  transform: scale(0.98);
+}
+
+
+/* ----------------------------------------------------
+   4. RESPONSIVE MEDIA QUERIES (Desktop / Mobile)
+   ---------------------------------------------------- */
+
+/* Tablet & Mobile (max 991px) */
+@media (max-width: 991px) {
+  /* Catalog */
+  .km-specialists-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .km-filters-panel {
+    position: static;
+    margin-bottom: 2rem;
+  }
+  
+  /* Details */
+  .km-detail-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile Devices (max 767px) */
+@media (max-width: 767px) {
+  .km-specialists-hero {
+    padding: 2.5rem 1.25rem;
+  }
+  
+  .km-specialists-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .km-specialists-hero p {
+    font-size: 1rem;
+  }
+  
+  /* Profile header card layout stack vertical */
+  .km-detail-header-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  
+  .km-detail-photo-wrapper {
+    margin: 0 auto;
+  }
+  
+  .km-detail-tags-row {
+    justify-content: center;
+  }
+  
+  .km-detail-stats-row {
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .km-detail-name {
+    font-size: 1.75rem;
+  }
+  
+  .km-detail-section {
+    padding: 1.25rem;
+  }
+  
+  /* Floating CTA on Mobile at the bottom so contacts are accessible instantly */
+  .km-mobile-sticky-cta {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--km-gray-200);
+    padding: 0.75rem 1rem;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+    z-index: 100;
+    justify-content: stretch;
+    gap: 0.75rem;
+  }
+  
+  .km-mobile-sticky-cta a {
+    flex: 1;
+    text-align: center;
+    font-size: 0.875rem;
+    padding: 0.7rem;
+    border-radius: var(--km-radius-md);
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+  
+  .km-mobile-cta-phone {
+    background-color: var(--km-primary);
+    color: #ffffff;
+  }
+  
+  .km-mobile-cta-whatsapp {
+    background-color: #25d366;
+    color: #ffffff;
+  }
+  
+  /* Ensure padding-bottom on wrapper so content isn't covered by sticky bottom bar */
+  .km-specialists-detail {
+    padding-bottom: 80px;
+  }
+}

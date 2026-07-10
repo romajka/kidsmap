@@ -7839,7 +7839,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 
 .owner-dashboard-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
 }
 
@@ -22244,7 +22244,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 
 .owner-listing-choice-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -22338,6 +22338,11 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .owner-listing-choice-card__icon--event::before {
   -webkit-mask-image: url("../img/icon/coolicons.iconjar/icons/calendar-event.svg");
   mask-image: url("../img/icon/coolicons.iconjar/icons/calendar-event.svg");
+}
+
+.owner-listing-choice-card__icon--specialist::before {
+  -webkit-mask-image: url("../img/icon/coolicons.iconjar/icons/user-01.svg");
+  mask-image: url("../img/icon/coolicons.iconjar/icons/user-01.svg");
 }
 
 .owner-listing-choice-card strong {
@@ -22584,6 +22589,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   }
 
   .owner-listing-choice-grid {
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 

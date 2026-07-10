@@ -32,9 +32,9 @@ from .controllers.place_controller import PlaceController
 from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
-from .forms import OwnerEventForm
+from .forms import OwnerEventForm, OwnerSpecialistForm
 from .legal_content import get_legal_page_content
-from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile
+from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile, Specialist
 from .models import FunnelEvent
 from .services.content_quality import approved_review_queryset
 from .services.reactions import ensure_session_key
@@ -1492,3 +1492,436 @@ def account_logout(request):
     auth_logout(request)
     messages.info(request, _("Вы вышли из аккаунта."))
     return redirect(_resolve_safe_next_url(request, reverse("home")))
+
+
+def serve_specialist_document(request, document_id):
+    from catalog.models import SpecialistDocument
+    from django.http import FileResponse, Http404
+
+    doc = get_object_or_404(SpecialistDocument, pk=document_id)
+    user = request.user
+    is_authorized = False
+
+    if user.is_authenticated and (user.is_staff or user.is_superuser):
+        is_authorized = True
+    elif user.is_authenticated and doc.specialist.owner == user:
+        is_authorized = True
+    elif doc.document_type in [SpecialistDocument.TYPE_DIPLOMA, SpecialistDocument.TYPE_CERTIFICATE]:
+        if doc.is_verified and doc.is_public:
+            is_authorized = True
+
+    if not is_authorized:
+        raise Http404(_("Документ не найден или доступ ограничен."))
+
+    return FileResponse(doc.file, as_attachment=False)
+
+
+def specialist_list(request):
+    from catalog.models import Specialist, SpecialistSpecialization, Region, District, MetroStation
+    from catalog.services.public_filter_options import build_public_specialist_filter_options
+    from django.db import models
+    from django.core.paginator import Paginator
+
+    qs = Specialist.objects.filter(status=Specialist.STATUS_PUBLISHED, is_active=True)
+
+    # 1. Search Query
+    q = (request.GET.get("q") or "").strip()
+    if q:
+        qs = qs.filter(
+            models.Q(name__icontains=q)
+            | models.Q(name_alt__icontains=q)
+            | models.Q(bio_ru__icontains=q)
+            | models.Q(bio_az__icontains=q)
+            | models.Q(bio_en__icontains=q)
+        )
+
+    # 2. Specialization
+    spec_code = (request.GET.get("specialization") or "").strip()
+    if spec_code:
+        qs = qs.filter(specializations__code=spec_code)
+
+    # 3. Consultation Format
+    cf = (request.GET.get("format") or "").strip()
+    if cf:
+        if cf == "online":
+            qs = qs.filter(consultation_format__in=[Specialist.FORMAT_ONLINE, Specialist.FORMAT_BOTH])
+        elif cf == "offline":
+            qs = qs.filter(consultation_format__in=[Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH])
+
+    # 4. Location Filters
+    region_key = (request.GET.get("region") or "").strip()
+    district_key = (request.GET.get("district") or "").strip()
+    metro_key = (request.GET.get("metro") or "").strip()
+
+    if region_key or district_key or metro_key:
+        loc_q = models.Q()
+        if region_key:
+            loc_q &= models.Q(practice_locations__region_id=region_key)
+        if district_key:
+            loc_q &= models.Q(practice_locations__district_id=district_key)
+        if metro_key:
+            loc_q &= models.Q(practice_locations__metro_id=metro_key)
+        qs = qs.filter(loc_q)
+
+    # 5. Age
+    age = (request.GET.get("age") or "").strip()
+    if age.isdigit():
+        age_val = int(age)
+        qs = qs.filter(
+            (models.Q(age_from__isnull=True) | models.Q(age_from__lte=age_val))
+            & (models.Q(age_to__isnull=True) | models.Q(age_to__gte=age_val))
+        )
+
+    # 6. Price range
+    price_from = (request.GET.get("price_from") or "").strip()
+    price_to = (request.GET.get("price_to") or "").strip()
+    if price_from.isdigit():
+        p_from = int(price_from)
+        qs = qs.filter(
+            models.Q(price_from__gte=p_from) |
+            models.Q(practice_locations__price_per_session__gte=p_from)
+        )
+    if price_to.isdigit():
+        p_to = int(price_to)
+        qs = qs.filter(
+            models.Q(price_to__lte=p_to) |
+            models.Q(practice_locations__price_per_session__lte=p_to)
+        )
+
+    # 6a. Consultation Language
+    consult_lang = (request.GET.get("language") or "").strip()
+    if consult_lang in ["az", "ru", "en"]:
+        qs = qs.filter(**{f"language_{consult_lang}": True})
+
+    # 6b. Verified Specialist
+    verified = (request.GET.get("verified") or "").strip()
+    if verified in ["1", "true"]:
+        qs = qs.filter(is_verified=True)
+
+    # 6c. Minimum Rating
+    min_rating = (request.GET.get("min_rating") or "").strip()
+    if min_rating:
+        try:
+            qs = qs.filter(rating_avg__gte=float(min_rating))
+        except ValueError:
+            pass
+
+    # 7. Sorting
+    sort = (request.GET.get("sort") or "new").strip()
+    if sort == "rating":
+        qs = qs.order_by("-rating_avg", "-rating_count", "-created_at")
+    elif sort == "price_asc":
+        from django.db.models.functions import Coalesce
+        from django.db.models import Min
+        qs = qs.annotate(
+            min_price=Coalesce(Min("practice_locations__price_per_session"), "price_from")
+        ).order_by("min_price", "-created_at")
+    elif sort == "price_desc":
+        from django.db.models.functions import Coalesce
+        from django.db.models import Max
+        qs = qs.annotate(
+            max_price=Coalesce(Max("practice_locations__price_per_session"), "price_to")
+        ).order_by("-max_price", "-created_at")
+    elif sort == "experience":
+        qs = qs.order_by("-experience_years", "-created_at")
+    else:
+        qs = qs.order_by("-created_at")
+
+    qs = qs.distinct()
+
+    paginator = Paginator(qs, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    active_filter_chips = []
+    language = (request.LANGUAGE_CODE or "az").split("-")[0]
+
+    def rebuild_url(exclude_param):
+        params = request.GET.copy()
+        if exclude_param in params:
+            del params[exclude_param]
+        return f"?{params.urlencode()}" if params else request.path
+
+    if q:
+        active_filter_chips.append({
+            "label": f"{_('Поиск')}: {q}",
+            "remove_url": rebuild_url("q")
+        })
+    if spec_code:
+        spec_obj = SpecialistSpecialization.objects.filter(code=spec_code).first()
+        if spec_obj:
+            active_filter_chips.append({
+                "label": spec_obj.name_i18n(language),
+                "remove_url": rebuild_url("specialization")
+            })
+    if cf:
+        format_labels = {
+            "online": _("Онлайн"),
+            "offline": _("Очно"),
+        }
+        active_filter_chips.append({
+            "label": format_labels.get(cf, cf),
+            "remove_url": rebuild_url("format")
+        })
+    if region_key:
+        reg_obj = Region.objects.filter(key=region_key).first()
+        if reg_obj:
+            active_filter_chips.append({
+                "label": reg_obj.name_i18n(language),
+                "remove_url": rebuild_url("region")
+            })
+    if district_key:
+        dist_obj = District.objects.filter(key=district_key).first()
+        if dist_obj:
+            active_filter_chips.append({
+                "label": dist_obj.name_i18n(language),
+                "remove_url": rebuild_url("district")
+            })
+    if metro_key:
+        metro_obj = MetroStation.objects.filter(key=metro_key).first()
+        if metro_obj:
+            active_filter_chips.append({
+                "label": metro_obj.name_i18n(language),
+                "remove_url": rebuild_url("metro")
+            })
+    if age:
+        active_filter_chips.append({
+            "label": f"{_('Возраст')}: {age}",
+            "remove_url": rebuild_url("age")
+        })
+    if price_from or price_to:
+        pf = price_from or "0"
+        pt = price_to or "..."
+        active_filter_chips.append({
+            "label": f"{pf} - {pt} AZN",
+            "remove_url": rebuild_url("price_from") if price_from else rebuild_url("price_to")
+        })
+    if consult_lang:
+        lang_labels = {
+            "az": _("Азербайджанский"),
+            "ru": _("Русский"),
+            "en": _("Английский"),
+        }
+        active_filter_chips.append({
+            "label": f"{_('Язык')}: {lang_labels.get(consult_lang, consult_lang)}",
+            "remove_url": rebuild_url("language")
+        })
+    if verified in ["1", "true"]:
+        active_filter_chips.append({
+            "label": _("Проверен"),
+            "remove_url": rebuild_url("verified")
+        })
+    if min_rating:
+        active_filter_chips.append({
+            "label": f"{_('Рейтинг')} ≥ {min_rating}",
+            "remove_url": rebuild_url("min_rating")
+        })
+
+    filter_options = build_public_specialist_filter_options(language_code=language)
+
+    # Count specialists matching the current filters
+    count = qs.count()
+    if language == "az":
+        results_count_label = f"{count} mütəxəssis tapıldı"
+    elif language == "en":
+        results_count_label = f"Found {count} specialists"
+    else:
+        results_count_label = f"Найдено {count} специалистов"
+
+    context = {
+        "page_obj": page_obj,
+        "specialists": page_obj,
+        "selected": {
+            "q": q,
+            "specialization": spec_code,
+            "format": cf,
+            "region": region_key,
+            "district": district_key,
+            "metro": metro_key,
+            "age": age,
+            "price_from": price_from,
+            "price_to": price_to,
+            "sort": sort,
+            "language": consult_lang,
+            "verified": verified,
+            "min_rating": min_rating,
+        },
+        "filter_options": filter_options,
+        "active_filter_chips": active_filter_chips,
+        "reset_filters_url": request.path,
+        "results_count_label": results_count_label,
+        "language": language,
+        "seo_title": _("Специалисты для детей — KidsMap"),
+        "meta_description": _("Каталог детских специалистов в Азербайджане: психологи, логопеды, дефектологи и др. Отзывы, цены, контакты."),
+    }
+    return render(request, "catalog/specialist_list.html", context)
+
+
+def specialist_detail(request, slug):
+    from catalog.models import Specialist, SpecialistReview
+
+    specialist = get_object_or_404(
+        Specialist.objects.prefetch_related(
+            "specializations",
+            "practice_locations",
+            "practice_locations__region",
+            "practice_locations__district",
+            "practice_locations__metro",
+            "documents",
+        ),
+        slug=slug,
+        status=Specialist.STATUS_PUBLISHED,
+        is_active=True
+    )
+
+    reviews = specialist.reviews.filter(status=SpecialistReview.STATUS_APPROVED).order_by("-created_at")
+
+    visible_documents = specialist.documents.filter(
+        document_type__in=["diploma", "certificate"],
+        status="approved",
+        is_published=True
+    )
+
+    language = (request.LANGUAGE_CODE or "az").split("-")[0]
+
+    seo_title = f"{specialist.name} — {', '.join(spec.name_i18n(language) for spec in specialist.specializations.all())}"
+    meta_description = f"{specialist.name_alt or specialist.name}: {specialist.bio_i18n(language)[:150]}"
+
+    has_coords = any(loc.lat is not None and loc.lng is not None for loc in specialist.practice_locations.all())
+
+    context = {
+        "specialist": specialist,
+        "reviews": reviews,
+        "visible_documents": visible_documents,
+        "language": language,
+        "seo_title": seo_title,
+        "meta_description": meta_description,
+        "has_coords": has_coords,
+    }
+    return render(request, "catalog/specialist_detail.html", context)
+
+
+@require_POST
+def add_specialist_review(request, pk):
+    from catalog.models import Specialist, SpecialistReview
+    from catalog.services.review_moderation import moderate_review_content
+    from django.contrib import messages
+
+    specialist = get_object_or_404(Specialist, pk=pk, status=Specialist.STATUS_PUBLISHED, is_active=True)
+
+    if not request.user.is_authenticated:
+        query = urlencode({"next": f"{specialist.get_absolute_url()}#reviews"})
+        return redirect(f"{reverse('account_login')}?{query}")
+
+    rating_raw = (request.POST.get("rating") or "").strip()
+    review_text = (request.POST.get("text") or "").strip()
+
+    if not rating_raw:
+        messages.error(request, _("Выберите оценку от 1 до 5, чтобы отправить отзыв."))
+        return redirect(f"{specialist.get_absolute_url()}#reviews")
+
+    try:
+        rating = int(rating_raw)
+    except (TypeError, ValueError):
+        messages.error(request, _("Оценка должна быть числом от 1 до 5."))
+        return redirect(f"{specialist.get_absolute_url()}#reviews")
+
+    if rating < 1 or rating > 5:
+        messages.error(request, _("Оценка вне диапазона. Укажите значение от 1 до 5."))
+        return redirect(f"{specialist.get_absolute_url()}#reviews")
+
+    if not review_text:
+        messages.error(request, _("Добавьте текст отзыва, чтобы другим пользователям было полезно ваше мнение."))
+        return redirect(f"{specialist.get_absolute_url()}#reviews")
+
+    if len(review_text) > 5000:
+        messages.error(request, _("Текст отзыва слишком длинный. Сократите его до 5000 символов."))
+        return redirect(f"{specialist.get_absolute_url()}#reviews")
+
+    author_name = ""
+    if request.user.is_authenticated:
+        candidates = (
+            request.user.get_full_name(),
+            request.user.get_username(),
+            getattr(request.user, "email", ""),
+        )
+        for value in candidates:
+            value = (value or "").strip()
+            if value:
+                author_name = value[:80]
+                break
+    if not author_name:
+        author_name = _("Гость")
+
+    moderated = moderate_review_content(author_name=author_name, text=review_text)
+
+    defaults = {
+        "rating": rating,
+        "text": moderated.text,
+        "author_name": moderated.author_name,
+        "status": SpecialistReview.STATUS_PENDING,
+        "is_approved": False,
+        "rejection_reason": "",
+    }
+
+    review_obj, created = SpecialistReview.objects.update_or_create(
+        specialist=specialist,
+        user=request.user,
+        defaults=defaults
+    )
+
+    message = _("Отзыв отправлен на модерацию.")
+    if moderated.contains_profanity:
+        message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
+
+    messages.success(request, message)
+    return redirect(f"{specialist.get_absolute_url()}#reviews")
+
+
+def owner_specialist_create(request):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        draft_save_only = form_action == "save_draft"
+        form = OwnerSpecialistForm(request.POST, request.FILES, draft_save_only=draft_save_only)
+        if form.is_valid():
+            specialist = form.save(commit=False)
+            specialist.owner = request.user
+            specialist.status = Specialist.STATUS_DRAFT if draft_save_only else Specialist.STATUS_PENDING
+            specialist.save()
+            form.save_m2m()
+            form.save_location(specialist)
+            if draft_save_only:
+                messages.success(request, _("Черновик специалиста сохранён."))
+            else:
+                messages.success(request, _("Профиль специалиста отправлен на модерацию. После проверки он появится в каталоге."))
+            return redirect("owner_places_dashboard")
+    else:
+        form = OwnerSpecialistForm()
+
+    specializations = form.fields["specializations"].queryset.order_by("order", "name_ru")
+    return render(
+        request,
+        "pages/owner_specialist_create.html",
+        {
+            "form": form,
+            "specializations": specializations,
+            "meta_description": _("Добавление специалиста в каталог KidsMap."),
+        },
+    )
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+def admin_add_choice(request):
+    return render(
+        request,
+        "admin/add_choice.html",
+        {
+            "title": "Добавить публикацию",
+            "has_permission": True,
+        },
+    )

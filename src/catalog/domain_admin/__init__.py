@@ -66,6 +66,9 @@ def _kidsmap_get_app_list(self, request, app_label=None):
         status=PlaceOwnershipRequest.STATUS_PENDING
     ).count()
     review_pending_count = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
+    specialist_review_pending_count = SpecialistReview.objects.filter(status=SpecialistReview.STATUS_PENDING).count()
+    specialist_pending_count = Specialist.objects.filter(status=Specialist.STATUS_PENDING).count()
+
     for app in app_list:
         if app.get("app_label") == "auth":
             app["name"] = _("Пользователи")
@@ -81,16 +84,23 @@ def _kidsmap_get_app_list(self, request, app_label=None):
             "placeownershiprequest": 5,
             "event": 8,
             "place": 10,
+            "specialist": 11,
+            "specialistspecialization": 12,
             "placechangeaudit": 20,
             "placereview": 30,
+            "specialistreview": 31,
             "sitereview": 40,
             "placereviewsbyclub": 50,
             "userprofile": 60,
             "useremailverification": 70,
+            "region": 80,
+            "district": 81,
+            "metrostation": 82,
         }
         display_name_overrides = {
             "sitereview": _("Отзывы о сайте"),
             "placereview": _("Отзывы по кружкам"),
+            "specialistreview": _("Отзывы о специалистах"),
             "placechangeaudit": _("История изменений карточек"),
         }
 
@@ -107,6 +117,16 @@ def _kidsmap_get_app_list(self, request, app_label=None):
                 model["name"] = _("%(name)s (на проверке: %(count)s)") % {
                     "name": model["name"],
                     "count": review_pending_count,
+                }
+            if object_name == "specialist" and specialist_pending_count:
+                model["name"] = _("%(name)s (модерация: %(count)s)") % {
+                    "name": model["name"],
+                    "count": specialist_pending_count,
+                }
+            if object_name == "specialistreview" and specialist_review_pending_count:
+                model["name"] = _("%(name)s (проверка: %(count)s)") % {
+                    "name": model["name"],
+                    "count": specialist_review_pending_count,
                 }
         app["models"].sort(
             key=lambda model: (
@@ -191,7 +211,7 @@ def _build_sidebar_item(
     }
 
 
-def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pending_count: int, deleted_count: int) -> list[dict]:
+def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pending_count: int, deleted_count: int, specialist_review_pending_count: int, specialist_pending_count: int) -> list[dict]:
     if not request.user.is_authenticated or not request.user.is_staff:
         return []
 
@@ -220,6 +240,26 @@ def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pen
                     badge_count=deleted_count,
                 ),
             ],
+        },
+        {
+            "key": "specialists",
+            "label": _("Специалисты"),
+            "icon": "fas fa-user-md",
+            "items": [
+                _build_sidebar_item(request, model=Specialist, label=_("Специалисты"), icon="fas fa-user-tie", badge_count=specialist_pending_count),
+                _build_sidebar_item(request, model=SpecialistSpecialization, label=_("Специализации"), icon="fas fa-graduation-cap"),
+                _build_sidebar_item(request, model=SpecialistReview, label=_("Отзывы о специалистах"), icon="far fa-comments", badge_count=specialist_review_pending_count),
+            ]
+        },
+        {
+            "key": "geography",
+            "label": _("География"),
+            "icon": "fas fa-map-marked-alt",
+            "items": [
+                _build_sidebar_item(request, model=Region, label=_("Регионы / Города"), icon="fas fa-globe"),
+                _build_sidebar_item(request, model=District, label=_("Районы"), icon="fas fa-map-signs"),
+                _build_sidebar_item(request, model=MetroStation, label=_("Станции метро"), icon="fas fa-subway"),
+            ]
         },
         {
             "key": "moderation",
@@ -336,12 +376,18 @@ def _kidsmap_each_context(self, request):
         ).count()
         review_pending_count = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
         deleted_count = Place.objects.filter(deleted_at__isnull=False).count()
+        specialist_review_pending_count = SpecialistReview.objects.filter(status=SpecialistReview.STATUS_PENDING).count()
+        specialist_pending_count = Specialist.objects.filter(status=Specialist.STATUS_PENDING).count()
     else:
         ownership_pending_count = 0
         review_pending_count = 0
         deleted_count = 0
+        specialist_review_pending_count = 0
+        specialist_pending_count = 0
     context["ownership_pending_count"] = ownership_pending_count
     context["review_pending_count"] = review_pending_count
+    context["specialist_review_pending_count"] = specialist_review_pending_count
+    context["specialist_pending_count"] = specialist_pending_count
 
     current_language = (get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
     context["admin_current_language"] = current_language
@@ -351,6 +397,8 @@ def _kidsmap_each_context(self, request):
         ownership_pending_count=ownership_pending_count,
         review_pending_count=review_pending_count,
         deleted_count=deleted_count,
+        specialist_review_pending_count=specialist_review_pending_count,
+        specialist_pending_count=specialist_pending_count,
     )
     context["kidsmap_admin_role_label"] = _admin_role_label(request.user)
     return context
@@ -365,3 +413,4 @@ from .owner import *
 from .site import *
 from .category import *
 from .place import *
+from .specialist import *

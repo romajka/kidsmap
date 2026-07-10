@@ -175,13 +175,17 @@
         
         <!-- ROW 3: QUICK ACTIONS -->
         <div class="km-dashboard-actions" aria-label="Быстрые действия">
-            <a href="{% url 'admin:catalog_place_add' %}" class="km-dashboard-action km-dashboard-action--primary">
-                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                <span>Добавить место</span>
+            <a href="{% url 'admin_add_choice' %}" class="km-dashboard-action km-dashboard-action--primary">
+                <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                <span>Создать объявление</span>
             </a>
             <a href="{% url 'admin:catalog_event_add' %}" class="km-dashboard-action">
                 <i class="fas fa-calendar-plus" aria-hidden="true"></i>
                 <span>Добавить мероприятие</span>
+            </a>
+            <a href="{% url 'admin:catalog_specialist_add' %}" class="km-dashboard-action">
+                <i class="fas fa-user-md" aria-hidden="true"></i>
+                <span>Добавить специалиста</span>
             </a>
             {% if request.user.is_superuser %}
             <a href="{% url 'admin:catalog_staffaccessuser_add' %}" class="km-dashboard-action km-dashboard-action--access">

@@ -1481,6 +1481,13 @@ class PlaceAdmin(admin.ModelAdmin):
             context["km_place_public_link"] = self._build_public_place_link(request, obj=obj)
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
+    def add_view(self, request, form_url='', extra_context=None):
+        if not request.GET.get("type"):
+            from django.shortcuts import redirect
+            return redirect("admin_add_choice")
+        return super().add_view(request, form_url=form_url, extra_context=extra_context)
+
+
     def _fieldset_list(self, adminform):
         return list(adminform) if adminform is not None else []
 

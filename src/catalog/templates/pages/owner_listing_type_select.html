@@ -77,6 +77,37 @@
         </span>
         <span class="btn owner-listing-choice-card__button">{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add an event{% else %}Добавить мероприятие{% endif %}</span>
       </a>
+
+      <a class="owner-listing-choice-card owner-listing-choice-card--specialist" href="{% url 'owner_specialist_create' %}?fresh=1">
+        <span class="owner-listing-choice-card__badge">{% if CURRENT_LANGUAGE == "az" %}1 addım{% elif CURRENT_LANGUAGE == "en" %}1 step{% else %}1 шаг{% endif %}</span>
+        <span class="owner-listing-choice-card__check" aria-hidden="true">✓</span>
+        <span class="owner-listing-choice-card__icon owner-listing-choice-card__icon--specialist" aria-hidden="true"></span>
+        <strong>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis / İnsan{% elif CURRENT_LANGUAGE == "en" %}Specialist / Person{% else %}Человек / Специалист{% endif %}</strong>
+        <span class="owner-listing-choice-card__text">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Uşaq psixoloqu, loqoped, pediatr, repetitor, məşqçi və ya digər mütəxəssis.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Child psychologist, speech therapist, pediatrician, tutor, coach, or other specialist.
+          {% else %}
+            Детский психолог, логопед, педиатр, репетитор, тренер или другой специалист.
+          {% endif %}
+        </span>
+        <span class="owner-listing-choice-card__note">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Fərdi xidmətlər üçün uyğundur. Əlaqə məlumatları və rəylər ilə vahid profil.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Best for personal services. A unified profile with contact details and reviews.
+          {% else %}
+            Подходит для персональных услуг. Единый профиль с контактами и отзывами.
+          {% endif %}
+        </span>
+        <span class="owner-listing-choice-features">
+          <span>{% if CURRENT_LANGUAGE == "az" %}Diplomlar və təcrübə{% elif CURRENT_LANGUAGE == "en" %}Diplomas & practice{% else %}Дипломы и опыт{% endif %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Telefon və WhatsApp{% elif CURRENT_LANGUAGE == "en" %}Phone & WhatsApp{% else %}Телефон и WhatsApp{% endif %}</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Xəritə və ünvanlar{% elif CURRENT_LANGUAGE == "en" %}Map & locations{% else %}Карта и адреса{% endif %}</span>
+        </span>
+        <span class="btn owner-listing-choice-card__button">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %}</span>
+      </a>
     </div>
   </section>
 {% endblock %}

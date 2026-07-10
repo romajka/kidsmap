@@ -83,6 +83,11 @@
               {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
             >{% trans "Каталог" %}</a>
             <a
+              href="{% url 'specialist_list' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}aria-current="page"{% endif %}
+            >{% if CURRENT_LANGUAGE == "az" %}Mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Specialists{% else %}{% trans "Специалисты" %}{% endif %}</a>
+            <a
               href="{% url 'events_landing' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
               {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
@@ -117,6 +122,11 @@
             class="{% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
             {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
           >{% trans "Каталог" %}</a>
+          <a
+            href="{% url 'specialist_list' %}"
+            class="{% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}aria-current="page"{% endif %}
+          >{% if CURRENT_LANGUAGE == "az" %}Mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Specialists{% else %}{% trans "Специалисты" %}{% endif %}</a>
           <a
             href="{% url 'events_landing' %}"
             class="{% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
@@ -258,6 +268,7 @@
                 <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
                   <a href="{% url 'home' %}">{% trans "Главная" %}</a>
                   <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+                  <a href="{% url 'specialist_list' %}">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Specialists{% else %}{% trans "Специалисты" %}{% endif %}</a>
                   <a href="{% url 'events_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
                   <a href="{% url 'for_business' %}">{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
                   <a href="{% url 'about' %}">{% trans "О проекте" %}</a>

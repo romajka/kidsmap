@@ -1,0 +1,519 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}" />
+{% if has_coords %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="km-specialists-detail">
+  
+  <!-- Back button -->
+  <div>
+    <a href="{% if request.GET.next %}{{ request.GET.next }}{% else %}{% url 'specialist_list' %}{% endif %}" class="km-back-link">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+      {% if language == "az" %}Mütəxəssis kataloquna qayıt{% elif language == "en" %}Back to specialist directory{% else %}Назад к списку специалистов{% endif %}
+    </a>
+  </div>
+
+  <!-- Profile Header Card -->
+  <section class="km-detail-header-card">
+    <div class="km-detail-photo-wrapper">
+      {% if specialist.photo %}
+        <img src="{{ specialist.photo.url }}" alt="{{ specialist.name }}" class="km-detail-photo" />
+      {% else %}
+        <div class="km-card-photo-placeholder" style="width: 100%; height: 100%;">
+          <svg width="72" height="72" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="km-detail-header-info">
+      <!-- Specialization Tags & Verification Badge -->
+      <div class="km-detail-tags-row">
+        {% for spec in specialist.specializations.all %}
+          <span class="km-spec-tag">
+            {{ spec.name_i18n }}
+          </span>
+        {% endfor %}
+
+        {% if specialist.is_verified %}
+          <span class="km-badge-verified">
+            <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.293a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {% if language == "az" %}Yoxlanılıb{% elif language == "en" %}Verified{% else %}Проверен модерацией{% endif %}
+          </span>
+        {% endif %}
+      </div>
+
+      <!-- Name & Bio short -->
+      <h1 class="km-detail-name">
+        {{ specialist.name }}
+      </h1>
+      {% if specialist.name_alt %}
+        <p class="km-detail-name-alt">{{ specialist.name_alt }}</p>
+      {% endif %}
+
+      <!-- Statistics bar -->
+      <div class="km-detail-stats-row">
+        {% if specialist.rating_count %}
+          <div class="km-detail-stat-item">
+            <span class="km-stars">
+              {% if specialist.rating_avg >= 4.75 %}★★★★★{% elif specialist.rating_avg >= 4.25 %}★★★★☆{% elif specialist.rating_avg >= 3.75 %}★★★☆☆{% elif specialist.rating_avg >= 3.25 %}★★☆☆☆{% else %}★☆☆☆☆{% endif %}
+            </span>
+            <b>{{ specialist.rating_avg|floatformat:1 }}</b> ({{ specialist.rating_count }} {% if language == "az" %}rəy{% elif language == "en" %}reviews{% else %}отзывов{% endif %})
+          </div>
+        {% else %}
+          <div class="km-detail-stat-item" style="color: #9c9c9c;">
+            ★★★★★ {% if language == "az" %}Rəy yoxdur{% elif language == "en" %}No reviews{% else %}Нет отзывов{% endif %}
+          </div>
+        {% endif %}
+
+        <div class="km-detail-stat-item">
+          <b>{% if language == "az" %}Təcrübə{% elif language == "en" %}Experience{% else %}Стаж работы{% endif %}:</b>
+          {{ specialist.experience_years }} {% if language == "az" %}il{% elif language == "en" %}years{% else %}лет{% endif %}
+        </div>
+
+        <div class="km-detail-stat-item">
+          <b>{% if language == "az" %}Uşaq yaşı{% elif language == "en" %}Child age{% else %}Возраст детей{% endif %}:</b>
+          {% if specialist.age_from or specialist.age_to %}
+            {% if specialist.age_from and specialist.age_to %}
+              {{ specialist.age_from }} – {{ specialist.age_to }} {% if language == "az" %}yaş{% else %}лет{% endif %}
+            {% elif specialist.age_from %}
+              {{ specialist.age_from }}+ {% if language == "az" %}yaş{% else %}лет{% endif %}
+            {% else %}
+              &le; {{ specialist.age_to }} {% if language == "az" %}yaş{% else %}лет{% endif %}
+            {% endif %}
+          {% else %}
+            {% if language == "az" %}Hər hansı yaş{% elif language == "en" %}Any age{% else %}Любой возраст{% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Two column content section -->
+  <div class="km-detail-columns">
+    
+    <!-- Left column: Main Content -->
+    <main class="km-detail-main-column">
+      
+      <!-- Biography / About -->
+      {% if specialist.bio_ru or specialist.bio_az or specialist.bio_en %}
+        <section class="km-detail-section">
+          <h2>
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
+            {% if language == "az" %}Haqqında{% elif language == "en" %}Biography{% else %}О специалисте{% endif %}
+          </h2>
+          <div class="km-bio-content">
+            {{ specialist.bio_i18n }}
+          </div>
+        </section>
+      {% endif %}
+
+      <!-- Education & Experience (Detailed) -->
+      {% if specialist.education_ru or specialist.education_az or specialist.education_en or specialist.experience_info_ru or specialist.experience_info_az or specialist.experience_info_en %}
+        <section class="km-detail-section">
+          <h2>
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.9c2.785 0 5.48-.233 8.1-.687.1-.962.188-1.93.262-2.902a29.833 29.833 0 0 1-8.1 1.092 29.833 29.833 0 0 1-8.1-1.092 10.25 10.25 0 0 1-.035-1.018.75.75 0 0 0-.75-.75h-.75a.75.75 0 0 0-.75.75v1.5c0 .324.209.614.516.713a49.605 49.605 0 0 0 11.234 1.494 49.602 49.602 0 0 0 11.234-1.494c.307-.1.516-.39.516-.713v-1.5a.75.75 0 0 0-.75-.75h-.75a.75.75 0 0 0-.75.75v.23a48.512 48.512 0 0 1-2.022 9.615.75.75 0 0 0 .546.917h.003c.408.096.793-.207.828-.627a48.36 48.36 0 0 0 .428-6.425v-.012c-.08-.91-.186-1.815-.316-2.715a.75.75 0 0 0-.75-.644h-.136a48.16 48.16 0 0 0-8.918 1.09c-2.923-.42-5.918-.707-8.918-1.09a.75.75 0 0 0-.75.644c-.11.85-.202 1.7-.272 2.551a.75.75 0 0 0 .618.808l.014.002h.003c.376.06.726-.2.784-.57a48.528 48.528 0 0 0 .524-7.513v-.23a48.423 48.423 0 0 0 .56-8.916.75.75 0 0 0-.643-.75h-.137A48.067 48.067 0 0 0 12 3.1c-2.94 0-5.83.358-8.618 1.09a.75.75 0 0 0-.643.75v.137a48.342 48.342 0 0 0 .524 8.784v.132Z"/></svg>
+            {% if language == "az" %}Təhsil və Təcrübə{% elif language == "en" %}Education & Practice{% else %}Образование и опыт{% endif %}
+          </h2>
+          
+          {% if specialist.education_ru or specialist.education_az or specialist.education_en %}
+            <div class="km-detail-info-block">
+              <h3>{% if language == "az" %}Təhsil{% elif language == "en" %}Education{% else %}Образование{% endif %}</h3>
+              <p>{{ specialist.education_i18n }}</p>
+            </div>
+          {% endif %}
+
+          {% if specialist.experience_info_ru or specialist.experience_info_az or specialist.experience_info_en %}
+            <div class="km-detail-info-block" style="margin-top: 1.5rem;">
+              <h3>{% if language == "az" %}Peşəkar fəaliyyət təcrübəsi{% elif language == "en" %}Professional Experience{% else %}Опыт работы и стажировки{% endif %}</h3>
+              <p>{{ specialist.experience_info_i18n }}</p>
+            </div>
+          {% endif %}
+        </section>
+      {% endif %}
+
+      <!-- Verified Documents/Certificates list -->
+      {% if visible_documents %}
+        <section class="km-detail-section">
+          <h2>
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.746 3.746 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"/></svg>
+            {% if language == "az" %}Təsdiqlənmiş sənədlər{% elif language == "en" %}Verified Credentials{% else %}Подтвержденные документы{% endif %}
+          </h2>
+          <div class="km-documents-grid">
+            {% for doc in visible_documents %}
+              <a href="{% url 'serve_specialist_document' doc.id %}" target="_blank" class="km-document-card">
+                <div class="km-doc-icon">
+                  <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+                </div>
+                <div class="km-doc-info">
+                  <p class="doc-type">
+                    {% if doc.document_type == "diploma" %}
+                      {% if language == "az" %}Diplom{% elif language == "en" %}Diploma{% else %}Диплом{% endif %}
+                    {% else %}
+                      {% if language == "az" %}Sertifikat{% elif language == "en" %}Certificate{% else %}Сертификат{% endif %}
+                    {% endif %}
+                  </p>
+                  <p class="doc-name">{{ doc.name }}</p>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
+      <!-- Reviews Section -->
+      <section class="km-detail-section" id="reviews">
+        <h2>
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9s0 0 0 0-9 0-9 0zM7.5 12h5.25m-10.5 6L3.93 14.34a8.9 8.9 0 0 1-1.18-4.47C2.75 4.975 6.89 1.5 12 1.5c5.11 0 9.25 3.475 9.25 8.375a8.9 8.9 0 0 1-1.18 4.47L22.5 18H18.66a9.014 9.014 0 0 1-6.66 3c-1.922 0-3.7-.604-5.18-1.63L1.5 18z"/></svg>
+          {% if language == "az" %}Rəylər{% elif language == "en" %}Reviews{% else %}Отзывы пациентов{% endif %}
+        </h2>
+
+        <!-- Existing reviews -->
+        <div style="margin-bottom: 2.5rem;">
+          {% for r in reviews %}
+            <article class="km-review-item">
+              <div class="km-review-header">
+                <div>
+                  <h4 class="km-review-author">{{ r.author_name }}</h4>
+                  <span class="km-stars">
+                    {% if r.rating == 5 %}★★★★★{% elif r.rating == 4 %}★★★★☆{% elif r.rating == 3 %}★★★☆☆{% elif r.rating == 2 %}★★☆☆☆{% else %}★☆☆☆☆{% endif %}
+                  </span>
+                </div>
+                <time class="km-review-date" datetime="{{ r.created_at|date:'Y-m-d' }}">
+                  {{ r.created_at|date:"d.m.Y" }}
+                </time>
+              </div>
+              <p class="km-review-text">{{ r.text }}</p>
+            </article>
+          {% empty %}
+            <p style="color: var(--km-gray-600); font-style: italic; margin-bottom: 1.5rem;">
+              {% if language == "az" %}Bu mütəxəssis üçün hələ heç kim rəy bildirməyib. İlk rəyi siz yazın!{% elif language == "en" %}No reviews have been left for this specialist yet. Be the first to leave one!{% else %}Для этого специалиста ещё не оставили ни одного отзыва. Напишите свой отзыв первым!{% endif %}
+            </p>
+          {% endfor %}
+        </div>
+
+        <!-- Submission Form (authenticated only) -->
+        <div style="background-color: var(--km-gray-50); border: 1px solid var(--km-gray-200); border-radius: var(--km-radius-md); padding: 1.75rem;">
+          <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700; color: var(--km-gray-900);">
+            {% if language == "az" %}Rəy yazın{% elif language == "en" %}Write a Review{% else %}Оставить отзыв о приеме{% endif %}
+          </h3>
+
+          <form action="{% url 'add_specialist_review' specialist.pk %}" method="post">
+            {% csrf_token %}
+            
+            <div class="km-filter-group" style="margin-bottom: 1rem;">
+              <label style="font-weight: 600;">{% if language == "az" %}Sizin qiymətiniz{% elif language == "en" %}Your Rating{% else %}Ваша оценка{% endif %}</label>
+              <div class="km-stars-selector" id="rating-stars-picker">
+                <span class="km-star-btn" data-val="1">★</span>
+                <span class="km-star-btn" data-val="2">★</span>
+                <span class="km-star-btn" data-val="3">★</span>
+                <span class="km-star-btn" data-val="4">★</span>
+                <span class="km-star-btn" data-val="5">★</span>
+              </div>
+              <input type="hidden" name="rating" id="selected-rating-val" required />
+            </div>
+
+            <div class="km-filter-group" style="margin-bottom: 1.5rem;">
+              <label for="review-text-field" style="font-weight: 600;">{% if language == "az" %}Rəyinizin mətni{% elif language == "en" %}Review details{% else %}Текст отзыва{% endif %}</label>
+              <textarea 
+                name="text" 
+                id="review-text-field" 
+                rows="4" 
+                required 
+                class="km-filter-input"
+                style="resize: vertical;"
+                placeholder="{% if language == 'az' %}Məsləhətin gedişatı və nəticələri barədə təəssüratlarınızı bölüşün...{% elif language == 'en' %}Share your impressions about the quality, duration, and results of your session...{% else %}Пожалуйста, расскажите о том, как прошёл прием, помог ли специалист вашему ребенку...{% endif %}"
+              ></textarea>
+            </div>
+
+            <button type="submit" class="km-btn-apply" style="width: auto; padding: 0.8rem 2rem;">
+              {% if language == "az" %}Göndər{% elif language == "en" %}Submit{% else %}Отправить отзыв{% endif %}
+            </button>
+
+            <p style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.75rem; margin-bottom: 0;">
+              * {% if language == "az" %}Bütün rəylər dərc olunmazdan əvvəl modrasiyadan keçir.{% elif language == "en" %}All reviews undergo moderation checks before publication.{% else %}Все отзывы проходят премодерацию на спам и нецензурную лексику.{% endif %}
+            </p>
+          </form>
+        </div>
+      </section>
+
+      <!-- Disclaimer block -->
+      <div class="km-disclaimer-box">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        <p class="km-disclaimer-text">
+          <b>{% if language == "az" %}Məsuliyyətin məhdudlaşdırılması:{% elif language == "en" %}Disclaimer:{% else %}Дисклеймер:{% endif %}</b>
+          {% if language == "az" %}Portalda verilən məlumatlar yalnız məlumat xarakteri daşıyır. Müalicə və ya diaqnoz qoyulması üçün mütəxəssislə məsləhətləşin.{% elif language == "en" %}Information listed on this page is for informational purposes only. Please consult a qualified specialist for diagnostics or medical assistance.{% else %}Информация представлена исключительно в ознакомительных целях. Обязательно проконсультируйтесь с профильным специалистом перед началом любых процедур.{% endif %}
+        </p>
+      </div>
+
+    </main>
+
+    <!-- Right column: Sidebar -->
+    <aside class="km-detail-sidebar">
+      
+      <!-- Session Formats, Prices, Duration -->
+      <div class="km-side-card">
+        <h3>
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+          {% if language == "az" %}Məsləhət şərtləri{% elif language == "en" %}Consultation Details{% else %}Условия приёма{% endif %}
+        </h3>
+        
+        <div class="km-card-details-box" style="background: transparent; padding: 0; margin-bottom: 0;">
+          <div class="km-card-detail-item" style="border-bottom: 1px solid var(--km-gray-100); padding-bottom: 0.6rem; margin-bottom: 0.6rem;">
+            <span class="label">{% if language == "az" %}Format{% elif language == "en" %}Format{% else %}Формат{% endif %}:</span>
+            <span class="value">
+              {% if specialist.consultation_format == "online" %}
+                {% if language == "az" %}Yalnız onlayn{% elif language == "en" %}Online only{% else %}Только онлайн{% endif %}
+              {% elif specialist.consultation_format == "offline" %}
+                {% if language == "az" %}Yalnız otaqda{% elif language == "en" %}In office only{% else %}Только очно{% endif %}
+              {% else %}
+                {% if language == "az" %}Onlayn və oçno{% elif language == "en" %}Online & In-person{% else %}Онлайн и очно{% endif %}
+              {% endif %}
+            </span>
+          </div>
+
+          <div class="km-card-detail-item" style="border-bottom: 1px solid var(--km-gray-100); padding-bottom: 0.6rem; margin-bottom: 0.6rem;">
+            <span class="label">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Стоимость{% endif %}:</span>
+            <span class="value">
+              {% if specialist.price_from and specialist.price_to %}
+                {{ specialist.price_from }} – {{ specialist.price_to }} AZN
+              {% elif specialist.price_from %}
+                {% if language == "az" %}od {{ specialist.price_from }} AZN{% elif language == "en" %}from {{ specialist.price_from }} AZN{% else %}от {{ specialist.price_from }} AZN{% endif %}
+              {% else %}
+                —
+              {% endif %}
+            </span>
+          </div>
+
+          {% if specialist.duration_minutes %}
+            <div class="km-card-detail-item">
+              <span class="label">{% if language == "az" %}Müddət{% elif language == "en" %}Duration{% else %}Длительность{% endif %}:</span>
+              <span class="value">
+                {{ specialist.duration_minutes }} {% if language == "az" %}dəqiqə{% elif language == "en" %}mins{% else %}минут{% endif %}
+              </span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Practice Locations (only for offline or mixed formats) -->
+      {% if specialist.consultation_format != "online" %}
+        <div class="km-side-card">
+          <h3>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+            {% if language == "az" %}Qəbul ünvanları{% elif language == "en" %}Practice Locations{% else %}Адреса приёма{% endif %}
+          </h3>
+
+          <div class="km-detail-locations-list">
+            {% for loc in specialist.practice_locations.all %}
+              <div class="km-detail-location-item">
+                <p class="km-detail-location-title">
+                  {% if loc.place %}
+                    <a href="{{ loc.place.get_absolute_url }}">{{ loc.place.name_i18n }}</a>
+                  {% else %}
+                    {% if language == "az" %}Şəxsi кабинет{% elif language == "en" %}Private cabinet{% else %}Собственный кабинет{% endif %}
+                  {% endif %}
+                </p>
+                <p class="km-detail-location-address">
+                  {{ loc.address }}
+                  {% if loc.district or loc.metro %}
+                    <br />
+                    <span style="font-size: 0.75rem; color: #888;">
+                      {% if loc.district %}{{ loc.district.name_i18n }}{% endif %}{% if loc.district and loc.metro %}, {% endif %}{% if loc.metro %}m. {{ loc.metro.name_i18n }}{% endif %}
+                    </span>
+                  {% endif %}
+                  {% if loc.schedule %}
+                    <br />
+                    <span style="font-size: 0.75rem; color: var(--km-gray-600); font-style: italic;">
+                      {{ loc.schedule }}
+                    </span>
+                  {% endif %}
+                </p>
+                {% if loc.price_per_session %}
+                  <span class="km-detail-location-price-tag">
+                    {{ loc.price_per_session }} AZN
+                  </span>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Leaflet Map placeholder if has_coords is True -->
+          {% if has_coords %}
+            <div id="specialist-map" class="km-detail-map-container"></div>
+          {% endif %}
+        </div>
+      {% else %}
+        <!-- For online specialists: show friendly disclaimer banner instead of empty locations card -->
+        <div class="km-side-card">
+          <h3>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+            {% if language == "az" %}Lokasiya{% elif language == "en" %}Location{% else %}Локация{% endif %}
+          </h3>
+          <div class="km-online-only-banner">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"/></svg>
+            <span>
+              {% if language == "az" %}Onlayn məsləhətlər — şəhərinizdən asılı olmayaraq əlçatandır.{% elif language == "en" %}Online consultations — available regardless of your current location.{% else %}Онлайн-консультации — доступно независимо от вашего города.{% endif %}
+            </span>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Contact details -->
+      {% if specialist.phone or specialist.whatsapp or specialist.website or specialist.instagram %}
+        <div class="km-side-card">
+          <h3>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.502-5.176-3.854-6.677-6.677l1.293-.97c.362-.272.528-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25z"/></svg>
+            {% if language == "az" %}Əlaqə məlumatları{% elif language == "en" %}Contacts{% else %}Контакты для записи{% endif %}
+          </h3>
+
+          {% if specialist.phone %}
+            <div class="km-contact-item">
+              <span class="km-contact-label">{% if language == "az" %}Telefon{% elif language == "en" %}Phone{% else %}Телефон{% endif %}</span>
+              <a href="tel:{{ specialist.phone }}" class="km-contact-value km-link">{{ specialist.phone }}</a>
+            </div>
+          {% endif %}
+
+          {% if specialist.whatsapp %}
+            <div class="km-contact-item">
+              <span class="km-contact-label">WhatsApp</span>
+              <a href="https://wa.me/{{ specialist.whatsapp|cut:' '|cut:'+'|cut:'-' }}" target="_blank" rel="noopener noreferrer" class="km-whatsapp-btn">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.372a9.948 9.948 0 0 0 4.777 1.217h.004c5.505 0 9.988-4.478 9.99-9.984a9.985 9.985 0 0 0-9.992-9.861zm5.836 14.199c-.255.719-1.258 1.305-1.748 1.385-.472.079-1.095.143-3.155-.71-2.637-1.09-4.306-3.791-4.437-3.966-.131-.174-1.066-1.417-1.066-2.703 0-1.285.671-1.916.909-2.164.238-.249.521-.31.696-.31.175 0 .349.001.5.011.157.01.353-.06.551.419.203.493.696 1.696.757 1.819.061.124.102.268.019.432-.082.166-.123.268-.246.413-.124.144-.262.321-.373.431-.124.124-.254.26-.11.51.144.25.64 1.054 1.371 1.706.942.84 1.737 1.1 1.984 1.225.247.124.391.103.535-.062.144-.166.618-.722.783-.97.165-.247.33-.206.556-.124.227.082 1.442.68 1.69.804.247.124.412.186.474.289.062.103.062.597-.193 1.316z"/></svg>
+                WhatsApp {% if language == "az" %}ilə yazın{% elif language == "en" %}Chat{% else %}Написать{% endif %}
+              </a>
+            </div>
+          {% endif %}
+
+          {% if specialist.website %}
+            <div class="km-contact-item">
+              <span class="km-contact-label">{% if language == "az" %}Sayt{% elif language == "en" %}Website{% else %}Веб-сайт{% endif %}</span>
+              <a href="{{ specialist.website }}" target="_blank" rel="noopener noreferrer" class="km-contact-value km-link">{{ specialist.website }}</a>
+            </div>
+          {% endif %}
+
+          {% if specialist.instagram %}
+            <div class="km-contact-item">
+              <span class="km-contact-label">Instagram</span>
+              <a href="https://instagram.com/{{ specialist.instagram }}" target="_blank" rel="noopener noreferrer" class="km-contact-value km-link">@{{ specialist.instagram }}</a>
+            </div>
+          {% endif %}
+
+        </div>
+      {% endif %}
+
+    </aside>
+
+  </div>
+</div>
+
+<!-- Mobile Sticky CTAs -->
+{% if specialist.phone or specialist.whatsapp %}
+  <div class="km-mobile-sticky-cta">
+    {% if specialist.phone %}
+      <a href="tel:{{ specialist.phone }}" class="km-mobile-cta-phone">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.502-5.176-3.854-6.677-6.677l1.293-.97c.362-.272.528-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25z"/></svg>
+        {% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}Позвонить{% endif %}
+      </a>
+    {% endif %}
+    {% if specialist.whatsapp %}
+      <a href="https://wa.me/{{ specialist.whatsapp|cut:' '|cut:'+'|cut:'-' }}" target="_blank" rel="noopener noreferrer" class="km-mobile-cta-whatsapp">
+        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.233-1.372a9.948 9.948 0 0 0 4.777 1.217h.004c5.505 0 9.988-4.478 9.99-9.984a9.985 9.985 0 0 0-9.992-9.861zm5.836 14.199c-.255.719-1.258 1.305-1.748 1.385-.472.079-1.095.143-3.155-.71-2.637-1.09-4.306-3.791-4.437-3.966-.131-.174-1.066-1.417-1.066-2.703 0-1.285.671-1.916.909-2.164.238-.249.521-.31.696-.31.175 0 .349.001.5.011.157.01.353-.06.551.419.203.493.696 1.696.757 1.819.061.124.102.268.019.432-.082.166-.123.268-.246.413-.124.144-.262.321-.373.431-.124.124-.254.26-.11.51.144.25.64 1.054 1.371 1.706.942.84 1.737 1.1 1.984 1.225.247.124.391.103.535-.062.144-.166.618-.722.783-.97.165-.247.33-.206.556-.124.227.082 1.442.68 1.69.804.247.124.412.186.474.289.062.103.062.597-.193 1.316z"/></svg>
+        WhatsApp
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
+
+<!-- Star rating interactivity script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const starBtns = document.querySelectorAll("#rating-stars-picker .km-star-btn");
+    const ratingInput = document.getElementById("selected-rating-val");
+
+    if (starBtns && ratingInput) {
+      starBtns.forEach(btn => {
+        btn.addEventListener("mouseover", function() {
+          highlightStars(parseInt(btn.getAttribute("data-val")));
+        });
+
+        btn.addEventListener("mouseout", function() {
+          highlightStars(parseInt(ratingInput.value) || 0);
+        });
+
+        btn.addEventListener("click", function() {
+          const val = parseInt(btn.getAttribute("data-val"));
+          ratingInput.value = val;
+          highlightStars(val);
+        });
+      });
+
+      function highlightStars(val) {
+        starBtns.forEach(btn => {
+          const btnVal = parseInt(btn.getAttribute("data-val"));
+          if (btnVal <= val) {
+            btn.style.color = "var(--km-warning)";
+          } else {
+            btn.style.color = "var(--km-gray-300)";
+          }
+        });
+      }
+    }
+  });
+</script>
+
+<!-- Leaflet Map Initialization script -->
+{% if has_coords %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const mapElement = document.getElementById("specialist-map");
+    if (mapElement) {
+      const locations = [
+        {% for loc in specialist.practice_locations.all %}
+          {% if loc.lat and loc.lng %}
+            {
+              lat: {{ loc.lat }},
+              lng: {{ loc.lng }},
+              address: "{{ loc.address|escapejs }}",
+              placeName: "{% if loc.place %}{{ loc.place.name_i18n|escapejs }}{% else %}{% if language == 'az' %}Şəxsi kabinet{% elif language == 'en' %}Private Office{% else %}Собственный кабинет{% endif %}{% endif %}"
+            },
+          {% endif %}
+        {% endfor %}
+      ];
+
+      if (locations.length > 0) {
+        const first = locations[0];
+        // Initialize Leaflet Map centered on the first location
+        const map = L.map('specialist-map', {
+          scrollWheelZoom: false
+        }).setView([first.lat, first.lng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        const bounds = [];
+        locations.forEach(function(loc) {
+          const marker = L.marker([loc.lat, loc.lng]).addTo(map);
+          marker.bindPopup("<b>" + loc.placeName + "</b><br/>" + loc.address);
+          bounds.push([loc.lat, loc.lng]);
+        });
+
+        if (locations.length > 1) {
+          map.fitBounds(bounds, { padding: [30, 30] });
+        }
+      }
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

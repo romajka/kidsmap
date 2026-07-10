@@ -215,3 +215,86 @@ def build_public_place_filter_options(
         districts=districts,
         metro=metro,
     )
+
+
+@dataclass(frozen=True)
+class PublicSpecialistFilterOptions:
+    specializations: list[dict[str, object]]
+    regions: list[dict[str, object]]
+    districts: list[dict[str, object]]
+    metro_stations: list[dict[str, object]]
+
+
+def build_public_specialist_filter_options(*, language_code: str) -> PublicSpecialistFilterOptions:
+    from catalog.models import SpecialistSpecialization, Region, District, MetroStation, Specialist
+    from django.db.models import Count
+
+    active_specs = Specialist.objects.filter(status="published", is_active=True)
+
+    spec_counts = dict(
+        active_specs.values_list("specializations__code")
+        .annotate(total=Count("id"))
+    )
+
+    region_counts = dict(
+        active_specs.values_list("practice_locations__region_id")
+        .annotate(total=Count("id", distinct=True))
+    )
+
+    district_counts = dict(
+        active_specs.values_list("practice_locations__district_id")
+        .annotate(total=Count("id", distinct=True))
+    )
+
+    metro_counts = dict(
+        active_specs.values_list("practice_locations__metro_id")
+        .annotate(total=Count("id", distinct=True))
+    )
+
+    # 1. Specializations
+    specializations = []
+    for spec in SpecialistSpecialization.objects.filter(is_active=True):
+        count = spec_counts.get(spec.code, 0)
+        specializations.append({
+            "value": spec.code,
+            "label": spec.name_i18n(language_code),
+            "count": count
+        })
+
+    # 2. Regions
+    regions = []
+    for reg in Region.objects.all():
+        count = region_counts.get(reg.key, 0)
+        regions.append({
+            "value": reg.key,
+            "label": reg.name_i18n(language_code),
+            "count": count
+        })
+
+    # 3. Districts
+    districts = []
+    for dist in District.objects.all():
+        count = district_counts.get(dist.key, 0)
+        districts.append({
+            "value": dist.key,
+            "region": dist.region_id,
+            "label": dist.name_i18n(language_code),
+            "count": count
+        })
+
+    # 4. Metro Stations
+    metro_stations = []
+    for m in MetroStation.objects.all():
+        count = metro_counts.get(m.key, 0)
+        metro_stations.append({
+            "value": m.key,
+            "label": m.name_i18n(language_code),
+            "count": count
+        })
+
+    return PublicSpecialistFilterOptions(
+        specializations=specializations,
+        regions=regions,
+        districts=districts,
+        metro_stations=metro_stations
+    )

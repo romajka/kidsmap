@@ -458,8 +458,8 @@ class Place(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
-        verbose_name = _("Место")
-        verbose_name_plural = _("Места")
+        verbose_name = _("Постоянное место")
+        verbose_name_plural = _("Постоянные места")
 
 
 class PlacePhoto(models.Model):

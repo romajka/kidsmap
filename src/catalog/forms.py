@@ -21,7 +21,7 @@ from django.utils import timezone
 from django.utils.translation import get_language, gettext as translate, gettext_lazy as _
 
 from catalog.content_data import BAKU_METRO_STATIONS
-from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory
+from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory, Specialist, SpecialistSpecialization, SpecialistPracticeLocation, Region, District, MetroStation
 from catalog.services.place_schedule import (
     dump_schedule_payload,
     is_meaningful_schedule,
@@ -1637,3 +1637,198 @@ class OwnerTeamRoleUpdateForm(forms.Form):
         },
         widget=forms.Select(attrs={"class": "field"}),
     )
+
+
+class OwnerSpecialistForm(forms.ModelForm):
+    draft_save_only = False
+
+    # Extra location fields (not on Specialist model directly)
+    location_place = forms.ModelChoiceField(
+        label=_("Детский центр (KidsMap)"),
+        queryset=Place.objects.filter(deleted_at__isnull=True),
+        widget=forms.Select(attrs={"class": "field"}),
+        required=False,
+        empty_label=_("Не выбрано"),
+    )
+    location_address = forms.CharField(
+        label=_("Собственный адрес/кабинет"),
+        max_length=255,
+        widget=forms.TextInput(attrs={"class": "field", "placeholder": _("Например: пр. Нефтяников 15")}),
+        required=False,
+    )
+    location_region = forms.ModelChoiceField(
+        label=_("Город / Регион"),
+        queryset=Region.objects.all(),
+        widget=forms.Select(attrs={"class": "field"}),
+        required=False,
+        empty_label=_("Выберите город"),
+    )
+    location_district = forms.ModelChoiceField(
+        label=_("Район"),
+        queryset=District.objects.all(),
+        widget=forms.Select(attrs={"class": "field"}),
+        required=False,
+        empty_label=_("Выберите район"),
+    )
+    location_metro = forms.ModelChoiceField(
+        label=_("Метро"),
+        queryset=MetroStation.objects.all(),
+        widget=forms.Select(attrs={"class": "field"}),
+        required=False,
+        empty_label=_("Выберите метро"),
+    )
+
+    class Meta:
+        model = Specialist
+        fields = (
+            "name",
+            "photo",
+            "bio_az",
+            "bio_ru",
+            "bio_en",
+            "specializations",
+            "consultation_format",
+            "experience_years",
+            "age_from",
+            "age_to",
+            "language_az",
+            "language_ru",
+            "language_en",
+            "price_from",
+            "price_to",
+            "duration_minutes",
+            "phone",
+            "whatsapp",
+            "instagram",
+            "website",
+        )
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "field", "placeholder": _("Имя и фамилия")}),
+            "photo": ImagePreviewFileInput(attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}),
+            "bio_az": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на азербайджанском")}),
+            "bio_ru": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на русском")}),
+            "bio_en": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на английском")}),
+            "consultation_format": forms.Select(attrs={"class": "field"}),
+            "experience_years": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "5"}),
+            "age_from": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "3"}),
+            "age_to": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "18"}),
+            "price_from": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "30"}),
+            "price_to": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "80"}),
+            "duration_minutes": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "50"}),
+            "phone": forms.TextInput(attrs={"class": "field", "placeholder": "+994 50 123 45 67", "inputmode": "tel"}),
+            "whatsapp": forms.TextInput(attrs={"class": "field", "placeholder": "+994 50 123 45 67", "inputmode": "tel"}),
+            "instagram": forms.TextInput(attrs={"class": "field", "placeholder": "username"}),
+            "website": forms.URLInput(attrs={"class": "field", "placeholder": "https://example.com"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
+        super().__init__(*args, **kwargs)
+        self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
+        self.fields["specializations"].queryset = SpecialistSpecialization.objects.filter(is_active=True).order_by("order", "name_ru")
+        self.fields["specializations"].required = False
+
+        # Populate location fields when editing
+        if self.instance and self.instance.pk:
+            primary_location = self.instance.practice_locations.filter(is_primary=True).first()
+            if primary_location:
+                self.fields["location_place"].initial = primary_location.place_id
+                self.fields["location_address"].initial = primary_location.address
+                self.fields["location_region"].initial = primary_location.region_id
+                self.fields["location_district"].initial = primary_location.district_id
+                self.fields["location_metro"].initial = primary_location.metro_id
+
+        # Draft = all optional; publish = only name+phone+format required
+        if self.draft_save_only:
+            for field in self.fields.values():
+                field.required = False
+        else:
+            required = ("name", "phone", "consultation_format")
+            for field_name, field in self.fields.items():
+                field.required = field_name in required
+
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.draft_save_only:
+            return cleaned
+
+        # Enforce that if format is offline or both, location fields are required and validated
+        consultation_format = cleaned.get("consultation_format")
+        if consultation_format in [Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH]:
+            loc_place = cleaned.get("location_place")
+            loc_address = cleaned.get("location_address")
+            loc_region = cleaned.get("location_region")
+            
+            if not loc_place and not loc_address:
+                msg = _("Для очного приема необходимо выбрать детский центр KidsMap или указать собственный адрес.")
+                self.add_error("location_place", msg)
+                self.add_error("location_address", msg)
+            if not loc_region:
+                self.add_error("location_region", _("Необходимо выбрать город / регион для очной практики."))
+
+        # Enforce at least one language
+        lang_az = cleaned.get("language_az")
+        lang_ru = cleaned.get("language_ru")
+        lang_en = cleaned.get("language_en")
+        if not (lang_az or lang_ru or lang_en):
+            msg = _("Выберите хотя бы один язык консультации.")
+            self.add_error("language_az", msg)
+            self.add_error("language_ru", msg)
+            self.add_error("language_en", msg)
+
+        # Validate ages
+        age_from = cleaned.get("age_from")
+        age_to = cleaned.get("age_to")
+        if age_from is not None and age_to is not None and age_from > age_to:
+            self.add_error("age_to", _("Возраст «до» не может быть меньше возраста «от»."))
+
+        # Validate prices
+        price_from = cleaned.get("price_from")
+        price_to = cleaned.get("price_to")
+        if price_from is not None and price_to is not None and price_from > price_to:
+            self.add_error("price_to", _("Максимальная стоимость не может быть меньше минимальной."))
+
+        # Validate photo size
+        photo = cleaned.get("photo")
+        if photo:
+            try:
+                _validate_uploaded_image(photo)
+            except ValidationError as exc:
+                self.add_error("photo", exc)
+
+        return cleaned
+
+    def save(self, commit=True):
+        specialist = super().save(commit=commit)
+        if commit:
+            # Handle location saving
+            consultation_format = self.cleaned_data.get("consultation_format")
+            if consultation_format in [Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH]:
+                loc_place = self.cleaned_data.get("location_place")
+                loc_address = self.cleaned_data.get("location_address")
+                loc_region = self.cleaned_data.get("location_region")
+                loc_district = self.cleaned_data.get("location_district")
+                loc_metro = self.cleaned_data.get("location_metro")
+                loc_price = self.cleaned_data.get("location_price")
+                loc_phone = self.cleaned_data.get("location_phone")
+
+                primary_location = specialist.practice_locations.filter(is_primary=True).first()
+                if not primary_location:
+                    primary_location = SpecialistPracticeLocation(specialist=specialist, is_primary=True)
+
+                primary_location.place = loc_place
+                primary_location.address = loc_address or ""
+                primary_location.region = loc_region
+                primary_location.district = loc_district
+                primary_location.metro = loc_metro
+                primary_location.price_per_session = loc_price
+                primary_location.phone = loc_phone or ""
+                primary_location.is_active = True
+                primary_location.save()
+            else:
+                # If online format, delete or deactivate offline practice locations
+                specialist.practice_locations.all().delete()
+
+        return specialist
+

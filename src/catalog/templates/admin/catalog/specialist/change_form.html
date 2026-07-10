@@ -1,0 +1,439 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/specialist_form.css' %}?v=5">
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+  {{ media }}
+{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-form{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a></li>
+  <li class="breadcrumb-item active">{% if add %}{% blocktrans with name=opts.verbose_name %}Add {{ name }}{% endblocktrans %}{% else %}{{ original|truncatewords:"12" }}{% endif %}</li>
+</ol>
+{% endblock %}
+{% endif %}
+
+{% block content_title %}{% endblock %}
+
+{% block content %}
+<div class="km-specialist-form-page">
+
+  <form {% if has_file_field %}enctype="multipart/form-data"{% endif %}
+        action="{{ form_url }}" method="post"
+        id="{{ opts.model_name }}_form" novalidate>
+    {% csrf_token %}
+    {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+    {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+    <!-- Page header -->
+    <div class="km-specialist-header">
+      <div class="km-specialist-header__title">
+        <span class="km-specialist-header__icon">👤</span>
+        <div>
+          <h1>{% if add %}{% trans "Добавление специалиста" %}{% else %}{{ original|default:opts.verbose_name }}{% endif %}</h1>
+          {% if not add and original %}
+            <div class="km-specialist-header__meta">
+              {% if original.status %}
+                <span class="km-status-badge km-status-{{ original.status }}">{{ original.get_status_display }}</span>
+              {% endif %}
+              {% if original.is_verified %}
+                <span class="km-status-badge km-status-verified">✓ {% trans "Верифицирован" %}</span>
+              {% endif %}
+              {% if original.owner %}
+                <span class="km-header-meta-item">👤 {{ original.owner }}</span>
+              {% endif %}
+              {% if original.updated_at %}
+                <span class="km-header-meta-item">🕐 {{ original.updated_at|date:"d.m.Y H:i" }}</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="km-specialist-header__hint">
+        <span>* {% trans "обязательные поля" %}</span>
+      </div>
+    </div>
+
+    {% if errors %}
+      <div class="km-error-banner">
+        <span>⚠</span>
+        {% if errors|length == 1 %}{% trans "Пожалуйста, исправьте ошибку ниже." %}{% else %}{% trans "Пожалуйста, исправьте ошибки ниже." %}{% endif %}
+      </div>
+    {% endif %}
+
+    <div class="km-specialist-layout">
+
+      <!-- Left: Section navigation -->
+      <nav class="km-specialist-nav" id="km-nav" aria-label="{% trans 'Разделы формы' %}">
+        <div class="km-specialist-nav__inner">
+          <ul class="km-nav-list">
+            <li><a href="#km-sec-1" class="km-nav-item" data-section="km-sec-1"><span class="km-nav-icon">👤</span> {% trans "Основная информация" %}</a></li>
+            <li><a href="#km-sec-2" class="km-nav-item" data-section="km-sec-2"><span class="km-nav-icon">🖼</span> {% trans "Фото и описание" %}</a></li>
+            <li><a href="#km-sec-3" class="km-nav-item" data-section="km-sec-3"><span class="km-nav-icon">🏷</span> {% trans "Специализации" %}</a></li>
+            <li><a href="#km-sec-4" class="km-nav-item" data-section="km-sec-4"><span class="km-nav-icon">🧒</span> {% trans "Возраст детей" %}</a></li>
+            <li><a href="#km-sec-5" class="km-nav-item" data-section="km-sec-5"><span class="km-nav-icon">🌐</span> {% trans "Языки консультации" %}</a></li>
+            <li><a href="#km-sec-6" class="km-nav-item" data-section="km-sec-6"><span class="km-nav-icon">📋</span> {% trans "Формат работы" %}</a></li>
+            <li><a href="#km-sec-7" class="km-nav-item" data-section="km-sec-7"><span class="km-nav-icon">💰</span> {% trans "Стоимость и длительность" %}</a></li>
+            <li><a href="#km-sec-8" class="km-nav-item" data-section="km-sec-8"><span class="km-nav-icon">📍</span> {% trans "Места приёма" %}</a></li>
+            <li><a href="#km-sec-9" class="km-nav-item" data-section="km-sec-9"><span class="km-nav-icon">🎓</span> {% trans "Образование и опыт" %}</a></li>
+            <li><a href="#km-sec-10" class="km-nav-item" data-section="km-sec-10"><span class="km-nav-icon">📄</span> {% trans "Документы" %}</a></li>
+            <li><a href="#km-sec-11" class="km-nav-item" data-section="km-sec-11"><span class="km-nav-icon">📞</span> {% trans "Контакты" %}</a></li>
+            <li><a href="#km-sec-12" class="km-nav-item" data-section="km-sec-12"><span class="km-nav-icon">🔍</span> {% trans "Модерация" %}</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Center: Main form content -->
+      <div class="km-specialist-content" id="km-content">
+
+        {# === SECTION 1 === #}
+        <div class="km-specialist-section" id="km-sec-1">
+          <div class="km-section-header">
+            <h2>1. {% trans "Основная информация" %}</h2>
+            <p class="km-section-desc">{% trans "Владелец профиля, имя специалиста и адрес страницы." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Основная информация" in fieldset.name %}
+                {% for line in fieldset %}
+                  <div class="km-form-row {% if line|length > 1 %}km-form-row--multi{% endif %}">
+                    {% for field in line %}
+                      <div class="km-field {% if field.field.name == 'slug' %}km-field--muted{% endif %}">
+                        {{ field.label_tag }}
+                        {{ field.field }}
+                        {% if field.help_text %}<p class="km-help">{{ field.help_text }}</p>{% endif %}
+                        {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        {# === SECTION 2 === #}
+        <div class="km-specialist-section" id="km-sec-2">
+          <div class="km-section-header">
+            <h2>2. {% trans "Фото и описание" %}</h2>
+            <p class="km-section-desc">{% trans "Фото профиля и описание специалиста на трёх языках." %}</p>
+          </div>
+          <div class="km-section-body">
+            <div class="km-photo-row">
+              <div class="km-photo-preview" id="km-photo-preview">
+                {% if not add and original.photo %}
+                  <img src="{{ original.photo.url }}" alt="{% trans 'Фото' %}" id="km-photo-img">
+                {% else %}
+                  <div class="km-photo-empty" id="km-photo-empty">
+                    <span>👤</span>
+                    <small>{% trans "Фото не загружено" %}</small>
+                  </div>
+                  <img src="" alt="" id="km-photo-img" style="display:none">
+                {% endif %}
+                <p class="km-photo-hint">{% trans "JPG / PNG / WEBP · квадрат · мин. 400×400 px" %}</p>
+              </div>
+              <div class="km-photo-fields">
+                {% for fieldset in adminform %}
+                  {% if "Фото" in fieldset.name %}
+                    {% for line in fieldset %}
+                      {% for field in line %}
+                        <div class="km-field">
+                          {{ field.label_tag }}
+                          {{ field.field }}
+                          {% if field.help_text %}<p class="km-help">{{ field.help_text }}</p>{% endif %}
+                          {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                        </div>
+                      {% endfor %}
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# === SECTION 3 === #}
+        <div class="km-specialist-section" id="km-sec-3">
+          <div class="km-section-header">
+            <h2>3. {% trans "Специализации" %}</h2>
+            <p class="km-section-desc">{% trans "Выберите одну или несколько специализаций специалиста." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Специализации" in fieldset.name %}
+                {% for line in fieldset %}{% for field in line %}
+                  <div class="km-field km-field--specializations">
+                    {{ field.field }}
+                    {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                  </div>
+                {% endfor %}{% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        {# === SECTION 4 === #}
+        <div class="km-specialist-section" id="km-sec-4">
+          <div class="km-section-header">
+            <h2>4. {% trans "Возраст детей" %}</h2>
+            <p class="km-section-desc">{% trans "Возрастной диапазон детей, с которыми работает специалист." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Возраст" in fieldset.name %}
+                {% for line in fieldset %}
+                  <div class="km-form-row km-form-row--compact">
+                    {% for field in line %}
+                      <div class="km-field km-field--numeric">
+                        {{ field.label_tag }}
+                        <div class="km-input-unit">{{ field.field }}<span class="km-unit">{% trans "лет" %}</span></div>
+                        {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        {# === SECTION 5 === #}
+        <div class="km-specialist-section" id="km-sec-5">
+          <div class="km-section-header">
+            <h2>5. {% trans "Языки консультации" %}</h2>
+            <p class="km-section-desc">{% trans "На каких языках специалист проводит консультации." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Языки" in fieldset.name %}
+                {% for line in fieldset %}
+                  <div class="km-lang-row">
+                    {% for field in line %}
+                      <label class="km-lang-toggle">
+                        {{ field.field }}
+                        <span>{{ field.label_tag }}</span>
+                      </label>
+                      {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        {# === SECTION 6 === #}
+        <div class="km-specialist-section" id="km-sec-6">
+          <div class="km-section-header">
+            <h2>6. {% trans "Формат работы" %}</h2>
+            <p class="km-section-desc">{% trans "Выберите формат: онлайн, очно или оба варианта." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Онлайн" in fieldset.name %}
+                {% for line in fieldset %}{% for field in line %}
+                  <div class="km-field">
+                    {{ field.label_tag }}
+                    {{ field.field }}
+                    {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                  </div>
+                {% endfor %}{% endfor %}
+              {% endif %}
+            {% endfor %}
+            <div class="km-format-hint" id="km-format-hint-online" style="display:none">
+              <span>ℹ️</span> {% trans "Онлайн-специалист: блок «Места приёма» не обязателен." %}
+            </div>
+          </div>
+        </div>
+
+        {# === SECTION 7 === #}
+        <div class="km-specialist-section" id="km-sec-7">
+          <div class="km-section-header">
+            <h2>7. {% trans "Стоимость и длительность" %}</h2>
+            <p class="km-section-desc">{% trans "Диапазон цен и продолжительность одной консультации." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Стоимость" in fieldset.name %}
+                {% for line in fieldset %}
+                  <div class="km-form-row km-form-row--compact">
+                    {% for field in line %}
+                      <div class="km-field km-field--numeric">
+                        {{ field.label_tag }}
+                        <div class="km-input-unit">{{ field.field }}<span class="km-unit">{% if "duration" in field.field.html_name %}{% trans "мин" %}{% else %}AZN{% endif %}</span></div>
+                        {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        {# === SECTION 8 — inline === #}
+        <div class="km-specialist-section km-specialist-section--inline" id="km-sec-8">
+          <div class="km-section-header">
+            <h2>8. {% trans "Места приёма" %}</h2>
+            <p class="km-section-desc" id="km-locations-desc">{% trans "Адреса, где специалист принимает очно. Можно добавить несколько мест." %}</p>
+          </div>
+          <div class="km-section-body km-inline-body" id="km-locations-body">
+            <div id="km-online-only-notice" style="display:none" class="km-notice km-notice--info">
+              ℹ️ {% trans "Место приёма не требуется: специалист работает онлайн." %}
+            </div>
+            <div id="practice_locations-group-wrapper">
+              {# Filled by JS after DOM reorder #}
+            </div>
+          </div>
+        </div>
+
+        {# === SECTION 9 === #}
+        <div class="km-specialist-section" id="km-sec-9">
+          <div class="km-section-header">
+            <h2>9. {% trans "Образование и опыт" %}</h2>
+            <p class="km-section-desc">{% trans "Стаж, образование и профессиональный опыт на трёх языках." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Образование" in fieldset.name %}
+                {% for line in fieldset %}{% for field in line %}
+                  <div class="km-field {% if 'experience_years' in field.field.html_name %}km-field--narrow{% endif %}">
+                    {{ field.label_tag }}
+                    {% if 'experience_years' in field.field.html_name %}
+                      <div class="km-input-unit">{{ field.field }}<span class="km-unit">{% trans "лет" %}</span></div>
+                    {% else %}
+                      {{ field.field }}
+                    {% endif %}
+                    {% if field.help_text %}<p class="km-help">{{ field.help_text }}</p>{% endif %}
+                    {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                  </div>
+                {% endfor %}{% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        {# === SECTION 10 — documents inline === #}
+        <div class="km-specialist-section km-specialist-section--inline" id="km-sec-10">
+          <div class="km-section-header">
+            <h2>10. {% trans "Документы" %}</h2>
+            <p class="km-section-desc">{% trans "Дипломы, сертификаты и документы специалиста." %}</p>
+          </div>
+          <div class="km-section-body km-inline-body">
+            <div class="km-notice km-notice--warn">
+              ⚠ {% trans "Документы, удостоверяющие личность, не публикуются на сайте." %}
+            </div>
+            <div id="documents-group-wrapper">
+              {# Filled by JS after DOM reorder #}
+            </div>
+          </div>
+        </div>
+
+        {# === SECTION 11 === #}
+        <div class="km-specialist-section" id="km-sec-11">
+          <div class="km-section-header">
+            <h2>11. {% trans "Контакты" %}</h2>
+            <p class="km-section-desc">{% trans "Телефон, WhatsApp, Instagram и сайт специалиста." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Контакты" in fieldset.name %}
+                <div class="km-form-row km-form-row--2col">
+                  {% for line in fieldset %}{% for field in line %}
+                    <div class="km-field">
+                      {{ field.label_tag }}
+                      {{ field.field }}
+                      {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                    </div>
+                  {% endfor %}{% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        {# === SECTION 12 === #}
+        <div class="km-specialist-section km-specialist-section--moderation" id="km-sec-12">
+          <div class="km-section-header">
+            <h2>12. {% trans "Модерация и публикация" %}</h2>
+            <p class="km-section-desc">{% trans "Статус публикации, верификация и причина отклонения." %}</p>
+          </div>
+          <div class="km-section-body">
+            {% for fieldset in adminform %}
+              {% if "Модерация" in fieldset.name %}
+                {% for line in fieldset %}{% for field in line %}
+                  <div class="km-field {% if 'rejection' in field.field.html_name %}km-field--full{% endif %}">
+                    {{ field.label_tag }}
+                    {{ field.field }}
+                    {% if field.help_text %}<p class="km-help">{{ field.help_text }}</p>{% endif %}
+                    {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
+                  </div>
+                {% endfor %}{% endfor %}
+              {% endif %}
+            {% endfor %}
+            {% if not add and original %}
+              <div class="km-form-row km-meta-row">
+                <div class="km-field km-field--readonly"><label>{% trans "Создано" %}</label><span>{{ original.created_at|date:"d.m.Y H:i" }}</span></div>
+                <div class="km-field km-field--readonly"><label>{% trans "Обновлено" %}</label><span>{{ original.updated_at|date:"d.m.Y H:i" }}</span></div>
+                <div class="km-field km-field--readonly"><label>{% trans "Рейтинг" %}</label><span>{{ original.rating_avg|default:"—" }} ({{ original.rating_count }} отз.)</span></div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+      </div><!-- /.km-specialist-content -->
+
+      <!-- Right: Actions panel -->
+      <aside class="km-specialist-actions" id="km-actions-panel">
+        <div class="km-actions-inner">
+          <div class="km-actions-title">{% trans "Сохранение" %}</div>
+
+          {% block submit_buttons_bottom %}
+            <input type="submit" value="{% trans 'Сохранить' %}" class="km-btn km-btn--primary" name="_save">
+            <input type="submit" value="{% trans 'Сохранить и продолжить' %}" class="km-btn km-btn--secondary" name="_continue">
+            <input type="submit" value="{% trans 'Сохранить и добавить другого' %}" class="km-btn km-btn--ghost" name="_addanother">
+          {% endblock %}
+
+          {% if not add and original and original.slug %}
+            {% if original.status == 'published' %}
+              <a href="/specialists/{{ original.slug }}/" target="_blank" class="km-btn km-btn--link">🌐 {% trans "Просмотреть на сайте" %}</a>
+            {% endif %}
+          {% endif %}
+
+          {% if not add %}
+            <div class="km-actions-separator"></div>
+            {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+            <a href="{{ delete_url }}" class="km-btn km-btn--danger">🗑 {% trans "Удалить" %}</a>
+          {% endif %}
+        </div>
+      </aside>
+
+    </div><!-- /.km-specialist-layout -->
+
+    {# Hidden inlines — will be moved into sections by JS #}
+    <div id="km-inlines-source" style="display:none" aria-hidden="true">
+      {% for inline_admin_formset in inline_admin_formsets %}
+        {% include inline_admin_formset.opts.template %}
+      {% endfor %}
+    </div>
+
+  </form>
+</div>
+
+<script src="{% static 'admin/js/specialist_admin.js' %}?v=5" defer></script>
+{% endblock %}

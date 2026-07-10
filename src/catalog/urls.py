@@ -53,6 +53,12 @@ from .views import (
     owner_team_remove_member,
     owner_team_update_member_role,
     request_place_ownership,
+    serve_specialist_document,
+    specialist_list,
+    specialist_detail,
+    add_specialist_review,
+    admin_add_choice,
+    owner_specialist_create,
 )
 
 urlpatterns = [
@@ -111,6 +117,7 @@ urlpatterns = [
     path("account/owner/places/", owner_places_dashboard, name="owner_places_dashboard"),
     path("account/owner/places/create/", owner_place_create, name="owner_place_create"),
     path("account/owner/events/create/", owner_event_create, name="owner_event_create"),
+    path("account/owner/specialists/create/", owner_specialist_create, name="owner_specialist_create"),
     path("account/owner/events/<int:pk>/edit/", owner_event_edit, name="owner_event_edit"),
     path("account/owner/events/<int:pk>/submit-review/", owner_event_submit_review, name="owner_event_submit_review"),
     path("account/owner/events/<int:pk>/delete/", owner_event_delete, name="owner_event_delete"),
@@ -139,4 +146,11 @@ urlpatterns = [
     path("review/", add_site_review, name="add_site_review"),
     path("site-review/<int:review_id>/vote/", vote_site_review, name="vote_site_review"),
     path("events/track/", track_event, name="track_event"),
+    path("admin/add-choice/", admin_add_choice, name="admin_add_choice"),
+
+    # Specialists
+    path("specialists/", specialist_list, name="specialist_list"),
+    path("specialists/<slug:slug>/", specialist_detail, name="specialist_detail"),
+    path("specialists/<int:pk>/review/", add_specialist_review, name="add_specialist_review"),
+    path("specialists/documents/<int:document_id>/download/", serve_specialist_document, name="serve_specialist_document"),
 ]
