@@ -219,7 +219,17 @@ class OwnerPlacesController:
         }
         return context, access
 
-    def build_edit_form_context(self, *, request, place_id: int, data=None, files=None, draft_save_only: bool = False) -> OwnerPlaceActionResult:
+    def build_edit_form_context(
+        self,
+        *,
+        request,
+        place_id: int,
+        data=None,
+        files=None,
+        draft_save_only: bool = False,
+        coordinate_refresh_only: bool = False,
+        submit_for_moderation: bool = False,
+    ) -> OwnerPlaceActionResult:
         access = ensure_owner_permission(
             user=request.user,
             profile_repository=self.profile_repository,
@@ -246,7 +256,14 @@ class OwnerPlacesController:
                 place=place,
             )
 
-        form = OwnerPlaceEditForm(data=data, files=files, instance=place, draft_save_only=draft_save_only)
+        form = OwnerPlaceEditForm(
+            data=data,
+            files=files,
+            instance=place,
+            draft_save_only=draft_save_only,
+            coordinate_refresh_only=coordinate_refresh_only,
+            submit_for_moderation=submit_for_moderation,
+        )
         return OwnerPlaceActionResult(ok=True, message="", place=place, form=form, profile=access.profile)
 
     def build_create_form_context(
@@ -316,10 +333,17 @@ class OwnerPlacesController:
             metro=result.form.cleaned_data.get("metro", ""),
         )
         if geocoding_result.resolved and geocoding_result.point is not None:
+            lat_value = self._format_coordinate_value(geocoding_result.point.lat)
+            lng_value = self._format_coordinate_value(geocoding_result.point.lng)
             form_data = result.form.data.copy()
-            form_data["lat"] = self._format_coordinate_value(geocoding_result.point.lat)
-            form_data["lng"] = self._format_coordinate_value(geocoding_result.point.lng)
+            form_data["lat"] = lat_value
+            form_data["lng"] = lng_value
             result.form.data = form_data
+            result.form.initial["lat"] = lat_value
+            result.form.initial["lng"] = lng_value
+            result.form.cleaned_data["lat"] = geocoding_result.point.lat
+            result.form.cleaned_data["lng"] = geocoding_result.point.lng
+            result.form._bound_fields_cache = {}
         return OwnerPlaceActionResult(
             ok=geocoding_result.resolved,
             message=self._build_create_geocoding_message(geocoding_result=geocoding_result),
@@ -435,6 +459,7 @@ class OwnerPlacesController:
         files,
         force_coordinate_refresh: bool = False,
         draft_save_only: bool = False,
+        submit_for_moderation: bool = False,
     ) -> OwnerPlaceActionResult:
         result = self.build_edit_form_context(
             request=request,
@@ -442,6 +467,8 @@ class OwnerPlacesController:
             data=data,
             files=files,
             draft_save_only=draft_save_only,
+            coordinate_refresh_only=force_coordinate_refresh,
+            submit_for_moderation=submit_for_moderation,
         )
         if not result.ok or result.form is None:
             return result
@@ -490,6 +517,8 @@ class OwnerPlacesController:
             source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
             changes=changes,
         )
+        if submit_for_moderation:
+            return self.submit_for_moderation(request=request, place_id=place.pk)
         if coordinate_changes:
             self.place_audit_repository.create_entries(
                 place=place,

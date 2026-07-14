@@ -326,7 +326,7 @@ def init_location_fields(form, instance):
 def configure_location_choices(form):
     from catalog.services.locations import get_regions_choices, get_baku_districts_choices
     from django.utils.translation import get_language
-    lang = get_language() or "az"
+    lang = (get_language() or "az").split("-")[0]
 
     regions = get_regions_choices(lang)
     districts = get_baku_districts_choices(lang)

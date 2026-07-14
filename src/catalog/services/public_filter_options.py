@@ -153,6 +153,7 @@ def build_public_place_filter_options(
     categories = [
         _build_category_option(category, language_code=language_code, count=category_counts.get(category.code))
         for category in Category.objects.filter(is_active=True).order_by("order", "name_ru", "name")
+        if category_counts.get(category.code, 0) > 0
     ]
     categories = sorted(categories, key=lambda item: str(item["label"]).casefold())
 

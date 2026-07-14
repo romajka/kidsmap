@@ -1,6 +1,7 @@
 from django import template
 from django.contrib.auth import get_user_model
 from catalog.models.place import Place, Event
+from catalog.models.specialist import Specialist
 from catalog.models.review import PlaceReview
 from catalog.models.owner import PlaceOwnershipRequest
 from catalog.services.content_quality import public_place_queryset
@@ -17,7 +18,8 @@ def admin_filter_choices(cl, spec):
 
 @register.simple_tag
 def get_dashboard_stats():
-    public_places_count = public_place_queryset(Place.objects.all()).count()
+    permanent_places = Place.objects.filter(deleted_at__isnull=True, is_temporary=False)
+    public_places_count = public_place_queryset(permanent_places).count()
     public_events_count = Event.objects.filter(
         status=Event.STATUS_PUBLISHED,
         deleted_at__isnull=True,
@@ -25,8 +27,9 @@ def get_dashboard_stats():
         end_datetime__gte=timezone.now(),
     ).count()
 
-    places_pending = Place.objects.filter(status=Place.STATUS_PENDING).count()
-    events_pending = Event.objects.filter(status=Event.STATUS_PENDING).count()
+    places_pending = permanent_places.filter(status=Place.STATUS_PENDING).count()
+    events_pending = Event.objects.filter(deleted_at__isnull=True, status=Event.STATUS_PENDING).count()
+    specialists_pending = Specialist.objects.filter(status=Specialist.STATUS_PENDING).count()
     reviews_pending = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
     requests_pending = PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count()
     pending_reviews = []
@@ -48,20 +51,22 @@ def get_dashboard_stats():
             "created_at": review.created_at,
         })
     
-    total_pending = places_pending + events_pending + reviews_pending + requests_pending
+    total_pending = places_pending + events_pending + specialists_pending + reviews_pending + requests_pending
 
     return {
         'kpi': {
-            'total_places': Place.objects.count(),
+            'total_places': permanent_places.count(),
             'places_published': public_places_count,
-            'total_events': Event.objects.count(),
+            'total_events': Event.objects.filter(deleted_at__isnull=True).count(),
             'events_active': public_events_count,
+            'total_specialists': Specialist.objects.count(),
             'total_users': User.objects.filter(is_staff=False, is_superuser=False).count(),
         },
         'pending': {
             'total': total_pending,
             'places': places_pending,
             'events': events_pending,
+            'specialists': specialists_pending,
             'reviews': reviews_pending,
             'requests': requests_pending,
         },

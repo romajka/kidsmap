@@ -10,6 +10,10 @@
   <script type="application/ld+json">{{ catalog_item_list_schema_json|safe }}</script>
 {% endblock %}
 
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}" />
+{% endblock %}
+
 {% block content %}
   <section class="hero">
     <picture class="catalog-hero-picture">
@@ -48,6 +52,31 @@
       {% else %}
         <h1>{{ catalog_heading }}</h1>
         <p>{{ catalog_intro }}</p>
+      {% endif %}
+      {% if not is_new_page %}
+        <form method="get" class="catalog-hero-search">
+          <span class="catalog-hero-search__icon" aria-hidden="true"></span>
+          <label class="visually-hidden" for="catalog-hero-search-input">
+            {% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}Поиск{% endif %}
+          </label>
+          <input
+            id="catalog-hero-search-input"
+            type="search"
+            name="q"
+            value="{{ selected.q }}"
+            placeholder="{% if language == 'az' %}Dərnək və ya açar söz axtarın...{% elif language == 'en' %}Search for a club or keyword...{% else %}Искать кружок или ключевое слово...{% endif %}"
+          />
+          {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
+          {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
+          {% if selected.metro %}<input type="hidden" name="metro" value="{{ selected.metro }}" />{% endif %}
+          {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
+          {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
+          {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
+          {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
+          {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
+          {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
+          <button type="submit">{% if language == "az" %}Axtar{% elif language == "en" %}Search{% else %}Найти{% endif %}</button>
+        </form>
       {% endif %}
     </div>
     {% if not is_new_page %}
@@ -264,6 +293,7 @@
       </label>
 
       {% if not is_new_page %}
+        {% if is_events_section_enabled %}
         <fieldset class="filter-item filter-event-type">
           <legend>{% if language == "az" %}Məkan növü{% elif language == "en" %}Place type{% else %}{% trans "Тип места" %}{% endif %}</legend>
           <div class="event-type-filter" role="radiogroup" aria-label="{% if language == 'az' %}Məkan növü{% elif language == 'en' %}Place type{% else %}{% trans 'Тип места' %}{% endif %}">
@@ -284,6 +314,7 @@
             </label>
           </div>
         </fieldset>
+        {% endif %}
       {% endif %}
 
       <label class="filter-item filter-district" data-mobile-filter-section="district">
@@ -701,7 +732,7 @@
                 {% endif %}
               </div>
               <div class="card-body">
-                <h3><a href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{{ place.name_i18n }}</a></h3>
+                <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
                 {% with desc=place.description_i18n %}
                   <p class="card-description{% if not desc %} is-empty{% endif %}">
                     {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
@@ -759,7 +790,7 @@
                   {% endif %}
                 </div>
                 <div class="card-action-stack">
-                  <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% if language == "az" %}Bax{% elif language == "en" %}Open{% else %}{% trans "Перейти" %}{% endif %}</a>
+                  <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">{% if language == "az" %}Bax{% elif language == "en" %}Open{% else %}{% trans "Перейти" %}{% endif %}</a>
                 </div>
               </div>
             </article>
@@ -774,7 +805,7 @@
       {% for event in events %}
         <article class="card event-card">
           <div class="card-media">
-            <a class="card-media-link" href="{{ event.get_absolute_url }}?next={{ request.get_full_path|urlencode }}" aria-label="{{ event.name_i18n }}">
+            <a class="card-media-link" href="{{ event.get_absolute_url }}" aria-label="{{ event.name_i18n }}">
               {% if event.photo %}
                 <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% else %}
@@ -788,7 +819,7 @@
             {% endif %}
           </div>
           <div class="card-body">
-            <h3><a href="{{ event.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{{ event.name_i18n }}</a></h3>
+              <h3><a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a></h3>
             {% with desc=event.description_i18n %}
               <p class="card-description{% if not desc %} is-empty{% endif %}">
                 {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
@@ -801,7 +832,7 @@
             <p class="meta card-location">{{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address_i18n|truncatechars:56 }}{% endif %}</p>
             {% include "catalog/includes/event_countdown.html" with event=event language=language variant="compact" %}
             <div class="card-action-stack">
-              <a class="details-btn card-go-btn" href="{{ event.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% if language == "az" %}Bax{% elif language == "en" %}Open{% else %}{% trans "Перейти" %}{% endif %}</a>
+              <a class="details-btn card-go-btn" href="{{ event.get_absolute_url }}">{% if language == "az" %}Bax{% elif language == "en" %}Open{% else %}{% trans "Перейти" %}{% endif %}</a>
             </div>
           </div>
         </article>
@@ -815,7 +846,7 @@
       {% for place in places %}
         <article class="card">
           <div class="card-media">
-            <a class="card-media-link" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}" aria-label="{{ place.name_i18n }}">
+            <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
               {% if place.photo %}
                 <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% elif place.cover_photo %}
@@ -837,7 +868,6 @@
             {% if request.user.is_authenticated %}
               <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}" />
                 <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
                   <span class="like-icon" aria-hidden="true"></span>
                   <span class="like-count visually-hidden">{{ place.likes_count }}</span>
@@ -860,7 +890,7 @@
             {% endif %}
           </div>
           <div class="card-body">
-            <h3><a href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{{ place.name_i18n }}</a></h3>
+            <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
             {% with desc=place.description_i18n %}
               <p class="card-description{% if not desc %} is-empty{% endif %}">
                 {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
@@ -909,7 +939,7 @@
 
             <div class="card-action-stack">
               <div class="card-bottom-row">
-                <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}?next={{ request.get_full_path|urlencode }}">{% if language == "az" %}Ətraflı{% elif language == "en" %}Details{% else %}{% trans "Перейти" %}{% endif %}</a>
+                <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">{% if language == "az" %}Ətraflı{% elif language == "en" %}Details{% else %}{% trans "Перейти" %}{% endif %}</a>
                 {% if place.phone1 or place.instagram %}
                   <button type="button" class="card-contact-toggle" data-contact-toggle aria-expanded="false" aria-label="{% if language == 'az' %}Əlaqə{% elif language == 'en' %}Contact{% else %}Связаться{% endif %}">
                     <span class="card-contact-toggle-icon" aria-hidden="true"></span>
@@ -926,9 +956,6 @@
                     <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-card">Instagram</a>
                   {% endif %}
                 </div>
-              {% endif %}
-              {% if place.has_more_details %}
-                {% include "catalog/includes/place_more_panel.html" with place=place %}
               {% endif %}
             </div>
           </div>
@@ -1006,10 +1033,18 @@
     <h2>{% trans "Часто ищут" %}</h2>
     <div class="home-grid2">
       <a class="link-btn" href="{% url 'place_list' %}">{% trans "Кружки в Азербайджане для детей" %}</a>
+      {% if 'EDU' in active_category_codes %}
       <a class="link-btn" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Азербайджане" %}</a>
+      {% endif %}
+      {% if 'SPRT' in active_category_codes %}
       <a class="link-btn" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Азербайджане" %}</a>
+      {% endif %}
+      {% if 'ART' in active_category_codes %}
       <a class="link-btn" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Азербайджане" %}</a>
+      {% endif %}
+      {% if 'TECH' in active_category_codes %}
       <a class="link-btn" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Азербайджане" %}</a>
+      {% endif %}
     </div>
   </section>
 
@@ -1023,7 +1058,9 @@
       ></script>
     {% endif %}
   {% endif %}
-  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
+  {% if is_events_section_enabled %}
+    <script src="{% static 'js/temporary_event_timer.js' %}"></script>
+  {% endif %}
   <script>
     (function () {
       document.querySelectorAll("[data-range]").forEach(function (root) {

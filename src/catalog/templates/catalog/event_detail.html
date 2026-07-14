@@ -24,6 +24,17 @@
       </div>
     </div>
 
+    {% if event.gallery.all %}
+      <section class="event-detail-gallery" aria-label="{% if language == 'az' %}Tədbirin əlavə şəkilləri{% elif language == 'en' %}Additional event photos{% else %}Дополнительные фото мероприятия{% endif %}">
+        <h2>{% if language == "az" %}Əlavə şəkillər{% elif language == "en" %}More photos{% else %}Дополнительные фото{% endif %}</h2>
+        <div class="event-detail-gallery__grid">
+          {% for image in event.gallery.all %}
+            <figure><img src="{{ image.image.url }}" alt="{{ image.caption|default:event.name_i18n }}" loading="lazy" decoding="async" />{% if image.caption %}<figcaption>{{ image.caption }}</figcaption>{% endif %}</figure>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
     <div class="event-detail-grid">
       <section class="event-detail-card">
         <h2>{% if language == "az" %}Tədbir məlumatları{% elif language == "en" %}Event details{% else %}Детали мероприятия{% endif %}</h2>

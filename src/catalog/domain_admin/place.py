@@ -1,6 +1,8 @@
 from django.conf import settings
+import json
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
+from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Max, Prefetch, Q
 from django import forms
@@ -8,6 +10,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _, ngettext
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
@@ -21,6 +24,7 @@ from catalog.models import (
     PlaceChangeAudit,
     PlaceOwnershipRequest,
     Event,
+    EventPhoto,
     PlaceReviewsByClub,
     Category,
     Subcategory,
@@ -30,16 +34,43 @@ from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepos
 from catalog.services.content_quality import place_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
-from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
+from catalog.services.pricing_plans import normalize_pricing_plans
+from catalog.services.place_schedule import FULL_DAY_LABELS, build_schedule_summary, serialize_place_schedule
 from .review import PlaceReviewInline
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
 
 
 ADMIN_DATETIME_LOCAL_FORMAT = "%Y-%m-%dT%H:%M"
 
+PLACE_QUALITY_ERROR_LABELS = {
+    "missing_name": _("не указано название"),
+    "missing_category": _("не указана категория"),
+    "description_too_short": _("слишком короткое описание"),
+    "test_content": _("обнаружены тестовые данные"),
+    "missing_contact": _("не указан контакт"),
+    "missing_address": _("не указан адрес"),
+    "missing_age": _("не указан возраст"),
+    "missing_price": _("не указана цена"),
+    "missing_schedule": _("не указано расписание"),
+    "missing_photo": _("не добавлено фото"),
+}
+
+
+def place_quality_error_labels(errors) -> str:
+    return ", ".join(str(PLACE_QUALITY_ERROR_LABELS.get(error, error)) for error in errors)
+
 
 class PlacePhotoInline(admin.TabularInline):
     model = PlacePhoto
+    template = "admin/catalog/place/placephoto_inline.html"
+    extra = 0
+    max_num = 10
+    fields = ("image", "caption", "order")
+    ordering = ("order", "id")
+
+
+class EventPhotoInline(admin.TabularInline):
+    model = EventPhoto
     template = "admin/catalog/place/placephoto_inline.html"
     extra = 0
     max_num = 10
@@ -62,6 +93,10 @@ class PlaceChangeAuditInline(admin.TabularInline):
 class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
     name = forms.CharField(required=False, widget=forms.HiddenInput())
+    pricing_plans = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"data-tariff-input": ""}),
+    )
 
     region = forms.ChoiceField(
         label=_("Город / регион"),
@@ -118,6 +153,11 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         cleaned = self._clean_schedule_editor(cleaned)
+        try:
+            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]")
+        except ValidationError as exc:
+            self.add_error("pricing_plans", exc)
+            cleaned["pricing_plans"] = []
         from catalog.services.locations import clean_location_fields
 
         primary_name = (
@@ -170,6 +210,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if not self.is_bound and self.instance is not None:
+            self.initial["pricing_plans"] = json.dumps(self.instance.pricing_plans or [], ensure_ascii=False)
         from catalog.services.locations import init_location_fields, configure_location_choices
         init_location_fields(self, self.instance)
         configure_location_choices(self)
@@ -267,19 +309,27 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
 class EventAdminForm(forms.ModelForm):
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
+    PICKER_DATETIME_FORMAT = "%Y-%m-%d %H:%M"
+    require_location_region = False
+
+    region = forms.ChoiceField(
+        label=_("Город / регион"), required=False, choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-region": ""}),
+    )
+    district = forms.ChoiceField(
+        label=_("Район города"), required=False, choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-district": ""}),
+    )
+    metro = forms.ChoiceField(
+        label=_("Метро"), required=False, choices=(), widget=forms.Select(attrs={"class": "field"}),
+    )
 
     class Meta:
         model = Event
         fields = "__all__"
         widgets = {
-            "start_datetime": forms.DateTimeInput(
-                attrs={"type": "datetime-local", "step": "900"},
-                format=ADMIN_DATETIME_LOCAL_FORMAT,
-            ),
-            "end_datetime": forms.DateTimeInput(
-                attrs={"type": "datetime-local", "step": "900"},
-                format=ADMIN_DATETIME_LOCAL_FORMAT,
-            ),
+            "start_datetime": forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "start", "data-allow-input": "1"}),
+            "end_datetime": forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "end", "data-allow-input": "1"}),
             "published_at": forms.DateTimeInput(
                 attrs={"type": "datetime-local", "step": "900"},
                 format=ADMIN_DATETIME_LOCAL_FORMAT,
@@ -294,10 +344,19 @@ class EventAdminForm(forms.ModelForm):
             "description_az": _("Описание (Азербайджанский)"),
             "description_en": _("Описание (English)"),
             "price_text": _("Стоимость и условия"),
+            "website": _("Сайт"),
+            "lat": _("Широта"),
+            "lng": _("Долгота"),
         }
 
     def clean(self):
         cleaned = super().clean()
+        from catalog.services.locations import clean_location_fields
+        cleaned = clean_location_fields(self, cleaned)
+        start_datetime = cleaned.get("start_datetime")
+        end_datetime = cleaned.get("end_datetime")
+        if start_datetime and end_datetime and end_datetime <= start_datetime:
+            self.add_error("end_datetime", _("Окончание мероприятия должно быть позже начала."))
         is_save_draft = bool(self.data and "_save_draft" in self.data)
         is_active = cleaned.get("is_active")
         if is_active is None:
@@ -333,6 +392,9 @@ class EventAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        from catalog.services.locations import configure_location_choices, init_location_fields
+        init_location_fields(self, self.instance)
+        configure_location_choices(self)
         for field_name in ("start_datetime", "end_datetime", "published_at"):
             if field_name in self.fields:
                 self.fields[field_name].input_formats = [
@@ -344,7 +406,8 @@ class EventAdminForm(forms.ModelForm):
                 value = getattr(self.instance, field_name, None)
                 if value:
                     localized_value = timezone.localtime(value) if timezone.is_aware(value) else value
-                    self.initial[field_name] = localized_value.strftime(self.DATETIME_LOCAL_FORMAT)
+                    display_format = self.PICKER_DATETIME_FORMAT if field_name in {"start_datetime", "end_datetime"} else self.DATETIME_LOCAL_FORMAT
+                    self.initial[field_name] = localized_value.strftime(display_format)
         self.fields["photo"].help_text = _(
             "Основное изображение мероприятия для списка и детальной страницы."
         )
@@ -354,6 +417,12 @@ class EventAdminForm(forms.ModelForm):
         self.fields["end_datetime"].help_text = _(
             "Дата и время окончания. Используется для определения актуальности и завершения."
         )
+        self.fields["address"].widget.attrs.setdefault("placeholder", _("Напр., ул. Низами 10, Баку"))
+        self.fields["phone"].widget.attrs.setdefault("placeholder", _("Напр., +994 50 123 45 67"))
+        self.fields["instagram"].widget.attrs.setdefault("placeholder", _("Напр., @kidsmap"))
+        self.fields["website"].widget.attrs.setdefault("placeholder", _("Напр., https://example.com"))
+        self.fields["lat"].widget.attrs.setdefault("placeholder", _("Напр., 40.409264"))
+        self.fields["lng"].widget.attrs.setdefault("placeholder", _("Напр., 49.867092"))
 
 
 class PlaceCoordinatesFilter(admin.SimpleListFilter):
@@ -437,7 +506,8 @@ class EventDeletedFilter(admin.SimpleListFilter):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     form = EventAdminForm
-    actions = ("mark_published", "mark_draft", "mark_pending")
+    inlines = [EventPhotoInline]
+    actions = ("mark_published", "mark_draft", "mark_pending", "mark_rejected")
     list_display = (
         "display_name",
         "category",
@@ -535,8 +605,11 @@ class EventAdmin(admin.ModelAdmin):
             _("Локация и контакты"),
             {
                 "fields": (
+                    ("region", "district", "metro"),
                     "address",
+                    ("lat", "lng"),
                     ("phone", "instagram"),
+                    "website",
                     "moderation_note",
                 )
             },
@@ -594,8 +667,11 @@ class EventAdmin(admin.ModelAdmin):
             _("Локация и контакты"),
             {
                 "fields": (
+                    ("region", "district", "metro"),
                     "address",
+                    ("lat", "lng"),
                     ("phone", "instagram"),
+                    "website",
                     "moderation_note",
                 ),
             },
@@ -628,8 +704,18 @@ class EventAdmin(admin.ModelAdmin):
         return initial
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
         adminform = context.get("adminform")
         if adminform is not None:
+            inline_admin_formsets = context.get("inline_admin_formsets", [])
+            context["km_event_gallery_inline"] = next(
+                (
+                    inline_admin_formset
+                    for inline_admin_formset in inline_admin_formsets
+                    if inline_admin_formset.opts.model is EventPhoto
+                ),
+                None,
+            )
             context["km_event_form_sections"] = self._build_event_form_sections(adminform)
             context["km_event_secondary_sections"] = self._build_event_secondary_sections(adminform)
             context["km_event_form_summary"] = self._build_event_form_summary(
@@ -1208,6 +1294,20 @@ class EventAdmin(admin.ModelAdmin):
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 
+    @admin.action(description=_("Отклонить выбранные мероприятия"))
+    def mark_rejected(self, request, queryset):
+        updated_count = queryset.update(
+            status=Event.STATUS_REJECTED,
+            rejection_reason=_("Мероприятие требует доработки перед публикацией."),
+            updated_at=timezone.now(),
+        )
+        self.message_user(
+            request,
+            ngettext("Отклонено %(count)d мероприятие.", "Отклонено %(count)d мероприятия.", updated_count)
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
     def changelist_view(self, request, extra_context=None):
         counts = self._event_dashboard_counts()
         quick_filters = self._event_quick_filters(request, counts=counts)
@@ -1333,33 +1433,26 @@ class PlaceAdmin(admin.ModelAdmin):
             "id": "basics",
             "step": "01",
             "title": _("Основное"),
-            "description": _("Базовая информация о карточке: название, категория, подкатегория, URL-слаг и тип размещения."),
-            "fieldset_indexes": (0,),
-        },
-        {
-            "id": "copy",
-            "step": "02",
-            "title": _("Тексты"),
-            "description": _("Тексты карточки на основных языках сайта. Минимум один качественный язык обязателен."),
-            "fieldset_indexes": (1,),
+            "description": _("Сначала название и описание карточки, затем категория и подкатегория."),
+            "fieldset_indexes": (1, 0),
         },
         {
             "id": "pricing",
-            "step": "03",
-            "title": _("Цена"),
+            "step": "02",
+            "title": _("Цена и возраст"),
             "description": _("Возрастные рамки, стоимость и длительность занятий."),
             "fieldset_indexes": (2,),
         },
         {
             "id": "location",
-            "step": "04",
+            "step": "03",
             "title": _("Локация"),
             "description": _("Район, метро, адрес, координаты и контакты для связи."),
             "fieldset_indexes": (3, 4),
         },
         {
             "id": "media",
-            "step": "05",
+            "step": "04",
             "title": _("Фото"),
             "description": _("Добавьте главное изображение и дополнительные фотографии места."),
             "fieldset_indexes": (5,),
@@ -1381,9 +1474,6 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("category", "subcategory"),
-                    "slug",
-                    ("is_temporary",),
-                    ("temporary_start", "temporary_end"),
                 )
             },
         ),
@@ -1398,7 +1488,7 @@ class PlaceAdmin(admin.ModelAdmin):
             },
         ),
         (
-            _("Возраст и цена"),
+            _("Цена и возраст"),
             {
                 "fields": (
                     ("age_from", "age_to", "lesson_duration_minutes"),
@@ -1453,6 +1543,23 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+        fallback_url = reverse(
+            f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
+            current_app=self.admin_site.name,
+        )
+        referer = request.META.get("HTTP_REFERER", "")
+        if referer and url_has_allowed_host_and_scheme(
+            referer,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            referer_path = referer.split("?", 1)[0].split("#", 1)[0]
+            if referer_path != request.path:
+                context["km_admin_back_url"] = referer
+            else:
+                context["km_admin_back_url"] = fallback_url
+        else:
+            context["km_admin_back_url"] = fallback_url
         adminform = context.get("adminform")
         if adminform is not None:
             inline_admin_formsets = context.get("inline_admin_formsets", [])
@@ -1472,6 +1579,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 obj=obj,
                 add=add,
             )
+            context["km_place_form_errors"] = self._build_place_form_errors(adminform.form)
             context["km_place_taxonomy_picker"] = self._build_taxonomy_picker_config(adminform.form)
             context["km_place_map_alert"] = self._build_place_map_alert(
                 form=adminform.form,
@@ -1490,6 +1598,59 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def _fieldset_list(self, adminform):
         return list(adminform) if adminform is not None else []
+
+    def _build_place_form_errors(self, form):
+        """Return actionable errors with anchors to the matching form section."""
+        section_by_field = {
+            "category": "#basics",
+            "subcategory": "#basics",
+            "name": "#basics",
+            "name_az": "#basics",
+            "name_ru": "#basics",
+            "name_en": "#basics",
+            "description_az": "#basics",
+            "description_ru": "#basics",
+            "description_en": "#basics",
+            "age_from": "#pricing",
+            "age_to": "#pricing",
+            "price_from": "#pricing",
+            "price_to": "#pricing",
+            "pricing_plans": "#pricing",
+            "district": "#location",
+            "metro": "#location",
+            "address": "#location",
+            "phone1": "#location",
+            "structured_schedule": "#admin-place-schedule",
+            "photo": "#media",
+        }
+        errors = []
+
+        for weekday, messages_for_day in getattr(form, "schedule_editor_errors", {}).items():
+            day_label = FULL_DAY_LABELS.get(weekday, weekday)
+            for message in messages_for_day:
+                errors.append(
+                    {
+                        "label": str(_("Расписание: %(day)s") % {"day": day_label}),
+                        "message": str(message),
+                        "target": f"#admin-place-schedule-row-{weekday}",
+                    }
+                )
+
+        for field_name, messages_for_field in form.errors.items():
+            if field_name == "structured_schedule" and getattr(form, "schedule_editor_errors", None):
+                # The detailed day errors above are more useful than the generic field error.
+                continue
+            if field_name == "__all__":
+                label = str(_("Карточка"))
+                target = "#verification"
+            else:
+                field = form.fields.get(field_name)
+                label = str(field.label) if field is not None else field_name
+                target = section_by_field.get(field_name, f"#id_{field_name}")
+            for message in messages_for_field:
+                errors.append({"label": label, "message": str(message), "target": target})
+
+        return errors
 
     def _build_taxonomy_picker_config(self, form):
         category_field = form.fields.get("category")
@@ -1642,6 +1803,15 @@ class PlaceAdmin(admin.ModelAdmin):
                 "label": str(_("В удалённых")),
                 "tone": "muted",
                 "hint": str(_("Карточка скрыта с сайта и перемещена в удалённые.")),
+                "is_public": False,
+            }
+        quality = place_quality_check(obj)
+        if obj.status == obj.STATUS_PUBLISHED and obj.is_active and not quality.is_ready:
+            reasons = place_quality_error_labels(quality.errors)
+            return {
+                "label": str(_("Скрыто с сайта")),
+                "tone": "danger",
+                "hint": str(_("Карточка имеет статус публикации, но не проходит проверку качества каталога: %(reasons)s.") % {"reasons": reasons}),
                 "is_public": False,
             }
         if obj.is_public:
@@ -1797,8 +1967,12 @@ class PlaceAdmin(admin.ModelAdmin):
             )
             state_badges.append(
                 {
-                    "label": str(dict(obj.STATUS_CHOICES).get(obj.status, obj.status)),
-                    "tone": "good" if obj.status == obj.STATUS_PUBLISHED else "muted",
+                    "label": (
+                        str(_("Статус: %(status)s") % {"status": dict(obj.STATUS_CHOICES).get(obj.status, obj.status)})
+                        if obj.status == obj.STATUS_PUBLISHED and not visibility["is_public"]
+                        else str(dict(obj.STATUS_CHOICES).get(obj.status, obj.status))
+                    ),
+                    "tone": "good" if obj.status == obj.STATUS_PUBLISHED and visibility["is_public"] else "muted",
                 }
             )
             state_badges.append(
@@ -1813,6 +1987,13 @@ class PlaceAdmin(admin.ModelAdmin):
                     "value": f"{quality.score} / 100",
                 }
             )
+            if not visibility["is_public"]:
+                meta_items.append(
+                    {
+                        "label": str(_("Почему скрыто")),
+                        "value": visibility["hint"],
+                    }
+                )
             if obj.published_at:
                 meta_items.append(
                     {
@@ -1894,9 +2075,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("category", "subcategory"),
-                    "slug",
-                    ("is_temporary", "is_active", "is_verified"),
-                    ("temporary_start", "temporary_end"),
+                    ("is_active", "is_verified"),
                     ("status", "rejection_reason"),
                     "owner",
                     "likes_count",
@@ -1919,7 +2098,7 @@ class PlaceAdmin(admin.ModelAdmin):
             },
         ),
         (
-            _("Возраст и цена"),
+            _("Цена и возраст"),
             {
                 "fields": (
                     ("age_from", "age_to", "lesson_duration_minutes"),
@@ -2030,8 +2209,9 @@ class PlaceAdmin(admin.ModelAdmin):
     def lifecycle_status(self, obj):
         if obj.is_deleted:
             return self._render_place_state_badge(label=_("В удаленных"), tone="muted")
-        if obj.is_active:
-            return self._render_place_state_badge(label=_("Опубликовано"), tone="good")
+        visibility = self._place_visibility_state(obj)
+        if obj.status == obj.STATUS_PUBLISHED and obj.is_active:
+            return self._render_place_state_badge(label=visibility["label"], tone=visibility["tone"])
         return self._render_place_state_badge(label=_("Неактивно"), tone="warn")
 
     @admin.display(description=_("Статус"))
@@ -2065,7 +2245,7 @@ class PlaceAdmin(admin.ModelAdmin):
         check = place_quality_check(obj)
         tone = "good" if check.is_ready else "warn"
         label = _("Готово к публикации") if check.is_ready else _("Нужна доработка")
-        details = ", ".join(check.errors[:4]) if check.errors else _("Критичных замечаний нет")
+        details = place_quality_error_labels(check.errors[:4]) if check.errors else _("Критичных замечаний нет")
         return format_html(
             '<div class="km-admin-stack"><span class="km-admin-badge km-admin-badge--{}">{} / 100</span><span class="km-admin-meta">{} · {}</span></div>',
             tone,
@@ -2145,14 +2325,19 @@ class PlaceAdmin(admin.ModelAdmin):
             self._render_place_state_badge(label=visibility["label"], tone=visibility["tone"]),
         ]
 
-        if obj.status != obj.STATUS_PUBLISHED or visibility["label"] != str(_("Опубликовано")):
+        if obj.status != obj.STATUS_PUBLISHED or not visibility["is_public"]:
             status_tone = {
                 obj.STATUS_DRAFT: "muted",
                 obj.STATUS_PENDING: "warn",
-                obj.STATUS_PUBLISHED: "good",
+                obj.STATUS_PUBLISHED: "muted",
                 obj.STATUS_REJECTED: "danger",
             }.get(obj.status, "muted")
-            badges.append(self._render_place_state_badge(label=obj.get_status_display(), tone=status_tone))
+            status_label = (
+                _("Статус: %(status)s") % {"status": obj.get_status_display()}
+                if obj.status == obj.STATUS_PUBLISHED and not visibility["is_public"]
+                else obj.get_status_display()
+            )
+            badges.append(self._render_place_state_badge(label=status_label, tone=status_tone))
 
         badges.append(
             self._render_place_state_badge(
@@ -2178,10 +2363,14 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Карта"))
     def map_status_summary(self, obj):
-        if obj.is_map_ready:
+        visibility = self._place_visibility_state(obj)
+        if visibility["is_public"] and obj.has_coordinates:
             label = _("Готово для карты")
             return format_html('<span class="km-admin-map-state km-admin-map-state--good" title="{}" aria-label="{}"><i class="fas fa-check"></i></span>', label, label)
-        label = _("Нужны координаты") if not obj.has_coordinates else _("Не готово для карты")
+        if not visibility["is_public"]:
+            label = _("Скрыто с сайта")
+        else:
+            label = _("Нужны координаты") if not obj.has_coordinates else _("Не готово для карты")
         return format_html('<span class="km-admin-map-state km-admin-map-state--bad" title="{}" aria-label="{}"><i class="fas fa-times"></i></span>', label, label)
 
     @admin.display(description=_("Добавил"))

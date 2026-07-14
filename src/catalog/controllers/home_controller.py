@@ -20,6 +20,7 @@ from catalog.services.options import find_localized_label
 from catalog.services.public_filter_options import build_public_place_filter_options
 from catalog.services.reactions import liked_place_ids, mark_liked_flags
 from catalog.services.seo import build_home_seo_payload
+from catalog.services.features import is_events_section_enabled
 
 
 @dataclass(slots=True)
@@ -44,16 +45,18 @@ class HomeController:
 
         popular_places = list(self.place_repository.top_popular(limit=3))
         mark_liked_flags(popular_places, liked_ids)
-        upcoming_events = list(
-            Event.objects.filter(
-                status=Event.STATUS_PUBLISHED,
-                deleted_at__isnull=True,
-                start_datetime__isnull=False,
-                end_datetime__gte=timezone.now(),
+        upcoming_events = []
+        if is_events_section_enabled():
+            upcoming_events = list(
+                Event.objects.filter(
+                    status=Event.STATUS_PUBLISHED,
+                    deleted_at__isnull=True,
+                    start_datetime__isnull=False,
+                    end_datetime__gte=timezone.now(),
+                )
+                .select_related("related_place")
+                .order_by("start_datetime", "-updated_at")[:4]
             )
-            .select_related("related_place")
-            .order_by("start_datetime", "-updated_at")[:4]
-        )
 
         map_places = [
             {
@@ -119,6 +122,7 @@ class HomeController:
 
         return {
             "home_categories": public_filter_options.categories,
+            "active_category_codes": {item["value"] for item in public_filter_options.categories},
             "home_districts": home_districts,
             "home_metro_options": public_filter_options.metro,
             "home_age_options": [0, 6, 9, 12, 16],

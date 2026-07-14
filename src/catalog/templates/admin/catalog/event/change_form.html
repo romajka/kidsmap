@@ -4,8 +4,15 @@
 {% block extrahead %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=8">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  {% if not google_maps_api_key %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">{% endif %}
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=15" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
+  <script src="{% static 'js/kidsmap_datetime_picker.js' %}?v=2" defer></script>
+  <script src="{% static 'admin/js/kidsmap_event_datetime.js' %}?v=1" defer></script>
+  {% if google_maps_api_key %}<script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script><script defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitAdminPlaceLocation"></script>{% else %}<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script><script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>{% endif %}
 {% endblock %}
 
 {% block submit_buttons_top %}{% endblock %}
@@ -38,11 +45,11 @@
         <header class="km-place-form-hero">
           <div class="km-place-form-hero__copy">
             <p class="km-place-form-hero__eyebrow">
-              {% if add %}{% translate "Новое мероприятие" %}{% else %}{% translate "Редактирование мероприятия" %}{% endif %}
+              {% if add %}{% translate "Новая карточка" %}{% else %}{% translate "Редактирование мероприятия" %}{% endif %}
             </p>
             <h1 class="km-place-form-hero__title">
               {% if add %}
-                {% translate "Добавить мероприятие" %}
+                {% translate "Новое мероприятие" %}
               {% else %}
                 {{ original|default:km_event_form_summary.title }}
               {% endif %}
@@ -124,9 +131,18 @@
                     </div>
                   </header>
                   <div class="km-place-section__body">
-                    {% for fieldset in section.fieldsets %}
-                      {% include "admin/includes/fieldset.html" with heading_level=3 prefix="event-section" id_prefix=forloop.parentloop.counter0 id_suffix=forloop.counter0 %}
-                    {% endfor %}
+                    {% if section.id == "location" %}
+                      {% include "admin/catalog/event/location_section.html" with adminform=adminform %}
+                    {% elif section.id == "media" %}
+                      {% include "admin/catalog/event/media_section.html" with adminform=adminform gallery_inline=km_event_gallery_inline add=add %}
+                    {% else %}
+                      {% for fieldset in section.fieldsets %}
+                        {% include "admin/includes/fieldset.html" with heading_level=3 prefix="event-section" id_prefix=forloop.parentloop.counter0 id_suffix=forloop.counter0 %}
+                      {% endfor %}
+                    {% endif %}
+                    {% if section.id == "schedule" %}
+                      <p class="km-event-datetime-summary" data-event-datetime-summary aria-live="polite"></p>
+                    {% endif %}
                   </div>
                 </section>
               {% endfor %}
@@ -147,7 +163,9 @@
             </div>
 
             <div class="km-place-form-mobile-actions">
-              {% submit_row %}
+              <button type="submit" name="_continue" class="km-place-form-mobile-button km-place-form-mobile-button--success">
+                {% translate 'Сохранить и продолжить' %}
+              </button>
               {% if km_event_form_summary.visibility.is_public %}
                 <button
                   type="submit"
@@ -172,7 +190,7 @@
                 name="_save_draft"
                 class="km-place-form-mobile-button {% if add %}km-place-form-mobile-button--success{% else %}km-place-form-mobile-button--draft{% endif %}"
               >
-                {% translate 'Сохранить как черновик' %}
+                {% translate 'Сохранить черновик' %}
               </button>
             </div>
 
@@ -268,9 +286,11 @@
 
             <div class="km-place-sidebar-card km-place-sidebar-card--actions">
               <div class="km-place-sidebar-action-buttons">
-                {% submit_row %}
-                <button type="submit" name="_save_draft" class="km-btn--sidebar {% if add %}km-btn--success-alt{% else %}km-btn--draft{% endif %}">
-                  <i class="fas fa-file"></i> {% translate 'Черновик' %}
+                <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
+                  <i class="fas fa-save"></i> {% translate 'Сохранить и продолжить' %}
+                </button>
+                <button type="submit" name="_save_draft" class="km-btn--sidebar km-btn--draft">
+                  <i class="fas fa-file"></i> {% translate 'Сохранить черновик' %}
                 </button>
                 <div class="km-place-visibility-actions">
                   {% if km_event_form_summary.visibility.is_public %}

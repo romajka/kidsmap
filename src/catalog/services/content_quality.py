@@ -60,6 +60,10 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
     qs = qs.filter(_has_price_q())
     qs = qs.filter(_has_description_q())
 
+    from catalog.services.features import is_events_section_enabled
+    if not is_events_section_enabled():
+        qs = qs.exclude(is_temporary=True)
+
     # Exclude temporary events that have already ended
     from django.utils import timezone
     qs = qs.exclude(is_temporary=True, temporary_end__lt=timezone.now())
@@ -152,7 +156,21 @@ def place_quality_check(place) -> QualityCheck:
     else:
         errors.append("description_too_short")
 
-    if any(contains_test_content(item) for item in [place.name, place.name_ru, place.name_az, place.name_en, *descriptions, place.schedule]):
+    if any(
+        contains_test_content(item)
+        for item in (
+            place.name,
+            place.name_ru,
+            place.name_az,
+            place.name_en,
+            *descriptions,
+            place.schedule,
+            place.address,
+            place.phone1,
+            place.instagram,
+            place.website,
+        )
+    ):
         errors.append("test_content")
 
     if place.phone1 or place.instagram or place.website:

@@ -51,11 +51,19 @@ class PlaceListFilters:
         )
         if data.event_type not in {"temporary", "permanent"}:
             data.event_type = ""
+        if data.event_type and not cls._events_section_enabled():
+            data.event_type = ""
         if data.force_new_only:
             data.sort = "new"
             if data.days not in {"7", "14", "30"}:
                 data.days = "30"
         return data
+
+    @staticmethod
+    def _events_section_enabled() -> bool:
+        from catalog.services.features import is_events_section_enabled
+
+        return is_events_section_enabled()
 
     def _int_or_none(self, value):
         return int(value) if str(value).isdigit() else None

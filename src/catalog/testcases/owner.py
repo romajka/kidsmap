@@ -856,6 +856,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.post(
             reverse("owner_place_create"),
             data={
+                "form_action": "save_and_publish",
                 "name_ru": "Новая карточка владельца",
                 "name_az": "Yeni owner karti",
                 "name_en": "",
@@ -894,6 +895,34 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(PlacePhoto.objects.filter(place=place).count(), 2)
         ownership_request = PlaceOwnershipRequest.objects.get(place=place, applicant=self.manager_user)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
+
+    def test_owner_create_page_shows_disabled_publish_action_and_available_draft_save(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response = self.client.get(reverse("owner_place_create"), {"type": "permanent"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-owner-publish-button', html=False)
+        self.assertContains(response, 'value="save_and_publish"', html=False)
+        self.assertContains(response, 'value="save_draft"', html=False)
+        self.assertContains(response, 'data-owner-publish-hint', html=False)
+
+    def test_owner_edit_publish_action_revalidates_required_fields_on_server(self):
+        self.editor_place.status = Place.STATUS_DRAFT
+        self.editor_place.photo = self._image_upload("saved-photo.png")
+        self.editor_place.save()
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.editor_place.id]),
+            data={"form_action": "save_and_publish"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("name_az", response.context["form"].errors)
+        self.assertIn("phone1", response.context["form"].errors)
+        self.editor_place.refresh_from_db()
+        self.assertEqual(self.editor_place.status, Place.STATUS_DRAFT)
 
     def test_owner_manager_can_save_incomplete_place_as_draft(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")

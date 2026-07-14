@@ -8,6 +8,7 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.core.cache import cache
+from django.db.utils import OperationalError, ProgrammingError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -34,11 +35,14 @@ from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
 from .forms import OwnerEventForm, OwnerSpecialistForm
 from .legal_content import get_legal_page_content
-from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, UserProfile, Specialist
+from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, SiteSettings, UserProfile, Specialist
 from .models import FunnelEvent
 from .services.content_quality import approved_review_queryset
+from .services.pricing_plans import public_pricing_plans
 from .services.reactions import ensure_session_key
+from .services.owner_specialist_use_cases import save_owner_specialist_profile
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
+from .services.features import require_events_section_enabled, require_specialists_section_enabled
 
 home_controller = HomeController.build_default()
 place_controller = PlaceController.build_default()
@@ -63,6 +67,7 @@ def _resolve_safe_next_url(request, fallback_url: str) -> str:
     ):
         return target
     return fallback_url
+
 
 
 def _is_ajax_request(request) -> bool:
@@ -233,6 +238,7 @@ def place_new(request):
 
 
 def events_landing(request):
+    require_events_section_enabled()
     context = place_controller.build_events_landing_context(request)
     return render(request, "catalog/events_landing.html", context)
 
@@ -270,6 +276,10 @@ def place_detail(request, pk, slug):
 
     context = place_controller.build_detail_context(request, place=place)
     context.update(ownership_controller.build_place_claim_context(request=request, place=place))
+    context["public_pricing_plans"] = public_pricing_plans(place.pricing_plans, context.get("language"))
+    
+    from catalog.services.pricing_plans import build_pricing_summary
+    context["pricing_summary"] = build_pricing_summary(place, context.get("language"))
 
     return render(
         request,
@@ -320,7 +330,7 @@ def toggle_place_like(request, pk):
             "action": action,
         },
     )
-    return redirect(request.POST.get("next") or result.place.get_absolute_url())
+    return redirect(result.place.get_absolute_url())
 
 
 @require_POST
@@ -353,7 +363,7 @@ def add_place_review(request, pk):
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
-    return redirect(_resolve_safe_next_url(request, f"{place.get_absolute_url()}#reviews"))
+    return redirect(f"{place.get_absolute_url()}#reviews")
 
 
 @require_POST
@@ -382,7 +392,7 @@ def add_site_review(request):
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
-    return redirect(_resolve_safe_next_url(request, f"{reverse('site_reviews')}#site-reviews"))
+    return redirect(f"{reverse('site_reviews')}#site-reviews")
 
 
 def site_reviews(request):
@@ -395,12 +405,12 @@ def vote_place_review(request, review_id):
     value = (request.POST.get("value") or "").strip()
     if value not in {"1", "-1"}:
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
-        return redirect(_resolve_safe_next_url(request, reverse("home")))
+        return redirect(reverse("home"))
 
     review = approved_review_queryset(PlaceReview.objects.select_related("place")).filter(pk=review_id).first()
     if review is None:
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
-        return redirect(_resolve_safe_next_url(request, reverse("home")))
+        return redirect(reverse("home"))
     if not request.user.is_authenticated:
         return _engagement_login_required_response(request, f"{review.place.get_absolute_url()}#reviews")
 
@@ -418,7 +428,7 @@ def vote_place_review(request, review_id):
                 "dislikes_count": result.dislikes_count,
             }
         )
-    return redirect(_resolve_safe_next_url(request, f"{result.review.place.get_absolute_url()}#reviews"))
+    return redirect(f"{result.review.place.get_absolute_url()}#reviews")
 
 
 @require_POST
@@ -426,12 +436,12 @@ def vote_site_review(request, review_id):
     value = (request.POST.get("value") or "").strip()
     if value not in {"1", "-1"}:
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
-        return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
+        return redirect(reverse("site_reviews"))
 
     review = approved_review_queryset(SiteReview.objects.all()).filter(pk=review_id).first()
     if review is None:
         messages.error(request, _("Не удалось обработать реакцию на отзыв."))
-        return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
+        return redirect(reverse("site_reviews"))
     if not request.user.is_authenticated:
         return _engagement_login_required_response(request, reverse("site_reviews"))
 
@@ -449,7 +459,7 @@ def vote_site_review(request, review_id):
                 "dislikes_count": result.dislikes_count,
             }
         )
-    return redirect(_resolve_safe_next_url(request, reverse("site_reviews")))
+    return redirect(reverse("site_reviews"))
 
 
 @csrf_exempt
@@ -594,19 +604,32 @@ def owner_places_dashboard(request):
         messages.error(request, access.message)
         return redirect("account_profile")
 
-    owner_events = list(
-        Event.objects.filter(owner=request.user, deleted_at__isnull=True)
-        .select_related("related_place")
-        .order_by("-updated_at")
+    from .services.features import is_events_section_enabled
+
+    owner_events = []
+    if is_events_section_enabled():
+        owner_events = list(
+            Event.objects.filter(owner=request.user, deleted_at__isnull=True)
+            .select_related("related_place")
+            .order_by("-updated_at")
+        )
+    owner_specialists = list(
+        request.user.managed_specialists.prefetch_related("specializations").order_by("-updated_at")
     )
     context.update(
         {
             "owner_events": owner_events,
+            "owner_specialists": owner_specialists,
             "owner_event_stats": {
                 "total": len(owner_events),
                 "published": sum(1 for event in owner_events if event.status == Event.STATUS_PUBLISHED and not event.has_ended),
                 "drafts": sum(1 for event in owner_events if event.status in {Event.STATUS_DRAFT, Event.STATUS_PENDING, Event.STATUS_REJECTED}),
                 "ended": sum(1 for event in owner_events if event.effective_status == Event.STATUS_EXPIRED),
+            },
+            "owner_specialist_stats": {
+                "total": len(owner_specialists),
+                "published": sum(1 for item in owner_specialists if item.status == Specialist.STATUS_PUBLISHED and item.is_active),
+                "drafts": sum(1 for item in owner_specialists if item.status in {Specialist.STATUS_DRAFT, Specialist.STATUS_PENDING, Specialist.STATUS_REJECTED}),
             },
             "meta_description": _("Мои места KidsMap: редактирование, черновики, модерация и статистика."),
         }
@@ -773,6 +796,7 @@ def owner_place_create(request):
 
 
 def owner_event_create(request):
+    require_events_section_enabled()
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
@@ -809,12 +833,14 @@ def owner_event_create(request):
             "form": form,
             "owner_profile": profile,
             "event": None,
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Создание временного мероприятия KidsMap."),
         },
     )
 
 
 def owner_event_edit(request, pk):
+    require_events_section_enabled()
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
@@ -859,6 +885,7 @@ def owner_event_edit(request, pk):
             "form": form,
             "owner_profile": profile,
             "event": event,
+            "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Редактирование временного мероприятия KidsMap."),
         },
     )
@@ -866,6 +893,7 @@ def owner_event_edit(request, pk):
 
 @require_POST
 def owner_event_submit_review(request, pk):
+    require_events_section_enabled()
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
@@ -882,6 +910,7 @@ def owner_event_submit_review(request, pk):
 
 @require_POST
 def owner_event_delete(request, pk):
+    require_events_section_enabled()
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
@@ -894,8 +923,9 @@ def owner_event_delete(request, pk):
 
 
 def event_detail(request, pk, slug):
+    require_events_section_enabled()
     event = get_object_or_404(
-        Event.objects.select_related("related_place"),
+        Event.objects.select_related("related_place").prefetch_related("gallery"),
         pk=pk,
         status=Event.STATUS_PUBLISHED,
         deleted_at__isnull=True,
@@ -933,6 +963,7 @@ def owner_place_edit(request, pk):
             files=request.FILES,
             force_coordinate_refresh=form_action == "refresh_coordinates",
             draft_save_only=form_action in {"save_draft", "save_draft_exit"},
+            submit_for_moderation=form_action == "save_and_publish",
         )
         if result.ok:
             messages.success(request, result.message)
@@ -1491,10 +1522,11 @@ def account_login(request):
 def account_logout(request):
     auth_logout(request)
     messages.info(request, _("Вы вышли из аккаунта."))
-    return redirect(_resolve_safe_next_url(request, reverse("home")))
+    return redirect(reverse("home"))
 
 
 def serve_specialist_document(request, document_id):
+    require_specialists_section_enabled()
     from catalog.models import SpecialistDocument
     from django.http import FileResponse, Http404
 
@@ -1517,6 +1549,8 @@ def serve_specialist_document(request, document_id):
 
 
 def specialist_list(request):
+    require_specialists_section_enabled()
+
     from catalog.models import Specialist, SpecialistSpecialization, Region, District, MetroStation
     from catalog.services.public_filter_options import build_public_specialist_filter_options
     from django.db import models
@@ -1642,6 +1676,9 @@ def specialist_list(request):
             del params[exclude_param]
         return f"?{params.urlencode()}" if params else request.path
 
+    specialist_query_params = request.GET.copy()
+    specialist_query_params.pop("page", None)
+
     if q:
         active_filter_chips.append({
             "label": f"{_('Поиск')}: {q}",
@@ -1748,16 +1785,19 @@ def specialist_list(request):
         },
         "filter_options": filter_options,
         "active_filter_chips": active_filter_chips,
+        "specialist_query_without_page": specialist_query_params.urlencode(),
         "reset_filters_url": request.path,
         "results_count_label": results_count_label,
         "language": language,
-        "seo_title": _("Специалисты для детей — KidsMap"),
-        "meta_description": _("Каталог детских специалистов в Азербайджане: психологи, логопеды, дефектологи и др. Отзывы, цены, контакты."),
+        "seo_title": _("Педагоги и специалисты для детей — KidsMap"),
+        "meta_description": _("Найдите репетитора, педагога, психолога, логопеда, тренера или другого специалиста для ребёнка."),
     }
     return render(request, "catalog/specialist_list.html", context)
 
 
 def specialist_detail(request, slug):
+    require_specialists_section_enabled()
+
     from catalog.models import Specialist, SpecialistReview
 
     specialist = get_object_or_404(
@@ -1803,6 +1843,8 @@ def specialist_detail(request, slug):
 
 @require_POST
 def add_specialist_review(request, pk):
+    require_specialists_section_enabled()
+
     from catalog.models import Specialist, SpecialistReview
     from catalog.services.review_moderation import moderate_review_content
     from django.contrib import messages
@@ -1879,6 +1921,8 @@ def add_specialist_review(request, pk):
 
 
 def owner_specialist_create(request):
+    require_specialists_section_enabled()
+
     if not request.user.is_authenticated:
         return _redirect_to_login(request)
 
@@ -1886,18 +1930,11 @@ def owner_specialist_create(request):
         form_action = (request.POST.get("form_action") or "").strip()
         draft_save_only = form_action == "save_draft"
         form = OwnerSpecialistForm(request.POST, request.FILES, draft_save_only=draft_save_only)
-        if form.is_valid():
-            specialist = form.save(commit=False)
-            specialist.owner = request.user
-            specialist.status = Specialist.STATUS_DRAFT if draft_save_only else Specialist.STATUS_PENDING
-            specialist.save()
-            form.save_m2m()
-            form.save_location(specialist)
-            if draft_save_only:
-                messages.success(request, _("Черновик специалиста сохранён."))
-            else:
-                messages.success(request, _("Профиль специалиста отправлен на модерацию. После проверки он появится в каталоге."))
+        result = save_owner_specialist_profile(user=request.user, form=form, draft_save_only=draft_save_only)
+        if result.ok:
+            messages.success(request, result.message)
             return redirect("owner_places_dashboard")
+        form = result.form or form
     else:
         form = OwnerSpecialistForm()
 
@@ -1907,21 +1944,65 @@ def owner_specialist_create(request):
         "pages/owner_specialist_create.html",
         {
             "form": form,
+            "specialist": None,
             "specializations": specializations,
             "meta_description": _("Добавление специалиста в каталог KidsMap."),
         },
     )
 
 
+def owner_specialist_edit(request, pk):
+    require_specialists_section_enabled()
+
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    specialist = get_object_or_404(Specialist, pk=pk, owner=request.user)
+
+    if request.method == "POST":
+        form_action = (request.POST.get("form_action") or "").strip()
+        draft_save_only = form_action == "save_draft"
+        form = OwnerSpecialistForm(
+            request.POST,
+            request.FILES,
+            instance=specialist,
+            draft_save_only=draft_save_only,
+        )
+        result = save_owner_specialist_profile(user=request.user, form=form, draft_save_only=draft_save_only)
+        if result.ok:
+            messages.success(request, result.message)
+            return redirect("owner_places_dashboard")
+        form = result.form or form
+    else:
+        form = OwnerSpecialistForm(instance=specialist)
+
+    specializations = form.fields["specializations"].queryset.order_by("order", "name_ru")
+    return render(
+        request,
+        "pages/owner_specialist_create.html",
+        {
+            "form": form,
+            "specialist": specialist,
+            "specializations": specializations,
+            "meta_description": _("Редактирование профиля специалиста KidsMap."),
+        },
+    )
+
+
+from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
 
 @staff_member_required
 def admin_add_choice(request):
+    context = admin.site.each_context(request)
+    context.update(
+        {
+            "title": _("Добавить публикацию"),
+            "has_permission": True,
+        }
+    )
     return render(
         request,
         "admin/add_choice.html",
-        {
-            "title": "Добавить публикацию",
-            "has_permission": True,
-        },
+        context,
     )

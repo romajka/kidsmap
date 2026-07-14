@@ -1,0 +1,70 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static admin_list %}
+
+{% block content_title %}{% endblock %}
+{% block page_actions %}{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_moderation_changelist.css' %}">
+  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}" defer></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} km-custom-changelist km-moderation-changelist{% endblock %}
+
+{% block search %}
+  <div class="place-admin-dashboard km-moderation-workspace">
+    <section class="place-admin-dashboard__header km-moderation-workspace__header">
+      <div class="place-admin-dashboard__title-block">
+        <span class="km-moderation-workspace__eyebrow"><i class="fas fa-shield-alt" aria-hidden="true"></i> {% translate "Рабочая очередь модерации" %}</span>
+        <h1 class="place-admin-dashboard__title">{{ moderation_title }}</h1>
+        <p class="place-admin-dashboard__subtitle">{{ moderation_description }}</p>
+      </div>
+      <span class="km-moderation-workspace__count">{{ cl.result_count }} {% translate "в очереди" %}</span>
+    </section>
+    {% if cl.result_count %}
+      {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block result_list %}
+  <div class="place-admin-dashboard km-moderation-workspace">
+    {% if cl.result_count %}
+      <section class="place-admin-dashboard__bulk-bar km-place-bulk-bar"
+        data-empty-label="{% translate 'Выберите объекты для принятия решения.' %}"
+        data-selected-label="{% translate 'Выбрано: {count}. Выберите действие модерации.' %}">
+        <div class="place-admin-dashboard__bulk-summary" aria-live="polite">
+          <div class="place-admin-dashboard__selection-state">
+            <span class="place-admin-dashboard__selection-icon" aria-hidden="true"><i class="far fa-check-square"></i></span>
+            <span class="place-admin-dashboard__bulk-count-label">{% translate "Выбрано" %}</span>
+            <strong class="place-admin-dashboard__bulk-count">0</strong>
+          </div>
+          <span class="place-admin-dashboard__bulk-text">{% translate "Выберите объекты для принятия решения." %}</span>
+        </div>
+        <div class="place-admin-dashboard__bulk-controls">
+          <div class="place-admin-dashboard__bulk-selection">
+            <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="page">{% translate "Все на странице" %}</button>
+            <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="clear">{% translate "Снять выбор" %}</button>
+          </div>
+          <div class="place-admin-dashboard__bulk-actions" role="group" aria-label="{% translate 'Решения модератора' %}">
+            {% for action in moderation_actions %}
+              <button type="button" class="place-admin-dashboard__bulk-action place-admin-dashboard__bulk-action--{% if action.name == 'mark_published' or action.name == 'approve_selected' %}good{% elif action.name == 'mark_rejected' or action.name == 'reject_selected' %}danger{% else %}warn{% endif %}" data-action="{{ action.name }}" disabled>{{ action.label }}</button>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+      {% if action_form and actions_on_top and cl.show_admin_actions %}
+        <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
+      {% endif %}
+      <div class="place-admin-dashboard__table-wrap">{% result_list cl %}</div>
+    {% else %}
+      <section class="km-moderation-empty" aria-label="{{ moderation_empty_title }}">
+        <span class="km-moderation-empty__icon"><i class="fas fa-check-circle" aria-hidden="true"></i></span>
+        <h2>{{ moderation_empty_title }}</h2>
+        <p>{{ moderation_empty_description }}</p>
+      </section>
+    {% endif %}
+  </div>
+{% endblock %}

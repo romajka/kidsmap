@@ -7,6 +7,8 @@ from django.conf import settings
 from django.utils.cache import patch_cache_control
 from django.views.static import serve as serve_static_file
 
+from catalog.services.public_urls import filtered_query_string_for_path
+
 
 def robots_txt(request):
     sitemap_url = request.build_absolute_uri(reverse("django.contrib.sitemaps.views.sitemap"))
@@ -62,7 +64,7 @@ def healthz(request):
 
 def redirect_legacy_default_language_prefix(request, path=""):
     target_path = f"/{path}" if path else "/"
-    query_string = request.META.get("QUERY_STRING", "")
+    query_string = filtered_query_string_for_path(target_path, request.GET)
     if query_string:
         target_path = f"{target_path}?{query_string}"
     return HttpResponsePermanentRedirect(target_path)

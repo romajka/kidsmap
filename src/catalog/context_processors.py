@@ -6,6 +6,8 @@ from django.utils.translation import gettext as _
 from .models import SiteSettings, UserProfile
 from .services.seo import DEFAULT_ROBOTS_CONTENT, build_sitewide_schema_payload
 from .services.tracking import pop_queued_google_analytics_events
+from .services.features import is_events_section_enabled, is_specialists_section_enabled
+from .services.public_urls import filtered_query_string
 
 DEFAULT_FOOTER_PHONE = "+994 50 540 66 39"
 DEFAULT_FOOTER_EMAIL = "kidsmap.az@gmail.com"
@@ -152,6 +154,7 @@ def seo_urls(request):
         "robots_content": robots_content,
         "og_locale": og_locale,
         "og_locale_alternates": og_locale_alternates,
+        "language_switch_query": filtered_query_string(request),
     }
 
 
@@ -209,6 +212,8 @@ def site_settings(request):
             "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
             "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
             "queued_analytics_events": queued_analytics_events,
+            "is_specialists_section_enabled": is_specialists_section_enabled(),
+            "is_events_section_enabled": is_events_section_enabled(),
             **schema_payload,
             **user_role_data,
         }
@@ -257,6 +262,8 @@ def site_settings(request):
         "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
         "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
         "queued_analytics_events": queued_analytics_events,
+        "is_specialists_section_enabled": is_specialists_section_enabled(),
+        "is_events_section_enabled": is_events_section_enabled(),
         **schema_payload,
         **user_role_data,
     }

@@ -42,6 +42,7 @@ from catalog.services.content_quality import (
     public_place_queryset,
     public_review_queryset,
 )
+from catalog.services.features import is_events_section_enabled
 
 User = get_user_model()
 
@@ -60,6 +61,8 @@ class DjangoPlaceRepository(IPlaceRepository):
         return self.active_queryset().exclude(lat__isnull=True).exclude(lng__isnull=True)
 
     def upcoming_temporary(self, limit: int = 8) -> QuerySet:
+        if not is_events_section_enabled():
+            return self.active_queryset().none()
         now = timezone.now()
         return (
             self.active_queryset()

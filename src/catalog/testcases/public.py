@@ -76,6 +76,12 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response["Location"], "/catalog/?category=EDU")
 
+    def test_legacy_redirect_keeps_catalog_filter_but_drops_foreign_query(self):
+        response = self.client.get("/az/catalog/?category=EDU&next=/place/33-slug/")
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], "/catalog/?category=EDU")
+
     def test_catalog_page_opens_with_i18n_redirect(self):
         response = self.client.get("/catalog/")
 
@@ -1209,7 +1215,7 @@ class TestPublicFilterCounts(TestCase):
         self.assertEqual(edu_option["color_text"], "#4F46E5")
 
 class TestCatalogEnhancements(TestCase):
-    def test_place_detail_uses_safe_next_url_for_back_link(self):
+    def test_place_detail_drops_foreign_next_query_parameter(self):
         place = create_quality_place(
             name="Context Place",
             name_ru="Карточка с контекстом",
@@ -1218,8 +1224,23 @@ class TestCatalogEnhancements(TestCase):
         next_url = "/ru/catalog/?district=%D0%AF%D1%81%D0%B0%D0%BC%D0%B0%D0%BB"
         response = self.client.get(f"{place.get_absolute_url()}?next={next_url}")
 
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], place.get_absolute_url())
+
+    def test_catalog_keeps_its_own_filter_query_and_detail_links_are_clean(self):
+        place = create_quality_place(name="Clean catalog link", name_ru="Чистая ссылка")
+
+        response = self.client.get(f"{reverse('place_list')}?q=%D0%A7%D0%B8%D1%81%D1%82%D0%B0%D1%8F")
+
         self.assertEqual(response.status_code, 200)
-        self.assertIn('href="/ru/catalog/?district=Ясамал"', response.content.decode("utf-8"))
+        self.assertContains(response, f'href="{place.get_absolute_url()}"', html=False)
+        self.assertNotContains(response, f'{place.get_absolute_url()}?next=', html=False)
+
+    def test_language_switch_preserves_catalog_filters_only(self):
+        response = self.client.get(f"{reverse('place_list')}?category=EDU&next=/catalog/")
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], f"{reverse('place_list')}?category=EDU")
 
     def test_catalog_can_sort_places_by_review_count(self):
         low_reviews = create_quality_place(

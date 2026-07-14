@@ -1,4 +1,5 @@
 from catalog.models.place import Place, Event
+from catalog.models.specialist import Specialist
 from catalog.models.review import PlaceReview
 from catalog.models.owner import PlaceOwnershipRequest
 
@@ -22,6 +23,14 @@ class ModerationReview(PlaceReview):
         app_label = 'catalog_moderation'
         verbose_name = 'Отзывы на проверке'
         verbose_name_plural = 'Отзывы на проверке'
+
+
+class ModerationSpecialist(Specialist):
+    class Meta:
+        proxy = True
+        app_label = 'catalog_moderation'
+        verbose_name = 'Специалист на проверке'
+        verbose_name_plural = 'Специалисты на проверке'
 
 class ModerationPlaceOwnershipRequest(PlaceOwnershipRequest):
     class Meta:

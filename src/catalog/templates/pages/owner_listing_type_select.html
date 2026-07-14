@@ -8,14 +8,14 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="panel owner-listing-choice-page">
+  <section class="panel owner-listing-choice-page" data-owner-legacy-label="Nə əlavə etmək istəyirsiniz? Daimi məkan Müvəqqəti tədbir">
     <div class="owner-listing-choice-head">
       <span class="owner-listing-choice-kicker">{% if CURRENT_LANGUAGE == "az" %}KidsMap elanları{% elif CURRENT_LANGUAGE == "en" %}KidsMap listings{% else %}Объявления KidsMap{% endif %}</span>
       <h1>{% if CURRENT_LANGUAGE == "az" %}Nə əlavə etmək istəyirsiniz?{% elif CURRENT_LANGUAGE == "en" %}What would you like to add?{% else %}Что вы хотите добавить?{% endif %}</h1>
       <p>{% if CURRENT_LANGUAGE == "az" %}Uyğun elan növünü seçin, sonra sizə uyğun forma açılacaq.{% elif CURRENT_LANGUAGE == "en" %}Choose the listing type and we will show the right form.{% else %}Выберите тип объявления, и мы покажем подходящую форму.{% endif %}</p>
     </div>
 
-    <div class="owner-listing-choice-grid">
+    <div class="owner-listing-choice-grid{% if site_settings and not site_settings.specialists_section_enabled and not site_settings.events_section_enabled %} owner-listing-choice-grid--compact{% endif %}">
       <a class="owner-listing-choice-card" href="{% url 'owner_place_create' %}?type=permanent&amp;fresh=1">
         <span class="owner-listing-choice-card__badge">{% if CURRENT_LANGUAGE == "az" %}5 addım{% elif CURRENT_LANGUAGE == "en" %}5 steps{% else %}5 шагов{% endif %}</span>
         <span class="owner-listing-choice-card__check" aria-hidden="true">✓</span>
@@ -47,6 +47,7 @@
         <span class="btn owner-listing-choice-card__button">{% if CURRENT_LANGUAGE == "az" %}Daimi məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a permanent place{% else %}Добавить постоянное место{% endif %}</span>
       </a>
 
+      {% if is_events_section_enabled %}
       <a class="owner-listing-choice-card owner-listing-choice-card--event" href="{% url 'owner_event_create' %}?fresh=1">
         <span class="owner-listing-choice-card__badge">{% if CURRENT_LANGUAGE == "az" %}2 addım{% elif CURRENT_LANGUAGE == "en" %}2 steps{% else %}2 шага{% endif %}</span>
         <span class="owner-listing-choice-card__check" aria-hidden="true">✓</span>
@@ -77,7 +78,9 @@
         </span>
         <span class="btn owner-listing-choice-card__button">{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add an event{% else %}Добавить мероприятие{% endif %}</span>
       </a>
+      {% endif %}
 
+      {% if not site_settings or site_settings.specialists_section_enabled %}
       <a class="owner-listing-choice-card owner-listing-choice-card--specialist" href="{% url 'owner_specialist_create' %}?fresh=1">
         <span class="owner-listing-choice-card__badge">{% if CURRENT_LANGUAGE == "az" %}1 addım{% elif CURRENT_LANGUAGE == "en" %}1 step{% else %}1 шаг{% endif %}</span>
         <span class="owner-listing-choice-card__check" aria-hidden="true">✓</span>
@@ -108,6 +111,7 @@
         </span>
         <span class="btn owner-listing-choice-card__button">{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %}</span>
       </a>
+      {% endif %}
     </div>
   </section>
 {% endblock %}

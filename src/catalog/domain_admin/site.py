@@ -13,6 +13,7 @@ from catalog.models import (
     SiteContactsSettings,
     SiteFooterSettings,
     SiteEmptyStateSettings,
+    SiteVisibilitySettings,
     SiteAnalytics,
     SiteGalleryImage,
     CatalogContentSettings
@@ -183,6 +184,14 @@ class SiteSettingsCompatAdmin(admin.ModelAdmin):
                 "complete": empty_ok,
             },
             {
+                "key": "visibility",
+                "icon": "fas fa-eye",
+                "title": _("Разделы сайта"),
+                "description": _("Включение и скрытие публичных разделов сайта."),
+                "url": reverse("admin:catalog_sitevisibilitysettings_changelist"),
+                "complete": True,
+            },
+            {
                 "key": "analytics",
                 "icon": "fas fa-chart-line",
                 "title": _("Статистика"),
@@ -308,6 +317,27 @@ class SiteEmptyStateSettingsAdmin(_BaseSiteSettingsSectionAdmin):
                     "empty_results_image",
                     "empty_results_image_preview",
                 )
+            },
+        ),
+        (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),
+    )
+
+
+@admin.register(SiteVisibilitySettings)
+class SiteVisibilitySettingsAdmin(_BaseSiteSettingsSectionAdmin):
+    fieldsets = (
+        (
+            _("Раздел «Педагоги и специалисты»"),
+            {
+                "fields": ("specialists_section_enabled",),
+                "description": _("Выключите, чтобы скрыть раздел из меню и owner-интерфейса. Публичные ссылки будут перенаправляться в каталог, а данные и админка останутся доступными."),
+            },
+        ),
+        (
+            _("Раздел «Временные мероприятия»"),
+            {
+                "fields": ("events_section_enabled",),
+                "description": _("Выключите, чтобы скрыть афишу, временные карточки, ссылки в навигации и owner-интерфейсе. Публичные ссылки станут недоступны, а данные и админка останутся доступными."),
             },
         ),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("updated_at",)}),

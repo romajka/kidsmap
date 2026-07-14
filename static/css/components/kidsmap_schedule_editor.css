@@ -347,6 +347,15 @@
   padding: 0 14px 12px;
 }
 
+.km-schedule-editor__row {
+  scroll-margin-top: 96px;
+}
+
+.km-schedule-editor__row.has-errors {
+  border-color: #dc3545;
+  background: #fff8f8;
+}
+
 .km-schedule-editor__preview {
   margin-top: 12px;
   border: 1px solid var(--km-schedule-border);

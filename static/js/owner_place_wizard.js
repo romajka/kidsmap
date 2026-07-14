@@ -535,6 +535,7 @@
     const requiredFilled = requiredFields.filled + requiredGroups.filled;
     const requiredPercent = requiredTotal ? Math.round((requiredFilled / requiredTotal) * 100) : 0;
     const requiredMissing = requiredFields.missing.concat(requiredGroups.missing);
+    updatePublishAction(requiredMissing);
 
     const overallTotal = requiredTotal + optionalFields.total + optionalGroups.total;
     const overallFilled = requiredFilled + optionalFields.filled + optionalGroups.filled;
@@ -585,6 +586,36 @@
       var pct = kind === 'required' ? requiredPercent : overallPercent;
       ring.setAttribute('stroke-dasharray', (CIRC * pct / 100).toFixed(1) + ' ' + CIRC);
     });
+  }
+
+  function updatePublishAction(missingFields) {
+    const button = form.querySelector("[data-owner-publish-button]");
+    const hint = form.querySelector("[data-owner-publish-hint]");
+    if (!button) return;
+
+    const names = (missingFields || []).filter(Boolean);
+    const values = {
+      az: {
+        ready: "Məlumatlar hazırdır. Saxlanıldıqdan sonra moderasiyaya göndəriləcək.",
+        missing: "Doldurun: ",
+      },
+      en: {
+        ready: "Details are ready. The listing will be sent for moderation after saving.",
+        missing: "Complete: ",
+      },
+      ru: {
+        ready: "Данные готовы. После сохранения карточка будет отправлена на модерацию.",
+        missing: "Не заполнено: ",
+      },
+    };
+    const lang = (document.documentElement.lang || "ru").split("-")[0];
+    const text = values[lang] || values.ru;
+    const valid = names.length === 0 && form.checkValidity();
+
+    button.disabled = !valid;
+    button.setAttribute("aria-disabled", valid ? "false" : "true");
+    button.classList.toggle("is-disabled", !valid);
+    if (hint) hint.textContent = valid ? text.ready : text.missing + names.join(", ");
   }
 
   function updateTodoList() {
@@ -1067,7 +1098,7 @@
     return field.validationMessage || "Некорректное значение";
   }
 
-  function showFieldError(field) {
+  function showFieldError(field, message) {
     const wrapper = field.closest(".owner-form-field, .owner-form-toggle-field, .owner-form-file-field") || field.parentElement;
     if (!wrapper) return;
     
@@ -1081,7 +1112,7 @@
           errorMsg.className = "auth-field-error client-side-error";
           customPicker.appendChild(errorMsg);
         }
-        errorMsg.textContent = getCustomValidationMessage(field);
+        errorMsg.textContent = message || getCustomValidationMessage(field);
         errorMsg.style.display = "block";
         return;
       }
@@ -1096,7 +1127,7 @@
       errorMsg.className = "auth-field-error client-side-error";
       wrapper.appendChild(errorMsg);
     }
-    errorMsg.textContent = getCustomValidationMessage(field);
+    errorMsg.textContent = message || getCustomValidationMessage(field);
     errorMsg.style.display = "block";
   }
 
@@ -1116,7 +1147,9 @@
       }
     }
 
-    wrapper.classList.remove("has-client-error");
+    wrapper.classList.remove("has-client-error", "is-required-attention");
+    field.removeAttribute("aria-invalid");
+    form.querySelectorAll("[data-owner-required-alert]").forEach(function (alert) { alert.remove(); });
     const errorMsg = wrapper.querySelector(".client-side-error");
     if (errorMsg) {
       errorMsg.style.display = "none";
@@ -1150,18 +1183,103 @@
     editor.classList.add("has-client-error");
   }
 
+  function missingStepItem(step) {
+    if (!step) return null;
+
+    const requiredNames = parseList(step.dataset.ownerStepRequiredFields);
+    for (let index = 0; index < requiredNames.length; index += 1) {
+      const name = requiredNames[index];
+      if (!isFieldFilledByName(name)) {
+        return { name: name, label: getFieldLabel(name), field: getField(name) };
+      }
+    }
+
+    const requiredGroups = parseGroups(step.dataset.ownerStepRequiredGroups);
+    for (let index = 0; index < requiredGroups.length; index += 1) {
+      const group = requiredGroups[index];
+      if (!group.some(function (name) { return isFieldFilledByName(name); })) {
+        const key = group.join("|");
+        return {
+          name: key,
+          label: key === "district|metro"
+            ? (form.dataset.ownerLocationGroupLabel || "Район или метро")
+            : group.map(getFieldLabel).join(" / "),
+          field: group.map(getField).find(Boolean) || null,
+        };
+      }
+    }
+    return null;
+  }
+
+  function revealLanguagePanelForField(field) {
+    if (!field || !field.name) return;
+    const match = field.name.match(/_(az|ru|en)$/);
+    if (!match) return;
+    const tabsRoot = field.closest("[data-owner-lang-tabs]");
+    if (tabsRoot) activateLanguagePanel(tabsRoot, match[1]);
+  }
+
+  function showRequiredAlert(step, label) {
+    if (!step || !label) return;
+    form.querySelectorAll("[data-owner-required-alert]").forEach(function (alert) { alert.remove(); });
+    const alert = document.createElement("div");
+    alert.className = "owner-required-alert";
+    alert.setAttribute("data-owner-required-alert", "");
+    alert.setAttribute("role", "alert");
+    alert.setAttribute("tabindex", "-1");
+    alert.textContent = buildTip(form.dataset.ownerRequiredTipPrefix || "", "", [label], "");
+    step.insertBefore(alert, step.firstChild);
+  }
+
+  function focusRequiredItem(item, explicitStep) {
+    if (!item) return;
+    const field = item.field;
+    const step = explicitStep || (field && field.closest("[data-owner-step]"));
+    if (!step) return;
+
+    const stepNumber = Number(step.dataset.ownerStep || "1");
+    updateWizard(stepNumber);
+    revealLanguagePanelForField(field);
+    openContainingDetails(field);
+    showRequiredAlert(step, item.label);
+
+    const message = buildTip(form.dataset.ownerRequiredTipPrefix || "", "", [item.label], "");
+    if (item.name === "structured_schedule") {
+      setScheduleClientError(true);
+    } else if (field) {
+      showFieldError(field, message);
+      field.setAttribute("aria-invalid", "true");
+    }
+
+    const target = item.name === "structured_schedule"
+      ? step.querySelector("[data-km-schedule-editor]")
+      : (field && (field.closest(".owner-form-field, .owner-form-toggle-field, .owner-form-file-field") || field));
+    if (!target) return;
+    target.classList.add("is-required-attention");
+    window.setTimeout(function () {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (field && typeof field.focus === "function") {
+        field.focus({ preventScroll: true });
+      }
+    }, 40);
+  }
+
   function focusFirstProblem(step) {
     const invalidField = Array.from(step.querySelectorAll("input, select, textarea")).find(function (field) {
       return typeof field.checkValidity === "function" && !field.checkValidity();
     });
+    const missing = missingStepItem(step);
+    if (missing) {
+      focusRequiredItem(missing, step);
+      return;
+    }
     const errorField = invalidField || step.querySelector(".auth-field-error, .auth-errors");
     const target = invalidField || (errorField && errorField.closest(".owner-form-field, .owner-form-toggle-field, .owner-form-file-field"));
     if (!target) return;
     openContainingDetails(target);
+    target.classList.add("is-required-attention");
     target.scrollIntoView({ behavior: "smooth", block: "center" });
-    if (invalidField && typeof invalidField.focus === "function") {
-      invalidField.focus({ preventScroll: true });
-    }
+    if (invalidField && typeof invalidField.focus === "function") invalidField.focus({ preventScroll: true });
   }
 
   function validateCurrentStep() {
@@ -1251,6 +1369,9 @@
     const summaryLabel = uploader.dataset.uploadSummary || "";
     const pendingMessage = uploader.dataset.uploadPending || "";
     const cropNote = uploader.dataset.uploadCropNote || "";
+    const removeLabel = uploader.dataset.uploadRemoveLabel || "Remove";
+    const makeMainLabel = uploader.dataset.uploadMakeMainLabel || "Make main";
+    const mainLabel = uploader.dataset.uploadMainLabel || "Main photo";
     const files = getSelectedFiles(input);
     const isSingleUploader = uploader.dataset.uploadMode === "single";
     const maxFiles = Number(uploader.dataset.uploadMaxFiles || (isSingleUploader ? 1 : 10));
@@ -1323,11 +1444,11 @@
         '<div class="owner-file-uploader-preview-card" data-filename="' + escapeHtml(file.name) + '">' +
           previewHtml +
           '<div class="owner-file-uploader-preview-copy">' +
+            '<span class="owner-file-uploader-preview-badge">' + escapeHtml(mainLabel) + '</span>' +
             '<strong class="owner-file-uploader-preview-name">' + escapeHtml(file.name) + '</strong>' +
             '<span class="owner-file-uploader-preview-meta">' + escapeHtml(formatFileSize(file.size)) + '</span>' +
-            (cropNote ? '<span class="owner-file-uploader-preview-note">' + escapeHtml(cropNote) + '</span>' : '') +
           '</div>' +
-          '<button type="button" class="owner-file-uploader-preview-remove" data-remove-file aria-label="Remove file">&times;</button>' +
+          '<button type="button" class="owner-file-uploader-preview-remove" data-remove-file aria-label="' + escapeHtml(removeLabel) + '">' + escapeHtml(removeLabel) + '</button>' +
         '</div>';
       return;
     }
@@ -1339,8 +1460,9 @@
         list._previewUrls.push(url);
         previewHtml = '<a href="' + url + '" target="_blank" title="' + escapeHtml(file.name) + '" style="display:block; overflow:hidden; border-radius:6px;"><img src="' + url + '" alt="" class="owner-file-uploader-mini-preview" /></a>';
       }
-      const removeBtn = '<button type="button" class="owner-file-uploader-item-remove" data-remove-file aria-label="Remove file">&times;</button>';
-      return '<span class="owner-file-uploader-item" data-filename="' + escapeHtml(file.name) + '">' + previewHtml + '<span class="owner-file-uploader-item-name">' + escapeHtml(file.name) + ' <em>' + escapeHtml(formatFileSize(file.size)) + '</em></span>' + removeBtn + '</span>';
+      const makeMainBtn = '<button type="button" class="owner-file-uploader-item-main" data-make-main-file>' + escapeHtml(makeMainLabel) + '</button>';
+      const removeBtn = '<button type="button" class="owner-file-uploader-item-remove" data-remove-file aria-label="' + escapeHtml(removeLabel) + '">' + escapeHtml(removeLabel) + '</button>';
+      return '<article class="owner-file-uploader-item" data-filename="' + escapeHtml(file.name) + '">' + previewHtml + '<span class="owner-file-uploader-item-name">' + escapeHtml(file.name) + '</span><span class="owner-file-uploader-item-meta">' + escapeHtml(formatFileSize(file.size)) + '</span><div class="owner-file-uploader-item-actions">' + makeMainBtn + removeBtn + '</div></article>';
     }).join("");
   }
 
@@ -1616,6 +1738,7 @@
     const listingType = event.target.closest("[data-owner-listing-type]");
     const gotoNext = event.target.closest("[data-owner-goto-next]");
     const removeFileBtn = event.target.closest("[data-remove-file]");
+    const makeMainFileBtn = event.target.closest("[data-make-main-file]");
     const uploadTrigger = event.target.closest("[data-upload-trigger]");
     const findOnMapBtn = event.target.closest("[data-action-find-on-map]");
 
@@ -1678,28 +1801,64 @@
       return;
     }
 
+    if (makeMainFileBtn) {
+      event.preventDefault();
+      const item = makeMainFileBtn.closest(".owner-file-uploader-item");
+      const galleryUploader = makeMainFileBtn.closest("[data-file-uploader]");
+      const galleryInput = galleryUploader ? galleryUploader.querySelector("[data-upload-input]") : null;
+      const mainInput = getField("photo");
+      const mainUploader = mainInput ? mainInput.closest("[data-file-uploader]") : null;
+      if (!item || !galleryInput || !mainInput || !mainUploader) return;
+
+      const currentFiles = galleryInput._accumulatedFiles ? galleryInput._accumulatedFiles.files : galleryInput.files;
+      const file = Array.from(currentFiles).find(function (candidate) {
+        return candidate.name === item.dataset.filename;
+      });
+      if (!file) return;
+
+      filterUploaderFiles(mainUploader, [file], []);
+      renderUploaderState(mainUploader);
+      updateCompletion();
+      updateFinalSummary();
+      updateWizard(currentStep);
+      scheduleDraftSave();
+      return;
+    }
+
     if (gotoNext) {
       event.preventDefault();
       const requiredNames = parseList(form.dataset.ownerRequiredFields);
+      let focused = false;
       for (let i = 0; i < requiredNames.length; i++) {
         if (!isFieldFilledByName(requiredNames[i])) {
           const field = getField(requiredNames[i]);
-          if (field) {
-            const step = field.closest("[data-owner-step]");
-            if (step) {
-              const target = Number(step.dataset.ownerStep || "1");
-              if (target <= maxReachableStep()) {
-                updateWizard(target);
-              }
-            }
-            openContainingDetails(field);
-            const targetEl = field.closest('.owner-form-field') || field;
-            targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
-            if (typeof field.focus === "function") {
-               field.focus({ preventScroll: true });
-            }
+          const step = field && field.closest("[data-owner-step]");
+          if (field && step) {
+            focusRequiredItem({ name: requiredNames[i], label: getFieldLabel(requiredNames[i]), field: field }, step);
+            focused = true;
             break;
           }
+        }
+      }
+      if (!focused) {
+        const requiredGroups = parseGroups(form.dataset.ownerRequiredGroups);
+        for (let i = 0; i < requiredGroups.length; i++) {
+          const group = requiredGroups[i];
+          if (group.some(function (name) { return isFieldFilledByName(name); })) continue;
+          const field = group.map(getField).find(Boolean);
+          const step = field && field.closest("[data-owner-step]");
+          if (field && step) {
+            const key = group.join("|");
+            focusRequiredItem({
+              name: key,
+              label: key === "district|metro"
+                ? (form.dataset.ownerLocationGroupLabel || "Район или метро")
+                : group.map(getFieldLabel).join(" / "),
+              field: field,
+            }, step);
+            focused = true;
+          }
+          break;
         }
       }
       return;
@@ -1816,6 +1975,9 @@
     if (scheduleField) {
       markStepTouched(scheduleField);
       setScheduleClientError(!isStructuredScheduleFilled(scheduleField));
+      if (isStructuredScheduleFilled(scheduleField)) {
+        form.querySelectorAll("[data-owner-required-alert]").forEach(function (alert) { alert.remove(); });
+      }
     }
     updateCompletion();
     updateFinalSummary();
@@ -2035,5 +2197,11 @@
   syncLanguagePanels();
   updateCompletion();
   updateFinalSummary();
-  updateWizard(restoredStep || firstErrorStep());
+  const initialStep = restoredStep || firstErrorStep();
+  updateWizard(initialStep);
+  if (hasServerErrors) {
+    window.setTimeout(function () {
+      focusFirstProblem(steps[initialStep - 1]);
+    }, 40);
+  }
 })();

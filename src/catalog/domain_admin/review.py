@@ -239,13 +239,31 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         return _localized_admin_url(reverse("admin:catalog_place_change", args=[obj.place_id], current_app=self.admin_site.name))
 
     def _review_change_url(self, obj) -> str:
-        return _localized_admin_url(reverse("admin:catalog_placereview_change", args=[obj.pk], current_app=self.admin_site.name))
+        return _localized_admin_url(
+            reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_change",
+                args=[obj.pk],
+                current_app=self.admin_site.name,
+            )
+        )
 
     def _review_delete_url(self, obj) -> str:
-        return _localized_admin_url(reverse("admin:catalog_placereview_delete", args=[obj.pk], current_app=self.admin_site.name))
+        return _localized_admin_url(
+            reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_delete",
+                args=[obj.pk],
+                current_app=self.admin_site.name,
+            )
+        )
 
     def _review_action_url(self, obj, action: str) -> str:
-        return _localized_admin_url(reverse(f"admin:catalog_placereview_{action}", args=[obj.pk], current_app=self.admin_site.name))
+        return _localized_admin_url(
+            reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_{action}",
+                args=[obj.pk],
+                current_app=self.admin_site.name,
+            )
+        )
 
     def _review_preview_text(self, obj) -> str:
         text = (obj.text or "").strip()
@@ -467,12 +485,19 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         )
 
     def get_urls(self):
+        url_prefix = f"{self.opts.app_label}_{self.opts.model_name}"
         custom_urls = [
-            path("<path:object_id>/approve/", self.admin_site.admin_view(self.approve_view), name="catalog_placereview_approve"),
-            path("<path:object_id>/hide/", self.admin_site.admin_view(self.hide_view), name="catalog_placereview_hide"),
-            path("<path:object_id>/reject/", self.admin_site.admin_view(self.reject_view), name="catalog_placereview_reject"),
+            path("<path:object_id>/approve/", self.admin_site.admin_view(self.approve_view), name=f"{url_prefix}_approve"),
+            path("<path:object_id>/hide/", self.admin_site.admin_view(self.hide_view), name=f"{url_prefix}_hide"),
+            path("<path:object_id>/reject/", self.admin_site.admin_view(self.reject_view), name=f"{url_prefix}_reject"),
         ]
         return custom_urls + super().get_urls()
+
+    def _review_changelist_url(self) -> str:
+        return reverse(
+            f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
+            current_app=self.admin_site.name,
+        )
 
     def changelist_view(self, request, extra_context=None):
         extra_context = {
@@ -506,11 +531,11 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         if not self.has_change_permission(request, obj):
             raise PermissionDenied
         if obj is None:
-            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+            return HttpResponseRedirect(self._review_changelist_url())
         if request.method == "POST":
             self._toggle_review_visibility(obj=obj, is_approved=True)
             self._message_for_single_review_action(request=request, obj=obj, action_key="approve")
-            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+            return HttpResponseRedirect(self._review_changelist_url())
         return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
             **self.admin_site.each_context(request),
             "title": _("Опубликовать отзыв"),
@@ -527,11 +552,11 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         if not self.has_change_permission(request, obj):
             raise PermissionDenied
         if obj is None:
-            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+            return HttpResponseRedirect(self._review_changelist_url())
         if request.method == "POST":
             self._toggle_review_visibility(obj=obj, is_approved=False)
             self._message_for_single_review_action(request=request, obj=obj, action_key="hide")
-            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+            return HttpResponseRedirect(self._review_changelist_url())
         return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
             **self.admin_site.each_context(request),
             "title": _("Скрыть отзыв"),
@@ -548,11 +573,11 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         if not self.has_change_permission(request, obj):
             raise PermissionDenied
         if obj is None:
-            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+            return HttpResponseRedirect(self._review_changelist_url())
         if request.method == "POST":
             self._toggle_review_visibility(obj=obj, is_approved=False, rejected=True)
             self._message_for_single_review_action(request=request, obj=obj, action_key="reject")
-            return HttpResponseRedirect(reverse("admin:catalog_placereview_changelist", current_app=self.admin_site.name))
+            return HttpResponseRedirect(self._review_changelist_url())
         return TemplateResponse(request, "admin/catalog/placereview/moderation_confirm.html", {
             **self.admin_site.each_context(request),
             "title": _("Отклонить отзыв"),

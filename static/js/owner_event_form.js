@@ -5,6 +5,10 @@
   const relatedSelect = form.querySelector("[data-event-related-place]");
   const addressInput = form.querySelector('[name="address"]');
   const phoneInput = form.querySelector('[name="phone"]');
+  const latInput = form.querySelector('[name="lat"]');
+  const lngInput = form.querySelector('[name="lng"]');
+  const districtInput = form.querySelector('[name="district"]');
+  const metroInput = form.querySelector('[name="metro"]');
   const descriptionInput = form.querySelector('[name="description_az"]');
   const counter = document.getElementById("event-description-counter");
   const eventDateInput = form.querySelector('[name="event_date"]');
@@ -13,6 +17,31 @@
   const endTimeInput = form.querySelector('[name="end_time_input"]');
   const pastDateMessage = form.dataset.pastDateMessage || "";
   const endBeforeStartMessage = form.dataset.endBeforeStartMessage || "";
+  const durationSummary = form.querySelector("[data-owner-event-datetime-summary]");
+
+  function formatDuration(milliseconds) {
+    const minutes = Math.round(milliseconds / 60000);
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    const parts = [];
+    if (hours) parts.push(hours + " ч.");
+    if (remainingMinutes) parts.push(remainingMinutes + " мин.");
+    return parts.join(" ");
+  }
+
+  function updateDurationSummary() {
+    if (!durationSummary) return;
+    const start = parseDateTime(eventDateInput && eventDateInput.value, startTimeInput && startTimeInput.value);
+    const end = parseDateTime((endDateInput && endDateInput.value) || (eventDateInput && eventDateInput.value), endTimeInput && endTimeInput.value);
+    if (!start || !end) {
+      durationSummary.textContent = durationSummary.dataset.emptyLabel || "";
+      durationSummary.classList.remove("is-error");
+      return;
+    }
+    const duration = end.getTime() - start.getTime();
+    durationSummary.textContent = duration > 0 ? (durationSummary.dataset.durationLabel || "") + ": " + formatDuration(duration) : (durationSummary.dataset.invalidLabel || "");
+    durationSummary.classList.toggle("is-error", duration <= 0);
+  }
 
   function syncRelatedPlaceDetails() {
     if (!relatedSelect) return;
@@ -20,6 +49,10 @@
     if (!option) return;
     const address = option.getAttribute("data-address") || "";
     const phone = option.getAttribute("data-phone") || "";
+    const lat = option.getAttribute("data-lat") || "";
+    const lng = option.getAttribute("data-lng") || "";
+    const district = option.getAttribute("data-district") || "";
+    const metro = option.getAttribute("data-metro") || "";
     if (addressInput && !addressInput.value.trim() && address) {
       addressInput.value = address;
       addressInput.dispatchEvent(new Event("input", { bubbles: true }));
@@ -27,6 +60,16 @@
     if (phoneInput && !phoneInput.value.trim() && phone) {
       phoneInput.value = phone;
       phoneInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    if (latInput && !latInput.value && lat) latInput.value = lat;
+    if (lngInput && !lngInput.value && lng) lngInput.value = lng;
+    if (districtInput && !districtInput.value && district) {
+      districtInput.value = district;
+      districtInput.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    if (metroInput && !metroInput.value && metro) {
+      metroInput.value = metro;
+      metroInput.dispatchEvent(new Event("change", { bubbles: true }));
     }
   }
 
@@ -96,6 +139,7 @@
     field?.addEventListener("change", function () {
       syncEndDateMin();
       validateEventDateTime();
+      updateDurationSummary();
     });
     field?.addEventListener("input", validateEventDateTime);
   });
@@ -107,5 +151,6 @@
 
   syncEndDateMin();
   validateEventDateTime();
+  updateDurationSummary();
   updateCounter();
 })();

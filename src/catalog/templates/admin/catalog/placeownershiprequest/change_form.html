@@ -70,43 +70,19 @@
           <main class="km-place-form-main">
             {% block field_sets %}
               {% for fieldset in adminform %}
-                <section class="km-place-form-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
-                  <h2 class="km-place-form-section__title">{{ fieldset.name }}</h2>
-                  {% if fieldset.description %}
-                    <p class="km-place-form-section__desc">{{ fieldset.description|safe }}</p>
+                <section class="km-place-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
+                  {% if fieldset.name %}
+                    <header class="km-place-section__head">
+                      <div>
+                        <h2 class="km-place-section__title">{{ fieldset.name }}</h2>
+                        {% if fieldset.description %}
+                          <p class="km-place-section__description">{{ fieldset.description|safe }}</p>
+                        {% endif %}
+                      </div>
+                    </header>
                   {% endif %}
-                  <div class="km-place-form-grid">
-                    {% for line in fieldset %}
-                      {% for field in line %}
-                        <div class="km-place-field-wrapper{% if line.fields|length == 1 and field.is_readonly %} km-place-field-wrapper--wide{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}">
-                          {% if field.is_checkbox %}
-                            {{ field.field }}{{ field.label_tag }}
-                            {% if field.field.help_text %}
-                              <div class="km-place-field-help">{{ field.field.help_text|safe }}</div>
-                            {% endif %}
-                          {% else %}
-                            {{ field.label_tag }}
-                            {% if field.is_readonly %}
-                              <div class="km-place-field-readonly">
-                                {{ field.contents }}
-                              </div>
-                            {% else %}
-                              {{ field.field }}
-                            {% endif %}
-                            {% if field.field.help_text %}
-                              <div class="km-place-field-help" id="{{ field.field.id_for_label }}_help">
-                                {{ field.field.help_text|safe }}
-                              </div>
-                            {% endif %}
-                          {% endif %}
-                          {% if field.errors %}
-                            <div class="km-place-field-error">
-                              {{ field.errors }}
-                            </div>
-                          {% endif %}
-                        </div>
-                      {% endfor %}
-                    {% endfor %}
+                  <div class="km-place-section__body">
+                    {% include "admin/includes/fieldset.html" %}
                   </div>
                 </section>
               {% endfor %}
@@ -122,7 +98,7 @@
           <aside class="km-place-form-sidebar">
             <div class="km-place-sidebar-sticky">
               {% if not add %}
-              <div class="km-place-sidebar-box">
+              <div class="km-place-sidebar-card km-place-sidebar-card--summary">
                 <div class="km-place-sidebar-status">
                   <span class="km-place-sidebar-status__indicator km-place-sidebar-status__indicator--{{ km_request_form_summary.status_tone }}"></span>
                   <div class="km-place-sidebar-status__text">
@@ -135,27 +111,44 @@
               </div>
               {% endif %}
 
-              <div class="km-place-sidebar-actions">
-                <button type="submit" name="_continue" class="km-place-btn km-place-btn--primary km-place-btn--block">
-                  {% translate "Сохранить и продолжить" %}
-                </button>
-                <button type="submit" name="_save" class="km-place-btn km-place-btn--secondary km-place-btn--block">
-                  {% translate "Сохранить и выйти" %}
-                </button>
-                
-                {% if not add and km_request_form_summary.is_pending %}
-                  <div class="km-place-sidebar-moderation" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
-                    <strong class="km-admin-title" style="margin-bottom: 8px; display: block;">{% translate "Быстрые действия" %}</strong>
-                    <a href="{{ km_action_approve_url }}" class="km-place-btn km-place-btn--block" style="background: var(--km-good); color: var(--km-bg); text-align: center; justify-content: center; margin-bottom: 8px;">{% translate "Одобрить заявку" %}</a>
-                    <a href="{{ km_action_reject_url }}" class="km-place-btn km-place-btn--block" style="border: 1px solid var(--km-danger); color: var(--km-danger); text-align: center; justify-content: center;">{% translate "Отклонить" %}</a>
+              <div class="km-place-sidebar-card km-place-sidebar-card--actions" style="margin-top: 12px;">
+                <div class="km-place-sidebar-action-buttons">
+                  <!-- Группа 1: Основное действие -->
+                  <div class="km-sidebar-action-group km-sidebar-action-group--primary">
+                    <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
+                      <i class="fas fa-save"></i> {% translate "Сохранить и продолжить" %}
+                    </button>
                   </div>
-                {% endif %}
 
-                {% if has_delete_permission and not add %}
-                  <a href="{% url 'admin:catalog_placeownershiprequest_delete' original.pk|admin_urlquote %}" class="km-place-sidebar-delete">
-                    {% translate "Удалить заявку" %}
-                  </a>
-                {% endif %}
+                  <!-- Группа 2: Вторичные действия -->
+                  <div class="km-sidebar-action-group km-sidebar-action-group--secondary">
+                    <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
+                      <i class="fas fa-check-double"></i> {% translate "Сохранить и выйти" %}
+                    </button>
+                  </div>
+
+                  <!-- Группа 3: Быстрые действия модерации -->
+                  {% if not add and km_request_form_summary.is_pending %}
+                    <div class="km-sidebar-action-group km-sidebar-action-group--service">
+                      <div class="km-sidebar-group-title">{% translate "Быстрые действия" %}</div>
+                      <a href="{{ km_action_approve_url }}" class="km-btn--sidebar km-btn--success-alt">
+                        <i class="fas fa-check-circle"></i> {% translate "Одобрить заявку" %}
+                      </a>
+                      <a href="{{ km_action_reject_url }}" class="km-btn--sidebar km-btn--danger-delete">
+                        <i class="fas fa-ban"></i> {% translate "Отклонить" %}
+                      </a>
+                    </div>
+                  {% endif %}
+
+                  <!-- Группа 4: Опасные действия -->
+                  {% if has_delete_permission and not add %}
+                    <div class="km-sidebar-action-group km-sidebar-action-group--danger">
+                      <a href="{% url 'admin:catalog_placeownershiprequest_delete' original.pk|admin_urlquote %}" class="km-btn--sidebar km-btn--danger-delete deletelink">
+                        <i class="fas fa-trash-alt"></i> {% translate "Удалить заявку" %}
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
               </div>
             </div>
           </aside>

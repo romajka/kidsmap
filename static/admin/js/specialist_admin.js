@@ -150,6 +150,7 @@
         var reader = new FileReader();
         reader.onload = function (e) {
           imgEl.src = e.target.result;
+          imgEl.hidden = false;
           imgEl.style.display = "block";
           if (emptyEl) emptyEl.style.display = "none";
         };
@@ -169,8 +170,8 @@
     function update() {
       var val = formatSelect.value;
       var isOnlineOnly = val === "online";
-      if (onlineNotice) onlineNotice.style.display = isOnlineOnly ? "" : "none";
-      if (formatHint) formatHint.style.display = isOnlineOnly ? "" : "none";
+      if (onlineNotice) onlineNotice.hidden = !isOnlineOnly;
+      if (formatHint) formatHint.hidden = !isOnlineOnly;
     }
 
     formatSelect.addEventListener("change", update);
@@ -193,7 +194,7 @@
           notice = document.createElement("p");
           notice.className = "km-notice km-notice--info km-inline-empty-notice";
           notice.style.margin = "12px 0 0";
-          notice.textContent = "Мест приёма пока нет. Нажмите «Добавить место приёма».";
+          notice.textContent = "Мест работы и приёма пока нет. Нажмите «Добавить место работы и приёма».";
           var tbl = locGroup.querySelector("table");
           if (tbl) tbl.parentNode.insertBefore(notice, tbl.nextSibling);
         }

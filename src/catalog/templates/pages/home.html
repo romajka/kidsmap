@@ -192,12 +192,14 @@
             <option value="">{% trans "Регион / район" %}</option>
             {% for district in home_districts %}
               <option
-                value="{{ district.value }}"
+                value="{{ district.label }}"
                 data-label-current="{{ district.label }}"
                 data-label-az="{{ district.label_az }}"
                 data-label-ru="{{ district.label_ru }}"
                 data-label-en="{{ district.label_en }}"
-                {% if request.GET.district == district.value %}selected{% endif %}
+                data-is-baku-city="{% if district.value == 'baku' %}1{% else %}0{% endif %}"
+                data-is-baku-district="{% if district.value|slice:':5' == 'baku_' %}1{% else %}0{% endif %}"
+                {% if request.GET.district == district.value or request.GET.district == district.label %}selected{% endif %}
               >
                 {% firstof district.label_with_count district.label %}
               </option>
@@ -376,7 +378,7 @@
     </div>
   </section>
 
-  {% if upcoming_events %}
+  {% if is_events_section_enabled and upcoming_events %}
     <section class="panel home-events">
       <div class="home-events-head">
         <div>
@@ -469,7 +471,6 @@
               {% if request.user.is_authenticated %}
                 <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
                   {% csrf_token %}
-                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
                   <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
                     ♥ <span class="like-count">{{ place.likes_count }}</span>
                   </button>
@@ -489,7 +490,6 @@
                 </div>
               {% endif %}
               <div class="card-action-stack">
-                {% include "catalog/includes/place_more_panel.html" with place=place %}
                 <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">{% trans "Перейти" %}</a>
               </div>
             </div>
@@ -555,22 +555,30 @@
         <span class="home-query-label">{% trans "Кружки в Азербайджане для детей" %}</span>
         <span class="home-query-arrow" aria-hidden="true">›</span>
       </a>
+      {% if 'EDU' in active_category_codes %}
       <a class="home-query-card" href="{% url 'place_list' %}?category=EDU">
         <span class="home-query-label">{% trans "Курсы для детей в Азербайджане" %}</span>
         <span class="home-query-arrow" aria-hidden="true">›</span>
       </a>
+      {% endif %}
+      {% if 'SPRT' in active_category_codes %}
       <a class="home-query-card" href="{% url 'place_list' %}?category=SPRT">
         <span class="home-query-label">{% trans "Спортивные секции в Азербайджане" %}</span>
         <span class="home-query-arrow" aria-hidden="true">›</span>
       </a>
+      {% endif %}
+      {% if 'ART' in active_category_codes %}
       <a class="home-query-card" href="{% url 'place_list' %}?category=ART">
         <span class="home-query-label">{% trans "Творческие кружки в Азербайджане" %}</span>
         <span class="home-query-arrow" aria-hidden="true">›</span>
       </a>
+      {% endif %}
+      {% if 'TECH' in active_category_codes %}
       <a class="home-query-card" href="{% url 'place_list' %}?category=TECH&amp;q=program">
         <span class="home-query-label">{% trans "Программирование для детей в Азербайджане" %}</span>
         <span class="home-query-arrow" aria-hidden="true">›</span>
       </a>
+      {% endif %}
     </div>
   </section>
 
@@ -1217,5 +1225,7 @@
       referrerpolicy="no-referrer"
     ></script>
   {% endif %}
-  <script src="{% static 'js/temporary_event_timer.js' %}"></script>
+  {% if is_events_section_enabled %}
+    <script src="{% static 'js/temporary_event_timer.js' %}"></script>
+  {% endif %}
 {% endblock %}

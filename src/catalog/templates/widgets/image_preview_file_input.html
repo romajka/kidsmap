@@ -16,6 +16,8 @@
   data-upload-too-many="{% if CURRENT_LANGUAGE == 'az' %}Yalnız 1 əsas şəkil seçilə bilər.{% elif CURRENT_LANGUAGE == 'en' %}Only 1 main photo can be selected.{% else %}{% trans 'Можно выбрать только 1 главное фото.' %}{% endif %}"
   data-upload-too-large="{% if CURRENT_LANGUAGE == 'az' %}Şəkil 2 MB-dan böyükdür.{% elif CURRENT_LANGUAGE == 'en' %}The photo is larger than 2 MB.{% else %}{% trans 'Фото больше 2 МБ.' %}{% endif %}"
   data-upload-bad-type="{% if CURRENT_LANGUAGE == 'az' %}Yalnız JPG, PNG və WEBP şəkilləri yükləyin.{% elif CURRENT_LANGUAGE == 'en' %}Upload JPG, PNG, or WEBP images only.{% else %}{% trans 'Загружайте только изображения JPG, PNG или WEBP.' %}{% endif %}"
+  data-upload-remove-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}"
+  data-upload-main-label="{% if CURRENT_LANGUAGE == 'az' %}Əsas şəkil{% elif CURRENT_LANGUAGE == 'en' %}Main photo{% else %}{% trans 'Главное фото' %}{% endif %}"
 >
   <div class="owner-file-uploader-head">
     <span class="owner-file-uploader-count" data-upload-count>0 / 1</span>
@@ -33,9 +35,6 @@
           />
         </a>
       </div>
-      <a class="owner-file-uploader-open-link" href="{{ widget.value.url }}" target="_blank" rel="noopener">
-        {% if CURRENT_LANGUAGE == "az" %}Şəkli yeni pəncərədə aç{% elif CURRENT_LANGUAGE == "en" %}Open photo in a new tab{% else %}{% trans "Открыть фото в новой вкладке" %}{% endif %}
-      </a>
     </div>
 
     {% if not widget.required %}

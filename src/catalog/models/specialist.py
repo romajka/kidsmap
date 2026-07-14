@@ -226,7 +226,7 @@ class Specialist(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name, allow_unicode=True) or "specialist"
+            self.slug = slugify(self.name, allow_unicode=False) or "specialist"
             # Проверка на уникальность
             candidate = self.slug
             idx = 2

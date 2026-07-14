@@ -33,6 +33,8 @@
 
 .km-admin-sidebar .sidebar {
   height: calc(100vh - 62px);
+  width: 100%;
+  min-width: 0;
   padding: 0;
   overflow: hidden;
 }
@@ -41,6 +43,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-width: 0;
 }
 
 .km-admin-sidebar .km-admin-sidebar__user-card {
@@ -98,76 +101,13 @@
   line-height: 1.25;
 }
 
-.km-admin-sidebar .km-admin-sidebar__access-card {
-  margin: 10px 10px 0;
-  padding: 10px;
-  border: 1px solid rgba(17, 213, 110, 0.18);
-  border-radius: 12px;
-  background: rgba(0, 154, 78, 0.1);
-}
-
-.km-admin-sidebar .km-admin-sidebar__access-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-  color: #dffbea;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.km-admin-sidebar .km-admin-sidebar__access-head i {
-  color: #6df0ae;
-  font-size: 13px;
-}
-
-.km-admin-sidebar .km-admin-sidebar__access-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 7px;
-}
-
-.km-admin-sidebar .km-admin-sidebar__access-action,
-.km-admin-sidebar .km-admin-sidebar__access-action:visited {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-width: 0;
-  min-height: 30px;
-  padding: 6px 8px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #d5dee7;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.2;
-  text-decoration: none;
-}
-
-.km-admin-sidebar .km-admin-sidebar__access-action:hover,
-.km-admin-sidebar .km-admin-sidebar__access-action:focus-visible {
-  border-color: rgba(109, 240, 174, 0.42);
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  outline: 0;
-  text-decoration: none;
-}
-
-.km-admin-sidebar .km-admin-sidebar__access-action--primary,
-.km-admin-sidebar .km-admin-sidebar__access-action--primary:visited {
-  border-color: rgba(109, 240, 174, 0.48);
-  background: #009a4e;
-  color: #ffffff;
-}
-
 .km-admin-sidebar .km-admin-sidebar__scroller {
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   padding: 10px 10px 16px;
 }
 
@@ -175,6 +115,7 @@
 .km-admin-sidebar .km-admin-sidebar__sections {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .km-admin-sidebar .km-admin-sidebar__list,
@@ -197,6 +138,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  min-width: 0;
   width: 100%;
   padding: 8px 8px 8px 10px;
   border: 0;
@@ -215,6 +157,7 @@
   display: flex;
   align-items: center;
   min-width: 0;
+  flex: 1;
 }
 
 .km-admin-sidebar .km-admin-sidebar__chevron {
@@ -227,8 +170,7 @@
   transition: transform 0.18s ease, color 0.18s ease;
 }
 
-.km-admin-sidebar .km-admin-sidebar__group[data-open='true'] .km-admin-sidebar__chevron,
-.km-admin-sidebar .km-admin-sidebar__group.is-active .km-admin-sidebar__chevron {
+.km-admin-sidebar .km-admin-sidebar__group[data-open='true'] .km-admin-sidebar__chevron {
   transform: rotate(180deg);
   color: #c3d2de;
 }
@@ -243,9 +185,10 @@
 
 .km-admin-sidebar .km-admin-sidebar__link {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 38px;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  min-height: 42px;
   padding: 8px 10px;
   border-radius: 11px;
   color: #a9bac9;
@@ -274,6 +217,7 @@
   width: 18px;
   color: currentColor;
   font-size: 14px;
+  margin-top: 1px;
 }
 
 .km-admin-sidebar .km-admin-sidebar__text {
@@ -284,12 +228,13 @@
 }
 
 .km-admin-sidebar .km-admin-sidebar__label {
-  overflow: hidden;
+  display: block;
+  min-width: 0;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .km-admin-sidebar .km-admin-sidebar__group-toggle .km-admin-sidebar__label {
@@ -300,7 +245,8 @@
 .km-admin-sidebar .km-admin-sidebar__sublist {
   display: grid;
   gap: 3px;
-  padding-left: 28px;
+  min-width: 0;
+  padding-left: 18px;
 }
 
 .km-admin-sidebar .km-admin-sidebar__badge {
@@ -316,6 +262,29 @@
   font-size: 12px;
   font-weight: 700;
   line-height: 1;
+  flex: 0 0 auto;
+}
+
+.km-admin-sidebar .km-admin-sidebar__badge--metric {
+  min-width: 34px;
+  padding-inline: 6px;
+  background: rgba(148, 163, 184, 0.16);
+  color: #d5dee7;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.km-admin-sidebar .km-admin-sidebar__visibility-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  color: #9fb0bf;
+  font-size: 11px;
 }
 
 .km-admin-sidebar .km-admin-sidebar__group .km-admin-sidebar__link.is-active .km-admin-sidebar__badge {

@@ -121,6 +121,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
     "catalog",
+    "catalog.proxy_apps.catalog_moderation.apps.CatalogModerationConfig",
 ]
 
 JAZZMIN_SETTINGS = {
@@ -236,6 +237,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "catalog.middleware.AdminHostRedirectMiddleware",
     "django.middleware.locale.LocaleMiddleware",  # языки
+    "catalog.middleware.CleanPublicQueryMiddleware",
     "config.middleware.AdminLocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Count, Q
 from django import forms
 from django.http import HttpResponseRedirect
 from django.conf import settings
@@ -23,6 +23,7 @@ from catalog.models import *
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from catalog.services.content_quality import place_quality_check, review_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
+from catalog.services.features import is_events_section_enabled, is_specialists_section_enabled
 
 # Clarify similar names in admin navigation.
 SiteReview._meta.verbose_name = _("Отзыв о сайте")
@@ -31,6 +32,105 @@ PlaceChangeAudit._meta.verbose_name_plural = _("История изменени�
 
 _original_get_app_list = admin.site.get_app_list
 _original_each_context = admin.site.each_context
+
+
+def _get_sidebar_metrics(request) -> dict[str, int]:
+    """Build admin sidebar counters once per request with one aggregate per model."""
+    cached = getattr(request, "_kidsmap_sidebar_metrics", None)
+    if cached is not None:
+        return cached
+
+    empty_metrics = {
+        "places_total": 0,
+        "places_active": 0,
+        "places_pending": 0,
+        "places_deleted": 0,
+        "events_total": 0,
+        "events_active": 0,
+        "events_pending": 0,
+        "specialists_total": 0,
+        "specialists_active": 0,
+        "specialists_pending": 0,
+        "place_reviews_pending": 0,
+        "specialist_reviews_pending": 0,
+        "ownership_pending": 0,
+    }
+    if not request.user.is_authenticated or not request.user.is_staff:
+        request._kidsmap_sidebar_metrics = empty_metrics
+        return empty_metrics
+
+    now = timezone.now()
+    place_counts = Place.objects.aggregate(
+        total=Count("pk", filter=Q(deleted_at__isnull=True, is_temporary=False)),
+        active=Count(
+            "pk",
+            filter=Q(
+                deleted_at__isnull=True,
+                is_temporary=False,
+                is_active=True,
+                status=Place.STATUS_PUBLISHED,
+            ),
+        ),
+        pending=Count(
+            "pk",
+            filter=Q(
+                deleted_at__isnull=True,
+                is_temporary=False,
+                status=Place.STATUS_PENDING,
+            ),
+        ),
+        deleted=Count("pk", filter=Q(deleted_at__isnull=False)),
+    )
+    event_counts = Event.objects.aggregate(
+        total=Count("pk", filter=Q(deleted_at__isnull=True)),
+        active=Count(
+            "pk",
+            filter=Q(
+                deleted_at__isnull=True,
+                status=Event.STATUS_PUBLISHED,
+                start_datetime__isnull=False,
+                end_datetime__gte=now,
+            ),
+        ),
+        pending=Count(
+            "pk",
+            filter=Q(deleted_at__isnull=True, status=Event.STATUS_PENDING),
+        ),
+    )
+    specialist_counts = Specialist.objects.aggregate(
+        total=Count("pk"),
+        active=Count(
+            "pk",
+            filter=Q(status=Specialist.STATUS_PUBLISHED, is_active=True),
+        ),
+        pending=Count("pk", filter=Q(status=Specialist.STATUS_PENDING)),
+    )
+    place_review_counts = PlaceReview.objects.aggregate(
+        pending=Count("pk", filter=Q(status=PlaceReview.STATUS_PENDING)),
+    )
+    specialist_review_counts = SpecialistReview.objects.aggregate(
+        pending=Count("pk", filter=Q(status=SpecialistReview.STATUS_PENDING)),
+    )
+    ownership_counts = PlaceOwnershipRequest.objects.aggregate(
+        pending=Count("pk", filter=Q(status=PlaceOwnershipRequest.STATUS_PENDING)),
+    )
+    metrics = {
+        "places_total": int(place_counts["total"] or 0),
+        "places_active": int(place_counts["active"] or 0),
+        "places_pending": int(place_counts["pending"] or 0),
+        "places_deleted": int(place_counts["deleted"] or 0),
+        "events_total": int(event_counts["total"] or 0),
+        "events_active": int(event_counts["active"] or 0),
+        "events_pending": int(event_counts["pending"] or 0),
+        "specialists_total": int(specialist_counts["total"] or 0),
+        "specialists_active": int(specialist_counts["active"] or 0),
+        "specialists_pending": int(specialist_counts["pending"] or 0),
+        "place_reviews_pending": int(place_review_counts["pending"] or 0),
+        "specialist_reviews_pending": int(specialist_review_counts["pending"] or 0),
+        "ownership_pending": int(ownership_counts["pending"] or 0),
+    }
+    request._kidsmap_sidebar_metrics = metrics
+    return metrics
 
 
 def _build_admin_language_switch_items(request, current_language: str):
@@ -62,12 +162,11 @@ def _build_admin_language_switch_items(request, current_language: str):
 
 def _kidsmap_get_app_list(self, request, app_label=None):
     app_list = _original_get_app_list(request, app_label)
-    ownership_pending_count = PlaceOwnershipRequest.objects.filter(
-        status=PlaceOwnershipRequest.STATUS_PENDING
-    ).count()
-    review_pending_count = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
-    specialist_review_pending_count = SpecialistReview.objects.filter(status=SpecialistReview.STATUS_PENDING).count()
-    specialist_pending_count = Specialist.objects.filter(status=Specialist.STATUS_PENDING).count()
+    sidebar_metrics = _get_sidebar_metrics(request)
+    ownership_pending_count = sidebar_metrics["ownership_pending"]
+    review_pending_count = sidebar_metrics["place_reviews_pending"]
+    specialist_review_pending_count = sidebar_metrics["specialist_reviews_pending"]
+    specialist_pending_count = sidebar_metrics["specialists_pending"]
 
     for app in app_list:
         if app.get("app_label") == "auth":
@@ -160,13 +259,22 @@ def _build_sidebar_item(
     label,
     icon,
     badge_count: int = 0,
+    show_badge: bool = False,
+    badge_label: str = "",
+    status_label: str = "",
     url_name: str | None = None,
     active_models: tuple | list | None = None,
     query_params: str | None = None,
+    required_permission: str = "view",
 ):
     model_admin = admin.site._registry.get(model) if model is not None else None
-    if model_admin is not None and not model_admin.has_view_or_change_permission(request):
-        return None
+    if model_admin is not None:
+        if required_permission == "add":
+            is_allowed = model_admin.has_add_permission(request)
+        else:
+            is_allowed = model_admin.has_view_or_change_permission(request)
+        if not is_allowed:
+            return None
 
     if model is not None:
         resolved_url_name = url_name or f"admin:{model._meta.app_label}_{model._meta.model_name}_changelist"
@@ -184,7 +292,15 @@ def _build_sidebar_item(
         return None
 
     prefixes = [url.split("?", 1)[0]]
-    for active_model in active_models or (() if model is None else (model,)):
+    # A custom URL (for example, the "add staff member" form) must only be
+    # active for that URL.  Falling back to the model changelist here made the
+    # add link active together with the changelist link on every staff page.
+    if active_models is None:
+        models_for_active_state = () if url_name else (() if model is None else (model,))
+    else:
+        models_for_active_state = active_models
+
+    for active_model in models_for_active_state:
         try:
             prefixes.append(
                 reverse(
@@ -195,12 +311,23 @@ def _build_sidebar_item(
             continue
 
     is_active_path = _path_matches_any_prefix(request.path, prefixes)
+    # An add form has its own navigation entry when available. Do not also
+    # highlight the parent changelist merely because its URL is a prefix.
+    is_add_view_without_dedicated_item = request.path.rstrip("/").endswith("/add") and not url_name
     if query_params:
         from urllib.parse import parse_qsl
         expected_params = dict(parse_qsl(query_params))
-        active = is_active_path and all(request.GET.get(k) == v for k, v in expected_params.items())
+        active = (
+            is_active_path
+            and not is_add_view_without_dedicated_item
+            and all(request.GET.get(k) == v for k, v in expected_params.items())
+        )
     else:
-        active = is_active_path and not (request.GET.get("deleted_state") == "deleted" or request.GET.get("deleted_at__isnull") == "False")
+        active = (
+            is_active_path
+            and not is_add_view_without_dedicated_item
+            and not (request.GET.get("deleted_state") == "deleted" or request.GET.get("deleted_at__isnull") == "False")
+        )
 
     return {
         "label": str(label),
@@ -208,10 +335,13 @@ def _build_sidebar_item(
         "icon": icon,
         "active": active,
         "badge_count": max(int(badge_count or 0), 0),
+        "show_badge": show_badge,
+        "badge_label": str(badge_label or ""),
+        "status_label": str(status_label or ""),
     }
 
 
-def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pending_count: int, deleted_count: int, specialist_review_pending_count: int, specialist_pending_count: int) -> list[dict]:
+def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
     if not request.user.is_authenticated or not request.user.is_staff:
         return []
 
@@ -221,45 +351,45 @@ def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pen
             "label": _("Каталог"),
             "icon": "far fa-folder-open",
             "items": [
-                _build_sidebar_item(request, model=Place, label=_("Места"), icon="fas fa-map-marker-alt"),
-                _build_sidebar_item(request, model=Category, label=_("Категории"), icon="far fa-copy"),
+                _build_sidebar_item(
+                    request,
+                    model=Place,
+                    label=_("Постоянные места"),
+                    icon="fas fa-map-marker-alt",
+                    query_params="is_temporary__exact=0",
+                    badge_label=str(metrics["places_total"]),
+                ),
+                _build_sidebar_item(
+                    request,
+                    model=Event,
+                    label=_("Временные мероприятия"),
+                    icon="fas fa-calendar-alt",
+                    badge_label=str(metrics["events_total"]),
+                    status_label=_("Скрыто на сайте") if not is_events_section_enabled() else "",
+                ),
+                _build_sidebar_item(
+                    request,
+                    model=Specialist,
+                    label=_("Специалисты"),
+                    icon="fas fa-user-tie",
+                    badge_label=str(metrics["specialists_total"]),
+                    status_label=_("Скрыто на сайте") if not is_specialists_section_enabled() else "",
+                ),
                 _build_sidebar_item(
                     request,
                     model=PlaceReview,
-                    label=_("Отзывы о местах"),
-                    icon="far fa-comment-alt",
-                    badge_count=review_pending_count,
+                    label=_("Отзывы"),
+                    icon="far fa-star",
                 ),
-                _build_sidebar_item(request, model=PlaceReviewsByClub, label=_("Рейтинги"), icon="far fa-star"),
                 _build_sidebar_item(
                     request,
                     model=Place,
                     label=_("Корзина"),
                     icon="fas fa-trash-alt",
                     query_params="deleted_state=deleted",
-                    badge_count=deleted_count,
+                    badge_count=metrics["places_deleted"],
                 ),
             ],
-        },
-        {
-            "key": "specialists",
-            "label": _("Специалисты"),
-            "icon": "fas fa-user-md",
-            "items": [
-                _build_sidebar_item(request, model=Specialist, label=_("Специалисты"), icon="fas fa-user-tie", badge_count=specialist_pending_count),
-                _build_sidebar_item(request, model=SpecialistSpecialization, label=_("Специализации"), icon="fas fa-graduation-cap"),
-                _build_sidebar_item(request, model=SpecialistReview, label=_("Отзывы о специалистах"), icon="far fa-comments", badge_count=specialist_review_pending_count),
-            ]
-        },
-        {
-            "key": "geography",
-            "label": _("География"),
-            "icon": "fas fa-map-marked-alt",
-            "items": [
-                _build_sidebar_item(request, model=Region, label=_("Регионы / Города"), icon="fas fa-globe"),
-                _build_sidebar_item(request, model=District, label=_("Районы"), icon="fas fa-map-signs"),
-                _build_sidebar_item(request, model=MetroStation, label=_("Станции метро"), icon="fas fa-subway"),
-            ]
         },
         {
             "key": "moderation",
@@ -268,38 +398,88 @@ def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pen
             "items": [
                 _build_sidebar_item(
                     request,
-                    model=PlaceOwnershipRequest,
-                    label=_("Заявки на владение"),
-                    icon="far fa-clipboard",
-                    badge_count=ownership_pending_count,
+                    model=Place,
+                    label=_("Места на проверке"),
+                    icon="fas fa-map-marker-alt",
+                    url_name="admin:catalog_moderation_moderationplace_changelist",
+                    badge_count=metrics["places_pending"],
+                    show_badge=True,
+                ),
+                _build_sidebar_item(
+                    request,
+                    model=Event,
+                    label=_("Мероприятия на проверке"),
+                    icon="fas fa-calendar-alt",
+                    url_name="admin:catalog_moderation_moderationevent_changelist",
+                    badge_count=metrics["events_pending"],
+                    show_badge=True,
+                ),
+                _build_sidebar_item(
+                    request,
+                    model=Specialist,
+                    label=_("Специалисты на проверке"),
+                    icon="fas fa-user-tie",
+                    url_name="admin:catalog_moderation_moderationspecialist_changelist",
+                    badge_count=metrics["specialists_pending"],
+                    show_badge=True,
                 ),
                 _build_sidebar_item(
                     request,
                     model=PlaceReview,
                     label=_("Отзывы на проверке"),
                     icon="fas fa-star-half-alt",
-                    query_params="status__exact=pending",
-                    badge_count=review_pending_count,
+                    url_name="admin:catalog_moderation_moderationreview_changelist",
+                    badge_count=metrics["place_reviews_pending"],
+                    show_badge=True,
                 ),
-                _build_sidebar_item(request, model=SiteReview, label=_("Отзывы о сайте"), icon="far fa-comment-dots"),
                 _build_sidebar_item(
                     request,
-                    model=UserEmailVerification,
-                    label=_("Подтверждения email"),
-                    icon="far fa-envelope",
+                    model=PlaceOwnershipRequest,
+                    label=_("Заявки на владение"),
+                    icon="far fa-clipboard",
+                    badge_count=metrics["ownership_pending"],
+                    show_badge=True,
                 ),
             ],
         },
         {
+            "key": "directories",
+            "label": _("Справочники"),
+            "icon": "fas fa-map-marked-alt",
+            "items": [
+                _build_sidebar_item(request, model=Category, label=_("Категории"), icon="far fa-copy"),
+                _build_sidebar_item(request, model=Subcategory, label=_("Подкатегории"), icon="far fa-clone"),
+                _build_sidebar_item(request, model=SpecialistSpecialization, label=_("Специализации"), icon="fas fa-graduation-cap"),
+                _build_sidebar_item(request, model=Region, label=_("Регионы и города"), icon="fas fa-globe"),
+                _build_sidebar_item(request, model=District, label=_("Районы"), icon="fas fa-map-signs"),
+                _build_sidebar_item(request, model=MetroStation, label=_("Станции метро"), icon="fas fa-subway"),
+            ],
+        },
+        {
             "key": "users",
-            "label": _("Пользователи"),
+            "label": _("Пользователи и доступ"),
             "icon": "far fa-user",
             "items": [
-                _build_sidebar_item(request, model=SiteRegisteredUser, label=_("Пользователи сайта"), icon="far fa-user"),
+                _build_sidebar_item(request, model=SiteRegisteredUser, label=_("Все пользователи"), icon="far fa-user"),
+                _build_sidebar_item(
+                    request,
+                    model=SiteRegisteredUser,
+                    label=_("Владельцы"),
+                    icon="fas fa-store",
+                    query_params="profile__role__exact=owner",
+                ),
                 _build_sidebar_item(
                     request,
                     model=StaffAccessUser,
-                    label=_("Сотрудники админки"),
+                    label=_("Добавить администратора"),
+                    icon="fas fa-user-plus",
+                    url_name="admin:catalog_staffaccessuser_add",
+                    required_permission="add",
+                ),
+                _build_sidebar_item(
+                    request,
+                    model=StaffAccessUser,
+                    label=_("Список администраторов"),
                     icon="fas fa-user-shield",
                 ),
                 _build_sidebar_item(
@@ -340,6 +520,14 @@ def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pen
             "icon": "fas fa-chart-line",
             "items": [
                 _build_sidebar_item(request, model=SiteAnalytics, label=_("Статистика"), icon="far fa-chart-bar"),
+                _build_sidebar_item(request, model=PlaceReviewsByClub, label=_("Популярный контент"), icon="far fa-star"),
+            ],
+        },
+        {
+            "key": "system",
+            "label": _("Система"),
+            "icon": "fas fa-cogs",
+            "items": [
                 _build_sidebar_item(
                     request,
                     model=PlaceChangeAudit,
@@ -370,36 +558,16 @@ def _build_sidebar_sections(request, *, ownership_pending_count: int, review_pen
 
 def _kidsmap_each_context(self, request):
     context = _original_each_context(request)
-    if request.user.is_authenticated and request.user.is_staff:
-        ownership_pending_count = PlaceOwnershipRequest.objects.filter(
-            status=PlaceOwnershipRequest.STATUS_PENDING
-        ).count()
-        review_pending_count = PlaceReview.objects.filter(status=PlaceReview.STATUS_PENDING).count()
-        deleted_count = Place.objects.filter(deleted_at__isnull=False).count()
-        specialist_review_pending_count = SpecialistReview.objects.filter(status=SpecialistReview.STATUS_PENDING).count()
-        specialist_pending_count = Specialist.objects.filter(status=Specialist.STATUS_PENDING).count()
-    else:
-        ownership_pending_count = 0
-        review_pending_count = 0
-        deleted_count = 0
-        specialist_review_pending_count = 0
-        specialist_pending_count = 0
-    context["ownership_pending_count"] = ownership_pending_count
-    context["review_pending_count"] = review_pending_count
-    context["specialist_review_pending_count"] = specialist_review_pending_count
-    context["specialist_pending_count"] = specialist_pending_count
+    sidebar_metrics = _get_sidebar_metrics(request)
+    context["ownership_pending_count"] = sidebar_metrics["ownership_pending"]
+    context["review_pending_count"] = sidebar_metrics["place_reviews_pending"]
+    context["specialist_review_pending_count"] = sidebar_metrics["specialist_reviews_pending"]
+    context["specialist_pending_count"] = sidebar_metrics["specialists_pending"]
 
     current_language = (get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
     context["admin_current_language"] = current_language
     context["admin_language_switch_items"] = _build_admin_language_switch_items(request, current_language)
-    context["kidsmap_sidebar_sections"] = _build_sidebar_sections(
-        request,
-        ownership_pending_count=ownership_pending_count,
-        review_pending_count=review_pending_count,
-        deleted_count=deleted_count,
-        specialist_review_pending_count=specialist_review_pending_count,
-        specialist_pending_count=specialist_pending_count,
-    )
+    context["kidsmap_sidebar_sections"] = _build_sidebar_sections(request, metrics=sidebar_metrics)
     context["kidsmap_admin_role_label"] = _admin_role_label(request.user)
     return context
 

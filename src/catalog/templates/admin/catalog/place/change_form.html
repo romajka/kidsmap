@@ -15,12 +15,14 @@
   {# <link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.css"> #}
   {# <script src="https://unpkg.com/filepond@4.32.12/dist/filepond.min.js" defer></script> #}
   {# <script src="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.js" defer></script> #}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=17">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=19">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
-  <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=21">
+  <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=22">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_pricing.css' %}?v=1">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=17" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=21" defer></script>
+  <script src="{% static 'js/owner_pricing_plans.js' %}?v=2" defer></script>
   {% if google_maps_api_key %}
     <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>
     <script
@@ -37,10 +39,34 @@
     <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>
   {% endif %}
   <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}" defer></script>
+  <style>
+    /* Desktop has the action panel on the right. The in-flow controls are
+       reserved for mobile, where the sidebar is hidden. */
+    @media (min-width: 761px) {
+      .km-place-form-page .km-place-form-mobile-actions {
+        display: none !important;
+      }
+    }
+  </style>
 {% endblock %}
 
 {% block submit_buttons_top %}{% endblock %}
 {% block submit_buttons_bottom %}{% endblock %}
+
+{% block breadcrumbs %}
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans "Home" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ km_admin_back_url }}" aria-label="{% trans 'Вернуться на предыдущий шаг' %}">
+        <i class="fas fa-arrow-left mr-1" aria-hidden="true"></i>{% trans "Назад" %}
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      {% if add %}{% blocktrans with name=opts.verbose_name %}Add {{ name }}{% endblocktrans %}{% else %}{{ original|truncatewords:"12" }}{% endif %}
+    </li>
+  </ol>
+{% endblock %}
 
 {% block content %}
   <div id="content-main" class="km-place-form-page">
@@ -60,6 +86,7 @@
       data-progress-incomplete-tone="warn"
       data-progress-empty-text="{% translate 'Ключевые поля заполнены. Можно переходить к финальной проверке и публикации.' %}"
       data-rejected-status="{{ adminform.form.instance.STATUS_REJECTED|default:'rejected' }}"
+      data-place-accordion-key="{{ opts.app_label }}-{{ opts.model_name }}-{{ original.pk|default:'new' }}"
     >
       {% csrf_token %}
       {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
@@ -74,7 +101,7 @@
             <div class="km-place-form-title-row">
               <h1 class="km-place-form-title-compact">
                 {% if add %}
-                  {% translate "Добавить место" %}
+                  {% translate "Новое место" %}
                 {% else %}
                   {{ original|default:km_place_form_summary.title }}
                 {% endif %}
@@ -91,6 +118,9 @@
                 </span>
               </div>
             </div>
+            {% if not add %}
+              <p class="km-place-form-visibility-hint">{{ km_place_form_summary.visibility.hint }}</p>
+            {% endif %}
             <p class="km-place-form-subtitle-compact">
               {% translate "Заполните ключевые поля по шагам и проверьте карточку перед публикацией." %}
             </p>
@@ -119,22 +149,40 @@
           </div>
         {% endif %}
 
-        {% if errors %}
-          <div class="km-place-form-alert km-place-form-alert--danger">
-            <strong>{% translate "Форма содержит ошибки" %}.</strong>
-            <span>
-              {% blocktranslate count counter=errors|length %}
-                Исправьте проблему ниже и сохраните карточку ещё раз.
-              {% plural %}
-                Исправьте проблемы ниже и сохраните карточку ещё раз.
-              {% endblocktranslate %}
-            </span>
-            {{ adminform.form.non_field_errors }}
+        {% if errors or km_place_form_errors %}
+          <div class="km-place-form-alert km-place-form-alert--danger" role="alert" tabindex="-1">
+            <div class="km-place-form-alert__icon" aria-hidden="true">!</div>
+            <div class="km-place-form-alert__content">
+              <div class="km-place-form-alert__heading">{% translate "Изменения не сохранены" %}</div>
+              <p class="km-place-form-alert__description">{% translate "Исправьте указанные пункты и нажмите «Сохранить и продолжить» ещё раз." %}</p>
+              {% if km_place_form_errors %}
+                <ul class="km-place-form-error-list">
+                  {% for error in km_place_form_errors %}
+                    <li>
+                      <a href="{{ error.target }}">
+                        <strong>{{ error.label }}:</strong> {{ error.message }}
+                        <span class="km-place-form-error-list__action">{% translate "Исправить" %} →</span>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="km-place-form-error-list__empty">{% translate "Проверьте подсвеченные поля формы." %}</p>
+              {% endif %}
+            </div>
           </div>
         {% endif %}
 
         <div class="km-place-form-layout">
           <main class="km-place-form-main">
+            <div class="km-place-accordion-actions" aria-label="{% translate 'Управление разделами формы' %}">
+              <button type="button" class="km-place-accordion-actions__button" data-place-accordion-collapse-all>
+                {% translate "Свернуть всё" %}
+              </button>
+              <button type="button" class="km-place-accordion-actions__button" data-place-accordion-expand-all>
+                {% translate "Раскрыть всё" %}
+              </button>
+            </div>
             <nav class="km-place-form-steps" aria-label="{% translate 'Шаги формы' %}">
               {% for section in km_place_form_sections %}
                 <a
@@ -167,7 +215,7 @@
                 class="km-place-form-step"
                 data-place-step-link
                 data-step-tooltip="{% translate 'Проверка карточки перед публикацией' %}"
-                aria-label="06. {% translate 'Проверка' %}. {% translate 'Проверка карточки перед публикацией' %}"
+                aria-label="05. {% translate 'Проверка' %}. {% translate 'Проверка карточки перед публикацией' %}"
               >
                 <span class="km-place-form-step__index">
                   <i class="fas fa-clipboard-check"></i>
@@ -180,27 +228,31 @@
 
             <div class="km-place-form-sections">
               {% for section in km_place_form_sections %}
-                <section id="{{ section.id }}" class="km-place-section" data-place-section>
+                <section id="{{ section.id }}" class="km-place-section" data-place-section data-place-accordion-section>
                   <header class="km-place-section__head">
-                    <span class="km-place-section__step">
-                      {% if section.id == 'basics' %}
-                        <i class="fas fa-cog"></i>
-                      {% elif section.id == 'copy' %}
-                        <i class="fas fa-align-left"></i>
-                      {% elif section.id == 'pricing' %}
-                        <i class="fas fa-money-bill-wave"></i>
-                      {% elif section.id == 'location' %}
-                        <i class="fas fa-map-marker-alt"></i>
-                      {% elif section.id == 'media' %}
-                        <i class="fas fa-images"></i>
-                      {% endif %}
-                    </span>
-                    <div>
-                      <h2 class="km-place-section__title">{{ section.title }}</h2>
-                      <p class="km-place-section__description">{{ section.description }}</p>
-                    </div>
+                    <button type="button" class="km-place-section__toggle" data-place-section-toggle aria-expanded="true" aria-controls="{{ section.id }}-body">
+                      <span class="km-place-section__step">
+                        {% if section.id == 'basics' %}
+                          <i class="fas fa-cog"></i>
+                        {% elif section.id == 'copy' %}
+                          <i class="fas fa-align-left"></i>
+                        {% elif section.id == 'pricing' %}
+                          <i class="fas fa-money-bill-wave"></i>
+                        {% elif section.id == 'location' %}
+                          <i class="fas fa-map-marker-alt"></i>
+                        {% elif section.id == 'media' %}
+                          <i class="fas fa-images"></i>
+                        {% endif %}
+                      </span>
+                      <span class="km-place-section__heading-copy">
+                        <span class="km-place-section__title">{{ section.title }}</span>
+                        <span class="km-place-section__description">{{ section.description }}</span>
+                      </span>
+                      <span class="km-place-section__state" data-place-section-state aria-hidden="true"></span>
+                      <span class="km-place-section__chevron" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+                    </button>
                   </header>
-                  <div class="km-place-section__body">
+                  <div id="{{ section.id }}-body" class="km-place-section__body">
                     {% if section.id == "location" %}
                       {% include "admin/catalog/place/location_section.html" with adminform=adminform %}
                     {% elif section.id == "media" %}
@@ -209,21 +261,31 @@
                       {% for fieldset in section.fieldsets %}
                         {% include "admin/includes/fieldset.html" with heading_level=3 prefix="place-section" id_prefix=forloop.parentloop.counter0 id_suffix=forloop.counter0 %}
                       {% endfor %}
+                      {% if section.id == "pricing" %}
+                        <section class="km-pricing-editor-section">
+                          <h3>{% translate "Цены и занятия" %}</h3>
+                          {% include "admin/catalog/place/pricing_editor.html" %}
+                        </section>
+                      {% endif %}
                     {% endif %}
                   </div>
                 </section>
               {% endfor %}
 
               <!-- Шаг 6: Проверка -->
-              <section id="verification" class="km-place-section km-place-section--verification" data-place-section>
+              <section id="verification" class="km-place-section km-place-section--verification" data-place-section data-place-accordion-section>
                 <header class="km-place-section__head">
-                  <span class="km-place-section__step"><i class="fas fa-clipboard-check"></i></span>
-                  <div>
-                    <h2 class="km-place-section__title">{% translate "Проверка" %}</h2>
-                    <p class="km-place-section__description">{% translate "Финальный шаг: просмотрите внешний вид карточки и проверьте заполнение обязательных полей." %}</p>
-                  </div>
+                  <button type="button" class="km-place-section__toggle" data-place-section-toggle aria-expanded="true" aria-controls="verification-body">
+                    <span class="km-place-section__step"><i class="fas fa-clipboard-check"></i></span>
+                    <span class="km-place-section__heading-copy">
+                      <span class="km-place-section__title">{% translate "Проверка" %}</span>
+                      <span class="km-place-section__description">{% translate "Финальный шаг: просмотрите внешний вид карточки и проверьте заполнение обязательных полей." %}</span>
+                    </span>
+                    <span class="km-place-section__state" data-place-section-state aria-hidden="true"></span>
+                    <span class="km-place-section__chevron" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+                  </button>
                 </header>
-                <div class="km-place-section__body">
+                <div id="verification-body" class="km-place-section__body">
                   <div class="km-verification-grid">
                     <!-- Left: Card Preview -->
                     <div class="km-verification-preview-col">
@@ -332,8 +394,7 @@
                         <h3 class="km-verification-subtitle">{% translate "Быстрый переход к шагам" %}</h3>
                         <div class="quick-nav-buttons">
                           <a href="#basics" class="km-quick-nav-btn"><i class="fas fa-cog"></i> <span>{% translate "Основное" %}</span></a>
-                          <a href="#copy" class="km-quick-nav-btn"><i class="fas fa-align-left"></i> <span>{% translate "Тексты" %}</span></a>
-                          <a href="#pricing" class="km-quick-nav-btn"><i class="fas fa-money-bill-wave"></i> <span>{% translate "Цена" %}</span></a>
+                          <a href="#pricing" class="km-quick-nav-btn"><i class="fas fa-money-bill-wave"></i> <span>{% translate "Цена и возраст" %}</span></a>
                           <a href="#location" class="km-quick-nav-btn"><i class="fas fa-map-marker-alt"></i> <span>{% translate "Локация" %}</span></a>
                           <a href="#media" class="km-quick-nav-btn"><i class="fas fa-images"></i> <span>{% translate "Фото" %}</span></a>
                         </div>
@@ -378,7 +439,9 @@
             </div>
 
             <div class="km-place-form-mobile-actions">
-              {% submit_row %}
+              <button type="submit" name="_continue" class="km-place-form-mobile-button km-place-form-mobile-button--success">
+                {% translate 'Сохранить и продолжить' %}
+              </button>
               {% if km_place_form_summary.visibility.is_public %}
                 <button
                   type="submit"
@@ -403,7 +466,7 @@
                 name="_save_draft"
                 class="km-place-form-mobile-button {% if add %}km-place-form-mobile-button--success{% else %}km-place-form-mobile-button--draft{% endif %}"
               >
-                {% translate 'Сохранить как черновик' %}
+                {% translate 'Сохранить черновик' %}
               </button>
               {% if not is_popup %}
                 <button
@@ -455,6 +518,9 @@
                   </span>
                 </div>
               </div>
+              {% if not km_place_form_summary.visibility.is_public %}
+                <p class="km-place-form-visibility-hint">{{ km_place_form_summary.visibility.hint }}</p>
+              {% endif %}
 
               <div class="km-place-sidebar-progress">
                 <div class="km-place-sidebar-progress__bar">
@@ -523,12 +589,8 @@
 
                 <!-- Группа 2: Вторичные действия -->
                 <div class="km-sidebar-action-group km-sidebar-action-group--secondary">
-                  <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
-                    <i class="fas fa-check-double"></i> {% translate 'Сохранить и выйти' %}
-                  </button>
-                  
                   <button type="submit" name="_save_draft" class="km-btn--sidebar km-btn--draft">
-                    <i class="fas fa-file-alt"></i> {% translate 'Сохранить как черновик' %}
+                    <i class="fas fa-file-alt"></i> {% translate 'Сохранить черновик' %}
                   </button>
                 </div>
 

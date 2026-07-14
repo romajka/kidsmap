@@ -8,6 +8,81 @@
   }
 
   ready(function () {
+    var form = document.querySelector("[data-km-admin-form]") || document.getElementById("place_form");
+    var sections = Array.prototype.slice.call(document.querySelectorAll("[data-place-accordion-section]"));
+    if (!form || !sections.length) {
+      return;
+    }
+
+    var storageKey = "kidsmap:place-form:accordion:" + (form.dataset.placeAccordionKey || "default");
+    var savedState = {};
+    try {
+      savedState = JSON.parse(window.localStorage.getItem(storageKey) || "{}") || {};
+    } catch (error) {}
+
+    function sectionHasErrors(section) {
+      return !!section.querySelector(".errorlist, .errors, .errornote, [aria-invalid='true']");
+    }
+
+    function sectionIsComplete(section) {
+      if (sectionHasErrors(section)) {
+        return false;
+      }
+      var required = Array.prototype.slice.call(section.querySelectorAll("input[required], select[required], textarea[required]"))
+        .filter(function (field) { return field.type !== "hidden" && !field.disabled; });
+      return required.length > 0 && required.every(function (field) {
+        return field.type === "checkbox" || field.type === "radio" ? field.checked : !!String(field.value || "").trim();
+      });
+    }
+
+    function persist() {
+      var state = {};
+      sections.forEach(function (section) { state[section.id] = !section.classList.contains("is-collapsed"); });
+      try { window.localStorage.setItem(storageKey, JSON.stringify(state)); } catch (error) {}
+    }
+
+    function setExpanded(section, expanded, shouldPersist) {
+      if (sectionHasErrors(section)) { expanded = true; }
+      section.classList.toggle("is-collapsed", !expanded);
+      section.classList.toggle("has-errors", sectionHasErrors(section));
+      section.classList.toggle("is-complete", sectionIsComplete(section));
+      var toggle = section.querySelector("[data-place-section-toggle]");
+      if (toggle) { toggle.setAttribute("aria-expanded", String(expanded)); }
+      if (shouldPersist) { persist(); }
+    }
+
+    var initialId = (window.location.hash || "").replace("#", "") || sections[0].id;
+    sections.forEach(function (section) {
+      var hasSaved = Object.prototype.hasOwnProperty.call(savedState, section.id);
+      setExpanded(section, sectionHasErrors(section) || (hasSaved ? !!savedState[section.id] : section.id === initialId), false);
+      var toggle = section.querySelector("[data-place-section-toggle]");
+      if (toggle) {
+        toggle.addEventListener("click", function () {
+          setExpanded(section, section.classList.contains("is-collapsed"), true);
+        });
+      }
+    });
+
+    document.querySelectorAll("[data-place-accordion-collapse-all]").forEach(function (button) {
+      button.addEventListener("click", function () { sections.forEach(function (section) { setExpanded(section, false, false); }); persist(); });
+    });
+    document.querySelectorAll("[data-place-accordion-expand-all]").forEach(function (button) {
+      button.addEventListener("click", function () { sections.forEach(function (section) { setExpanded(section, true, false); }); persist(); });
+    });
+
+    document.addEventListener("click", function (event) {
+      var link = event.target.closest("a[href^='#']");
+      if (!link) { return; }
+      var id = (link.getAttribute("href") || "").slice(1);
+      var section = document.getElementById(id);
+      if (section && section.matches("[data-place-accordion-section]")) { setExpanded(section, true, true); }
+    });
+
+    form.addEventListener("input", function () { sections.forEach(function (section) { setExpanded(section, !section.classList.contains("is-collapsed"), false); }); });
+    form.addEventListener("change", function () { sections.forEach(function (section) { setExpanded(section, !section.classList.contains("is-collapsed"), false); }); });
+  });
+
+  ready(function () {
     var sectionNodes = Array.prototype.slice.call(
       document.querySelectorAll("[data-km-admin-section], [data-place-section]")
     );

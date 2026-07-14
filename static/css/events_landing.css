@@ -763,3 +763,29 @@ body.page-events_landing .topbar {
     font-size: 0.78rem;
   }
 }
+
+@media (min-width: 821px) {
+  .events-hero {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    aspect-ratio: 1300 / 455;
+    padding: clamp(34px, 4vw, 52px);
+  }
+
+  .events-hero__copy {
+    max-width: min(48%, 560px);
+    gap: 12px;
+  }
+
+  .events-hero h1 {
+    font-size: clamp(32px, 3.25vw, 46px);
+    line-height: 1.08;
+  }
+
+  .events-hero p {
+    max-width: 46ch;
+    font-size: clamp(14px, 1.15vw, 17px);
+  }
+}

@@ -5,6 +5,174 @@
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}">
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}" defer></script>
+  <style>
+    /* Styling specifically for the Site Visibility Settings form */
+    #sitevisibilitysettings_form .km-place-form-main {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 16px !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 32px !important;
+      padding: 24px 30px !important;
+      min-height: auto !important;
+      border-radius: 16px !important;
+      background: #ffffff !important;
+      box-shadow: 0 4px 18px rgba(18, 53, 35, 0.035) !important;
+      border: 1px solid var(--km-place-border, #dbe8df) !important;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section:hover {
+      border-color: var(--km-place-border-strong, #c7ddcf) !important;
+      box-shadow: 0 6px 24px rgba(18, 53, 35, 0.05) !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__head {
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+      background: none !important;
+      flex: 1 1 auto !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__title {
+      font-size: 17px !important;
+      font-weight: 700 !important;
+      line-height: 1.3 !important;
+      color: var(--km-place-text, #193126) !important;
+      margin-bottom: 6px !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__description {
+      font-size: 13px !important;
+      line-height: 1.5 !important;
+      color: var(--km-place-muted, #678070) !important;
+      margin: 0 !important;
+      max-width: 90% !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__body {
+      padding: 0 !important;
+      margin: 0 !important;
+      flex: 0 0 auto !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      width: 52px !important;
+    }
+
+    /* Hide standard django/bootstrap/jazzmin labels and help text blocks */
+    #sitevisibilitysettings_form label[for^="id_"],
+    #sitevisibilitysettings_form .help-block,
+    #sitevisibilitysettings_form .help {
+      display: none !important;
+    }
+
+    /* Reset bootstrap/jazzmin form rows and grids inside the body */
+    #sitevisibilitysettings_form .km-place-section__body .row,
+    #sitevisibilitysettings_form .km-place-section__body .form-group,
+    #sitevisibilitysettings_form .km-place-section__body .form-row,
+    #sitevisibilitysettings_form .km-place-section__body .fieldBox,
+    #sitevisibilitysettings_form .km-place-section__body .checkbox-row {
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      display: block !important;
+      width: auto !important;
+      min-height: auto !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__body .col-sm-3,
+    #sitevisibilitysettings_form .km-place-section__body .col-sm-7,
+    #sitevisibilitysettings_form .km-place-section__body [class*="col-"] {
+      display: block !important;
+      width: auto !important;
+      max-width: none !important;
+      flex: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    /* Turn standard checkbox into a sleek iOS-like toggle switch */
+    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"] {
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      width: 52px !important;
+      height: 28px !important;
+      background-color: #cbd5e1 !important; /* Sleek gray when inactive */
+      border-radius: 9999px !important;
+      position: relative !important;
+      cursor: pointer !important;
+      transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      outline: none !important;
+      border: none !important;
+      display: block !important;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]::before {
+      content: "" !important;
+      position: absolute !important;
+      top: 3px !important;
+      left: 3px !important;
+      width: 22px !important;
+      height: 22px !important;
+      background-color: #ffffff !important;
+      border-radius: 9999px !important;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.04) !important;
+      transform: none !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:checked {
+      background-color: var(--km-place-accent, #0d8a52) !important; /* Theme green when active */
+    }
+
+    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:checked::before {
+      transform: translateX(24px) !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:hover {
+      background-color: #94a3b8 !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:checked:hover {
+      background-color: var(--km-place-accent-deep, #0b6d41) !important;
+    }
+
+    #sitevisibilitysettings_form .km-place-section__body input[type="checkbox"]:focus-visible {
+      box-shadow: 0 0 0 3px rgba(13, 138, 82, 0.3) !important;
+    }
+
+    /* Hide collapsed service block ("Служебное") */
+    #sitevisibilitysettings_form .collapse,
+    #sitevisibilitysettings_form #fieldset-2 {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      #sitevisibilitysettings_form .km-place-section {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 16px !important;
+        padding: 20px 24px !important;
+      }
+      #sitevisibilitysettings_form .km-place-section__body {
+        align-self: flex-end !important;
+      }
+      #sitevisibilitysettings_form .km-place-section__description {
+        max-width: 100% !important;
+      }
+    }
+  </style>
 {% endblock %}
 
 {% block submit_buttons_top %}{% endblock %}
@@ -62,43 +230,19 @@
           <main class="km-place-form-main">
             {% block field_sets %}
               {% for fieldset in adminform %}
-                <section class="km-place-form-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
-                  <h2 class="km-place-form-section__title">{{ fieldset.name }}</h2>
-                  {% if fieldset.description %}
-                    <p class="km-place-form-section__desc">{{ fieldset.description|safe }}</p>
+                <section class="km-place-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
+                  {% if fieldset.name %}
+                    <header class="km-place-section__head">
+                      <div>
+                        <h2 class="km-place-section__title">{{ fieldset.name }}</h2>
+                        {% if fieldset.description %}
+                          <p class="km-place-section__description">{{ fieldset.description|safe }}</p>
+                        {% endif %}
+                      </div>
+                    </header>
                   {% endif %}
-                  <div class="km-place-form-grid">
-                    {% for line in fieldset %}
-                      {% for field in line %}
-                        <div class="km-place-field-wrapper{% if line.fields|length == 1 and field.is_readonly %} km-place-field-wrapper--wide{% endif %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}">
-                          {% if field.is_checkbox %}
-                            {{ field.field }}{{ field.label_tag }}
-                            {% if field.field.help_text %}
-                              <div class="km-place-field-help">{{ field.field.help_text|safe }}</div>
-                            {% endif %}
-                          {% else %}
-                            {{ field.label_tag }}
-                            {% if field.is_readonly %}
-                              <div class="km-place-field-readonly">
-                                {{ field.contents }}
-                              </div>
-                            {% else %}
-                              {{ field.field }}
-                            {% endif %}
-                            {% if field.field.help_text %}
-                              <div class="km-place-field-help" id="{{ field.field.id_for_label }}_help">
-                                {{ field.field.help_text|safe }}
-                              </div>
-                            {% endif %}
-                          {% endif %}
-                          {% if field.errors %}
-                            <div class="km-place-field-error">
-                              {{ field.errors }}
-                            </div>
-                          {% endif %}
-                        </div>
-                      {% endfor %}
-                    {% endfor %}
+                  <div class="km-place-section__body">
+                    {% include "admin/includes/fieldset.html" %}
                   </div>
                 </section>
               {% endfor %}
@@ -112,19 +256,27 @@
           </main>
 
           <aside class="km-place-form-sidebar">
-            <div class="km-place-sidebar-sticky">
-              <div class="km-place-sidebar-actions">
-                <button type="submit" name="_continue" class="km-place-btn km-place-btn--primary km-place-btn--block">
-                  {% translate "Сохранить и продолжить" %}
-                </button>
-                <button type="submit" name="_save" class="km-place-btn km-place-btn--secondary km-place-btn--block">
-                  {% translate "Сохранить и выйти" %}
-                </button>
+            <div class="km-place-sidebar-card km-place-sidebar-card--actions">
+              <div class="km-place-sidebar-action-buttons">
+                <!-- Группа 1: Основное действие -->
+                <div class="km-sidebar-action-group km-sidebar-action-group--primary">
+                  <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
+                    <i class="fas fa-save"></i> {% translate "Сохранить и продолжить" %}
+                  </button>
+                </div>
 
+                <!-- Группа 2: Вторичные действия -->
+                <div class="km-sidebar-action-group km-sidebar-action-group--secondary">
+                  <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
+                    <i class="fas fa-check-double"></i> {% translate "Сохранить и выйти" %}
+                  </button>
+                </div>
+
+                <!-- Группа 3: Опасные действия -->
                 {% if has_delete_permission and not add %}
-                  <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border); text-align: center;">
-                    <a href="delete/" class="km-place-sidebar-delete">
-                      {% translate "Удалить запись" %}
+                  <div class="km-sidebar-action-group km-sidebar-action-group--danger">
+                    <a href="delete/" class="km-btn--sidebar km-btn--danger-delete deletelink">
+                      <i class="fas fa-trash-alt"></i> {% translate "Удалить запись" %}
                     </a>
                   </div>
                 {% endif %}

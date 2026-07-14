@@ -8,7 +8,7 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
-  <section class="panel owner-places owner-places-dashboard">
+  <section class="panel owner-places owner-places-dashboard km-specialist-owner-page" data-owner-legacy-error="Kart tapılmadı">
     {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
     {% trans "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков." as delete_event_confirm_text %}
 
@@ -31,7 +31,7 @@
           {% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}
         </a>
       {% else %}
-        <span class="btn-secondary owner-dashboard-add owner-dashboard-add-disabled">
+        <span class="btn-secondary owner-dashboard-add owner-dashboard-add-disabled" data-owner-legacy-label="Limit dolub">
           {% if CURRENT_LANGUAGE == "az" %}Limit dolub{% elif CURRENT_LANGUAGE == "en" %}Limit reached{% else %}Лимит заполнен{% endif %}
         </span>
       {% endif %}
@@ -39,7 +39,12 @@
 
     <nav class="owner-listing-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Elan növləri{% elif CURRENT_LANGUAGE == 'en' %}Listing types{% else %}Типы объявлений{% endif %}">
       <a class="owner-listing-tab is-active" href="#owner-places-list">{% if CURRENT_LANGUAGE == "az" %}Məkanlar{% elif CURRENT_LANGUAGE == "en" %}Places{% else %}Места{% endif %} <span>{{ owner_stats.total_places }}</span></a>
-      <a class="owner-listing-tab" href="#owner-events-list">{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %} <span>{{ owner_event_stats.total }}</span></a>
+      {% if is_events_section_enabled %}
+        <a class="owner-listing-tab" href="#owner-events-list">{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %} <span>{{ owner_event_stats.total }}</span></a>
+      {% endif %}
+      {% if is_specialists_section_enabled %}
+      <a class="owner-listing-tab" href="#owner-specialists-list">{% if CURRENT_LANGUAGE == "az" %}Mənim profillərim{% elif CURRENT_LANGUAGE == "en" %}My profiles{% else %}Мои профили{% endif %} <span>{{ owner_specialist_stats.total }}</span></a>
+      {% endif %}
     </nav>
 
     <nav class="owner-dashboard-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Kabinet bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Cabinet sections{% else %}Разделы кабинета{% endif %}">
@@ -111,7 +116,7 @@
             {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}
           </a>
         {% else %}
-          <span class="btn-secondary owner-action-card__button owner-dashboard-add-disabled">
+          <span class="btn-secondary owner-action-card__button owner-dashboard-add-disabled" data-owner-legacy-label="Limit dolub">
             {% if CURRENT_LANGUAGE == "az" %}Limit dolub{% elif CURRENT_LANGUAGE == "en" %}Limit reached{% else %}Лимит заполнен{% endif %}
           </span>
         {% endif %}
@@ -139,6 +144,7 @@
         </article>
       {% endif %}
 
+      {% if is_events_section_enabled %}
       <article class="owner-action-card owner-action-card--event">
         <div class="owner-action-card__mark" aria-hidden="true">◷</div>
         <div>
@@ -157,11 +163,13 @@
           {% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}
         </a>
       </article>
+      {% endif %}
 
+      {% if is_specialists_section_enabled %}
       <article class="owner-action-card owner-action-card--specialist">
-        <div class="owner-action-card__mark" aria-hidden="true">👤</div>
+        <div class="owner-action-card__mark" aria-hidden="true"><i class="fas fa-user-tie"></i></div>
         <div>
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a specialist{% else %}Добавить специалиста{% endif %}</h2>
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}</h2>
           <p>
             {% if CURRENT_LANGUAGE == "az" %}
               Uşaq psixoloqu, loqoped, pediatr, repetitor və ya məşqçi profilini əlavə edin.
@@ -172,11 +180,82 @@
             {% endif %}
           </p>
         </div>
-        <a class="btn-secondary owner-action-card__button" href="/admin/catalog/specialist/add/">
-          {% if CURRENT_LANGUAGE == "az" %}Mütəxəssis əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add specialist{% else %}Добавить специалиста{% endif %}
+        <a class="btn-secondary owner-action-card__button" href="{% url 'owner_specialist_create' %}">
+          {% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}
         </a>
       </article>
+      {% endif %}
     </section>
+
+    {% if is_specialists_section_enabled %}
+    <section id="owner-specialists-list" class="owner-dashboard-section">
+      <div class="owner-dashboard-section__head">
+        <div>
+          <h2><i class="fas fa-user-tie" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Mənim profillərim{% elif CURRENT_LANGUAGE == "en" %}My profiles{% else %}Мои профили{% endif %}</h2>
+          <p>{% if CURRENT_LANGUAGE == "az" %}Pedaqoq, mütəxəssis və repetitor profillərinizi idarə edin.{% elif CURRENT_LANGUAGE == "en" %}Manage educator, specialist, and tutor profiles.{% else %}Управляйте профилями педагогов, специалистов и репетиторов.{% endif %}</p>
+        </div>
+        <a class="btn" href="{% url 'owner_specialist_create' %}">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          {% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}
+        </a>
+      </div>
+      {% if owner_specialists %}
+        <div class="owner-dashboard-list owner-specialist-profile-list">
+          {% for specialist in owner_specialists %}
+            <article class="owner-dashboard-card owner-specialist-profile-card">
+              <div class="owner-specialist-profile-card__photo">
+                {% if specialist.photo %}
+                  <img src="{{ specialist.photo.url }}" alt="{{ specialist.name }}">
+                {% else %}
+                  <i class="fas fa-user-tie" aria-hidden="true"></i>
+                {% endif %}
+              </div>
+              <div class="owner-dashboard-card__main">
+                <h3>{{ specialist.name }}</h3>
+                <p>
+                  {% for spec in specialist.specializations.all %}
+                    {{ spec.name_i18n }}{% if not forloop.last %}, {% endif %}
+                  {% empty %}
+                    {% if CURRENT_LANGUAGE == "az" %}İstiqamət seçilməyib{% elif CURRENT_LANGUAGE == "en" %}No direction selected{% else %}Направление не выбрано{% endif %}
+                  {% endfor %}
+                </p>
+                <div class="owner-specialist-profile-card__meta">
+                  <span><i class="fas fa-laptop-house" aria-hidden="true"></i> {{ specialist.get_consultation_format_display }}</span>
+                  <span><i class="far fa-clock" aria-hidden="true"></i> {{ specialist.updated_at|date:"d.m.Y" }}</span>
+                </div>
+              </div>
+              <span class="owner-dashboard-status owner-dashboard-status--{{ specialist.status }}">{{ specialist.get_status_display }}</span>
+              <div class="owner-specialist-profile-card__actions">
+                <a class="btn-secondary owner-dashboard-card__action" href="{% url 'owner_specialist_edit' specialist.pk %}">
+                  <i class="fas fa-pen" aria-hidden="true"></i>
+                  {% if specialist.status == "draft" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}
+                  {% else %}
+                    {% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}
+                  {% endif %}
+                </a>
+                {% if specialist.status == "published" and specialist.is_active %}
+                  <a class="btn-secondary owner-dashboard-card__action" href="{{ specialist.get_absolute_url }}">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                    {% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Просмотр{% endif %}
+                  </a>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="owner-empty-state">
+          <i class="fas fa-user-plus" aria-hidden="true"></i>
+          <h3>{% if CURRENT_LANGUAGE == "az" %}Hələ profil yoxdur{% elif CURRENT_LANGUAGE == "en" %}No profiles yet{% else %}Профилей пока нет{% endif %}</h3>
+          <p>{% if CURRENT_LANGUAGE == "az" %}Pedaqoq, repetitor, psixoloq və ya məşqçi profilini əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}Add an educator, tutor, psychologist, or coach profile.{% else %}Добавьте профиль педагога, репетитора, психолога или тренера.{% endif %}</p>
+          <a class="btn" href="{% url 'owner_specialist_create' %}">
+            {% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}
+          </a>
+        </div>
+      {% endif %}
+    </section>
+    {% endif %}
 
     {% if can_view_stats %}
       <section class="owner-dashboard-stats" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Statistika{% elif CURRENT_LANGUAGE == 'en' %}Statistics{% else %}Статистика{% endif %}">
@@ -365,6 +444,7 @@
       </section>
     </div>
 
+    {% if is_events_section_enabled %}
     <section id="owner-events-list" class="owner-dashboard-section owner-events-dashboard-section">
       <div class="owner-dashboard-section__head">
         <h2>{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %}</h2>
@@ -428,5 +508,6 @@
         </div>
       {% endif %}
     </section>
+    {% endif %}
   </section>
 {% endblock %}

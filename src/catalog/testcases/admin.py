@@ -43,6 +43,7 @@ from catalog.models import (
     SiteReview,
     SiteReviewReaction,
     SiteVisit,
+    Specialist,
     Subcategory,
     UserEmailVerification,
     UserProfile,
@@ -106,6 +107,31 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertNotContains(response, 'name="temporary_start_0"', html=False)
         self.assertNotContains(response, 'name="temporary_end_0"', html=False)
 
+    def test_localized_admin_add_choice_route_is_reachable(self):
+        response = self.client.get("/ru/admin/add-choice/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Добавить публикацию")
+        self.assertContains(response, "data-km-sidebar-group", html=False)
+        self.assertContains(response, "kidsmap_add_choice.css", html=False)
+
+    def test_place_form_breadcrumb_returns_to_safe_previous_admin_page(self):
+        previous_url = "/ru/admin/add-choice/"
+        response = self.client.get(
+            f"{reverse('admin:catalog_place_add')}?type=permanent",
+            HTTP_REFERER=f"http://testserver{previous_url}",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'href="http://testserver{previous_url}"', html=False)
+        self.assertContains(response, "Вернуться на предыдущий шаг", html=False)
+
+    def test_place_form_breadcrumb_falls_back_to_place_list_without_referer(self):
+        response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=permanent")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse("admin:catalog_place_changelist"), html=False)
+
 
 class TestAzerbaijanPhoneFormatting(TestCase):
     def test_place_admin_form_formats_existing_phone_for_input(self):
@@ -146,29 +172,30 @@ class TestAdminEventInputs(TestCase):
         )
         self.client.login(username="admin_event_fields", password="StrongPass123!!")
 
-    def test_event_admin_form_uses_compact_datetime_local_inputs(self):
+    def test_event_admin_form_uses_datetime_picker_inputs(self):
         form = EventAdminForm(instance=self.event)
 
-        self.assertEqual(form.fields["start_datetime"].widget.input_type, "datetime-local")
-        self.assertEqual(form.fields["end_datetime"].widget.input_type, "datetime-local")
+        self.assertEqual(form.fields["start_datetime"].widget.input_type, "text")
+        self.assertEqual(form.fields["end_datetime"].widget.input_type, "text")
         self.assertEqual(form.fields["published_at"].widget.input_type, "datetime-local")
         self.assertEqual(
             form.initial["start_datetime"],
-            timezone.localtime(self.event.start_datetime).strftime(EventAdminForm.DATETIME_LOCAL_FORMAT),
+            timezone.localtime(self.event.start_datetime).strftime(EventAdminForm.PICKER_DATETIME_FORMAT),
         )
         self.assertEqual(
             form.initial["end_datetime"],
-            timezone.localtime(self.event.end_datetime).strftime(EventAdminForm.DATETIME_LOCAL_FORMAT),
+            timezone.localtime(self.event.end_datetime).strftime(EventAdminForm.PICKER_DATETIME_FORMAT),
         )
 
-    def test_event_change_page_renders_single_compact_datetime_inputs(self):
+    def test_event_change_page_renders_flatpickr_datetime_inputs(self):
         response = self.client.get(reverse("admin:catalog_event_change", args=[self.event.pk]))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'name="start_datetime"', html=False)
         self.assertContains(response, 'name="end_datetime"', html=False)
         self.assertContains(response, 'name="published_at"', html=False)
-        self.assertContains(response, 'type="datetime-local"', count=3, html=False)
+        self.assertContains(response, 'data-kidsmap-datetime-picker="1"', count=2, html=False)
+        self.assertContains(response, 'type="datetime-local"', count=1, html=False)
         self.assertNotContains(response, 'name="start_datetime_0"', html=False)
         self.assertNotContains(response, 'name="end_datetime_0"', html=False)
         self.assertNotContains(response, 'name="published_at_0"', html=False)
@@ -335,10 +362,8 @@ class TestAdminOwnershipModerationUX(TestCase):
             "description_az": event.description_az,
             "description_ru": event.description_ru,
             "description_en": event.description_en,
-            "start_datetime_0": "" if event.start_datetime is None else timezone.localtime(event.start_datetime).strftime("%Y-%m-%d"),
-            "start_datetime_1": "" if event.start_datetime is None else timezone.localtime(event.start_datetime).strftime("%H:%M:%S"),
-            "end_datetime_0": "" if event.end_datetime is None else timezone.localtime(event.end_datetime).strftime("%Y-%m-%d"),
-            "end_datetime_1": "" if event.end_datetime is None else timezone.localtime(event.end_datetime).strftime("%H:%M:%S"),
+            "start_datetime": "" if event.start_datetime is None else timezone.localtime(event.start_datetime).strftime(EventAdminForm.PICKER_DATETIME_FORMAT),
+            "end_datetime": "" if event.end_datetime is None else timezone.localtime(event.end_datetime).strftime(EventAdminForm.PICKER_DATETIME_FORMAT),
             "age_from": "" if event.age_from is None else str(event.age_from),
             "age_to": "" if event.age_to is None else str(event.age_to),
             "price_text": event.price_text,
@@ -350,6 +375,10 @@ class TestAdminOwnershipModerationUX(TestCase):
             "published_at_0": "" if event.published_at is None else timezone.localtime(event.published_at).strftime("%Y-%m-%d"),
             "published_at_1": "" if event.published_at is None else timezone.localtime(event.published_at).strftime("%H:%M:%S"),
             "rejection_reason": event.rejection_reason,
+            "gallery-TOTAL_FORMS": "0",
+            "gallery-INITIAL_FORMS": "0",
+            "gallery-MIN_NUM_FORMS": "0",
+            "gallery-MAX_NUM_FORMS": "10",
         }
         data.update(overrides)
         return data
@@ -434,19 +463,19 @@ class TestAdminOwnershipModerationUX(TestCase):
         content = response.content.decode("utf-8")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('>2</span>\n                    <p class="km-stat-label">Всего мест</p>', content)
+        self.assertIn('>2</span>\n                    <p class="km-stat-label">Постоянных мест</p>', content)
         self.assertIn('>0</span>\n                    <p class="km-stat-label">Опубликовано мест</p>', content)
         self.assertIn('>1</span>\n                        <p class="km-stat-label">Места на проверке</p>', content)
         self.assertIn('>1</span>\n                        <p class="km-stat-label">Мероприятия на проверке</p>', content)
         self.assertIn('>1</span>\n                        <p class="km-stat-label">Отзывы на проверке</p>', content)
         self.assertIn('>1</span>\n                        <p class="km-stat-label">Заявки владельцев</p>', content)
         self.assertIn('>2</span>\n                    <p class="km-stat-label">Всего пользователей</p>', content)
-        self.assertContains(response, '/admin/catalog/place/?status__exact=pending', html=False)
-        self.assertContains(response, '/admin/catalog/place/" class="km-stat-card km-stat-card--neutral"', html=False)
-        self.assertContains(response, '/admin/catalog/place/?status__exact=published" class="km-stat-card km-stat-card--good"', html=False)
-        self.assertContains(response, '/admin/catalog/event/?status__exact=pending', html=False)
+        self.assertContains(response, '/admin/catalog_moderation/moderationplace/', html=False)
+        self.assertContains(response, '/admin/catalog/place/?is_temporary__exact=0" class="km-stat-card km-stat-card--neutral"', html=False)
+        self.assertContains(response, '/admin/catalog/place/?is_temporary__exact=0&amp;status__exact=published" class="km-stat-card km-stat-card--good"', html=False)
+        self.assertContains(response, '/admin/catalog_moderation/moderationevent/', html=False)
         self.assertContains(response, '/admin/catalog/event/?status__exact=published" class="km-stat-card km-stat-card--info"', html=False)
-        self.assertContains(response, '/admin/catalog/placereview/?status__exact=pending', html=False)
+        self.assertContains(response, '/admin/catalog_moderation/moderationreview/', html=False)
         self.assertContains(response, '/admin/catalog/placeownershiprequest/?status__exact=PENDING', html=False)
         self.assertContains(response, '/admin/catalog/siteregistereduser/" class="km-stat-card km-stat-card--neutral"', html=False)
 
@@ -884,22 +913,108 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Сначала опубликуйте карточку")
         self.assertNotContains(response, "Открыть карточку на сайте")
 
+    def test_published_place_with_test_content_is_clearly_hidden_from_public_catalog(self):
+        hidden_place = create_quality_place(
+            name="Hidden demo place",
+            name_ru="Скрытая демо-карточка",
+            phone1="+994501234567",
+            lat=40.3754,
+            lng=49.8327,
+        )
+
+        response = self.client.get(reverse("admin:catalog_place_change", args=[hidden_place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Скрыто с сайта")
+        self.assertNotContains(response, "Открыть карточку на сайте")
+
     def test_place_admin_change_form_uses_step_layout(self):
-        response = self.client.get(reverse("admin:catalog_place_add"))
+        response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=permanent")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "km-place-form-page")
         self.assertContains(response, "km-place-form-steps")
         self.assertContains(response, "km-place-form-sidebar")
-        self.assertContains(response, "Фотографии")
+        self.assertContains(response, "data-place-accordion-collapse-all")
+        self.assertContains(response, "data-place-accordion-expand-all")
+        self.assertContains(response, "data-place-section-toggle")
+        self.assertContains(response, "data-place-accordion-key")
+        self.assertContains(response, "Фото")
         self.assertContains(response, "Главное фото")
         self.assertContains(response, "Дополнительные фотографии")
         self.assertContains(response, "data-gallery-root")
         self.assertContains(response, "Сводка карточки")
-        self.assertContains(response, "Видимость на сайте")
+        self.assertContains(response, "Черновик")
+        self.assertContains(response, "Сначала название и описание карточки, затем категория и подкатегория.")
+        self.assertContains(response, "Цена и возраст")
+        self.assertContains(response, 'data-tariff-input=""', html=False)
+        self.assertNotContains(response, "URL-слаг")
+        self.assertNotContains(response, "Временное мероприятие")
         self.assertContains(response, "km-place-progress-config")
         self.assertContains(response, "data-progress-pct")
         self.assertContains(response, "data-rejected-status")
+
+    def test_place_admin_schedule_error_identifies_day_and_reason(self):
+        invalid_schedule = json.dumps(
+            [
+                {
+                    "weekday": "mon",
+                    "is_closed": False,
+                    "is_24_hours": False,
+                    "intervals": [{"start": "18:00", "end": "09:00"}],
+                },
+                *[
+                    {"weekday": weekday, "is_closed": True, "is_24_hours": False, "intervals": []}
+                    for weekday in ("tue", "wed", "thu", "fri", "sat", "sun")
+                ],
+            ]
+        )
+        payload = self._admin_place_change_payload(structured_schedule=invalid_schedule)
+        payload["_save_draft"] = "1"
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            payload,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Изменения не сохранены")
+        self.assertContains(response, "Расписание: Понедельник")
+        self.assertContains(response, "Интервал не может переходить через полночь")
+        self.assertContains(response, "Исправить")
+        self.assertContains(response, 'href="#admin-place-schedule-row-mon"', html=False)
+        self.assertContains(response, 'id="admin-place-schedule-row-mon"', html=False)
+        self.assertContains(response, "km-schedule-editor__row has-errors", html=False)
+
+    def test_place_admin_saves_valid_structured_schedule(self):
+        valid_schedule = json.dumps(
+            [
+                {
+                    "weekday": "mon",
+                    "is_closed": False,
+                    "is_24_hours": False,
+                    "intervals": [{"start": "09:00", "end": "18:00"}],
+                },
+                *[
+                    {"weekday": weekday, "is_closed": True, "is_24_hours": False, "intervals": []}
+                    for weekday in ("tue", "wed", "thu", "fri", "sat", "sun")
+                ],
+            ]
+        )
+        payload = self._admin_place_change_payload(structured_schedule=valid_schedule)
+        payload["_save_draft"] = "1"
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            payload,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        monday = PlaceScheduleDay.objects.get(place=self.place, weekday="mon")
+        self.assertFalse(monday.is_closed)
+        interval = monday.intervals.get()
+        self.assertEqual(interval.start_time.strftime("%H:%M"), "09:00")
+        self.assertEqual(interval.end_time.strftime("%H:%M"), "18:00")
 
     def test_place_admin_add_form_hides_change_only_inlines_and_collapses_system_fields(self):
         response = self.client.get(reverse("admin:catalog_place_add"))
@@ -1047,8 +1162,11 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "km-place-form-page")
         self.assertContains(response, "km-place-form-steps")
         self.assertContains(response, "km-place-form-sidebar")
-        self.assertContains(response, "Добавить мероприятие")
-        self.assertContains(response, "Видимость на сайте")
+        self.assertContains(response, "Новое мероприятие")
+        self.assertContains(response, "Сохранить и продолжить")
+        self.assertContains(response, "Сохранить черновик")
+        self.assertNotContains(response, "Сохранить и выйти")
+        self.assertContains(response, "Черновик")
         self.assertContains(response, "km-admin-progress-config")
         self.assertContains(response, "data-km-admin-form")
 
@@ -1718,16 +1836,49 @@ class UserAdminUXTests(TestCase):
         self.assertIn("Test User", content)
         self.assertIn("+994501234567", content)
 
-    def test_staffaccessuser_changelist_filters(self):
+    def test_staffaccessuser_changelist_is_compact_and_supports_role_filter(self):
+        staff_user = User.objects.create_user(
+            username="staff-list-user",
+            email="staff-list@example.com",
+            password="password",
+            is_staff=True,
+        )
         url = reverse("admin:catalog_staffaccessuser_changelist")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("km_primary_quick_filters", response.context)
-        
         content = response.content.decode("utf-8")
-        self.assertIn("Суперадмины", content)
-        self.assertIn("Админы", content)
-        self.assertIn("Все сотрудники", content)
+        self.assertIn("km-staff-access-list__table", content)
+        self.assertIn('name="role"', content)
+        self.assertIn("Добавленные места", content)
+        self.assertIn(staff_user.email, content)
+        self.assertNotIn("Дата регистрации", content)
+
+        response = self.client.get(url, {"role": "superadmin"})
+        self.assertContains(response, self.superadmin.username)
+        self.assertNotContains(response, staff_user.username)
+
+    def test_superadmin_can_delete_staff_member_after_confirmation(self):
+        staff_user = User.objects.create_user(
+            username="staff-to-delete",
+            email="staff-delete@example.com",
+            password="password",
+            is_staff=True,
+        )
+        delete_url = reverse("admin:catalog_staffaccessuser_delete", args=[staff_user.pk])
+
+        self.assertEqual(self.client.get(delete_url).status_code, 200)
+        response = self.client.post(delete_url, {"post": "yes"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(User.objects.filter(pk=staff_user.pk).exists())
+
+    def test_superadmin_cannot_delete_self_or_last_superadmin(self):
+        delete_url = reverse("admin:catalog_staffaccessuser_delete", args=[self.superadmin.pk])
+
+        response = self.client.get(delete_url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(User.objects.filter(pk=self.superadmin.pk).exists())
 
     def test_superadmin_can_create_staff_user_with_profile_fields(self):
         response = self.client.get(reverse("admin:catalog_staffaccessuser_add"))
@@ -2128,3 +2279,205 @@ class TestAdminDeleteFlows(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(User.objects.filter(pk=target_user.pk).exists())
+
+
+class TestAdminSidebarStructure(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_superuser("sidebar_admin", "sidebar@example.com", "pass")
+        self.client.force_login(self.admin)
+        now = timezone.now()
+
+        Place.objects.create(
+            name="Visible place",
+            category="EDU",
+            is_active=True,
+            status=Place.STATUS_PUBLISHED,
+        )
+        Place.objects.create(
+            name="Pending place",
+            category="EDU",
+            is_active=False,
+            status=Place.STATUS_PENDING,
+        )
+        Event.objects.create(
+            name="Visible event",
+            category="EDU",
+            status=Event.STATUS_PUBLISHED,
+            start_datetime=now + timedelta(days=1),
+            end_datetime=now + timedelta(days=1, hours=2),
+        )
+        Event.objects.create(
+            name="Pending event",
+            category="EDU",
+            status=Event.STATUS_PENDING,
+            start_datetime=now + timedelta(days=1),
+            end_datetime=now + timedelta(days=1, hours=2),
+        )
+        Specialist.objects.create(
+            name="Visible specialist",
+            slug="visible-specialist",
+            status=Specialist.STATUS_PUBLISHED,
+            is_active=True,
+        )
+        Specialist.objects.create(
+            name="Pending specialist",
+            slug="pending-specialist",
+            status=Specialist.STATUS_PENDING,
+            is_active=False,
+        )
+
+    def test_catalog_and_moderation_use_real_admin_pages_and_metrics(self):
+        response = self.client.get(reverse("admin:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'km-admin-sidebar__access-card')
+        self.assertContains(response, "Постоянные места")
+        self.assertContains(response, "Временные мероприятия")
+        self.assertContains(response, "Специалисты")
+        self.assertContains(response, "Места на проверке")
+        self.assertContains(response, "Мероприятия на проверке")
+        self.assertContains(response, "Специалисты на проверке")
+        self.assertContains(response, "Добавить администратора")
+        self.assertContains(response, "Список администраторов")
+        self.assertContains(response, 'href="/admin/catalog/place/?is_temporary__exact=0"', html=False)
+        self.assertContains(response, 'href="/admin/catalog/event/"', html=False)
+        self.assertContains(response, 'href="/admin/catalog/specialist/"', html=False)
+        self.assertContains(response, 'href="/admin/catalog_moderation/moderationplace/"', html=False)
+        self.assertContains(response, 'href="/admin/catalog_moderation/moderationevent/"', html=False)
+        self.assertContains(response, 'href="/admin/catalog_moderation/moderationspecialist/"', html=False)
+        self.assertContains(response, 'href="/admin/catalog_moderation/moderationreview/"', html=False)
+        self.assertContains(response, 'href="/admin/catalog/staffaccessuser/add/"', html=False)
+        self.assertContains(response, 'href="/admin/catalog/staffaccessuser/"', html=False)
+        self.assertContains(response, '>2</span>', html=False)
+        self.assertContains(response, 'class="km-admin-sidebar__badge" aria-label="0">0</span>', html=False)
+
+    def test_moderation_items_open_separate_pending_workspaces(self):
+        place_url = reverse("admin:catalog_place_changelist")
+        moderation_place_url = reverse("admin:catalog_moderation_moderationplace_changelist")
+        event_url = reverse("admin:catalog_event_changelist")
+        moderation_event_url = reverse("admin:catalog_moderation_moderationevent_changelist")
+        specialist_url = reverse("admin:catalog_specialist_changelist")
+        moderation_specialist_url = reverse("admin:catalog_moderation_moderationspecialist_changelist")
+        review_url = reverse("admin:catalog_placereview_changelist")
+        moderation_review_url = reverse("admin:catalog_moderation_moderationreview_changelist")
+
+        self.assertNotEqual(place_url, moderation_place_url)
+        self.assertNotEqual(event_url, moderation_event_url)
+        self.assertNotEqual(specialist_url, moderation_specialist_url)
+        self.assertNotEqual(review_url, moderation_review_url)
+
+        response = self.client.get(moderation_place_url)
+        self.assertContains(response, "Рабочая очередь модерации")
+        self.assertContains(response, "Места на проверке")
+        self.assertContains(response, "Pending place")
+        self.assertNotContains(response, "Visible place")
+        self.assertContains(response, "Одобрить и опубликовать")
+        self.assertContains(response, "Вернуть на доработку")
+
+        response = self.client.get(moderation_event_url)
+        self.assertContains(response, "Мероприятия на проверке")
+        self.assertContains(response, "Pending event")
+        self.assertNotContains(response, "Visible event")
+
+        response = self.client.get(moderation_specialist_url)
+        self.assertContains(response, "Специалисты на проверке")
+        self.assertContains(response, "Pending specialist")
+        self.assertNotContains(response, "Visible specialist")
+
+        response = self.client.get(moderation_review_url)
+        self.assertContains(response, "Нет отзывов, ожидающих проверки")
+
+    def test_hidden_public_sections_remain_available_in_admin(self):
+        site_settings = SiteSettings.get_solo()
+        site_settings.events_section_enabled = False
+        site_settings.specialists_section_enabled = False
+        site_settings.save()
+
+        response = self.client.get(reverse("admin:index"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'href="/admin/catalog/event/"', html=False)
+        self.assertContains(response, 'href="/admin/catalog/specialist/"', html=False)
+        self.assertContains(response, 'title="Скрыто на сайте"', count=2, html=False)
+
+    def test_staff_access_sidebar_marks_only_the_current_link_active(self):
+        response = self.client.get(reverse("admin:catalog_staffaccessuser_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'href="/admin/catalog/staffaccessuser/add/" class="km-admin-sidebar__link"',
+            html=False,
+        )
+        self.assertContains(
+            response,
+            'href="/admin/catalog/staffaccessuser/" class="km-admin-sidebar__link is-active"',
+            html=False,
+        )
+
+        response = self.client.get(reverse("admin:catalog_staffaccessuser_add"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'href="/admin/catalog/staffaccessuser/add/" class="km-admin-sidebar__link is-active"',
+            html=False,
+        )
+        self.assertContains(
+            response,
+            'href="/admin/catalog/staffaccessuser/" class="km-admin-sidebar__link"',
+            html=False,
+        )
+
+
+class TestAdminSpecialistChangeList(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_superuser("specialist_list_admin", "specialist-list@example.com", "pass")
+        self.client.force_login(self.admin)
+        Specialist.objects.create(
+            name="Published specialist",
+            slug="published-specialist",
+            status=Specialist.STATUS_PUBLISHED,
+            is_active=True,
+            is_verified=True,
+        )
+        Specialist.objects.create(
+            name="Pending specialist",
+            slug="pending-specialist-list",
+            status=Specialist.STATUS_PENDING,
+            is_active=False,
+        )
+        Specialist.objects.create(
+            name="Inactive specialist",
+            slug="inactive-specialist",
+            status=Specialist.STATUS_DRAFT,
+            is_active=False,
+        )
+
+    def test_change_list_uses_catalog_dashboard_and_real_specialist_metrics(self):
+        response = self.client.get(reverse("admin:catalog_specialist_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Управляйте публикацией, проверкой")
+        self.assertContains(response, "Всего специалистов")
+        self.assertContains(response, "Опубликовано")
+        self.assertContains(response, "На модерации")
+        self.assertContains(response, "Неактивные")
+        self.assertContains(response, "Без проверки")
+        self.assertContains(response, "Все профили")
+        self.assertContains(response, 'data-action="mark_published"', html=False)
+        self.assertContains(response, 'data-action="mark_verified"', html=False)
+        self.assertContains(response, 'href="?status__exact=published&amp;is_active__exact=1"', html=False)
+
+    def test_specialist_bulk_publish_updates_public_visibility_fields(self):
+        specialist = Specialist.objects.get(slug="pending-specialist-list")
+        response = self.client.post(
+            reverse("admin:catalog_specialist_changelist"),
+            {"action": "mark_published", "_selected_action": [str(specialist.pk)], "index": "0"},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        specialist.refresh_from_db()
+        self.assertEqual(specialist.status, Specialist.STATUS_PUBLISHED)
+        self.assertTrue(specialist.is_active)

@@ -1,0 +1,289 @@
+/* Loaded only by catalog pages: keep primary place photos consistently square. */
+.page-place_list .grid:not(.results-list-mode) .card-media,
+.page-place_new .grid:not(.results-list-mode) .card-media,
+.page-place_list .results-list-mode .card .card-media,
+.page-place_new .results-list-mode .card .card-media {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  overflow: hidden;
+}
+
+.page-place_list .card-media > img,
+.page-place_list .card-media-link > img,
+.page-place_new .card-media > img,
+.page-place_new .card-media-link > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Layout padding and gap unification */
+.page-place_list .catalog-layout {
+  gap: 24px !important;
+  margin-top: 24px !important;
+}
+
+.page-place_list .catalog-layout .catalog-content-column {
+  gap: 20px !important;
+}
+
+/* Unified UI Cards styling (Cards, filters, search, toolbar) */
+.page-place_list .catalog-layout .filters-catalog {
+  padding: 16px !important;
+  border-radius: 16px !important;
+  border: 1px solid #dbe8df !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(18, 53, 35, 0.03) !important;
+}
+
+.page-place_list .top-search-label {
+  border: 1px solid #dbe8df !important;
+  border-radius: 16px !important;
+  padding: 0 20px !important;
+  min-height: 52px !important;
+  box-shadow: 0 4px 20px rgba(18, 53, 35, 0.03) !important;
+}
+
+.page-place_list .catalog-layout .results-toolbar {
+  margin: 0 !important;
+  padding: 12px 16px !important;
+  background: #ffffff !important;
+  border: 1px solid #dbe8df !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(18, 53, 35, 0.03) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card {
+  padding: 16px !important;
+  border-radius: 16px !important;
+  border: 1px solid #dbe8df !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 20px rgba(18, 53, 35, 0.03) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+}
+
+.page-place_list .grid {
+  gap: 20px !important;
+}
+
+/* Results Toolbar elements alignment */
+.page-place_list .results-toolbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.page-place_list .results-toolbar-sort {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+.page-place_list .results-toolbar-sort-label {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #4e6758 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+.page-place_list .results-toolbar-sort-select {
+  min-width: 200px !important;
+  width: auto !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: none !important;
+  background-color: #ffffff !important;
+}
+
+.page-place_list .results-toolbar-actions .results-map-toggle {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #4e6758 !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  transition: all 0.15s ease !important;
+}
+
+.page-place_list .results-toolbar-actions .results-map-toggle:hover {
+  background-color: #f8faf9 !important;
+  border-color: #94a3b8 !important;
+  color: #193126 !important;
+}
+
+/* Card inside grid layout normalization for exact baseline alignment */
+.page-place_list .grid:not(.results-list-mode) .card-body {
+  padding: 16px 0 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  flex: 1 1 auto !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card h3 {
+  margin: 0 !important;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  height: 48px !important; /* Strict height for 2 lines */
+  min-height: 48px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card h3 a {
+  color: #193126 !important;
+  font-weight: 800 !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card h3 a:hover {
+  color: #0d8a52 !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card-description {
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
+  height: 36px !important; /* Strict height for 2 lines */
+  min-height: 36px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  color: #678070 !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card-tags-row {
+  margin: 0 !important;
+  height: 28px !important; /* Strict height */
+  min-height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card-meta-chip {
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 6px !important;
+  border: 1px solid #dbe8df !important;
+  background: #f6fbf8 !important;
+  box-sizing: border-box !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 26px !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card-tag-price {
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(20, 165, 82, 0.2) !important;
+  background: #edf8f3 !important;
+  color: #0d8a52 !important;
+  box-sizing: border-box !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 26px !important;
+  box-shadow: none !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card-rating-row {
+  margin: 0 !important;
+  height: 20px !important; /* Strict height */
+  min-height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card-location {
+  margin: 0 !important;
+  height: 20px !important; /* Strict height */
+  min-height: 20px !important;
+  font-size: 13px !important;
+  color: #678070 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card-action-stack {
+  margin-top: auto !important; /* Force to the bottom */
+}
+
+/* Responsive fixes for mobile screen */
+@media (max-width: 760px) {
+  .page-place_list .catalog-layout {
+    gap: 16px !important;
+    margin-top: 16px !important;
+  }
+  
+  .page-place_list .grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .page-place_list .catalog-layout .results-toolbar {
+    padding: 12px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  
+  .page-place_list .results-toolbar-actions {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    gap: 10px !important;
+    margin-top: 0 !important;
+  }
+
+  .page-place_list .results-toolbar-sort {
+    width: 100% !important;
+  }
+
+  .page-place_list .results-toolbar-sort-label {
+    display: none !important;
+  }
+
+  .page-place_list .results-toolbar-sort-select {
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    border-radius: 12px !important;
+  }
+
+  .page-place_list .results-toolbar-actions .results-map-toggle {
+    height: 48px !important;
+    min-height: 48px !important;
+    border-radius: 12px !important;
+  }
+}

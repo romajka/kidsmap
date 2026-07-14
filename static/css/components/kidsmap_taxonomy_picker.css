@@ -538,5 +538,139 @@
   box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.05) !important;
 }
 
+/* Contrast Improvements (Light Theme High-Contrast Refinements) */
+.owner-wizard-page .owner-form-label {
+  color: #11291b !important;
+  font-weight: 800 !important;
+}
+
+.owner-wizard-page .field,
+.owner-wizard-page .filter-select,
+.owner-wizard-page textarea.field {
+  border: 1px solid #94b8a2 !important;
+  color: #111827 !important;
+  background-color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.owner-wizard-page .field:focus,
+.owner-wizard-page .filter-select:focus,
+.owner-wizard-page textarea.field:focus {
+  border-color: #0d8a52 !important;
+  box-shadow: 0 0 0 3px rgba(13, 138, 82, 0.15) !important;
+}
+
+.owner-wizard-page .field::placeholder {
+  color: #678070 !important;
+}
+
+.owner-wizard-page .owner-form-group-card {
+  border: 1px solid #adcbb7 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(18, 53, 35, 0.02) !important;
+}
+
+.km-taxonomy-picker {
+  border: 1px solid #96c4a8 !important;
+  background: linear-gradient(180deg, #ffffff, #f4faf6) !important;
+  box-shadow: 0 8px 24px rgba(18, 53, 35, 0.04) !important;
+}
+
+.km-taxonomy-card {
+  border: 1px solid #b2d2bd !important;
+  background: #ffffff !important;
+  color: #11291b !important;
+}
+
+.km-taxonomy-card.is-active {
+  border: 2px solid #0b6d41 !important;
+  background: #eef9f3 !important;
+  box-shadow: 0 8px 20px rgba(13, 138, 82, 0.12) !important;
+}
+
+.km-taxonomy-card.is-active .km-taxonomy-card__copy strong {
+  color: #095834 !important;
+}
+
+.km-taxonomy-card.is-active .km-taxonomy-card__icon {
+  background-color: #d6f0df !important;
+  color: #0b6d41 !important;
+}
+
+.owner-language-tab {
+  border: 1px solid #adcbb7 !important;
+  background: #f0f7f3 !important;
+  color: #3b5245 !important;
+}
+
+.owner-language-tab.is-active {
+  background: #0d8a52 !important;
+  border-color: #0d8a52 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(13, 138, 82, 0.2) !important;
+}
+
+.owner-wizard-page .required-mark,
+.owner-wizard-page .owner-temp-required-mark {
+  color: #d92d20 !important;
+  font-weight: 900 !important;
+  font-size: 15px !important;
+}
+
+.owner-wizard-page small.meta,
+.owner-wizard-page .owner-form-field .meta {
+  color: #3b5245 !important;
+  font-weight: 600 !important;
+}
+
+.km-taxonomy-chip {
+  border: 1px solid #a3c7b2 !important;
+  color: #21392c !important;
+  background: #ffffff !important;
+}
+
+.km-taxonomy-chip.is-active {
+  border-color: #0d8a52 !important;
+  background: #eef9f3 !important;
+  color: #0b6d41 !important;
+}
+
+/* Stable layout for age fields (preventing error validation size jumps) */
+.owner-age-fields-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 14px !important;
+  align-items: start !important;
+}
+
+.owner-age-fields-grid .owner-form-field {
+  position: relative !important;
+  padding-bottom: 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+
+.owner-age-fields-grid .owner-form-field input {
+  height: 52px !important;
+  min-height: 52px !important;
+  box-sizing: border-box !important;
+}
+
+.owner-age-fields-grid .owner-form-field .auth-field-error,
+.owner-age-fields-grid .owner-form-field .client-side-error {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: #e63946 !important;
+}
+
 
 

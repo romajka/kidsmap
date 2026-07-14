@@ -42,7 +42,7 @@
         {% else %}
             <div class="km-stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 32px;">
                 {% if stats.pending.places > 0 %}
-                <a href="{% url 'admin:catalog_place_changelist' %}?status__exact=pending" class="km-stat-card km-stat-card--warn" aria-label="Места на проверке">
+                <a href="{% url 'admin:catalog_moderation_moderationplace_changelist' %}" class="km-stat-card km-stat-card--warn" aria-label="Места на проверке">
                     <div class="km-stat-info">
                         <span class="km-stat-value">{{ stats.pending.places }}</span>
                         <p class="km-stat-label">Места на проверке</p>
@@ -54,7 +54,7 @@
                 {% endif %}
                 
                 {% if stats.pending.events > 0 %}
-                <a href="{% url 'admin:catalog_event_changelist' %}?status__exact=pending" class="km-stat-card km-stat-card--warn" aria-label="Мероприятия на проверке">
+                <a href="{% url 'admin:catalog_moderation_moderationevent_changelist' %}" class="km-stat-card km-stat-card--warn" aria-label="Мероприятия на проверке">
                     <div class="km-stat-info">
                         <span class="km-stat-value">{{ stats.pending.events }}</span>
                         <p class="km-stat-label">Мероприятия на проверке</p>
@@ -65,8 +65,20 @@
                 </a>
                 {% endif %}
 
+                {% if stats.pending.specialists > 0 %}
+                <a href="{% url 'admin:catalog_moderation_moderationspecialist_changelist' %}" class="km-stat-card km-stat-card--warn" aria-label="Специалисты на проверке">
+                    <div class="km-stat-info">
+                        <span class="km-stat-value">{{ stats.pending.specialists }}</span>
+                        <p class="km-stat-label">Специалисты на проверке</p>
+                    </div>
+                    <div class="km-stat-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                </a>
+                {% endif %}
+
                 {% if stats.pending.reviews > 0 %}
-                <a href="{% url 'admin:catalog_placereview_changelist' %}?status__exact=pending" class="km-stat-card km-stat-card--warn" aria-label="Отзывы на проверке">
+                <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}" class="km-stat-card km-stat-card--warn" aria-label="Отзывы на проверке">
                     <div class="km-stat-info">
                         <span class="km-stat-value">{{ stats.pending.reviews }}</span>
                         <p class="km-stat-label">Отзывы на проверке</p>
@@ -97,7 +109,7 @@
                         <h5>Отзывы ждут решения</h5>
                         <p>Проверьте текст, рейтинг, автора и место. До одобрения отзывы скрыты на сайте.</p>
                     </div>
-                    <a href="{% url 'admin:catalog_placereview_changelist' %}?status__exact=pending" class="km-dashboard-review-alerts__link">
+                    <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}" class="km-dashboard-review-alerts__link">
                         Открыть все
                     </a>
                 </div>
@@ -121,17 +133,17 @@
         <h4 class="km-dashboard__section-title mt-4 pt-4" style="border-top: 1px solid var(--km-border);">Статистика проекта</h4>
         <div class="km-stat-grid">
 
-            <a href="{% url 'admin:catalog_place_changelist' %}" class="km-stat-card km-stat-card--neutral" aria-label="Открыть список всех мест">
+            <a href="{% url 'admin:catalog_place_changelist' %}?is_temporary__exact=0" class="km-stat-card km-stat-card--neutral" aria-label="Открыть список постоянных мест">
                 <div class="km-stat-info">
                     <span class="km-stat-value">{{ stats.kpi.total_places|default:"0" }}</span>
-                    <p class="km-stat-label">Всего мест</p>
+                    <p class="km-stat-label">Постоянных мест</p>
                 </div>
                 <div class="km-stat-icon">
                     <i class="fas fa-map-marker-alt"></i>
                 </div>
             </a>
 
-            <a href="{% url 'admin:catalog_place_changelist' %}?status__exact=published" class="km-stat-card km-stat-card--good" aria-label="Открыть опубликованные места">
+            <a href="{% url 'admin:catalog_place_changelist' %}?is_temporary__exact=0&amp;status__exact=published" class="km-stat-card km-stat-card--good" aria-label="Открыть опубликованные места">
                 <div class="km-stat-info">
                     <span class="km-stat-value">{{ stats.kpi.places_published|default:"0" }}</span>
                     <p class="km-stat-label">Опубликовано мест</p>
@@ -141,13 +153,23 @@
                 </div>
             </a>
             
-            <a href="{% url 'admin:catalog_event_changelist' %}" class="km-stat-card km-stat-card--neutral" aria-label="Всего мероприятий">
+            <a href="{% url 'admin:catalog_event_changelist' %}" class="km-stat-card km-stat-card--neutral" aria-label="Временные мероприятия">
                 <div class="km-stat-info">
                     <span class="km-stat-value">{{ stats.kpi.total_events|default:"0" }}</span>
-                    <p class="km-stat-label">Всего мероприятий</p>
+                    <p class="km-stat-label">Временных мероприятий</p>
                 </div>
                 <div class="km-stat-icon">
                     <i class="fas fa-calendar-alt"></i>
+                </div>
+            </a>
+
+            <a href="{% url 'admin:catalog_specialist_changelist' %}" class="km-stat-card km-stat-card--neutral" aria-label="Все специалисты">
+                <div class="km-stat-info">
+                    <span class="km-stat-value">{{ stats.kpi.total_specialists|default:"0" }}</span>
+                    <p class="km-stat-label">Всего специалистов</p>
+                </div>
+                <div class="km-stat-icon">
+                    <i class="fas fa-user-tie"></i>
                 </div>
             </a>
 

@@ -31,7 +31,7 @@
 {% block content_title %}{% endblock %}
 
 {% block content %}
-<div class="km-specialist-form-page">
+<div class="km-specialist-form-page km-specialist-admin-page">
 
   <form {% if has_file_field %}enctype="multipart/form-data"{% endif %}
         action="{{ form_url }}" method="post"
@@ -43,7 +43,7 @@
     <!-- Page header -->
     <div class="km-specialist-header">
       <div class="km-specialist-header__title">
-        <span class="km-specialist-header__icon">👤</span>
+        <span class="km-specialist-header__icon"><i class="fas fa-user-tie" aria-hidden="true"></i></span>
         <div>
           <h1>{% if add %}{% trans "Добавление специалиста" %}{% else %}{{ original|default:opts.verbose_name }}{% endif %}</h1>
           {% if not add and original %}
@@ -52,13 +52,13 @@
                 <span class="km-status-badge km-status-{{ original.status }}">{{ original.get_status_display }}</span>
               {% endif %}
               {% if original.is_verified %}
-                <span class="km-status-badge km-status-verified">✓ {% trans "Верифицирован" %}</span>
+                <span class="km-status-badge km-status-verified"><i class="fas fa-check-circle" aria-hidden="true"></i> {% trans "Верифицирован" %}</span>
               {% endif %}
               {% if original.owner %}
-                <span class="km-header-meta-item">👤 {{ original.owner }}</span>
+                <span class="km-header-meta-item"><i class="fas fa-user" aria-hidden="true"></i> {{ original.owner }}</span>
               {% endif %}
               {% if original.updated_at %}
-                <span class="km-header-meta-item">🕐 {{ original.updated_at|date:"d.m.Y H:i" }}</span>
+                <span class="km-header-meta-item"><i class="far fa-clock" aria-hidden="true"></i> {{ original.updated_at|date:"d.m.Y H:i" }}</span>
               {% endif %}
             </div>
           {% endif %}
@@ -71,7 +71,7 @@
 
     {% if errors %}
       <div class="km-error-banner">
-        <span>⚠</span>
+        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
         {% if errors|length == 1 %}{% trans "Пожалуйста, исправьте ошибку ниже." %}{% else %}{% trans "Пожалуйста, исправьте ошибки ниже." %}{% endif %}
       </div>
     {% endif %}
@@ -82,18 +82,18 @@
       <nav class="km-specialist-nav" id="km-nav" aria-label="{% trans 'Разделы формы' %}">
         <div class="km-specialist-nav__inner">
           <ul class="km-nav-list">
-            <li><a href="#km-sec-1" class="km-nav-item" data-section="km-sec-1"><span class="km-nav-icon">👤</span> {% trans "Основная информация" %}</a></li>
-            <li><a href="#km-sec-2" class="km-nav-item" data-section="km-sec-2"><span class="km-nav-icon">🖼</span> {% trans "Фото и описание" %}</a></li>
-            <li><a href="#km-sec-3" class="km-nav-item" data-section="km-sec-3"><span class="km-nav-icon">🏷</span> {% trans "Специализации" %}</a></li>
-            <li><a href="#km-sec-4" class="km-nav-item" data-section="km-sec-4"><span class="km-nav-icon">🧒</span> {% trans "Возраст детей" %}</a></li>
-            <li><a href="#km-sec-5" class="km-nav-item" data-section="km-sec-5"><span class="km-nav-icon">🌐</span> {% trans "Языки консультации" %}</a></li>
-            <li><a href="#km-sec-6" class="km-nav-item" data-section="km-sec-6"><span class="km-nav-icon">📋</span> {% trans "Формат работы" %}</a></li>
-            <li><a href="#km-sec-7" class="km-nav-item" data-section="km-sec-7"><span class="km-nav-icon">💰</span> {% trans "Стоимость и длительность" %}</a></li>
-            <li><a href="#km-sec-8" class="km-nav-item" data-section="km-sec-8"><span class="km-nav-icon">📍</span> {% trans "Места приёма" %}</a></li>
-            <li><a href="#km-sec-9" class="km-nav-item" data-section="km-sec-9"><span class="km-nav-icon">🎓</span> {% trans "Образование и опыт" %}</a></li>
-            <li><a href="#km-sec-10" class="km-nav-item" data-section="km-sec-10"><span class="km-nav-icon">📄</span> {% trans "Документы" %}</a></li>
-            <li><a href="#km-sec-11" class="km-nav-item" data-section="km-sec-11"><span class="km-nav-icon">📞</span> {% trans "Контакты" %}</a></li>
-            <li><a href="#km-sec-12" class="km-nav-item" data-section="km-sec-12"><span class="km-nav-icon">🔍</span> {% trans "Модерация" %}</a></li>
+            <li><a href="#km-sec-1" class="km-nav-item" data-section="km-sec-1"><span class="km-nav-icon"><i class="fas fa-user" aria-hidden="true"></i></span> {% trans "Основная информация" %}</a></li>
+            <li><a href="#km-sec-2" class="km-nav-item" data-section="km-sec-2"><span class="km-nav-icon"><i class="fas fa-camera" aria-hidden="true"></i></span> {% trans "Фото и описание" %}</a></li>
+            <li><a href="#km-sec-3" class="km-nav-item" data-section="km-sec-3"><span class="km-nav-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></span> {% trans "Направления деятельности" %}</a></li>
+            <li><a href="#km-sec-4" class="km-nav-item" data-section="km-sec-4"><span class="km-nav-icon"><i class="fas fa-child" aria-hidden="true"></i></span> {% trans "Возраст детей" %}</a></li>
+            <li><a href="#km-sec-5" class="km-nav-item" data-section="km-sec-5"><span class="km-nav-icon"><i class="fas fa-language" aria-hidden="true"></i></span> {% trans "Языки работы" %}</a></li>
+            <li><a href="#km-sec-6" class="km-nav-item" data-section="km-sec-6"><span class="km-nav-icon"><i class="fas fa-laptop-house" aria-hidden="true"></i></span> {% trans "Формат работы" %}</a></li>
+            <li><a href="#km-sec-7" class="km-nav-item" data-section="km-sec-7"><span class="km-nav-icon"><i class="fas fa-money-bill-wave" aria-hidden="true"></i></span> {% trans "Стоимость и длительность" %}</a></li>
+            <li><a href="#km-sec-8" class="km-nav-item" data-section="km-sec-8"><span class="km-nav-icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span> {% trans "Места работы и приёма" %}</a></li>
+            <li><a href="#km-sec-9" class="km-nav-item" data-section="km-sec-9"><span class="km-nav-icon"><i class="fas fa-award" aria-hidden="true"></i></span> {% trans "Образование и опыт" %}</a></li>
+            <li><a href="#km-sec-10" class="km-nav-item" data-section="km-sec-10"><span class="km-nav-icon"><i class="fas fa-file-alt" aria-hidden="true"></i></span> {% trans "Подтверждение квалификации" %}</a></li>
+            <li><a href="#km-sec-11" class="km-nav-item" data-section="km-sec-11"><span class="km-nav-icon"><i class="fas fa-phone-alt" aria-hidden="true"></i></span> {% trans "Контакты" %}</a></li>
+            <li><a href="#km-sec-12" class="km-nav-item" data-section="km-sec-12"><span class="km-nav-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></span> {% trans "Модерация" %}</a></li>
           </ul>
         </div>
       </nav>
@@ -140,10 +140,10 @@
                   <img src="{{ original.photo.url }}" alt="{% trans 'Фото' %}" id="km-photo-img">
                 {% else %}
                   <div class="km-photo-empty" id="km-photo-empty">
-                    <span>👤</span>
+                    <i class="fas fa-user-tie" aria-hidden="true"></i>
                     <small>{% trans "Фото не загружено" %}</small>
                   </div>
-                  <img src="" alt="" id="km-photo-img" style="display:none">
+                  <img src="" alt="" id="km-photo-img" hidden>
                 {% endif %}
                 <p class="km-photo-hint">{% trans "JPG / PNG / WEBP · квадрат · мин. 400×400 px" %}</p>
               </div>
@@ -170,12 +170,12 @@
         {# === SECTION 3 === #}
         <div class="km-specialist-section" id="km-sec-3">
           <div class="km-section-header">
-            <h2>3. {% trans "Специализации" %}</h2>
-            <p class="km-section-desc">{% trans "Выберите одну или несколько специализаций специалиста." %}</p>
+            <h2>3. {% trans "Направления деятельности" %}</h2>
+            <p class="km-section-desc">{% trans "Выберите одно или несколько направлений деятельности." %}</p>
           </div>
           <div class="km-section-body">
             {% for fieldset in adminform %}
-              {% if "Специализации" in fieldset.name %}
+              {% if "Направления деятельности" in fieldset.name %}
                 {% for line in fieldset %}{% for field in line %}
                   <div class="km-field km-field--specializations">
                     {{ field.field }}
@@ -215,8 +215,8 @@
         {# === SECTION 5 === #}
         <div class="km-specialist-section" id="km-sec-5">
           <div class="km-section-header">
-            <h2>5. {% trans "Языки консультации" %}</h2>
-            <p class="km-section-desc">{% trans "На каких языках специалист проводит консультации." %}</p>
+            <h2>5. {% trans "Языки работы" %}</h2>
+            <p class="km-section-desc">{% trans "На каких языках специалист проводит занятия или встречи." %}</p>
           </div>
           <div class="km-section-body">
             {% for fieldset in adminform %}
@@ -255,8 +255,8 @@
                 {% endfor %}{% endfor %}
               {% endif %}
             {% endfor %}
-            <div class="km-format-hint" id="km-format-hint-online" style="display:none">
-              <span>ℹ️</span> {% trans "Онлайн-специалист: блок «Места приёма» не обязателен." %}
+            <div class="km-format-hint" id="km-format-hint-online" hidden>
+              <i class="fas fa-info-circle" aria-hidden="true"></i> {% trans "Онлайн-профиль: блок «Места работы и приёма» не обязателен." %}
             </div>
           </div>
         </div>
@@ -289,12 +289,12 @@
         {# === SECTION 8 — inline === #}
         <div class="km-specialist-section km-specialist-section--inline" id="km-sec-8">
           <div class="km-section-header">
-            <h2>8. {% trans "Места приёма" %}</h2>
+            <h2>8. {% trans "Места работы и приёма" %}</h2>
             <p class="km-section-desc" id="km-locations-desc">{% trans "Адреса, где специалист принимает очно. Можно добавить несколько мест." %}</p>
           </div>
           <div class="km-section-body km-inline-body" id="km-locations-body">
-            <div id="km-online-only-notice" style="display:none" class="km-notice km-notice--info">
-              ℹ️ {% trans "Место приёма не требуется: специалист работает онлайн." %}
+            <div id="km-online-only-notice" hidden class="km-notice km-notice--info">
+              <i class="fas fa-info-circle" aria-hidden="true"></i> {% trans "Место приёма не требуется: специалист работает онлайн." %}
             </div>
             <div id="practice_locations-group-wrapper">
               {# Filled by JS after DOM reorder #}
@@ -331,12 +331,12 @@
         {# === SECTION 10 — documents inline === #}
         <div class="km-specialist-section km-specialist-section--inline" id="km-sec-10">
           <div class="km-section-header">
-            <h2>10. {% trans "Документы" %}</h2>
+            <h2>10. {% trans "Подтверждение квалификации" %}</h2>
             <p class="km-section-desc">{% trans "Дипломы, сертификаты и документы специалиста." %}</p>
           </div>
           <div class="km-section-body km-inline-body">
             <div class="km-notice km-notice--warn">
-              ⚠ {% trans "Документы, удостоверяющие личность, не публикуются на сайте." %}
+              <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> {% trans "Документы, удостоверяющие личность, не публикуются на сайте." %}
             </div>
             <div id="documents-group-wrapper">
               {# Filled by JS after DOM reorder #}
@@ -379,7 +379,7 @@
                 {% for line in fieldset %}{% for field in line %}
                   <div class="km-field {% if 'rejection' in field.field.html_name %}km-field--full{% endif %}">
                     {{ field.label_tag }}
-                    {{ field.field }}
+                    {% if field.is_readonly %}{{ field.contents }}{% else %}{{ field.field }}{% endif %}
                     {% if field.help_text %}<p class="km-help">{{ field.help_text }}</p>{% endif %}
                     {% for err in field.errors %}<p class="km-field-error">{{ err }}</p>{% endfor %}
                   </div>
@@ -411,7 +411,7 @@
 
           {% if not add and original and original.slug %}
             {% if original.status == 'published' %}
-              <a href="/specialists/{{ original.slug }}/" target="_blank" class="km-btn km-btn--link">🌐 {% trans "Просмотреть на сайте" %}</a>
+              <a href="/specialists/{{ original.slug }}/" target="_blank" class="km-btn km-btn--link"><i class="fas fa-external-link-alt" aria-hidden="true"></i> {% trans "Просмотреть на сайте" %}</a>
             {% endif %}
           {% endif %}
 
@@ -426,7 +426,7 @@
     </div><!-- /.km-specialist-layout -->
 
     {# Hidden inlines — will be moved into sections by JS #}
-    <div id="km-inlines-source" style="display:none" aria-hidden="true">
+    <div id="km-inlines-source" hidden aria-hidden="true">
       {% for inline_admin_formset in inline_admin_formsets %}
         {% include inline_admin_formset.opts.template %}
       {% endfor %}

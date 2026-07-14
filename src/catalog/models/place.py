@@ -24,6 +24,12 @@ def _localized_free_label(lang: str | None = None) -> str:
 
 
 class Place(models.Model):
+    LESSON_FORMAT_GROUP = "group"
+    LESSON_FORMAT_INDIVIDUAL = "individual"
+    LESSON_FORMAT_CHOICES = [
+        (LESSON_FORMAT_GROUP, _("Групповые")),
+        (LESSON_FORMAT_INDIVIDUAL, _("Индивидуальные")),
+    ]
     STATUS_DRAFT = "draft"
     STATUS_PENDING = "pending"
     STATUS_PUBLISHED = "published"
@@ -90,6 +96,10 @@ class Place(models.Model):
     website = models.URLField(_("Сайт"), blank=True)
     schedule = models.TextField(_("Расписание"), blank=True)
     lesson_duration_minutes = models.PositiveSmallIntegerField(_("Длительность урока (мин)"), null=True, blank=True)
+    lesson_format = models.CharField(_("Формат занятий"), max_length=16, choices=LESSON_FORMAT_CHOICES, blank=True, default="")
+    lessons_per_week = models.PositiveSmallIntegerField(_("Занятий в неделю"), null=True, blank=True)
+    lessons_per_month = models.PositiveSmallIntegerField(_("Занятий в месяц"), null=True, blank=True)
+    pricing_plans = models.JSONField(_("Тарифы"), default=list, blank=True)
     is_temporary = models.BooleanField(_("Временное мероприятие"), default=False)
     temporary_start = models.DateTimeField(_("Начало мероприятия"), null=True, blank=True)
     temporary_end = models.DateTimeField(_("Окончание мероприятия"), null=True, blank=True)
@@ -320,6 +330,10 @@ class Place(models.Model):
                 self.price_per_lesson is not None,
                 self.price_per_month is not None,
                 self.price_per_8_lessons is not None,
+                self.lesson_format,
+                self.lessons_per_week is not None,
+                self.lessons_per_month is not None,
+                self.pricing_plans,
                 self.extra_conditions,
                 self.additional_info,
                 self.price_from is not None,
@@ -578,9 +592,14 @@ class Event(models.Model):
     age_from = models.PositiveSmallIntegerField(_("Возраст от"), null=True, blank=True)
     age_to = models.PositiveSmallIntegerField(_("Возраст до"), null=True, blank=True)
     price_text = models.CharField(_("Цена"), max_length=120, blank=True, default="")
+    district = models.CharField(_("Регион / район"), max_length=100, blank=True, default="")
+    metro = models.CharField(_("Метро"), max_length=100, blank=True, default="")
     address = models.CharField(_("Адрес"), max_length=255, blank=True, default="")
+    lat = models.DecimalField(_("Широта"), max_digits=9, decimal_places=6, null=True, blank=True)
+    lng = models.DecimalField(_("Долгота"), max_digits=9, decimal_places=6, null=True, blank=True)
     phone = models.CharField(_("Телефон / WhatsApp"), max_length=50, blank=True, default="")
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True, default="")
+    website = models.URLField(_("Сайт"), max_length=255, blank=True, default="")
     photo = models.FileField(_("Основное фото"), upload_to="events/", blank=True, null=True)
     moderation_note = models.TextField(_("Комментарий для модерации"), blank=True, default="")
     rejection_reason = models.TextField(_("Причина отклонения"), blank=True, default="")
@@ -622,6 +641,10 @@ class Event(models.Model):
         from catalog.services.locations import localize_address_text
 
         return localize_address_text(self.address, self._normalize_lang(lang))
+
+    @property
+    def has_coordinates(self):
+        return self.lat is not None and self.lng is not None
 
     @property
     def age_display(self) -> str:
@@ -717,6 +740,21 @@ class Event(models.Model):
         ]
         verbose_name = _("Мероприятие")
         verbose_name_plural = _("Мероприятия")
+
+
+class EventPhoto(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="gallery", verbose_name=_("Мероприятие"))
+    image = models.FileField(_("Фото"), upload_to="events/gallery/")
+    caption = models.CharField(_("Подпись"), max_length=255, blank=True)
+    order = models.PositiveIntegerField(_("Порядок"), default=0)
+
+    class Meta:
+        ordering = ("order", "id")
+        verbose_name = _("Фото мероприятия")
+        verbose_name_plural = _("Фотографии мероприятия")
+
+    def __str__(self):
+        return f"{self.event.name_i18n()} #{self.order}"
 
 
 class PlaceLike(models.Model):

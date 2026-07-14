@@ -132,7 +132,6 @@
                       </a>
                       <form method="post" action="{% url 'toggle_place_like' place.id %}" class="auth-form">
                         {% csrf_token %}
-                        <input type="hidden" name="next" value="{% url 'account_favorites' %}" />
                         <button type="submit" class="link-btn account-inline-link">
                           {% if CURRENT_LANGUAGE == "az" %}Seçilmişlərdən sil{% elif CURRENT_LANGUAGE == "en" %}Remove from favorites{% else %}Убрать из избранного{% endif %}
                         </button>

@@ -1,0 +1,46 @@
+{% load i18n %}
+{% with form=adminform.form obj=adminform.form.instance %}
+  <div class="km-location-section km-place-location" data-km-location-section data-km-place-location
+       data-map-provider="{% if google_maps_api_key %}google{% else %}leaflet{% endif %}"
+       data-default-lat="40.409264" data-default-lng="49.867092"
+       data-selected-prefix="{% translate 'Выбрана точка:' %}"
+       data-empty-label="{% translate 'Точка на карте не выбрана.' %}"
+       data-search-error="{% translate 'Не удалось найти место по этому запросу. Уточните адрес.' %}"
+       data-search-empty="{% translate 'Введите адрес или выберите точку на карте.' %}"
+       data-search-fallback="{% translate 'Поиск выполнится после сохранения формы и серверного пересчёта координат.' %}"
+       data-coordinates-filled-label="{% translate 'Координаты указаны' %}"
+       data-coordinates-missing-label="{% translate 'Координаты не указаны' %}"
+       data-map-ready-label="{% translate 'Готово для карты' %}"
+       data-map-not-ready-label="{% translate 'Не готово для карты' %}"
+       data-map-open-label="{% translate 'Скрыть карту' %}"
+       data-map-closed-label="{% translate 'Указать на карте' %}">
+    <div class="km-place-location__hero">
+      <div class="km-place-location__hero-icon" aria-hidden="true"><i class="fas fa-map-marker-alt"></i></div>
+      <div class="km-place-location__hero-copy">
+        <h3 class="km-place-location__title">{% translate "Адрес и координаты" %}</h3>
+        <p class="km-place-location__subtitle">{% translate "Укажите адрес или выберите точку на карте. Координаты сохранятся вместе с мероприятием." %}</p>
+      </div>
+    </div>
+    <div class="km-location-grid km-location-grid--three">
+      {% with field=form.region %}<div class="km-location-field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+      {% with field=form.district %}<div class="km-location-field" data-km-admin-district-box>{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+      {% with field=form.metro %}<div class="km-location-field" data-km-admin-metro-box>{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+    </div>
+    {% with field=form.address %}<div class="km-location-field km-location-field--address km-place-location__field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+    <div class="km-place-location__coord-grid" style="display:none">
+      {% with field=form.lat %}<div>{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+      {% with field=form.lng %}<div>{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endwith %}
+    </div>
+    <div class="km-place-location__actions">
+      <button type="button" class="km-place-location__action km-place-location__action--primary" data-km-place-location-search><i class="fas fa-search" aria-hidden="true"></i><span>{% translate "Рассчитать по адресу" %}</span></button>
+      <button type="button" class="km-place-location__action km-place-location__action--secondary" data-km-place-location-toggle aria-expanded="{% if obj.has_coordinates %}true{% else %}false{% endif %}"><i class="fas fa-map" aria-hidden="true"></i><span>{% if obj.has_coordinates %}{% translate "Скрыть карту" %}{% else %}{% translate "Указать на карте" %}{% endif %}</span></button>
+      <button type="button" class="km-place-location__action km-place-location__action--ghost" data-km-place-location-locate><i class="fas fa-location-arrow" aria-hidden="true"></i><span>{% translate "Моё местоположение" %}</span></button>
+    </div>
+    <div class="km-location-status-compact"><div class="km-location-status-compact__badge" id="km-location-status-compact-badge"><span id="km-location-status-compact-text">{% translate "Нет координат" %}</span></div><div class="km-location-status-compact__coords" id="km-location-status-compact-coords" style="display:none"><span id="km-location-status-compact-coords-val"></span></div></div>
+    <div class="km-place-location__map-panel" id="km-admin-event-map-panel" data-km-place-location-panel hidden>
+      <div class="km-place-location__map-head"><div class="km-place-location__map-hint"><strong>{% translate "Нажмите на карту или перетащите маркер" %}</strong><span>{% translate "Так можно быстро уточнить координаты." %}</span></div><button type="button" class="km-place-location__action km-place-location__action--primary" data-km-place-location-confirm><i class="fas fa-check" aria-hidden="true"></i><span>{% translate "Подтвердить точку" %}</span></button></div>
+      <div class="km-place-location__map" data-km-place-location-map aria-label="{% translate 'Карта выбора координат' %}"></div>
+      <div class="km-place-location__found" data-km-place-location-found hidden><strong data-km-place-location-found-text></strong></div>
+    </div>
+  </div>
+{% endwith %}

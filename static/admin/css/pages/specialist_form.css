@@ -632,6 +632,79 @@
   display: none !important;
 }
 
+/* ── Specialist admin change list refresh ───────────────── */
+.model-specialist.change-list .results {
+  overflow-x: auto;
+}
+
+.model-specialist.change-list #result_list {
+  min-width: 980px;
+}
+
+.km-admin-spec-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.km-admin-spec-profile strong,
+.km-admin-spec-profile small {
+  display: block;
+}
+
+.km-admin-spec-profile strong {
+  color: #111827;
+  font-weight: 750;
+}
+
+.km-admin-spec-profile small,
+.km-admin-muted {
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
+.km-admin-spec-photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex: 0 0 42px;
+  border: 1px solid #e5e7eb;
+  background: #f0fdf4;
+}
+
+.km-admin-spec-photo--empty {
+  display: inline-grid;
+  place-items: center;
+  color: #009a4e;
+}
+
+.km-admin-spec-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 240px;
+}
+
+.km-admin-spec-tags span,
+.km-admin-spec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.km-admin-spec-badge i {
+  color: #009a4e;
+}
+
 /* ── Responsive ────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .km-specialist-layout {

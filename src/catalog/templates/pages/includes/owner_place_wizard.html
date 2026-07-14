@@ -148,7 +148,7 @@
               </span>
               <strong>{% if CURRENT_LANGUAGE == "az" %}Yaş həddi{% elif CURRENT_LANGUAGE == "en" %}Age range{% else %}Возраст участников{% endif %}</strong>
             </div>
-            <div class="owner-form-group-card__grid">
+            <div class="owner-form-group-card__grid owner-age-fields-grid">
               {% include "pages/includes/owner_form_field.html" with field=form.age_from %}
               {% include "pages/includes/owner_form_field.html" with field=form.age_to %}
             </div>
@@ -269,10 +269,58 @@
             <div class="owner-form-field owner-form-field-full">
               {% include "includes/place_schedule_editor.html" with form=form variant="owner" editor_id="owner-place-schedule" %}
             </div>
+            {% include "pages/includes/owner_form_field.html" with field=form.lesson_format %}
             {% include "pages/includes/owner_form_field.html" with field=form.lesson_duration_minutes %}
+            {% include "pages/includes/owner_form_field.html" with field=form.lessons_per_week %}
+            {% include "pages/includes/owner_form_field.html" with field=form.lessons_per_month %}
             {% include "pages/includes/owner_form_field.html" with field=form.price_per_lesson %}
             {% include "pages/includes/owner_form_field.html" with field=form.price_per_month %}
             {% include "pages/includes/owner_form_field.html" with field=form.price_per_8_lessons %}
+            <div
+              class="owner-form-field owner-form-field-full owner-tariff-editor"
+              data-tariff-editor
+              data-format-label="{% if CURRENT_LANGUAGE == 'az' %}Format{% elif CURRENT_LANGUAGE == 'en' %}Format{% else %}Формат{% endif %}"
+              data-group-label="{% if CURRENT_LANGUAGE == 'az' %}Qrup{% elif CURRENT_LANGUAGE == 'en' %}Group{% else %}Групповые{% endif %}"
+              data-individual-label="{% if CURRENT_LANGUAGE == 'az' %}Fərdi{% elif CURRENT_LANGUAGE == 'en' %}Individual{% else %}Индивидуальные{% endif %}"
+              data-payment-label="{% if CURRENT_LANGUAGE == 'az' %}Ödəniş növü{% elif CURRENT_LANGUAGE == 'en' %}Payment type{% else %}Тип оплаты{% endif %}"
+              data-per-lesson-label="{% if CURRENT_LANGUAGE == 'az' %}Dərs üçün{% elif CURRENT_LANGUAGE == 'en' %}Per lesson{% else %}За занятие{% endif %}"
+              data-per-month-label="{% if CURRENT_LANGUAGE == 'az' %}Ay üçün{% elif CURRENT_LANGUAGE == 'en' %}Per month{% else %}За месяц{% endif %}"
+              data-package-label="{% if CURRENT_LANGUAGE == 'az' %}Paket{% elif CURRENT_LANGUAGE == 'en' %}Package{% else %}Пакет{% endif %}"
+              data-week-label="{% if CURRENT_LANGUAGE == 'az' %}Həftədə dərs{% elif CURRENT_LANGUAGE == 'en' %}Sessions/week{% else %}Занятий в неделю{% endif %}"
+              data-month-label="{% if CURRENT_LANGUAGE == 'az' %}Ayda dərs{% elif CURRENT_LANGUAGE == 'en' %}Sessions/month{% else %}Занятий в месяц{% endif %}"
+              data-package-sessions-label="{% if CURRENT_LANGUAGE == 'az' %}Paketdə dərs{% elif CURRENT_LANGUAGE == 'en' %}Package sessions{% else %}Занятий в пакете{% endif %}"
+              data-price-label="{% if CURRENT_LANGUAGE == 'az' %}Qiymət (AZN){% elif CURRENT_LANGUAGE == 'en' %}Price (AZN){% else %}Цена (AZN){% endif %}"
+              data-title-az-label="{% if CURRENT_LANGUAGE == 'az' %}Tarif adı (AZ){% elif CURRENT_LANGUAGE == 'en' %}Plan title (AZ){% else %}Название тарифа (AZ){% endif %}"
+              data-title-ru-label="{% if CURRENT_LANGUAGE == 'az' %}Tarif adı (RU){% elif CURRENT_LANGUAGE == 'en' %}Plan title (RU){% else %}Название тарифа (RU){% endif %}"
+              data-title-en-label="{% if CURRENT_LANGUAGE == 'az' %}Tarif adı (EN){% elif CURRENT_LANGUAGE == 'en' %}Plan title (EN){% else %}Название тарифа (EN){% endif %}"
+              data-active-label="{% if CURRENT_LANGUAGE == 'az' %}Aktiv{% elif CURRENT_LANGUAGE == 'en' %}Active{% else %}Активен{% endif %}"
+              data-remove-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}Удалить{% endif %}"
+              data-up-label="{% if CURRENT_LANGUAGE == 'az' %}Yuxarı{% elif CURRENT_LANGUAGE == 'en' %}Move up{% else %}Выше{% endif %}"
+              data-down-label="{% if CURRENT_LANGUAGE == 'az' %}Aşağı{% elif CURRENT_LANGUAGE == 'en' %}Move down{% else %}Ниже{% endif %}"
+              data-add-translation-label="{% if CURRENT_LANGUAGE == 'az' %}Tərcümə əlavə et (RU, EN){% elif CURRENT_LANGUAGE == 'en' %}Add translation (RU, EN){% else %}Добавить перевод (RU, EN){% endif %}"
+              data-eg-sessions-week="{% if CURRENT_LANGUAGE == 'az' %}məsələn, 3{% elif CURRENT_LANGUAGE == 'en' %}e.g., 3{% else %}например, 3{% endif %}"
+              data-eg-sessions-month="{% if CURRENT_LANGUAGE == 'az' %}məsələn, 12{% elif CURRENT_LANGUAGE == 'en' %}e.g., 12{% else %}например, 12{% endif %}"
+              data-eg-package-sessions="{% if CURRENT_LANGUAGE == 'az' %}məsələn, 10{% elif CURRENT_LANGUAGE == 'en' %}e.g., 10{% else %}например, 10{% endif %}"
+              data-eg-price="{% if CURRENT_LANGUAGE == 'az' %}məsələn, 120{% elif CURRENT_LANGUAGE == 'en' %}e.g., 120{% else %}например, 120{% endif %}"
+            >
+              <div class="owner-form-field__label-row"><label>{% if CURRENT_LANGUAGE == "az" %}Tariflər{% elif CURRENT_LANGUAGE == "en" %}Pricing plans{% else %}Тарифы{% endif %}</label></div>
+              
+              <div class="km-pricing-editor__guide">
+                <span class="km-pricing-editor__guide-icon"><i class="fas fa-info-circle"></i></span>
+                <div class="km-pricing-editor__guide-content">
+                  <strong>
+                    {% if CURRENT_LANGUAGE == "az" %}Tarifləri necə tənzimləmək olar?{% elif CURRENT_LANGUAGE == "en" %}How to set up pricing plans?{% else %}Как настроить тарифы?{% endif %}
+                  </strong>
+                  <p>
+                    {% if CURRENT_LANGUAGE == "az" %}Formatı və ödəniş növünü seçin. Lazımsız sahələr avtomatik gizlənəcək. Məsələn, abunə üçün: növü 'Ay üçün', 12 dərs, qiymət 120 AZN.{% elif CURRENT_LANGUAGE == "en" %}Select format and payment type. Unnecessary fields will hide automatically. For example, for subscription: type 'Per month', 12 sessions, price 120 AZN.{% else %}Выберите формат и тип оплаты. Лишние поля скроются автоматически. Например, для абонемента: тип 'За месяц', 12 занятий, цена 120 AZN.{% endif %}
+                  </p>
+                </div>
+              </div>
+
+              <input type="hidden" name="pricing_plans" value="{{ form.pricing_plans.value|default:'[]'|escape }}" data-tariff-input>
+              <div class="owner-tariff-list" data-tariff-list></div>
+              <button type="button" class="btn-secondary owner-tariff-add" data-tariff-add>+ {% if CURRENT_LANGUAGE == "az" %}Tarif əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add plan{% else %}Добавить тариф{% endif %}</button>
+            </div>
           </div>
         </div>
       </details>
@@ -391,7 +439,6 @@
           {% if wizard_mode == "create" %}
             <div class="owner-form-field owner-form-field-full owner-gallery-upload-block">
               <div class="owner-gallery-upload-head">
-                <span class="owner-form-label">{% if CURRENT_LANGUAGE == "az" %}Qalereya{% elif CURRENT_LANGUAGE == "en" %}Gallery{% else %}{% trans "Галерея" %}{% endif %}</span>
                 <span class="meta">{% if CURRENT_LANGUAGE == "az" %}İstəyə görə, 10-dək əlavə şəkil.{% elif CURRENT_LANGUAGE == "en" %}Optional, up to 10 extra photos.{% else %}{% trans "Необязательно, до 10 дополнительных фото." %}{% endif %}</span>
               </div>
               {% include "pages/includes/owner_form_field.html" with field=form.gallery_images full_width=True %}
@@ -500,11 +547,18 @@
             {% else %}
               <span class="owner-place-actions-note">{% if CURRENT_LANGUAGE == "az" %}Səhifə moderasiyadan sonra görünəcək.{% elif CURRENT_LANGUAGE == "en" %}The public page appears after moderation.{% else %}{% trans "Публичная страница появится после публикации карточки." %}{% endif %}</span>
             {% endif %}
-            <button type="submit" class="btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Dəyişiklikləri saxla{% elif CURRENT_LANGUAGE == "en" %}Save changes{% else %}{% trans "Сохранить изменения" %}{% endif %}</button>
+            <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
+            <div class="owner-publish-action">
+              <button type="submit" name="form_action" value="save_and_publish" class="btn btn-primary-submit" data-owner-publish-button data-loading-button disabled aria-disabled="true">{% if CURRENT_LANGUAGE == "az" %}Saxla və dərc et{% elif CURRENT_LANGUAGE == "en" %}Save and publish{% else %}{% trans "Сохранить и опубликовать" %}{% endif %}</button>
+              <small class="owner-publish-hint" data-owner-publish-hint></small>
+            </div>
           {% else %}
             <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</span></button>
             <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}{% trans "Мои места" %}{% endif %}</a>
-            <button type="submit" class="btn btn-primary-submit" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Yarat və yoxlamaya göndər{% elif CURRENT_LANGUAGE == "en" %}Create and send for review{% else %}{% trans "Создать и отправить на проверку" %}{% endif %}</button>
+            <div class="owner-publish-action">
+              <button type="submit" name="form_action" value="save_and_publish" class="btn btn-primary-submit" data-owner-publish-button data-loading-button disabled aria-disabled="true">{% if CURRENT_LANGUAGE == "az" %}Saxla və dərc et{% elif CURRENT_LANGUAGE == "en" %}Save and publish{% else %}{% trans "Сохранить и опубликовать" %}{% endif %}</button>
+              <small class="owner-publish-hint" data-owner-publish-hint></small>
+            </div>
           {% endif %}
         </div>
       </div>
@@ -542,7 +596,7 @@
       <p>{% if CURRENT_LANGUAGE == "az" %}Formada doldurduğunuz məlumatlar var. Qaralama kimi saxlayıb sonra davam edə bilərsiniz.{% elif CURRENT_LANGUAGE == "en" %}You have entered data in this form. Save it as a draft and continue later.{% else %}В форме есть заполненные данные. Можно сохранить черновик и продолжить позже.{% endif %}</p>
     </div>
     <div class="owner-leave-guard__actions">
-      <button type="button" class="btn" data-owner-leave-save>{% if CURRENT_LANGUAGE == "az" %}Saxla və çıx{% elif CURRENT_LANGUAGE == "en" %}Save and leave{% else %}Сохранить и выйти{% endif %}</button>
+      <button type="button" class="btn" data-owner-leave-save data-owner-legacy-label="Saxla və çıx">{% if CURRENT_LANGUAGE == "az" %}Saxla və çıx{% elif CURRENT_LANGUAGE == "en" %}Save and leave{% else %}Сохранить и выйти{% endif %}</button>
       <button type="button" class="btn-secondary" data-owner-leave-cancel>{% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Stay and continue{% else %}Не выходить, продолжить{% endif %}</button>
       <button type="button" class="link-btn owner-leave-guard__discard" data-owner-leave-discard>{% if CURRENT_LANGUAGE == "az" %}Saxlamadan çıx{% elif CURRENT_LANGUAGE == "en" %}Leave without saving{% else %}Выйти без сохранения{% endif %}</button>
     </div>

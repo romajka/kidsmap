@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import hashlib
+import json
 import re
 
 from django import forms
@@ -21,7 +22,7 @@ from django.utils import timezone
 from django.utils.translation import get_language, gettext as translate, gettext_lazy as _
 
 from catalog.content_data import BAKU_METRO_STATIONS
-from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory, Specialist, SpecialistSpecialization, SpecialistPracticeLocation, Region, District, MetroStation
+from catalog.models import CatalogContentSettings, Event, Place, UserProfile, Category, Subcategory, Specialist, SpecialistSpecialization, Region, District, MetroStation
 from catalog.services.place_schedule import (
     dump_schedule_payload,
     is_meaningful_schedule,
@@ -29,6 +30,7 @@ from catalog.services.place_schedule import (
     validate_schedule_payload,
 )
 from catalog.services.options import sort_translated_values
+from catalog.services.pricing_plans import normalize_pricing_plans
 
 try:
     import phonenumbers
@@ -64,6 +66,18 @@ class SubcategorySelect(forms.Select):
             option["attrs"]["data-label-ru"] = instance.name_i18n("ru")
             option["attrs"]["data-label-en"] = instance.name_i18n("en")
         return option
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def clean(self, data, initial=None):
+        if not data:
+            return []
+        files = data if isinstance(data, (list, tuple)) else [data]
+        return [super(MultipleFileField, self).clean(file_item, initial) for file_item in files]
 
 
 class PlaceScheduleEditorFormMixin:
@@ -802,8 +816,13 @@ class UserSetPasswordForm(SetPasswordForm):
 
 
 class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+    pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput())
+    lesson_format = forms.ChoiceField(required=False, choices=Place.LESSON_FORMAT_CHOICES, widget=forms.Select(attrs={"class": "field"}))
     draft_save_only = False
+    submit_for_moderation = False
+    coordinate_refresh_only = False
     require_location_region = False
+    require_schedule_for_publish = False
 
     region = forms.ChoiceField(
         label=_("Город / регион"),
@@ -858,9 +877,13 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "website",
             "schedule",
             "lesson_duration_minutes",
+            "lesson_format",
+            "lessons_per_week",
+            "lessons_per_month",
             "price_per_lesson",
             "price_per_month",
             "price_per_8_lessons",
+            "pricing_plans",
             "extra_conditions",
             "additional_info",
             "is_temporary",
@@ -897,6 +920,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "lesson_duration_minutes": forms.TextInput(
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "60"}
             ),
+            "lessons_per_week": forms.NumberInput(attrs={"class": "field", "min": "1", "placeholder": "2"}),
+            "lessons_per_month": forms.NumberInput(attrs={"class": "field", "min": "1", "placeholder": "8"}),
             "price_per_lesson": forms.TextInput(
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "25"}
             ),
@@ -950,9 +975,13 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "website": _("Сайт"),
             "schedule": _("Расписание"),
             "lesson_duration_minutes": _("Длительность урока (мин)"),
+            "lesson_format": _("Формат занятий"),
+            "lessons_per_week": _("Занятий в неделю"),
+            "lessons_per_month": _("Занятий в месяц"),
             "price_per_lesson": _("Цена за 1 урок"),
             "price_per_month": _("Цена за месяц"),
             "price_per_8_lessons": _("Цена за 8 уроков"),
+            "pricing_plans": _("Тарифы"),
             "extra_conditions": _("Дополнительные условия"),
             "additional_info": _("Дополнительная информация"),
             "is_temporary": _("Временное мероприятие"),
@@ -964,6 +993,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.geocoding_check_only = bool(kwargs.pop("geocoding_check_only", False))
         self.draft_save_only = bool(kwargs.pop("draft_save_only", False))
+        self.submit_for_moderation = bool(kwargs.pop("submit_for_moderation", False))
+        self.coordinate_refresh_only = bool(kwargs.pop("coordinate_refresh_only", False))
         instance = kwargs.get("instance")
         data = kwargs.get("data")
         if data is not None:
@@ -995,6 +1026,26 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                     mutable_data["lng"] = "" if instance.lng is None else str(instance.lng)
                 kwargs["data"] = mutable_data
         super().__init__(*args, **kwargs)
+
+        if "pricing_plans" in self.fields:
+            current_plans = getattr(instance, "pricing_plans", None) if instance is not None else None
+            if not self.is_bound and current_plans:
+                self.initial["pricing_plans"] = json.dumps(current_plans, ensure_ascii=False)
+
+        if self.submit_for_moderation:
+            for field_name in (
+                "name_az",
+                "description_az",
+                "category",
+                "age_from",
+                "age_to",
+                "price_from",
+                "price_to",
+                "address",
+                "phone1",
+                "photo",
+            ):
+                self.fields[field_name].required = True
 
         from catalog.services.locations import init_location_fields
         init_location_fields(self, instance)
@@ -1124,19 +1175,25 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             or getattr(self.instance, "metro", "")
             or ""
         ).strip()
-        if metro_current and metro_current not in metro_options and metro_current not in default_metro_options:
-            metro_current = ""
+        allow_current_metro = (
+            self.geocoding_check_only
+            or bool(getattr(self.instance, "pk", None))
+            or metro_current in BAKU_METRO_STATIONS
+        )
+        if allow_current_metro and metro_current and metro_current not in metro_options:
+            metro_options = [metro_current, *metro_options]
 
         self.fields["metro"].choices = self._build_location_choices(
             options=metro_options,
             current_value=metro_current,
             empty_label=_("Выберите метро"),
+            include_current=allow_current_metro,
         )
         self.fields["metro"].help_text = _("Если район не выбран, укажите ближайшую станцию метро.")
         self.fields["metro"].error_messages.update({"invalid_choice": _("Выберите станцию метро из списка.")})
 
     @staticmethod
-    def _build_location_choices(*, options, current_value, empty_label):
+    def _build_location_choices(*, options, current_value, empty_label, include_current=True):
         choices = [("", empty_label)]
         seen = set()
 
@@ -1147,7 +1204,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             seen.add(value)
             choices.append((value, translate(value)))
 
-        if current_value and current_value not in seen:
+        if include_current and current_value and current_value not in seen:
             choices.insert(1, (current_value, translate(current_value)))
 
         return choices
@@ -1178,6 +1235,12 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         cleaned = self._clean_schedule_editor(cleaned)
+
+        try:
+            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]")
+        except ValidationError as exc:
+            self.add_error("pricing_plans", exc)
+            cleaned["pricing_plans"] = []
         
         from catalog.services.locations import clean_location_fields
         cleaned = clean_location_fields(self, cleaned)
@@ -1210,7 +1273,11 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
         if (
             not self.draft_save_only
+            and not self.coordinate_refresh_only
+            and self.submit_for_moderation
+            and not (lat is not None and lng is not None)
             and not cleaned.get("is_temporary")
+            and not (cleaned.get("schedule") or "").strip()
             and not is_meaningful_schedule(self.cleaned_schedule_days)
         ):
             self.add_error("structured_schedule", _("Укажите, когда место работает."))
@@ -1251,6 +1318,14 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                     _("Дата окончания раньше даты начала. Укажите окончание позже начала."),
                 )
 
+        if self.submit_for_moderation:
+            district = (cleaned.get("district") or "").strip()
+            metro = (cleaned.get("metro") or "").strip()
+            if not district and not metro:
+                message = _("Укажите локацию: выберите район или станцию метро.")
+                self.add_error("district", message)
+                self.add_error("metro", message)
+
         photo = cleaned.get("photo")
         if photo:
             try:
@@ -1269,6 +1344,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
 class OwnerPlaceCreateForm(OwnerPlaceEditForm):
     require_location_region = True
+    require_schedule_for_publish = True
 
     moderation_note = forms.CharField(
         label=_("Комментарий для модерации"),
@@ -1287,6 +1363,7 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         fields = OwnerPlaceEditForm.Meta.fields
 
     def __init__(self, *args, **kwargs):
+        kwargs.setdefault("submit_for_moderation", not kwargs.get("draft_save_only", False))
         super().__init__(*args, **kwargs)
         self.fields["gallery_images"].help_text = _("До 10 фото для галереи, каждое до 2 МБ.")
         if self.draft_save_only:
@@ -1311,13 +1388,6 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
     def clean(self):
         cleaned = super().clean()
-        district = (cleaned.get("district") or "").strip()
-        metro = (cleaned.get("metro") or "").strip()
-        if not self.draft_save_only and not district and not metro:
-            message = _("Укажите локацию: выберите район или станцию метро.")
-            self.add_error("district", message)
-            self.add_error("metro", message)
-
         if self.geocoding_check_only:
             return cleaned
 
@@ -1369,6 +1439,19 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
 class OwnerEventForm(forms.ModelForm):
     draft_save_only = False
+    require_location_region = False
+
+    region = forms.ChoiceField(
+        label=_("Город / регион"), required=False, choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-region": ""}),
+    )
+    district = forms.ChoiceField(
+        label=_("Район города"), required=False, choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-district": ""}),
+    )
+    metro = forms.ChoiceField(
+        label=_("Метро"), required=False, choices=(), widget=forms.Select(attrs={"class": "field"}),
+    )
 
     event_date = forms.DateField(
         label=_("Дата"),
@@ -1444,7 +1527,12 @@ class OwnerEventForm(forms.ModelForm):
             "age_to",
             "price_text",
             "related_place",
+            "region",
+            "district",
+            "metro",
             "address",
+            "lat",
+            "lng",
             "phone",
             "description_az",
             "photo",
@@ -1459,6 +1547,8 @@ class OwnerEventForm(forms.ModelForm):
             "age_to": forms.TextInput(attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "12"}),
             "price_text": forms.TextInput(attrs={"class": "field", "placeholder": _("Например: 15 AZN или бесплатно")}),
             "address": forms.TextInput(attrs={"class": "field", "placeholder": _("Например: Bakı, Nərimanov r., Xətai pr. 12")}),
+            "lat": forms.HiddenInput(),
+            "lng": forms.HiddenInput(),
             "phone": forms.TextInput(attrs={"class": "field", "placeholder": _("Например: 050 123 45 67")}),
             "description_az": forms.Textarea(
                 attrs={
@@ -1498,6 +1588,9 @@ class OwnerEventForm(forms.ModelForm):
             )
         self.fields["photo"].help_text = _("JPG, PNG или WEBP. Максимум 2 МБ.")
         self.fields["moderation_note"].help_text = _("Необязательно. Укажите детали для модератора.")
+        from catalog.services.locations import configure_location_choices, init_location_fields
+        init_location_fields(self, self.instance)
+        configure_location_choices(self)
         if self.draft_save_only:
             for field in self.fields.values():
                 field.required = False
@@ -1527,6 +1620,8 @@ class OwnerEventForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        from catalog.services.locations import clean_location_fields
+        cleaned = clean_location_fields(self, cleaned)
         related_place = cleaned.get("related_place")
         if related_place:
             if not cleaned.get("address"):
@@ -1535,6 +1630,18 @@ class OwnerEventForm(forms.ModelForm):
             if not cleaned.get("phone"):
                 cleaned["phone"] = related_place.phone1
                 self.instance.phone = related_place.phone1
+            if cleaned.get("lat") is None:
+                cleaned["lat"] = related_place.lat
+                self.instance.lat = related_place.lat
+            if cleaned.get("lng") is None:
+                cleaned["lng"] = related_place.lng
+                self.instance.lng = related_place.lng
+            if not cleaned.get("district"):
+                cleaned["district"] = related_place.district
+                self.instance.district = related_place.district
+            if not cleaned.get("metro"):
+                cleaned["metro"] = related_place.metro
+                self.instance.metro = related_place.metro
         if not self.draft_save_only:
             if not cleaned.get("address"):
                 self.add_error("address", _("Укажите адрес или выберите связанное место с адресом."))
@@ -1641,6 +1748,12 @@ class OwnerTeamRoleUpdateForm(forms.Form):
 
 class OwnerSpecialistForm(forms.ModelForm):
     draft_save_only = False
+    documents = MultipleFileField(
+        label=_("Дипломы и сертификаты"),
+        widget=MultipleFileInput(attrs={"class": "field", "multiple": True, "accept": ".pdf,image/*"}),
+        required=False,
+        help_text=_("Можно загрузить дипломы или сертификаты. Они появятся публично только после проверки."),
+    )
 
     # Extra location fields (not on Specialist model directly)
     location_place = forms.ModelChoiceField(
@@ -1738,20 +1851,39 @@ class OwnerSpecialistForm(forms.ModelForm):
                 self.fields["location_district"].initial = primary_location.district_id
                 self.fields["location_metro"].initial = primary_location.metro_id
 
-        # Draft = all optional; publish = only name+phone+format required
+        # Draft = all optional; submit = checked in clean().
         if self.draft_save_only:
             for field in self.fields.values():
                 field.required = False
         else:
-            required = ("name", "phone", "consultation_format")
+            required = ("name", "consultation_format")
             for field_name, field in self.fields.items():
                 field.required = field_name in required
-
 
     def clean(self):
         cleaned = super().clean()
         if self.draft_save_only:
+            photo = cleaned.get("photo")
+            if photo:
+                try:
+                    _validate_uploaded_image(photo)
+                except ValidationError as exc:
+                    self.add_error("photo", exc)
             return cleaned
+
+        if not cleaned.get("specializations"):
+            self.add_error("specializations", _("Выберите хотя бы одно направление деятельности."))
+
+        if not any((cleaned.get("bio_az"), cleaned.get("bio_ru"), cleaned.get("bio_en"))):
+            msg = _("Добавьте описание профиля хотя бы на одном языке.")
+            self.add_error("bio_az", msg)
+            self.add_error("bio_ru", msg)
+            self.add_error("bio_en", msg)
+
+        if not (cleaned.get("phone") or cleaned.get("whatsapp")):
+            msg = _("Укажите телефон или WhatsApp для связи.")
+            self.add_error("phone", msg)
+            self.add_error("whatsapp", msg)
 
         # Enforce that if format is offline or both, location fields are required and validated
         consultation_format = cleaned.get("consultation_format")
@@ -1761,18 +1893,18 @@ class OwnerSpecialistForm(forms.ModelForm):
             loc_region = cleaned.get("location_region")
             
             if not loc_place and not loc_address:
-                msg = _("Для очного приема необходимо выбрать детский центр KidsMap или указать собственный адрес.")
+                msg = _("Для очного формата укажите детский центр KidsMap или собственный адрес.")
                 self.add_error("location_place", msg)
                 self.add_error("location_address", msg)
             if not loc_region:
-                self.add_error("location_region", _("Необходимо выбрать город / регион для очной практики."))
+                self.add_error("location_region", _("Выберите город / регион для очной работы."))
 
         # Enforce at least one language
         lang_az = cleaned.get("language_az")
         lang_ru = cleaned.get("language_ru")
         lang_en = cleaned.get("language_en")
         if not (lang_az or lang_ru or lang_en):
-            msg = _("Выберите хотя бы один язык консультации.")
+            msg = _("Выберите хотя бы один язык работы.")
             self.add_error("language_az", msg)
             self.add_error("language_ru", msg)
             self.add_error("language_en", msg)
@@ -1800,35 +1932,4 @@ class OwnerSpecialistForm(forms.ModelForm):
         return cleaned
 
     def save(self, commit=True):
-        specialist = super().save(commit=commit)
-        if commit:
-            # Handle location saving
-            consultation_format = self.cleaned_data.get("consultation_format")
-            if consultation_format in [Specialist.FORMAT_OFFLINE, Specialist.FORMAT_BOTH]:
-                loc_place = self.cleaned_data.get("location_place")
-                loc_address = self.cleaned_data.get("location_address")
-                loc_region = self.cleaned_data.get("location_region")
-                loc_district = self.cleaned_data.get("location_district")
-                loc_metro = self.cleaned_data.get("location_metro")
-                loc_price = self.cleaned_data.get("location_price")
-                loc_phone = self.cleaned_data.get("location_phone")
-
-                primary_location = specialist.practice_locations.filter(is_primary=True).first()
-                if not primary_location:
-                    primary_location = SpecialistPracticeLocation(specialist=specialist, is_primary=True)
-
-                primary_location.place = loc_place
-                primary_location.address = loc_address or ""
-                primary_location.region = loc_region
-                primary_location.district = loc_district
-                primary_location.metro = loc_metro
-                primary_location.price_per_session = loc_price
-                primary_location.phone = loc_phone or ""
-                primary_location.is_active = True
-                primary_location.save()
-            else:
-                # If online format, delete or deactivate offline practice locations
-                specialist.practice_locations.all().delete()
-
-        return specialist
-
+        return super().save(commit=commit)

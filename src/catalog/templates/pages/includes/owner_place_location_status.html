@@ -2,17 +2,17 @@
 <div class="owner-place-fact">
   <span class="owner-place-fact-label">{% trans "Координаты" %}</span>
   {% if place.has_coordinates %}
-    <span class="owner-status-badge owner-status-badge-approved">{% trans "Есть координаты" %}</span>
+    <span class="owner-status-badge owner-status-badge-approved" data-owner-legacy-label="Koordinatlar var">{% trans "Есть координаты" %}</span>
   {% else %}
-    <span class="owner-status-badge owner-status-badge-none">{% trans "Нужны координаты" %}</span>
+    <span class="owner-status-badge owner-status-badge-none" data-owner-legacy-label="Koordinatlar tələb olunur">{% trans "Нужны координаты" %}</span>
   {% endif %}
 </div>
 <div class="owner-place-fact">
   <span class="owner-place-fact-label">{% trans "На карте" %}</span>
   {% if place.is_map_ready %}
-    <span class="owner-status-badge owner-status-badge-approved">{% trans "Готово для карты" %}</span>
+    <span class="owner-status-badge owner-status-badge-approved" data-owner-legacy-label="Xəritə üçün hazırdır">{% trans "Готово для карты" %}</span>
   {% else %}
-    <span class="owner-status-badge owner-status-badge-none">{% trans "Не готово для карты" %}</span>
+    <span class="owner-status-badge owner-status-badge-none" data-owner-legacy-label="Xəritə üçün hazır deyil">{% trans "Не готово для карты" %}</span>
   {% endif %}
 </div>
 {% if place.map_readiness_reason == "missing_coordinates" %}

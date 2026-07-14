@@ -2,6 +2,7 @@
 {% get_current_language as CURRENT_LANGUAGE %}
 {% with structured_field=form.structured_schedule legacy_field=form.schedule %}
   <section
+    id="{{ editor_id }}"
     class="km-schedule-editor{% if variant %} km-schedule-editor--{{ variant }}{% endif %}"
     data-km-schedule-editor
     data-editor-id="{{ editor_id }}"
@@ -50,9 +51,9 @@
     </div>
 
     <div class="km-schedule-editor__presets">
-      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="all-days">Каждый день 09:00–21:00</button>
-      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekdays">Пн–Пт 09:00–18:00</button>
-      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekday-weekend">Пн–Пт / Выходные</button>
+      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="all-days">{% if CURRENT_LANGUAGE == "az" %}Hər gün 09:00–21:00{% elif CURRENT_LANGUAGE == "en" %}Every day 09:00–21:00{% else %}{% trans "Каждый день 09:00–21:00" %}{% endif %}</button>
+      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekdays">{% if CURRENT_LANGUAGE == "az" %}B.e.–C. 09:00–18:00{% elif CURRENT_LANGUAGE == "en" %}Mon–Fri 09:00–18:00{% else %}{% trans "Пн–Пт 09:00–18:00" %}{% endif %}</button>
+      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekday-weekend">{% if CURRENT_LANGUAGE == "az" %}B.e.–C. / Şənbə–Bazar{% elif CURRENT_LANGUAGE == "en" %}Mon–Fri / Weekends{% else %}{% trans "Пн–Пт / Выходные" %}{% endif %}</button>
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="always-open">{% if CURRENT_LANGUAGE == "az" %}24 saat{% elif CURRENT_LANGUAGE == "en" %}24 hours{% else %}{% trans 'Круглосуточно' %}{% endif %}</button>
       <button type="button" class="km-schedule-editor__preset km-schedule-editor__preset--ghost" data-km-schedule-preset="clear">{% if CURRENT_LANGUAGE == "az" %}Hamısını təmizlə{% elif CURRENT_LANGUAGE == "en" %}Clear all{% else %}{% trans 'Очистить всё' %}{% endif %}</button>
     </div>
@@ -66,7 +67,7 @@
       </div>
       <div class="km-schedule-editor__days" data-km-schedule-days>
         {% for day in form.schedule_editor_days %}
-          <div class="km-schedule-editor__row" data-km-schedule-row="{{ day.weekday }}">
+          <div id="{{ editor_id }}-row-{{ day.weekday }}" class="km-schedule-editor__row{% if day.errors %} has-errors{% endif %}" data-km-schedule-row="{{ day.weekday }}">
             <div class="km-schedule-editor__day">
               {% if day.weekday == 'mon' %}{% if CURRENT_LANGUAGE == 'az' %}Bazar ertəsi{% elif CURRENT_LANGUAGE == 'en' %}Monday{% else %}{% trans "Понедельник" %}{% endif %}
               {% elif day.weekday == 'tue' %}{% if CURRENT_LANGUAGE == 'az' %}Çərşənbə axşamı{% elif CURRENT_LANGUAGE == 'en' %}Tuesday{% else %}{% trans "Вторник" %}{% endif %}

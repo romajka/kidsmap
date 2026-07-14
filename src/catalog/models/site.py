@@ -162,6 +162,16 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется в личном кабинете."),
     )
+    specialists_section_enabled = models.BooleanField(
+        _("Показывать раздел «Педагоги и специалисты»"),
+        default=True,
+        help_text=_("Скрывает публичный каталог, ссылки в навигации и owner-формы. Данные и админка специалистов сохраняются."),
+    )
+    events_section_enabled = models.BooleanField(
+        _("Показывать раздел «Временные мероприятия»"),
+        default=True,
+        help_text=_("Скрывает афишу, временные карточки, ссылки в навигации и owner-формы. Данные и админка мероприятий сохраняются."),
+    )
     footer_phone = models.CharField(_("Телефон в футере"), max_length=60, blank=True, default="")
     footer_email = models.EmailField(_("Email в футере"), blank=True, default="")
     footer_instagram = models.CharField(_("Instagram в футере"), max_length=255, blank=True, default="")
@@ -244,6 +254,18 @@ class SiteSettings(models.Model):
     @classmethod
     def get_solo(cls):
         return _get_solo_site_settings()
+
+    def save(self, *args, **kwargs):
+        result = super().save(*args, **kwargs)
+        # Admin sections use proxy models, whose saves do not emit a
+        # post_save signal with SiteSettings as the sender.
+        clear_singleton_caches()
+        return result
+
+    def delete(self, *args, **kwargs):
+        result = super().delete(*args, **kwargs)
+        clear_singleton_caches()
+        return result
 
     class Meta:
         verbose_name = _("Настройка сайта")
@@ -345,6 +367,13 @@ class SiteEmptyStateSettings(SiteSettings):
         proxy = True
         verbose_name = _("Пустой результат")
         verbose_name_plural = _("Пустой результат")
+
+
+class SiteVisibilitySettings(SiteSettings):
+    class Meta:
+        proxy = True
+        verbose_name = _("Разделы сайта")
+        verbose_name_plural = _("Разделы сайта")
 
 
 class SiteAnalytics(SiteSettings):

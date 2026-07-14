@@ -7,9 +7,11 @@
       <div class="place-admin-dashboard__row-search place-admin-dashboard__row-search--unified">
         <div
           class="place-admin-dashboard__search-combined"
+          {% if not km_disable_search_suggestions %}
           data-search-suggest-root
           data-suggestions-url="{% url 'admin:catalog_place_search_suggestions' %}"
           data-suggestions-empty="{% translate 'Ничего не найдено' %}"
+          {% endif %}
         >
           <span class="place-admin-dashboard__search-icon" aria-hidden="true">
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -20,25 +22,29 @@
             value="{{ cl.query }}"
             id="searchbar"
             class="place-admin-dashboard__search-input"
-            aria-label="{% translate 'Поиск по названию места' %}"
-            placeholder="{% translate 'Название места...' %}"
+            aria-label="{% if km_search_label %}{{ km_search_label }}{% else %}{% translate 'Поиск по названию места' %}{% endif %}"
+            placeholder="{% if km_search_placeholder %}{{ km_search_placeholder }}{% else %}{% translate 'Название места...' %}{% endif %}"
             autocomplete="off"
             spellcheck="false"
             {% if cl.search_help_text %}aria-describedby="searchbar_helptext"{% endif %}
-            aria-autocomplete="list"
-            aria-expanded="false"
-            aria-controls="place-search-suggestions"
+            {% if not km_disable_search_suggestions %}
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="place-search-suggestions"
+            {% endif %}
           >
           <button type="submit" class="place-admin-dashboard__search-submit">
             {% translate "Искать" %}
           </button>
-          <div
-            id="place-search-suggestions"
-            class="place-admin-dashboard__search-suggestions"
-            data-search-suggestions
-            role="listbox"
-            hidden
-          ></div>
+          {% if not km_disable_search_suggestions %}
+            <div
+              id="place-search-suggestions"
+              class="place-admin-dashboard__search-suggestions"
+              data-search-suggestions
+              role="listbox"
+              hidden
+            ></div>
+          {% endif %}
         </div>
         
         <div class="place-admin-dashboard__selects-group">

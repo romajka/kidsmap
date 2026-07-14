@@ -6,13 +6,15 @@ from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
 
-from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap
+from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap
+from catalog.views import admin_add_choice
 from config.views import healthz, redirect_legacy_default_language_prefix, robots_txt, serve_media_file
 
 sitemaps = {
     "static": StaticViewSitemap,
     "places": PlaceSitemap,
     "seo": SeoLandingSitemap,
+    "specialists": SpecialistSitemap,
 }
 
 urlpatterns = [
@@ -30,6 +32,7 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
+    path("admin/add-choice/", admin_add_choice, name="admin_add_choice"),
     path(
         "admin/",
         include((admin.site.get_urls(), "localized_admin"), namespace="localized_admin"),

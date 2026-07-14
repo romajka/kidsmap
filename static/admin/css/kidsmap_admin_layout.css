@@ -220,6 +220,42 @@ h3.card-title,
   border-right: 1px solid var(--km-admin-sidebar-border);
   width: var(--km-admin-sidebar-width);
   overflow-x: hidden !important;
+  transition: width 0.2s ease;
+}
+
+/* AdminLTE uses a separate pseudo-element as the sidebar backdrop. Keep it
+   in sync with the real sidebar so long navigation labels are not clipped. */
+.main-sidebar::before {
+  width: var(--km-admin-sidebar-width);
+}
+
+/* Tablet layouts also use the persistent sidebar, so reserve its width there
+   as well instead of letting it overlap the page. */
+@media (min-width: 768px) {
+  .sidebar-mini:not(.sidebar-collapse) .content-wrapper,
+  .sidebar-mini:not(.sidebar-collapse) .main-footer,
+  .sidebar-mini:not(.sidebar-collapse) .main-header {
+    /* Keep a visible gutter after the sidebar shadow, so page controls never
+       touch or appear below the navigation. */
+    margin-left: calc(var(--km-admin-sidebar-width) + var(--km-admin-sidebar-content-gap));
+    transition: margin-left 0.2s ease;
+  }
+
+  /* Keep the icon-only menu compact on hover. It opens only on the menu
+     button, so it cannot cover page controls. */
+  .sidebar-mini.sidebar-collapse .main-sidebar,
+  .sidebar-mini.sidebar-collapse .main-sidebar::before,
+  .sidebar-mini.sidebar-collapse .main-sidebar.sidebar-focused,
+  .sidebar-mini.sidebar-collapse .main-sidebar:hover {
+    width: var(--km-admin-sidebar-collapsed-width) !important;
+  }
+
+  .sidebar-mini.sidebar-collapse .content-wrapper,
+  .sidebar-mini.sidebar-collapse .main-footer,
+  .sidebar-mini.sidebar-collapse .main-header {
+    margin-left: calc(var(--km-admin-sidebar-collapsed-width) + 8px) !important;
+    transition: margin-left 0.2s ease;
+  }
 }
 
 .brand-link {

@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
@@ -9,7 +9,9 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.sites import NotRegistered
-from django.db.models import Q
+from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Q
+from django.shortcuts import redirect
 from django.urls import reverse
 
 from catalog.models import (
@@ -424,12 +426,29 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
         return super().changelist_view(request, extra_context=extra_context)
 
 
+class StaffAccessRoleFilter(admin.SimpleListFilter):
+    title = _("Роль")
+    parameter_name = "role"
+
+    def lookups(self, request, model_admin):
+        return (
+            (ADMIN_ROLE_SUPERADMIN, _("Суперадмины")),
+            ("admin", _("Админы")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == ADMIN_ROLE_SUPERADMIN:
+            return queryset.filter(is_superuser=True)
+        if self.value() == "admin":
+            return queryset.filter(is_staff=True, is_superuser=False)
+        return queryset
+
+
 @admin.register(StaffAccessUser)
 class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
     add_form_template = "admin/catalog/user/change_form.html"
     add_form = StaffAccessUserCreationForm
-    change_list_template = "admin/catalog/siteregistereduser/change_list.html"
-    km_primary_filters = ("is_staff", "is_superuser", "is_active", "date_joined")
+    change_list_template = "admin/catalog/staffaccessuser/change_list.html"
     list_per_page = 15
     fieldsets = (
         (_("Аккаунт"), {"fields": ("username", "email", "first_name", "last_name", "password_summary")}),
@@ -446,18 +465,71 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
         ),
     )
     readonly_fields = ("password_summary", "last_login", "date_joined")
-    list_display = (
-        "identity_summary",
-        "is_staff",
-        "is_superuser",
-        "is_active",
-        "last_login",
-    )
-    list_filter = ("is_staff", "is_superuser", "is_active", "last_login", "date_joined")
+    list_display = ("identity_summary", "email", "staff_role", "places_count", "activity_status", "last_login", "row_actions")
+    list_filter = (StaffAccessRoleFilter,)
     filter_horizontal = ("user_permissions",)
+    actions = None
 
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(Q(is_staff=True) | Q(is_superuser=True))
+        queryset = super().get_queryset(request).filter(Q(is_staff=True) | Q(is_superuser=True))
+        return queryset.annotate(
+            places_count=Count(
+                "managed_places",
+                filter=Q(managed_places__deleted_at__isnull=True),
+                distinct=True,
+            )
+        )
+
+    @admin.display(description=_("Роль"))
+    def staff_role(self, obj):
+        if obj.is_superuser:
+            return format_html('<span class="km-staff-role km-staff-role--super">{}</span>', _("Суперадмин"))
+        return format_html('<span class="km-staff-role km-staff-role--admin">{}</span>', _("Админ"))
+
+    @admin.display(description=_("Добавленные места"), ordering="places_count")
+    def places_count(self, obj):
+        return getattr(obj, "places_count", 0)
+
+    @admin.display(description=_("Активность"), boolean=True, ordering="is_active")
+    def activity_status(self, obj):
+        return obj.is_active
+
+    @admin.display(description=_("Действия"))
+    def row_actions(self, obj):
+        change_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk])
+        actions = [(change_url, _("Открыть"), "")]
+        if getattr(obj, "km_can_delete", False):
+            delete_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_delete", args=[obj.pk])
+            actions.append((delete_url, _("Удалить"), "km-staff-action--danger"))
+        return render_action_menu(actions)
+
+    def _is_protected_from_deletion(self, *, request, obj) -> bool:
+        if obj.pk == request.user.pk:
+            return True
+        return obj.is_superuser and not StaffAccessUser.objects.filter(is_superuser=True).exclude(pk=obj.pk).exists()
+
+    def has_delete_permission(self, request, obj=None):
+        if not request.user.is_superuser:
+            return False
+        if obj is None:
+            return True
+        return not self._is_protected_from_deletion(request=request, obj=obj)
+
+    def delete_view(self, request, object_id, extra_context=None):
+        obj = self.get_object(request, object_id)
+        if obj is None:
+            return super().delete_view(request, object_id, extra_context=extra_context)
+        if not request.user.is_superuser:
+            raise PermissionDenied
+        if self._is_protected_from_deletion(request=request, obj=obj):
+            message = (
+                _("Нельзя удалить собственный профиль.")
+                if obj.pk == request.user.pk
+                else _("Нельзя удалить последнего суперadmin.")
+            )
+            self.message_user(request, message, level=messages.ERROR)
+            return redirect(f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist")
+        return super().delete_view(request, object_id, extra_context=extra_context)
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
@@ -487,43 +559,24 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
         )
         form.instance.user_permissions.set(permissions)
 
-    def _build_user_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
-        params = request.GET.copy()
-        params.pop("p", None)
-        for key in clear:
-            params.pop(key, None)
-        for key, value in updates.items():
-            params.pop(key, None)
-            if value not in (None, ""):
-                params[key] = value
-        encoded = params.urlencode()
-        return f"?{encoded}" if encoded else ""
-
-    def _user_quick_filters(self, request):
-        is_superuser = request.GET.get("is_superuser__exact")
-        keys = ("is_superuser__exact",)
-        
-        counts = {
-            "all": StaffAccessUser.objects.filter(Q(is_staff=True) | Q(is_superuser=True)).count(),
-            "admins": StaffAccessUser.objects.filter(is_staff=True, is_superuser=False).count(),
-            "superusers": StaffAccessUser.objects.filter(is_superuser=True).count(),
-        }
-        
-        return (
-            {"label": _("Все сотрудники"), "url": self._build_user_changelist_query_string(request, clear=keys), "active": not is_superuser, "count": counts["all"]},
-            {"label": _("Админы"), "url": self._build_user_changelist_query_string(request, clear=keys, is_superuser__exact="0"), "active": is_superuser == "0", "count": counts["admins"]},
-            {"label": _("Суперадмины"), "url": self._build_user_changelist_query_string(request, clear=keys, is_superuser__exact="1"), "active": is_superuser == "1", "count": counts["superusers"]},
-        )
-
     def changelist_view(self, request, extra_context=None):
+        response = super().changelist_view(request, extra_context=extra_context)
+        if not hasattr(response, "context_data"):
+            return response
+        superadmin_count = StaffAccessUser.objects.filter(is_superuser=True).count()
+        for staff_user in response.context_data["cl"].result_list:
+            staff_user.km_can_delete = bool(
+                request.user.is_superuser
+                and staff_user.pk != request.user.pk
+                and (not staff_user.is_superuser or superadmin_count > 1)
+            )
         extra_context = {
-            "km_primary_quick_filters": self._user_quick_filters(request),
-            "km_secondary_quick_filters": [],
             "title": _("Сотрудники админки"),
             "subtitle": _("Управление сотрудниками, имеющими доступ к панели управления."),
             **(extra_context or {}),
         }
-        return super().changelist_view(request, extra_context=extra_context)
+        response.context_data.update(extra_context)
+        return response
 
 
 class UserProfileAccessLevelFilter(admin.SimpleListFilter):

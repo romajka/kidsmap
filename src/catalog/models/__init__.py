@@ -1,9 +1,9 @@
 from .category import Category, Subcategory
-from .place import Place, PlacePhoto, PlaceScheduleDay, PlaceScheduleInterval, Event, PlaceLike, PlaceReviewsByClub
+from .place import Place, PlacePhoto, PlaceScheduleDay, PlaceScheduleInterval, Event, EventPhoto, PlaceLike, PlaceReviewsByClub
 from .user import UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVerification
 from .review import PlaceReview, PlaceReviewReaction, SiteReview, SiteReviewReaction
 from .owner import PlaceOwnershipRequest, PlaceOwnershipRequestAudit, OwnerTeamMembership, OwnerTeamInvitation, PlaceChangeAudit
-from .site import SiteSettings, SiteGalleryImage, SiteBrandingSettings, SiteAboutSettings, SiteContactsSettings, SiteFooterSettings, SiteEmptyStateSettings, SiteAnalytics, SiteVisit, FunnelEvent, CatalogContentSettings
+from .site import SiteSettings, SiteGalleryImage, SiteBrandingSettings, SiteAboutSettings, SiteContactsSettings, SiteFooterSettings, SiteEmptyStateSettings, SiteVisibilitySettings, SiteAnalytics, SiteVisit, FunnelEvent, CatalogContentSettings
 from .specialist import Region, District, MetroStation, SpecialistSpecialization, Specialist, SpecialistPracticeLocation, SpecialistScheduleDay, SpecialistScheduleInterval, SpecialistDocument, SpecialistReview
 
 __all__ = [
@@ -14,6 +14,7 @@ __all__ = [
     'PlaceScheduleDay',
     'PlaceScheduleInterval',
     'Event',
+    'EventPhoto',
     'PlaceLike',
     'PlaceReviewsByClub',
     'UserProfile',
@@ -36,6 +37,7 @@ __all__ = [
     'SiteContactsSettings',
     'SiteFooterSettings',
     'SiteEmptyStateSettings',
+    'SiteVisibilitySettings',
     'SiteAnalytics',
     'SiteVisit',
     'FunnelEvent',

@@ -1,8 +1,13 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_add_choice.css' %}?v=1">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid" style="padding: 24px;">
+<div class="container-fluid km-add-choice" style="padding: 24px;">
     <div class="text-center mb-5" style="text-align: center; margin-bottom: 3rem;">
         <h1 style="font-weight: 800; font-size: 2.2rem; color: #1f2937; margin-bottom: 8px; margin-top: 0;">Что вы хотите добавить?</h1>
         <p style="color: #6b7280; font-size: 1.1rem; margin: 0;">Выберите тип публикации для добавления в каталог KidsMap</p>
@@ -19,7 +24,7 @@
                 <h3 style="font-weight: 700; font-size: 1.4rem; color: #111827; margin-bottom: 12px; margin-top: 0;">Постоянное место</h3>
                 <p style="color: #4b5563; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">Клуб, курс, центр, секция, школа или постоянное место. Подходит для долгосрочной работы и отображается как постоянная карточка.</p>
             </div>
-            <a href="{% url 'admin:catalog_place_add' %}?type=permanent" class="btn btn-success btn-block" style="padding: 12px; font-weight: 600; border-radius: 8px; font-size: 1rem;">Добавить постоянное место</a>
+            <a href="{% url 'admin:catalog_place_add' %}?type=permanent" class="btn btn-success btn-block km-add-choice__button km-add-choice__button--green" style="padding: 12px; font-weight: 600; border-radius: 8px; font-size: 1rem;">Добавить постоянное место</a>
         </div>
 
         <!-- Temporary Event Card -->
@@ -31,7 +36,7 @@
                 <h3 style="font-weight: 700; font-size: 1.4rem; color: #111827; margin-bottom: 12px; margin-top: 0;">Временное мероприятие</h3>
                 <p style="color: #4b5563; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">Мастер-класс, открытый урок, турнир, праздник, семинар или разовая активность с привязкой к конкретным датам проведения.</p>
             </div>
-            <a href="{% url 'admin:catalog_event_add' %}" class="btn btn-primary btn-block" style="padding: 12px; font-weight: 600; border-radius: 8px; font-size: 1rem;">Добавить мероприятие</a>
+            <a href="{% url 'admin:catalog_event_add' %}" class="btn btn-primary btn-block km-add-choice__button km-add-choice__button--blue" style="padding: 12px; font-weight: 600; border-radius: 8px; font-size: 1rem;">Добавить мероприятие</a>
         </div>
 
         <!-- Specialist Card -->
@@ -43,7 +48,7 @@
                 <h3 style="font-weight: 700; font-size: 1.4rem; color: #111827; margin-bottom: 12px; margin-top: 0;">Человек / Специалист</h3>
                 <p style="color: #4b5563; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;">Детские психологи, логопеды, педиатры, репетиторы, тренеры. Персональный профиль с контактами, дипломами и отзывами.</p>
             </div>
-            <a href="{% url 'admin:catalog_specialist_add' %}" class="btn btn-secondary btn-block" style="padding: 12px; font-weight: 600; border-radius: 8px; background-color: #6d28d9; border-color: #6d28d9; color: white; font-size: 1rem;">Добавить специалиста</a>
+            <a href="{% url 'admin:catalog_specialist_add' %}" class="btn btn-secondary btn-block km-add-choice__button km-add-choice__button--purple" style="padding: 12px; font-weight: 600; border-radius: 8px; background-color: #6d28d9; border-color: #6d28d9; color: white; font-size: 1rem;">Добавить специалиста</a>
         </div>
 
     </div>
