@@ -84,7 +84,11 @@ smoke() {
   local path="$1"
   local code
   local final_url
-  read -r code final_url <<<"$(curl -sS -L -o /dev/null -w '%{http_code} %{url_effective}' "${APP_BASE_URL}${path}")"
+  read -r code final_url <<<"$(curl -sS -L --max-time 20 \
+    -H 'X-Forwarded-Proto: https' \
+    -o /dev/null \
+    -w '%{http_code} %{url_effective}' \
+    "${APP_BASE_URL}${path}")"
   log "Smoke ${path} -> ${code} (${final_url})"
   if [[ "$code" != "200" ]]; then
     log "Unexpected final status ${code} for ${path}"
