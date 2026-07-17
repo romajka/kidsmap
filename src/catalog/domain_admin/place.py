@@ -41,6 +41,7 @@ from .ui_utils import render_primary_action, render_action_menu, render_row_acti
 
 
 ADMIN_DATETIME_LOCAL_FORMAT = "%Y-%m-%dT%H:%M"
+DRAFT_PLACEHOLDER_NAME = "Черновик без названия"
 
 PLACE_QUALITY_ERROR_LABELS = {
     "missing_name": _("не указано название"),
@@ -154,6 +155,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         cleaned = self._clean_schedule_editor(cleaned)
+        is_save_draft = bool(self.data and "_save_draft" in self.data)
+        self.draft_save_only = is_save_draft
         try:
             cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]")
         except ValidationError as exc:
@@ -169,11 +172,11 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         )
         if primary_name:
             cleaned["name"] = primary_name
+        elif is_save_draft:
+            cleaned["name"] = (getattr(self.instance, "name", "") or "").strip() or DRAFT_PLACEHOLDER_NAME
         else:
             self.add_error("name_az", _("Заполните хотя бы одно название, лучше азербайджанское как основное."))
 
-        is_save_draft = bool(self.data and "_save_draft" in self.data)
-        self.draft_save_only = is_save_draft
         cleaned = clean_location_fields(self, cleaned)
         is_active = cleaned.get("is_active")
         if is_active is None:
@@ -211,6 +214,10 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.draft_save_only = bool(self.data and "_save_draft" in self.data)
+        if self.draft_save_only:
+            for field in self.fields.values():
+                field.required = False
         if not self.is_bound and self.instance is not None:
             self.initial["pricing_plans"] = json.dumps(self.instance.pricing_plans or [], ensure_ascii=False)
         from catalog.services.locations import init_location_fields, configure_location_choices
@@ -237,18 +244,21 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.fields["offers_adult_classes"].help_text = _(
             "Отметьте, если кроме детских программ у места есть отдельные занятия для взрослых."
         )
-        self.fields["phone1"].widget.attrs.update(
-            {
-                "autocomplete": "tel",
-                "inputmode": "tel",
-                "placeholder": "+994 50 123 45 67",
-                "data-km-az-phone": "1",
-                "maxlength": "17",
-            }
-        )
-        phone_value = self.initial.get("phone1") or getattr(self.instance, "phone1", "") or ""
-        if phone_value:
-            self.initial["phone1"] = _format_azerbaijan_phone_for_input(phone_value)
+        for field_name in ("phone1", "phone2", "phone3"):
+            if field_name not in self.fields:
+                continue
+            self.fields[field_name].widget.attrs.update(
+                {
+                    "autocomplete": "tel",
+                    "inputmode": "tel",
+                    "placeholder": "+994 50 123 45 67",
+                    "data-km-az-phone": "1",
+                    "maxlength": "17",
+                }
+            )
+            phone_value = self.initial.get(field_name) or getattr(self.instance, field_name, "") or ""
+            if phone_value:
+                self.initial[field_name] = _format_azerbaijan_phone_for_input(phone_value)
         for field_name in ("temporary_start", "temporary_end"):
             if field_name in self.fields:
                 self.fields[field_name].input_formats = [
@@ -266,11 +276,19 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "lat": _("Напр., 40.409264"),
             "lng": _("Напр., 49.867092"),
             "phone1": _("Напр., +994 50 123-45-67"),
+            "phone2": _("Напр., +994 55 123-45-67"),
+            "phone3": _("Напр., +994 70 123-45-67"),
             "instagram": _("Напр., @kidsmap"),
             "website": _("Напр., https://example.com"),
             "schedule": _("Напр., Пн–Пт 10:00–20:00, Сб–Вс 11:00–19:00"),
             "extra_conditions": _("Напр., Предварительная запись, наличие сертификата и т.п."),
             "additional_info": _("Напр., Описание места, особенности, важные детали и т.п."),
+            "extra_conditions_az": _("Şərtləri azərbaycanca yazın."),
+            "extra_conditions_ru": _("Укажите условия по-русски."),
+            "extra_conditions_en": _("Add conditions in English."),
+            "additional_info_az": _("Əlavə məlumatı azərbaycanca yazın."),
+            "additional_info_ru": _("Укажите дополнительную информацию по-русски."),
+            "additional_info_en": _("Add additional information in English."),
             "address": _("Напр., ул. Низами 10, Баку"),
         }
         for field_name, placeholder in _placeholders.items():
@@ -283,6 +301,14 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         if not value:
             return ""
         return _validate_azerbaijan_phone(value)
+
+    def clean_phone2(self):
+        value = self.cleaned_data.get("phone2") or ""
+        return _validate_azerbaijan_phone(value) if value else ""
+
+    def clean_phone3(self):
+        value = self.cleaned_data.get("phone3") or ""
+        return _validate_azerbaijan_phone(value) if value else ""
 
     def _configure_metro_choices(self):
         metro_options = sort_translated_values(BAKU_METRO_STATIONS)
@@ -1344,6 +1370,8 @@ class PlaceAdmin(admin.ModelAdmin):
         "metro",
         "address",
         "phone1",
+        "phone2",
+        "phone3",
         "owner_id",
         "instagram",
         "website",
@@ -1519,10 +1547,11 @@ class PlaceAdmin(admin.ModelAdmin):
             _("Контакты"),
             {
                 "fields": (
-                    ("phone1", "instagram", "website"),
+                    ("phone1", "phone2", "phone3"),
+                    ("instagram", "website"),
                     "schedule",
-                    "extra_conditions",
-                    "additional_info",
+                    ("extra_conditions_az", "extra_conditions_ru", "extra_conditions_en"),
+                    ("additional_info_az", "additional_info_ru", "additional_info_en"),
                 )
             },
         ),
@@ -1692,6 +1721,7 @@ class PlaceAdmin(admin.ModelAdmin):
             subcategories.append(
                 {
                     "id": str(subcategory.pk),
+                    "code": subcategory.code or "",
                     "category": subcategory.category_id,
                     "label": str(subcategory.name_i18n()),
                 }
@@ -2950,7 +2980,7 @@ class PlaceAdmin(admin.ModelAdmin):
         dashboard_counts = self._place_dashboard_counts()
         quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
         is_trash = self._is_trash_changelist(request)
-        primary_filter_keys = {"all", "published", "pending", "inactive", "without_coordinates", "deleted"}
+        primary_filter_keys = {"all", "published", "draft", "pending", "inactive", "without_coordinates", "deleted"}
         if is_trash:
             primary_filter_keys = {"all", "deleted"}
         extra_context = {
@@ -3319,6 +3349,10 @@ class PlaceAdmin(admin.ModelAdmin):
                     old_schedule_value = (old_obj.schedule or "").strip()
 
         if "_save_draft" in request.POST:
+            if not (obj.name or "").strip():
+                obj.name = DRAFT_PLACEHOLDER_NAME
+            if not obj.category_id:
+                obj.category = Category.objects.order_by("order", "name", "code").first()
             obj.status = Place.STATUS_DRAFT
             obj.is_active = False
         elif "_publish_place" not in request.POST:

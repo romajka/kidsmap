@@ -30,13 +30,11 @@
       </div>
     {% endif %}
 
-    {% if place.phone1 or place.instagram or place.website %}
+    {% if place.phone_numbers or place.instagram or place.website %}
       <div class="place-more-section">
         <span class="place-more-label">{% trans "Способы связи" %}</span>
         <div class="place-more-links">
-          {% if place.phone1 %}
-            <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a>
-          {% endif %}
+          {% for phone in place.phone_numbers %}<a href="tel:{{ phone }}">{{ phone }}</a>{% endfor %}
           {% if place.instagram %}
             <a href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
           {% endif %}
@@ -63,17 +61,17 @@
       </div>
     {% endif %}
 
-    {% if place.extra_conditions %}
+    {% if place.extra_conditions_i18n %}
       <div class="place-more-section">
         <span class="place-more-label">{% trans "Дополнительные условия" %}</span>
-        <p class="place-more-text">{{ place.extra_conditions|linebreaksbr }}</p>
+        <p class="place-more-text">{{ place.extra_conditions_i18n|linebreaksbr }}</p>
       </div>
     {% endif %}
 
-    {% if place.additional_info %}
+    {% if place.additional_info_i18n %}
       <div class="place-more-section">
         <span class="place-more-label">{% trans "Подробности" %}</span>
-        <p class="place-more-text">{{ place.additional_info|linebreaksbr }}</p>
+        <p class="place-more-text">{{ place.additional_info_i18n|linebreaksbr }}</p>
       </div>
     {% endif %}
 

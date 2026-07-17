@@ -9,18 +9,18 @@ from django.utils.translation import gettext as _, get_language
 
 MAX_PRICING_PLANS = 12
 DEFAULT_CURRENCY = "AZN"
-LESSON_FORMATS = {"group", "individual"}
-PAYMENT_TYPES = {"per_lesson", "per_month", "package"}
+LESSON_FORMATS = {"group", "individual", "open_visit"}
+PAYMENT_TYPES = {"per_lesson", "per_month", "package", "per_visit", "entry_ticket"}
 
 _FORMAT_LABELS = {
-    "az": {"group": "Qrup", "individual": "Fərdi"},
-    "ru": {"group": "Групповые", "individual": "Индивидуальные"},
-    "en": {"group": "Group", "individual": "Individual"},
+    "az": {"group": "Qrup", "individual": "Fərdi", "open_visit": "Sərbəst ziyarət"},
+    "ru": {"group": "Групповые", "individual": "Индивидуальные", "open_visit": "Свободное посещение"},
+    "en": {"group": "Group", "individual": "Individual", "open_visit": "Open visit"},
 }
 _PAYMENT_LABELS = {
-    "az": {"per_lesson": "dərs üçün", "per_month": "ay üçün", "package": "paket"},
-    "ru": {"per_lesson": "за занятие", "per_month": "за месяц", "package": "пакет"},
-    "en": {"per_lesson": "per lesson", "per_month": "per month", "package": "package"},
+    "az": {"per_lesson": "dərs üçün", "per_month": "ay üçün", "package": "paket", "per_visit": "ziyarət üçün", "entry_ticket": "giriş bileti"},
+    "ru": {"per_lesson": "за занятие", "per_month": "за месяц", "package": "пакет", "per_visit": "за посещение", "entry_ticket": "входной билет"},
+    "en": {"per_lesson": "per lesson", "per_month": "per month", "package": "package", "per_visit": "per visit", "entry_ticket": "entry ticket"},
 }
 
 
@@ -177,9 +177,13 @@ LOCALIZED_STRINGS = {
         "from": "",
         "suffix_den": "dən",
         "per_lesson_under": "bir dərs üçün",
+        "per_visit_under": "bir ziyarət üçün",
+        "entry_ticket_under": "giriş bileti",
         "per_month_under": "bir ay üçün",
         "package_under": "paket üçün",
         "per_lesson": "dərs",
+        "per_visit": "ziyarət",
+        "entry_ticket": "giriş bileti",
         "per_month": "ay",
         "package": "paket",
         "schedule_label": "Dərs cədvəli",
@@ -192,6 +196,7 @@ LOCALIZED_STRINGS = {
         "price_unknown": "Qiymət təşkilatla dəqiqləşdirilir",
         "group": "Qrup",
         "individual": "Fərdi",
+        "open_visit": "Sərbəst ziyarət",
         "sessions_per_week": "həftədə {count} dəfə",
         "sessions_per_month": "ayda {count} dəfə",
         "minutes": "{count} dəqiqə",
@@ -202,9 +207,13 @@ LOCALIZED_STRINGS = {
         "from": "от",
         "suffix_den": "",
         "per_lesson_under": "за занятие",
+        "per_visit_under": "за посещение",
+        "entry_ticket_under": "входной билет",
         "per_month_under": "в месяц",
         "package_under": "за пакет",
         "per_lesson": "занятие",
+        "per_visit": "посещение",
+        "entry_ticket": "входной билет",
         "per_month": "месяц",
         "package": "пакет",
         "schedule_label": "Расписание занятий",
@@ -217,6 +226,7 @@ LOCALIZED_STRINGS = {
         "price_unknown": "Цена уточняется у организации",
         "group": "Групповые",
         "individual": "Индивидуальные",
+        "open_visit": "Свободное посещение",
         "sessions_per_week": "{count} раза в неделю",
         "sessions_per_month": "{count} раз в месяц",
         "minutes": "{count} минут",
@@ -227,9 +237,13 @@ LOCALIZED_STRINGS = {
         "from": "from",
         "suffix_den": "",
         "per_lesson_under": "per lesson",
+        "per_visit_under": "per visit",
+        "entry_ticket_under": "entry ticket",
         "per_month_under": "per month",
         "package_under": "per package",
         "per_lesson": "lesson",
+        "per_visit": "visit",
+        "entry_ticket": "entry ticket",
         "per_month": "month",
         "package": "package",
         "schedule_label": "Class schedule",
@@ -242,6 +256,7 @@ LOCALIZED_STRINGS = {
         "price_unknown": "Price is specified by organization",
         "group": "Group",
         "individual": "Individual",
+        "open_visit": "Open visit",
         "sessions_per_week": "{count} / week",
         "sessions_per_month": "{count} / month",
         "minutes": "{count} minutes",
@@ -335,6 +350,18 @@ def get_starting_price(place, public_plans, lang):
             "currency": min_plan.get("currency", "AZN"),
             "formatted": _format_starting_price(price_val, "per_lesson", lang)
         }
+
+    for payment_type in ("per_visit", "entry_ticket"):
+        visit_plans = [p for p in public_plans if p.get("payment_type") == payment_type and p.get("price") not in (None, "") and float(p.get("price")) > 0]
+        if visit_plans:
+            min_plan = min(visit_plans, key=lambda x: float(x["price"]))
+            price_val = float(min_plan["price"])
+            return {
+                "amount": price_val,
+                "payment_type": payment_type,
+                "currency": min_plan.get("currency", "AZN"),
+                "formatted": _format_starting_price(price_val, payment_type, lang),
+            }
 
     # 2. Try active per_month plans minimum price
     per_month_plans = [p for p in public_plans if p.get("payment_type") == "per_month" and p.get("price") not in (None, "") and float(p.get("price")) > 0]
@@ -440,7 +467,7 @@ def build_pricing_summary(place, lang="ru"):
     schedule_text = (place.schedule or "").lower()
     by_appt_markers = ["договор", "запис", "appoint", "razılaş", "rezer", "təyin"]
     is_by_appt = any(marker in schedule_text for marker in by_appt_markers)
-    is_working_hours = place.category_id in ["PARK", "BEACH", "FUN", "CAMP", "WATERPARK"]
+    is_working_hours = place.category_id in ["PARK", "BEACH", "FUN", "CAMP", "WATERPARK", "ZOO"]
     
     if is_by_appt:
         schedule_type_label = LOCALIZED_STRINGS[lang]["schedule_by_appointment"]

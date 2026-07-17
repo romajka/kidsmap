@@ -6104,8 +6104,8 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .home-recommended .card {
   display: flex;
   flex-direction: column;
-  height: auto;
-  align-self: start;
+  height: 100%;
+  align-self: stretch;
   padding: 12px;
   border-radius: 24px;
   border: 1px solid #e3eaee;
@@ -6114,7 +6114,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 }
 
 .home-recommended .grid {
-  align-items: start;
+  align-items: stretch;
 }
 
 .home-recommended .card .card-media {
@@ -26037,6 +26037,15 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 }
 
 .owner-tariff-editor .payment-type--package .owner-tariff-field--sessions_per_month {
+  display: none !important;
+}
+
+.owner-tariff-editor .payment-type--per-visit .owner-tariff-field--sessions_per_week,
+.owner-tariff-editor .payment-type--per-visit .owner-tariff-field--sessions_per_month,
+.owner-tariff-editor .payment-type--per-visit .owner-tariff-field--package_sessions,
+.owner-tariff-editor .payment-type--entry-ticket .owner-tariff-field--sessions_per_week,
+.owner-tariff-editor .payment-type--entry-ticket .owner-tariff-field--sessions_per_month,
+.owner-tariff-editor .payment-type--entry-ticket .owner-tariff-field--package_sessions {
   display: none !important;
 }
 

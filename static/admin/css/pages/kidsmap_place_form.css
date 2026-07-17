@@ -1135,8 +1135,10 @@
   display: none; /* replaced by .km-coord-status-panel injected by JS */
 }
 
-/* Row contacts: phone1(1fr) | instagram(1fr) | website(1fr) */
-#location .field-phone1    { grid-column: span 1; }
+/* Contact fields: three phone numbers, then social links. */
+#location .field-phone1,
+#location .field-phone2,
+#location .field-phone3    { grid-column: span 1; }
 #location .field-instagram { grid-column: span 1; }
 #location .field-website   { grid-column: span 1; }
 
@@ -1146,6 +1148,18 @@
 
 /* Row: additional_info — full width */
 #location .field-additional_info  { grid-column: 1 / -1; }
+
+.km-location-i18n-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.km-location-i18n-fields textarea { min-height: 126px; }
+
+@media (max-width: 900px) {
+  .km-location-i18n-fields { grid-template-columns: 1fr; }
+}
 
 /* Location section — module overrides for denser layout */
 #location .module {
@@ -1274,6 +1288,8 @@
 }
 
 #location .field-phone1,
+#location .field-phone2,
+#location .field-phone3,
 #location .field-instagram,
 #location .field-website {
   grid-column: span 1;
@@ -4108,4 +4124,142 @@ div[class*="related-modal"]:has(iframe[name*="category"]) .modal-header {
 .km-place-form-error-list__empty {
   margin: 10px 0 0;
   font-weight: 700;
+}
+
+.km-place-json-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.km-place-json-import-trigger,
+.km-place-json-prompt-copy,
+.km-place-json-import-dialog__apply,
+.km-place-json-import-dialog__cancel {
+  border-radius: 10px;
+  min-height: 38px;
+  padding: 0 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.km-place-json-import-trigger,
+.km-place-json-import-dialog__apply {
+  border: 1px solid #0f8a43;
+  background: #0f8a43;
+  color: #fff;
+}
+
+.km-place-json-import-trigger:hover,
+.km-place-json-import-dialog__apply:hover {
+  background: #0b7136;
+}
+
+.km-place-json-prompt-copy {
+  border: 1px solid #9ccab0;
+  background: #fff;
+  color: #0f7138;
+}
+
+.km-place-json-prompt-copy:hover {
+  background: #edf8f0;
+}
+
+.km-place-json-import-dialog {
+  width: min(680px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid #d7e9dc;
+  border-radius: 18px;
+  color: var(--km-place-text);
+  box-shadow: 0 24px 80px rgba(15, 48, 30, 0.28);
+}
+
+.km-place-json-prompt-dialog {
+  width: min(960px, calc(100vw - 32px));
+}
+
+.km-place-json-prompt-dialog textarea {
+  min-height: 460px;
+}
+
+.km-place-json-import-dialog::backdrop {
+  background: rgba(12, 34, 23, 0.48);
+}
+
+.km-place-json-import-dialog__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 8px;
+}
+
+.km-place-json-import-dialog__eyebrow {
+  margin: 0 0 3px;
+  color: #0f8a43;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.km-place-json-import-dialog h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.km-place-json-import-dialog__close {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #f1f7f3;
+  color: #456052;
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.km-place-json-import-dialog__hint,
+.km-place-json-import-dialog__example,
+.km-place-json-import-dialog__message {
+  margin: 12px 24px;
+}
+
+.km-place-json-import-dialog__hint { color: #526a5c; }
+.km-place-json-import-dialog__example { color: #6a8172; font-size: 12px; }
+.km-place-json-import-dialog__message { min-height: 20px; color: #0f8a43; font-weight: 700; }
+.km-place-json-import-dialog__message.is-error { color: #b42318; }
+
+.km-place-json-import-dialog textarea {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 48px);
+  margin: 0 24px;
+  padding: 12px;
+  border: 1px solid #bcd8c4;
+  border-radius: 10px;
+  background: #fbfefc;
+  color: #1c3424;
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  resize: vertical;
+}
+
+.km-place-json-import-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 24px 24px;
+}
+
+.km-place-json-import-dialog__cancel {
+  border: 1px solid #c9ddd0;
+  background: #fff;
+  color: #395445;
+}
+
+@media (max-width: 760px) {
+  .km-place-json-actions { display: grid; grid-template-columns: 1fr; }
+  .km-place-json-import-trigger,
+  .km-place-json-prompt-copy { width: 100%; }
 }

@@ -14,10 +14,13 @@
     format: editor.dataset.formatLabel || "Format",
     group: editor.dataset.groupLabel || "Group",
     individual: editor.dataset.individualLabel || "Individual",
+    openVisit: editor.dataset.openVisitLabel || "Open visit",
     payment: editor.dataset.paymentLabel || "Payment",
     perLesson: editor.dataset.perLessonLabel || "Per lesson",
     perMonth: editor.dataset.perMonthLabel || "Per month",
     package: editor.dataset.packageLabel || "Package",
+    perVisit: editor.dataset.perVisitLabel || "Per visit",
+    entryTicket: editor.dataset.entryTicketLabel || "Entry ticket",
     week: editor.dataset.weekLabel || "Sessions/week",
     month: editor.dataset.monthLabel || "Sessions/month",
     packageSessions: editor.dataset.packageSessionsLabel || "Package sessions",
@@ -40,8 +43,8 @@
     ["title_az", labels.titleAz, "text", null, true],
     ["title_ru", labels.titleRu, "text", null, false],
     ["title_en", labels.titleEn, "text", null, false],
-    ["lesson_format", labels.format, "select", [["group", labels.group], ["individual", labels.individual]], true],
-    ["payment_type", labels.payment, "select", [["per_lesson", labels.perLesson], ["per_month", labels.perMonth], ["package", labels.package]], true],
+    ["lesson_format", labels.format, "select", [["group", labels.group], ["individual", labels.individual], ["open_visit", labels.openVisit]], true],
+    ["payment_type", labels.payment, "select", [["per_lesson", labels.perLesson], ["per_month", labels.perMonth], ["package", labels.package], ["per_visit", labels.perVisit], ["entry_ticket", labels.entryTicket]], true],
     ["price", labels.price, "number", null, true],
     ["sessions_per_week", labels.week, "number", null, false],
     ["sessions_per_month", labels.month, "number", null, false],
@@ -69,7 +72,7 @@
     let field;
     if (type === "select") {
       field = document.createElement("select");
-      field.innerHTML = '<option value=""></option>' + options.map((item) => '<option value="' + item[0] + '">' + item[1] + '</option>').join("");
+      field.innerHTML = '<option value="">Выберите вариант</option>' + options.map((item) => '<option value="' + item[0] + '">' + item[1] + '</option>').join("");
     } else {
       field = document.createElement("input");
       field.type = type;
@@ -94,7 +97,19 @@
     field.value = plan[key] == null ? "" : plan[key];
     field.dataset.tariffKey = key;
     field.addEventListener("input", () => { plan[key] = field.value; sync(); });
-    field.addEventListener("change", () => { plan[key] = field.value; sync(); render(); });
+    field.addEventListener("change", () => {
+      plan[key] = field.value;
+      sync();
+
+      // Rebuilding the whole row here can reset a native <select> before the
+      // browser has committed its selected option. Update only the CSS state.
+      if (key === "payment_type") {
+        ["empty", "per-lesson", "per-month", "package", "per-visit", "entry-ticket"].forEach((typeName) => {
+          row.classList.remove("payment-type--" + typeName);
+        });
+        row.classList.add("payment-type--" + (field.value || "empty").replace("_", "-"));
+      }
+    });
     wrapper.appendChild(field);
     row.appendChild(wrapper);
   }

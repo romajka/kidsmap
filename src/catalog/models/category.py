@@ -16,6 +16,7 @@ CATEGORY_COLOR_PRESETS = {
     "PARK": {"bg": "#DFF6E8", "text": "#198754"},
     "BEACH": {"bg": "#CCFBF1", "text": "#0F766E"},
     "WATERPARK": {"bg": "#DBEAFE", "text": "#2563EB"},
+    "ZOO": {"bg": "#ECFCCB", "text": "#4D7C0F"},
 }
 
 NEUTRAL_BG_VALUES = {"", "#fff", "#ffffff", "#f3f4f6", "#fcfcfc", "#f9fafb"}

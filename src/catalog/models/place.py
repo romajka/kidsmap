@@ -84,6 +84,8 @@ class Place(models.Model):
     address = models.CharField(_("Адрес"), max_length=255, blank=True)
 
     phone1 = models.CharField(_("Телефон 1"), max_length=50, blank=True)
+    phone2 = models.CharField(_("Дополнительный телефон"), max_length=50, blank=True, default="")
+    phone3 = models.CharField(_("Ещё один телефон"), max_length=50, blank=True, default="")
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -115,6 +117,12 @@ class Place(models.Model):
     price_per_8_lessons = models.PositiveIntegerField(_("Цена за 8 уроков"), null=True, blank=True)
     extra_conditions = models.TextField(_("Дополнительные условия"), blank=True)
     additional_info = models.TextField(_("Дополнительная информация"), blank=True)
+    extra_conditions_az = models.TextField(_("Дополнительные условия (AZ)"), blank=True, default="")
+    extra_conditions_ru = models.TextField(_("Дополнительные условия (RU)"), blank=True, default="")
+    extra_conditions_en = models.TextField(_("Дополнительные условия (EN)"), blank=True, default="")
+    additional_info_az = models.TextField(_("Дополнительная информация (AZ)"), blank=True, default="")
+    additional_info_ru = models.TextField(_("Дополнительная информация (RU)"), blank=True, default="")
+    additional_info_en = models.TextField(_("Дополнительная информация (EN)"), blank=True, default="")
     likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
     rating_avg = models.FloatField(_("Средний рейтинг"), default=0)
     rating_count = models.PositiveIntegerField(_("Количество отзывов"), default=0)
@@ -332,11 +340,34 @@ class Place(models.Model):
         return options
 
     @property
+    def phone_numbers(self) -> list[str]:
+        """Unique non-empty phone numbers in the order shown to visitors."""
+        numbers: list[str] = []
+        for phone in (self.phone1, self.phone2, self.phone3):
+            normalized = (phone or "").strip()
+            if normalized and normalized not in numbers:
+                numbers.append(normalized)
+        return numbers
+
+    def _localized_text(self, prefix: str, lang: str | None = None) -> str:
+        language = self._normalize_lang(lang)
+        localized = getattr(self, f"{prefix}_{language}", "") or ""
+        return localized or getattr(self, prefix, "") or ""
+
+    def extra_conditions_i18n(self, lang: str | None = None) -> str:
+        return self._localized_text("extra_conditions", lang)
+
+    def additional_info_i18n(self, lang: str | None = None) -> str:
+        return self._localized_text("additional_info", lang)
+
+    @property
     def has_more_details(self) -> bool:
         return any(
             (
                 self.address,
                 self.phone1,
+                self.phone2,
+                self.phone3,
                 self.instagram,
                 self.website,
                 self.has_schedule_content,
@@ -350,6 +381,12 @@ class Place(models.Model):
                 self.pricing_plans,
                 self.extra_conditions,
                 self.additional_info,
+                self.extra_conditions_az,
+                self.extra_conditions_ru,
+                self.extra_conditions_en,
+                self.additional_info_az,
+                self.additional_info_ru,
+                self.additional_info_en,
                 self.price_from is not None,
                 self.price_to is not None,
             )

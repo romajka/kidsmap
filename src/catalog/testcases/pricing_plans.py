@@ -41,6 +41,17 @@ class PricingPlansTests(TestCase):
                 with self.assertRaises(ValidationError):
                     normalize_pricing_plans(value)
 
+    def test_accepts_open_visit_tariffs(self):
+        plans = normalize_pricing_plans([
+            {"lesson_format": "open_visit", "payment_type": "per_visit", "price": "15"},
+            {"lesson_format": "open_visit", "payment_type": "entry_ticket", "price": "8"},
+        ])
+        self.assertEqual(plans[0]["payment_type"], "per_visit")
+        with override("ru"):
+            visible = public_pricing_plans(plans)
+        self.assertEqual(visible[0]["format_label"], "Свободное посещение")
+        self.assertEqual(visible[1]["payment_label"], "входной билет")
+
     def test_owner_form_saves_multiple_normalized_plans(self):
         payload = [
             {"lesson_format": "group", "payment_type": "per_month", "sessions_per_week": 2, "price": "120"},

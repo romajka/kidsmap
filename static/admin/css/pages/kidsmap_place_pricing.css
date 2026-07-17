@@ -123,6 +123,15 @@
   display: none !important;
 }
 
+.payment-type--per-visit .owner-tariff-field--sessions_per_week,
+.payment-type--per-visit .owner-tariff-field--sessions_per_month,
+.payment-type--per-visit .owner-tariff-field--package_sessions,
+.payment-type--entry-ticket .owner-tariff-field--sessions_per_week,
+.payment-type--entry-ticket .owner-tariff-field--sessions_per_month,
+.payment-type--entry-ticket .owner-tariff-field--package_sessions {
+  display: none !important;
+}
+
 /* Empty or unselected payment type resets fields hide state */
 .payment-type--empty .owner-tariff-field--sessions_per_month,
 .payment-type--empty .owner-tariff-field--package_sessions {

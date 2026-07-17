@@ -92,7 +92,7 @@
             {% endif %}
           </div>
 
-          {% if pricing_summary.has_price or pricing_summary.plans or pricing_summary.schedule or place.extra_conditions or place.additional_info %}
+          {% if pricing_summary.has_price or pricing_summary.plans or pricing_summary.schedule or place.extra_conditions_i18n or place.additional_info_i18n %}
             <section class="detail-unified-pricing detail-section detail-body-card{% if not pricing_summary.plans %} detail-unified-pricing--no-plans{% endif %}{% if pricing_summary.schedule_rows %} detail-unified-pricing--with-schedule{% endif %}{% if not pricing_summary.has_price %} detail-unified-pricing--without-price{% endif %}">
               <div class="detail-section-head">
                 <h2>{{ pricing_summary.strings.title }}</h2>
@@ -192,13 +192,13 @@
                 </div>
               {% endif %}
 
-              {% if place.extra_conditions or place.additional_info %}
+              {% if place.extra_conditions_i18n or place.additional_info_i18n %}
                 <div class="detail-unified-pricing__footer-notes">
-                  {% if place.extra_conditions %}
-                    <p><strong>{% if language == 'az' %}Əlavə şərtlər{% elif language == 'en' %}Extra conditions{% else %}Дополнительные условия{% endif %}:</strong> {{ place.extra_conditions }}</p>
+                  {% if place.extra_conditions_i18n %}
+                    <p><strong>{% if language == 'az' %}Əlavə şərtlər{% elif language == 'en' %}Extra conditions{% else %}Дополнительные условия{% endif %}:</strong> {{ place.extra_conditions_i18n }}</p>
                   {% endif %}
-                  {% if place.additional_info %}
-                    <p>{{ place.additional_info }}</p>
+                  {% if place.additional_info_i18n %}
+                    <p>{{ place.additional_info_i18n }}</p>
                   {% endif %}
                 </div>
               {% endif %}
@@ -309,7 +309,7 @@
           <p class="meta">{% if language == "az" %}Əsas əlaqə kanalları bir yerdə{% elif language == "en" %}Core contact channels in one place{% else %}Короткий список контактов без лишних дублей{% endif %}</p>
         </div>
         <div class="detail-contact-list">
-          {% if place.phone1 %}
+          {% for phone in place.phone_numbers %}
             <div class="detail-contact-row">
               <span class="detail-contact-row__icon detail-contact-row__icon--phone" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
@@ -317,11 +317,11 @@
                 </svg>
               </span>
               <div class="detail-contact-row__body">
-                <span class="meta-label">{% if language == "az" %}Telefon{% elif language == "en" %}Phone{% else %}Телефон{% endif %}</span>
-                <a href="tel:{{ place.phone1 }}">{{ place.phone1 }}</a>
+                <span class="meta-label">{% if forloop.first %}{% if language == "az" %}Əsas telefon{% elif language == "en" %}Main phone{% else %}Основной телефон{% endif %}{% else %}{% if language == "az" %}Əlavə telefon{% elif language == "en" %}Additional phone{% else %}Дополнительный телефон{% endif %}{% endif %}</span>
+                <a href="tel:{{ phone }}">{{ phone }}</a>
               </div>
             </div>
-          {% endif %}
+          {% endfor %}
           {% if place.instagram %}
             <div class="detail-contact-row">
               <span class="detail-contact-row__icon detail-contact-row__icon--instagram" aria-hidden="true">

@@ -185,6 +185,18 @@ class Command(BaseCommand):
                 "is_active": True,
                 "order": 14,
             },
+            {
+                "code": "ZOO",
+                "name": "Зоопарки и аквариумы",
+                "name_az": "Zooparklar və akvariumlar",
+                "name_ru": "Зоопарки и аквариумы",
+                "name_en": "Zoos & aquariums",
+                "icon": "icons/categories/zoo.svg",
+                "color_bg": "#ECFCCB",
+                "color_text": "#4D7C0F",
+                "is_active": True,
+                "order": 15,
+            },
         ]
 
         subcategories_data = [
@@ -312,16 +324,18 @@ class Command(BaseCommand):
             {"cat": "FUN", "code": "trampoline-activity-parks", "az": "Batut və aktiviti parklar", "ru": "Батутные и активити-парки", "en": "Trampoline & activity parks", "order": 2},
             {"cat": "FUN", "code": "quests", "az": "Kvestlər", "ru": "Квесты", "en": "Quests", "order": 3},
             {"cat": "FUN", "code": "museums-science-centers", "az": "Muzeylər və elm mərkəzləri", "ru": "Музеи и научные центры", "en": "Museums & science centers", "order": 4},
-            {"cat": "FUN", "code": "zoos-aquariums", "az": "Zooparklar və akvariumlar", "ru": "Зоопарки и аквариумы", "en": "Zoos & aquariums", "order": 5},
-            {"cat": "FUN", "code": "master-classes", "az": "Master-klaslar", "ru": "Мастер-классы", "en": "Master classes", "order": 6},
-            {"cat": "FUN", "code": "birthday-parties", "az": "Ad günlərinin keçirilməsi", "ru": "Проведение дней рождения", "en": "Birthday parties", "order": 7},
-            {"cat": "FUN", "code": "family-cafes-kids-zones", "az": "Ailə kafeləri və uşaq zonaları", "ru": "Семейные кафе и детские зоны", "en": "Family cafes & kids zones", "order": 8},
-            {"cat": "FUN", "code": "excursions-tours", "az": "Ekskursiyalar və idraki turlar", "ru": "Экскурсии и познавательные туры", "en": "Excursions & educational tours", "order": 9},
-            {"cat": "FUN", "code": "nature-outdoor-activities", "az": "Təbiət və küçə fəaliyyətləri", "ru": "Природные и уличные активности", "en": "Nature & outdoor activities", "order": 10},
-            {"cat": "FUN", "code": "kids-theaters-cinema", "az": "Uşaq teatrları, kino və tamaşalar", "ru": "Детские театры, кино и представления", "en": "Kids theaters, cinema & shows", "order": 11},
+            {"cat": "FUN", "code": "master-classes", "az": "Master-klaslar", "ru": "Мастер-классы", "en": "Master classes", "order": 5},
+            {"cat": "FUN", "code": "birthday-parties", "az": "Ad günlərinin keçirilməsi", "ru": "Проведение дней рождения", "en": "Birthday parties", "order": 6},
+            {"cat": "FUN", "code": "family-cafes-kids-zones", "az": "Ailə kafeləri və uşaq zonaları", "ru": "Семейные кафе и детские зоны", "en": "Family cafes & kids zones", "order": 7},
+            {"cat": "FUN", "code": "excursions-tours", "az": "Ekskursiyalar və idraki turlar", "ru": "Экскурсии и познавательные туры", "en": "Excursions & educational tours", "order": 8},
+            {"cat": "FUN", "code": "nature-outdoor-activities", "az": "Təbiət və küçə fəaliyyətləri", "ru": "Природные и уличные активности", "en": "Nature & outdoor activities", "order": 9},
+            {"cat": "FUN", "code": "kids-theaters-cinema", "az": "Uşaq teatrları, kino və tamaşalar", "ru": "Детские театры, кино и представления", "en": "Kids theaters, cinema & shows", "order": 10},
 
             # Аквапарки и бассейны
             {"cat": "WATERPARK", "code": "waterparks-pools", "az": "Akvaparklar və istirahət hovuzları", "ru": "Аквапарки и бассейны для отдыха", "en": "Waterparks & pools", "order": 1},
+
+            # Зоопарки и аквариумы
+            {"cat": "ZOO", "code": "zoos-aquariums", "az": "Zooparklar və akvariumlar", "ru": "Зоопарки и аквариумы", "en": "Zoos & aquariums", "order": 1},
 
             # Лагеря
             {"cat": "CAMP", "code": "city-day-camp", "az": "Şəhər gündüz düşərgəsi", "ru": "Городской дневной лагерь", "en": "City day camp", "order": 1},
@@ -370,12 +384,14 @@ class Command(BaseCommand):
                 if (
                     not existing_cat
                     or str((existing_cat.color_bg or "")).strip().lower() in NEUTRAL_BG_VALUES
+                    or cat_data["code"] in {"ZOO", "WATERPARK"}
                 ):
                     defaults["color_bg"] = cat_data.get("color_bg", "#F3F4F6")
 
                 if (
                     not existing_cat
                     or str((existing_cat.color_text or "")).strip().lower() in NEUTRAL_TEXT_VALUES
+                    or cat_data["code"] in {"ZOO", "WATERPARK"}
                 ):
                     defaults["color_text"] = cat_data.get("color_text", "#6B7280")
 

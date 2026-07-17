@@ -181,6 +181,20 @@
           {{ field.errors }}
         </div>
       {% endwith %}
+      {% with field=form.phone2 %}
+        <div class="km-location-field km-location-field--phone">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      {% with field=form.phone3 %}
+        <div class="km-location-field km-location-field--phone">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
       {% with field=form.instagram %}
         <div class="km-location-field km-location-field--instagram">
           {{ field.label_tag }}
@@ -197,24 +211,40 @@
       {% endwith %}
     </div>
 
-    {% with field=form.extra_conditions %}
-      <div class="km-location-field km-location-field--extra-conditions">
-        {{ field.label_tag }}
-        {{ field }}
-        {{ field.errors }}
-      </div>
-    {% endwith %}
+    <div class="km-location-i18n-fields">
+      {% with field=form.extra_conditions_az %}
+        <div class="km-location-field km-location-field--extra-conditions">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      {% with field=form.extra_conditions_ru %}
+        <div class="km-location-field km-location-field--extra-conditions">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>
+      {% endwith %}
+      {% with field=form.extra_conditions_en %}
+        <div class="km-location-field km-location-field--extra-conditions">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>
+      {% endwith %}
+    </div>
 
     <div class="km-location-field km-location-field--schedule km-location-field--schedule-editor">
       {% include "includes/place_schedule_editor.html" with form=form variant="admin" editor_id="admin-place-schedule" %}
     </div>
 
-    {% with field=form.additional_info %}
-      <div class="km-location-field km-location-field--additional-info">
-        {{ field.label_tag }}
-        {{ field }}
-        {{ field.errors }}
-      </div>
-    {% endwith %}
+    <div class="km-location-i18n-fields">
+      {% with field=form.additional_info_az %}
+        <div class="km-location-field km-location-field--additional-info">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endwith %}
+      {% with field=form.additional_info_ru %}
+        <div class="km-location-field km-location-field--additional-info">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>
+      {% endwith %}
+      {% with field=form.additional_info_en %}
+        <div class="km-location-field km-location-field--additional-info">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>
+      {% endwith %}
+    </div>
   </div>
 {% endwith %}

@@ -32,7 +32,7 @@ class PlaceAdminTaxonomyPickerTests(TestCase):
             order=1,
         )
 
-        response = self.client.get(reverse("admin:catalog_place_add"))
+        response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=permanent")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "km-place-taxonomy-config")
@@ -45,6 +45,11 @@ class PlaceAdminTaxonomyPickerTests(TestCase):
         self.assertEqual(category_config["color_text"], "#0F766E")
         self.assertEqual(category_config["subcategory_count"], 1)
         self.assertIn(
-            {"id": str(category.subcategories.get().pk), "category": "TAXUX", "label": "Подкатегория UX"},
+            {
+                "id": str(category.subcategories.get().pk),
+                "code": "taxux-subcategory",
+                "category": "TAXUX",
+                "label": "Подкатегория UX",
+            },
             config["subcategories"],
         )

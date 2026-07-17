@@ -15,14 +15,15 @@
   {# <link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.css"> #}
   {# <script src="https://unpkg.com/filepond@4.32.12/dist/filepond.min.js" defer></script> #}
   {# <script src="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.js" defer></script> #}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=19">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=20">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=1">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=22">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_pricing.css' %}?v=1">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=17" defer></script>
-  <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=21" defer></script>
-  <script src="{% static 'js/owner_pricing_plans.js' %}?v=2" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=5" defer></script>
+  <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=22" defer></script>
+  <script src="{% static 'js/owner_pricing_plans.js' %}?v=4" defer></script>
   {% if google_maps_api_key %}
     <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>
     <script
@@ -127,6 +128,16 @@
           </div>
           
           <div class="km-place-form-header-right">
+            <div class="km-place-json-actions">
+              <button type="button" class="km-place-json-import-trigger" data-place-json-import-open>
+                <i class="fas fa-file-import" aria-hidden="true"></i>
+                {% translate "Импорт из JSON" %}
+              </button>
+              <button type="button" class="km-place-json-prompt-copy" data-place-json-prompt-copy>
+                <i class="far fa-copy" aria-hidden="true"></i>
+                {% translate "Инструкция для ChatGPT" %}
+              </button>
+            </div>
             <div class="km-place-progress-compact">
               <div class="km-place-progress-text">
                 <span class="label">{% translate "Прогресс:" %}</span>
@@ -141,6 +152,48 @@
             </div>
           </div>
         </header>
+
+        <dialog class="km-place-json-import-dialog" data-place-json-import-dialog aria-labelledby="km-json-import-title">
+          <div class="km-place-json-import-dialog__head">
+            <div>
+              <p class="km-place-json-import-dialog__eyebrow">{% translate "Быстрое заполнение" %}</p>
+              <h2 id="km-json-import-title">{% translate "Импорт карточки из JSON" %}</h2>
+            </div>
+            <button type="button" class="km-place-json-import-dialog__close" data-place-json-import-close aria-label="{% translate 'Закрыть' %}">×</button>
+          </div>
+          <p class="km-place-json-import-dialog__hint">{% translate "Вставьте ответ ChatGPT целиком: JSON и примечание. Заполнятся только данные из JSON, а перед сохранением всё можно изменить вручную." %}</p>
+          <textarea data-place-json-import-input rows="15" spellcheck="false" placeholder='{"name_az":"...", "category":"WATERPARK", "address":"...", "phone":"+994...", "price_from":20}'></textarea>
+          <p class="km-place-json-import-dialog__example">{% translate "Поддерживаются: name, name_az, name_ru, name_en, description, category, subcategory, возраст, адрес, контакты, цены, расписание и координаты." %}</p>
+          <p class="km-place-json-import-dialog__message" data-place-json-import-message role="status" aria-live="polite"></p>
+          <div class="km-place-json-import-dialog__actions">
+            <button type="button" class="km-place-json-import-dialog__cancel" data-place-json-import-close>{% translate "Отмена" %}</button>
+            <button type="button" class="km-place-json-import-dialog__apply" data-place-json-import-apply>
+              <i class="fas fa-check" aria-hidden="true"></i>
+              {% translate "Подставить данные" %}
+            </button>
+          </div>
+        </dialog>
+
+        <dialog class="km-place-json-import-dialog km-place-json-prompt-dialog" data-place-json-prompt-dialog aria-labelledby="km-json-prompt-title">
+          <div class="km-place-json-import-dialog__head">
+            <div>
+              <p class="km-place-json-import-dialog__eyebrow">ChatGPT</p>
+              <h2 id="km-json-prompt-title">{% translate "Инструкция для создания JSON" %}</h2>
+            </div>
+            <button type="button" class="km-place-json-import-dialog__close" data-place-json-prompt-close aria-label="{% translate 'Закрыть' %}">×</button>
+          </div>
+          <p class="km-place-json-import-dialog__hint">{% translate "Проверьте и отредактируйте текст под свою задачу. Затем скопируйте его и отправьте в ChatGPT вместе с данными о месте." %}</p>
+          <textarea data-place-json-prompt-input rows="22" spellcheck="false"></textarea>
+          <p class="km-place-json-import-dialog__message" data-place-json-prompt-message role="status" aria-live="polite"></p>
+          <div class="km-place-json-import-dialog__actions">
+            <button type="button" class="km-place-json-import-dialog__cancel" data-place-json-prompt-reset>{% translate "Вернуть шаблон" %}</button>
+            <button type="button" class="km-place-json-import-dialog__cancel" data-place-json-prompt-close>{% translate "Закрыть" %}</button>
+            <button type="button" class="km-place-json-import-dialog__apply" data-place-json-prompt-copy-text>
+              <i class="far fa-copy" aria-hidden="true"></i>
+              {% translate "Скопировать" %}
+            </button>
+          </div>
+        </dialog>
 
         {% if km_place_map_alert %}
           <div class="km-place-form-alert km-place-form-alert--warning" data-map-alert>

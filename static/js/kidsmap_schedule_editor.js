@@ -677,6 +677,12 @@
   }
 
   function bindEvents(state) {
+    state.input.addEventListener("km:schedule-import", function () {
+      state.days = normalizeDays(parsePayload(state.input.value));
+      syncAllRowsDom(state);
+      renderPreview(state);
+    });
+
     state.root.addEventListener("click", function (event) {
       var target = event.target.closest("[data-km-schedule-preset], [data-km-schedule-add-interval], [data-km-schedule-remove-interval], [data-km-schedule-copy-day], [data-km-schedule-copy-weekdays], [data-km-schedule-open-copy-picker], [data-km-schedule-close-copy], [data-km-schedule-apply-copy], .km-schedule-editor__picker-btn");
       if (!target) return;

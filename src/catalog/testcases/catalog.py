@@ -328,6 +328,11 @@ class TestSeedCatalogTaxonomyCommand(TestCase):
         self.assertEqual(waterpark.icon, "icons/categories/waterparks.svg")
         self.assertTrue(waterpark.is_active)
         self.assertTrue(waterpark.subcategories.filter(code="waterparks-pools").exists())
+        zoo = Category.objects.get(code="ZOO")
+        self.assertEqual(zoo.name_ru, "Зоопарки и аквариумы")
+        self.assertEqual(zoo.icon, "icons/categories/zoo.svg")
+        self.assertTrue(zoo.is_active)
+        self.assertTrue(zoo.subcategories.filter(code="zoos-aquariums").exists())
 
     def test_update_icons_flag_overwrites_existing_custom_icon(self):
         Category.objects.update_or_create(

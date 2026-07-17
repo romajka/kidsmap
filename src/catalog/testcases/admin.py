@@ -728,6 +728,8 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Все на странице")
         self.assertContains(response, "Снять выбор")
         self.assertContains(response, "Опубликованы")
+        self.assertContains(response, "Черновики")
+        self.assertContains(response, 'href="?status__exact=draft"', html=False)
         self.assertContains(response, "В удалённых")
         self.assertContains(response, "Без координат")
         self.assertContains(response, reverse("admin:catalog_place_delete", args=[self.place.id]))
@@ -957,6 +959,14 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "km-place-progress-config")
         self.assertContains(response, "data-progress-pct")
         self.assertContains(response, "data-rejected-status")
+        self.assertContains(response, "Импорт из JSON")
+        self.assertContains(response, "data-place-json-import-open")
+        self.assertContains(response, "Инструкция для ChatGPT")
+        self.assertContains(response, "data-place-json-prompt-copy")
+        self.assertContains(response, "Инструкция для создания JSON")
+        self.assertContains(response, "data-place-json-prompt-input")
+        self.assertContains(response, "JSON и примечание")
+        self.assertContains(response, "admin/js/kidsmap_place_json_import.js")
 
     def test_place_admin_schedule_error_identifies_day_and_reason(self):
         invalid_schedule = json.dumps(
@@ -1050,6 +1060,38 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(self.place.status, Place.STATUS_DRAFT)
         self.assertFalse(self.place.is_active)
         self.assertIsNone(self.place.published_at)
+
+    def test_place_admin_can_save_an_empty_new_place_as_draft(self):
+        response = self.client.post(
+            f"{reverse('admin:catalog_place_add')}?type=permanent",
+            data={
+                "_save_draft": "1",
+                "pricing_plans": "[]",
+                "gallery-TOTAL_FORMS": "0",
+                "gallery-INITIAL_FORMS": "0",
+                "gallery-MIN_NUM_FORMS": "0",
+                "gallery-MAX_NUM_FORMS": "1000",
+                "reviews-TOTAL_FORMS": "0",
+                "reviews-INITIAL_FORMS": "0",
+                "reviews-MIN_NUM_FORMS": "0",
+                "reviews-MAX_NUM_FORMS": "1000",
+                "change_audits-TOTAL_FORMS": "0",
+                "change_audits-INITIAL_FORMS": "0",
+                "change_audits-MIN_NUM_FORMS": "0",
+                "change_audits-MAX_NUM_FORMS": "1000",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            list(Place.objects.filter(status=Place.STATUS_DRAFT).values_list("name", flat=True)),
+            ["Черновик без названия"],
+        )
+        draft = Place.objects.get(name="Черновик без названия")
+        self.assertEqual(draft.name, "Черновик без названия")
+        self.assertEqual(draft.status, Place.STATUS_DRAFT)
+        self.assertFalse(draft.is_active)
+        self.assertIsNotNone(draft.category_id)
 
     def test_place_admin_change_form_shows_visibility_controls(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
