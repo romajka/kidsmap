@@ -1579,6 +1579,7 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")
+        context["km_place_draft_save_failed"] = "_save_draft" in request.POST and bool(context.get("errors"))
         fallback_url = reverse(
             f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
             current_app=self.admin_site.name,

@@ -206,8 +206,20 @@
           <div class="km-place-form-alert km-place-form-alert--danger" role="alert" tabindex="-1">
             <div class="km-place-form-alert__icon" aria-hidden="true">!</div>
             <div class="km-place-form-alert__content">
-              <div class="km-place-form-alert__heading">{% translate "Изменения не сохранены" %}</div>
-              <p class="km-place-form-alert__description">{% translate "Исправьте указанные пункты и нажмите «Сохранить и продолжить» ещё раз." %}</p>
+              <div class="km-place-form-alert__heading">
+                {% if km_place_draft_save_failed %}
+                  {% translate "Черновик не сохранён. Изменения не сохранены" %}
+                {% else %}
+                  {% translate "Изменения не сохранены" %}
+                {% endif %}
+              </div>
+              <p class="km-place-form-alert__description">
+                {% if km_place_draft_save_failed %}
+                  {% translate "Исправьте ошибку и сохраните черновик ещё раз: выбранные фото не загружаются, пока форма содержит ошибку." %}
+                {% else %}
+                  {% translate "Исправьте указанные пункты и нажмите «Сохранить и продолжить» ещё раз." %}
+                {% endif %}
+              </p>
               {% if km_place_form_errors %}
                 <ul class="km-place-form-error-list">
                   {% for error in km_place_form_errors %}

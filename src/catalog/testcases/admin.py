@@ -1061,6 +1061,35 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertFalse(self.place.is_active)
         self.assertIsNone(self.place.published_at)
 
+    def test_place_admin_saves_gallery_photo_with_draft(self):
+        payload = self._admin_place_change_payload(
+            **{
+                "gallery-TOTAL_FORMS": "1",
+                "gallery-0-order": "1",
+                "_save_draft": "1",
+            }
+        )
+        photo = SimpleUploadedFile(
+            "gallery.gif",
+            (
+                b"GIF87a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00"
+                b"\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00"
+                b"\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;"
+            ),
+            content_type="image/gif",
+        )
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data={**payload, "gallery-0-image": photo},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        saved_photo = PlacePhoto.objects.get(place=self.place)
+        self.assertEqual(saved_photo.order, 1)
+        self.assertTrue(saved_photo.image.name.startswith("places/gallery/gallery"))
+        self.assertTrue(saved_photo.image.name.endswith(".gif"))
+
     def test_place_admin_can_save_an_empty_new_place_as_draft(self):
         response = self.client.post(
             f"{reverse('admin:catalog_place_add')}?type=permanent",
