@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -109,7 +109,7 @@
               placeholder="{% if language == 'az' %}Məkan, məşğələ və ya açar söz...{% elif language == 'en' %}Place, class, or keyword...{% else %}Место, занятие или ключевое слово...{% endif %}"
             />
           </label>
-          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-label="{% if language == 'az' %}Filtrlər{% elif language == 'en' %}Filters{% else %}Фильтры{% endif %}"></button>
+          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-expanded="false" aria-label="{% if language == 'az' %}Filtrləri aç{% elif language == 'en' %}Open filters{% else %}Открыть фильтры{% endif %}"></button>
         </form>
 
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
@@ -223,6 +223,7 @@
           data-filters-open
           aria-controls="filters-form"
           aria-expanded="false"
+          aria-label="{% if language == 'az' %}Filtrləri aç{% elif language == 'en' %}Open filters{% else %}Открыть фильтры{% endif %}"
         >
           <span>{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</span>
         </button>
@@ -444,7 +445,6 @@
         </div>
       {% endif %}
 
-
       <label class="filter-item filter-rating" data-mobile-filter-section="min_rating">
         {% if language == "az" %}Reytinq ən azı{% elif language == "en" %}Minimum rating{% else %}{% trans "Рейтинг не ниже" %}{% endif %}
         <div class="rating-filter-pills" aria-label="{% if language == 'az' %}Reytinq ən azı{% elif language == 'en' %}Minimum rating{% else %}{% trans 'Рейтинг не ниже' %}{% endif %}">
@@ -624,6 +624,7 @@
           data-catalog-map-open
           aria-controls="catalog-map-panel"
           aria-expanded="false"
+          aria-label="{% if language == 'az' %}Nəticələri xəritədə göstər{% elif language == 'en' %}Show results on map{% else %}Показать результаты на карте{% endif %}"
         >
           {% if language == "az" %}Xəritə{% elif language == "en" %}Map{% else %}{% trans "На карте" %}{% endif %}
           <span class="results-map-count">{{ catalog_map_places_count }}</span>
@@ -646,6 +647,7 @@
         data-no-rating-label="{% if language == 'az' %}Rəy yoxdur{% elif language == 'en' %}No reviews{% else %}Нет отзывов{% endif %}"
         data-no-address-label="{% if language == 'az' %}Ünvan dəqiqləşdirilir{% elif language == 'en' %}Address is being confirmed{% else %}Адрес уточняется{% endif %}"
         data-no-image-label="{% if language == 'az' %}Şəkil yoxdur{% elif language == 'en' %}No image{% else %}Нет фото{% endif %}"
+        data-marker-label="{% if language == 'az' %}Xəritədə məkanı aç: {name}{% elif language == 'en' %}Open place on map: {name}{% else %}Открыть место на карте: {name}{% endif %}"
         data-empty-message="{% if language == 'az' %}Cari filtrlərə uyğun koordinatlı məkan tapılmadı.{% elif language == 'en' %}No places with coordinates match the current filters yet.{% else %}По текущим фильтрам пока нет карточек с координатами.{% endif %}"
         data-fallback-message="{% if language == 'az' %}Google Maps qoşulduqdan sonra interaktiv xəritə açılacaq.{% elif language == 'en' %}The interactive map will be available after Google Maps is configured.{% else %}Интерактивная карта станет доступна после настройки Google Maps.{% endif %}"
         data-loading-message="{% if language == 'az' %}Xəritə yüklənir…{% elif language == 'en' %}Loading map…{% else %}Загружаем карту…{% endif %}"
@@ -760,20 +762,20 @@
                   <div class="rating-row">
                     <span class="rating-stars" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
                     <span class="rating-text">
-                      {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count }} {% if language == "az" %}rəy{% elif language == "en" %}reviews{% else %}{% trans "отзывов" %}{% endif %}
+                      {{ place.rating_avg|floatformat:1 }} · {{ place.rating_count|review_count }}
                     </span>
                   </div>
                 {% else %}
                   <p class="meta card-no-reviews">{% if language == "az" %}Hələ rəy yoxdur{% elif language == "en" %}No reviews yet{% else %}Пока нет отзывов{% endif %}</p>
                 {% endif %}
                 <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
-                  {% if place.district %}{% trans place.district %}{% endif %}
+                  {% if place.district %}{{ place.district_i18n }}{% endif %}
                   {% if place.district and place.metro %} / {% endif %}
                   {% if place.metro %}{% trans place.metro %}{% endif %}
                   {% if not place.district and not place.metro %}&nbsp;{% endif %}
                 </p>
                 {% if place.age_display %}
-                  <p class="meta"><b>{% trans "Возраст" %}:</b> {{ place.age_display }}</p>
+                  <p class="meta card-age-audience"><b>{% trans "Возраст" %}:</b> {{ place.age_display }} {% if language == "az" %}yaş{% elif language == "en" %}years{% else %}лет{% endif %}{% if place.offers_adult_classes %}<span class="card-age-audience__separator" aria-hidden="true">·</span><span class="card-age-audience__adult">{% if language == "az" %}Böyüklər üçün qruplar{% elif language == "en" %}Adult groups{% else %}Взрослые группы{% endif %}</span>{% endif %}</p>
                 {% endif %}
                 {% if place.price_range_display %}
                   <p class="meta meta-price">
@@ -868,7 +870,7 @@
             {% if request.user.is_authenticated %}
               <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
                 {% csrf_token %}
-                <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
+                <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}" aria-label="{% if place.is_liked %}{% if language == 'az' %}Seçilmişlərdən çıxar{% elif language == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}{% else %}{% if language == 'az' %}Seçilmişlərə əlavə et{% elif language == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}{% endif %}" data-favorite-add-label="{% if language == 'az' %}Seçilmişlərə əlavə et{% elif language == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}" data-favorite-remove-label="{% if language == 'az' %}Seçilmişlərdən çıxar{% elif language == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}">
                   <span class="like-icon" aria-hidden="true"></span>
                   <span class="like-count visually-hidden">{{ place.likes_count }}</span>
                 </button>
@@ -879,6 +881,7 @@
                   type="button"
                   class="like-btn"
                   aria-pressed="false"
+                  aria-label="{% if language == 'az' %}Seçilmişlərə əlavə et{% elif language == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
                   data-auth-required-trigger
                   data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
                   data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
@@ -896,11 +899,10 @@
                 {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
               </p>
             {% endwith %}
-            <div class="card-tags-row">
+            <div class="card-tags-row{% if place.offers_adult_classes %} card-tags-row--with-adults{% endif %}">
               {% if place.age_display %}
-                <span class="card-meta-chip">
-                  <span class="card-meta-chip__label">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}{% trans "Возраст" %}{% endif %}</span>
-                  <span class="card-meta-chip__value">{{ place.age_display }}</span>
+                <span class="card-meta-chip{% if place.offers_adult_classes %} card-meta-chip--audience{% endif %}">
+                  <span class="card-meta-chip__value">{{ place.age_display }} {% if language == "az" %}yaş{% elif language == "en" %}years{% else %}лет{% endif %}{% if place.offers_adult_classes %}<span class="card-age-audience__separator" aria-hidden="true">·</span><span class="card-age-audience__adult">{% if language == "az" %}Böyüklər üçün qruplar{% elif language == "en" %}Adult groups{% else %}Взрослые группы{% endif %}</span>{% endif %}</span>
                 </span>
               {% endif %}
               {% if place.card_price_badge %}
@@ -920,10 +922,9 @@
 
             <div class="card-rating-row">
               {% if place.rating_count %}
-                <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
+                <span class="card-score" aria-label="{% if language == 'az' %}Reytinq {{ place.rating_avg|floatformat:1 }} / 5{% elif language == 'en' %}Rating {{ place.rating_avg|floatformat:1 }} out of 5{% else %}Рейтинг {{ place.rating_avg|floatformat:1 }} из 5{% endif %}"><span aria-hidden="true"><span class="card-score-star">★</span>{{ place.rating_avg|floatformat:1 }}</span></span>
                 <span class="card-review-count">
-                  {{ place.rating_count }}
-                  {% if language == "az" %}rəy{% elif language == "en" %}reviews{% else %}{% trans "отзывов" %}{% endif %}
+                  {{ place.rating_count|review_count }}
                 </span>
               {% else %}
                 <span class="card-score card-score-empty">{% if language == "az" %}Rəy yoxdur{% elif language == "en" %}No reviews{% else %}Нет отзывов{% endif %}</span>
@@ -931,7 +932,7 @@
             </div>
 
             <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
-              {% if place.district %}{% trans place.district %}{% endif %}
+              {% if place.district %}{{ place.district_i18n }}{% endif %}
               {% if place.district and place.metro %} / {% endif %}
               {% if place.metro %}{% trans place.metro %}{% endif %}
               {% if not place.district and not place.metro %}&nbsp;{% endif %}
@@ -956,6 +957,9 @@
                     <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-card">Instagram</a>
                   {% endif %}
                 </div>
+              {% endif %}
+              {% if place.has_more_details %}
+                {% include "catalog/includes/place_more_panel.html" with place=place %}
               {% endif %}
             </div>
           </div>
@@ -1125,6 +1129,7 @@
       const quickMenuButtons = Array.from(document.querySelectorAll("[data-quick-filter-toggle]"));
       const quickMenus = Array.from(document.querySelectorAll("[data-quick-menu]"));
       if (!quickMenuButtons.length || !quickMenus.length) return;
+      let activeQuickMenuButton = null;
 
       function setQuickMenuState(activeName) {
         quickMenus.forEach(function (menu) {
@@ -1136,8 +1141,12 @@
         });
       }
 
-      function closeQuickMenus() {
+      function closeQuickMenus(restoreFocus) {
         setQuickMenuState("");
+        if (restoreFocus && activeQuickMenuButton) {
+          activeQuickMenuButton.focus();
+        }
+        activeQuickMenuButton = null;
       }
 
       function submitMobileFilters() {
@@ -1155,13 +1164,14 @@
           event.preventDefault();
           const targetName = toggleButton.dataset.quickMenuTarget || "";
           const isOpen = toggleButton.getAttribute("aria-expanded") === "true";
+          activeQuickMenuButton = isOpen ? null : toggleButton;
           setQuickMenuState(isOpen ? "" : targetName);
           return;
         }
 
         if (event.target.closest("[data-quick-menu-close]")) {
           event.preventDefault();
-          closeQuickMenus();
+          closeQuickMenus(true);
           return;
         }
 
@@ -1174,27 +1184,36 @@
 
       document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
-          closeQuickMenus();
+          closeQuickMenus(true);
         }
       });
     })();
 
     (function () {
-      const openBtn = document.querySelector("[data-filters-open]");
+      const openButtons = Array.from(document.querySelectorAll("[data-filters-open]"));
       const closeBtn = document.querySelector("[data-filters-close]");
       const backdrop = document.querySelector("[data-filters-backdrop]");
       const drawer = document.querySelector("[data-filters-drawer]");
 
-      if (!openBtn || !closeBtn || !backdrop || !drawer) return;
+      if (!openButtons.length || !closeBtn || !backdrop || !drawer) return;
 
       const mobileMedia = window.matchMedia("(max-width: 760px)");
       let pendingFilterFocus = "";
+      let activeOpenButton = null;
 
-      function setDrawerOpen(isOpen) {
+      function setDrawerOpen(isOpen, restoreFocus) {
         document.body.classList.toggle("filters-drawer-open", isOpen);
-        openBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        openButtons.forEach(function (button) {
+          button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        });
         drawer.setAttribute("aria-hidden", isOpen ? "false" : "true");
         backdrop.hidden = !isOpen;
+        if (isOpen) {
+          window.setTimeout(function () { closeBtn.focus(); }, 0);
+        } else if (restoreFocus && activeOpenButton) {
+          activeOpenButton.focus();
+          activeOpenButton = null;
+        }
         if (isOpen && pendingFilterFocus) {
           window.setTimeout(function () {
             const target = drawer.querySelector(`[data-mobile-filter-section="${pendingFilterFocus}"]`) ||
@@ -1217,19 +1236,20 @@
             window.kidsMapCloseQuickMenus();
           }
           pendingFilterFocus = openTrigger.dataset.filterFocus || "";
+          activeOpenButton = openTrigger;
           setDrawerOpen(true);
           return;
         }
 
         if (event.target.closest("[data-filters-close]") || event.target.closest("[data-filters-backdrop]")) {
           event.preventDefault();
-          setDrawerOpen(false);
+          setDrawerOpen(false, true);
         }
       });
 
       document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
-          setDrawerOpen(false);
+          setDrawerOpen(false, true);
         }
       });
 
@@ -2191,6 +2211,16 @@
         var open = drawer.hidden;
         drawer.hidden = !open;
         btn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        document.querySelectorAll("[data-contact-toggle][aria-expanded='true']").forEach(function (btn) {
+          const stack = btn.closest(".card-action-stack");
+          const drawer = stack && stack.querySelector("[data-contact-drawer]");
+          if (drawer) drawer.hidden = true;
+          btn.setAttribute("aria-expanded", "false");
+          btn.focus();
+        });
       });
     })();
   </script>

@@ -16,7 +16,7 @@
     />
   {% endif %}
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=22">
-  <link rel="stylesheet" href="{% static 'css/components/kidsmap_taxonomy_picker.css' %}?v=1">
+  <link rel="stylesheet" href="{% static 'css/components/kidsmap_taxonomy_picker.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -45,7 +45,7 @@
       data-owner-required-groups="district|metro"
       data-owner-permanent-required-groups="district|metro"
       data-owner-temporary-required-groups=""
-      data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,instagram,website,schedule,lesson_format,lesson_duration_minutes,lessons_per_week,lessons_per_month,price_per_lesson,price_per_month,price_per_8_lessons,pricing_plans,extra_conditions,additional_info,is_temporary,temporary_start,temporary_end,gallery_images,moderation_note"
+      data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,offers_adult_classes,instagram,website,schedule,lesson_format,lesson_duration_minutes,lessons_per_week,lessons_per_month,price_per_lesson,price_per_month,price_per_8_lessons,pricing_plans,extra_conditions,additional_info,is_temporary,temporary_start,temporary_end,gallery_images,moderation_note"
       data-owner-optional-groups="lat|lng"
       data-owner-location-group-label="{% if CURRENT_LANGUAGE == 'az' %}Region, rayon və ya metro{% elif CURRENT_LANGUAGE == 'en' %}Region, district, or metro{% else %}{% trans 'Регион, район или метро' %}{% endif %}"
       data-owner-map-group-label="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə nöqtə{% elif CURRENT_LANGUAGE == 'en' %}Map point{% else %}{% trans 'Точка на карте' %}{% endif %}"

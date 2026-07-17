@@ -68,6 +68,7 @@ class PlaceChangeTypeFilter(admin.SimpleListFilter):
                 "subcategory",
                 "age_from",
                 "age_to",
+                "offers_adult_classes",
                 "price_from",
                 "price_to",
                 "price_per_lesson",
@@ -205,6 +206,7 @@ class PlaceChangeAuditAdmin(admin.ModelAdmin):
             "subcategory": _("Подкатегория"),
             "age_from": _("Возраст от"),
             "age_to": _("Возраст до"),
+            "offers_adult_classes": _("Также есть занятия для взрослых"),
         }
         return labels.get(field_name, field_name)
 
@@ -261,6 +263,7 @@ class PlaceChangeAuditAdmin(admin.ModelAdmin):
             "subcategory",
             "age_from",
             "age_to",
+            "offers_adult_classes",
             "price_from",
             "price_to",
             "price_per_lesson",

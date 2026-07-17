@@ -9,12 +9,11 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 
-from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository, ISiteReviewRepository
+from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
 from catalog.models import Event, PlaceReview, SiteGalleryImage
 from catalog.repositories.django_repositories import (
     DjangoPlaceRepository,
     DjangoSettingsRepository,
-    DjangoSiteReviewRepository,
 )
 from catalog.services.options import find_localized_label
 from catalog.services.public_filter_options import build_public_place_filter_options
@@ -26,14 +25,12 @@ from catalog.services.features import is_events_section_enabled
 @dataclass(slots=True)
 class HomeController:
     place_repository: IPlaceRepository
-    review_repository: ISiteReviewRepository
     settings_repository: ISettingsRepository
 
     @classmethod
     def build_default(cls) -> "HomeController":
         return cls(
             place_repository=DjangoPlaceRepository(),
-            review_repository=DjangoSiteReviewRepository(),
             settings_repository=DjangoSettingsRepository(),
         )
 

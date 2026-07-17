@@ -157,27 +157,24 @@
                 </li>
                 {% endif %}
 
-                {% if jazzmin_settings.language_chooser %}
-                {% get_available_languages as LANGUAGES %}
-                {% get_language_info_list for LANGUAGES as languages %}
-
+                {% if admin_language_switch_items %}
                 <li class="nav-item dropdown">
                     <a class="nav-link btn" data-toggle="dropdown" href="#" title="Choose language">
                         <i class="fas fa-globe" aria-hidden="true"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left" id="jazzy-languagemenu">
-                        <form action="{% url 'set_language' %}" method="post">
+                        {% for item in admin_language_switch_items %}
+                        <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch-form">
                             {% csrf_token %}
-                            <input name="next" type="hidden"
-                                value="{{ request.get_full_path|remove_lang:LANGUAGE_CODE }}" />
-                            {% for language in languages %}
-                            <button type="submit" name="language" value="{{ language.code }}"
-                                class="dropdown-item {% if language.code == LANGUAGE_CODE %}active{% endif %}"
-                                lang="{{ language.code }}">
-                                {{ language.name_local|title }}
+                            <input type="hidden" name="language" value="{{ item.code }}" />
+                            <input type="hidden" name="next" value="{{ item.url }}" />
+                            <button type="submit"
+                                class="dropdown-item{% if item.active %} active{% endif %}"
+                                lang="{{ item.code }}">
+                                {{ item.code|upper }}
                             </button>
-                            {% endfor %}
                         </form>
+                        {% endfor %}
                     </div>
                 </li>
                 {% endif %}
@@ -195,8 +192,7 @@
                         <div class="dropdown-divider"></div>
                         <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
                             {% csrf_token %}
-                            <button type="submit" class="dropdown-item"><i class="fas fa-users mr-2"></i> {% translate
-                                'Log out' %}</button>
+                            <button type="submit" class="dropdown-item"><i class="fas fa-users mr-2"></i> {% translate 'Log out' %}</button>
                         </form>
                         {% get_user_menu user request.current_app|default:'admin' as user_menu %}
                         {% for link in user_menu %}
@@ -395,8 +391,7 @@
                 <b>{% trans 'Jazzmin version' %}</b> {% get_jazzmin_version %}
             </div>
             {% autoescape off %}
-            <strong>{% trans 'Copyright' %} &copy; {% now 'Y' %} {{ jazzmin_settings.copyright }}.</strong> {% trans
-            'All rights reserved.' %}
+            <strong>{% trans 'Copyright' %} &copy; {% now 'Y' %} {{ jazzmin_settings.copyright }}.</strong> {% trans 'All rights reserved.' %}
             {% endautoescape %}
         </footer>
         {% if jazzmin_settings.show_ui_builder %}

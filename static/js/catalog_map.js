@@ -344,6 +344,7 @@
       noRatingLabel: panel.dataset.noRatingLabel || "",
       noAddressLabel: panel.dataset.noAddressLabel || "",
       noImageLabel: panel.dataset.noImageLabel || "",
+      markerLabel: panel.dataset.markerLabel || "{name}",
       emptyMessage: panel.dataset.emptyMessage || "",
       fallbackMessage: panel.dataset.fallbackMessage || "",
       loadingMessage: panel.dataset.loadingMessage || "",
@@ -414,8 +415,9 @@
     state.mobileSheetEl = mobileSheetEl;
   }
 
-  function closeActiveCard(state) {
+  function closeActiveCard(state, restoreMarkerFocus) {
     if (!state) return;
+    const marker = state.activeMarker;
     state.activePlace = null;
     state.activeMarker = null;
     if (state.desktopCardEl) {
@@ -427,6 +429,10 @@
       state.mobileSheetEl.hidden = true;
       state.mobileSheetEl.innerHTML = "";
       state.mobileSheetEl.classList.remove("is-open");
+    }
+    if (restoreMarkerFocus && marker) {
+      const markerEl = typeof marker.getElement === "function" ? marker.getElement() : null;
+      if (markerEl) markerEl.focus();
     }
   }
 
@@ -614,7 +620,7 @@
     state.mapEl.addEventListener("click", function (event) {
       if (event.target.closest("[data-map-card-close]")) {
         event.preventDefault();
-        closeActiveCard(state);
+        closeActiveCard(state, true);
       }
     });
 
@@ -663,6 +669,8 @@
     state.places.forEach(function (place) {
       const svg = buildDynamicMarkerSvg(place);
       const marker = L.marker([place.lat, place.lng], {
+        title: place.name || "",
+        alt: state.markerLabel.replace("{name}", place.name || ""),
         icon: L.divIcon({
           className: "custom-leaflet-marker",
           html: svg,
@@ -670,6 +678,15 @@
           iconAnchor: [19, 48],
         }),
       }).addTo(state.leafletMap);
+
+      window.requestAnimationFrame(function () {
+        const markerEl = marker.getElement();
+        if (!markerEl) return;
+        const markerLabel = state.markerLabel.replace("{name}", place.name || "");
+        markerEl.setAttribute("role", "button");
+        markerEl.setAttribute("aria-label", markerLabel);
+        markerEl.setAttribute("title", markerLabel);
+      });
 
       if (place.url) {
         state.markersByUrl[place.url] = marker;
@@ -758,6 +775,19 @@
 
     state.closeBtn.addEventListener("click", function () {
       setCatalogMapOpen(false);
+      state.openBtn.focus();
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape") return;
+      if (state.activePlace) {
+        closeActiveCard(state, true);
+        return;
+      }
+      if (!state.panel.hidden) {
+        setCatalogMapOpen(false);
+        state.openBtn.focus();
+      }
     });
 
     const handleViewportChange = function () {

@@ -1,7 +1,5 @@
 import re
 import uuid
-from functools import lru_cache
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Avg, Count, Q
@@ -17,7 +15,6 @@ from django.dispatch import receiver
 from .place import Place
 
 
-@lru_cache(maxsize=1)
 def _get_solo_site_settings():
     obj = SiteSettings.objects.order_by("id").first()
     if obj:
@@ -67,7 +64,8 @@ def _get_solo_catalog_content_settings():
 
 
 def clear_singleton_caches() -> None:
-    _get_solo_site_settings.cache_clear()
+    if hasattr(_get_solo_site_settings, "cache_clear"):
+        _get_solo_site_settings.cache_clear()
     if hasattr(_get_solo_catalog_content_settings, "cache_clear"):
         _get_solo_catalog_content_settings.cache_clear()
 
@@ -515,12 +513,14 @@ class CatalogContentSettings(models.Model):
 
         return BAKU_METRO_STATIONS
 
-    def seo_pages(self):
+    def seo_pages(self, language_code=None):
         if isinstance(self.seo_pages_json, dict) and self.seo_pages_json:
             return self.seo_pages_json
-        from catalog.content_data import SEO_LANDING_PAGES
+        from catalog.content_data import seo_landing_pages
+        from django.utils.translation import get_language
 
-        return SEO_LANDING_PAGES
+        language_code = (language_code or get_language() or "az").split("-")[0]
+        return seo_landing_pages(language_code)
 
     class Meta:
         verbose_name = _("Контент каталога")

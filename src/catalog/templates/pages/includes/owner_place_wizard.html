@@ -151,6 +151,31 @@
             <div class="owner-form-group-card__grid owner-age-fields-grid">
               {% include "pages/includes/owner_form_field.html" with field=form.age_from %}
               {% include "pages/includes/owner_form_field.html" with field=form.age_to %}
+              <fieldset class="owner-audience-choice owner-form-field-full">
+                <legend class="owner-form-label">{{ form.offers_adult_classes.label }}</legend>
+                <div class="owner-audience-choice__options">
+                  {% for choice in form.offers_adult_classes %}
+                    <label class="owner-audience-choice__option">
+                      {{ choice.tag }}
+                      <span class="owner-audience-choice__surface">
+                        <span class="owner-audience-choice__check" aria-hidden="true"></span>
+                        <span class="owner-audience-choice__copy">
+                          <strong>{{ choice.choice_label }}</strong>
+                          <small>
+                            {% if forloop.first %}
+                              {% if CURRENT_LANGUAGE == "az" %}Yalnız yuxarıda göstərilən yaşda uşaqlar{% elif CURRENT_LANGUAGE == "en" %}Only children in the age range above{% else %}Только дети указанного выше возраста{% endif %}
+                            {% else %}
+                              {% if CURRENT_LANGUAGE == "az" %}Uşaq proqramları ilə yanaşı böyüklər üçün ayrıca qruplar{% elif CURRENT_LANGUAGE == "en" %}Children's programs plus separate adult groups{% else %}Детские программы и отдельные взрослые группы{% endif %}
+                            {% endif %}
+                          </small>
+                        </span>
+                      </span>
+                    </label>
+                  {% endfor %}
+                </div>
+                {% if form.offers_adult_classes.help_text %}<small class="meta">{{ form.offers_adult_classes.help_text }}</small>{% endif %}
+                {% for error in form.offers_adult_classes.errors %}<small class="auth-field-error">{{ error }}</small>{% endfor %}
+              </fieldset>
             </div>
           </div>
 

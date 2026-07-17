@@ -195,7 +195,8 @@
             {% else %}
               <a
                 class="user-entry-link"
-                href="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
+                href="{{ header_account_login_url }}"
+                data-preserve-current-hash
                 aria-label="{% trans 'Войти или зарегистрироваться' %}"
                 title="{% trans 'Войти или зарегистрироваться' %}"
               >
@@ -496,6 +497,11 @@
           if (button) {
             button.classList.toggle("active", !!payload.liked);
             button.setAttribute("aria-pressed", payload.liked ? "true" : "false");
+            const nextLabel = payload.liked ? button.dataset.favoriteRemoveLabel : button.dataset.favoriteAddLabel;
+            if (nextLabel) {
+              button.setAttribute("aria-label", nextLabel);
+              button.setAttribute("title", nextLabel);
+            }
             button.classList.remove("like-pop");
             // restart keyframe animation for each state change
             void button.offsetWidth;
@@ -650,6 +656,21 @@
         });
 
         (function () {
+          const accountLink = document.querySelector(".user-entry-link[data-preserve-current-hash]");
+          if (!accountLink || !window.location.hash) return;
+
+          const loginUrl = new URL(accountLink.href, window.location.origin);
+          const returnTarget = loginUrl.searchParams.get("next");
+          if (!returnTarget) return;
+
+          const returnUrl = new URL(returnTarget, window.location.origin);
+          if (returnUrl.origin !== window.location.origin) return;
+          returnUrl.hash = window.location.hash;
+          loginUrl.searchParams.set("next", returnUrl.pathname + returnUrl.search + returnUrl.hash);
+          accountLink.href = loginUrl.pathname + loginUrl.search;
+        })();
+
+        (function () {
           const headerMenus = Array.from(document.querySelectorAll(".header-menu"));
           if (!headerMenus.length) return;
 
@@ -666,6 +687,12 @@
               headerMenus.forEach(function (other) {
                 if (other === menu) return;
                 other.removeAttribute("open");
+              });
+            });
+
+            menu.querySelectorAll("a").forEach(function (link) {
+              link.addEventListener("click", function () {
+                menu.removeAttribute("open");
               });
             });
           });
@@ -687,7 +714,7 @@
         })();
 
         (function () {
-          if (!("IntersectionObserver" in window)) return;
+          if (typeof window.IntersectionObserver !== "function") return;
           if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
           const targets = Array.from(
@@ -698,6 +725,9 @@
           targets.forEach(function (el, idx) {
             el.classList.add("reveal-item");
             el.style.setProperty("--reveal-order", String(idx % 8));
+            if (el.getBoundingClientRect().top <= window.innerHeight * 1.05) {
+              el.classList.add("is-visible");
+            }
           });
 
           const observer = new IntersectionObserver(
@@ -714,6 +744,13 @@
           targets.forEach(function (el) {
             observer.observe(el);
           });
+
+          window.setTimeout(function () {
+            targets.forEach(function (el) {
+              el.classList.add("is-visible");
+            });
+            observer.disconnect();
+          }, 1400);
         })();
 
         (function () {

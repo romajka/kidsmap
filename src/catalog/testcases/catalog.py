@@ -46,6 +46,7 @@ from catalog.models import (
     UserEmailVerification,
     UserProfile,
 )
+from catalog.repositories.django_repositories import DjangoPlaceRepository
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.content_quality import public_place_queryset, public_review_queryset, review_quality_check
 from catalog.services.place_schedule import dump_schedule_payload
@@ -207,6 +208,17 @@ class ContentModerationPublicVisibilityTests(TestCase):
         public_ids = list(public_place_queryset(Place.objects.all()).values_list("id", flat=True))
 
         self.assertIn(place.id, public_ids)
+
+    def test_map_ready_places_prefetch_structured_schedules(self):
+        place = create_quality_place(schedule="", lat=40.4093, lng=49.8671)
+        day = PlaceScheduleDay.objects.create(place=place, weekday="mon", is_closed=False, is_24_hours=False, order=0)
+        PlaceScheduleInterval.objects.create(schedule_day=day, start_time="09:00", end_time="18:00", order=0)
+
+        places = list(DjangoPlaceRepository().map_ready_queryset())
+
+        self.assertEqual([item.pk for item in places], [place.pk])
+        with self.assertNumQueries(0):
+            self.assertTrue(places[0].schedule_summary)
 
     def test_review_public_queryset_requires_approved_status_and_quality_text(self):
         place = create_quality_place()

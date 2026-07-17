@@ -818,6 +818,14 @@ class UserSetPasswordForm(SetPasswordForm):
 class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput())
     lesson_format = forms.ChoiceField(required=False, choices=Place.LESSON_FORMAT_CHOICES, widget=forms.Select(attrs={"class": "field"}))
+    offers_adult_classes = forms.TypedChoiceField(
+        label=_("Кто может заниматься?"),
+        choices=(("0", _("Только дети")), ("1", _("Дети и взрослые"))),
+        coerce=lambda value: str(value) == "1",
+        empty_value=False,
+        required=False,
+        widget=forms.RadioSelect(attrs={"class": "owner-audience-choice__input"}),
+    )
     draft_save_only = False
     submit_for_moderation = False
     coordinate_refresh_only = False
@@ -864,6 +872,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "subcategory",
             "age_from",
             "age_to",
+            "offers_adult_classes",
             "price_from",
             "price_to",
             "region",
@@ -906,6 +915,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "age_to": forms.TextInput(
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "18"}
             ),
+            "offers_adult_classes": forms.CheckboxInput(attrs={"class": "field-check"}),
             "price_from": forms.TextInput(
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "0"}
             ),
@@ -965,6 +975,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "subcategory": _("Подкатегория"),
             "age_from": _("Возраст от"),
             "age_to": _("Возраст до"),
+            "offers_adult_classes": _("Также есть занятия для взрослых"),
             "price_from": _("Цена от"),
             "price_to": _("Цена до"),
             "district": _("Регион / район"),
@@ -1016,16 +1027,26 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             kwargs["data"] = mutable_data
             data = mutable_data
         if data is not None and instance is not None and getattr(instance, "pk", None):
+            missing_age_from = "age_from" not in data
+            missing_age_to = "age_to" not in data
             missing_lat = "lat" not in data
             missing_lng = "lng" not in data
-            if missing_lat or missing_lng:
+            if missing_age_from or missing_age_to or missing_lat or missing_lng:
                 mutable_data = data.copy()
+                if missing_age_from:
+                    mutable_data["age_from"] = "" if instance.age_from is None else str(instance.age_from)
+                if missing_age_to:
+                    mutable_data["age_to"] = "" if instance.age_to is None else str(instance.age_to)
                 if missing_lat:
                     mutable_data["lat"] = "" if instance.lat is None else str(instance.lat)
                 if missing_lng:
                     mutable_data["lng"] = "" if instance.lng is None else str(instance.lng)
                 kwargs["data"] = mutable_data
         super().__init__(*args, **kwargs)
+
+        if not self.is_bound:
+            current_adult_value = bool(getattr(instance, "offers_adult_classes", False))
+            self.initial["offers_adult_classes"] = "1" if current_adult_value else "0"
 
         if "pricing_plans" in self.fields:
             current_plans = getattr(instance, "pricing_plans", None) if instance is not None else None
@@ -1076,6 +1097,9 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                     "max_value": _("Возраст не может быть больше 18."),
                 }
             )
+        self.fields["offers_adult_classes"].help_text = _(
+            "Возраст выше относится к детским группам. Выберите второй вариант, если есть отдельные взрослые группы."
+        )
         for field_name in ("price_from", "price_to"):
             self.fields[field_name].error_messages.update(
                 {

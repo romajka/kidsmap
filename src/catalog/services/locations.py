@@ -186,6 +186,72 @@ def get_location_translation(value: str, language_code: str = None) -> str:
         return _(value)
 
 
+_LOCATION_SUFFIXES = {
+    "city": ("şəhəri", "city", "город"),
+    "district": ("rayonu", "district", "район"),
+}
+
+_LOCALIZED_SUFFIXES = {
+    "az": {"city": "şəhəri", "district": "rayonu"},
+    "en": {"city": "city", "district": "District"},
+    "ru": {"city": "город", "district": "район"},
+}
+
+
+def _normalize_location_segment(segment: str, lang: str) -> tuple[str, str]:
+    normalized_segment = re.sub(r"\s+", " ", segment).strip()
+    suffix_type = ""
+    base = normalized_segment
+
+    for candidate_type, suffixes in _LOCATION_SUFFIXES.items():
+        suffix_pattern = "|".join(re.escape(suffix) for suffix in suffixes)
+        match = re.fullmatch(
+            rf"(?P<base>.*?)(?:\s+(?:{suffix_pattern}))+",
+            normalized_segment,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            base = match.group("base").strip()
+            suffix_type = candidate_type
+            break
+
+    key = normalize_to_key(base)
+    if key in BAKU_DISTRICTS_MAP:
+        identity = f"district:{key}"
+    elif key in AZERBAIJAN_REGIONS_MAP:
+        identity = f"region:{key}"
+    else:
+        identity = ""
+
+    if suffix_type:
+        if key in BAKU_DISTRICTS_MAP:
+            base = BAKU_DISTRICTS_MAP[key][lang]
+        elif key in AZERBAIJAN_REGIONS_MAP:
+            base = AZERBAIJAN_REGIONS_MAP[key][lang]
+        normalized_segment = f"{base} {_LOCALIZED_SUFFIXES[lang][suffix_type]}"
+
+    return normalized_segment, identity
+
+
+def _deduplicate_location_segments(value: str, lang: str) -> str:
+    segments = []
+    seen_locations = set()
+
+    for raw_segment in value.split(","):
+        segment = raw_segment.strip()
+        if not segment:
+            continue
+
+        normalized_segment, identity = _normalize_location_segment(segment, lang)
+        if identity and identity in seen_locations:
+            continue
+        if identity:
+            seen_locations.add(identity)
+        segments.append(normalized_segment)
+
+    return ", ".join(segments).strip(" ,")
+
+
 def localize_address_text(value: str, language_code: str = None) -> str:
     if not value:
         return ""
@@ -196,7 +262,7 @@ def localize_address_text(value: str, language_code: str = None) -> str:
     if lang not in ("az", "ru", "en"):
         lang = "az"
     if lang == "ru":
-        return str(value).strip()
+        return _deduplicate_location_segments(str(value).strip(), lang)
 
     localized = str(value).strip()
 
@@ -214,6 +280,21 @@ def localize_address_text(value: str, language_code: str = None) -> str:
     }
     for source, target in proper_name_replacements.get(lang, {}).items():
         localized = localized.replace(source, target)
+
+    for key, labels in BAKU_DISTRICTS_MAP.items():
+        variants = {
+            key,
+            labels["ru"],
+            labels["az"],
+            labels["en"],
+            f"{labels['ru']} район",
+            f"{labels['ru']} rayonu",
+            f"{labels['az']} rayonu",
+            f"{labels['en']} District",
+        }
+        target = get_location_translation(key, lang)
+        for variant in sorted(variants, key=len, reverse=True):
+            localized = re.sub(re.escape(variant), target, localized, flags=re.IGNORECASE)
 
     replacements = {
         "az": [
@@ -244,29 +325,13 @@ def localize_address_text(value: str, language_code: str = None) -> str:
     for pattern, replacement in replacements[lang]:
         localized = re.sub(pattern, replacement, localized, flags=re.IGNORECASE)
 
-    for key, labels in BAKU_DISTRICTS_MAP.items():
-        variants = {
-            key,
-            labels["ru"],
-            labels["az"],
-            labels["en"],
-            f"{labels['ru']} район",
-            f"{labels['az']} rayonu",
-            f"{labels['en']} District",
-        }
-        target = get_location_translation(key, lang)
-        for variant in sorted(variants, key=len, reverse=True):
-            localized = re.sub(re.escape(variant), target, localized, flags=re.IGNORECASE)
-
     for key, labels in AZERBAIJAN_REGIONS_MAP.items():
         variants = {key, labels["ru"], labels["az"], labels["en"]}
         target = get_location_translation(key, lang)
         for variant in sorted(variants, key=len, reverse=True):
             localized = re.sub(re.escape(variant), target, localized, flags=re.IGNORECASE)
 
-    localized = re.sub(r"\s{2,}", " ", localized)
-    localized = re.sub(r"\s+,", ",", localized)
-    return localized.strip(" ,")
+    return _deduplicate_location_segments(localized, lang)
 
 def get_regions_choices(language_code: str = "az") -> list[tuple[str, str]]:
     choices = []

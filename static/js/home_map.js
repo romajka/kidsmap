@@ -628,7 +628,22 @@
         iconAnchor: [19, 48],
         popupAnchor: [0, -42]
       });
-      const marker = L.marker(position, { icon: customIcon });
+      const markerLabel = (mapEl.dataset.markerLabel || "{name}").replace("{name}", place.name || "");
+      const marker = L.marker(position, {
+        icon: customIcon,
+        title: place.name || "",
+        alt: markerLabel,
+      });
+
+      marker.on("add", function () {
+        window.requestAnimationFrame(function () {
+          const markerEl = marker.getElement();
+          if (!markerEl) return;
+          markerEl.setAttribute("role", "button");
+          markerEl.setAttribute("aria-label", markerLabel);
+          markerEl.setAttribute("title", markerLabel);
+        });
+      });
 
       marker.bindPopup(renderPopupContent(place, mapEl.dataset.detailsLabel || "Details"));
       markerItems.push({
@@ -772,7 +787,7 @@
       window.removeEventListener("scroll", triggerLoad, true);
     }
 
-    if (!("IntersectionObserver" in window)) {
+    if (typeof window.IntersectionObserver !== "function") {
       loadAndMount();
       return;
     }

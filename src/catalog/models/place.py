@@ -2,6 +2,7 @@ import uuid
 from functools import lru_cache
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Avg, Count, Q
 from django.db.models.signals import post_delete, post_save
@@ -76,6 +77,7 @@ class Place(models.Model):
 
     age_from = models.PositiveSmallIntegerField(_("Возраст от"), null=True, blank=True)
     age_to = models.PositiveSmallIntegerField(_("Возраст до"), null=True, blank=True)
+    offers_adult_classes = models.BooleanField(_("Также есть занятия для взрослых"), default=False)
 
     district = models.CharField(_("Регион / район"), max_length=100, blank=True)
     metro = models.CharField(_("Метро"), max_length=100, blank=True)
@@ -226,12 +228,24 @@ class Place(models.Model):
     @property
     def age_display(self) -> str:
         if self.age_from is not None and self.age_to is not None:
-            return f"{self.age_from}-{self.age_to}"
+            return f"{self.age_from}–{self.age_to}"
         if self.age_from is not None:
             return f"{self.age_from}+"
         if self.age_to is not None:
             return str(self.age_to)
         return ""
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.age_from is not None and self.age_to is not None and self.age_from > self.age_to:
+            errors["age_to"] = _("Возраст «до» не может быть меньше возраста «от».")
+        if self.offers_adult_classes and (self.age_from is None or self.age_to is None):
+            errors["offers_adult_classes"] = _(
+                "Сначала укажите полный детский возрастной диапазон. Место не может быть только для взрослых."
+            )
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def price_range_display(self) -> str:

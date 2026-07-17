@@ -13,6 +13,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: src/catalog/templatetags/catalog_i18n.py:32
+#, python-format
+msgctxt "review count: one"
+msgid "%(count)s reviews"
+msgstr "%(count)s rəy"
+
+#: src/catalog/templatetags/catalog_i18n.py:34
+#, python-format
+msgctxt "review count: few"
+msgid "%(count)s reviews"
+msgstr "%(count)s rəy"
+
+#: src/catalog/templatetags/catalog_i18n.py:36
+#, python-format
+msgctxt "review count: many"
+msgid "%(count)s reviews"
+msgstr "%(count)s rəy"
+
 #: src/catalog/content_data.py:5
 msgid "Баку"
 msgstr "Bakı"
@@ -4665,7 +4683,7 @@ msgstr "Profil məlumatı"
 #: src/catalog/domain_models/place.py:235 src/catalog/models/place.py:245
 #, python-format
 msgid "%(minutes)s мин"
-msgstr ""
+msgstr "%(minutes)s dəqiqə"
 
 #: src/catalog/domain_models/place.py:242 src/catalog/models/place.py:252
 #, fuzzy, python-format
@@ -7629,10 +7647,8 @@ msgstr "Rəy göndərmək üçün 1-dən 5-ə qədər qiymət seçin."
 
 #: src/catalog/templates/admin/catalog/placereview/moderation_confirm.html:193
 #: src/catalog/templates/catalog/place_detail.html:388
-#, fuzzy
-#| msgid "Дополнительно"
 msgid "Краткая информация"
-msgstr "Əlavə məlumat"
+msgstr "Qısa məlumat"
 
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:31
 #, fuzzy
@@ -8104,10 +8120,8 @@ msgid "Отправить отзыв"
 msgstr "Rəyi göndər"
 
 #: src/catalog/templates/catalog/place_detail.html:371
-#, fuzzy
-#| msgid "Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь."
 msgid "Чтобы оставить отзыв, войдите или зарегистрируйтесь."
-msgstr "Bəyənmək və rəy yazmaq üçün hesaba daxil olun və ya qeydiyyatdan keçin."
+msgstr "Rəy yazmaq üçün daxil olun və ya qeydiyyatdan keçin."
 
 #: src/catalog/templates/catalog/place_detail.html:374
 #: src/catalog/templates/pages/site_reviews.html:186
@@ -8115,8 +8129,6 @@ msgid "Регистрация"
 msgstr "Qeydiyyat"
 
 #: src/catalog/templates/catalog/place_detail.html:574
-#, fuzzy
-#| msgid "Основное фото"
 msgid "Основные характеристики"
 msgstr "Əsas xüsusiyyətlər"
 
@@ -10110,17 +10122,17 @@ msgstr ""
 #~ msgid "удобный выбор для родителей"
 #~ msgstr "valideynlər üçün rahat seçim"
 
-#~ msgid "Отдельная страница со всеми отзывами, сортировкой и возможностью поставить лайк или дизлайк."
-#~ msgstr "Bütün rəylərin, sıralamanın və like/dislike imkanının toplandığı ayrıca səhifə."
+msgid "Отдельная страница со всеми отзывами, сортировкой и возможностью поставить лайк или дизлайк."
+msgstr "Bütün rəylərin, sıralamanın və like/dislike imkanının toplandığı ayrıca səhifə."
 
-#~ msgid "Полная лента и реакции"
-#~ msgstr "Tam lent və reaksiyalar"
+msgid "Полная лента и реакции"
+msgstr "Tam lent və reaksiyalar"
 
 #~ msgid "Пользователь оставил оценку без текстового комментария."
 #~ msgstr "İstifadəçi mətni olmayan qiymət verib."
 
-#~ msgid "Пока нет общих отзывов о сайте."
-#~ msgstr "Hələ sayt haqqında ümumi rəy yoxdur."
+msgid "Пока нет общих отзывов о сайте."
+msgstr "Hələ sayt haqqında ümumi rəy yoxdur."
 
 #~ msgid "Шаг 1 из 4"
 #~ msgstr "1/4 addım"
@@ -11042,3 +11054,29 @@ msgstr "Əhmədli"
 
 msgid "забрат"
 msgstr "Zabrat"
+
+msgid "Также есть занятия для взрослых"
+msgstr "Böyüklər üçün də məşğələlər var"
+
+msgid "Отметьте, если у места есть отдельные занятия и для взрослых. Детский возрастной диапазон всё равно обязателен."
+msgstr "Əgər məkanda böyüklər üçün ayrıca məşğələlər də varsa, qeyd edin. Uşaq yaş aralığı yenə də məcburidir."
+
+msgid "Отметьте, если кроме детских программ у места есть отдельные занятия для взрослых."
+msgstr "Uşaq proqramlarından əlavə böyüklər üçün ayrıca məşğələlər də varsa, qeyd edin."
+
+msgid "Сначала укажите полный детский возрастной диапазон. Место не может быть только для взрослых."
+msgstr "Əvvəlcə uşaqlar üçün tam yaş aralığını göstərin. Məkan yalnız böyüklər üçün ola bilməz."
+
+msgid "Есть занятия для взрослых"
+msgstr "Böyüklər üçün məşğələlər var"
+msgid "Кто может заниматься?"
+msgstr "Kim məşğul ola bilər?"
+
+msgid "Только дети"
+msgstr "Yalnız uşaqlar"
+
+msgid "Дети и взрослые"
+msgstr "Uşaqlar və böyüklər"
+
+msgid "Возраст выше относится к детским группам. Выберите второй вариант, если есть отдельные взрослые группы."
+msgstr "Yuxarıdakı yaş həddi uşaq qruplarına aiddir. Böyüklər üçün ayrıca qruplar varsa, ikinci variantı seçin."

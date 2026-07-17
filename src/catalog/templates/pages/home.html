@@ -1,1231 +1,2131 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
 {% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block structured_data %}
-  {% if home_featured_schema_json %}
-    <script type="application/ld+json">{{ home_featured_schema_json|safe }}</script>
-  {% endif %}
+{% if home_featured_schema_json %}
+<script type="application/ld+json">{{ home_featured_schema_json|safe }}</script>
+{% endif %}
 {% endblock %}
 {% block extra_head %}
 {% endblock %}
 
 {% block content %}
-  <section class="home-hero panel" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
-    {% if hero_show_decor %}
-      <span class="hero-cloud cloud-left" aria-hidden="true"></span>
-      <span class="hero-cloud cloud-right" aria-hidden="true"></span>
-    {% endif %}
+<section class="home-hero panel" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
+  <div class="home-hero-bg-glows" aria-hidden="true">
+    <div class="glow-blob blob-1"></div>
+    <div class="glow-blob blob-2"></div>
+    <div class="glow-blob blob-3"></div>
+  </div>
 
-    <div class="home-hero-grid">
-      <div class="home-hero-copy">
-        <h1>{{ hero_title }}</h1>
-        <p>{{ hero_subtitle }}</p>
+  {% if hero_show_decor %}
+  <span class="hero-cloud cloud-left" aria-hidden="true"></span>
+  <span class="hero-cloud cloud-right" aria-hidden="true"></span>
+  {% endif %}
 
-        <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
-          <div class="home-hero-stat">
-            <strong>{{ map_places|length }}+</strong>
+  <div class="home-hero-grid">
+    <div class="home-hero-copy">
+      <h1>{{ hero_title }}</h1>
+      <p>{{ hero_subtitle }}</p>
+
+      <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
+        <div class="home-hero-stat km-stat-card km-stat-places">
+          <div class="km-stat-icon-wrapper">
+            <svg class="km-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="18" r="3" class="pulse-ring ring-1" />
+              <circle cx="12" cy="18" r="6" class="pulse-ring ring-2" />
+              <circle cx="12" cy="18" r="1.5" class="radar-core" fill="#10b981" stroke="#10b981" />
+              <circle cx="12" cy="18" r="4" class="radar-pulse" stroke="#10b981" stroke-width="1.5" />
+              <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z" class="bobbing-pin" />
+              <circle cx="12" cy="9" r="2.5" class="pin-hole" fill="currentColor" />
+            </svg>
+          </div>
+          <div class="km-stat-details">
+            <strong data-count-target="{{ map_places|length }}">{{ map_places|length }}+</strong>
             <span>{% trans "мест и занятий на карте" %}</span>
           </div>
-          <div class="home-hero-stat">
-            <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}+{% else %}—{% endif %}</strong>
+        </div>
+        <div class="home-hero-stat km-stat-card km-stat-reviews">
+          <div class="km-stat-icon-wrapper">
+            <svg class="km-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+                class="bubble-chat" />
+              <polygon points="12 9 13.5 12 16.5 12 14 14.2 15 17.5 12 15.5 9 17.5 10 14.2 7.5 12 10.5 12"
+                class="shimmer-star" fill="currentColor" />
+              <path d="M18 5h.01M6 18h.01" stroke-width="3" class="sparkle-dot" />
+            </svg>
+          </div>
+          <div class="km-stat-details">
+            <strong data-count-target="{{ total_place_reviews_count|default:0 }}">{% if total_place_reviews_count %}{{
+              total_place_reviews_count }}+{% else %}—{% endif %}</strong>
             <span>
               {% if total_place_reviews_count %}
-                {% blocktrans count total=total_place_reviews_count %}{{ total }} отзыв о местах{% plural %}{{ total }} отзывов о местах{% endblocktrans %}
+              {{ total_place_reviews_count|review_count }}
               {% else %}
-                {% trans "Пока нет отзывов" %}
+              {% trans "Пока нет отзывов" %}
               {% endif %}
             </span>
           </div>
         </div>
       </div>
+    </div>
 
-      {% if hero_gallery_slides %}
-        <div class="home-hero-visual">
-          {% if hero_gallery_slides|length > 1 %}
-            <div class="home-hero-slider" data-home-hero-slider>
-              <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
-                <div class="home-hero-slider-track" data-home-hero-slider-track>
-                  {% for slide in hero_gallery_slides %}
-                    <article class="home-hero-slide" data-home-hero-slide>
-                      <div class="home-hero-slide-grid">
-                        <figure class="home-hero-photo-card home-hero-photo-main">
-                          <picture>
-                            {% if slide.main.image_webp_url %}
-                              <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
-                            {% endif %}
-                            <img
-                              src="{{ slide.main.image_url }}"
-                              alt="{{ slide.main.label }}"
-                              decoding="async"
-                              {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                            />
-                          </picture>
-                        </figure>
+    {% if hero_gallery_slides %}
+    <div class="home-hero-visual">
+      {% if hero_gallery_slides|length > 1 %}
+      <div class="home-hero-slider" data-home-hero-slider>
+        <div class="home-hero-slider-viewport" data-home-hero-slider-viewport>
+          <div class="home-hero-slider-track" data-home-hero-slider-track>
+            {% for slide in hero_gallery_slides %}
+            <article class="home-hero-slide" data-home-hero-slide>
+              <div class="home-hero-slide-grid">
+                <figure class="home-hero-photo-card home-hero-photo-main">
+                  <picture>
+                    {% if slide.main.image_webp_url %}
+                    <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+                    {% endif %}
+                    <img src="{{ slide.main.image_url }}" alt="{{ slide.main.label }}" decoding="async" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} />
+                  </picture>
+                </figure>
 
-                        <figure class="home-hero-photo-card home-hero-photo-side-top">
-                          <picture>
-                            {% if slide.side_top.image_webp_url %}
-                              <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
-                            {% endif %}
-                            <img
-                              src="{{ slide.side_top.image_url }}"
-                              alt="{{ slide.side_top.label }}"
-                              loading="lazy"
-                              decoding="async"
-                            />
-                          </picture>
-                        </figure>
+                <figure class="home-hero-photo-card home-hero-photo-side-top">
+                  <picture>
+                    {% if slide.side_top.image_webp_url %}
+                    <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                    {% endif %}
+                    <img src="{{ slide.side_top.image_url }}" alt="{{ slide.side_top.label }}" loading="lazy"
+                      decoding="async" />
+                  </picture>
+                </figure>
 
-                        <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-                          <picture>
-                            {% if slide.side_bottom.image_webp_url %}
-                              <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
-                            {% endif %}
-                            <img
-                              src="{{ slide.side_bottom.image_url }}"
-                              alt="{{ slide.side_bottom.label }}"
-                              loading="lazy"
-                              decoding="async"
-                            />
-                          </picture>
-                        </figure>
-                      </div>
-                    </article>
-                  {% endfor %}
-                </div>
+                <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+                  <picture>
+                    {% if slide.side_bottom.image_webp_url %}
+                    <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                    {% endif %}
+                    <img src="{{ slide.side_bottom.image_url }}" alt="{{ slide.side_bottom.label }}" loading="lazy"
+                      decoding="async" />
+                  </picture>
+                </figure>
               </div>
-
-              <button
-                type="button"
-                class="home-hero-slider-arrow home-hero-slider-arrow-prev"
-                data-home-hero-slider-prev
-                aria-label="{% trans 'Предыдущие фото' %}"
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                class="home-hero-slider-arrow home-hero-slider-arrow-next"
-                data-home-hero-slider-next
-                aria-label="{% trans 'Следующие фото' %}"
-              >
-                ›
-              </button>
-
-              <div class="home-hero-slider-dots" role="tablist" aria-label="{% trans 'Переключение фото' %}">
-                {% for slide in hero_gallery_slides %}
-                  <button
-                    type="button"
-                    class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
-                    data-home-hero-slider-dot
-                    data-slide-index="{{ forloop.counter0 }}"
-                    aria-label="{{ forloop.counter }}"
-                  ></button>
-                {% endfor %}
-              </div>
-            </div>
-          {% else %}
-            {% with slide=hero_gallery_slides.0 %}
-              <div class="home-hero-slider home-hero-slider-single" data-home-hero-slider-single>
-                <article class="home-hero-slide home-hero-slide-single">
-                  <div class="home-hero-slide-grid">
-                    <figure class="home-hero-photo-card home-hero-photo-main">
-                      <picture>
-                        {% if slide.main.image_webp_url %}
-                          <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
-                        {% endif %}
-                        <img
-                          src="{{ slide.main.image_url }}"
-                          alt="{{ slide.main.label }}"
-                          decoding="async"
-                          fetchpriority="high"
-                        />
-                      </picture>
-                    </figure>
-
-                    <figure class="home-hero-photo-card home-hero-photo-side-top">
-                      <picture>
-                        {% if slide.side_top.image_webp_url %}
-                          <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
-                        {% endif %}
-                        <img
-                          src="{{ slide.side_top.image_url }}"
-                          alt="{{ slide.side_top.label }}"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </picture>
-                    </figure>
-
-                    <figure class="home-hero-photo-card home-hero-photo-side-bottom">
-                      <picture>
-                        {% if slide.side_bottom.image_webp_url %}
-                          <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
-                        {% endif %}
-                        <img
-                          src="{{ slide.side_bottom.image_url }}"
-                          alt="{{ slide.side_bottom.label }}"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      </picture>
-                    </figure>
-                  </div>
-                </article>
-              </div>
-            {% endwith %}
-          {% endif %}
+            </article>
+            {% endfor %}
+          </div>
         </div>
+
+        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-prev" data-home-hero-slider-prev
+          aria-label="{% trans 'Предыдущие фото' %}">
+          ‹
+        </button>
+        <button type="button" class="home-hero-slider-arrow home-hero-slider-arrow-next" data-home-hero-slider-next
+          aria-label="{% trans 'Следующие фото' %}">
+          ›
+        </button>
+
+        <div class="home-hero-slider-dots" role="tablist" aria-label="{% trans 'Переключение фото' %}">
+          {% for slide in hero_gallery_slides %}
+          <button type="button" class="home-hero-slider-dot{% if forloop.first %} is-active{% endif %}"
+            data-home-hero-slider-dot data-slide-index="{{ forloop.counter0 }}"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ forloop.counter }}-ci şəkli göstər{% elif request.LANGUAGE_CODE == 'en' %}Show photo {{ forloop.counter }}{% else %}Показать фото {{ forloop.counter }}{% endif %}"></button>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+      {% with slide=hero_gallery_slides.0 %}
+      <div class="home-hero-slider home-hero-slider-single" data-home-hero-slider-single>
+        <article class="home-hero-slide home-hero-slide-single">
+          <div class="home-hero-slide-grid">
+            <figure class="home-hero-photo-card home-hero-photo-main">
+              <picture>
+                {% if slide.main.image_webp_url %}
+                <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+                {% endif %}
+                <img src="{{ slide.main.image_url }}" alt="{{ slide.main.label }}" decoding="async"
+                  fetchpriority="high" />
+              </picture>
+            </figure>
+
+            <figure class="home-hero-photo-card home-hero-photo-side-top">
+              <picture>
+                {% if slide.side_top.image_webp_url %}
+                <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                {% endif %}
+                <img src="{{ slide.side_top.image_url }}" alt="{{ slide.side_top.label }}" loading="lazy"
+                  decoding="async" />
+              </picture>
+            </figure>
+
+            <figure class="home-hero-photo-card home-hero-photo-side-bottom">
+              <picture>
+                {% if slide.side_bottom.image_webp_url %}
+                <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                {% endif %}
+                <img src="{{ slide.side_bottom.image_url }}" alt="{{ slide.side_bottom.label }}" loading="lazy"
+                  decoding="async" />
+              </picture>
+            </figure>
+          </div>
+        </article>
+      </div>
+      {% endwith %}
       {% endif %}
     </div>
+    {% endif %}
+  </div>
 
-    <div class="home-hero-search-panel">
-      <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}" data-home-map-filter-form>
-        {% trans "Начать поиск" as default_search_label %}
-        <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
-        <div class="home-search-row">
-          <select name="district" class="home-filter-district-select" hidden>
-            <option value="">{% trans "Регион / район" %}</option>
-            {% for district in home_districts %}
-              <option
-                value="{{ district.label }}"
-                data-label-current="{{ district.label }}"
-                data-label-az="{{ district.label_az }}"
-                data-label-ru="{{ district.label_ru }}"
-                data-label-en="{{ district.label_en }}"
-                data-is-baku-city="{% if district.value == 'baku' %}1{% else %}0{% endif %}"
-                data-is-baku-district="{% if district.value|slice:':5' == 'baku_' %}1{% else %}0{% endif %}"
-                {% if request.GET.district == district.value or request.GET.district == district.label %}selected{% endif %}
-              >
-                {% firstof district.label_with_count district.label %}
-              </option>
-            {% endfor %}
-          </select>
+  <div class="home-hero-search-panel">
+    <form class="home-search home-search-compact" method="get" action="{% url 'place_list' %}"
+      data-home-map-filter-form>
+      {% trans "Начать поиск" as default_search_label %}
+      <label class="home-search-label" for="home-search-category">{{ hero_search_label }}</label>
+      <div class="home-search-row">
+        <select name="district" class="home-filter-district-select" hidden>
+          <option value="">{% trans "Регион / район" %}</option>
+          {% for district in home_districts %}
+          <option value="{{ district.label }}" data-label-current="{{ district.label }}"
+            data-label-az="{{ district.label_az }}" data-label-ru="{{ district.label_ru }}"
+            data-label-en="{{ district.label_en }}"
+            data-is-baku-city="{% if district.value == 'baku' %}1{% else %}0{% endif %}"
+            data-is-baku-district="{% if district.value|slice:':5' == 'baku_' %}1{% else %}0{% endif %}" {% if request.GET.district == district.value or request.GET.district == district.label %}selected{% endif %}>
+            {% firstof district.label_with_count district.label %}
+          </option>
+          {% endfor %}
+        </select>
 
-          <div class="km-location-tree" data-tree-select="district">
-            <button
-              type="button"
-              class="km-tree-trigger"
-              id="district-tree-trigger"
-              aria-haspopup="tree"
-              aria-expanded="false"
-              aria-controls="district-tree-dropdown"
-            >
-              <span class="km-tree-trigger-text">
-                {% trans "Регион / район" %}
+        <div class="km-location-tree" data-tree-select="district">
+          <button type="button" class="km-tree-trigger" id="district-tree-trigger" aria-haspopup="tree"
+            aria-expanded="false" aria-controls="district-tree-dropdown"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Region və ya rayon seç{% elif request.LANGUAGE_CODE == 'en' %}Choose region or district{% else %}Выбрать регион или район{% endif %}">
+            <span class="km-tree-trigger-text">
+              {% trans "Регион / район" %}
+            </span>
+          </button>
+          <div id="district-tree-dropdown" class="km-tree-dropdown" role="tree" tabindex="-1"
+            data-all-baku-label="{% trans 'Все районы Баку' %}" data-default-label="{% trans 'Регион / район' %}"
+            data-toggle-label="{% trans 'Переключить раздел' %}" hidden></div>
+        </div>
+
+        <div class="home-age-presets" role="group" aria-label="{% trans 'Возраст' %}">
+          <input type="hidden" name="age" value="{{ selected_age }}" />
+          {% for age in home_age_options %}
+          {% with age_value=age|stringformat:"s" %}
+          <button type="button" class="home-age-chip{% if selected_age == age_value %} is-active{% endif %}"
+            data-home-age-chip data-age-value="{{ age_value }}"
+            aria-pressed="{% if selected_age == age_value %}true{% else %}false{% endif %}"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}{{ age }} yaşdan{% elif request.LANGUAGE_CODE == 'en' %}Age {{ age }} and up{% else %}Возраст от {{ age }} лет{% endif %}">
+            {{ age }}+
+          </button>
+          {% endwith %}
+          {% endfor %}
+        </div>
+
+        <select id="home-search-category" name="category" hidden>
+          <option value="">{% trans "Все категории" %}</option>
+          {% for item in home_categories %}
+          <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
+          {% endfor %}
+        </select>
+
+        <!-- Custom Category Dropdown -->
+        <div class="km-category-select" data-category-select>
+          <button type="button" class="km-category-trigger" id="category-dropdown-trigger" aria-haspopup="listbox"
+            aria-expanded="false" aria-controls="category-dropdown-menu"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Kateqoriya seç{% elif request.LANGUAGE_CODE == 'en' %}Choose category{% else %}Выбрать категорию{% endif %}">
+            <span class="km-category-trigger-icon" data-category-trigger-icon>
+              <span class="km-category-option-icon all-categories-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                </svg>
               </span>
-            </button>
-            <div
-              id="district-tree-dropdown"
-              class="km-tree-dropdown"
-              role="tree"
-              tabindex="-1"
-              data-all-baku-label="{% trans 'Все районы Баку' %}"
-              data-default-label="{% trans 'Регион / район' %}"
-              data-toggle-label="{% trans 'Переключить раздел' %}"
-              hidden
-            ></div>
-          </div>
-
-          <div class="home-age-presets" role="group" aria-label="{% trans 'Возраст' %}">
-            <input type="hidden" name="age" value="{{ selected_age }}" />
-            {% for age in home_age_options %}
-              {% with age_value=age|stringformat:"s" %}
-                <button
-                  type="button"
-                  class="home-age-chip{% if selected_age == age_value %} is-active{% endif %}"
-                  data-home-age-chip
-                  data-age-value="{{ age_value }}"
-                  aria-pressed="{% if selected_age == age_value %}true{% else %}false{% endif %}"
-                >
-                  {{ age }}+
-                </button>
-              {% endwith %}
-            {% endfor %}
-          </div>
-
-          <select id="home-search-category" name="category" hidden>
-            <option value="">{% trans "Все категории" %}</option>
-            {% for item in home_categories %}
-              <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
-            {% endfor %}
-          </select>
-
-          <!-- Custom Category Dropdown -->
-          <div class="km-category-select" data-category-select>
-            <button type="button" class="km-category-trigger" id="category-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="category-dropdown-menu">
-              <span class="km-category-trigger-icon" data-category-trigger-icon>
-                <span class="km-category-option-icon all-categories-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-                    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-                  </svg>
-                </span>
+            </span>
+            <span class="km-category-trigger-text" data-category-trigger-text>
+              {% trans "Все категории" %}
+            </span>
+          </button>
+          <div class="km-category-dropdown" id="category-dropdown-menu" role="listbox" hidden>
+            <div class="km-category-option is-active" data-value="" role="option">
+              <span class="km-category-option-icon all-categories-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                </svg>
               </span>
-              <span class="km-category-trigger-text" data-category-trigger-text>
+              <span class="km-category-option-text">
                 {% trans "Все категории" %}
               </span>
-            </button>
-            <div class="km-category-dropdown" id="category-dropdown-menu" role="listbox" hidden>
-              <div class="km-category-option is-active" data-value="" role="option">
-                <span class="km-category-option-icon all-categories-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-                    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-                  </svg>
-                </span>
-                <span class="km-category-option-text">
-                  {% trans "Все категории" %}
-                </span>
-              </div>
-              {% for item in home_categories %}
-                <div class="km-category-option" data-value="{{ item.value }}" role="option" data-color-bg="{{ item.color_bg|default:'#F3F4F6' }}" data-color-text="{{ item.color_text|default:'#6B7280' }}">
-                  <span class="km-category-option-icon" style="background-color: {{ item.color_bg|default:'#F3F4F6' }}; color: {{ item.color_text|default:'#6B7280' }};">
-                    {% include "catalog/includes/category_icon.html" with code=item.value %}
-                  </span>
-                  <span class="km-category-option-text">
-                    {% firstof item.label_with_count item.label %}
-                  </span>
-                </div>
-              {% endfor %}
             </div>
+            {% for item in home_categories %}
+            <div class="km-category-option" data-value="{{ item.value }}" role="option"
+              data-color-bg="{{ item.color_bg|default:'#F3F4F6' }}"
+              data-color-text="{{ item.color_text|default:'#6B7280' }}">
+              <span class="km-category-option-icon"
+                style="background-color: {{ item.color_bg|default:'#F3F4F6' }}; color: {{ item.color_text|default:'#6B7280' }};">
+                {% include "catalog/includes/category_icon.html" with code=item.value %}
+              </span>
+              <span class="km-category-option-text">
+                {% firstof item.label_with_count item.label %}
+              </span>
+            </div>
+            {% endfor %}
           </div>
+        </div>
 
-          <button
-            class="btn icon-btn icon-search icon-only-btn home-search-btn"
-            type="submit"
-            aria-label="{% firstof hero_cta_text default_search_label %}"
-            title="{% firstof hero_cta_text default_search_label %}"
-          >
-            <span class="visually-hidden">{% firstof hero_cta_text default_search_label %}</span>
+        <button class="btn icon-btn icon-search icon-only-btn home-search-btn" type="submit"
+          aria-label="{% firstof hero_cta_text default_search_label %}"
+          title="{% firstof hero_cta_text default_search_label %}">
+          <span class="visually-hidden">{% firstof hero_cta_text default_search_label %}</span>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</section>
+
+{% if map_places %}
+<section class="panel home-map-panel" id="home-map-section">
+  <div class="home-map-head">
+    <div class="home-map-copy">
+      <h2>
+        <a class="home-map-title-link" href="{% url 'place_list' %}">{% trans "Посмотрите детские места на карте" %}</a>
+      </h2>
+      <p class="home-map-subtitle">
+        {% trans "Выбирайте фильтры выше — точки на карте обновятся сразу. Нажмите на маркер, чтобы открыть карточку места." %}
+      </p>
+    </div>
+    <a class="home-map-catalog-link" href="{% url 'place_list' %}">{% trans "Открыть весь каталог" %}</a>
+  </div>
+
+  <div id="home-map" class="home-map" data-details-label="{% trans 'Подробнее' %}"
+    data-fallback-title="{% trans 'Карта детских мест по Азербайджану' %}"
+    data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
+    data-marker-label="{% if request.LANGUAGE_CODE == 'az' %}Xəritədə məkanı aç: {name}{% elif request.LANGUAGE_CODE == 'en' %}Open place on map: {name}{% else %}Открыть место на карте: {name}{% endif %}">
+  </div>
+  <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
+  <noscript>
+    <iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed"
+      loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+      title="{% trans 'Карта детских мест по Азербайджану' %}"></iframe>
+  </noscript>
+  {{ map_places|json_script:"home-map-data" }}
+</section>
+{% endif %}
+
+{% if popular_places %}
+<section class="panel home-recommended">
+  <h2>{% trans "Рекомендуемые места и занятия" %}</h2>
+  <div class="grid">
+    {% for place in popular_places %}
+    <article class="card">
+      <div class="card-media">
+        <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
+          {% if place.photo %}
+          <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
+            data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+          {% elif place.cover_photo %}
+          <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
+            data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+          {% else %}
+          <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
+            <span class="image-placeholder-icon" aria-hidden="true">📷</span>
+            <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
+          </div>
+          {% endif %}
+        </a>
+        {% if place.card_price_badge %}
+        <span class="card-price-pill">
+          <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
+          <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
+        </span>
+        {% endif %}
+      </div>
+      <div class="card-body">
+        <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
+        {% with desc=place.description_i18n %}
+        <p class="card-description{% if not desc %} is-empty{% endif %}">
+          {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
+        </p>
+        {% endwith %}
+        <div class="card-headline">
+          <span class="chip">{{ place.get_category_display }}</span>
+          {% if place.rating_count %}
+          <span class="card-score"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Reytinq {{ place.rating_avg|floatformat:1 }} / 5{% elif request.LANGUAGE_CODE == 'en' %}Rating {{ place.rating_avg|floatformat:1 }} out of 5{% else %}Рейтинг {{ place.rating_avg|floatformat:1 }} из 5{% endif %}"><span
+              aria-hidden="true"><span class="card-score-star">★</span>{{ place.rating_avg|floatformat:1
+              }}</span></span>
+          {% endif %}
+        </div>
+        {% if place.rating_count %}
+        <p class="meta card-reviews-count">
+          {{ place.rating_count|review_count }}
+        </p>
+        {% else %}
+        <p class="meta card-no-reviews">{% trans "Пока нет отзывов" %}</p>
+        {% endif %}
+        <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
+          {% if place.district %}{{ place.district_i18n }}{% endif %}
+          {% if place.district and place.metro %} / {% endif %}
+          {% if place.metro %}{{ place.metro_i18n }}{% endif %}
+          {% if not place.district and not place.metro %}&nbsp;{% endif %}
+        </p>
+        <p class="meta card-created">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
+        {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
+          {% csrf_token %}
+          <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}"
+            aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}"
+            aria-label="{% if place.is_liked %}{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərdən çıxar{% elif request.LANGUAGE_CODE == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}{% else %}{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərə əlavə et{% elif request.LANGUAGE_CODE == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}{% endif %}"
+            data-favorite-add-label="{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərə əlavə et{% elif request.LANGUAGE_CODE == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
+            data-favorite-remove-label="{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərdən çıxar{% elif request.LANGUAGE_CODE == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}">
+            <span aria-hidden="true">♥</span> <span class="like-count">{{ place.likes_count }}</span>
+          </button>
+        </form>
+        {% else %}
+        <div class="like-form">
+          <button type="button" class="like-btn" aria-pressed="false"
+            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərə əlavə et{% elif request.LANGUAGE_CODE == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
+            data-auth-required-trigger
+            data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
+            data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">
+            ♥ <span class="like-count">{{ place.likes_count }}</span>
           </button>
         </div>
-      </form>
-
-    </div>
-  </section>
-
-  {% if map_places %}
-    <section class="panel home-map-panel" id="home-map-section">
-      <div class="home-map-head">
-        <div class="home-map-copy">
-          <h2>
-            <a class="home-map-title-link" href="{% url 'place_list' %}">{% trans "Посмотрите детские места на карте" %}</a>
-          </h2>
-          <p class="home-map-subtitle">
-            {% trans "Выбирайте фильтры выше — точки на карте обновятся сразу. Нажмите на маркер, чтобы открыть карточку места." %}
-          </p>
+        {% endif %}
+        <div class="card-action-stack">
+          <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">{% trans "Перейти" %}</a>
         </div>
-        <a class="home-map-catalog-link" href="{% url 'place_list' %}">{% trans "Открыть весь каталог" %}</a>
       </div>
+    </article>
+    {% endfor %}
+  </div>
+  <div class="home-recommended-proof" aria-label="{% trans 'Почему нам доверяют' %}">
+    <span>{% trans "Проверенные и активные места" %}</span>
+    <span>{% trans "Фильтры по возрасту, региону и цене" %}</span>
+    <span>{% trans "Быстрый переход к звонку и Instagram" %}</span>
+    <span>{% trans "Удобно на телефоне и компьютере" %}</span>
+  </div>
+</section>
+{% endif %}
 
-      <div
-        id="home-map"
-        class="home-map"
-        data-details-label="{% trans 'Подробнее' %}"
-        data-fallback-title="{% trans 'Карта детских мест по Азербайджану' %}"
-        data-empty-label="{% trans 'По выбранным фильтрам на карте пока нет мест' %}"
-      ></div>
-      <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
-      <noscript>
-        <iframe
-          class="home-map home-map-fallback"
-          src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          title="{% trans 'Карта детских мест по Азербайджану' %}"
-        ></iframe>
-      </noscript>
-      {{ map_places|json_script:"home-map-data" }}
-    </section>
-  {% endif %}
-
-  <section class="home-steps panel home-steps-lite animate-on-scroll" aria-label="{% trans 'Как это работает' %}">
-    <div class="home-steps-lite-head">
+<section class="home-steps panel home-steps-lite animate-on-scroll" id="how-it-works" aria-label="{% trans 'Как это работает' %}">
+  <div class="home-steps-lite-head">
+    <div>
       <h2>{% trans "Как это работает" %}</h2>
       <p>{% trans "Три простых шага, чтобы быстро найти детские занятия и места рядом." %}</p>
     </div>
+    <a class="home-steps-catalog-link" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
+  </div>
 
-    <div class="home-steps-lite-grid">
-      <article class="home-step-lite-card">
+  <div class="home-steps-lite-grid">
+    <article class="home-step-lite-card">
+      <div class="home-step-lite-visual" aria-hidden="true">
+        <span class="home-step-lite-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 6h16M7 12h10M10 18h4" />
+            <circle cx="8" cy="6" r="1.5" />
+            <circle cx="15" cy="12" r="1.5" />
+            <circle cx="12" cy="18" r="1.5" />
+          </svg>
+        </span>
         <span class="home-step-lite-number">1</span>
+      </div>
+      <div class="home-step-lite-content">
         <h3>{% trans "Выберите фильтры" %}</h3>
         <p>{% trans "Категория, регион, метро и возраст ребёнка." %}</p>
-        <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Найти места" %}</a>
-      </article>
-
-      <article class="home-step-lite-card">
+      </div>
+    </article>
+    <article class="home-step-lite-card">
+      <div class="home-step-lite-visual" aria-hidden="true">
+        <span class="home-step-lite-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 5h6v14H4zM14 5h6v14h-6zM7 9h0M17 9h0M7 13h0M17 13h0" />
+          </svg>
+        </span>
         <span class="home-step-lite-number">2</span>
+      </div>
+      <div class="home-step-lite-content">
         <h3>{% trans "Сравните варианты" %}</h3>
         <p>{% trans "Смотрите фото, цену, рейтинг, отзывы и расположение на карте." %}</p>
-        <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Сравнить" %}</a>
-      </article>
-
-      <article class="home-step-lite-card">
+      </div>
+    </article>
+    <article class="home-step-lite-card">
+      <div class="home-step-lite-visual" aria-hidden="true">
+        <span class="home-step-lite-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M8.4 3.8 6 5.2c-.8.5-1.1 1.4-.8 2.3 1.6 5.2 5.5 9.1 10.7 10.7.9.3 1.8 0 2.3-.8l1.4-2.4-4-2-1.2 1.5c-2.2-.9-4-2.7-4.9-4.9L11 8.4z" />
+          </svg>
+        </span>
         <span class="home-step-lite-number">3</span>
+      </div>
+      <div class="home-step-lite-content">
         <h3>{% trans "Свяжитесь с местом" %}</h3>
         <p>{% trans "Откройте карточку и сразу перейдите к звонку, сайту или Instagram." %}</p>
-        <a class="home-step-lite-link" href="{% url 'place_list' %}">{% trans "Перейти в каталог" %}</a>
-      </article>
-    </div>
-  </section>
+      </div>
+    </article>
+  </div>
+</section>
 
-  {% if is_events_section_enabled and upcoming_events %}
-    <section class="panel home-events">
-      <div class="home-events-head">
-        <div>
-          <p class="home-events-kicker">{% trans "Скоро" %}</p>
-          <h2>{% trans "Ближайшие мероприятия" %}</h2>
-          <p>{% trans "Интересные события и активности рядом с вами с понятным таймером." %}</p>
+{% url 'owner_places_dashboard' as owner_dashboard_url %}
+<section class="panel home-owner-banner animate-on-scroll" id="for-owners">
+  <div class="home-owner-banner-grid">
+    <div class="home-owner-copy">
+      <div class="home-owner-badge">
+        <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>
+          {% if request.LANGUAGE_CODE == 'az' %}UŞAQ MƏKANLARI ÜÇÜN HAZIRLANDI
+          {% elif request.LANGUAGE_CODE == 'en' %}CREATED FOR KIDS PLACES
+          {% else %}СОЗДАНО ДЛЯ ДЕТСКИХ МЕСТ{% endif %}
+        </span>
+      </div>
+
+      <h2>{% trans "Помогите родителям найти вас рядом" %}</h2>
+      <p class="home-owner-text">
+        {% if request.LANGUAGE_CODE == 'az' %}KidsMap yalnız uşaqlar üçün məkanları bir araya gətirir. Dərnəklər,
+        kurslar, studiyalar, oyun və əyləncə mərkəzləri, idman kompleksləri və daha çoxu — hamısı bir yerdə.
+        {% elif request.LANGUAGE_CODE == 'en' %}KidsMap only brings together places for children. Clubs, courses,
+        studios, play and entertainment centers, sports complexes and more — all in one place.
+        {% else %}KidsMap объединяет только места для детей. Кружки, курсы, студии, игровые и развлекательные центры,
+        спортивные комплексы и многое другое — всё в одном месте.{% endif %}
+      </p>
+
+      <div class="home-owner-warning">
+        <div class="warning-icon-wrapper">
+          <svg class="warning-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
         </div>
-        <a class="home-events-all" href="{% url 'events_landing' %}">{% trans "Все мероприятия" %}</a>
-      </div>
-      <div class="home-events-rail" aria-label="{% trans 'Ближайшие мероприятия' %}">
-        {% for event in upcoming_events %}
-          <article class="home-event-card">
-            <a class="home-event-card__media" href="{{ event.get_absolute_url }}" aria-label="{{ event.name_i18n }}">
-              {% if event.photo %}
-                <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-              {% else %}
-                <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
-              {% endif %}
-              <span class="home-event-card__category">{{ event.get_category_display }}</span>
-            </a>
-            <div class="home-event-card__body">
-              <h3><a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a></h3>
-              <p class="home-event-card__meta">
-                {{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address_i18n|truncatechars:42 }}{% endif %}
-              </p>
-              {% if event.price_display %}
-                <p class="home-event-card__price">{{ event.price_display }}</p>
-              {% endif %}
-              {% include "catalog/includes/event_countdown.html" with event=event language=request.LANGUAGE_CODE variant="card" %}
-            </div>
-          </article>
-        {% endfor %}
-      </div>
-    </section>
-  {% endif %}
-
-  {% if popular_places %}
-    <section class="panel home-recommended">
-      <h2>{% trans "Рекомендуемые места и занятия" %}</h2>
-      <div class="grid">
-        {% for place in popular_places %}
-          <article class="card">
-            <div class="card-media">
-              <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
-                {% if place.photo %}
-                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-                {% elif place.cover_photo %}
-                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-                {% else %}
-                  <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-                    <span class="image-placeholder-icon" aria-hidden="true">📷</span>
-                    <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
-                  </div>
-                {% endif %}
-              </a>
-            {% if place.card_price_badge %}
-              <span class="card-price-pill">
-                <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
-                <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
-              </span>
-            {% endif %}
-            </div>
-            <div class="card-body">
-              <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-              {% with desc=place.description_i18n %}
-                <p class="card-description{% if not desc %} is-empty{% endif %}">
-                  {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
-                </p>
-              {% endwith %}
-              <div class="card-headline">
-                <span class="chip">{{ place.get_category_display }}</span>
-                {% if place.rating_count %}
-                  <span class="card-score"><span class="card-score-star" aria-hidden="true">★</span>{{ place.rating_avg|floatformat:1 }}</span>
-                {% endif %}
-              </div>
-              {% if place.rating_count %}
-                <p class="meta card-reviews-count">
-                  {% blocktrans count total=place.rating_count %}{{ total }} отзыв{% plural %}{{ total }} отзывов{% endblocktrans %}
-                </p>
-              {% else %}
-                <p class="meta card-no-reviews">{% trans "Пока нет отзывов" %}</p>
-              {% endif %}
-              <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
-                {% if place.district %}{{ place.district_i18n }}{% endif %}
-                {% if place.district and place.metro %} / {% endif %}
-                {% if place.metro %}{{ place.metro_i18n }}{% endif %}
-                {% if not place.district and not place.metro %}&nbsp;{% endif %}
-              </p>
-              <p class="meta card-created">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
-              {% if request.user.is_authenticated %}
-                <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
-                  {% csrf_token %}
-                  <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}" aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}">
-                    ♥ <span class="like-count">{{ place.likes_count }}</span>
-                  </button>
-                </form>
-              {% else %}
-                <div class="like-form">
-                  <button
-                    type="button"
-                    class="like-btn"
-                    aria-pressed="false"
-                    data-auth-required-trigger
-                    data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
-                    data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}"
-                  >
-                    ♥ <span class="like-count">{{ place.likes_count }}</span>
-                  </button>
-                </div>
-              {% endif %}
-              <div class="card-action-stack">
-                <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">{% trans "Перейти" %}</a>
-              </div>
-            </div>
-          </article>
-        {% endfor %}
-      </div>
-    </section>
-  {% endif %}
-
-  {% url 'owner_places_dashboard' as owner_dashboard_url %}
-  <section class="panel home-owner-banner animate-on-scroll" id="for-owners">
-    <div class="home-owner-banner-grid">
-      <div class="home-owner-copy">
-        <p class="home-owner-eyebrow">{% trans "Для владельцев детских мест" %}</p>
-        <h2>{% trans "Помогите родителям найти вас рядом" %}</h2>
-        <p class="home-owner-text">
-          {% trans "Покажем ваше место в каталоге и на карте, добавим фото, описание и контакты, чтобы родители могли обратиться сразу." %}
+        <p class="warning-text">
+          {% if request.LANGUAGE_CODE == 'az' %}Bəzi məkanlar böyüklər üçün kurslar və dərslər də təklif edə bilər.
+          Uşaqlar üçün olan fəaliyyətlər ayrıca göstərilir.
+          {% elif request.LANGUAGE_CODE == 'en' %}Some venues may also offer courses and classes for adults. Activities
+          for children are displayed separately.
+          {% else %}Некоторые заведения могут также предлагать курсы и занятия для взрослых. Активности для детей
+          отображаются отдельно.{% endif %}
         </p>
-
-        <div class="home-owner-actions">
-          {% if request.user.is_authenticated %}
-            <a class="home-owner-cta" href="{% url 'owner_places_dashboard' %}">{% trans "Открыть кабинет" %}</a>
-          {% else %}
-            <a class="home-owner-cta" href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">{% trans "Разместить место" %}</a>
-          {% endif %}
-        </div>
-
-        <div class="home-owner-benefits" aria-label="{% trans 'Что даёт размещение на KidsMap' %}">
-          {% if request.user.is_authenticated %}
-            <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Каталог и карта" %}</a>
-            <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Фото, описание и CTA" %}</a>
-            <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Отзывы и доверие" %}</a>
-            <a href="{% url 'owner_places_dashboard' %}" class="home-owner-benefit">{% trans "Личный кабинет" %}</a>
-          {% else %}
-            <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Каталог и карта" %}</a>
-            <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Фото, описание и CTA" %}</a>
-            <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Отзывы и доверие" %}</a>
-            <a href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}" class="home-owner-benefit">{% trans "Личный кабинет" %}</a>
-          {% endif %}
-        </div>
       </div>
 
-      <div class="home-owner-visual" aria-hidden="true">
-        <figure class="home-owner-media">
-          <picture>
-            <source srcset="{% static 'img/home/photos/family-portrait.webp' %}" type="image/webp" />
-            <img
-              src="{% static 'img/home/photos/family-portrait.jpg' %}"
-              alt="{% trans 'Семья с детьми' %}"
-              loading="lazy"
-              decoding="async"
-            />
-          </picture>
-        </figure>
-      </div>
-    </div>
-  </section>
+      <ul class="home-owner-checklist">
+        <li>
+          <span class="check-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Kataloq və xəritədə görünürlük
+            {% elif request.LANGUAGE_CODE == 'en' %}Visibility in catalog and map
+            {% else %}Видимость в каталоге и на карте{% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="check-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Foto, təsvir və əlaqə məlumatları
+            {% elif request.LANGUAGE_CODE == 'en' %}Photos, description, and contact info
+            {% else %}Фото, описание и контактные данные{% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="check-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Reytinq və etibar qazanmaq
+            {% elif request.LANGUAGE_CODE == 'en' %}Earn rating and trust
+            {% else %}Получение рейтинга и доверия{% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="check-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Uşaqlar və böyüklər üçün imkanları qeyd edin
+            {% elif request.LANGUAGE_CODE == 'en' %}Specify facilities for children and adults
+            {% else %}Укажите возможности для детей и взрослых{% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="check-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </span>
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Asan idarəetmə — şəxsi kabinet
+            {% elif request.LANGUAGE_CODE == 'en' %}Easy management — personal account
+            {% else %}Простое управление — личный кабинет{% endif %}
+          </span>
+        </li>
+      </ul>
 
-  <section class="panel home-query-panel animate-on-scroll">
-    <h2>{% trans "Популярные запросы" %}</h2>
-    <div class="home-grid2 home-query-grid">
-      <a class="home-query-card" href="{% url 'place_list' %}">
-        <span class="home-query-label">{% trans "Кружки в Азербайджане для детей" %}</span>
-        <span class="home-query-arrow" aria-hidden="true">›</span>
-      </a>
-      {% if 'EDU' in active_category_codes %}
-      <a class="home-query-card" href="{% url 'place_list' %}?category=EDU">
-        <span class="home-query-label">{% trans "Курсы для детей в Азербайджане" %}</span>
-        <span class="home-query-arrow" aria-hidden="true">›</span>
-      </a>
-      {% endif %}
-      {% if 'SPRT' in active_category_codes %}
-      <a class="home-query-card" href="{% url 'place_list' %}?category=SPRT">
-        <span class="home-query-label">{% trans "Спортивные секции в Азербайджане" %}</span>
-        <span class="home-query-arrow" aria-hidden="true">›</span>
-      </a>
-      {% endif %}
-      {% if 'ART' in active_category_codes %}
-      <a class="home-query-card" href="{% url 'place_list' %}?category=ART">
-        <span class="home-query-label">{% trans "Творческие кружки в Азербайджане" %}</span>
-        <span class="home-query-arrow" aria-hidden="true">›</span>
-      </a>
-      {% endif %}
-      {% if 'TECH' in active_category_codes %}
-      <a class="home-query-card" href="{% url 'place_list' %}?category=TECH&amp;q=program">
-        <span class="home-query-label">{% trans "Программирование для детей в Азербайджане" %}</span>
-        <span class="home-query-arrow" aria-hidden="true">›</span>
-      </a>
-      {% endif %}
-    </div>
-  </section>
-
-  <section class="home-trust panel">
-    <h2>{% trans "Почему нам доверяют" %}</h2>
-    <div class="trust-score">
-      <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}+{% else %}—{% endif %}</strong>
-      <span class="trust-stars" aria-hidden="true">★★★★★</span>
-      <span>
-        {% if total_place_reviews_count %}
-          {% blocktrans count total=total_place_reviews_count %}{{ total }} отзыв о кружках{% plural %}{{ total }} отзывов о кружках{% endblocktrans %}
+      <div class="home-owner-actions-row">
+        {% if request.user.is_authenticated %}
+        <a class="home-owner-cta-new" href="{% url 'owner_places_dashboard' %}">
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinetə keçin
+            {% elif request.LANGUAGE_CODE == 'en' %}Go to Dashboard
+            {% else %}Перейти в кабинет{% endif %}
+          </span>
+          <span class="cta-plus">+</span>
+        </a>
         {% else %}
-          {% trans "Пока нет отзывов" %}
+        <a class="home-owner-cta-new"
+          href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Məkanınızı əlavə edin
+            {% elif request.LANGUAGE_CODE == 'en' %}Add your place
+            {% else %}Добавить свое место{% endif %}
+          </span>
+          <span class="cta-plus">+</span>
+        </a>
         {% endif %}
-      </span>
+        <a class="home-owner-link" href="#how-it-works">
+          <span>
+            {% if request.LANGUAGE_CODE == 'az' %}Necə işləyir?
+            {% elif request.LANGUAGE_CODE == 'en' %}How it works
+            {% else %}Как это работает?{% endif %}
+          </span>
+          <span class="arrow">→</span>
+        </a>
+      </div>
     </div>
-    <div class="home-grid2">
-      <p>{% trans "Проверенные и активные места" %}</p>
-      <p>{% trans "Фильтры по возрасту, региону и цене" %}</p>
-      <p>{% trans "Быстрый переход к звонку и Instagram" %}</p>
-      <p>{% trans "Удобно на телефоне и компьютере" %}</p>
-    </div>
-  </section>
 
+    <!-- Right Column: Stats + Features Panel -->
+    <div class="home-owner-right-panel">
 
+      <!-- Central Stats Card (real data) -->
+      <div class="km-stats-hero-card km-reveal-up">
+        <div class="km-stats-hero-header">
+          <div class="km-stats-hero-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div>
+            <p class="km-stats-hero-label">
+              {% if request.LANGUAGE_CODE == 'az' %}KidsMap platforması
+              {% elif request.LANGUAGE_CODE == 'en' %}KidsMap platform
+              {% else %}Платформа KidsMap{% endif %}
+            </p>
+            <div class="km-stats-hero-live">
+              <span class="km-live-dot"></span>
+              <span>
+                {% if request.LANGUAGE_CODE == 'az' %}canlı statistika
+                {% elif request.LANGUAGE_CODE == 'en' %}live stats
+                {% else %}живая статистика{% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="km-stats-hero-grid">
+          <div class="km-stats-hero-item">
+            <strong class="km-stat-count" data-count-target="{{ map_places|length }}">{{ map_places|length }}</strong>
+            <span>
+              {% if request.LANGUAGE_CODE == 'az' %}məkan və məşğələ
+              {% elif request.LANGUAGE_CODE == 'en' %}places & activities
+              {% else %}мест и занятий{% endif %}
+            </span>
+          </div>
+          <div class="km-stats-hero-item km-stats-hero-item--accent">
+            <strong class="km-stat-count" data-count-target="{{ total_place_reviews_count|default:0 }}">{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}0{% endif %}</strong>
+            <span>
+              {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
+              {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
+              {% else %}отзывов родителей{% endif %}
+            </span>
+          </div>
+        </div>
+        <div class="km-stats-hero-footer">
+          <div class="km-stats-trust-row">
+            <span class="km-stats-star">★★★★★</span>
+            <span>
+              {% if request.LANGUAGE_CODE == 'az' %}Valideynlər tərəfindən tövsiyə edilir
+              {% elif request.LANGUAGE_CODE == 'en' %}Recommended by parents
+              {% else %}Рекомендовано родителями{% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
 
-  <section class="panel home-faq-panel" id="faq">
-    <div class="home-faq-grid">
-      <div class="home-faq-copy">
-        <p class="home-owner-eyebrow">{% trans "FAQ" %}</p>
-        <h2>{% trans "Частые вопросы о KidsMap" %}</h2>
-        <p class="home-faq-lead">
-          {% trans "Собрали короткие ответы, чтобы было проще понять, как работает поиск кружков, отзывы и размещение карточек." %}
+      <!-- Feature Cards Grid (2×2) -->
+      <div class="km-feature-cards-grid">
+
+        <div class="km-feature-card km-reveal-up" style="--delay:0.08s">
+          <div class="km-feature-card-icon" style="background:#ecfdf5;color:#10b981;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+              <line x1="9" y1="3" x2="9" y2="18"></line>
+              <line x1="15" y1="6" x2="15" y2="21"></line>
+            </svg>
+          </div>
+          <div>
+            <h4>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə görünürlük{% elif request.LANGUAGE_CODE == 'en' %}Map
+              visibility{% else %}Видимость на карте{% endif %}</h4>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda ilk yerdə{% elif request.LANGUAGE_CODE == 'en' %}First in
+              search{% else %}Первые в поиске{% endif %}</p>
+          </div>
+        </div>
+
+        <div class="km-feature-card km-reveal-up" style="--delay:0.16s">
+          <div class="km-feature-card-icon" style="background:#f3e8ff;color:#a855f7;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </div>
+          <div>
+            <h4>{% if request.LANGUAGE_CODE == 'az' %}Foto və təsvir{% elif request.LANGUAGE_CODE == 'en' %}Photos &
+              description{% else %}Фото и описание{% endif %}</h4>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}Özünüzü parlaq göstərin{% elif request.LANGUAGE_CODE == 'en' %}Shine bright online{% else %}Привлеките клиентов{% endif %}</p>
+          </div>
+        </div>
+
+        <div class="km-feature-card km-reveal-up" style="--delay:0.24s">
+          <div class="km-feature-card-icon" style="background:#fffbeb;color:#f59e0b;">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9" />
+            </svg>
+          </div>
+          <div>
+            <h4>{% if request.LANGUAGE_CODE == 'az' %}Reytinq və etibar{% elif request.LANGUAGE_CODE == 'en' %}Rating &
+              trust{% else %}Рейтинг и доверие{% endif %}</h4>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}Valideyn rəyləri{% elif request.LANGUAGE_CODE == 'en' %}Parent
+              reviews{% else %}Отзывы родителей{% endif %}</p>
+          </div>
+        </div>
+
+        <div class="km-feature-card km-reveal-up" style="--delay:0.32s">
+          <div class="km-feature-card-icon" style="background:#eff6ff;color:#3b82f6;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <div>
+            <h4>{% if request.LANGUAGE_CODE == 'az' %}Şəxsi kabinet{% elif request.LANGUAGE_CODE == 'en' %}Dashboard{% else %}Личный кабинет{% endif %}</h4>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}Asanlıqla idarəetmə{% elif request.LANGUAGE_CODE == 'en' %}Easy
+              management{% else %}Простое управление{% endif %}</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Visibility Growth Card -->
+      <div class="km-visibility-card km-reveal-up" style="--delay:0.4s">
+        <div class="km-visibility-copy">
+          <span class="km-visibility-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 18V10"></path>
+              <path d="M10 18V6"></path>
+              <path d="M16 18V3"></path>
+              <path d="m4 8 5-4 5 2 6-5"></path>
+              <path d="m17 1 3 0 0 3"></path>
+            </svg>
+          </span>
+          <div>
+            <h3>{% if request.LANGUAGE_CODE == 'az' %}Valideynlər üçün daha görünən olun{% elif request.LANGUAGE_CODE == 'en' %}Get noticed by more parents{% else %}Станьте заметнее для родителей{% endif %}</h3>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}KidsMap-da məkanınızın görünürlüğünü artırın{% elif request.LANGUAGE_CODE == 'en' %}Build your presence across KidsMap{% else %}Расширяйте присутствие на KidsMap{% endif %}</p>
+          </div>
+        </div>
+
+        <div class="km-visibility-chart" aria-hidden="true">
+          <svg viewBox="0 0 420 64" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="km-visibility-fill" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#d1fae5" stop-opacity="0.25"></stop>
+                <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.2"></stop>
+              </linearGradient>
+              <linearGradient id="km-visibility-line" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#10b981"></stop>
+                <stop offset="100%" stop-color="#3b82f6"></stop>
+              </linearGradient>
+            </defs>
+            <path class="km-visibility-area" d="M8 54 C76 52 92 43 142 44 S226 35 268 28 S346 18 412 8 L412 64 L8 64 Z"></path>
+            <path class="km-visibility-line" pathLength="1" d="M8 54 C76 52 92 43 142 44 S226 35 268 28 S346 18 412 8"></path>
+            <circle class="km-visibility-point point-one" cx="142" cy="44" r="4"></circle>
+            <circle class="km-visibility-point point-two" cx="268" cy="28" r="4"></circle>
+            <circle class="km-visibility-point point-three" cx="412" cy="8" r="4"></circle>
+          </svg>
+        </div>
+
+        <div class="km-visibility-stages">
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On the map{% else %}На карте{% endif %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Kataloqda{% elif request.LANGUAGE_CODE == 'en' %}In the catalog{% else %}В каталоге{% endif %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda{% elif request.LANGUAGE_CODE == 'en' %}In search{% else %}В поиске{% endif %}</span>
+        </div>
+        <p class="km-visibility-note">
+          {% if request.LANGUAGE_CODE == 'az' %}Səhifə nə qədər dolğun olsa, seçim etmək bir o qədər asandır
+          {% elif request.LANGUAGE_CODE == 'en' %}The more complete your page, the easier it is to choose you
+          {% else %}Чем полнее страница, тем проще вас выбрать{% endif %}
         </p>
-
-        <div class="home-faq-points" aria-label="{% trans 'О чём этот раздел' %}">
-          <article class="home-faq-point">
-            <strong>{% trans "Быстрый поиск" %}</strong>
-            <span>{% trans "Регион, возраст, метро и категории без лишних шагов." %}</span>
-          </article>
-          <article class="home-faq-point">
-            <strong>{% trans "Отзывы и лайки" %}</strong>
-            <span>{% trans "Показываем, как работают реакции и когда нужен аккаунт." %}</span>
-          </article>
-          <article class="home-faq-point">
-            <strong>{% trans "Для владельцев" %}</strong>
-            <span>{% trans "Коротко объясняем размещение карточки и обновление данных." %}</span>
-          </article>
-          <article class="home-faq-point">
-            <strong>{% trans "Без регистрации" %}</strong>
-            <span>{% trans "Каталог и карточки можно смотреть сразу, аккаунт нужен только для действий." %}</span>
-          </article>
-        </div>
-
-        <div class="home-faq-actions" aria-label="{% trans 'Быстрые переходы' %}">
-          <a class="home-faq-action" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
-          <a class="home-faq-action" href="{% url 'place_list' %}">{% trans "Читать отзывы" %}</a>
-          <a class="home-faq-action home-faq-action-wide" href="#for-owners">{% trans "Размещение для владельцев" %}</a>
-        </div>
       </div>
 
-      <div class="home-faq-list">
-        <details class="home-faq-item" open>
-          <summary class="home-faq-question">
-            <span>{% trans "Как быстро найти кружок для ребёнка?" %}</span>
-            <span class="home-faq-icon" aria-hidden="true">⌄</span>
-          </summary>
-          <div class="home-faq-answer">
-            {% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
-          </div>
-        </details>
-
-        <details class="home-faq-item">
-          <summary class="home-faq-question">
-            <span>{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
-            <span class="home-faq-icon" aria-hidden="true">⌄</span>
-          </summary>
-          <div class="home-faq-answer">
-            {% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}
-          </div>
-        </details>
-
-        <details class="home-faq-item">
-          <summary class="home-faq-question">
-            <span>{% trans "Как оставить отзыв или поставить лайк?" %}</span>
-            <span class="home-faq-icon" aria-hidden="true">⌄</span>
-          </summary>
-          <div class="home-faq-answer">
-            {% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}
-          </div>
-        </details>
-
-        <details class="home-faq-item">
-          <summary class="home-faq-question">
-            <span>{% trans "Как владельцу кружка разместить карточку на сайте?" %}</span>
-            <span class="home-faq-icon" aria-hidden="true">⌄</span>
-          </summary>
-          <div class="home-faq-answer">
-            {% trans "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
-          </div>
-        </details>
-
-        <details class="home-faq-item">
-          <summary class="home-faq-question">
-            <span>{% trans "Можно ли показывать фото и контакты кружка?" %}</span>
-            <span class="home-faq-icon" aria-hidden="true">⌄</span>
-          </summary>
-          <div class="home-faq-answer">
-            {% trans "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение." %}
-          </div>
-        </details>
-      </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <script>
-    (function () {
-      document.querySelectorAll("[data-review-stars]").forEach(function (picker) {
-        const input = picker.parentElement.querySelector("[data-rating-input]");
-        if (!input) return;
-        const stars = Array.from(picker.querySelectorAll(".review-star"));
+<style>
+  /* Scoped styles for the Place Owner Interactive Widget */
+  #for-owners {
+    background: #ffffff;
+    border: 1.5px solid rgba(16, 185, 129, 0.12);
+    border-radius: 28px;
+    box-shadow: 0 10px 40px rgba(15, 141, 64, 0.03);
+    padding: 32px clamp(20px, 5vw, 64px);
+    /* Reduced from 48px */
+    margin: 40px auto;
+    max-width: 100%;
+    /* Changed from 1200px to match other blocks */
+    box-sizing: border-box;
+  }
 
-        function paint(value) {
-          stars.forEach((star, idx) => {
-            star.classList.toggle("active", idx < value);
-          });
-        }
+  #how-it-works {
+    scroll-margin-top: 96px;
+  }
 
-        stars.forEach((star) => {
-          const value = Number(star.dataset.value || 0);
-          star.addEventListener("mouseenter", function () {
-            paint(value);
-          });
-          star.addEventListener("click", function () {
-            input.value = String(value);
-            paint(value);
-          });
+  .home-owner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ecfdf5;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    color: #059669;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 14px;
+    /* Reduced from 20px */
+  }
+
+  .home-owner-badge .badge-icon {
+    width: 13px;
+    height: 13px;
+    stroke-width: 3;
+  }
+
+  .home-owner-copy h2 {
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    font-weight: 900;
+    color: #111827;
+    line-height: 1.15;
+    margin-bottom: 12px;
+    /* Reduced from 16px */
+    letter-spacing: -0.02em;
+  }
+
+  .home-owner-text {
+    font-size: 0.92rem;
+    color: #4b5563;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    /* Reduced from 20px */
+  }
+
+  .home-owner-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #f4fbf7;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    border-radius: 16px;
+    padding: 12px 16px;
+    /* Reduced from 14px 18px */
+    margin-bottom: 20px;
+    /* Reduced from 24px */
+  }
+
+  .warning-icon-wrapper {
+    background: #ecfdf5;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .warning-svg {
+    width: 18px;
+    height: 18px;
+    color: #10b981;
+  }
+
+  .warning-text {
+    font-size: 0.85rem;
+    color: #1f2937;
+    line-height: 1.45;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .home-owner-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    /* Reduced from 28px */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* Reduced from 12px */
+  }
+
+  .home-owner-checklist li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: #1f2937;
+    font-weight: 600;
+  }
+
+  .home-owner-checklist .check-icon {
+    background: #10b981;
+    color: #ffffff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .home-owner-checklist .check-icon svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .home-owner-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .home-owner-cta-new {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #10b981;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+
+  .home-owner-cta-new:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
+  }
+
+  .home-owner-cta-new:active {
+    transform: translateY(0);
+  }
+
+  .home-owner-cta-new .cta-plus {
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  .home-owner-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #10b981;
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: gap 0.2s;
+  }
+
+  .home-owner-link:hover {
+    gap: 9px;
+    color: #059669;
+  }
+
+  .home-owner-link .arrow {
+    font-size: 1rem;
+  }
+
+  /* ── Right Column: New compact stats panel ── */
+
+  /* Desktop grid fix */
+  @media (min-width: 1051px) {
+    .page-home .home-owner-banner-grid {
+      grid-template-columns: minmax(0, 1.04fr) minmax(440px, 0.96fr) !important;
+      align-items: center;
+      gap: 32px !important;
+    }
+
+    .page-home .home-owner-copy {
+      max-width: 540px !important;
+    }
+  }
+
+  /* Right panel: vertical stack */
+  .home-owner-right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* ── Stats Hero Card ── */
+  .km-stats-hero-card {
+    background: linear-gradient(135deg, #f0fdf7 0%, #ecfdf5 60%, #eff6ff 100%);
+    border: 1.5px solid rgba(16, 185, 129, 0.18);
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: 0 8px 28px rgba(16, 185, 129, 0.07);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .km-stats-hero-card:hover {
+    box-shadow: 0 12px 36px rgba(16, 185, 129, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .km-stats-hero-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .km-stats-hero-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    animation: km-pin-bob 3s ease-in-out infinite;
+  }
+
+  .km-stats-hero-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .km-stats-hero-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #374151;
+    margin: 0 0 3px;
+  }
+
+  .km-stats-hero-live {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #10b981;
+  }
+
+  .km-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: km-live-pulse 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes km-live-pulse {
+
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.5;
+      transform: scale(0.7);
+    }
+  }
+
+  @keyframes km-pin-bob {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  .km-stats-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .km-stats-hero-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+    min-height: 92px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 14px;
+    padding: 16px 18px;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+  }
+
+  .km-stats-hero-item strong {
+    font-size: clamp(34px, 3.6vw, 46px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: #111827;
+    line-height: 1;
+  }
+
+  .km-stats-hero-item span {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #586574;
+    line-height: 1.35;
+  }
+
+  .km-stats-hero-item--accent strong {
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .km-stats-hero-footer {
+    border-top: 1px solid rgba(16, 185, 129, 0.1);
+    padding-top: 12px;
+  }
+
+  .km-stats-trust-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #4b5563;
+  }
+
+  .km-stats-star {
+    color: #f59e0b;
+    font-size: 0.9rem;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Feature Cards 2×2 Grid ── */
+  .km-feature-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .km-feature-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 64px;
+    padding: 13px 15px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(0, 0, 0, 0.05);
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      box-shadow 0.25s ease,
+      border-color 0.25s ease;
+    cursor: default;
+  }
+
+  .km-feature-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    border-color: rgba(16, 185, 129, 0.18);
+  }
+
+  .km-feature-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .km-feature-card:hover .km-feature-card-icon {
+    transform: scale(1.12) rotate(5deg);
+  }
+
+  .km-feature-card-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .km-feature-card h4 {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 2px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .km-feature-card p {
+    font-size: 0.76rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+
+  /* ── Visibility Growth Card (in-flow, full width) ── */
+  .km-visibility-card {
+    width: 100%;
+    min-height: 178px;
+    padding: 16px 20px 14px;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf7 58%, #eff6ff 100%);
+    border-radius: 16px;
+    border: 1.5px solid rgba(16, 185, 129, 0.12);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.07);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .km-visibility-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px rgba(16, 185, 129, 0.12);
+  }
+
+  .km-visibility-copy {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .km-visibility-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .km-visibility-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .km-visibility-copy h3 {
+    margin: 0 0 2px;
+    color: #111827;
+    font-size: 0.94rem;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .km-visibility-copy p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .km-visibility-chart {
+    height: 50px;
+    margin: 5px 0 0;
+  }
+
+  .km-visibility-chart svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .km-visibility-area {
+    fill: url(#km-visibility-fill);
+    opacity: 0;
+    animation: km-visibility-area-in 1s ease 0.65s forwards;
+  }
+
+  .km-visibility-line {
+    fill: none;
+    stroke: url(#km-visibility-line);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: km-visibility-draw 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+  }
+
+  .km-visibility-point {
+    fill: #ffffff;
+    stroke: #10b981;
+    stroke-width: 3;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: km-visibility-point-in 0.35s ease forwards;
+  }
+
+  .km-visibility-point.point-one { animation-delay: 0.65s; }
+  .km-visibility-point.point-two { animation-delay: 1s; }
+  .km-visibility-point.point-three {
+    stroke: #3b82f6;
+    animation-delay: 1.35s;
+  }
+
+  .km-visibility-stages {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: -1px;
+  }
+
+  .km-visibility-stages span {
+    color: #4b5563;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .km-visibility-note {
+    margin: 6px 0 0;
+    padding-top: 6px;
+    border-top: 1px solid rgba(16, 185, 129, 0.1);
+    color: #047857;
+    font-size: 0.74rem;
+    font-weight: 750;
+    text-align: center;
+  }
+
+  @keyframes km-visibility-draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes km-visibility-area-in {
+    to { opacity: 1; }
+  }
+
+  @keyframes km-visibility-point-in {
+    from { opacity: 0; transform: scale(0); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* ── Scroll reveal ── */
+  .km-reveal-up {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0s),
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0s);
+  }
+
+  .km-reveal-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 1050px) {
+    .page-home .home-owner-banner-grid {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .page-home .home-owner-copy {
+      max-width: none !important;
+    }
+
+    #for-owners {
+      padding: 28px 18px;
+      border-radius: 20px;
+    }
+
+    .home-owner-right-panel {
+      gap: 10px;
+    }
+
+    .km-stats-hero-item strong {
+      font-size: clamp(22px, 8vw, 36px);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .km-feature-cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Accessible: Prefers Reduced Motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .km-reveal-up {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+
+    .km-stats-hero-icon,
+    .km-live-dot {
+      animation: none !important;
+    }
+
+    .km-feature-card:hover,
+    .km-visibility-card:hover,
+    .km-stats-hero-card:hover {
+      transform: none !important;
+    }
+
+    .km-visibility-area,
+    .km-visibility-line,
+    .km-visibility-point {
+      animation: none !important;
+      opacity: 1 !important;
+      stroke-dashoffset: 0 !important;
+    }
+  }
+</style>
+
+<section class="panel home-faq-panel" id="faq">
+  <div class="home-faq-head">
+    <div class="home-faq-copy">
+      <p class="home-owner-eyebrow">{% trans "FAQ" %}</p>
+      <h2>{% trans "Частые вопросы о KidsMap" %}</h2>
+      <p class="home-faq-lead">
+        {% trans "Собрали короткие ответы, чтобы было проще понять, как работает поиск кружков, отзывы и размещение карточек." %}
+      </p>
+    </div>
+    <div class="home-faq-actions" aria-label="{% trans 'Быстрые переходы' %}">
+      <a class="home-faq-action" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+      <a class="home-faq-action" href="#for-owners">{% trans "Размещение для владельцев" %}</a>
+    </div>
+  </div>
+
+  <div class="home-faq-list">
+    <details class="home-faq-item" open>
+      <summary class="home-faq-question">
+        <span>{% trans "Как быстро найти кружок для ребёнка?" %}</span>
+        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="home-faq-answer">
+        {% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
+      </div>
+    </details>
+
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span>{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
+        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="home-faq-answer">
+        {% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}
+      </div>
+    </details>
+
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span>{% trans "Как оставить отзыв или поставить лайк?" %}</span>
+        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="home-faq-answer">
+        {% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}
+      </div>
+    </details>
+
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span>{% trans "Как владельцу кружка разместить карточку на сайте?" %}</span>
+        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="home-faq-answer">
+        {% trans "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
+      </div>
+    </details>
+
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span>{% trans "Можно ли показывать фото и контакты кружка?" %}</span>
+        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="home-faq-answer">
+        {% trans "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение." %}
+      </div>
+    </details>
+  </div>
+
+  <div class="home-faq-popular" aria-labelledby="home-popular-queries-title">
+    <h3 id="home-popular-queries-title">{% trans "Популярные запросы" %}</h3>
+    <div class="home-faq-popular-links">
+      <a href="{% url 'place_list' %}">{% trans "Кружки в Азербайджане для детей" %}</a>
+      {% if 'EDU' in active_category_codes %}<a href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Азербайджане" %}</a>{% endif %}
+      {% if 'SPRT' in active_category_codes %}<a href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Азербайджане" %}</a>{% endif %}
+      {% if 'ART' in active_category_codes %}<a href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Азербайджане" %}</a>{% endif %}
+      {% if 'TECH' in active_category_codes %}<a href="{% url 'place_list' %}?category=TECH&amp;q=program">{% trans "Программирование для детей в Азербайджане" %}</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    document.querySelectorAll("[data-review-stars]").forEach(function (picker) {
+      const input = picker.parentElement.querySelector("[data-rating-input]");
+      if (!input) return;
+      const stars = Array.from(picker.querySelectorAll(".review-star"));
+
+      function paint(value) {
+        stars.forEach((star, idx) => {
+          star.classList.toggle("active", idx < value);
         });
+      }
 
-        picker.addEventListener("mouseleave", function () {
-          paint(Number(input.value || 0));
+      stars.forEach((star) => {
+        const value = Number(star.dataset.value || 0);
+        star.addEventListener("mouseenter", function () {
+          paint(value);
         });
+        star.addEventListener("click", function () {
+          input.value = String(value);
+          paint(value);
+        });
+      });
 
+      picker.addEventListener("mouseleave", function () {
         paint(Number(input.value || 0));
       });
-    })();
 
-    (function () {
-      function initLocationTreeSelect() {
-        const container = document.querySelector('[data-tree-select="district"]');
-        if (!container) return;
-        const trigger = container.querySelector('.km-tree-trigger');
-        const triggerText = container.querySelector('.km-tree-trigger-text');
-        const dropdown = container.querySelector('.km-tree-dropdown');
-        const targetSelect = document.querySelector('select[name="district"]');
-        if (!trigger || !dropdown || !targetSelect) return;
+      paint(Number(input.value || 0));
+    });
+  })();
 
-        const currentLang = document.documentElement.lang || 'az';
+  (function () {
+    function initLocationTreeSelect() {
+      const container = document.querySelector('[data-tree-select="district"]');
+      if (!container) return;
+      const trigger = container.querySelector('.km-tree-trigger');
+      const triggerText = container.querySelector('.km-tree-trigger-text');
+      const dropdown = container.querySelector('.km-tree-dropdown');
+      const targetSelect = document.querySelector('select[name="district"]');
+      if (!trigger || !dropdown || !targetSelect) return;
 
-        function getBütünBakıRayonlarıLabel() {
-          if (currentLang === 'az') return 'Bütün Bakı rayonları';
-          if (currentLang === 'en') return 'All Baku districts';
-          return 'Все районы Баку';
+      const currentLang = document.documentElement.lang || 'az';
+
+      function getBütünBakıRayonlarıLabel() {
+        if (currentLang === 'az') return 'Bütün Bakı rayonları';
+        if (currentLang === 'en') return 'All Baku districts';
+        return 'Все районы Баку';
+      }
+
+      function cleanDistrictLabel(label) {
+        if (label && label.includes(':')) {
+          return label.split(':')[1].trim();
+        }
+        return label;
+      }
+
+      function getOptions() {
+        return Array.from(targetSelect.options).map(function (opt) {
+          const label = opt.dataset.labelCurrent || opt.textContent.trim();
+          const labelWithCount = opt.textContent.trim();
+          return {
+            value: opt.value,
+            label: label,
+            labelWithCount: labelWithCount,
+            count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null
+          };
+        });
+      }
+
+      function createNodeRow(value, label, labelWithCount, hasChildren, isChild, isBakuAll, isLastChild) {
+        const row = document.createElement('div');
+        row.className = 'km-tree-row';
+        row.setAttribute('role', 'treeitem');
+        row.setAttribute('tabindex', '-1');
+        row.dataset.value = value;
+
+        if (isChild) {
+          row.classList.add('km-tree-row--child');
+          if (isBakuAll) {
+            row.classList.add('km-tree-row--baku-all');
+          }
+          if (isLastChild) {
+            row.classList.add('km-tree-row--last-child');
+          }
         }
 
-        function cleanDistrictLabel(label) {
-          if (label && label.includes(':')) {
-            return label.split(':')[1].trim();
+        let isSelected = false;
+        if (value === 'baku') {
+          if (targetSelect.value === 'baku' && isBakuAll) {
+            isSelected = true;
           }
-          return label;
+        } else {
+          if (targetSelect.value === value) {
+            isSelected = true;
+          }
         }
 
-        function getOptions() {
-          return Array.from(targetSelect.options).map(function(opt) {
-            const label = opt.dataset.labelCurrent || opt.textContent.trim();
-            const labelWithCount = opt.textContent.trim();
-            return {
-              value: opt.value,
-              label: label,
-              labelWithCount: labelWithCount,
-              count: opt.value ? parseInt(labelWithCount.split('—')[1] || '0') : null
-            };
-          });
+        if (isSelected) {
+          row.classList.add('is-selected');
+          row.setAttribute('aria-selected', 'true');
+        } else {
+          row.setAttribute('aria-selected', 'false');
         }
 
-        function createNodeRow(value, label, labelWithCount, hasChildren, isChild, isBakuAll, isLastChild) {
-          const row = document.createElement('div');
-          row.className = 'km-tree-row';
-          row.setAttribute('role', 'treeitem');
-          row.setAttribute('tabindex', '-1');
-          row.dataset.value = value;
-          
-          if (isChild) {
-            row.classList.add('km-tree-row--child');
-            if (isBakuAll) {
-              row.classList.add('km-tree-row--baku-all');
-            }
-            if (isLastChild) {
-              row.classList.add('km-tree-row--last-child');
-            }
-          }
-
-          let isSelected = false;
-          if (value === 'baku') {
-            if (targetSelect.value === 'baku' && isBakuAll) {
-              isSelected = true;
-            }
-          } else {
-            if (targetSelect.value === value) {
-              isSelected = true;
-            }
-          }
-
-          if (isSelected) {
-            row.classList.add('is-selected');
-            row.setAttribute('aria-selected', 'true');
-          } else {
-            row.setAttribute('aria-selected', 'false');
-          }
-
-          if (hasChildren) {
-            const toggle = document.createElement('button');
-            toggle.type = 'button';
-            toggle.className = 'km-tree-chevron';
-            toggle.setAttribute('aria-label', 'Toggle');
-            toggle.setAttribute('tabindex', '-1');
-            toggle.innerHTML = `
+        if (hasChildren) {
+          const toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'km-tree-chevron';
+          toggle.setAttribute('aria-label', 'Toggle');
+          toggle.setAttribute('tabindex', '-1');
+          toggle.innerHTML = `
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="km-tree-chevron-icon">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             `;
-            row.appendChild(toggle);
-          } else if (!isChild) {
-            const spacer = document.createElement('div');
-            spacer.className = 'km-tree-spacer';
-            row.appendChild(spacer);
-          }
-
-          if (isChild) {
-            const branch = document.createElement('div');
-            branch.className = 'km-tree-branch';
-            row.appendChild(branch);
-          }
-
-          const labelSpan = document.createElement('span');
-          labelSpan.className = 'km-tree-label';
-          
-          const text = label;
-          const countPart = labelWithCount ? (labelWithCount.split('—')[1] || '').trim() : '';
-          labelSpan.innerHTML = text + (countPart ? ` <span class="km-tree-count">— ${countPart}</span>` : '');
-          row.appendChild(labelSpan);
-
-          row.addEventListener('click', function(e) {
-            if (hasChildren) {
-              toggleNode(row);
-            } else {
-              selectValue(value);
-            }
-          });
-
-          return row;
+          row.appendChild(toggle);
+        } else if (!isChild) {
+          const spacer = document.createElement('div');
+          spacer.className = 'km-tree-spacer';
+          row.appendChild(spacer);
         }
 
-        function toggleNode(row) {
-          const parentNode = row.closest('.km-tree-node');
-          if (!parentNode) return;
-          const children = parentNode.querySelector('.km-tree-children');
-          if (!children) return;
-          
-          const isExpanded = row.getAttribute('aria-expanded') === 'true';
-          row.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
-          children.hidden = isExpanded;
+        if (isChild) {
+          const branch = document.createElement('div');
+          branch.className = 'km-tree-branch';
+          row.appendChild(branch);
         }
 
-        function selectValue(value) {
-          targetSelect.value = value;
-          targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'km-tree-label';
+
+        const text = label;
+        const countPart = labelWithCount ? (labelWithCount.split('—')[1] || '').trim() : '';
+        labelSpan.innerHTML = text + (countPart ? ` <span class="km-tree-count">— ${countPart}</span>` : '');
+        row.appendChild(labelSpan);
+
+        row.addEventListener('click', function (e) {
+          if (hasChildren) {
+            toggleNode(row);
+          } else {
+            selectValue(value);
+          }
+        });
+
+        return row;
+      }
+
+      function toggleNode(row) {
+        const parentNode = row.closest('.km-tree-node');
+        if (!parentNode) return;
+        const children = parentNode.querySelector('.km-tree-children');
+        if (!children) return;
+
+        const isExpanded = row.getAttribute('aria-expanded') === 'true';
+        row.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+        children.hidden = isExpanded;
+      }
+
+      function selectValue(value) {
+        targetSelect.value = value;
+        targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        closeDropdown();
+      }
+
+      function buildTreeHTML() {
+        dropdown.innerHTML = '';
+        const options = getOptions();
+
+        const bakuOption = options.find(o => o.value === 'baku');
+        const bakuDistricts = options.filter(o => o.value.startsWith('baku_'));
+        const otherRegions = options.filter(o => o.value && o.value !== 'baku' && !o.value.startsWith('baku_'));
+
+        if (bakuOption) {
+          const bakuNode = document.createElement('div');
+          bakuNode.className = 'km-tree-node km-tree-parent';
+
+          const hasChildren = bakuDistricts.length > 0;
+          const bakuRow = createNodeRow(bakuOption.value, bakuOption.label, bakuOption.labelWithCount, hasChildren);
+          bakuNode.appendChild(bakuRow);
+
+          if (hasChildren) {
+            const childrenContainer = document.createElement('div');
+            childrenContainer.className = 'km-tree-children';
+            childrenContainer.setAttribute('role', 'group');
+
+            const isBakuSelected = targetSelect.value === 'baku' || targetSelect.value.startsWith('baku_');
+            bakuRow.setAttribute('aria-expanded', isBakuSelected ? 'true' : 'false');
+            childrenContainer.hidden = !isBakuSelected;
+
+            const bakuCountPart = bakuOption.labelWithCount.split('—')[1] || '';
+            const allBakuLabel = getBütünBakıRayonlarıLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
+            const allBakuRow = createNodeRow('baku', getBütünBakıRayonlarıLabel(), allBakuLabel, false, true, true);
+            childrenContainer.appendChild(allBakuRow);
+
+            bakuDistricts.forEach((dist, idx) => {
+              const isLast = idx === bakuDistricts.length - 1;
+              const distRow = createNodeRow(dist.value, cleanDistrictLabel(dist.label), cleanDistrictLabel(dist.labelWithCount), false, true, false, isLast);
+              childrenContainer.appendChild(distRow);
+            });
+
+            bakuNode.appendChild(childrenContainer);
+          }
+          dropdown.appendChild(bakuNode);
+        }
+
+        otherRegions.forEach(reg => {
+          const regRow = createNodeRow(reg.value, reg.label, reg.labelWithCount, false);
+          dropdown.appendChild(regRow);
+        });
+      }
+
+      function toggleDropdown() {
+        const isHidden = dropdown.hidden;
+        if (isHidden) {
+          openDropdown();
+        } else {
           closeDropdown();
         }
+      }
 
-        function buildTreeHTML() {
-          dropdown.innerHTML = '';
-          const options = getOptions();
+      function openDropdown() {
+        dropdown.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+        buildTreeHTML();
 
-          const bakuOption = options.find(o => o.value === 'baku');
-          const bakuDistricts = options.filter(o => o.value.startsWith('baku_'));
-          const otherRegions = options.filter(o => o.value && o.value !== 'baku' && !o.value.startsWith('baku_'));
+        const firstItem = dropdown.querySelector('.km-tree-row');
+        if (firstItem) {
+          focusItem(firstItem);
+        }
+      }
 
-          if (bakuOption) {
-            const bakuNode = document.createElement('div');
-            bakuNode.className = 'km-tree-node km-tree-parent';
-            
-            const hasChildren = bakuDistricts.length > 0;
-            const bakuRow = createNodeRow(bakuOption.value, bakuOption.label, bakuOption.labelWithCount, hasChildren);
-            bakuNode.appendChild(bakuRow);
+      function closeDropdown() {
+        dropdown.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      }
 
-            if (hasChildren) {
-              const childrenContainer = document.createElement('div');
-              childrenContainer.className = 'km-tree-children';
-              childrenContainer.setAttribute('role', 'group');
+      function getVisibleItems() {
+        const items = [];
+        const rows = Array.from(dropdown.querySelectorAll('.km-tree-row'));
+        rows.forEach(row => {
+          const parentChildren = row.closest('.km-tree-children');
+          if (!parentChildren || !parentChildren.hidden) {
+            items.push(row);
+          }
+        });
+        return items;
+      }
 
-              const isBakuSelected = targetSelect.value === 'baku' || targetSelect.value.startsWith('baku_');
-              bakuRow.setAttribute('aria-expanded', isBakuSelected ? 'true' : 'false');
-              childrenContainer.hidden = !isBakuSelected;
+      function focusItem(item) {
+        if (!item) return;
+        const allRows = dropdown.querySelectorAll('.km-tree-row');
+        allRows.forEach(row => {
+          row.setAttribute('tabindex', '-1');
+        });
+        item.setAttribute('tabindex', '0');
+        item.focus();
+      }
 
-              const bakuCountPart = bakuOption.labelWithCount.split('—')[1] || '';
-              const allBakuLabel = getBütünBakıRayonlarıLabel() + (bakuCountPart ? ' — ' + bakuCountPart : '');
-              const allBakuRow = createNodeRow('baku', getBütünBakıRayonlarıLabel(), allBakuLabel, false, true, true);
-              childrenContainer.appendChild(allBakuRow);
+      dropdown.addEventListener('keydown', function (e) {
+        const active = document.activeElement;
+        if (!active || !active.classList.contains('km-tree-row')) return;
 
-              bakuDistricts.forEach((dist, idx) => {
-                const isLast = idx === bakuDistricts.length - 1;
-                const distRow = createNodeRow(dist.value, cleanDistrictLabel(dist.label), cleanDistrictLabel(dist.labelWithCount), false, true, false, isLast);
-                childrenContainer.appendChild(distRow);
-              });
+        const visibleItems = getVisibleItems();
+        const index = visibleItems.indexOf(active);
 
-              bakuNode.appendChild(childrenContainer);
+        switch (e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            if (index < visibleItems.length - 1) {
+              focusItem(visibleItems[index + 1]);
             }
-            dropdown.appendChild(bakuNode);
-          }
-
-          otherRegions.forEach(reg => {
-            const regRow = createNodeRow(reg.value, reg.label, reg.labelWithCount, false);
-            dropdown.appendChild(regRow);
-          });
-        }
-
-        function toggleDropdown() {
-          const isHidden = dropdown.hidden;
-          if (isHidden) {
-            openDropdown();
-          } else {
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            if (index > 0) {
+              focusItem(visibleItems[index - 1]);
+            }
+            break;
+          case 'ArrowRight':
+            e.preventDefault();
+            if (active.querySelector('.km-tree-chevron')) {
+              const isExpanded = active.getAttribute('aria-expanded') === 'true';
+              if (!isExpanded) {
+                toggleNode(active);
+              } else {
+                if (index < visibleItems.length - 1) {
+                  focusItem(visibleItems[index + 1]);
+                }
+              }
+            }
+            break;
+          case 'ArrowLeft':
+            e.preventDefault();
+            if (active.querySelector('.km-tree-chevron')) {
+              const isExpanded = active.getAttribute('aria-expanded') === 'true';
+              if (isExpanded) {
+                toggleNode(active);
+              }
+            } else if (active.classList.contains('km-tree-row--child')) {
+              const parentRow = dropdown.querySelector('.km-tree-node > .km-tree-row');
+              if (parentRow) {
+                focusItem(parentRow);
+              }
+            }
+            break;
+          case 'Enter':
+          case ' ':
+            e.preventDefault();
+            active.click();
+            break;
+          case 'Escape':
+            e.preventDefault();
             closeDropdown();
-          }
+            break;
+          case 'Home':
+            e.preventDefault();
+            if (visibleItems.length > 0) {
+              focusItem(visibleItems[0]);
+            }
+            break;
+          case 'End':
+            e.preventDefault();
+            if (visibleItems.length > 0) {
+              focusItem(visibleItems[visibleItems.length - 1]);
+            }
+            break;
         }
+      });
 
-        function openDropdown() {
-          dropdown.hidden = false;
-          trigger.setAttribute('aria-expanded', 'true');
-          buildTreeHTML();
-          
-          const firstItem = dropdown.querySelector('.km-tree-row');
-          if (firstItem) {
-            focusItem(firstItem);
-          }
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleDropdown();
+      });
+
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDropdown();
         }
+      });
 
-        function closeDropdown() {
+      document.addEventListener('click', function (e) {
+        if (!container.contains(e.target)) {
           dropdown.hidden = true;
           trigger.setAttribute('aria-expanded', 'false');
-          trigger.focus();
         }
+      });
 
-        function getVisibleItems() {
-          const items = [];
-          const rows = Array.from(dropdown.querySelectorAll('.km-tree-row'));
-          rows.forEach(row => {
-            const parentChildren = row.closest('.km-tree-children');
-            if (!parentChildren || !parentChildren.hidden) {
-              items.push(row);
-            }
-          });
-          return items;
+      function updateTriggerLabel() {
+        const selectedVal = targetSelect.value;
+        const options = getOptions();
+        const selectedOpt = options.find(o => o.value === selectedVal);
+        if (selectedOpt && selectedVal !== '') {
+          if (selectedVal.startsWith('baku_')) {
+            const bakuOpt = options.find(o => o.value === 'baku');
+            const bakuLabel = bakuOpt ? bakuOpt.label : 'Bakı';
+            triggerText.textContent = `${bakuLabel} · ${cleanDistrictLabel(selectedOpt.label)}`;
+          } else {
+            triggerText.textContent = selectedOpt.label;
+          }
+          container.classList.add('is-active');
+        } else {
+          let defaultLabel = 'Region / район';
+          if (currentLang === 'az') defaultLabel = 'Region / rayon';
+          else if (currentLang === 'en') defaultLabel = 'Region / district';
+          else defaultLabel = 'Регион / район';
+          triggerText.textContent = defaultLabel;
+          container.classList.remove('is-active');
         }
+      }
 
-        function focusItem(item) {
-          if (!item) return;
-          const allRows = dropdown.querySelectorAll('.km-tree-row');
-          allRows.forEach(row => {
-            row.setAttribute('tabindex', '-1');
-          });
-          item.setAttribute('tabindex', '0');
-          item.focus();
+      targetSelect.addEventListener('change', updateTriggerLabel);
+      updateTriggerLabel();
+    }
+
+    initLocationTreeSelect();
+
+    function initCategorySelect() {
+      const container = document.querySelector('[data-category-select]');
+      if (!container) return;
+      const trigger = container.querySelector('.km-category-trigger');
+      const triggerIcon = container.querySelector('[data-category-trigger-icon]');
+      const triggerText = container.querySelector('[data-category-trigger-text]');
+      const dropdown = container.querySelector('.km-category-dropdown');
+      const targetSelect = document.querySelector('select[name="category"]');
+      if (!trigger || !dropdown || !targetSelect) return;
+
+      function toggleDropdown() {
+        const isHidden = dropdown.hidden;
+        if (isHidden) {
+          openDropdown();
+        } else {
+          closeDropdown();
         }
+      }
 
-        dropdown.addEventListener('keydown', function(e) {
-          const active = document.activeElement;
-          if (!active || !active.classList.contains('km-tree-row')) return;
+      function openDropdown() {
+        dropdown.hidden = false;
+        trigger.setAttribute('aria-expanded', 'true');
+        const activeOpt = dropdown.querySelector('.km-category-option.is-active') || dropdown.querySelector('.km-category-option');
+        if (activeOpt) {
+          activeOpt.setAttribute('tabindex', '0');
+          activeOpt.focus();
+        }
+      }
 
-          const visibleItems = getVisibleItems();
-          const index = visibleItems.indexOf(active);
+      function closeDropdown() {
+        dropdown.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+      }
 
-          switch (e.key) {
-            case 'ArrowDown':
-              e.preventDefault();
-              if (index < visibleItems.length - 1) {
-                focusItem(visibleItems[index + 1]);
-              }
-              break;
-            case 'ArrowUp':
-              e.preventDefault();
-              if (index > 0) {
-                focusItem(visibleItems[index - 1]);
-              }
-              break;
-            case 'ArrowRight':
-              e.preventDefault();
-              if (active.querySelector('.km-tree-chevron')) {
-                const isExpanded = active.getAttribute('aria-expanded') === 'true';
-                if (!isExpanded) {
-                  toggleNode(active);
-                } else {
-                  if (index < visibleItems.length - 1) {
-                    focusItem(visibleItems[index + 1]);
-                  }
-                }
-              }
-              break;
-            case 'ArrowLeft':
-              e.preventDefault();
-              if (active.querySelector('.km-tree-chevron')) {
-                const isExpanded = active.getAttribute('aria-expanded') === 'true';
-                if (isExpanded) {
-                  toggleNode(active);
-                }
-              } else if (active.classList.contains('km-tree-row--child')) {
-                const parentRow = dropdown.querySelector('.km-tree-node > .km-tree-row');
-                if (parentRow) {
-                  focusItem(parentRow);
-                }
-              }
-              break;
-            case 'Enter':
-            case ' ':
-              e.preventDefault();
-              active.click();
-              break;
-            case 'Escape':
-              e.preventDefault();
-              closeDropdown();
-              break;
-            case 'Home':
-              e.preventDefault();
-              if (visibleItems.length > 0) {
-                focusItem(visibleItems[0]);
-              }
-              break;
-            case 'End':
-              e.preventDefault();
-              if (visibleItems.length > 0) {
-                focusItem(visibleItems[visibleItems.length - 1]);
-              }
-              break;
+      dropdown.querySelectorAll('.km-category-option').forEach(option => {
+        option.setAttribute('tabindex', '-1');
+        option.addEventListener('click', function (e) {
+          const value = option.dataset.value;
+          selectValue(value);
+        });
+      });
+
+      function selectValue(value) {
+        targetSelect.value = value;
+        targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        closeDropdown();
+      }
+
+      function updateTrigger() {
+        const selectedVal = targetSelect.value;
+        dropdown.querySelectorAll('.km-category-option').forEach(opt => {
+          if (opt.dataset.value === selectedVal) {
+            opt.classList.add('is-active');
+            opt.setAttribute('aria-selected', 'true');
+          } else {
+            opt.classList.remove('is-active');
+            opt.setAttribute('aria-selected', 'false');
           }
         });
 
-        trigger.addEventListener('click', function(e) {
-          e.stopPropagation();
-          toggleDropdown();
-        });
-
-        trigger.addEventListener('keydown', function(e) {
-          if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            openDropdown();
-          }
-        });
-
-        document.addEventListener('click', function(e) {
-          if (!container.contains(e.target)) {
-            dropdown.hidden = true;
-            trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
-        function updateTriggerLabel() {
-          const selectedVal = targetSelect.value;
-          const options = getOptions();
-          const selectedOpt = options.find(o => o.value === selectedVal);
-          if (selectedOpt && selectedVal !== '') {
-            if (selectedVal.startsWith('baku_')) {
-              const bakuOpt = options.find(o => o.value === 'baku');
-              const bakuLabel = bakuOpt ? bakuOpt.label : 'Bakı';
-              triggerText.textContent = `${bakuLabel} · ${cleanDistrictLabel(selectedOpt.label)}`;
-            } else {
-              triggerText.textContent = selectedOpt.label;
-            }
+        const activeOpt = dropdown.querySelector(`.km-category-option[data-value="${selectedVal}"]`) || dropdown.querySelector('.km-category-option[data-value=""]');
+        if (activeOpt) {
+          triggerText.textContent = activeOpt.querySelector('.km-category-option-text').textContent.trim();
+          triggerIcon.innerHTML = activeOpt.querySelector('.km-category-option-icon').innerHTML;
+          if (selectedVal !== '') {
             container.classList.add('is-active');
           } else {
-            let defaultLabel = 'Region / район';
-            if (currentLang === 'az') defaultLabel = 'Region / rayon';
-            else if (currentLang === 'en') defaultLabel = 'Region / district';
-            else defaultLabel = 'Регион / район';
-            triggerText.textContent = defaultLabel;
             container.classList.remove('is-active');
           }
         }
-
-        targetSelect.addEventListener('change', updateTriggerLabel);
-        updateTriggerLabel();
       }
 
-      initLocationTreeSelect();
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleDropdown();
+      });
 
-      function initCategorySelect() {
-        const container = document.querySelector('[data-category-select]');
-        if (!container) return;
-        const trigger = container.querySelector('.km-category-trigger');
-        const triggerIcon = container.querySelector('[data-category-trigger-icon]');
-        const triggerText = container.querySelector('[data-category-trigger-text]');
-        const dropdown = container.querySelector('.km-category-dropdown');
-        const targetSelect = document.querySelector('select[name="category"]');
-        if (!trigger || !dropdown || !targetSelect) return;
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDropdown();
+        }
+      });
 
-        function toggleDropdown() {
-          const isHidden = dropdown.hidden;
-          if (isHidden) {
-            openDropdown();
-          } else {
+      dropdown.addEventListener('keydown', function (e) {
+        const active = document.activeElement;
+        if (!active || !active.classList.contains('km-category-option')) return;
+        const options = Array.from(dropdown.querySelectorAll('.km-category-option'));
+        const index = options.indexOf(active);
+
+        switch (e.key) {
+          case 'ArrowDown':
+            e.preventDefault();
+            if (index < options.length - 1) {
+              options.forEach(opt => opt.setAttribute('tabindex', '-1'));
+              options[index + 1].setAttribute('tabindex', '0');
+              options[index + 1].focus();
+            }
+            break;
+          case 'ArrowUp':
+            e.preventDefault();
+            if (index > 0) {
+              options.forEach(opt => opt.setAttribute('tabindex', '-1'));
+              options[index - 1].setAttribute('tabindex', '0');
+              options[index - 1].focus();
+            }
+            break;
+          case 'Enter':
+          case ' ':
+            e.preventDefault();
+            active.click();
+            break;
+          case 'Escape':
+            e.preventDefault();
             closeDropdown();
-          }
+            break;
         }
+      });
 
-        function openDropdown() {
-          dropdown.hidden = false;
-          trigger.setAttribute('aria-expanded', 'true');
-          const activeOpt = dropdown.querySelector('.km-category-option.is-active') || dropdown.querySelector('.km-category-option');
-          if (activeOpt) {
-            activeOpt.setAttribute('tabindex', '0');
-            activeOpt.focus();
-          }
-        }
-
-        function closeDropdown() {
+      document.addEventListener('click', function (e) {
+        if (!container.contains(e.target)) {
           dropdown.hidden = true;
           trigger.setAttribute('aria-expanded', 'false');
-          trigger.focus();
         }
+      });
 
-        dropdown.querySelectorAll('.km-category-option').forEach(option => {
-          option.setAttribute('tabindex', '-1');
-          option.addEventListener('click', function(e) {
-            const value = option.dataset.value;
-            selectValue(value);
-          });
-        });
+      targetSelect.addEventListener('change', updateTrigger);
+      updateTrigger();
+    }
 
-        function selectValue(value) {
-          targetSelect.value = value;
-          targetSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          closeDropdown();
-        }
+    initCategorySelect();
 
-        function updateTrigger() {
-          const selectedVal = targetSelect.value;
-          dropdown.querySelectorAll('.km-category-option').forEach(opt => {
-            if (opt.dataset.value === selectedVal) {
-              opt.classList.add('is-active');
-              opt.setAttribute('aria-selected', 'true');
-            } else {
-              opt.classList.remove('is-active');
-              opt.setAttribute('aria-selected', 'false');
+    // Count-up stats animation
+    function initStatsCounter() {
+      const statsElements = document.querySelectorAll("[data-count-target]");
+      const animateCount = (el) => {
+        const target = parseInt(el.getAttribute("data-count-target"), 10) || 0;
+        if (target === 0) return;
+        const duration = 1200; // ms
+        const startTime = performance.now();
+
+        const update = (now) => {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease out quad
+          const ease = progress * (2 - progress);
+          const current = Math.floor(ease * target);
+          el.textContent = current + "+";
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = target + "+";
+          }
+        };
+        requestAnimationFrame(update);
+      };
+
+      if (typeof window.IntersectionObserver === 'function') {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              animateCount(entry.target);
+              observer.unobserve(entry.target);
             }
           });
-
-          const activeOpt = dropdown.querySelector(`.km-category-option[data-value="${selectedVal}"]`) || dropdown.querySelector('.km-category-option[data-value=""]');
-          if (activeOpt) {
-            triggerText.textContent = activeOpt.querySelector('.km-category-option-text').textContent.trim();
-            triggerIcon.innerHTML = activeOpt.querySelector('.km-category-option-icon').innerHTML;
-            if (selectedVal !== '') {
-              container.classList.add('is-active');
-            } else {
-              container.classList.remove('is-active');
-            }
-          }
-        }
-
-        trigger.addEventListener('click', function(e) {
-          e.stopPropagation();
-          toggleDropdown();
-        });
-
-        trigger.addEventListener('keydown', function(e) {
-          if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            openDropdown();
-          }
-        });
-
-        dropdown.addEventListener('keydown', function(e) {
-          const active = document.activeElement;
-          if (!active || !active.classList.contains('km-category-option')) return;
-          const options = Array.from(dropdown.querySelectorAll('.km-category-option'));
-          const index = options.indexOf(active);
-
-          switch (e.key) {
-            case 'ArrowDown':
-              e.preventDefault();
-              if (index < options.length - 1) {
-                options.forEach(opt => opt.setAttribute('tabindex', '-1'));
-                options[index + 1].setAttribute('tabindex', '0');
-                options[index + 1].focus();
-              }
-              break;
-            case 'ArrowUp':
-              e.preventDefault();
-              if (index > 0) {
-                options.forEach(opt => opt.setAttribute('tabindex', '-1'));
-                options[index - 1].setAttribute('tabindex', '0');
-                options[index - 1].focus();
-              }
-              break;
-            case 'Enter':
-            case ' ':
-              e.preventDefault();
-              active.click();
-              break;
-            case 'Escape':
-              e.preventDefault();
-              closeDropdown();
-              break;
-          }
-        });
-
-        document.addEventListener('click', function(e) {
-          if (!container.contains(e.target)) {
-            dropdown.hidden = true;
-            trigger.setAttribute('aria-expanded', 'false');
-          }
-        });
-
-        targetSelect.addEventListener('change', updateTrigger);
-        updateTrigger();
+        }, { threshold: 0.1 });
+        statsElements.forEach((el) => observer.observe(el));
+      } else {
+        statsElements.forEach(animateCount);
       }
+    }
 
-      initCategorySelect();
-    })();
-  </script>
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initStatsCounter);
+    } else {
+      initStatsCounter();
+    }
+
+    // Scroll reveal logic
+    function initScrollReveal() {
+      const revealElements = document.querySelectorAll('.km-reveal, .km-reveal-up');
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.1,
+          rootMargin: '0px 0px -40px 0px'
+        });
+        revealElements.forEach(el => observer.observe(el));
+      } else {
+        revealElements.forEach(el => el.classList.add('is-visible'));
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScrollReveal);
+    } else {
+      initScrollReveal();
+    }
+  })();
+</script>
 {% endblock %}
 
 {% block extra_body %}
-  {% if hero_gallery_slides|length > 1 %}
-    <script src="{% static 'js/home_hero_slider.js' %}"></script>
-  {% endif %}
-  {% if map_places %}
-    <script
-      src="{% static 'js/home_map.js' %}"
-      data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
-      data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-  {% endif %}
-  {% if is_events_section_enabled %}
-    <script src="{% static 'js/temporary_event_timer.js' %}"></script>
-  {% endif %}
+{% if hero_gallery_slides|length > 1 %}
+<script src="{% static 'js/home_hero_slider.js' %}"></script>
+{% endif %}
+{% if map_places %}
+<script src="{% static 'js/home_map.js' %}" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+  data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  data-home-map-leaflet-js="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  data-home-map-leaflet-js-integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"
+  referrerpolicy="no-referrer"></script>
+{% endif %}
 {% endblock %}

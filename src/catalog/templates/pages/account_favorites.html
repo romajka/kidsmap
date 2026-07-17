@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}
@@ -120,8 +120,7 @@
                     <div class="account-place-card__stats">
                       <span>★ {{ place.rating_avg|floatformat:1 }}</span>
                       <span>
-                        {{ place.rating_count }}
-                        {% if CURRENT_LANGUAGE == "az" %}rəy{% elif CURRENT_LANGUAGE == "en" %}reviews{% else %}отзывов{% endif %}
+                        {{ place.rating_count|review_count }}
                       </span>
                       <span>♥ {{ place.likes_count }}</span>
                     </div>

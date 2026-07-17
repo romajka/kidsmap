@@ -8,9 +8,11 @@ from .services.seo import DEFAULT_ROBOTS_CONTENT, build_sitewide_schema_payload
 from .services.tracking import pop_queued_google_analytics_events
 from .services.features import is_events_section_enabled, is_specialists_section_enabled
 from .services.public_urls import filtered_query_string
+from .services.auth_redirects import build_header_login_url
 
 DEFAULT_FOOTER_PHONE = "+994 50 540 66 39"
 DEFAULT_FOOTER_EMAIL = "kidsmap.az@gmail.com"
+LOCAL_ANALYTICS_HOSTS = {"localhost", "127.0.0.1", "testserver"}
 DEFAULT_FOOTER_INSTAGRAM_URL = "https://www.instagram.com/kidsmap.az/"
 DEFAULT_FOOTER_TELEGRAM_URL = "https://t.me/KidsMap_az"
 DEFAULT_FOOTER_YOUTUBE_URL = "https://www.youtube.com/@KidsMap_az"
@@ -155,11 +157,23 @@ def seo_urls(request):
         "og_locale": og_locale,
         "og_locale_alternates": og_locale_alternates,
         "language_switch_query": filtered_query_string(request),
+        "header_account_login_url": build_header_login_url(request),
+    }
+
+
+def _google_analytics_context(request) -> dict[str, object]:
+    measurement_id = (getattr(settings, "GOOGLE_ANALYTICS_MEASUREMENT_ID", "") or "").strip()
+    hostname = request.get_host().partition(":")[0].lower()
+    enabled = bool(measurement_id) and not settings.DEBUG and hostname not in LOCAL_ANALYTICS_HOSTS
+    return {
+        "google_analytics_measurement_id": measurement_id if enabled else "",
+        "google_analytics_enabled": enabled,
     }
 
 
 def site_settings(request):
     queued_analytics_events = pop_queued_google_analytics_events(request)
+    google_analytics_context = _google_analytics_context(request)
     user_role_data = {
         "current_user_role": "",
         "current_user_role_label": "",
@@ -209,8 +223,7 @@ def site_settings(request):
             "footer_instagram_url": DEFAULT_FOOTER_INSTAGRAM_URL,
             "footer_whatsapp_url": "",
             "footer_social_links": footer_social_links,
-            "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
-            "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
+            **google_analytics_context,
             "queued_analytics_events": queued_analytics_events,
             "is_specialists_section_enabled": is_specialists_section_enabled(),
             "is_events_section_enabled": is_events_section_enabled(),
@@ -259,8 +272,7 @@ def site_settings(request):
         "footer_instagram_url": footer_instagram_url,
         "footer_whatsapp_url": (cfg.footer_whatsapp or "").strip(),
         "footer_social_links": footer_social_links,
-        "google_analytics_measurement_id": settings.GOOGLE_ANALYTICS_MEASUREMENT_ID,
-        "google_analytics_enabled": bool(settings.GOOGLE_ANALYTICS_MEASUREMENT_ID),
+        **google_analytics_context,
         "queued_analytics_events": queued_analytics_events,
         "is_specialists_section_enabled": is_specialists_section_enabled(),
         "is_events_section_enabled": is_events_section_enabled(),

@@ -13,6 +13,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: src/catalog/templatetags/catalog_i18n.py:32
+#, python-format
+msgctxt "review count: one"
+msgid "%(count)s reviews"
+msgstr "%(count)s review"
+
+#: src/catalog/templatetags/catalog_i18n.py:34
+#, python-format
+msgctxt "review count: few"
+msgid "%(count)s reviews"
+msgstr "%(count)s reviews"
+
+#: src/catalog/templatetags/catalog_i18n.py:36
+#, python-format
+msgctxt "review count: many"
+msgid "%(count)s reviews"
+msgstr "%(count)s reviews"
+
 #: src/catalog/content_data.py:5
 msgid "Баку"
 msgstr "Baku"
@@ -10262,17 +10280,17 @@ msgstr ""
 #~ msgid "удобный выбор для родителей"
 #~ msgstr "a convenient choice for parents"
 
-#~ msgid "Отдельная страница со всеми отзывами, сортировкой и возможностью поставить лайк или дизлайк."
-#~ msgstr "A dedicated page with all site reviews, sorting, and like/dislike controls."
+msgid "Отдельная страница со всеми отзывами, сортировкой и возможностью поставить лайк или дизлайк."
+msgstr "A dedicated page with all site reviews, sorting, and like/dislike controls."
 
-#~ msgid "Полная лента и реакции"
-#~ msgstr "Full feed and reactions"
+msgid "Полная лента и реакции"
+msgstr "Full feed and reactions"
 
 #~ msgid "Пользователь оставил оценку без текстового комментария."
 #~ msgstr "The user left a rating without a written comment."
 
-#~ msgid "Пока нет общих отзывов о сайте."
-#~ msgstr "There are no general site reviews yet."
+msgid "Пока нет общих отзывов о сайте."
+msgstr "There are no general site reviews yet."
 
 #~ msgid "Сначала заполните обязательную базу карточки. Переводы и детали можно добавить позже."
 #~ msgstr "First fill in the required card basics. Translations and extra details can be added later."
@@ -10987,3 +11005,29 @@ msgstr "Ahmedli"
 
 msgid "забрат"
 msgstr "Zabrat"
+
+msgid "Также есть занятия для взрослых"
+msgstr "Adult classes are also available"
+
+msgid "Отметьте, если у места есть отдельные занятия и для взрослых. Детский возрастной диапазон всё равно обязателен."
+msgstr "Select this if the place also offers separate adult classes. The children's age range is still required."
+
+msgid "Отметьте, если кроме детских программ у места есть отдельные занятия для взрослых."
+msgstr "Select this if the place offers separate adult classes in addition to children's programs."
+
+msgid "Сначала укажите полный детский возрастной диапазон. Место не может быть только для взрослых."
+msgstr "Enter the complete children's age range first. A place cannot be for adults only."
+
+msgid "Есть занятия для взрослых"
+msgstr "Adult classes available"
+msgid "Кто может заниматься?"
+msgstr "Who can attend?"
+
+msgid "Только дети"
+msgstr "Children only"
+
+msgid "Дети и взрослые"
+msgstr "Children and adults"
+
+msgid "Возраст выше относится к детским группам. Выберите второй вариант, если есть отдельные взрослые группы."
+msgstr "The age range above applies to children. Choose the second option if separate adult groups are available."

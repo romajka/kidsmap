@@ -148,6 +148,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "price_per_month": _("Цена за месяц"),
             "price_per_8_lessons": _("Цена за 8 уроков"),
             "lesson_duration_minutes": _("Длительность урока (мин)"),
+            "offers_adult_classes": _("Также есть занятия для взрослых"),
         }
 
     def clean(self):
@@ -233,6 +234,9 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             self.fields["subcategory"].widget = subcategory_widget
         self.fields["photo"].help_text = _("Используется в каталоге, на карте и первым на странице места.")
         self.fields["cover_photo"].help_text = _("Резервное изображение. Используется только если главное фото отсутствует.")
+        self.fields["offers_adult_classes"].help_text = _(
+            "Отметьте, если кроме детских программ у места есть отдельные занятия для взрослых."
+        )
         self.fields["phone1"].widget.attrs.update(
             {
                 "autocomplete": "tel",
@@ -1335,6 +1339,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "subcategory",
         "age_from",
         "age_to",
+        "offers_adult_classes",
         "district",
         "metro",
         "address",
@@ -1406,6 +1411,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "status",
         "age_from",
         "age_to",
+        "offers_adult_classes",
     )
     search_fields = ("name_az", "name_ru", "name_en", "name", "slug", "address", "instagram", "phone1", "owner__username", "owner__email")
     search_help_text = _("Ищет по названию места на AZ, RU или EN. Можно также искать по адресу, телефону или владельцу.")
@@ -1492,6 +1498,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("age_from", "age_to", "lesson_duration_minutes"),
+                    "offers_adult_classes",
                     ("price_from", "price_to", "price_per_lesson"),
                     ("price_per_month", "price_per_8_lessons"),
                 )
@@ -1613,6 +1620,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "description_en": "#basics",
             "age_from": "#pricing",
             "age_to": "#pricing",
+            "offers_adult_classes": "#pricing",
             "price_from": "#pricing",
             "price_to": "#pricing",
             "pricing_plans": "#pricing",
@@ -2102,6 +2110,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("age_from", "age_to", "lesson_duration_minutes"),
+                    "offers_adult_classes",
                     ("price_from", "price_to", "price_per_lesson"),
                     ("price_per_month", "price_per_8_lessons"),
                 )
@@ -2895,8 +2904,17 @@ class PlaceAdmin(admin.ModelAdmin):
             return JsonResponse({"results": []})
         language_code = getattr(request, "LANGUAGE_CODE", None)
 
-        queryset = self.get_queryset(request)
-        queryset, _ = self.get_search_results(request, queryset, term)
+        queryset = self.get_queryset(request).filter(
+            Q(name__icontains=term)
+            | Q(name_az__icontains=term)
+            | Q(name_ru__icontains=term)
+            | Q(name_en__icontains=term)
+            | Q(slug__icontains=term)
+            | Q(address__icontains=term)
+            | Q(phone1__icontains=term)
+            | Q(owner__username__icontains=term)
+            | Q(owner__email__icontains=term)
+        )
         queryset = queryset.select_related("owner").distinct()[:8]
 
         results = []

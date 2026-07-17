@@ -6,7 +6,7 @@
 {% block meta_description %}{{ content.subtitle }}{% endblock %}
 
 {% block content %}
-  <section class="panel content-page business-page">
+  <section class="panel content-page business-page business-landing">
     <div class="content-page__hero business-hero">
       <picture class="business-hero__picture">
         {% if site_settings.for_business_hero_image %}
@@ -36,7 +36,11 @@
         {% endif %}
       </picture>
       <div class="business-hero__copy">
-        <p class="eyebrow">KidsMap</p>
+        <p class="eyebrow">{{ content.eyebrow }}</p>
+        <p class="business-free-badge">
+          <span aria-hidden="true">✓</span>
+          {{ content.free_badge }}
+        </p>
         <h1>
           <span class="business-title-desktop">{{ content.title }}</span>
           <span class="business-title-mobile">{{ content.mobile_title }}</span>
@@ -44,65 +48,51 @@
         <p>{{ content.subtitle }}</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="{% url 'owner_place_create' %}?fresh=1">{{ content.primary_cta }}</a>
-          {% if footer_whatsapp_url %}
-            <a class="btn btn-secondary" href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">{{ content.secondary_cta }}</a>
-          {% endif %}
+          <a class="btn btn-secondary" href="{% url 'place_list' %}">{{ content.secondary_cta }}</a>
         </div>
+        <p class="business-moderation-note"><span aria-hidden="true">●</span>{{ content.moderation_note }}</p>
       </div>
-    </div>
-    <div class="mobile-page-hero-actions">
-      <a class="btn btn-primary" href="{% url 'owner_place_create' %}?fresh=1">{{ content.primary_cta }}</a>
-      {% if footer_whatsapp_url %}
-        <a class="btn btn-secondary" href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">{{ content.secondary_cta }}</a>
-      {% endif %}
     </div>
 
-    <div class="content-page__grid">
-      <section>
-        <h2>{{ content.benefits_title }}</h2>
-        <ul class="content-check-list">
-          {% for item in content.benefits %}
-            <li>{{ item }}</li>
-          {% endfor %}
-        </ul>
-      </section>
-      <section>
-        <h2>{{ content.steps_title }}</h2>
-        <ol class="content-step-list">
-          {% for item in content.steps %}
-            <li>{{ item }}</li>
-          {% endfor %}
-        </ol>
-      </section>
-    </div>
-
-    <section class="business-owner-actions" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Sahiblər üçün hərəkətlər{% elif request.LANGUAGE_CODE == 'en' %}Owner actions{% else %}{% trans 'Действия для владельцев' %}{% endif %}">
-      <div class="business-owner-actions__copy">
-        <h2>{% if request.LANGUAGE_CODE == "az" %}Kartınızı KidsMap-də idarə edin{% elif request.LANGUAGE_CODE == "en" %}Manage your listing on KidsMap{% else %}Управляйте карточкой на KidsMap{% endif %}</h2>
-        <p>{% if request.LANGUAGE_CODE == "az" %}Yeni məkan əlavə edin, mövcud kart üzrə hüquqları sorğulayın və moderasiyadan sonra məlumatları yeniləyin.{% elif request.LANGUAGE_CODE == "en" %}Add a new place, claim an existing listing, and update details after moderation.{% else %}Добавьте новый кружок, заявите права на существующую карточку и обновляйте данные после модерации.{% endif %}</p>
+    <section class="business-process" aria-labelledby="business-process-title">
+      <div class="business-section-heading">
+        <p class="eyebrow">KidsMap</p>
+        <h2 id="business-process-title">{{ content.steps_title }}</h2>
       </div>
-      <div class="business-owner-actions__buttons">
-        <a class="btn btn-primary" href="{% url 'owner_place_create' %}?fresh=1">{% if request.LANGUAGE_CODE == "az" %}Məkan əlavə et{% elif request.LANGUAGE_CODE == "en" %}Add a place{% else %}Добавить кружок{% endif %}</a>
-        <a class="btn btn-secondary" href="{% url 'place_list' %}">{% if request.LANGUAGE_CODE == "az" %}Mövcud kartı tap{% elif request.LANGUAGE_CODE == "en" %}Find existing listing{% else %}Найти свою карточку{% endif %}</a>
-      </div>
+      <ol class="business-process__list">
+        {% for title, description in content.steps %}
+          <li>
+            <span class="business-process__number">{{ forloop.counter|stringformat:"02d" }}</span>
+            <h3>{{ title }}</h3>
+            <p>{{ description }}</p>
+          </li>
+        {% endfor %}
+      </ol>
     </section>
 
-    <section class="content-page__band">
-      <h2>{{ content.plans_title }}</h2>
-      <p>{{ content.free_plan }}</p>
-      <p>{{ content.vip_plan }}</p>
-    </section>
-
-    <section>
-      <h2>{{ content.faq_title }}</h2>
-      <div class="content-faq-list">
-        {% for question, answer in content.faq %}
-          <article>
-            <h3>{{ question }}</h3>
-            <p>{{ answer }}</p>
+    <section class="business-details" aria-labelledby="business-details-title">
+      <div class="business-section-heading business-section-heading--center">
+        <h2 id="business-details-title">{{ content.details_title }}</h2>
+        <p>{{ content.details_intro }}</p>
+      </div>
+      <div class="business-details__grid">
+        {% for title, items in content.detail_cards %}
+          <article class="business-detail-card business-detail-card--{{ forloop.counter }}">
+            <span class="business-detail-card__icon" aria-hidden="true">
+              {% if forloop.counter == 1 %}✓{% elif forloop.counter == 2 %}⌕{% else %}↻{% endif %}
+            </span>
+            <h3>{{ title }}</h3>
+            <ul>
+              {% for item in items %}<li>{{ item }}</li>{% endfor %}
+            </ul>
           </article>
         {% endfor %}
       </div>
     </section>
+
+    <aside class="business-vip-note">
+      <span class="business-vip-note__label">VIP</span>
+      <p>{{ content.vip_note }}</p>
+    </aside>
   </section>
 {% endblock %}

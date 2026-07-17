@@ -18,6 +18,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: src/catalog/templatetags/catalog_i18n.py:32
+#, python-format
+msgctxt "review count: one"
+msgid "%(count)s reviews"
+msgstr "%(count)s отзыв"
+
+#: src/catalog/templatetags/catalog_i18n.py:34
+#, python-format
+msgctxt "review count: few"
+msgid "%(count)s reviews"
+msgstr "%(count)s отзыва"
+
+#: src/catalog/templatetags/catalog_i18n.py:36
+#, python-format
+msgctxt "review count: many"
+msgid "%(count)s reviews"
+msgstr "%(count)s отзывов"
+
 #: src/catalog/admin.py:53 src/catalog/models.py:828
 msgid "Отзыв о сайте"
 msgstr "Отзыв о сайте"
@@ -8381,3 +8399,29 @@ msgstr "Ахмедлы"
 
 msgid "забрат"
 msgstr "Забрат"
+
+msgid "Также есть занятия для взрослых"
+msgstr "Также есть занятия для взрослых"
+
+msgid "Отметьте, если у места есть отдельные занятия и для взрослых. Детский возрастной диапазон всё равно обязателен."
+msgstr "Отметьте, если у места есть отдельные занятия и для взрослых. Детский возрастной диапазон всё равно обязателен."
+
+msgid "Отметьте, если кроме детских программ у места есть отдельные занятия для взрослых."
+msgstr "Отметьте, если кроме детских программ у места есть отдельные занятия для взрослых."
+
+msgid "Сначала укажите полный детский возрастной диапазон. Место не может быть только для взрослых."
+msgstr "Сначала укажите полный детский возрастной диапазон. Место не может быть только для взрослых."
+
+msgid "Есть занятия для взрослых"
+msgstr "Есть занятия для взрослых"
+msgid "Кто может заниматься?"
+msgstr "Кто может заниматься?"
+
+msgid "Только дети"
+msgstr "Только дети"
+
+msgid "Дети и взрослые"
+msgstr "Дети и взрослые"
+
+msgid "Возраст выше относится к детским группам. Выберите второй вариант, если есть отдельные взрослые группы."
+msgstr "Возраст выше относится к детским группам. Выберите второй вариант, если есть отдельные взрослые группы."

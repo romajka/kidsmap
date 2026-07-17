@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -181,6 +181,7 @@
                         id="pricing-plans-toggle"
                         aria-expanded="false"
                         aria-controls="pricing-plans-container"
+                        aria-label="{{ pricing_summary.strings.show_all }}"
                         data-show-text="{{ pricing_summary.strings.show_all }} · +{{ extra_count }}"
                         data-hide-text="{{ pricing_summary.strings.hide_all }}"
                       >
@@ -216,7 +217,8 @@
                 </span>
                 <div class="detail-highlight-card__body">
                   <span class="detail-highlight-card__label">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</span>
-                  <strong class="detail-highlight-card__value">{{ place.age_display }}</strong>
+                  <strong class="detail-highlight-card__value">{{ place.age_display }} {% if language == "az" %}yaş{% elif language == "en" %}years{% else %}лет{% endif %}</strong>
+                  {% if place.offers_adult_classes %}<span class="detail-highlight-card__note detail-highlight-card__note--adult">{% if language == "az" %}Böyüklər üçün ayrıca qruplar{% elif language == "en" %}Separate adult groups available{% else %}Есть отдельные взрослые группы{% endif %}</span>{% endif %}
                 </div>
               </div>
             {% endif %}
@@ -401,7 +403,7 @@
                 </div>
                 <p class="meta">
                   {% if place.rating_count %}
-                    {% blocktrans count total=place.rating_count %}{{ total }} отзыв{% plural %}{{ total }} отзыва{% endblocktrans %}
+                    {{ place.rating_count|review_count }}
                   {% elif language == "az" %}
                     Hələ rəy yoxdur
                   {% elif language == "en" %}
@@ -462,11 +464,9 @@
                   <div class="km-review-rating-row">
                     <span class="km-review-rating-label">{% trans "Ваша оценка" %}:</span>
                     <div class="km-star-rating" data-rating="5">
-                      <button type="button" class="km-star" data-value="1" aria-label="1 звезда">★</button>
-                      <button type="button" class="km-star" data-value="2" aria-label="2 звезды">★</button>
-                      <button type="button" class="km-star" data-value="3" aria-label="3 звезды">★</button>
-                      <button type="button" class="km-star" data-value="4" aria-label="4 звезды">★</button>
-                      <button type="button" class="km-star" data-value="5" aria-label="5 звезд">★</button>
+                      {% for value in "12345" %}
+                        <button type="button" class="km-star" data-value="{{ value }}" aria-label="{% if language == 'az' %}5 baldan {{ value }} bal{% elif language == 'en' %}{{ value }} out of 5 stars{% else %}{{ value }} из 5 звёзд{% endif %}"><span aria-hidden="true">★</span></button>
+                      {% endfor %}
                       <input type="hidden" name="rating" value="5" class="km-star-rating-input" />
                     </div>
                   </div>
@@ -512,20 +512,19 @@
                   {% endif %}
                   {% if place.age_display %}
                     <span class="detail-hero-chip detail-hero-chip--age">
-                      {% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %} {{ place.age_display }}
+                      {% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %} {{ place.age_display }} {% if language == "az" %}yaş{% elif language == "en" %}years{% else %}лет{% endif %}{% if place.offers_adult_classes %}<span class="detail-hero-chip__separator" aria-hidden="true">·</span>{% if language == "az" %}Böyüklər üçün qruplar{% elif language == "en" %}Adult groups{% else %}Взрослые группы{% endif %}{% endif %}
                     </span>
                   {% endif %}
-                  <span class="detail-hero-chip detail-hero-chip--rating">
-                    <span class="rating-stars small" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
+                  <span class="detail-hero-chip detail-hero-chip--rating" aria-label="{% if language == 'az' %}Reytinq {{ place.rating_avg|floatformat:1 }} / 5{% elif language == 'en' %}Rating {{ place.rating_avg|floatformat:1 }} out of 5{% else %}Рейтинг {{ place.rating_avg|floatformat:1 }} из 5{% endif %}{% if place.rating_count %}, {{ place.rating_count|review_count }}{% endif %}">
+                    <span aria-hidden="true"><span class="rating-stars small" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};"></span>
                     <span>
                       {{ place.rating_avg|floatformat:1 }}
                       {% if place.rating_count %}
-                        · {{ place.rating_count }}
-                        {% if language == "az" %}rəy{% elif language == "en" %}reviews{% else %}отзывов{% endif %}
+                        · {{ place.rating_count|review_count }}
                       {% else %}
                         · {% if language == "az" %}rəy yoxdur{% elif language == "en" %}no reviews{% else %}нет отзывов{% endif %}
                       {% endif %}
-                    </span>
+                    </span></span>
                   </span>
                 </div>
               </div>
@@ -630,6 +629,8 @@
                         aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}"
                         title="{% if place.is_liked %}{% if language == 'az' %}Seçilmişlərdən çıxar{% elif language == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}{% else %}{% if language == 'az' %}Seçilmişlərə əlavə et{% elif language == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}{% endif %}"
                         aria-label="{% if place.is_liked %}{% if language == 'az' %}Seçilmişlərdən çıxar{% elif language == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}{% else %}{% if language == 'az' %}Seçilmişlərə əlavə et{% elif language == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}{% endif %}"
+                        data-favorite-add-label="{% if language == 'az' %}Seçilmişlərə əlavə et{% elif language == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
+                        data-favorite-remove-label="{% if language == 'az' %}Seçilmişlərdən çıxar{% elif language == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}"
                       >
                         <span class="detail-save-btn__icon" aria-hidden="true">
                           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -820,6 +821,7 @@
           });
           
           plansToggle.textContent = newExpanded ? plansToggle.getAttribute("data-hide-text") : plansToggle.getAttribute("data-show-text");
+          plansToggle.setAttribute("aria-label", plansToggle.textContent.trim());
         });
       }
 

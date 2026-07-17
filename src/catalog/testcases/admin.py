@@ -495,7 +495,11 @@ class TestAdminOwnershipModerationUX(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'data-search-suggest-root', html=False)
-        self.assertContains(response, 'data-suggestions-url="/admin/catalog/place/search-suggestions/"', html=False)
+        self.assertContains(
+            response,
+            f'data-suggestions-url="{reverse("admin:catalog_place_search_suggestions")}"',
+            html=False,
+        )
         self.assertContains(response, 'id="place-search-suggestions"', html=False)
 
     def test_admin_place_search_suggestions_returns_matching_places(self):
@@ -2179,7 +2183,6 @@ class TestAdminChangelistUI(TestCase):
             reverse("admin:catalog_placereview_changelist"),
             reverse("admin:catalog_placeownershiprequest_changelist"),
             reverse("admin:catalog_siteregistereduser_changelist"),
-            reverse("admin:catalog_staffaccessuser_changelist"),
         ]
         
         for url in urls:

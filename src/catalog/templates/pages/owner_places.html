@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %}{% endblock %}
@@ -310,7 +310,7 @@
                 </div>
                 <div class="owner-place-card__metrics">
                   <span>☆ {{ place.rating_avg|floatformat:1 }}</span>
-                  <span>{{ place.rating_count }} {% if CURRENT_LANGUAGE == "az" %}rəy{% elif CURRENT_LANGUAGE == "en" %}reviews{% else %}отзывов{% endif %}</span>
+                  <span>{{ place.rating_count|review_count }}</span>
                   <span>♡ {{ place.likes_count }}</span>
                 </div>
                 {% include "pages/includes/owner_place_location_status.html" with place=place %}
@@ -365,7 +365,7 @@
 
                 <div class="owner-place-card__metrics">
                   <span>☆ {{ place.rating_avg|floatformat:1 }}</span>
-                  <span>{{ place.rating_count }} {% if CURRENT_LANGUAGE == "az" %}rəy{% elif CURRENT_LANGUAGE == "en" %}reviews{% else %}отзывов{% endif %}</span>
+                  <span>{{ place.rating_count|review_count }}</span>
                   <span>♡ {{ place.likes_count }}</span>
                 </div>
 

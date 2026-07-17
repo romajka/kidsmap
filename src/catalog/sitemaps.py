@@ -6,7 +6,15 @@ from .services.content_quality import public_place_queryset
 from .services.features import is_events_section_enabled, is_specialists_section_enabled
 
 
-class StaticViewSitemap(Sitemap):
+class LocalizedSitemap(Sitemap):
+    """Generate one sitemap entry per configured language with hreflang links."""
+
+    i18n = True
+    alternates = True
+    x_default = True
+
+
+class StaticViewSitemap(LocalizedSitemap):
     changefreq = "weekly"
     priority = 0.7
 
@@ -34,7 +42,7 @@ class StaticViewSitemap(Sitemap):
         return reverse(item)
 
 
-class PlaceSitemap(Sitemap):
+class PlaceSitemap(LocalizedSitemap):
     changefreq = "daily"
     priority = 0.8
 
@@ -45,7 +53,7 @@ class PlaceSitemap(Sitemap):
         return obj.updated_at
 
 
-class SeoLandingSitemap(Sitemap):
+class SeoLandingSitemap(LocalizedSitemap):
     changefreq = "weekly"
     priority = 0.75
 
@@ -55,7 +63,7 @@ class SeoLandingSitemap(Sitemap):
     def location(self, item):
         return reverse("seo_landing", kwargs={"seo_slug": item})
 
-class SpecialistSitemap(Sitemap):
+class SpecialistSitemap(LocalizedSitemap):
     changefreq = "daily"
     priority = 0.8
 

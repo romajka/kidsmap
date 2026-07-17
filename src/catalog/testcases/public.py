@@ -138,6 +138,61 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertContains(response, text)
 
+    def test_business_page_explains_free_listing_moderation_and_actions_in_all_languages(self):
+        checks = {
+            "/for-business/": (
+                "Əsas yerləşdirmə pulsuzdur",
+                "Foto, ünvan, əlaqə məlumatları, iş qrafiki və qiyməti olan kart yaradın.",
+                "Məkan əlavə et",
+                "Mövcud kartı tap",
+                "Moderasiya nəyi yoxlayır",
+            ),
+            "/ru/for-business/": (
+                "Базовое размещение бесплатно",
+                "Создайте карточку с фото, адресом, контактами, расписанием и ценой.",
+                "Добавить место",
+                "Найти существующую карточку",
+                "Что проверяет модерация",
+            ),
+            "/en/for-business/": (
+                "Basic listing is free",
+                "Create a listing with photos, address, contacts, schedule and price.",
+                "Add a place",
+                "Find an existing listing",
+                "What moderation checks",
+            ),
+        }
+
+        for path, texts in checks.items():
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                for text in texts:
+                    self.assertContains(response, text)
+                language_prefix = path.removesuffix("/for-business/")
+                self.assertContains(
+                    response,
+                    f'href="{language_prefix}/account/owner/places/create/?fresh=1"',
+                    html=False,
+                )
+                self.assertContains(response, f'href="{language_prefix}/catalog/"', html=False)
+                self.assertNotContains(response, "готовую структуру", html=False)
+                self.assertNotContains(response, "Coming soon", html=False)
+
+                create_url = f"{language_prefix}/account/owner/places/create/?fresh=1"
+                create_response = self.client.get(create_url)
+                login_url = urlparse(create_response.headers["Location"])
+                self.assertEqual(login_url.path, f"{language_prefix}/auth/login/")
+                self.assertEqual(parse_qs(login_url.query).get("next"), [create_url])
+
+                login_response = self.client.get(create_response.headers["Location"])
+                self.assertEqual(login_response.context["next_url"], create_url)
+                register_response = self.client.get(
+                    f"{language_prefix}/auth/register/",
+                    {"next": create_url},
+                )
+                self.assertEqual(register_response.context["next_url"], create_url)
+
     def test_privacy_policy_is_full_document_in_all_languages(self):
         checks = (
             (
@@ -367,10 +422,10 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Bu bölmə nə haqqındadır")
-        self.assertContains(response, "Sürətli axtarış")
-        self.assertContains(response, "Rəylər və like-lar")
-        self.assertNotContains(response, "О чём этот раздел")
+        self.assertContains(response, "KidsMap haqqında tez-tez verilən suallar")
+        self.assertContains(response, "Uşaq üçün dərnəyi necə tez tapmaq olar?")
+        self.assertContains(response, "Kataloqa bax")
+        self.assertNotContains(response, "Частые вопросы о KidsMap")
 
     def test_az_reviews_page_translates_reaction_helper(self):
         response = self.client.get("/reviews/")
@@ -395,12 +450,13 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Кто вы?")
 
-    def test_en_home_page_translates_leisure_category(self):
+    def test_en_home_page_translates_current_faq_interface(self):
         response = self.client.get("/en/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Leisure")
-        self.assertNotContains(response, "Досуг")
+        self.assertContains(response, "Frequently asked questions about KidsMap")
+        self.assertContains(response, "How can I quickly find a club for my child?")
+        self.assertNotContains(response, "Частые вопросы о KidsMap")
 
     def test_en_header_uses_translated_language_names(self):
         response = self.client.get("/en/auth/login/")
@@ -455,6 +511,45 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["popular_places"]), 3)
 
+    def test_home_page_uses_compact_conversion_flow_without_dropping_seo_links(self):
+        create_quality_place(
+            name="Compact Home Place",
+            name_ru="Место для компактной главной",
+            category="EDU",
+            is_active=True,
+            lat=40.4093,
+            lng=49.8671,
+            likes_count=20,
+        )
+
+        response = self.client.get("/ru/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        ordered_markers = (
+            'class="home-hero panel"',
+            'class="panel home-map-panel"',
+            'class="panel home-recommended"',
+            'class="home-steps panel home-steps-lite',
+            'id="for-owners"',
+            'class="panel home-faq-panel"',
+        )
+        positions = [content.index(marker) for marker in ordered_markers]
+        self.assertEqual(positions, sorted(positions))
+
+        self.assertContains(response, 'class="home-search home-search-compact"', html=False)
+        self.assertContains(response, "Открыть весь каталог")
+        self.assertContains(response, "Рекомендуемые места и занятия")
+        self.assertContains(response, "Как это работает")
+        self.assertContains(response, "Разместить место")
+        self.assertContains(response, "Частые вопросы о KidsMap")
+        self.assertContains(response, 'class="home-faq-popular"', html=False)
+        self.assertContains(response, 'href="/ru/catalog/?category=EDU"', html=False)
+        self.assertContains(response, "Курсы для детей в Азербайджане")
+        self.assertContains(response, "Проверенные и активные места")
+        self.assertNotContains(response, 'class="panel home-events"', html=False)
+        self.assertNotContains(response, 'class="home-owner-showcase"', html=False)
+
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     def test_home_page_prefers_google_maps_when_key_is_configured(self):
         create_quality_place(
@@ -480,9 +575,13 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "?v=")
 
-    @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    @override_settings(
+        DEBUG=False,
+        ALLOWED_HOSTS=["kidsmap.az"],
+        GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123",
+    )
     def test_home_page_includes_google_analytics_tag_when_configured(self):
-        response = self.client.get("/", follow=True)
+        response = self.client.get("/", HTTP_HOST="kidsmap.az", follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "https://www.googletagmanager.com/gtag/js?id=G-TEST123")
@@ -520,16 +619,16 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, '"SearchAction"', html=False)
         self.assertContains(response, "/catalog/?q={search_term_string}", html=False)
 
-    def test_home_page_shows_only_text_site_reviews_in_teaser(self):
+    def test_home_page_does_not_show_site_reviews_teaser(self):
         SiteReview.objects.create(author_name="No Text", rating=4, text="")
         SiteReview.objects.create(author_name="With Text", rating=5, text="Очень полезный сервис для родителей.")
 
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["site_reviews_teaser"]), 1)
-        self.assertContains(response, "Очень полезный сервис для родителей.")
-        self.assertNotContains(response, "Пользователь оставил оценку без текстового комментария.")
+        self.assertNotIn("site_reviews_teaser", response.context)
+        self.assertNotContains(response, 'id="site-reviews"', html=False)
+        self.assertNotContains(response, "Очень полезный сервис для родителей.")
 
     def test_login_page_is_marked_noindex(self):
         response = self.client.get("/ru/auth/login/")
@@ -582,6 +681,59 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "Disallow: /admin/")
         self.assertContains(response, "Disallow: /ru/auth/")
         self.assertContains(response, "Sitemap: http://testserver/sitemap.xml")
+
+    def test_sitemap_includes_all_languages_and_hreflang_alternates(self):
+        place = create_quality_place(
+            name="Sitemap place",
+            name_ru="Место для sitemap",
+            category="EDU",
+            is_active=True,
+            district="Баку",
+        )
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'xmlns:xhtml="http://www.w3.org/1999/xhtml"', html=False)
+        self.assertContains(response, "<loc>http://testserver/</loc>", html=False)
+        self.assertContains(response, "<loc>http://testserver/ru/</loc>", html=False)
+        self.assertContains(response, "<loc>http://testserver/en/</loc>", html=False)
+        self.assertContains(response, f"<loc>http://testserver{place.get_absolute_url()}</loc>", html=False)
+        self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="ru" href="http://testserver/ru{place.get_absolute_url()}"', html=False)
+        self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="en" href="http://testserver/en{place.get_absolute_url()}"', html=False)
+        self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="x-default" href="http://testserver{place.get_absolute_url()}"', html=False)
+
+    def test_seo_landing_uses_matching_language_content_and_hreflang(self):
+        checks = (
+            (
+                "/catalog/kruzhki-v-baku/",
+                "Bakıda uşaqlar üçün dərnəklər",
+                "http://testserver/catalog/kruzhki-v-baku/",
+            ),
+            (
+                "/ru/catalog/kruzhki-v-baku/",
+                "Кружки в Баку для детей",
+                "http://testserver/ru/catalog/kruzhki-v-baku/",
+            ),
+            (
+                "/en/catalog/kruzhki-v-baku/",
+                "Kids' clubs in Baku",
+                "http://testserver/en/catalog/kruzhki-v-baku/",
+            ),
+        )
+
+        for path, heading, canonical in checks:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, heading)
+                self.assertContains(response, " | KidsMap</title>", html=False)
+                self.assertContains(response, f'<link rel="canonical" href="{canonical}" />', html=False)
+                self.assertContains(response, '<meta property="og:description"', html=False)
+                self.assertContains(response, '<meta name="twitter:description"', html=False)
+                self.assertContains(response, '<link rel="alternate" hreflang="az" href="http://testserver/catalog/kruzhki-v-baku/" />', html=False)
+                self.assertContains(response, '<link rel="alternate" hreflang="ru" href="http://testserver/ru/catalog/kruzhki-v-baku/" />', html=False)
+                self.assertContains(response, '<link rel="alternate" hreflang="en" href="http://testserver/en/catalog/kruzhki-v-baku/" />', html=False)
 
     def test_home_map_popup_uses_main_photo_preview(self):
         place = Place.objects.create(
@@ -1060,7 +1212,7 @@ class TestPublicFilterCounts(TestCase):
             {item["value"]: item["count"] for item in response.context["subcategory_options"] if item.get("count") is not None},
             {str(self.visible_subcategory.pk): 1},
         )
-        self.assertContains(response, "Пустая категория")
+        self.assertNotContains(response, "Пустая категория")
         self.assertNotContains(response, "Пустой район")
         self.assertNotContains(response, "Пустое метро")
 
@@ -1070,7 +1222,7 @@ class TestPublicFilterCounts(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Счетная категория — 2")
         self.assertContains(response, "Баку — 3")
-        self.assertContains(response, "Пустая категория")
+        self.assertNotContains(response, "Пустая категория")
         self.assertNotContains(response, "Пустой район")
 
     def test_selected_zero_value_is_preserved_in_catalog_form(self):
@@ -1165,7 +1317,7 @@ class TestPublicFilterCounts(TestCase):
         self.assertContains(az_response, "Bakı, Nərimanov rayonu")
         self.assertContains(az_response, "Bakı, Səbail rayonu")
         self.assertContains(az_response, "Bakı, Xətai rayonu")
-        self.assertContains(az_response, "Bazar ertəsi")
+        self.assertTrue(any("Bazar ertəsi" in item["schedule"] for item in az_response.context["map_places"]))
         self.assertContains(az_response, "Hələ rəy yoxdur")
         self.assertNotContains(az_response, "Пока нет отзывов")
         self.assertNotContains(az_response, "No reviews yet")
@@ -1174,7 +1326,7 @@ class TestPublicFilterCounts(TestCase):
         self.assertContains(ru_response, "Баку, Наримановский район")
         self.assertContains(ru_response, "Баку, Сабаильский район")
         self.assertContains(ru_response, "Баку, Хатаинский район")
-        self.assertContains(ru_response, "Понедельник")
+        self.assertTrue(any("Понедельник" in item["schedule"] for item in ru_response.context["map_places"]))
         self.assertContains(ru_response, "Пока нет отзывов")
         self.assertNotContains(ru_response, "Hələ rəy yoxdur")
         self.assertNotContains(ru_response, "No reviews yet")
@@ -1183,7 +1335,7 @@ class TestPublicFilterCounts(TestCase):
         self.assertContains(en_response, "Narimanov District, Baku")
         self.assertContains(en_response, "Sabail District, Baku")
         self.assertContains(en_response, "Khatai District, Baku")
-        self.assertContains(en_response, "Monday")
+        self.assertTrue(any("Monday" in item["schedule"] for item in en_response.context["map_places"]))
         self.assertContains(en_response, "No reviews yet")
         self.assertNotContains(en_response, "Hələ rəy yoxdur")
         self.assertNotContains(en_response, "Пока нет отзывов")
@@ -1215,6 +1367,111 @@ class TestPublicFilterCounts(TestCase):
         self.assertEqual(edu_option["color_text"], "#4F46E5")
 
 class TestCatalogEnhancements(TestCase):
+    def test_home_map_and_favorite_buttons_have_localized_names(self):
+        create_quality_place(
+            name="Home Accessible Place",
+            name_az="Əlçatan Ev Məkanı",
+            name_ru="Доступное место на главной",
+            name_en="Accessible Home Place",
+            lat=40.4093,
+            lng=49.8671,
+            likes_count=50,
+        )
+        expectations = {
+            "az": ("Xəritədə məkanı aç: {name}", "Seçilmişlərə əlavə et"),
+            "ru": ("Открыть место на карте: {name}", "Добавить в избранное"),
+            "en": ("Open place on map: {name}", "Add to favorites"),
+        }
+
+        for language_code, (marker_label, favorite_label) in expectations.items():
+            url = "/" if language_code == "az" else f"/{language_code}/"
+            response = self.client.get(url, follow=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, f'data-marker-label="{marker_label}"', html=False)
+            self.assertContains(response, f'aria-label="{favorite_label}"', html=False)
+            self.assertContains(response, 'aria-pressed="false"', html=False)
+
+    def test_public_catalog_accessibility_labels_are_localized(self):
+        create_quality_place(
+            name="Accessible Place",
+            name_az="Əlçatan Məkan",
+            name_ru="Доступное место",
+            name_en="Accessible Place",
+            lat=40.4093,
+            lng=49.8671,
+            rating_avg=4.8,
+            rating_count=12,
+        )
+        expectations = {
+            "az": ("Seçilmişlərə əlavə et", "Filtrləri aç", "Nəticələri xəritədə göstər", "Reytinq 4,8 / 5"),
+            "ru": ("Добавить в избранное", "Открыть фильтры", "Показать результаты на карте", "Рейтинг 4,8 из 5"),
+            "en": ("Add to favorites", "Open filters", "Show results on map", "Rating 4.8 out of 5"),
+        }
+
+        for language_code, labels in expectations.items():
+            url = "/catalog/" if language_code == "az" else f"/{language_code}/catalog/"
+            response = self.client.get(url, follow=True)
+
+            self.assertEqual(response.status_code, 200)
+            for label in labels:
+                self.assertContains(response, f'aria-label="{label}"', html=False)
+            self.assertContains(response, 'class="like-btn"', html=False)
+            self.assertContains(response, 'aria-pressed="false"', html=False)
+            self.assertContains(response, 'data-marker-label=', html=False)
+            self.assertContains(response, 'aria-expanded="false"', html=False)
+
+    def test_authenticated_favorite_exposes_pressed_state_and_both_labels(self):
+        user = User.objects.create_user(username="accessible_user", password="StrongPass123!!")
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_USER)
+        place = create_quality_place(name="Favorite Accessible Place")
+        PlaceLike.objects.create(place=place, user=user)
+        self.client.force_login(user)
+
+        response = self.client.get("/en/catalog/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'aria-pressed="true"', html=False)
+        self.assertContains(response, 'aria-label="Remove from favorites"', html=False)
+        self.assertContains(response, 'data-favorite-add-label="Add to favorites"', html=False)
+        self.assertContains(response, 'data-favorite-remove-label="Remove from favorites"', html=False)
+
+    def test_place_detail_star_picker_has_localized_names_and_hidden_glyphs(self):
+        user = User.objects.create_user(username="rating_access_user", password="StrongPass123!!")
+        UserProfile.objects.create(user=user, role=UserProfile.ROLE_USER)
+        place = create_quality_place(name="Rating Accessible Place")
+        self.client.force_login(user)
+        expectations = {
+            "az": "5 baldan 1 bal",
+            "ru": "1 из 5 звёзд",
+            "en": "1 out of 5 stars",
+        }
+
+        for language_code, label in expectations.items():
+            with override(language_code):
+                detail_url = place.get_absolute_url()
+            response = self.client.get(detail_url, follow=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, f'aria-label="{label}"', html=False)
+            self.assertContains(response, '<span aria-hidden="true">★</span>', count=5, html=False)
+
+    def test_review_count_filter_localizes_zero_one_two_and_five(self):
+        from django.template import Context, Template
+
+        template = Template("{% load catalog_i18n %}{{ count|review_count }}")
+        expected_by_language = {
+            "az": {0: "0 rəy", 1: "1 rəy", 2: "2 rəy", 5: "5 rəy"},
+            "ru": {0: "0 отзывов", 1: "1 отзыв", 2: "2 отзыва", 5: "5 отзывов"},
+            "en": {0: "0 reviews", 1: "1 review", 2: "2 reviews", 5: "5 reviews"},
+        }
+
+        for language_code, cases in expected_by_language.items():
+            with override(language_code):
+                for count, expected in cases.items():
+                    with self.subTest(language_code=language_code, count=count):
+                        self.assertEqual(template.render(Context({"count": count})), expected)
+
     def test_place_detail_drops_foreign_next_query_parameter(self):
         place = create_quality_place(
             name="Context Place",
@@ -1367,9 +1624,11 @@ class TestCatalogEnhancements(TestCase):
             response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Расписание и цена")
-        self.assertContains(response, "1 урок")
-        self.assertContains(response, "160 AZN")
+        self.assertContains(response, "Цена и занятия")
+        self.assertContains(response, "20 AZN")
+        self.assertContains(response, 'class="detail-unified-pricing__price-sub"', html=False)
+        self.assertContains(response, "занятие")
+        self.assertContains(response, "Пн/Ср/Пт 18:00-19:00")
         self.assertContains(response, "Пробный урок бесплатно")
         self.assertContains(response, "Нужна спортивная форма")
 
@@ -1389,10 +1648,10 @@ class TestCatalogEnhancements(TestCase):
             response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Понедельник-Пятница")
-        self.assertContains(response, "09:00-18:00")
-        self.assertContains(response, "Суббота")
-        self.assertContains(response, "10:00-16:00")
+        self.assertContains(response, "Пн–Пт")
+        self.assertContains(response, "09:00–18:00")
+        self.assertContains(response, "Сб")
+        self.assertContains(response, "10:00–16:00")
 
     def test_place_detail_does_not_show_owner_request_block(self):
         place = create_quality_place(
@@ -1409,7 +1668,11 @@ class TestCatalogEnhancements(TestCase):
             ),
         )
 
-        response = self.client.get(place.get_absolute_url(), follow=True)
+        with override("ru"):
+            response = self.client.get(
+                reverse("place_detail", kwargs={"pk": place.pk, "slug": place.slug}),
+                follow=True,
+            )
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Вы представитель этого кружка?")
@@ -1421,7 +1684,11 @@ class TestCatalogEnhancements(TestCase):
             name_ru="Кружок с дисклеймером",
         )
 
-        response = self.client.get(place.get_absolute_url(), follow=True)
+        with override("az"):
+            response = self.client.get(
+                reverse("place_detail", kwargs={"pk": place.pk, "slug": place.slug}),
+                follow=True,
+            )
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Bu səhifədəki məlumatların bir hissəsi açıq mənbələrdən və üçüncü şəxslərdən əldə oluna bilər.")
@@ -1640,6 +1907,84 @@ class TestCatalogEnhancements(TestCase):
                 }
             ],
         )
+
+    def test_az_place_detail_uses_translated_labels_and_duration(self):
+        place = create_quality_place(
+            name="AZ Place",
+            name_az="AZ Məkan",
+            lesson_duration_minutes=90,
+        )
+
+        with override("az"):
+            response = self.client.get(
+                reverse("place_detail", kwargs={"pk": place.pk, "slug": place.slug}),
+                follow=True,
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Əsas xüsusiyyətlər")
+        self.assertContains(response, "Qısa məlumat")
+        self.assertContains(response, "90 dəqiqə")
+        self.assertNotContains(response, "Основные характеристики")
+        self.assertNotContains(response, "Краткая информация")
+        self.assertNotContains(response, "90 мин")
+
+    def test_catalog_card_uses_localized_district_instead_of_code(self):
+        baku_place = create_quality_place(
+            name="District Code Place",
+            name_az="Rayon Kodlu Məkan",
+            district="baku_narimanov",
+        )
+        region_place = create_quality_place(
+            name="Region Code Place",
+            name_az="Region Kodlu Məkan",
+            district="agdash",
+        )
+
+        response = self.client.get("/az/catalog/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Bakı, Nərimanov rayonu")
+        self.assertContains(response, "Ağdaş")
+        self.assertNotContains(response, ">baku_narimanov<", html=False)
+        self.assertNotContains(response, ">agdash<", html=False)
+        self.assertContains(response, baku_place.name_az)
+        self.assertContains(response, region_place.name_az)
+
+    def test_localized_address_removes_duplicate_city_and_district_segments(self):
+        from catalog.services.locations import localize_address_text
+
+        cases = (
+            (
+                "az",
+                "Bakı şəhəri, Bakı, Bakı, Nərimanov rayonu rayonu",
+                "Bakı şəhəri, Nərimanov rayonu",
+            ),
+            (
+                "az",
+                "Баку город, Баку, Наримановский район район",
+                "Bakı şəhəri, Nərimanov rayonu",
+            ),
+            (
+                "en",
+                "Baku city, Baku, Baku, Narimanov District district",
+                "Baku city, Narimanov District",
+            ),
+            (
+                "ru",
+                "Баку город, Баку, Баку, Наримановский район район",
+                "Баку город, Наримановский район",
+            ),
+            (
+                "ru",
+                "Bakı şəhəri, Bakı, Nərimanov rayonu rayonu",
+                "Баку город, Наримановский район",
+            ),
+        )
+
+        for language_code, value, expected in cases:
+            with self.subTest(language_code=language_code, value=value):
+                self.assertEqual(localize_address_text(value, language_code), expected)
 
 class TestReviewEnhancements(TestCase):
     def setUp(self):
@@ -1966,6 +2311,13 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(parse_qs(urlparse(location).query).get("next"), [f"{self.place.get_absolute_url()}#reviews"])
         self.assertEqual(PlaceReview.objects.filter(place=self.place).count(), 0)
 
+    def test_az_guest_review_block_uses_azerbaijani_text(self):
+        response = self.client.get(f"/az{self.place.get_absolute_url()}", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Rəy yazmaq üçün daxil olun və ya qeydiyyatdan keçin.")
+        self.assertNotContains(response, "Чтобы оставить отзыв, войдите или зарегистрируйтесь.")
+
 class EventsLandingTests(TestCase):
     def setUp(self):
         self.place = create_quality_place(
@@ -2045,11 +2397,9 @@ class EventsLandingTests(TestCase):
         self.upcoming_event.save(update_fields=["address", "updated_at"])
 
         with override("az"):
-            home_response = self.client.get(reverse("home"))
             events_response = self.client.get(reverse("events_landing"))
             detail_response = self.client.get(self.upcoming_event.get_absolute_url())
 
-        self.assertContains(home_response, "küç. Məktəb 9, Bakı")
         self.assertContains(events_response, "küç. Məktəb 9, Bakı")
         self.assertContains(detail_response, "küç. Məktəb 9, Bakı")
 

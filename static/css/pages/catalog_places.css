@@ -103,6 +103,8 @@
   width: auto !important;
   height: 40px !important;
   min-height: 40px !important;
+  padding: 0 36px 0 14px !important;
+  line-height: normal !important;
   border-radius: 8px !important;
   border: 1px solid #cbd5e1 !important;
   box-shadow: none !important;
@@ -122,6 +124,8 @@
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
   margin: 0 !important;
   transition: all 0.15s ease !important;
 }
@@ -199,6 +203,28 @@
   line-height: 26px !important;
 }
 
+.page-place_list .grid:not(.results-list-mode) .card-tags-row--with-adults {
+  height: 62px !important;
+  min-height: 62px !important;
+  flex-wrap: wrap !important;
+  align-content: flex-start !important;
+}
+
+.page-place_list .grid:not(.results-list-mode) .card-meta-chip--audience {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 360px) {
+  .page-place_list .grid:not(.results-list-mode) .card-meta-chip--audience {
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+    font-size: 11px !important;
+  }
+}
+
 .page-place_list .grid:not(.results-list-mode) .card-tag-price {
   height: 28px !important;
   min-height: 28px !important;
@@ -238,6 +264,44 @@
 
 .page-place_list .grid:not(.results-list-mode) .card-action-stack {
   margin-top: auto !important; /* Force to the bottom */
+}
+
+.page-place_list .card-age-audience__separator {
+  margin: 0 6px;
+  color: #91aa9b;
+}
+
+.page-place_list .card-age-audience__adult {
+  color: #0b7545;
+  font-weight: 800;
+}
+
+/* The sidebar leaves less room for the toolbar on laptops and tablets. */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .page-place_list .catalog-layout .results-toolbar {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+
+  .page-place_list .results-count {
+    max-width: 100% !important;
+    white-space: normal !important;
+  }
+
+  .page-place_list .results-toolbar-actions {
+    flex: 1 1 420px !important;
+    min-width: 0 !important;
+    justify-content: flex-end !important;
+  }
+
+  .page-place_list .results-toolbar-sort {
+    flex: 1 1 230px !important;
+  }
+
+  .page-place_list .results-toolbar-sort-select {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
 }
 
 /* Responsive fixes for mobile screen */

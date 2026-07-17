@@ -1,9 +1,11 @@
 import json
 
+from django.test import RequestFactory
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from catalog.models import FunnelEvent, Place, SiteVisit
+from catalog.context_processors import _google_analytics_context
 from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, TRACKED_EVENT_NAMES
 
 
@@ -104,6 +106,46 @@ class TestTrackingController(TestCase):
 
 
 class TestGoogleAnalyticsEvents(TestCase):
+    def setUp(self):
+        self.request_factory = RequestFactory()
+
+    def _analytics_context(self, host="kidsmap.az"):
+        with self.settings(ALLOWED_HOSTS=[host]):
+            request = self.request_factory.get("/", HTTP_HOST=host)
+            return _google_analytics_context(request)
+
+    @override_settings(DEBUG=True, GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_google_analytics_is_disabled_in_debug(self):
+        self.assertEqual(
+            self._analytics_context(),
+            {"google_analytics_measurement_id": "", "google_analytics_enabled": False},
+        )
+
+    @override_settings(DEBUG=False, GOOGLE_ANALYTICS_MEASUREMENT_ID="")
+    def test_google_analytics_is_disabled_without_measurement_id(self):
+        self.assertFalse(self._analytics_context()["google_analytics_enabled"])
+
+    @override_settings(DEBUG=False, GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_google_analytics_is_enabled_for_production_host(self):
+        self.assertEqual(
+            self._analytics_context(),
+            {"google_analytics_measurement_id": "G-TEST123", "google_analytics_enabled": True},
+        )
+
+    @override_settings(DEBUG=False, GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_test_client_does_not_render_external_google_analytics(self):
+        response = self.client.get("/ru/")
+
+        self.assertNotContains(response, "googletagmanager.com")
+        self.assertNotContains(response, "google-analytics.com")
+        self.assertNotContains(response, 'gtag("config"')
+
+    @override_settings(DEBUG=False, GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_google_analytics_is_disabled_on_local_hosts(self):
+        for host in ("localhost", "127.0.0.1"):
+            with self.subTest(host=host):
+                self.assertFalse(self._analytics_context(host)["google_analytics_enabled"])
+
     @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
     def test_catalog_page_renders_google_analytics_search_and_filter_events(self):
         response = self.client.get("/ru/catalog/?q=robot&min_rating=4")

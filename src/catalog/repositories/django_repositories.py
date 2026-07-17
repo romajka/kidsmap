@@ -58,7 +58,13 @@ class DjangoPlaceRepository(IPlaceRepository):
         return self.active_queryset().order_by("-likes_count", "-updated_at")[:limit]
 
     def map_ready_queryset(self) -> QuerySet:
-        return self.active_queryset().exclude(lat__isnull=True).exclude(lng__isnull=True)
+        return (
+            self.active_queryset()
+            .select_related("subcategory")
+            .prefetch_related("schedule_days__intervals")
+            .exclude(lat__isnull=True)
+            .exclude(lng__isnull=True)
+        )
 
     def upcoming_temporary(self, limit: int = 8) -> QuerySet:
         if not is_events_section_enabled():

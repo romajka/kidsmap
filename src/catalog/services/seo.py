@@ -22,6 +22,13 @@ def _truncate_text(value: str, limit: int = 160) -> str:
     return Truncator(normalized).chars(limit, truncate="…")
 
 
+def build_branded_seo_title(title: str, *, brand: str = "KidsMap", limit: int = 65) -> str:
+    suffix = f" | {brand}"
+    normalized_title = _normalize_text(title)
+    available_length = max(limit - len(suffix), 1)
+    return f"{Truncator(normalized_title).chars(available_length, truncate='…')}{suffix}"
+
+
 def _absolute_uri(request, url: str) -> str:
     if not url:
         return ""

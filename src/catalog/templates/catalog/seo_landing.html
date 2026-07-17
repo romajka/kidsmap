@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{{ seo_page.title }}{% endblock %}
-{% block title_plain %}{{ seo_page.title }} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{{ seo_page.title }} | KidsMap{% endblock %}
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block og_description %}{{ meta_description }}{% endblock %}
+{% block twitter_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
   <section class="panel">

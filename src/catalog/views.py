@@ -43,6 +43,7 @@ from .services.reactions import ensure_session_key
 from .services.owner_specialist_use_cases import save_owner_specialist_profile
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 from .services.features import require_events_section_enabled, require_specialists_section_enabled
+from .services.auth_redirects import resolve_safe_next_url
 
 home_controller = HomeController.build_default()
 place_controller = PlaceController.build_default()
@@ -59,14 +60,7 @@ site_reviews_controller = SiteReviewsController.build_default()
 
 
 def _resolve_safe_next_url(request, fallback_url: str) -> str:
-    target = (request.POST.get("next") or request.GET.get("next") or "").strip()
-    if target and url_has_allowed_host_and_scheme(
-        target,
-        allowed_hosts={request.get_host()},
-        require_https=request.is_secure(),
-    ):
-        return target
-    return fallback_url
+    return resolve_safe_next_url(request, fallback_url)
 
 
 
@@ -498,80 +492,77 @@ FOR_BUSINESS_CONTENT = {
     "az": {
         "title": "Uşaq məkanınızı KidsMap-də yerləşdirin",
         "mobile_title": "Məkanınızı yerləşdirin",
-        "subtitle": "Valideynlərə yaxınlıqdakı uşaq məşğələlərini və məkanları daha tez tapmağa kömək edin.",
+        "eyebrow": "Məkan sahibləri üçün",
+        "free_badge": "Əsas yerləşdirmə pulsuzdur",
+        "subtitle": "Foto, ünvan, əlaqə məlumatları, iş qrafiki və qiyməti olan kart yaradın. Kart moderasiyadan sonra kataloqda dərc olunur.",
+        "moderation_note": "Dərc edilməzdən əvvəl məlumatların dolğunluğunu və qaydalara uyğunluğunu yoxlayırıq.",
         "primary_cta": "Məkan əlavə et",
-        "secondary_cta": "WhatsApp-da yaz",
-        "benefits_title": "Nə əldə edirsiniz",
-        "benefits": [
-            "Kataloqda məkan kartı",
-            "Kontaktlar, ünvan və xəritə",
-            "Foto, təsvir, cədvəl və qiymətlər",
-            "Moderasiya olunmuş rəylər",
-            "Gələcək VIP imkanları üçün hazır struktur",
+        "secondary_cta": "Mövcud kartı tap",
+        "steps_title": "Kartı necə dərc etmək olar",
+        "steps": [
+            ("Hesab yaradın", "Daxil olun və ya qısa qeydiyyatdan keçin."),
+            ("Kartı doldurun", "Foto, ünvan, kontaktlar, iş qrafiki və qiyməti əlavə edin."),
+            ("Moderasiyaya göndərin", "Məlumatların dolğunluğunu və qaydalara uyğunluğunu yoxlayacağıq."),
+            ("Kataloqda görünün", "Təsdiqdən sonra kart valideynlər üçün əlçatan olacaq."),
         ],
-        "steps_title": "Necə işləyir",
-        "steps": ["Qeydiyyatdan keçin", "Kartı doldurun", "Moderasiyaya göndərin", "Yoxlamadan sonra kataloqda görünür"],
-        "plans_title": "Tariflər",
-        "free_plan": "Free: əsas kart, kontaktlar, xəritə və 3 foto.",
-        "vip_plan": "VIP: kataloqda önə çıxarma, daha çox foto və analitika. Tezliklə.",
-        "faq_title": "Suallar",
-        "faq": [
-            ("Yerləşdirmə nə qədərdir?", "Hazırda əsas yerləşdirmə pulsuz strukturda hazırlanıb."),
-            ("Moderasiya nə qədər çəkir?", "Məlumatların tamlığından asılıdır. Test və natamam kartlar dərc olunmur."),
-            ("Kartı redaktə etmək olar?", "Bəli, dəyişikliklər yenidən moderasiya oluna bilər."),
+        "details_title": "Əsas yerləşdirmə haqqında",
+        "details_intro": "Kartı yaratmaq və əsas məlumatları kataloqda yerləşdirmək pulsuzdur.",
+        "detail_cards": [
+            ("Pulsuz nələr daxildir", ["Foto və məkanın təsviri", "Ünvan və xəritədə mövqe", "Telefon və digər əlaqə məlumatları", "İş qrafiki və qiymət"]),
+            ("Moderasiya nəyi yoxlayır", ["Məcburi məlumatların doldurulmasını", "Məlumatların aydın və ziddiyyətsiz olmasını", "Məzmunun KidsMap qaydalarına uyğunluğunu", "Test və natamam kartlar dərc edilmir"]),
+            ("Məlumatları necə yeniləmək olar", ["Şəxsi kabinetdə kartınızı açın", "Lazım olan sahələri dəyişin", "Yenilənmiş məlumatları yoxlamaya göndərin", "Dəyişikliklər yenidən moderasiya oluna bilər"]),
         ],
+        "vip_note": "Gələcəkdə əlavə VIP imkanları yarana bilər. Onlardan istifadə məcburi olmayacaq və əsas pulsuz yerləşdirməni əvəz etməyəcək.",
     },
     "ru": {
         "title": "Разместите детское место на KidsMap",
         "mobile_title": "Разместите место",
-        "subtitle": "Помогите родителям быстрее найти детские занятия и места рядом.",
+        "eyebrow": "Для владельцев мест",
+        "free_badge": "Базовое размещение бесплатно",
+        "subtitle": "Создайте карточку с фото, адресом, контактами, расписанием и ценой. После модерации она появится в каталоге.",
+        "moderation_note": "Перед публикацией мы проверяем полноту данных и соответствие правилам площадки.",
         "primary_cta": "Добавить место",
-        "secondary_cta": "Написать в WhatsApp",
-        "benefits_title": "Что получает владелец",
-        "benefits": [
-            "Карточку места в каталоге",
-            "Контакты, адрес и карту",
-            "Фото, описание, расписание и цены",
-            "Отзывы после модерации",
-            "Готовую основу для будущих VIP-возможностей",
+        "secondary_cta": "Найти существующую карточку",
+        "steps_title": "Как опубликовать карточку",
+        "steps": [
+            ("Создайте аккаунт", "Войдите или пройдите короткую регистрацию."),
+            ("Заполните карточку", "Добавьте фото, адрес, контакты, расписание и цену."),
+            ("Отправьте на модерацию", "Мы проверим полноту данных и соответствие правилам."),
+            ("Появитесь в каталоге", "После одобрения карточка станет доступна родителям."),
         ],
-        "steps_title": "Как это работает",
-        "steps": ["Зарегистрируйтесь", "Заполните карточку", "Отправьте на модерацию", "После проверки карточка появится в каталоге"],
-        "plans_title": "Тарифы",
-        "free_plan": "Free: базовая карточка, контакты, карта и 3 фото.",
-        "vip_plan": "VIP: выше в каталоге, больше фото и аналитика. Скоро.",
-        "faq_title": "Вопросы",
-        "faq": [
-            ("Сколько стоит размещение?", "Базовое размещение сейчас подготовлено как бесплатная структура."),
-            ("Сколько длится модерация?", "Зависит от полноты данных. Тестовые и неполные карточки не публикуются."),
-            ("Можно ли редактировать карточку?", "Да, изменения могут повторно пройти модерацию."),
+        "details_title": "Всё о базовом размещении",
+        "details_intro": "Создание карточки и размещение основной информации в каталоге бесплатны.",
+        "detail_cards": [
+            ("Что входит бесплатно", ["Фото и описание места", "Адрес и точка на карте", "Телефон и другие контакты", "Расписание и цена"]),
+            ("Что проверяет модерация", ["Заполнены ли обязательные данные", "Понятна ли информация и нет ли противоречий", "Соответствует ли содержание правилам KidsMap", "Тестовые и неполные карточки не публикуются"]),
+            ("Как обновить данные", ["Откройте карточку в личном кабинете", "Измените нужные поля", "Отправьте обновлённые данные на проверку", "Изменения могут повторно пройти модерацию"]),
         ],
+        "vip_note": "В будущем могут появиться дополнительные VIP-возможности. Они будут необязательными и не заменят базовое бесплатное размещение.",
     },
     "en": {
         "title": "List your kids place on KidsMap",
         "mobile_title": "List your place",
-        "subtitle": "Help parents find nearby kids activities and places faster.",
+        "eyebrow": "For place owners",
+        "free_badge": "Basic listing is free",
+        "subtitle": "Create a listing with photos, address, contacts, schedule and price. It will appear in the catalog after moderation.",
+        "moderation_note": "Before publishing, we check that the information is complete and follows the platform rules.",
         "primary_cta": "Add a place",
-        "secondary_cta": "Message on WhatsApp",
-        "benefits_title": "What owners get",
-        "benefits": [
-            "A listing in the catalog",
-            "Contacts, address and map",
-            "Photos, description, schedule and prices",
-            "Reviews after moderation",
-            "A base for future VIP options",
+        "secondary_cta": "Find an existing listing",
+        "steps_title": "How to publish your listing",
+        "steps": [
+            ("Create an account", "Sign in or complete a short registration."),
+            ("Fill in the listing", "Add photos, address, contacts, schedule and price."),
+            ("Send it for moderation", "We check completeness and compliance with the rules."),
+            ("Appear in the catalog", "Once approved, the listing becomes available to parents."),
         ],
-        "steps_title": "How it works",
-        "steps": ["Register", "Fill in the listing", "Send it for moderation", "After review it appears in the catalog"],
-        "plans_title": "Plans",
-        "free_plan": "Free: basic listing, contacts, map and 3 photos.",
-        "vip_plan": "VIP: higher catalog placement, more photos and analytics. Coming soon.",
-        "faq_title": "FAQ",
-        "faq": [
-            ("How much does listing cost?", "Basic listing is currently prepared as a free structure."),
-            ("How long does moderation take?", "It depends on data completeness. Test and incomplete listings are not published."),
-            ("Can I edit a listing?", "Yes, changes may go through moderation again."),
+        "details_title": "About the basic listing",
+        "details_intro": "Creating a listing and publishing its essential information in the catalog is free.",
+        "detail_cards": [
+            ("What is included for free", ["Photos and place description", "Address and map location", "Phone and other contact details", "Schedule and price"]),
+            ("What moderation checks", ["All required information is provided", "Information is clear and consistent", "Content follows the KidsMap rules", "Test and incomplete listings are not published"]),
+            ("How to update information", ["Open the listing in your account", "Edit the necessary fields", "Send the updated information for review", "Changes may be moderated again"]),
         ],
+        "vip_note": "Optional VIP features may be introduced in the future. They will not replace the free basic listing.",
     },
 }
 

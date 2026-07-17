@@ -130,6 +130,89 @@ class TestAuthValidationAndNextSecurity(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers["Location"], reverse("account_profile"))
 
+    def test_catalog_header_login_url_preserves_safe_filters_only(self):
+        response = self.client.get(
+            reverse("place_list"),
+            {"category": "EDU", "q": "robotics", "next": "https://evil.example"},
+            follow=True,
+        )
+
+        login_url = urlparse(response.context["header_account_login_url"])
+        self.assertEqual(login_url.path, reverse("account_login"))
+        self.assertEqual(
+            parse_qs(login_url.query).get("next"),
+            [f"{reverse('place_list')}?category=EDU&q=robotics"],
+        )
+
+    def test_place_reviews_fragment_survives_login_redirect(self):
+        user = User.objects.create_user(
+            username="reviews_return_user",
+            email="reviews-return@example.com",
+            password="StrongPass123!!",
+        )
+        place = Place.objects.create(name="Reviews return", category="EDU", is_active=True)
+        return_url = f"{place.get_absolute_url()}#reviews"
+
+        place_response = self.client.get(place.get_absolute_url())
+        self.assertContains(place_response, "data-preserve-current-hash", html=False)
+
+        response = self.client.post(
+            reverse("account_login"),
+            data={
+                "username": user.username,
+                "password": "StrongPass123!!",
+                "next": return_url,
+            },
+        )
+        self.assertEqual(response.headers["Location"], return_url)
+
+    def test_owner_create_next_is_kept_between_login_and_register(self):
+        owner_create_url = reverse("owner_place_create")
+        redirect_response = self.client.get(owner_create_url)
+        login_url = urlparse(redirect_response.headers["Location"])
+
+        self.assertEqual(login_url.path, reverse("account_login"))
+        self.assertEqual(parse_qs(login_url.query).get("next"), [owner_create_url])
+
+        login_response = self.client.get(redirect_response.headers["Location"])
+        self.assertEqual(login_response.context["next_url"], owner_create_url)
+        register_response = self.client.get(
+            reverse("account_register"),
+            {"next": owner_create_url},
+        )
+        self.assertEqual(register_response.context["next_url"], owner_create_url)
+
+    def test_auth_pages_header_login_url_never_contains_next(self):
+        for url_name in ("account_login", "account_register", "password_reset"):
+            with self.subTest(url_name=url_name):
+                response = self.client.get(
+                    reverse(url_name),
+                    {"next": f"{reverse('account_login')}?next={reverse('place_list')}"},
+                )
+                self.assertEqual(
+                    response.context["header_account_login_url"],
+                    reverse("account_login"),
+                )
+
+    def test_login_rejects_internal_auth_page_as_next(self):
+        user = User.objects.create_user(
+            username="recursive_next_user",
+            email="recursive-next@example.com",
+            password="StrongPass123!!",
+        )
+        recursive_next = f"{reverse('account_login')}?next={reverse('place_list')}"
+
+        response = self.client.post(
+            reverse("account_login"),
+            data={
+                "username": user.username,
+                "password": "StrongPass123!!",
+                "next": recursive_next,
+            },
+        )
+
+        self.assertEqual(response.headers["Location"], reverse("account_profile"))
+
     def test_login_without_next_redirects_to_account_profile(self):
         User.objects.create_user(
             username="login_profile_user",
