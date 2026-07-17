@@ -440,7 +440,7 @@ def build_pricing_summary(place, lang="ru"):
     schedule_text = (place.schedule or "").lower()
     by_appt_markers = ["договор", "запис", "appoint", "razılaş", "rezer", "təyin"]
     is_by_appt = any(marker in schedule_text for marker in by_appt_markers)
-    is_working_hours = place.category_id in ["PARK", "BEACH", "FUN", "CAMP"]
+    is_working_hours = place.category_id in ["PARK", "BEACH", "FUN", "CAMP", "WATERPARK"]
     
     if is_by_appt:
         schedule_type_label = LOCALIZED_STRINGS[lang]["schedule_by_appointment"]
