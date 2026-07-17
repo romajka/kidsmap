@@ -733,6 +733,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "В удалённых")
         self.assertContains(response, "Без координат")
         self.assertContains(response, reverse("admin:catalog_place_delete", args=[self.place.id]))
+        self.assertContains(response, reverse("admin:catalog_place_toggle_publication", args=[self.place.id]))
 
         deleted_response = self.client.get(
             reverse("admin:catalog_place_changelist"),
@@ -1142,6 +1143,23 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.place.refresh_from_db()
         self.assertFalse(self.place.is_active)
         self.assertEqual(self.place.status, Place.STATUS_DRAFT)
+
+    def test_place_admin_can_toggle_publication_from_changelist(self):
+        published_place = create_quality_place(
+            name="Toggle publication place",
+            name_ru="Место для переключения публикации",
+            status=Place.STATUS_PUBLISHED,
+            is_active=True,
+        )
+        response = self.client.post(
+            reverse("admin:catalog_place_toggle_publication", args=[published_place.id]),
+            HTTP_REFERER=reverse("admin:catalog_place_changelist"),
+        )
+
+        self.assertEqual(response.status_code, 302)
+        published_place.refresh_from_db()
+        self.assertFalse(published_place.is_active)
+        self.assertEqual(published_place.status, Place.STATUS_DRAFT)
 
     def test_place_admin_can_publish_ready_place_from_change_form(self):
         ready_place = create_quality_place(

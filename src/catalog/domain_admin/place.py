@@ -2941,12 +2941,53 @@ class PlaceAdmin(admin.ModelAdmin):
                 name="catalog_place_search_suggestions",
             ),
             path(
+                "<int:object_id>/toggle-publication/",
+                self.admin_site.admin_view(self.toggle_publication_view),
+                name="catalog_place_toggle_publication",
+            ),
+            path(
                 "<path:object_id>/restore/",
                 self.admin_site.admin_view(self.restore_view),
                 name="catalog_place_restore",
             ),
         ]
         return custom_urls + super().get_urls()
+
+    def toggle_publication_view(self, request, object_id):
+        if request.method != "POST":
+            raise PermissionDenied
+
+        if not self.has_change_permission(request):
+            raise PermissionDenied
+        place = Place.objects.filter(pk=object_id, deleted_at__isnull=True).first()
+        if place is None:
+            raise PermissionDenied
+
+        if place.status == Place.STATUS_PUBLISHED and place.is_active:
+            place.status = Place.STATUS_DRAFT
+            place.is_active = False
+            place.save(update_fields=["status", "is_active", "updated_at"])
+            self.message_user(request, _("Карточка снята с публикации и скрыта с сайта."), messages.SUCCESS)
+        else:
+            quality = place_quality_check(place)
+            if not quality.is_ready:
+                self.message_user(
+                    request,
+                    _("Карточка не опубликована: сначала заполните обязательные поля и фото."),
+                    messages.WARNING,
+                )
+            else:
+                place.status = Place.STATUS_PUBLISHED
+                place.is_active = True
+                place.rejection_reason = ""
+                update_fields = ["status", "is_active", "rejection_reason", "updated_at"]
+                if place.published_at is None:
+                    place.published_at = timezone.now()
+                    update_fields.append("published_at")
+                place.save(update_fields=update_fields)
+                self.message_user(request, _("Карточка опубликована и теперь может показываться на сайте."), messages.SUCCESS)
+
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
 
     def search_suggestions_view(self, request):
         term = (request.GET.get("q") or "").strip()
@@ -3533,8 +3574,20 @@ class PlaceAdmin(admin.ModelAdmin):
                 )
             )
         else:
+            is_published = obj.status == Place.STATUS_PUBLISHED and obj.is_active
+            visibility_label = _("Снять с публикации") if is_published else _("Опубликовать")
+            visibility_icon = "fas fa-eye-slash" if is_published else "fas fa-bullhorn"
+            visibility_tone = "unpublish" if is_published else "publish"
             actions.extend(
                 [
+                    format_html(
+                        '<button type="button" class="km-admin-icon-action km-admin-icon-action--{}" data-place-visibility-url="{}" title="{}" aria-label="{}"><i class="{}"></i></button>',
+                        visibility_tone,
+                        reverse("admin:catalog_place_toggle_publication", args=[obj.pk]),
+                        visibility_label,
+                        visibility_label,
+                        visibility_icon,
+                    ),
                     format_html(
                         '<a class="km-admin-icon-action km-admin-icon-action--open" href="{}" title="{}" aria-label="{}" target="_blank" rel="noopener"><i class="fas fa-eye"></i></a>',
                         obj.get_absolute_url(),

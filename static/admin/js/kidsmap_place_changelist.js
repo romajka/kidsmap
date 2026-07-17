@@ -163,6 +163,23 @@
 
     // Intercept individual row delete action to show SweetAlert2
     document.addEventListener("click", function (event) {
+      var visibilityButton = event.target.closest("[data-place-visibility-url]");
+      if (visibilityButton) {
+        event.preventDefault();
+        var visibilityForm = document.createElement("form");
+        visibilityForm.method = "POST";
+        visibilityForm.action = visibilityButton.dataset.placeVisibilityUrl;
+
+        var visibilityCsrf = document.createElement("input");
+        visibilityCsrf.type = "hidden";
+        visibilityCsrf.name = "csrfmiddlewaretoken";
+        visibilityCsrf.value = document.querySelector("[name=csrfmiddlewaretoken]")?.value || "";
+        visibilityForm.appendChild(visibilityCsrf);
+        document.body.appendChild(visibilityForm);
+        visibilityForm.submit();
+        return;
+      }
+
       var deleteLink = event.target.closest(".km-admin-action-menu__link--danger");
       if (!deleteLink) {
         return;
