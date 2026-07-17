@@ -93,7 +93,7 @@
           </div>
 
           {% if pricing_summary.has_price or pricing_summary.plans or pricing_summary.schedule or place.extra_conditions or place.additional_info %}
-            <section class="detail-unified-pricing detail-section detail-body-card">
+            <section class="detail-unified-pricing detail-section detail-body-card{% if not pricing_summary.plans %} detail-unified-pricing--no-plans{% endif %}{% if pricing_summary.schedule_rows %} detail-unified-pricing--with-schedule{% endif %}{% if not pricing_summary.has_price %} detail-unified-pricing--without-price{% endif %}">
               <div class="detail-section-head">
                 <h2>{{ pricing_summary.strings.title }}</h2>
                 <p class="meta">{{ pricing_summary.strings.subtitle }}</p>
@@ -237,19 +237,22 @@
                 </div>
               </div>
             {% endif %}
-            {% if place.has_schedule_content or place.lesson_duration_display %}
-              <div class="detail-highlight-card detail-highlight-card--schedule">
+            {% if place.lesson_format or place.lesson_duration_display %}
+              <div class="detail-highlight-card detail-highlight-card--lesson">
                 <span class="detail-highlight-card__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.9"/>
-                    <path d="M12 7.75v4.65l3.1 1.85" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.9"/>
+                    <circle cx="17" cy="9" r="2" stroke="currentColor" stroke-width="1.9"/>
+                    <path d="M3.75 19c.72-3.1 2.55-4.65 5.25-4.65s4.53 1.55 5.25 4.65" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                    <path d="M15.5 15.5c2.25.2 3.8 1.37 4.5 3.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
                   </svg>
                 </span>
                 <div class="detail-highlight-card__body">
-                  <span class="detail-highlight-card__label">{% trans "Расписание" %}</span>
+                  <span class="detail-highlight-card__label">{% if place.lesson_format %}{% if language == "az" %}Dərs formatı{% elif language == "en" %}Lesson format{% else %}Формат занятий{% endif %}{% else %}{% if language == "az" %}Müddət{% elif language == "en" %}Duration{% else %}Длительность{% endif %}{% endif %}</span>
                   <strong class="detail-highlight-card__value">
-                    {% if place.lesson_duration_display %}{{ place.lesson_duration_display }}{% elif place.has_schedule_content %}{{ place.schedule_summary|striptags|truncatechars:42 }}{% endif %}
+                    {% if place.lesson_format %}{{ place.get_lesson_format_display }}{% else %}{{ place.lesson_duration_display }}{% endif %}
                   </strong>
+                  {% if place.lesson_format and place.lesson_duration_display %}<span class="detail-highlight-card__note">{{ place.lesson_duration_display }}</span>{% endif %}
                 </div>
               </div>
             {% endif %}

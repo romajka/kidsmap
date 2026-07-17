@@ -3,7 +3,7 @@ import json
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.text import Truncator
-from django.utils.translation import gettext as _
+from django.utils.translation import get_language, gettext as _
 
 from catalog.models import Place
 
@@ -20,6 +20,38 @@ def _truncate_text(value: str, limit: int = 160) -> str:
     if not normalized:
         return ""
     return Truncator(normalized).chars(limit, truncate="…")
+
+
+def _catalog_cards_count(total: int) -> str:
+    total = int(total)
+    language_code = (get_language() or "az").split("-", 1)[0]
+    if language_code == "az":
+        return f"{total} kart"
+    if language_code == "en":
+        return f"{total} card" if total == 1 else f"{total} cards"
+
+    mod_10 = total % 10
+    mod_100 = total % 100
+    if mod_10 == 1 and mod_100 != 11:
+        noun = "карточка"
+    elif mod_10 in {2, 3, 4} and mod_100 not in {12, 13, 14}:
+        noun = "карточки"
+    else:
+        noun = "карточек"
+    return f"{total} {noun}"
+
+
+def _catalog_cards_found(total: int) -> str:
+    total = int(total)
+    language_code = (get_language() or "az").split("-", 1)[0]
+    cards_count = _catalog_cards_count(total)
+    if language_code == "az":
+        return f"{cards_count} tapıldı"
+    if language_code == "en":
+        return f"{cards_count} found"
+    if total % 10 == 1 and total % 100 != 11:
+        return f"Найдена {cards_count}"
+    return f"Найдено {cards_count}"
 
 
 def build_branded_seo_title(title: str, *, brand: str = "KidsMap", limit: int = 65) -> str:
@@ -212,18 +244,23 @@ def build_home_seo_payload(*, request, popular_places) -> dict:
 
 
 def build_catalog_seo_payload(*, request, selected: dict, places, total_count: int, is_new_page: bool, page_number: int) -> dict:
+    language_code = (get_language() or request.LANGUAGE_CODE or "az").split("-", 1)[0]
     title_base = _catalog_title_base(selected=selected, is_new_page=is_new_page)
     title_with_page = title_base
     if int(page_number or 1) > 1:
         title_with_page = _("%(title)s — страница %(page)s") % {"title": title_base, "page": int(page_number)}
 
     filter_summary = _catalog_filter_summary(selected, is_new_page=is_new_page)
+    cards_count = _catalog_cards_count(total_count)
+    cards_found = _catalog_cards_found(total_count)
     if filter_summary:
-        description = _("%(title)s. %(filters)s. Сейчас в подборке %(total)s карточек на KidsMap.") % {
-            "title": title_base,
-            "filters": "; ".join(filter_summary),
-            "total": int(total_count),
-        }
+        filters_text = "; ".join(filter_summary)
+        if language_code == "az":
+            description = f"{title_base}. {filters_text}. KidsMap seçməsində hazırda {cards_count} var."
+        elif language_code == "en":
+            description = f"{title_base}. {filters_text}. There are currently {cards_count} in this KidsMap selection."
+        else:
+            description = f"{title_base}. {filters_text}. Сейчас в подборке {cards_count} на KidsMap."
     elif is_new_page:
         description = _("%(title)s. Смотрите свежие карточки, фильтруйте по рейтингу, фото и проверке на KidsMap.") % {
             "title": title_base
@@ -233,18 +270,14 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
             "title": title_base
         }
 
-    intro = (
-        _("%(title)s. Найдено %(total)s карточек. %(filters)s.") % {
-            "title": title_base,
-            "total": int(total_count),
-            "filters": "; ".join(filter_summary),
-        }
-        if filter_summary
-        else _("%(title)s. Найдено %(total)s карточек в каталоге KidsMap.") % {
-            "title": title_base,
-            "total": int(total_count),
-        }
-    )
+    if filter_summary:
+        intro = f"{title_base}. {cards_found}. {'; '.join(filter_summary)}."
+    elif language_code == "az":
+        intro = f"{title_base}. KidsMap kataloqunda {cards_found}."
+    elif language_code == "en":
+        intro = f"{title_base}. {cards_found} in the KidsMap catalog."
+    else:
+        intro = f"{title_base}. {cards_found} в каталоге KidsMap."
 
     breadcrumb_name = _("Новое в каталоге") if is_new_page else _("Каталог")
     breadcrumb_schema_json = _build_breadcrumb_schema(
@@ -264,7 +297,7 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
             {
                 "position": position_offset + idx,
                 "url": request.build_absolute_uri(place.get_absolute_url()),
-                "name": place.name_i18n(request.LANGUAGE_CODE),
+                "name": place.name_i18n(language_code),
             }
             for idx, place in enumerate(places, start=1)
         ],

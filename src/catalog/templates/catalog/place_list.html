@@ -958,9 +958,6 @@
                   {% endif %}
                 </div>
               {% endif %}
-              {% if place.has_more_details %}
-                {% include "catalog/includes/place_more_panel.html" with place=place %}
-              {% endif %}
             </div>
           </div>
         </article>
@@ -1711,8 +1708,8 @@
       const mobileMedia = window.matchMedia("(max-width: 760px)");
       let activeRequest = null;
 
-      function buildFiltersUrl() {
-        const formData = new FormData(filtersForm);
+      function buildFormUrl(form) {
+        const formData = new FormData(form);
         const params = new URLSearchParams();
 
         formData.forEach(function (value, key) {
@@ -1721,10 +1718,14 @@
           params.append(key, cleanValue);
         });
 
-        const action = filtersForm.getAttribute("action") || window.location.pathname;
+        const action = form.getAttribute("action") || window.location.pathname;
         const url = new URL(action, window.location.origin);
         url.search = params.toString();
         return url;
+      }
+
+      function buildFiltersUrl() {
+        return buildFormUrl(filtersForm);
       }
 
       function showResultsLoading() {
@@ -1755,6 +1756,30 @@
         currentTopStack.replaceWith(nextTopStack);
         currentMainColumn.replaceWith(nextMainColumn);
 
+        const currentHeroSearch = document.getElementById("catalog-hero-search-input");
+        const nextHeroSearch = nextDocument.getElementById("catalog-hero-search-input");
+        const currentTopSearch = document.querySelector('.top-search-field[name="q"]');
+        const nextTopSearch = nextDocument.querySelector('.top-search-field[name="q"]');
+        if (currentHeroSearch && nextHeroSearch) {
+          currentHeroSearch.value = nextHeroSearch.value;
+        }
+        if (currentTopSearch && nextTopSearch) {
+          currentTopSearch.value = nextTopSearch.value;
+        }
+        const currentHeroHeading = document.querySelector(".hero-text h1");
+        const nextHeroHeading = nextDocument.querySelector(".hero-text h1");
+        const currentHeroIntro = document.querySelector(".hero-text > p");
+        const nextHeroIntro = nextDocument.querySelector(".hero-text > p");
+        if (currentHeroHeading && nextHeroHeading) {
+          currentHeroHeading.textContent = nextHeroHeading.textContent;
+        }
+        if (currentHeroIntro && nextHeroIntro) {
+          currentHeroIntro.textContent = nextHeroIntro.textContent;
+        }
+        if (nextDocument.title) {
+          document.title = nextDocument.title;
+        }
+
         if (wasMapOpen) {
           const panel = document.querySelector("[data-catalog-map-panel]");
           const button = document.querySelector("[data-catalog-map-open]");
@@ -1776,9 +1801,9 @@
         });
       }
 
-      function submitFiltersAjax() {
+      function submitFiltersAjax(urlOverride) {
         if (!filtersForm || mobileMedia.matches) return false;
-        const url = buildFiltersUrl();
+        const url = urlOverride || buildFiltersUrl();
         const scrollTop = window.scrollY;
 
         if (activeRequest) {
@@ -1834,6 +1859,21 @@
       if (filtersForm) {
         filtersForm.addEventListener("submit", function (event) {
           if (submitFiltersAjax()) {
+            event.preventDefault();
+          }
+        });
+      }
+
+      const heroSearchForm = document.querySelector(".catalog-hero-search");
+      if (heroSearchForm) {
+        heroSearchForm.addEventListener("submit", function (event) {
+          if (mobileMedia.matches || !filtersForm) return;
+          const heroQuery = heroSearchForm.querySelector('[name="q"]');
+          const filtersQuery = document.querySelector('.top-search-field[name="q"][form="filters-form"]');
+          if (heroQuery && filtersQuery) {
+            filtersQuery.value = heroQuery.value;
+          }
+          if (submitFiltersAjax(buildFormUrl(heroSearchForm))) {
             event.preventDefault();
           }
         });

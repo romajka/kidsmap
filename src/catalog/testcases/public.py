@@ -400,6 +400,24 @@ class TestPublicPagesSmoke(TestCase):
         self.assertNotIn("Каталог кружков и секций для детей в Баку", content)
         self.assertNotIn("Найдено %(total)s карточек", content)
 
+    def test_ru_catalog_uses_ru_result_count_and_singular_card_grammar(self):
+        create_quality_place(
+            name="Unique singular search place",
+            name_ru="Уникальный кружок для проверки склонения",
+        )
+
+        response = self.client.get(
+            "/ru/catalog/",
+            {"q": "Уникальный кружок для проверки склонения"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Найден 1 кружок")
+        self.assertContains(response, "Найдена 1 карточка")
+        self.assertNotContains(response, "kart tapıldı")
+        self.assertNotContains(response, "dərnək tapıldı")
+        self.assertNotContains(response, "məkan tapıldı")
+
     def test_en_home_title_is_localized(self):
         response = self.client.get("/en/")
 
@@ -1611,6 +1629,7 @@ class TestCatalogEnhancements(TestCase):
             name_ru="Кружок с подробной ценой",
             schedule="Пн/Ср/Пт 18:00-19:00",
             lesson_duration_minutes=60,
+            lesson_format="group",
             price_from=80,
             price_to=120,
             price_per_lesson=20,
@@ -1625,8 +1644,15 @@ class TestCatalogEnhancements(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Цена и занятия")
+        self.assertContains(response, "detail-unified-pricing--no-plans")
+        self.assertContains(response, "detail-unified-pricing--with-schedule")
         self.assertContains(response, "20 AZN")
         self.assertContains(response, 'class="detail-unified-pricing__price-sub"', html=False)
+        self.assertContains(response, "Формат занятий")
+        self.assertContains(response, "Групповые")
+        self.assertContains(response, "60 мин")
+        self.assertContains(response, "detail-highlight-card--lesson")
+        self.assertNotContains(response, "detail-highlight-card--schedule")
         self.assertContains(response, "занятие")
         self.assertContains(response, "Пн/Ср/Пт 18:00-19:00")
         self.assertContains(response, "Пробный урок бесплатно")
@@ -1768,7 +1794,7 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "data-place-gallery-thumb")
         self.assertContains(response, "static/js/place_gallery.js")
 
-    def test_catalog_card_renders_more_details_block(self):
+    def test_catalog_card_does_not_render_redundant_more_details_block(self):
         create_quality_place(
             name="More Details Kids Club",
             name_ru="Карточка с блоком другое",
@@ -1781,10 +1807,8 @@ class TestCatalogEnhancements(TestCase):
             response = self.client.get(reverse("place_list"), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "place-more-details")
-        self.assertContains(response, "Подробнее")
-        self.assertContains(response, "Подробности")
-        self.assertContains(response, "Есть пробное занятие")
+        self.assertNotContains(response, "place-more-details")
+        self.assertNotContains(response, "Есть пробное занятие")
 
     def test_catalog_map_uses_only_filtered_map_ready_places(self):
         matching_place = create_quality_place(

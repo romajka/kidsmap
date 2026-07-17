@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpRequest
@@ -33,6 +34,14 @@ from catalog.services.tracking import TrackingService
 from catalog.services.features import is_events_section_enabled
 
 
+def _public_request_language(request: HttpRequest) -> str:
+    supported = {code.split("-", 1)[0] for code, _label in settings.LANGUAGES}
+    first_segment = request.path_info.strip("/").split("/", 1)[0].lower()
+    if first_segment in supported:
+        return first_segment
+    return (settings.LANGUAGE_CODE or "az").split("-", 1)[0]
+
+
 @dataclass(slots=True)
 class PlaceController:
     place_repository: IPlaceRepository
@@ -55,7 +64,7 @@ class PlaceController:
         created_after: datetime | None = None,
     ) -> dict:
         liked_ids = liked_place_ids(request)
-        language_code = request.LANGUAGE_CODE
+        language_code = _public_request_language(request)
         filters = PlaceListFilters.from_request(request, force_new_only=force_new_only)
 
         qs = filters.apply(self.place_repository.filtered_active_queryset(created_after=created_after))
@@ -93,29 +102,36 @@ class PlaceController:
             page_number=page_obj.number,
         )
         total_results = page_obj.paginator.count
-        with override(language_code):
-            if showing_events:
-                if language_code == "az":
-                    results_count_label = f"{total_results} tədbir tapıldı"
-                elif language_code == "en":
-                    results_count_label = f"{total_results} events found"
-                else:
-                    results_count_label = ngettext(
-                        "Найдено %(total)s мероприятие",
-                        "Найдено %(total)s мероприятий",
-                        total_results,
-                    ) % {"total": total_results}
+        if showing_events:
+            if language_code == "az":
+                results_count_label = f"{total_results} tədbir tapıldı"
+            elif language_code == "en":
+                event_word = "event" if total_results == 1 else "events"
+                results_count_label = f"{total_results} {event_word} found"
             else:
-                if language_code == "az":
-                    results_count_label = f"{total_results} məkan tapıldı"
-                elif language_code == "en":
-                    results_count_label = f"{total_results} clubs found"
+                mod_10 = total_results % 10
+                mod_100 = total_results % 100
+                if mod_10 == 1 and mod_100 != 11:
+                    event_word = "мероприятие"
+                elif mod_10 in {2, 3, 4} and mod_100 not in {12, 13, 14}:
+                    event_word = "мероприятия"
                 else:
-                    results_count_label = ngettext(
-                        "Найден %(total)s кружок",
-                        "Найдено %(total)s кружков",
-                        total_results,
-                    ) % {"total": total_results}
+                    event_word = "мероприятий"
+                results_count_label = f"Найдено {total_results} {event_word}"
+        elif language_code == "az":
+            results_count_label = f"{total_results} məkan tapıldı"
+        elif language_code == "en":
+            club_word = "club" if total_results == 1 else "clubs"
+            results_count_label = f"{total_results} {club_word} found"
+        else:
+            mod_10 = total_results % 10
+            mod_100 = total_results % 100
+            if mod_10 == 1 and mod_100 != 11:
+                results_count_label = f"Найден {total_results} кружок"
+            elif mod_10 in {2, 3, 4} and mod_100 not in {12, 13, 14}:
+                results_count_label = f"Найдено {total_results} кружка"
+            else:
+                results_count_label = f"Найдено {total_results} кружков"
 
         public_filter_options = build_public_place_filter_options(
             language_code=language_code,

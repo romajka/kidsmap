@@ -420,6 +420,11 @@ body.page-place_detail .site-shell {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
+/* Keep an odd number of facts balanced when optional lesson metadata is absent. */
+.detail-page .detail-highlights > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .detail-highlight-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -492,6 +497,11 @@ body.page-place_detail .site-shell {
 }
 
 .detail-highlight-card--schedule .detail-highlight-card__icon {
+  color: #157dff;
+  background: linear-gradient(180deg, #e6f2ff, #d5e8ff);
+}
+
+.detail-highlight-card--lesson .detail-highlight-card__icon {
   color: #157dff;
   background: linear-gradient(180deg, #e6f2ff, #d5e8ff);
 }
@@ -596,12 +606,19 @@ body.page-place_detail .site-shell {
 }
 
 .detail-page .detail-photo-placeholder {
+  display: block;
   max-width: none;
   aspect-ratio: 1 / 1;
   min-height: 0;
   max-height: none;
   height: auto;
   border-radius: 24px;
+}
+
+.detail-page .detail-photo-placeholder .listing-placeholder-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .detail-page .detail-photo-placeholder .image-placeholder-icon {
@@ -1557,33 +1574,33 @@ body.page-place_detail .site-shell {
 
   .detail-page .detail-body-card--contact {
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 3 / span 2;
     align-self: stretch;
   }
 
   .detail-page .detail-body-card--map {
     grid-column: 1 / -1;
-    grid-row: 5;
+    grid-row: 6;
   }
 
   .detail-page .detail-body-card--reviews {
     grid-column: 1 / -1;
-    grid-row: 6;
+    grid-row: 7;
   }
 
   .detail-page:not(:has(.detail-body-card--map)) .detail-body-card--reviews {
-    grid-row: 5;
+    grid-row: 6;
   }
 
   .detail-page .detail-body-card--facts {
     grid-column: 1;
-    grid-row: 3;
-    align-self: end;
+    grid-row: 4;
+    align-self: start;
   }
 
   .detail-page .detail-disclaimer {
-    grid-column: 2;
-    grid-row: 4;
+    grid-column: 1 / -1;
+    grid-row: 5;
     align-self: stretch;
   }
 
@@ -2090,6 +2107,62 @@ body.page-place_detail .site-shell {
   margin-top: 8px;
 }
 
+/* When a place has no tariff plans, make the schedule the visual counterpart to the price. */
+.detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-unified-pricing__schedule-row {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 20px;
+  border: 1px solid rgba(13, 138, 82, 0.14);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(107, 215, 157, 0.2), transparent 38%),
+    linear-gradient(135deg, #f2fbf5, #fbfefc);
+  box-shadow: 0 10px 24px rgba(29, 97, 59, 0.06);
+}
+
+.detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-type-badge {
+  color: #176b43;
+}
+
+.detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-rows-list {
+  gap: 8px;
+}
+
+.detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-row-item {
+  grid-template-columns: minmax(0, 1fr) 14px auto;
+  padding: 9px 12px;
+  border: 1px solid rgba(28, 122, 72, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-row-days {
+  color: #315f47;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-unified-pricing__schedule-row {
+    animation: detail-schedule-card-in 420ms ease-out both;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-unified-pricing__schedule-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(29, 97, 59, 0.1);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+}
+
+@keyframes detail-schedule-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .detail-unified-pricing__plans-section {
   border-top: 1px solid #f0f4f1;
   padding-top: 20px;
@@ -2230,6 +2303,45 @@ body.page-place_detail .site-shell {
   /* footer notes: full width */
   .detail-unified-pricing__footer-notes {
     grid-column: 1 / -1;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule {
+    display: grid;
+    grid-template-columns: minmax(210px, 0.7fr) minmax(320px, 1.3fr);
+    gap: 0 30px;
+    align-items: center;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-section-head {
+    grid-column: 1 / -1;
+    margin-bottom: 18px;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-unified-pricing__top {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-unified-pricing__schedule-row {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-unified-pricing__footer-notes {
+    grid-column: 1 / -1;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule.detail-unified-pricing--without-price {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule.detail-unified-pricing--without-price .detail-unified-pricing__top,
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule.detail-unified-pricing--without-price .detail-unified-pricing__schedule-row {
+    grid-column: 1;
   }
 }
 

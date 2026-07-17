@@ -66,7 +66,9 @@
               total_place_reviews_count }}+{% else %}—{% endif %}</strong>
             <span>
               {% if total_place_reviews_count %}
-              {{ total_place_reviews_count|review_count }}
+                {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
+                {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
+                {% else %}отзывов родителей{% endif %}
               {% else %}
               {% trans "Пока нет отзывов" %}
               {% endif %}
