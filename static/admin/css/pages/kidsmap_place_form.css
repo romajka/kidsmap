@@ -224,9 +224,16 @@
 }
 
 .km-place-form-alert--warning {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
   border-color: #f4deb0;
   background: #fff8eb;
   color: #8a5d00;
+}
+
+.km-place-form-alert--warning strong {
+  flex: 0 0 auto;
 }
 
 .km-place-form-alert--danger {

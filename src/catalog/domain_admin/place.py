@@ -1615,7 +1615,10 @@ class PlaceAdmin(admin.ModelAdmin):
                 obj=obj,
                 add=add,
             )
-            context["km_place_form_errors"] = self._build_place_form_errors(adminform.form)
+            context["km_place_form_errors"] = self._build_place_form_errors(
+                adminform.form,
+                inline_admin_formsets=inline_admin_formsets,
+            )
             context["km_place_taxonomy_picker"] = self._build_taxonomy_picker_config(adminform.form)
             context["km_place_map_alert"] = self._build_place_map_alert(
                 form=adminform.form,
@@ -1635,7 +1638,7 @@ class PlaceAdmin(admin.ModelAdmin):
     def _fieldset_list(self, adminform):
         return list(adminform) if adminform is not None else []
 
-    def _build_place_form_errors(self, form):
+    def _build_place_form_errors(self, form, *, inline_admin_formsets=()):
         """Return actionable errors with anchors to the matching form section."""
         section_by_field = {
             "category": "#basics",
@@ -1686,6 +1689,22 @@ class PlaceAdmin(admin.ModelAdmin):
                 target = section_by_field.get(field_name, f"#id_{field_name}")
             for message in messages_for_field:
                 errors.append({"label": label, "message": str(message), "target": target})
+
+        # Django puts inline-form errors (for example, gallery photos) into the
+        # top-level ``errors`` object, not into the main form. Surface them here
+        # as actionable messages instead of showing the vague fallback alert.
+        for inline_admin_formset in inline_admin_formsets:
+            formset = inline_admin_formset.formset
+            inline_label = str(inline_admin_formset.opts.verbose_name)
+            target = "#media" if inline_admin_formset.opts.model.__name__ == "PlacePhoto" else "#verification"
+            for message in formset.non_form_errors():
+                errors.append({"label": inline_label, "message": str(message), "target": target})
+            for inline_form in formset.forms:
+                for field_name, messages_for_field in inline_form.errors.items():
+                    field = inline_form.fields.get(field_name)
+                    label = str(field.label) if field is not None else inline_label
+                    for message in messages_for_field:
+                        errors.append({"label": label, "message": str(message), "target": target})
 
         return errors
 
