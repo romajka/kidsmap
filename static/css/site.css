@@ -16845,6 +16845,21 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
               box-shadow 0.2s ease;
 }
 
+@media (min-width: 761px) {
+  .page-home .home-age-presets {
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding-inline: 8px;
+  }
+
+  .page-home .home-age-chip {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 6px;
+    white-space: nowrap;
+  }
+}
+
 .page-home .home-age-chip:hover,
 .page-home .home-age-chip:focus-visible {
   outline: none;
