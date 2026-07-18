@@ -73,6 +73,7 @@ services:
       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
     volumes:
       - "${MEDIA_ROOT_HOST:-./media}:/app/media"
+      - "${STATIC_ROOT_HOST:-./staticfiles}:/app/staticfiles"
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--header", "X-Forwarded-Proto: https", "http://127.0.0.1:8000/healthz"]
       interval: 30s

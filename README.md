@@ -209,8 +209,9 @@ docker compose -f docker-compose.yml run --rm web ./scripts/release-server.sh
 docker compose -f docker-compose.yml up -d web
 ```
 
-В production исходники не монтируются, БД не публикуется наружу, а постоянный каталог media
-монтируется отдельно через `MEDIA_ROOT_HOST` (по умолчанию `./media`). Media должен отдавать
+В production исходники не монтируются, БД не публикуется наружу, а постоянные каталоги media и
+staticfiles монтируются отдельно через `MEDIA_ROOT_HOST` и `STATIC_ROOT_HOST` (по умолчанию
+`./media` и `./staticfiles`). Media должен отдавать
 reverse proxy напрямую; `SERVE_MEDIA_FILES` оставьте равным `0`.
 `DJANGO_SECRET_KEY`, `DB_PASSWORD` и `DB_ROOT_PASSWORD` обязательны и не должны быть placeholder-значениями.
 HSTS preload намеренно выключен до отдельной проверки всех поддоменов.

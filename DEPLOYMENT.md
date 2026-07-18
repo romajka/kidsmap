@@ -178,7 +178,7 @@ docker compose -f docker-compose.yml run --rm web ./scripts/migrate.sh
 5. Run `./scripts/deploy-server.sh`.
 6. Run `docker compose -f docker-compose.yml run --rm web ./scripts/release-server.sh` manually only if you need to re-apply release tasks.
 7. Keep `SECURE_HSTS_PRELOAD=0` until every subdomain has been audited for permanent HTTPS support.
-8. Ensure `MEDIA_ROOT_HOST` exists and is writable by container UID/GID `10001`; Nginx must serve the same directory directly.
+8. Ensure `MEDIA_ROOT_HOST` and `STATIC_ROOT_HOST` exist and are writable by container UID/GID `10001`; Nginx must serve the same directories directly.
 9. Run `python manage.py check` (optional extra).
 10. Verify:
    - `/healthz`
