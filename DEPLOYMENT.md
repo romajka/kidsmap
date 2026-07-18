@@ -49,8 +49,7 @@ What it does:
 3. Rebuilds the web image, runs explicit release tasks, then starts containers.
 4. Verifies there is no model/migration drift (`makemigrations --check --dry-run`).
 5. Runs `python manage.py check`.
-6. Restores the three featured public clubs if they were quarantined or edited.
-7. Runs smoke checks for `/`, `/catalog/`, `/admin/` (with redirect follow and final `200`).
+6. Runs smoke checks for `/`, `/catalog/`, `/admin/` (with redirect follow and final `200`).
 
 Optional custom branch:
 ```bash
@@ -227,4 +226,4 @@ If SMTP is configured correctly, command prints `Test email sent ...`.
 1. The database backups are run separately from deployments (removed from `./scripts/deploy-server.sh`).
 2. Set up a daily cron job to run `./scripts/backup-db.sh` once a day, which automatically retains a maximum of 5 backups.
 3. Back up `media/` on the same schedule as the database.
-4. To restore the three featured demo clubs manually on the target server, run `docker compose -f docker-compose.yml exec -T web python manage.py restore_featured_places`.
+4. To intentionally restore and republish the three featured demo clubs on the target server, run `docker compose -f docker-compose.yml exec -T web python manage.py restore_featured_places --force`. This overrides manual hiding, so use it only when that is intended.

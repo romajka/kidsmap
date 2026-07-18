@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from catalog.models import Place
@@ -85,12 +85,22 @@ FEATURED_PLACES = {
 
 
 class Command(BaseCommand):
-    help = "Restore the three original featured public clubs and make them pass the public filter."
+    help = "Explicitly restore the original featured clubs. This can override manual hiding."
 
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true", help="Show changes without saving them")
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Confirm restoring and republishing featured clubs, including manually hidden ones.",
+        )
 
     def handle(self, *args, **options):
+        if not options["force"]:
+            raise CommandError(
+                "Refusing to restore featured clubs without --force because this can republish manually hidden places."
+            )
+
         dry_run = bool(options["dry_run"])
         restored = 0
         missing = []
