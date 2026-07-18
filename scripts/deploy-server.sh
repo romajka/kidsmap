@@ -70,7 +70,7 @@ log "Running release tasks"
 "${COMPOSE[@]}" run --rm web ./scripts/release-server.sh
 
 log "Starting updated application"
-"${COMPOSE[@]}" up -d --no-deps web
+"${COMPOSE[@]}" up -d --no-deps --force-recreate web
 
 log "Checking migrations drift"
 "${COMPOSE[@]}" exec -T web python manage.py makemigrations --check --dry-run
