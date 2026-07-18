@@ -34,15 +34,13 @@ def _is_placeholder_secret(value: str) -> bool:
 def _has_default_db_credentials() -> bool:
     if DB_ENGINE not in {"mysql", "mariadb"}:
         return False
-    db_name = (os.getenv("DB_NAME", "kidsmap") or "").strip()
-    db_user = (os.getenv("DB_USER", "kidsmap") or "").strip()
     db_password = (os.getenv("DB_PASSWORD", "kidsmap") or "").strip()
     return not db_password or db_password in {
         "kidsmap",
         "replace-with-strong-db-password",
         "changeme",
         "change-me",
-    } or (db_name == "kidsmap" and db_user == "kidsmap")
+    }
 
 
 # SECURITY: в проде ключ хранить только в env
