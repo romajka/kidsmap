@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -14,9 +14,10 @@
     <div class="site-reviews-hero reviews-polished-hero">
       <picture class="reviews-hero-picture">
         {% if site_settings.reviews_hero_image %}
+          <source media="(max-width: 760px)" srcset="{{ site_settings.reviews_hero_image|image_variant:'hero-mobile' }}">
           <img
             class="reviews-hero-image"
-            src="{{ site_settings.reviews_hero_image.url }}"
+            src="{{ site_settings.reviews_hero_image|image_variant:'hero-desktop' }}"
             width="1400"
             height="600"
             alt=""

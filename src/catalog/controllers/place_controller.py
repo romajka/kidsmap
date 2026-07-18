@@ -19,6 +19,7 @@ from catalog.repositories.django_repositories import DjangoPlaceRepository, Djan
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
 from catalog.services.public_filter_options import build_public_place_filter_options
 from catalog.services.content_quality import public_review_queryset, published_place_queryset
+from catalog.services.images import image_variant_url
 from catalog.services.reactions import (
     liked_place_ids,
     mark_liked_flags,
@@ -724,7 +725,7 @@ class PlaceController:
                     "category_icon_is_svg": cat_icon_is_svg,
                     "category_icon_is_font": cat_icon_is_font,
                     "category_icon_name": cat_icon_name,
-                    "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
+                    "image_url": image_variant_url(place.photo or place.cover_photo, "card-480"),
                     "location": " / ".join(location_parts),
                     "address": ", ".join(part for part in address_parts if part),
                     "district": get_location_translation(place.district, language_code) if place.district else "",

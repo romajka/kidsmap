@@ -15,7 +15,7 @@ fi
 
 # Rebuild project translation binaries from source .po files on every release.
 find locale -path '*/LC_MESSAGES/django.mo' -type f -delete 2>/dev/null || true
-"${PYTHON_BIN}" manage.py compilemessages --ignore .venv --ignore venv || true
+"${PYTHON_BIN}" manage.py compilemessages --ignore .venv --ignore venv
 
 if [ "${RUN_COLLECTSTATIC_ON_RELEASE:-1}" = "1" ]; then
   "${PYTHON_BIN}" manage.py collectstatic --clear --noinput

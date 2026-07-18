@@ -6,14 +6,12 @@ services:
     environment:
       MARIADB_DATABASE: ${DB_NAME:-kidsmap_prod}
       MARIADB_USER: ${DB_USER:-kidsmap_app}
-      MARIADB_PASSWORD: ${DB_PASSWORD:-replace-with-strong-db-password}
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-replace-with-strong-root-password}
+      MARIADB_PASSWORD: "${DB_PASSWORD:-}"
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-}"
     volumes:
       - mariadb_data:/var/lib/mysql
-    ports:
-      - "3307:3306"
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u${DB_USER:-kidsmap_app}", "-p${DB_PASSWORD:-replace-with-strong-db-password}"]
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u\"$${MARIADB_USER}\" -p\"$${MARIADB_PASSWORD}\""]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -30,8 +28,8 @@ services:
       - "8000:8000"
     environment:
       DJANGO_DEBUG: "${DJANGO_DEBUG:-0}"
-      SERVE_MEDIA_FILES: "${SERVE_MEDIA_FILES:-1}"
-      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-replace-with-long-random-secret}"
+      SERVE_MEDIA_FILES: "${SERVE_MEDIA_FILES:-0}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-}"
       DJANGO_ALLOWED_HOSTS: "${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost,0.0.0.0}"
       DJANGO_CSRF_TRUSTED_ORIGINS: "${DJANGO_CSRF_TRUSTED_ORIGINS:-}"
       DJANGO_ADMIN_HOST: "${DJANGO_ADMIN_HOST:-}"
@@ -66,7 +64,7 @@ services:
       DB_ENGINE: "mariadb"
       DB_NAME: "${DB_NAME:-kidsmap_prod}"
       DB_USER: "${DB_USER:-kidsmap_app}"
-      DB_PASSWORD: "${DB_PASSWORD:-replace-with-strong-db-password}"
+      DB_PASSWORD: "${DB_PASSWORD:-}"
       DB_HOST: "db"
       DB_PORT: "3306"
       USE_RUNSERVER: "${USE_RUNSERVER:-0}"
@@ -74,7 +72,13 @@ services:
       GUNICORN_WORKERS: "${GUNICORN_WORKERS:-3}"
       GUNICORN_TIMEOUT: "${GUNICORN_TIMEOUT:-120}"
     volumes:
-      - ./:/app
+      - "${MEDIA_ROOT_HOST:-./media}:/app/media"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--header", "X-Forwarded-Proto: https", "http://127.0.0.1:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
 
 volumes:
   mariadb_data:

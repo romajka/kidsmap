@@ -742,16 +742,14 @@ msgid "Карточка создана и отправлена на модера
 msgstr ""
 
 #: src/catalog/controllers/owner_places_controller.py:141
-#, fuzzy
 #| msgid "Проверка координат не создает карточку и не отправляет ее на модерацию."
 msgid "Карточка создана и отправлена на модерацию в админку."
-msgstr "Koordinat yoxlamasi kart yaratmir və onu moderasiyaya göndərmir."
+msgstr "Kart yaradıldı və moderasiya üçün admin panelinə göndərildi."
 
 #: src/catalog/controllers/owner_places_controller.py:232
-#, fuzzy
 #| msgid "Карточка не найдена или не привязана к вашему аккаунту."
 msgid "Карточка не найдена или не привязана к вашему аккаунту. Проверьте список «Мои кружки» и повторите действие."
-msgstr "Kart tapılmadı və ya hesabınıza bağlanmayıb."
+msgstr "Kart tapılmadı və ya hesabınıza bağlı deyil. «Mənim məkanlarım» siyahısını yoxlayıb yenidən cəhd edin."
 
 #: src/catalog/controllers/owner_places_controller.py:240
 msgid "Məkan yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."
@@ -762,10 +760,9 @@ msgid "Hazırda maksimum 10 məkan limiti aktivdir. Yeni məkan əlavə etmək �
 msgstr ""
 
 #: src/catalog/controllers/owner_places_controller.py:374
-#, fuzzy
 #| msgid "Отзыв отправлен на модерацию."
 msgid "Новая карточка отправлена на модерацию."
-msgstr "Rəy moderasiyaya göndərildi."
+msgstr "Yeni kart moderasiyaya göndərildi."
 
 #: src/catalog/controllers/owner_places_controller.py:408
 msgid "Qaralama saxlanıldı. Məkanı sonra profilinizdə davam etdirə bilərsiniz."
@@ -776,10 +773,9 @@ msgid "Qaralama saxlanıldı. Dəyişiklikləri sonra davam etdirə bilərsiniz.
 msgstr ""
 
 #: src/catalog/controllers/owner_places_controller.py:500
-#, fuzzy
 #| msgid "Карточка успешно обновлена."
 msgid "Карточка успешно обновлена. Координаты обновлены автоматически."
-msgstr "Kart uğurla yeniləndi."
+msgstr "Kart uğurla yeniləndi. Koordinatlar avtomatik yeniləndi."
 
 #: src/catalog/controllers/owner_places_controller.py:502
 msgid "Карточка успешно обновлена."
@@ -787,44 +783,38 @@ msgstr "Kart uğurla yeniləndi."
 
 #: src/catalog/controllers/owner_places_controller.py:523
 #: src/catalog/controllers/owner_places_controller.py:570
-#, fuzzy
 #| msgid "Эта карточка уже привязана к вашему аккаунту."
 msgid "Карточка не найдена или не привязана к вашему аккаунту."
-msgstr "Bu kart artıq hesabınıza bağlıdır."
+msgstr "Kart tapılmadı və ya hesabınıza bağlı deyil."
 
 #: src/catalog/controllers/owner_places_controller.py:531
-#, fuzzy
 #| msgid "Публикация станет доступна после одобрения заявки модератором."
 msgid "Публикация доступна только после одобрения модератором."
-msgstr "Müraciət moderator tərəfindən təsdiqləndikdən sonra dərc etmək mümkün olacaq."
+msgstr "Dərc yalnız moderator təsdiqindən sonra mümkündür."
 
 #: src/catalog/controllers/owner_places_controller.py:552
-#, fuzzy
 #| msgid "Опубликовано"
 msgid "Карточка опубликована."
-msgstr "Dərc olunub"
+msgstr "Kart dərc olundu."
 
 #: src/catalog/controllers/owner_places_controller.py:552
-#, fuzzy
 #| msgid "Карточка уже удалена."
 msgid "Карточка переведена в черновик."
-msgstr "Kart artıq silinib."
+msgstr "Kart qaralamaya keçirildi."
 
 #: src/catalog/controllers/owner_places_controller.py:580
-#, fuzzy
 #| msgid "Отзыв отправлен на модерацию."
 msgid "Эта карточка уже отправлена на модерацию."
-msgstr "Rəy moderasiyaya göndərildi."
+msgstr "Bu kart artıq moderasiyaya göndərilib."
 
 #: src/catalog/controllers/owner_places_controller.py:588
 msgid "Dərc olunmuş məkan yalnız admin moderasiyasından sonra yenidən dəyişdirilə bilər."
 msgstr ""
 
 #: src/catalog/controllers/owner_places_controller.py:603
-#, fuzzy
 #| msgid "Редактирование карточки кружка в кабинете владельца."
 msgid "Карточка отправлена на модерацию из кабинета владельца."
-msgstr "Sahib kabinetində dərnək kartının redaktəsi."
+msgstr "Kart sahib kabinetindən moderasiyaya göndərildi."
 
 #: src/catalog/controllers/owner_places_controller.py:617
 msgid "Məkan moderasiyaya göndərildi."
@@ -1830,10 +1820,9 @@ msgstr "Doldurulub"
 #: src/catalog/domain_admin/owner.py:581
 #: src/catalog/templates/pages/owner_place_create.html:60
 #: src/catalog/templates/pages/owner_place_edit.html:60
-#, fuzzy
 #| msgid "Заполнено"
 msgid "Не заполнено"
-msgstr "Doldurulub"
+msgstr "Doldurulmayıb"
 
 #: src/catalog/domain_admin/owner.py:587
 #, python-format
@@ -2109,10 +2098,9 @@ msgid "Город / регион"
 msgstr "Şəhər / Bölgə"
 
 #: src/catalog/domain_admin/place.py:76 src/catalog/forms.py:813
-#, fuzzy
 #| msgid "Район"
 msgid "Район города"
-msgstr "Rayon"
+msgstr "Şəhər rayonu"
 
 #: src/catalog/domain_admin/place.py:102 src/catalog/domain_admin/place.py:292
 msgid "URL-слаг"
@@ -4020,34 +4008,29 @@ msgid "Текущая картинка пустого результата"
 msgstr "Cari boş nəticə şəkli"
 
 #: src/catalog/domain_admin/site.py:101
-#, fuzzy
 #| msgid "Текущий фон баннера"
 msgid "Текущий баннер каталога"
-msgstr "Cari banner fonu"
+msgstr "Kataloqun cari banneri"
 
 #: src/catalog/domain_admin/site.py:105
-#, fuzzy
 #| msgid "Текст страницы «О проекте»."
 msgid "Текущий баннер страницы 'О проекте'"
-msgstr "“Layihə haqqında” səhifəsinin mətni."
+msgstr "«Layihə haqqında» səhifəsinin cari banneri"
 
 #: src/catalog/domain_admin/site.py:109
-#, fuzzy
 #| msgid "Пока нет отзывов"
 msgid "Текущий баннер отзывов"
-msgstr "Hələ rəy yoxdur"
+msgstr "Rəylər səhifəsinin cari banneri"
 
 #: src/catalog/domain_admin/site.py:113
-#, fuzzy
 #| msgid "Кабинет владельца"
 msgid "Текущий баннер владельцам"
-msgstr "Sahib kabineti"
+msgstr "Sahiblər səhifəsinin cari banneri"
 
 #: src/catalog/domain_admin/site.py:117
-#, fuzzy
 #| msgid "Редактирование карточки кружка в кабинете владельца."
 msgid "Текущий баннер личного кабинета"
-msgstr "Sahib kabinetində dərnək kartının redaktəsi."
+msgstr "Şəxsi kabinetin cari banneri"
 
 #: src/catalog/domain_admin/site.py:146 src/catalog/domain_admin/site.py:199
 #: src/catalog/domain_models/site.py:283 src/catalog/domain_models/site.py:284
@@ -4116,20 +4099,18 @@ msgid "Дизайн-картинки"
 msgstr "Dizayn şəkilləri"
 
 #: src/catalog/domain_admin/site.py:220
-#, fuzzy
 #| msgid "Контакты страницы (i18n)"
 msgid "Hero главной страницы (i18n)"
-msgstr "“Əlaqə” səhifəsi üçün kontaktlar."
+msgstr "Ana səhifənin hero bloku (i18n)"
 
 #: src/catalog/domain_admin/site.py:249
 msgid "О проекте (i18n)"
 msgstr "Layihə haqqında"
 
 #: src/catalog/domain_admin/site.py:250
-#, fuzzy
 #| msgid "Контакты страницы (i18n)"
 msgid "Баннер страницы"
-msgstr "“Əlaqə” səhifəsi üçün kontaktlar."
+msgstr "Səhifə banneri"
 
 #: src/catalog/domain_admin/site.py:258
 msgid "Контакты страницы (i18n)"
@@ -4141,16 +4122,14 @@ msgstr "Boş nəticə"
 
 #: src/catalog/domain_admin/site.py:406 src/catalog/domain_models/site.py:231
 #: src/catalog/models/site.py:266
-#, fuzzy
 #| msgid "Редактировать"
 msgid "Где показывать"
-msgstr "Redaktə et"
+msgstr "Harada göstərilsin"
 
 #: src/catalog/domain_admin/site.py:417
-#, fuzzy
 #| msgid "Окончание мероприятия"
 msgid "Изображение и подписи"
-msgstr "Tədbirin sonu"
+msgstr "Şəkil və mətnlər"
 
 #: src/catalog/domain_admin/site.py:609
 msgid "Превью"
@@ -4163,10 +4142,9 @@ msgid "Фото для галереи"
 msgstr "Qalereya şəkli"
 
 #: src/catalog/domain_admin/site.py:626
-#, fuzzy
 #| msgid "Приглашение не найдено или уже обработано."
 msgid "Изображение для слайдеров или партнеров."
-msgstr "Dəvət tapılmadı və ya artıq işlənib."
+msgstr "Slayderlər və ya tərəfdaşlar üçün şəkil."
 
 #: src/catalog/domain_admin/site.py:758
 msgid "Контент фильтров"
@@ -4174,21 +4152,20 @@ msgstr "Sürətli filtrlər"
 
 #: src/catalog/domain_admin/site.py:767
 msgid "Контент SEO-страниц"
-msgstr ""
+msgstr "SEO səhifələrinin məzmunu"
 
 #: src/catalog/domain_admin/site.py:770
 msgid "JSON-структура SEO страниц. Если оставить пусто, используются значения по умолчанию из кода."
-msgstr ""
+msgstr "SEO səhifələrinin JSON strukturu. Boş saxlanılarsa, koddakı standart dəyərlər istifadə olunur."
 
 #: src/catalog/domain_admin/site.py:783
-#, fuzzy
 #| msgid "Контакты (EN)"
 msgid "Контент и SEO"
-msgstr "Əlaqə"
+msgstr "Məzmun və SEO"
 
 #: src/catalog/domain_admin/site.py:784
 msgid "Настройки фильтров и SEO-данных каталога (JSON)."
-msgstr ""
+msgstr "Kataloq filtrləri və SEO məlumatlarının ayarları (JSON)."
 
 #: src/catalog/domain_admin/user.py:63
 #, fuzzy
@@ -4876,10 +4853,9 @@ msgstr "Moderasiya üçün şərh"
 #: src/catalog/domain_models/place.py:677 src/catalog/models/place.py:694
 #: src/catalog/models/place.py:718
 #: src/catalog/templates/catalog/place_list.html:799
-#, fuzzy
 #| msgid "Мероприятия"
 msgid "Мероприятие"
-msgstr "Tədbirlər"
+msgstr "Tədbir"
 
 #: src/catalog/domain_models/place.py:678 src/catalog/models/place.py:719
 #: src/catalog/templates/admin/catalog/event/change_list.html:20
@@ -5357,7 +5333,7 @@ msgstr "Rayon/Metro"
 
 #: src/catalog/domain_models/site.py:413 src/catalog/models/site.py:452
 msgid "SEO страницы (JSON)"
-msgstr ""
+msgstr "SEO səhifələri (JSON)"
 
 #: src/catalog/domain_models/site.py:458 src/catalog/domain_models/site.py:459
 #: src/catalog/domain_models/site.py:462 src/catalog/models/site.py:497
@@ -6206,10 +6182,9 @@ msgid "Для Баку необходимо выбрать район."
 msgstr "Bakı üçün rayon seçilməlidir."
 
 #: src/catalog/services/owner_place_use_cases.py:48
-#, fuzzy
 #| msgid "Недостаточно прав для выполнения этого действия. Обратитесь к owner manager, чтобы изменить роль или права доступа."
 msgid "Недостаточно прав для выполнения этого действия. Обратитесь к администратору, чтобы изменить доступ."
-msgstr "Bu əməliyyat üçün hüquq yetərli deyil. Rol və ya icazələri dəyişmək üçün owner manager-a müraciət edin."
+msgstr "Bu əməliyyat üçün icazəniz yoxdur. Girişi dəyişmək üçün administratorla əlaqə saxlayın."
 
 #: src/catalog/services/ownership_use_cases.py:30
 msgid "Для отправки заявки войдите в аккаунт и повторите действие."
@@ -8059,7 +8034,7 @@ msgstr "%(number)s nömrəli şəkli aç"
 
 #: src/catalog/templates/catalog/place_detail.html:268
 #: src/catalog/templates/pages/home.html:459
-#, fuzzy, python-format
+#, python-format
 #| msgid "%(total)s отзыв"
 #| msgid_plural "%(total)s отзывов"
 msgid "%(total)s отзыв"
@@ -8083,10 +8058,9 @@ msgstr "Hələ dərc olunmuş rəy yoxdur."
 #: src/catalog/templates/catalog/place_detail.html:328
 #: src/catalog/templates/pages/site_reviews.html:56
 #: src/catalog/templates/pages/site_reviews.html:76
-#, fuzzy
 #| msgid "Отправить отзыв"
 msgid "Оставить отзыв"
-msgstr "Rəyi göndər"
+msgstr "Rəy yaz"
 
 #: src/catalog/templates/catalog/place_detail.html:329
 msgid "Короткий отзыв поможет другим родителям быстрее выбрать место."
@@ -8100,10 +8074,10 @@ msgid "Ваша оценка"
 msgstr "Sizin qiymətiniz"
 
 #: src/catalog/templates/catalog/place_detail.html:357
-#, fuzzy, python-format
+#, python-format
 #| msgid "Нет опубликованных карточек."
 msgid "Отзыв будет опубликован от имени %(author)s."
-msgstr "Dərc olunmuş kart yoxdur."
+msgstr "Rəy %(author)s adından dərc olunacaq."
 
 #: src/catalog/templates/catalog/place_detail.html:362
 #: src/catalog/templates/pages/site_reviews.html:176
@@ -8138,7 +8112,6 @@ msgstr "Məkanın xəritəsi"
 
 #: src/catalog/templates/catalog/place_detail.html:776
 #: src/catalog/templates/catalog/place_list.html:725
-#, fuzzy
 #| msgid "Постоянное"
 msgid "Постоянное место"
 msgstr "Daimi məkan"
@@ -8158,19 +8131,16 @@ msgstr "Hamısı"
 
 #: src/catalog/templates/catalog/place_list.html:268
 #: src/catalog/templates/catalog/place_list.html:269
-#, fuzzy
 #| msgid "Карта места"
 msgid "Тип места"
-msgstr "Məkanın xəritəsi"
+msgstr "Məkan növü"
 
 #: src/catalog/templates/catalog/place_list.html:278
-#, fuzzy
 #| msgid "Временное"
 msgid "Временные"
 msgstr "Müvəqqəti"
 
 #: src/catalog/templates/catalog/place_list.html:283
-#, fuzzy
 #| msgid "Постоянное"
 msgid "Постоянные"
 msgstr "Daimi"
@@ -8201,13 +8171,11 @@ msgid "За 30 дней"
 msgstr "Son 30 gün"
 
 #: src/catalog/templates/catalog/place_list.html:478
-#, fuzzy
 #| msgid "Район/метро"
 msgid "Найти метро"
-msgstr "Metro stansiyaları axtar"
+msgstr "Metro tap"
 
 #: src/catalog/templates/catalog/place_list.html:499
-#, fuzzy
 #| msgid "Популярные категории"
 msgid "Популярные станции метро"
 msgstr "Populyar metro stansiyaları"
@@ -8235,14 +8203,12 @@ msgid "Искать кружок или ключевое слово... напр�
 msgstr ""
 
 #: src/catalog/templates/catalog/place_list.html:559
-#, fuzzy
 #| msgid "Выберите фильтры"
 msgid "Выбранные фильтры"
 msgstr "Seçilmiş filtrlər"
 
 #: src/catalog/templates/catalog/place_list.html:568
 #: src/catalog/templates/catalog/place_list.html:960
-#, fuzzy
 #| msgid "Запросить новую ссылку"
 msgid "Сбросить всё"
 msgstr "Hamısını sıfırla"
@@ -9105,10 +9071,9 @@ msgstr "Əvvəlcə vacib minimumu tamamlayın."
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:288
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:352
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:439
-#, fuzzy
 #| msgid "Сохранить профиль"
 msgid "Сохранить черновик"
-msgstr "Profili saxla"
+msgstr "Qaralamanı saxla"
 
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:164
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:237
@@ -9158,10 +9123,9 @@ msgid "Проверка координат не отправляет карто�
 msgstr "Koordinatların yoxlanması kartı moderasiyaya göndərmir."
 
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:321
-#, fuzzy
 #| msgid "Загрузить фото"
 msgid "Загрузите главное фото."
-msgstr "Şəkil yüklə"
+msgstr "Əsas şəkli yükləyin."
 
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:433
 msgid "Открыть страницу кружка"
@@ -9178,10 +9142,9 @@ msgstr "Dəyişiklikləri saxla"
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:440
 #: src/catalog/templates/pages/owner_reviews.html:17
 #: src/catalog/templates/pages/owner_team.html:17
-#, fuzzy
 #| msgid "Найти места"
 msgid "Мои места"
-msgstr "Məkanları tap"
+msgstr "Mənim məkanlarım"
 
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:441
 msgid "Создать и отправить на проверку"
@@ -9202,11 +9165,10 @@ msgstr "Region, rayon və ya metro"
 
 #: src/catalog/templates/pages/owner_place_create.html:50
 #: src/catalog/templates/pages/owner_place_edit.html:50
-#, fuzzy
 #| msgid "%(total)s точка на карте"
 #| msgid_plural "%(total)s точки на карте"
 msgid "Точка на карте"
-msgstr "Xəritədə %(total)s nöqtə"
+msgstr "Xəritədə nöqtə"
 
 #: src/catalog/templates/pages/owner_place_create.html:51
 msgid "Обязательный минимум заполнен. Карточку уже можно отправлять."
@@ -9280,10 +9242,9 @@ msgid "Обязательный минимум заполнен. Можно со
 msgstr "Vacib minimum doldurulub. Kartı saxlamaq olar."
 
 #: src/catalog/templates/pages/owner_place_edit.html:52
-#, fuzzy
 #| msgid "Только проверенные"
 msgid "Следом проверьте:"
-msgstr "Yalnız yoxlanılmış"
+msgstr "Sonra yoxlayın:"
 
 #: src/catalog/templates/pages/owner_place_edit.html:54
 msgid "Карточка заполнена подробно. Можно только точечно обновлять детали."
@@ -9294,10 +9255,9 @@ msgid "Для более полного профиля ещё можно доб�
 msgstr ""
 
 #: src/catalog/templates/pages/owner_places.html:13
-#, fuzzy
 #| msgid "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора."
 msgid "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков."
-msgstr "Kartı silib saytdan gizlətmək istəyirsiniz? Kart sizin kabinetinizdən itəcək, amma admin tərəfində silinənlər bölməsində qalacaq."
+msgstr "Tədbir silinsin? O, kabinetinizdən və açıq siyahılardan yox olacaq."
 
 #: src/catalog/templates/pages/owner_reviews.html:14
 #, fuzzy
@@ -9422,14 +9382,13 @@ msgid "Сортировка отзывов"
 msgstr "Rəylərin sıralanması"
 
 #: src/catalog/templates/pages/site_reviews.html:114
-#, fuzzy
 #| msgid "Пока нет отзывов. Будьте первым!"
 msgid "Пока нет отзывов с текстом."
-msgstr "Hələ rəy yoxdur. İlk siz yazın!"
+msgstr "Hələ mətnli rəy yoxdur."
 
 #: src/catalog/templates/pages/site_reviews.html:115
 msgid "Сейчас в ленте есть только оценки без комментариев. Оставьте первый письменный отзыв о сервисе KidsMap."
-msgstr ""
+msgstr "Hazırda lentdə yalnız şərhsiz qiymətlər var. KidsMap xidməti haqqında ilk yazılı rəyi siz yazın."
 
 #: src/catalog/templates/pages/site_reviews.html:151
 msgid "Оставить отзыв о сайте"
@@ -9533,41 +9492,35 @@ msgid "Контакты проекта KidsMap."
 msgstr "KidsMap layihəsinin əlaqələri."
 
 #: src/catalog/views.py:611
-#, fuzzy
 #| msgid "Управление карточками владельца: редактирование, черновики, публикация и статистика."
 msgid "Мои места KidsMap: редактирование, черновики, модерация и статистика."
-msgstr "Sahib kartlarının idarəsi: redaktə, qaralamalar, dərc və statistika."
+msgstr "KidsMap məkanlarım: redaktə, qaralamalar, moderasiya və statistika."
 
 #: src/catalog/views.py:630
-#, fuzzy
 #| msgid "Сброс пароля аккаунта KidsMap."
 msgid "Выбор типа объявления KidsMap."
-msgstr "KidsMap hesabı üçün şifrənin sıfırlanması."
+msgstr "KidsMap elan növünün seçilməsi."
 
 #: src/catalog/views.py:659 src/catalog/views.py:683 src/catalog/views.py:705
 #: src/catalog/views.py:719
-#, fuzzy
 #| msgid "Управление карточками из личного кабинета"
 msgid "Создание места в личном кабинете KidsMap."
-msgstr "Kartları şəxsi kabinetdən idarə etmək"
+msgstr "KidsMap şəxsi kabinetində məkan yaradılması."
 
 #: src/catalog/views.py:762
-#, fuzzy
 #| msgid "Временное мероприятие"
 msgid "Создание временного мероприятия KidsMap."
-msgstr "Müvəqqəti tədbir"
+msgstr "KidsMap-də müvəqqəti tədbirin yaradılması."
 
 #: src/catalog/views.py:812
-#, fuzzy
 #| msgid "Укажите дату и время в формате ГГГГ-ММ-ДД ЧЧ:ММ."
 msgid "Редактирование временного мероприятия KidsMap."
-msgstr "Tarix və vaxtı YYYY-MM-DD HH:MM formatında daxil edin."
+msgstr "KidsMap-də müvəqqəti tədbirin redaktəsi."
 
 #: src/catalog/views.py:902 src/catalog/views.py:916
-#, fuzzy
 #| msgid "Редактирование карточки кружка в кабинете владельца."
 msgid "Редактирование места в личном кабинете KidsMap."
-msgstr "Sahib kabinetində dərnək kartının redaktəsi."
+msgstr "KidsMap şəxsi kabinetində məkanın redaktəsi."
 
 #: src/catalog/views.py:984 src/catalog/views.py:1006
 msgid "Команда владельца KidsMap: приглашения, роли и управление доступами."
@@ -9590,10 +9543,9 @@ msgid "Подтверждение email в KidsMap."
 msgstr "KidsMap-də email təsdiqi."
 
 #: src/catalog/views.py:1233
-#, fuzzy
 #| msgid "Личный кабинет KidsMap: профиль, избранные кружки и история просмотров."
 msgid "Личный кабинет KidsMap: профиль, избранное, история просмотров и мои места."
-msgstr "KidsMap şəxsi kabineti: profil, sevimli dərnəklər və baxış tarixçəsi."
+msgstr "KidsMap şəxsi kabineti: profil, seçilmişlər, baxış tarixçəsi və məkanlarım."
 
 #: src/catalog/views.py:1253
 msgid "Избранные кружки пользователя в KidsMap."
@@ -9673,10 +9625,9 @@ msgid "See Profile"
 msgstr ""
 
 #: src/templates/admin/base.html:254
-#, fuzzy
 #| msgid "Пагинация"
 msgid "Админ-навигация"
-msgstr "Səhifələmə"
+msgstr "Admin naviqasiyası"
 
 #: src/templates/admin/base.html:259 src/templates/admin/base.html:317
 #: src/templates/admin/index.html:7 src/templates/admin/index.html:12
@@ -9720,10 +9671,9 @@ msgid "Sidebar"
 msgstr ""
 
 #: templates/admin/base.html:228
-#, fuzzy
 #| msgid "Панель управления KidsMap"
 msgid "Панель управления"
-msgstr "KidsMap İdarəetmə Paneli"
+msgstr "İdarəetmə paneli"
 
 #: templates/admin/catalog/place_ownership_request_moderate_confirm.html:9
 #, python-format

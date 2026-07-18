@@ -93,7 +93,7 @@ class OwnershipController:
         }
 
     def submit_claim_request(self, *, request, place_id: int) -> tuple[object, OwnershipRequestResult]:
-        place = get_object_or_404(self.place_repository.active_queryset(), pk=place_id)
+        place = get_object_or_404(self.place_repository.claimable_queryset(), pk=place_id)
         result = submit_place_ownership_request(
             request=request,
             place=place,

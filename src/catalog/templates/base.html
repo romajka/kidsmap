@@ -1,4 +1,4 @@
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 <!doctype html>
 <html lang="{% firstof CURRENT_LANGUAGE LANGUAGE_CODE 'az' %}">
@@ -57,7 +57,7 @@
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
   </head>
-  <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');"{% endif %}>
+  <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image|image_variant:'background-1920'|escape }}');"{% endif %}>
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div class="site-shell">
       <header class="topbar">

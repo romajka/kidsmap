@@ -7,6 +7,9 @@ class CatalogConfig(AppConfig):
 
     def ready(self):
         self._patch_jazzmin_paginator()
+        from catalog.image_signals import register_image_signals
+
+        register_image_signals()
         
     def _patch_jazzmin_paginator(self):
         """

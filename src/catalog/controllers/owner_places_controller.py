@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from django.db import transaction
 from django.utils.translation import gettext as _
 
 from catalog.forms import OwnerPlaceCreateForm, OwnerPlaceEditForm
@@ -351,6 +352,7 @@ class OwnerPlacesController:
             profile=result.profile,
         )
 
+    @transaction.atomic
     def create_place(self, *, request, data, files, draft_save_only: bool = False) -> OwnerPlaceActionResult:
         result = self.build_create_form_context(
             request=request,
@@ -450,6 +452,7 @@ class OwnerPlacesController:
             ownership_request=ownership_request,
         )
 
+    @transaction.atomic
     def save_edit_form(
         self,
         *,
@@ -591,6 +594,7 @@ class OwnerPlacesController:
             profile=access.profile,
         )
 
+    @transaction.atomic
     def submit_for_moderation(self, *, request, place_id: int) -> OwnerPlaceActionResult:
         access = ensure_owner_permission(
             user=request.user,

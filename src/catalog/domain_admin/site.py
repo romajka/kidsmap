@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect
 from django.urls import reverse, path
 from django.utils.html import format_html
@@ -19,10 +21,25 @@ from catalog.models import (
     CatalogContentSettings
 )
 from catalog.services.admin_analytics import build_statistics_context
+from catalog.services.images import validate_uploaded_image
 from .user import _HiddenFromAdminIndexMixin
 
 
+class SiteRasterImageForm(forms.ModelForm):
+    class Meta:
+        fields = "__all__"
+
+    def clean(self):
+        cleaned = super().clean()
+        for field_name, upload in self.files.items():
+            if field_name == "logo":
+                continue
+            validate_uploaded_image(upload)
+        return cleaned
+
+
 class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
+    form = SiteRasterImageForm
     change_form_template = "admin/catalog/shared_settings_change_form.html"
     list_display = ("brand_name", "updated_at")
     readonly_fields = (
@@ -369,6 +386,7 @@ class SiteAnalyticsAdmin(admin.ModelAdmin):
 
 @admin.register(SiteGalleryImage)
 class SiteGalleryImageAdmin(admin.ModelAdmin):
+    form = SiteRasterImageForm
     MAIN_IMAGE_FIELDS = {
         "logo",
         "site_background_image",
@@ -648,6 +666,15 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
         
         if not image_file:
             return JsonResponse({"success": False, "error": "Missing image file"}, status=400)
+
+        try:
+            validate_uploaded_image(image_file)
+        except ValidationError as exc:
+            validation_messages = exc.messages
+            return JsonResponse(
+                {"success": False, "error": validation_messages[0]},
+                status=400,
+            )
             
         try:
             from django.template.defaultfilters import filesizeformat

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -17,7 +17,7 @@
       </div>
       <div class="event-detail-media">
         {% if event.photo %}
-          <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="eager" decoding="async" />
+          <img src="{{ event.photo|image_variant:'detail-1600' }}" srcset="{{ event.photo|image_variant:'card-960' }} 960w, {{ event.photo|image_variant:'detail-1600' }} 1600w" sizes="(max-width: 760px) 100vw, 800px" alt="{{ event.name_i18n }}" fetchpriority="high" decoding="async" />
         {% else %}
           <img src="{% static 'img/banners/listing-placeholder.webp' %}" alt="" loading="eager" decoding="async" />
         {% endif %}
@@ -29,7 +29,7 @@
         <h2>{% if language == "az" %}Əlavə şəkillər{% elif language == "en" %}More photos{% else %}Дополнительные фото{% endif %}</h2>
         <div class="event-detail-gallery__grid">
           {% for image in event.gallery.all %}
-            <figure><img src="{{ image.image.url }}" alt="{{ image.caption|default:event.name_i18n }}" loading="lazy" decoding="async" />{% if image.caption %}<figcaption>{{ image.caption }}</figcaption>{% endif %}</figure>
+            <figure><img src="{{ image.image|image_variant:'detail-1600' }}" srcset="{{ image.image|image_variant:'card-960' }} 960w, {{ image.image|image_variant:'detail-1600' }} 1600w" sizes="(max-width: 760px) 100vw, 800px" alt="{{ image.caption|default:event.name_i18n }}" loading="lazy" decoding="async" />{% if image.caption %}<figcaption>{{ image.caption }}</figcaption>{% endif %}</figure>
           {% endfor %}
         </div>
       </section>

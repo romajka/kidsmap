@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
@@ -276,7 +276,11 @@
             <div class="km-card-photo-wrapper">
               {% if specialist.photo %}
                 <img 
-                  src="{{ specialist.photo.url }}" 
+                  src="{{ specialist.photo|image_variant:'avatar-320' }}"
+                  srcset="{{ specialist.photo|image_variant:'avatar-320' }} 320w, {{ specialist.photo|image_variant:'avatar-640' }} 640w"
+                  sizes="(max-width: 760px) 44vw, 240px"
+                  width="320"
+                  height="320"
                   alt="{{ specialist.name }}" 
                   class="km-card-photo"
                   loading="lazy" 

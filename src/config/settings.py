@@ -37,11 +37,12 @@ def _has_default_db_credentials() -> bool:
     db_name = (os.getenv("DB_NAME", "kidsmap") or "").strip()
     db_user = (os.getenv("DB_USER", "kidsmap") or "").strip()
     db_password = (os.getenv("DB_PASSWORD", "kidsmap") or "").strip()
-    return (
-        db_name == "kidsmap"
-        and db_user == "kidsmap"
-        and db_password == "kidsmap"
-    )
+    return not db_password or db_password in {
+        "kidsmap",
+        "replace-with-strong-db-password",
+        "changeme",
+        "change-me",
+    } or (db_name == "kidsmap" and db_user == "kidsmap")
 
 
 # SECURITY: в проде ключ хранить только в env
@@ -91,7 +92,8 @@ SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT", not DEBUG)
 SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000" if not DEBUG else "0"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", not DEBUG)
 SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False)
-X_FRAME_OPTIONS = "SAMEORIGIN"
+# KidsMap embeds external maps but does not expose same-origin pages for framing.
+X_FRAME_OPTIONS = "DENY"
 
 EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",
@@ -271,6 +273,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+TEST_RUNNER = "config.test_runner.KidsMapTestRunner"
 
 DB_ENGINE = os.getenv("DB_ENGINE", "sqlite").lower()
 if DB_ENGINE in {"mysql", "mariadb"}:

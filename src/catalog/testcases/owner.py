@@ -1,3 +1,4 @@
+import base64
 import json
 from pathlib import Path
 from io import StringIO
@@ -174,6 +175,19 @@ class TestOwnershipWorkflow(TestCase):
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
         self.assertContains(response, '"name": "claim_place_submit"')
 
+    def test_repeated_pending_ownership_request_is_not_created(self):
+        self.client.login(username="regular_role_user", password="StrongPass123!!")
+        url = reverse("request_place_ownership", args=[self.place.id])
+
+        first_response = self.client.post(url, data={"note": "Первая заявка"})
+        second_response = self.client.post(url, data={"note": "Повторная заявка"})
+
+        self.assertEqual(first_response.status_code, 302)
+        self.assertEqual(second_response.status_code, 302)
+        requests = PlaceOwnershipRequest.objects.filter(place=self.place, applicant=self.regular_user)
+        self.assertEqual(requests.count(), 1)
+        self.assertEqual(requests.get().status, PlaceOwnershipRequest.STATUS_PENDING)
+
     def test_approve_request_assigns_place_owner_and_writes_audit(self):
         ownership_request = PlaceOwnershipRequest.objects.create(
             place=self.place,
@@ -306,7 +320,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
     def _image_upload(self, name: str) -> SimpleUploadedFile:
-        return SimpleUploadedFile(name, b"fake-image-content", content_type="image/png")
+        content = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+        )
+        return SimpleUploadedFile(name, content, content_type="image/png")
 
     def _oversized_image_upload(self, name: str) -> SimpleUploadedFile:
         return SimpleUploadedFile(name, b"x" * (2 * 1024 * 1024 + 1), content_type="image/png")
@@ -870,7 +887,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "price_from": "100",
                 "price_to": "200",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -991,7 +1008,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "price_from": "100",
                 "price_to": "200",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "address": "Улица 5",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -1040,7 +1057,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "price_from": "80",
                 "price_to": "140",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "address": "Улица с ручной точкой 8",
                 "lat": "40.377700",
                 "lng": "49.892200",
@@ -1069,6 +1086,65 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 field_name="lat",
             ).exists()
         )
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_manager_create_place_survives_geocoding_not_found(self, geocode_mock):
+        geocode_mock.return_value = None
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "name_az": "Geokod tapilmayan kart",
+                "description_az": "Geokod tapilmasa da saxlanilan kart",
+                "category": "EDU",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "0",
+                "price_to": "0",
+                "district": "Yasamal",
+                "metro": "Иншаатчылар",
+                "address": "Naməlum ünvan 404",
+                "phone1": "+994501112233",
+                "schedule": "Пн-Пт",
+                "photo": self._image_upload("main-not-found.png"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        place = Place.objects.get(owner=self.manager_user, name_az="Geokod tapilmayan kart")
+        self.assertIsNone(place.lat)
+        self.assertIsNone(place.lng)
+        self.assertTrue(PlaceOwnershipRequest.objects.filter(place=place, applicant=self.manager_user).exists())
+        self.assertTrue(PlaceChangeAudit.objects.filter(place=place, field_name="created").exists())
+        self.assertFalse(
+            PlaceChangeAudit.objects.filter(
+                place=place,
+                source=PlaceChangeAudit.SOURCE_SYSTEM,
+                field_name__in=("lat", "lng"),
+            ).exists()
+        )
+
+    @patch(
+        "catalog.controllers.owner_places_controller.DjangoPlaceChangeAuditRepository.create_entries",
+        side_effect=RuntimeError("audit unavailable"),
+    )
+    def test_owner_create_rolls_back_everything_when_audit_fails(self, _audit_mock):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        with self.assertRaisesMessage(RuntimeError, "audit unavailable"):
+            self.client.post(
+                reverse("owner_place_create"),
+                data={
+                    "form_action": "save_draft",
+                    "name_az": "Rollback qaralama",
+                    "category": "EDU",
+                },
+            )
+
+        self.assertFalse(Place.objects.filter(owner=self.manager_user, name_az="Rollback qaralama").exists())
+        self.assertFalse(PlaceOwnershipRequest.objects.filter(applicant=self.manager_user).exists())
 
     def test_owner_place_create_rejects_more_than_ten_gallery_files(self):
         form = OwnerPlaceCreateForm(
@@ -1214,7 +1290,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "price_from": "100",
                 "price_to": "200",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -1350,7 +1426,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "price_from": "100",
                 "price_to": "200",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -1385,7 +1461,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "price_from": "100",
                 "price_to": "200",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -1414,7 +1490,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             data={
                 "address": "Улица 77",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "form_action": "check_coordinates",
             },
             follow=True,
@@ -1435,7 +1511,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             data={
                 "address": "Улица 77",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "lat": "40.500000",
                 "lng": "49.900000",
                 "form_action": "check_coordinates",
@@ -1577,7 +1653,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "price_from": "",
                 "price_to": "",
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "Иншаатчылар",
                 "address": "Тот же адрес",
                 "phone1": "",
                 "instagram": "",
@@ -1780,6 +1856,9 @@ class TestOwnerTeamAndReviewModeration(TestCase):
         self.assertEqual(self.place.name_ru, "Кружок команды")
 
     def test_owner_edit_creates_place_change_audit(self):
+        self.place.status = Place.STATUS_DRAFT
+        self.place.is_active = False
+        self.place.save(update_fields=["status", "is_active", "updated_at"])
         self.client.login(username="team_owner_manager", password="StrongPass123!!")
         response = self.client.post(
             reverse("owner_place_edit", args=[self.place.id]),

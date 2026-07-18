@@ -18,9 +18,10 @@
   <section class="hero">
     <picture class="catalog-hero-picture">
       {% if site_settings.catalog_hero_image %}
+        <source media="(max-width: 760px)" srcset="{{ site_settings.catalog_hero_image|image_variant:'hero-mobile' }}">
         <img
           class="catalog-hero-image"
-          src="{{ site_settings.catalog_hero_image.url }}"
+          src="{{ site_settings.catalog_hero_image|image_variant:'hero-desktop' }}"
           width="1600"
           height="500"
           alt=""
@@ -726,9 +727,9 @@
             <article class="card">
               <div class="card-media">
                 {% if place.photo %}
-                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                  <img src="{{ place.photo|image_variant:'card-480' }}" srcset="{{ place.photo|image_variant:'card-480' }} 480w, {{ place.photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 92vw, 320px" width="480" height="480" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% elif place.cover_photo %}
-                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                  <img src="{{ place.cover_photo|image_variant:'card-480' }}" srcset="{{ place.cover_photo|image_variant:'card-480' }} 480w, {{ place.cover_photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 92vw, 320px" width="480" height="480" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% else %}
                   <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
                 {% endif %}
@@ -809,7 +810,7 @@
           <div class="card-media">
             <a class="card-media-link" href="{{ event.get_absolute_url }}" aria-label="{{ event.name_i18n }}">
               {% if event.photo %}
-                <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                <img src="{{ event.photo|image_variant:'card-480' }}" srcset="{{ event.photo|image_variant:'card-480' }} 480w, {{ event.photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 92vw, 320px" width="480" height="480" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% else %}
                 <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               {% endif %}
@@ -850,9 +851,9 @@
           <div class="card-media">
             <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
               {% if place.photo %}
-                <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                <img src="{{ place.photo|image_variant:'card-480' }}" srcset="{{ place.photo|image_variant:'card-480' }} 480w, {{ place.photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 92vw, 320px" width="480" height="480" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% elif place.cover_photo %}
-                <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                <img src="{{ place.cover_photo|image_variant:'card-480' }}" srcset="{{ place.cover_photo|image_variant:'card-480' }} 480w, {{ place.cover_photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 92vw, 320px" width="480" height="480" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
               {% else %}
                 <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               {% endif %}
@@ -969,7 +970,7 @@
   {% else %}
     <section class="empty-state catalog-empty-state">
       {% if site_settings.empty_results_image %}
-        <img class="empty-custom-image" src="{{ site_settings.empty_results_image.url }}" alt="{% if language == 'az' %}Hələ uyğun məkan tapılmadı{% else %}{% trans 'Ничего не найдено.' %}{% endif %}" loading="lazy" decoding="async" />
+        <img class="empty-custom-image" src="{{ site_settings.empty_results_image|image_variant:'illustration-600' }}" srcset="{{ site_settings.empty_results_image|image_variant:'illustration-600' }} 600w, {{ site_settings.empty_results_image|image_variant:'illustration-1200' }} 1200w" sizes="(max-width: 760px) 90vw, 600px" alt="{% if language == 'az' %}Hələ uyğun məkan tapılmadı{% else %}{% trans 'Ничего не найдено.' %}{% endif %}" loading="lazy" decoding="async" />
       {% else %}
         <div class="empty-illustration" aria-hidden="true"></div>
       {% endif %}

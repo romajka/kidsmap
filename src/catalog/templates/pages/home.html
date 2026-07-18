@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="home-hero panel" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
+<section class="home-hero panel" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image|image_variant:'hero-desktop' }}');"{% endif %}>
   <div class="home-hero-bg-glows" aria-hidden="true">
     <div class="glow-blob blob-1"></div>
     <div class="glow-blob blob-2"></div>
@@ -90,7 +90,7 @@
                 <figure class="home-hero-photo-card home-hero-photo-main">
                   <picture>
                     {% if slide.main.image_webp_url %}
-                    <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+                    <source srcset="{{ slide.main.image_webp_srcset|default:slide.main.image_webp_url }}" sizes="(max-width: 760px) 86vw, 620px" type="image/webp" />
                     {% endif %}
                     <img src="{{ slide.main.image_url }}" alt="{{ slide.main.label }}" decoding="async" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %} />
                   </picture>
@@ -99,7 +99,7 @@
                 <figure class="home-hero-photo-card home-hero-photo-side-top">
                   <picture>
                     {% if slide.side_top.image_webp_url %}
-                    <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                    <source srcset="{{ slide.side_top.image_webp_srcset|default:slide.side_top.image_webp_url }}" sizes="(max-width: 760px) 42vw, 300px" type="image/webp" />
                     {% endif %}
                     <img src="{{ slide.side_top.image_url }}" alt="{{ slide.side_top.label }}" loading="lazy"
                       decoding="async" />
@@ -109,7 +109,7 @@
                 <figure class="home-hero-photo-card home-hero-photo-side-bottom">
                   <picture>
                     {% if slide.side_bottom.image_webp_url %}
-                    <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                    <source srcset="{{ slide.side_bottom.image_webp_srcset|default:slide.side_bottom.image_webp_url }}" sizes="(max-width: 760px) 42vw, 300px" type="image/webp" />
                     {% endif %}
                     <img src="{{ slide.side_bottom.image_url }}" alt="{{ slide.side_bottom.label }}" loading="lazy"
                       decoding="async" />
@@ -146,7 +146,7 @@
             <figure class="home-hero-photo-card home-hero-photo-main">
               <picture>
                 {% if slide.main.image_webp_url %}
-                <source srcset="{{ slide.main.image_webp_url }}" type="image/webp" />
+                <source srcset="{{ slide.main.image_webp_srcset|default:slide.main.image_webp_url }}" sizes="(max-width: 760px) 86vw, 620px" type="image/webp" />
                 {% endif %}
                 <img src="{{ slide.main.image_url }}" alt="{{ slide.main.label }}" decoding="async"
                   fetchpriority="high" />
@@ -156,7 +156,7 @@
             <figure class="home-hero-photo-card home-hero-photo-side-top">
               <picture>
                 {% if slide.side_top.image_webp_url %}
-                <source srcset="{{ slide.side_top.image_webp_url }}" type="image/webp" />
+                <source srcset="{{ slide.side_top.image_webp_srcset|default:slide.side_top.image_webp_url }}" sizes="(max-width: 760px) 42vw, 300px" type="image/webp" />
                 {% endif %}
                 <img src="{{ slide.side_top.image_url }}" alt="{{ slide.side_top.label }}" loading="lazy"
                   decoding="async" />
@@ -166,7 +166,7 @@
             <figure class="home-hero-photo-card home-hero-photo-side-bottom">
               <picture>
                 {% if slide.side_bottom.image_webp_url %}
-                <source srcset="{{ slide.side_bottom.image_webp_url }}" type="image/webp" />
+                <source srcset="{{ slide.side_bottom.image_webp_srcset|default:slide.side_bottom.image_webp_url }}" sizes="(max-width: 760px) 42vw, 300px" type="image/webp" />
                 {% endif %}
                 <img src="{{ slide.side_bottom.image_url }}" alt="{{ slide.side_bottom.label }}" loading="lazy"
                   decoding="async" />
@@ -334,10 +334,10 @@
       <div class="card-media">
         <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
           {% if place.photo %}
-          <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
+          <img src="{{ place.photo|image_variant:'card-480' }}" srcset="{{ place.photo|image_variant:'card-480' }} 480w, {{ place.photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 86vw, 300px" width="480" height="480" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
             data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
           {% elif place.cover_photo %}
-          <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
+          <img src="{{ place.cover_photo|image_variant:'card-480' }}" srcset="{{ place.cover_photo|image_variant:'card-480' }} 480w, {{ place.cover_photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 86vw, 300px" width="480" height="480" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
             data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
           {% else %}
           <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">

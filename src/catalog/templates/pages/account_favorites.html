@@ -22,7 +22,7 @@
     <header class="account-dashboard__hero">
       <div class="account-dashboard__hero-surface">
         {% if site_settings.dashboard_hero_image %}
-          <img src="{{ site_settings.dashboard_hero_image.url }}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+          <img src="{{ site_settings.dashboard_hero_image|image_variant:'hero-desktop' }}" srcset="{{ site_settings.dashboard_hero_image|image_variant:'hero-mobile' }} 760w, {{ site_settings.dashboard_hero_image|image_variant:'hero-desktop' }} 1600w" sizes="100vw" alt="" loading="lazy" decoding="async" class="account-dashboard__hero-image" />
         {% else %}
           <img src="{% static 'img/banners/owner-dashboard-hero.webp' %}" alt="" loading="lazy" class="account-dashboard__hero-image" />
         {% endif %}
@@ -92,9 +92,9 @@
                   <div class="account-place-card__media card-media">
                     <a class="account-place-card__media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
                       {% if place.photo %}
-                        <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                        <img src="{{ place.photo|image_variant:'card-480' }}" srcset="{{ place.photo|image_variant:'card-480' }} 480w, {{ place.photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 92vw, 320px" width="480" height="480" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                       {% elif place.cover_photo %}
-                        <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                        <img src="{{ place.cover_photo|image_variant:'card-480' }}" srcset="{{ place.cover_photo|image_variant:'card-480' }} 480w, {{ place.cover_photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 92vw, 320px" width="480" height="480" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                       {% else %}
                         <div class="account-place-card__placeholder">
                           <span aria-hidden="true">⌂</span>

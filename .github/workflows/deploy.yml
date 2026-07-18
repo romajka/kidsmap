@@ -44,10 +44,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install --yes gettext
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements/production.txt -r requirements/development.txt
+
+      - name: Compile Python sources
+        run: python -m compileall -q manage.py config src scripts
 
       - name: Apply migrations
         run: python manage.py migrate --noinput
@@ -55,11 +61,20 @@ jobs:
       - name: Ensure migrations committed
         run: python manage.py makemigrations --check --dry-run
 
+      - name: Check source files for mojibake
+        run: python scripts/check_mojibake.py
+
+      - name: Compile translations
+        run: python manage.py compilemessages --ignore .venv --ignore venv
+
       - name: Django system checks
         run: python manage.py check
 
-      - name: Run tests
-        run: python manage.py test --parallel auto
+      - name: Django deployment checks
+        run: python manage.py check --deploy
+
+      - name: Run full test suite
+        run: python manage.py test --parallel auto --verbosity 1
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

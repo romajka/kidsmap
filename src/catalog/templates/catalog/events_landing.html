@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ seo_title }}{% endblock %}
 {% block title_plain %}{{ seo_title }}{% endblock %}
@@ -58,7 +58,7 @@
             <a class="events-card__media" href="{{ event.get_absolute_url }}" aria-label="{{ event.name_i18n }}">
               <span class="events-card__badge">{{ event.get_category_display }}</span>
               {% if event.photo %}
-                <img src="{{ event.photo.url }}" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" />
+                <img src="{{ event.photo|image_variant:'card-480' }}" srcset="{{ event.photo|image_variant:'card-480' }} 480w, {{ event.photo|image_variant:'card-960' }} 960w" sizes="(max-width: 760px) 92vw, 360px" width="480" height="480" alt="{{ event.name_i18n }}" loading="lazy" decoding="async" />
               {% else %}
                 <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
               {% endif %}

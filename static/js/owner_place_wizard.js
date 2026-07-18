@@ -1484,6 +1484,57 @@
     return [file.name, file.size, file.lastModified].join(":");
   }
 
+  async function optimizeImageForUpload(file) {
+    if (!file || !file.type || file.type.indexOf("image/") !== 0 || typeof createImageBitmap !== "function") {
+      return file;
+    }
+    try {
+      const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+      const maxSide = 2000;
+      const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+      const width = Math.max(1, Math.round(bitmap.width * scale));
+      const height = Math.max(1, Math.round(bitmap.height * scale));
+      if (scale === 1 && file.type === "image/webp" && file.size <= 2 * 1024 * 1024) {
+        bitmap.close();
+        return file;
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d", { alpha: true });
+      context.drawImage(bitmap, 0, 0, width, height);
+      bitmap.close();
+      const blob = await new Promise(function (resolve) {
+        canvas.toBlob(resolve, "image/webp", 0.82);
+      });
+      if (!blob) return file;
+      const baseName = file.name.replace(/\.[^.]+$/, "") || "photo";
+      return new File([blob], baseName + ".webp", {
+        type: "image/webp",
+        lastModified: file.lastModified || Date.now()
+      });
+    } catch (error) {
+      return file;
+    }
+  }
+
+  async function optimizeImagesForUpload(files) {
+    return Promise.all(Array.from(files || []).map(optimizeImageForUpload));
+  }
+
+  let pendingImageOptimizations = 0;
+
+  function optimizeUploaderImages(files) {
+    pendingImageOptimizations += 1;
+    form.setAttribute("aria-busy", "true");
+    return optimizeImagesForUpload(files).finally(function () {
+      pendingImageOptimizations = Math.max(0, pendingImageOptimizations - 1);
+      if (!pendingImageOptimizations) {
+        form.removeAttribute("aria-busy");
+      }
+    });
+  }
+
   function filterUploaderFiles(uploader, incomingFiles, existingFiles) {
     const input = uploader.querySelector("[data-upload-input]");
     const isSingle = uploader.dataset.uploadMode === "single";
@@ -1700,6 +1751,14 @@
   }, true);
 
   form.addEventListener("submit", function (event) {
+    if (pendingImageOptimizations) {
+      event.preventDefault();
+      const lang = document.documentElement.lang || "ru";
+      window.alert(lang === "az"
+        ? "\u015e\u0259kill\u0259rin haz\u0131rlanmas\u0131n\u0131 g\u00f6zl\u0259yin."
+        : (lang === "en" ? "Please wait while the photos are being prepared." : "Подождите, пока фотографии будут подготовлены."));
+      return;
+    }
     const submitter = event.submitter || document.activeElement;
     const isDraft = submitter && (
       submitter.value === "save_draft"
@@ -1922,13 +1981,24 @@
       const input = event.target;
       const uploader = input.closest("[data-file-uploader]");
       if (uploader) {
-        filterUploaderFiles(uploader, input.files, input._accumulatedFiles ? input._accumulatedFiles.files : []);
+        const existing = input._accumulatedFiles ? input._accumulatedFiles.files : [];
+        optimizeUploaderImages(input.files).then(function (files) {
+          filterUploaderFiles(uploader, files, existing);
+          renderUploaderState(uploader);
+          updateCompletion();
+          updateFinalSummary();
+        });
       }
     } else if (event.target.type === "file") {
       const input = event.target;
       const uploader = input.closest("[data-file-uploader]");
       if (uploader) {
-        filterUploaderFiles(uploader, input.files, []);
+        optimizeUploaderImages(input.files).then(function (files) {
+          filterUploaderFiles(uploader, files, []);
+          renderUploaderState(uploader);
+          updateCompletion();
+          updateFinalSummary();
+        });
       }
     }
 
@@ -2023,17 +2093,19 @@
       const files = dt.files;
       if (!files || !files.length) return;
 
-      if (input.multiple) {
-        filterUploaderFiles(uploader, files, input._accumulatedFiles ? input._accumulatedFiles.files : input.files);
-      } else {
-        filterUploaderFiles(uploader, files, []);
-      }
+      optimizeUploaderImages(files).then(function (optimizedFiles) {
+        if (input.multiple) {
+          filterUploaderFiles(uploader, optimizedFiles, input._accumulatedFiles ? input._accumulatedFiles.files : input.files);
+        } else {
+          filterUploaderFiles(uploader, optimizedFiles, []);
+        }
 
-      renderUploaderState(uploader);
-      updateCompletion();
-      updateFinalSummary();
-      updateWizard(currentStep);
-      scheduleDraftSave();
+        renderUploaderState(uploader);
+        updateCompletion();
+        updateFinalSummary();
+        updateWizard(currentStep);
+        scheduleDraftSave();
+      });
     }, false);
   }
 

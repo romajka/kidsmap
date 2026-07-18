@@ -20,6 +20,7 @@ from catalog.services.public_filter_options import build_public_place_filter_opt
 from catalog.services.reactions import liked_place_ids, mark_liked_flags
 from catalog.services.seo import build_home_seo_payload
 from catalog.services.features import is_events_section_enabled
+from catalog.services.images import image_variant_url
 
 
 @dataclass(slots=True)
@@ -75,7 +76,7 @@ class HomeController:
                 "metro_label": place.metro_i18n(language_code) if place.metro else "",
                 "age_from": place.age_from,
                 "age_to": place.age_to,
-                "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
+                "image_url": image_variant_url(place.photo or place.cover_photo, "card-480"),
                 "phone": place.phone1 or "",
                 "address": place.address_i18n(language_code) or "",
                 "schedule": place.schedule_summary or "",
@@ -216,7 +217,8 @@ class HomeController:
         items = [
             {
                 "image_url": image.image.url,
-                "image_webp_url": self._webp_url_for_gallery_image(image.image),
+                "image_webp_url": image_variant_url(image.image, "gallery-640", fallback=False),
+                "image_webp_srcset": self._webp_srcset_for_gallery_image(image.image),
                 "label": image.title_i18n(language_code),
             }
             for image in gallery_images
@@ -254,3 +256,11 @@ class HomeController:
         if storage.exists(webp_name):
             return storage.url(webp_name)
         return ""
+
+    @staticmethod
+    def _webp_srcset_for_gallery_image(file_field) -> str:
+        small = image_variant_url(file_field, "gallery-640", fallback=False)
+        large = image_variant_url(file_field, "gallery-1200", fallback=False)
+        if small and large:
+            return f"{small} 640w, {large} 1200w"
+        return small or large

@@ -104,6 +104,9 @@ class DjangoPlaceRepository(IPlaceRepository):
 
         return qs.order_by("-updated_at", "-id")[:limit]
 
+    def claimable_queryset(self) -> QuerySet:
+        return Place.objects.filter(is_active=True, deleted_at__isnull=True).select_related("owner", "category")
+
 
 class DjangoSiteReviewRepository(ISiteReviewRepository):
     def approved_queryset(self) -> QuerySet:
@@ -261,6 +264,7 @@ class DjangoPlaceOwnershipRequestRepository(IPlaceOwnershipRequestRepository):
             .first()
         )
 
+    @transaction.atomic
     def create_pending(self, *, place: Place, applicant, note: str) -> PlaceOwnershipRequest:
         return PlaceOwnershipRequest.objects.create(
             place=place,
@@ -278,13 +282,10 @@ class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
         return self.managed_queryset(user=user).filter(pk=pk).first()
 
     def add_gallery_images(self, *, place: Place, image_files: list) -> None:
-        photos = []
         for index, image in enumerate(image_files, start=1):
             if not image:
                 continue
-            photos.append(PlacePhoto(place=place, image=image, order=index))
-        if photos:
-            PlacePhoto.objects.bulk_create(photos)
+            PlacePhoto.objects.create(place=place, image=image, order=index)
 
 
 class DjangoOwnerTeamRepository(IOwnerTeamRepository):

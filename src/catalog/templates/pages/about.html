@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{% trans "О проекте" %}{% endblock %}
 {% block title_plain %}{% trans "О проекте" %} | KidsMap{% endblock %}
@@ -10,9 +10,10 @@
   <section class="panel info-hero">
     <picture class="info-hero-picture">
       {% if site_settings.about_hero_image %}
+        <source media="(max-width: 760px)" srcset="{{ site_settings.about_hero_image|image_variant:'hero-mobile' }}">
         <img
           class="info-hero-image"
-          src="{{ site_settings.about_hero_image.url }}"
+          src="{{ site_settings.about_hero_image|image_variant:'hero-desktop' }}"
           width="1600"
           height="700"
           alt=""

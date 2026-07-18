@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}{% if specialist %}{% if CURRENT_LANGUAGE == "az" %}Profili redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit profile{% else %}Редактировать профиль{% endif %}{% else %}{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}{% endif %}{% endblock %}
@@ -75,7 +75,7 @@
             <label class="km-owner-photo-field">
               {% if CURRENT_LANGUAGE == "az" %}Foto{% elif CURRENT_LANGUAGE == "en" %}Photo{% else %}Фото{% endif %}
               <span class="km-owner-photo-preview" data-owner-photo-preview>
-                {% if specialist and specialist.photo %}<img src="{{ specialist.photo.url }}" alt="">{% else %}<i class="fas fa-camera" aria-hidden="true"></i>{% endif %}
+                {% if specialist and specialist.photo %}<img src="{{ specialist.photo|image_variant:'avatar-320' }}" width="320" height="320" alt="">{% else %}<i class="fas fa-camera" aria-hidden="true"></i>{% endif %}
               </span>
               {{ form.photo }}
               {% for e in form.photo.errors %}<small class="auth-field-error">{{ e }}</small>{% endfor %}

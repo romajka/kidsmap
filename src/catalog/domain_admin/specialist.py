@@ -18,11 +18,18 @@ from catalog.models import (
     SpecialistDocument,
     SpecialistReview
 )
+from catalog.services.images import validate_uploaded_image
 
 class SpecialistAdminForm(forms.ModelForm):
     class Meta:
         model = Specialist
         fields = "__all__"
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get("photo")
+        if photo:
+            validate_uploaded_image(photo)
+        return photo
 
     def clean(self):
         cleaned_data = super().clean()

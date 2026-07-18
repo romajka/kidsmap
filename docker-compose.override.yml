@@ -1,0 +1,22 @@
+services:
+  db:
+    environment:
+      MARIADB_PASSWORD: "${DB_PASSWORD:-kidsmap-dev}"
+      MARIADB_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-kidsmap-root-dev}"
+    ports:
+      - "3307:3306"
+
+  web:
+    environment:
+      DJANGO_DEBUG: "${DJANGO_DEBUG:-1}"
+      SERVE_MEDIA_FILES: "${SERVE_MEDIA_FILES:-1}"
+      DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY:-dev-only-change-me}"
+      SESSION_COOKIE_SECURE: "${SESSION_COOKIE_SECURE:-0}"
+      CSRF_COOKIE_SECURE: "${CSRF_COOKIE_SECURE:-0}"
+      SECURE_SSL_REDIRECT: "${SECURE_SSL_REDIRECT:-0}"
+      SECURE_HSTS_SECONDS: "${SECURE_HSTS_SECONDS:-0}"
+      SECURE_HSTS_INCLUDE_SUBDOMAINS: "${SECURE_HSTS_INCLUDE_SUBDOMAINS:-0}"
+      DB_PASSWORD: "${DB_PASSWORD:-kidsmap-dev}"
+      USE_RUNSERVER: "${USE_RUNSERVER:-1}"
+    volumes:
+      - ./:/app

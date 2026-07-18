@@ -1,8 +1,16 @@
 from django import template
 from django.utils.translation import get_language, pgettext
 
+from catalog.services.images import image_variant_url
+
 
 register = template.Library()
+
+
+@register.filter
+def image_variant(file_field, variant: str) -> str:
+    """Return an optimized derivative URL, falling back to the original."""
+    return image_variant_url(file_field, variant)
 
 
 def _review_plural_form(count: int, language_code: str) -> str:

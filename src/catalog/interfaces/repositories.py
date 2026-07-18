@@ -52,6 +52,10 @@ class IPlaceRepository(ABC):
     def claim_candidates_for_user(self, *, user, query: str = "", limit: int = 8) -> QuerySet:
         raise NotImplementedError
 
+    @abstractmethod
+    def claimable_queryset(self) -> QuerySet:
+        raise NotImplementedError
+
 
 class ISiteReviewRepository(ABC):
     @abstractmethod

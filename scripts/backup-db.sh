@@ -11,7 +11,7 @@ OUT_FILE="$BACKUP_DIR/kidsmap-db-$TIMESTAMP.sql.gz"
 
 mkdir -p "$BACKUP_DIR"
 
-if ! docker compose exec -T db sh -lc 'exec mariadb-dump --single-transaction --routines --triggers -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE"' | gzip -c > "$OUT_FILE"; then
+if ! docker compose -f docker-compose.yml exec -T db sh -lc 'exec mariadb-dump --single-transaction --routines --triggers -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE"' | gzip -c > "$OUT_FILE"; then
   rm -f "$OUT_FILE"
   exit 1
 fi

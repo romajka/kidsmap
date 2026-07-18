@@ -34,6 +34,7 @@ from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepos
 from catalog.services.content_quality import place_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
+from catalog.services.images import validate_uploaded_image
 from catalog.services.pricing_plans import normalize_pricing_plans
 from catalog.services.place_schedule import FULL_DAY_LABELS, build_schedule_summary, serialize_place_schedule
 from .review import PlaceReviewInline
@@ -61,8 +62,17 @@ def place_quality_error_labels(errors) -> str:
     return ", ".join(str(PLACE_QUALITY_ERROR_LABELS.get(error, error)) for error in errors)
 
 
+class RasterImageInlineForm(forms.ModelForm):
+    def clean_image(self):
+        image = self.cleaned_data.get("image")
+        if image:
+            validate_uploaded_image(image)
+        return image
+
+
 class PlacePhotoInline(admin.TabularInline):
     model = PlacePhoto
+    form = RasterImageInlineForm
     template = "admin/catalog/place/placephoto_inline.html"
     extra = 0
     max_num = 10
@@ -72,6 +82,7 @@ class PlacePhotoInline(admin.TabularInline):
 
 class EventPhotoInline(admin.TabularInline):
     model = EventPhoto
+    form = RasterImageInlineForm
     template = "admin/catalog/place/placephoto_inline.html"
     extra = 0
     max_num = 10
@@ -93,7 +104,29 @@ class PlaceChangeAuditInline(admin.TabularInline):
 
 class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get("photo")
+        if photo:
+            validate_uploaded_image(photo)
+        return photo
+
+    def clean_cover_photo(self):
+        photo = self.cleaned_data.get("cover_photo")
+        if photo:
+            validate_uploaded_image(photo)
+        return photo
     name = forms.CharField(required=False, widget=forms.HiddenInput())
+    temporary_start = forms.DateTimeField(
+        required=False,
+        input_formats=(DATETIME_LOCAL_FORMAT, "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"),
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local", "step": "900"}, format=DATETIME_LOCAL_FORMAT),
+    )
+    temporary_end = forms.DateTimeField(
+        required=False,
+        input_formats=(DATETIME_LOCAL_FORMAT, "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"),
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local", "step": "900"}, format=DATETIME_LOCAL_FORMAT),
+    )
     pricing_plans = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={"data-tariff-input": ""}),
@@ -178,6 +211,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             self.add_error("name_az", _("Заполните хотя бы одно название, лучше азербайджанское как основное."))
 
         cleaned = clean_location_fields(self, cleaned)
+        is_coordinate_refresh = bool(self.data and "_refresh_coordinates_from_address" in self.data)
+        is_unpublish = bool(self.data and "_unpublish_place" in self.data)
         is_active = cleaned.get("is_active")
         if is_active is None:
             is_active = getattr(self.instance, "is_active", False)
@@ -186,7 +221,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             status = getattr(self.instance, "status", "")
         # Use getattr to safely access STATUS_PUBLISHED from instance or just string
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
-        if (is_active or status == status_published) and not is_save_draft:
+        if (is_active or status == status_published) and not is_save_draft and not is_coordinate_refresh and not is_unpublish:
             checklist = (
                 ("name", _("Название")),
                 ("category", _("Категория")),
@@ -341,6 +376,30 @@ class EventAdminForm(forms.ModelForm):
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
     PICKER_DATETIME_FORMAT = "%Y-%m-%d %H:%M"
     require_location_region = False
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get("photo")
+        if photo:
+            validate_uploaded_image(photo)
+        return photo
+
+    # Declaring these fields explicitly keeps Django admin from replacing the
+    # single datetime picker with AdminSplitDateTime during ModelAdmin setup.
+    start_datetime = forms.DateTimeField(
+        required=False,
+        input_formats=(DATETIME_LOCAL_FORMAT, PICKER_DATETIME_FORMAT, "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"),
+        widget=forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "start", "data-allow-input": "1"}),
+    )
+    end_datetime = forms.DateTimeField(
+        required=False,
+        input_formats=(DATETIME_LOCAL_FORMAT, PICKER_DATETIME_FORMAT, "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"),
+        widget=forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "end", "data-allow-input": "1"}),
+    )
+    published_at = forms.DateTimeField(
+        required=False,
+        input_formats=(DATETIME_LOCAL_FORMAT, "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"),
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local", "step": "900"}, format=DATETIME_LOCAL_FORMAT),
+    )
 
     region = forms.ChoiceField(
         label=_("Город / регион"), required=False, choices=(),
@@ -1508,6 +1567,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("category", "subcategory"),
+                    ("is_temporary", "temporary_start", "temporary_end"),
                 )
             },
         ),
@@ -1628,13 +1688,6 @@ class PlaceAdmin(admin.ModelAdmin):
             )
             context["km_place_public_link"] = self._build_public_place_link(request, obj=obj)
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
-
-    def add_view(self, request, form_url='', extra_context=None):
-        if not request.GET.get("type"):
-            from django.shortcuts import redirect
-            return redirect("admin_add_choice")
-        return super().add_view(request, form_url=form_url, extra_context=extra_context)
-
 
     def _fieldset_list(self, adminform):
         return list(adminform) if adminform is not None else []
@@ -2133,6 +2186,7 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("category", "subcategory"),
+                    ("is_temporary", "temporary_start", "temporary_end"),
                     ("is_active", "is_verified"),
                     ("status", "rejection_reason"),
                     "owner",
@@ -2995,7 +3049,9 @@ class PlaceAdmin(admin.ModelAdmin):
             return JsonResponse({"results": []})
         language_code = getattr(request, "LANGUAGE_CODE", None)
 
-        queryset = self.get_queryset(request).filter(
+        # Suggestions are an admin lookup, not a changelist: query the complete
+        # model set so dashboard/trash filters cannot leak into autocomplete.
+        queryset = Place._base_manager.filter(
             Q(name__icontains=term)
             | Q(name_az__icontains=term)
             | Q(name_ru__icontains=term)
@@ -3338,7 +3394,9 @@ class PlaceAdmin(admin.ModelAdmin):
         return self.render_delete_form(request, context)
 
     def restore_view(self, request, object_id):
-        obj = self.get_object(request, object_id)
+        # Deleted places may be hidden by the regular admin queryset; restore
+        # must deliberately resolve them from the complete model set.
+        obj = Place._base_manager.filter(pk=object_id).first()
         if not self.has_change_permission(request, obj):
             raise PermissionDenied
         if obj is None:
@@ -3466,7 +3524,6 @@ class PlaceAdmin(admin.ModelAdmin):
         uploads = [
             uploaded_file
             for uploaded_file in request.FILES.getlist("gallery_uploads")
-            if getattr(uploaded_file, "content_type", "").startswith("image/")
         ]
         if not uploads:
             return
@@ -3480,6 +3537,11 @@ class PlaceAdmin(admin.ModelAdmin):
         max_order = PlacePhoto.objects.filter(place=obj).aggregate(max_order=Max("order"))["max_order"] or 0
         created_count = 0
         for offset, uploaded_file in enumerate(uploads[:available_slots], start=1):
+            try:
+                validate_uploaded_image(uploaded_file)
+            except ValidationError as exc:
+                messages.error(request, exc.messages[0])
+                continue
             PlacePhoto.objects.create(
                 place=obj,
                 image=uploaded_file,

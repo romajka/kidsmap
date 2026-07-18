@@ -14,6 +14,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        verbosity = options['verbosity']
         update_icons = options['update_icons']
 
         categories_data = [
@@ -357,7 +358,8 @@ class Command(BaseCommand):
         ]
 
         with transaction.atomic():
-            self.stdout.write("Seeding categories...")
+            if verbosity >= 1:
+                self.stdout.write("Seeding categories...")
             for cat_data in categories_data:
                 defaults = {
                     "name": cat_data["name"],
@@ -400,9 +402,11 @@ class Command(BaseCommand):
                     defaults=defaults
                 )
                 action = "Created" if created else "Updated"
-                self.stdout.write(f"  [{action}] Category: {category.code} - {category.name}")
+                if verbosity >= 2:
+                    self.stdout.write(f"  [{action}] Category: {category.code} - {category.name}")
 
-            self.stdout.write("Seeding subcategories...")
+            if verbosity >= 1:
+                self.stdout.write("Seeding subcategories...")
             for sub_data in subcategories_data:
                 try:
                     category = Category.objects.get(code=sub_data["cat"])
@@ -423,6 +427,8 @@ class Command(BaseCommand):
                     }
                 )
                 action = "Created" if created else "Updated"
-                self.stdout.write(f"  [{action}] Subcategory: {subcategory.code} - {subcategory.name}")
+                if verbosity >= 2:
+                    self.stdout.write(f"  [{action}] Subcategory: {subcategory.code} - {subcategory.name}")
 
-        self.stdout.write(self.style.SUCCESS("Taxonomy seeding completed successfully!"))
+        if verbosity >= 1:
+            self.stdout.write(self.style.SUCCESS("Taxonomy seeding completed successfully!"))

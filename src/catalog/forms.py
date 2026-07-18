@@ -30,6 +30,7 @@ from catalog.services.place_schedule import (
     validate_schedule_payload,
 )
 from catalog.services.options import sort_translated_values
+from catalog.services.images import validate_uploaded_image
 from catalog.services.pricing_plans import normalize_pricing_plans
 
 try:
@@ -312,11 +313,9 @@ def _build_registration_username(email: str) -> str:
 def _validate_uploaded_image(file_obj, *, max_bytes: int = _OWNER_IMAGE_MAX_BYTES) -> None:
     if not file_obj:
         return
-    content_type = (getattr(file_obj, "content_type", "") or "").lower()
-    if content_type and not content_type.startswith("image/"):
-        raise ValidationError(_("Загружайте только изображения (JPG, PNG, WEBP и т.д.)."))
     if getattr(file_obj, "size", 0) > max_bytes:
         raise ValidationError(_("Размер изображения не должен превышать 2 МБ."))
+    validate_uploaded_image(file_obj)
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -336,7 +335,7 @@ class MultipleFileField(forms.FileField):
             MultipleFileInput(
                 attrs={
                     "class": "field owner-file-uploader-input",
-                    "accept": "image/*",
+                    "accept": "image/jpeg,image/png,image/webp",
                     "multiple": True,
                 }
             ),
@@ -961,7 +960,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 }
             ),
             "photo": ImagePreviewFileInput(
-                attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}
+                attrs={"class": "field owner-file-uploader-input", "accept": "image/jpeg,image/png,image/webp"}
             ),
         }
         labels = {
@@ -1584,7 +1583,7 @@ class OwnerEventForm(forms.ModelForm):
                 }
             ),
             "photo": ImagePreviewFileInput(
-                attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}
+                attrs={"class": "field owner-file-uploader-input", "accept": "image/jpeg,image/png,image/webp"}
             ),
             "moderation_note": forms.Textarea(attrs={"class": "field", "rows": 2}),
         }
@@ -1841,7 +1840,7 @@ class OwnerSpecialistForm(forms.ModelForm):
         )
         widgets = {
             "name": forms.TextInput(attrs={"class": "field", "placeholder": _("Имя и фамилия")}),
-            "photo": ImagePreviewFileInput(attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}),
+            "photo": ImagePreviewFileInput(attrs={"class": "field owner-file-uploader-input", "accept": "image/jpeg,image/png,image/webp"}),
             "bio_az": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на азербайджанском")}),
             "bio_ru": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на русском")}),
             "bio_en": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на английском")}),

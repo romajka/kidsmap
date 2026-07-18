@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 
 {% block title %}{{ content.title }} — KidsMap{% endblock %}
 {% block title_plain %}{{ content.title }} — KidsMap{% endblock %}
@@ -10,9 +10,10 @@
     <div class="content-page__hero business-hero">
       <picture class="business-hero__picture">
         {% if site_settings.for_business_hero_image %}
+          <source media="(max-width: 760px)" srcset="{{ site_settings.for_business_hero_image|image_variant:'hero-mobile' }}">
           <img
             class="business-hero__image"
-            src="{{ site_settings.for_business_hero_image.url }}"
+            src="{{ site_settings.for_business_hero_image|image_variant:'hero-desktop' }}"
             width="1600"
             height="900"
             alt=""

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static %}
+{% load i18n static catalog_i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}
@@ -22,7 +22,7 @@
     <header class="account-dashboard__hero">
       <div class="account-dashboard__hero-surface">
         {% if site_settings.dashboard_hero_image %}
-          <img src="{{ site_settings.dashboard_hero_image.url }}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+          <img src="{{ site_settings.dashboard_hero_image|image_variant:'hero-desktop' }}" srcset="{{ site_settings.dashboard_hero_image|image_variant:'hero-mobile' }} 760w, {{ site_settings.dashboard_hero_image|image_variant:'hero-desktop' }} 1600w" sizes="100vw" alt="" loading="lazy" decoding="async" class="account-dashboard__hero-image" />
         {% else %}
           <img src="{% static 'img/banners/owner-dashboard-hero.webp' %}" alt="" loading="lazy" class="account-dashboard__hero-image" />
         {% endif %}

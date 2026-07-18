@@ -153,35 +153,47 @@ Set these repository secrets in GitHub (`Settings -> Secrets and variables -> Ac
 cp .env.example .env
 
 # build image and run release tasks
-docker compose build web
-docker compose up -d db
-docker compose run --rm web ./scripts/release-server.sh
+docker compose -f docker-compose.yml build web
+docker compose -f docker-compose.yml up -d db
+docker compose -f docker-compose.yml run --rm web ./scripts/release-server.sh
 
 # run in background
-docker compose up -d web
+docker compose -f docker-compose.yml up -d web
 
 # stop
-docker compose down
+docker compose -f docker-compose.yml down
 
 # logs
-docker compose logs -f web
+docker compose -f docker-compose.yml logs -f web
 
 # run only migrations in web container
-docker compose run --rm web ./scripts/migrate.sh
+docker compose -f docker-compose.yml run --rm web ./scripts/migrate.sh
 ```
 
 ## Production release checklist
-1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `SERVE_MEDIA_FILES=1`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`, `GOOGLE_ANALYTICS_PROPERTY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`, `MEDIA_CACHE_MAX_AGE`.
+1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `SERVE_MEDIA_FILES=0`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`, `GOOGLE_ANALYTICS_PROPERTY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`, `MEDIA_CACHE_MAX_AGE`. Secrets must not be empty or placeholders.
 2. Avoid editing tracked files on server (`docker-compose.yml`, `src/config/settings.py`); keep server-specific values in `.env`.
 3. Ensure server can access GitHub via SSH (`./scripts/setup-github-ssh.sh` + `ssh -T git@github.com`).
 4. Install/update nginx config from `deploy/nginx/kidsmap.az.conf`.
 5. Run `./scripts/deploy-server.sh`.
-6. Run `docker compose run --rm web ./scripts/release-server.sh` manually only if you need to re-apply release tasks.
-7. Run `python manage.py check` (optional extra).
-8. Verify:
+6. Run `docker compose -f docker-compose.yml run --rm web ./scripts/release-server.sh` manually only if you need to re-apply release tasks.
+7. Keep `SECURE_HSTS_PRELOAD=0` until every subdomain has been audited for permanent HTTPS support.
+8. Ensure `MEDIA_ROOT_HOST` exists and is writable by container UID/GID `10001`; Nginx must serve the same directory directly.
+9. Run `python manage.py check` (optional extra).
+10. Verify:
    - `/healthz`
    - `/sitemap.xml`
-   - `/robots.txt`
+    - `/robots.txt`
+
+After deploying the image optimization pipeline for the first time, generate
+responsive WebP variants for existing uploads:
+
+```bash
+docker compose -f docker-compose.yml exec -T web python manage.py optimize_images
+```
+
+The command is idempotent. Public media filenames are content/versioned by the
+storage backend, so Nginx serves them with a one-year immutable cache policy.
    - `/admin/`
 
 ## Production performance follow-up
@@ -189,7 +201,7 @@ After deploy, validate that static/media are not the new bottleneck:
 
 ```bash
 cd /opt/kidsmap
-docker compose run --rm web ./scripts/release-server.sh
+docker compose -f docker-compose.yml run --rm web ./scripts/release-server.sh
 curl -I https://kidsmap.az/static/css/site.css
 curl -I https://kidsmap.az/static/js/home_map.js
 curl -I https://kidsmap.az/media/site/your-heavy-file.png
@@ -215,4 +227,4 @@ If SMTP is configured correctly, command prints `Test email sent ...`.
 1. The database backups are run separately from deployments (removed from `./scripts/deploy-server.sh`).
 2. Set up a daily cron job to run `./scripts/backup-db.sh` once a day, which automatically retains a maximum of 5 backups.
 3. Back up `media/` on the same schedule as the database.
-4. To restore the three featured demo clubs manually on the target server, run `docker compose exec -T web python manage.py restore_featured_places`.
+4. To restore the three featured demo clubs manually on the target server, run `docker compose -f docker-compose.yml exec -T web python manage.py restore_featured_places`.

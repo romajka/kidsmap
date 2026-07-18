@@ -1,5 +1,68 @@
 # KidsMap
 
+> Supported Python version: **3.12** (see `.python-version` and the CI image).
+
+## Local setup
+
+The dependency files are split by purpose:
+
+- `requirements/base.txt` — framework and application runtime;
+- `requirements/production.txt` — base plus Gunicorn, Brotli, and MariaDB/MySQL support;
+- `requirements/development.txt` — base plus test tooling (`tblib` is required for parallel tracebacks).
+
+### Windows (PowerShell)
+
+Install Python 3.12 first; newer unsupported interpreters are not a substitute for the project version.
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements\development.txt
+python manage.py migrate
+python manage.py check
+python manage.py runserver
+```
+
+The default local database is SQLite, so Windows development does not require `mysqlclient` or
+`Brotli`. Install `requirements\production.txt` only when reproducing the production stack.
+
+### Linux
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements/development.txt
+python manage.py migrate
+python manage.py check
+python manage.py runserver
+```
+
+For a production/container installation use `pip install -r requirements/production.txt`.
+Before running `compilemessages`, install GNU gettext (`gettext` package on Debian/Ubuntu).
+
+### Tests
+
+```bash
+python manage.py test --parallel auto
+```
+
+`catalog/tests.py` is the canonical suite manifest. It includes every current testcase module
+without re-exporting TestCase classes, preventing duplicate execution.
+
+### Uploaded images
+
+JPEG, PNG, and WebP uploads are validated by decoding their contents. KidsMap generates
+responsive WebP variants for cards, detail pages, galleries, hero banners, and avatars;
+public templates use these variants through `srcset` while retaining the original as a fallback.
+
+To backfill variants after importing media or after enabling this pipeline, run:
+
+```bash
+python manage.py optimize_images
+```
+
 KidsMap — каталог детских кружков, секций и курсов по Азербайджану.
 
 Проект помогает родителям быстро находить подходящие занятия по региону, району, метро, возрасту, цене и отзывам, а владельцам кружков — управлять своими карточками через отдельный owner-flow с модерацией.
@@ -129,10 +192,28 @@ python manage.py runserver 0.0.0.0:8000
 
 ```bash
 cd /home/ramin/kidsmap
-cp .env.example .env
 docker compose run --rm web ./scripts/release-server.sh
 docker compose up -d --build
 ```
+
+Обычный `docker compose` автоматически подключает `docker-compose.override.yml`: это dev-режим
+с bind mount исходников, Django runserver и MariaDB на `127.0.0.1:3307`. Значения dev-секретов
+задаются только override-файлом и не используются production-конфигурацией.
+
+Production запускается только с базовым compose-файлом и заполненным `.env`:
+
+```bash
+docker compose -f docker-compose.yml build web
+docker compose -f docker-compose.yml up -d db
+docker compose -f docker-compose.yml run --rm web ./scripts/release-server.sh
+docker compose -f docker-compose.yml up -d web
+```
+
+В production исходники не монтируются, БД не публикуется наружу, а постоянный каталог media
+монтируется отдельно через `MEDIA_ROOT_HOST` (по умолчанию `./media`). Media должен отдавать
+reverse proxy напрямую; `SERVE_MEDIA_FILES` оставьте равным `0`.
+`DJANGO_SECRET_KEY`, `DB_PASSWORD` и `DB_ROOT_PASSWORD` обязательны и не должны быть placeholder-значениями.
+HSTS preload намеренно выключен до отдельной проверки всех поддоменов.
 
 ## Основные env-переменные
 

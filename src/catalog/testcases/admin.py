@@ -1,3 +1,4 @@
+import base64
 import json
 from pathlib import Path
 from io import StringIO
@@ -51,15 +52,7 @@ from catalog.models import (
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.content_quality import public_place_queryset, public_review_queryset, review_quality_check
 from catalog.services.place_schedule import dump_schedule_payload
-from catalog.testcases.auth_access import TestAccountsAndReviewAccess
-from catalog.testcases.auth_flow import (
-    TestAccountProfileUpdates,
-    TestAuthValidationAndNextSecurity,
-    TestEmailVerificationFlow,
-    TestPasswordResetIdentifierSupport,
-)
 from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, TRACKED_EVENT_NAMES
-from catalog.testcases.tracking import TestGoogleAnalyticsEvents, TestSiteVisitMiddleware, TestTrackingController
 from config.views import serve_media_file
 User = get_user_model()
 
@@ -1071,13 +1064,11 @@ class TestAdminOwnershipModerationUX(TestCase):
             }
         )
         photo = SimpleUploadedFile(
-            "gallery.gif",
-            (
-                b"GIF87a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00"
-                b"\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00"
-                b"\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;"
+            "gallery.png",
+            base64.b64decode(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
             ),
-            content_type="image/gif",
+            content_type="image/png",
         )
 
         response = self.client.post(
@@ -1089,7 +1080,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         saved_photo = PlacePhoto.objects.get(place=self.place)
         self.assertEqual(saved_photo.order, 1)
         self.assertTrue(saved_photo.image.name.startswith("places/gallery/gallery"))
-        self.assertTrue(saved_photo.image.name.endswith(".gif"))
+        self.assertTrue(saved_photo.image.name.endswith(".png"))
 
     def test_place_admin_can_save_an_empty_new_place_as_draft(self):
         response = self.client.post(
@@ -1738,6 +1729,18 @@ class TestSiteGalleryImageAdminMedia(TestCase):
             )
             site.refresh_from_db()
             self.assertFalse(site.site_background_image)
+
+    def test_ajax_upload_rejects_file_with_spoofed_image_mime_type(self):
+        response = self.client.post(
+            reverse("admin:catalog_sitegalleryimage_ajax_upload"),
+            {
+                "field": "site_background_image",
+                "image": SimpleUploadedFile("fake.jpg", b"not-an-image", content_type="image/jpeg"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(response.json()["success"])
 
 class TestCategoryAdminFormLayout(TestCase):
     @classmethod

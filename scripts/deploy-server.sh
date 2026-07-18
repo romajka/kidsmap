@@ -7,6 +7,7 @@ BRANCH="${1:-main}"
 APP_BASE_URL="${APP_BASE_URL:-http://127.0.0.1:8000}"
 PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-https://kidsmap.az}"
 ADMIN_BASE_URL="${ADMIN_BASE_URL:-https://admin.kidsmap.az}"
+COMPOSE=(docker compose -f docker-compose.yml)
 
 log() {
   printf '[deploy] %s\n' "$*"
@@ -26,7 +27,7 @@ ensure_web_running_on_failure() {
   fi
 
   log "Deploy failed with status ${status}; ensuring web service is running"
-  docker compose up -d web >/dev/null 2>&1 || true
+  "${COMPOSE[@]}" up -d web >/dev/null 2>&1 || true
 }
 
 trap ensure_web_running_on_failure EXIT
@@ -60,22 +61,22 @@ if ! git pull --ff-only "$REMOTE" "$BRANCH"; then
   exit 1
 fi
 log "Starting database"
-docker compose up -d db
+"${COMPOSE[@]}" up -d db
 
 log "Building new web image while current app stays online"
-docker compose build web
+"${COMPOSE[@]}" build web
 
 log "Running release tasks"
-docker compose run --rm web ./scripts/release-server.sh
+"${COMPOSE[@]}" run --rm web ./scripts/release-server.sh
 
 log "Starting updated application"
-docker compose up -d --no-deps web
+"${COMPOSE[@]}" up -d --no-deps web
 
 log "Checking migrations drift"
-docker compose exec -T web python manage.py makemigrations --check --dry-run
+"${COMPOSE[@]}" exec -T web python manage.py makemigrations --check --dry-run
 
 log "Running Django check"
-docker compose exec -T web python manage.py check
+"${COMPOSE[@]}" exec -T web python manage.py check
 
 smoke() {
   local path="$1"
@@ -129,6 +130,7 @@ JSON
 }
 
 log "Running smoke checks"
+smoke "/healthz"
 smoke "/"
 smoke "/catalog/"
 smoke "/admin/"

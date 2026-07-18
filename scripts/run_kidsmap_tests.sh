@@ -21,25 +21,25 @@ EXTRA_ARGS=("$@")
 case "$SUITE" in
   smoke)
     run_suite \
-      src.catalog.testcases.tracking \
-      src.catalog.testcases.auth_access
+      catalog.testcases.tracking \
+      catalog.testcases.auth_access
     ;;
   auth)
     run_suite \
-      src.catalog.testcases.auth_access \
-      src.catalog.testcases.auth_flow
+      catalog.testcases.auth_access \
+      catalog.testcases.auth_flow
     ;;
   public)
-    run_suite src.catalog.testcases.public
+    run_suite catalog.testcases.public
     ;;
   admin)
-    run_suite src.catalog.testcases.admin
+    run_suite catalog.testcases.admin
     ;;
   owner)
-    run_suite src.catalog.testcases.owner
+    run_suite catalog.testcases.owner
     ;;
   catalog)
-    run_suite src.catalog.testcases.catalog
+    run_suite catalog.testcases.catalog
     ;;
   full)
     run_suite catalog

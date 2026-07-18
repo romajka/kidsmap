@@ -16,7 +16,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : "
+"n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/catalog/templatetags/catalog_i18n.py:32
 #, python-format
@@ -626,24 +627,26 @@ msgid "Сделать активными"
 msgstr "Сделать активными"
 
 #: src/catalog/admin.py:1181
-#, fuzzy, python-format
+#, python-format
 #| msgid "Опубликованные карточки"
 msgid "Опубликована %(count)d карточка."
 msgid_plural "Опубликовано %(count)d карточки."
-msgstr[0] "Опубликованные карточки"
-msgstr[1] "Опубликованные карточки"
+msgstr[0] "Опубликована %(count)d карточка."
+msgstr[1] "Опубликовано %(count)d карточки."
+msgstr[2] "Опубликовано %(count)d карточек."
 
 #: src/catalog/admin.py:1189
 msgid "Сделать неактивными"
 msgstr "Сделать неактивными"
 
 #: src/catalog/admin.py:1195
-#, fuzzy, python-format
+#, python-format
 #| msgid "Опубликованные карточки"
 msgid "С публикации снята %(count)d карточка."
 msgid_plural "С публикации снято %(count)d карточки."
-msgstr[0] "Опубликованные карточки"
-msgstr[1] "Опубликованные карточки"
+msgstr[0] "С публикации снята %(count)d карточка."
+msgstr[1] "С публикации снято %(count)d карточки."
+msgstr[2] "С публикации снято %(count)d карточек."
 
 #: src/catalog/admin.py:1203
 #, fuzzy
@@ -652,36 +655,39 @@ msgid "Вернуть в черновик"
 msgstr "В черновик"
 
 #: src/catalog/admin.py:1212
-#, fuzzy, python-format
+#, python-format
 #| msgid "Кружок “%(name)s” перемещен в удаленные."
 msgid "%(count)d карточка переведена в черновик."
 msgid_plural "%(count)d карточки переведены в черновик."
-msgstr[0] "Кружок “%(name)s” перемещен в удаленные."
-msgstr[1] "Кружок “%(name)s” перемещен в удаленные."
+msgstr[0] "%(count)d карточка переведена в черновик."
+msgstr[1] "%(count)d карточки переведены в черновик."
+msgstr[2] "%(count)d карточек переведены в черновик."
 
 #: src/catalog/admin.py:1217
 msgid "Отметить как проверенные"
 msgstr "Отметить как проверенные"
 
 #: src/catalog/admin.py:1223
-#, fuzzy, python-format
+#, python-format
 #| msgid "Только проверенные карточки"
 msgid "Отмечена как проверенная %(count)d карточка."
 msgid_plural "Отмечено как проверенные %(count)d карточки."
-msgstr[0] "Только проверенные карточки"
-msgstr[1] "Только проверенные карточки"
+msgstr[0] "Отмечена как проверенная %(count)d карточка."
+msgstr[1] "Отмечено как проверенные %(count)d карточки."
+msgstr[2] "Отмечено как проверенные %(count)d карточек."
 
 #: src/catalog/admin.py:1231
 msgid "Снять отметку проверки"
 msgstr "Снять отметку проверки"
 
 #: src/catalog/admin.py:1237
-#, fuzzy, python-format
+#, python-format
 #| msgid "Снять отметку проверки"
 msgid "Снята отметка проверки у %(count)d карточки."
 msgid_plural "Снята отметка проверки у %(count)d карточек."
-msgstr[0] "Снять отметку проверки"
-msgstr[1] "Снять отметку проверки"
+msgstr[0] "Снята отметка проверки у %(count)d карточки."
+msgstr[1] "Снята отметка проверки у %(count)d карточек."
+msgstr[2] "Снята отметка проверки у %(count)d карточек."
 
 #: src/catalog/admin.py:1245
 #, fuzzy
@@ -690,12 +696,13 @@ msgid "Отправить на модерацию"
 msgstr "Отправить на проверку"
 
 #: src/catalog/admin.py:1250
-#, fuzzy, python-format
+#, python-format
 #| msgid "Отзыв отправлен на модерацию."
 msgid "%(count)d карточка отправлена на модерацию."
 msgid_plural "%(count)d карточки отправлены на модерацию."
-msgstr[0] "Отзыв отправлен на модерацию."
-msgstr[1] "Отзыв отправлен на модерацию."
+msgstr[0] "%(count)d карточка отправлена на модерацию."
+msgstr[1] "%(count)d карточки отправлены на модерацию."
+msgstr[2] "%(count)d карточек отправлены на модерацию."
 
 #: src/catalog/admin.py:1255
 #, fuzzy
@@ -721,12 +728,13 @@ msgid ""
 msgstr ""
 
 #: src/catalog/admin.py:1291
-#, fuzzy, python-format
+#, python-format
 #| msgid "Карточка сохранена."
 msgid "%(count)d карточка отклонена."
 msgid_plural "%(count)d карточки отклонены."
-msgstr[0] "Карточка сохранена."
-msgstr[1] "Карточка сохранена."
+msgstr[0] "%(count)d карточка отклонена."
+msgstr[1] "%(count)d карточки отклонены."
+msgstr[2] "%(count)d карточек отклонены."
 
 #: src/catalog/admin.py:1295 src/catalog/admin.py:1317
 #: src/catalog/templates/admin/catalog/place_delete_selected_confirmation.html:17
@@ -734,7 +742,7 @@ msgid "Переместить выбранные кружки в удаленн�
 msgstr "Переместить выбранные кружки в удаленные"
 
 #: src/catalog/admin.py:1306
-#, fuzzy, python-format
+#, python-format
 #| msgid ""
 #| "Карточка удалена. При необходимости ее можно восстановить через "
 #| "администратора."
@@ -742,12 +750,9 @@ msgid ""
 "В удалённые перемещена %(count)d карточка. Её можно восстановить из админки."
 msgid_plural ""
 "В удалённые перемещено %(count)d карточки. Их можно восстановить из админки."
-msgstr[0] ""
-"Карточка удалена. При необходимости ее можно восстановить через "
-"администратора."
-msgstr[1] ""
-"Карточка удалена. При необходимости ее можно восстановить через "
-"администратора."
+msgstr[0] "В удалённые перемещена %(count)d карточка. Её можно восстановить из админки."
+msgstr[1] "В удалённые перемещено %(count)d карточки. Их можно восстановить из админки."
+msgstr[2] "В удалённые перемещено %(count)d карточек. Их можно восстановить из админки."
 
 #: src/catalog/admin.py:1325
 #, fuzzy
@@ -769,16 +774,16 @@ msgid "Восстановить выбранные кружки из удале�
 msgstr "Восстановить выбранные кружки из удаленных"
 
 #: src/catalog/admin.py:1339
-#, fuzzy, python-format
+#, python-format
 #| msgid "Из удаленных восстановлен %(count)d кружок. Он остался неактивным."
 #| msgid_plural ""
 #| "Из удаленных восстановлено %(count)d кружка. Они остались неактивными."
 msgid "Из удалённых восстановлена %(count)d карточка. Она осталась неактивной."
 msgid_plural ""
 "Из удалённых восстановлено %(count)d карточки. Они остались неактивными."
-msgstr[0] "Из удаленных восстановлен %(count)d кружок. Он остался неактивным."
-msgstr[1] ""
-"Из удаленных восстановлено %(count)d кружка. Они остались неактивными."
+msgstr[0] "Из удалённых восстановлена %(count)d карточка. Она осталась неактивной."
+msgstr[1] "Из удалённых восстановлено %(count)d карточки. Они остались неактивными."
+msgstr[2] "Из удалённых восстановлено %(count)d карточек. Они остались неактивными."
 
 #: src/catalog/admin.py:1347
 msgid "Повторно геокодировать выбранные карточки"
@@ -1258,12 +1263,13 @@ msgid "Опубликовать выбранные отзывы"
 msgstr "Отклонить выбранные заявки"
 
 #: src/catalog/admin.py:2230
-#, fuzzy, python-format
+#, python-format
 #| msgid "Опубликовано"
 msgid "Опубликован %(count)d отзыв."
 msgid_plural "Опубликовано %(count)d отзыва."
-msgstr[0] "Опубликовано"
-msgstr[1] "Опубликовано"
+msgstr[0] "Опубликован %(count)d отзыв."
+msgstr[1] "Опубликовано %(count)d отзыва."
+msgstr[2] "Опубликовано %(count)d отзывов."
 
 #: src/catalog/admin.py:2234
 #, fuzzy
@@ -1272,12 +1278,13 @@ msgid "Скрыть выбранные отзывы"
 msgstr "Одобрить выбранные заявки"
 
 #: src/catalog/admin.py:2239
-#, fuzzy, python-format
+#, python-format
 #| msgid "Открыть отзывы"
 msgid "Скрыт %(count)d отзыв."
 msgid_plural "Скрыто %(count)d отзыва."
-msgstr[0] "Открыть отзывы"
-msgstr[1] "Открыть отзывы"
+msgstr[0] "Скрыт %(count)d отзыв."
+msgstr[1] "Скрыто %(count)d отзыва."
+msgstr[2] "Скрыто %(count)d отзывов."
 
 #: src/catalog/admin.py:2243
 #, fuzzy
@@ -1286,13 +1293,14 @@ msgid "Отклонить выбранные отзывы"
 msgstr "Отклонить выбранные заявки"
 
 #: src/catalog/admin.py:2248
-#, fuzzy, python-format
+#, python-format
 #| msgid "на основе %(total)s отзыва"
 #| msgid_plural "на основе %(total)s отзывов"
 msgid "Отклонён %(count)d отзыв."
 msgid_plural "Отклонено %(count)d отзыва."
-msgstr[0] "на основе %(total)s отзыва"
-msgstr[1] "на основе %(total)s отзывов"
+msgstr[0] "Отклонён %(count)d отзыв."
+msgstr[1] "Отклонено %(count)d отзыва."
+msgstr[2] "Отклонено %(count)d отзывов."
 
 #: src/catalog/admin.py:2256
 #, fuzzy
@@ -1750,6 +1758,7 @@ msgid "%(count)s фото"
 msgid_plural "%(count)s фото"
 msgstr[0] "%(count)s фото"
 msgstr[1] "%(count)s фото"
+msgstr[2] "%(count)s фото"
 
 #: src/catalog/admin.py:2912
 msgid "Не опубликовано"
@@ -2475,10 +2484,9 @@ msgid ""
 msgstr ""
 
 #: src/catalog/controllers/owner_places_controller.py:361
-#, fuzzy
 #| msgid "Отзыв отправлен на модерацию."
 msgid "Новая карточка отправлена на модерацию."
-msgstr "Отзыв отправлен на модерацию."
+msgstr "Новая карточка отправлена на модерацию."
 
 #: src/catalog/controllers/owner_places_controller.py:395
 msgid "Qaralama saxlanıldı. Məkanı sonra profilinizdə davam etdirə bilərsiniz."
@@ -2502,28 +2510,24 @@ msgid "Карточка не найдена или не привязана к в
 msgstr "Карточка не найдена или не привязана к вашему аккаунту."
 
 #: src/catalog/controllers/owner_places_controller.py:513
-#, fuzzy
 #| msgid "Публикация станет доступна после одобрения заявки модератором."
 msgid "Публикация доступна только после одобрения модератором."
-msgstr "Публикация станет доступна после одобрения заявки модератором."
+msgstr "Публикация доступна только после одобрения модератором."
 
 #: src/catalog/controllers/owner_places_controller.py:534
-#, fuzzy
 #| msgid "Не опубликовано"
 msgid "Карточка опубликована."
-msgstr "Не опубликовано"
+msgstr "Карточка опубликована."
 
 #: src/catalog/controllers/owner_places_controller.py:534
-#, fuzzy
 #| msgid "Кружок “%(name)s” перемещен в удаленные."
 msgid "Карточка переведена в черновик."
-msgstr "Кружок “%(name)s” перемещен в удаленные."
+msgstr "Карточка переведена в черновик."
 
 #: src/catalog/controllers/owner_places_controller.py:562
-#, fuzzy
 #| msgid "Отзыв отправлен на модерацию."
 msgid "Эта карточка уже отправлена на модерацию."
-msgstr "Отзыв отправлен на модерацию."
+msgstr "Эта карточка уже отправлена на модерацию."
 
 #: src/catalog/controllers/owner_places_controller.py:570
 msgid ""
@@ -2532,10 +2536,9 @@ msgid ""
 msgstr ""
 
 #: src/catalog/controllers/owner_places_controller.py:585
-#, fuzzy
 #| msgid "Повторная отправка карточки на модерацию из кабинета владельца."
 msgid "Карточка отправлена на модерацию из кабинета владельца."
-msgstr "Повторная отправка карточки на модерацию из кабинета владельца."
+msgstr "Карточка отправлена на модерацию из кабинета владельца."
 
 #: src/catalog/controllers/owner_places_controller.py:599
 msgid "Məkan moderasiyaya göndərildi."
@@ -2676,22 +2679,24 @@ msgid "Приглашение отклонено."
 msgstr "Приглашение отклонено."
 
 #: src/catalog/controllers/place_controller.py:99
-#, fuzzy, python-format
+#, python-format
 #| msgid "Найден %(total)s кружок"
 #| msgid_plural "Найдено %(total)s кружков"
 msgid "Найдено %(total)s мероприятие"
 msgid_plural "Найдено %(total)s мероприятий"
-msgstr[0] "Найден %(total)s кружок"
-msgstr[1] "Найдено %(total)s кружков"
+msgstr[0] "Найдено %(total)s мероприятие"
+msgstr[1] "Найдено %(total)s мероприятий"
+msgstr[2] "Найдено %(total)s мероприятий"
 
 #: src/catalog/controllers/place_controller.py:105
-#, fuzzy, python-format
+#, python-format
 #| msgid "Найден %(total)s кружок"
 #| msgid_plural "Найдено %(total)s кружков"
 msgid "Найдено %(total)s место"
 msgid_plural "Найдено %(total)s мест"
-msgstr[0] "Найден %(total)s кружок"
-msgstr[1] "Найдено %(total)s кружков"
+msgstr[0] "Найдено %(total)s место"
+msgstr[1] "Найдено %(total)s мест"
+msgstr[2] "Найдено %(total)s мест"
 
 #: src/catalog/controllers/place_controller.py:279
 #, python-format
@@ -2999,16 +3004,14 @@ msgid "Укажите email или логин."
 msgstr "Укажите email или логин."
 
 #: src/catalog/forms.py:576 src/catalog/forms.py:926
-#, fuzzy
 #| msgid "Временное"
 msgid "Время начала"
-msgstr "Временное"
+msgstr "Время начала"
 
 #: src/catalog/forms.py:584 src/catalog/forms.py:953
-#, fuzzy
 #| msgid "Окончание"
 msgid "Время окончания"
-msgstr "Окончание"
+msgstr "Время окончания"
 
 #: src/catalog/forms.py:617 src/catalog/models.py:127
 #: src/catalog/templates/catalog/place_detail.html:478
@@ -3180,16 +3183,14 @@ msgid "Если модератору нужен дополнительный к�
 msgstr "Если модератору нужен дополнительный контекст."
 
 #: src/catalog/forms.py:828
-#, fuzzy
 #| msgid "Дополнительные фото (до 5)"
 msgid "Дополнительные фото (до 10)"
-msgstr "Дополнительные фото (до 5)"
+msgstr "Дополнительные фото (до 10)"
 
 #: src/catalog/forms.py:830 src/catalog/forms.py:838
-#, fuzzy
 #| msgid "До 5 фото для галереи."
 msgid "До 10 фото для галереи, каждое до 2 МБ."
-msgstr "До 5 фото для галереи."
+msgstr "До 10 фото для галереи, каждое до 2 МБ."
 
 #: src/catalog/forms.py:864
 msgid "Укажите локацию: выберите район или станцию метро."
@@ -3213,96 +3214,82 @@ msgid "Дата"
 msgstr "Дата"
 
 #: src/catalog/forms.py:921 src/catalog/forms.py:948
-#, fuzzy
 #| msgid "Выберите метро"
 msgid "Выберите дату"
-msgstr "Выберите метро"
+msgstr "Выберите дату"
 
 #: src/catalog/forms.py:934 src/catalog/forms.py:961
-#, fuzzy
 #| msgid "Выберите пол."
 msgid "Выберите время"
-msgstr "Выберите пол."
+msgstr "Выберите время"
 
 #: src/catalog/forms.py:939
-#, fuzzy
 #| msgid "Дата решения"
 msgid "Дата окончания"
-msgstr "Дата решения"
+msgstr "Дата окончания"
 
 #: src/catalog/forms.py:967 src/catalog/models.py:435
-#, fuzzy
 #| msgid "Главное фото"
 msgid "Связанное место"
-msgstr "Главное фото"
+msgstr "Связанное место"
 
 #: src/catalog/forms.py:971
-#, fuzzy
 #| msgid "Необязательно, но помогает точнее показать место."
 msgid "Необязательно. Можно добавить мероприятие без постоянного места."
-msgstr "Необязательно, но помогает точнее показать место."
+msgstr "Необязательно. Можно добавить мероприятие без постоянного места."
 
 #: src/catalog/forms.py:992
-#, fuzzy
 #| msgid "например шахматы, футбол, рисование"
 msgid "Например: мастер-класс по рисованию"
-msgstr "например шахматы, футбол, рисование"
+msgstr "Например: мастер-класс по рисованию"
 
 #: src/catalog/forms.py:998
-#, fuzzy
 #| msgid "Например: 60 минут."
 msgid "Например: 15 AZN или бесплатно"
-msgstr "Например: 60 минут."
+msgstr "Например: 15 AZN или бесплатно"
 
 #: src/catalog/forms.py:999
 msgid "Например: Bakı, Nərimanov r., Xətai pr. 12"
 msgstr ""
 
 #: src/catalog/forms.py:1000
-#, fuzzy
 #| msgid "Например: 60 минут."
 msgid "Например: 050 123 45 67"
-msgstr "Например: 60 минут."
+msgstr "Например: 050 123 45 67"
 
 #: src/catalog/forms.py:1006
 msgid "Qısa məlumat: tədbirdə nələr olacaq, kimlər üçün uyğundur."
 msgstr ""
 
 #: src/catalog/forms.py:1038
-#, fuzzy
 #| msgid "Короткий комментарий для модератора."
 msgid "Необязательно. Укажите детали для модератора."
-msgstr "Короткий комментарий для модератора."
+msgstr "Необязательно. Укажите детали для модератора."
 
 #: src/catalog/forms.py:1078
-#, fuzzy
 #| msgid "Укажите локацию: выберите район или станцию метро."
 msgid "Укажите адрес или выберите связанное место с адресом."
-msgstr "Укажите локацию: выберите район или станцию метро."
+msgstr "Укажите адрес или выберите связанное место с адресом."
 
 #: src/catalog/forms.py:1080
-#, fuzzy
 #| msgid "Укажите локацию: выберите район или станцию метро."
 msgid "Укажите телефон / WhatsApp или выберите связанное место с телефоном."
-msgstr "Укажите локацию: выберите район или станцию метро."
+msgstr "Укажите телефон / WhatsApp или выберите связанное место с телефоном."
 
 #: src/catalog/forms.py:1105
-#, fuzzy
 #| msgid "Окончание мероприятия"
 msgid "Укажите дату мероприятия."
-msgstr "Окончание мероприятия"
+msgstr "Укажите дату мероприятия."
 
 #: src/catalog/forms.py:1107
-#, fuzzy
 #| msgid "Укажите ваш пол."
 msgid "Укажите время начала."
-msgstr "Укажите ваш пол."
+msgstr "Укажите время начала."
 
 #: src/catalog/forms.py:1109
-#, fuzzy
 #| msgid "Укажите номер телефона."
 msgid "Укажите время окончания."
-msgstr "Укажите номер телефона."
+msgstr "Укажите время окончания."
 
 #: src/catalog/forms.py:1112
 msgid "Время окончания должно быть позже времени начала."
@@ -3313,16 +3300,14 @@ msgid "Нельзя выбрать прошедшую дату или время
 msgstr ""
 
 #: src/catalog/forms.py:1116
-#, fuzzy
 #| msgid "Повторная отправка карточки на модерацию из кабинета владельца."
 msgid "Нельзя отправить на модерацию уже завершившееся мероприятие."
-msgstr "Повторная отправка карточки на модерацию из кабинета владельца."
+msgstr "Нельзя отправить на модерацию уже завершившееся мероприятие."
 
 #: src/catalog/forms.py:1121
-#, fuzzy
 #| msgid "Возраст не может быть меньше 0."
 msgid "Возраст «до» меньше «от»."
-msgstr "Возраст не может быть меньше 0."
+msgstr "Возраст «до» меньше «от»."
 
 #: src/catalog/forms.py:1149
 msgid "Email участника"
@@ -3536,16 +3521,14 @@ msgstr "Телефон 1"
 
 #: src/catalog/models.py:554 src/catalog/models.py:569
 #: src/catalog/templates/catalog/place_list.html:597
-#, fuzzy
 #| msgid "Временное мероприятие"
 msgid "Мероприятие"
-msgstr "Временное мероприятие"
+msgstr "Мероприятие"
 
 #: src/catalog/models.py:570 src/catalog/templates/catalog/place_list.html:76
-#, fuzzy
 #| msgid "Начало мероприятия"
 msgid "Мероприятия"
-msgstr "Начало мероприятия"
+msgstr "Мероприятия"
 
 #: src/catalog/models.py:583 src/catalog/models.py:635
 #: src/catalog/models.py:704 src/catalog/models.py:764
@@ -4691,12 +4674,13 @@ msgid "Найти"
 msgstr "Найти"
 
 #: src/catalog/templates/admin/catalog/place/change_list.html:41
-#, fuzzy, python-format
+#, python-format
 #| msgid "Заявки на карточки"
 msgid "Найдена %(counter)s карточка"
 msgid_plural "Найдено %(counter)s карточек"
-msgstr[0] "Заявки на карточки"
-msgstr[1] "Заявки на карточки"
+msgstr[0] "Найдена %(counter)s карточка"
+msgstr[1] "Найдено %(counter)s карточек"
+msgstr[2] "Найдено %(counter)s карточек"
 
 #: src/catalog/templates/admin/catalog/place/change_list.html:47
 #, python-format
@@ -4705,10 +4689,9 @@ msgstr ""
 
 #: src/catalog/templates/admin/catalog/place/change_list.html:59
 #: src/catalog/templates/catalog/place_list.html:74
-#, fuzzy
 #| msgid "Выбранные фильтры"
 msgid "Быстрые фильтры"
-msgstr "Выбранные фильтры"
+msgstr "Быстрые фильтры"
 
 #: src/catalog/templates/admin/catalog/place/change_list.html:74
 #: src/catalog/templates/admin/catalog/place/change_list.html:79
@@ -5203,10 +5186,9 @@ msgid "Закрыть"
 msgstr "Закрыть"
 
 #: src/catalog/templates/base.html:302
-#, fuzzy
 #| msgid "Не удалось обновить роль. Исправьте поле и попробуйте снова."
 msgid "Не удалось выполнить действие. Попробуйте ещё раз."
-msgstr "Не удалось обновить роль. Исправьте поле и попробуйте снова."
+msgstr "Не удалось выполнить действие. Попробуйте ещё раз."
 
 #: src/catalog/templates/base.html:355 src/catalog/templates/base.html:366
 #: src/catalog/templates/catalog/includes/review_item.html:63
@@ -5301,10 +5283,9 @@ msgid "Открыть фото %(number)s"
 msgstr "Открыть фото %(number)s"
 
 #: src/catalog/templates/catalog/place_detail.html:127
-#, fuzzy
 #| msgid "Позвонить"
 msgid "Позвонить и уточнить"
-msgstr "Позвонить"
+msgstr "Позвонить и уточнить"
 
 #: src/catalog/templates/catalog/place_detail.html:173
 msgid "Основные характеристики"
@@ -5318,8 +5299,9 @@ msgstr "Карта места"
 #, python-format
 msgid "%(total)s отзыв помогает понять место лучше."
 msgid_plural "%(total)s отзыва помогают понять место лучше."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(total)s отзыв помогает понять место лучше."
+msgstr[1] "%(total)s отзыва помогают понять место лучше."
+msgstr[2] "%(total)s отзывов помогают понять место лучше."
 
 #: src/catalog/templates/catalog/place_detail.html:428
 #: src/catalog/templates/catalog/place_detail.html:430
@@ -5364,34 +5346,29 @@ msgstr "Письменные отзывы доступны только посл
 
 #: src/catalog/templates/catalog/place_detail.html:480
 #: src/catalog/templates/catalog/place_list.html:526
-#, fuzzy
 #| msgid "Постоянное"
 msgid "Постоянное место"
-msgstr "Постоянное"
+msgstr "Постоянное место"
 
 #: src/catalog/templates/catalog/place_detail.html:516
-#, fuzzy
 #| msgid "Действия"
 msgid "Быстрые действия"
-msgstr "Действия"
+msgstr "Быстрые действия"
 
 #: src/catalog/templates/catalog/place_list.html:43
-#, fuzzy
 #| msgid "Найдите подходящие варианты"
 msgid "Найдите подходящее место для ребёнка"
-msgstr "Найдите подходящие варианты"
+msgstr "Найдите подходящее место для ребёнка"
 
 #: src/catalog/templates/catalog/place_list.html:44
-#, fuzzy
 #| msgid "Фильтры по возрасту, региону и цене"
 msgid "Выбирайте курсы и занятия по возрасту, району и метро."
-msgstr "Фильтры по возрасту, региону и цене"
+msgstr "Выбирайте курсы и занятия по возрасту, району и метро."
 
 #: src/catalog/templates/catalog/place_list.html:51
-#, fuzzy
 #| msgid "Контент каталога"
 msgid "Фильтры каталога"
-msgstr "Контент каталога"
+msgstr "Фильтры каталога"
 
 #: src/catalog/templates/catalog/place_list.html:68
 msgid "Место, занятие или ключевое слово..."
@@ -5408,10 +5385,9 @@ msgid "Фильтры"
 msgstr "Фильтры"
 
 #: src/catalog/templates/catalog/place_list.html:75
-#, fuzzy
 #| msgid "Место"
 msgid "Места рядом"
-msgstr "Место"
+msgstr "Места рядом"
 
 #: src/catalog/templates/catalog/place_list.html:84
 #: src/catalog/templates/catalog/place_list.html:389
@@ -5429,16 +5405,14 @@ msgid "Категория, регион, метро и возраст ребён
 msgstr "Категория, регион, метро и возраст ребёнка."
 
 #: src/catalog/templates/catalog/place_list.html:129
-#, fuzzy
 #| msgid "Разместить кружок"
 msgid "Подобрать кружок"
-msgstr "Разместить кружок"
+msgstr "Подобрать кружок"
 
 #: src/catalog/templates/catalog/place_list.html:130
-#, fuzzy
 #| msgid "Категория, регион, метро и возраст ребёнка."
 msgid "Категория, район, метро, возраст и бюджет в одном месте."
-msgstr "Категория, регион, метро и возраст ребёнка."
+msgstr "Категория, район, метро, возраст и бюджет в одном месте."
 
 #: src/catalog/templates/catalog/place_list.html:135
 msgid "Поиск по названию"
@@ -5463,22 +5437,19 @@ msgstr "Все"
 
 #: src/catalog/templates/catalog/place_list.html:179
 #: src/catalog/templates/catalog/place_list.html:180
-#, fuzzy
 #| msgid "Карта места"
 msgid "Тип места"
-msgstr "Карта места"
+msgstr "Тип места"
 
 #: src/catalog/templates/catalog/place_list.html:187
-#, fuzzy
 #| msgid "Временное"
 msgid "Временные"
-msgstr "Временное"
+msgstr "Временные"
 
 #: src/catalog/templates/catalog/place_list.html:191
-#, fuzzy
 #| msgid "Постоянное"
 msgid "Постоянные"
-msgstr "Постоянное"
+msgstr "Постоянные"
 
 #: src/catalog/templates/catalog/place_list.html:206
 msgid "Найти регион или район"
@@ -5571,16 +5542,14 @@ msgid "Сбросить всё"
 msgstr "Сбросить всё"
 
 #: src/catalog/templates/catalog/place_list.html:408
-#, fuzzy
 #| msgid "Точка на карте не выбрана."
 msgid "Показаны места по выбранным фильтрам."
-msgstr "Точка на карте не выбрана."
+msgstr "Показаны места по выбранным фильтрам."
 
 #: src/catalog/templates/catalog/place_list.html:408
-#, fuzzy
 #| msgid "По выбранным фильтрам на карте пока нет кружков"
 msgid "По выбранным фильтрам ничего не найдено."
-msgstr "По выбранным фильтрам на карте пока нет кружков"
+msgstr "По выбранным фильтрам ничего не найдено."
 
 #: src/catalog/templates/catalog/place_list.html:441
 msgid "По текущим фильтрам пока нет карточек с координатами."
@@ -5612,6 +5581,7 @@ msgid "%(total)s точка на карте"
 msgid_plural "%(total)s точки на карте"
 msgstr[0] "%(total)s точка на карте"
 msgstr[1] "%(total)s точки на карте"
+msgstr[2] "%(total)s точек на карте"
 
 #: src/catalog/templates/catalog/place_list.html:457
 #, python-format
@@ -5619,6 +5589,7 @@ msgid "Еще %(total)s карточка не показана: нет коор�
 msgid_plural "Еще %(total)s карточки не показаны: нет координат."
 msgstr[0] "Еще %(total)s карточка не показана: нет координат."
 msgstr[1] "Еще %(total)s карточки не показаны: нет координат."
+msgstr[2] "Еще %(total)s карточек не показаны: нет координат."
 
 #: src/catalog/templates/catalog/place_list.html:472
 #, python-format
@@ -5994,12 +5965,9 @@ msgid ""
 msgid_plural ""
 "У вас есть %(total)s черновика. Завершите публикацию, чтобы места можно было "
 "отправить на проверку."
-msgstr[0] ""
-"У вас есть %(total)s черновик. Завершите публикацию, чтобы место можно было "
-"отправить на проверку."
-msgstr[1] ""
-"У вас есть %(total)s черновика. Завершите публикацию, чтобы места можно было "
-"отправить на проверку."
+msgstr[0] "У вас есть %(total)s черновик. Завершите публикацию, чтобы место можно было отправить на проверку."
+msgstr[1] "У вас есть %(total)s черновика. Завершите публикацию, чтобы места можно было отправить на проверку."
+msgstr[2] "У вас есть %(total)s черновиков. Завершите публикацию, чтобы мест можно было отправить на проверку."
 
 #: src/catalog/templates/pages/account_dashboard.html:149
 msgid "Продолжить черновик"
@@ -6082,6 +6050,7 @@ msgid "на основе %(total)s отзыва"
 msgid_plural "на основе %(total)s отзывов"
 msgstr[0] "на основе %(total)s отзыва"
 msgstr[1] "на основе %(total)s отзывов"
+msgstr[2] "на основе %(total)s отзывов"
 
 #: src/catalog/templates/pages/home.html:40
 msgid "средняя оценка"
@@ -6231,6 +6200,7 @@ msgid "на основе %(total)s отзыва о сервисе"
 msgid_plural "на основе %(total)s отзывов о сервисе"
 msgstr[0] "на основе %(total)s отзыва о сервисе"
 msgstr[1] "на основе %(total)s отзывов о сервисе"
+msgstr[2] "на основе %(total)s отзывов о сервисе"
 
 #: src/catalog/templates/pages/home.html:511
 msgid "удобный выбор для родителей"
@@ -6528,10 +6498,9 @@ msgstr "Сначала закройте обязательный минимум.
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:252
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:296
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:407
-#, fuzzy
 #| msgid "Сохранить профиль"
 msgid "Сохранить черновик"
-msgstr "Сохранить профиль"
+msgstr "Сохранить черновик"
 
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:183
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:254
@@ -6653,10 +6622,9 @@ msgstr "Сохранить изменения"
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:408
 #: src/catalog/templates/pages/owner_reviews.html:17
 #: src/catalog/templates/pages/owner_team.html:17
-#, fuzzy
 #| msgid "Карта места"
 msgid "Мои места"
-msgstr "Карта места"
+msgstr "Мои места"
 
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:409
 msgid "Создать и отправить на проверку"
@@ -6701,21 +6669,19 @@ msgstr "Регион, район или метро"
 
 #: src/catalog/templates/pages/owner_place_create.html:49
 #: src/catalog/templates/pages/owner_place_edit.html:49
-#, fuzzy
 #| msgid "%(total)s точка на карте"
 #| msgid_plural "%(total)s точки на карте"
 msgid "Точка на карте"
-msgstr "%(total)s точка на карте"
+msgstr "Точка на карте"
 
 #: src/catalog/templates/pages/owner_place_create.html:50
 msgid "Обязательный минимум заполнен. Карточку уже можно отправлять."
 msgstr "Обязательный минимум заполнен. Карточку уже можно отправлять."
 
 #: src/catalog/templates/pages/owner_place_create.html:51
-#, fuzzy
 #| msgid "Последние добавления"
 msgid "Следом добавьте:"
-msgstr "Последние добавления"
+msgstr "Следом добавьте:"
 
 #: src/catalog/templates/pages/owner_place_create.html:53
 msgid "Карточка заполнена подробно. Осталось только точечно улучшать детали."
@@ -6778,10 +6744,9 @@ msgid "Обязательный минимум заполнен. Можно со
 msgstr "Обязательный минимум заполнен. Можно сохранять карточку."
 
 #: src/catalog/templates/pages/owner_place_edit.html:51
-#, fuzzy
 #| msgid "Только проверенные"
 msgid "Следом проверьте:"
-msgstr "Только проверенные"
+msgstr "Следом проверьте:"
 
 #: src/catalog/templates/pages/owner_place_edit.html:53
 msgid "Карточка заполнена подробно. Можно только точечно обновлять детали."
@@ -6792,15 +6757,12 @@ msgid "Для более полного профиля ещё можно доб�
 msgstr ""
 
 #: src/catalog/templates/pages/owner_places.html:13
-#, fuzzy
 #| msgid ""
 #| "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего "
 #| "кабинета, но останется в удаленных у администратора."
 msgid ""
 "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков."
-msgstr ""
-"Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, "
-"но останется в удаленных у администратора."
+msgstr "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков."
 
 #: src/catalog/templates/pages/owner_reviews.html:14
 #, fuzzy
@@ -6891,10 +6853,9 @@ msgstr ""
 
 #: src/catalog/templates/pages/site_reviews.html:41
 #: src/catalog/templates/pages/site_reviews.html:61
-#, fuzzy
 #| msgid "Отправить отзыв"
 msgid "Оставить отзыв"
-msgstr "Отправить отзыв"
+msgstr "Оставить отзыв"
 
 #: src/catalog/templates/pages/site_reviews.html:46
 msgid "Рейтинг сервиса"
@@ -6910,6 +6871,7 @@ msgid "%(total)s отзыв о сайте"
 msgid_plural "%(total)s отзывов о сайте"
 msgstr[0] "%(total)s отзыв о сайте"
 msgstr[1] "%(total)s отзывов о сайте"
+msgstr[2] "%(total)s отзывов о сайте"
 
 #: src/catalog/templates/pages/site_reviews.html:57
 msgid "Отзывы публикуются после модерации."
@@ -6928,10 +6890,9 @@ msgid "Сортировка отзывов"
 msgstr "Сортировка отзывов"
 
 #: src/catalog/templates/pages/site_reviews.html:99
-#, fuzzy
 #| msgid "Пока нет отзывов. Будьте первым!"
 msgid "Пока нет отзывов с текстом."
-msgstr "Пока нет отзывов. Будьте первым!"
+msgstr "Пока нет отзывов с текстом."
 
 #: src/catalog/templates/pages/site_reviews.html:100
 msgid ""
@@ -7028,98 +6989,80 @@ msgid "Контакты проекта KidsMap."
 msgstr "Контакты проекта KidsMap."
 
 #: src/catalog/views.py:553
-#, fuzzy
 #| msgid ""
 #| "Управление карточками владельца: редактирование, черновики, публикация и "
 #| "статистика."
 msgid "Мои места KidsMap: редактирование, черновики, модерация и статистика."
-msgstr ""
-"Управление карточками владельца: редактирование, черновики, публикация и "
-"статистика."
+msgstr "Мои места KidsMap: редактирование, черновики, модерация и статистика."
 
 #: src/catalog/views.py:572
-#, fuzzy
 #| msgid "Сброс пароля аккаунта KidsMap."
 msgid "Выбор типа объявления KidsMap."
-msgstr "Сброс пароля аккаунта KidsMap."
+msgstr "Выбор типа объявления KidsMap."
 
 #: src/catalog/views.py:601 src/catalog/views.py:625 src/catalog/views.py:647
 #: src/catalog/views.py:661
-#, fuzzy
 #| msgid "Управление карточками из личного кабинета"
 msgid "Создание места в личном кабинете KidsMap."
-msgstr "Управление карточками из личного кабинета"
+msgstr "Создание места в личном кабинете KidsMap."
 
 #: src/catalog/views.py:677
-#, fuzzy
 #| msgid "Название"
 msgid "название"
-msgstr "Название"
+msgstr "название"
 
 #: src/catalog/views.py:679
-#, fuzzy
 #| msgid "Категория"
 msgid "категория"
-msgstr "Категория"
+msgstr "категория"
 
 #: src/catalog/views.py:681
-#, fuzzy
 #| msgid "Дата решения"
 msgid "дата и время"
-msgstr "Дата решения"
+msgstr "дата и время"
 
 #: src/catalog/views.py:683
-#, fuzzy
 #| msgid "Персональная информация"
 msgid "актуальная дата окончания"
-msgstr "Персональная информация"
+msgstr "актуальная дата окончания"
 
 #: src/catalog/views.py:685
-#, fuzzy
 #| msgid "Возраст"
 msgid "возраст"
-msgstr "Возраст"
+msgstr "возраст"
 
 #: src/catalog/views.py:687
-#, fuzzy
 #| msgid "цена %(price)s"
 msgid "цена"
-msgstr "цена %(price)s"
+msgstr "цена"
 
 #: src/catalog/views.py:689
-#, fuzzy
 #| msgid "Адрес"
 msgid "адрес"
-msgstr "Адрес"
+msgstr "адрес"
 
 #: src/catalog/views.py:691
-#, fuzzy
 #| msgid "Телефон"
 msgid "телефон"
-msgstr "Телефон"
+msgstr "телефон"
 
 #: src/catalog/views.py:693
-#, fuzzy
 #| msgid "Описание RU"
 msgid "описание"
-msgstr "Описание RU"
+msgstr "описание"
 
 #: src/catalog/views.py:695
-#, fuzzy
 #| msgid "%(count)s фото"
 #| msgid_plural "%(count)s фото"
 msgid "фото"
-msgstr "%(count)s фото"
+msgstr "фото"
 
 #: src/catalog/views.py:705 src/catalog/views.py:746
-#, fuzzy
 #| msgid ""
 #| "Раздел доступен только аккаунтам владельца. Измените тип аккаунта на "
 #| "владельца."
 msgid "Этот раздел доступен только владельцам карточек."
-msgstr ""
-"Раздел доступен только аккаунтам владельца. Измените тип аккаунта на "
-"владельца."
+msgstr "Этот раздел доступен только владельцам карточек."
 
 #: src/catalog/views.py:722 src/catalog/views.py:775
 msgid "Qaralama saxlanıldı."
@@ -7130,42 +7073,38 @@ msgid "Tədbir moderasiyaya göndərildi."
 msgstr ""
 
 #: src/catalog/views.py:735
-#, fuzzy
 #| msgid "Временное мероприятие"
 msgid "Создание временного мероприятия KidsMap."
-msgstr "Временное мероприятие"
+msgstr "Создание временного мероприятия KidsMap."
 
 #: src/catalog/views.py:751
 msgid "Tədbir yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."
 msgstr ""
 
 #: src/catalog/views.py:788
-#, fuzzy
 #| msgid "Укажите дату и время окончания для временного мероприятия."
 msgid "Редактирование временного мероприятия KidsMap."
-msgstr "Укажите дату и время окончания для временного мероприятия."
+msgstr "Редактирование временного мероприятия KidsMap."
 
 #: src/catalog/views.py:800
-#, fuzzy
 #| msgid "Ваша заявка уже на модерации."
 msgid "Это мероприятие уже на модерации."
-msgstr "Ваша заявка уже на модерации."
+msgstr "Это мероприятие уже на модерации."
 
 #: src/catalog/views.py:805
-#, fuzzy, python-format
+#, python-format
 #| msgid "Главный шаг перед отправкой."
 msgid "Заполните перед отправкой: %(fields)s."
-msgstr "Главный шаг перед отправкой."
+msgstr "Заполните перед отправкой: %(fields)s."
 
 #: src/catalog/views.py:824
 msgid "Tədbir silindi."
 msgstr ""
 
 #: src/catalog/views.py:884 src/catalog/views.py:898
-#, fuzzy
 #| msgid "Редактирование карточки кружка в кабинете владельца."
 msgid "Редактирование места в личном кабинете KidsMap."
-msgstr "Редактирование карточки кружка в кабинете владельца."
+msgstr "Редактирование места в личном кабинете KidsMap."
 
 #: src/catalog/views.py:966 src/catalog/views.py:988
 msgid "Команда владельца KidsMap: приглашения, роли и управление доступами."
@@ -7190,13 +7129,11 @@ msgid "Подтверждение email в KidsMap."
 msgstr "Подтверждение email в KidsMap."
 
 #: src/catalog/views.py:1215
-#, fuzzy
 #| msgid ""
 #| "Личный кабинет KidsMap: профиль, избранные кружки и история просмотров."
 msgid ""
 "Личный кабинет KidsMap: профиль, избранное, история просмотров и мои места."
-msgstr ""
-"Личный кабинет KidsMap: профиль, избранные кружки и история просмотров."
+msgstr "Личный кабинет KidsMap: профиль, избранное, история просмотров и мои места."
 
 #: src/catalog/views.py:1235
 msgid "Избранные кружки пользователя в KidsMap."
@@ -8348,6 +8285,7 @@ msgid "%(total)s отзыв"
 msgid_plural "%(total)s отзывов"
 msgstr[0] "%(total)s отзыв"
 msgstr[1] "%(total)s отзывов"
+msgstr[2] "%(total)s отзывов"
 
 msgid "Азадлыг проспекти"
 msgstr "Азадлыг проспекти"

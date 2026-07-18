@@ -1,10 +1,2 @@
-asgiref==3.11.1
-Brotli==1.1.0
-Django==6.0.2
-django-jazzmin==3.0.1
-google-analytics-data==0.21.0
-gunicorn==23.0.0
-mysqlclient==2.2.4
-phonenumberslite==9.0.17
-sqlparse==0.5.5
-whitenoise==6.9.0
+# Production installation (kept as the backwards-compatible default).
+-r requirements/production.txt

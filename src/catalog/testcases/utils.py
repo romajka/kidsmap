@@ -49,15 +49,7 @@ from catalog.models import (
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.content_quality import public_place_queryset, public_review_queryset, review_quality_check
 from catalog.services.place_schedule import dump_schedule_payload
-from catalog.testcases.auth_access import TestAccountsAndReviewAccess
-from catalog.testcases.auth_flow import (
-    TestAccountProfileUpdates,
-    TestAuthValidationAndNextSecurity,
-    TestEmailVerificationFlow,
-    TestPasswordResetIdentifierSupport,
-)
 from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, TRACKED_EVENT_NAMES
-from catalog.testcases.tracking import TestGoogleAnalyticsEvents, TestSiteVisitMiddleware, TestTrackingController
 from config.views import serve_media_file
 User = get_user_model()
 
