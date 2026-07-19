@@ -840,7 +840,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Публичная страница")
         self.assertContains(response, "Открыть карточку на сайте")
-        self.assertContains(response, f'href="http://testserver/ru/place/{self.place.id}-', html=False)
+        self.assertContains(response, f'href="http://testserver/ru/{self.place.id}-', html=False)
 
     def test_place_admin_change_form_uses_readonly_service_dates_instead_of_raw_datetime_widgets(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))

@@ -690,6 +690,24 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, '"AggregateRating"', html=False)
         self.assertContains(response, "<title>SEO кружок — Образование для детей в регионе Баку, Ясамальский район | KidsMap</title>", html=False)
 
+    def test_place_urls_use_ascii_slugs_for_cyrillic_names(self):
+        place = create_quality_place(
+            name="Кружки для детей",
+            name_ru="Кружки для детей",
+        )
+
+        self.assertEqual(place.slug, "kruzhki-dlya-detey")
+        self.assertTrue(place.get_absolute_url().isascii())
+        self.assertNotIn("%", place.get_absolute_url())
+
+    def test_old_place_prefix_redirects_to_the_canonical_url(self):
+        place = create_quality_place(name="Canonical place")
+
+        response = self.client.get(f"/place/{place.pk}-{place.slug}/")
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], place.get_absolute_url())
+
     def test_robots_txt_disallows_private_sections(self):
         response = self.client.get("/robots.txt")
 

@@ -8,7 +8,11 @@
     cssIntegrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=",
     jsHref: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
     jsIntegrity: "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",
+    clusterCssHref: "https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css",
+    clusterDefaultCssHref: "https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css",
+    clusterJsHref: "https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js",
   };
+  const GOOGLE_CLUSTERER_URL = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
 
   const SCRIPT_CONFIG = (function () {
     const scriptEl = document.currentScript;
@@ -415,6 +419,30 @@
     });
   }
 
+  function loadLeafletClusterer() {
+    return Promise.all([
+      loadStylesheet(LEAFLET_DEFAULTS.clusterCssHref),
+      loadStylesheet(LEAFLET_DEFAULTS.clusterDefaultCssHref),
+    ]).then(function () {
+      return loadScript(LEAFLET_DEFAULTS.clusterJsHref);
+    });
+  }
+
+  function buildGoogleClusterIcon(count) {
+    const svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 46 46">' +
+      '<circle cx="23" cy="23" r="21" fill="#136f38" fill-opacity=".18"/>' +
+      '<circle cx="23" cy="23" r="16" fill="#136f38" stroke="white" stroke-width="3"/>' +
+      '<text x="23" y="28" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="14" font-weight="700">' +
+      String(count) +
+      '</text></svg>';
+    return {
+      url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+      scaledSize: new google.maps.Size(46, 46),
+      anchor: new google.maps.Point(23, 23),
+    };
+  }
+
   function buildSharedState(mapEl, mapNoteEl) {
     const places = parsePlaces();
     const validPlaces = places.filter(function (place) {
@@ -529,6 +557,22 @@
     });
     const infoWindow = new google.maps.InfoWindow();
     const markerItems = [];
+    const clusterer = window.markerClusterer && window.markerClusterer.MarkerClusterer
+      ? new window.markerClusterer.MarkerClusterer({
+        map: map,
+        markers: [],
+        renderer: {
+          render: function (cluster) {
+            return new google.maps.Marker({
+              position: cluster.position,
+              icon: buildGoogleClusterIcon(cluster.count),
+              title: String(cluster.count),
+              zIndex: google.maps.Marker.MAX_ZINDEX + cluster.count,
+            });
+          },
+        },
+      })
+      : null;
 
     places.forEach(function (place) {
       const position = { lat: place.lat, lng: place.lng };
@@ -561,14 +605,18 @@
 
       infoWindow.close();
 
+      if (clusterer) clusterer.clearMarkers();
       markerItems.forEach(function (item) {
         const shouldShow = placeMatchesFilters(item.place, filters);
-        item.marker.setMap(shouldShow ? map : null);
+        if (!clusterer) item.marker.setMap(shouldShow ? map : null);
         if (shouldShow) {
           visibleItems.push(item);
           bounds.extend(item.position);
         }
       });
+      if (clusterer) {
+        clusterer.addMarkers(visibleItems.map(function (item) { return item.marker; }));
+      }
 
       if (!visibleItems.length) {
         map.setCenter(DEFAULT_CENTER);
@@ -619,6 +667,23 @@
     }).addTo(map);
 
     const markerItems = [];
+    const markerCluster = window.L.markerClusterGroup
+      ? L.markerClusterGroup({
+        maxClusterRadius: 42,
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: false,
+        zoomToBoundsOnClick: true,
+        iconCreateFunction: function (cluster) {
+          return L.divIcon({
+            className: "catalog-map-cluster",
+            html: '<span class="catalog-map-cluster-count">' + cluster.getChildCount() + "</span>",
+            iconSize: [46, 46],
+            iconAnchor: [23, 23],
+          });
+        },
+      })
+      : null;
+    if (markerCluster) map.addLayer(markerCluster);
 
     places.forEach(function (place) {
       const position = [place.lat, place.lng];
@@ -665,12 +730,16 @@
       markerItems.forEach(function (item) {
         const shouldShow = placeMatchesFilters(item.place, filters);
         if (shouldShow) {
-          if (!map.hasLayer(item.marker)) {
+          if (markerCluster) {
+            if (!markerCluster.hasLayer(item.marker)) markerCluster.addLayer(item.marker);
+          } else if (!map.hasLayer(item.marker)) {
             item.marker.addTo(map);
           }
           visibleItems.push(item);
           bounds.extend(item.position);
-        } else if (map.hasLayer(item.marker)) {
+        } else if (markerCluster && markerCluster.hasLayer(item.marker)) {
+          markerCluster.removeLayer(item.marker);
+        } else if (!markerCluster && map.hasLayer(item.marker)) {
           map.removeLayer(item.marker);
         }
       });
@@ -727,9 +796,7 @@
 
     function loadGoogleProvider() {
       if (!SCRIPT_CONFIG.googleMapsApiKey) return Promise.reject(new Error("Missing Google Maps API key"));
-      window.kidsMapHomeMapGoogleLoaded = function () {
-        tryMount();
-      };
+      window.kidsMapHomeMapGoogleLoaded = function () {};
 
       const src =
         "https://maps.googleapis.com/maps/api/js?key=" +
@@ -737,6 +804,8 @@
         "&callback=kidsMapHomeMapGoogleLoaded";
 
       return loadScript(src).then(function () {
+        return loadScript(GOOGLE_CLUSTERER_URL);
+      }).then(function () {
         tryMount();
       });
     }
@@ -744,6 +813,8 @@
     function loadLeafletProvider() {
       return loadStylesheet(SCRIPT_CONFIG.leafletCssHref, SCRIPT_CONFIG.leafletCssIntegrity).then(function () {
         return loadScript(SCRIPT_CONFIG.leafletJsHref, SCRIPT_CONFIG.leafletJsIntegrity);
+      }).then(function () {
+        return loadLeafletClusterer();
       }).then(function () {
         tryMount();
       });

@@ -263,6 +263,13 @@ def place_detail_legacy(request, pk):
     return redirect(place.get_absolute_url(), permanent=True)
 
 
+def place_detail_prefixed_redirect(request, pk, slug):
+    """Redirect the previous /place/<id>-<slug>/ URLs to the public canonical URL."""
+
+    place = place_controller.get_active_place_for_legacy_redirect(pk=pk)
+    return redirect(place.get_absolute_url(), permanent=True)
+
+
 def place_detail(request, pk, slug):
     place = place_controller.get_active_place_with_gallery(pk=pk)
     if slug != place.slug:

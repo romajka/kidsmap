@@ -1053,9 +1053,9 @@
   {% if not is_new_page %}
     <script src="{% static 'js/catalog_map.js' %}"></script>
     {% if google_maps_api_key %}
+      <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js" defer></script>
       <script
         src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitCatalogResultsMap"
-        async
         defer
       ></script>
     {% endif %}

@@ -6726,6 +6726,24 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .catalog-map-panel {
   display: grid;
   gap: 14px;
+  animation: catalog-map-reveal 260ms ease-out both;
+}
+
+@keyframes catalog-map-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalog-map-panel {
+    animation: none;
+  }
 }
 
 .catalog-map-head {
@@ -16843,6 +16861,46 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
               color 0.2s ease, 
               border-color 0.2s ease, 
               box-shadow 0.2s ease;
+}
+
+.catalog-map-cluster {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: rgba(19, 111, 56, 0.16);
+  border-radius: 50%;
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+.catalog-map-cluster-count {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #136f38;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(15, 72, 39, 0.24);
+}
+
+.catalog-map-cluster:hover {
+  transform: scale(1.12);
+  filter: saturate(1.08);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .catalog-map-cluster {
+    animation: catalog-map-cluster-breathe 2.8s ease-in-out infinite;
+  }
+}
+
+@keyframes catalog-map-cluster-breathe {
+  50% {
+    box-shadow: 0 0 0 5px rgba(19, 111, 56, 0.03);
+  }
 }
 
 @media (min-width: 761px) {

@@ -24,6 +24,25 @@ def _localized_free_label(lang: str | None = None) -> str:
     return "Бесплатно"
 
 
+_SLUG_TRANSLITERATION = str.maketrans(
+    {
+        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e",
+        "ж": "zh", "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m",
+        "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u",
+        "ф": "f", "х": "kh", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "shch",
+        "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya",
+        "ə": "e", "ı": "i", "ö": "o", "ü": "u", "ş": "sh", "ç": "ch", "ğ": "gh",
+    }
+)
+
+
+def ascii_slug(value: str, *, fallback: str) -> str:
+    """Create a URL-safe slug without percent-encoded non-ASCII characters."""
+
+    normalized_value = str(value or "").lower().translate(_SLUG_TRANSLITERATION)
+    return slugify(normalized_value, allow_unicode=False) or fallback
+
+
 class Place(models.Model):
     LESSON_FORMAT_GROUP = "group"
     LESSON_FORMAT_INDIVIDUAL = "individual"
@@ -493,9 +512,9 @@ class Place(models.Model):
     def get_absolute_url(self):
         return reverse("place_detail", kwargs={"pk": self.pk, "slug": self.slug})
 
-    def _build_unique_slug(self):
-        source = self.name_ru or self.name or self.name_en or self.name_az or "place"
-        base = slugify(source, allow_unicode=True) or "place"
+    def _build_unique_slug(self, source=None):
+        source = source or self.name_ru or self.name or self.name_en or self.name_az or "place"
+        base = ascii_slug(source, fallback="place")
         candidate = base
         idx = 2
         while Place.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
@@ -506,6 +525,8 @@ class Place(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._build_unique_slug()
+        else:
+            self.slug = self._build_unique_slug(source=self.slug)
         if self.district:
             from catalog.services.locations import normalize_to_key
             self.district = normalize_to_key(self.district)
@@ -753,9 +774,9 @@ class Event(models.Model):
     def get_absolute_url(self):
         return reverse("event_detail", kwargs={"pk": self.pk, "slug": self.slug})
 
-    def _build_unique_slug(self):
-        source = self.name_az or self.name_ru or self.name_en or self.name or "event"
-        base = slugify(source, allow_unicode=True) or "event"
+    def _build_unique_slug(self, source=None):
+        source = source or self.name_az or self.name_ru or self.name_en or self.name or "event"
+        base = ascii_slug(source, fallback="event")
         candidate = base
         idx = 2
         while Event.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
@@ -768,6 +789,8 @@ class Event(models.Model):
             self.name = self.name_az or self.name_ru or self.name_en or _("Мероприятие")
         if not self.slug:
             self.slug = self._build_unique_slug()
+        else:
+            self.slug = self._build_unique_slug(source=self.slug)
         super().save(*args, **kwargs)
 
     def __str__(self):

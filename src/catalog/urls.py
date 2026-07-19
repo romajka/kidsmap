@@ -9,6 +9,7 @@ from .views import (
     place_new,
     place_detail,
     place_detail_legacy,
+    place_detail_prefixed_redirect,
     toggle_place_like,
     add_place_review,
     add_site_review,
@@ -138,7 +139,7 @@ urlpatterns = [
     path("account/owner/reviews/<int:review_id>/approve/", owner_review_approve, name="owner_review_approve"),
     path("account/owner/reviews/<int:review_id>/reject/", owner_review_reject, name="owner_review_reject"),
     path("place/<int:pk>/", place_detail_legacy, name="place_detail_legacy"),
-    path("place/<int:pk>-<str:slug>/", place_detail, name="place_detail"),
+    path("place/<int:pk>-<str:slug>/", place_detail_prefixed_redirect, name="place_detail_prefixed_legacy"),
     path("place/<int:pk>/ownership-request/", request_place_ownership, name="request_place_ownership"),
     path("place/<int:pk>/like/", toggle_place_like, name="toggle_place_like"),
     path("place/<int:pk>/review/", add_place_review, name="add_place_review"),
@@ -152,4 +153,5 @@ urlpatterns = [
     path("specialists/<slug:slug>/", specialist_detail, name="specialist_detail"),
     path("specialists/<int:pk>/review/", add_specialist_review, name="add_specialist_review"),
     path("specialists/documents/<int:document_id>/download/", serve_specialist_document, name="serve_specialist_document"),
+    path("<int:pk>-<str:slug>/", place_detail, name="place_detail"),
 ]
