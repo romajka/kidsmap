@@ -150,6 +150,18 @@
     }
   }
 
+  function hasValidCoordinates(place) {
+    return (
+      place &&
+      Number.isFinite(place.lat) &&
+      Number.isFinite(place.lng) &&
+      place.lat >= -90 &&
+      place.lat <= 90 &&
+      place.lng >= -180 &&
+      place.lng <= 180
+    );
+  }
+
   function isMobileViewport() {
     return window.matchMedia(MOBILE_MEDIA_QUERY).matches;
   }
@@ -335,9 +347,7 @@
       mapEl: mapEl,
       openBtn: openBtn,
       closeBtn: closeBtn,
-      places: parsePlaces().filter(function (place) {
-        return typeof place.lat === "number" && typeof place.lng === "number";
-      }),
+      places: parsePlaces().filter(hasValidCoordinates),
       provider: (panel.dataset.mapProvider || "").trim(),
       detailsLabel: panel.dataset.detailsLabel || "",
       routeLabel: panel.dataset.routeLabel || "",
@@ -639,11 +649,21 @@
       return;
     }
 
-    if (!window.L) {
+    if (!window.L || !window.L.markerClusterGroup) {
       renderCatalogMapState(state.mapEl, state.loadingMessage, "catalog-map-loading");
-      loadStylesheet(LEAFLET_DEFAULTS.cssHref, LEAFLET_DEFAULTS.cssIntegrity)
+      const leafletReady = window.L
+        ? Promise.resolve()
+        : loadStylesheet(LEAFLET_DEFAULTS.cssHref, LEAFLET_DEFAULTS.cssIntegrity).then(function () {
+            return loadScript(LEAFLET_DEFAULTS.jsHref, LEAFLET_DEFAULTS.jsIntegrity);
+          });
+      leafletReady
         .then(function () {
-          return loadScript(LEAFLET_DEFAULTS.jsHref, LEAFLET_DEFAULTS.jsIntegrity);
+          if (window.L && window.L.markerClusterGroup) return;
+          return Promise.all([
+            loadStylesheet("https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"),
+            loadStylesheet("https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"),
+            loadScript("https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js")
+          ]);
         })
         .then(function () {
           catalogMapState.initialized = false;
@@ -668,18 +688,71 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(state.leafletMap);
 
+    function buildLeafletMarkerHtml(place) {
+      const categoryCode = place && place.category_code;
+      const iconSvgContent = CATEGORY_SVGS[categoryCode] || '<rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect>';
+      const colorBg = (place && place.category_color_bg) || "#F3F4F6";
+      const colorText = (place && place.category_color_text) || "#6B7280";
+
+      const svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="' + colorBg + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">' +
+        iconSvgContent +
+        '</svg>';
+
+      return `
+        <div class="custom-animated-pin-wrapper">
+          <div class="pin-pulse" style="--accent: ${colorText};"></div>
+          <div class="pin-body" style="background-color: ${colorText}; color: ${colorBg};">
+            <div class="pin-icon-wrap">
+              ${svg}
+            </div>
+            <div class="pin-pointer" style="border-top-color: ${colorText};"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    state.markerClusterGroup = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: false,
+      spiderfyOnMaxZoom: true,
+      disableClusteringAtZoom: 14,
+      maxClusterRadius: function (zoom) {
+        if (zoom >= 12) return 30;
+        if (zoom >= 10) return 40;
+        return 48;
+      },
+      iconCreateFunction: function (cluster) {
+        const count = cluster.getChildCount();
+        return L.divIcon({
+          className: "kidsmap-map-cluster",
+          html: "<span class=\"kidsmap-map-cluster__count\">" + count + "</span>",
+          iconSize: [54, 54],
+          iconAnchor: [27, 27],
+        });
+      }
+    });
+    state.leafletMap.addLayer(state.markerClusterGroup);
+    state.markerClusterGroup.on("clusterclick", function (event) {
+      state.leafletMap.flyToBounds(event.layer.getBounds(), {
+        padding: [24, 24],
+        duration: 0.35,
+      });
+    });
+
+    const layersToAdd = [];
     state.places.forEach(function (place) {
-      const svg = buildDynamicMarkerSvg(place);
+      const htmlContent = buildLeafletMarkerHtml(place);
       const marker = L.marker([place.lat, place.lng], {
         title: place.name || "",
         alt: state.markerLabel.replace("{name}", place.name || ""),
         icon: L.divIcon({
-          className: "custom-leaflet-marker",
-          html: svg,
-          iconSize: [38, 48],
-          iconAnchor: [19, 48],
+          className: "custom-map-pin",
+          html: htmlContent,
+          iconSize: [44, 46],
+          iconAnchor: [22, 46],
+          popupAnchor: [0, -44]
         }),
-      }).addTo(state.leafletMap);
+      });
 
       window.requestAnimationFrame(function () {
         const markerEl = marker.getElement();
@@ -697,7 +770,14 @@
       marker.on("click", function () {
         openActiveCard(state, place, marker);
       });
+
+      layersToAdd.push(marker);
     });
+
+    if (layersToAdd.length) {
+      state.markerClusterGroup.addLayers(layersToAdd);
+      state.markerClusterGroup.refreshClusters();
+    }
 
     state.leafletMap.on("click", function () {
       closeActiveCard(state);

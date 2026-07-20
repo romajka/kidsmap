@@ -293,33 +293,33 @@ class PublicPricingSummaryTests(TestCase):
         rows_ru = summary_ru["schedule_rows"]
         self.assertEqual(len(rows_ru), 4)
         
-        # Пн-Чт grouped
-        self.assertEqual(rows_ru[0]["days"], "Пн–Чт")
+        # Понедельник–Четверг grouped
+        self.assertEqual(rows_ru[0]["days"], "Понедельник–Четверг")
         self.assertEqual(rows_ru[0]["time"], "10:00–19:00")
         
-        # Пт 24h
-        self.assertEqual(rows_ru[1]["days"], "Пт")
+        # Пятница 24h
+        self.assertEqual(rows_ru[1]["days"], "Пятница")
         self.assertEqual(rows_ru[1]["time"], "круглосуточно")
         
-        # Сб multiple intervals
-        self.assertEqual(rows_ru[2]["days"], "Сб")
+        # Суббота multiple intervals
+        self.assertEqual(rows_ru[2]["days"], "Суббота")
         self.assertEqual(rows_ru[2]["time"], "09:00–13:00, 14:00–19:00")
         
-        # Вс closed
-        self.assertEqual(rows_ru[3]["days"], "Вс")
+        # Воскресенье closed
+        self.assertEqual(rows_ru[3]["days"], "Воскресенье")
         self.assertEqual(rows_ru[3]["time"], "Закрыто")
         
         # Test AZ locale
         summary_az = build_pricing_summary(self.place, "az")
         rows_az = summary_az["schedule_rows"]
-        self.assertEqual(rows_az[0]["days"], "B.e.–C.a.")
+        self.assertEqual(rows_az[0]["days"], "Bazar ertəsi–Cümə axşamı")
         self.assertEqual(rows_az[1]["time"], "24 saat")
         self.assertEqual(rows_az[3]["time"], "Bağlıdır")
 
         # Test EN locale
         summary_en = build_pricing_summary(self.place, "en")
         rows_en = summary_en["schedule_rows"]
-        self.assertEqual(rows_en[0]["days"], "Mon–Thu")
+        self.assertEqual(rows_en[0]["days"], "Monday–Thursday")
         self.assertEqual(rows_en[1]["time"], "24h")
         self.assertEqual(rows_en[3]["time"], "Closed")
         

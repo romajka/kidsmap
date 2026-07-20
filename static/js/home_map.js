@@ -600,15 +600,46 @@
     return true;
   }
 
+  // ── Coordinate helpers ──────────────────────────────────────────────────────
+
+  function hasValidCoordinates(place) {
+    if (!place) return false;
+    const lat = place.lat, lng = place.lng;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+    if (Math.abs(lat) < 0.001 && Math.abs(lng) < 0.001) return false; // null-island
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return false;
+    return true;
+  }
+
+  function hasActiveFilters(filters) {
+    return !!(filters.query || filters.category || filters.district || filters.metro || filters.age);
+  }
+
+  // Baku bounding box — used to choose fitBounds maxZoom
+  var BAKU_LAT_MIN = 40.28, BAKU_LAT_MAX = 40.55;
+  var BAKU_LNG_MIN = 49.65, BAKU_LNG_MAX = 50.15;
+
+  function allInBaku(items) {
+    return items.every(function (item) {
+      return item.place.lat >= BAKU_LAT_MIN && item.place.lat <= BAKU_LAT_MAX &&
+             item.place.lng >= BAKU_LNG_MIN && item.place.lng <= BAKU_LNG_MAX;
+    });
+  }
+
+  // ── Leaflet map ─────────────────────────────────────────────────────────────
+
   function mountLeafletMap(sharedState) {
-    if (!window.L || !sharedState) return false;
+    if (!window.L || !window.L.markerClusterGroup || !sharedState) return false;
 
     const { mapEl, mapNoteEl, places } = sharedState;
     if (mapEl.dataset.mapInitialized === "1") return true;
 
     mapEl.dataset.mapInitialized = "1";
+    mapEl.innerHTML = "";
 
     const map = L.map(mapEl, {
+      center: [DEFAULT_CENTER.lat, DEFAULT_CENTER.lng],
+      zoom: DEFAULT_ZOOM,
       scrollWheelZoom: false,
       zoomControl: true,
     });
@@ -618,97 +649,189 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
+    // ── Cluster group ───────────────────────────────────────────────────────
+    const markerClusterGroup = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      // Let MarkerCluster handle click: zoom → then spiderfy if needed
+      zoomToBoundsOnClick: true,
+      spiderfyOnMaxZoom: true,
+      maxClusterRadius: function (zoom) {
+        if (zoom >= 15) return 30;
+        if (zoom >= 13) return 55;
+        if (zoom >= 11) return 70;
+        return 90;
+      },
+
+      iconCreateFunction: function (cluster) {
+        const count = cluster.getChildCount();
+        return L.divIcon({
+          className: "kidsmap-map-cluster",
+          html: "<span class=\"kidsmap-map-cluster__count\">" + count + "</span>",
+          iconSize: [54, 54],
+          iconAnchor: [27, 27],
+        });
+      }
+    });
+    map.addLayer(markerClusterGroup);
+
+    // Mark as user-interacted on cluster click so our fitBounds doesn't fire
+    markerClusterGroup.on("clusterclick", function () {
+      userInteracted = true;
+    });
+
+    // ── Interaction tracking ────────────────────────────────────────────────
+    // userInteracted: true after any user gesture — prevents auto fitBounds
+    var userInteracted = false;
+    // syncPending: collapses rapid successive sync calls into one
+    var syncPending = false;
+
+    map.on("zoomstart movestart", function (e) {
+      if (e.originalEvent) { userInteracted = true; }
+    });
+
+    // ── Build markers ───────────────────────────────────────────────────────
     const markerItems = [];
 
     places.forEach(function (place) {
+      if (!hasValidCoordinates(place)) return;
+
       const position = [place.lat, place.lng];
-      const svg = buildDynamicMarkerSvg(place);
-      const customIcon = L.divIcon({
-        html: svg,
-        className: 'custom-leaflet-marker',
-        iconSize: [38, 48],
-        iconAnchor: [19, 48],
-        popupAnchor: [0, -42]
-      });
       const markerLabel = (mapEl.dataset.markerLabel || "{name}").replace("{name}", place.name || "");
       const marker = L.marker(position, {
-        icon: customIcon,
+        icon: L.divIcon({
+          html: buildDynamicMarkerSvg(place),
+          className: "custom-leaflet-marker",
+          iconSize: [38, 48],
+          iconAnchor: [19, 48],
+          popupAnchor: [0, -42],
+        }),
         title: place.name || "",
         alt: markerLabel,
       });
 
       marker.on("add", function () {
         window.requestAnimationFrame(function () {
-          const markerEl = marker.getElement();
-          if (!markerEl) return;
-          markerEl.setAttribute("role", "button");
-          markerEl.setAttribute("aria-label", markerLabel);
-          markerEl.setAttribute("title", markerLabel);
+          var el = marker.getElement();
+          if (!el) return;
+          el.setAttribute("role", "button");
+          el.setAttribute("aria-label", markerLabel);
+          el.setAttribute("title", markerLabel);
         });
       });
 
       marker.bindPopup(renderPopupContent(place, mapEl.dataset.detailsLabel || "Details"));
-      markerItems.push({
-        marker: marker,
-        place: place,
-        position: position,
-      });
+      markerItems.push({ marker: marker, place: place, position: position });
     });
 
+    // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
+      if (syncPending) return;
+      syncPending = true;
+      window.setTimeout(function () {
+        syncPending = false;
+        _doSync();
+      }, 0);
+    }
+
+    function _doSync() {
       const filters = getFilterState();
+      const layersToAdd = [];
       const visibleItems = [];
-      const bounds = L.latLngBounds([]);
 
       map.closePopup();
 
+      // Atomic clear + add (no chunkedLoading → no race condition)
+      markerClusterGroup.clearLayers();
+
       markerItems.forEach(function (item) {
-        const shouldShow = placeMatchesFilters(item.place, filters);
-        if (shouldShow) {
-          if (!map.hasLayer(item.marker)) {
-            item.marker.addTo(map);
-          }
+        if (!hasValidCoordinates(item.place)) return;
+        if (placeMatchesFilters(item.place, filters)) {
+          layersToAdd.push(item.marker);
           visibleItems.push(item);
-          bounds.extend(item.position);
-        } else if (map.hasLayer(item.marker)) {
-          map.removeLayer(item.marker);
         }
       });
 
+      if (layersToAdd.length) {
+        markerClusterGroup.addLayers(layersToAdd);
+        markerClusterGroup.refreshClusters();
+      }
+
+      // No results
       if (!visibleItems.length) {
-        map.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM);
+        userInteracted = false;
+        map.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM, { animate: false });
         setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", false);
         return;
       }
 
-      if (visibleItems.length === 1) {
-        map.setView(visibleItems[0].position, 13);
-        setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", true);
+      setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", true);
+
+      // Don't override zoom after user has manually navigated
+      if (userInteracted) return;
+
+      map.invalidateSize({ pan: false });
+
+      // No active filters → show default Baku overview (don't fitBounds all 33+ places)
+      if (!hasActiveFilters(filters)) {
+        map.setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM, { animate: false });
         return;
       }
 
-      map.fitBounds(bounds, { padding: [24, 24] });
-      setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", true);
+      // Single filtered result
+      if (visibleItems.length === 1) {
+        map.setView(visibleItems[0].position, 15, { animate: true });
+        return;
+      }
+
+      // Multiple filtered results → fitBounds
+      var bounds = L.latLngBounds([]);
+      visibleItems.forEach(function (item) { bounds.extend(item.position); });
+      if (!bounds.isValid()) return;
+
+      var maxZoom = allInBaku(visibleItems) ? 13 : 14;
+
+      window.setTimeout(function () {
+        if (userInteracted || !bounds.isValid()) return;
+        map.fitBounds(bounds, {
+          paddingTopLeft: [48, 48],
+          paddingBottomRight: [48, 48],
+          maxZoom: maxZoom,
+          minZoom: 9,
+          animate: true,
+        });
+      }, 80);
     }
 
-    bindFilterListeners(syncVisibleMarkers);
-    syncVisibleMarkers();
+    // Filter change: reset userInteracted so bounds recalculate for new results
+    function syncVisibleMarkersFromFilter() {
+      userInteracted = false;
+      syncVisibleMarkers();
+    }
 
+    bindFilterListeners(syncVisibleMarkersFromFilter);
+
+    // Initial load — single deferred call, no double-sync
     window.setTimeout(function () {
-      map.invalidateSize();
+      map.invalidateSize({ pan: false });
+      _doSync();
     }, 0);
 
-    mapEl.addEventListener("mouseenter", function () {
-      map.scrollWheelZoom.enable();
-    });
-    mapEl.addEventListener("mouseleave", function () {
-      map.scrollWheelZoom.disable();
-    });
+    // Resize: only fix tile seams, never refits bounds
+    if (typeof window.ResizeObserver === "function") {
+      new window.ResizeObserver(function () {
+        map.invalidateSize({ pan: false });
+      }).observe(mapEl);
+    }
+
+    mapEl.addEventListener("mouseenter", function () { map.scrollWheelZoom.enable(); });
+    mapEl.addEventListener("mouseleave", function () { map.scrollWheelZoom.disable(); });
 
     return true;
   }
 
+
   function startMapBootstrap() {
+
     const mapSection = document.getElementById("home-map-section");
     const mapEl = document.getElementById("home-map");
     const mapNoteEl = document.getElementById("home-map-note");
@@ -742,8 +865,19 @@
     }
 
     function loadLeafletProvider() {
+      const clusterCssHref = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css";
+      const clusterDefaultCssHref = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css";
+      const clusterJsHref = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js";
+
       return loadStylesheet(SCRIPT_CONFIG.leafletCssHref, SCRIPT_CONFIG.leafletCssIntegrity).then(function () {
         return loadScript(SCRIPT_CONFIG.leafletJsHref, SCRIPT_CONFIG.leafletJsIntegrity);
+      }).then(function () {
+        return Promise.all([
+          loadStylesheet(clusterCssHref),
+          loadStylesheet(clusterDefaultCssHref),
+        ]);
+      }).then(function () {
+        return loadScript(clusterJsHref);
       }).then(function () {
         tryMount();
       });

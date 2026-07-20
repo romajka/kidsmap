@@ -278,9 +278,33 @@ def build_compact_schedule_rows(place, lang="ru"):
             return [{"days": "", "time": txt}]
         return []
         
-    az_short_days = {"mon": "B.e.", "tue": "Ç.a.", "wed": "Ç.", "thu": "C.a.", "fri": "Cü.", "sat": "Şn.", "sun": "Baz."}
-    ru_short_days = {"mon": "Пн", "tue": "Вт", "wed": "Ср", "thu": "Чт", "fri": "Пт", "sat": "Сб", "sun": "Вс"}
-    en_short_days = {"mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun"}
+    az_short_days = {
+        "mon": "Bazar ertəsi",
+        "tue": "Çərşənbə axşamı",
+        "wed": "Çərşənbə",
+        "thu": "Cümə axşamı",
+        "fri": "Cümə",
+        "sat": "Şənbə",
+        "sun": "Bazar",
+    }
+    ru_short_days = {
+        "mon": "Понедельник",
+        "tue": "Вторник",
+        "wed": "Среда",
+        "thu": "Четверг",
+        "fri": "Пятница",
+        "sat": "Суббота",
+        "sun": "Воскресенье",
+    }
+    en_short_days = {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday",
+    }
     
     day_labels = az_short_days if lang == "az" else (en_short_days if lang == "en" else ru_short_days)
     

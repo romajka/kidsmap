@@ -62,8 +62,7 @@
             </svg>
           </div>
           <div class="km-stat-details">
-            <strong data-count-target="{{ total_place_reviews_count|default:0 }}">{% if total_place_reviews_count %}{{
-              total_place_reviews_count }}+{% else %}—{% endif %}</strong>
+            <strong data-count-target="{{ total_place_reviews_count|default:0 }}">{% if total_place_reviews_count %}{{ total_place_reviews_count }}+{% else %}—{% endif %}</strong>
             <span>
               {% if total_place_reviews_count %}
                 {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
@@ -365,8 +364,7 @@
           {% if place.rating_count %}
           <span class="card-score"
             aria-label="{% if request.LANGUAGE_CODE == 'az' %}Reytinq {{ place.rating_avg|floatformat:1 }} / 5{% elif request.LANGUAGE_CODE == 'en' %}Rating {{ place.rating_avg|floatformat:1 }} out of 5{% else %}Рейтинг {{ place.rating_avg|floatformat:1 }} из 5{% endif %}"><span
-              aria-hidden="true"><span class="card-score-star">★</span>{{ place.rating_avg|floatformat:1
-              }}</span></span>
+              aria-hidden="true"><span class="card-score-star">★</span>{{ place.rating_avg|floatformat:1 }}</span></span>
           {% endif %}
         </div>
         {% if place.rating_count %}

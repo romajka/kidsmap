@@ -52,8 +52,8 @@
 
     <div class="km-schedule-editor__presets">
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="all-days">{% if CURRENT_LANGUAGE == "az" %}Hər gün 09:00–21:00{% elif CURRENT_LANGUAGE == "en" %}Every day 09:00–21:00{% else %}{% trans "Каждый день 09:00–21:00" %}{% endif %}</button>
-      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekdays">{% if CURRENT_LANGUAGE == "az" %}B.e.–C. 09:00–18:00{% elif CURRENT_LANGUAGE == "en" %}Mon–Fri 09:00–18:00{% else %}{% trans "Пн–Пт 09:00–18:00" %}{% endif %}</button>
-      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekday-weekend">{% if CURRENT_LANGUAGE == "az" %}B.e.–C. / Şənbə–Bazar{% elif CURRENT_LANGUAGE == "en" %}Mon–Fri / Weekends{% else %}{% trans "Пн–Пт / Выходные" %}{% endif %}</button>
+      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekdays">{% if CURRENT_LANGUAGE == "az" %}Bazar ertəsi–Cümə 09:00–18:00{% elif CURRENT_LANGUAGE == "en" %}Monday–Friday 09:00–18:00{% else %}{% trans "Понедельник–Пятница 09:00–18:00" %}{% endif %}</button>
+      <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekday-weekend">{% if CURRENT_LANGUAGE == "az" %}Bazar ertəsi–Cümə / Şənbə–Bazar{% elif CURRENT_LANGUAGE == "en" %}Monday–Friday / Weekends{% else %}{% trans "Понедельник–Пятница / Выходные" %}{% endif %}</button>
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="always-open">{% if CURRENT_LANGUAGE == "az" %}24 saat{% elif CURRENT_LANGUAGE == "en" %}24 hours{% else %}{% trans 'Круглосуточно' %}{% endif %}</button>
       <button type="button" class="km-schedule-editor__preset km-schedule-editor__preset--ghost" data-km-schedule-preset="clear">{% if CURRENT_LANGUAGE == "az" %}Hamısını təmizlə{% elif CURRENT_LANGUAGE == "en" %}Clear all{% else %}{% trans 'Очистить всё' %}{% endif %}</button>
     </div>

@@ -532,7 +532,7 @@ body.page-place_detail .site-shell {
 }
 
 .detail-page .place-gallery__main {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   min-height: 0;
   max-height: none;
   height: auto;
@@ -558,18 +558,42 @@ body.page-place_detail .site-shell {
 }
 
 .detail-page .place-gallery__slide {
+  position: relative;
   width: 100%;
   height: 100%;
   margin: 0;
-  display: block;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
   overflow: hidden;
-  background: #f3f6f4;
+  background: #173c2b;
+}
+
+.detail-page .place-gallery__backdrop {
+  position: absolute;
+  z-index: 0;
+  inset: -9%;
+  width: 118%;
+  height: 118%;
+  object-fit: cover;
+  filter: blur(4px) saturate(0.9);
+  transform: scale(1.06);
+}
+
+.detail-page .place-gallery__slide::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: rgba(17, 62, 42, 0.24);
+  content: "";
 }
 
 .detail-page .place-gallery__image {
+  position: relative;
+  z-index: 2;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -608,7 +632,7 @@ body.page-place_detail .site-shell {
 .detail-page .detail-photo-placeholder {
   display: block;
   max-width: none;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   min-height: 0;
   max-height: none;
   height: auto;
@@ -1807,7 +1831,7 @@ body.page-place_detail .site-shell {
   }
 
   .detail-page .place-gallery__main {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 4 / 3;
     min-height: 0;
     max-height: none;
     height: auto;
@@ -1815,7 +1839,7 @@ body.page-place_detail .site-shell {
   }
 
   .detail-page .detail-photo-placeholder {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 4 / 3;
     min-height: 0;
     max-height: none;
     height: auto;
@@ -2019,6 +2043,7 @@ body.page-place_detail .site-shell {
   line-height: 1;
 }
 
+
 .detail-unified-pricing__price-sub {
   font-size: 0.88rem;
   color: #5b7363;
@@ -2079,7 +2104,7 @@ body.page-place_detail .site-shell {
 
 .detail-unified-pricing__schedule-row .schedule-row-item {
   display: grid;
-  grid-template-columns: 58px 12px 1fr;
+  grid-template-columns: max-content 12px 1fr;
   align-items: center;
   gap: 0;
   font-size: 0.9rem;
@@ -2105,6 +2130,38 @@ body.page-place_detail .site-shell {
   font-size: 0.77rem;
   color: #7d9686;
   margin-top: 8px;
+}
+
+/* With tariffs, show the timetable as compact cards instead of a narrow left column. */
+.detail-unified-pricing:not(.detail-unified-pricing--no-plans) .detail-unified-pricing__schedule-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(13, 138, 82, 0.1);
+  border-radius: 14px;
+  background: #f8fcf9;
+}
+
+.detail-unified-pricing:not(.detail-unified-pricing--no-plans) .schedule-type-badge,
+.detail-unified-pricing:not(.detail-unified-pricing--no-plans) .schedule-note-sub {
+  grid-column: 1 / -1;
+}
+
+.detail-unified-pricing:not(.detail-unified-pricing--no-plans) .schedule-rows-list {
+  display: contents;
+}
+
+.detail-unified-pricing:not(.detail-unified-pricing--no-plans) .schedule-row-item {
+  grid-template-columns: max-content 10px 1fr;
+  padding: 9px 10px;
+  border: 1px solid rgba(19, 111, 56, 0.08);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.detail-unified-pricing:not(.detail-unified-pricing--no-plans) .schedule-note-sub {
+  margin-top: 0;
 }
 
 /* When a place has no tariff plans, make the schedule the visual counterpart to the price. */
@@ -2259,50 +2316,33 @@ body.page-place_detail .site-shell {
   margin-top: 6px;
 }
 
-/* Desktop: left column = price + schedule, right column = plans */
+/* Keep the schedule readable: tariffs go below it at full width. */
 @media (min-width: 900px) {
   .detail-unified-pricing:has(.detail-unified-pricing__plans-section) {
-    display: grid;
-    grid-template-columns: minmax(200px, 280px) 1fr;
-    grid-template-rows: auto auto 1fr;
-    gap: 0 30px;
-    align-items: start;
+    display: block;
   }
 
   .detail-unified-pricing .detail-section-head {
-    grid-column: 1 / -1;
     margin-bottom: 10px;
   }
 
-  /* price block: left column row 2 */
   .detail-unified-pricing__top {
-    grid-column: 1;
-    grid-row: 2;
-    margin-bottom: 0;
-    flex-direction: column;
-    align-items: flex-start;
+    margin-bottom: 20px;
   }
 
-  /* schedule block: left column row 3 */
   .detail-unified-pricing__schedule-row {
-    grid-column: 1;
-    grid-row: 3;
-    margin-top: 16px;
+    margin-top: 0;
   }
 
-  /* plans section: right column, spans rows 2-3 */
   .detail-unified-pricing__plans-section {
-    grid-column: 2;
-    grid-row: 2 / 4;
-    border-top: none;
-    padding-top: 0;
-    border-left: 1px solid #f0f4f1;
-    padding-left: 28px;
+    border-top: 1px solid #f0f4f1;
+    padding-top: 20px;
+    border-left: 0;
+    padding-left: 0;
   }
 
-  /* footer notes: full width */
   .detail-unified-pricing__footer-notes {
-    grid-column: 1 / -1;
+    margin-top: 20px;
   }
 
   .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule {

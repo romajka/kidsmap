@@ -14,6 +14,7 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}" />
 {% endblock %}
 
@@ -34,6 +35,14 @@
                       {% for file in gallery %}
                         <div class="swiper-slide">
                           <figure class="place-gallery__slide">
+                            <img
+                              class="place-gallery__backdrop"
+                              src="{{ file.url }}"
+                              alt=""
+                              aria-hidden="true"
+                              draggable="false"
+                              decoding="async"
+                            />
                             <img
                               class="place-gallery__image"
                               src="{{ file.url }}"
@@ -101,47 +110,26 @@
 
               <div class="detail-unified-pricing__top">
                 <div class="detail-unified-pricing__price-block">
-                  <div class="detail-unified-pricing__price-val">
-                    {{ pricing_summary.formatted_price_amount }}
-                  </div>
-                  {% if pricing_summary.has_price and pricing_summary.formatted_price_unit %}
-                    <div class="detail-unified-pricing__price-sub">
-                      {{ pricing_summary.formatted_price_unit }}
-                    </div>
-                  {% endif %}
+                  <div class="detail-unified-pricing__price-val">{{ pricing_summary.formatted_price_amount }}</div>
                 </div>
 
                 <div class="detail-unified-pricing__chips">
                   {% if pricing_summary.format_label %}
-                    <span class="detail-unified-pricing__chip">
-                      <i class="fas fa-users" aria-hidden="true"></i> {{ pricing_summary.format_label }}
-                    </span>
+                    <span class="detail-unified-pricing__chip"><i class="fas fa-users" aria-hidden="true"></i> {{ pricing_summary.format_label }}</span>
                   {% endif %}
                   {% if pricing_summary.frequency %}
-                    <span class="detail-unified-pricing__chip">
-                      <i class="fas fa-redo" aria-hidden="true"></i> {{ pricing_summary.frequency }}
-                    </span>
-                  {% endif %}
-                  {% if pricing_summary.duration %}
-                    <span class="detail-unified-pricing__chip">
-                      <i class="fas fa-clock" aria-hidden="true"></i> {{ pricing_summary.duration }}
-                    </span>
+                    <span class="detail-unified-pricing__chip"><i class="fas fa-redo" aria-hidden="true"></i> {{ pricing_summary.frequency }}</span>
                   {% endif %}
                 </div>
               </div>
 
               {% if pricing_summary.schedule_rows %}
                 <div class="detail-unified-pricing__schedule-row">
-                  <span class="schedule-type-badge">
-                    <i class="far fa-calendar-alt" aria-hidden="true"></i> {{ pricing_summary.schedule_type_label }}:
-                  </span>
+                  <span class="schedule-type-badge"><i class="far fa-calendar-alt" aria-hidden="true"></i> {{ pricing_summary.schedule_type_label }}:</span>
                   <div class="schedule-rows-list">
                     {% for row in pricing_summary.schedule_rows %}
                       <div class="schedule-row-item">
-                        {% if row.days %}
-                          <span class="schedule-row-days">{{ row.days }}</span>
-                          <span class="schedule-row-separator">·</span>
-                        {% endif %}
+                        {% if row.days %}<span class="schedule-row-days">{{ row.days }}</span><span class="schedule-row-separator">·</span>{% endif %}
                         <strong class="schedule-row-time">{{ row.time }}</strong>
                       </div>
                     {% endfor %}
@@ -153,40 +141,20 @@
               {% if pricing_summary.plans %}
                 <div class="detail-unified-pricing__plans-section">
                   <h3>{{ pricing_summary.strings.tariffs }}</h3>
-                  
                   <div class="detail-unified-pricing__plans-list" id="pricing-plans-container">
                     {% for plan in pricing_summary.plans %}
-                      <div
-                        class="detail-unified-pricing__plan-row {% if forloop.counter > 3 %}detail-unified-pricing__plan-row--hidden{% endif %}"
-                        {% if forloop.counter > 3 %}style="display: none;"{% endif %}
-                      >
+                      <div class="detail-unified-pricing__plan-row {% if forloop.counter > 3 %}detail-unified-pricing__plan-row--hidden{% endif %}"{% if forloop.counter > 3 %} style="display: none;"{% endif %}>
                         <div class="detail-unified-pricing__plan-left">
                           <strong class="detail-unified-pricing__plan-title">{{ plan.title }}</strong>
-                          {% if plan.details %}
-                            <span class="detail-unified-pricing__plan-details">{{ plan.details }}</span>
-                          {% endif %}
+                          {% if plan.details %}<span class="detail-unified-pricing__plan-details">{{ plan.details }}</span>{% endif %}
                         </div>
-                        {% if not plan.fully_matches %}
-                          <strong class="detail-unified-pricing__plan-price">{{ plan.price_str }}</strong>
-                        {% endif %}
+                        {% if not plan.fully_matches %}<strong class="detail-unified-pricing__plan-price">{{ plan.price_str }}</strong>{% endif %}
                       </div>
                     {% endfor %}
                   </div>
-
                   {% if pricing_summary.plans|length > 3 %}
                     {% with extra_count=pricing_summary.plans|length|add:"-3" %}
-                      <button
-                        type="button"
-                        class="detail-unified-pricing__toggle-btn"
-                        id="pricing-plans-toggle"
-                        aria-expanded="false"
-                        aria-controls="pricing-plans-container"
-                        aria-label="{{ pricing_summary.strings.show_all }}"
-                        data-show-text="{{ pricing_summary.strings.show_all }} · +{{ extra_count }}"
-                        data-hide-text="{{ pricing_summary.strings.hide_all }}"
-                      >
-                        {{ pricing_summary.strings.show_all }} · +{{ extra_count }}
-                      </button>
+                      <button type="button" class="detail-unified-pricing__toggle-btn" id="pricing-plans-toggle" aria-expanded="false" aria-controls="pricing-plans-container" aria-label="{{ pricing_summary.strings.show_all }}" data-show-text="{{ pricing_summary.strings.show_all }} · +{{ extra_count }}" data-hide-text="{{ pricing_summary.strings.hide_all }}">{{ pricing_summary.strings.show_all }} · +{{ extra_count }}</button>
                     {% endwith %}
                   {% endif %}
                 </div>
@@ -194,12 +162,8 @@
 
               {% if place.extra_conditions_i18n or place.additional_info_i18n %}
                 <div class="detail-unified-pricing__footer-notes">
-                  {% if place.extra_conditions_i18n %}
-                    <p><strong>{% if language == 'az' %}Əlavə şərtlər{% elif language == 'en' %}Extra conditions{% else %}Дополнительные условия{% endif %}:</strong> {{ place.extra_conditions_i18n }}</p>
-                  {% endif %}
-                  {% if place.additional_info_i18n %}
-                    <p>{{ place.additional_info_i18n }}</p>
-                  {% endif %}
+                  {% if place.extra_conditions_i18n %}<p><strong>{% if language == 'az' %}Əlavə şərtlər{% elif language == 'en' %}Extra conditions{% else %}Дополнительные условия{% endif %}:</strong> {{ place.extra_conditions_i18n }}</p>{% endif %}
+                  {% if place.additional_info_i18n %}<p>{{ place.additional_info_i18n }}</p>{% endif %}
                 </div>
               {% endif %}
             </section>
@@ -377,13 +341,19 @@
           {% if place.address %}
             <p class="detail-map-address detail-map-address--compact">{{ place.address_i18n }}</p>
           {% endif %}
-          <iframe
+          <div
+            id="detail-map"
             class="detail-map-frame"
-            src="{{ map_embed_url }}"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            title="{% trans 'Карта места' %}"
-          ></iframe>
+            data-lat="{{ place.lat }}"
+            data-lng="{{ place.lng }}"
+            data-category-color-text="{{ place.category.resolved_color_text|default:'#6B7280' }}"
+            data-category-color-bg="{{ place.category.resolved_color_bg|default:'#F3F4F6' }}"
+            data-category-code="{{ place.category_code|default:'ALL' }}"
+            data-place-name="{{ place.name_i18n }}"
+          ></div>
+          <div style="display: none;" id="detail-map-icon-svg">
+            {% include "catalog/includes/category_icon.html" with code=place.category_code|default:'ALL' %}
+          </div>
           <div class="detail-map-foot">
             <p class="detail-map-link">
               <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% if language == "az" %}Böyük xəritədə aç{% elif language == "en" %}Open larger map{% else %}Открыть большую карту{% endif %}</a>
@@ -891,6 +861,71 @@
 {% endblock %}
 {% block extra_body %}
   <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="{% static 'js/place_gallery.js' %}"></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
+  <script>
+    (function() {
+      const mapEl = document.getElementById('detail-map');
+      if (!mapEl) return;
+      const lat = parseFloat(mapEl.getAttribute('data-lat'));
+      const lng = parseFloat(mapEl.getAttribute('data-lng'));
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      const colorBg = mapEl.getAttribute('data-category-color-bg') || '#F3F4F6';
+      const colorText = mapEl.getAttribute('data-category-color-text') || '#6B7280';
+      const placeName = mapEl.getAttribute('data-place-name') || '';
+
+      // Initialize Leaflet Map centered on the location
+      const map = L.map('detail-map', {
+        zoomControl: false,
+        scrollWheelZoom: false,
+        dragging: !L.Browser.mobile,
+        tap: !L.Browser.mobile
+      }).setView([lat, lng], 15);
+
+      // Add zoom control to top-right
+      L.control.zoom({ position: 'topright' }).addTo(map);
+
+      // Clean premium CartoDB Voyager map tile layer
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }).addTo(map);
+
+      // Get the category SVG glyph
+      const glyphSvgEl = document.getElementById('detail-map-icon-svg');
+      const glyphSvg = glyphSvgEl ? glyphSvgEl.innerHTML.trim() : '';
+
+      // Build custom animated pin structure (Option A: Float + Pulse)
+      const customPinHtml = `
+        <div class="custom-animated-pin-wrapper">
+          <div class="pin-pulse" style="--accent: ${colorText};"></div>
+          <div class="pin-body" style="background-color: ${colorText}; color: ${colorBg};">
+            <div class="pin-icon-wrap">
+              ${glyphSvg}
+            </div>
+            <div class="pin-pointer" style="border-top-color: ${colorText};"></div>
+          </div>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        className: 'custom-map-pin',
+        html: customPinHtml,
+        iconSize: [40, 40],
+        iconAnchor: [20, 40]
+      });
+
+      L.marker([lat, lng], { icon: customIcon, title: placeName }).addTo(map);
+
+      // Enable scroll wheel zoom on click/focus
+      map.on('click', function() {
+        if (!map.scrollWheelZoom.enabled()) {
+          map.scrollWheelZoom.enable();
+        }
+      });
+    })();
+  </script>
 {% endblock %}

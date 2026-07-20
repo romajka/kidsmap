@@ -69,6 +69,7 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<html lang="az">', html=False)
+        self.assertNotContains(response, "total_place_reviews_count")
 
     def test_legacy_az_urls_redirect_to_default_language_without_prefix(self):
         response = self.client.get("/az/catalog/", {"category": "EDU"})
@@ -1647,13 +1648,12 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "detail-unified-pricing--no-plans")
         self.assertContains(response, "detail-unified-pricing--with-schedule")
         self.assertContains(response, "20 AZN")
-        self.assertContains(response, 'class="detail-unified-pricing__price-sub"', html=False)
+        self.assertNotContains(response, 'class="detail-unified-pricing__price-sub"', html=False)
         self.assertContains(response, "Формат занятий")
         self.assertContains(response, "Групповые")
         self.assertContains(response, "60 мин")
         self.assertContains(response, "detail-highlight-card--lesson")
         self.assertNotContains(response, "detail-highlight-card--schedule")
-        self.assertContains(response, "занятие")
         self.assertContains(response, "Пн/Ср/Пт 18:00-19:00")
         self.assertContains(response, "Пробный урок бесплатно")
         self.assertContains(response, "Нужна спортивная форма")
@@ -1791,6 +1791,8 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "data-place-gallery")
         self.assertContains(response, "data-place-gallery-main")
         self.assertContains(response, "swiper-wrapper")
+        self.assertContains(response, "place-gallery__backdrop")
+        self.assertContains(response, "place-gallery__image")
         self.assertContains(response, "data-place-gallery-thumb")
         self.assertContains(response, "static/js/place_gallery.js")
 
