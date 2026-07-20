@@ -584,6 +584,19 @@
         },
         onClusterClick: function (event, cluster, mapInstance) {
           userInteracted = true;
+          const bounds = new google.maps.LatLngBounds();
+          const markers = cluster.markers || (cluster.getMarkers ? cluster.getMarkers() : []);
+          if (markers && markers.length > 0) {
+            markers.forEach(function (m) {
+              bounds.extend(m.getPosition());
+            });
+            if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
+              mapInstance.setCenter(bounds.getCenter());
+              mapInstance.setZoom(16);
+            } else {
+              mapInstance.fitBounds(bounds, 80);
+            }
+          }
         }
       });
     }
@@ -778,7 +791,7 @@
     const markerClusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       // Let MarkerCluster handle click: zoom → then spiderfy if needed
-      zoomToBoundsOnClick: true,
+      zoomToBoundsOnClick: false,
       spiderfyOnMaxZoom: true,
       maxClusterRadius: function (zoom) {
         if (zoom >= 15) return 30;
@@ -800,8 +813,12 @@
     map.addLayer(markerClusterGroup);
 
     // Mark as user-interacted on cluster click so our fitBounds doesn't fire
-    markerClusterGroup.on("clusterclick", function () {
+    markerClusterGroup.on("clusterclick", function (event) {
       userInteracted = true;
+      map.flyToBounds(event.layer.getBounds(), {
+        padding: [40, 40],
+        duration: 0.45,
+      });
     });
 
     // ── Interaction tracking ────────────────────────────────────────────────
