@@ -56,6 +56,15 @@
     };
   }
 
+  function buildGoogleClusterSvg(count) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none">' +
+      '<circle cx="27" cy="27" r="27" fill="rgba(17, 117, 67, 0.10)"/>' +
+      '<circle cx="27" cy="27" r="25" fill="rgba(17, 117, 67, 0.18)"/>' +
+      '<circle cx="27" cy="27" r="19" fill="#087443" stroke="white" stroke-width="3"/>' +
+      '<text x="27" y="27" text-anchor="middle" dominant-baseline="central" fill="white" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15px" font-weight="800">' + count + '</text>' +
+      '</svg>';
+  }
+
   function escapeHtml(value) {
     return String(value || "").replace(/[&<>"']/g, function (char) {
       return {
@@ -537,6 +546,19 @@
       return;
     }
 
+    if (!window.markerClusterer) {
+      renderCatalogMapState(state.mapEl, state.loadingMessage, "catalog-map-loading");
+      loadScript("https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js")
+        .then(function () {
+          initCatalogGoogleMap();
+        })
+        .catch(function () {
+          window.markerClusterer = { dummy: true };
+          initCatalogGoogleMap();
+        });
+      return;
+    }
+
     state.googleMap = new google.maps.Map(state.mapEl, {
       center: { lat: state.places[0].lat, lng: state.places[0].lng },
       zoom: state.places.length === 1 ? 15 : 11,
@@ -558,11 +580,11 @@
     state.projectionHelper.onRemove = function () {};
     state.projectionHelper.setMap(state.googleMap);
 
+    const activeMarkers = [];
     state.places.forEach(function (place) {
       const position = { lat: place.lat, lng: place.lng };
       const marker = new google.maps.Marker({
         position: position,
-        map: state.googleMap,
         title: place.name || "",
         icon: buildMarkerIcon(place),
       });
@@ -595,8 +617,36 @@
         card.style.boxShadow = "";
       });
 
+      activeMarkers.push(marker);
       state.bounds.extend(position);
     });
+
+    if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
+      state.markerCluster = new window.markerClusterer.MarkerClusterer({
+        map: state.googleMap,
+        markers: activeMarkers,
+        renderer: {
+          render: function (cluster, stats, mapInstance) {
+            const count = cluster.count;
+            const position = cluster.position;
+            const svg = buildGoogleClusterSvg(count);
+            return new google.maps.Marker({
+              position: position,
+              icon: {
+                url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+                scaledSize: new google.maps.Size(54, 54),
+                anchor: new google.maps.Point(27, 27),
+              },
+              zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+            });
+          }
+        }
+      });
+    } else {
+      activeMarkers.forEach(function (marker) {
+        marker.setMap(state.googleMap);
+      });
+    }
 
     state.activeListeners.push(
       state.googleMap.addListener("click", function () {

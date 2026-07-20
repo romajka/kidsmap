@@ -327,6 +327,15 @@
     };
   }
 
+  function buildGoogleClusterSvg(count) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54" fill="none">' +
+      '<circle cx="27" cy="27" r="27" fill="rgba(17, 117, 67, 0.10)"/>' +
+      '<circle cx="27" cy="27" r="25" fill="rgba(17, 117, 67, 0.18)"/>' +
+      '<circle cx="27" cy="27" r="19" fill="#087443" stroke="white" stroke-width="3"/>' +
+      '<text x="27" y="27" text-anchor="middle" dominant-baseline="central" fill="white" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15px" font-weight="800">' + count + '</text>' +
+      '</svg>';
+  }
+
   function renderFallback(mapEl, mapNoteEl) {
     if (!mapEl) return;
 
@@ -528,13 +537,66 @@
       gestureHandling: "cooperative",
     });
     const infoWindow = new google.maps.InfoWindow();
+
+    // ── Interaction tracking ────────────────────────────────────────────────
+    let userInteracted = false;
+    let isProgrammatic = false;
+    let syncPending = false;
+
+    map.addListener("dragstart", function () {
+      userInteracted = true;
+    });
+    map.addListener("zoom_changed", function () {
+      if (!isProgrammatic) {
+        userInteracted = true;
+      }
+    });
+
+    function programmaticUpdate(action) {
+      isProgrammatic = true;
+      action();
+      window.setTimeout(function () {
+        isProgrammatic = false;
+      }, 100);
+    }
+
+    // ── Cluster Group ────────────────────────────────────────────────────────
+    let markerCluster = null;
+    if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
+      markerCluster = new window.markerClusterer.MarkerClusterer({
+        map: map,
+        markers: [],
+        renderer: {
+          render: function (cluster, stats, mapInstance) {
+            const count = cluster.count;
+            const position = cluster.position;
+            const svg = buildGoogleClusterSvg(count);
+            return new google.maps.Marker({
+              position: position,
+              icon: {
+                url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+                scaledSize: new google.maps.Size(54, 54),
+                anchor: new google.maps.Point(27, 27),
+              },
+              zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+            });
+          }
+        },
+        onClusterClick: function (event, cluster, mapInstance) {
+          userInteracted = true;
+        }
+      });
+    }
+
+    // ── Build markers ───────────────────────────────────────────────────────
     const markerItems = [];
 
     places.forEach(function (place) {
+      if (!hasValidCoordinates(place)) return;
+
       const position = { lat: place.lat, lng: place.lng };
       const marker = new google.maps.Marker({
         position: position,
-        map: null,
         title: place.name || "",
         icon: buildGoogleMarkerIcon(place),
       });
@@ -554,41 +616,104 @@
       });
     });
 
+    // ── Core sync ───────────────────────────────────────────────────────────
     function syncVisibleMarkers() {
+      if (syncPending) return;
+      syncPending = true;
+      window.setTimeout(function () {
+        syncPending = false;
+        _doSync();
+      }, 0);
+    }
+
+    function _doSync() {
       const filters = getFilterState();
       const visibleItems = [];
       const bounds = new google.maps.LatLngBounds();
 
       infoWindow.close();
 
+      if (markerCluster) {
+        markerCluster.clearMarkers();
+      }
+
+      const activeMarkers = [];
       markerItems.forEach(function (item) {
-        const shouldShow = placeMatchesFilters(item.place, filters);
-        item.marker.setMap(shouldShow ? map : null);
-        if (shouldShow) {
+        if (!hasValidCoordinates(item.place)) return;
+        if (placeMatchesFilters(item.place, filters)) {
           visibleItems.push(item);
           bounds.extend(item.position);
+          if (markerCluster) {
+            activeMarkers.push(item.marker);
+          } else {
+            item.marker.setMap(map);
+          }
+        } else {
+          if (!markerCluster) {
+            item.marker.setMap(null);
+          }
         }
       });
 
+      if (markerCluster && activeMarkers.length) {
+        markerCluster.addMarkers(activeMarkers);
+      }
+
+      // No results
       if (!visibleItems.length) {
-        map.setCenter(DEFAULT_CENTER);
-        map.setZoom(DEFAULT_ZOOM);
+        userInteracted = false;
+        programmaticUpdate(function () {
+          map.setCenter(DEFAULT_CENTER);
+          map.setZoom(DEFAULT_ZOOM);
+        });
         setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", false);
         return;
       }
 
-      if (visibleItems.length === 1) {
-        map.setCenter(visibleItems[0].position);
-        map.setZoom(13);
-        setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", true);
+      setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", true);
+
+      // Don't override zoom after user has manually navigated
+      if (userInteracted) return;
+
+      // No active filters → show default Baku overview
+      if (!hasActiveFilters(filters)) {
+        programmaticUpdate(function () {
+          map.setCenter(DEFAULT_CENTER);
+          map.setZoom(DEFAULT_ZOOM);
+        });
         return;
       }
 
-      map.fitBounds(bounds, { top: 32, right: 32, bottom: 32, left: 32 });
-      setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", true);
+      // Single filtered result
+      if (visibleItems.length === 1) {
+        programmaticUpdate(function () {
+          map.setCenter(visibleItems[0].position);
+          map.setZoom(15);
+        });
+        return;
+      }
+
+      // Multiple filtered results → fitBounds
+      const maxZoom = allInBaku(visibleItems) ? 13 : 14;
+      window.setTimeout(function () {
+        if (userInteracted) return;
+        programmaticUpdate(function () {
+          map.setOptions({ maxZoom: maxZoom });
+          map.fitBounds(bounds, { top: 48, right: 48, bottom: 48, left: 48 });
+          google.maps.event.addListenerOnce(map, "idle", function () {
+            map.setOptions({ maxZoom: null });
+          });
+        });
+      }, 80);
     }
 
-    bindFilterListeners(syncVisibleMarkers);
+    // Filter change: reset userInteracted so bounds recalculate for new results
+    function syncVisibleMarkersFromFilter() {
+      userInteracted = false;
+      syncVisibleMarkers();
+    }
+
+    bindFilterListeners(syncVisibleMarkersFromFilter);
     syncVisibleMarkers();
 
     window.setTimeout(function () {
@@ -850,8 +975,16 @@
 
     function loadGoogleProvider() {
       if (!SCRIPT_CONFIG.googleMapsApiKey) return Promise.reject(new Error("Missing Google Maps API key"));
+      const clusterJsHref = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
+
       window.kidsMapHomeMapGoogleLoaded = function () {
-        tryMount();
+        loadScript(clusterJsHref)
+          .then(function () {
+            tryMount();
+          })
+          .catch(function () {
+            tryMount();
+          });
       };
 
       const src =
@@ -859,9 +992,7 @@
         encodeURIComponent(SCRIPT_CONFIG.googleMapsApiKey) +
         "&callback=kidsMapHomeMapGoogleLoaded";
 
-      return loadScript(src).then(function () {
-        tryMount();
-      });
+      return loadScript(src);
     }
 
     function loadLeafletProvider() {
