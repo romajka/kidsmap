@@ -218,8 +218,25 @@
     return true;
   }
 
+  function formatAgeBadge(place) {
+    const from = place.age_from;
+    const to = place.age_to;
+    if (from !== null && from !== undefined && to !== null && to !== undefined) {
+      return from + "–" + to + " yaş";
+    } else if (from !== null && from !== undefined) {
+      return from + "+ yaş";
+    } else if (to !== null && to !== undefined) {
+      return "0–" + to + " yaş";
+    }
+    return "";
+  }
+
   function renderPopupContent(place, detailsLabel) {
-    const image = place.image_url
+    const ageBadgeText = formatAgeBadge(place);
+    const categoryName = place.category || "";
+    const categoryColor = place.category_color_text || "var(--brand-turf)";
+
+    const imageHtml = place.image_url
       ? '<a class="home-map-popup-thumb-link" href="' +
         escapeHtml(place.url || "") +
         '">' +
@@ -228,45 +245,76 @@
         '" alt="' +
         escapeHtml(place.name || "") +
         '" loading="lazy" decoding="async" />' +
+        '<div class="home-map-popup-badges">' +
+        (categoryName
+          ? '<span class="home-map-popup-badge-cat" style="color: ' +
+            escapeHtml(categoryColor) +
+            ';">' +
+            escapeHtml(categoryName) +
+            "</span>"
+          : "") +
+        (ageBadgeText ? '<span class="home-map-popup-badge-age">' + escapeHtml(ageBadgeText) + "</span>" : "") +
+        "</div>" +
         "</a>"
-      : "";
+      : '<div class="home-map-popup-no-thumb-header">' +
+        '<div class="home-map-popup-badges home-map-popup-badges-standalone">' +
+        (categoryName
+          ? '<span class="home-map-popup-badge-cat" style="color: ' +
+            escapeHtml(categoryColor) +
+            ';">' +
+            escapeHtml(categoryName) +
+            "</span>"
+          : "") +
+        (ageBadgeText ? '<span class="home-map-popup-badge-age">' + escapeHtml(ageBadgeText) + "</span>" : "") +
+        "</div>" +
+        "</div>";
 
-    const addressHtml = place.address
+    const displayAddress = place.address || place.district_label || place.district || "";
+    const addressHtml = displayAddress
       ? '<div class="home-map-popup-info-row">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>' +
-        '<span class="home-map-popup-info-text">' + escapeHtml(place.address) + '</span>' +
-        '</div>'
+        '<span class="home-map-popup-info-text">' +
+        escapeHtml(displayAddress) +
+        "</span>" +
+        "</div>"
       : "";
 
     const scheduleHtml = place.schedule
       ? '<div class="home-map-popup-info-row">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' +
-        '<span class="home-map-popup-info-text">' + escapeHtml(place.schedule) + '</span>' +
-        '</div>'
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 16 14"></polyline></svg>' +
+        '<span class="home-map-popup-info-text">' +
+        escapeHtml(place.schedule) +
+        "</span>" +
+        "</div>"
       : "";
 
     const phoneHtml = place.phone
       ? '<div class="home-map-popup-info-row">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>' +
-        '<a href="tel:' + escapeHtml(place.phone) + '" class="home-map-popup-phone-link">' + escapeHtml(place.phone) + '</a>' +
-        '</div>'
+        '<a href="tel:' +
+        escapeHtml(place.phone) +
+        '" class="home-map-popup-phone-link">' +
+        escapeHtml(place.phone) +
+        "</a>" +
+        "</div>"
       : "";
 
     return (
       '<div class="home-map-popup">' +
-      image +
+      imageHtml +
       '<div class="home-map-popup-body">' +
-      '<span class="home-map-popup-category" style="color: ' + escapeHtml(place.category_color_text || "var(--brand-turf)") + ';">' +
-      escapeHtml(place.category) +
-      "</span>" +
+      '<a href="' +
+      escapeHtml(place.url || "") +
+      '" class="home-map-popup-title-link">' +
       '<strong class="home-map-popup-title">' +
       escapeHtml(place.name) +
       "</strong>" +
+      "</a>" +
       '<div class="home-map-popup-details">' +
       addressHtml +
       scheduleHtml +
       phoneHtml +
-      '</div>' +
+      "</div>" +
       '<a class="home-map-popup-link-btn" href="' +
       escapeHtml(place.url || "") +
       '">' +
