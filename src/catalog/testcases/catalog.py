@@ -309,7 +309,7 @@ class TestGeocodePlacesCommand(TestCase):
 
 class TestSeedCatalogTaxonomyCommand(TestCase):
     def test_seeds_taxonomy_with_svg_paths(self):
-        call_command("seed_catalog_taxonomy", verbosity=0)
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
         self.assertTrue(Category.objects.filter(code="EDU").exists())
         cat = Category.objects.get(code="EDU")
         self.assertTrue(cat.icon.endswith(".svg"))
@@ -348,12 +348,12 @@ class TestSeedCatalogTaxonomyCommand(TestCase):
         )
         
         # Without flag, it should not overwrite custom-icon.png since it doesn't start with fas fa-
-        call_command("seed_catalog_taxonomy", verbosity=0)
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
         cat = Category.objects.get(code="EDU")
         self.assertEqual(cat.icon, "custom-icon.png")
 
         # With flag, it should overwrite
-        call_command("seed_catalog_taxonomy", update_icons=True, verbosity=0)
+        call_command("seed_catalog_taxonomy", "--force", update_icons=True, verbosity=0)
         cat.refresh_from_db()
         self.assertNotEqual(cat.icon, "custom-icon.png")
         self.assertTrue(cat.icon.endswith(".svg"))
@@ -394,3 +394,198 @@ class TestDependentSubcategoryValidation(TestCase):
         # but subcategory shouldn't be in errors
         form.is_valid()
         self.assertNotIn("subcategory", form.errors)
+
+
+class TestSeedIdempotency(TestCase):
+    """
+    Ensures that seed_catalog_taxonomy does NOT restore categories or subcategories
+    that were deactivated/archived via the production admin.
+
+    This is the regression test for the core data loss bug:
+    release-server.sh was calling seed_catalog_taxonomy on every deploy,
+    causing update_or_create to overwrite admin changes.
+    """
+
+    def test_deactivated_category_stays_inactive_after_seed_without_force(self):
+        """
+        A category deactivated in the admin MUST remain inactive
+        when seed runs WITHOUT --force (the normal deploy path).
+        """
+        # First run: populate the DB (simulates first deploy / empty DB init)
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
+
+        # Admin deactivates a category (simulates production admin action)
+        cat = Category.objects.get(code="EDU")
+        cat.is_active = False
+        cat.save(update_fields=["is_active"])
+
+        # Second run: WITHOUT --force — simulates subsequent deploys.
+        # Should print a warning and return without touching data.
+        out = StringIO()
+        call_command("seed_catalog_taxonomy", verbosity=0, stdout=out)
+
+        cat.refresh_from_db()
+        self.assertFalse(
+            cat.is_active,
+            "BUG: seed_catalog_taxonomy restored is_active=True for a category "
+            "that was deactivated in the admin. The seed must NEVER run without --force on production."
+        )
+        output = out.getvalue()
+        self.assertIn("Skipping seed", output,
+                      "Expected seed to print a warning when skipping due to existing data.")
+
+    def test_deactivated_subcategory_stays_inactive_after_seed_without_force(self):
+        """
+        Subcategories deactivated in the admin MUST remain inactive
+        when seed runs WITHOUT --force.
+        """
+        from catalog.models.category import Subcategory
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
+
+        sub = Subcategory.objects.get(code="football")
+        sub.is_active = False
+        sub.save(update_fields=["is_active"])
+
+        call_command("seed_catalog_taxonomy", verbosity=0)
+
+        sub.refresh_from_db()
+        self.assertFalse(
+            sub.is_active,
+            "BUG: seed_catalog_taxonomy restored is_active=True for a subcategory "
+            "that was deactivated in the admin."
+        )
+
+    def test_seed_with_force_does_not_overwrite_is_active_of_existing_categories(self):
+        """
+        Even with --force, the seed MUST NOT restore deactivated categories.
+        --force only updates names, icons, colors — never is_active.
+        """
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
+
+        cat = Category.objects.get(code="SPRT")
+        cat.is_active = False
+        cat.save(update_fields=["is_active"])
+
+        # Run with --force (admin/emergency path)
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
+
+        cat.refresh_from_db()
+        self.assertFalse(
+            cat.is_active,
+            "BUG: seed_catalog_taxonomy --force reset is_active=True for a category "
+            "that was deliberately deactivated."
+        )
+
+    def test_seed_without_force_skips_when_categories_exist(self):
+        """
+        Without --force, the command must exit immediately if categories exist,
+        printing a warning instead of modifying any data.
+        """
+        from catalog.models.category import Subcategory
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
+
+        initial_cat_count = Category.objects.count()
+        initial_sub_count = Subcategory.objects.count()
+
+        call_command("seed_catalog_taxonomy", verbosity=0)
+
+        self.assertEqual(Category.objects.count(), initial_cat_count)
+        self.assertEqual(Subcategory.objects.count(), initial_sub_count)
+
+    def test_seed_force_creates_missing_categories_only(self):
+        """
+        With --force on a partially populated DB, seed must create missing records
+        but NOT touch existing ones' is_active.
+        """
+        from catalog.models.category import Subcategory
+        # EDU may already exist from migration 0044. Update it to simulate admin deactivation.
+        Category.objects.filter(code="EDU").update(is_active=False)
+        # Ensure it actually exists (migration may not have run in test DB)
+        Category.objects.get_or_create(
+            code="EDU",
+            defaults={
+                "name_ru": "Образование",
+                "name_az": "Təhsil",
+                "name_en": "Education",
+                "name": "Образование",
+                "is_active": False,
+                "order": 2,
+            },
+        )
+        # Mark EDU as inactive (simulate admin action)
+        Category.objects.filter(code="EDU").update(is_active=False)
+
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
+
+        edu = Category.objects.get(code="EDU")
+        self.assertFalse(
+            edu.is_active,
+            "BUG: --force seed restored is_active=True for pre-existing record."
+        )
+        # Other categories should be created
+        self.assertTrue(Category.objects.filter(code="SPRT").exists())
+
+
+class TestCategorySoftDelete(TestCase):
+    """Tests for Category.archive() and Category.restore() soft-delete methods."""
+
+    def setUp(self):
+        self.cat = Category.objects.create(
+            code="TEST-CAT",
+            name_ru="Тест",
+            name_az="Test",
+            name_en="Test",
+            name="Test",
+            is_active=True,
+            order=99,
+        )
+
+    def test_archive_sets_is_active_false_and_deleted_at(self):
+        self.cat.archive()
+        self.cat.refresh_from_db()
+        self.assertFalse(self.cat.is_active)
+        self.assertIsNotNone(self.cat.deleted_at)
+        self.assertIsNone(self.cat.deleted_by)
+
+    def test_archive_with_user_sets_deleted_by(self):
+        User = get_user_model()
+        user = User.objects.create_user(username="admin_test", password="pass")
+        self.cat.archive(user=user)
+        self.cat.refresh_from_db()
+        self.assertFalse(self.cat.is_active)
+        self.assertEqual(self.cat.deleted_by, user)
+
+    def test_restore_clears_deleted_at_and_sets_active(self):
+        self.cat.archive()
+        self.cat.restore()
+        self.cat.refresh_from_db()
+        self.assertTrue(self.cat.is_active)
+        self.assertIsNone(self.cat.deleted_at)
+
+    def test_active_manager_excludes_deleted_categories(self):
+        Category.objects.create(
+            code="ACTIVE-CAT", name_ru="Активная", name="Активная", order=100
+        )
+        self.cat.archive()
+        active_codes = list(Category.active.values_list("code", flat=True))
+        self.assertNotIn("TEST-CAT", active_codes)
+        self.assertIn("ACTIVE-CAT", active_codes)
+
+    def test_default_manager_includes_deleted_categories(self):
+        self.cat.archive()
+        self.assertIn(self.cat, Category.objects.all())
+
+    def test_archived_category_not_restored_by_seed_without_force(self):
+        """End-to-end: archive category -> run seed -> category stays archived."""
+        # Populate via seed
+        call_command("seed_catalog_taxonomy", "--force", verbosity=0)
+        edu = Category.objects.get(code="EDU")
+        edu.archive()
+
+        # Simulate deploy: seed runs without --force
+        call_command("seed_catalog_taxonomy", verbosity=0)
+
+        edu.refresh_from_db()
+        self.assertFalse(edu.is_active)
+        self.assertIsNotNone(edu.deleted_at)
+

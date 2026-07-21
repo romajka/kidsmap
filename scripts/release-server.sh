@@ -11,7 +11,9 @@ fi
 
 "${PYTHON_BIN}" manage.py migrate --noinput
 "${PYTHON_BIN}" manage.py sync_site_defaults
-"${PYTHON_BIN}" manage.py seed_catalog_taxonomy
+# NOTE: seed_catalog_taxonomy is NOT run on deploy.
+# It must only be run manually for an empty database:
+#   python manage.py seed_catalog_taxonomy --force
 
 # Rebuild project translation binaries from source .po files on every release.
 find locale -path '*/LC_MESSAGES/django.mo' -type f -delete 2>/dev/null || true

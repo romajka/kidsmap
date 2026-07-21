@@ -563,9 +563,13 @@
     // ── Cluster Group ────────────────────────────────────────────────────────
     let markerCluster = null;
     if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
+      var clusterAlgorithm = (window.markerClusterer.SuperClusterAlgorithm)
+        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 17, radius: 80 })
+        : undefined;
       markerCluster = new window.markerClusterer.MarkerClusterer({
         map: map,
         markers: [],
+        algorithm: clusterAlgorithm,
         renderer: {
           render: function (cluster, stats, mapInstance) {
             const count = cluster.count;
@@ -588,10 +592,31 @@
     // ── Build markers ───────────────────────────────────────────────────────
     const markerItems = [];
 
+    // Pre-count duplicate coordinates to jitter overlapping markers
+    const coordCount = {};
+    const coordIndex = {};
+    places.forEach(function (place) {
+      if (!hasValidCoordinates(place)) return;
+      const key = place.lat + ',' + place.lng;
+      coordCount[key] = (coordCount[key] || 0) + 1;
+    });
+
     places.forEach(function (place) {
       if (!hasValidCoordinates(place)) return;
 
-      const position = { lat: place.lat, lng: place.lng };
+      const key = place.lat + ',' + place.lng;
+      const total = coordCount[key];
+      const idx = coordIndex[key] = (coordIndex[key] || 0);
+      coordIndex[key]++;
+      var jitterLat = 0, jitterLng = 0;
+      if (total > 1 && idx > 0) {
+        var angle = (idx / total) * 2 * Math.PI;
+        var radius = 0.00005 * Math.ceil(idx / 8);
+        jitterLat = radius * Math.cos(angle);
+        jitterLng = radius * Math.sin(angle) * 1.5;
+      }
+
+      const position = { lat: place.lat + jitterLat, lng: place.lng + jitterLng };
       const marker = new google.maps.Marker({
         position: position,
         title: place.name || "",

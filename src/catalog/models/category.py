@@ -1,7 +1,9 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
+from django.utils import timezone
 import os
 
 
@@ -27,6 +29,12 @@ def _normalize_hex(value: str) -> str:
     return str(value or "").strip().lower()
 
 
+class ActiveCategoryManager(models.Manager):
+    """Returns only active, non-deleted categories (for public-facing queries)."""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True, deleted_at__isnull=True)
+
+
 class Category(models.Model):
     code = models.CharField(_("Код"), max_length=50, primary_key=True)
     name = models.CharField(_("Название"), max_length=255)
@@ -36,8 +44,30 @@ class Category(models.Model):
     icon = models.CharField(_("Иконка"), max_length=255, blank=True, default="", help_text=_("Класс иконки или название"))
     color_bg = models.CharField(_("Цвет фона (HEX)"), max_length=20, blank=True, default="#F3F4F6", help_text=_("Например: #E8F5EE"))
     color_text = models.CharField(_("Цвет иконки (HEX)"), max_length=20, blank=True, default="#6B7280", help_text=_("Например: #0C7A47"))
-    is_active = models.BooleanField(_("Активна"), default=True)
+    is_active = models.BooleanField(_("Активна"), default=True, db_index=True)
     order = models.PositiveIntegerField(_("Порядок"), default=0)
+
+    # Soft-delete fields
+    deleted_at = models.DateTimeField(_("Удалена"), null=True, blank=True, db_index=True)
+    deleted_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="deleted_categories", verbose_name=_("Кто удалил"),
+    )
+
+    # Audit fields
+    created_at = models.DateTimeField(_("Создана"), auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(_("Обновлена"), auto_now=True, null=True)
+    created_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="created_categories", verbose_name=_("Кто создал"),
+    )
+    updated_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="updated_categories", verbose_name=_("Кто изменил"),
+    )
+
+    objects = models.Manager()  # default manager (all records)
+    active = ActiveCategoryManager()  # public-facing: only active + non-deleted
 
     class Meta:
         ordering = ("name_ru",)
@@ -99,24 +129,77 @@ class Category(models.Model):
         preset = self.color_preset.get("text", "#6B7280")
         return preset if _normalize_hex(raw) in NEUTRAL_TEXT_VALUES else raw
 
+    def archive(self, user=None):
+        """Soft-delete: mark as deleted without removing from DB."""
+        self.is_active = False
+        self.deleted_at = timezone.now()
+        self.deleted_by = user
+        self.save(update_fields=["is_active", "deleted_at", "deleted_by", "updated_at"])
+
+    def restore(self, user=None):
+        """Restore a soft-deleted category."""
+        self.is_active = True
+        self.deleted_at = None
+        self.deleted_by = None
+        self.updated_by = user
+        self.save(update_fields=["is_active", "deleted_at", "deleted_by", "updated_by", "updated_at"])
+
     def __str__(self):
         return self.name_i18n()
 
 
+class ActiveSubcategoryManager(models.Manager):
+    """Returns only active, non-deleted subcategories."""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True, deleted_at__isnull=True)
+
+
 class Subcategory(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="subcategories", verbose_name=_("Категория"))
+    # PROTECT instead of CASCADE: prevents accidental deletion of subcategories
+    # when a category is deleted. Category must be archived (soft-deleted) instead.
+    category = models.ForeignKey(
+        Category, on_delete=models.PROTECT, related_name="subcategories", verbose_name=_("Категория")
+    )
     code = models.CharField(_("Код"), max_length=50, unique=True, null=True, blank=True)
     name = models.CharField(_("Название"), max_length=255)
     name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
     name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
-    is_active = models.BooleanField(_("Активна"), default=True)
+    is_active = models.BooleanField(_("Активна"), default=True, db_index=True)
     order = models.PositiveIntegerField(_("Порядок"), default=0)
+
+    # Soft-delete fields
+    deleted_at = models.DateTimeField(_("Удалена"), null=True, blank=True, db_index=True)
+    deleted_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="deleted_subcategories", verbose_name=_("Кто удалил"),
+    )
+
+    # Audit fields
+    created_at = models.DateTimeField(_("Создана"), auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(_("Обновлена"), auto_now=True, null=True)
+
+    objects = models.Manager()  # default manager (all records)
+    active = ActiveSubcategoryManager()  # public-facing: only active + non-deleted
 
     class Meta:
         ordering = ("category", "name_ru")
         verbose_name = _("Подкатегория")
         verbose_name_plural = _("Подкатегории")
+
+    def archive(self, user=None):
+        """Soft-delete: mark as deleted without removing from DB."""
+        self.is_active = False
+        self.deleted_at = timezone.now()
+        self.deleted_by = user
+        self.save(update_fields=["is_active", "deleted_at", "deleted_by", "updated_at"])
+
+    def restore(self, user=None):
+        """Restore a soft-deleted subcategory."""
+        self.is_active = True
+        self.deleted_at = None
+        self.deleted_by = None
+        self.save(update_fields=["is_active", "deleted_at", "deleted_by", "updated_at"])
 
     def name_i18n(self, lang=None):
         if not lang:

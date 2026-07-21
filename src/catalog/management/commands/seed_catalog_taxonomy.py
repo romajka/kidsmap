@@ -4,7 +4,11 @@ from catalog.models import Category, Subcategory
 from catalog.models.category import NEUTRAL_BG_VALUES, NEUTRAL_TEXT_VALUES
 
 class Command(BaseCommand):
-    help = "Seeds catalog taxonomy: Categories and Subcategories"
+    help = (
+        "Seeds catalog taxonomy: Categories and Subcategories. "
+        "By default, skips seeding if data already exists (idempotent). "
+        "Use --force to overwrite. NEVER run without --force on a live production database."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -12,9 +16,30 @@ class Command(BaseCommand):
             action='store_true',
             help='Force update icons for existing categories, overwriting custom ones',
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help=(
+                'Run even if categories already exist. '
+                'WARNING: updates names/icons/colors but NEVER touches is_active of existing records.'
+            ),
+        )
 
     def handle(self, *args, **options):
         update_icons = options['update_icons']
+        force = options['force']
+
+        # Safety guard: skip if data already exists and --force is not given.
+        # This prevents accidentally overwriting production admin changes on every deploy.
+        if not force and Category.objects.exists():
+            self.stdout.write(
+                self.style.WARNING(
+                    "Categories already exist. Skipping seed to protect production data.\n"
+                    "Use --force to seed anyway (does NOT restore archived categories)."
+                )
+            )
+            return
+
 
         categories_data = [
             {
@@ -359,18 +384,22 @@ class Command(BaseCommand):
         with transaction.atomic():
             self.stdout.write("Seeding categories...")
             for cat_data in categories_data:
+                existing_cat = Category.objects.filter(code=cat_data["code"]).first()
+
                 defaults = {
                     "name": cat_data["name"],
                     "name_az": cat_data["name_az"],
                     "name_ru": cat_data["name_ru"],
                     "name_en": cat_data["name_en"],
-                    "is_active": cat_data.get("is_active", True),
                     "order": cat_data["order"],
                 }
-                
-                existing_cat = Category.objects.filter(code=cat_data["code"]).first()
+
+                # CRITICAL: Never overwrite is_active of an existing category.
+                # Admin changes (archive/restore) must be preserved across deploys.
+                if not existing_cat:
+                    defaults["is_active"] = cat_data.get("is_active", True)
+
                 should_update_icon = False
-                
                 if not existing_cat:
                     should_update_icon = True
                 elif update_icons:
@@ -410,17 +439,23 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.ERROR(f"  Category '{sub_data['cat']}' not found for subcategory '{sub_data['code']}'"))
                     continue
 
+                existing_sub = Subcategory.objects.filter(code=sub_data["code"]).first()
+
+                sub_defaults = {
+                    "category": category,
+                    "name": sub_data["ru"],
+                    "name_az": sub_data["az"],
+                    "name_ru": sub_data["ru"],
+                    "name_en": sub_data["en"],
+                    "order": sub_data["order"],
+                }
+                # CRITICAL: Never overwrite is_active of an existing subcategory.
+                if not existing_sub:
+                    sub_defaults["is_active"] = sub_data.get("is_active", True)
+
                 subcategory, created = Subcategory.objects.update_or_create(
                     code=sub_data["code"],
-                    defaults={
-                        "category": category,
-                        "name": sub_data["ru"],
-                        "name_az": sub_data["az"],
-                        "name_ru": sub_data["ru"],
-                        "name_en": sub_data["en"],
-                        "is_active": sub_data.get("is_active", True),
-                        "order": sub_data["order"],
-                    }
+                    defaults=sub_defaults,
                 )
                 action = "Created" if created else "Updated"
                 self.stdout.write(f"  [{action}] Subcategory: {subcategory.code} - {subcategory.name}")

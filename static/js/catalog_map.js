@@ -581,8 +581,27 @@
     state.projectionHelper.setMap(state.googleMap);
 
     const activeMarkers = [];
+    // Track coordinate pairs to detect duplicates and jitter them slightly
+    const coordCount = {};
     state.places.forEach(function (place) {
-      const position = { lat: place.lat, lng: place.lng };
+      const key = place.lat + ',' + place.lng;
+      coordCount[key] = (coordCount[key] || 0) + 1;
+    });
+    const coordIndex = {};
+    state.places.forEach(function (place) {
+      const key = place.lat + ',' + place.lng;
+      const total = coordCount[key];
+      const idx = coordIndex[key] = (coordIndex[key] || 0);
+      coordIndex[key]++;
+      // If multiple places share exact coordinates, spiral them slightly apart
+      var jitterLat = 0, jitterLng = 0;
+      if (total > 1 && idx > 0) {
+        var angle = (idx / total) * 2 * Math.PI;
+        var radius = 0.00005 * Math.ceil(idx / 8);
+        jitterLat = radius * Math.cos(angle);
+        jitterLng = radius * Math.sin(angle) * 1.5;
+      }
+      const position = { lat: place.lat + jitterLat, lng: place.lng + jitterLng };
       const marker = new google.maps.Marker({
         position: position,
         title: place.name || "",
@@ -622,9 +641,13 @@
     });
 
     if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
+      var clusterAlgorithm = (window.markerClusterer.SuperClusterAlgorithm)
+        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 17, radius: 80 })
+        : undefined;
       state.markerCluster = new window.markerClusterer.MarkerClusterer({
         map: state.googleMap,
         markers: activeMarkers,
+        algorithm: clusterAlgorithm,
         renderer: {
           render: function (cluster, stats, mapInstance) {
             const count = cluster.count;
