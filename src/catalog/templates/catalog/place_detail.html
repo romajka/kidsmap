@@ -874,8 +874,10 @@
       function kidsMapInitDetailMap() {
         const mapEl = document.getElementById('detail-map');
         if (!mapEl) return;
-        const lat = parseFloat(mapEl.getAttribute('data-lat'));
-        const lng = parseFloat(mapEl.getAttribute('data-lng'));
+        const latStr = mapEl.getAttribute('data-lat') || '';
+        const lngStr = mapEl.getAttribute('data-lng') || '';
+        const lat = parseFloat(latStr.replace(',', '.'));
+        const lng = parseFloat(lngStr.replace(',', '.'));
         if (isNaN(lat) || isNaN(lng)) return;
 
         const colorText = mapEl.getAttribute('data-category-color-text') || '#087443';
