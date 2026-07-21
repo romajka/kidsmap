@@ -755,6 +755,7 @@ class PlaceController:
         return {
             "place": place,
             "language": request.LANGUAGE_CODE,
+            "google_maps_api_key": getattr(settings, "GOOGLE_MAPS_API_KEY", ""),
             "seo_title": seo_payload["title"],
             "meta_description": seo_payload["description"][:160],
             "seo_image_url": seo_payload["first_image_url"],

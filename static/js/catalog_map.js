@@ -797,12 +797,34 @@
       }
     });
     state.leafletMap.addLayer(state.markerClusterGroup);
-    state.markerClusterGroup.on("clusterclick", function (event) {
-      state.leafletMap.flyToBounds(event.layer.getBounds(), {
-        padding: [24, 24],
-        duration: 0.35,
-      });
-    });
+    function handleCatalogClusterClick(event) {
+      const childMarkers = event.layer.getAllChildMarkers();
+
+      let allSameCoords = true;
+      if (childMarkers.length > 0) {
+        const firstLatLng = childMarkers[0].getLatLng();
+        for (let i = 1; i < childMarkers.length; i++) {
+          const latLng = childMarkers[i].getLatLng();
+          if (latLng.lat !== firstLatLng.lat || latLng.lng !== firstLatLng.lng) {
+            allSameCoords = false;
+            break;
+          }
+        }
+      }
+
+      if (allSameCoords && childMarkers.length > 0) {
+        state.leafletMap.setView(childMarkers[0].getLatLng(), 18, { animate: true });
+        event.layer.spiderfy();
+      } else {
+        state.leafletMap.fitBounds(event.layer.getBounds(), {
+          padding: [24, 24],
+          animate: true,
+          duration: 0.35
+        });
+      }
+    }
+
+    state.markerClusterGroup.on("clusterclick", handleCatalogClusterClick);
 
     const layersToAdd = [];
     state.places.forEach(function (place) {

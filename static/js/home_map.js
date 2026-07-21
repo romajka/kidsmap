@@ -812,14 +812,35 @@
     });
     map.addLayer(markerClusterGroup);
 
-    // Mark as user-interacted on cluster click so our fitBounds doesn't fire
-    markerClusterGroup.on("clusterclick", function (event) {
+    function handleHomeClusterClick(event) {
       userInteracted = true;
-      map.flyToBounds(event.layer.getBounds(), {
-        padding: [40, 40],
-        duration: 0.45,
-      });
-    });
+      const childMarkers = event.layer.getAllChildMarkers();
+
+      let allSameCoords = true;
+      if (childMarkers.length > 0) {
+        const firstLatLng = childMarkers[0].getLatLng();
+        for (let i = 1; i < childMarkers.length; i++) {
+          const latLng = childMarkers[i].getLatLng();
+          if (latLng.lat !== firstLatLng.lat || latLng.lng !== firstLatLng.lng) {
+            allSameCoords = false;
+            break;
+          }
+        }
+      }
+
+      if (allSameCoords && childMarkers.length > 0) {
+        map.setView(childMarkers[0].getLatLng(), 18, { animate: true });
+        event.layer.spiderfy();
+      } else {
+        map.fitBounds(event.layer.getBounds(), {
+          padding: [40, 40],
+          animate: true,
+          duration: 0.45
+        });
+      }
+    }
+
+    markerClusterGroup.on("clusterclick", handleHomeClusterClick);
 
     // ── Interaction tracking ────────────────────────────────────────────────
     // userInteracted: true after any user gesture — prevents auto fitBounds
@@ -897,6 +918,9 @@
         markerClusterGroup.addLayers(layersToAdd);
         markerClusterGroup.refreshClusters();
       }
+
+      markerClusterGroup.off("clusterclick", handleHomeClusterClick);
+      markerClusterGroup.on("clusterclick", handleHomeClusterClick);
 
       // No results
       if (!visibleItems.length) {
