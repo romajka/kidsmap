@@ -129,7 +129,10 @@ class Command(BaseCommand):
             for token in ("aaa", "aaaa", "aaaaa", "test", "lorem", "123456", "qwerty"):
                 junk_q |= Q(text__icontains=token) | Q(author_name__icontains=token)
             candidate_qs = candidate_qs.exclude(junk_q)
+            place_ids = list(candidate_qs.values_list("place_id", flat=True).distinct())
             fixed = candidate_qs.update(status="approved", is_approved=True)
+            from catalog.models.review import sync_place_rating_stats
+            sync_place_rating_stats(place_ids)
             self.stdout.write(self.style.SUCCESS(f"  Fixed {fixed} PlaceReview(s): status set to 'approved'."))
 
     def _diagnose_site_reviews(self, *, fix: bool):

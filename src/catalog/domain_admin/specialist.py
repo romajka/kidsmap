@@ -563,6 +563,7 @@ class SpecialistReviewAdmin(admin.ModelAdmin):
     list_filter = ("status", "is_approved", "rating", "created_at")
     search_fields = ("specialist__name", "author_name", "text")
     readonly_fields = ("created_at",)
+    actions = ["approve_selected", "hide_selected", "reject_selected"]
     fieldsets = (
         (
             _("Отзыв"),
@@ -588,3 +589,46 @@ class SpecialistReviewAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    @admin.action(description=_("Опубликовать выбранные отзывы"))
+    def approve_selected(self, request, queryset):
+        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
+        updated_count = queryset.exclude(is_approved=True, status=SpecialistReview.STATUS_APPROVED).update(
+            is_approved=True, status=SpecialistReview.STATUS_APPROVED
+        )
+        from catalog.models.specialist import sync_specialist_rating_stats
+        sync_specialist_rating_stats(specialist_ids)
+        self.message_user(
+            request,
+            ngettext("Опубликован %(count)d отзыв.", "Опубликовано %(count)d отзыва.", updated_count) % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Скрыть выбранные отзывы"))
+    def hide_selected(self, request, queryset):
+        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
+        updated_count = queryset.exclude(is_approved=False, status=SpecialistReview.STATUS_PENDING).update(
+            is_approved=False, status=SpecialistReview.STATUS_PENDING
+        )
+        from catalog.models.specialist import sync_specialist_rating_stats
+        sync_specialist_rating_stats(specialist_ids)
+        self.message_user(
+            request,
+            ngettext("Скрыт %(count)d отзыв.", "Скрыто %(count)d отзыва.", updated_count) % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Отклонить выбранные отзывы"))
+    def reject_selected(self, request, queryset):
+        specialist_ids = list(queryset.values_list("specialist_id", flat=True).distinct())
+        updated_count = queryset.exclude(is_approved=False, status=SpecialistReview.STATUS_REJECTED).update(
+            is_approved=False, status=SpecialistReview.STATUS_REJECTED
+        )
+        from catalog.models.specialist import sync_specialist_rating_stats
+        sync_specialist_rating_stats(specialist_ids)
+        self.message_user(
+            request,
+            ngettext("Отклонён %(count)d отзыв.", "Отклонено %(count)d отзыва.", updated_count) % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+

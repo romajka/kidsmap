@@ -512,12 +512,9 @@ class Place(models.Model):
         super().save(*args, **kwargs)
 
     def refresh_rating_stats(self):
-        # We import PlaceReview inside to prevent circular dependency if Review is moved to review.py
-        # Actually PlaceReview is now in review.py. We need to be careful.
-        # But `self.reviews.filter(...)` works perfectly because of related_name!
-        from .review import PlaceReview
-        stats = self.reviews.filter(is_approved=True, status=PlaceReview.STATUS_APPROVED).aggregate(avg=Avg("rating"), cnt=Count("id"))
-        self.rating_avg = float(stats.get("avg") or 0)
+        from catalog.services.content_quality import public_review_queryset
+        stats = public_review_queryset(self.reviews.all()).aggregate(avg=Avg("rating"), cnt=Count("id"))
+        self.rating_avg = float(stats.get("avg") or 0.0)
         self.rating_count = int(stats.get("cnt") or 0)
         self.save(update_fields=["rating_avg", "rating_count"])
 

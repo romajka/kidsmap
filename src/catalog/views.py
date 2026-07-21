@@ -1806,6 +1806,9 @@ def specialist_detail(request, slug):
     )
 
     reviews = specialist.reviews.filter(status=SpecialistReview.STATUS_APPROVED).order_by("-created_at")
+    reviews_count = reviews.count()
+    if specialist.rating_count != reviews_count:
+        specialist.refresh_rating_stats()
 
     visible_documents = specialist.documents.filter(
         document_type__in=["diploma", "certificate"],
@@ -1892,8 +1895,8 @@ def add_specialist_review(request, pk):
         "rating": rating,
         "text": moderated.text,
         "author_name": moderated.author_name,
-        "status": SpecialistReview.STATUS_PENDING,
-        "is_approved": False,
+        "status": SpecialistReview.STATUS_APPROVED,
+        "is_approved": True,
         "rejection_reason": "",
     }
 
@@ -1903,7 +1906,7 @@ def add_specialist_review(request, pk):
         defaults=defaults
     )
 
-    message = _("Отзыв отправлен на модерацию.")
+    message = _("Спасибо за отзыв! Он опубликован.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 

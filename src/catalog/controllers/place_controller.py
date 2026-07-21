@@ -751,6 +751,8 @@ class PlaceController:
         review_sort = normalize_review_sort(request.GET.get("review_sort"))
         place_reviews_qs = apply_review_sorting(public_review_queryset(place.reviews.all()), review_sort)
         place_reviews = mark_place_review_reactions(place_reviews_qs, request)
+        if place.rating_count != len(place_reviews):
+            place.refresh_rating_stats()
 
         return {
             "place": place,

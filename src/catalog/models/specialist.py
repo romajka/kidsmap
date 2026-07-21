@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
@@ -467,3 +469,25 @@ class SpecialistReview(models.Model):
         specialist = self.specialist
         super().delete(*args, **kwargs)
         specialist.refresh_rating_stats()
+
+
+def sync_specialist_rating_stats(specialist_ids):
+    """Recalculate rating_avg and rating_count for a list of Specialist IDs."""
+    ids = {sid for sid in specialist_ids if sid}
+    if not ids:
+        return
+    for specialist in Specialist.objects.filter(pk__in=ids):
+        specialist.refresh_rating_stats()
+
+
+@receiver(post_save, sender=SpecialistReview)
+def _on_specialist_review_saved(sender, instance, **kwargs):
+    if instance.specialist_id:
+        instance.specialist.refresh_rating_stats()
+
+
+@receiver(post_delete, sender=SpecialistReview)
+def _on_specialist_review_deleted(sender, instance, **kwargs):
+    if instance.specialist_id:
+        instance.specialist.refresh_rating_stats()
+

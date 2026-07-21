@@ -92,6 +92,7 @@ class PlaceReview(models.Model):
         super().delete(*args, **kwargs)
         place.refresh_rating_stats()
 
+
     @property
     def author_name_i18n(self) -> str:
         return self.author_name or str(_("Гость"))
@@ -99,6 +100,27 @@ class PlaceReview(models.Model):
     @property
     def text_i18n(self) -> str:
         return self.text or ""
+
+
+def sync_place_rating_stats(place_ids):
+    """Recalculate rating_avg and rating_count for a list of Place IDs."""
+    ids = {pid for pid in place_ids if pid}
+    if not ids:
+        return
+    for place in Place.objects.filter(pk__in=ids):
+        place.refresh_rating_stats()
+
+
+@receiver(post_save, sender=PlaceReview)
+def _on_place_review_saved(sender, instance, **kwargs):
+    if instance.place_id:
+        instance.place.refresh_rating_stats()
+
+
+@receiver(post_delete, sender=PlaceReview)
+def _on_place_review_deleted(sender, instance, **kwargs):
+    if instance.place_id:
+        instance.place.refresh_rating_stats()
 
 
 

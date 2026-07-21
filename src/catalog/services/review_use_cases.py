@@ -114,12 +114,12 @@ def submit_place_review(*, request, place, require_auth: bool) -> ReviewSubmissi
         is_anonymous=False,
         contains_profanity=moderated.contains_profanity,
     )
-    review_obj.status = PlaceReview.STATUS_PENDING
-    review_obj.is_approved = False
+    review_obj.status = PlaceReview.STATUS_APPROVED
+    review_obj.is_approved = True
     review_obj.rejection_reason = ""
     review_obj.save(update_fields=["status", "is_approved", "rejection_reason", "updated_at"])
 
-    message = _("Отзыв отправлен на модерацию.")
+    message = _("Спасибо за отзыв! Он опубликован.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 
@@ -151,8 +151,8 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
         "author_name": moderated.author_name,
         "is_anonymous": False,
         "contains_profanity": moderated.contains_profanity,
-        "is_approved": False,
-        "status": SiteReview.STATUS_PENDING,
+        "is_approved": True,
+        "status": SiteReview.STATUS_APPROVED,
         "rejection_reason": "",
         "session_key": session_key,
     }
@@ -169,7 +169,7 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
             defaults=defaults,
         )
 
-    message = _("Отзыв отправлен на модерацию.")
+    message = _("Спасибо за отзыв! Он опубликован.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 

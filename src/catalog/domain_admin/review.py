@@ -590,7 +590,10 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Опубликовать выбранные отзывы"))
     def approve_selected(self, request, queryset):
+        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
         updated_count = queryset.exclude(is_approved=True, status=PlaceReview.STATUS_APPROVED).update(is_approved=True, status=PlaceReview.STATUS_APPROVED, updated_at=timezone.now())
+        from catalog.models.review import sync_place_rating_stats
+        sync_place_rating_stats(place_ids)
         self.message_user(
             request,
             ngettext("Опубликован %(count)d отзыв.", "Опубликовано %(count)d отзыва.", updated_count) % {"count": updated_count},
@@ -599,7 +602,10 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Скрыть выбранные отзывы"))
     def hide_selected(self, request, queryset):
+        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
         updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_PENDING).update(is_approved=False, status=PlaceReview.STATUS_PENDING, updated_at=timezone.now())
+        from catalog.models.review import sync_place_rating_stats
+        sync_place_rating_stats(place_ids)
         self.message_user(
             request,
             ngettext("Скрыт %(count)d отзыв.", "Скрыто %(count)d отзыва.", updated_count) % {"count": updated_count},
@@ -608,7 +614,10 @@ class PlaceReviewAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Отклонить выбранные отзывы"))
     def reject_selected(self, request, queryset):
+        place_ids = list(queryset.values_list("place_id", flat=True).distinct())
         updated_count = queryset.exclude(is_approved=False, status=PlaceReview.STATUS_REJECTED).update(is_approved=False, status=PlaceReview.STATUS_REJECTED, updated_at=timezone.now())
+        from catalog.models.review import sync_place_rating_stats
+        sync_place_rating_stats(place_ids)
         self.message_user(
             request,
             ngettext("Отклонён %(count)d отзыв.", "Отклонено %(count)d отзыва.", updated_count) % {"count": updated_count},

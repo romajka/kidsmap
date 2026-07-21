@@ -2571,5 +2571,78 @@ class TestAdminSpecialistChangeList(TestCase):
 
         self.assertEqual(response.status_code, 200)
         specialist.refresh_from_db()
+        specialist.refresh_from_db()
         self.assertEqual(specialist.status, Specialist.STATUS_PUBLISHED)
         self.assertTrue(specialist.is_active)
+
+
+class TestReviewRatingSyncAndAdminBulkActions(TestCase):
+    def setUp(self):
+        from catalog.models.review import PlaceReview
+        from catalog.models.specialist import Specialist, SpecialistReview
+        self.admin = User.objects.create_superuser("admin_reviewsync", "admin_rs@example.com", "pass")
+        self.client.force_login(self.admin)
+        self.place = create_quality_place(name="Rating sync test place")
+        self.specialist = Specialist.objects.create(
+            name="Rating sync specialist",
+            slug="rating-sync-spec",
+            status=Specialist.STATUS_PUBLISHED,
+            is_active=True,
+        )
+
+    def test_place_review_bulk_approve_updates_place_rating_stats(self):
+        from catalog.models.review import PlaceReview
+        review1 = PlaceReview.objects.create(place=self.place, rating=5, text="Great place!", status=PlaceReview.STATUS_PENDING, is_approved=False)
+        review2 = PlaceReview.objects.create(place=self.place, rating=4, text="Good place!", status=PlaceReview.STATUS_PENDING, is_approved=False)
+        
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.rating_count, 0)
+        self.assertEqual(self.place.rating_avg, 0.0)
+
+        response = self.client.post(
+            reverse("admin:catalog_placereview_changelist"),
+            {"action": "approve_selected", "_selected_action": [str(review1.pk), str(review2.pk)], "index": "0"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.rating_count, 2)
+        self.assertEqual(self.place.rating_avg, 4.5)
+
+    def test_specialist_review_bulk_approve_updates_specialist_rating_stats(self):
+        from catalog.models.specialist import SpecialistReview
+        review = SpecialistReview.objects.create(
+            specialist=self.specialist,
+            author_name="Test Author",
+            rating=5,
+            text="Awesome specialist!",
+            status=SpecialistReview.STATUS_PENDING,
+            is_approved=False,
+        )
+        self.specialist.refresh_from_db()
+        self.assertEqual(self.specialist.rating_count, 0)
+
+        response = self.client.post(
+            reverse("admin:catalog_specialistreview_changelist"),
+            {"action": "approve_selected", "_selected_action": [str(review.pk)], "index": "0"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.specialist.refresh_from_db()
+        self.assertEqual(self.specialist.rating_count, 1)
+        self.assertEqual(self.specialist.rating_avg, 5.0)
+
+    def test_place_detail_self_heals_out_of_sync_rating_stats(self):
+        from catalog.models.review import PlaceReview
+        review = PlaceReview.objects.create(place=self.place, rating=5, text="Direct approved text", status=PlaceReview.STATUS_APPROVED, is_approved=True)
+        # Manually force database out of sync to test self-healing
+        self.place.__class__.objects.filter(pk=self.place.pk).update(rating_count=0, rating_avg=0.0)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.rating_count, 0)
+
+        response = self.client.get(self.place.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.rating_count, 1)
+        self.assertEqual(self.place.rating_avg, 5.0)
+
