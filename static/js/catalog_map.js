@@ -640,21 +640,6 @@
               zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
             });
           }
-        },
-        onClusterClick: function (event, cluster, mapInstance) {
-          const bounds = new google.maps.LatLngBounds();
-          const markers = cluster.markers || (cluster.getMarkers ? cluster.getMarkers() : []);
-          if (markers && markers.length > 0) {
-            markers.forEach(function (m) {
-              bounds.extend(m.getPosition());
-            });
-            if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
-              mapInstance.setCenter(bounds.getCenter());
-              mapInstance.setZoom(16);
-            } else {
-              mapInstance.fitBounds(bounds, 80);
-            }
-          }
         }
       });
     } else {
