@@ -40,7 +40,7 @@ class HomeController:
         content_settings = self.settings_repository.get_catalog_settings()
         site_settings = self.settings_repository.get_site_settings()
 
-        popular_places = list(self.place_repository.top_popular(limit=3))
+        popular_places = list(self.place_repository.top_popular(limit=4))
         mark_liked_flags(popular_places, liked_ids)
         upcoming_events = []
         if is_events_section_enabled():

@@ -3,23 +3,13 @@
   const DEFAULT_ZOOM = 11;
   const BRAND_MARKER_COLOR = "#136f38";
   const BRAND_MARKER_INNER_COLOR = "#a8d59b";
-  const LEAFLET_DEFAULTS = {
-    cssHref: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
-    cssIntegrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=",
-    jsHref: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-    jsIntegrity: "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",
-  };
-
   const SCRIPT_CONFIG = (function () {
     const scriptEl = document.currentScript;
     if (!scriptEl) return {};
 
     return {
       googleMapsApiKey: (scriptEl.dataset.homeMapGoogleKey || "").trim(),
-      leafletCssHref: (scriptEl.dataset.homeMapLeafletCss || LEAFLET_DEFAULTS.cssHref).trim(),
-      leafletCssIntegrity: (scriptEl.dataset.homeMapLeafletCssIntegrity || LEAFLET_DEFAULTS.cssIntegrity).trim(),
-      leafletJsHref: (scriptEl.dataset.homeMapLeafletJs || LEAFLET_DEFAULTS.jsHref).trim(),
-      leafletJsIntegrity: (scriptEl.dataset.homeMapLeafletJsIntegrity || LEAFLET_DEFAULTS.jsIntegrity).trim(),
+      unavailableLabel: (scriptEl.dataset.homeMapUnavailableLabel || "Map is temporarily unavailable.").trim(),
     };
   })();
 
@@ -238,65 +228,65 @@
 
     const imageHtml = place.image_url
       ? '<a class="home-map-popup-thumb-link" href="' +
-        escapeHtml(place.url || "") +
-        '">' +
-        '<img class="home-map-popup-thumb" src="' +
-        escapeHtml(place.image_url) +
-        '" alt="' +
-        escapeHtml(place.name || "") +
-        '" loading="lazy" decoding="async" />' +
-        '<div class="home-map-popup-badges">' +
-        (categoryName
-          ? '<span class="home-map-popup-badge-cat" style="color: ' +
-            escapeHtml(categoryColor) +
-            ';">' +
-            escapeHtml(categoryName) +
-            "</span>"
-          : "") +
-        (ageBadgeText ? '<span class="home-map-popup-badge-age">' + escapeHtml(ageBadgeText) + "</span>" : "") +
-        "</div>" +
-        "</a>"
+      escapeHtml(place.url || "") +
+      '">' +
+      '<img class="home-map-popup-thumb" src="' +
+      escapeHtml(place.image_url) +
+      '" alt="' +
+      escapeHtml(place.name || "") +
+      '" loading="lazy" decoding="async" />' +
+      '<div class="home-map-popup-badges">' +
+      (categoryName
+        ? '<span class="home-map-popup-badge-cat" style="color: ' +
+        escapeHtml(categoryColor) +
+        ';">' +
+        escapeHtml(categoryName) +
+        "</span>"
+        : "") +
+      (ageBadgeText ? '<span class="home-map-popup-badge-age">' + escapeHtml(ageBadgeText) + "</span>" : "") +
+      "</div>" +
+      "</a>"
       : '<div class="home-map-popup-no-thumb-header">' +
-        '<div class="home-map-popup-badges home-map-popup-badges-standalone">' +
-        (categoryName
-          ? '<span class="home-map-popup-badge-cat" style="color: ' +
-            escapeHtml(categoryColor) +
-            ';">' +
-            escapeHtml(categoryName) +
-            "</span>"
-          : "") +
-        (ageBadgeText ? '<span class="home-map-popup-badge-age">' + escapeHtml(ageBadgeText) + "</span>" : "") +
-        "</div>" +
-        "</div>";
+      '<div class="home-map-popup-badges home-map-popup-badges-standalone">' +
+      (categoryName
+        ? '<span class="home-map-popup-badge-cat" style="color: ' +
+        escapeHtml(categoryColor) +
+        ';">' +
+        escapeHtml(categoryName) +
+        "</span>"
+        : "") +
+      (ageBadgeText ? '<span class="home-map-popup-badge-age">' + escapeHtml(ageBadgeText) + "</span>" : "") +
+      "</div>" +
+      "</div>";
 
     const displayAddress = place.address || place.district_label || place.district || "";
     const addressHtml = displayAddress
       ? '<div class="home-map-popup-info-row">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>' +
-        '<span class="home-map-popup-info-text">' +
-        escapeHtml(displayAddress) +
-        "</span>" +
-        "</div>"
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>' +
+      '<span class="home-map-popup-info-text">' +
+      escapeHtml(displayAddress) +
+      "</span>" +
+      "</div>"
       : "";
 
     const scheduleHtml = place.schedule
       ? '<div class="home-map-popup-info-row">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 16 14"></polyline></svg>' +
-        '<span class="home-map-popup-info-text">' +
-        escapeHtml(place.schedule) +
-        "</span>" +
-        "</div>"
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 16 14"></polyline></svg>' +
+      '<span class="home-map-popup-info-text">' +
+      escapeHtml(place.schedule) +
+      "</span>" +
+      "</div>"
       : "";
 
     const phoneHtml = place.phone
       ? '<div class="home-map-popup-info-row">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>' +
-        '<a href="tel:' +
-        escapeHtml(place.phone) +
-        '" class="home-map-popup-phone-link">' +
-        escapeHtml(place.phone) +
-        "</a>" +
-        "</div>"
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="popup-info-icon"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>' +
+      '<a href="tel:' +
+      escapeHtml(place.phone) +
+      '" class="home-map-popup-phone-link">' +
+      escapeHtml(place.phone) +
+      "</a>" +
+      "</div>"
       : "";
 
     return (
@@ -384,6 +374,23 @@
       '</svg>';
   }
 
+  function expandGoogleCluster(event, cluster, map) {
+    if (!cluster || !cluster.bounds || !map) return;
+
+    const currentZoom = map.getZoom() || DEFAULT_ZOOM;
+    map.fitBounds(cluster.bounds, { top: 48, right: 48, bottom: 48, left: 48 });
+
+    google.maps.event.addListenerOnce(map, "idle", function () {
+      const zoomAfterFit = map.getZoom() || currentZoom;
+      // A cluster with very close points can have nearly identical bounds. In
+      // that case fitBounds does not visibly advance, so force the next useful
+      // zoom level until individual markers are revealed.
+      if (zoomAfterFit <= currentZoom && currentZoom < 18) {
+        map.setZoom(Math.min(18, currentZoom + 2));
+      }
+    });
+  }
+
   function renderFallback(mapEl, mapNoteEl) {
     if (!mapEl) return;
 
@@ -397,6 +404,12 @@
       '<iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Baku%2C%20Azerbaijan&z=11&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="' +
       escapeHtml(title) +
       '"></iframe>';
+  }
+
+  function renderMapUnavailable(mapEl, mapNoteEl) {
+    if (!mapEl) return;
+    mapEl.innerHTML = '<div class="home-map-empty"><p>' + escapeHtml(SCRIPT_CONFIG.unavailableLabel) + "</p></div>";
+    setMapNote(mapNoteEl, "", true);
   }
 
   function loadStylesheet(href, integrity) {
@@ -612,7 +625,9 @@
     let markerCluster = null;
     if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
       var clusterAlgorithm = (window.markerClusterer.SuperClusterAlgorithm)
-        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 17, radius: 80 })
+        // Keep a single nearby pin out of the visual footprint of a cluster.
+        // 100 px also prevents a count badge from covering a neighbouring pin.
+        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 18, radius: 100 })
         : undefined;
       markerCluster = new window.markerClusterer.MarkerClusterer({
         map: map,
@@ -633,7 +648,8 @@
               zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
             });
           }
-        }
+        },
+        onClusterClick: expandGoogleCluster,
       });
     }
 
@@ -659,7 +675,9 @@
       var jitterLat = 0, jitterLng = 0;
       if (total > 1 && idx > 0) {
         var angle = (idx / total) * 2 * Math.PI;
-        var radius = 0.00005 * Math.ceil(idx / 8);
+        // ~13 m base separation: enough to make overlapping places clickable
+        // after a cluster opens, while keeping the pin on the same venue.
+        var radius = 0.00012 * Math.ceil(idx / 6);
         jitterLat = radius * Math.cos(angle);
         jitterLng = radius * Math.sin(angle) * 1.5;
       }
@@ -817,7 +835,7 @@
   function allInBaku(items) {
     return items.every(function (item) {
       return item.place.lat >= BAKU_LAT_MIN && item.place.lat <= BAKU_LAT_MAX &&
-             item.place.lng >= BAKU_LNG_MIN && item.place.lng <= BAKU_LNG_MAX;
+        item.place.lng >= BAKU_LNG_MIN && item.place.lng <= BAKU_LNG_MAX;
     });
   }
 
@@ -1066,9 +1084,7 @@
     if (!sharedState) return;
 
     function tryMount() {
-      if (mountGoogleMap(sharedState)) return true;
-      if (mountLeafletMap(sharedState)) return true;
-      return false;
+      return mountGoogleMap(sharedState);
     }
 
     function loadGoogleProvider() {
@@ -1093,25 +1109,6 @@
       return loadScript(src);
     }
 
-    function loadLeafletProvider() {
-      const clusterCssHref = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css";
-      const clusterDefaultCssHref = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css";
-      const clusterJsHref = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js";
-
-      return loadStylesheet(SCRIPT_CONFIG.leafletCssHref, SCRIPT_CONFIG.leafletCssIntegrity).then(function () {
-        return loadScript(SCRIPT_CONFIG.leafletJsHref, SCRIPT_CONFIG.leafletJsIntegrity);
-      }).then(function () {
-        return Promise.all([
-          loadStylesheet(clusterCssHref),
-          loadStylesheet(clusterDefaultCssHref),
-        ]);
-      }).then(function () {
-        return loadScript(clusterJsHref);
-      }).then(function () {
-        tryMount();
-      });
-    }
-
     let loadStarted = false;
     let fallbackTimer = null;
 
@@ -1127,21 +1124,19 @@
 
       fallbackTimer = window.setTimeout(function () {
         if (mapEl.dataset.mapInitialized !== "1") {
-          renderFallback(mapEl, mapNoteEl);
+          renderMapUnavailable(mapEl, mapNoteEl);
         }
       }, 5000);
 
-      if (SCRIPT_CONFIG.googleMapsApiKey) {
-        loadGoogleProvider().catch(function () {
-          clearFallbackTimer();
-          renderFallback(mapEl, mapNoteEl);
-        });
+      if (!SCRIPT_CONFIG.googleMapsApiKey) {
+        clearFallbackTimer();
+        renderMapUnavailable(mapEl, mapNoteEl);
         return;
       }
 
-      loadLeafletProvider().catch(function () {
+      loadGoogleProvider().catch(function () {
         clearFallbackTimer();
-        renderFallback(mapEl, mapNoteEl);
+        renderMapUnavailable(mapEl, mapNoteEl);
       });
     }
 

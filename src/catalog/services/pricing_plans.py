@@ -174,6 +174,7 @@ LOCALIZED_STRINGS = {
     "az": {
         "title": "Qiymət və dərslər",
         "subtitle": "Format, tezlik və ödəniş variantları",
+        "price_label": "Qiymət",
         "from": "",
         "suffix_den": "dən",
         "per_lesson_under": "bir dərs üçün",
@@ -204,6 +205,7 @@ LOCALIZED_STRINGS = {
     "ru": {
         "title": "Цена и занятия",
         "subtitle": "Формат, частота и варианты оплаты",
+        "price_label": "Цена",
         "from": "от",
         "suffix_den": "",
         "per_lesson_under": "за занятие",
@@ -234,6 +236,7 @@ LOCALIZED_STRINGS = {
     "en": {
         "title": "Price and classes",
         "subtitle": "Format, frequency and payment options",
+        "price_label": "Price",
         "from": "from",
         "suffix_den": "",
         "per_lesson_under": "per lesson",
@@ -275,38 +278,38 @@ def build_compact_schedule_rows(place, lang="ru"):
     if not has_structured:
         txt = (place.schedule or "").strip()
         if txt:
-            return [{"days": "", "time": txt}]
+            return [{"days": "", "time": txt, "is_closed": False}]
         return []
         
-    az_short_days = {
-        "mon": "B.e.",
-        "tue": "Ç.a.",
-        "wed": "Çə.",
-        "thu": "C.a.",
-        "fri": "Cə.",
-        "sat": "Şə.",
-        "sun": "B.",
+    az_day_labels = {
+        "mon": "Bazar ertəsi",
+        "tue": "Çərşənbə axşamı",
+        "wed": "Çərşənbə",
+        "thu": "Cümə axşamı",
+        "fri": "Cümə",
+        "sat": "Şənbə",
+        "sun": "Bazar",
     }
-    ru_short_days = {
-        "mon": "Пн",
-        "tue": "Вт",
-        "wed": "Ср",
-        "thu": "Чт",
-        "fri": "Пт",
-        "sat": "Сб",
-        "sun": "Вс",
+    ru_day_labels = {
+        "mon": "Понедельник",
+        "tue": "Вторник",
+        "wed": "Среда",
+        "thu": "Четверг",
+        "fri": "Пятница",
+        "sat": "Суббота",
+        "sun": "Воскресенье",
     }
-    en_short_days = {
-        "mon": "Mon",
-        "tue": "Tue",
-        "wed": "Wed",
-        "thu": "Thu",
-        "fri": "Fri",
-        "sat": "Sat",
-        "sun": "Sun",
+    en_day_labels = {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday",
     }
     
-    day_labels = az_short_days if lang == "az" else (en_short_days if lang == "en" else ru_short_days)
+    day_labels = az_day_labels if lang == "az" else (en_day_labels if lang == "en" else ru_day_labels)
     
     groups = []
     current_group = []
@@ -341,7 +344,7 @@ def build_compact_schedule_rows(place, lang="ru"):
         else:
             time_str = ", ".join(f"{interval['start']}–{interval['end']}" for interval in g[0]["intervals"])
             
-        rows.append({"days": days_str, "time": time_str})
+        rows.append({"days": days_str, "time": time_str, "is_closed": g[0]["is_closed"]})
         
     return rows
 
@@ -349,17 +352,13 @@ def build_compact_schedule_rows(place, lang="ru"):
 def _format_starting_price(amount, payment_type, lang):
     amount_str = str(int(amount)) if amount.is_integer() else f"{amount:.2f}"
     strings = LOCALIZED_STRINGS.get(lang, LOCALIZED_STRINGS["ru"])
-    unit = strings[payment_type]
-
     if lang == "az":
         amount_display = f"{amount_str} AZN-{strings['suffix_den']}"
-        unit_display = unit
-        full = f"{amount_display} / {unit_display}"
     else:
         amount_display = f"{strings['from']} {amount_str} AZN"
-        unit_display = unit
-        full = f"{amount_display} / {unit_display}"
-    return {"full": full, "amount": amount_display, "unit": unit_display}
+    # The headline is intentionally payment-neutral: the same place can offer
+    # lessons, monthly subscriptions and packages. Exact terms live in tariffs.
+    return {"full": amount_display, "amount": amount_display, "unit": ""}
 
 
 def get_starting_price(place, public_plans, lang):

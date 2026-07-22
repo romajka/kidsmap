@@ -1,8 +1,11 @@
 {% load i18n %}
 
-<article class="review-item">
+<article class="review-item{% if show_place_link and review.place %} place-review-card{% endif %}">
   <div class="review-head">
     <div class="review-head-main">
+      {% if show_place_link and review.place %}
+        <span class="review-author-avatar" aria-hidden="true">{{ review.author_name_i18n|slice:":1"|upper }}</span>
+      {% endif %}
       <strong class="review-author">
         {{ review.author_name_i18n }}
       </strong>
@@ -12,9 +15,17 @@
   </div>
 
   {% if show_place_link and review.place %}
-    <p class="review-place-link">
-      <a href="{{ review.place.get_absolute_url }}">{{ review.place.name_i18n }}</a>
-    </p>
+    <a class="review-place-card" href="{{ review.place.get_absolute_url }}" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Məkan səhifəsini açın: {{ review.place.name_i18n }}{% elif request.LANGUAGE_CODE == 'en' %}Open place page: {{ review.place.name_i18n }}{% else %}Открыть страницу места {{ review.place.name_i18n }}{% endif %}">
+      <span class="review-place-card__icon" aria-hidden="true"></span>
+      <span class="review-place-card__copy">
+        <span class="review-place-card__label">{% if request.LANGUAGE_CODE == 'az' %}Məkan haqqında rəy{% elif request.LANGUAGE_CODE == 'en' %}Place review{% else %}Отзыв о месте{% endif %}</span>
+        <strong>{{ review.place.name_i18n }}</strong>
+        <span class="review-place-card__meta">
+          {% if review.place.category %}{{ review.place.category.name_i18n }}{% endif %}{% if review.place.category and review.place.district %}<span aria-hidden="true">·</span>{% endif %}{% if review.place.district %}{{ review.place.district_i18n }}{% endif %}
+        </span>
+      </span>
+      <span class="review-place-card__action" aria-hidden="true">{% if request.LANGUAGE_CODE == 'az' %}Açın{% elif request.LANGUAGE_CODE == 'en' %}Open{% else %}Открыть{% endif %}<span>→</span></span>
+    </a>
   {% endif %}
 
   {% if review.text %}
@@ -23,12 +34,13 @@
 
   <div class="review-footer">
     {% if review.contains_profanity %}
-      <span class="review-flag">{% trans "Текст отзыва отфильтрован" %}</span>
+      <span class="review-flag">{% if request.LANGUAGE_CODE == 'az' %}Rəy mətni süzgəcdən keçirilib{% elif request.LANGUAGE_CODE == 'en' %}Review text has been filtered{% else %}Текст отзыва отфильтрован{% endif %}</span>
     {% endif %}
 
-    {% if request.user.is_authenticated %}
+  {% if request.user.is_authenticated %}
       <form method="post" action="{% url vote_url_name review.id %}" class="review-reactions-form" data-review-reaction-form>
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url|default:request.path }}">
         <button type="submit" name="value" value="1" class="review-reaction-btn{% if review.current_reaction == 1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == 1 %}true{% else %}false{% endif %}">
           <span class="review-reaction-icon" aria-hidden="true">
             <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
@@ -36,7 +48,7 @@
               <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
             </svg>
           </span>
-          <span class="visually-hidden">{% trans "Лайк" %}</span>
+          <span class="visually-hidden">{% if request.LANGUAGE_CODE == 'az' %}Bəyən{% elif request.LANGUAGE_CODE == 'en' %}Like{% else %}Лайк{% endif %}</span>
           <span class="review-reaction-count" data-review-like-count>{{ review.likes_count }}</span>
         </button>
         <button type="submit" name="value" value="-1" class="review-reaction-btn dislike{% if review.current_reaction == -1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == -1 %}true{% else %}false{% endif %}">
@@ -46,7 +58,7 @@
               <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
             </svg>
           </span>
-          <span class="visually-hidden">{% trans "Дизлайк" %}</span>
+          <span class="visually-hidden">{% if request.LANGUAGE_CODE == 'az' %}Bəyənmə{% elif request.LANGUAGE_CODE == 'en' %}Dislike{% else %}Дизлайк{% endif %}</span>
           <span class="review-reaction-count" data-review-dislike-count>{{ review.dislikes_count }}</span>
         </button>
       </form>
@@ -57,7 +69,7 @@
           class="review-reaction-btn"
           aria-pressed="false"
           data-auth-required-trigger
-          data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
+          data-auth-required-message="{% if request.LANGUAGE_CODE == 'az' %}Bəyənmək və rəy bildirmək üçün daxil olun və ya qeydiyyatdan keçin.{% elif request.LANGUAGE_CODE == 'en' %}To like and leave reviews, please log in or register.{% else %}Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.{% endif %}"
           data-auth-required-url="{% url 'account_login' %}?next={{ next_url|default:request.path|urlencode }}"
         >
           <span class="review-reaction-icon" aria-hidden="true">
@@ -66,7 +78,7 @@
               <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
             </svg>
           </span>
-          <span class="visually-hidden">{% trans "Лайк" %}</span>
+          <span class="visually-hidden">{% if request.LANGUAGE_CODE == 'az' %}Bəyən{% elif request.LANGUAGE_CODE == 'en' %}Like{% else %}Лайк{% endif %}</span>
           <span class="review-reaction-count">{{ review.likes_count }}</span>
         </button>
         <button
@@ -74,7 +86,7 @@
           class="review-reaction-btn dislike"
           aria-pressed="false"
           data-auth-required-trigger
-          data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
+          data-auth-required-message="{% if request.LANGUAGE_CODE == 'az' %}Bəyənmək və rəy bildirmək üçün daxil olun və ya qeydiyyatdan keçin.{% elif request.LANGUAGE_CODE == 'en' %}To like and leave reviews, please log in or register.{% else %}Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.{% endif %}"
           data-auth-required-url="{% url 'account_login' %}?next={{ next_url|default:request.path|urlencode }}"
         >
           <span class="review-reaction-icon" aria-hidden="true">
@@ -83,7 +95,7 @@
               <path d="M4.1 8.1h2.6v7.2H4.1z"></path>
             </svg>
           </span>
-          <span class="visually-hidden">{% trans "Дизлайк" %}</span>
+          <span class="visually-hidden">{% if request.LANGUAGE_CODE == 'az' %}Bəyənmə{% elif request.LANGUAGE_CODE == 'en' %}Dislike{% else %}Дизлайк{% endif %}</span>
           <span class="review-reaction-count">{{ review.dislikes_count }}</span>
         </button>
       </div>

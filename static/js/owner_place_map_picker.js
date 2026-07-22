@@ -435,7 +435,13 @@
       return;
     }
 
-    initLeafletMapPicker(root);
+    const shared = buildSharedState(root);
+    if (!shared || root.dataset.mapInitialized === "1") return;
+    root.dataset.mapInitialized = "1";
+    shared.mapEl.innerHTML = '<div class="home-map-empty"><p>' +
+      String(shared.searchUnsupportedLabel || "Map is temporarily unavailable.") +
+      "</p></div>";
+    if (shared.searchBtn) shared.searchBtn.disabled = true;
   }
 
   function initAllMapPickers() {

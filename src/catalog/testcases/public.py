@@ -515,7 +515,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "leaflet@1.9.4/dist/leaflet.js")
         self.assertContains(response, "home-map-data")
 
-    def test_home_page_limits_recommended_places_to_three_cards(self):
+    def test_home_page_limits_recommended_places_to_four_cards(self):
         for idx in range(4):
             create_quality_place(
                 name=f"Popular Place {idx + 1}",
@@ -528,7 +528,7 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["popular_places"]), 3)
+        self.assertEqual(len(response.context["popular_places"]), 4)
 
     def test_home_page_uses_compact_conversion_flow_without_dropping_seo_links(self):
         create_quality_place(
@@ -880,7 +880,7 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "user-entry-link")
-        self.assertContains(response, "img/ui/user.png")
+        self.assertContains(response, "img/ui/login.svg")
         self.assertContains(response, "lang-flag-icon")
         self.assertContains(response, "img/flags/ru.png")
         self.assertContains(response, "img/flags/az.png")
@@ -2106,6 +2106,24 @@ class TestReviewEnhancements(TestCase):
         self.assertIn(reverse("account_login"), payload["redirect_url"])
         self.assertIn("message", payload)
         self.assertEqual(PlaceReviewReaction.objects.filter(review=review).count(), 0)
+
+    def test_place_reviews_feed_shows_a_clear_link_to_the_reviewed_place(self):
+        self.place.district = "Nərimanov"
+        self.place.save(update_fields=["district"])
+        PlaceReview.objects.create(
+            place=self.place,
+            rating=5,
+            text="Очень удобная страница с отзывами.",
+            author_name="Alina",
+        )
+
+        response = self.client.get(reverse("place_reviews"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="review-place-card"', html=False)
+        self.assertContains(response, self.place.get_absolute_url(), html=False)
+        self.assertContains(response, self.place.name_i18n)
+        self.assertContains(response, "Alina")
 
     def test_review_models_disable_anonymous_flag_and_keep_author_name(self):
         place_review = PlaceReview.objects.create(

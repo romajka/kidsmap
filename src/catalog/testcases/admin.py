@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from io import StringIO
+from io import BytesIO, StringIO
 from datetime import timedelta
 from tempfile import TemporaryDirectory
 from urllib.parse import parse_qs, urlparse
@@ -1815,6 +1815,52 @@ class TestCategoryAdminFormLayout(TestCase):
         self.assertTrue(category.icon.startswith("/media/cat_icons/"))
         self.assertTrue(category.icon.endswith(".svg"))
 
+    def test_category_icon_rejects_raster_with_wrong_dimensions(self):
+        from PIL import Image
+
+        image_bytes = BytesIO()
+        Image.new("RGBA", (256, 256), "#ffffff").save(image_bytes, format="PNG")
+        response = self.client.post(
+            reverse("admin:catalog_category_add"),
+            data={
+                "code": "BADICON",
+                "name_az": "Kateqoriya",
+                "name_ru": "Категория",
+                "name_en": "Category",
+                "order": "0",
+                "icon_upload": SimpleUploadedFile("too-small.png", image_bytes.getvalue(), content_type="image/png"),
+                "_save": "Save",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "PNG и WebP должны быть ровно 512×512 px.")
+        self.assertFalse(Category.objects.filter(pk="BADICON").exists())
+
+    def test_subcategory_form_saves_its_own_uploaded_icon(self):
+        category = Category.objects.create(code="SUBICON", name="Категория", name_az="Kateqoriya", name_ru="Категория")
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(
+                reverse("admin:catalog_subcategory_add"),
+                data={
+                    "category": category.pk,
+                    "name": "Подкатегория",
+                    "name_az": "Alt kateqoriya",
+                    "name_ru": "Подкатегория",
+                    "name_en": "Subcategory",
+                    "icon_upload": SimpleUploadedFile(
+                        "subcategory.svg",
+                        b"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'></svg>",
+                        content_type="image/svg+xml",
+                    ),
+                    "_save": "Save",
+                },
+            )
+
+        self.assertEqual(response.status_code, 302)
+        subcategory = Subcategory.objects.get(name_ru="Подкатегория")
+        self.assertTrue(subcategory.icon.startswith("/media/subcategory_icons/"))
+
 class ReviewAdminModerationTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_superuser("admin", "admin@example.com", "password")
@@ -2645,4 +2691,3 @@ class TestReviewRatingSyncAndAdminBulkActions(TestCase):
         self.place.refresh_from_db()
         self.assertEqual(self.place.rating_count, 1)
         self.assertEqual(self.place.rating_avg, 5.0)
-

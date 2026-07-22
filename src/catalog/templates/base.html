@@ -46,8 +46,43 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=20260722_2" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
+    <style>
+      /* ── KidsMap Card Overrides ── */
+      /* 1. Hide duplicate price chip and green circle dot under photo */
+      .card-tag-price,
+      .card-tag-price::before,
+      .card-price-pill::before {
+        display: none !important;
+        content: none !important;
+      }
+
+      /* 2. Hide red emoji pushpin pseudo-elements completely */
+      .home-recommended .card .card-location::before,
+      .results-list-mode .card .card-location::before,
+      .page-place_list .card-location::before,
+      .card-location::before {
+        display: none !important;
+        content: none !important;
+      }
+
+      /* 3. Style custom SVG location pin in KidsMap emerald green */
+      .card-location-icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #10b981 !important;
+        flex-shrink: 0 !important;
+      }
+
+      .card-location-svg {
+        width: 14px !important;
+        height: 14px !important;
+        stroke: #10b981 !important;
+        flex-shrink: 0 !important;
+      }
+    </style>
     {% if organization_schema_json %}
       <script type="application/ld+json">{{ organization_schema_json|safe }}</script>
     {% endif %}
@@ -194,14 +229,14 @@
               </details>
             {% else %}
               <a
-                class="user-entry-link"
+                class="user-entry-link user-entry-logged-out"
                 href="{{ header_account_login_url }}"
                 data-preserve-current-hash
                 aria-label="{% trans 'Войти или зарегистрироваться' %}"
                 title="{% trans 'Войти или зарегистрироваться' %}"
               >
-                <img class="user-entry-icon" src="{% static 'img/ui/user.png' %}" alt="" aria-hidden="true" />
-                <span class="user-entry-tooltip" role="tooltip">{% trans "Войти или зарегистрироваться" %}</span>
+                <img class="user-entry-login-img" src="{% static 'img/ui/login.svg' %}" alt="" aria-hidden="true" />
+                <span class="user-entry-label">{% trans "Войти" %}</span>
               </a>
             {% endif %}
           </div>

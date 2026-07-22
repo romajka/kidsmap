@@ -170,7 +170,7 @@ class PublicPricingSummaryTests(TestCase):
         self.assertTrue(summary["has_price"])
         self.assertEqual(summary["amount"], 40.0)
         self.assertEqual(summary["payment_type"], "per_lesson")
-        self.assertEqual(summary["formatted_price"], "от 40 AZN / занятие")
+        self.assertEqual(summary["formatted_price"], "от 40 AZN")
 
     def test_starting_price_per_month_secondary(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -259,10 +259,10 @@ class PublicPricingSummaryTests(TestCase):
         self.place.save()
         
         summary_az = build_pricing_summary(self.place, "az")
-        self.assertEqual(summary_az["formatted_price"], "45 AZN-dən / dərs")
+        self.assertEqual(summary_az["formatted_price"], "45 AZN-dən")
 
         summary_en = build_pricing_summary(self.place, "en")
-        self.assertEqual(summary_en["formatted_price"], "from 45 AZN / lesson")
+        self.assertEqual(summary_en["formatted_price"], "from 45 AZN")
 
     def test_schedule_rows_formatting(self):
         from catalog.services.pricing_plans import build_pricing_summary

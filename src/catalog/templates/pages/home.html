@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="home-hero panel" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
+<section class="home-hero panel animate-on-scroll is-visible" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
   <div class="home-hero-bg-glows" aria-hidden="true">
     <div class="glow-blob blob-1"></div>
     <div class="glow-blob blob-2"></div>
@@ -62,12 +62,13 @@
             </svg>
           </div>
           <div class="km-stat-details">
-            <strong data-count-target="{{ total_place_reviews_count|default:0 }}">{% if total_place_reviews_count %}{{ total_place_reviews_count }}+{% else %}—{% endif %}</strong>
+            <strong data-count-target="{{ total_place_reviews_count|default:0 }}">{% if total_place_reviews_count %}{{
+              total_place_reviews_count }}+{% else %}—{% endif %}</strong>
             <span>
               {% if total_place_reviews_count %}
-                {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
-                {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
-                {% else %}отзывов родителей{% endif %}
+              {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
+              {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
+              {% else %}отзывов родителей{% endif %}
               {% else %}
               {% trans "Пока нет отзывов" %}
               {% endif %}
@@ -229,7 +230,8 @@
         <select id="home-search-category" name="category" hidden>
           <option value="">{% trans "Все категории" %}</option>
           {% for item in home_categories %}
-          <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
+          <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof
+            item.label_with_count item.label %}</option>
           {% endfor %}
         </select>
 
@@ -329,85 +331,7 @@
   <h2>{% trans "Рекомендуемые места и занятия" %}</h2>
   <div class="grid">
     {% for place in popular_places %}
-    <article class="card">
-      <div class="card-media">
-        <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
-          {% if place.photo %}
-          <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
-            data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-          {% elif place.cover_photo %}
-          <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
-            data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-          {% else %}
-          <div class="image-placeholder" aria-label="{% trans 'Фото скоро будет.' %}">
-            <span class="image-placeholder-icon" aria-hidden="true">📷</span>
-            <span class="image-placeholder-text">{% trans "Фото скоро будет." %}</span>
-          </div>
-          {% endif %}
-        </a>
-        {% if place.card_price_badge %}
-        <span class="card-price-pill">
-          <span class="card-price-pill__amount">{{ place.card_price_badge_value }}</span>
-          <span class="card-price-pill__currency">{{ place.card_price_badge_currency }}</span>
-        </span>
-        {% endif %}
-      </div>
-      <div class="card-body">
-        <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-        {% with desc=place.description_i18n %}
-        <p class="card-description{% if not desc %} is-empty{% endif %}">
-          {% if desc %}{{ desc|striptags|truncatechars:96 }}{% else %}&nbsp;{% endif %}
-        </p>
-        {% endwith %}
-        <div class="card-headline">
-          <span class="chip">{{ place.get_category_display }}</span>
-          {% if place.rating_count %}
-          <span class="card-score"
-            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Reytinq {{ place.rating_avg|floatformat:1 }} / 5{% elif request.LANGUAGE_CODE == 'en' %}Rating {{ place.rating_avg|floatformat:1 }} out of 5{% else %}Рейтинг {{ place.rating_avg|floatformat:1 }} из 5{% endif %}"><span
-              aria-hidden="true"><span class="card-score-star">★</span>{{ place.rating_avg|floatformat:1 }}</span></span>
-          {% endif %}
-        </div>
-        {% if place.rating_count %}
-        <p class="meta card-reviews-count">
-          {{ place.rating_count|review_count }}
-        </p>
-        {% else %}
-        <p class="meta card-no-reviews">{% trans "Пока нет отзывов" %}</p>
-        {% endif %}
-        <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
-          {% if place.district %}{{ place.district_i18n }}{% endif %}
-          {% if place.district and place.metro %} / {% endif %}
-          {% if place.metro %}{{ place.metro_i18n }}{% endif %}
-          {% if not place.district and not place.metro %}&nbsp;{% endif %}
-        </p>
-        <p class="meta card-created">{% trans "Добавлено" %}: {{ place.created_at|date:"d.m.Y" }}</p>
-        {% if request.user.is_authenticated %}
-        <form method="post" action="{% url 'toggle_place_like' place.id %}" class="like-form" data-like-form>
-          {% csrf_token %}
-          <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}"
-            aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}"
-            aria-label="{% if place.is_liked %}{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərdən çıxar{% elif request.LANGUAGE_CODE == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}{% else %}{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərə əlavə et{% elif request.LANGUAGE_CODE == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}{% endif %}"
-            data-favorite-add-label="{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərə əlavə et{% elif request.LANGUAGE_CODE == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
-            data-favorite-remove-label="{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərdən çıxar{% elif request.LANGUAGE_CODE == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}">
-            <span aria-hidden="true">♥</span> <span class="like-count">{{ place.likes_count }}</span>
-          </button>
-        </form>
-        {% else %}
-        <div class="like-form">
-          <button type="button" class="like-btn" aria-pressed="false"
-            aria-label="{% if request.LANGUAGE_CODE == 'az' %}Seçilmişlərə əlavə et{% elif request.LANGUAGE_CODE == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
-            data-auth-required-trigger
-            data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
-            data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">
-            ♥ <span class="like-count">{{ place.likes_count }}</span>
-          </button>
-        </div>
-        {% endif %}
-        <div class="card-action-stack">
-          <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">{% trans "Перейти" %}</a>
-        </div>
-      </div>
-    </article>
+    {% include "catalog/includes/place_card.html" with place=place %}
     {% endfor %}
   </div>
   <div class="home-recommended-proof" aria-label="{% trans 'Почему нам доверяют' %}">
@@ -419,7 +343,8 @@
 </section>
 {% endif %}
 
-<section class="home-steps panel home-steps-lite animate-on-scroll" id="how-it-works" aria-label="{% trans 'Как это работает' %}">
+<section class="home-steps panel home-steps-lite animate-on-scroll" id="how-it-works"
+  aria-label="{% trans 'Как это работает' %}">
   <div class="home-steps-lite-head">
     <div>
       <h2>{% trans "Как это работает" %}</h2>
@@ -714,7 +639,8 @@
           <div>
             <h4>{% if request.LANGUAGE_CODE == 'az' %}Foto və təsvir{% elif request.LANGUAGE_CODE == 'en' %}Photos &
               description{% else %}Фото и описание{% endif %}</h4>
-            <p>{% if request.LANGUAGE_CODE == 'az' %}Özünüzü parlaq göstərin{% elif request.LANGUAGE_CODE == 'en' %}Shine bright online{% else %}Привлеките клиентов{% endif %}</p>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}Özünüzü parlaq göstərin{% elif request.LANGUAGE_CODE == 'en'
+              %}Shine bright online{% else %}Привлеките клиентов{% endif %}</p>
           </div>
         </div>
 
@@ -753,7 +679,8 @@
       <div class="km-visibility-card km-reveal-up" style="--delay:0.4s">
         <div class="km-visibility-copy">
           <span class="km-visibility-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+              stroke-linejoin="round">
               <path d="M4 18V10"></path>
               <path d="M10 18V6"></path>
               <path d="M16 18V3"></path>
@@ -762,8 +689,11 @@
             </svg>
           </span>
           <div>
-            <h3>{% if request.LANGUAGE_CODE == 'az' %}Valideynlər üçün daha görünən olun{% elif request.LANGUAGE_CODE == 'en' %}Get noticed by more parents{% else %}Станьте заметнее для родителей{% endif %}</h3>
-            <p>{% if request.LANGUAGE_CODE == 'az' %}KidsMap-da məkanınızın görünürlüğünü artırın{% elif request.LANGUAGE_CODE == 'en' %}Build your presence across KidsMap{% else %}Расширяйте присутствие на KidsMap{% endif %}</p>
+            <h3>{% if request.LANGUAGE_CODE == 'az' %}Valideynlər üçün daha görünən olun{% elif request.LANGUAGE_CODE ==
+              'en' %}Get noticed by more parents{% else %}Станьте заметнее для родителей{% endif %}</h3>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}KidsMap-da məkanınızın görünürlüğünü artırın{% elif
+              request.LANGUAGE_CODE == 'en' %}Build your presence across KidsMap{% else %}Расширяйте присутствие на
+              KidsMap{% endif %}</p>
           </div>
         </div>
 
@@ -779,8 +709,10 @@
                 <stop offset="100%" stop-color="#3b82f6"></stop>
               </linearGradient>
             </defs>
-            <path class="km-visibility-area" d="M8 54 C76 52 92 43 142 44 S226 35 268 28 S346 18 412 8 L412 64 L8 64 Z"></path>
-            <path class="km-visibility-line" pathLength="1" d="M8 54 C76 52 92 43 142 44 S226 35 268 28 S346 18 412 8"></path>
+            <path class="km-visibility-area" d="M8 54 C76 52 92 43 142 44 S226 35 268 28 S346 18 412 8 L412 64 L8 64 Z">
+            </path>
+            <path class="km-visibility-line" pathLength="1" d="M8 54 C76 52 92 43 142 44 S226 35 268 28 S346 18 412 8">
+            </path>
             <circle class="km-visibility-point point-one" cx="142" cy="44" r="4"></circle>
             <circle class="km-visibility-point point-two" cx="268" cy="28" r="4"></circle>
             <circle class="km-visibility-point point-three" cx="412" cy="8" r="4"></circle>
@@ -788,9 +720,11 @@
         </div>
 
         <div class="km-visibility-stages">
-          <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On the map{% else %}На карте{% endif %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On the map{% else
+            %}На карте{% endif %}</span>
           <span>{% if request.LANGUAGE_CODE == 'az' %}Kataloqda{% elif request.LANGUAGE_CODE == 'en' %}In the catalog{% else %}В каталоге{% endif %}</span>
-          <span>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda{% elif request.LANGUAGE_CODE == 'en' %}In search{% else %}В поиске{% endif %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda{% elif request.LANGUAGE_CODE == 'en' %}In search{% else
+            %}В поиске{% endif %}</span>
         </div>
         <p class="km-visibility-note">
           {% if request.LANGUAGE_CODE == 'az' %}Səhifə nə qədər dolğun olsa, seçim etmək bir o qədər asandır
@@ -1333,8 +1267,14 @@
     animation: km-visibility-point-in 0.35s ease forwards;
   }
 
-  .km-visibility-point.point-one { animation-delay: 0.65s; }
-  .km-visibility-point.point-two { animation-delay: 1s; }
+  .km-visibility-point.point-one {
+    animation-delay: 0.65s;
+  }
+
+  .km-visibility-point.point-two {
+    animation-delay: 1s;
+  }
+
   .km-visibility-point.point-three {
     stroke: #3b82f6;
     animation-delay: 1.35s;
@@ -1365,16 +1305,27 @@
   }
 
   @keyframes km-visibility-draw {
-    to { stroke-dashoffset: 0; }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   @keyframes km-visibility-area-in {
-    to { opacity: 1; }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes km-visibility-point-in {
-    from { opacity: 0; transform: scale(0); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   /* ── Scroll reveal ── */
@@ -1467,51 +1418,71 @@
   <div class="home-faq-list">
     <details class="home-faq-item" open>
       <summary class="home-faq-question">
-        <span>{% trans "Как быстро найти кружок для ребёнка?" %}</span>
-        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+        <span class="home-faq-q-left">
+          <span class="home-faq-badge-icon" aria-hidden="true">⌕</span>
+          <span class="home-faq-title">{% trans "Как быстро найти кружок для ребёнка?" %}</span>
+        </span>
+        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer">
+      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
         {% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
       </div>
+      </div>
     </details>
 
     <details class="home-faq-item">
       <summary class="home-faq-question">
-        <span>{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
-        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+        <span class="home-faq-q-left">
+          <span class="home-faq-badge-icon" aria-hidden="true">♙</span>
+          <span class="home-faq-title">{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
+        </span>
+        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer">
+      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
         {% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}
       </div>
+      </div>
     </details>
 
     <details class="home-faq-item">
       <summary class="home-faq-question">
-        <span>{% trans "Как оставить отзыв или поставить лайк?" %}</span>
-        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+        <span class="home-faq-q-left">
+          <span class="home-faq-badge-icon" aria-hidden="true">★</span>
+          <span class="home-faq-title">{% trans "Как оставить отзыв или поставить лайк?" %}</span>
+        </span>
+        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer">
+      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
         {% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}
       </div>
-    </details>
-
-    <details class="home-faq-item">
-      <summary class="home-faq-question">
-        <span>{% trans "Как владельцу кружка разместить карточку на сайте?" %}</span>
-        <span class="home-faq-icon" aria-hidden="true">⌄</span>
-      </summary>
-      <div class="home-faq-answer">
-        {% trans "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
       </div>
     </details>
 
     <details class="home-faq-item">
       <summary class="home-faq-question">
-        <span>{% trans "Можно ли показывать фото и контакты кружка?" %}</span>
-        <span class="home-faq-icon" aria-hidden="true">⌄</span>
+        <span class="home-faq-q-left">
+          <span class="home-faq-badge-icon" aria-hidden="true">＋</span>
+          <span class="home-faq-title">{% trans "Как владельцу кружка разместить карточку на сайте?" %}</span>
+        </span>
+        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer">
+      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
+        {% trans "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
+      </div>
+      </div>
+    </details>
+
+    <details class="home-faq-item">
+      <summary class="home-faq-question">
+        <span class="home-faq-q-left">
+          <span class="home-faq-badge-icon" aria-hidden="true">◫</span>
+          <span class="home-faq-title">{% trans "Можно ли показывать фото и контакты кружка?" %}</span>
+        </span>
+        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
+      </summary>
+      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
         {% trans "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение." %}
+      </div>
       </div>
     </details>
   </div>

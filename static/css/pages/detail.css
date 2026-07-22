@@ -453,10 +453,12 @@ body.page-place_detail .site-shell {
   box-shadow: 0 8px 18px rgba(18, 50, 37, 0.08);
 }
 
-.detail-highlight-card__icon svg {
+.detail-highlight-card__icon svg,
+.detail-highlight-card__icon img {
   width: 19px;
   height: 19px;
   display: block;
+  object-fit: contain;
 }
 
 .detail-highlight-card__body {
@@ -1815,7 +1817,8 @@ body.page-place_detail .site-shell {
     flex-basis: 34px;
   }
 
-  .detail-highlight-card__icon svg {
+  .detail-highlight-card__icon svg,
+  .detail-highlight-card__icon img {
     width: 17px;
     height: 17px;
   }
@@ -2033,6 +2036,13 @@ body.page-place_detail .site-shell {
 .detail-unified-pricing__price-block {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+
+.detail-unified-pricing__price-label {
+  color: #5b7363;
+  font-size: 0.83rem;
+  font-weight: 700;
 }
 
 .detail-unified-pricing__price-val {
@@ -2125,6 +2135,11 @@ body.page-place_detail .site-shell {
   font-weight: 700;
 }
 
+.detail-unified-pricing__schedule-row .schedule-row-item--closed .schedule-row-days,
+.detail-unified-pricing__schedule-row .schedule-row-item--closed .schedule-row-time {
+  color: #7d9686;
+}
+
 .detail-unified-pricing__schedule-row .schedule-note-sub {
   font-size: 0.77rem;
   color: #7d9686;
@@ -2181,15 +2196,15 @@ body.page-place_detail .site-shell {
 }
 
 .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-rows-list {
-  gap: 8px;
+  gap: 6px;
 }
 
 .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-row-item {
-  grid-template-columns: minmax(0, 1fr) 14px auto;
-  padding: 9px 12px;
-  border: 1px solid rgba(28, 122, 72, 0.1);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.72);
+  grid-template-columns: minmax(0, 1fr) 12px auto;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(28, 122, 72, 0.1);
+  border-radius: 0;
+  background: transparent;
 }
 
 .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-row-days {
@@ -2348,7 +2363,7 @@ body.page-place_detail .site-shell {
     display: grid;
     grid-template-columns: minmax(210px, 0.7fr) minmax(320px, 1.3fr);
     gap: 0 30px;
-    align-items: center;
+    align-items: start;
   }
 
   .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-section-head {
@@ -2368,6 +2383,11 @@ body.page-place_detail .site-shell {
     width: 100%;
     margin: 0;
     box-sizing: border-box;
+  }
+
+  .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-rows-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
   }
 
   .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-unified-pricing__footer-notes {
