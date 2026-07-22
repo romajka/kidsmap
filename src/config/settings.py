@@ -60,6 +60,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 
 DEBUG = _env_bool("DJANGO_DEBUG", True)
 TESTING = _env_bool("DJANGO_TESTING", False)
+PRODUCTION_SECURITY_DEFAULTS = not DEBUG and not TESTING
 SERVE_MEDIA_FILES = _env_bool("SERVE_MEDIA_FILES", True)
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 GOOGLE_ANALYTICS_MEASUREMENT_ID = (os.getenv("GOOGLE_ANALYTICS_MEASUREMENT_ID", "") or "").strip()
@@ -94,20 +95,26 @@ if not CSRF_TRUSTED_ORIGINS and not DEBUG:
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST", True)
-SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", not DEBUG)
-CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE", not DEBUG)
+SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", PRODUCTION_SECURITY_DEFAULTS)
+CSRF_COOKIE_SECURE = _env_bool("CSRF_COOKIE_SECURE", PRODUCTION_SECURITY_DEFAULTS)
 SESSION_COOKIE_HTTPONLY = _env_bool("SESSION_COOKIE_HTTPONLY", True)
-SECURE_CONTENT_TYPE_NOSNIFF = _env_bool("SECURE_CONTENT_TYPE_NOSNIFF", not DEBUG)
+SECURE_CONTENT_TYPE_NOSNIFF = _env_bool("SECURE_CONTENT_TYPE_NOSNIFF", PRODUCTION_SECURITY_DEFAULTS)
 SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "same-origin" if not DEBUG else "same-origin")
-SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT", not DEBUG)
-SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000" if not DEBUG else "0"))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", not DEBUG)
+SECURE_SSL_REDIRECT = _env_bool("SECURE_SSL_REDIRECT", PRODUCTION_SECURITY_DEFAULTS)
+SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000" if PRODUCTION_SECURITY_DEFAULTS else "0"))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", PRODUCTION_SECURITY_DEFAULTS)
 SECURE_HSTS_PRELOAD = _env_bool("SECURE_HSTS_PRELOAD", False)
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 EMAIL_BACKEND = os.getenv(
     "EMAIL_BACKEND",
-    "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend",
+    (
+        "django.core.mail.backends.locmem.EmailBackend"
+        if TESTING
+        else "django.core.mail.backends.console.EmailBackend"
+        if DEBUG
+        else "django.core.mail.backends.smtp.EmailBackend"
+    ),
 )
 EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "25"))
@@ -413,6 +420,6 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
-if HAS_WHITENOISE and not DEBUG:
+if HAS_WHITENOISE and not DEBUG and not TESTING:
     STORAGES["staticfiles"]["BACKEND"] = "whitenoise.storage.CompressedManifestStaticFilesStorage"
     WHITENOISE_MAX_AGE = 31536000
