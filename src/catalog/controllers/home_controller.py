@@ -76,6 +76,7 @@ class HomeController:
                 "age_from": place.age_from,
                 "age_to": place.age_to,
                 "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
+                "price": str(place.card_price_badge),
                 "phone": place.phone1 or "",
                 "address": place.address_i18n(language_code) or "",
                 "schedule": place.schedule_summary or "",

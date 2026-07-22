@@ -6709,28 +6709,42 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   padding: 0 !important;
 }
 
-.gm-style button.gm-ui-hover-or-focus {
+.gm-style .gm-style-iw-chr {
+  position: absolute !important;
   top: 6px !important;
   right: 6px !important;
-  width: 26px !important;
-  height: 26px !important;
-  background: rgba(255, 255, 255, 0.88) !important;
+  z-index: 10 !important;
+}
+
+.gm-style .gm-style-iw-ch {
+  display: none !important;
+}
+
+.gm-style button.gm-ui-hover-or-focus {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 28px !important;
+  height: 28px !important;
+  background: var(--brand-spruce, #087443) !important;
   border-radius: 50% !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
-  backdrop-filter: blur(4px) !important;
-  border: none !important;
-  transition: transform 0.15s ease, background 0.15s ease !important;
+  box-shadow: 0 3px 9px rgba(6, 78, 59, 0.32) !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
   z-index: 10 !important;
 }
 
 .gm-style button.gm-ui-hover-or-focus:hover {
-  background: #ffffff !important;
+  background: var(--brand-turf, #136f38) !important;
   transform: scale(1.08) !important;
+  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.4) !important;
 }
 
 .gm-style button.gm-ui-hover-or-focus img,
 .gm-style button.gm-ui-hover-or-focus span {
   margin: 0 !important;
+  opacity: 1 !important;
+  filter: brightness(0) invert(1) !important;
 }
 
 /* Leaflet Popup overrides to make it full bleed */
@@ -6750,14 +6764,14 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .leaflet-popup-close-button {
   top: 8px !important;
   right: 8px !important;
-  width: 26px !important;
-  height: 26px !important;
-  line-height: 26px !important;
-  background: rgba(255, 255, 255, 0.88) !important;
-  backdrop-filter: blur(4px) !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 24px !important;
+  background: var(--brand-spruce, #087443) !important;
   border-radius: 50% !important;
-  color: #334155 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 3px 9px rgba(6, 78, 59, 0.32) !important;
   z-index: 1000 !important;
   font-family: inherit !important;
 }
@@ -6781,18 +6795,32 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .home-map-popup-thumb-link {
   display: block;
   position: relative;
-  height: 100px;
   width: 100%;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   text-decoration: none;
   background: linear-gradient(135deg, #edf8f0 0%, #e0f2fe 100%);
 }
 
+.home-map-popup-thumb-blur {
+  position: absolute;
+  inset: -10px;
+  width: calc(100% + 20px);
+  height: calc(100% + 20px);
+  object-fit: cover;
+  filter: blur(14px) brightness(0.85);
+  transform: scale(1.1);
+  opacity: 0.72;
+  pointer-events: none;
+}
+
 .home-map-popup-thumb {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   transition: transform 0.3s ease;
 }
@@ -6810,6 +6838,26 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   align-items: center;
   gap: 6px;
   z-index: 2;
+  pointer-events: none;
+}
+
+.home-map-popup-price {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--brand-spruce, #087443);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(4px);
   pointer-events: none;
 }
 

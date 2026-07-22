@@ -19,10 +19,52 @@ python manage.py runserver 0.0.0.0:8000
 
 ## Publish from your PC
 
+## Быстрая памятка: отправить изменения и обновить сервер
+
+### 1. На своём компьютере: отправить файлы в GitHub
+
+```bash
+cd /home/ramin/kidsmap
+git status --short
+git add -A
+git commit -m "карта: фото, цена и кнопка закрытия"
+git push origin main
+```
+
+### 2. Подключиться к серверу
+
+```bash
+ssh root@157.173.119.227
+```
+
+### 3. Уже на сервере: применить изменения
+
+```bash
+cd /opt/kidsmap
+./scripts/deploy-server.sh main
+```
+
+Скрипт на сервере сам подтянет `main`, пересоберёт приложение, применит миграции при необходимости и проверит сайт. Ничего вручную копировать на VPS не нужно.
+
+Если хотите сначала посмотреть, какие файлы попадут в коммит:
+
+```bash
+git status --short
+git diff --stat
+```
+
+Если надо выполнить обновление прямо на сервере:
+
+```bash
+ssh root@157.173.119.227
+cd /opt/kidsmap
+./scripts/deploy-server.sh main
+```
+
 The two commands used for everyday production updates are:
 
 ```bash
-./scripts/publish-main.sh "Short description of the change"
+./scripts/publish-main.sh "краткое описание изменений"
 ./scripts/deploy-production.sh
 ```
 

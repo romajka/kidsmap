@@ -6,120 +6,108 @@
 {% block meta_description %}{{ content.subtitle }}{% endblock %}
 
 {% block content %}
-  <section class="panel content-page business-page business-landing">
-    <div class="content-page__hero business-hero">
-      <picture class="business-hero__picture">
-        {% if site_settings.for_business_hero_image %}
-          <img
-            class="business-hero__image"
-            src="{{ site_settings.for_business_hero_image.url }}"
-            width="1600"
-            height="900"
-            alt=""
-            decoding="async"
-            fetchpriority="high"
-          >
-        {% else %}
-          <source
-            media="(max-width: 760px)"
-            srcset="{% static 'img/banners/for-business-hero-mobile.webp' %}?v=mobile-20260519"
-          >
-          <img
-            class="business-hero__image"
-            src="{% static 'img/banners/for-business-hero.webp' %}"
-            width="1600"
-            height="900"
-            alt=""
-            decoding="async"
-            fetchpriority="high"
-          >
-        {% endif %}
-      </picture>
-      <div class="business-hero__copy">
-        <p class="eyebrow">{{ content.eyebrow }}</p>
-        <p class="business-free-badge">
-          <span aria-hidden="true">✓</span>
-          {{ content.free_badge }}
-        </p>
-        <h1>
-          <span class="business-title-desktop">{{ content.title }}</span>
-          <span class="business-title-mobile">{{ content.mobile_title }}</span>
-        </h1>
-        <p>{{ content.subtitle }}</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="{% url 'owner_place_create' %}?fresh=1">{{ content.primary_cta }}</a>
-          <a class="btn btn-secondary" href="{% url 'place_list' %}">{{ content.secondary_cta }}</a>
-        </div>
-        <p class="business-moderation-note"><span aria-hidden="true">●</span>{{ content.moderation_note }}</p>
+<section class="panel content-page business-page business-landing">
+  <div class="content-page__hero business-hero">
+    <picture class="business-hero__picture">
+      {% if site_settings.for_business_hero_image %}
+      <img class="business-hero__image" src="{{ site_settings.for_business_hero_image.url }}" width="1600" height="900"
+        alt="" decoding="async" fetchpriority="high">
+      {% else %}
+      <source media="(max-width: 760px)"
+        srcset="{% static 'img/banners/for-business-hero-mobile.webp' %}?v=mobile-20260519">
+      <img class="business-hero__image" src="{% static 'img/banners/for-business-hero.webp' %}" width="1600"
+        height="900" alt="" decoding="async" fetchpriority="high">
+      {% endif %}
+    </picture>
+    <div class="business-hero__copy">
+      <p class="eyebrow">{{ content.eyebrow }}</p>
+      <p class="business-free-badge">
+        <span aria-hidden="true">✓</span>
+        {{ content.free_badge }}
+      </p>
+      <h1>
+        <span class="business-title-desktop">{{ content.title }}</span>
+        <span class="business-title-mobile">{{ content.mobile_title }}</span>
+      </h1>
+      <p>{{ content.subtitle }}</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{% url 'owner_place_create' %}?fresh=1">{{ content.primary_cta }}</a>
+        <a class="btn btn-secondary" href="{% url 'place_list' %}">{{ content.secondary_cta }}</a>
       </div>
+      <p class="business-moderation-note"><span aria-hidden="true">●</span>{{ content.moderation_note }}</p>
     </div>
+  </div>
 
-    <section class="business-process" aria-labelledby="business-process-title">
-      <div class="business-section-heading">
-        <p class="eyebrow">KidsMap</p>
-        <h2 id="business-process-title">{{ content.steps_title }}</h2>
-      </div>
-      <ol class="business-process__list">
-        {% for title, description in content.steps %}
-          <li>
-            <span class="business-process__number">{{ forloop.counter|stringformat:"02d" }}</span>
-            <h3>{{ title }}</h3>
-            <p>{{ description }}</p>
-          </li>
-        {% endfor %}
-      </ol>
-    </section>
-
-    <section class="business-details" aria-labelledby="business-details-title">
-      <div class="business-section-heading business-section-heading--center">
-        <h2 id="business-details-title">{{ content.details_title }}</h2>
-        <p>{{ content.details_intro }}</p>
-      </div>
-      <div class="business-details__grid">
-        {% for title, items in content.detail_cards %}
-          <article class="business-detail-card business-detail-card--{{ forloop.counter }}">
-            <div class="business-detail-card__header">
-              <span class="business-detail-card__icon" aria-hidden="true">
-                {% if forloop.counter == 1 %}
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,0.2)"/>
-                    <path d="m9 12 2 2 4-4"/>
-                  </svg>
-                {% elif forloop.counter == 2 %}
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8" fill="rgba(255,255,255,0.2)"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    <path d="m9 11 1.5 1.5 3-3"/>
-                  </svg>
-                {% else %}
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21.5 2v6h-6"/>
-                    <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l2.9-2.9"/>
-                  </svg>
-                {% endif %}
-              </span>
-              <h3>{{ title }}</h3>
-            </div>
-            <ul class="business-detail-card__list">
-              {% for item in items %}
-                <li>
-                  <span class="business-detail-card__check-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  </span>
-                  <span>{{ item }}</span>
-                </li>
-              {% endfor %}
-            </ul>
-          </article>
-        {% endfor %}
-      </div>
-    </section>
-
-    <aside class="business-vip-note">
-      <span class="business-vip-note__label">VIP</span>
-      <p>{{ content.vip_note }}</p>
-    </aside>
+  <section class="business-process" aria-labelledby="business-process-title">
+    <div class="business-section-heading">
+      <p class="eyebrow">KidsMap</p>
+      <h2 id="business-process-title">{{ content.steps_title }}</h2>
+    </div>
+    <ol class="business-process__list">
+      {% for title, description in content.steps %}
+      <li>
+        <span class="business-process__number">{{ forloop.counter|stringformat:"02d" }}</span>
+        <h3>{{ title }}</h3>
+        <p>{{ description }}</p>
+      </li>
+      {% endfor %}
+    </ol>
   </section>
+
+  <section class="business-details" aria-labelledby="business-details-title">
+    <div class="business-section-heading business-section-heading--center">
+      <h2 id="business-details-title">{{ content.details_title }}</h2>
+      <p>{{ content.details_intro }}</p>
+    </div>
+    <div class="business-details__grid">
+      {% for title, items in content.detail_cards %}
+      <article class="business-detail-card business-detail-card--{{ forloop.counter }}">
+        <div class="business-detail-card__header">
+          <span class="business-detail-card__icon" aria-hidden="true">
+            {% if forloop.counter == 1 %}
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(255,255,255,0.2)" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+            {% elif forloop.counter == 2 %}
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" fill="rgba(255,255,255,0.2)" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <path d="m9 11 1.5 1.5 3-3" />
+            </svg>
+            {% else %}
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6" />
+              <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l2.9-2.9" />
+            </svg>
+            {% endif %}
+          </span>
+          <h3>{{ title }}</h3>
+        </div>
+        <ul class="business-detail-card__list">
+          {% for item in items %}
+          <li>
+            <span class="business-detail-card__check-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+            <span>{{ item }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <aside class="business-vip-note">
+    <span class="business-vip-note__label">VIP</span>
+    <p>{{ content.vip_note }}</p>
+  </aside>
+</section>
 {% endblock %}

@@ -46,7 +46,7 @@
             </svg>
           </div>
           <div class="km-stat-details">
-            <strong data-count-target="{{ map_places|length }}">{{ map_places|length }}+</strong>
+            <strong>{{ map_places|length }}+</strong>
             <span>{% trans "мест и занятий на карте" %}</span>
           </div>
         </a>
@@ -63,8 +63,7 @@
             </svg>
           </div>
           <div class="km-stat-details">
-            <strong data-count-target="{{ total_place_reviews_count|default:0 }}">{% if total_place_reviews_count %}{{
-              total_place_reviews_count }}+{% else %}—{% endif %}</strong>
+            <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}+{% else %}—{% endif %}</strong>
             <span>
               {% if total_place_reviews_count %}
               {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
@@ -231,8 +230,7 @@
         <select id="home-search-category" name="category" hidden>
           <option value="">{% trans "Все категории" %}</option>
           {% for item in home_categories %}
-          <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof
-            item.label_with_count item.label %}</option>
+          <option value="{{ item.value }}" {% if request.GET.category == item.value %}selected{% endif %}>{% firstof item.label_with_count item.label %}</option>
           {% endfor %}
         </select>
 
@@ -581,7 +579,7 @@
         </div>
         <div class="km-stats-hero-grid">
           <div class="km-stats-hero-item">
-            <strong class="km-stat-count" data-count-target="{{ map_places|length }}">{{ map_places|length }}</strong>
+            <strong class="km-stat-count">{{ map_places|length }}</strong>
             <span>
               {% if request.LANGUAGE_CODE == 'az' %}məkan və məşğələ
               {% elif request.LANGUAGE_CODE == 'en' %}places & activities
@@ -589,7 +587,7 @@
             </span>
           </div>
           <div class="km-stats-hero-item km-stats-hero-item--accent">
-            <strong class="km-stat-count" data-count-target="{{ total_place_reviews_count|default:0 }}">{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}0{% endif %}</strong>
+            <strong class="km-stat-count">{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}0{% endif %}</strong>
             <span>
               {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
               {% elif request.LANGUAGE_CODE == 'en' %}parent reviews
@@ -640,8 +638,7 @@
           <div>
             <h4>{% if request.LANGUAGE_CODE == 'az' %}Foto və təsvir{% elif request.LANGUAGE_CODE == 'en' %}Photos &
               description{% else %}Фото и описание{% endif %}</h4>
-            <p>{% if request.LANGUAGE_CODE == 'az' %}Özünüzü parlaq göstərin{% elif request.LANGUAGE_CODE == 'en'
-              %}Shine bright online{% else %}Привлеките клиентов{% endif %}</p>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}Özünüzü parlaq göstərin{% elif request.LANGUAGE_CODE == 'en' %}Shine bright online{% else %}Привлеките клиентов{% endif %}</p>
           </div>
         </div>
 
@@ -690,11 +687,8 @@
             </svg>
           </span>
           <div>
-            <h3>{% if request.LANGUAGE_CODE == 'az' %}Valideynlər üçün daha görünən olun{% elif request.LANGUAGE_CODE ==
-              'en' %}Get noticed by more parents{% else %}Станьте заметнее для родителей{% endif %}</h3>
-            <p>{% if request.LANGUAGE_CODE == 'az' %}KidsMap-da məkanınızın görünürlüğünü artırın{% elif
-              request.LANGUAGE_CODE == 'en' %}Build your presence across KidsMap{% else %}Расширяйте присутствие на
-              KidsMap{% endif %}</p>
+            <h3>{% if request.LANGUAGE_CODE == 'az' %}Valideynlər üçün daha görünən olun{% elif request.LANGUAGE_CODE == 'en' %}Get noticed by more parents{% else %}Станьте заметнее для родителей{% endif %}</h3>
+            <p>{% if request.LANGUAGE_CODE == 'az' %}KidsMap-da məkanınızın görünürlüğünü artırın{% elif request.LANGUAGE_CODE == 'en' %}Build your presence across KidsMap{% else %}Расширяйте присутствие на KidsMap{% endif %}</p>
           </div>
         </div>
 
@@ -721,11 +715,9 @@
         </div>
 
         <div class="km-visibility-stages">
-          <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On the map{% else
-            %}На карте{% endif %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Xəritədə{% elif request.LANGUAGE_CODE == 'en' %}On the map{% else %}На карте{% endif %}</span>
           <span>{% if request.LANGUAGE_CODE == 'az' %}Kataloqda{% elif request.LANGUAGE_CODE == 'en' %}In the catalog{% else %}В каталоге{% endif %}</span>
-          <span>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda{% elif request.LANGUAGE_CODE == 'en' %}In search{% else
-            %}В поиске{% endif %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Axtarışda{% elif request.LANGUAGE_CODE == 'en' %}In search{% else %}В поиске{% endif %}</span>
         </div>
         <p class="km-visibility-note">
           {% if request.LANGUAGE_CODE == 'az' %}Səhifə nə qədər dolğun olsa, seçim etmək bir o qədər asandır
@@ -1425,9 +1417,10 @@
         </span>
         <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
-        {% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
-      </div>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          {% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
+        </div>
       </div>
     </details>
 
@@ -1439,9 +1432,10 @@
         </span>
         <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
-        {% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}
-      </div>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          {% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}
+        </div>
       </div>
     </details>
 
@@ -1453,9 +1447,10 @@
         </span>
         <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
-        {% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}
-      </div>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          {% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}
+        </div>
       </div>
     </details>
 
@@ -1467,9 +1462,10 @@
         </span>
         <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
-        {% trans "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
-      </div>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          {% trans "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
+        </div>
       </div>
     </details>
 
@@ -1481,9 +1477,10 @@
         </span>
         <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
-      <div class="home-faq-answer-wrapper"><div class="home-faq-answer-inner">
-        {% trans "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение." %}
-      </div>
+      <div class="home-faq-answer-wrapper">
+        <div class="home-faq-answer-inner">
+          {% trans "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение." %}
+        </div>
       </div>
     </details>
   </div>
@@ -2011,52 +2008,6 @@
     }
 
     initCategorySelect();
-
-    // Count-up stats animation
-    function initStatsCounter() {
-      const statsElements = document.querySelectorAll("[data-count-target]");
-      const animateCount = (el) => {
-        const target = parseInt(el.getAttribute("data-count-target"), 10) || 0;
-        if (target === 0) return;
-        const duration = 1200; // ms
-        const startTime = performance.now();
-
-        const update = (now) => {
-          const elapsed = now - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          // Ease out quad
-          const ease = progress * (2 - progress);
-          const current = Math.floor(ease * target);
-          el.textContent = current + "+";
-          if (progress < 1) {
-            requestAnimationFrame(update);
-          } else {
-            el.textContent = target + "+";
-          }
-        };
-        requestAnimationFrame(update);
-      };
-
-      if (typeof window.IntersectionObserver === 'function') {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              animateCount(entry.target);
-              observer.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.1 });
-        statsElements.forEach((el) => observer.observe(el));
-      } else {
-        statsElements.forEach(animateCount);
-      }
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initStatsCounter);
-    } else {
-      initStatsCounter();
-    }
 
     // Scroll reveal logic
     function initScrollReveal() {

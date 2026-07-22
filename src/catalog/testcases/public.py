@@ -70,6 +70,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<html lang="az">', html=False)
         self.assertNotContains(response, "total_place_reviews_count")
+        self.assertNotContains(response, "data-count-target")
 
     def test_legacy_az_urls_redirect_to_default_language_without_prefix(self):
         response = self.client.get("/az/catalog/", {"category": "EDU"})
@@ -786,6 +787,7 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["map_places"][0]["image_url"], place.photo.url)
+        self.assertTrue(response.context["map_places"][0]["price"])
         self.assertContains(response, "home-map-data")
         self.assertContains(response, place.photo.url)
 

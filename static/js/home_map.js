@@ -223,6 +223,7 @@
 
   function renderPopupContent(place, detailsLabel) {
     const ageBadgeText = formatAgeBadge(place);
+    const priceBadgeText = place.price || "";
     const categoryName = place.category || "";
     const categoryColor = place.category_color_text || "var(--brand-turf)";
 
@@ -230,11 +231,15 @@
       ? '<a class="home-map-popup-thumb-link" href="' +
       escapeHtml(place.url || "") +
       '">' +
+      '<img class="home-map-popup-thumb-blur" src="' +
+      escapeHtml(place.image_url) +
+      '" alt="" aria-hidden="true" />' +
       '<img class="home-map-popup-thumb" src="' +
       escapeHtml(place.image_url) +
       '" alt="' +
       escapeHtml(place.name || "") +
       '" loading="lazy" decoding="async" />' +
+      (priceBadgeText ? '<span class="home-map-popup-price">' + escapeHtml(priceBadgeText) + "</span>" : "") +
       '<div class="home-map-popup-badges">' +
       (categoryName
         ? '<span class="home-map-popup-badge-cat" style="color: ' +

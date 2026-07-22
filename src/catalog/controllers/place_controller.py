@@ -725,6 +725,7 @@ class PlaceController:
                     "category_icon_is_font": cat_icon_is_font,
                     "category_icon_name": cat_icon_name,
                     "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
+                    "price": str(place.card_price_badge),
                     "location": " / ".join(location_parts),
                     "address": ", ".join(part for part in address_parts if part),
                     "district": get_location_translation(place.district, language_code) if place.district else "",
