@@ -10,6 +10,8 @@ TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 OUT_FILE="$BACKUP_DIR/kidsmap-db-$TIMESTAMP.sql.gz"
 DB_ENGINE="${DB_ENGINE:-postgres}"
 
+cd "$ROOT_DIR"
+
 mkdir -p "$BACKUP_DIR"
 
 if [[ "$DB_ENGINE" == "postgres" || "$DB_ENGINE" == "postgresql" ]]; then
