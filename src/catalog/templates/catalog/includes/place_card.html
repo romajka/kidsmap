@@ -4,8 +4,14 @@
 <article class="card place-card" data-place-id="{{ place.id }}">
   <div class="card-media">
     <a class="card-media-link" href="{{ place.get_absolute_url }}" aria-label="{{ place.name_i18n }}">
-      {% if place.photo or place.cover_photo %}
-      {% with img_url=place.photo.url|default:place.cover_photo.url %}
+      {% if place.photo %}
+      {% with img_url=place.photo.url %}
+      <div class="card-media-blur-bg" style="background-image: url('{{ img_url }}');" aria-hidden="true"></div>
+      <img class="card-media-img" src="{{ img_url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
+        data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+      {% endwith %}
+      {% elif place.cover_photo %}
+      {% with img_url=place.cover_photo.url %}
       <div class="card-media-blur-bg" style="background-image: url('{{ img_url }}');" aria-hidden="true"></div>
       <img class="card-media-img" src="{{ img_url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async"
         data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
