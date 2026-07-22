@@ -21,11 +21,11 @@ Commit `c22953b` removed the command from `scripts/release-server.sh`, made an
 unforced seed a no-op when categories already exist, and stopped forced seeds
 from changing `is_active` on existing rows.
 
-One remaining gap was found: the models implement `archive()` and `restore()`,
-but Django Admin's standard delete hooks are not overridden. An unused
-category can still be physically deleted through the standard admin flow.
-Deploys no longer recreate it automatically, but admin deletion must be wired
-to soft-delete so the invariant does not depend on seed discipline.
+One remaining gap was found and fixed on this branch: the models implement
+`archive()` and `restore()`, but Django Admin's standard delete hooks were not
+overridden. `CategoryAdmin` and `SubcategoryAdmin` now route both single and
+bulk deletion through soft-delete, so admin actions cannot physically remove
+taxonomy rows.
 
 ## Automatic data creation audit
 
@@ -71,6 +71,7 @@ They are technical state, not business records.
 4. Transfer business audit records such as Django admin logs and ownership
    audits because they explain real administrative changes and are small.
 
-This decision must be confirmed before the migration command's analytics
-filter is finalized.
-
+The migration command implements this retention policy. Explicitly marked
+`seed:catalog-demo*` rows are reviewed and removed only from the test target by
+a separate dry-run-first cleanup command; the source and its backup remain
+untouched.

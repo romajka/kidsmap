@@ -196,6 +196,14 @@ class CategoryAdmin(admin.ModelAdmin):
             return []
         return self.inlines
 
+    def delete_model(self, request, obj):
+        """Admin deletion archives taxonomy; it must never remove the row."""
+        obj.archive(request.user)
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset.iterator():
+            obj.archive(request.user)
+
     def get_urls(self):
         from django.urls import path
         urls = super().get_urls()
@@ -315,6 +323,13 @@ class SubcategoryAdmin(admin.ModelAdmin):
     search_fields = ("name_ru", "name_az", "name_en")
     ordering = ("category", "name_ru")
     exclude = ("code", "order")
+
+    def delete_model(self, request, obj):
+        obj.archive(request.user)
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset.iterator():
+            obj.archive(request.user)
 
     def has_module_permission(self, request):
         # Скрываем подкатегории из бокового меню, так как они управляются из Категорий

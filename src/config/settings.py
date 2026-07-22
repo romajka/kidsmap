@@ -4,6 +4,8 @@ from importlib.util import find_spec
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
+from .database_url import parse_database_url
+
 SRC_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = SRC_DIR.parent
 HAS_WHITENOISE = find_spec("whitenoise") is not None
@@ -20,13 +22,6 @@ def _env_list(name: str) -> list[str]:
     return [item.strip() for item in os.getenv(name, "").split(",") if item.strip()]
 
 
-def _required_env(name: str) -> str:
-    value = (os.getenv(name, "") or "").strip()
-    if not value:
-        raise ImproperlyConfigured(f"{name} must be configured for PostgreSQL.")
-    return value
-
-
 def _is_placeholder_secret(value: str) -> bool:
     normalized = (value or "").strip()
     return normalized in {
@@ -39,11 +34,15 @@ def _is_placeholder_secret(value: str) -> bool:
 
 
 def _has_default_db_credentials() -> bool:
-    if DB_ENGINE not in {"mysql", "mariadb", "postgres", "postgresql"}:
+    database = DATABASES["default"]
+    if database["ENGINE"] not in {
+        "django.db.backends.mysql",
+        "django.db.backends.postgresql",
+    }:
         return False
-    db_name = (os.getenv("DB_NAME", "") or "").strip()
-    db_user = (os.getenv("DB_USER", "") or "").strip()
-    db_password = (os.getenv("DB_PASSWORD", "") or "").strip()
+    db_name = str(database.get("NAME", "")).strip()
+    db_user = str(database.get("USER", "")).strip()
+    db_password = str(database.get("PASSWORD", "")).strip()
     return (
         (db_name == "kidsmap" and db_user == "kidsmap" and db_password == "kidsmap")
         or db_password in {
@@ -291,50 +290,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DB_ENGINE = (os.getenv("DB_ENGINE", "") or "").strip().lower()
-if not DB_ENGINE:
-    if DEBUG:
-        DB_ENGINE = "sqlite"
-    else:
-        raise ImproperlyConfigured(
-            "DB_ENGINE is required in production and must be set to 'postgres'."
+DATABASE_URL = (os.getenv("DATABASE_URL", "") or "").strip()
+DB_CONN_MAX_AGE = int(os.getenv("DB_CONN_MAX_AGE", "60"))
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": parse_database_url(
+            DATABASE_URL,
+            env_name="DATABASE_URL",
+            conn_max_age=DB_CONN_MAX_AGE,
         )
-
-if not DEBUG and DB_ENGINE not in {"postgres", "postgresql"}:
-    raise ImproperlyConfigured(
-        "Production requires PostgreSQL: set DB_ENGINE=postgres. SQLite and MariaDB are not allowed."
-    )
-
-if DB_ENGINE in {"mysql", "mariadb"}:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": os.getenv("DB_NAME", "kidsmap"),
-            "USER": os.getenv("DB_USER", "kidsmap"),
-            "PASSWORD": os.getenv("DB_PASSWORD", "kidsmap"),
-            "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-            "PORT": os.getenv("DB_PORT", "3306"),
-            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
-            "OPTIONS": {
-                "charset": "utf8mb4",
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
     }
-elif DB_ENGINE in {"postgres", "postgresql"}:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": _required_env("DB_NAME"),
-            "USER": _required_env("DB_USER"),
-            "PASSWORD": _required_env("DB_PASSWORD"),
-            "HOST": _required_env("DB_HOST"),
-            "PORT": _required_env("DB_PORT"),
-            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
-            "CONN_HEALTH_CHECKS": True,
-        }
-    }
-elif DB_ENGINE == "sqlite" and DEBUG:
+elif DEBUG:
+    # Local development remains dependency-free. Production never falls back
+    # to SQLite or to legacy DB_* variables.
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -343,7 +312,20 @@ elif DB_ENGINE == "sqlite" and DEBUG:
     }
 else:
     raise ImproperlyConfigured(
-        f"Unsupported DB_ENGINE={DB_ENGINE!r}. Use 'postgres' in production or explicit 'sqlite' in development."
+        "DATABASE_URL is required in production and must use PostgreSQL."
+    )
+
+if not DEBUG and DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
+    raise ImproperlyConfigured(
+        "Production DATABASE_URL must use PostgreSQL; SQLite and MariaDB are not allowed."
+    )
+
+LEGACY_DATABASE_URL = (os.getenv("LEGACY_DATABASE_URL", "") or "").strip()
+if LEGACY_DATABASE_URL:
+    DATABASES["legacy"] = parse_database_url(
+        LEGACY_DATABASE_URL,
+        env_name="LEGACY_DATABASE_URL",
+        conn_max_age=0,
     )
 
 # A process-local cache makes admin edits appear inconsistent when Gunicorn has

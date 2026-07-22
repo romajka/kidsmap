@@ -40,12 +40,7 @@ jobs:
       DJANGO_SECRET_KEY: "ci-secret-key-for-kidsmap-not-for-prod"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,testserver"
       DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost"
-      DB_ENGINE: "postgres"
-      DB_NAME: "kidsmap"
-      DB_USER: "kidsmap"
-      DB_PASSWORD: "postgrespass"
-      DB_HOST: "127.0.0.1"
-      DB_PORT: "5432"
+      DATABASE_URL: "postgresql://kidsmap:postgrespass@127.0.0.1:5432/kidsmap"
       REDIS_URL: "redis://127.0.0.1:6379/0"
     steps:
       - name: Checkout

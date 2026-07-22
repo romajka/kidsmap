@@ -8,19 +8,13 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP_DIR="${BACKUP_DIR:-$ROOT_DIR/backups}"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 OUT_FILE="$BACKUP_DIR/kidsmap-db-$TIMESTAMP.sql.gz"
-DB_ENGINE="${DB_ENGINE:-postgres}"
 
 cd "$ROOT_DIR"
 
 mkdir -p "$BACKUP_DIR"
 
-if [[ "$DB_ENGINE" == "postgres" || "$DB_ENGINE" == "postgresql" ]]; then
-  DUMP_COMMAND='exec pg_dump --format=plain --no-owner --no-privileges -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
-  DB_SERVICE="postgres"
-else
-  DUMP_COMMAND='exec mariadb-dump --single-transaction --routines --triggers -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE"'
-  DB_SERVICE="db"
-fi
+DUMP_COMMAND='exec pg_dump --format=plain --no-owner --no-privileges -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+DB_SERVICE="postgres"
 
 if ! docker compose exec -T "$DB_SERVICE" sh -lc "$DUMP_COMMAND" | gzip -c > "$OUT_FILE"; then
   rm -f "$OUT_FILE"
