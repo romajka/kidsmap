@@ -79,9 +79,6 @@ ADMIN_HOST = (os.getenv("DJANGO_ADMIN_HOST", "") or "").strip().lower()
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "testserver"]
 extra_hosts = _env_list("DJANGO_ALLOWED_HOSTS")
 ALLOWED_HOSTS.extend(extra_hosts)
-render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME")
-if render_host:
-    ALLOWED_HOSTS.append(render_host)
 
 CSRF_TRUSTED_ORIGINS = _env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 if not CSRF_TRUSTED_ORIGINS and not DEBUG:
