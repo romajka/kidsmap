@@ -32,7 +32,8 @@
       <p>{{ hero_subtitle }}</p>
 
       <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
-        <div class="home-hero-stat km-stat-card km-stat-places">
+        <a class="home-hero-stat km-stat-card km-stat-places km-stat-link"
+          href="{% if map_places %}#home-map-section{% else %}{% url 'place_list' %}{% endif %}">
           <div class="km-stat-icon-wrapper">
             <svg class="km-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
@@ -48,8 +49,8 @@
             <strong data-count-target="{{ map_places|length }}">{{ map_places|length }}+</strong>
             <span>{% trans "мест и занятий на карте" %}</span>
           </div>
-        </div>
-        <div class="home-hero-stat km-stat-card km-stat-reviews">
+        </a>
+        <a class="home-hero-stat km-stat-card km-stat-reviews km-stat-link" href="{% url 'place_reviews' %}">
           <div class="km-stat-icon-wrapper">
             <svg class="km-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
@@ -74,7 +75,7 @@
               {% endif %}
             </span>
           </div>
-        </div>
+        </a>
       </div>
     </div>
 

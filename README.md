@@ -190,7 +190,7 @@ cd /home/ramin/kidsmap
 git status
 git add -A
 git commit -m "Your message"
-git push origin main
+git push -u origin HEAD
 ```
 
 ## Деплой на сервер
