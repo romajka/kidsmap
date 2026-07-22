@@ -19,6 +19,18 @@ python manage.py runserver 0.0.0.0:8000
 
 ## Publish from your PC
 
+The two commands used for everyday production updates are:
+
+```bash
+./scripts/publish-main.sh "Short description of the change"
+./scripts/deploy-production.sh
+```
+
+The first command commits and pushes the current `main`. The second one asks
+for the server SSH password (or uses your configured SSH key), then runs the
+full server deployment with migrations and smoke checks. It never stores a
+password in the repository.
+
 Run this from the project directory. It publishes the branch you are currently on, so it works for `main` and for feature branches such as `postgres-cutover-20260722`.
 
 ```bash
