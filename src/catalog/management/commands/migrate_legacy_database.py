@@ -97,7 +97,9 @@ class Command(BaseCommand):
 
         source_tables = set(source.introspection.table_names())
         target_tables = set(target.introspection.table_names())
-        self._verify_generated_ids(source, target, source_tables, target_tables)
+        generated_id_maps, generated_map_report = self._build_generated_id_maps(
+            source, target, source_tables, target_tables
+        )
 
         all_models = managed_models_by_table()
         copy_models = {
@@ -116,6 +118,7 @@ class Command(BaseCommand):
             "analytics_cutoff": cutoff.isoformat(),
             "excluded_tables": sorted(EXCLUDED_TABLES),
             "missing_source_tables": missing_business_tables,
+            "generated_id_maps": generated_map_report,
             "tables": {},
             "errors": [],
         }
@@ -130,6 +133,7 @@ class Command(BaseCommand):
                     options["batch_size"],
                     cutoff,
                     options["dry_run"],
+                    generated_id_maps,
                 )
                 report["tables"][table] = result
                 self.stdout.write(
@@ -145,7 +149,9 @@ class Command(BaseCommand):
         self._write_report(options["report"], report)
         self.stdout.write(self.style.SUCCESS(f"Migration report: {options['report']}"))
 
-    def _copy_table(self, source, target, model, batch_size, cutoff, dry_run):
+    def _copy_table(
+        self, source, target, model, batch_size, cutoff, dry_run, generated_id_maps
+    ):
         table = model._meta.db_table
         source_columns = table_columns(source, table)
         target_columns = table_columns(target, table)
@@ -205,7 +211,7 @@ class Command(BaseCommand):
             f"VALUES ({placeholders}) ON CONFLICT ({target_quote(pk_column)}){conflict_sql}"
         )
 
-        selected = written = 0
+        selected = written = skipped_unmapped = 0
         with source.cursor() as source_cursor:
             source_cursor.execute(select_sql, params)
             with transaction.atomic(using=target.alias):
@@ -219,6 +225,27 @@ class Command(BaseCommand):
                         for row in rows:
                             values = dict(zip(selected_columns, row))
                             values.update(supplied_defaults)
+                            skip_row = False
+                            for column in write_columns:
+                                field = fields_by_column[column]
+                                related = getattr(field.remote_field, "model", None)
+                                related_table = getattr(
+                                    getattr(related, "_meta", None), "db_table", None
+                                )
+                                id_map = generated_id_maps.get(related_table)
+                                if not id_map or values[column] is None:
+                                    continue
+                                mapped_value = id_map.get(values[column])
+                                if mapped_value is not None:
+                                    values[column] = mapped_value
+                                elif field.null:
+                                    values[column] = None
+                                else:
+                                    skip_row = True
+                                    break
+                            if skip_row:
+                                skipped_unmapped += 1
+                                continue
                             prepared_rows.append(
                                 tuple(
                                     fields_by_column[column].get_db_prep_save(
@@ -228,44 +255,71 @@ class Command(BaseCommand):
                                 )
                             )
                         if not dry_run:
-                            with target.cursor() as target_cursor:
-                                target_cursor.executemany(insert_sql, prepared_rows)
-                            written += len(prepared_rows)
+                            if prepared_rows:
+                                with target.cursor() as target_cursor:
+                                    target_cursor.executemany(insert_sql, prepared_rows)
+                                written += len(prepared_rows)
         return {
             "selected": selected,
             "written": written,
             "source_columns": selected_columns,
             "target_defaults": sorted(supplied_defaults),
+            "skipped_unmapped_generated_fk": skipped_unmapped,
         }
 
-    def _verify_generated_ids(self, source, target, source_tables, target_tables):
-        checks = {
-            "django_content_type": ("app_label", "model"),
-            "auth_permission": ("content_type_id", "codename"),
-        }
-        for table, natural_columns in checks.items():
-            if table not in source_tables or table not in target_tables:
-                raise CommandError(f"Required generated table is missing: {table}")
-            columns = ("id", *natural_columns)
-            snapshots = []
-            for connection in (source, target):
-                quote = connection.ops.quote_name
-                sql = (
-                    f"SELECT {', '.join(quote(column) for column in columns)} "
-                    f"FROM {quote(table)}"
+    def _build_generated_id_maps(self, source, target, source_tables, target_tables):
+        required = {"django_content_type", "auth_permission"}
+        missing = (required - source_tables) | (required - target_tables)
+        if missing:
+            raise CommandError(
+                "Required generated tables are missing: " + ", ".join(sorted(missing))
+            )
+
+        content_type_snapshots = []
+        permission_snapshots = []
+        for connection in (source, target):
+            quote = connection.ops.quote_name
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f"SELECT {quote('id')}, {quote('app_label')}, {quote('model')} "
+                    f"FROM {quote('django_content_type')}"
                 )
-                with connection.cursor() as cursor:
-                    cursor.execute(sql)
-                    snapshots.append({tuple(row[1:]): row[0] for row in cursor.fetchall()})
-            mismatches = [
-                key for key, source_id in snapshots[0].items()
-                if snapshots[1].get(key) != source_id
-            ]
-            if mismatches:
-                raise CommandError(
-                    f"{table}: generated ID mapping differs for {len(mismatches)} rows; "
-                    "permission relations cannot be copied safely."
+                content_type_snapshots.append(
+                    {tuple(row[1:]): row[0] for row in cursor.fetchall()}
                 )
+                cursor.execute(
+                    f"SELECT permission.{quote('id')}, content_type.{quote('app_label')}, "
+                    f"content_type.{quote('model')}, permission.{quote('codename')} "
+                    f"FROM {quote('auth_permission')} permission "
+                    f"JOIN {quote('django_content_type')} content_type "
+                    f"ON permission.{quote('content_type_id')} = content_type.{quote('id')}"
+                )
+                permission_snapshots.append(
+                    {tuple(row[1:]): row[0] for row in cursor.fetchall()}
+                )
+
+        maps = {}
+        report = {}
+        for table, snapshots in (
+            ("django_content_type", content_type_snapshots),
+            ("auth_permission", permission_snapshots),
+        ):
+            source_by_natural, target_by_natural = snapshots
+            id_map = {
+                source_id: target_by_natural[natural]
+                for natural, source_id in source_by_natural.items()
+                if natural in target_by_natural
+            }
+            maps[table] = id_map
+            report[table] = {
+                "source_rows": len(source_by_natural),
+                "mapped_rows": len(id_map),
+                "missing_in_target": [
+                    list(natural)
+                    for natural in sorted(source_by_natural.keys() - target_by_natural.keys())
+                ],
+            }
+        return maps, report
 
     def _reset_sequences(self, target, models):
         statements = target.ops.sequence_reset_sql(no_style(), list(models))
