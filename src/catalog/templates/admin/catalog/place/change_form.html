@@ -3,14 +3,6 @@
 
 {% block extrahead %}
   {{ block.super }}
-  {% if not google_maps_api_key %}
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-  {% endif %}
   {# <link rel="stylesheet" href="https://unpkg.com/filepond@4.32.12/dist/filepond.min.css"> #}
   {# <link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.css"> #}
   {# <script src="https://unpkg.com/filepond@4.32.12/dist/filepond.min.js" defer></script> #}
@@ -30,14 +22,6 @@
       defer
       src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitAdminPlaceLocation"
     ></script>
-  {% else %}
-    <script
-      defer
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-    <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>
   {% endif %}
   <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}" defer></script>
   <style>

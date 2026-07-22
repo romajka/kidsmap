@@ -30,6 +30,7 @@ from .controllers.owner_reviews_controller import OwnerReviewsController
 from .controllers.owner_team_controller import OwnerTeamController
 from .controllers.ownership_controller import OwnershipController
 from .controllers.place_controller import PlaceController
+from .controllers.place_reviews_controller import PlaceReviewsController
 from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
@@ -57,6 +58,7 @@ seo_controller = SeoController.build_default()
 tracking_controller = TrackingController.build_default()
 account_controller = AccountController.build_default()
 site_reviews_controller = SiteReviewsController.build_default()
+place_reviews_controller = PlaceReviewsController()
 
 
 def _resolve_safe_next_url(request, fallback_url: str) -> str:
@@ -394,6 +396,11 @@ def site_reviews(request):
     return render(request, "pages/site_reviews.html", context)
 
 
+def place_reviews(request):
+    context = place_reviews_controller.build_context(request)
+    return render(request, "pages/place_reviews.html", context)
+
+
 @require_POST
 def vote_place_review(request, review_id):
     value = (request.POST.get("value") or "").strip()
@@ -422,7 +429,7 @@ def vote_place_review(request, review_id):
                 "dislikes_count": result.dislikes_count,
             }
         )
-    return redirect(f"{result.review.place.get_absolute_url()}#reviews")
+    return redirect(_resolve_safe_next_url(request, f"{result.review.place.get_absolute_url()}#reviews"))
 
 
 @require_POST
@@ -1831,6 +1838,7 @@ def specialist_detail(request, slug):
         "seo_title": seo_title,
         "meta_description": meta_description,
         "has_coords": has_coords,
+        "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
     }
     return render(request, "catalog/specialist_detail.html", context)
 

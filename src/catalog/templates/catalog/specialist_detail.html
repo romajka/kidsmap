@@ -6,10 +6,6 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/pages/specialists.css' %}" />
-{% if has_coords %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -346,7 +342,6 @@
             {% endfor %}
           </div>
 
-          <!-- Leaflet Map placeholder if has_coords is True -->
           {% if has_coords %}
             <div id="specialist-map" class="km-detail-map-container"></div>
           {% endif %}
@@ -469,12 +464,11 @@
   });
 </script>
 
-<!-- Leaflet Map Initialization script -->
 {% if has_coords %}
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
+  function initSpecialistMap() {
     const mapElement = document.getElementById("specialist-map");
-    if (mapElement) {
+    if (mapElement && mapElement.dataset.mapInitialized !== '1') {
       const locations = [
         {% for loc in specialist.practice_locations.all %}
           {% if loc.lat and loc.lng %}
@@ -488,31 +482,38 @@
         {% endfor %}
       ];
 
-      if (locations.length > 0) {
+      if (locations.length > 0 && window.google && window.google.maps) {
+        mapElement.dataset.mapInitialized = '1';
         const first = locations[0];
-        // Initialize Leaflet Map centered on the first location
-        const map = L.map('specialist-map', {
-          scrollWheelZoom: false
-        }).setView([first.lat, first.lng], 14);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        const bounds = [];
+        const map = new google.maps.Map(mapElement, {
+          center: { lat: first.lat, lng: first.lng },
+          zoom: 14,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: false,
+          gestureHandling: 'cooperative'
+        });
+        const bounds = new google.maps.LatLngBounds();
         locations.forEach(function(loc) {
-          const marker = L.marker([loc.lat, loc.lng]).addTo(map);
-          marker.bindPopup("<b>" + loc.placeName + "</b><br/>" + loc.address);
-          bounds.push([loc.lat, loc.lng]);
+          const marker = new google.maps.Marker({ position: { lat: loc.lat, lng: loc.lng }, map: map, title: loc.placeName });
+          const infoWindow = new google.maps.InfoWindow({ content: "<b>" + loc.placeName + "</b><br/>" + loc.address });
+          marker.addListener('click', function() { infoWindow.open({ map: map, anchor: marker }); });
+          bounds.extend(marker.getPosition());
         });
 
         if (locations.length > 1) {
           map.fitBounds(bounds, { padding: [30, 30] });
         }
+      } else if (mapElement) {
+        mapElement.innerHTML = '<p class="meta">{% if language == "az" %}Xəritə müvəqqəti əlçatan deyil.{% elif language == "en" %}The map is temporarily unavailable.{% else %}Карта временно недоступна.{% endif %}</p>';
       }
     }
-  });
+  }
+  window.kidsMapInitSpecialistMap = initSpecialistMap;
+  document.addEventListener("DOMContentLoaded", initSpecialistMap);
 </script>
+{% if google_maps_api_key %}
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitSpecialistMap"></script>
+{% endif %}
 {% endif %}
 {% endblock %}

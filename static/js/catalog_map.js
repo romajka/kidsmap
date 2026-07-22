@@ -1,5 +1,6 @@
 (function () {
   let catalogMapState = null;
+  let catalogMapDocumentListenersBound = false;
   const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
   const LEAFLET_DEFAULTS = {
     cssHref: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
@@ -63,6 +64,19 @@
       '<circle cx="27" cy="27" r="19" fill="#087443" stroke="white" stroke-width="3"/>' +
       '<text x="27" y="27" text-anchor="middle" dominant-baseline="central" fill="white" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="15px" font-weight="800">' + count + '</text>' +
       '</svg>';
+  }
+
+  function expandGoogleCluster(event, cluster, map) {
+    if (!cluster || !cluster.bounds || !map) return;
+
+    const currentZoom = map.getZoom() || 11;
+    map.fitBounds(cluster.bounds, { top: 48, right: 48, bottom: 48, left: 48 });
+    google.maps.event.addListenerOnce(map, "idle", function () {
+      const zoomAfterFit = map.getZoom() || currentZoom;
+      if (zoomAfterFit <= currentZoom && currentZoom < 18) {
+        map.setZoom(Math.min(18, currentZoom + 2));
+      }
+    });
   }
 
   function escapeHtml(value) {
@@ -597,7 +611,7 @@
       var jitterLat = 0, jitterLng = 0;
       if (total > 1 && idx > 0) {
         var angle = (idx / total) * 2 * Math.PI;
-        var radius = 0.00005 * Math.ceil(idx / 8);
+        var radius = 0.00012 * Math.ceil(idx / 6);
         jitterLat = radius * Math.cos(angle);
         jitterLng = radius * Math.sin(angle) * 1.5;
       }
@@ -642,7 +656,7 @@
 
     if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
       var clusterAlgorithm = (window.markerClusterer.SuperClusterAlgorithm)
-        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 17, radius: 80 })
+        ? new window.markerClusterer.SuperClusterAlgorithm({ maxZoom: 18, radius: 100 })
         : undefined;
       state.markerCluster = new window.markerClusterer.MarkerClusterer({
         map: state.googleMap,
@@ -663,7 +677,8 @@
               zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
             });
           }
-        }
+        },
+        onClusterClick: expandGoogleCluster,
       });
     } else {
       activeMarkers.forEach(function (marker) {
@@ -905,20 +920,16 @@
     const state = ensureCatalogMapState();
     if (!state) return;
 
-    if (state.provider === "google") {
-      initCatalogGoogleMap();
-      if (state.googleMap) {
-        google.maps.event.trigger(state.googleMap, "resize");
-        fitCatalogMapBounds(state);
-        positionDesktopCard(state);
-      }
+    if (state.provider !== "google") {
+      renderCatalogMapState(state.mapEl, state.fallbackMessage, "catalog-map-empty");
+      state.initialized = true;
       return;
     }
 
-    initCatalogFallbackState();
-    if (state.leafletMap) {
-      state.leafletMap.invalidateSize();
-      fitCatalogLeafletBounds(state);
+    initCatalogGoogleMap();
+    if (state.googleMap) {
+      google.maps.event.trigger(state.googleMap, "resize");
+      fitCatalogMapBounds(state);
       positionDesktopCard(state);
     }
   }
@@ -955,17 +966,22 @@
       state.openBtn.focus();
     });
 
-    document.addEventListener("keydown", function (event) {
-      if (event.key !== "Escape") return;
-      if (state.activePlace) {
-        closeActiveCard(state, true);
-        return;
-      }
-      if (!state.panel.hidden) {
-        setCatalogMapOpen(false);
-        state.openBtn.focus();
-      }
-    });
+    if (!catalogMapDocumentListenersBound) {
+      catalogMapDocumentListenersBound = true;
+      document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+        const currentState = ensureCatalogMapState();
+        if (!currentState) return;
+        if (currentState.activePlace) {
+          closeActiveCard(currentState, true);
+          return;
+        }
+        if (!currentState.panel.hidden) {
+          setCatalogMapOpen(false);
+          currentState.openBtn.focus();
+        }
+      });
+    }
 
     const handleViewportChange = function () {
       if (!state.activePlace || !state.activeMarker) return;

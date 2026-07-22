@@ -7,14 +7,6 @@
 {% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Yeni məkan{% elif CURRENT_LANGUAGE == "en" %}New place{% else %}Новое место{% endif %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
-  {% if not google_maps_api_key %}
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-  {% endif %}
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=22">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_taxonomy_picker.css' %}?v=2">
 {% endblock %}
@@ -101,12 +93,6 @@
       async
       defer
       src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitOwnerMapPickers"
-    ></script>
-  {% else %}
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
     ></script>
   {% endif %}
 {% endblock %}

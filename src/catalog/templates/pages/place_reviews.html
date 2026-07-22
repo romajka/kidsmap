@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ seo_title }}{% endblock %}
+{% block title_plain %}{{ seo_title }}{% endblock %}
+{% block title_plain_twitter %}{{ seo_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+<section class="panel place-reviews-page">
+  <header class="place-reviews-hero">
+    <div>
+      <p class="place-reviews-eyebrow">{% if request.LANGUAGE_CODE == 'az' %}Valideyn rəyləri{% elif request.LANGUAGE_CODE == 'en' %}Parent reviews{% else %}Отзывы родителей{% endif %}</p>
+      <h1>{% if request.LANGUAGE_CODE == 'az' %}Dərnəklər haqqında real rəylər{% elif request.LANGUAGE_CODE == 'en' %}Real reviews of kids' activities{% else %}Честные отзывы о кружках{% endif %}</h1>
+      <p>{% if request.LANGUAGE_CODE == 'az' %}Hər rəyin yanında hansı məkana aid olduğu göstərilir — bir kliklə onun səhifəsinə keçin.{% elif request.LANGUAGE_CODE == 'en' %}Every review shows the place it is about, so you can open its page in one click.{% else %}У каждого отзыва видно, о каком кружке он написан. Нажмите на название — откроется его страница.{% endif %}</p>
+    </div>
+    <aside class="place-reviews-score" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Rəylərin statistikası{% elif request.LANGUAGE_CODE == 'en' %}Review statistics{% else %}Статистика отзывов{% endif %}">
+      <strong>{{ place_reviews_count }}</strong>
+      <span>{% if request.LANGUAGE_CODE == 'az' %}dərc olunmuş rəy{% elif request.LANGUAGE_CODE == 'en' %}published reviews{% else %}опубликованных отзывов{% endif %}</span>
+      <small>★ {{ place_reviews_avg|floatformat:1 }} {% if request.LANGUAGE_CODE == 'az' %}orta qiymət{% elif request.LANGUAGE_CODE == 'en' %}average rating{% else %}средняя оценка{% endif %}</small>
+    </aside>
+  </header>
+
+  <div class="reviews-polished-toolbar-wrap place-reviews-toolbar-wrap">
+    <div class="reviews-polished-toolbar-copy">
+      <strong>{% if request.LANGUAGE_CODE == 'az' %}Dərnəklər haqqında rəylər{% elif request.LANGUAGE_CODE == 'en' %}Activity reviews{% else %}Отзывы о кружках{% endif %}</strong>
+      <span>{% if request.LANGUAGE_CODE == 'az' %}Bütün rəylər dərc olunmazdan əvvəl moderasiyadan keçir.{% elif request.LANGUAGE_CODE == 'en' %}All reviews pass moderation before publication.{% else %}Все отзывы проходят модерацию перед публикацией.{% endif %}</span>
+    </div>
+    <form method="get" class="reviews-toolbar reviews-polished-toolbar">
+      <label class="filter-item filter-sort">
+        <span class="visually-hidden">{% if request.LANGUAGE_CODE == 'az' %}Rəylərin çeşidlənməsi{% elif request.LANGUAGE_CODE == 'en' %}Sort reviews{% else %}Сортировка отзывов{% endif %}</span>
+        <select class="filter-select" name="sort">
+          {% for value, label in review_sort_choices %}
+          <option value="{{ value }}"{% if review_sort == value %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="link-btn" type="submit">{% if request.LANGUAGE_CODE == 'az' %}Tətbiq et{% elif request.LANGUAGE_CODE == 'en' %}Apply{% else %}Применить{% endif %}</button>
+    </form>
+  </div>
+
+  {% if place_reviews %}
+  <div class="reviews-list place-reviews-list">
+    {% for review in place_reviews %}
+      {% include 'catalog/includes/review_item.html' with review=review vote_url_name='vote_place_review' show_place_link=True next_url=request.get_full_path %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="site-reviews-empty">
+    <p class="site-reviews-empty-title">{% if request.LANGUAGE_CODE == 'az' %}Hələ ki dərc olunmuş rəy yoxdur.{% elif request.LANGUAGE_CODE == 'en' %}No published reviews yet.{% else %}Пока нет опубликованных отзывов.{% endif %}</p>
+    <p class="meta">{% if request.LANGUAGE_CODE == 'az' %}Rəylər moderasiyadan sonra burada görünəcək.{% elif request.LANGUAGE_CODE == 'en' %}Reviews will appear here after moderation.{% else %}Отзывы появятся здесь после модерации.{% endif %}</p>
+    <a class="btn" href="{% url 'place_list' %}">{% if request.LANGUAGE_CODE == 'az' %}Kataloqa keçin{% elif request.LANGUAGE_CODE == 'en' %}Go to catalog{% else %}Перейти в каталог{% endif %}</a>
+  </div>
+  {% endif %}
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="pagination" aria-label="{% if request.LANGUAGE_CODE == 'az' %}Səhifələmə{% elif request.LANGUAGE_CODE == 'en' %}Pagination{% else %}Пагинация{% endif %}">
+    {% if page_obj.has_previous %}<a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">‹ {% if request.LANGUAGE_CODE == 'az' %}Geri{% elif request.LANGUAGE_CODE == 'en' %}Back{% else %}Назад{% endif %}</a>{% endif %}
+    <div class="page-list">
+      {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}<span class="page-item active">{{ num }}</span>
+        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}<a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>{% endif %}
+      {% endfor %}
+    </div>
+    {% if page_obj.has_next %}<a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% if request.LANGUAGE_CODE == 'az' %}İrəli{% elif request.LANGUAGE_CODE == 'en' %}Next{% else %}Вперед{% endif %} ›</a>{% endif %}
+  </nav>
+  {% endif %}
+</section>
+{% endblock %}

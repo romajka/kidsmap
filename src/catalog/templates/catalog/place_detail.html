@@ -117,6 +117,7 @@
 
               <div class="detail-unified-pricing__top">
                 <div class="detail-unified-pricing__price-block">
+                  <span class="detail-unified-pricing__price-label">{{ pricing_summary.strings.price_label }}</span>
                   <div class="detail-unified-pricing__price-val">{{ pricing_summary.formatted_price_amount }}</div>
                 </div>
 
@@ -135,7 +136,7 @@
                   <span class="schedule-type-badge"><i class="far fa-calendar-alt" aria-hidden="true"></i> {{ pricing_summary.schedule_type_label }}:</span>
                   <div class="schedule-rows-list">
                     {% for row in pricing_summary.schedule_rows %}
-                      <div class="schedule-row-item">
+                      <div class="schedule-row-item{% if row.is_closed %} schedule-row-item--closed{% endif %}">
                         {% if row.days %}<span class="schedule-row-days">{{ row.days }}</span><span class="schedule-row-separator">·</span>{% endif %}
                         <strong class="schedule-row-time">{{ row.time }}</strong>
                       </div>
@@ -260,11 +261,15 @@
             {% if place.subcategory %}
               <div class="detail-highlight-card detail-highlight-card--subcategory detail-highlight-card--muted">
                 <span class="detail-highlight-card__icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M8.25 8.25a3.5 3.5 0 1 1 5.3 2.98l-3.06 4.52a3.5 3.5 0 1 0 5.3 2.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="8.25" cy="8.25" r="1.15" fill="currentColor"/>
-                    <circle cx="15.75" cy="15.75" r="1.15" fill="currentColor"/>
-                  </svg>
+                  {% if place.subcategory.icon_file_url %}
+                    <img src="{{ place.subcategory.icon_file_url }}" alt="" />
+                  {% else %}
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M8.25 8.25a3.5 3.5 0 1 1 5.3 2.98l-3.06 4.52a3.5 3.5 0 1 0 5.3 2.98" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="8.25" cy="8.25" r="1.15" fill="currentColor"/>
+                      <circle cx="15.75" cy="15.75" r="1.15" fill="currentColor"/>
+                    </svg>
+                  {% endif %}
                 </span>
                 <div class="detail-highlight-card__body">
                   <span class="detail-highlight-card__label">{% if language == "az" %}Alt kateqoriya{% elif language == "en" %}Subcategory{% else %}Подкатегория{% endif %}</span>
