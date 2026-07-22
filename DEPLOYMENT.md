@@ -17,12 +17,22 @@ $env:GOOGLE_MAPS_API_KEY="YOUR_KEY"
 python manage.py runserver 0.0.0.0:8000
 ```
 
-## Deploy via Git
+## Publish from your PC
+
+Run this from the project directory. It publishes the branch you are currently on, so it works for `main` and for feature branches such as `postgres-cutover-20260722`.
+
 ```bash
+cd /home/ramin/kidsmap
+git status --short
 git add -A
-git commit -m "update"
-git push origin main
+git commit -m "update" # replace update with a short description
+git push -u origin HEAD
 ```
+
+Notes:
+1. `.env` is ignored and is not sent to GitHub. Keep server secrets only in `/opt/kidsmap/.env`.
+2. `git push -u origin HEAD` is intentional: it pushes the current branch instead of accidentally pushing an outdated local `main`.
+3. To update production, merge the branch into `main` through GitHub first. Do not force-push to `main`.
 
 ## Fast local suites
 Для локальной проверки и AI-сессий используйте выборочные сьюты вместо полного `manage.py test`:
@@ -37,12 +47,29 @@ git push origin main
 ./scripts/run_kidsmap_tests.sh full
 ```
 
-## Server Deploy (one command)
-Run this on server after each `git push`:
+## Server deploy (one command)
+
+Run this on the server after the change is in remote `main`:
+
 ```bash
 cd /opt/kidsmap
-./scripts/deploy-server.sh
+./scripts/deploy-server.sh main
 ```
+
+Or run the whole server deploy from your PC:
+
+```bash
+ssh root@157.173.119.227 'cd /opt/kidsmap && ./scripts/deploy-server.sh main'
+```
+
+To deploy a non-main branch temporarily for review, pass its exact name:
+
+```bash
+./scripts/deploy-server.sh postgres-cutover-20260722
+```
+
+Do this only on a test server, not on production.
+
 What it does:
 1. Stashes local server edits (if any).
 2. Fetches and fast-forwards the selected branch from `origin`.
