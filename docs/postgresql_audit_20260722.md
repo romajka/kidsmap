@@ -75,3 +75,68 @@ The migration command implements this retention policy. Explicitly marked
 `seed:catalog-demo*` rows are reviewed and removed only from the test target by
 a separate dry-run-first cleanup command; the source and its backup remain
 untouched.
+
+## Isolated server rehearsal
+
+The rehearsal ran on the production server without changing or restarting the
+production `web`, `postgres`, or `redis` containers. It used a separate Git
+worktree, Docker network, PostgreSQL container, and persistent volume
+`kidsmap_pg_rehearsal_20260722`. The legacy MariaDB volume was attached only to
+an isolated temporary source container and was not an application target.
+
+Results after fixing generated permission-ID mapping, UTC conversion, and
+migration-seed pruning:
+
+| Check | Result |
+| --- | ---: |
+| Copied business tables | 41 |
+| Source rows in scope | 16,866 |
+| PostgreSQL rows in scope | 16,866 |
+| Skipped rows | 0 |
+| Content types mapped by natural key | 56 / 56 |
+| Permissions mapped by natural key | 224 / 224 |
+| Foreign-key / mandatory-relation checks | 64 passed |
+| PostgreSQL sequences checked | 37 passed |
+| Duplicate slugs | 0 |
+| Final verification failures | 0 |
+
+The transfer was run repeatedly against the same target. Every repeat selected
+and upserted the same 16,866 rows without duplicates. `--prune-target` removed
+27 Metro rows created by PostgreSQL data migrations but absent from MariaDB.
+String primary-key sets are compared exactly because MariaDB and PostgreSQL
+collations can legitimately return different textual `MIN/MAX` values.
+
+Functional checks passed on the transferred test database: an existing staff
+account opened Django Admin, an existing user opened favorites, taxonomy
+create/rename/soft-delete worked, a place update survived a closed database
+connection, and photo upload, review, favorite, and ownership-request writes
+worked. All rehearsal records, files, and sessions were then deleted. A release
+re-run reported no pending migrations; the web container was rebuilt,
+recreated, and restarted successfully.
+
+HTTP and Playwright checks returned 200 for the home page, catalog, filtered
+catalog, admin login, and AZ/RU/EN pages. The catalog rendered 52 cards and the
+map panel received 52 points with zero browser console errors or warnings. The
+interactive Google layer showed its expected fallback because the rehearsal
+container was intentionally not given the production Google Maps API key.
+
+## Legacy content issues found (not migration loss)
+
+The final data comparison still reports content-quality items for manual
+review; they exist in MariaDB and were preserved exactly:
+
+- two missing media files: Place `id=1` photo
+  `places/rlyrlvtRQ5zj1DKp8nOA30zuBN2fj4bHUvF4PgVG.webp` and PlacePhoto `id=1`
+  `places/gallery/LuxuryLiving.jpg`;
+- 413 blank optional translation cells, mostly multilingual additional-info
+  and extra-condition fields; required display names/descriptions account for
+  only a small part of that total;
+- 12 repeated normalized `Place.phone1` values and one repeated user-profile
+  phone value. These can represent branches or duplicate accounts and must not
+  be deleted automatically.
+
+Detailed JSON reports remain on the server in
+`/opt/kidsmap-pg-rehearsal/reports/`. The test PostgreSQL container is stopped,
+but its persistent volume is retained for review. Temporary web, Redis,
+legacy-source containers, static volume, test uploads, and sessions were
+removed. The original MariaDB volume is intact.
