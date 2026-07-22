@@ -37,6 +37,7 @@ python manage.py migrate_legacy_database \
   --target default \
   --batch-size 1000 \
   --analytics-days 180 \
+  --prune-target \
   --report /app/backups/migration-report.json
 ```
 
@@ -44,7 +45,10 @@ The command preserves primary keys and relations, upserts by primary key for
 safe repeat runs, adapts values through the target Django fields, fills new
 schema defaults, uses transactions per table, and resets PostgreSQL sequences.
 It never transfers `django_session` or `catalog_sitevisit`. Funnel analytics
-are limited to 180 days.
+are limited to 180 days. `--prune-target` removes migration-seeded rows that
+do not exist in the source, in reverse foreign-key order. It is allowed by
+default only when the target database name contains `test`; production needs
+the explicit `--allow-production-prune` maintenance-cutover flag.
 
 5. Review explicitly marked demo data, then remove it only from the test target:
 

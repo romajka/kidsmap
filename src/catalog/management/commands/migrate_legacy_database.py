@@ -76,6 +76,8 @@ class Command(BaseCommand):
         parser.add_argument("--analytics-days", type=int, default=180)
         parser.add_argument("--report", default="migration-report.json")
         parser.add_argument("--dry-run", action="store_true")
+        parser.add_argument("--prune-target", action="store_true")
+        parser.add_argument("--allow-production-prune", action="store_true")
 
     def handle(self, *args, **options):
         source_alias = options["source"]
@@ -94,6 +96,16 @@ class Command(BaseCommand):
             raise CommandError(f"Source must be MariaDB/MySQL, got {source.vendor}.")
         if target.vendor != "postgresql":
             raise CommandError(f"Target must be PostgreSQL, got {target.vendor}.")
+        target_name = str(target.settings_dict.get("NAME", "")).lower()
+        if (
+            options["prune_target"]
+            and "test" not in target_name
+            and not options["allow_production_prune"]
+        ):
+            raise CommandError(
+                "Refusing to prune a non-test target. Use --allow-production-prune "
+                "only during an approved maintenance cutover."
+            )
 
         source_tables = set(source.introspection.table_names())
         target_tables = set(target.introspection.table_names())
@@ -115,6 +127,7 @@ class Command(BaseCommand):
             "source": source_alias,
             "target": target_alias,
             "dry_run": options["dry_run"],
+            "prune_target": options["prune_target"],
             "analytics_cutoff": cutoff.isoformat(),
             "excluded_tables": sorted(EXCLUDED_TABLES),
             "missing_source_tables": missing_business_tables,
@@ -139,6 +152,15 @@ class Command(BaseCommand):
                 self.stdout.write(
                     f"{table}: selected={result['selected']} written={result['written']}"
                 )
+            if options["prune_target"] and not options["dry_run"]:
+                ordered = ordered_models(copy_models)
+                for model in reversed(ordered):
+                    pruned = self._prune_table(source, target, model, cutoff)
+                    report["tables"][model._meta.db_table]["pruned_target_rows"] = pruned
+                    if pruned:
+                        self.stdout.write(
+                            f"{model._meta.db_table}: pruned_target_rows={pruned}"
+                        )
             if not options["dry_run"]:
                 self._reset_sequences(target, copy_models.values())
         except Exception as exc:
@@ -279,6 +301,35 @@ class Command(BaseCommand):
             if timezone.is_naive(value):
                 return timezone.make_aware(value, UTC)
         return value
+
+    def _prune_table(self, source, target, model, cutoff):
+        table = model._meta.db_table
+        pk_column = model._meta.pk.column
+        source_quote = source.ops.quote_name
+        target_quote = target.ops.quote_name
+        where_sql = ""
+        params = []
+        if table == "catalog_funnelevent":
+            where_sql = f" WHERE {source_quote('created_at')} >= %s"
+            params.append(cutoff)
+        with source.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {source_quote(pk_column)} FROM {source_quote(table)}{where_sql}",
+                params,
+            )
+            source_ids = [row[0] for row in cursor.fetchall()]
+
+        with transaction.atomic(using=target.alias), target.cursor() as cursor:
+            if source_ids:
+                placeholders = ", ".join(["%s"] * len(source_ids))
+                cursor.execute(
+                    f"DELETE FROM {target_quote(table)} "
+                    f"WHERE {target_quote(pk_column)} NOT IN ({placeholders})",
+                    source_ids,
+                )
+            else:
+                cursor.execute(f"DELETE FROM {target_quote(table)}")
+            return cursor.rowcount
 
     def _build_generated_id_maps(self, source, target, source_tables, target_tables):
         required = {"django_content_type", "auth_permission"}
