@@ -54,10 +54,20 @@ class Command(BaseCommand):
             pk = model._meta.pk.column
             source_stats = self._stats(source, table, pk, cutoff)
             target_stats = self._stats(target, table, pk, cutoff)
-            matches = source_stats == target_stats
+            if isinstance(model._meta.pk, models.IntegerField):
+                id_set_matches = None
+                matches = source_stats == target_stats
+            else:
+                id_set_matches = self._id_set(source, table, pk, cutoff) == self._id_set(
+                    target, table, pk, cutoff
+                )
+                matches = (
+                    source_stats["count"] == target_stats["count"] and id_set_matches
+                )
             report["tables"][table] = {
                 "source": source_stats,
                 "target": target_stats,
+                "id_set_matches": id_set_matches,
                 "matches": matches,
             }
             if not matches:
@@ -98,6 +108,20 @@ class Command(BaseCommand):
             cursor.execute(sql, params)
             count, minimum, maximum = cursor.fetchone()
         return {"count": count, "min_id": minimum, "max_id": maximum}
+
+    def _id_set(self, connection, table, pk, cutoff):
+        quote = connection.ops.quote_name
+        where = ""
+        params = []
+        if table == "catalog_funnelevent":
+            where = f" WHERE {quote('created_at')} >= %s"
+            params.append(cutoff)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT {quote(pk)} FROM {quote(table)}{where}",
+                params,
+            )
+            return {row[0] for row in cursor.fetchall()}
 
     def _check_relations(self, connection, model, report):
         table = model._meta.db_table
