@@ -20,6 +20,13 @@ def _env_list(name: str) -> list[str]:
     return [item.strip() for item in os.getenv(name, "").split(",") if item.strip()]
 
 
+def _required_env(name: str) -> str:
+    value = (os.getenv(name, "") or "").strip()
+    if not value:
+        raise ImproperlyConfigured(f"{name} must be configured for PostgreSQL.")
+    return value
+
+
 def _is_placeholder_secret(value: str) -> bool:
     normalized = (value or "").strip()
     return normalized in {
@@ -32,15 +39,19 @@ def _is_placeholder_secret(value: str) -> bool:
 
 
 def _has_default_db_credentials() -> bool:
-    if DB_ENGINE not in {"mysql", "mariadb"}:
+    if DB_ENGINE not in {"mysql", "mariadb", "postgres", "postgresql"}:
         return False
-    db_name = (os.getenv("DB_NAME", "kidsmap") or "").strip()
-    db_user = (os.getenv("DB_USER", "kidsmap") or "").strip()
-    db_password = (os.getenv("DB_PASSWORD", "kidsmap") or "").strip()
+    db_name = (os.getenv("DB_NAME", "") or "").strip()
+    db_user = (os.getenv("DB_USER", "") or "").strip()
+    db_password = (os.getenv("DB_PASSWORD", "") or "").strip()
     return (
-        db_name == "kidsmap"
-        and db_user == "kidsmap"
-        and db_password == "kidsmap"
+        (db_name == "kidsmap" and db_user == "kidsmap" and db_password == "kidsmap")
+        or db_password in {
+            "",
+            "changeme",
+            "replace-with-strong-db-password",
+            "replace-with-strong-postgres-password",
+        }
     )
 
 
@@ -48,6 +59,7 @@ def _has_default_db_credentials() -> bool:
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-me")
 
 DEBUG = _env_bool("DJANGO_DEBUG", True)
+TESTING = _env_bool("DJANGO_TESTING", False)
 SERVE_MEDIA_FILES = _env_bool("SERVE_MEDIA_FILES", True)
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 GOOGLE_ANALYTICS_MEASUREMENT_ID = (os.getenv("GOOGLE_ANALYTICS_MEASUREMENT_ID", "") or "").strip()
@@ -272,7 +284,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DB_ENGINE = os.getenv("DB_ENGINE", "sqlite").lower()
+DB_ENGINE = (os.getenv("DB_ENGINE", "") or "").strip().lower()
+if not DB_ENGINE:
+    if DEBUG:
+        DB_ENGINE = "sqlite"
+    else:
+        raise ImproperlyConfigured(
+            "DB_ENGINE is required in production and must be set to 'postgres'."
+        )
+
+if not DEBUG and DB_ENGINE not in {"postgres", "postgresql"}:
+    raise ImproperlyConfigured(
+        "Production requires PostgreSQL: set DB_ENGINE=postgres. SQLite and MariaDB are not allowed."
+    )
+
 if DB_ENGINE in {"mysql", "mariadb"}:
     DATABASES = {
         "default": {
@@ -289,19 +314,68 @@ if DB_ENGINE in {"mysql", "mariadb"}:
             },
         }
     }
-else:
+elif DB_ENGINE in {"postgres", "postgresql"}:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": _required_env("DB_NAME"),
+            "USER": _required_env("DB_USER"),
+            "PASSWORD": _required_env("DB_PASSWORD"),
+            "HOST": _required_env("DB_HOST"),
+            "PORT": _required_env("DB_PORT"),
+            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
+            "CONN_HEALTH_CHECKS": True,
+        }
+    }
+elif DB_ENGINE == "sqlite" and DEBUG:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
+else:
+    raise ImproperlyConfigured(
+        f"Unsupported DB_ENGINE={DB_ENGINE!r}. Use 'postgres' in production or explicit 'sqlite' in development."
+    )
+
+# A process-local cache makes admin edits appear inconsistent when Gunicorn has
+# multiple workers. Production must use Redis so every worker reads the same
+# cache. Local SQLite development remains dependency-free unless REDIS_URL is
+# explicitly supplied.
+REDIS_URL = (os.getenv("REDIS_URL", "") or "").strip()
+if TESTING:
+    # Parallel test workers use cloned databases but would otherwise share
+    # Redis keys, leaking cached state between unrelated tests.
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "kidsmap-tests",
+        }
+    }
+elif REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": REDIS_URL,
+            "TIMEOUT": int(os.getenv("CACHE_DEFAULT_TIMEOUT", "300")),
+        }
+    }
+elif DEBUG:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "kidsmap-local",
+        }
+    }
+else:
+    raise ImproperlyConfigured("REDIS_URL must be configured when DJANGO_DEBUG=0.")
 
 if not DEBUG:
     if _is_placeholder_secret(SECRET_KEY):
         raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set to a strong non-placeholder value when DJANGO_DEBUG=0.")
     if _has_default_db_credentials():
-        raise ImproperlyConfigured("Replace default MariaDB credentials before running with DJANGO_DEBUG=0.")
+        raise ImproperlyConfigured("Replace default database credentials before running with DJANGO_DEBUG=0.")
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

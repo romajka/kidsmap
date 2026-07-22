@@ -139,7 +139,7 @@ Expected headers:
 ## Auto-deploy on push (GitHub Actions)
 Repo includes workflow: `.github/workflows/deploy.yml`  
 It has two stages:
-1. `quality`: runs migrations + `makemigrations --check --dry-run` + `check` + `test` against MariaDB in CI.
+1. `quality`: runs migrations + `makemigrations --check --dry-run` + `check` + `test` against PostgreSQL in CI.
 2. `deploy`: runs `./scripts/deploy-server.sh main` only after `quality` passes on push to `main`.
 
 Set these repository secrets in GitHub (`Settings -> Secrets and variables -> Actions`):

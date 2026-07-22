@@ -109,8 +109,13 @@ def public_review_queryset(queryset: QuerySet) -> QuerySet:
         rating__gte=1,
         rating__lte=5,
     )
-    test_pattern = r"\b(a{3,}|test|lorem|ipsum|123456|qwerty|asdf|йцукен)\b"
-    qs = qs.exclude(Q(text__iregex=test_pattern) | Q(author_name__iregex=test_pattern))
+    # PostgreSQL and SQLite disagree on the regular-expression meaning of
+    # ``\b``. Use Django's portable case-insensitive containment lookup so a
+    # review that was rejected as test content cannot reappear after a DB move.
+    junk_q = Q()
+    for token in ("aaa", "test", "lorem", "ipsum", "123456", "qwerty", "asdf", "йцукен"):
+        junk_q |= Q(text__icontains=token) | Q(author_name__icontains=token)
+    qs = qs.exclude(junk_q)
     return qs
 
 

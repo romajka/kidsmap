@@ -165,6 +165,7 @@ class Subcategory(models.Model):
     name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
     name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
+    icon = models.CharField(_("Иконка"), max_length=255, blank=True, default="", help_text=_("Путь к загруженной иконке"))
     is_active = models.BooleanField(_("Активна"), default=True, db_index=True)
     order = models.PositiveIntegerField(_("Порядок"), default=0)
 
@@ -213,6 +214,15 @@ class Subcategory(models.Model):
         else:
             val = self.name_ru or self.name
         return _(val)
+
+    @property
+    def icon_file_url(self):
+        icon_name = (self.icon or "").strip()
+        if not icon_name:
+            return ""
+        if icon_name.startswith(("http://", "https://", "/")):
+            return icon_name
+        return static(icon_name)
 
     def __str__(self):
         return f"{self.category} -> {self.name_i18n()}"

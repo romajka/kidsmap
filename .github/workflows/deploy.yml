@@ -12,29 +12,41 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     services:
-      mariadb:
-        image: mariadb:11.4
+      postgres:
+        image: postgres:17-alpine
         env:
-          MARIADB_DATABASE: kidsmap
-          MARIADB_ROOT_PASSWORD: rootpass
+          POSTGRES_DB: kidsmap
+          POSTGRES_USER: kidsmap
+          POSTGRES_PASSWORD: postgrespass
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="mariadb-admin ping -h 127.0.0.1 -uroot -prootpass"
+          --health-cmd="pg_isready -U kidsmap -d kidsmap"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=30
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
     env:
       DJANGO_DEBUG: "0"
+      DJANGO_TESTING: "1"
       DJANGO_SECRET_KEY: "ci-secret-key-for-kidsmap-not-for-prod"
       DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,testserver"
       DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost"
-      DB_ENGINE: "mariadb"
+      DB_ENGINE: "postgres"
       DB_NAME: "kidsmap"
-      DB_USER: "root"
-      DB_PASSWORD: "rootpass"
+      DB_USER: "kidsmap"
+      DB_PASSWORD: "postgrespass"
       DB_HOST: "127.0.0.1"
-      DB_PORT: "3306"
+      DB_PORT: "5432"
+      REDIS_URL: "redis://127.0.0.1:6379/0"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

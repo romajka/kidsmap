@@ -1,4 +1,5 @@
 import os
+from xml.etree import ElementTree
 
 from django.conf import settings
 from django.contrib import admin
@@ -9,25 +10,65 @@ from django.http import JsonResponse
 from django.urls import path
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
+from PIL import Image, UnidentifiedImageError
 
 from catalog.models import Category, Subcategory
 
 
-class SubcategoryInline(admin.TabularInline):
-    model = Subcategory
-    extra = 1
-    fields = ("name_ru", "name_az", "name_en", "order")
+ICON_EXTENSIONS = {".svg", ".png", ".webp"}
+ICON_MAX_FILE_SIZE = 500 * 1024
+ICON_RASTER_SIZE = 512
+ICON_HELP_TEXT = _("SVG с квадратным viewBox или PNG/WebP 512×512 px, до 500 КБ.")
 
 
-def save_uploaded_category_icon(uploaded_file, category_code="category-icon"):
+def validate_icon_upload(uploaded_file):
+    """Validate icon files consistently for categories and subcategories."""
+    if uploaded_file.size > ICON_MAX_FILE_SIZE:
+        raise forms.ValidationError(_("Иконка весит больше 500 КБ. Сожмите файл и загрузите снова."))
+
+    extension = os.path.splitext(uploaded_file.name)[1].lower()
+    if extension not in ICON_EXTENSIONS:
+        raise forms.ValidationError(_("Подходит только SVG, PNG или WebP."))
+
+    try:
+        if extension == ".svg":
+            source = uploaded_file.read()
+            root = ElementTree.fromstring(source)
+            if root.tag.rsplit("}", 1)[-1] != "svg":
+                raise ValueError
+            view_box = root.attrib.get("viewBox", "").replace(",", " ").split()
+            if len(view_box) != 4 or float(view_box[2]) != float(view_box[3]) or float(view_box[2]) <= 0:
+                raise forms.ValidationError(_("У SVG должен быть квадратный viewBox, например 0 0 24 24."))
+            source_lower = source.lower()
+            if b"<script" in source_lower or b"onload=" in source_lower or b"onerror=" in source_lower:
+                raise forms.ValidationError(_("SVG не должен содержать скрипты."))
+        else:
+            image = Image.open(uploaded_file)
+            image.verify()
+            uploaded_file.seek(0)
+            image = Image.open(uploaded_file)
+            if image.format not in {"PNG", "WEBP"}:
+                raise forms.ValidationError(_("Файл не соответствует формату PNG или WebP."))
+            if image.size != (ICON_RASTER_SIZE, ICON_RASTER_SIZE):
+                raise forms.ValidationError(_("PNG и WebP должны быть ровно 512×512 px."))
+    except forms.ValidationError:
+        raise
+    except (ElementTree.ParseError, ValueError, UnidentifiedImageError, OSError):
+        raise forms.ValidationError(_("Не удалось прочитать иконку. Загрузите корректный SVG, PNG или WebP."))
+    finally:
+        uploaded_file.seek(0)
+
+    return uploaded_file
+
+
+def save_uploaded_category_icon(uploaded_file, category_code="category-icon", folder="cat_icons"):
     ext = (uploaded_file.name.rsplit(".", 1)[-1] if "." in uploaded_file.name else "").lower()
-    if f".{ext}" not in [".svg", ".png", ".jpg", ".jpeg", ".webp"]:
-        raise forms.ValidationError(_("Поддерживаются только SVG, PNG, JPG, JPEG и WEBP."))
+    validate_icon_upload(uploaded_file)
 
     storage = FileSystemStorage(location=settings.MEDIA_ROOT, base_url=settings.MEDIA_URL)
     safe_code = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in (category_code or "category-icon")).strip("-")
     safe_code = safe_code or "category-icon"
-    filename = storage.get_available_name(f"cat_icons/{safe_code}.{ext}")
+    filename = storage.get_available_name(f"{folder}/{safe_code}.{ext}")
     saved_name = storage.save(filename, uploaded_file)
     return storage.url(saved_name)
 
@@ -38,7 +79,7 @@ class CategoryAdminForm(forms.ModelForm):
     icon_upload = forms.FileField(
         label=_("Файл иконки"),
         required=False,
-        help_text=_("Загрузите SVG, PNG, JPG, JPEG или WEBP. Это поле сохраняет файл отдельно, а текстовое поле ниже остаётся запасным вариантом для пути или CSS-класса."),
+        help_text=ICON_HELP_TEXT,
     )
 
     class Meta:
@@ -65,10 +106,7 @@ class CategoryAdminForm(forms.ModelForm):
         uploaded_file = self.cleaned_data.get("icon_upload")
         if not uploaded_file:
             return uploaded_file
-        ext = os.path.splitext(uploaded_file.name)[1].lower()
-        if ext not in [".svg", ".png", ".jpg", ".jpeg", ".webp"]:
-            raise forms.ValidationError(_("Поддерживаются только SVG, PNG, JPG, JPEG и WEBP."))
-        return uploaded_file
+        return validate_icon_upload(uploaded_file)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,6 +115,7 @@ class CategoryAdminForm(forms.ModelForm):
         self.fields["icon"].help_text = _(
             "Можно указать относительный путь к иконке или CSS-класс. Например: icons/categories/sports.svg или fas fa-futbol."
         )
+        self.fields["icon_upload"].widget.attrs.update({"accept": ".svg,.png,.webp", "data-km-icon-upload": "true"})
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -87,6 +126,48 @@ class CategoryAdminForm(forms.ModelForm):
             instance.save()
             self.save_m2m()
         return instance
+
+
+class SubcategoryAdminForm(forms.ModelForm):
+    icon_upload = forms.FileField(label=_("Файл иконки"), required=False, help_text=ICON_HELP_TEXT)
+
+    class Meta:
+        model = Subcategory
+        fields = "__all__"
+        widgets = {
+            "icon": forms.TextInput(attrs={"autocomplete": "off", "placeholder": _("Загружается автоматически")}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["icon_upload"].widget.attrs.update({"accept": ".svg,.png,.webp", "data-km-icon-upload": "true"})
+        self.fields["icon"].label = _("Путь к иконке")
+        self.fields["icon"].help_text = _("Обычно заполняется после загрузки файла выше.")
+
+    def clean_icon_upload(self):
+        uploaded_file = self.cleaned_data.get("icon_upload")
+        return validate_icon_upload(uploaded_file) if uploaded_file else uploaded_file
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        uploaded_file = self.cleaned_data.get("icon_upload")
+        if uploaded_file:
+            instance.icon = save_uploaded_category_icon(
+                uploaded_file,
+                instance.code or instance.name_ru or "subcategory-icon",
+                folder="subcategory_icons",
+            )
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
+
+
+class SubcategoryInline(admin.TabularInline):
+    model = Subcategory
+    form = SubcategoryAdminForm
+    extra = 1
+    fields = ("name_ru", "name_az", "name_en", "icon_upload", "icon", "order")
 
 
 @admin.register(Category)
@@ -228,6 +309,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Subcategory)
 class SubcategoryAdmin(admin.ModelAdmin):
+    form = SubcategoryAdminForm
     list_display = ("name_ru", "category", "name_az", "name_en")
     list_filter = ("category",)
     search_fields = ("name_ru", "name_az", "name_en")

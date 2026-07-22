@@ -59,8 +59,18 @@ if ! git pull --ff-only "$REMOTE" "$BRANCH"; then
   log "git pull failed. Check branch state and GitHub SSH access."
   exit 1
 fi
-log "Starting database"
-docker compose up -d db
+DB_ENGINE="${DB_ENGINE:-postgres}"
+DB_SERVICE="postgres"
+if [[ "$DB_ENGINE" == "mysql" || "$DB_ENGINE" == "mariadb" ]]; then
+  DB_SERVICE="db"
+fi
+
+log "Starting ${DB_SERVICE} and shared cache"
+if [[ "$DB_SERVICE" == "db" ]]; then
+  docker compose --profile legacy-mariadb up -d "$DB_SERVICE" redis
+else
+  docker compose up -d "$DB_SERVICE" redis
+fi
 
 log "Building new web image while current app stays online"
 docker compose build web

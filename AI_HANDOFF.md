@@ -41,7 +41,7 @@ main
 - VPS: `Contabo`
 - сайт: `https://kidsmap.az`
 - админка: `https://admin.kidsmap.az/ru/admin/`
-- стек: `Django + Docker Compose + MariaDB`
+- стек: `Django + Docker Compose + PostgreSQL + Redis`
 
 ## 4. Абсолютные правила работы
 
@@ -311,14 +311,11 @@ curl -sS -L -o /dev/null -w '%{http_code} %{url_effective}\n' https://admin.kids
 
 ## 12. Известные технические риски
 
-### MariaDB warnings
+### PostgreSQL cutover
 
-На проде есть известные warnings от Django, что MariaDB не поддерживает часть `UniqueConstraint(..., condition=...)`.
-
-Это не означает, что деплой сломан, но означает:
-
-- часть уникальности гарантируется приложением, а не БД
-- при изменениях в likes/reactions/reviews это нужно помнить
+PostgreSQL является основной БД. Миграция `0073` возвращает условные
+уникальные ограничения на уровень БД и намеренно не запускается на MariaDB.
+Порядок переключения и отката описан в `docs/postgresql_cutover.md`.
 
 ### Cloudflare / browser cache
 

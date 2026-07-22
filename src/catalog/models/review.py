@@ -147,7 +147,6 @@ class PlaceReviewReaction(models.Model):
         blank=True,
     )
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
-    session_key_unique = models.CharField(max_length=64, null=True, blank=True, editable=False)
     value = models.SmallIntegerField(_("Реакция"), choices=VALUE_CHOICES, default=VALUE_LIKE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
@@ -155,7 +154,8 @@ class PlaceReviewReaction(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("review", "session_key_unique"),
+                fields=("review", "session_key"),
+                condition=models.Q(user__isnull=True) & ~models.Q(session_key=""),
                 name="unique_place_review_reaction_per_session",
             ),
             models.UniqueConstraint(
@@ -168,10 +168,7 @@ class PlaceReviewReaction(models.Model):
 
     def save(self, *args, **kwargs):
         self.value = self.VALUE_LIKE if int(self.value or self.VALUE_LIKE) > 0 else self.VALUE_DISLIKE
-        self.session_key_unique = (self.session_key or "").strip() or None
-        update_fields = kwargs.get("update_fields")
-        if update_fields is not None and "session_key" in update_fields:
-            kwargs["update_fields"] = set(update_fields) | {"session_key_unique"}
+        self.session_key = (self.session_key or "").strip()
         super().save(*args, **kwargs)
         self.review.refresh_reaction_stats()
 
@@ -313,7 +310,6 @@ class SiteReviewReaction(models.Model):
         blank=True,
     )
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
-    session_key_unique = models.CharField(max_length=64, null=True, blank=True, editable=False)
     value = models.SmallIntegerField(_("Реакция"), choices=VALUE_CHOICES, default=VALUE_LIKE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(_("Обновлено"), auto_now=True)
@@ -321,7 +317,8 @@ class SiteReviewReaction(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=("review", "session_key_unique"),
+                fields=("review", "session_key"),
+                condition=models.Q(user__isnull=True) & ~models.Q(session_key=""),
                 name="unique_site_review_reaction_per_session",
             ),
             models.UniqueConstraint(
@@ -334,10 +331,7 @@ class SiteReviewReaction(models.Model):
 
     def save(self, *args, **kwargs):
         self.value = self.VALUE_LIKE if int(self.value or self.VALUE_LIKE) > 0 else self.VALUE_DISLIKE
-        self.session_key_unique = (self.session_key or "").strip() or None
-        update_fields = kwargs.get("update_fields")
-        if update_fields is not None and "session_key" in update_fields:
-            kwargs["update_fields"] = set(update_fields) | {"session_key_unique"}
+        self.session_key = (self.session_key or "").strip()
         super().save(*args, **kwargs)
         self.review.refresh_reaction_stats()
 

@@ -64,7 +64,7 @@ User = get_user_model()
 
 from catalog.testcases.utils import *
 
-class MariaDbCompatibleUniquenessTests(TestCase):
+class PostgreSqlUniquenessTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username="mariadb_unique_user",
@@ -78,12 +78,12 @@ class MariaDbCompatibleUniquenessTests(TestCase):
         )
         self.place = create_quality_place(name="MariaDB Unique Place", name_ru="MariaDB Unique Place")
 
-    def test_place_like_constraints_use_normalized_session_and_nullable_user(self):
-        like = PlaceLike.objects.create(place=self.place, session_key="session-1")
-        self.assertEqual(like.session_key_unique, "session-1")
+    def test_place_like_constraints_use_anonymous_session_and_nullable_user(self):
+        like = PlaceLike.objects.create(place=self.place, session_key=" session-1 ")
+        self.assertEqual(like.session_key, "session-1")
 
         blank_like = PlaceLike.objects.create(place=self.place, session_key="")
-        self.assertIsNone(blank_like.session_key_unique)
+        self.assertEqual(blank_like.session_key, "")
 
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
@@ -135,8 +135,6 @@ class MariaDbCompatibleUniquenessTests(TestCase):
             applicant=self.user,
             status=PlaceOwnershipRequest.STATUS_PENDING,
         )
-        self.assertEqual(request_item.pending_constraint_key, PlaceOwnershipRequest.STATUS_PENDING)
-
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 PlaceOwnershipRequest.objects.create(
@@ -146,9 +144,9 @@ class MariaDbCompatibleUniquenessTests(TestCase):
                 )
 
         request_item.status = PlaceOwnershipRequest.STATUS_APPROVED
-        request_item.save(update_fields=["status", "pending_constraint_key", "updated_at"])
+        request_item.save(update_fields=["status", "updated_at"])
         request_item.refresh_from_db()
-        self.assertIsNone(request_item.pending_constraint_key)
+        self.assertEqual(request_item.status, PlaceOwnershipRequest.STATUS_APPROVED)
 
         PlaceOwnershipRequest.objects.create(
             place=self.place,
@@ -163,8 +161,6 @@ class MariaDbCompatibleUniquenessTests(TestCase):
             email="Member@Example.com",
             status=OwnerTeamInvitation.STATUS_PENDING,
         )
-        self.assertEqual(invitation.pending_email, "member@example.com")
-
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 OwnerTeamInvitation.objects.create(
@@ -175,9 +171,9 @@ class MariaDbCompatibleUniquenessTests(TestCase):
                 )
 
         invitation.status = OwnerTeamInvitation.STATUS_ACCEPTED
-        invitation.save(update_fields=["status", "pending_email", "updated_at"])
+        invitation.save(update_fields=["status", "updated_at"])
         invitation.refresh_from_db()
-        self.assertIsNone(invitation.pending_email)
+        self.assertEqual(invitation.status, OwnerTeamInvitation.STATUS_ACCEPTED)
 
         OwnerTeamInvitation.objects.create(
             owner=self.owner,
@@ -588,4 +584,3 @@ class TestCategorySoftDelete(TestCase):
         edu.refresh_from_db()
         self.assertFalse(edu.is_active)
         self.assertIsNotNone(edu.deleted_at)
-

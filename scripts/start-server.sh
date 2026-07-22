@@ -9,6 +9,16 @@ else
   PYTHON_BIN="python3"
 fi
 
+case "${DJANGO_DEBUG:-0}" in
+  1|true|True|yes|on) ;;
+  *)
+    if ! "${PYTHON_BIN}" manage.py migrate --check; then
+      printf '%s\n' '[startup] PostgreSQL is unavailable or migrations are pending; refusing to start production web.' >&2
+      exit 1
+    fi
+    ;;
+esac
+
 if [ "${USE_RUNSERVER:-0}" = "1" ]; then
   exec "${PYTHON_BIN}" manage.py runserver 0.0.0.0:${PORT:-8000}
 fi

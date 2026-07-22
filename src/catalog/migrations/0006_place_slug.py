@@ -33,7 +33,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="place",
             name="slug",
-            field=models.SlugField(blank=True, db_index=True, default="", max_length=255, verbose_name="Slug"),
+            # Do not create a temporary non-unique index here. PostgreSQL limits
+            # index names to 63 bytes, so the following unique alteration would
+            # collide with this auto-generated index name on a fresh database.
+            field=models.CharField(blank=True, default="", max_length=255, verbose_name="Slug"),
         ),
         migrations.RunPython(fill_place_slugs, migrations.RunPython.noop),
         migrations.AlterField(

@@ -2,18 +2,50 @@ services:
   db:
     image: mariadb:11.4
     container_name: kidsmap-db
+    profiles: ["legacy-mariadb"]
     restart: unless-stopped
     environment:
-      MARIADB_DATABASE: ${DB_NAME:-kidsmap_prod}
-      MARIADB_USER: ${DB_USER:-kidsmap_app}
-      MARIADB_PASSWORD: ${DB_PASSWORD:-replace-with-strong-db-password}
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-replace-with-strong-root-password}
+      MARIADB_DATABASE: ${LEGACY_DB_NAME:-kidsmap_prod}
+      MARIADB_USER: ${LEGACY_DB_USER:-kidsmap_app}
+      MARIADB_PASSWORD: ${LEGACY_DB_PASSWORD:-replace-with-strong-db-password}
+      MARIADB_ROOT_PASSWORD: ${LEGACY_DB_ROOT_PASSWORD:-replace-with-strong-root-password}
     volumes:
       - mariadb_data:/var/lib/mysql
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u${DB_USER:-kidsmap_app}", "-p${DB_PASSWORD:-replace-with-strong-db-password}"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u${LEGACY_DB_USER:-kidsmap_app}", "-p${LEGACY_DB_PASSWORD:-replace-with-strong-db-password}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: kidsmap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:?DB_NAME is required}
+      POSTGRES_USER: ${DB_USER:?DB_USER is required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: kidsmap-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -24,7 +56,9 @@ services:
     restart: unless-stopped
     command: ./scripts/start-server.sh
     depends_on:
-      db:
+      postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "8000:8000"
@@ -63,12 +97,13 @@ services:
       DEFAULT_FROM_EMAIL: "${DEFAULT_FROM_EMAIL:-noreply@kidsmap.az}"
       SERVER_EMAIL: "${SERVER_EMAIL:-noreply@kidsmap.az}"
       MEDIA_CACHE_MAX_AGE: "${MEDIA_CACHE_MAX_AGE:-86400}"
-      DB_ENGINE: "mariadb"
-      DB_NAME: "${DB_NAME:-kidsmap_prod}"
-      DB_USER: "${DB_USER:-kidsmap_app}"
-      DB_PASSWORD: "${DB_PASSWORD:-replace-with-strong-db-password}"
-      DB_HOST: "db"
-      DB_PORT: "3306"
+      DB_ENGINE: "${DB_ENGINE:-postgres}"
+      DB_NAME: "${DB_NAME:?DB_NAME is required}"
+      DB_USER: "${DB_USER:?DB_USER is required}"
+      DB_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD is required}"
+      DB_HOST: "${DB_HOST:-postgres}"
+      DB_PORT: "${DB_PORT:-5432}"
+      REDIS_URL: "${REDIS_URL:-redis://redis:6379/0}"
       USE_RUNSERVER: "${USE_RUNSERVER:-0}"
       RUN_COLLECTSTATIC_ON_RELEASE: "${RUN_COLLECTSTATIC_ON_RELEASE:-1}"
       GUNICORN_WORKERS: "${GUNICORN_WORKERS:-3}"
@@ -78,3 +113,5 @@ services:
 
 volumes:
   mariadb_data:
+  postgres_data:
+  redis_data:

@@ -8,10 +8,19 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP_DIR="${BACKUP_DIR:-$ROOT_DIR/backups}"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 OUT_FILE="$BACKUP_DIR/kidsmap-db-$TIMESTAMP.sql.gz"
+DB_ENGINE="${DB_ENGINE:-postgres}"
 
 mkdir -p "$BACKUP_DIR"
 
-if ! docker compose exec -T db sh -lc 'exec mariadb-dump --single-transaction --routines --triggers -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE"' | gzip -c > "$OUT_FILE"; then
+if [[ "$DB_ENGINE" == "postgres" || "$DB_ENGINE" == "postgresql" ]]; then
+  DUMP_COMMAND='exec pg_dump --format=plain --no-owner --no-privileges -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+  DB_SERVICE="postgres"
+else
+  DUMP_COMMAND='exec mariadb-dump --single-transaction --routines --triggers -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE"'
+  DB_SERVICE="db"
+fi
+
+if ! docker compose exec -T "$DB_SERVICE" sh -lc "$DUMP_COMMAND" | gzip -c > "$OUT_FILE"; then
   rm -f "$OUT_FILE"
   exit 1
 fi
@@ -30,5 +39,3 @@ find "$BACKUP_DIR" -name "kidsmap-db-*.sql.gz" -type f -mtime +15 -delete 2>/dev
 
 # 2. Keep maximum of KEEP_BACKUPS (default 5)
 ls -1tr "$BACKUP_DIR"/kidsmap-db-*.sql.gz 2>/dev/null | head -n -"$KEEP_BACKUPS" | xargs -r rm || true
-
-

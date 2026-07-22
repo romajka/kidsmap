@@ -36,7 +36,7 @@ KidsMap — не просто список карточек. Это сервис
 ## Текущий стек
 
 - Backend: `Django`
-- База данных: `MariaDB` в Docker, `SQLite` возможен локально для части dev-flow
+- База данных: `PostgreSQL` в Docker; `Redis` используется как общий кэш между Gunicorn workers
 - Frontend: Django templates + custom CSS + vanilla JS
 - Инфраструктура: `Docker Compose`
 - Прод: VPS Contabo
