@@ -174,10 +174,11 @@ class Command(BaseCommand):
             report["duplicates"]["phones"][table] = phone_duplicates
 
     def _check_translations(self, alias, model, report):
-        field_names = {field.name for field in model._meta.concrete_fields}
         translatable = sorted(
-            name for name in field_names
-            if name.endswith(("_az", "_ru", "_en"))
+            field.name
+            for field in model._meta.concrete_fields
+            if isinstance(field, (models.CharField, models.TextField))
+            and field.name.endswith(("_az", "_ru", "_en"))
         )
         if not translatable:
             return
