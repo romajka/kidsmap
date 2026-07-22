@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict, deque
-from datetime import timedelta
+from datetime import UTC, timedelta
 from pathlib import Path
 
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
-from django.db import connections, transaction
+from django.db import connections, models, transaction
 from django.utils import timezone
 
 
@@ -249,7 +249,10 @@ class Command(BaseCommand):
                             prepared_rows.append(
                                 tuple(
                                     fields_by_column[column].get_db_prep_save(
-                                        values[column], connection=target
+                                        self._normalize_value(
+                                            fields_by_column[column], values[column]
+                                        ),
+                                        connection=target,
                                     )
                                     for column in write_columns
                                 )
@@ -266,6 +269,16 @@ class Command(BaseCommand):
             "target_defaults": sorted(supplied_defaults),
             "skipped_unmapped_generated_fk": skipped_unmapped,
         }
+
+    def _normalize_value(self, field, value):
+        # Django stores USE_TZ datetimes as UTC in MariaDB, but a raw MySQL
+        # cursor returns them without tzinfo. Mark them as UTC before the
+        # PostgreSQL field adapter runs, otherwise Django assumes TIME_ZONE
+        # and silently shifts every historical timestamp.
+        if isinstance(field, models.DateTimeField) and value is not None:
+            if timezone.is_naive(value):
+                return timezone.make_aware(value, UTC)
+        return value
 
     def _build_generated_id_maps(self, source, target, source_tables, target_tables):
         required = {"django_content_type", "auth_permission"}
