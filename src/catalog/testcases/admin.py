@@ -200,6 +200,14 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertContains(response, 'km-changelist-pagination__page-status', html=False)
         self.assertContains(response, f"?created_by={self.superuser.pk}&amp;p=2", html=False)
 
+        unknown_response = self.client.get(
+            reverse("admin:catalog_place_changelist"),
+            {"created_by": "__unknown__"},
+        )
+        self.assertEqual(unknown_response.status_code, 200)
+        self.assertContains(unknown_response, self.place.name)
+        self.assertNotContains(unknown_response, "Added by content manager")
+
     def test_place_change_page_renders_single_compact_datetime_inputs(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.pk]))
 

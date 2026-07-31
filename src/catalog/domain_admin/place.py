@@ -557,18 +557,24 @@ class PlaceCreatedByFilter(admin.SimpleListFilter):
     field_path = "created_by"
 
     def lookups(self, request, model_admin):
+        queryset = model_admin.get_queryset(request)
         user_ids = (
-            model_admin.get_queryset(request)
+            queryset
             .exclude(created_by_id__isnull=True)
             .order_by()
             .values_list("created_by_id", flat=True)
             .distinct()
         )
         users = get_user_model().objects.filter(pk__in=user_ids).order_by("username", "email")
-        return tuple((str(user.pk), model_admin._user_label(user)) for user in users)
+        lookups = [(str(user.pk), model_admin._user_label(user)) for user in users]
+        if queryset.filter(created_by_id__isnull=True).exists():
+            lookups.append(("__unknown__", _("Не указан — старые карточки")))
+        return tuple(lookups)
 
     def queryset(self, request, queryset):
         value = self.value()
+        if value == "__unknown__":
+            return queryset.filter(created_by_id__isnull=True)
         if value and value.isdigit():
             return queryset.filter(created_by_id=int(value))
         return queryset
