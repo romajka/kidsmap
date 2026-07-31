@@ -28,7 +28,7 @@
     <div class="card-category-overlay"
       style="background-color: {{ place.category.resolved_color_bg|default:'#F3F4F6' }}; color: {{ place.category.resolved_color_text|default:'#6B7280' }};">
       <span class="category-icon" aria-hidden="true">
-        {% include "catalog/includes/category_icon.html" with code=place.category_code %}
+        {% include "catalog/includes/category_visual_icon.html" with code=place.category_code icon_file_url=place.category.icon_file_url icon_is_svg=place.category.icon_is_svg icon_is_font=place.category.icon_is_font_class icon_name=place.category.icon_name %}
       </span>
       <span class="category-name">{{ place.get_category_display }}</span>
     </div>

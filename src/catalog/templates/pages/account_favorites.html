@@ -129,8 +129,7 @@
                   </p>
                 </div>
                 <span class="account-mini-chip">
-                  {% if place.price_monthly %}{{ place.price_monthly }} AZN{% else %}♥ {{ place.likes_count }}{% endif
-                  %}
+                  {% if place.price_monthly %}{{ place.price_monthly }} AZN{% else %}♥ {{ place.likes_count }}{% endif %}
                 </span>
               </div>
 
@@ -144,14 +143,12 @@
 
               <div class="account-place-card__actions">
                 <a class="btn-secondary" href="{{ place.get_absolute_url }}">
-                  {% if CURRENT_LANGUAGE == "az" %}Karta keç{% elif CURRENT_LANGUAGE == "en" %}Open place{% else
-                  %}Открыть карточку{% endif %}
+                  {% if CURRENT_LANGUAGE == "az" %}Karta keç{% elif CURRENT_LANGUAGE == "en" %}Open place{% else %}Открыть карточку{% endif %}
                 </a>
                 <form method="post" action="{% url 'toggle_place_like' place.id %}" class="auth-form">
                   {% csrf_token %}
                   <button type="submit" class="link-btn account-inline-link">
-                    {% if CURRENT_LANGUAGE == "az" %}Seçilmişlərdən sil{% elif CURRENT_LANGUAGE == "en" %}Remove from
-                    favorites{% else %}Убрать из избранного{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Seçilmişlərdən sil{% elif CURRENT_LANGUAGE == "en" %}Remove from favorites{% else %}Убрать из избранного{% endif %}
                   </button>
                 </form>
               </div>
@@ -162,10 +159,7 @@
       </div>
       {% else %}
       <div class="account-empty-state">
-        <p>{% if CURRENT_LANGUAGE == "az" %}Hələ seçilmiş məkan yoxdur. Kataloqda bəyəndiyiniz kartlara ürək işarəsi
-          əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}You do not have favorites yet. Add a heart to the cards you like
-          in the catalog.{% else %}Пока нет избранных мест. Добавьте сердечко понравившимся карточкам в каталоге.{%
-          endif %}</p>
+        <p>{% if CURRENT_LANGUAGE == "az" %}Hələ seçilmiş məkan yoxdur. Kataloqda bəyəndiyiniz kartlara ürək işarəsi əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}You do not have favorites yet. Add a heart to the cards you like in the catalog.{% else %}Пока нет избранных мест. Добавьте сердечко понравившимся карточкам в каталоге.{% endif %}</p>
         <div class="account-empty-state__actions">
           <a class="btn" href="{% url 'place_list' %}">{% if CURRENT_LANGUAGE == "az" %}Kataloqa keç{% elif
             CURRENT_LANGUAGE == "en" %}Go to catalog{% else %}Перейти в каталог{% endif %}</a>

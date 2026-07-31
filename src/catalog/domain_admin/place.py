@@ -4,6 +4,7 @@ from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import Count, Max, Prefetch, Q
 from django import forms
 from django.http import HttpResponseRedirect, JsonResponse
@@ -31,7 +32,7 @@ from catalog.models import (
     CatalogContentSettings,
 )
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
-from catalog.services.content_quality import place_quality_check
+from catalog.services.content_quality import place_quality_check, public_place_queryset
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
 from catalog.services.pricing_plans import normalize_pricing_plans
@@ -154,6 +155,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if cleaned.get("home_recommended_order") is None:
+            cleaned["home_recommended_order"] = 0
         cleaned = self._clean_schedule_editor(cleaned)
         is_save_draft = bool(self.data and "_save_draft" in self.data)
         self.draft_save_only = is_save_draft
@@ -214,6 +217,9 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # The order only matters for places selected for the home page. Keep
+        # ordinary draft and catalog saves from requiring a meaningless value.
+        self.fields["home_recommended_order"].required = False
         self.draft_save_only = bool(self.data and "_save_draft" in self.data)
         if self.draft_save_only:
             for field in self.fields.values():
@@ -1389,6 +1395,8 @@ class PlaceAdmin(admin.ModelAdmin):
         "price_per_8_lessons",
         "extra_conditions",
         "additional_info",
+        "is_home_recommended",
+        "home_recommended_order",
         "is_active",
         "is_verified",
         "status",
@@ -1412,6 +1420,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "category_summary",
         "location_summary",
         "publication_status",
+        "home_recommendation_status",
         "map_status_summary",
         "owner_display",
         "engagement_summary",
@@ -1435,6 +1444,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "metro",
         "owner",
         "is_active",
+        "is_home_recommended",
         "is_verified",
         "status",
         "age_from",
@@ -1564,6 +1574,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     "cover_photo",
                     "is_active",
                     "is_verified",
+                    ("is_home_recommended", "home_recommended_order"),
                     "status",
                     "rejection_reason",
                     "owner",
@@ -2116,6 +2127,8 @@ class PlaceAdmin(admin.ModelAdmin):
     actions = (
         "mark_active",
         "mark_inactive",
+        "mark_home_recommended",
+        "unmark_home_recommended",
         "mark_draft",
         "mark_verified",
         "mark_unverified",
@@ -2134,6 +2147,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "fields": (
                     ("category", "subcategory"),
                     ("is_active", "is_verified"),
+                    ("is_home_recommended", "home_recommended_order"),
                     ("status", "rejection_reason"),
                     "owner",
                     "likes_count",
@@ -2419,6 +2433,10 @@ class PlaceAdmin(admin.ModelAdmin):
                 " · ".join(meta_bits),
             ) if meta_bits else "",
         )
+
+    @admin.display(boolean=True, description=_("На главной"))
+    def home_recommendation_status(self, obj):
+        return obj.is_home_recommended
 
     @admin.display(description=_("Карта"))
     def map_status_summary(self, obj):
@@ -2936,6 +2954,16 @@ class PlaceAdmin(admin.ModelAdmin):
     def get_urls(self):
         custom_urls = [
             path(
+                "home-recommendations/candidates/",
+                self.admin_site.admin_view(self.home_recommendation_candidates_view),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_home_recommendation_candidates",
+            ),
+            path(
+                "home-recommendations/save/",
+                self.admin_site.admin_view(self.save_home_recommendations_view),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_home_recommendations_save",
+            ),
+            path(
                 "search-suggestions/",
                 self.admin_site.admin_view(self.search_suggestions_view),
                 name="catalog_place_search_suggestions",
@@ -2952,6 +2980,120 @@ class PlaceAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + super().get_urls()
+
+    def _home_recommendation_queryset(self):
+        return public_place_queryset(
+            Place.objects.select_related("category", "subcategory")
+        )
+
+    def _serialize_home_recommendation(self, place, *, language_code=None):
+        image_url = ""
+        image_field = place.photo or place.cover_photo
+        if image_field and getattr(image_field, "name", ""):
+            try:
+                image_url = image_field.url
+            except Exception:
+                image_url = ""
+
+        location = place.district_i18n(language_code)
+        if place.metro:
+            metro_label = place.metro_i18n(language_code)
+            location = " · ".join(part for part in (location, metro_label) if part)
+
+        return {
+            "id": place.pk,
+            "title": place.name_i18n(language_code) or place.name,
+            "category": place.get_category_display(),
+            "location": location,
+            "image_url": image_url,
+            "change_url": reverse("admin:catalog_place_change", args=[place.pk]),
+        }
+
+    def home_recommendation_candidates_view(self, request):
+        if request.method != "GET" or not self.has_change_permission(request):
+            raise PermissionDenied
+
+        term = (request.GET.get("q") or "").strip()
+        queryset = self._home_recommendation_queryset()
+        if term:
+            queryset = queryset.filter(
+                Q(name__icontains=term)
+                | Q(name_az__icontains=term)
+                | Q(name_ru__icontains=term)
+                | Q(name_en__icontains=term)
+                | Q(district__icontains=term)
+                | Q(address__icontains=term)
+            )
+        queryset = queryset.order_by("-is_home_recommended", "home_recommended_order", "-updated_at")[:24]
+        language_code = getattr(request, "LANGUAGE_CODE", None)
+        return JsonResponse(
+            {
+                "results": [
+                    self._serialize_home_recommendation(place, language_code=language_code)
+                    for place in queryset
+                ]
+            }
+        )
+
+    def save_home_recommendations_view(self, request):
+        if request.method != "POST" or not self.has_change_permission(request):
+            raise PermissionDenied
+
+        try:
+            payload = json.loads(request.body.decode("utf-8") or "{}")
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            return JsonResponse({"ok": False, "error": str(_("Некорректные данные."))}, status=400)
+
+        raw_ids = payload.get("place_ids")
+        if not isinstance(raw_ids, list):
+            return JsonResponse({"ok": False, "error": str(_("Передайте список мест."))}, status=400)
+
+        try:
+            place_ids = [int(value) for value in raw_ids]
+        except (TypeError, ValueError):
+            return JsonResponse({"ok": False, "error": str(_("Некорректный идентификатор места."))}, status=400)
+
+        if len(place_ids) != len(set(place_ids)):
+            return JsonResponse({"ok": False, "error": str(_("Одно место нельзя добавить дважды."))}, status=400)
+        if len(place_ids) > 4:
+            return JsonResponse({"ok": False, "error": str(_("На главной можно показать максимум четыре места."))}, status=400)
+
+        available_places = {
+            place.pk: place
+            for place in self._home_recommendation_queryset().filter(pk__in=place_ids)
+        }
+        if len(available_places) != len(place_ids):
+            return JsonResponse(
+                {"ok": False, "error": str(_("Одно из мест недоступно для публикации. Обновите список."))},
+                status=400,
+            )
+
+        now = timezone.now()
+        with transaction.atomic():
+            Place.objects.filter(is_home_recommended=True).exclude(pk__in=place_ids).update(
+                is_home_recommended=False,
+                updated_at=now,
+            )
+            for index, place_id in enumerate(place_ids, start=1):
+                Place.objects.filter(pk=place_id).update(
+                    is_home_recommended=True,
+                    home_recommended_order=index * 10,
+                    updated_at=now,
+                )
+
+        language_code = getattr(request, "LANGUAGE_CODE", None)
+        return JsonResponse(
+            {
+                "ok": True,
+                "results": [
+                    self._serialize_home_recommendation(
+                        available_places[place_id],
+                        language_code=language_code,
+                    )
+                    for place_id in place_ids
+                ],
+            }
+        )
 
     def toggle_publication_view(self, request, object_id):
         if request.method != "POST":
@@ -3051,6 +3193,24 @@ class PlaceAdmin(admin.ModelAdmin):
             "place_bulk_actions": self._place_trash_bulk_actions() if is_trash else self._place_bulk_actions(),
             "km_is_trash_changelist": is_trash,
             "km_changelist_reset_url": "?deleted_state=deleted" if is_trash else "?",
+            "home_recommendation_editor": (
+                {
+                    "cards": [
+                        self._serialize_home_recommendation(
+                            place,
+                            language_code=getattr(request, "LANGUAGE_CODE", None),
+                        )
+                        for place in self._home_recommendation_queryset()
+                        .filter(is_home_recommended=True)
+                        .order_by("home_recommended_order", "-updated_at")[:4]
+                    ],
+                    "save_url": reverse("admin:catalog_place_home_recommendations_save"),
+                    "candidates_url": reverse("admin:catalog_place_home_recommendation_candidates"),
+                    "max_items": 4,
+                }
+                if not is_trash and self.has_change_permission(request)
+                else None
+            ),
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)
@@ -3086,6 +3246,40 @@ class PlaceAdmin(admin.ModelAdmin):
             ngettext(
                 "С публикации снята %(count)d карточка.",
                 "С публикации снято %(count)d карточки.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Добавить в рекомендации на главной"))
+    def mark_home_recommended(self, request, queryset):
+        updated_count = queryset.update(
+            is_home_recommended=True,
+            updated_at=timezone.now(),
+        )
+        self.message_user(
+            request,
+            ngettext(
+                "%(count)d карточка добавлена в рекомендации.",
+                "%(count)d карточки добавлены в рекомендации.",
+                updated_count,
+            )
+            % {"count": updated_count},
+            level=messages.SUCCESS if updated_count else messages.WARNING,
+        )
+
+    @admin.action(description=_("Убрать из рекомендаций на главной"))
+    def unmark_home_recommended(self, request, queryset):
+        updated_count = queryset.update(
+            is_home_recommended=False,
+            updated_at=timezone.now(),
+        )
+        self.message_user(
+            request,
+            ngettext(
+                "%(count)d карточка убрана из рекомендаций.",
+                "%(count)d карточки убраны из рекомендаций.",
                 updated_count,
             )
             % {"count": updated_count},

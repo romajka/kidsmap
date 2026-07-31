@@ -1,0 +1,58 @@
+{% load i18n %}
+
+<section
+  class="km-home-recs"
+  data-home-recommendations
+  data-save-url="{{ home_recommendation_editor.save_url }}"
+  data-candidates-url="{{ home_recommendation_editor.candidates_url }}"
+  data-max-items="{{ home_recommendation_editor.max_items }}"
+>
+  {% csrf_token %}
+  {{ home_recommendation_editor.cards|json_script:"km-home-recommendation-data" }}
+
+  <header class="km-home-recs__header">
+    <div>
+      <p class="km-home-recs__eyebrow">{% translate "Главная страница" %}</p>
+      <h2 class="km-home-recs__title">{% translate "Рекомендуемые места" %}</h2>
+      <p class="km-home-recs__hint">
+        {% translate "Перетащите карточки, чтобы изменить порядок. Все изменения сохраняются автоматически." %}
+      </p>
+    </div>
+    <div class="km-home-recs__header-actions">
+      <span class="km-home-recs__counter" data-home-recs-counter aria-live="polite"></span>
+      <button type="button" class="km-home-recs__add" data-home-recs-open>
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <span>{% translate "Добавить место" %}</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="km-home-recs__status" data-home-recs-status role="status" aria-live="polite"></div>
+  <div class="km-home-recs__slots" data-home-recs-slots></div>
+
+  <div class="km-home-recs__empty-note" data-home-recs-fallback>
+    <i class="fas fa-magic" aria-hidden="true"></i>
+    <span>{% translate "Если список пуст, сайт автоматически показывает самые популярные места." %}</span>
+  </div>
+
+  <dialog class="km-home-recs__dialog" data-home-recs-dialog aria-labelledby="km-home-recs-dialog-title">
+    <div class="km-home-recs__dialog-head">
+      <div>
+        <p class="km-home-recs__eyebrow">{% translate "Выбор карточки" %}</p>
+        <h3 id="km-home-recs-dialog-title">{% translate "Добавить в рекомендации" %}</h3>
+      </div>
+      <button type="button" class="km-home-recs__dialog-close" data-home-recs-close aria-label="{% translate 'Закрыть' %}">×</button>
+    </div>
+    <label class="km-home-recs__search">
+      <i class="fas fa-search" aria-hidden="true"></i>
+      <input
+        type="search"
+        data-home-recs-search
+        placeholder="{% translate 'Название, район или адрес' %}"
+        autocomplete="off"
+      >
+    </label>
+    <p class="km-home-recs__dialog-help">{% translate "Можно выбирать только опубликованные места, готовые для показа на сайте." %}</p>
+    <div class="km-home-recs__candidates" data-home-recs-candidates></div>
+  </dialog>
+</section>

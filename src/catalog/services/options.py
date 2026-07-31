@@ -143,7 +143,7 @@ def sort_choice_tuples(choices) -> list[tuple[str, object]]:
     return sorted(list(choices or ()), key=lambda item: _sortable_label(item[1]))
 
 
-_SORT_TRANSLIT_MAP = str.maketrans(
+ASCII_TRANSLITERATION_MAP = str.maketrans(
     {
         "ə": "e",
         "Ə": "E",
@@ -230,6 +230,6 @@ _SORT_TRANSLIT_MAP = str.maketrans(
 
 
 def _sortable_label(value) -> str:
-    text = str(value or "").translate(_SORT_TRANSLIT_MAP)
+    text = str(value or "").translate(ASCII_TRANSLITERATION_MAP)
     normalized = unicodedata.normalize("NFKD", text)
     return "".join(char for char in normalized if not unicodedata.combining(char)).casefold()

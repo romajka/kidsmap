@@ -55,7 +55,11 @@ class DjangoPlaceRepository(IPlaceRepository):
         return public_place_queryset(Place.objects.all()).select_related("owner").prefetch_related("gallery", "events")
 
     def top_popular(self, limit: int) -> QuerySet:
-        return self.active_queryset().order_by("-likes_count", "-updated_at")[:limit]
+        active_places = self.active_queryset()
+        recommended_places = active_places.filter(is_home_recommended=True)
+        if recommended_places.exists():
+            return recommended_places.order_by("home_recommended_order", "-updated_at", "-likes_count")[:limit]
+        return active_places.order_by("-likes_count", "-updated_at")[:limit]
 
     def map_ready_queryset(self) -> QuerySet:
         return (

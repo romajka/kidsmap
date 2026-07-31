@@ -1,0 +1,12 @@
+{% if icon_file_url %}
+  {% if icon_is_svg %}
+    <span
+      class="category-visual-icon category-visual-icon--mask"
+      style="-webkit-mask-image: url('{{ icon_file_url }}'); mask-image: url('{{ icon_file_url }}');"
+    ></span>
+  {% else %}
+    <img class="category-visual-icon category-visual-icon--image" src="{{ icon_file_url }}" alt="" loading="lazy" decoding="async">
+  {% endif %}
+{% else %}
+  {% include "catalog/includes/category_icon.html" with code=code %}
+{% endif %}

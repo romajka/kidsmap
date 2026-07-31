@@ -136,7 +136,7 @@
                   <span class="schedule-type-badge"><i class="far fa-calendar-alt" aria-hidden="true"></i> {{ pricing_summary.schedule_type_label }}:</span>
                   <div class="schedule-rows-list">
                     {% for row in pricing_summary.schedule_rows %}
-                      <div class="schedule-row-item{% if row.is_closed %} schedule-row-item--closed{% endif %}">
+                      <div class="schedule-row-item{% if row.is_closed %} schedule-row-item--closed{% endif %}{% if not row.days %} schedule-row-item--time-only{% endif %}">
                         {% if row.days %}<span class="schedule-row-days">{{ row.days }}</span><span class="schedule-row-separator">·</span>{% endif %}
                         <strong class="schedule-row-time">{{ row.time }}</strong>
                       </div>
@@ -156,7 +156,7 @@
                           <strong class="detail-unified-pricing__plan-title">{{ plan.title }}</strong>
                           {% if plan.details %}<span class="detail-unified-pricing__plan-details">{{ plan.details }}</span>{% endif %}
                         </div>
-                        {% if not plan.fully_matches %}<strong class="detail-unified-pricing__plan-price">{{ plan.price_str }}</strong>{% endif %}
+                        <strong class="detail-unified-pricing__plan-price">{{ plan.price_str }}</strong>
                       </div>
                     {% endfor %}
                   </div>
@@ -209,7 +209,7 @@
                 </div>
               </div>
             {% endif %}
-            {% if place.lesson_format or place.lesson_duration_display %}
+            {% if pricing_summary.format_label or place.lesson_duration_display %}
               <div class="detail-highlight-card detail-highlight-card--lesson">
                 <span class="detail-highlight-card__icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
@@ -220,11 +220,11 @@
                   </svg>
                 </span>
                 <div class="detail-highlight-card__body">
-                  <span class="detail-highlight-card__label">{% if place.lesson_format %}{% if language == "az" %}Dərs formatı{% elif language == "en" %}Lesson format{% else %}Формат занятий{% endif %}{% else %}{% if language == "az" %}Müddət{% elif language == "en" %}Duration{% else %}Длительность{% endif %}{% endif %}</span>
+                  <span class="detail-highlight-card__label">{% if pricing_summary.format_label %}{% if language == "az" %}Dərs formatı{% elif language == "en" %}Lesson format{% else %}Формат занятий{% endif %}{% else %}{% if language == "az" %}Müddət{% elif language == "en" %}Duration{% else %}Длительность{% endif %}{% endif %}</span>
                   <strong class="detail-highlight-card__value">
-                    {% if place.lesson_format %}{{ place.get_lesson_format_display }}{% else %}{{ place.lesson_duration_display }}{% endif %}
+                    {% if pricing_summary.format_label %}{{ pricing_summary.format_label }}{% else %}{{ place.lesson_duration_display }}{% endif %}
                   </strong>
-                  {% if place.lesson_format and place.lesson_duration_display %}<span class="detail-highlight-card__note">{{ place.lesson_duration_display }}</span>{% endif %}
+                  {% if pricing_summary.format_label and place.lesson_duration_display %}<span class="detail-highlight-card__note">{{ place.lesson_duration_display }}</span>{% endif %}
                 </div>
               </div>
             {% endif %}

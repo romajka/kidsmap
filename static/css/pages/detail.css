@@ -2135,6 +2135,15 @@ body.page-place_detail .site-shell {
   font-weight: 700;
 }
 
+.detail-unified-pricing__schedule-row .schedule-row-item--time-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.detail-unified-pricing__schedule-row .schedule-row-item--time-only .schedule-row-time {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .detail-unified-pricing__schedule-row .schedule-row-item--closed .schedule-row-days,
 .detail-unified-pricing__schedule-row .schedule-row-item--closed .schedule-row-time {
   color: #7d9686;
@@ -2200,15 +2209,24 @@ body.page-place_detail .site-shell {
 }
 
 .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-row-item {
-  grid-template-columns: minmax(0, 1fr) 12px auto;
+  grid-template-columns: max-content 12px minmax(0, 1fr);
   padding: 7px 0;
   border-bottom: 1px solid rgba(28, 122, 72, 0.1);
   border-radius: 0;
   background: transparent;
 }
 
+.detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-row-item--time-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-row-days {
   color: #315f47;
+}
+
+.detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-row-time {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -2386,8 +2404,7 @@ body.page-place_detail .site-shell {
   }
 
   .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .schedule-rows-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .detail-unified-pricing--no-plans.detail-unified-pricing--with-schedule .detail-unified-pricing__footer-notes {

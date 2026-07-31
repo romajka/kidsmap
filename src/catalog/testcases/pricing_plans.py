@@ -41,6 +41,16 @@ class PricingPlansTests(TestCase):
                 with self.assertRaises(ValidationError):
                     normalize_pricing_plans(value)
 
+    def test_validation_error_identifies_broken_tariff(self):
+        with self.assertRaisesMessage(
+            ValidationError,
+            "Тариф 2: Укажите количество занятий в пакете.",
+        ):
+            normalize_pricing_plans([
+                {"lesson_format": "group", "payment_type": "per_month", "price": "120"},
+                {"lesson_format": "group", "payment_type": "package", "price": "90"},
+            ])
+
     def test_accepts_open_visit_tariffs(self):
         plans = normalize_pricing_plans([
             {"lesson_format": "open_visit", "payment_type": "per_visit", "price": "15"},
@@ -110,6 +120,13 @@ class PricingPlansTests(TestCase):
         with override("en"):
             self.assertEqual(public_pricing_plans(plans)[0]["format_label"], "Group")
 
+    def test_public_plan_without_title_gets_readable_fallback(self):
+        with override("ru"):
+            visible = public_pricing_plans([
+                {"lesson_format": "individual", "payment_type": "per_lesson", "price": "40"},
+            ])
+        self.assertEqual(visible[0]["title"], "Индивидуальные · за занятие")
+
     def test_public_detail_shows_only_active_sorted_plans(self):
         place = create_quality_place(
             name="Public pricing place",
@@ -123,6 +140,7 @@ class PricingPlansTests(TestCase):
             response = self.client.get(place.get_absolute_url())
         self.assertContains(response, "Цена и занятия")
         self.assertContains(response, "Индивидуально")
+        self.assertContains(response, "40 AZN")
         self.assertNotContains(response, "Скрытый")
         self.assertNotContains(response, 'id="pricing-plans-toggle"', html=False)
 
@@ -249,6 +267,27 @@ class PublicPricingSummaryTests(TestCase):
         # Check fully_matches flag is set correctly for matching starting price plan (Tariff 1)
         self.assertTrue(summary["plans"][0]["fully_matches"])
         self.assertFalse(summary["plans"][1]["fully_matches"])
+
+    def test_summary_format_and_frequency_match_starting_tariff(self):
+        from catalog.services.pricing_plans import build_pricing_summary
+
+        self.place.lesson_format = "group"
+        self.place.lessons_per_week = 3
+        self.place.pricing_plans = [
+            {
+                "lesson_format": "individual",
+                "payment_type": "per_lesson",
+                "price": "40",
+                "sessions_per_week": 1,
+                "is_active": True,
+            },
+        ]
+        self.place.save()
+
+        summary = build_pricing_summary(self.place, "ru")
+
+        self.assertEqual(summary["format_label"], "Индивидуальные")
+        self.assertEqual(summary["frequency"], "1 раз в неделю")
 
     def test_localizations(self):
         from catalog.services.pricing_plans import build_pricing_summary

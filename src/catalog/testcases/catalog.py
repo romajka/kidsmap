@@ -50,6 +50,7 @@ from catalog.repositories.django_repositories import DjangoPlaceRepository
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.content_quality import public_place_queryset, public_review_queryset, review_quality_check
 from catalog.services.place_schedule import dump_schedule_payload
+from catalog.services.slugs import PUBLIC_SLUG_MAX_LENGTH, build_ascii_slug
 from catalog.testcases.auth_access import TestAccountsAndReviewAccess
 from catalog.testcases.auth_flow import (
     TestAccountProfileUpdates,
@@ -63,6 +64,33 @@ from config.views import serve_media_file
 User = get_user_model()
 
 from catalog.testcases.utils import *
+
+
+class PublicSlugTests(TestCase):
+    def test_build_ascii_slug_transliterates_cyrillic_and_azerbaijani(self):
+        self.assertEqual(
+            build_ascii_slug("Детская школа Abşeron", fallback="place"),
+            "detskaya-shkola-abseron",
+        )
+
+    def test_build_ascii_slug_is_short_and_url_safe(self):
+        slug = build_ascii_slug("Очень длинное название " * 20, fallback="place")
+
+        self.assertLessEqual(len(slug), PUBLIC_SLUG_MAX_LENGTH)
+        self.assertTrue(slug.isascii())
+        self.assertNotIn("%", slug)
+
+    def test_new_place_url_does_not_contain_encoded_characters(self):
+        place = create_quality_place(
+            name="Детская школа дзюдо",
+            name_az="",
+            name_en="",
+            name_ru="Детская школа дзюдо",
+        )
+
+        self.assertEqual(place.slug, "detskaya-shkola-dzyudo")
+        self.assertTrue(place.get_absolute_url().isascii())
+
 
 class PostgreSqlUniquenessTests(TestCase):
     def setUp(self):

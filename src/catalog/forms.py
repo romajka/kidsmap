@@ -1380,7 +1380,7 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
     gallery_images = MultipleFileField(
         label=_("Дополнительные фото (до 10)"),
         required=False,
-        help_text=_("До 10 фото для галереи, каждое до 2 МБ."),
+        help_text=_("До 10 фото. Большие изображения автоматически уменьшатся перед загрузкой."),
     )
 
     class Meta(OwnerPlaceEditForm.Meta):
@@ -1389,7 +1389,9 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("submit_for_moderation", not kwargs.get("draft_save_only", False))
         super().__init__(*args, **kwargs)
-        self.fields["gallery_images"].help_text = _("До 10 фото для галереи, каждое до 2 МБ.")
+        self.fields["gallery_images"].help_text = _(
+            "До 10 фото. Большие изображения автоматически уменьшатся перед загрузкой."
+        )
         if self.draft_save_only:
             return
         if self.geocoding_check_only:

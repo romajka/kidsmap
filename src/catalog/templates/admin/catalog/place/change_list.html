@@ -7,8 +7,10 @@
 {% block extrahead %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=1">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=2" defer></script>
+  <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=1" defer></script>
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} km-custom-changelist{% if km_is_trash_changelist %} km-place-trash-changelist{% endif %}{% endblock %}
@@ -63,6 +65,10 @@
           </a>
         {% endfor %}
       </section>
+    {% endif %}
+
+    {% if home_recommendation_editor %}
+      {% include "admin/catalog/place/home_recommendation_editor.html" %}
     {% endif %}
 
     {% include "admin/catalog/includes/km_changelist_search_panel.html" %}

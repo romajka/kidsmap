@@ -181,7 +181,7 @@
 
 .km-user-access-alert {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 9px;
   padding: 10px 12px;
   border: 1px solid var(--km-admin-danger-border);
@@ -190,6 +190,20 @@
   color: var(--km-admin-danger);
   font-size: 13px;
   font-weight: 800;
+}
+
+.km-user-access-alert > i {
+  margin-top: 2px;
+}
+
+.km-user-access-alert strong {
+  display: block;
+}
+
+.km-user-access-alert ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-weight: 600;
 }
 
 .km-user-access-actions {

@@ -3185,11 +3185,9 @@ msgstr "Если модератору нужен дополнительный к
 msgid "Дополнительные фото (до 10)"
 msgstr "Дополнительные фото (до 5)"
 
-#: src/catalog/forms.py:830 src/catalog/forms.py:838
-#, fuzzy
-#| msgid "До 5 фото для галереи."
-msgid "До 10 фото для галереи, каждое до 2 МБ."
-msgstr "До 5 фото для галереи."
+#: src/catalog/forms.py:1383 src/catalog/forms.py:1393
+msgid "До 10 фото. Большие изображения автоматически уменьшатся перед загрузкой."
+msgstr "До 10 фото. Большие изображения автоматически уменьшатся перед загрузкой."
 
 #: src/catalog/forms.py:864
 msgid "Укажите локацию: выберите район или станцию метро."
@@ -5203,10 +5201,8 @@ msgid "Закрыть"
 msgstr "Закрыть"
 
 #: src/catalog/templates/base.html:302
-#, fuzzy
-#| msgid "Не удалось обновить роль. Исправьте поле и попробуйте снова."
 msgid "Не удалось выполнить действие. Попробуйте ещё раз."
-msgstr "Не удалось обновить роль. Исправьте поле и попробуйте снова."
+msgstr "Не удалось выполнить действие. Попробуйте ещё раз."
 
 #: src/catalog/templates/base.html:355 src/catalog/templates/base.html:366
 #: src/catalog/templates/catalog/includes/review_item.html:63

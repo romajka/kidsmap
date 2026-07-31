@@ -254,35 +254,51 @@
       <label class="filter-item filter-category">
         {% if language == "az" %}Kateqoriya{% elif language == "en" %}Category{% else %}{% trans "Категория" %}{% endif %}
         {% if not is_new_page %}
-          <div class="mobile-category-options" aria-label="{% if language == 'az' %}Kateqoriya{% elif language == 'en' %}Category{% else %}{% trans 'Категория' %}{% endif %}" data-mobile-filter-section="category">
+          <div class="mobile-category-options" aria-label="{% if language == 'az' %}Kateqoriya{% elif language == 'en' %}Category{% else %}{% trans 'Категория' %}{% endif %}" data-mobile-filter-section="category" data-category-overflow>
             <button type="button" class="mobile-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="">
               <span class="mobile-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
               <span>{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
             </button>
             {% for category in categories %}
-              <button type="button" class="mobile-category-chip{% if selected.category == category.value %} is-active{% endif %}" data-select-target="category" data-select-value="{{ category.value }}">
+              <button type="button" class="mobile-category-chip{% if selected.category == category.value %} is-active{% endif %}{% if forloop.counter > 10 %} is-category-extra{% endif %}" data-select-target="category" data-select-value="{{ category.value }}" {% if forloop.counter > 10 %}hidden{% endif %}>
                 <span class="mobile-category-chip-icon" style="background-color: {{ category.color_bg|default:'#F3F4F6' }}; color: {{ category.color_text|default:'#6B7280' }};" aria-hidden="true">
-                  {% include "catalog/includes/category_icon.html" with code=category.value %}
+                  {% include "catalog/includes/category_visual_icon.html" with code=category.value icon_file_url=category.icon_file_url icon_is_svg=category.icon_is_svg icon_is_font=category.icon_is_font icon_name=category.icon_name %}
                 </span>
                 <span>{% firstof category.label_with_count category.label %}</span>
               </button>
             {% endfor %}
+            {% if categories|length > 10 %}
+              <button type="button" class="category-overflow-toggle" data-category-overflow-toggle aria-expanded="false"
+                data-more-label="{% if language == 'az' %}Daha çox göstər{% elif language == 'en' %}Show more{% else %}Показать ещё{% endif %}"
+                data-less-label="{% if language == 'az' %}Daha az göstər{% elif language == 'en' %}Show less{% else %}Свернуть{% endif %}">
+                <span data-category-overflow-label>{% if language == "az" %}Daha çox göstər{% elif language == "en" %}Show more{% else %}Показать ещё{% endif %}</span>
+                <span class="category-overflow-toggle__icon" aria-hidden="true">⌄</span>
+              </button>
+            {% endif %}
           </div>
         {% endif %}
         {% if not is_new_page %}
-          <div class="desktop-category-options" aria-label="{% trans 'Категория' %}">
+          <div class="desktop-category-options" aria-label="{% trans 'Категория' %}" data-category-overflow>
             <button type="button" class="desktop-category-chip{% if not selected.category %} is-active{% endif %}" data-select-target="category" data-select-value="" data-category-code="ALL">
               <span class="desktop-category-chip-icon" aria-hidden="true">{% include "catalog/includes/category_icon.html" with code="ALL" %}</span>
               <span>{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
             </button>
             {% for category in categories %}
-              <button type="button" class="desktop-category-chip{% if selected.category == category.value %} is-active{% endif %}" data-select-target="category" data-select-value="{{ category.value }}" data-category-code="{{ category.value }}">
+              <button type="button" class="desktop-category-chip{% if selected.category == category.value %} is-active{% endif %}{% if forloop.counter > 10 %} is-category-extra{% endif %}" data-select-target="category" data-select-value="{{ category.value }}" data-category-code="{{ category.value }}" {% if forloop.counter > 10 %}hidden{% endif %}>
                 <span class="desktop-category-chip-icon" style="background-color: {{ category.color_bg|default:'#F3F4F6' }}; color: {{ category.color_text|default:'#6B7280' }};" aria-hidden="true">
-                  {% include "catalog/includes/category_icon.html" with code=category.value %}
+                  {% include "catalog/includes/category_visual_icon.html" with code=category.value icon_file_url=category.icon_file_url icon_is_svg=category.icon_is_svg icon_is_font=category.icon_is_font icon_name=category.icon_name %}
                 </span>
                 <span>{% firstof category.label_with_count category.label %}</span>
               </button>
             {% endfor %}
+            {% if categories|length > 10 %}
+              <button type="button" class="category-overflow-toggle" data-category-overflow-toggle aria-expanded="false"
+                data-more-label="{% if language == 'az' %}Daha çox göstər{% elif language == 'en' %}Show more{% else %}Показать ещё{% endif %}"
+                data-less-label="{% if language == 'az' %}Daha az göstər{% elif language == 'en' %}Show less{% else %}Свернуть{% endif %}">
+                <span data-category-overflow-label>{% if language == "az" %}Daha çox göstər{% elif language == "en" %}Show more{% else %}Показать ещё{% endif %}</span>
+                <span class="category-overflow-toggle__icon" aria-hidden="true">⌄</span>
+              </button>
+            {% endif %}
           </div>
         {% endif %}
         <select class="filter-select" name="category">
@@ -2112,6 +2128,34 @@
       initLocationTreeSelect();
 
       bindDynamicCatalogControls();
+
+      document.querySelectorAll("[data-category-overflow]").forEach(function(section) {
+        const extras = Array.from(section.querySelectorAll(".is-category-extra"));
+        const toggle = section.querySelector("[data-category-overflow-toggle]");
+        if (!extras.length || !toggle) return;
+
+        let expanded = extras.some(function(item) {
+          return item.classList.contains("is-active");
+        });
+        const label = toggle.querySelector("[data-category-overflow-label]");
+
+        function renderCategoryOverflow() {
+          extras.forEach(function(item) {
+            item.hidden = !expanded;
+          });
+          toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+          toggle.classList.toggle("is-expanded", expanded);
+          if (label) {
+            label.textContent = expanded ? toggle.dataset.lessLabel : toggle.dataset.moreLabel;
+          }
+        }
+
+        toggle.addEventListener("click", function() {
+          expanded = !expanded;
+          renderCategoryOverflow();
+        });
+        renderCategoryOverflow();
+      });
 
       document.querySelectorAll(".event-type-filter input[type='radio']").forEach(function(radio) {
         radio.addEventListener("change", triggerSubmit);

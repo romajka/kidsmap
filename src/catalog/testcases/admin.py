@@ -107,6 +107,13 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertNotContains(response, 'name="temporary_start_0"', html=False)
         self.assertNotContains(response, 'name="temporary_end_0"', html=False)
 
+    def test_place_change_page_exposes_home_recommendation_controls(self):
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="is_home_recommended"', html=False)
+        self.assertContains(response, 'name="home_recommended_order"', html=False)
+
     def test_localized_admin_add_choice_route_is_reachable(self):
         response = self.client.get("/ru/admin/add-choice/")
 
@@ -131,6 +138,91 @@ class TestAdminTemporaryEventInputs(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, reverse("admin:catalog_place_changelist"), html=False)
+
+
+class TestAdminHomeRecommendations(TestCase):
+    def setUp(self):
+        self.superuser = User.objects.create_superuser(
+            username="admin_home_recommendations",
+            email="admin-home-recommendations@example.com",
+            password="StrongPass123!!",
+        )
+        self.client.login(username="admin_home_recommendations", password="StrongPass123!!")
+        self.places = [
+            create_quality_place(
+                name=f"Recommendation Place {index}",
+                name_az=f"Tövsiyə məkanı {index}",
+                name_ru=f"Рекомендуемое место {index}",
+            )
+            for index in range(1, 6)
+        ]
+
+    def test_place_list_renders_visual_home_recommendation_editor(self):
+        self.places[0].is_home_recommended = True
+        self.places[0].home_recommended_order = 10
+        self.places[0].save(update_fields=["is_home_recommended", "home_recommended_order"])
+
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-home-recommendations", html=False)
+        self.assertContains(response, "kidsmap_home_recommendations.css", html=False)
+        self.assertContains(response, "kidsmap_home_recommendations.js", html=False)
+        self.assertContains(response, "Рекомендуемые места")
+        self.assertContains(response, "Рекомендуемое место 1")
+        self.assertContains(
+            response,
+            f'data-save-url="{reverse("admin:catalog_place_home_recommendations_save")}"',
+            html=False,
+        )
+        self.assertNotContains(response, "catalog_moderation/moderationplace/home-recommendations", html=False)
+
+    def test_admin_can_save_home_recommendations_and_order(self):
+        save_url = reverse("admin:catalog_place_home_recommendations_save")
+
+        response = self.client.post(
+            save_url,
+            data=json.dumps({"place_ids": [self.places[2].pk, self.places[0].pk]}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+        self.places[0].refresh_from_db()
+        self.places[2].refresh_from_db()
+        self.assertTrue(self.places[2].is_home_recommended)
+        self.assertEqual(self.places[2].home_recommended_order, 10)
+        self.assertTrue(self.places[0].is_home_recommended)
+        self.assertEqual(self.places[0].home_recommended_order, 20)
+
+    def test_admin_rejects_more_than_four_home_recommendations(self):
+        response = self.client.post(
+            reverse("admin:catalog_place_home_recommendations_save"),
+            data=json.dumps({"place_ids": [place.pk for place in self.places]}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(response.json()["ok"])
+        self.assertFalse(Place.objects.filter(is_home_recommended=True).exists())
+
+    def test_candidate_search_returns_only_public_places(self):
+        hidden_place = create_quality_place(
+            name="Hidden Recommendation Place",
+            name_ru="Скрытое место",
+            is_active=False,
+            status=Place.STATUS_DRAFT,
+        )
+
+        response = self.client.get(
+            reverse("admin:catalog_place_home_recommendation_candidates"),
+            {"q": "Recommendation Place"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        result_ids = {item["id"] for item in response.json()["results"]}
+        self.assertEqual(result_ids, {place.pk for place in self.places})
+        self.assertNotIn(hidden_place.pk, result_ids)
 
 
 class TestAzerbaijanPhoneFormatting(TestCase):
@@ -2065,6 +2157,35 @@ class UserAdminUXTests(TestCase):
         self.assertEqual(created_user.profile.role, UserProfile.ROLE_USER)
         self.assertTrue(created_user.has_perm("catalog.change_placereview"))
         self.assertFalse(created_user.has_perm("catalog.change_place"))
+
+    def test_staff_creation_shows_specific_validation_errors(self):
+        response = self.client.post(
+            reverse("admin:catalog_staffaccessuser_add"),
+            data={
+                "username": "ChatGPT",
+                "email": "chatgpt@example.com",
+                "password1": "ChatGPT123!!",
+                "password2": "ChatGPT123!!",
+                "admin_role": "content_manager",
+                "is_active": "on",
+                "is_staff": "on",
+                "profile-TOTAL_FORMS": "1",
+                "profile-INITIAL_FORMS": "0",
+                "profile-MIN_NUM_FORMS": "0",
+                "profile-MAX_NUM_FORMS": "1",
+                "profile-0-role": UserProfile.ROLE_USER,
+                "profile-0-owner_role": UserProfile.OWNER_ROLE_MANAGER,
+                "profile-0-owner_permissions_override": "[]",
+                "profile-0-phone": "",
+                "profile-0-gender": UserProfile.GENDER_UNSPECIFIED,
+                "_save": "Save",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Не удалось создать сотрудника.")
+        self.assertContains(response, "Пароль:")
+        self.assertContains(response, "слишком похож на имя пользователя")
 
     def test_superadmin_can_create_content_manager_and_superadmin_roles(self):
         base_payload = {

@@ -10,7 +10,6 @@ from django.conf import settings
 from django.utils.translation import gettext as translate
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
-from django.utils.text import slugify
 from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
@@ -126,6 +125,16 @@ class Place(models.Model):
     likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
     rating_avg = models.FloatField(_("Средний рейтинг"), default=0)
     rating_count = models.PositiveIntegerField(_("Количество отзывов"), default=0)
+    is_home_recommended = models.BooleanField(
+        _("Показывать в рекомендациях на главной"),
+        default=False,
+        db_index=True,
+    )
+    home_recommended_order = models.PositiveSmallIntegerField(
+        _("Порядок в рекомендациях"),
+        default=0,
+        help_text=_("Меньшее число показывается раньше. На главной выводятся максимум четыре места."),
+    )
 
     is_active = models.BooleanField(_("Активно"), default=True)
     is_verified = models.BooleanField(_("Проверено"), default=False)
@@ -494,14 +503,15 @@ class Place(models.Model):
         return reverse("place_detail", kwargs={"pk": self.pk, "slug": self.slug})
 
     def _build_unique_slug(self):
-        source = self.name_ru or self.name or self.name_en or self.name_az or "place"
-        base = slugify(source, allow_unicode=True) or "place"
-        candidate = base
-        idx = 2
-        while Place.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
-            candidate = f"{base}-{idx}"
-            idx += 1
-        return candidate
+        from catalog.services.slugs import build_unique_ascii_slug
+
+        source = self.name_az or self.name_en or self.name_ru or self.name or "place"
+        return build_unique_ascii_slug(
+            Place,
+            source,
+            fallback="place",
+            instance_pk=self.pk,
+        )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -751,14 +761,15 @@ class Event(models.Model):
         return reverse("event_detail", kwargs={"pk": self.pk, "slug": self.slug})
 
     def _build_unique_slug(self):
+        from catalog.services.slugs import build_unique_ascii_slug
+
         source = self.name_az or self.name_ru or self.name_en or self.name or "event"
-        base = slugify(source, allow_unicode=True) or "event"
-        candidate = base
-        idx = 2
-        while Event.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
-            candidate = f"{base}-{idx}"
-            idx += 1
-        return candidate
+        return build_unique_ascii_slug(
+            Event,
+            source,
+            fallback="event",
+            instance_pk=self.pk,
+        )
 
     def save(self, *args, **kwargs):
         if not self.name:

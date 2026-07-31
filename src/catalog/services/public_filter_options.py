@@ -155,7 +155,10 @@ def build_public_place_filter_options(
         for category in Category.objects.filter(is_active=True).order_by("order", "name_ru", "name")
         if category_counts.get(category.code, 0) > 0
     ]
-    categories = sorted(categories, key=lambda item: str(item["label"]).casefold())
+    categories = sorted(
+        categories,
+        key=lambda item: (-int(item.get("count") or 0), str(item["label"]).casefold()),
+    )
 
     subcategories = [
         _build_subcategory_option(subcategory, language_code=language_code, count=subcategory_counts.get(str(subcategory.pk)))

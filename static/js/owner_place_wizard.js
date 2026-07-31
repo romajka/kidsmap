@@ -33,6 +33,7 @@
   let leaveGuardLastFocus = null;
   let draftSaveTimer = null;
   let isRestoringDraft = false;
+  let suppressDraftPersistence = false;
   let restoredStep = null;
   const requiresTypeChoice = form.dataset.ownerRequiresTypeChoice === "1";
   let listingTypeChosen = !requiresTypeChoice
@@ -59,6 +60,14 @@
   }
 
   const draftStorage = getDraftStorage();
+  const protectedDraftFieldNames = ["pricing_plans"];
+  const protectedDraftBaseFields = {};
+  protectedDraftFieldNames.forEach(function (name) {
+    const field = form.querySelector('[name="' + name + '"]');
+    if (field) {
+      protectedDraftBaseFields[name] = String(field.value || "");
+    }
+  });
 
   function showDraftStatus(message, mode) {
     if (!draftStatus || !message) return;
@@ -73,7 +82,7 @@
   function serializeField(field) {
     if (!field || !field.name || field.disabled) return "";
     if (field.type === "file") {
-      const files = Array.from(field.files || []).map(function (file) {
+      const files = getSelectedFiles(field).map(function (file) {
         return [file.name, file.size, file.lastModified].join(":");
       });
       return field.name + "::file::" + files.join("|");
@@ -140,9 +149,10 @@
     });
 
     return {
-      version: 1,
+      version: 2,
       step: currentStep,
       fields: fields,
+      baseFields: protectedDraftBaseFields,
       detailsOpen: detailsState,
       hasPendingFiles: Array.from(form.querySelectorAll('input[type="file"]')).some(function (field) {
         return !!(field.files && field.files.length);
@@ -161,6 +171,10 @@
   function saveDraftNow() {
     if (!draftStorage || isRestoringDraft) return;
     try {
+      if (suppressDraftPersistence) {
+        draftStorage.removeItem(draftKey);
+        return;
+      }
       if (!hasUnsavedChanges()) {
         draftStorage.removeItem(draftKey);
         clearDraftStatus();
@@ -210,6 +224,14 @@
     Object.keys(state.fields).forEach(function (name) {
       const field = getField(name);
       if (!field || field.disabled) return;
+      if (protectedDraftFieldNames.indexOf(name) !== -1) {
+        if (
+          !state.baseFields
+          || String(state.baseFields[name] || "") !== String(protectedDraftBaseFields[name] || "")
+        ) {
+          return;
+        }
+      }
       if (field.type === "checkbox") {
         field.checked = !!state.fields[name];
         return;
@@ -1484,23 +1506,194 @@
     return [file.name, file.size, file.lastModified].join(":");
   }
 
-  function filterUploaderFiles(uploader, incomingFiles, existingFiles) {
+  const uploaderOptimizationMaxDimension = 1920;
+  const uploaderOptimizationThreshold = 700 * 1024;
+  let uploaderOptimizationCount = 0;
+
+  function setUploaderOptimizing(uploader, isOptimizing) {
+    const meta = uploader.querySelector("[data-upload-meta]");
+    uploaderOptimizationCount += isOptimizing ? 1 : -1;
+    uploaderOptimizationCount = Math.max(0, uploaderOptimizationCount);
+    uploader.classList.toggle("is-processing", isOptimizing);
+    if (isOptimizing && meta) {
+      meta.textContent = uploader.dataset.uploadOptimizing || "";
+    }
+  }
+
+  function imageFileName(fileName) {
+    const base = String(fileName || "photo").replace(/\.[^.]+$/, "") || "photo";
+    return base + ".webp";
+  }
+
+  function uploaderFileMessage(uploader, key, file, fallback) {
+    const template = uploader.dataset[key] || fallback || "";
+    return template.replace(/\{name\}/g, String(file && file.name || "photo"));
+  }
+
+  function uploaderFileError(code, file) {
+    const error = new Error(code);
+    error.uploadCode = code;
+    error.uploadFile = file;
+    return error;
+  }
+
+  function canvasToBlob(canvas, type, quality) {
+    return new Promise(function (resolve) {
+      canvas.toBlob(resolve, type, quality);
+    });
+  }
+
+  function loadImageForOptimization(file) {
+    if (typeof createImageBitmap === "function") {
+      return createImageBitmap(file, { imageOrientation: "from-image" }).then(function (bitmap) {
+        return {
+          width: bitmap.width,
+          height: bitmap.height,
+          draw: function (context, width, height) {
+            context.drawImage(bitmap, 0, 0, width, height);
+          },
+          close: function () {
+            if (typeof bitmap.close === "function") bitmap.close();
+          }
+        };
+      });
+    }
+
+    return new Promise(function (resolve, reject) {
+      const url = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = function () {
+        resolve({
+          width: image.naturalWidth,
+          height: image.naturalHeight,
+          draw: function (context, width, height) {
+            context.drawImage(image, 0, 0, width, height);
+          },
+          close: function () {
+            URL.revokeObjectURL(url);
+          }
+        });
+      };
+      image.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Image decode failed"));
+      };
+      image.src = url;
+    });
+  }
+
+  async function optimizeUploaderImage(file) {
+    const type = String(file && file.type || "").toLowerCase();
+    const hasImageExtension = /\.(?:avif|gif|heic|heif|jpe?g|png|webp)$/i.test(String(file && file.name || ""));
+    if (!file) {
+      return file;
+    }
+    if (!file.size) {
+      throw uploaderFileError("empty", file);
+    }
+    if (type.indexOf("image/") !== 0 && !hasImageExtension) {
+      throw uploaderFileError("type", file);
+    }
+    if (type === "image/gif" || type === "image/svg+xml") {
+      return file;
+    }
+
+    let image;
+    try {
+      image = await loadImageForOptimization(file);
+      const scale = Math.min(
+        1,
+        uploaderOptimizationMaxDimension / Math.max(image.width, image.height)
+      );
+      if (scale === 1 && file.size <= uploaderOptimizationThreshold && type.indexOf("image/") === 0) {
+        return file;
+      }
+
+      const width = Math.max(1, Math.round(image.width * scale));
+      const height = Math.max(1, Math.round(image.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d", { alpha: true });
+      if (!context) throw uploaderFileError("encode", file);
+      image.draw(context, width, height);
+
+      let blob = null;
+      for (const quality of [0.82, 0.72, 0.62]) {
+        blob = await canvasToBlob(canvas, "image/webp", quality);
+        if (blob && blob.size <= 1800 * 1024) break;
+      }
+      if (!blob) {
+        throw uploaderFileError("encode", file);
+      }
+      if (blob.size > 2 * 1024 * 1024) {
+        throw uploaderFileError("size", file);
+      }
+      if (blob.size >= file.size && file.size <= 2 * 1024 * 1024 && type.indexOf("image/") === 0) {
+        return file;
+      }
+
+      return new File(
+        [blob],
+        imageFileName(file.name),
+        { type: blob.type || "image/webp", lastModified: file.lastModified || Date.now() }
+      );
+    } catch (error) {
+      if (error && error.uploadCode) throw error;
+      throw uploaderFileError("decode", file);
+    } finally {
+      if (image) image.close();
+    }
+  }
+
+  async function prepareUploaderFiles(uploader, incomingFiles, existingFiles) {
+    setUploaderOptimizing(uploader, true);
+    try {
+      const prepared = [];
+      const errors = [];
+      for (const file of Array.from(incomingFiles || [])) {
+        try {
+          prepared.push(await optimizeUploaderImage(file));
+        } catch (error) {
+          const failedFile = error && error.uploadFile ? error.uploadFile : file;
+          const code = error && error.uploadCode ? error.uploadCode : "decode";
+          const messageKey = {
+            empty: "uploadEmptyFile",
+            type: "uploadBadTypeFile",
+            size: "uploadTooLargeFile",
+            encode: "uploadEncodeError",
+            decode: "uploadDecodeError"
+          }[code] || "uploadDecodeError";
+          errors.push(uploaderFileMessage(uploader, messageKey, failedFile));
+        }
+      }
+      return filterUploaderFiles(uploader, prepared, existingFiles, errors);
+    } finally {
+      setUploaderOptimizing(uploader, false);
+    }
+  }
+
+  function filterUploaderFiles(uploader, incomingFiles, existingFiles, initialErrors) {
     const input = uploader.querySelector("[data-upload-input]");
     const isSingle = uploader.dataset.uploadMode === "single";
     const maxFiles = Number(uploader.dataset.uploadMaxFiles || (isSingle ? 1 : 10));
     const maxSize = Number(uploader.dataset.uploadMaxSize || 0);
     const accepted = new DataTransfer();
-    const errors = [];
+    const errors = Array.from(initialErrors || []);
     const seen = new Set();
 
     function tryAdd(file) {
       if (!file) return;
+      if (!file.size) {
+        errors.push(uploaderFileMessage(uploader, "uploadEmptyFile", file));
+        return;
+      }
       if (file.type && file.type.indexOf("image/") !== 0) {
-        errors.push(uploader.dataset.uploadBadType || "");
+        errors.push(uploaderFileMessage(uploader, "uploadBadTypeFile", file, uploader.dataset.uploadBadType || ""));
         return;
       }
       if (maxSize && file.size > maxSize) {
-        errors.push(uploader.dataset.uploadTooLarge || "");
+        errors.push(uploaderFileMessage(uploader, "uploadTooLargeFile", file, uploader.dataset.uploadTooLarge || ""));
         return;
       }
       if (seen.has(fileKey(file))) return;
@@ -1655,6 +1848,11 @@
   if (leaveGuardDiscard) {
     leaveGuardDiscard.addEventListener("click", function () {
       allowNavigation = true;
+      suppressDraftPersistence = true;
+      window.clearTimeout(draftSaveTimer);
+      if (draftStorage && draftKey) {
+        draftStorage.removeItem(draftKey);
+      }
       if (pendingNavigationForm) {
         const formToSubmit = pendingNavigationForm;
         closeLeaveGuard();
@@ -1700,6 +1898,16 @@
   }, true);
 
   form.addEventListener("submit", function (event) {
+    if (uploaderOptimizationCount > 0) {
+      event.preventDefault();
+      const activeUploader = form.querySelector("[data-file-uploader].is-processing");
+      if (activeUploader) {
+        setUploaderError(activeUploader, [activeUploader.dataset.uploadOptimizing || ""]);
+        activeUploader.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+
     const submitter = event.submitter || document.activeElement;
     const isDraft = submitter && (
       submitter.value === "save_draft"
@@ -1726,8 +1934,15 @@
       }
     });
     allowNavigation = true;
+    suppressDraftPersistence = true;
     window.clearTimeout(draftSaveTimer);
-    saveDraftNow();
+    if (draftStorage && draftKey) {
+      try {
+        draftStorage.removeItem(draftKey);
+      } catch (error) {
+        // A storage failure must not block a valid form submission.
+      }
+    }
   });
 
   form.addEventListener("click", function (event) {
@@ -1917,18 +2132,22 @@
     }
   });
 
-  form.addEventListener("change", function (event) {
+  form.addEventListener("change", async function (event) {
     if (event.target.type === "file" && event.target.multiple) {
       const input = event.target;
       const uploader = input.closest("[data-file-uploader]");
       if (uploader) {
-        filterUploaderFiles(uploader, input.files, input._accumulatedFiles ? input._accumulatedFiles.files : []);
+        const incomingFiles = Array.from(input.files || []);
+        const existingFiles = input._accumulatedFiles
+          ? Array.from(input._accumulatedFiles.files || [])
+          : [];
+        await prepareUploaderFiles(uploader, incomingFiles, existingFiles);
       }
     } else if (event.target.type === "file") {
       const input = event.target;
       const uploader = input.closest("[data-file-uploader]");
       if (uploader) {
-        filterUploaderFiles(uploader, input.files, []);
+        await prepareUploaderFiles(uploader, Array.from(input.files || []), []);
       }
     }
 
@@ -2018,15 +2237,18 @@
       }, false);
     });
 
-    dropZone.addEventListener("drop", function (e) {
+    dropZone.addEventListener("drop", async function (e) {
       const dt = e.dataTransfer;
-      const files = dt.files;
+      const files = Array.from(dt.files || []);
       if (!files || !files.length) return;
 
       if (input.multiple) {
-        filterUploaderFiles(uploader, files, input._accumulatedFiles ? input._accumulatedFiles.files : input.files);
+        const existingFiles = input._accumulatedFiles
+          ? Array.from(input._accumulatedFiles.files || [])
+          : Array.from(input.files || []);
+        await prepareUploaderFiles(uploader, files, existingFiles);
       } else {
-        filterUploaderFiles(uploader, files, []);
+        await prepareUploaderFiles(uploader, files, []);
       }
 
       renderUploaderState(uploader);

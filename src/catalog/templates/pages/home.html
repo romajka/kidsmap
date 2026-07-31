@@ -190,7 +190,7 @@
         <select name="district" class="home-filter-district-select" hidden>
           <option value="">{% trans "Регион / район" %}</option>
           {% for district in home_districts %}
-          <option value="{{ district.label }}" data-label-current="{{ district.label }}"
+          <option value="{{ district.value }}" data-label-current="{{ district.label }}"
             data-label-az="{{ district.label_az }}" data-label-ru="{{ district.label_ru }}"
             data-label-en="{{ district.label_en }}"
             data-is-baku-city="{% if district.value == 'baku' %}1{% else %}0{% endif %}"
@@ -275,7 +275,7 @@
               data-color-text="{{ item.color_text|default:'#6B7280' }}">
               <span class="km-category-option-icon"
                 style="background-color: {{ item.color_bg|default:'#F3F4F6' }}; color: {{ item.color_text|default:'#6B7280' }};">
-                {% include "catalog/includes/category_icon.html" with code=item.value %}
+                {% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}
               </span>
               <span class="km-category-option-text">
                 {% firstof item.label_with_count item.label %}

@@ -37,6 +37,7 @@
     egSessionsMonth: editor.dataset.egSessionsMonth || "например, 12",
     egPackageSessions: editor.dataset.egPackageSessions || "например, 10",
     egPrice: editor.dataset.egPrice || "например, 120",
+    choose: editor.dataset.chooseLabel || "Choose",
   };
 
   const fields = [
@@ -72,12 +73,12 @@
     let field;
     if (type === "select") {
       field = document.createElement("select");
-      field.innerHTML = '<option value="">Выберите вариант</option>' + options.map((item) => '<option value="' + item[0] + '">' + item[1] + '</option>').join("");
+      field.innerHTML = '<option value="">' + labels.choose + '</option>' + options.map((item) => '<option value="' + item[0] + '">' + item[1] + '</option>').join("");
     } else {
       field = document.createElement("input");
       field.type = type;
       if (type === "number") { 
-        field.min = "1"; 
+        field.min = key === "price" ? "0" : "1";
         field.step = key === "price" ? "0.01" : "1"; 
       }
       const placeholders = {
@@ -94,6 +95,7 @@
       }
     }
     field.className = "field";
+    field.required = !!required;
     field.value = plan[key] == null ? "" : plan[key];
     field.dataset.tariffKey = key;
     field.addEventListener("input", () => { plan[key] = field.value; sync(); });
@@ -108,6 +110,10 @@
           row.classList.remove("payment-type--" + typeName);
         });
         row.classList.add("payment-type--" + (field.value || "empty").replace("_", "-"));
+        const packageSessions = row.querySelector('[data-tariff-key="package_sessions"]');
+        if (packageSessions) {
+          packageSessions.required = field.value === "package";
+        }
       }
     });
     wrapper.appendChild(field);
@@ -143,6 +149,11 @@
           row.appendChild(toggleWrapper);
         }
       });
+
+      const packageSessions = row.querySelector('[data-tariff-key="package_sessions"]');
+      if (packageSessions) {
+        packageSessions.required = plan.payment_type === "package";
+      }
       
       const footer = document.createElement("div");
       footer.className = "owner-tariff-footer";
@@ -183,6 +194,22 @@
     sync();
   }
 
-  add.addEventListener("click", () => { if (plans.length < 12) { plans.push({ lesson_format: "", payment_type: "", price: "", currency: "AZN", is_active: true }); render(); } });
+  add.addEventListener("click", () => {
+    if (plans.length < 12) {
+      plans.push({
+        title_az: "",
+        title_ru: "",
+        title_en: "",
+        lesson_format: "",
+        payment_type: "",
+        price: "",
+        currency: "AZN",
+        is_active: true
+      });
+      render();
+      const firstField = list.lastElementChild && list.lastElementChild.querySelector("[data-tariff-key]");
+      if (firstField) firstField.focus();
+    }
+  });
   render();
 })();

@@ -330,6 +330,7 @@
               data-eg-sessions-month="{% if CURRENT_LANGUAGE == 'az' %}məsələn, 12{% elif CURRENT_LANGUAGE == 'en' %}e.g., 12{% else %}например, 12{% endif %}"
               data-eg-package-sessions="{% if CURRENT_LANGUAGE == 'az' %}məsələn, 10{% elif CURRENT_LANGUAGE == 'en' %}e.g., 10{% else %}например, 10{% endif %}"
               data-eg-price="{% if CURRENT_LANGUAGE == 'az' %}məsələn, 120{% elif CURRENT_LANGUAGE == 'en' %}e.g., 120{% else %}например, 120{% endif %}"
+              data-choose-label="{% if CURRENT_LANGUAGE == 'az' %}Seçin{% elif CURRENT_LANGUAGE == 'en' %}Choose{% else %}Выберите{% endif %}"
             >
               <div class="owner-form-field__label-row"><label>{% if CURRENT_LANGUAGE == "az" %}Tariflər{% elif CURRENT_LANGUAGE == "en" %}Pricing plans{% else %}Тарифы{% endif %}</label></div>
               
@@ -346,6 +347,11 @@
               </div>
 
               <input type="hidden" name="pricing_plans" value="{{ form.pricing_plans.value|default:'[]'|escape }}" data-tariff-input>
+              {% if form.pricing_plans.errors %}
+                <div class="auth-field-error owner-tariff-server-errors" role="alert">
+                  {% for error in form.pricing_plans.errors %}<div>{{ error }}</div>{% endfor %}
+                </div>
+              {% endif %}
               <div class="owner-tariff-list" data-tariff-list></div>
               <button type="button" class="btn-secondary owner-tariff-add" data-tariff-add>+ {% if CURRENT_LANGUAGE == "az" %}Tarif əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add plan{% else %}Добавить тариф{% endif %}</button>
             </div>

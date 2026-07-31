@@ -7,7 +7,7 @@
   data-upload-max-files="1"
   data-upload-max-size="2097152"
   data-upload-preview-shape="square"
-  data-upload-empty="{% if CURRENT_LANGUAGE == 'az' %}Şəkil seçmək üçün klikləyin. JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == 'en' %}Click to choose an image. JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans 'Нажмите, чтобы выбрать изображение JPG, PNG или WEBP до 2 МБ.' %}{% endif %}"
+  data-upload-empty="{% if CURRENT_LANGUAGE == 'az' %}Şəkli seçin. Böyük fayl avtomatik kiçildiləcək.{% elif CURRENT_LANGUAGE == 'en' %}Choose a photo. A large file will be reduced automatically.{% else %}{% trans 'Выберите фото. Большой файл уменьшится автоматически.' %}{% endif %}"
   data-upload-summary="{% if CURRENT_LANGUAGE == 'az' %}Yeni fayl:{% elif CURRENT_LANGUAGE == 'en' %}New file:{% else %}{% trans 'Новый файл:' %}{% endif %}"
   data-upload-pending="{% if CURRENT_LANGUAGE == 'az' %}Fayl forma göndəriləndə saxlanacaq.{% elif CURRENT_LANGUAGE == 'en' %}The file will be saved after submitting the form.{% else %}{% trans 'Файл выбран и будет сохранён после отправки формы.' %}{% endif %}"
   data-upload-crop-note="{% if CURRENT_LANGUAGE == 'az' %}Kataloqda şəkil kvadrat göstərilir. Ön baxış kəsiləcək hissəni göstərir.{% elif CURRENT_LANGUAGE == 'en' %}The catalog shows this photo as a square. This preview shows the visible crop.{% else %}{% trans 'В каталоге фото показывается квадратом. Это превью показывает видимый кроп.' %}{% endif %}"
@@ -15,7 +15,13 @@
   data-upload-limit-label="{% if CURRENT_LANGUAGE == 'az' %}Limit{% elif CURRENT_LANGUAGE == 'en' %}Limit{% else %}{% trans 'Лимит' %}{% endif %}"
   data-upload-too-many="{% if CURRENT_LANGUAGE == 'az' %}Yalnız 1 əsas şəkil seçilə bilər.{% elif CURRENT_LANGUAGE == 'en' %}Only 1 main photo can be selected.{% else %}{% trans 'Можно выбрать только 1 главное фото.' %}{% endif %}"
   data-upload-too-large="{% if CURRENT_LANGUAGE == 'az' %}Şəkil 2 MB-dan böyükdür.{% elif CURRENT_LANGUAGE == 'en' %}The photo is larger than 2 MB.{% else %}{% trans 'Фото больше 2 МБ.' %}{% endif %}"
+  data-upload-optimizing="{% if CURRENT_LANGUAGE == 'az' %}Şəkil optimallaşdırılır…{% elif CURRENT_LANGUAGE == 'en' %}Optimizing photo…{% else %}{% trans 'Оптимизируем фотографию…' %}{% endif %}"
   data-upload-bad-type="{% if CURRENT_LANGUAGE == 'az' %}Yalnız JPG, PNG və WEBP şəkilləri yükləyin.{% elif CURRENT_LANGUAGE == 'en' %}Upload JPG, PNG, or WEBP images only.{% else %}{% trans 'Загружайте только изображения JPG, PNG или WEBP.' %}{% endif %}"
+  data-upload-empty-file="{% if CURRENT_LANGUAGE == 'az' %}“{name}” boş fayldır.{% elif CURRENT_LANGUAGE == 'en' %}“{name}” is an empty file.{% else %}«{name}» — пустой файл.{% endif %}"
+  data-upload-bad-type-file="{% if CURRENT_LANGUAGE == 'az' %}“{name}”: şəkil formatı dəstəklənmir. JPG, PNG və ya WEBP istifadə edin.{% elif CURRENT_LANGUAGE == 'en' %}“{name}”: unsupported image format. Use JPG, PNG, or WEBP.{% else %}«{name}»: формат изображения не поддерживается. Используйте JPG, PNG или WEBP.{% endif %}"
+  data-upload-too-large-file="{% if CURRENT_LANGUAGE == 'az' %}“{name}” optimallaşdırmadan sonra da 2 MB-dan böyükdür.{% elif CURRENT_LANGUAGE == 'en' %}“{name}” is still larger than 2 MB after optimization.{% else %}«{name}» даже после уменьшения больше 2 МБ.{% endif %}"
+  data-upload-decode-error="{% if CURRENT_LANGUAGE == 'az' %}“{name}” oxunmadı: fayl zədələnib və ya kodek dəstəklənmir.{% elif CURRENT_LANGUAGE == 'en' %}“{name}” could not be read: the file is damaged or its codec is unsupported.{% else %}«{name}» не удалось прочитать: файл повреждён или кодек не поддерживается.{% endif %}"
+  data-upload-encode-error="{% if CURRENT_LANGUAGE == 'az' %}“{name}” brauzerdə emal edilmədi. Faylı JPG və ya PNG kimi saxlayıb yenidən yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}“{name}” could not be processed in this browser. Save it as JPG or PNG and try again.{% else %}«{name}» не удалось обработать в браузере. Сохраните файл как JPG или PNG и попробуйте снова.{% endif %}"
   data-upload-remove-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}"
   data-upload-main-label="{% if CURRENT_LANGUAGE == 'az' %}Əsas şəkil{% elif CURRENT_LANGUAGE == 'en' %}Main photo{% else %}{% trans 'Главное фото' %}{% endif %}"
 >
@@ -72,7 +78,7 @@
         {% endif %}
       </strong>
       <span class="owner-file-uploader-meta" data-upload-meta>
-        {% if CURRENT_LANGUAGE == "az" %}Şəkil seçmək üçün klikləyin. JPG, PNG və ya WEBP, maksimum 2 MB.{% elif CURRENT_LANGUAGE == "en" %}Click to choose an image. JPG, PNG, or WEBP, up to 2 MB.{% else %}{% trans "Нажмите, чтобы выбрать изображение JPG, PNG или WEBP до 2 МБ." %}{% endif %}
+        {% if CURRENT_LANGUAGE == "az" %}Şəkli seçin. Böyük fayl avtomatik kiçildiləcək.{% elif CURRENT_LANGUAGE == "en" %}Choose a photo. A large file will be reduced automatically.{% else %}{% trans "Выберите фото. Большой файл уменьшится автоматически." %}{% endif %}
       </span>
     </span>
     <span class="owner-file-uploader-action" data-upload-trigger role="button" tabindex="0">{% if CURRENT_LANGUAGE == "az" %}Şəkil seçin{% elif CURRENT_LANGUAGE == "en" %}Choose photo{% else %}{% trans "Выбрать фото" %}{% endif %}</span>

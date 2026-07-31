@@ -531,6 +531,36 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["popular_places"]), 4)
 
+    def test_home_page_uses_admin_selected_recommendations_in_configured_order(self):
+        create_quality_place(
+            name="Automatic Popular Place",
+            name_ru="Автоматически популярный кружок",
+            category="EDU",
+            likes_count=100,
+        )
+        second = create_quality_place(
+            name="Second Recommended Place",
+            name_ru="Вторая рекомендация",
+            category="EDU",
+            is_home_recommended=True,
+            home_recommended_order=20,
+        )
+        first = create_quality_place(
+            name="First Recommended Place",
+            name_ru="Первая рекомендация",
+            category="EDU",
+            is_home_recommended=True,
+            home_recommended_order=10,
+        )
+
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            [place.pk for place in response.context["popular_places"]],
+            [first.pk, second.pk],
+        )
+
     def test_home_page_uses_compact_conversion_flow_without_dropping_seo_links(self):
         create_quality_place(
             name="Compact Home Place",
@@ -1035,10 +1065,10 @@ class TestLocalizedFilterOptions(TestCase):
         self.assertContains(catalog_response, "Bakı — 2")
         self.assertContains(catalog_response, "Nərimanov", html=False)
         self.assertTrue(any(item["value"] == "L10N" and item["label"] == "Kateqoriya test" and item["count"] == 2 for item in catalog_response.context["categories"]))
-        self.assertContains(home_response, 'value="Bakı"', html=False)
+        self.assertContains(home_response, 'value="baku"', html=False)
         self.assertContains(home_response, 'data-label-current="Bakı"', html=False)
         self.assertContains(home_response, 'Bakı — 2', html=False)
-        self.assertNotContains(home_response, 'value="baku"', html=False)
+        self.assertNotContains(home_response, 'value="Bakı"', html=False)
         self.assertContains(home_response, '<option value="">Bütün kateqoriyalar</option>', html=False)
 
     def test_ru_catalog_renders_russian_labels(self):
@@ -1218,6 +1248,10 @@ class TestPublicFilterCounts(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
+            [item["value"] for item in response.context["categories"][:2]],
+            ["COUNTED", "EDU"],
+        )
+        self.assertEqual(
             {item["value"]: item["count"] for item in response.context["categories"] if item.get("count") is not None},
             {"COUNTED": 2, "EDU": 1},
         )
@@ -1236,6 +1270,31 @@ class TestPublicFilterCounts(TestCase):
         self.assertNotContains(response, "Пустая категория")
         self.assertNotContains(response, "Пустой район")
         self.assertNotContains(response, "Пустое метро")
+
+    def test_catalog_collapses_categories_after_first_ten(self):
+        for index in range(9):
+            category = Category.objects.create(
+                code=f"OVERFLOW{index}",
+                name=f"Категория {index}",
+                name_az=f"Kateqoriya {index}",
+                name_ru=f"Категория {index}",
+                name_en=f"Category {index}",
+                is_active=True,
+                order=1100 + index,
+            )
+            create_quality_place(
+                name=f"Overflow place {index}",
+                name_ru=f"Место категории {index}",
+                category=category,
+            )
+
+        response = self.client.get("/ru/catalog/", follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["categories"][0]["value"], "COUNTED")
+        self.assertContains(response, " is-category-extra", count=2, html=False)
+        self.assertContains(response, "Показать ещё", count=4)
+        self.assertContains(response, 'class="category-overflow-toggle"', count=2, html=False)
 
     def test_home_filters_use_same_public_counts(self):
         response = self.client.get("/ru/", follow=True)

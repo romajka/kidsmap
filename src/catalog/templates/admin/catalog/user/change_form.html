@@ -47,11 +47,27 @@
         </header>
 
         {% if errors %}
-          <div class="km-user-access-alert">
+          <div class="km-user-access-alert" role="alert">
             <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
-            <span>{% translate "Проверьте поля ниже и сохраните ещё раз." %}</span>
+            <div>
+              <strong>{% translate "Не удалось создать сотрудника." %}</strong>
+              <ul>
+                {% for field in adminform.form %}
+                  {% for error in field.errors %}
+                    <li>
+                      <b>
+                        {% if field.name == "password2" %}{% translate "Пароль" %}{% else %}{{ field.label }}{% endif %}:
+                      </b>
+                      {{ error }}
+                    </li>
+                  {% endfor %}
+                {% endfor %}
+                {% for error in adminform.form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
-          {{ adminform.form.non_field_errors }}
         {% endif %}
 
         <section class="km-user-access-card" aria-label="{% translate 'Основные поля' %}">

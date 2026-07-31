@@ -137,9 +137,13 @@ def normalize_pricing_plans(value, *, strict=True):
                     "sort_order": max(0, int(str(raw.get("sort_order")).strip())) if raw.get("sort_order") not in (None, "") and str(raw.get("sort_order")).strip().isdigit() else index,
                 }
             )
-        except ValidationError:
+        except ValidationError as exc:
             if strict:
-                raise
+                message = exc.messages[0] if getattr(exc, "messages", None) else str(exc)
+                raise ValidationError(
+                    _("Тариф %(number)s: %(error)s"),
+                    params={"number": index + 1, "error": message},
+                )
             continue
     return normalized
 
@@ -157,14 +161,22 @@ def public_pricing_plans(value, language=None):
     for plan in sorted(plans, key=lambda item: (item.get("sort_order", 0),)):
         if not plan.get("is_active", True):
             continue
-        title = plan.get(f"title_{lang}") or plan.get("title_az") or plan.get("title_ru") or plan.get("title_en")
         frequency = plan.pop("_legacy_frequency", "")
+        format_label = _FORMAT_LABELS[lang].get(plan.get("lesson_format"), "")
+        payment_label = _PAYMENT_LABELS[lang].get(plan.get("payment_type"), frequency)
+        title = (
+            plan.get(f"title_{lang}")
+            or plan.get("title_az")
+            or plan.get("title_ru")
+            or plan.get("title_en")
+            or " · ".join(part for part in (format_label, payment_label) if part)
+        )
         result.append(
             {
                 **plan,
                 "title": title,
-                "format_label": _FORMAT_LABELS[lang].get(plan.get("lesson_format"), ""),
-                "payment_label": _PAYMENT_LABELS[lang].get(plan.get("payment_type"), frequency),
+                "format_label": format_label,
+                "payment_label": payment_label,
             }
         )
     return result
@@ -457,18 +469,30 @@ def build_pricing_summary(place, lang="ru"):
     plans = public_pricing_plans(place.pricing_plans, lang)
     starting_price = get_starting_price(place, plans, lang)
     has_price = starting_price["amount"] is not None
-    
-    lesson_format = place.lesson_format
-    if not lesson_format and plans:
-        lesson_format = plans[0].get("lesson_format", "")
+
+    selected_plan = next(
+        (
+            plan
+            for plan in plans
+            if plan.get("price") not in (None, "")
+            and float(plan["price"]) == starting_price["amount"]
+            and plan.get("payment_type") == starting_price["payment_type"]
+        ),
+        None,
+    )
+    lesson_format = (
+        selected_plan.get("lesson_format", "")
+        if selected_plan
+        else (place.lesson_format or (plans[0].get("lesson_format", "") if plans else ""))
+    )
         
     format_label = ""
     if lesson_format:
-        format_label = LOCALIZED_STRINGS[lang]["group"] if lesson_format == "group" else LOCALIZED_STRINGS[lang]["individual"]
+        format_label = LOCALIZED_STRINGS[lang].get(lesson_format, "")
         
-    lessons_per_week = place.lessons_per_week
-    lessons_per_month = place.lessons_per_month
-    if not lessons_per_week and not lessons_per_month and plans:
+    lessons_per_week = selected_plan.get("sessions_per_week") if selected_plan else place.lessons_per_week
+    lessons_per_month = selected_plan.get("sessions_per_month") if selected_plan else place.lessons_per_month
+    if not selected_plan and not lessons_per_week and not lessons_per_month and plans:
         lessons_per_week = plans[0].get("sessions_per_week")
         lessons_per_month = plans[0].get("sessions_per_month")
         
@@ -556,7 +580,15 @@ def build_pricing_summary(place, lang="ru"):
                 clean_phone = "994" + clean_phone[1:]
             
             title_str = plan.get("title") or ""
-            place_name = (place.name_az or place.name or "").strip() if lang == "az" else ((place.name_en or place.name or "").strip() if lang == "en" else (place.name or "").strip())
+            place_name = (
+                (place.name_az or place.name or "").strip()
+                if lang == "az"
+                else (
+                    (place.name_en or place.name or "").strip()
+                    if lang == "en"
+                    else (place.name_ru or place.name or "").strip()
+                )
+            )
             
             if lang == "az":
                 msg = f"Salam! '{place_name}' təşkilatındakı '{title_str}' tarifi ilə maraqlanıram. Ətraflı məlumat verə bilərsiniz?"

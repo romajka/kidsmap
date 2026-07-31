@@ -343,6 +343,66 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
 
+    def test_owner_edit_page_rehydrates_saved_pricing_plans(self):
+        self.editor_place.pricing_plans = [
+            {
+                "lesson_format": "individual",
+                "payment_type": "per_lesson",
+                "price": "40.00",
+                "currency": "AZN",
+                "title_ru": "Индивидуальный",
+                "is_active": True,
+                "sort_order": 0,
+            },
+        ]
+        self.editor_place.save(update_fields=["pricing_plans"])
+
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+        response = self.client.get(reverse("owner_place_edit", args=[self.editor_place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Индивидуальный")
+        self.assertContains(response, "&quot;price&quot;: &quot;40.00&quot;", html=False)
+        self.assertContains(response, "owner_place_wizard.js")
+        self.assertContains(response, "?v=9")
+
+    def test_owner_edit_shows_pricing_validation_error_and_keeps_saved_plans(self):
+        existing_plans = [
+            {
+                "lesson_format": "group",
+                "payment_type": "per_month",
+                "price": "120.00",
+                "currency": "AZN",
+                "is_active": True,
+                "sort_order": 0,
+            },
+        ]
+        self.editor_place.pricing_plans = existing_plans
+        self.editor_place.save(update_fields=["pricing_plans"])
+
+        self.client.login(username="owner_editor", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.editor_place.id]),
+            data={
+                "form_action": "save_draft",
+                "name_az": "Tarif testi",
+                "category": "TECH",
+                "pricing_plans": json.dumps([
+                    {
+                        "lesson_format": "group",
+                        "payment_type": "package",
+                        "price": "90",
+                    },
+                ]),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Тариф 1:")
+        self.assertContains(response, "Укажите количество занятий в пакете.")
+        self.editor_place.refresh_from_db()
+        self.assertEqual(self.editor_place.pricing_plans, existing_plans)
+
     def test_owner_editor_can_save_incomplete_edit_as_draft(self):
         self.editor_place.name_az = "Redakte qaralama"
         self.editor_place.description_az = "Ilkin tesvir"
@@ -881,7 +941,12 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "temporary_end": "",
                 "moderation_note": "Новая карточка на проверку",
                 "photo": self._image_upload("main.png"),
-                "gallery_images": [self._image_upload("g1.png"), self._image_upload("g2.png")],
+                "gallery_images": [
+                    self._image_upload("g1.png"),
+                    self._image_upload("g2.png"),
+                    self._image_upload("g3.png"),
+                    self._image_upload("g4.png"),
+                ],
             },
         )
 
@@ -892,7 +957,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(place.is_active)
         self.assertFalse(place.is_verified)
         self.assertEqual(place.name, "Yeni owner karti")
-        self.assertEqual(PlacePhoto.objects.filter(place=place).count(), 2)
+        self.assertEqual(PlacePhoto.objects.filter(place=place).count(), 4)
         ownership_request = PlaceOwnershipRequest.objects.get(place=place, applicant=self.manager_user)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
 

@@ -5833,11 +5833,9 @@ msgstr "Moderator üçün əlavə kontekst lazımdırsa."
 msgid "Дополнительные фото (до 10)"
 msgstr "Əlavə şəkillər (5-ə qədər)"
 
-#: src/catalog/forms.py:1274 src/catalog/forms.py:1282
-#, fuzzy
-#| msgid "До 5 фото для галереи."
-msgid "До 10 фото для галереи, каждое до 2 МБ."
-msgstr "Qalereya üçün 5-ə qədər şəkil əlavə edə bilərsiniz."
+#: src/catalog/forms.py:1383 src/catalog/forms.py:1393
+msgid "До 10 фото. Большие изображения автоматически уменьшатся перед загрузкой."
+msgstr "10-dək şəkil əlavə edin. Böyük şəkillər yükləmədən əvvəl avtomatik kiçildiləcək."
 
 #: src/catalog/forms.py:1308
 msgid "Укажите локацию: выберите район или станцию метро."
@@ -7948,10 +7946,8 @@ msgid "Закрыть"
 msgstr "Bağla"
 
 #: src/catalog/templates/base.html:338
-#, fuzzy
-#| msgid "Не удалось обновить роль. Исправьте поле и попробуйте снова."
 msgid "Не удалось выполнить действие. Попробуйте ещё раз."
-msgstr "Rol yenilənmədi. Sahəni düzəldib yenidən cəhd edin."
+msgstr "Əməliyyatı yerinə yetirmək mümkün olmadı. Yenidən cəhd edin."
 
 #: src/catalog/templates/base.html:391 src/catalog/templates/base.html:402
 #: src/catalog/templates/catalog/includes/review_item.html:61
