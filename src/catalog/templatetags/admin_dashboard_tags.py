@@ -1,4 +1,5 @@
 from django import template
+from django.contrib.admin.views.main import PAGE_VAR
 from django.contrib.auth import get_user_model
 from catalog.models.place import Place, Event
 from catalog.models.specialist import Specialist
@@ -154,3 +155,13 @@ def paginator_count_label(cl):
         return f"{count} {cl.opts.verbose_name}"
     else:
         return f"{count} {cl.opts.verbose_name_plural}"
+
+
+@register.simple_tag
+def paginator_page_range(cl):
+    return cl.paginator.get_elided_page_range(number=cl.page_num, on_each_side=2, on_ends=1)
+
+
+@register.simple_tag
+def paginator_page_url(cl, page_number):
+    return cl.get_query_string({PAGE_VAR: page_number})

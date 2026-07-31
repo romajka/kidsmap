@@ -1,6 +1,7 @@
 from django.conf import settings
 import json
 from django.contrib import admin, messages
+from django.contrib.auth import get_user_model
 from django.contrib.admin import helpers
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
@@ -548,6 +549,29 @@ class PlaceDeletedFilter(admin.SimpleListFilter):
             return queryset.filter(deleted_at__isnull=True)
         # Default behavior: hide deleted places!
         return queryset.filter(deleted_at__isnull=True)
+
+
+class PlaceCreatedByFilter(admin.SimpleListFilter):
+    title = _("Добавил")
+    parameter_name = "created_by"
+    field_path = "created_by"
+
+    def lookups(self, request, model_admin):
+        user_ids = (
+            model_admin.get_queryset(request)
+            .exclude(created_by_id__isnull=True)
+            .order_by()
+            .values_list("created_by_id", flat=True)
+            .distinct()
+        )
+        users = get_user_model().objects.filter(pk__in=user_ids).order_by("username", "email")
+        return tuple((str(user.pk), model_admin._user_label(user)) for user in users)
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value and value.isdigit():
+            return queryset.filter(created_by_id=int(value))
+        return queryset
 
 
 class EventDeletedFilter(admin.SimpleListFilter):
@@ -1445,9 +1469,9 @@ class PlaceAdmin(admin.ModelAdmin):
     change_list_template = "admin/catalog/place/change_list.html"
     change_form_template = "admin/catalog/place/change_form.html"
     delete_confirmation_template = "admin/catalog/place_delete_confirmation.html"
-    km_primary_filters = ("category", "district", "status")
+    km_primary_filters = ("category", "district", "status", "created_by")
     delete_selected_confirmation_template = "admin/catalog/place_delete_selected_confirmation.html"
-    list_select_related = ("owner", "category", "subcategory")
+    list_select_related = ("owner", "created_by", "category", "subcategory")
     list_display = (
         "display_name",
         "category_summary",
@@ -1471,6 +1495,7 @@ class PlaceAdmin(admin.ModelAdmin):
         PlaceDeletedFilter,
         PlaceCoordinatesFilter,
         PlaceMapReadyFilter,
+        PlaceCreatedByFilter,
         "category",
         "is_temporary",
         "district",
@@ -2488,21 +2513,11 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Добавил"))
     def owner_display(self, obj):
-        request = self._first_ownership_request(obj)
-        if request and request.applicant_id:
-            return format_html(
-                '<div class="km-admin-stack">'
-                '<span class="km-admin-title">{}</span>'
-                '<span class="km-admin-meta">{}</span>'
-                "</div>",
-                self._user_label(request.applicant),
-                _("заявка владельца"),
-            )
-        if obj.owner_id:
+        if obj.created_by_id:
             return format_html(
                 '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span></div>',
-                self._user_label(obj.owner),
-                _("владелец карточки"),
+                self._user_label(obj.created_by),
+                _("сотрудник"),
             )
         audit = self._latest_place_audit(obj)
         if audit and audit.changed_by_id:
@@ -3709,7 +3724,17 @@ class PlaceAdmin(admin.ModelAdmin):
         if obj.is_verified and obj.last_verified_at is None:
             obj.last_verified_at = timezone.now()
 
+        if not change and not obj.created_by_id:
+            obj.created_by = request.user
+
         super().save_model(request, obj, form, change)
+        if not change:
+            self.place_audit_repository.create_entries(
+                place=obj,
+                changed_by=request.user,
+                source=PlaceChangeAudit.SOURCE_ADMIN,
+                changes={"created": ("", "1")},
+            )
         if hasattr(form, "save_schedule"):
             form.save_schedule(obj)
         new_schedule_value = build_schedule_summary(serialize_place_schedule(obj)) if obj.has_structured_schedule else (obj.schedule or "").strip()

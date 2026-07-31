@@ -372,6 +372,7 @@ class OwnerPlacesController:
         place = result.form.save(commit=False)
         manual_coordinates_selected = self._has_manual_coordinates(place)
         place.owner = request.user
+        place.created_by = request.user
         if draft_save_only and not place.category_id:
             fallback_category = self._draft_fallback_category()
             if fallback_category is not None:

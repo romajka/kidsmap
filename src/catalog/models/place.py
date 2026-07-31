@@ -98,6 +98,14 @@ class Place(models.Model):
         null=True,
         blank=True,
     )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="created_places",
+        verbose_name=_("Кто добавил"),
+        null=True,
+        blank=True,
+    )
     cover_photo = models.FileField(_("Фото для шапки"), upload_to="places/covers/", blank=True, null=True)
     photo = models.FileField(_("Фото"), upload_to="places/", blank=True, null=True)
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True)

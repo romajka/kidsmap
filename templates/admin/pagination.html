@@ -2,6 +2,9 @@
 <div class="km-changelist-pagination">
   <div class="km-changelist-pagination__info">
     <span class="km-changelist-pagination__count">{% paginator_count_label cl %}</span>
+    {% if pagination_required %}
+      <span class="km-changelist-pagination__page-status">{% translate "Страница" %} {{ cl.page_num }} {% translate "из" %} {{ cl.paginator.num_pages }}</span>
+    {% endif %}
     {% if show_all_url %}
       <a href="{{ show_all_url }}" class="km-changelist-pagination__show-all-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -9,17 +12,34 @@
           <line x1="12" y1="8" x2="12" y2="16"></line>
           <line x1="8" y1="12" x2="16" y2="12"></line>
         </svg>
-        {% translate "Show all" %}
+        {% translate "Показать все" %}
       </a>
     {% endif %}
   </div>
   
   {% if pagination_required %}
-    <nav class="km-changelist-pagination__nav" aria-label="Pagination">
+    <nav class="km-changelist-pagination__nav" aria-label="{% translate 'Пагинация' %}">
       <ul class="km-pagination-list">
-        {% for i in page_range %}
-          {% jazzmin_paginator_number cl i %}
+        {% if cl.page_num > 1 %}
+          <li><a class="page-link page-link--direction" href="{% paginator_page_url cl cl.page_num|add:'-1' %}" aria-label="{% translate 'Предыдущая страница' %}"><span aria-hidden="true">←</span><span class="page-link__label">{% translate "Назад" %}</span></a></li>
+        {% else %}
+          <li class="disabled"><span class="page-link page-link--direction" aria-disabled="true"><span aria-hidden="true">←</span><span class="page-link__label">{% translate "Назад" %}</span></span></li>
+        {% endif %}
+        {% paginator_page_range cl as km_page_range %}
+        {% for i in km_page_range %}
+          {% if i == '…' %}
+            <li class="km-pagination-list__ellipsis" aria-hidden="true">…</li>
+          {% elif i == cl.page_num %}
+            <li class="active"><span class="page-link" aria-current="page">{{ i }}</span></li>
+          {% else %}
+            <li><a class="page-link" href="{% paginator_page_url cl i %}" aria-label="{% translate 'Страница' %} {{ i }}">{{ i }}</a></li>
+          {% endif %}
         {% endfor %}
+        {% if cl.page_num < cl.paginator.num_pages %}
+          <li><a class="page-link page-link--direction" href="{% paginator_page_url cl cl.page_num|add:'1' %}" aria-label="{% translate 'Следующая страница' %}"><span class="page-link__label">{% translate "Далее" %}</span><span aria-hidden="true">→</span></a></li>
+        {% else %}
+          <li class="disabled"><span class="page-link page-link--direction" aria-disabled="true"><span class="page-link__label">{% translate "Далее" %}</span><span aria-hidden="true">→</span></span></li>
+        {% endif %}
       </ul>
     </nav>
   {% endif %}
