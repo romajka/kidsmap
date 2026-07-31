@@ -338,25 +338,60 @@ class TestSeedCatalogTaxonomyCommand(TestCase):
         cat = Category.objects.get(code="EDU")
         self.assertTrue(cat.icon.endswith(".svg"))
         self.assertIn("img/icon/cooliocns SVG/Interface/Book_Open.svg", cat.icon)
-        beach = Category.objects.get(code="BEACH")
-        self.assertEqual(beach.name_ru, "Пляжи")
-        self.assertEqual(beach.name_az, "Çimərliklər")
-        self.assertEqual(beach.name_en, "Beaches")
-        self.assertEqual(beach.icon, "icons/categories/beach.svg")
-        self.assertTrue(beach.is_active)
-        self.assertFalse(beach.subcategories.exists())
-        waterpark = Category.objects.get(code="WATERPARK")
-        self.assertEqual(waterpark.name_ru, "Аквапарки и бассейны")
-        self.assertEqual(waterpark.name_az, "Akvaparklar və hovuzlar")
-        self.assertEqual(waterpark.name_en, "Waterparks & pools")
+        waterpark = Category.objects.get(code="water-leisure")
+        self.assertEqual(waterpark.name_ru, "Водный отдых")
+        self.assertEqual(waterpark.name_az, "Su istirahəti")
+        self.assertEqual(waterpark.name_en, "Water leisure")
         self.assertEqual(waterpark.icon, "icons/categories/waterparks.svg")
         self.assertTrue(waterpark.is_active)
-        self.assertTrue(waterpark.subcategories.filter(code="waterparks-pools").exists())
+        self.assertTrue(waterpark.subcategories.filter(code="waterparks").exists())
         zoo = Category.objects.get(code="ZOO")
         self.assertEqual(zoo.name_ru, "Зоопарки и аквариумы")
         self.assertEqual(zoo.icon, "icons/categories/zoo.svg")
         self.assertTrue(zoo.is_active)
-        self.assertTrue(zoo.subcategories.filter(code="zoos-aquariums").exists())
+        self.assertTrue(zoo.subcategories.filter(code="aquariums-oceanariums").exists())
+        self.assertEqual(Category.active.count(), 17)
+        self.assertEqual(Subcategory.active.count(), 104)
+
+    def test_taxonomy_migration_relinks_places_events_and_gallery_categories(self):
+        from django.apps import apps
+        from importlib import import_module
+
+        from catalog.models import Event, Place, SiteGalleryImage
+
+        legacy_category = Category.objects.create(
+            code="WATERPARK",
+            name="Аквапарки и бассейны",
+            name_ru="Аквапарки и бассейны",
+        )
+        legacy_subcategory = Subcategory.objects.create(
+            category=legacy_category,
+            code="waterparks-pools",
+            name="Аквапарки и бассейны для отдыха",
+            name_ru="Аквапарки и бассейны для отдыха",
+        )
+        place = Place.objects.create(
+            name="Legacy water pin",
+            name_ru="Старая водная точка",
+            category=legacy_category,
+            subcategory=legacy_subcategory,
+        )
+        event = Event.objects.create(name="Legacy water event", category=legacy_category)
+        gallery = SiteGalleryImage.objects.create(
+            image="site/gallery/legacy-water.webp",
+            category=legacy_category.code,
+        )
+
+        migration = import_module("catalog.migrations.0079_sync_public_taxonomy")
+        migration.sync_taxonomy(apps, None)
+
+        place.refresh_from_db()
+        event.refresh_from_db()
+        gallery.refresh_from_db()
+        self.assertEqual(place.category_id, "water-leisure")
+        self.assertEqual(place.subcategory.code, "waterparks")
+        self.assertEqual(event.category_id, "water-leisure")
+        self.assertEqual(gallery.category, "water-leisure")
 
     def test_update_icons_flag_overwrites_existing_custom_icon(self):
         Category.objects.update_or_create(

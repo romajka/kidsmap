@@ -30411,3 +30411,91 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .page-place_list .is-category-extra[hidden] {
   display: none !important;
 }
+
+/* Keep the five-step owner wizard inside narrow phone viewports. */
+@media (max-width: 480px) {
+  .owner-wizard-page,
+  .owner-wizard-shell,
+  .owner-wizard-head,
+  .owner-wizard-progress,
+  .owner-wizard-stage {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .owner-wizard-progress {
+    overflow: hidden !important;
+  }
+
+  .owner-wizard-progress > .wz-stepper,
+  .owner-wizard-progress > .wz-completion,
+  .owner-wizard-progress .wz-metrics,
+  .owner-wizard-progress .wz-metric,
+  .owner-wizard-progress .wz-next-step,
+  .owner-wizard-progress .wz-next-body,
+  .owner-wizard-progress .wz-next-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .owner-wizard-progress .wz-metric-copy {
+    min-width: 0 !important;
+  }
+
+  .owner-wizard-progress .wz-metric-badge {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .owner-wizard-progress .wz-stepper {
+    padding-bottom: 36px;
+  }
+
+  .owner-wizard-progress .wz-step {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .owner-wizard-progress .wz-counter {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    margin: 0;
+  }
+
+  .owner-wizard-steps {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) auto !important;
+    width: 100% !important;
+    gap: 2px !important;
+    overflow: visible !important;
+  }
+
+  .owner-wizard-step-tab {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 52px !important;
+    flex: none !important;
+  }
+
+  .owner-wizard-step-tab .owner-wizard-step-text,
+  .owner-wizard-step-tab.is-active .owner-wizard-step-text {
+    display: none !important;
+  }
+
+  .owner-wizard-step-number {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    flex-basis: 30px !important;
+  }
+
+  .owner-wizard-steps > :not(.owner-wizard-step-tab) {
+    align-self: center;
+    white-space: nowrap;
+    font-size: 11px !important;
+  }
+}

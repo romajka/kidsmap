@@ -321,6 +321,19 @@ h3.card-title,
   background: var(--km-admin-bg);
 }
 
+@media (max-width: 767.98px) {
+  body:not(.sidebar-open) .main-sidebar,
+  body:not(.sidebar-open) .main-sidebar::before {
+    margin-left: calc(-1 * var(--km-admin-sidebar-width)) !important;
+  }
+
+  body:not(.sidebar-open) .content-wrapper,
+  body:not(.sidebar-open) .main-header,
+  body:not(.sidebar-open) .main-footer {
+    margin-left: 0 !important;
+  }
+}
+
 .content-header h1 {
   color: var(--km-admin-text);
 }

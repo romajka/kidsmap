@@ -13,6 +13,7 @@ from django.utils.translation import get_language
 from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
+from catalog.taxonomy_data import CATEGORIES
 
 def _localized_free_label(lang: str | None = None) -> str:
     normalized_lang = (lang or get_language() or settings.LANGUAGE_CODE or "az").split("-")[0]
@@ -41,15 +42,7 @@ class Place(models.Model):
         (STATUS_REJECTED, _("Отклонено")),
     ]
 
-    CATEGORY_CHOICES = [
-        ("SPRT", _("Спорт")),
-        ("ART", _("Творчество")),
-        ("MUS", _("Музыка и сцена")),
-        ("EDU", _("Образование")),
-        ("TECH", _("Технологии")),
-        ("FUN", _("Развлечения и досуг")),
-        ("CAMP", _("Лагеря")),
-    ]
+    CATEGORY_CHOICES = [(item["code"], _(item["ru"])) for item in CATEGORIES]
 
     name = models.CharField(_("Название"), max_length=255)
     slug = models.SlugField(_("Slug"), max_length=255, blank=True, default="", unique=True)

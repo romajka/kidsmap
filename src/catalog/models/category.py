@@ -70,7 +70,7 @@ class Category(models.Model):
     active = ActiveCategoryManager()  # public-facing: only active + non-deleted
 
     class Meta:
-        ordering = ("name_ru",)
+        ordering = ("order", "name_ru")
         verbose_name = _("Категория")
         verbose_name_plural = _("Категории")
 
@@ -184,7 +184,7 @@ class Subcategory(models.Model):
     active = ActiveSubcategoryManager()  # public-facing: only active + non-deleted
 
     class Meta:
-        ordering = ("category", "name_ru")
+        ordering = ("category__order", "order", "name_ru")
         verbose_name = _("Подкатегория")
         verbose_name_plural = _("Подкатегории")
 

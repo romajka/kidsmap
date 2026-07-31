@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-from catalog.models import Place
+from catalog.models import Category, Place
 
 
 class Command(BaseCommand):
@@ -103,7 +103,7 @@ class Command(BaseCommand):
 
         if not data["category"]:
             raise ValueError("category is required")
-        if data["category"] not in {c[0] for c in Place.CATEGORY_CHOICES}:
+        if not Category.active.filter(code=data["category"]).exists():
             raise ValueError(f"unknown category code: {data['category']}")
         if not data["name_ru"] and not data["name_en"] and not data["name_az"]:
             raise ValueError("at least one of name_ru/name_en/name_az is required")

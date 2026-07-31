@@ -152,7 +152,7 @@ def build_public_place_filter_options(
 
     categories = [
         _build_category_option(category, language_code=language_code, count=category_counts.get(category.code))
-        for category in Category.objects.filter(is_active=True).order_by("order", "name_ru", "name")
+        for category in Category.active.order_by("order", "name_ru", "name")
         if category_counts.get(category.code, 0) > 0
     ]
     categories = sorted(
@@ -163,8 +163,7 @@ def build_public_place_filter_options(
     subcategories = [
         _build_subcategory_option(subcategory, language_code=language_code, count=subcategory_counts.get(str(subcategory.pk)))
         for subcategory in (
-            Subcategory.objects.select_related("category")
-            .filter(is_active=True)
+            Subcategory.active.select_related("category")
             .order_by("category__order", "order", "name_ru", "name")
         )
     ]

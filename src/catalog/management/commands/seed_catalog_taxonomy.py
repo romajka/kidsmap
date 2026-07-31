@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from catalog.models import Category, Subcategory
 from catalog.models.category import NEUTRAL_BG_VALUES, NEUTRAL_TEXT_VALUES
+from catalog.taxonomy_data import category_seed_rows, subcategory_seed_rows
 
 class Command(BaseCommand):
     help = (
@@ -380,6 +381,12 @@ class Command(BaseCommand):
             {"cat": "PARK", "code": "public-parks", "az": "Milli parklar", "ru": "Городские парки", "en": "Public parks", "order": 2},
             {"cat": "PARK", "code": "rope-parks", "az": "Kanat parkları", "ru": "Веревочные парки", "en": "Rope parks", "order": 3},
         ]
+
+        # The canonical taxonomy lives in one compact data module.  Keep this
+        # assignment close to the write step so old inline seed rows cannot be
+        # used accidentally while deployments transition to the new catalog.
+        categories_data = category_seed_rows()
+        subcategories_data = subcategory_seed_rows()
 
         with transaction.atomic():
             self.stdout.write("Seeding categories...")

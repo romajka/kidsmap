@@ -296,7 +296,7 @@ class SiteGalleryImage(models.Model):
     )
     category = models.CharField(
         _("Категория"),
-        max_length=10,
+        max_length=50,
         choices=Place.CATEGORY_CHOICES,
         blank=True,
         default="",

@@ -648,7 +648,7 @@ def _build_owner_taxonomy_picker_config(form):
     category_queryset = category_field.queryset.order_by("order", "name_ru", "name")
     subcategory_counts = {
         item["category_id"]: item["total"]
-        for item in Subcategory.objects.filter(category__in=category_queryset)
+        for item in Subcategory.active.filter(category__in=category_queryset)
         .values("category_id")
         .annotate(total=Count("pk"))
     }

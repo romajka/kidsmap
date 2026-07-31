@@ -1072,14 +1072,14 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         init_location_fields(self, instance)
 
         if "category" in self.fields:
-            qs = Category.objects.filter(is_active=True)
+            qs = Category.active.all()
             if instance and getattr(instance, "category_id", None):
                 qs = Category.objects.filter(Q(is_active=True) | Q(code=instance.category_id))
             self.fields["category"].queryset = qs.order_by("order", "name_ru", "name")
             self.fields["category"].label_from_instance = lambda obj: obj.name_i18n(get_language())
             
         if "subcategory" in self.fields:
-            qs = Subcategory.objects.filter(is_active=True)
+            qs = Subcategory.active.all()
             if instance and getattr(instance, "subcategory_id", None):
                 qs = Subcategory.objects.filter(Q(is_active=True) | Q(id=instance.subcategory_id))
             self.fields["subcategory"].queryset = qs.select_related("category").order_by("category__order", "order", "name_ru", "name")

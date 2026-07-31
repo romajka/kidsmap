@@ -176,7 +176,7 @@ class CategoryAdmin(admin.ModelAdmin):
     change_form_template = "admin/catalog/category/change_form.html"
     list_display = ("code", "name_ru", "name_az", "name_en")
     search_fields = ("code", "name_ru", "name_az", "name_en")
-    ordering = ("name_ru",)
+    ordering = ("order", "name_ru")
     inlines = [SubcategoryInline]
 
     fieldsets = (
@@ -273,11 +273,11 @@ class CategoryAdmin(admin.ModelAdmin):
         categories = categories.annotate(
             places_count=Count('place', distinct=True),
             sub_count=Count('subcategories', distinct=True)
-        ).order_by('name_ru')
+        ).order_by('order', 'name_ru')
 
         sub_qs = Subcategory.objects.annotate(
             places_count=Count('place')
-        ).order_by('name_ru')
+        ).order_by('order', 'name_ru')
 
         categories = categories.prefetch_related(
             Prefetch('subcategories', queryset=sub_qs)

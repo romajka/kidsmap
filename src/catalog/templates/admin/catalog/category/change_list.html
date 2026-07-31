@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_taxonomy.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_taxonomy.css' %}?v=3">
 {% endblock %}
 
 {% block extrahead %}
@@ -28,7 +28,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-<ol class="breadcrumb">
+<ol class="breadcrumb km-tax-breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans "Главная" %}</a></li>
     <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=app_label %}">{{ opts.app_config.verbose_name }}</a></li>
     <li class="breadcrumb-item active">{{ title }}</li>
@@ -124,8 +124,12 @@
             </div>
 
             <div class="km-td km-td-code">{{ cat.code }}</div>
-            <div class="km-td km-td-subs">{{ cat.sub_count }}</div>
+            <div class="km-td km-td-subs">
+              <span class="km-tax-mobile-label">{% trans "Подкатегорий" %}</span>
+              {{ cat.sub_count }}
+            </div>
             <div class="km-td km-td-places">
+              <span class="km-tax-mobile-label">{% trans "Мест" %}</span>
               {% if cat.places_count > 0 %}
                 <a href="{% url 'admin:catalog_place_changelist' %}?category__code__exact={{ cat.code }}">{{ cat.places_count }}</a>
               {% else %}
@@ -134,6 +138,7 @@
             </div>
             
             <div class="km-td km-td-status">
+              <span class="km-tax-mobile-label">{% trans "Статус" %}</span>
               {% if cat.is_active %}
                 <span class="km-tax-badge km-tax-badge-active">{% trans "Активна" %}</span>
               {% else %}
@@ -141,7 +146,10 @@
               {% endif %}
             </div>
 
-            <div class="km-td km-td-order">{{ cat.order }}</div>
+            <div class="km-td km-td-order">
+              <span class="km-tax-mobile-label">{% trans "Порядок" %}</span>
+              {{ cat.order }}
+            </div>
 
             <div class="km-td km-td-actions">
               <a href="{% url 'admin:catalog_subcategory_add' %}?category={{ cat.pk }}" class="km-tax-btn km-tax-btn-sm km-tax-btn-outline" title="{% trans 'Добавить подкатегорию в эту категорию' %}">
@@ -207,6 +215,7 @@
                   <div class="km-td km-td-subs"></div> <!-- empty -->
                   
                   <div class="km-td km-td-places">
+                    <span class="km-tax-mobile-label">{% trans "Мест" %}</span>
                     {% if sub.places_count > 0 %}
                       <a href="{% url 'admin:catalog_place_changelist' %}?subcategory__id__exact={{ sub.pk }}">{{ sub.places_count }}</a>
                     {% else %}
@@ -215,6 +224,7 @@
                   </div>
                   
                   <div class="km-td km-td-status">
+                    <span class="km-tax-mobile-label">{% trans "Статус" %}</span>
                     {% if sub.is_active %}
                       <span class="km-tax-badge km-tax-badge-active">{% trans "Активна" %}</span>
                     {% else %}
@@ -222,7 +232,10 @@
                     {% endif %}
                   </div>
                   
-                  <div class="km-td km-td-order">{{ sub.order }}</div>
+                  <div class="km-td km-td-order">
+                    <span class="km-tax-mobile-label">{% trans "Порядок" %}</span>
+                    {{ sub.order }}
+                  </div>
                   
                   <div class="km-td km-td-actions">
                     <a href="{% url 'admin:catalog_subcategory_change' sub.pk %}" class="km-tax-btn km-tax-btn-sm km-tax-btn-outline km-tax-btn-icon-only" title="{% trans 'Изменить' %}">

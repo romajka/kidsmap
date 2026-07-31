@@ -218,6 +218,10 @@
   justify-content: flex-end;
 }
 
+.km-tax-mobile-label {
+  display: none;
+}
+
 /* Expander & Tree */
 .km-tax-expander {
   background: none;
@@ -407,22 +411,67 @@
 }
 
 @media (max-width: 768px) {
+  h1.h4:has(> .km-tax-header) {
+    width: 100%;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+    border-right: 0 !important;
+  }
+  .km-tax-breadcrumb {
+    display: none;
+  }
   .km-tax-table-header { display: none; }
   .km-tax-row {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
     position: relative;
     padding: 16px;
   }
-  .km-td-name { flex: 1 1 100%; margin-bottom: 12px; }
+  .km-td-name {
+    grid-column: 1 / -1;
+    min-width: 0;
+    margin-bottom: 2px;
+  }
   .km-td-subs, .km-td-places, .km-td-status, .km-td-order {
-    flex: 1 1 25%;
-    font-size: 12px;
+    display: grid;
+    align-content: start;
+    gap: 4px;
+    min-width: 0;
+    font-size: 13px;
+  }
+  .km-tax-mobile-label {
+    display: block;
+    color: var(--km-text-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
   }
   .km-td-actions {
-    flex: 1 1 100%;
-    margin-top: 12px;
+    grid-column: 1 / -1;
+    margin-top: 2px;
     justify-content: flex-start;
   }
   .km-tax-btn-text { display: none; }
+  .km-tax-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .km-tax-header-right {
+    width: 100%;
+  }
+  .km-tax-header-right .km-tax-btn {
+    width: 100%;
+  }
+  .km-tax-toolbar,
+  .km-tax-search {
+    width: 100%;
+    max-width: none;
+  }
+  .km-tax-toolbar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
