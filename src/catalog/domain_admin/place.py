@@ -15,6 +15,8 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _, ngettext
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
+from urllib.parse import urlparse
+import re
 
 from catalog.content_data import BAKU_METRO_STATIONS
 from catalog.forms import PlaceScheduleEditorFormMixin, SubcategorySelect
@@ -56,6 +58,24 @@ PLACE_QUALITY_ERROR_LABELS = {
     "missing_schedule": _("не указано расписание"),
     "missing_photo": _("не добавлено фото"),
 }
+
+
+def _normalized_phone(value) -> str:
+    return "".join(re.findall(r"\d", value or ""))
+
+
+def _normalized_url(value) -> str:
+    raw = (value or "").strip().lower()
+    if not raw:
+        return ""
+    parsed = urlparse(raw if "://" in raw else f"https://{raw}")
+    host = parsed.netloc.removeprefix("www.")
+    path = parsed.path.rstrip("/")
+    return f"{host}{path}"
+
+
+def _normalized_text(value) -> str:
+    return " ".join(re.sub(r"[^\w]+", " ", (value or "").lower()).split())
 
 
 def place_quality_error_labels(errors) -> str:
@@ -155,6 +175,12 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if cleaned.get("age_open_ended"):
+            cleaned["age_to"] = None
+            self.instance.age_to = None
+            if cleaned.get("age_from") is None:
+                cleaned["age_from"] = 0
+                self.instance.age_from = 0
         if cleaned.get("home_recommended_order") is None:
             cleaned["home_recommended_order"] = 0
         cleaned = self._clean_schedule_editor(cleaned)
@@ -190,7 +216,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         # Use getattr to safely access STATUS_PUBLISHED from instance or just string
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
         if (is_active or status == status_published) and not is_save_draft:
-            checklist = (
+            checklist = [
                 ("name", _("Название")),
                 ("category", _("Категория")),
                 ("description_az", _("Описание (AZ)")),
@@ -199,7 +225,9 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 ("address", _("Адрес")),
                 ("phone1", _("Телефон")),
                 ("photo", _("Главное фото")),
-            )
+            ]
+            if cleaned.get("age_open_ended"):
+                checklist = [item for item in checklist if item[0] != "age_to"]
             missing = []
             for field_name, label in checklist:
                 val = cleaned.get(field_name)
@@ -220,6 +248,9 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         # The order only matters for places selected for the home page. Keep
         # ordinary draft and catalog saves from requiring a meaningless value.
         self.fields["home_recommended_order"].required = False
+        self.fields["age_open_ended"].help_text = _(
+            "Отметьте для 3+; для всех возрастов укажите «Возраст от» = 0."
+        )
         self.draft_save_only = bool(self.data and "_save_draft" in self.data)
         if self.draft_save_only:
             for field in self.fields.values():
@@ -924,7 +955,8 @@ class EventAdmin(admin.ModelAdmin):
         missing = []
         missing_fields = set()
         for field_name, label in checklist:
-            if self._field_has_value(form, field_name, obj=obj):
+            is_open_ended_age = field_name == "age_to" and self._field_has_value(form, "age_open_ended", obj=obj)
+            if is_open_ended_age or self._field_has_value(form, field_name, obj=obj):
                 completed += 1
             else:
                 field_id = "id_name_az" if field_name == "name" else f"id_{field_name}"
@@ -1371,6 +1403,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "subcategory",
         "age_from",
         "age_to",
+        "age_open_ended",
         "offers_adult_classes",
         "district",
         "metro",
@@ -1535,7 +1568,7 @@ class PlaceAdmin(admin.ModelAdmin):
             _("Цена и возраст"),
             {
                 "fields": (
-                    ("age_from", "age_to", "lesson_duration_minutes"),
+                ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
                     ("price_from", "price_to", "price_per_lesson"),
                     ("price_per_month", "price_per_8_lessons"),
@@ -1638,6 +1671,9 @@ class PlaceAdmin(admin.ModelAdmin):
                 has_google_maps_api_key=bool(context["google_maps_api_key"]),
             )
             context["km_place_public_link"] = self._build_public_place_link(request, obj=obj)
+            context["km_place_duplicates_url"] = reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_duplicate_candidates"
+            )
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
     def add_view(self, request, form_url='', extra_context=None):
@@ -2173,7 +2209,7 @@ class PlaceAdmin(admin.ModelAdmin):
             _("Цена и возраст"),
             {
                 "fields": (
-                    ("age_from", "age_to", "lesson_duration_minutes"),
+                ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
                     ("price_from", "price_to", "price_per_lesson"),
                     ("price_per_month", "price_per_8_lessons"),
@@ -2954,6 +2990,11 @@ class PlaceAdmin(admin.ModelAdmin):
     def get_urls(self):
         custom_urls = [
             path(
+                "duplicate-candidates/",
+                self.admin_site.admin_view(self.duplicate_candidates_view),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_duplicate_candidates",
+            ),
+            path(
                 "home-recommendations/candidates/",
                 self.admin_site.admin_view(self.home_recommendation_candidates_view),
                 name=f"{self.opts.app_label}_{self.opts.model_name}_home_recommendation_candidates",
@@ -2980,6 +3021,53 @@ class PlaceAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + super().get_urls()
+
+    def duplicate_candidates_view(self, request):
+        if not self.has_view_or_change_permission(request):
+            raise PermissionDenied
+
+        values = {
+            "phone": _normalized_phone(request.GET.get("phone")),
+            "website": _normalized_url(request.GET.get("website")),
+            "instagram": _normalized_text((request.GET.get("instagram") or "").lstrip("@")),
+            "address": _normalized_text(request.GET.get("address")),
+        }
+        object_id = request.GET.get("exclude")
+        if not any(values.values()):
+            return JsonResponse({"results": []})
+
+        queryset = Place.objects.filter(deleted_at__isnull=True).only(
+            "id", "name", "name_az", "name_ru", "name_en", "address", "phone1", "phone2", "phone3", "website", "instagram"
+        )
+        if object_id and object_id.isdigit():
+            queryset = queryset.exclude(pk=int(object_id))
+
+        results = []
+        for place in queryset.iterator():
+            matched = []
+            if values["phone"] and values["phone"] in {
+                _normalized_phone(place.phone1),
+                _normalized_phone(place.phone2),
+                _normalized_phone(place.phone3),
+            }:
+                matched.append(str(_("телефон")))
+            if values["website"] and values["website"] == _normalized_url(place.website):
+                matched.append(str(_("сайт")))
+            if values["instagram"] and values["instagram"] == _normalized_text((place.instagram or "").lstrip("@")):
+                matched.append("Instagram")
+            if values["address"] and values["address"] == _normalized_text(place.address):
+                matched.append(str(_("адрес")))
+            if matched:
+                results.append(
+                    {
+                        "id": place.pk,
+                        "title": place.name_i18n(getattr(request, "LANGUAGE_CODE", None)) or place.name,
+                        "address": place.address,
+                        "matched": matched,
+                        "url": reverse(f"admin:{self.opts.app_label}_{self.opts.model_name}_change", args=[place.pk]),
+                    }
+                )
+        return JsonResponse({"results": results[:8]})
 
     def _home_recommendation_queryset(self):
         return public_place_queryset(

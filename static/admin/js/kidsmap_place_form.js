@@ -1888,7 +1888,8 @@
         },
         isFilled: function() {
           var el = document.getElementById("id_age_to");
-          return !!(el && el.value.trim());
+          var openEnded = document.getElementById("id_age_open_ended");
+          return !!(openEnded && openEnded.checked) || !!(el && el.value.trim());
         }
       },
       {

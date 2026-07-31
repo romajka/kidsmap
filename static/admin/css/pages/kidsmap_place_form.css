@@ -242,6 +242,27 @@
   color: #8f2d14;
 }
 
+.km-place-duplicate-alert {
+  padding: 14px 16px;
+  border: 1px solid #f0b429;
+  border-radius: 10px;
+  background: #fff8e5;
+  color: #704b00;
+  font-size: 13px;
+}
+
+.km-place-duplicate-alert strong,
+.km-place-duplicate-alert p {
+  display: block;
+  margin: 0;
+}
+
+.km-place-duplicate-alert p { margin-top: 3px; }
+.km-place-duplicate-alert ul { margin: 8px 0 0; padding-left: 18px; }
+.km-place-duplicate-alert a { color: inherit; font-weight: 800; }
+
+.is-disabled { opacity: .55; }
+
 .km-place-form-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;

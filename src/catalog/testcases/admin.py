@@ -97,6 +97,66 @@ class TestAdminTemporaryEventInputs(TestCase):
             timezone.localtime(self.place.temporary_end).strftime(PlaceAdminForm.DATETIME_LOCAL_FORMAT),
         )
 
+    def test_place_admin_form_supports_open_ended_age(self):
+        form = PlaceAdminForm(
+            data={
+                "name_az": "Yaş limiti olmayan yer",
+                "category": "EDU",
+                "age_from": "3",
+                "age_open_ended": "on",
+                "status": Place.STATUS_DRAFT,
+                "is_active": "",
+                "likes_count": "0",
+                "rating_avg": "0",
+                "rating_count": "0",
+                "region": "baku",
+                "district": "baku_yasamal",
+                "pricing_plans": "[]",
+            },
+            instance=self.place,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        place = form.save()
+        self.assertEqual(place.age_from, 3)
+        self.assertIsNone(place.age_to)
+        self.assertTrue(place.age_open_ended)
+
+    def test_duplicate_candidates_warn_about_matching_contact_and_address(self):
+        duplicate = Place.objects.create(
+            name="Existing place",
+            name_az="Mövcud yer",
+            category="EDU",
+            phone1="+994501234567",
+            website="https://example.com/club",
+            instagram="example_club",
+            address="Bakı, Yasamal, Nizami küçəsi 10",
+        )
+
+        response = self.client.get(
+            reverse("admin:catalog_place_duplicate_candidates"),
+            {
+                "phone": "+994 50 123 45 67",
+                "website": "https://www.example.com/club/",
+                "instagram": "@example_club",
+                "address": "Bakı, Yasamal, Nizami küçəsi 10",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        result = response.json()["results"]
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["id"], duplicate.pk)
+        self.assertEqual(set(result[0]["matched"]), {"телефон", "сайт", "Instagram", "адрес"})
+
+    def test_place_form_exposes_age_and_duplicate_controls(self):
+        response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=place")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="age_open_ended"', html=False)
+        self.assertContains(response, "data-duplicate-candidates-url", html=False)
+        self.assertContains(response, "kidsmap_place_duplicates.js", html=False)
+
     def test_place_change_page_renders_single_compact_datetime_inputs(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.pk]))
 

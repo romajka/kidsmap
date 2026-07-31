@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_pricing.css' %}?v=1">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=17" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=6" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=22" defer></script>
   <script src="{% static 'js/owner_pricing_plans.js' %}?v=5" defer></script>
@@ -72,6 +73,8 @@
       data-progress-empty-text="{% translate 'Ключевые поля заполнены. Можно переходить к финальной проверке и публикации.' %}"
       data-rejected-status="{{ adminform.form.instance.STATUS_REJECTED|default:'rejected' }}"
       data-place-accordion-key="{{ opts.app_label }}-{{ opts.model_name }}-{{ original.pk|default:'new' }}"
+      data-duplicate-candidates-url="{{ km_place_duplicates_url }}"
+      data-duplicate-exclude="{{ original.pk|default:'' }}"
     >
       {% csrf_token %}
       {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
@@ -136,6 +139,8 @@
             </div>
           </div>
         </header>
+
+        <section class="km-place-duplicate-alert" data-place-duplicate-alert hidden aria-live="polite"></section>
 
         <dialog class="km-place-json-import-dialog" data-place-json-import-dialog aria-labelledby="km-json-import-title">
           <div class="km-place-json-import-dialog__head">

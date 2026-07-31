@@ -76,6 +76,11 @@ class Place(models.Model):
 
     age_from = models.PositiveSmallIntegerField(_("Возраст от"), null=True, blank=True)
     age_to = models.PositiveSmallIntegerField(_("Возраст до"), null=True, blank=True)
+    age_open_ended = models.BooleanField(
+        _("Без верхней границы возраста"),
+        default=False,
+        help_text=_("Например: 3+; для всех возрастов укажите возраст «от» 0."),
+    )
     offers_adult_classes = models.BooleanField(_("Также есть занятия для взрослых"), default=False)
 
     district = models.CharField(_("Регион / район"), max_length=100, blank=True)
