@@ -531,6 +531,26 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["popular_places"]), 4)
 
+    def test_home_place_card_phone_button_calls_first_number_directly(self):
+        place = create_quality_place(
+            name="Callable Home Place",
+            name_ru="Кружок с телефоном",
+            category="EDU",
+            phone1="+994501112233",
+            phone2="+994551112233",
+            is_home_recommended=True,
+        )
+
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            f'class="card-contact-toggle" href="tel:{place.phone1}"',
+            html=False,
+        )
+        self.assertNotContains(response, 'data-contact-toggle', html=False)
+
     def test_home_page_uses_admin_selected_recommendations_in_configured_order(self):
         create_quality_place(
             name="Automatic Popular Place",

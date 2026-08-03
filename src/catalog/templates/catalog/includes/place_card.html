@@ -143,31 +143,15 @@
         <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">
           {% if CURRENT_LANG == "az" %}Ətraflı{% elif CURRENT_LANG == "en" %}Details{% else %}{% trans "Перейти" %}{% endif %}
         </a>
-        {% if place.phone1 or place.instagram %}
-        <button type="button" class="card-contact-toggle" data-contact-toggle aria-expanded="false"
-          aria-label="{% if CURRENT_LANG == 'az' %}Əlaqə{% elif CURRENT_LANG == 'en' %}Contact{% else %}Связаться{% endif %}">
-          <span class="card-contact-toggle-icon" aria-hidden="true"></span>
-        </button>
-        {% endif %}
-      </div>
-      {% if place.phone1 or place.instagram %}
-      <div class="card-contact-drawer" data-contact-drawer hidden>
         {% if place.phone1 %}
-        <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call"
-          data-track-place-id="{{ place.id }}" data-track-source="card">
-          {% if CURRENT_LANG == "az" %}Zəng et{% elif CURRENT_LANG == "en" %}Call{% else %}{% trans "Позвонить" %}{% endif %}
+        <a class="card-contact-toggle" href="tel:{{ place.phone1 }}" data-track-event="cta_call"
+          data-track-place-id="{{ place.id }}" data-track-source="card"
+          title="{% if CURRENT_LANG == 'az' %}Zəng et{% elif CURRENT_LANG == 'en' %}Call{% else %}Позвонить{% endif %}"
+          aria-label="{% if CURRENT_LANG == 'az' %}Zəng et{% elif CURRENT_LANG == 'en' %}Call{% else %}Позвонить{% endif %}">
+          <span class="card-contact-toggle-icon" aria-hidden="true"></span>
         </a>
-        <a class="cta-btn cta-whatsapp icon-btn icon-whatsapp" href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}"
-          target="_blank" rel="noopener" data-track-event="cta_whatsapp" data-track-place-id="{{ place.id }}"
-          data-track-source="card">WhatsApp</a>
-        {% endif %}
-        {% if place.instagram %}
-        <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank"
-          rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}"
-          data-track-source="card">Instagram</a>
         {% endif %}
       </div>
-      {% endif %}
     </div>
   </div>
 </article>
