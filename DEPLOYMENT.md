@@ -190,8 +190,8 @@ Install/update it on the server:
 
 ```bash
 cd /opt/kidsmap
-sudo cp deploy/nginx/kidsmap.az.conf /etc/nginx/sites-available/kidsmap.az.conf
-sudo ln -sf /etc/nginx/sites-available/kidsmap.az.conf /etc/nginx/sites-enabled/kidsmap.az.conf
+sudo cp deploy/nginx/kidsmap.az.conf /etc/nginx/sites-available/kidsmap
+sudo ln -sfn /etc/nginx/sites-available/kidsmap /etc/nginx/sites-enabled/kidsmap
 sudo nginx -t
 sudo systemctl reload nginx
 ```

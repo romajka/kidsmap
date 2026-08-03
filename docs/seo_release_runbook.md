@@ -125,7 +125,7 @@ mkdir -p /opt/backups
 date -u +%Y%m%d-%H%M%S
 BACKUP_DIR=/opt/backups ./scripts/backup-db.sh
 tar --create --gzip --file /opt/backups/kidsmap-media-before-seo.tar.gz -C /opt/kidsmap media
-sudo cp --archive /etc/nginx/sites-available/kidsmap.az.conf /opt/backups/kidsmap.az.conf.before-seo
+sudo cp --archive /etc/nginx/sites-available/kidsmap /opt/backups/kidsmap.conf.before-seo
 gzip --test /opt/backups/kidsmap-db-*.sql.gz
 ls -lh /opt/backups
 ```
@@ -177,8 +177,8 @@ collectstatic и check. Повторные команды выше — явна�
 
 ```bash
 cd /opt/kidsmap
-sudo cp deploy/nginx/kidsmap.az.conf /etc/nginx/sites-available/kidsmap.az.conf
-sudo ln -sfn /etc/nginx/sites-available/kidsmap.az.conf /etc/nginx/sites-enabled/kidsmap.az.conf
+sudo cp deploy/nginx/kidsmap.az.conf /etc/nginx/sites-available/kidsmap
+sudo ln -sfn /etc/nginx/sites-available/kidsmap /etc/nginx/sites-enabled/kidsmap
 sudo nginx -t
 sudo systemctl reload nginx
 sudo systemctl is-active nginx
@@ -310,7 +310,7 @@ HEAD.
 ### Rollback nginx
 
 ```bash
-sudo cp /opt/backups/kidsmap.az.conf.before-seo /etc/nginx/sites-available/kidsmap.az.conf
+sudo cp /opt/backups/kidsmap.conf.before-seo /etc/nginx/sites-available/kidsmap
 sudo nginx -t
 sudo systemctl reload nginx
 ```
