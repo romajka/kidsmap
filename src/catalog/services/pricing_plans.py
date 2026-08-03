@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _, get_language
 
 
-MAX_PRICING_PLANS = 12
+MAX_PRICING_PLANS = 20
 DEFAULT_CURRENCY = "AZN"
 LESSON_FORMATS = {"group", "individual", "open_visit"}
 PAYMENT_TYPES = {"per_lesson", "per_month", "package", "per_visit", "entry_ticket"}
@@ -86,7 +86,7 @@ def normalize_pricing_plans(value, *, strict=True):
     if not isinstance(value, list):
         raise ValidationError(_("Проверьте список тарифов."))
     if len(value) > MAX_PRICING_PLANS:
-        raise ValidationError(_("Можно добавить не более 12 тарифов."))
+        raise ValidationError(_("Можно добавить не более 20 тарифов."))
 
     normalized = []
     for index, raw in enumerate(value):

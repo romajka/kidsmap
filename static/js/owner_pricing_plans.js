@@ -1,4 +1,5 @@
 (function () {
+  const MAX_PRICING_PLANS = 20;
   const editor = document.querySelector("[data-tariff-editor]");
   if (!editor) return;
   const input = editor.querySelector("[data-tariff-input]");
@@ -214,7 +215,7 @@
   }
 
   add.addEventListener("click", () => {
-    if (plans.length < 12) {
+    if (plans.length < MAX_PRICING_PLANS) {
       plans.push({
         title_az: "",
         title_ru: "",
