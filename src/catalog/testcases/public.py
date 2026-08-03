@@ -532,6 +532,13 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_production_nginx_keeps_admin_host_out_of_www_redirect_block(self):
+        nginx_config = (settings.BASE_DIR / "deploy/nginx/kidsmap.az.conf").read_text()
+
+        self.assertIn("server_name www.kidsmap.az;", nginx_config)
+        self.assertIn("server_name admin.kidsmap.az;", nginx_config)
+        self.assertIn("server_name kidsmap.az admin.kidsmap.az;", nginx_config)
+
     @override_settings(
         PUBLIC_BASE_URL="https://kidsmap.az",
         ALLOWED_HOSTS=["preview.internal", "testserver"],
