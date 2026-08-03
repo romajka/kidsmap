@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from django.conf import settings
+from django.urls import Resolver404, resolve
 
 from catalog.interfaces.tracking import IEventPlaceRepository, IFunnelEventRepository
 from catalog.models import FunnelEvent, Place
@@ -24,6 +25,7 @@ TRACKED_EVENT_NAMES = (
     FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
     FunnelEvent.EVENT_OWNER_SIGNUP_START,
     FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+    FunnelEvent.EVENT_AI_REFERRAL_VISIT,
 )
 
 GA4_TRACKED_EVENT_NAMES = ("page_view",) + TRACKED_EVENT_NAMES
@@ -52,6 +54,46 @@ CTA_EVENT_TYPES = {
     FunnelEvent.EVENT_CTA_WHATSAPP,
     FunnelEvent.EVENT_CTA_INSTAGRAM,
 }
+
+AI_REFERRAL_SOURCES = frozenset(
+    {
+        "chatgpt",
+        "perplexity",
+        "gemini",
+        "copilot",
+        "claude",
+        "poe",
+        "deepseek",
+        "grok",
+        "meta_ai",
+        "mistral",
+        "phind",
+        "youcom",
+    }
+)
+
+PUBLIC_ANALYTICS_PAGE_TYPES = {
+    "home": "home",
+    "place_list": "catalog",
+    "place_new": "new_places",
+    "place_detail": "place_detail",
+    "seo_landing": "seo_landing",
+    "events_landing": "events",
+    "event_detail": "event_detail",
+    "specialist_list": "specialists",
+    "specialist_detail": "specialist_detail",
+    "site_reviews": "site_reviews",
+    "place_reviews": "place_reviews",
+    "about": "about",
+    "contacts": "contacts",
+    "for_business": "for_business",
+    "privacy": "legal",
+    "terms": "legal",
+    "review_rules": "legal",
+    "listing_rules": "legal",
+}
+
+AI_REFERRAL_PAGE_TYPES = frozenset(PUBLIC_ANALYTICS_PAGE_TYPES.values())
 
 
 def _normalize_meta(meta: dict[str, Any] | None) -> dict[str, Any]:
@@ -212,6 +254,60 @@ class TrackingService:
             place=place,
             meta={"source": source[:40]},
         )
+
+    def track_ai_referral_visit(
+        self,
+        *,
+        request,
+        ai_source: str,
+        landing_path: str,
+        page_type: str,
+        language: str,
+    ) -> bool:
+        ai_source = str(ai_source or "").strip().lower()
+        page_type = str(page_type or "").strip().lower()
+        language = str(language or "").strip().lower()
+        landing_path = str(landing_path or "").strip()
+        language_codes = {code.split("-", 1)[0] for code, _label in settings.LANGUAGES}
+
+        if ai_source not in AI_REFERRAL_SOURCES:
+            return False
+        if page_type not in AI_REFERRAL_PAGE_TYPES:
+            return False
+        if language not in language_codes:
+            return False
+        if (
+            not landing_path.startswith("/")
+            or "?" in landing_path
+            or "#" in landing_path
+            or len(landing_path) > 255
+        ):
+            return False
+        try:
+            landing_url_name = resolve(landing_path).url_name
+        except Resolver404:
+            return False
+        if PUBLIC_ANALYTICS_PAGE_TYPES.get(landing_url_name) != page_type:
+            return False
+
+        if not getattr(settings, "LOCAL_ANALYTICS_STORAGE_ENABLED", False):
+            return True
+
+        event_meta = {
+            "ai_source": ai_source,
+            "landing_path": landing_path,
+            "page_type": page_type,
+            "language": language,
+        }
+        self.event_repository.create_event(
+            event_type=FunnelEvent.EVENT_AI_REFERRAL_VISIT,
+            path=landing_path,
+            place=None,
+            user=None,
+            session_key="",
+            event_meta=event_meta,
+        )
+        return True
 
     def track_cta_click_event(
         self,

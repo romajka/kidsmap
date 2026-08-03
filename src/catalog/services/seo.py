@@ -6,6 +6,7 @@ from django.utils.text import Truncator
 from django.utils.translation import get_language, gettext as _
 
 from catalog.models import Place
+from catalog.services.public_urls import build_public_absolute_uri
 
 
 DEFAULT_ROBOTS_CONTENT = "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
@@ -66,7 +67,7 @@ def _absolute_uri(request, url: str) -> str:
         return ""
     if url.startswith(("http://", "https://")):
         return url
-    return request.build_absolute_uri(url)
+    return build_public_absolute_uri(request, url)
 
 
 def _build_breadcrumb_schema(items: list[dict]) -> str:
@@ -185,8 +186,8 @@ def _catalog_filter_summary(selected: dict, *, is_new_page: bool) -> list[str]:
 
 
 def build_sitewide_schema_payload(*, request, site_name: str, logo_url: str = "", social_urls: list[str] | None = None) -> dict:
-    home_url = request.build_absolute_uri(reverse("home"))
-    catalog_url = request.build_absolute_uri(reverse("place_list"))
+    home_url = _absolute_uri(request, reverse("home"))
+    catalog_url = _absolute_uri(request, reverse("place_list"))
     resolved_logo_url = _absolute_uri(request, logo_url or static("img/logo.svg"))
 
     organization = {
@@ -228,7 +229,7 @@ def build_home_seo_payload(*, request, popular_places) -> dict:
             item_urls=[
                 {
                     "position": idx,
-                    "url": request.build_absolute_uri(place.get_absolute_url()),
+                    "url": _absolute_uri(request, place.get_absolute_url()),
                     "name": place.name_i18n(request.LANGUAGE_CODE),
                 }
                 for idx, place in enumerate(popular_places, start=1)
@@ -282,10 +283,10 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
     breadcrumb_name = _("Новое в каталоге") if is_new_page else _("Каталог")
     breadcrumb_schema_json = _build_breadcrumb_schema(
         [
-            {"name": _("Главная"), "url": request.build_absolute_uri(reverse("home"))},
+            {"name": _("Главная"), "url": _absolute_uri(request, reverse("home"))},
             {
                 "name": breadcrumb_name,
-                "url": request.build_absolute_uri(reverse("place_new" if is_new_page else "place_list")),
+                "url": _absolute_uri(request, reverse("place_new" if is_new_page else "place_list")),
             },
         ]
     )
@@ -296,7 +297,7 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
         item_urls=[
             {
                 "position": position_offset + idx,
-                "url": request.build_absolute_uri(place.get_absolute_url()),
+                "url": _absolute_uri(request, place.get_absolute_url()),
                 "name": place.name_i18n(language_code),
             }
             for idx, place in enumerate(places, start=1)
@@ -353,7 +354,7 @@ def build_place_seo_payload(place, request, language_code):
         "@type": "LocalBusiness",
         "name": place.name_i18n(language_code),
         "description": description,
-        "url": request.build_absolute_uri(place.get_absolute_url()),
+        "url": _absolute_uri(request, place.get_absolute_url()),
         "image": first_image_url,
         "telephone": place.phone1 or "",
         "address": {
@@ -426,9 +427,9 @@ def build_place_seo_payload(place, request, language_code):
 
     breadcrumb_schema_json = _build_breadcrumb_schema(
         [
-            {"name": _("Главная"), "url": request.build_absolute_uri(reverse("home"))},
-            {"name": _("Каталог"), "url": request.build_absolute_uri(reverse("place_list"))},
-            {"name": place.name_i18n(language_code), "url": request.build_absolute_uri(place.get_absolute_url())},
+            {"name": _("Главная"), "url": _absolute_uri(request, reverse("home"))},
+            {"name": _("Каталог"), "url": _absolute_uri(request, reverse("place_list"))},
+            {"name": place.name_i18n(language_code), "url": _absolute_uri(request, place.get_absolute_url())},
         ]
     )
 
@@ -455,8 +456,8 @@ def build_site_reviews_seo_payload(*, request, review_count: int) -> dict:
 
     breadcrumb_schema_json = _build_breadcrumb_schema(
         [
-            {"name": _("Главная"), "url": request.build_absolute_uri(reverse("home"))},
-            {"name": _("Отзывы"), "url": request.build_absolute_uri(reverse("site_reviews"))},
+            {"name": _("Главная"), "url": _absolute_uri(request, reverse("home"))},
+            {"name": _("Отзывы"), "url": _absolute_uri(request, reverse("site_reviews"))},
         ]
     )
 
@@ -470,8 +471,8 @@ def build_site_reviews_seo_payload(*, request, review_count: int) -> dict:
 def build_seo_landing_schema_payload(request, page):
     breadcrumb_schema = _build_breadcrumb_schema(
         [
-            {"name": _("Главная"), "url": request.build_absolute_uri(reverse("home"))},
-            {"name": page["title"], "url": request.build_absolute_uri(request.path)},
+            {"name": _("Главная"), "url": _absolute_uri(request, reverse("home"))},
+            {"name": page["title"], "url": _absolute_uri(request, request.path)},
         ]
     )
     faq_schema = {

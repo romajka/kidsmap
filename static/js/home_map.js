@@ -208,21 +208,27 @@
     return true;
   }
 
-  function formatAgeBadge(place) {
+  function interpolateAgeLabel(template, from, to) {
+    return String(template || "")
+      .replaceAll("{from}", String(from === null || from === undefined ? "" : from))
+      .replaceAll("{to}", String(to === null || to === undefined ? "" : to));
+  }
+
+  function formatAgeBadge(place, labels) {
     const from = place.age_from;
     const to = place.age_to;
     if (from !== null && from !== undefined && to !== null && to !== undefined) {
-      return from + "–" + to + " yaş";
+      return interpolateAgeLabel(labels.range, from, to);
     } else if (from !== null && from !== undefined) {
-      return from + "+ yaş";
+      return interpolateAgeLabel(labels.from, from, to);
     } else if (to !== null && to !== undefined) {
-      return "0–" + to + " yaş";
+      return interpolateAgeLabel(labels.to, from, to);
     }
     return "";
   }
 
-  function renderPopupContent(place, detailsLabel) {
-    const ageBadgeText = formatAgeBadge(place);
+  function renderPopupContent(place, detailsLabel, ageLabels) {
+    const ageBadgeText = formatAgeBadge(place, ageLabels);
     const priceBadgeText = place.price || "";
     const categoryName = place.category || "";
     const categoryColor = place.category_color_text || "var(--brand-turf)";
@@ -504,6 +510,11 @@
     return {
       places: validPlaces,
       detailsLabel: mapEl.dataset.detailsLabel || "Details",
+      ageLabels: {
+        range: mapEl.dataset.ageRangeLabel || "{from}–{to}",
+        from: mapEl.dataset.ageFromLabel || "{from}+",
+        to: mapEl.dataset.ageToLabel || "0–{to}",
+      },
       mapEl: mapEl,
       mapNoteEl: mapNoteEl,
     };
@@ -695,7 +706,7 @@
       });
 
       marker.addListener("click", function () {
-        infoWindow.setContent(renderPopupContent(place, detailsLabel));
+        infoWindow.setContent(renderPopupContent(place, detailsLabel, state.ageLabels));
         infoWindow.open({
           anchor: marker,
           map: map,
@@ -962,7 +973,11 @@
         });
       });
 
-      marker.bindPopup(renderPopupContent(place, mapEl.dataset.detailsLabel || "Details"));
+      marker.bindPopup(renderPopupContent(place, mapEl.dataset.detailsLabel || "Details", {
+        range: mapEl.dataset.ageRangeLabel || "{from}–{to}",
+        from: mapEl.dataset.ageFromLabel || "{from}+",
+        to: mapEl.dataset.ageToLabel || "0–{to}",
+      }));
       markerItems.push({ marker: marker, place: place, position: position });
     });
 

@@ -62,7 +62,7 @@
     {% else %}
     <div class="like-form">
       <button type="button" class="like-btn" aria-pressed="false"
-        aria-label="{% if CURRENT_LANG == 'az' %}Seçilmişlərdən çıxar{% elif CURRENT_LANG == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}"
+        aria-label="{% if CURRENT_LANG == 'az' %}Seçilmişlərə əlavə et{% elif CURRENT_LANG == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
         data-auth-required-trigger
         data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
         data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">

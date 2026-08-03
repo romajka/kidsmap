@@ -537,22 +537,16 @@ msgid "Обычный пользователь"
 msgstr "Adi istifadəçi"
 
 #: src/catalog/controllers/home_controller.py:135
-#, fuzzy
-#| msgid "Найдите подходящее место для ребёнка"
 msgid "Найдите подходящее занятие для ребёнка"
-msgstr "Uşağınız üçün uyğun məkanı tapın"
+msgstr "Uşağınız üçün uyğun məşğələni tapın"
 
 #: src/catalog/controllers/home_controller.py:137
-#, fuzzy
-#| msgid "Спорт, творчество, музыка, образование — всё в одном месте."
 msgid "Кружки, курсы и события рядом — всё в одном месте."
-msgstr "İdman, yaradıcılıq, musiqi, təhsil — hamısı bir yerdə."
+msgstr "Yaxınlıqdakı dərnəklər, kurslar və tədbirlər — hamısı bir yerdə."
 
 #: src/catalog/controllers/home_controller.py:138
-#, fuzzy
-#| msgid "Найти на карте"
 msgid "Найти занятие"
-msgstr "Xəritədə tap"
+msgstr "Məşğələ tap"
 
 #: src/catalog/controllers/home_controller.py:142
 #: src/catalog/templates/pages/home.html:188
@@ -568,10 +562,8 @@ msgid "Семья"
 msgstr "Ailə"
 
 #: src/catalog/controllers/home_controller.py:179
-#, fuzzy
-#| msgid "Музыка и сцена"
 msgid "Музыка"
-msgstr "Musiqi və səhnə"
+msgstr "Musiqi"
 
 #: src/catalog/controllers/home_controller.py:184
 #: src/catalog/controllers/home_controller.py:199
@@ -4876,10 +4868,8 @@ msgstr "Moderasiya üçün şərh"
 #: src/catalog/domain_models/place.py:677 src/catalog/models/place.py:694
 #: src/catalog/models/place.py:718
 #: src/catalog/templates/catalog/place_list.html:799
-#, fuzzy
-#| msgid "Мероприятия"
 msgid "Мероприятие"
-msgstr "Tədbirlər"
+msgstr "Tədbir"
 
 #: src/catalog/domain_models/place.py:678 src/catalog/models/place.py:719
 #: src/catalog/templates/admin/catalog/event/change_list.html:20
@@ -7877,7 +7867,7 @@ msgstr "Menyu"
 #: src/catalog/templates/base.html:89 src/catalog/templates/base.html:124
 #: src/catalog/templates/base.html:262
 msgid "Афиша"
-msgstr ""
+msgstr "Afişa"
 
 #: src/catalog/templates/base.html:163
 #: src/catalog/templates/pages/home.html:527
@@ -8055,9 +8045,7 @@ msgstr "%(number)s nömrəli şəkli aç"
 
 #: src/catalog/templates/catalog/place_detail.html:268
 #: src/catalog/templates/pages/home.html:459
-#, fuzzy, python-format
-#| msgid "%(total)s отзыв"
-#| msgid_plural "%(total)s отзывов"
+#, python-format
 msgid "%(total)s отзыв"
 msgid_plural "%(total)s отзыва"
 msgstr[0] "%(total)s rəy"
@@ -8079,10 +8067,8 @@ msgstr "Hələ dərc olunmuş rəy yoxdur."
 #: src/catalog/templates/catalog/place_detail.html:328
 #: src/catalog/templates/pages/site_reviews.html:56
 #: src/catalog/templates/pages/site_reviews.html:76
-#, fuzzy
-#| msgid "Отправить отзыв"
 msgid "Оставить отзыв"
-msgstr "Rəyi göndər"
+msgstr "Rəy yaz"
 
 #: src/catalog/templates/catalog/place_detail.html:329
 msgid "Короткий отзыв поможет другим родителям быстрее выбрать место."
@@ -8096,10 +8082,9 @@ msgid "Ваша оценка"
 msgstr "Sizin qiymətiniz"
 
 #: src/catalog/templates/catalog/place_detail.html:357
-#, fuzzy, python-format
-#| msgid "Нет опубликованных карточек."
+#, python-format
 msgid "Отзыв будет опубликован от имени %(author)s."
-msgstr "Dərc olunmuş kart yoxdur."
+msgstr "Rəy %(author)s adı ilə dərc olunacaq."
 
 #: src/catalog/templates/catalog/place_detail.html:362
 #: src/catalog/templates/pages/site_reviews.html:176
@@ -8134,8 +8119,6 @@ msgstr "Məkanın xəritəsi"
 
 #: src/catalog/templates/catalog/place_detail.html:776
 #: src/catalog/templates/catalog/place_list.html:725
-#, fuzzy
-#| msgid "Постоянное"
 msgid "Постоянное место"
 msgstr "Daimi məkan"
 
@@ -8154,20 +8137,14 @@ msgstr "Hamısı"
 
 #: src/catalog/templates/catalog/place_list.html:268
 #: src/catalog/templates/catalog/place_list.html:269
-#, fuzzy
-#| msgid "Карта места"
 msgid "Тип места"
-msgstr "Məkanın xəritəsi"
+msgstr "Məkan növü"
 
 #: src/catalog/templates/catalog/place_list.html:278
-#, fuzzy
-#| msgid "Временное"
 msgid "Временные"
 msgstr "Müvəqqəti"
 
 #: src/catalog/templates/catalog/place_list.html:283
-#, fuzzy
-#| msgid "Постоянное"
 msgid "Постоянные"
 msgstr "Daimi"
 
@@ -8197,14 +8174,10 @@ msgid "За 30 дней"
 msgstr "Son 30 gün"
 
 #: src/catalog/templates/catalog/place_list.html:478
-#, fuzzy
-#| msgid "Район/метро"
 msgid "Найти метро"
 msgstr "Metro stansiyaları axtar"
 
 #: src/catalog/templates/catalog/place_list.html:499
-#, fuzzy
-#| msgid "Популярные категории"
 msgid "Популярные станции метро"
 msgstr "Populyar metro stansiyaları"
 
@@ -8228,18 +8201,14 @@ msgstr "Ada görə axtarış"
 
 #: src/catalog/templates/catalog/place_list.html:553
 msgid "Искать кружок или ключевое слово... например робототехника"
-msgstr ""
+msgstr "Dərnək və ya açar söz axtarın... məsələn, robototexnika"
 
 #: src/catalog/templates/catalog/place_list.html:559
-#, fuzzy
-#| msgid "Выберите фильтры"
 msgid "Выбранные фильтры"
 msgstr "Seçilmiş filtrlər"
 
 #: src/catalog/templates/catalog/place_list.html:568
 #: src/catalog/templates/catalog/place_list.html:960
-#, fuzzy
-#| msgid "Запросить новую ссылку"
 msgid "Сбросить всё"
 msgstr "Hamısını sıfırla"
 
@@ -9425,7 +9394,11 @@ msgstr "Hələ rəy yoxdur. İlk siz yazın!"
 
 #: src/catalog/templates/pages/site_reviews.html:115
 msgid "Сейчас в ленте есть только оценки без комментариев. Оставьте первый письменный отзыв о сервисе KidsMap."
-msgstr ""
+msgstr "Hazırda lentdə yalnız şərhsiz qiymətlər var. KidsMap xidməti haqqında ilk yazılı rəyi siz əlavə edin."
+
+#: src/catalog/templates/pages/home.html
+msgid "Карта временно недоступна."
+msgstr "Xəritə müvəqqəti olaraq əlçatan deyil."
 
 #: src/catalog/templates/pages/site_reviews.html:151
 msgid "Оставить отзыв о сайте"

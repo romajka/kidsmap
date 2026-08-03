@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
+from catalog.models import FunnelEvent
 from catalog.services.tracking import TrackingService
 
 
@@ -31,8 +32,26 @@ class TrackingController:
             payload = json.loads((raw_body or b"{}").decode("utf-8"))
         except (ValueError, TypeError, UnicodeDecodeError):
             return TrackEventResult(ok=False, status_code=400, error="invalid_payload")
+        if not isinstance(payload, dict):
+            return TrackEventResult(ok=False, status_code=400, error="invalid_payload")
 
         event_type = str(payload.get("event_type") or "").strip()
+        if event_type == FunnelEvent.EVENT_AI_REFERRAL_VISIT:
+            saved = self.tracking_service.track_ai_referral_visit(
+                request=request,
+                ai_source=payload.get("ai_source"),
+                landing_path=payload.get("landing_path"),
+                page_type=payload.get("page_type"),
+                language=payload.get("language"),
+            )
+            if not saved:
+                return TrackEventResult(
+                    ok=False,
+                    status_code=400,
+                    error="invalid_ai_referral",
+                )
+            return TrackEventResult(ok=True, status_code=200)
+
         place_id_raw = payload.get("place_id")
         source = str(payload.get("source") or "").strip()
         path = str(payload.get("path") or "").strip()

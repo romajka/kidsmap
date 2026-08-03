@@ -4,6 +4,8 @@ Only list/search pages own query parameters. Detail and account pages always use
 their canonical path; ``next`` belongs exclusively to the authentication flow.
 """
 
+from urllib.parse import urlsplit
+
 from django.conf import settings
 from django.urls import Resolver404, resolve
 
@@ -21,6 +23,30 @@ PUBLIC_QUERY_PARAMS = {
     },
     "site_reviews": {"sort", "page"},
 }
+
+
+def public_origin() -> str:
+    """Return the configured canonical public origin, without a trailing slash."""
+    return (getattr(settings, "PUBLIC_BASE_URL", "") or "").strip().rstrip("/")
+
+
+def public_hostname() -> str:
+    """Return the canonical public hostname when a production origin is configured."""
+    return (urlsplit(public_origin()).hostname or "").lower()
+
+
+def build_public_absolute_uri(request, url: str) -> str:
+    """Build public URLs from one stable origin in production and the request locally."""
+    if not url:
+        return ""
+    if url.startswith(("http://", "https://")):
+        return url
+
+    origin = public_origin()
+    if origin:
+        path = url if url.startswith("/") else f"/{url}"
+        return f"{origin}{path}"
+    return request.build_absolute_uri(url)
 
 
 def resolve_url_name(path: str) -> str:

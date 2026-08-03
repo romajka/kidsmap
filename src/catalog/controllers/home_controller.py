@@ -61,7 +61,7 @@ class HomeController:
                 "lat": place.lat,
                 "lng": place.lng,
                 "url": place.get_absolute_url(),
-                "category": place.get_category_display(),
+                "category": place.category.name_i18n(language_code) if place.category else "",
                 "category_code": place.category_code,
                 "category_color_bg": place.category.resolved_color_bg if place.category else "#F3F4F6",
                 "category_color_text": place.category.resolved_color_text if place.category else "#6B7280",
@@ -84,7 +84,7 @@ class HomeController:
                     part
                     for part in (
                         place.name_i18n(language_code),
-                        place.get_category_display(),
+                        place.category.name_i18n(language_code) if place.category else "",
                         place.subcategory.name_i18n(language_code) if place.subcategory_id else "",
                         place.district_i18n(language_code),
                         place.metro,
@@ -129,7 +129,7 @@ class HomeController:
             "meta_description": seo_payload["meta_description"],
             "seo_title": seo_payload["seo_title"],
             "home_featured_schema_json": seo_payload["home_featured_schema_json"],
-            "seo_pages": content_settings.seo_pages(),
+            "seo_pages": content_settings.seo_pages(language_code),
             "popular_places": popular_places,
             "upcoming_events": upcoming_events,
             "map_places": map_places,

@@ -198,6 +198,7 @@ class TestGoogleAnalyticsEvents(TestCase):
                 FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
                 FunnelEvent.EVENT_OWNER_SIGNUP_START,
                 FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+                FunnelEvent.EVENT_AI_REFERRAL_VISIT,
             ),
         )
         self.assertEqual(

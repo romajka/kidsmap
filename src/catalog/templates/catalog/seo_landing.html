@@ -7,15 +7,107 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block og_description %}{{ meta_description }}{% endblock %}
 {% block twitter_description %}{{ meta_description }}{% endblock %}
+{% block robots_meta %}{{ seo_robots_content }}{% endblock %}
+{% block googlebot_meta %}{{ seo_robots_content }}{% endblock %}
 
 {% block content %}
   <section class="panel">
     <h1>{{ seo_page.title }}</h1>
     <p>{{ seo_page.intro }}</p>
+    <p class="seo-landing-results-count">{{ seo_matching_count_label }}</p>
     <p>
       <a class="btn" href="{% url 'place_list' %}{{ seo_page.catalog_query }}">{% trans "Перейти в каталог" %}</a>
     </p>
   </section>
+
+  {% if seo_aggregate %}
+    <section class="panel seo-landing-data">
+      <h2>{{ seo_aggregate.labels.summary_title }}</h2>
+
+      <div class="seo-landing-data__stats">
+        <article class="seo-landing-data__stat">
+          <span>{{ seo_aggregate.labels.sections }}</span>
+          <strong>{{ seo_aggregate.count }}</strong>
+        </article>
+        <article class="seo-landing-data__stat">
+          <span>{{ seo_aggregate.labels.price }}</span>
+          <strong>{{ seo_aggregate.price_range_label }}</strong>
+        </article>
+        <article class="seo-landing-data__stat">
+          <span>{{ seo_aggregate.labels.age }}</span>
+          <strong>{{ seo_aggregate.age_range_label }}</strong>
+        </article>
+      </div>
+
+      <p class="seo-landing-data__coverage{% if not seo_aggregate.price_coverage_complete %} seo-landing-data__coverage--partial{% endif %}">
+        {{ seo_aggregate.price_coverage_label }}
+      </p>
+
+      <div class="seo-landing-data__locations">
+        <div>
+          <h3>{{ seo_aggregate.labels.districts }}</h3>
+          {% if seo_aggregate.districts %}
+            <ul class="seo-landing-data__chips">
+              {% for district in seo_aggregate.districts %}<li>{{ district }}</li>{% endfor %}
+            </ul>
+          {% else %}
+            <p>{{ seo_aggregate.labels.missing }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <h3>{{ seo_aggregate.labels.metro }}</h3>
+          {% if seo_aggregate.metros %}
+            <ul class="seo-landing-data__chips">
+              {% for metro in seo_aggregate.metros %}<li>{{ metro }}</li>{% endfor %}
+            </ul>
+          {% else %}
+            <p>{{ seo_aggregate.labels.missing }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section class="panel seo-landing-comparison">
+      <h2>{{ seo_aggregate.labels.comparison_title }}</h2>
+      {% if seo_aggregate.rows %}
+        <div class="seo-landing-comparison__scroll">
+          <table class="seo-landing-comparison__table">
+            <thead>
+              <tr>
+                <th scope="col">{{ seo_aggregate.labels.name }}</th>
+                <th scope="col">{{ seo_aggregate.labels.district }}</th>
+                <th scope="col">{{ seo_aggregate.labels.metro }}</th>
+                <th scope="col">{{ seo_aggregate.labels.age_column }}</th>
+                <th scope="col">{{ seo_aggregate.labels.price_column }}</th>
+                <th scope="col">{{ seo_aggregate.labels.schedule }}</th>
+                <th scope="col">{{ seo_aggregate.labels.card }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in seo_aggregate.rows %}
+                <tr>
+                  <th scope="row">{{ row.name }}</th>
+                  <td>{{ row.district }}</td>
+                  <td>{{ row.metro }}</td>
+                  <td>{{ row.age }}</td>
+                  <td>{% for price in row.prices %}<span class="seo-landing-comparison__line">{{ price }}</span>{% endfor %}</td>
+                  <td class="seo-landing-comparison__schedule">{{ row.schedule_or_format|linebreaksbr }}</td>
+                  <td><a href="{{ row.url }}">{{ seo_aggregate.labels.details }}</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="seo-landing-data__empty">{{ seo_aggregate.labels.no_places }}</p>
+      {% endif %}
+
+      <p class="seo-landing-data__updated">
+        {{ seo_aggregate.labels.updated }}:
+        {% if seo_aggregate.last_updated_at %}{{ seo_aggregate.last_updated_at|date:"DATE_FORMAT" }}{% else %}{{ seo_aggregate.labels.missing }}{% endif %}
+      </p>
+    </section>
+  {% endif %}
 
   <section class="panel">
     <h2>{% trans "Что вы найдете на KidsMap" %}</h2>

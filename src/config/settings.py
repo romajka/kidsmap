@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
+import re
 from importlib.util import find_spec
+from urllib.parse import urlsplit
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
@@ -64,6 +66,20 @@ SERVE_MEDIA_FILES = _env_bool("SERVE_MEDIA_FILES", True)
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 GOOGLE_ANALYTICS_MEASUREMENT_ID = (os.getenv("GOOGLE_ANALYTICS_MEASUREMENT_ID", "") or "").strip()
 GOOGLE_ANALYTICS_PROPERTY_ID = (os.getenv("GOOGLE_ANALYTICS_PROPERTY_ID", "544432721") or "").strip()
+GOOGLE_SITE_VERIFICATION = (
+    os.getenv("GOOGLE_SITE_VERIFICATION", "") or ""
+).strip()
+BING_SITE_VERIFICATION = (
+    os.getenv("BING_SITE_VERIFICATION", "") or ""
+).strip()
+INDEXNOW_KEY = (os.getenv("INDEXNOW_KEY", "") or "").strip()
+INDEXNOW_ENDPOINT = (
+    os.getenv("INDEXNOW_ENDPOINT", "https://api.indexnow.org/indexnow") or ""
+).strip()
+INDEXNOW_TIMEOUT_SECONDS = float(os.getenv("INDEXNOW_TIMEOUT_SECONDS", "3"))
+INDEXNOW_MIN_INTERVAL_SECONDS = int(
+    os.getenv("INDEXNOW_MIN_INTERVAL_SECONDS", "3600")
+)
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv(
     "GOOGLE_APPLICATION_CREDENTIALS",
     default=str(BASE_DIR / "kidsmap-488406-247f7d0bb069.json")
@@ -75,6 +91,23 @@ TRACKING_EVENT_RATE_LIMIT = int(os.getenv("TRACKING_EVENT_RATE_LIMIT", "60"))
 TRACKING_EVENT_RATE_WINDOW_SECONDS = int(os.getenv("TRACKING_EVENT_RATE_WINDOW_SECONDS", "60"))
 REVIEWS_REQUIRE_AUTH = _env_bool("REVIEWS_REQUIRE_AUTH", True)
 ADMIN_HOST = (os.getenv("DJANGO_ADMIN_HOST", "") or "").strip().lower()
+PUBLIC_BASE_URL = (os.getenv("PUBLIC_BASE_URL", "") or "").strip().rstrip("/")
+if PRODUCTION_SECURITY_DEFAULTS and not PUBLIC_BASE_URL:
+    PUBLIC_BASE_URL = "https://kidsmap.az"
+if PUBLIC_BASE_URL:
+    parsed_public_base_url = urlsplit(PUBLIC_BASE_URL)
+    if (
+        parsed_public_base_url.scheme not in {"http", "https"}
+        or not parsed_public_base_url.netloc
+        or parsed_public_base_url.path
+        or parsed_public_base_url.query
+        or parsed_public_base_url.fragment
+    ):
+        raise ImproperlyConfigured("PUBLIC_BASE_URL must be an origin such as https://kidsmap.az.")
+if INDEXNOW_KEY and not re.fullmatch(r"[A-Za-z0-9-]{8,128}", INDEXNOW_KEY):
+    raise ImproperlyConfigured(
+        "INDEXNOW_KEY must contain 8-128 letters, numbers, or hyphens."
+    )
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "testserver"]
 extra_hosts = _env_list("DJANGO_ALLOWED_HOSTS")
@@ -248,6 +281,7 @@ JAZZMIN_UI_TWEAKS = {
 }
 
 MIDDLEWARE = [
+    "catalog.middleware.CanonicalPublicHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "catalog.middleware.AdminHostRedirectMiddleware",

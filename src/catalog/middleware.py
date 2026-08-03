@@ -3,7 +3,21 @@ import re
 from django.conf import settings
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 
-from catalog.services.public_urls import canonical_public_path, filtered_query_string
+from catalog.services.public_urls import canonical_public_path, filtered_query_string, public_hostname, public_origin
+
+
+class CanonicalPublicHostMiddleware:
+    """Redirect the public www alias before Django emits host-dependent URLs."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        canonical_host = public_hostname()
+        request_host = request.get_host().split(":", 1)[0].lower()
+        if canonical_host and request_host == f"www.{canonical_host}":
+            return HttpResponsePermanentRedirect(f"{public_origin()}{request.get_full_path()}")
+        return self.get_response(request)
 
 
 class AdminHostRedirectMiddleware:

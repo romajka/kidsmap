@@ -186,11 +186,7 @@ class Place(models.Model):
 
     def description_i18n(self, lang=None):
         lang = self._normalize_lang(lang)
-        if lang == "en":
-            return self.description_en or self.description_ru or ""
-        if lang == "az":
-            return self.description_az or self.description_ru or ""
-        return self.description_ru or ""
+        return getattr(self, f"description_{lang}", "") or ""
 
     def address_i18n(self, lang=None):
         from catalog.services.locations import localize_address_text
@@ -367,7 +363,9 @@ class Place(models.Model):
     def _localized_text(self, prefix: str, lang: str | None = None) -> str:
         language = self._normalize_lang(lang)
         localized = getattr(self, f"{prefix}_{language}", "") or ""
-        return localized or getattr(self, prefix, "") or ""
+        if localized:
+            return localized
+        return (getattr(self, prefix, "") or "") if language == "ru" else ""
 
     def extra_conditions_i18n(self, lang: str | None = None) -> str:
         return self._localized_text("extra_conditions", lang)
@@ -695,11 +693,7 @@ class Event(models.Model):
 
     def description_i18n(self, lang=None):
         lang = self._normalize_lang(lang)
-        if lang == "en":
-            return self.description_en or self.description_az or self.description_ru or ""
-        if lang == "ru":
-            return self.description_ru or self.description_az or self.description_en or ""
-        return self.description_az or self.description_ru or self.description_en or ""
+        return getattr(self, f"description_{lang}", "") or ""
 
     def address_i18n(self, lang=None):
         from catalog.services.locations import localize_address_text

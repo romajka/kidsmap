@@ -8,7 +8,13 @@ from django.views.generic.base import RedirectView
 
 from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap
 from catalog.views import admin_add_choice
-from config.views import healthz, redirect_legacy_default_language_prefix, robots_txt, serve_media_file
+from config.views import (
+    healthz,
+    indexnow_key_file,
+    redirect_legacy_default_language_prefix,
+    robots_txt,
+    serve_media_file,
+)
 
 sitemaps = {
     "static": StaticViewSitemap,
@@ -23,6 +29,11 @@ urlpatterns = [
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
     path("robots.txt", robots_txt, name="robots_txt"),
     path("healthz", healthz, name="healthz"),
+    re_path(
+        r"^(?P<key>[A-Za-z0-9-]{8,128})\.txt$",
+        indexnow_key_file,
+        name="indexnow_key_file",
+    ),
     path("admin/", admin.site.urls),
     re_path(
         rf"^{(settings.LANGUAGE_CODE or 'az').split('-')[0]}(?:/(?P<path>.*))?$",

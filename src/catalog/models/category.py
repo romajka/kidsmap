@@ -78,14 +78,13 @@ class Category(models.Model):
         if not lang:
             lang = get_language() or "ru"
         lang = lang.split("-")[0]
-        from django.utils.translation import gettext as _
         if lang == "az":
             val = self.name_az or self.name
         elif lang == "en":
             val = self.name_en or self.name
         else:
             val = self.name_ru or self.name
-        return _(val)
+        return val
 
     @property
     def icon_name(self):
@@ -206,14 +205,13 @@ class Subcategory(models.Model):
         if not lang:
             lang = get_language() or "ru"
         lang = lang.split("-")[0]
-        from django.utils.translation import gettext as _
         if lang == "az":
             val = self.name_az or self.name
         elif lang == "en":
             val = self.name_en or self.name
         else:
             val = self.name_ru or self.name
-        return _(val)
+        return val
 
     @property
     def icon_file_url(self):

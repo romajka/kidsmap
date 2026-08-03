@@ -6,7 +6,7 @@ from django.db.models import Avg, Count, Q
 from django.db.models.signals import post_delete, post_save
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import get_language
+from django.utils.translation import get_language, override
 from django.utils.text import slugify
 from django.urls import reverse
 from django.utils import timezone
@@ -188,11 +188,7 @@ class SiteSettings(models.Model):
 
     def _i18n_text(self, prefix, lang):
         lang = self._normalize_lang(lang)
-        if lang == "en":
-            return (getattr(self, f"{prefix}_en", "") or getattr(self, f"{prefix}_ru", "")).strip()
-        if lang == "az":
-            return (getattr(self, f"{prefix}_az", "") or getattr(self, f"{prefix}_ru", "")).strip()
-        return getattr(self, f"{prefix}_ru", "").strip()
+        return (getattr(self, f"{prefix}_{lang}", "") or "").strip()
 
     def contacts_text_i18n(self, lang=None):
         return self._i18n_text("contacts_text", lang)
@@ -317,11 +313,11 @@ class SiteGalleryImage(models.Model):
 
     def title_i18n(self, lang=None):
         lang = self._normalize_lang(lang)
-        if lang == "en":
-            return (self.title_en or self.title_ru or self.get_category_display()).strip()
-        if lang == "az":
-            return (self.title_az or self.title_ru or self.get_category_display()).strip()
-        return (self.title_ru or self.get_category_display()).strip()
+        title = (getattr(self, f"title_{lang}", "") or "").strip()
+        if title:
+            return title
+        with override(lang):
+            return str(self.get_category_display()).strip()
 
     class Meta:
         ordering = ("placement", "order", "id")
@@ -421,6 +417,7 @@ class FunnelEvent(models.Model):
     EVENT_CLAIM_PLACE_SUBMIT = "claim_place_submit"
     EVENT_OWNER_SIGNUP_START = "owner_signup_start"
     EVENT_OWNER_SIGNUP_COMPLETE = "owner_signup_complete"
+    EVENT_AI_REFERRAL_VISIT = "ai_referral_visit"
 
     EVENT_CHOICES = (
         (EVENT_CATALOG_SEARCH, _("Поиск в каталоге")),
@@ -435,6 +432,7 @@ class FunnelEvent(models.Model):
         (EVENT_CLAIM_PLACE_SUBMIT, _("Отправка заявки на управление")),
         (EVENT_OWNER_SIGNUP_START, _("Начало регистрации владельца")),
         (EVENT_OWNER_SIGNUP_COMPLETE, _("Завершение регистрации владельца")),
+        (EVENT_AI_REFERRAL_VISIT, _("Переход из AI-сервиса")),
     )
 
     event_type = models.CharField(_("Событие"), max_length=32, choices=EVENT_CHOICES, db_index=True)
@@ -514,12 +512,18 @@ class CatalogContentSettings(models.Model):
         return BAKU_METRO_STATIONS
 
     def seo_pages(self, language_code=None):
-        if isinstance(self.seo_pages_json, dict) and self.seo_pages_json:
-            return self.seo_pages_json
         from catalog.content_data import seo_landing_pages
         from django.utils.translation import get_language
 
         language_code = (language_code or get_language() or "az").split("-")[0]
+        if isinstance(self.seo_pages_json, dict) and self.seo_pages_json:
+            localized_pages = self.seo_pages_json.get(language_code)
+            if isinstance(localized_pages, dict):
+                return localized_pages
+            if language_code == "az" and not any(
+                key in self.seo_pages_json for key in {"az", "ru", "en"}
+            ):
+                return self.seo_pages_json
         return seo_landing_pages(language_code)
 
     class Meta:

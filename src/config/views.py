@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.http import HttpResponsePermanentRedirect
 from django.urls import reverse
 from django.utils import timezone
@@ -7,11 +7,21 @@ from django.conf import settings
 from django.utils.cache import patch_cache_control
 from django.views.static import serve as serve_static_file
 
-from catalog.services.public_urls import filtered_query_string_for_path
+from catalog.services.public_urls import build_public_absolute_uri, filtered_query_string_for_path
+
+
+def indexnow_key_file(request, key):
+    expected_key = (getattr(settings, "INDEXNOW_KEY", "") or "").strip()
+    if not expected_key or key != expected_key:
+        raise Http404
+
+    response = HttpResponse(expected_key, content_type="text/plain; charset=utf-8")
+    patch_cache_control(response, public=True, max_age=300)
+    return response
 
 
 def robots_txt(request):
-    sitemap_url = request.build_absolute_uri(reverse("django.contrib.sitemaps.views.sitemap"))
+    sitemap_url = build_public_absolute_uri(request, reverse("django.contrib.sitemaps.views.sitemap"))
     lang_codes = [code for code, _label in settings.LANGUAGES]
     default_lang = (settings.LANGUAGE_CODE or "az").split("-")[0]
     lines = [

@@ -108,7 +108,7 @@
             {% endif %}
           </div>
 
-          {% if pricing_summary.has_price or pricing_summary.plans or pricing_summary.schedule or place.extra_conditions_i18n or place.additional_info_i18n %}
+          {% if pricing_summary.has_price or pricing_summary.plans or pricing_summary.schedule_rows or pricing_summary.schedule or place.extra_conditions_i18n or place.additional_info_i18n %}
             <section class="detail-unified-pricing detail-section detail-body-card{% if not pricing_summary.plans %} detail-unified-pricing--no-plans{% endif %}{% if pricing_summary.schedule_rows %} detail-unified-pricing--with-schedule{% endif %}{% if not pricing_summary.has_price %} detail-unified-pricing--without-price{% endif %}">
               <div class="detail-section-head">
                 <h2>{{ pricing_summary.strings.title }}</h2>

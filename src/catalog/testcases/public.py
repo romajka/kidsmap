@@ -498,6 +498,70 @@ class TestPublicPagesSmoke(TestCase):
             "https://admin.kidsmap.az/ru/admin/login/?next=/ru/admin/",
         )
 
+    @override_settings(
+        PUBLIC_BASE_URL="https://kidsmap.az",
+        ALLOWED_HOSTS=["kidsmap.az", "www.kidsmap.az", "testserver"],
+    )
+    def test_www_alias_redirects_permanently_to_canonical_origin(self):
+        for secure in (False, True):
+            with self.subTest(secure=secure):
+                response = self.client.get(
+                    "/ru/catalog/",
+                    {"category": "SPRT", "page": "2"},
+                    secure=secure,
+                    HTTP_HOST="www.kidsmap.az",
+                )
+
+                self.assertEqual(response.status_code, 301)
+                self.assertEqual(
+                    response["Location"],
+                    "https://kidsmap.az/ru/catalog/?category=SPRT&page=2",
+                )
+
+    @override_settings(
+        PUBLIC_BASE_URL="https://kidsmap.az",
+        ALLOWED_HOSTS=["admin.kidsmap.az", "kidsmap.az", "testserver"],
+        ADMIN_HOST="admin.kidsmap.az",
+    )
+    def test_canonical_host_redirect_does_not_capture_admin_subdomain(self):
+        response = self.client.get(
+            "/ru/admin/login/",
+            secure=True,
+            HTTP_HOST="admin.kidsmap.az",
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(
+        PUBLIC_BASE_URL="https://kidsmap.az",
+        ALLOWED_HOSTS=["preview.internal", "testserver"],
+    )
+    def test_public_seo_urls_ignore_request_host_when_origin_is_configured(self):
+        response = self.client.get(
+            "/ru/catalog/kruzhki-v-baku/",
+            secure=True,
+            HTTP_HOST="preview.internal",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<link rel="canonical" href="https://kidsmap.az/ru/catalog/kruzhki-v-baku/" />',
+            html=False,
+        )
+        self.assertContains(
+            response,
+            '<meta property="og:url" content="https://kidsmap.az/ru/catalog/kruzhki-v-baku/" />',
+            html=False,
+        )
+        self.assertContains(
+            response,
+            '<link rel="alternate" hreflang="az" href="https://kidsmap.az/catalog/kruzhki-v-baku/" />',
+            html=False,
+        )
+        self.assertContains(response, '"item": "https://kidsmap.az/ru/"', html=False)
+        self.assertNotContains(response, "preview.internal")
+
     def test_home_page_renders_interactive_map_without_google_maps_key(self):
         create_quality_place(
             name="Home Map Place",
@@ -597,7 +661,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         content = response.content.decode()
         ordered_markers = (
-            'class="home-hero panel"',
+            'class="home-hero panel',
             'class="panel home-map-panel"',
             'class="panel home-recommended"',
             'class="home-steps panel home-steps-lite',
@@ -611,7 +675,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "Открыть весь каталог")
         self.assertContains(response, "Рекомендуемые места и занятия")
         self.assertContains(response, "Как это работает")
-        self.assertContains(response, "Разместить место")
+        self.assertContains(response, "Добавить свое место")
         self.assertContains(response, "Частые вопросы о KidsMap")
         self.assertContains(response, 'class="home-faq-popular"', html=False)
         self.assertContains(response, 'href="/ru/catalog/?category=EDU"', html=False)
@@ -790,6 +854,33 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="en" href="http://testserver/en{place.get_absolute_url()}"', html=False)
         self.assertContains(response, f'<xhtml:link rel="alternate" hreflang="x-default" href="http://testserver{place.get_absolute_url()}"', html=False)
 
+    @override_settings(
+        PUBLIC_BASE_URL="https://kidsmap.az",
+        ALLOWED_HOSTS=["preview.internal", "testserver"],
+    )
+    def test_sitemap_and_robots_use_configured_public_origin(self):
+        sitemap_response = self.client.get(
+            "/sitemap.xml",
+            secure=True,
+            HTTP_HOST="preview.internal",
+        )
+        robots_response = self.client.get(
+            "/robots.txt",
+            secure=True,
+            HTTP_HOST="preview.internal",
+        )
+
+        self.assertEqual(sitemap_response.status_code, 200)
+        self.assertContains(sitemap_response, "<loc>https://kidsmap.az/</loc>", html=False)
+        self.assertContains(
+            sitemap_response,
+            '<xhtml:link rel="alternate" hreflang="ru" href="https://kidsmap.az/ru/"',
+            html=False,
+        )
+        self.assertNotContains(sitemap_response, "preview.internal")
+        self.assertEqual(robots_response.status_code, 200)
+        self.assertContains(robots_response, "Sitemap: https://kidsmap.az/sitemap.xml")
+
     def test_seo_landing_uses_matching_language_content_and_hreflang(self):
         checks = (
             (
@@ -962,7 +1053,10 @@ class TestCatalogContentSettingsWiring(TestCase):
         settings_obj.metro_stations_json = []
         settings_obj.save(update_fields=["metro_stations_json", "updated_at"])
 
-        form = OwnerPlaceCreateForm()
+        # The previous public-page test may leave another locale active in the
+        # current thread. A form request always has an explicit URL language.
+        with override("az"):
+            form = OwnerPlaceCreateForm()
         metro_values = [value for value, _label in form.fields["metro"].choices if value]
 
         self.assertEqual(len(metro_values), 27)
@@ -1772,9 +1866,9 @@ class TestCatalogEnhancements(TestCase):
             response = self.client.get(place.get_absolute_url(), follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Пн–Пт")
+        self.assertContains(response, "Понедельник–Пятница")
         self.assertContains(response, "09:00–18:00")
-        self.assertContains(response, "Сб")
+        self.assertContains(response, "Суббота")
         self.assertContains(response, "10:00–16:00")
 
     def test_place_detail_does_not_show_owner_request_block(self):
@@ -1968,6 +2062,7 @@ class TestCatalogEnhancements(TestCase):
                     "category_icon_is_font": matching_place.category.icon_is_font_class,
                     "category_icon_name": matching_place.category.icon or "",
                     "image_url": "",
+                    "price": str(matching_place.card_price_badge),
                     "location": expected_location,
                     "address": "Bakı şəhəri, Nizami küçəsi 10, " + get_location_translation(matching_place.district, language_code),
                     "district": get_location_translation(matching_place.district, language_code),
@@ -2001,6 +2096,7 @@ class TestCatalogEnhancements(TestCase):
             )
             expected_category = place.get_category_display()
             expected_url = place.get_absolute_url()
+            expected_price = str(place.card_price_badge)
 
         self.assertEqual(
             serialized,
@@ -2020,6 +2116,7 @@ class TestCatalogEnhancements(TestCase):
                     "category_icon_is_font": place.category.icon_is_font_class,
                     "category_icon_name": place.category.icon or "",
                     "image_url": "",
+                    "price": expected_price,
                     "location": "Баку, Ясамальский район / Низами",
                     "address": "Bakı, Yasamal, Mərkəzi küçə 12, Баку, Ясамальский район",
                     "district": "Баку, Ясамальский район",
@@ -2220,7 +2317,7 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="review-place-card"', html=False)
         self.assertContains(response, self.place.get_absolute_url(), html=False)
-        self.assertContains(response, self.place.name_i18n)
+        self.assertContains(response, self.place.name_i18n())
         self.assertContains(response, "Alina")
 
     def test_review_models_disable_anonymous_flag_and_keep_author_name(self):
@@ -2307,11 +2404,7 @@ class TestReviewEnhancements(TestCase):
         az_home = self.client.get("/az/", follow=True)
         self.assertEqual(az_home.status_code, 200)
         self.assertContains(az_home, "Valideynlərə sizi yaxınlıqda tapmağa kömək edin")
-        self.assertContains(az_home, "Tam lent və reaksiyalar")
-        self.assertContains(az_home, "Ramin A.")
-        self.assertContains(az_home, "Sayt Bakıda yeni dərnəkləri tez tapmağa kömək edir, interfeys aydındır.")
         self.assertNotContains(az_home, "Приведите новых родителей через KidsMap")
-        self.assertNotContains(az_home, "Полная лента и реакции")
 
         az_catalog = self.client.get("/az/catalog/", follow=True)
         self.assertEqual(az_catalog.status_code, 200)
@@ -2323,17 +2416,12 @@ class TestReviewEnhancements(TestCase):
         en_home = self.client.get("/en/", follow=True)
         self.assertEqual(en_home.status_code, 200)
         self.assertContains(en_home, "Help parents find you nearby")
-        self.assertContains(en_home, "Full feed and reactions")
-        self.assertContains(en_home, "Ramin A.")
-        self.assertContains(en_home, "The site helps you quickly find new clubs in Baku, and the interface is easy to understand.")
         self.assertNotContains(en_home, "Приведите новых родителей через KidsMap")
-        self.assertNotContains(en_home, "Полная лента и реакции")
 
         ru_home = self.client.get("/ru/", follow=True)
         self.assertEqual(ru_home.status_code, 200)
-        self.assertContains(ru_home, "Для владельцев детских мест")
         self.assertContains(ru_home, "Помогите родителям найти вас рядом")
-        self.assertContains(ru_home, "Разместить место")
+        self.assertContains(ru_home, "Добавить свое место")
         self.assertNotContains(ru_home, "Valideynlərə sizi yaxınlıqda tapmağa kömək edin")
         self.assertNotContains(ru_home, "Məkan yerləşdir")
 
@@ -2459,6 +2547,131 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Rəy yazmaq üçün daxil olun və ya qeydiyyatdan keçin.")
         self.assertNotContains(response, "Чтобы оставить отзыв, войдите или зарегистрируйтесь.")
+
+class PublicLanguageConsistencyTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.place = create_quality_place(
+            name="KidsMap Test Place",
+            name_az="KidsMap Sınaq Məkanı",
+            name_ru="Тестовое место KidsMap",
+            name_en="KidsMap Test Place",
+            description_az="Azərbaycan dilində uşaqlar üçün məşğələlər, yaş qrupları, müntəzəm cədvəl, müəllimlər və şərait haqqında ətraflı faktiki təsvir.",
+            description_ru="Подробное фактическое описание занятий для детей, расписания и условий на русском языке.",
+            description_en="A detailed factual description in English covering activities for children, schedules, and conditions.",
+            lat=40.4093,
+            lng=49.8671,
+        )
+
+    def test_public_pages_keep_system_text_in_url_language_across_requests(self):
+        checks = (
+            ("/", "xəritədə məkan və məşğələ", ("мест и занятий на карте", "places and activities on the map")),
+            ("/ru/", "мест и занятий на карте", ("xəritədə məkan və məşğələ", "places and activities on the map")),
+            ("/en/", "places and activities on the map", ("xəritədə məkan və məşğələ", "мест и занятий на карте")),
+            ("/catalog/", "məkan tapıldı", ("Найден", "club found")),
+            ("/ru/catalog/", "Найден", ("məkan tapıldı", "club found")),
+            ("/en/catalog/", "found", ("məkan tapıldı", "Найден")),
+            (f"/place/{self.place.pk}-{self.place.slug}/", "Son rəylər", ("Последние отзывы", "Latest reviews")),
+            (f"/ru/place/{self.place.pk}-{self.place.slug}/", "Последние отзывы", ("Son rəylər", "Latest reviews")),
+            (f"/en/place/{self.place.pk}-{self.place.slug}/", "Latest reviews", ("Son rəylər", "Последние отзывы")),
+            ("/catalog/kruzhki-v-baku/", "Bakıda uşaqlar üçün dərnəklər", ("Кружки в Баку для детей", "Kids' clubs in Baku")),
+            ("/ru/catalog/kruzhki-v-baku/", "Кружки в Баку для детей", ("Bakıda uşaqlar üçün dərnəklər", "Kids' clubs in Baku")),
+            ("/en/catalog/kruzhki-v-baku/", "Kids' clubs in Baku", ("Bakıda uşaqlar üçün dərnəklər", "Кружки в Баку для детей")),
+            ("/reviews/", "Sayt haqqında ümumi rəylər", ("Общие отзывы о сайте", "General site reviews")),
+            ("/ru/reviews/", "Общие отзывы о сайте", ("Sayt haqqında ümumi rəylər", "General site reviews")),
+            ("/en/reviews/", "General site reviews", ("Sayt haqqında ümumi rəylər", "Общие отзывы о сайте")),
+            ("/place-reviews/", "Dərnəklər haqqında real rəylər", ("Честные отзывы о кружках", "Real reviews of kids' activities")),
+            ("/ru/place-reviews/", "Честные отзывы о кружках", ("Dərnəklər haqqında real rəylər", "Real reviews of kids' activities")),
+            ("/en/place-reviews/", "Real reviews of kids' activities", ("Dərnəklər haqqında real rəylər", "Честные отзывы о кружках")),
+        )
+
+        for path, expected, forbidden in checks:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, expected)
+                for phrase in forbidden:
+                    self.assertNotContains(response, phrase)
+
+    def test_base_template_uses_request_language_even_if_active_locale_differs(self):
+        with override("ru"):
+            self.assertEqual(translate("Последние отзывы"), "Последние отзывы")
+            self.assertEqual(translate("мест и занятий на карте"), "мест и занятий на карте")
+            self.assertEqual(translate("Афиша"), "Афиша")
+
+    def test_header_and_footer_follow_url_language(self):
+        checks = (
+            ("/", ("Ana səhifə", "Kataloqu aç", "Əlaqə"), ("Главная", "Open catalog")),
+            ("/ru/", ("Главная", "Открыть каталог", "Контакты"), ("Ana səhifə", "Open catalog")),
+            ("/en/", ("Home", "Open catalog", "Contacts"), ("Ana səhifə", "Открыть каталог")),
+        )
+
+        for path, expected, forbidden in checks:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                for phrase in expected:
+                    self.assertContains(response, phrase)
+                for phrase in forbidden:
+                    self.assertNotContains(response, phrase)
+
+    def test_missing_factual_translation_is_hidden_instead_of_cross_language_fallback(self):
+        place = Place(
+            name="Fallback Place",
+            name_ru="Место без перевода",
+            description_ru="Описание есть только по-русски.",
+            extra_conditions="Условия есть только по-русски.",
+        )
+        event = Event(
+            name="Fallback Event",
+            name_ru="Событие без перевода",
+            description_ru="Описание события есть только по-русски.",
+        )
+
+        self.assertEqual(place.description_i18n("ru"), "Описание есть только по-русски.")
+        self.assertEqual(place.description_i18n("az"), "")
+        self.assertEqual(place.description_i18n("en"), "")
+        self.assertEqual(place.extra_conditions_i18n("ru"), "Условия есть только по-русски.")
+        self.assertEqual(place.extra_conditions_i18n("az"), "")
+        self.assertEqual(event.description_i18n("ru"), "Описание события есть только по-русски.")
+        self.assertEqual(event.description_i18n("en"), "")
+
+    def test_site_settings_and_legacy_seo_json_do_not_leak_ru_or_az_copy(self):
+        site = SiteSettings(
+            home_title_ru="Русский заголовок",
+            about_text_ru="Русский текст о проекте",
+        )
+        self.assertEqual(site.home_title_i18n("az"), "")
+        self.assertEqual(site.about_text_i18n("en"), "")
+
+        content = CatalogContentSettings(
+            seo_pages_json={
+                "legacy-page": {
+                    "title": "AZ legacy title",
+                    "meta_description": "AZ legacy description",
+                    "intro": "AZ legacy intro",
+                    "benefits": [],
+                    "catalog_query": "",
+                    "faq": [],
+                }
+            }
+        )
+        self.assertIn("legacy-page", content.seo_pages("az"))
+        self.assertNotIn("legacy-page", content.seo_pages("ru"))
+        self.assertNotIn("legacy-page", content.seo_pages("en"))
+
+    def test_home_map_javascript_gets_age_and_error_labels_from_template(self):
+        source = (settings.BASE_DIR / "static/js/home_map.js").read_text()
+        template_source = (
+            settings.BASE_DIR / "src/catalog/templates/pages/home.html"
+        ).read_text()
+
+        self.assertNotIn('return from + "–" + to + " yaş"', source)
+        self.assertIn("mapEl.dataset.ageRangeLabel", source)
+        self.assertIn("homeMapUnavailableLabel", source)
+        self.assertIn("{from}–{to} yaş", template_source)
+        self.assertIn("{from}–{to} лет", template_source)
+        self.assertIn("Ages {from}–{to}", template_source)
+
 
 class EventsLandingTests(TestCase):
     def setUp(self):

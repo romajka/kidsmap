@@ -5,9 +5,12 @@ from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from .models import SiteSettings, UserProfile
 from .services.seo import DEFAULT_ROBOTS_CONTENT, build_sitewide_schema_payload
-from .services.tracking import pop_queued_google_analytics_events
+from .services.tracking import (
+    PUBLIC_ANALYTICS_PAGE_TYPES,
+    pop_queued_google_analytics_events,
+)
 from .services.features import is_events_section_enabled, is_specialists_section_enabled
-from .services.public_urls import filtered_query_string
+from .services.public_urls import build_public_absolute_uri, filtered_query_string, public_origin
 from .services.auth_redirects import build_header_login_url
 
 DEFAULT_FOOTER_PHONE = "+994 50 540 66 39"
@@ -125,9 +128,9 @@ def seo_urls(request):
     if not base_path:
         base_path = "/"
 
-    canonical_url = request.build_absolute_uri(path)
+    canonical_url = build_public_absolute_uri(request, path)
     alternate_urls = {
-        code: request.build_absolute_uri(base_path if code == default_lang else f"/{code}{base_path}")
+        code: build_public_absolute_uri(request, base_path if code == default_lang else f"/{code}{base_path}")
         for code in lang_codes
     }
 
@@ -150,6 +153,7 @@ def seo_urls(request):
 
     return {
         "canonical_url": canonical_url,
+        "public_base_url": public_origin(),
         "alternate_urls": alternate_urls,
         "x_default_url": alternate_urls.get(default_lang, canonical_url),
         "current_lang_code": current_lang,
@@ -158,6 +162,13 @@ def seo_urls(request):
         "og_locale_alternates": og_locale_alternates,
         "language_switch_query": filtered_query_string(request),
         "header_account_login_url": build_header_login_url(request),
+        "analytics_page_type": PUBLIC_ANALYTICS_PAGE_TYPES.get(url_name, ""),
+        "google_site_verification": (
+            getattr(settings, "GOOGLE_SITE_VERIFICATION", "") or ""
+        ).strip(),
+        "bing_site_verification": (
+            getattr(settings, "BING_SITE_VERIFICATION", "") or ""
+        ).strip(),
     }
 
 
@@ -264,9 +275,11 @@ def site_settings(request):
     return {
         "site_settings": cfg,
         "brand_name": cfg.brand_name or "KidsMap",
-        "site_about_text": cfg.about_text_i18n(request.LANGUAGE_CODE),
+        "site_about_text": cfg.about_text_i18n(request.LANGUAGE_CODE)
+        or ABOUT_DEFAULTS.get(lang, ABOUT_DEFAULTS[(settings.LANGUAGE_CODE or "az").split("-")[0]]),
         "site_contacts_text": contacts_text,
-        "site_empty_results_text": cfg.empty_results_text_i18n(request.LANGUAGE_CODE),
+        "site_empty_results_text": cfg.empty_results_text_i18n(request.LANGUAGE_CODE)
+        or EMPTY_DEFAULTS.get(lang, EMPTY_DEFAULTS[(settings.LANGUAGE_CODE or "az").split("-")[0]]),
         "footer_phone": footer_phone,
         "footer_email": footer_email,
         "footer_instagram_url": footer_instagram_url,

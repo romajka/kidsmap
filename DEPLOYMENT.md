@@ -252,7 +252,7 @@ docker compose run --rm web ./scripts/migrate.sh
 ```
 
 ## Production release checklist
-1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `SERVE_MEDIA_FILES=1`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`, `GOOGLE_ANALYTICS_PROPERTY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`, `MEDIA_CACHE_MAX_AGE`.
+1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `SERVE_MEDIA_FILES=1`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`, `GOOGLE_ANALYTICS_PROPERTY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, `INDEXNOW_KEY`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`, `MEDIA_CACHE_MAX_AGE`.
 2. Avoid editing tracked files on server (`docker-compose.yml`, `src/config/settings.py`); keep server-specific values in `.env`.
 3. Ensure server can access GitHub via SSH (`./scripts/setup-github-ssh.sh` + `ssh -T git@github.com`).
 4. Install/update nginx config from `deploy/nginx/kidsmap.az.conf`.
@@ -264,6 +264,54 @@ docker compose run --rm web ./scripts/migrate.sh
    - `/sitemap.xml`
    - `/robots.txt`
    - `/admin/`
+
+## IndexNow
+
+The key is never stored in git. Generate a value containing 8-128 letters,
+numbers or hyphens and put it only in `/opt/kidsmap/.env`:
+
+```bash
+python -c 'import secrets; print(secrets.token_hex(16))'
+sudoedit /opt/kidsmap/.env
+```
+
+Required and optional values:
+
+```dotenv
+INDEXNOW_KEY=replace-with-generated-key
+INDEXNOW_ENDPOINT=https://api.indexnow.org/indexnow
+INDEXNOW_TIMEOUT_SECONDS=3
+INDEXNOW_MIN_INTERVAL_SECONDS=3600
+```
+
+After the application is restarted, verify the public key file. Replace the
+placeholder in the URL with the same environment value:
+
+```bash
+curl -fsS https://kidsmap.az/replace-with-generated-key.txt
+```
+
+Preview the current batch without contacting IndexNow:
+
+```bash
+docker compose exec -T web python manage.py submit_indexnow --dry-run
+```
+
+Send one canonical URL as a controlled manual check:
+
+```bash
+docker compose exec -T web python manage.py submit_indexnow --limit 1 --force
+```
+
+Send all current public place URLs and indexable SEO landing URLs:
+
+```bash
+docker compose exec -T web python manage.py submit_indexnow
+```
+
+Automatic submissions run after a successful database commit. Failures are
+logged and do not roll back content changes. Redis provides the cross-worker
+per-URL cooldown configured by `INDEXNOW_MIN_INTERVAL_SECONDS`.
 
 ## Production performance follow-up
 After deploy, validate that static/media are not the new bottleneck:

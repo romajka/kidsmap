@@ -5,6 +5,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {% if google_site_verification %}
+      <meta name="google-site-verification" content="{{ google_site_verification }}" />
+    {% endif %}
+    {% if bing_site_verification %}
+      <meta name="msvalidate.01" content="{{ bing_site_verification }}" />
+    {% endif %}
     <title>{% block title %}KidsMap{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}" />
     <meta name="robots" content="{% block robots_meta %}{{ robots_content }}{% endblock %}" />
@@ -23,11 +29,11 @@
     <meta property="og:title" content="{% block og_title %}{% block og_title_inner %}{% block title_plain %}KidsMap{% endblock %}{% endblock %}{% endblock %}" />
     <meta property="og:description" content="{% block og_description %}{% block meta_description_og %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
     <meta property="og:url" content="{{ canonical_url }}" />
-    {% block og_image %}<meta property="og:image" content="{% if site_settings.logo %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.logo.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
+    {% block og_image %}<meta property="og:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}KidsMap{% endblock %}{% endblock %}" />
     <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
-    {% block twitter_image %}<meta name="twitter:image" content="{% if site_settings.logo %}{{ request.scheme }}://{{ request.get_host }}{{ site_settings.logo.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
+    {% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
     <link rel="icon" type="image/svg+xml" href="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />
     <link rel="apple-touch-icon" href="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />
     <link
@@ -46,7 +52,7 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=taxonomy-4" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     <style>
       /* ── KidsMap Card Overrides ── */
@@ -92,7 +98,9 @@
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
   </head>
-  <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');"{% endif %}>
+  <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
+    data-analytics-page-type="{{ analytics_page_type }}"
+    data-page-language="{{ current_lang_code }}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');"{% endif %}>
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div class="site-shell">
       <header class="topbar">
@@ -807,12 +815,23 @@
 
           function send(payload) {
             if (!payload || !payload.event_type) return;
-            emitAnalyticsEvent({
-              name: payload.event_type,
-              params: {
+            let analyticsParams;
+            if (payload.event_type === "ai_referral_visit") {
+              analyticsParams = {
+                ai_source: payload.ai_source || "",
+                landing_path: payload.landing_path || "",
+                page_type: payload.page_type || "",
+                language: payload.language || "",
+              };
+            } else {
+              analyticsParams = {
                 page_type: payload.source || "",
                 place_id: payload.place_id || undefined,
-              },
+              };
+            }
+            emitAnalyticsEvent({
+              name: payload.event_type,
+              params: analyticsParams,
             });
             if (!trackUrl) return;
             try {
@@ -831,6 +850,8 @@
               keepalive: true,
             }).catch(function () {});
           }
+
+          window.kidsMapTrackEvent = send;
 
           document.addEventListener("click", function (event) {
             const target = event.target.closest("[data-track-event]");
@@ -878,6 +899,7 @@
 
       })();
     </script>
+    <script src="{% static 'js/ai_referral_tracking.js' %}"></script>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}
     {% endif %}

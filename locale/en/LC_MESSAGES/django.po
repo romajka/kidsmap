@@ -537,22 +537,16 @@ msgid "Обычный пользователь"
 msgstr "Regular user"
 
 #: src/catalog/controllers/home_controller.py:135
-#, fuzzy
-#| msgid "Найдите подходящее место для ребёнка"
 msgid "Найдите подходящее занятие для ребёнка"
-msgstr "Find the right place for your child"
+msgstr "Find the right activity for your child"
 
 #: src/catalog/controllers/home_controller.py:137
-#, fuzzy
-#| msgid "Спорт, творчество, музыка, образование — всё в одном месте."
 msgid "Кружки, курсы и события рядом — всё в одном месте."
-msgstr "Sports, creativity, music, and education in one place."
+msgstr "Nearby clubs, classes and events — all in one place."
 
 #: src/catalog/controllers/home_controller.py:138
-#, fuzzy
-#| msgid "Найти на карте"
 msgid "Найти занятие"
-msgstr "Find on the map"
+msgstr "Find activities"
 
 #: src/catalog/controllers/home_controller.py:142
 #: src/catalog/templates/pages/home.html:188
@@ -568,10 +562,8 @@ msgid "Семья"
 msgstr "Family"
 
 #: src/catalog/controllers/home_controller.py:179
-#, fuzzy
-#| msgid "Музыка и сцена"
 msgid "Музыка"
-msgstr "Music and stage"
+msgstr "Music"
 
 #: src/catalog/controllers/home_controller.py:184
 #: src/catalog/controllers/home_controller.py:199
@@ -4864,10 +4856,8 @@ msgstr "Moderation comment"
 #: src/catalog/domain_models/place.py:677 src/catalog/models/place.py:694
 #: src/catalog/models/place.py:718
 #: src/catalog/templates/catalog/place_list.html:799
-#, fuzzy
-#| msgid "Мероприятия"
 msgid "Мероприятие"
-msgstr "Events"
+msgstr "Event"
 
 #: src/catalog/domain_models/place.py:678 src/catalog/models/place.py:719
 #: src/catalog/templates/admin/catalog/event/change_list.html:20
@@ -7631,10 +7621,8 @@ msgstr "Select a rating from 1 to 5 to submit a review."
 
 #: src/catalog/templates/admin/catalog/placereview/moderation_confirm.html:193
 #: src/catalog/templates/catalog/place_detail.html:388
-#, fuzzy
-#| msgid "Дополнительная информация"
 msgid "Краткая информация"
-msgstr "Additional information"
+msgstr "At a glance"
 
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:31
 #, fuzzy
@@ -7865,7 +7853,7 @@ msgstr "Menu"
 #: src/catalog/templates/base.html:89 src/catalog/templates/base.html:124
 #: src/catalog/templates/base.html:262
 msgid "Афиша"
-msgstr ""
+msgstr "Events"
 
 #: src/catalog/templates/base.html:163
 #: src/catalog/templates/pages/home.html:527
@@ -8043,9 +8031,7 @@ msgstr "Open photo %(number)s"
 
 #: src/catalog/templates/catalog/place_detail.html:268
 #: src/catalog/templates/pages/home.html:459
-#, fuzzy, python-format
-#| msgid "%(total)s отзыв"
-#| msgid_plural "%(total)s отзывов"
+#, python-format
 msgid "%(total)s отзыв"
 msgid_plural "%(total)s отзыва"
 msgstr[0] "%(total)s review"
@@ -8067,8 +8053,6 @@ msgstr "No published reviews yet."
 #: src/catalog/templates/catalog/place_detail.html:328
 #: src/catalog/templates/pages/site_reviews.html:56
 #: src/catalog/templates/pages/site_reviews.html:76
-#, fuzzy
-#| msgid "Отправить отзыв"
 msgid "Оставить отзыв"
 msgstr "Leave a review"
 
@@ -8084,10 +8068,9 @@ msgid "Ваша оценка"
 msgstr "Your rating"
 
 #: src/catalog/templates/catalog/place_detail.html:357
-#, fuzzy, python-format
-#| msgid "Нет опубликованных карточек."
+#, python-format
 msgid "Отзыв будет опубликован от имени %(author)s."
-msgstr "No published listings."
+msgstr "The review will be published under the name %(author)s."
 
 #: src/catalog/templates/catalog/place_detail.html:362
 #: src/catalog/templates/pages/site_reviews.html:176
@@ -8104,10 +8087,8 @@ msgid "Отправить отзыв"
 msgstr "Submit review"
 
 #: src/catalog/templates/catalog/place_detail.html:371
-#, fuzzy
-#| msgid "Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь."
 msgid "Чтобы оставить отзыв, войдите или зарегистрируйтесь."
-msgstr "To like and leave reviews, sign in or register."
+msgstr "Sign in or register to leave a review."
 
 #: src/catalog/templates/catalog/place_detail.html:374
 #: src/catalog/templates/pages/site_reviews.html:186
@@ -8115,8 +8096,6 @@ msgid "Регистрация"
 msgstr "Register"
 
 #: src/catalog/templates/catalog/place_detail.html:574
-#, fuzzy
-#| msgid "Основное фото"
 msgid "Основные характеристики"
 msgstr "Key features"
 
@@ -8126,10 +8105,8 @@ msgstr "Place map"
 
 #: src/catalog/templates/catalog/place_detail.html:776
 #: src/catalog/templates/catalog/place_list.html:725
-#, fuzzy
-#| msgid "Постоянное"
 msgid "Постоянное место"
-msgstr "Permanent"
+msgstr "Permanent place"
 
 #: src/catalog/templates/catalog/place_list.html:230
 #: src/catalog/templates/catalog/place_list.html:246
@@ -8146,20 +8123,14 @@ msgstr "All"
 
 #: src/catalog/templates/catalog/place_list.html:268
 #: src/catalog/templates/catalog/place_list.html:269
-#, fuzzy
-#| msgid "Карта места"
 msgid "Тип места"
-msgstr "Place map"
+msgstr "Place type"
 
 #: src/catalog/templates/catalog/place_list.html:278
-#, fuzzy
-#| msgid "Временное"
 msgid "Временные"
 msgstr "Temporary"
 
 #: src/catalog/templates/catalog/place_list.html:283
-#, fuzzy
-#| msgid "Постоянное"
 msgid "Постоянные"
 msgstr "Permanent"
 
@@ -8189,14 +8160,10 @@ msgid "За 30 дней"
 msgstr "Last 30 days"
 
 #: src/catalog/templates/catalog/place_list.html:478
-#, fuzzy
-#| msgid "Район/метро"
 msgid "Найти метро"
 msgstr "Search metro stations"
 
 #: src/catalog/templates/catalog/place_list.html:499
-#, fuzzy
-#| msgid "Популярные категории"
 msgid "Популярные станции метро"
 msgstr "Popular metro stations"
 
@@ -8220,18 +8187,14 @@ msgstr "Search by title"
 
 #: src/catalog/templates/catalog/place_list.html:553
 msgid "Искать кружок или ключевое слово... например робототехника"
-msgstr ""
+msgstr "Search for a club or keyword... for example robotics"
 
 #: src/catalog/templates/catalog/place_list.html:559
-#, fuzzy
-#| msgid "Выберите фильтры"
 msgid "Выбранные фильтры"
 msgstr "Selected filters"
 
 #: src/catalog/templates/catalog/place_list.html:568
 #: src/catalog/templates/catalog/place_list.html:960
-#, fuzzy
-#| msgid "Запросить новую ссылку"
 msgid "Сбросить всё"
 msgstr "Reset all"
 
@@ -9419,7 +9382,11 @@ msgstr "No reviews yet. Be the first!"
 
 #: src/catalog/templates/pages/site_reviews.html:115
 msgid "Сейчас в ленте есть только оценки без комментариев. Оставьте первый письменный отзыв о сервисе KidsMap."
-msgstr ""
+msgstr "The feed currently contains ratings without comments. Leave the first written review of KidsMap."
+
+#: src/catalog/templates/pages/home.html
+msgid "Карта временно недоступна."
+msgstr "The map is temporarily unavailable."
 
 #: src/catalog/templates/pages/site_reviews.html:151
 msgid "Оставить отзыв о сайте"

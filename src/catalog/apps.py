@@ -6,6 +6,8 @@ class CatalogConfig(AppConfig):
     verbose_name = 'Каталог'
 
     def ready(self):
+        from catalog import indexnow_signals  # noqa: F401
+
         self._patch_jazzmin_paginator()
         
     def _patch_jazzmin_paginator(self):
