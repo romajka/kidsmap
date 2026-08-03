@@ -270,8 +270,11 @@ class Place(models.Model):
     def price_range_display(self) -> str:
         from catalog.services.pricing_plans import active_pricing_plan_range, format_price_amount
 
-        tariff_range = active_pricing_plan_range(self.pricing_plans)
-        price_from, price_to = tariff_range or (self.price_from, self.price_to)
+        if self.price_from is not None and self.price_to is not None:
+            price_from, price_to = self.price_from, self.price_to
+        else:
+            tariff_range = active_pricing_plan_range(self.pricing_plans)
+            price_from, price_to = tariff_range or (self.price_from, self.price_to)
         values = [value for value in (price_from, price_to) if value is not None]
         if values and all(value == 0 for value in values):
             return _localized_free_label(self._normalize_lang(None))
@@ -341,6 +344,11 @@ class Place(models.Model):
             has_azn_pricing_plans,
         )
 
+        if self.price_from is not None and self.price_to is not None:
+            minimum, maximum = self.price_from, self.price_to
+            if minimum == maximum:
+                return format_price_amount(minimum)
+            return f"{format_price_amount(minimum)}–{format_price_amount(maximum)}"
         tariff_range = active_pricing_plan_range(self.pricing_plans)
         if tariff_range is not None:
             minimum, maximum = tariff_range
@@ -554,19 +562,45 @@ class Place(models.Model):
     def save(self, *args, **kwargs):
         from catalog.services.pricing_plans import active_pricing_plan_range, has_azn_pricing_plans
 
-        tariff_range = active_pricing_plan_range(self.pricing_plans)
+        update_fields = kwargs.get("update_fields")
+        pricing_fields = {"pricing_plans", "price_from", "price_to"}
+        pricing_may_have_changed = update_fields is None or bool(set(update_fields) & pricing_fields)
         synchronized_fields = False
-        if tariff_range is not None:
-            minimum, maximum = tariff_range
-            if minimum == minimum.to_integral_value() and maximum == maximum.to_integral_value():
-                self.price_from, self.price_to = int(minimum), int(maximum)
+        if pricing_may_have_changed:
+            previous = None
+            if self.pk:
+                previous = (
+                    type(self).objects.filter(pk=self.pk)
+                    .values("pricing_plans", "price_from", "price_to")
+                    .first()
+                )
+
+            manual_range_complete = self.price_from is not None and self.price_to is not None
+            manual_range_changed = bool(previous) and (
+                self.price_from != previous["price_from"] or self.price_to != previous["price_to"]
+            )
+            previous_tariff_range = active_pricing_plan_range(previous["pricing_plans"]) if previous else None
+            previous_range_was_automatic = bool(previous_tariff_range) and (
+                previous["price_from"], previous["price_to"]
+            ) == tuple(
+                int(value) if value == value.to_integral_value() else value
+                for value in previous_tariff_range
+            )
+            should_synchronize = not manual_range_complete or (
+                previous_range_was_automatic and not manual_range_changed
+            )
+
+            tariff_range = active_pricing_plan_range(self.pricing_plans)
+            if should_synchronize and tariff_range is not None:
+                minimum, maximum = tariff_range
+                if minimum == minimum.to_integral_value() and maximum == maximum.to_integral_value():
+                    self.price_from, self.price_to = int(minimum), int(maximum)
+                    synchronized_fields = True
+            elif should_synchronize and has_azn_pricing_plans(self.pricing_plans):
+                self.price_from = None
+                self.price_to = None
                 synchronized_fields = True
-        elif has_azn_pricing_plans(self.pricing_plans):
-            self.price_from = None
-            self.price_to = None
-            synchronized_fields = True
         if synchronized_fields:
-            update_fields = kwargs.get("update_fields")
             if update_fields is not None:
                 kwargs["update_fields"] = set(update_fields) | {"price_from", "price_to"}
         if not self.slug:

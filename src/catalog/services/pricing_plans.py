@@ -434,6 +434,24 @@ def format_price_range(minimum, maximum, lang, currency=DEFAULT_CURRENCY):
 
 
 def get_starting_price(place, public_plans, lang):
+    # A complete admin range is explicit content and must not be overwritten
+    # by a narrower set of detailed tariffs (for example 3–50 vs 3–15).
+    tariff_range = active_pricing_plan_range(place.pricing_plans)
+    stored_range = (
+        Decimal(str(place.price_from)),
+        Decimal(str(place.price_to)),
+    ) if place.price_from is not None and place.price_to is not None else None
+    if stored_range is not None and stored_range != tariff_range:
+        minimum = place.price_from
+        maximum = place.price_to
+        return {
+            "amount": float(minimum),
+            "max_amount": float(maximum),
+            "payment_type": None,
+            "currency": DEFAULT_CURRENCY,
+            "formatted": format_price_range(minimum, maximum, lang),
+        }
+
     priced_plans = [plan for plan in public_plans if plan.get("price") not in (None, "")]
     if priced_plans:
         min_plan = min(priced_plans, key=lambda item: Decimal(str(item["price"])))

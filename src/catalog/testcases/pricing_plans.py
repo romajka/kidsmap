@@ -404,6 +404,25 @@ class PublicPricingSummaryTests(TestCase):
         self.assertEqual(self.place.card_price_badge, "3–50 AZN")
         self.assertEqual(summary["formatted_price"], "3–50 AZN")
 
+    def test_complete_manual_range_is_not_narrowed_by_tariffs(self):
+        from catalog.services.pricing_plans import build_pricing_summary
+
+        self.place.price_from = 3
+        self.place.price_to = 50
+        self.place.pricing_plans = [
+            {"lesson_format": "open_visit", "payment_type": "entry_ticket", "price": "3", "is_active": True},
+            {"lesson_format": "open_visit", "payment_type": "per_visit", "price": "15", "is_active": True},
+        ]
+        self.place.save()
+        self.place.refresh_from_db()
+
+        summary = build_pricing_summary(self.place, "ru")
+
+        self.assertEqual((self.place.price_from, self.place.price_to), (3, 50))
+        self.assertEqual(self.place.price_range_display, "3–50 AZN")
+        self.assertEqual(self.place.card_price_badge, "3–50 AZN")
+        self.assertEqual(summary["formatted_price"], "3–50 AZN")
+
     def test_disabling_all_tariffs_clears_the_automatic_range(self):
         from catalog.services.pricing_plans import build_pricing_summary
 
