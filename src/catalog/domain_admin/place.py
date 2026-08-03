@@ -1,5 +1,6 @@
 from django.conf import settings
 import json
+import logging
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
 from django.contrib.admin import helpers
@@ -38,6 +39,7 @@ from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepos
 from catalog.services.content_quality import place_quality_check, public_place_queryset
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
+from catalog.services.image_uploads import normalize_uploaded_image
 from catalog.services.pricing_plans import normalize_pricing_plans
 from catalog.services.place_schedule import FULL_DAY_LABELS, build_schedule_summary, serialize_place_schedule
 from .review import PlaceReviewInline
@@ -46,6 +48,7 @@ from .ui_utils import render_primary_action, render_action_menu, render_row_acti
 
 ADMIN_DATETIME_LOCAL_FORMAT = "%Y-%m-%dT%H:%M"
 DRAFT_PLACEHOLDER_NAME = "Черновик без названия"
+logger = logging.getLogger(__name__)
 
 PLACE_QUALITY_ERROR_LABELS = {
     "missing_name": _("не указано название"),
@@ -3807,11 +3810,7 @@ class PlaceAdmin(admin.ModelAdmin):
         if not obj or not obj.pk or not hasattr(request, "FILES"):
             return
 
-        uploads = [
-            uploaded_file
-            for uploaded_file in request.FILES.getlist("gallery_uploads")
-            if getattr(uploaded_file, "content_type", "").startswith("image/")
-        ]
+        uploads = request.FILES.getlist("gallery_uploads")
         if not uploads:
             return
 
@@ -3823,15 +3822,44 @@ class PlaceAdmin(admin.ModelAdmin):
 
         max_order = PlacePhoto.objects.filter(place=obj).aggregate(max_order=Max("order"))["max_order"] or 0
         created_count = 0
+        failed_count = 0
         for offset, uploaded_file in enumerate(uploads[:available_slots], start=1):
-            PlacePhoto.objects.create(
-                place=obj,
-                image=uploaded_file,
-                order=max_order + offset,
-            )
-            created_count += 1
+            try:
+                normalized = normalize_uploaded_image(uploaded_file)
+                PlacePhoto.objects.create(
+                    place=obj,
+                    image=normalized,
+                    order=max_order + offset,
+                )
+            except ValidationError as exc:
+                failed_count += 1
+                messages.error(
+                    request,
+                    _("%(name)s — ошибка: %(reason)s")
+                    % {"name": uploaded_file.name, "reason": "; ".join(exc.messages)},
+                )
+            except Exception:
+                failed_count += 1
+                logger.exception(
+                    "Admin gallery image persistence failed: place_id=%s name=%s size=%s mime=%s",
+                    obj.pk,
+                    uploaded_file.name,
+                    getattr(uploaded_file, "size", 0),
+                    getattr(uploaded_file, "content_type", ""),
+                )
+                messages.error(
+                    request,
+                    _("%(name)s — ошибка сохранения в хранилище.")
+                    % {"name": uploaded_file.name},
+                )
+            else:
+                created_count += 1
+                messages.success(
+                    request,
+                    _("%(name)s — загружено.") % {"name": uploaded_file.name},
+                )
 
-        skipped_count = len(uploads) - created_count
+        skipped_count = len(uploads) - created_count - failed_count
         if skipped_count > 0:
             messages.warning(
                 request,

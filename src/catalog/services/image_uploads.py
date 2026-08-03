@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from io import BytesIO
 from pathlib import Path
 
@@ -23,11 +24,20 @@ MAX_IMAGE_OUTPUT_BYTES = 2 * 1024 * 1024
 MAX_IMAGE_DIMENSION = 2400
 SUPPORTED_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP", "HEIF"}
 HEIF_EXTENSIONS = {".heic", ".heif", ".hif"}
+MIME_IMAGE_FORMATS = {
+    "image/jpeg": "JPEG",
+    "image/jpg": "JPEG",
+    "image/png": "PNG",
+    "image/webp": "WEBP",
+    "image/heic": "HEIF",
+    "image/heif": "HEIF",
+}
+logger = logging.getLogger(__name__)
 
 
 def _safe_output_name(original_name: str) -> str:
     stem = get_valid_filename(Path(original_name or "photo").stem).strip("._-") or "photo"
-    return f"{stem[:80]}.jpg"
+    return f"{stem[:80]}.webp"
 
 
 def _flatten_to_rgb(image: Image.Image) -> Image.Image:
@@ -41,20 +51,18 @@ def _flatten_to_rgb(image: Image.Image) -> Image.Image:
     return image.convert("RGB")
 
 
-def _encode_jpeg(image: Image.Image) -> bytes:
+def _encode_webp(image: Image.Image) -> bytes:
     working = image.copy()
     working.thumbnail((MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION), Image.Resampling.LANCZOS)
 
     for _resize_attempt in range(4):
-        for quality in (90, 82, 74, 65, 55):
+        for quality in (86, 80, 74, 68, 60):
             output = BytesIO()
             working.save(
                 output,
-                format="JPEG",
+                format="WEBP",
                 quality=quality,
-                optimize=True,
-                progressive=True,
-                exif=b"",
+                method=6,
             )
             if output.tell() <= MAX_IMAGE_OUTPUT_BYTES:
                 return output.getvalue()
@@ -69,8 +77,8 @@ def _encode_jpeg(image: Image.Image) -> bytes:
     )
 
 
-def normalize_uploaded_image(uploaded_file) -> ContentFile:
-    """Decode, orient, validate and normalize an uploaded photo to JPEG."""
+def _normalize_uploaded_image(uploaded_file) -> ContentFile:
+    """Decode, orient, validate and normalize an uploaded photo to WebP."""
     if not uploaded_file:
         return uploaded_file
 
@@ -105,14 +113,31 @@ def normalize_uploaded_image(uploaded_file) -> ContentFile:
                 _("Формат файла «%(name)s» не поддерживается. Используйте JPG, PNG, WEBP, HEIC или HEIF.")
                 % {"name": original_name}
             )
+        declared_mime = (getattr(uploaded_file, "content_type", "") or "").lower()
+        declared_format = MIME_IMAGE_FORMATS.get(declared_mime)
+        if declared_format and declared_format != detected_format:
+            raise ValidationError(
+                _("Файл «%(name)s» объявлен как %(mime)s, но внутри имеет формат %(format)s.")
+                % {"name": original_name, "mime": declared_mime, "format": detected_format}
+            )
 
         with Image.open(BytesIO(source)) as decoded:
             decoded.load()
+            logger.info(
+                "Image decoded: name=%s mime=%s format=%s width=%s height=%s mode=%s exif_orientation=%s",
+                original_name,
+                declared_mime,
+                detected_format,
+                decoded.width,
+                decoded.height,
+                decoded.mode,
+                decoded.getexif().get(274, 1),
+            )
             oriented = ImageOps.exif_transpose(decoded)
             normalized = _flatten_to_rgb(oriented)
             if normalized.width < 1 or normalized.height < 1:
                 raise ValidationError(_("Фотография «%(name)s» имеет некорректный размер.") % {"name": original_name})
-            output_bytes = _encode_jpeg(normalized)
+            output_bytes = _encode_webp(normalized)
     except ValidationError:
         raise
     except (Image.DecompressionBombError, Image.DecompressionBombWarning):
@@ -131,5 +156,31 @@ def normalize_uploaded_image(uploaded_file) -> ContentFile:
             pass
 
     normalized_file = ContentFile(output_bytes, name=_safe_output_name(original_name))
-    normalized_file.content_type = "image/jpeg"
+    normalized_file.content_type = "image/webp"
     return normalized_file
+
+
+def normalize_uploaded_image(uploaded_file) -> ContentFile:
+    """Normalize one upload and log enough metadata to diagnose every failure."""
+    if not uploaded_file:
+        return uploaded_file
+    metadata = {
+        "name": getattr(uploaded_file, "name", "") or "photo",
+        "size": int(getattr(uploaded_file, "size", 0) or 0),
+        "mime": getattr(uploaded_file, "content_type", "") or "",
+    }
+    try:
+        normalized = _normalize_uploaded_image(uploaded_file)
+    except ValidationError as exc:
+        logger.warning("Image upload rejected: %s; reason=%s", metadata, "; ".join(exc.messages))
+        raise
+    except Exception:
+        logger.exception("Image upload processing failed: %s", metadata)
+        raise
+    logger.info(
+        "Image upload normalized: %s; output_name=%s; output_size=%s",
+        metadata,
+        normalized.name,
+        normalized.size,
+    )
+    return normalized

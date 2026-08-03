@@ -38,13 +38,14 @@ def build_image_upload(
 
 
 class TestOwnerImageNormalization(TestCase):
-    def test_png_is_decoded_and_saved_as_jpeg(self):
+    def test_png_is_decoded_and_saved_as_webp(self):
         normalized = normalize_uploaded_image(build_image_upload("кружок photo.PNG"))
 
-        self.assertTrue(normalized.name.endswith(".jpg"))
+        self.assertTrue(normalized.name.endswith(".webp"))
+        self.assertEqual(normalized.content_type, "image/webp")
         self.assertLessEqual(normalized.size, 2 * 1024 * 1024)
         with Image.open(normalized) as image:
-            self.assertEqual(image.format, "JPEG")
+            self.assertEqual(image.format, "WEBP")
             self.assertEqual(image.size, (48, 32))
 
     def test_exif_orientation_is_applied(self):
@@ -64,7 +65,7 @@ class TestOwnerImageNormalization(TestCase):
             self.assertEqual(image.size, (20, 40))
             self.assertEqual(image.getexif().get(274, 1), 1)
 
-    def test_heic_is_converted_to_jpeg(self):
+    def test_heic_is_converted_to_webp(self):
         upload = build_image_upload(
             "IMG_1234.HEIC",
             image_format="HEIF",
@@ -74,9 +75,9 @@ class TestOwnerImageNormalization(TestCase):
 
         normalized = normalize_uploaded_image(upload)
 
-        self.assertEqual(normalized.name, "IMG_1234.jpg")
+        self.assertEqual(normalized.name, "IMG_1234.webp")
         with Image.open(normalized) as image:
-            self.assertEqual(image.format, "JPEG")
+            self.assertEqual(image.format, "WEBP")
             self.assertEqual(image.size, (60, 45))
 
     def test_corrupt_image_has_clear_validation_error(self):
@@ -84,6 +85,31 @@ class TestOwnerImageNormalization(TestCase):
 
         with self.assertRaisesMessage(ValidationError, "Не удалось прочитать"):
             normalize_uploaded_image(upload)
+
+    def test_mime_mismatch_has_clear_validation_error_and_is_logged(self):
+        upload = build_image_upload("wrong.jpg", image_format="PNG", content_type="image/jpeg")
+
+        with self.assertLogs("catalog.services.image_uploads", level="WARNING") as logs:
+            with self.assertRaisesMessage(ValidationError, "объявлен как image/jpeg"):
+                normalize_uploaded_image(upload)
+
+        self.assertIn("wrong.jpg", " ".join(logs.output))
+
+    def test_progressive_cmyk_jpeg_is_normalized(self):
+        output = BytesIO()
+        Image.new("CMYK", (64, 48), (10, 20, 30, 5)).save(
+            output,
+            format="JPEG",
+            progressive=True,
+        )
+        upload = SimpleUploadedFile("print-profile.jpg", output.getvalue(), content_type="image/jpeg")
+
+        normalized = normalize_uploaded_image(upload)
+
+        with Image.open(normalized) as image:
+            self.assertEqual(image.format, "WEBP")
+            self.assertEqual(image.mode, "RGB")
+            self.assertEqual(image.size, (64, 48))
 
     def test_non_heic_source_larger_than_two_mb_is_rejected(self):
         upload = SimpleUploadedFile(
@@ -198,7 +224,7 @@ class TestOwnerImagePersistenceFailures(TestCase):
         place.refresh_from_db()
         replacement_name = place.photo.name
         self.assertNotEqual(replacement_name, old_name)
-        self.assertTrue(replacement_name.endswith(".jpg"))
+        self.assertTrue(replacement_name.endswith(".webp"))
         self.assertTrue(storage.exists(replacement_name))
         self.assertFalse(storage.exists(old_name))
 
@@ -250,7 +276,7 @@ class TestOwnerImagePersistenceFailures(TestCase):
         gallery_photos = list(place.gallery.order_by("order"))
         self.assertEqual(len(gallery_photos), 2)
         for gallery_photo in gallery_photos:
-            self.assertTrue(gallery_photo.image.name.endswith(".jpg"))
+            self.assertTrue(gallery_photo.image.name.endswith(".webp"))
             self.assertTrue(gallery_photo.image.storage.exists(gallery_photo.image.name))
 
         deleted_photo = gallery_photos[0]

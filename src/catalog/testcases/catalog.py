@@ -92,6 +92,70 @@ class PublicSlugTests(TestCase):
         self.assertTrue(place.get_absolute_url().isascii())
 
 
+class CatalogMapQueryEfficiencyTests(TestCase):
+    def test_map_uses_the_same_svg_as_museum_catalog_category(self):
+        category, _ = Category.objects.update_or_create(
+            code="museums-culture",
+            defaults={
+                "name": "Museums & culture",
+                "name_ru": "Музеи и культура",
+                "icon": "img/icon/cooliocns SVG/Navigation/Building_04.svg",
+            },
+        )
+        place = create_quality_place(
+            name="Museum map icon",
+            category=category,
+            lat=40.37,
+            lng=49.84,
+        )
+
+        serialized = PlaceController.build_default()._serialize_map_places(
+            DjangoPlaceRepository().map_ready_queryset(Place.objects.filter(pk=place.pk)),
+            language_code="ru",
+        )
+
+        self.assertEqual(serialized[0]["category_icon_url"], category.icon_file_url)
+        self.assertEqual(serialized[0]["category_icon_svg"], category.icon_svg_source)
+        self.assertIn('id="Navigation / Building_04"', serialized[0]["category_icon_svg"])
+
+    def test_map_serialization_query_count_does_not_grow_with_schedules(self):
+        place_ids = []
+        for index in range(2):
+            place = create_quality_place(
+                name=f"Map schedule {index}",
+                name_ru=f"Расписание на карте {index}",
+                lat=40.37 + index * 0.01,
+                lng=49.84 + index * 0.01,
+            )
+            day = PlaceScheduleDay.objects.create(
+                place=place,
+                weekday="mon",
+                is_closed=False,
+                order=0,
+            )
+            PlaceScheduleInterval.objects.create(
+                schedule_day=day,
+                start_time="10:00",
+                end_time="12:00",
+                order=0,
+            )
+            place_ids.append(place.pk)
+
+        repository = DjangoPlaceRepository()
+        queryset = repository.map_ready_queryset(
+            repository.active_queryset().filter(pk__in=place_ids)
+        )
+
+        with self.assertNumQueries(3):
+            serialized = PlaceController.build_default()._serialize_map_places(
+                queryset,
+                language_code="ru",
+            )
+
+        self.assertEqual(len(serialized), 2)
+        self.assertTrue(all(item["schedule"] for item in serialized))
+
+
 class PostgreSqlUniquenessTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(

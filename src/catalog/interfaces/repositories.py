@@ -37,7 +37,7 @@ class IPlaceRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def map_ready_queryset(self) -> QuerySet:
+    def map_ready_queryset(self, queryset: QuerySet | None = None) -> QuerySet:
         raise NotImplementedError
 
     @abstractmethod

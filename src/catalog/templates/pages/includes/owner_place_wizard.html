@@ -482,6 +482,7 @@
                       <img src="{{ gallery_photo.image.url }}" alt="" class="owner-file-uploader-mini-preview" loading="lazy" />
                     </a>
                     <span class="owner-file-uploader-item-name">{{ gallery_photo.image.name|cut:"places/gallery/" }}</span>
+                    <span class="owner-file-uploader-item-status is-uploaded">{% if CURRENT_LANGUAGE == "az" %}Yükləndi{% elif CURRENT_LANGUAGE == "en" %}Uploaded{% else %}Загружено{% endif %}</span>
                     <div class="owner-file-uploader-item-actions">
                       <button
                         type="submit"

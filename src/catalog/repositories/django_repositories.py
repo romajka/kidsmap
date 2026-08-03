@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
@@ -37,12 +38,15 @@ from catalog.models import (
     UserEmailVerification,
     UserProfile,
 )
+
 from catalog.services.content_quality import (
     approved_review_queryset,
     public_place_queryset,
     public_review_queryset,
 )
 from catalog.services.features import is_events_section_enabled
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -61,9 +65,10 @@ class DjangoPlaceRepository(IPlaceRepository):
             return recommended_places.order_by("home_recommended_order", "-updated_at", "-likes_count")[:limit]
         return active_places.order_by("-likes_count", "-updated_at")[:limit]
 
-    def map_ready_queryset(self) -> QuerySet:
+    def map_ready_queryset(self, queryset: QuerySet | None = None) -> QuerySet:
+        base_queryset = queryset if queryset is not None else self.active_queryset()
         return (
-            self.active_queryset()
+            base_queryset
             .select_related("subcategory")
             .prefetch_related("schedule_days__intervals")
             .exclude(lat__isnull=True)
@@ -301,6 +306,13 @@ class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
                 try:
                     photo.save()
                 except Exception:
+                    logger.exception(
+                        "Gallery image persistence failed: place_id=%s name=%s size=%s mime=%s",
+                        place.pk,
+                        getattr(image, "name", ""),
+                        getattr(image, "size", 0),
+                        getattr(image, "content_type", ""),
+                    )
                     if photo.image.name:
                         try:
                             photo.image.storage.delete(photo.image.name)
@@ -317,7 +329,7 @@ class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
                         photo.image.storage.delete(photo.image.name)
                     except Exception:
                         pass
-            raise OSError("Gallery image persistence failed") from exc
+            raise OSError(f"Gallery image persistence failed: {exc}") from exc
 
 
 class DjangoOwnerTeamRepository(IOwnerTeamRepository):

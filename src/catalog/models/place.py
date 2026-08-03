@@ -268,17 +268,21 @@ class Place(models.Model):
 
     @property
     def price_range_display(self) -> str:
-        values = [value for value in (self.price_from, self.price_to) if value is not None]
+        from catalog.services.pricing_plans import active_pricing_plan_range, format_price_amount
+
+        tariff_range = active_pricing_plan_range(self.pricing_plans)
+        price_from, price_to = tariff_range or (self.price_from, self.price_to)
+        values = [value for value in (price_from, price_to) if value is not None]
         if values and all(value == 0 for value in values):
             return _localized_free_label(self._normalize_lang(None))
-        if self.price_from is not None and self.price_to is not None:
-            if self.price_from == self.price_to:
-                return f"{self.price_from} AZN"
-            return f"{self.price_from}-{self.price_to} AZN"
-        if self.price_from is not None:
-            return f"{self.price_from} AZN"
-        if self.price_to is not None:
-            return f"{self.price_to} AZN"
+        if price_from is not None and price_to is not None:
+            if price_from == price_to:
+                return f"{format_price_amount(price_from)} AZN"
+            return f"{format_price_amount(price_from)}–{format_price_amount(price_to)} AZN"
+        if price_from is not None:
+            return f"{format_price_amount(price_from)} AZN"
+        if price_to is not None:
+            return f"{format_price_amount(price_to)} AZN"
         return ""
 
     @property
@@ -289,44 +293,74 @@ class Place(models.Model):
 
     @property
     def card_price_badge(self) -> str:
-        if self.price_per_lesson is not None:
-            if self.price_per_lesson == 0:
-                return _localized_free_label(self._normalize_lang(None))
-            return _("1 урок · %(price)s AZN") % {"price": self.price_per_lesson}
         if self.price_range_display == _localized_free_label(self._normalize_lang(None)):
+            return self.price_range_display
+        from catalog.services.pricing_plans import active_pricing_plan_range, has_azn_pricing_plans
+
+        if active_pricing_plan_range(self.pricing_plans) is not None:
+            return self.price_range_display
+        if self.price_from is not None and self.price_to is not None:
             return self.price_range_display
         if self.price_from is not None:
             return _("от %(price)s AZN") % {"price": self.price_from}
         if self.price_to is not None:
             return _("до %(price)s AZN") % {"price": self.price_to}
+        if has_azn_pricing_plans(self.pricing_plans):
+            return ""
+        if self.price_per_lesson is not None:
+            if self.price_per_lesson == 0:
+                return _localized_free_label(self._normalize_lang(None))
+            return _("1 урок · %(price)s AZN") % {"price": self.price_per_lesson}
         return ""
 
     @property
     def card_price_badge_label(self) -> str:
-        if self.price_per_lesson is not None:
-            if self.price_per_lesson == 0:
-                return ""
-            return str(_("1 урок"))
         if self.price_range_display == _localized_free_label(self._normalize_lang(None)):
+            return ""
+        from catalog.services.pricing_plans import active_pricing_plan_range
+
+        if active_pricing_plan_range(self.pricing_plans) is not None or (
+            self.price_from is not None and self.price_to is not None
+        ):
             return ""
         if self.price_from is not None:
             return str(_("от"))
         if self.price_to is not None:
             return str(_("до"))
+        if self.price_per_lesson is not None:
+            return "" if self.price_per_lesson == 0 else str(_("1 урок"))
         return ""
 
     @property
     def card_price_badge_value(self) -> str:
+        if self.price_range_display == _localized_free_label(self._normalize_lang(None)):
+            return self.price_range_display
+        from catalog.services.pricing_plans import (
+            active_pricing_plan_range,
+            format_price_amount,
+            has_azn_pricing_plans,
+        )
+
+        tariff_range = active_pricing_plan_range(self.pricing_plans)
+        if tariff_range is not None:
+            minimum, maximum = tariff_range
+            if minimum == maximum:
+                return format_price_amount(minimum)
+            return f"{format_price_amount(minimum)}–{format_price_amount(maximum)}"
+        if self.price_from is not None and self.price_to is not None:
+            if self.price_from == self.price_to:
+                return format_price_amount(self.price_from)
+            return f"{format_price_amount(self.price_from)}–{format_price_amount(self.price_to)}"
+        if self.price_from is not None:
+            return format_price_amount(self.price_from)
+        if self.price_to is not None:
+            return format_price_amount(self.price_to)
+        if has_azn_pricing_plans(self.pricing_plans):
+            return ""
         if self.price_per_lesson is not None:
             if self.price_per_lesson == 0:
                 return _localized_free_label(self._normalize_lang(None))
             return str(self.price_per_lesson)
-        if self.price_range_display == _localized_free_label(self._normalize_lang(None)):
-            return self.price_range_display
-        if self.price_from is not None:
-            return str(self.price_from)
-        if self.price_to is not None:
-            return str(self.price_to)
         return ""
 
     @property
@@ -518,6 +552,23 @@ class Place(models.Model):
         )
 
     def save(self, *args, **kwargs):
+        from catalog.services.pricing_plans import active_pricing_plan_range, has_azn_pricing_plans
+
+        tariff_range = active_pricing_plan_range(self.pricing_plans)
+        synchronized_fields = False
+        if tariff_range is not None:
+            minimum, maximum = tariff_range
+            if minimum == minimum.to_integral_value() and maximum == maximum.to_integral_value():
+                self.price_from, self.price_to = int(minimum), int(maximum)
+                synchronized_fields = True
+        elif has_azn_pricing_plans(self.pricing_plans):
+            self.price_from = None
+            self.price_to = None
+            synchronized_fields = True
+        if synchronized_fields:
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None:
+                kwargs["update_fields"] = set(update_fields) | {"price_from", "price_to"}
         if not self.slug:
             self.slug = self._build_unique_slug()
         if self.district:

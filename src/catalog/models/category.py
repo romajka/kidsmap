@@ -1,10 +1,58 @@
+import os
+from functools import lru_cache
+from pathlib import Path
+from xml.etree import ElementTree
+
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.staticfiles import finders
 from django.db import models
 from django.templatetags.static import static
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
-from django.utils import timezone
-import os
+
+
+@lru_cache(maxsize=128)
+def _read_local_svg_icon(icon_name: str) -> str:
+    """Read a local category SVG for reuse by map markers."""
+    value = (icon_name or "").strip()
+    if not value.lower().endswith(".svg") or value.startswith(("http://", "https://")):
+        return ""
+
+    path = None
+    static_url = settings.STATIC_URL or "/static/"
+    media_url = settings.MEDIA_URL or "/media/"
+    if value.startswith(media_url):
+        media_root = Path(settings.MEDIA_ROOT).resolve()
+        candidate = (media_root / value[len(media_url):].lstrip("/")).resolve()
+        if candidate.is_relative_to(media_root):
+            path = candidate
+    else:
+        static_name = value[len(static_url):] if value.startswith(static_url) else value.lstrip("/")
+        found = finders.find(static_name)
+        if isinstance(found, (list, tuple)):
+            found = found[0] if found else None
+        if found:
+            path = Path(found)
+
+    if not path:
+        return ""
+    try:
+        if not path.is_file() or path.stat().st_size > 500 * 1024:
+            return ""
+        source = path.read_text(encoding="utf-8")
+        root = ElementTree.fromstring(source)
+    except (OSError, UnicodeDecodeError, ElementTree.ParseError):
+        return ""
+    if root.tag.rsplit("}", 1)[-1] != "svg":
+        return ""
+    for element in root.iter():
+        if element.tag.rsplit("}", 1)[-1] in {"script", "foreignObject"}:
+            return ""
+        if any(attribute.lower().startswith("on") for attribute in element.attrib):
+            return ""
+    return source
 
 
 CATEGORY_COLOR_PRESETS = {
@@ -111,6 +159,10 @@ class Category(models.Model):
     @property
     def icon_is_font_class(self):
         return bool(self.icon_name and not self.icon_file_url)
+
+    @property
+    def icon_svg_source(self):
+        return _read_local_svg_icon(self.icon_name)
 
     @property
     def color_preset(self):

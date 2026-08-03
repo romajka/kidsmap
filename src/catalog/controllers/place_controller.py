@@ -82,7 +82,7 @@ class PlaceController:
             qs = qs.exclude(id__in=[place.id for place in timeline_places])
         else:
             map_places = self._serialize_map_places(
-                qs.exclude(lat__isnull=True).exclude(lng__isnull=True),
+                self.place_repository.map_ready_queryset(qs),
                 language_code=language_code,
             )
 
@@ -724,6 +724,7 @@ class PlaceController:
                     "category_icon_is_svg": cat_icon_is_svg,
                     "category_icon_is_font": cat_icon_is_font,
                     "category_icon_name": cat_icon_name,
+                    "category_icon_svg": place.category.icon_svg_source if place.category else "",
                     "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
                     "price": str(place.card_price_badge),
                     "location": " / ".join(location_parts),

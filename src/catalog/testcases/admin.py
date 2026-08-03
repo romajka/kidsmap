@@ -1346,6 +1346,8 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(len(self.place.pricing_plans), 2)
         self.assertEqual(self.place.pricing_plans[0]["price"], "120.00")
         self.assertEqual(self.place.pricing_plans[1]["price"], "40.00")
+        self.assertEqual(self.place.price_from, 40)
+        self.assertEqual(self.place.price_to, 120)
 
     def test_place_admin_saves_gallery_photo_with_draft(self):
         payload = self._admin_place_change_payload(

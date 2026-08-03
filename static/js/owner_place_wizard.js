@@ -1394,6 +1394,15 @@
     const removeLabel = uploader.dataset.uploadRemoveLabel || "Remove";
     const makeMainLabel = uploader.dataset.uploadMakeMainLabel || "Make main";
     const mainLabel = uploader.dataset.uploadMainLabel || "Main photo";
+    const readyLabel = uploader.dataset.uploadReady || "Ready to upload";
+    const rejectedStatuses = Array.from(uploader._rejectedFileStatuses || []);
+    const rejectedHtml = rejectedStatuses.map(function (item) {
+      return '<article class="owner-file-uploader-item is-error" data-filename="' + escapeHtml(item.name) + '">' +
+        '<span class="owner-file-uploader-item-name">' + escapeHtml(item.name) + '</span>' +
+        '<span class="owner-file-uploader-item-status is-error">' + escapeHtml(uploader.dataset.uploadErrorStatus || "Error") + '</span>' +
+        '<span class="owner-file-uploader-item-meta">' + escapeHtml(item.message) + '</span>' +
+      '</article>';
+    }).join("");
     const files = getSelectedFiles(input);
     const isSingleUploader = uploader.dataset.uploadMode === "single";
     const maxFiles = Number(uploader.dataset.uploadMaxFiles || (isSingleUploader ? 1 : 10));
@@ -1414,7 +1423,11 @@
       meta.textContent = emptyMessage;
       uploader.classList.remove("is-selected");
       if (list) {
-        if (!hasInitial) {
+        if (rejectedHtml) {
+          list.hidden = false;
+          list.classList.remove("is-empty");
+          list.innerHTML = rejectedHtml;
+        } else if (!hasInitial) {
           list.hidden = false;
           list.classList.add("is-empty");
           const lang = document.documentElement.lang || "ru";
@@ -1469,9 +1482,10 @@
             '<span class="owner-file-uploader-preview-badge">' + escapeHtml(mainLabel) + '</span>' +
             '<strong class="owner-file-uploader-preview-name">' + escapeHtml(file.name) + '</strong>' +
             '<span class="owner-file-uploader-preview-meta">' + escapeHtml(formatFileSize(file.size)) + '</span>' +
+            '<span class="owner-file-uploader-item-status is-ready">' + escapeHtml(readyLabel) + '</span>' +
           '</div>' +
           '<button type="button" class="owner-file-uploader-preview-remove" data-remove-file aria-label="' + escapeHtml(removeLabel) + '">' + escapeHtml(removeLabel) + '</button>' +
-        '</div>';
+        '</div>' + rejectedHtml;
       return;
     }
 
@@ -1484,8 +1498,8 @@
       }
       const makeMainBtn = '<button type="button" class="owner-file-uploader-item-main" data-make-main-file>' + escapeHtml(makeMainLabel) + '</button>';
       const removeBtn = '<button type="button" class="owner-file-uploader-item-remove" data-remove-file aria-label="' + escapeHtml(removeLabel) + '">' + escapeHtml(removeLabel) + '</button>';
-      return '<article class="owner-file-uploader-item" data-filename="' + escapeHtml(file.name) + '">' + previewHtml + '<span class="owner-file-uploader-item-name">' + escapeHtml(file.name) + '</span><span class="owner-file-uploader-item-meta">' + escapeHtml(formatFileSize(file.size)) + '</span><div class="owner-file-uploader-item-actions">' + makeMainBtn + removeBtn + '</div></article>';
-    }).join("");
+      return '<article class="owner-file-uploader-item" data-filename="' + escapeHtml(file.name) + '">' + previewHtml + '<span class="owner-file-uploader-item-name">' + escapeHtml(file.name) + '</span><span class="owner-file-uploader-item-meta">' + escapeHtml(formatFileSize(file.size)) + '</span><span class="owner-file-uploader-item-status is-ready">' + escapeHtml(readyLabel) + '</span><div class="owner-file-uploader-item-actions">' + makeMainBtn + removeBtn + '</div></article>';
+    }).join("") + rejectedHtml;
   }
 
   function setUploaderError(uploader, messages) {
@@ -1669,7 +1683,10 @@
             encode: "uploadEncodeError",
             decode: "uploadDecodeError"
           }[code] || "uploadDecodeError";
-          errors.push(uploaderFileMessage(uploader, messageKey, failedFile));
+          errors.push({
+            file: failedFile,
+            message: uploaderFileMessage(uploader, messageKey, failedFile)
+          });
         }
       }
       return filterUploaderFiles(uploader, prepared, existingFiles, errors);
@@ -1684,29 +1701,46 @@
     const maxFiles = Number(uploader.dataset.uploadMaxFiles || (isSingle ? 1 : 10));
     const maxSize = Number(uploader.dataset.uploadMaxSize || 0);
     const accepted = new DataTransfer();
-    const errors = Array.from(initialErrors || []);
+    const errors = [];
+    const rejectedStatuses = [];
     const seen = new Set();
+
+    function rejectFile(file, message) {
+      errors.push(message);
+      rejectedStatuses.push({
+        name: String(file && file.name || "photo"),
+        message: message
+      });
+    }
+
+    Array.from(initialErrors || []).forEach(function (item) {
+      if (typeof item === "string") {
+        errors.push(item);
+      } else if (item && item.message) {
+        rejectFile(item.file, item.message);
+      }
+    });
 
     function tryAdd(file) {
       if (!file) return;
       if (!file.size) {
-        errors.push(uploaderFileMessage(uploader, "uploadEmptyFile", file));
+        rejectFile(file, uploaderFileMessage(uploader, "uploadEmptyFile", file));
         return;
       }
       const hasSupportedExtension = /\.(?:heic|heif|hif|jpe?g|png|webp)$/i.test(String(file.name || ""));
       const fileType = String(file.type || "").toLowerCase();
       const hasSupportedMime = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(fileType);
       if (!hasSupportedMime && !hasSupportedExtension) {
-        errors.push(uploaderFileMessage(uploader, "uploadBadTypeFile", file, uploader.dataset.uploadBadType || ""));
+        rejectFile(file, uploaderFileMessage(uploader, "uploadBadTypeFile", file, uploader.dataset.uploadBadType || ""));
         return;
       }
       if (maxSize && file.size > maxSize) {
-        errors.push(uploaderFileMessage(uploader, "uploadTooLargeFile", file, uploader.dataset.uploadTooLarge || ""));
+        rejectFile(file, uploaderFileMessage(uploader, "uploadTooLargeFile", file, uploader.dataset.uploadTooLarge || ""));
         return;
       }
       if (seen.has(fileKey(file))) return;
       if (accepted.files.length >= maxFiles) {
-        errors.push(uploader.dataset.uploadTooMany || "");
+        rejectFile(file, uploader.dataset.uploadTooMany || "");
         return;
       }
       accepted.items.add(file);
@@ -1731,6 +1765,7 @@
     } else if (input) {
       input.files = accepted.files;
     }
+    uploader._rejectedFileStatuses = rejectedStatuses;
     setUploaderError(uploader, errors);
     return accepted.files;
   }
@@ -1954,6 +1989,11 @@
       if (input && meta && getSelectedFiles(input).length) {
         meta.textContent = uploader.dataset.uploadServerProcessing || uploader.dataset.uploadPending || "";
         uploader.classList.add("is-processing");
+        uploader.querySelectorAll(".owner-file-uploader-item-status").forEach(function (status) {
+          status.classList.remove("is-ready");
+          status.classList.add("is-uploading");
+          status.textContent = uploader.dataset.uploadUploading || "Uploading…";
+        });
       }
     });
     allowNavigation = true;

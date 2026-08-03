@@ -21,6 +21,9 @@
   data-upload-encode-error="{% if CURRENT_LANGUAGE == 'az' %}“{name}” brauzerdə emal edilmədi. Faylı JPG və ya PNG kimi saxlayıb yenidən yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}“{name}” could not be processed in this browser. Save it as JPG or PNG and try again.{% else %}«{name}» не удалось обработать в браузере. Сохраните файл как JPG или PNG и попробуйте снова.{% endif %}"
   data-upload-optimizing="{% if CURRENT_LANGUAGE == 'az' %}Şəkillər optimallaşdırılır…{% elif CURRENT_LANGUAGE == 'en' %}Optimizing photos…{% else %}{% trans 'Оптимизируем фотографии…' %}{% endif %}"
   data-upload-server-processing="{% if CURRENT_LANGUAGE == 'az' %}Şəkillər yüklənir və serverdə yoxlanılır…{% elif CURRENT_LANGUAGE == 'en' %}Uploading and validating photos…{% else %}{% trans 'Загружаем и проверяем фотографии…' %}{% endif %}"
+  data-upload-ready="{% if CURRENT_LANGUAGE == 'az' %}Yükləməyə hazırdır{% elif CURRENT_LANGUAGE == 'en' %}Ready to upload{% else %}Готово к загрузке{% endif %}"
+  data-upload-uploading="{% if CURRENT_LANGUAGE == 'az' %}Yüklənir…{% elif CURRENT_LANGUAGE == 'en' %}Uploading…{% else %}Загружается…{% endif %}"
+  data-upload-error-status="{% if CURRENT_LANGUAGE == 'az' %}Xəta{% elif CURRENT_LANGUAGE == 'en' %}Error{% else %}Ошибка{% endif %}"
   data-upload-remove-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}"
   data-upload-make-main-label="{% if CURRENT_LANGUAGE == 'az' %}Əsas et{% elif CURRENT_LANGUAGE == 'en' %}Make main{% else %}{% trans 'Сделать главным' %}{% endif %}"
 >

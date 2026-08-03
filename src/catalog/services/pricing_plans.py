@@ -182,6 +182,49 @@ def public_pricing_plans(value, language=None):
     return result
 
 
+def active_pricing_plan_range(value):
+    """Return the canonical min/max price for active tariffs, if any."""
+    try:
+        plans = normalize_pricing_plans(value, strict=False)
+    except ValidationError:
+        return None
+
+    prices = []
+    for plan in plans:
+        if not plan.get("is_active", True) or plan.get("price") in (None, ""):
+            continue
+        # Place.price_from/price_to are AZN fields. Other currencies stay in
+        # their tariff rows and must never overwrite the card's AZN range.
+        if (plan.get("currency") or DEFAULT_CURRENCY).upper() != DEFAULT_CURRENCY:
+            continue
+        try:
+            prices.append(Decimal(str(plan["price"])))
+        except (InvalidOperation, TypeError, ValueError):
+            continue
+    if not prices:
+        return None
+    return min(prices), max(prices)
+
+
+def has_azn_pricing_plans(value):
+    """Whether valid AZN tariff rows exist, including inactive rows."""
+    try:
+        plans = normalize_pricing_plans(value, strict=False)
+    except ValidationError:
+        return False
+    return any(
+        (plan.get("currency") or DEFAULT_CURRENCY).upper() == DEFAULT_CURRENCY
+        for plan in plans
+    )
+
+
+def format_price_amount(value) -> str:
+    amount = Decimal(str(value))
+    if amount == amount.to_integral_value():
+        return str(int(amount))
+    return format(amount.normalize(), "f")
+
+
 LOCALIZED_STRINGS = {
     "az": {
         "title": "Qiymət və dərslər",
@@ -207,6 +250,7 @@ LOCALIZED_STRINGS = {
         "show_all": "Bütün tarifləri göstər",
         "hide_all": "Tarifləri gizlət",
         "price_unknown": "Qiymət təşkilatla dəqiqləşdirilir",
+        "free": "Pulsuz",
         "group": "Qrup",
         "individual": "Fərdi",
         "open_visit": "Sərbəst ziyarət",
@@ -238,6 +282,7 @@ LOCALIZED_STRINGS = {
         "show_all": "Показать все тарифы",
         "hide_all": "Скрыть тарифы",
         "price_unknown": "Цена уточняется у организации",
+        "free": "Бесплатно",
         "group": "Групповые",
         "individual": "Индивидуальные",
         "open_visit": "Свободное посещение",
@@ -269,6 +314,7 @@ LOCALIZED_STRINGS = {
         "show_all": "Show all pricing plans",
         "hide_all": "Hide pricing plans",
         "price_unknown": "Price is specified by organization",
+        "free": "Free",
         "group": "Group",
         "individual": "Individual",
         "open_visit": "Open visit",
@@ -374,96 +420,78 @@ def _format_starting_price(amount, payment_type, lang, currency=DEFAULT_CURRENCY
     return {"full": amount_display, "amount": amount_display, "unit": ""}
 
 
+def format_price_range(minimum, maximum, lang, currency=DEFAULT_CURRENCY):
+    strings = LOCALIZED_STRINGS.get(lang, LOCALIZED_STRINGS["ru"])
+    minimum_value = Decimal(str(minimum))
+    maximum_value = Decimal(str(maximum))
+    if minimum_value == maximum_value == 0:
+        text = strings["free"]
+    elif minimum_value == maximum_value:
+        text = f"{format_price_amount(minimum_value)} {currency}"
+    else:
+        text = f"{format_price_amount(minimum_value)}–{format_price_amount(maximum_value)} {currency}"
+    return {"full": text, "amount": text, "unit": ""}
+
+
 def get_starting_price(place, public_plans, lang):
-    # 1. Try active per_lesson plans minimum price
-    per_lesson_plans = [p for p in public_plans if p.get("payment_type") == "per_lesson" and p.get("price") not in (None, "") and float(p.get("price")) > 0]
-    if per_lesson_plans:
-        min_plan = min(per_lesson_plans, key=lambda x: float(x["price"]))
-        price_val = float(min_plan["price"])
+    priced_plans = [plan for plan in public_plans if plan.get("price") not in (None, "")]
+    if priced_plans:
+        min_plan = min(priced_plans, key=lambda item: Decimal(str(item["price"])))
+        max_plan = max(priced_plans, key=lambda item: Decimal(str(item["price"])))
+        minimum = Decimal(str(min_plan["price"]))
+        maximum = Decimal(str(max_plan["price"]))
+        currency = min_plan.get("currency", DEFAULT_CURRENCY)
         return {
-            "amount": price_val,
-            "payment_type": "per_lesson",
-            "currency": min_plan.get("currency", "AZN"),
-            "formatted": _format_starting_price(
-                price_val, "per_lesson", lang, min_plan.get("currency", DEFAULT_CURRENCY)
-            )
+            "amount": float(minimum),
+            "max_amount": float(maximum),
+            "payment_type": min_plan.get("payment_type"),
+            "currency": currency,
+            "formatted": format_price_range(minimum, maximum, lang, currency),
         }
 
-    for payment_type in ("per_visit", "entry_ticket"):
-        visit_plans = [p for p in public_plans if p.get("payment_type") == payment_type and p.get("price") not in (None, "") and float(p.get("price")) > 0]
-        if visit_plans:
-            min_plan = min(visit_plans, key=lambda x: float(x["price"]))
-            price_val = float(min_plan["price"])
-            return {
-                "amount": price_val,
-                "payment_type": payment_type,
-                "currency": min_plan.get("currency", "AZN"),
-                "formatted": _format_starting_price(
-                    price_val, payment_type, lang, min_plan.get("currency", DEFAULT_CURRENCY)
-                ),
-            }
-
-    # 2. Try active per_month plans minimum price
-    per_month_plans = [p for p in public_plans if p.get("payment_type") == "per_month" and p.get("price") not in (None, "") and float(p.get("price")) > 0]
-    if per_month_plans:
-        min_plan = min(per_month_plans, key=lambda x: float(x["price"]))
-        price_val = float(min_plan["price"])
+    # Manual range is the fallback source for cards without active tariffs.
+    if place.price_from is not None or place.price_to is not None:
+        minimum = place.price_from if place.price_from is not None else place.price_to
+        maximum = place.price_to if place.price_to is not None else minimum
         return {
-            "amount": price_val,
+            "amount": float(minimum),
+            "max_amount": float(maximum),
             "payment_type": "per_month",
-            "currency": min_plan.get("currency", "AZN"),
-            "formatted": _format_starting_price(
-                price_val, "per_month", lang, min_plan.get("currency", DEFAULT_CURRENCY)
-            )
+            "currency": DEFAULT_CURRENCY,
+            "formatted": format_price_range(minimum, maximum, lang),
         }
 
-    # 3. Try active package plans minimum price
-    package_plans = [p for p in public_plans if p.get("payment_type") == "package" and p.get("price") not in (None, "") and float(p.get("price")) > 0]
-    if package_plans:
-        min_plan = min(package_plans, key=lambda x: float(x["price"]))
-        price_val = float(min_plan["price"])
+    if has_azn_pricing_plans(place.pricing_plans):
+        price_unknown = LOCALIZED_STRINGS.get(lang, LOCALIZED_STRINGS["ru"])["price_unknown"]
         return {
-            "amount": price_val,
-            "payment_type": "package",
-            "currency": min_plan.get("currency", "AZN"),
-            "formatted": _format_starting_price(
-                price_val, "package", lang, min_plan.get("currency", DEFAULT_CURRENCY)
-            )
+            "amount": None,
+            "max_amount": None,
+            "payment_type": None,
+            "currency": DEFAULT_CURRENCY,
+            "formatted": {"full": price_unknown, "amount": price_unknown, "unit": ""},
         }
 
-    # 4. Fallback to legacy fields
-    if place.price_per_lesson and place.price_per_lesson > 0:
+    legacy_prices = [
+        (place.price_per_lesson, "per_lesson"),
+        (place.price_per_month, "per_month"),
+        (place.price_per_8_lessons, "package"),
+    ]
+    legacy_prices = [(price, kind) for price, kind in legacy_prices if price is not None]
+    if legacy_prices:
+        minimum, payment_type = min(legacy_prices, key=lambda item: item[0])
+        maximum = max(price for price, _kind in legacy_prices)
         return {
-            "amount": float(place.price_per_lesson),
-            "payment_type": "per_lesson",
-            "currency": "AZN",
-            "formatted": _format_starting_price(float(place.price_per_lesson), "per_lesson", lang)
-        }
-    if place.price_from and place.price_from > 0:
-        return {
-            "amount": float(place.price_from),
-            "payment_type": "per_month",
-            "currency": "AZN",
-            "formatted": _format_starting_price(float(place.price_from), "per_month", lang)
-        }
-    if place.price_per_month and place.price_per_month > 0:
-        return {
-            "amount": float(place.price_per_month),
-            "payment_type": "per_month",
-            "currency": "AZN",
-            "formatted": _format_starting_price(float(place.price_per_month), "per_month", lang)
-        }
-    if place.price_per_8_lessons and place.price_per_8_lessons > 0:
-        return {
-            "amount": float(place.price_per_8_lessons),
-            "payment_type": "package",
-            "currency": "AZN",
-            "formatted": _format_starting_price(float(place.price_per_8_lessons), "package", lang)
+            "amount": float(minimum),
+            "max_amount": float(maximum),
+            "payment_type": payment_type,
+            "currency": DEFAULT_CURRENCY,
+            "formatted": format_price_range(minimum, maximum, lang),
         }
 
     price_unknown = LOCALIZED_STRINGS.get(lang, LOCALIZED_STRINGS["ru"])["price_unknown"]
     return {
         "amount": None,
+        "max_amount": None,
         "payment_type": None,
         "currency": "AZN",
         "formatted": {"full": price_unknown, "amount": price_unknown, "unit": ""},
@@ -623,6 +651,7 @@ def build_pricing_summary(place, lang="ru"):
     return {
         "has_price": has_price,
         "amount": starting_price["amount"],
+        "max_amount": starting_price["max_amount"],
         "payment_type": starting_price["payment_type"],
         "currency": starting_price["currency"],
         "formatted_price": starting_price["formatted"]["full"],

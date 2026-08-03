@@ -198,7 +198,7 @@ class PricingPlansTests(TestCase):
         with override("ru"):
             response = self.client.get(place.get_absolute_url())
 
-        self.assertContains(response, "от 40 USD")
+        self.assertContains(response, "40 USD")
         self.assertContains(response, "40 USD / занятие")
         self.assertNotContains(response, "40 AZN")
 
@@ -263,7 +263,8 @@ class PublicPricingSummaryTests(TestCase):
         self.assertTrue(summary["has_price"])
         self.assertEqual(summary["amount"], 40.0)
         self.assertEqual(summary["payment_type"], "per_lesson")
-        self.assertEqual(summary["formatted_price"], "от 40 AZN")
+        self.assertEqual(summary["max_amount"], 120.0)
+        self.assertEqual(summary["formatted_price"], "40–120 AZN")
 
     def test_starting_price_per_month_secondary(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -274,8 +275,9 @@ class PublicPricingSummaryTests(TestCase):
         self.place.pricing_plans = plans
         self.place.save()
         summary = build_pricing_summary(self.place, "ru")
-        self.assertEqual(summary["amount"], 120.0)
-        self.assertEqual(summary["payment_type"], "per_month")
+        self.assertEqual(summary["amount"], 90.0)
+        self.assertEqual(summary["max_amount"], 120.0)
+        self.assertEqual(summary["payment_type"], "package")
 
     def test_starting_price_package_tertiary(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -288,7 +290,7 @@ class PublicPricingSummaryTests(TestCase):
         self.assertEqual(summary["amount"], 90.0)
         self.assertEqual(summary["payment_type"], "package")
 
-    def test_inactive_and_zero_prices_are_ignored(self):
+    def test_inactive_prices_are_ignored_and_active_free_tariff_is_included(self):
         from catalog.services.pricing_plans import build_pricing_summary
         plans = [
             {"lesson_format": "individual", "payment_type": "per_lesson", "price": "0", "is_active": True},
@@ -299,7 +301,9 @@ class PublicPricingSummaryTests(TestCase):
         self.place.pricing_plans = plans
         self.place.save()
         summary = build_pricing_summary(self.place, "ru")
-        self.assertEqual(summary["amount"], 40.0)
+        self.assertEqual(summary["amount"], 0.0)
+        self.assertEqual(summary["max_amount"], 40.0)
+        self.assertEqual(summary["formatted_price"], "0–40 AZN")
 
     def test_legacy_fields_fallbacks(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -373,10 +377,54 @@ class PublicPricingSummaryTests(TestCase):
         self.place.save()
         
         summary_az = build_pricing_summary(self.place, "az")
-        self.assertEqual(summary_az["formatted_price"], "45 AZN-dən")
+        self.assertEqual(summary_az["formatted_price"], "45 AZN")
 
         summary_en = build_pricing_summary(self.place, "en")
-        self.assertEqual(summary_en["formatted_price"], "from 45 AZN")
+        self.assertEqual(summary_en["formatted_price"], "45 AZN")
+
+    def test_active_tariffs_replace_stale_legacy_price_with_full_range(self):
+        from catalog.services.pricing_plans import build_pricing_summary
+
+        self.place.price_from = 5
+        self.place.price_to = None
+        self.place.price_per_lesson = 5
+        self.place.pricing_plans = [
+            {"lesson_format": "group", "payment_type": "per_lesson", "price": "3", "is_active": True},
+            {"lesson_format": "group", "payment_type": "per_month", "price": "50", "is_active": True},
+            {"lesson_format": "group", "payment_type": "per_lesson", "price": "1", "is_active": False},
+        ]
+        self.place.save()
+        self.place.refresh_from_db()
+
+        summary = build_pricing_summary(self.place, "ru")
+
+        self.assertEqual(self.place.price_from, 3)
+        self.assertEqual(self.place.price_to, 50)
+        self.assertEqual(self.place.price_range_display, "3–50 AZN")
+        self.assertEqual(self.place.card_price_badge, "3–50 AZN")
+        self.assertEqual(summary["formatted_price"], "3–50 AZN")
+
+    def test_disabling_all_tariffs_clears_the_automatic_range(self):
+        from catalog.services.pricing_plans import build_pricing_summary
+
+        self.place.price_per_lesson = 5
+        self.place.pricing_plans = [
+            {"lesson_format": "group", "payment_type": "per_lesson", "price": "3", "is_active": True},
+            {"lesson_format": "group", "payment_type": "per_month", "price": "50", "is_active": True},
+        ]
+        self.place.save()
+        self.place.pricing_plans = [
+            {**plan, "is_active": False}
+            for plan in self.place.pricing_plans
+        ]
+        self.place.save(update_fields=["pricing_plans"])
+        self.place.refresh_from_db()
+
+        self.assertIsNone(self.place.price_from)
+        self.assertIsNone(self.place.price_to)
+        self.assertEqual(self.place.price_range_display, "")
+        self.assertEqual(self.place.card_price_badge, "")
+        self.assertFalse(build_pricing_summary(self.place, "ru")["has_price"])
 
     def test_schedule_rows_formatting(self):
         from catalog.services.pricing_plans import build_pricing_summary

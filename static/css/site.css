@@ -25404,6 +25404,29 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   font-weight: normal !important;
 }
 
+.owner-file-uploader-item-status {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.owner-file-uploader-item-status.is-ready,
+.owner-file-uploader-item-status.is-uploaded {
+  color: #2f7d4b;
+}
+
+.owner-file-uploader-item-status.is-uploading {
+  color: #8a6500;
+}
+
+.owner-file-uploader-item.is-error {
+  border-color: rgba(201, 74, 74, 0.38);
+  background: rgba(255, 245, 245, 0.96);
+}
+
+.owner-file-uploader-item-status.is-error {
+  color: #a33b3b;
+}
+
 .owner-file-uploader-item-remove {
   position: absolute;
   right: 8px;

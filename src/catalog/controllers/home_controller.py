@@ -69,6 +69,7 @@ class HomeController:
                 "category_icon_is_svg": place.category.icon_is_svg if place.category else False,
                 "category_icon_is_font": place.category.icon_is_font_class if place.category else False,
                 "category_icon_name": (place.category.icon or "") if place.category else "",
+                "category_icon_svg": place.category.icon_svg_source if place.category else "",
                 "district": place.district or "",
                 "district_label": place.district_i18n(language_code) if place.district else "",
                 "metro": place.metro,

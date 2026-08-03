@@ -25,7 +25,18 @@
     ZOO: '<circle cx="8" cy="8" r="2"></circle><circle cx="16" cy="8" r="2"></circle><circle cx="6" cy="15" r="1.5"></circle><circle cx="18" cy="15" r="1.5"></circle><path d="M8.5 18.5c.8-2.2 2.1-3.5 3.5-3.5s2.7 1.3 3.5 3.5c.5 1.3-.4 2.5-1.8 2.5h-3.4c-1.4 0-2.3-1.2-1.8-2.5Z"></path>'
   };
 
+  function categoryIconDataUrl(place, color) {
+    const source = place && place.category_icon_svg;
+    if (!source) return "";
+    const coloredSource = String(source).replace(/currentColor/g, color || "#6B7280");
+    return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(coloredSource);
+  }
+
   function buildMarkerGlyph(place, colorText) {
+    const iconDataUrl = categoryIconDataUrl(place, colorText);
+    if (iconDataUrl) {
+      return '<image href="' + iconDataUrl + '" x="11" y="10" width="16" height="16" />';
+    }
     const categoryCode = place && place.category_code;
     const iconSvgContent = CATEGORY_SVGS[categoryCode] || '<rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect>';
     return (
@@ -781,10 +792,11 @@
       const iconSvgContent = CATEGORY_SVGS[categoryCode] || '<rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect>';
       const colorBg = (place && place.category_color_bg) || "#F3F4F6";
       const colorText = (place && place.category_color_text) || "#6B7280";
+      const iconDataUrl = categoryIconDataUrl(place, colorBg);
 
-      const svg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="' + colorBg + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">' +
-        iconSvgContent +
-        '</svg>';
+      const svg = iconDataUrl
+        ? '<img src="' + iconDataUrl + '" alt="" style="width:100%;height:100%;display:block;" />'
+        : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="' + colorBg + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%;">' + iconSvgContent + '</svg>';
 
       return `
         <div class="custom-animated-pin-wrapper">
