@@ -8,6 +8,7 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.core.cache import cache
+from django.db.models import Q
 from django.db.utils import OperationalError, ProgrammingError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -181,7 +182,14 @@ def _redirect_to_login(request):
 
 
 def _build_managed_places_summary(user) -> dict:
-    managed_places = list(user.managed_places.order_by("-updated_at"))
+    managed_places = list(
+        Place.objects.filter(
+            Q(owner=user) | Q(owner__isnull=True, created_by=user),
+            deleted_at__isnull=True,
+        )
+        .distinct()
+        .order_by("-updated_at")
+    )
     active_managed_places_count = sum(
         1 for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active
     )
@@ -195,6 +203,11 @@ def _build_managed_places_summary(user) -> dict:
         for place in managed_places
         if place.status in {Place.STATUS_DRAFT, Place.STATUS_REJECTED} or not place.is_active
     ]
+    profile = UserProfile.get_or_create_for_user(user)
+    can_edit_managed_places = (
+        profile.role != UserProfile.ROLE_OWNER
+        or profile.has_owner_permission(UserProfile.OWNER_PERMISSION_EDIT_PLACES)
+    )
     return {
         "managed_places": managed_places,
         "managed_places_count": len(managed_places),
@@ -202,6 +215,7 @@ def _build_managed_places_summary(user) -> dict:
         "draft_managed_places_count": draft_managed_places_count,
         "actionable_draft_places_count": len(actionable_draft_places),
         "latest_actionable_draft_place": actionable_draft_places[0] if actionable_draft_places else None,
+        "can_edit_managed_places": can_edit_managed_places,
     }
 
 
@@ -1051,6 +1065,23 @@ def owner_place_delete(request, pk):
     else:
         messages.error(request, result.message)
     return redirect("owner_places_dashboard")
+
+
+@require_POST
+def owner_place_gallery_photo_delete(request, pk, photo_id):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+
+    result = owner_places_controller.delete_gallery_photo(
+        request=request,
+        place_id=pk,
+        photo_id=photo_id,
+    )
+    if result.ok:
+        messages.success(request, result.message)
+    else:
+        messages.error(request, result.message)
+    return redirect("owner_place_edit", pk=pk)
 
 
 def owner_team_dashboard(request):

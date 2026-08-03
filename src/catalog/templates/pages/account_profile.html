@@ -387,6 +387,56 @@
         </div>
       {% endif %}
 
+      <section class="account-card account-card--summary account-card--managed-places" id="my-places">
+        <div class="account-card__head account-card__head--inline">
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Mənim kartlarım{% elif CURRENT_LANGUAGE == "en" %}My cards{% else %}Мои карточки{% endif %}</h2>
+          <a class="account-card__action" href="{% url 'owner_places_dashboard' %}">
+            <span>{% if CURRENT_LANGUAGE == "az" %}Hamısını idarə et{% elif CURRENT_LANGUAGE == "en" %}Manage all{% else %}Управлять всеми{% endif %}</span>
+          </a>
+        </div>
+
+        {% if managed_places %}
+          <div class="account-stack">
+            {% for place in managed_places %}
+              <article class="account-place-card">
+                <div class="account-place-card__content">
+                  <div class="account-place-card__head">
+                    <div>
+                      <h3>{{ place.name_i18n }}</h3>
+                      <p class="account-place-card__meta">
+                        {{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}
+                      </p>
+                    </div>
+                    <span class="account-mini-chip">{{ place.get_status_display }}</span>
+                  </div>
+                  <div class="account-place-card__actions">
+                    {% if can_edit_managed_places %}
+                      <a class="btn-secondary" href="{% url 'owner_place_edit' place.id %}">
+                        {% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}
+                      </a>
+                    {% endif %}
+                    {% if place.status == place.STATUS_PUBLISHED and place.is_active %}
+                      <a class="link-btn account-inline-link" href="{{ place.get_absolute_url }}">
+                        {% if CURRENT_LANGUAGE == "az" %}Karta bax{% elif CURRENT_LANGUAGE == "en" %}View card{% else %}Посмотреть карточку{% endif %}
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="account-empty-state">
+            <p>{% if CURRENT_LANGUAGE == "az" %}Hələ kartınız yoxdur.{% elif CURRENT_LANGUAGE == "en" %}You have no cards yet.{% else %}У вас пока нет карточек.{% endif %}</p>
+            <div class="account-empty-state__actions">
+              <a class="btn" href="{% url 'owner_place_create' %}?fresh=1">
+                {% if CURRENT_LANGUAGE == "az" %}Kart əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add card{% else %}Добавить карточку{% endif %}
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </section>
+
       <div class="account-dashboard__bottom-row">
         <aside class="account-card account-card--status">
           <div class="account-card__head">

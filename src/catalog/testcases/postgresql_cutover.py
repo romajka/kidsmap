@@ -71,7 +71,7 @@ class TaxonomyAdminSoftDeleteTests(TestCase):
 
     def test_subcategory_admin_delete_archives_instead_of_removing(self):
         category = Category.objects.create(code="PARENT", name="Parent")
-        subcategory = Subcategory.objects.create(category=category, name="Child")
+        subcategory = Subcategory.objects.create(category=category, code="archive-child", name="Child")
 
         self.subcategory_admin.delete_model(self.request, subcategory)
 

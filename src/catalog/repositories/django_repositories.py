@@ -276,19 +276,48 @@ class DjangoPlaceOwnershipRequestRepository(IPlaceOwnershipRequestRepository):
 
 class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
     def managed_queryset(self, *, user) -> QuerySet:
-        return Place.objects.filter(owner=user, deleted_at__isnull=True).order_by("-updated_at")
+        return (
+            Place.objects.filter(
+                Q(owner=user) | Q(owner__isnull=True, created_by=user),
+                deleted_at__isnull=True,
+            )
+            .distinct()
+            .order_by("-updated_at")
+        )
 
     def get_managed_by_pk(self, *, user, pk: int) -> Place | None:
         return self.managed_queryset(user=user).filter(pk=pk).first()
 
     def add_gallery_images(self, *, place: Place, image_files: list) -> None:
-        photos = []
-        for index, image in enumerate(image_files, start=1):
-            if not image:
-                continue
-            photos.append(PlacePhoto(place=place, image=image, order=index))
-        if photos:
-            PlacePhoto.objects.bulk_create(photos)
+        saved_photos = []
+        next_order = (
+            place.gallery.order_by("-order").values_list("order", flat=True).first() or 0
+        ) + 1
+        try:
+            for index, image in enumerate(image_files, start=next_order):
+                if not image:
+                    continue
+                photo = PlacePhoto(place=place, image=image, order=index)
+                try:
+                    photo.save()
+                except Exception:
+                    if photo.image.name:
+                        try:
+                            photo.image.storage.delete(photo.image.name)
+                        except Exception:
+                            pass
+                    raise
+                saved_photos.append(photo)
+                if not photo.image.name or not photo.image.storage.exists(photo.image.name):
+                    raise OSError(f"Gallery image was not persisted: {getattr(image, 'name', '')}")
+        except Exception as exc:
+            for photo in saved_photos:
+                if photo.image.name:
+                    try:
+                        photo.image.storage.delete(photo.image.name)
+                    except Exception:
+                        pass
+            raise OSError("Gallery image persistence failed") from exc
 
 
 class DjangoOwnerTeamRepository(IOwnerTeamRepository):

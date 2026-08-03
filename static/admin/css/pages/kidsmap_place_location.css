@@ -286,6 +286,60 @@
   color: #365243;
 }
 
+.km-location-phone-editor {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 12px;
+}
+
+.km-location-phone-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.km-location-phone-list [hidden] {
+  display: none;
+}
+
+.km-location-phone-control {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.km-location-phone-control input {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.km-location-phone-remove {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  border: 1px solid rgba(205, 91, 91, 0.28);
+  border-radius: 11px;
+  background: #fff8f8;
+  color: #a33b3b;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.km-location-phone-remove:hover,
+.km-location-phone-remove:focus-visible {
+  border-color: rgba(163, 59, 59, 0.58);
+  outline: none;
+}
+
+.km-location-phone-add {
+  justify-self: start;
+}
+
+.km-location-phone-add[hidden] {
+  display: none;
+}
+
 .km-place-location .km-location-field--address textarea,
 .km-place-location .km-location-field--additional-info textarea {
   min-height: 108px;
@@ -309,6 +363,10 @@
   .km-place-location .km-location-grid--three,
   .km-place-location__coord-grid,
   .km-place-location__status-row {
+    grid-template-columns: 1fr;
+  }
+
+  .km-location-phone-list {
     grid-template-columns: 1fr;
   }
 

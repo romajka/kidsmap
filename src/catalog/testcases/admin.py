@@ -98,6 +98,8 @@ class TestAdminTemporaryEventInputs(TestCase):
         )
 
     def test_place_admin_form_supports_open_ended_age(self):
+        self.place.age_to = 12
+        self.place.save(update_fields=["age_to"])
         form = PlaceAdminForm(
             data={
                 "name_az": "Yaş limiti olmayan yer",
@@ -127,7 +129,7 @@ class TestAdminTemporaryEventInputs(TestCase):
             name="Existing place",
             name_az="Mövcud yer",
             category="EDU",
-            phone1="+994501234567",
+            phone3="+994501234567",
             website="https://example.com/club",
             instagram="example_club",
             address="Bakı, Yasamal, Nizami küçəsi 10",
@@ -523,6 +525,8 @@ class TestAdminOwnershipModerationUX(TestCase):
             "lat": "" if self.place.lat is None else str(self.place.lat),
             "lng": "" if self.place.lng is None else str(self.place.lng),
             "phone1": self.place.phone1,
+            "phone2": self.place.phone2,
+            "phone3": self.place.phone3,
             "instagram": self.place.instagram,
             "website": self.place.website,
             "schedule": self.place.schedule,
@@ -1043,6 +1047,49 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Сохранить и рассчитать координаты")
         self.assertContains(response, "_refresh_coordinates_from_address")
+
+    def test_place_admin_change_form_shows_all_saved_phone_numbers(self):
+        self.place.phone1 = "+994501112233"
+        self.place.phone2 = "+994551112233"
+        self.place.phone3 = "+994701112233"
+        self.place.save(update_fields=["phone1", "phone2", "phone3"])
+
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="phone1"', html=False)
+        self.assertContains(response, 'name="phone2"', html=False)
+        self.assertContains(response, 'name="phone3"', html=False)
+        self.assertContains(response, 'value="+994 50 111 22 33"', html=False)
+        self.assertContains(response, 'value="+994 55 111 22 33"', html=False)
+        self.assertContains(response, 'value="+994 70 111 22 33"', html=False)
+        self.assertContains(response, "Добавить номер")
+        self.assertContains(response, 'data-km-phone-remove', count=2, html=False)
+
+    def test_place_admin_can_add_change_and_delete_phone_numbers(self):
+        self.place.phone1 = "+994501112233"
+        self.place.phone2 = "+994551112233"
+        self.place.phone3 = ""
+        self.place.save(update_fields=["phone1", "phone2", "phone3"])
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data=self._admin_place_change_payload(
+                phone1="+994 50 999 88 77",
+                phone2="",
+                phone3="070 333 22 11",
+                _save_draft="1",
+            ),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        if response.context and response.context.get("adminform"):
+            self.assertFalse(response.context["adminform"].form.errors, response.context["adminform"].form.errors)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.phone1, "+994509998877")
+        self.assertEqual(self.place.phone2, "")
+        self.assertEqual(self.place.phone3, "+994703332211")
 
     def test_place_admin_change_form_shows_public_site_link_for_published_place(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
@@ -1970,6 +2017,7 @@ class TestCategoryAdminFormLayout(TestCase):
         self.assertContains(response, 'type="file"', html=False)
         self.assertContains(response, 'enctype="multipart/form-data"', html=False)
         self.assertContains(response, "km-category-actions-card")
+        self.assertContains(response, 'name="is_active"', html=False)
 
     def test_category_change_form_keeps_inline_section_and_actions(self):
         category = Category.objects.create(
@@ -2063,6 +2111,73 @@ class TestCategoryAdminFormLayout(TestCase):
         self.assertEqual(response.status_code, 302)
         subcategory = Subcategory.objects.get(name_ru="Подкатегория")
         self.assertTrue(subcategory.icon.startswith("/media/subcategory_icons/"))
+
+    def test_category_admin_rejects_duplicate_translated_name(self):
+        Category.objects.create(
+            code="EXISTING-CATEGORY",
+            name="Təhsil",
+            name_az="Təhsil",
+            name_ru="Образование",
+            name_en="Education",
+        )
+
+        response = self.client.post(
+            reverse("admin:catalog_category_add"),
+            {
+                "code": "DUPLICATE-CATEGORY",
+                "name_az": "  TƏHSİL  ",
+                "name_ru": "Другое название",
+                "name_en": "Another name",
+                "order": "1",
+                "is_active": "on",
+                "_save": "Save",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Категория с таким названием уже существует")
+        self.assertFalse(Category.objects.filter(pk="DUPLICATE-CATEGORY").exists())
+
+    def test_subcategory_admin_rejects_duplicate_name_inside_category(self):
+        category = Category.objects.create(code="DUP-SUB-CAT", name="Категория")
+        Subcategory.objects.create(
+            category=category,
+            code="existing-subcategory",
+            name="Робототехника",
+            name_ru="Робототехника",
+        )
+
+        response = self.client.post(
+            reverse("admin:catalog_subcategory_add"),
+            {
+                "category": category.pk,
+                "code": "duplicate-subcategory",
+                "name_az": "Robototexnika",
+                "name_ru": "  РОБОТОТЕХНИКА ",
+                "name_en": "Robotics duplicate",
+                "order": "1",
+                "is_active": "on",
+                "_save": "Save",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Подкатегория с таким названием уже существует")
+        self.assertFalse(Subcategory.objects.filter(code="duplicate-subcategory").exists())
+
+    def test_taxonomy_toggle_restores_archived_category(self):
+        category = Category.objects.create(code="RESTORE-CAT", name="Архивная категория")
+        category.archive(self.superuser)
+
+        response = self.client.post(
+            reverse("admin:catalog_taxonomy_toggle_active"),
+            {"obj_type": "category", "obj_id": category.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        category.refresh_from_db()
+        self.assertTrue(category.is_active)
+        self.assertIsNone(category.deleted_at)
 
 class ReviewAdminModerationTests(TestCase):
     def setUp(self):
@@ -2583,7 +2698,11 @@ class TestCategoryAdminHierarchy(TestCase):
         self.admin = User.objects.create_superuser("admin", "admin@example.com", "pass")
         self.client.force_login(self.admin)
         self.category = Category.objects.create(code="TESTCAT", name_ru="Тестовая Категория")
-        self.subcategory = Subcategory.objects.create(category=self.category, name_ru="Тестовая Подкатегория")
+        self.subcategory = Subcategory.objects.create(
+            category=self.category,
+            code="test-subcategory",
+            name_ru="Тестовая Подкатегория",
+        )
 
     def test_changelist_view_status_and_context(self):
         url = reverse("admin:catalog_category_changelist")

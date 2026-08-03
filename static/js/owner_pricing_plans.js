@@ -6,9 +6,28 @@
   const add = editor.querySelector("[data-tariff-add]");
   if (!input || !list || !add) return;
 
-  let plans = [];
-  try { plans = JSON.parse(input.value || "[]"); } catch (error) { plans = []; }
-  if (!Array.isArray(plans)) plans = [];
+  function parsePlans(value) {
+    try {
+      const parsed = JSON.parse(value || "[]");
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .filter((plan) => plan && typeof plan === "object" && !Array.isArray(plan))
+        .map((plan, index) => ({
+          plan: plan,
+          index: index,
+          order: plan.sort_order !== null && plan.sort_order !== undefined && plan.sort_order !== ""
+            && Number.isInteger(Number(plan.sort_order)) && Number(plan.sort_order) >= 0
+            ? Number(plan.sort_order)
+            : index,
+        }))
+        .sort((left, right) => left.order - right.order || left.index - right.index)
+        .map((item) => item.plan);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  let plans = parsePlans(input.value);
 
   const labels = {
     format: editor.dataset.formatLabel || "Format",
@@ -210,6 +229,14 @@
       const firstField = list.lastElementChild && list.lastElementChild.querySelector("[data-tariff-key]");
       if (firstField) firstField.focus();
     }
+  });
+
+  // JSON import and other form helpers update the hidden field after this
+  // editor has already loaded. Rehydrate the editor instead of letting its
+  // stale in-memory copy overwrite the imported tariffs on the next action.
+  input.addEventListener("input", () => {
+    plans = parsePlans(input.value);
+    render();
   });
   render();
 })();

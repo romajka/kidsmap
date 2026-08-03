@@ -361,13 +361,14 @@ def build_compact_schedule_rows(place, lang="ru"):
     return rows
 
 
-def _format_starting_price(amount, payment_type, lang):
+def _format_starting_price(amount, payment_type, lang, currency=DEFAULT_CURRENCY):
     amount_str = str(int(amount)) if amount.is_integer() else f"{amount:.2f}"
     strings = LOCALIZED_STRINGS.get(lang, LOCALIZED_STRINGS["ru"])
+    currency = currency or DEFAULT_CURRENCY
     if lang == "az":
-        amount_display = f"{amount_str} AZN-{strings['suffix_den']}"
+        amount_display = f"{amount_str} {currency}-{strings['suffix_den']}"
     else:
-        amount_display = f"{strings['from']} {amount_str} AZN"
+        amount_display = f"{strings['from']} {amount_str} {currency}"
     # The headline is intentionally payment-neutral: the same place can offer
     # lessons, monthly subscriptions and packages. Exact terms live in tariffs.
     return {"full": amount_display, "amount": amount_display, "unit": ""}
@@ -383,7 +384,9 @@ def get_starting_price(place, public_plans, lang):
             "amount": price_val,
             "payment_type": "per_lesson",
             "currency": min_plan.get("currency", "AZN"),
-            "formatted": _format_starting_price(price_val, "per_lesson", lang)
+            "formatted": _format_starting_price(
+                price_val, "per_lesson", lang, min_plan.get("currency", DEFAULT_CURRENCY)
+            )
         }
 
     for payment_type in ("per_visit", "entry_ticket"):
@@ -395,7 +398,9 @@ def get_starting_price(place, public_plans, lang):
                 "amount": price_val,
                 "payment_type": payment_type,
                 "currency": min_plan.get("currency", "AZN"),
-                "formatted": _format_starting_price(price_val, payment_type, lang),
+                "formatted": _format_starting_price(
+                    price_val, payment_type, lang, min_plan.get("currency", DEFAULT_CURRENCY)
+                ),
             }
 
     # 2. Try active per_month plans minimum price
@@ -407,7 +412,9 @@ def get_starting_price(place, public_plans, lang):
             "amount": price_val,
             "payment_type": "per_month",
             "currency": min_plan.get("currency", "AZN"),
-            "formatted": _format_starting_price(price_val, "per_month", lang)
+            "formatted": _format_starting_price(
+                price_val, "per_month", lang, min_plan.get("currency", DEFAULT_CURRENCY)
+            )
         }
 
     # 3. Try active package plans minimum price
@@ -419,7 +426,9 @@ def get_starting_price(place, public_plans, lang):
             "amount": price_val,
             "payment_type": "package",
             "currency": min_plan.get("currency", "AZN"),
-            "formatted": _format_starting_price(price_val, "package", lang)
+            "formatted": _format_starting_price(
+                price_val, "package", lang, min_plan.get("currency", DEFAULT_CURRENCY)
+            )
         }
 
     # 4. Fallback to legacy fields
@@ -570,7 +579,8 @@ def build_pricing_summary(place, lang="ru"):
             price_float = float(plan_price_val)
             price_display = str(int(price_float)) if price_float.is_integer() else f"{price_float:.2f}"
             unit = LOCALIZED_STRINGS[lang][plan.get("payment_type")]
-            plan_price_str = f"{price_display} AZN / {unit}"
+            currency = plan.get("currency") or DEFAULT_CURRENCY
+            plan_price_str = f"{price_display} {currency} / {unit}"
             
         whatsapp_url = ""
         if place.phone1:
@@ -614,6 +624,7 @@ def build_pricing_summary(place, lang="ru"):
         "has_price": has_price,
         "amount": starting_price["amount"],
         "payment_type": starting_price["payment_type"],
+        "currency": starting_price["currency"],
         "formatted_price": starting_price["formatted"]["full"],
         "formatted_price_amount": starting_price["formatted"]["amount"],
         "formatted_price_unit": starting_price["formatted"]["unit"],

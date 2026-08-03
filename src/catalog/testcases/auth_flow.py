@@ -530,6 +530,47 @@ class TestAccountProfileUpdates(TestCase):
         self.assertContains(profile_response, reverse("owner_place_create"))
         self.assertContains(favorites_response, reverse("owner_places_dashboard"))
 
+    def test_account_profile_lists_own_cards_with_edit_actions(self):
+        owned_place = Place.objects.create(
+            name="Owned profile card",
+            name_ru="Моя карточка",
+            category="EDU",
+            owner=self.user,
+            status=Place.STATUS_PUBLISHED,
+            is_active=True,
+        )
+        other_user = User.objects.create_user(
+            username="other_profile_owner",
+            password="StrongPass123!!",
+        )
+        other_place = Place.objects.create(
+            name="Other card",
+            name_ru="Чужая карточка",
+            category="EDU",
+            owner=other_user,
+        )
+
+        response = self.client.get(reverse("account_profile"))
+
+        self.assertContains(response, 'id="my-places"', html=False)
+        self.assertContains(response, reverse("owner_place_edit", args=[owned_place.id]))
+        self.assertNotContains(response, reverse("owner_place_edit", args=[other_place.id]))
+        self.assertEqual([place.id for place in response.context["managed_places"]], [owned_place.id])
+
+    def test_account_profile_includes_unassigned_card_created_by_user(self):
+        created_place = Place.objects.create(
+            name="Created profile card",
+            name_ru="Созданная карточка",
+            category="EDU",
+            created_by=self.user,
+            owner=None,
+        )
+
+        response = self.client.get(reverse("account_profile"))
+
+        self.assertContains(response, "Созданная карточка")
+        self.assertContains(response, reverse("owner_place_edit", args=[created_place.id]))
+
     def test_account_favorites_lists_liked_places(self):
         place = Place.objects.create(
             name="Fav Place",

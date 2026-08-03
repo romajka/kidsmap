@@ -1,4 +1,5 @@
 import os
+import unicodedata
 from xml.etree import ElementTree
 
 from django.conf import settings
@@ -10,6 +11,7 @@ from django.http import JsonResponse
 from django.urls import path
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
 from PIL import Image, UnidentifiedImageError
 
 from catalog.models import Category, Subcategory
@@ -19,6 +21,39 @@ ICON_EXTENSIONS = {".svg", ".png", ".webp"}
 ICON_MAX_FILE_SIZE = 500 * 1024
 ICON_RASTER_SIZE = 512
 ICON_HELP_TEXT = _("SVG с квадратным viewBox или PNG/WebP 512×512 px, до 500 КБ.")
+TAXONOMY_NAME_FIELDS = ("name", "name_ru", "name_az", "name_en")
+
+
+def _normalized_taxonomy_name(value):
+    normalized = unicodedata.normalize("NFKD", str(value or "").casefold())
+    normalized = "".join(character for character in normalized if not unicodedata.combining(character))
+    return " ".join(normalized.split())
+
+
+def _unique_taxonomy_code(model, value, fallback):
+    base = slugify(value or "") or fallback
+    base = base[:50]
+    candidate = base
+    suffix = 2
+    while model.objects.filter(code=candidate).exists():
+        marker = f"-{suffix}"
+        candidate = f"{base[:50 - len(marker)]}{marker}"
+        suffix += 1
+    return candidate
+
+
+def _duplicate_taxonomy_name(queryset, values):
+    wanted = {_normalized_taxonomy_name(value) for value in values if _normalized_taxonomy_name(value)}
+    if not wanted:
+        return None
+    for item in queryset.only(*TAXONOMY_NAME_FIELDS).iterator():
+        existing = {
+            _normalized_taxonomy_name(getattr(item, field, ""))
+            for field in TAXONOMY_NAME_FIELDS
+        }
+        if wanted & existing:
+            return item
+    return None
 
 
 def validate_icon_upload(uploaded_file):
@@ -74,6 +109,12 @@ def save_uploaded_category_icon(uploaded_file, category_code="category-icon", fo
 
 
 class CategoryAdminForm(forms.ModelForm):
+    code = forms.CharField(
+        label=_("Код"),
+        required=False,
+        help_text=_("Можно оставить пустым — код создастся автоматически."),
+        widget=forms.TextInput(attrs={"autocomplete": "off", "placeholder": _("Например: education")}),
+    )
     name = forms.CharField(widget=forms.HiddenInput(), required=False)
     name_az = forms.CharField(label=_("Название (AZ)"), required=True)
     icon_upload = forms.FileField(
@@ -100,6 +141,24 @@ class CategoryAdminForm(forms.ModelForm):
         name_az = cleaned_data.get("name_az")
         if name_az:
             cleaned_data["name"] = name_az
+        if not cleaned_data.get("code"):
+            cleaned_data["code"] = _unique_taxonomy_code(
+                Category,
+                cleaned_data.get("name_en") or name_az or cleaned_data.get("name_ru"),
+                "category",
+            )
+        duplicates = Category.objects.all()
+        if self.instance and self.instance.pk:
+            duplicates = duplicates.exclude(pk=self.instance.pk)
+        duplicate = _duplicate_taxonomy_name(
+            duplicates,
+            [cleaned_data.get(field) for field in TAXONOMY_NAME_FIELDS],
+        )
+        if duplicate:
+            raise forms.ValidationError(
+                _("Категория с таким названием уже существует: %(name)s. Отредактируйте или восстановите её.")
+                % {"name": duplicate.name_i18n()}
+            )
         return cleaned_data
 
     def clean_icon_upload(self):
@@ -129,6 +188,19 @@ class CategoryAdminForm(forms.ModelForm):
 
 
 class SubcategoryAdminForm(forms.ModelForm):
+    code = forms.CharField(
+        label=_("Код"),
+        required=False,
+        help_text=_("Можно оставить пустым — код создастся автоматически."),
+        widget=forms.TextInput(attrs={"autocomplete": "off", "placeholder": _("Например: robotics")}),
+    )
+    order = forms.IntegerField(
+        label=_("Порядок"),
+        required=False,
+        initial=0,
+        min_value=0,
+        widget=forms.NumberInput(attrs={"min": 0, "step": 1, "inputmode": "numeric"}),
+    )
     icon_upload = forms.FileField(label=_("Файл иконки"), required=False, help_text=ICON_HELP_TEXT)
 
     class Meta:
@@ -147,6 +219,33 @@ class SubcategoryAdminForm(forms.ModelForm):
     def clean_icon_upload(self):
         uploaded_file = self.cleaned_data.get("icon_upload")
         return validate_icon_upload(uploaded_file) if uploaded_file else uploaded_file
+
+    def clean(self):
+        cleaned_data = super().clean()
+        name_az = cleaned_data.get("name_az")
+        cleaned_data["name"] = name_az or cleaned_data.get("name_ru") or cleaned_data.get("name_en") or ""
+        if not cleaned_data.get("code"):
+            cleaned_data["code"] = _unique_taxonomy_code(
+                Subcategory,
+                cleaned_data.get("name_en") or name_az or cleaned_data.get("name_ru"),
+                "subcategory",
+            )
+        cleaned_data["order"] = cleaned_data.get("order") or 0
+        category = cleaned_data.get("category")
+        if category:
+            duplicates = Subcategory.objects.filter(category=category)
+            if self.instance and self.instance.pk:
+                duplicates = duplicates.exclude(pk=self.instance.pk)
+            duplicate = _duplicate_taxonomy_name(
+                duplicates,
+                [cleaned_data.get(field) for field in TAXONOMY_NAME_FIELDS],
+            )
+            if duplicate:
+                raise forms.ValidationError(
+                    _("Подкатегория с таким названием уже существует в этой категории: %(name)s. Отредактируйте или восстановите её.")
+                    % {"name": duplicate.name_i18n()}
+                )
+        return cleaned_data
 
     def save(self, commit=True):
         instance = super().save(commit=False)
@@ -167,7 +266,7 @@ class SubcategoryInline(admin.TabularInline):
     model = Subcategory
     form = SubcategoryAdminForm
     extra = 1
-    fields = ("name_ru", "name_az", "name_en", "icon_upload", "icon", "order")
+    fields = ("code", "name_ru", "name_az", "name_en", "icon_upload", "icon", "order")
 
 
 @admin.register(Category)
@@ -184,6 +283,7 @@ class CategoryAdmin(admin.ModelAdmin):
             "fields": (
                 ("code", "name_az"),
                 ("name_ru", "name_en"),
+                ("order", "is_active"),
                 "icon",
                 ("color_bg", "color_text"),
                 "name",
@@ -236,8 +336,10 @@ class CategoryAdmin(admin.ModelAdmin):
         if not obj:
             return JsonResponse({"error": "Object not found"}, status=404)
             
-        obj.is_active = not obj.is_active
-        obj.save(update_fields=['is_active'])
+        if obj.is_active and obj.deleted_at is None:
+            obj.archive(request.user)
+        else:
+            obj.restore(request.user)
         
         return JsonResponse({"status": "success", "is_active": obj.is_active})
 
@@ -318,11 +420,17 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Subcategory)
 class SubcategoryAdmin(admin.ModelAdmin):
     form = SubcategoryAdminForm
-    list_display = ("name_ru", "category", "name_az", "name_en")
+    list_display = ("code", "name_ru", "category", "name_az", "name_en", "order", "is_active")
     list_filter = ("category",)
     search_fields = ("name_ru", "name_az", "name_en")
     ordering = ("category", "name_ru")
-    exclude = ("code", "order")
+    fields = (
+        ("category", "code"),
+        ("name_az", "name_ru", "name_en"),
+        "icon_upload",
+        "icon",
+        ("order", "is_active"),
+    )
 
     def delete_model(self, request, obj):
         obj.archive(request.user)

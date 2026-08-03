@@ -39,7 +39,15 @@ def ensure_owner_permission(
         UserProfile.OWNER_PERMISSION_VIEW_STATS,
     }
     if permission_code in basic_permissions:
-        return OwnerAccessResult(ok=True, message="", profile=profile)
+        # A regular account may manage cards it created. Accounts explicitly
+        # configured as owner-team roles must still respect that role's grants.
+        if profile.role != UserProfile.ROLE_OWNER or profile.has_owner_permission(permission_code):
+            return OwnerAccessResult(ok=True, message="", profile=profile)
+        return OwnerAccessResult(
+            ok=False,
+            message=_("Недостаточно прав для редактирования карточек."),
+            profile=profile,
+        )
 
     if permission_code and permission_code not in basic_permissions and not profile.has_owner_permission(permission_code):
         return OwnerAccessResult(

@@ -393,6 +393,60 @@ class TestSeedCatalogTaxonomyCommand(TestCase):
         self.assertEqual(event.category_id, "water-leisure")
         self.assertEqual(gallery.category, "water-leisure")
 
+    def test_taxonomy_cleanup_removes_named_duplicates_after_relinking_cards(self):
+        from django.apps import apps
+        from importlib import import_module
+
+        from catalog.models import Event, Place
+
+        duplicate_category = Category.objects.create(
+            code="MUSEUM-DUP",
+            name="Музеи и культура",
+            name_ru="Музеи и культура",
+        )
+        duplicate_subcategory = Subcategory.objects.create(
+            category=duplicate_category,
+            code="archery-copy",
+            name="Стрельба из лука",
+            name_ru="Стрельба из лука",
+        )
+        duplicate_beach = Category.objects.create(
+            code="BEACH-DUP",
+            name="Пляжи",
+            name_ru="Пляжи",
+        )
+        place = Place.objects.create(
+            name="Duplicate taxonomy place",
+            category=duplicate_category,
+            subcategory=duplicate_subcategory,
+        )
+        beach_place = Place.objects.create(name="Duplicate beach place", category=duplicate_beach)
+        event = Event.objects.create(name="Duplicate taxonomy event", category=duplicate_category)
+
+        migration = import_module("catalog.migrations.0080_clean_public_taxonomy")
+        migration.clean_public_taxonomy(apps, None)
+
+        place.refresh_from_db()
+        beach_place.refresh_from_db()
+        event.refresh_from_db()
+        self.assertEqual(place.category_id, "SPRT")
+        self.assertEqual(place.subcategory.code, "archery")
+        self.assertEqual(beach_place.category_id, "water-leisure")
+        self.assertEqual(event.category_id, "museums-culture")
+        self.assertFalse(Category.objects.filter(code="MUSEUM-DUP").exists())
+        self.assertFalse(Subcategory.objects.filter(code="archery-copy").exists())
+
+        from catalog.taxonomy_data import PUBLIC_CATEGORY_CODES, SUBCATEGORIES
+
+        self.assertSetEqual(
+            set(Category.objects.values_list("code", flat=True)),
+            set(PUBLIC_CATEGORY_CODES),
+        )
+        self.assertSetEqual(
+            set(Subcategory.objects.values_list("code", flat=True)),
+            {row[1] for row in SUBCATEGORIES},
+        )
+
     def test_update_icons_flag_overwrites_existing_custom_icon(self):
         Category.objects.update_or_create(
             code="EDU",
@@ -422,7 +476,7 @@ class TestDependentSubcategoryValidation(TestCase):
         from catalog.models.category import Subcategory
         cat1 = Category.objects.create(code="CAT1", name_ru="Cat 1")
         cat2 = Category.objects.create(code="CAT2", name_ru="Cat 2")
-        sub1 = Subcategory.objects.create(category=cat1, name_ru="Sub 1")
+        sub1 = Subcategory.objects.create(category=cat1, code="cat1-sub-1", name_ru="Sub 1")
         
         from catalog.forms import OwnerPlaceEditForm
         form = OwnerPlaceEditForm(data={
@@ -439,7 +493,7 @@ class TestDependentSubcategoryValidation(TestCase):
     def test_form_validation_succeeds_on_matched_subcategory(self):
         from catalog.models.category import Subcategory
         cat1 = Category.objects.create(code="CAT1", name_ru="Cat 1")
-        sub1 = Subcategory.objects.create(category=cat1, name_ru="Sub 1")
+        sub1 = Subcategory.objects.create(category=cat1, code="cat1-sub-1", name_ru="Sub 1")
         
         from catalog.forms import OwnerPlaceEditForm
         form = OwnerPlaceEditForm(data={

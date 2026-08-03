@@ -174,27 +174,41 @@
     </div>
 
     <div class="km-location-grid km-location-contacts">
-      {% with field=form.phone1 %}
-        <div class="km-location-field km-location-field--phone">
-          {{ field.label_tag }}
-          {{ field }}
-          {{ field.errors }}
+      <div class="km-location-phone-editor" data-km-phone-editor>
+        <div class="km-location-phone-list">
+          {% with field=form.phone1 %}
+            <div class="km-location-field km-location-field--phone" data-km-phone-row>
+              {{ field.label_tag }}
+              {{ field }}
+              {{ field.errors }}
+            </div>
+          {% endwith %}
+          {% with field=form.phone2 %}
+            <div class="km-location-field km-location-field--phone" data-km-phone-row{% if not field.value and not field.errors %} hidden{% endif %}>
+              {{ field.label_tag }}
+              <div class="km-location-phone-control">
+                {{ field }}
+                <button type="button" class="km-location-phone-remove" data-km-phone-remove aria-label="{% translate 'Удалить номер' %}" title="{% translate 'Удалить номер' %}">×</button>
+              </div>
+              {{ field.errors }}
+            </div>
+          {% endwith %}
+          {% with field=form.phone3 %}
+            <div class="km-location-field km-location-field--phone" data-km-phone-row{% if not field.value and not field.errors %} hidden{% endif %}>
+              {{ field.label_tag }}
+              <div class="km-location-phone-control">
+                {{ field }}
+                <button type="button" class="km-location-phone-remove" data-km-phone-remove aria-label="{% translate 'Удалить номер' %}" title="{% translate 'Удалить номер' %}">×</button>
+              </div>
+              {{ field.errors }}
+            </div>
+          {% endwith %}
         </div>
-      {% endwith %}
-      {% with field=form.phone2 %}
-        <div class="km-location-field km-location-field--phone">
-          {{ field.label_tag }}
-          {{ field }}
-          {{ field.errors }}
-        </div>
-      {% endwith %}
-      {% with field=form.phone3 %}
-        <div class="km-location-field km-location-field--phone">
-          {{ field.label_tag }}
-          {{ field }}
-          {{ field.errors }}
-        </div>
-      {% endwith %}
+        <button type="button" class="km-place-location__action km-place-location__action--secondary km-location-phone-add" data-km-phone-add>
+          <span aria-hidden="true">+</span>
+          <span>{% translate "Добавить номер" %}</span>
+        </button>
+      </div>
       {% with field=form.instagram %}
         <div class="km-location-field km-location-field--instagram">
           {{ field.label_tag }}

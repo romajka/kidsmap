@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from io import StringIO
+from io import BytesIO, StringIO
 from datetime import timedelta
 from tempfile import TemporaryDirectory
 from urllib.parse import parse_qs, urlparse
@@ -306,7 +306,11 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
     def _image_upload(self, name: str) -> SimpleUploadedFile:
-        return SimpleUploadedFile(name, b"fake-image-content", content_type="image/png")
+        from PIL import Image
+
+        image_bytes = BytesIO()
+        Image.new("RGB", (32, 24), "#2f8f5b").save(image_bytes, format="PNG")
+        return SimpleUploadedFile(name, image_bytes.getvalue(), content_type="image/png")
 
     def _oversized_image_upload(self, name: str) -> SimpleUploadedFile:
         return SimpleUploadedFile(name, b"x" * (2 * 1024 * 1024 + 1), content_type="image/png")
@@ -321,6 +325,61 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Кружок менеджера")
         self.assertContains(response, "Redaktəni davam et")
         self.assertContains(response, reverse("owner_place_edit", args=[self.manager_place.id]))
+
+    def test_owner_can_open_published_place_for_editing(self):
+        self.manager_place.status = Place.STATUS_PUBLISHED
+        self.manager_place.is_active = True
+        self.manager_place.save(update_fields=["status", "is_active", "updated_at"])
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        dashboard_response = self.client.get(reverse("owner_places_dashboard"))
+        edit_response = self.client.get(reverse("owner_place_edit", args=[self.manager_place.id]))
+
+        self.assertEqual(edit_response.status_code, 200)
+        self.assertContains(
+            dashboard_response,
+            reverse("owner_place_edit", args=[self.manager_place.id]),
+        )
+
+    def test_owner_can_resubmit_published_place_for_moderation(self):
+        self.manager_place.status = Place.STATUS_PUBLISHED
+        self.manager_place.is_active = True
+        self.manager_place.save(update_fields=["status", "is_active", "updated_at"])
+        PlaceOwnershipRequest.objects.create(
+            place=self.manager_place,
+            applicant=self.manager_user,
+            status=PlaceOwnershipRequest.STATUS_APPROVED,
+        )
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("owner_place_submit_review", args=[self.manager_place.id]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.manager_place.refresh_from_db()
+        self.assertEqual(self.manager_place.status, Place.STATUS_PENDING)
+        self.assertFalse(self.manager_place.is_active)
+        self.assertTrue(
+            PlaceOwnershipRequest.objects.filter(
+                place=self.manager_place,
+                applicant=self.manager_user,
+                status=PlaceOwnershipRequest.STATUS_PENDING,
+            ).exists()
+        )
+
+    def test_owner_cannot_open_another_owners_place_for_editing(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response = self.client.get(
+            reverse("owner_place_edit", args=[self.editor_place.id]),
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.redirect_chain[-1][0], reverse("owner_places_dashboard"))
+        self.assertNotContains(response, reverse("owner_place_edit", args=[self.editor_place.id]))
 
     def test_owner_edit_page_shows_current_photo_preview(self):
         self.editor_place.photo = self._image_upload("preview-main.png")

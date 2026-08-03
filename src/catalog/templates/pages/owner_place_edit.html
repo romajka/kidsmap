@@ -81,13 +81,22 @@
     <form id="owner-place-delete-form" method="post" action="{% url 'owner_place_delete' place.id %}">
       {% csrf_token %}
     </form>
+    {% for gallery_photo in place.gallery.all %}
+      <form
+        id="owner-gallery-photo-delete-{{ gallery_photo.id }}"
+        method="post"
+        action="{% url 'owner_place_gallery_photo_delete' place.id gallery_photo.id %}"
+      >
+        {% csrf_token %}
+      </form>
+    {% endfor %}
   </section>
 {% endblock %}
 
 {% block extra_body %}
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=21"></script>
-  <script src="{% static 'js/owner_place_wizard.js' %}?v=9"></script>
-  <script src="{% static 'js/owner_pricing_plans.js' %}?v=3"></script>
+  <script src="{% static 'js/owner_place_wizard.js' %}?v=10"></script>
+  <script src="{% static 'js/owner_pricing_plans.js' %}?v=6"></script>
   <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}"></script>
   <script src="{% static 'js/components/kidsmap_taxonomy_picker.js' %}?v=1"></script>
   <script src="{% static 'js/owner_place_map_picker.js' %}"></script>

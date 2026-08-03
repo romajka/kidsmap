@@ -104,6 +104,51 @@ class PricingPlansTests(TestCase):
         saved = form.save()
         self.assertEqual(len(saved.pricing_plans), 2)
 
+    def test_admin_form_reopens_and_resaves_tariffs_without_data_loss(self):
+        stored_plans = normalize_pricing_plans([
+            {
+                "lesson_format": "group",
+                "payment_type": "per_month",
+                "sessions_per_month": 12,
+                "price": "120",
+                "title_az": "Aylıq",
+                "title_ru": "Месячный",
+                "sort_order": 1,
+            },
+            {
+                "lesson_format": "individual",
+                "payment_type": "per_lesson",
+                "price": "40",
+                "title_ru": "Индивидуальный",
+                "sort_order": 0,
+            },
+        ])
+        self.place.pricing_plans = stored_plans
+        self.place.save(update_fields=["pricing_plans"])
+
+        reopened = PlaceAdminForm(instance=self.place)
+        self.assertEqual(json.loads(reopened.initial["pricing_plans"]), stored_plans)
+
+        form = PlaceAdminForm(
+            data={
+                "name_az": "Qiymət yeri",
+                "category": "EDU",
+                "status": Place.STATUS_DRAFT,
+                "is_active": "",
+                "likes_count": "0",
+                "rating_avg": "0",
+                "rating_count": "0",
+                "region": "baku",
+                "district": "baku_yasamal",
+                "pricing_plans": reopened.initial["pricing_plans"],
+            },
+            instance=self.place,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        saved = form.save()
+
+        self.assertEqual(saved.pricing_plans, stored_plans)
+
     def test_public_plans_filter_sort_and_localize(self):
         plans = [
             {"lesson_format": "individual", "payment_type": "per_lesson", "price": "40", "sort_order": 2, "title_ru": "Форма"},
@@ -126,6 +171,28 @@ class PricingPlansTests(TestCase):
                 {"lesson_format": "individual", "payment_type": "per_lesson", "price": "40"},
             ])
         self.assertEqual(visible[0]["title"], "Индивидуальные · за занятие")
+
+    def test_public_detail_uses_saved_currency_and_payment_unit(self):
+        place = create_quality_place(
+            name="Currency pricing place",
+            name_ru="Тариф в другой валюте",
+            pricing_plans=[
+                {
+                    "lesson_format": "individual",
+                    "payment_type": "per_lesson",
+                    "price": "40",
+                    "currency": "USD",
+                    "title_ru": "Пробное занятие",
+                },
+            ],
+        )
+
+        with override("ru"):
+            response = self.client.get(place.get_absolute_url())
+
+        self.assertContains(response, "от 40 USD")
+        self.assertContains(response, "40 USD / занятие")
+        self.assertNotContains(response, "40 AZN")
 
     def test_public_detail_shows_only_active_sorted_plans(self):
         place = create_quality_place(

@@ -662,6 +662,59 @@
   });
 
   ready(function () {
+    var editor = document.querySelector("[data-km-phone-editor]");
+    if (!editor) {
+      return;
+    }
+
+    var rows = Array.prototype.slice.call(editor.querySelectorAll("[data-km-phone-row]"));
+    var addButton = editor.querySelector("[data-km-phone-add]");
+
+    function updateAddButton() {
+      if (addButton) {
+        addButton.hidden = !rows.some(function (row, index) {
+          return index > 0 && row.hidden;
+        });
+      }
+    }
+
+    if (addButton) {
+      addButton.addEventListener("click", function () {
+        var nextRow = rows.find(function (row, index) {
+          return index > 0 && row.hidden;
+        });
+        if (!nextRow) {
+          return;
+        }
+        nextRow.hidden = false;
+        var input = nextRow.querySelector("input");
+        if (input) {
+          input.focus();
+        }
+        updateAddButton();
+      });
+    }
+
+    editor.querySelectorAll("[data-km-phone-remove]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var row = button.closest("[data-km-phone-row]");
+        var input = row ? row.querySelector("input") : null;
+        if (!row || !input) {
+          return;
+        }
+        input.value = "";
+        input.setCustomValidity("");
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        row.hidden = true;
+        updateAddButton();
+      });
+    });
+
+    updateAddButton();
+  });
+
+  ready(function () {
     var azRow = document.querySelector('.form-group.field-name_az.field-description_az');
     var ruRow = document.querySelector('.form-group.field-name_ru.field-description_ru');
     var enRow = document.querySelector('.form-group.field-name_en.field-description_en');
@@ -854,6 +907,42 @@
         row.removeChild(fromBox);
         row.removeChild(toBox);
       }
+    }
+
+    // "Без верхней границы" означает, что age_to не участвует ни в UI,
+    // ни в нативной браузерной валидации. Сервер дополнительно сохраняет NULL.
+    var ageOpenEndedInput = document.getElementById('id_age_open_ended');
+    if (ageOpenEndedInput && ageToInput) {
+      var ageRangeBox = ageFromInput && ageFromInput.closest('.km-range-fieldbox');
+      var ageRangeLabel = ageRangeBox && ageRangeBox.querySelector('label');
+      var ageToWrapper = ageToInput.closest('.km-input-wrapper') || ageToInput;
+      var ageSeparator = ageRangeBox && ageRangeBox.querySelector('.km-range-separator');
+      var ageToWasRequired = ageToInput.required;
+
+      function syncOpenEndedAge() {
+        var isOpenEnded = ageOpenEndedInput.checked;
+        ageToInput.disabled = isOpenEnded;
+        ageToInput.required = isOpenEnded ? false : ageToWasRequired;
+        if (isOpenEnded) {
+          ageToInput.value = '';
+        }
+        if (ageToWrapper) {
+          ageToWrapper.hidden = isOpenEnded;
+        }
+        if (ageSeparator) {
+          ageSeparator.hidden = isOpenEnded;
+        }
+        if (ageRangeLabel) {
+          ageRangeLabel.textContent = isOpenEnded ? 'Возраст от' : 'Возраст (от — до)';
+        }
+        if (ageRangeBox) {
+          ageRangeBox.classList.toggle('km-range-fieldbox--open-ended', isOpenEnded);
+        }
+        ageToInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      ageOpenEndedInput.addEventListener('change', syncOpenEndedAge);
+      syncOpenEndedAge();
     }
 
     // 3. Объединяем "Цена от" и "Цена до" в один блок диапазона

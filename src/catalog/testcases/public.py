@@ -722,6 +722,23 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, '"AggregateRating"', html=False)
         self.assertContains(response, "<title>SEO кружок — Образование для детей в регионе Баку, Ясамальский район | KidsMap</title>", html=False)
 
+    def test_place_detail_page_shows_all_phone_numbers(self):
+        place = create_quality_place(
+            name="Multiple phones place",
+            name_ru="Кружок с несколькими телефонами",
+            category="EDU",
+            phone1="+994501112233",
+            phone2="+994551112233",
+            phone3="+994701112233",
+        )
+
+        response = self.client.get(place.get_absolute_url())
+
+        self.assertEqual(response.status_code, 200)
+        for phone in place.phone_numbers:
+            self.assertContains(response, f'href="tel:{phone}"', html=False)
+            self.assertContains(response, phone)
+
     def test_robots_txt_disallows_private_sections(self):
         response = self.client.get("/robots.txt")
 

@@ -120,6 +120,13 @@
                         {{ adminform.form.order.errors }}
                       </div>
 
+                      <div class="km-category-field km-category-field--compact{% if adminform.form.is_active.errors %} km-category-field--error{% endif %}">
+                        {{ adminform.form.is_active.label_tag }}
+                        {{ adminform.form.is_active }}
+                        <div class="km-category-field__help">{% translate "Неактивная категория не показывается пользователям." %}</div>
+                        {{ adminform.form.is_active.errors }}
+                      </div>
+
                       <div class="km-category-field{% if adminform.form.name_ru.errors %} km-category-field--error{% endif %}">
                         {{ adminform.form.name_ru.label_tag }}
                         {{ adminform.form.name_ru }}

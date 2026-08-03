@@ -31,6 +31,7 @@ from catalog.services.place_schedule import (
 )
 from catalog.services.options import sort_translated_values
 from catalog.services.pricing_plans import normalize_pricing_plans
+from catalog.services.image_uploads import normalize_uploaded_image
 
 try:
     import phonenumbers
@@ -44,7 +45,6 @@ except ImportError:  # pragma: no cover - dependency should be installed in norm
 User = get_user_model()
 _NAME_CONNECTORS = {" ", "-", "'"}
 _PHONE_RE = re.compile(r"^\+?[0-9()\-\s]{7,25}$")
-_OWNER_IMAGE_MAX_BYTES = 2 * 1024 * 1024
 _OWNER_GALLERY_MAX_FILES = 10
 
 
@@ -309,14 +309,10 @@ def _build_registration_username(email: str) -> str:
         suffix += 1
 
 
-def _validate_uploaded_image(file_obj, *, max_bytes: int = _OWNER_IMAGE_MAX_BYTES) -> None:
+def _validate_uploaded_image(file_obj):
     if not file_obj:
-        return
-    content_type = (getattr(file_obj, "content_type", "") or "").lower()
-    if content_type and not content_type.startswith("image/"):
-        raise ValidationError(_("Загружайте только изображения (JPG, PNG, WEBP и т.д.)."))
-    if getattr(file_obj, "size", 0) > max_bytes:
-        raise ValidationError(_("Размер изображения не должен превышать 2 МБ."))
+        return file_obj
+    return normalize_uploaded_image(file_obj)
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -336,7 +332,7 @@ class MultipleFileField(forms.FileField):
             MultipleFileInput(
                 attrs={
                     "class": "field owner-file-uploader-input",
-                    "accept": "image/*",
+                    "accept": "image/*,.heic,.heif,.hif",
                     "multiple": True,
                 }
             ),
@@ -817,6 +813,11 @@ class UserSetPasswordForm(SetPasswordForm):
 
 class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput())
+    gallery_images = MultipleFileField(
+        label=_("Дополнительные фото (до 10)"),
+        required=False,
+        help_text=_("До 10 фото. HEIC/HEIF автоматически конвертируются на сервере."),
+    )
     lesson_format = forms.ChoiceField(required=False, choices=Place.LESSON_FORMAT_CHOICES, widget=forms.Select(attrs={"class": "field"}))
     offers_adult_classes = forms.TypedChoiceField(
         label=_("Кто может заниматься?"),
@@ -961,7 +962,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 }
             ),
             "photo": ImagePreviewFileInput(
-                attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}
+                attrs={"class": "field owner-file-uploader-input", "accept": "image/*,.heic,.heif,.hif"}
             ),
         }
         labels = {
@@ -1353,9 +1354,28 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         photo = cleaned.get("photo")
         if photo:
             try:
-                _validate_uploaded_image(photo)
+                cleaned["photo"] = _validate_uploaded_image(photo)
             except ValidationError as exc:
                 self.add_error("photo", exc)
+
+        gallery_images = self.files.getlist("gallery_images")
+        existing_gallery_count = (
+            self.instance.gallery.count() if self.instance and self.instance.pk else 0
+        )
+        available_slots = max(_OWNER_GALLERY_MAX_FILES - existing_gallery_count, 0)
+        if len(gallery_images) > available_slots:
+            self.add_error(
+                "gallery_images",
+                _("В галерее может быть не больше %(limit)s фото. Сейчас доступно мест: %(available)s.")
+                % {"limit": _OWNER_GALLERY_MAX_FILES, "available": available_slots},
+            )
+        normalized_gallery_images = []
+        for file_obj in gallery_images[:available_slots]:
+            try:
+                normalized_gallery_images.append(_validate_uploaded_image(file_obj))
+            except ValidationError as exc:
+                self.add_error("gallery_images", exc)
+        cleaned["gallery_images"] = normalized_gallery_images
 
         return cleaned
 
@@ -1377,12 +1397,6 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
         widget=forms.Textarea(attrs={"class": "field", "rows": 2}),
         help_text=_("Если модератору нужен дополнительный контекст."),
     )
-    gallery_images = MultipleFileField(
-        label=_("Дополнительные фото (до 10)"),
-        required=False,
-        help_text=_("До 10 фото. Большие изображения автоматически уменьшатся перед загрузкой."),
-    )
-
     class Meta(OwnerPlaceEditForm.Meta):
         fields = OwnerPlaceEditForm.Meta.fields
 
@@ -1422,21 +1436,6 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
 
         if not self.draft_save_only and not (cleaned.get("description_az") or "").strip():
             self.add_error("description_az", _("Укажите основное описание на азербайджанском языке."))
-
-        gallery_images = self.files.getlist("gallery_images")
-        cleaned["gallery_images"] = gallery_images
-        if len(gallery_images) > _OWNER_GALLERY_MAX_FILES:
-            self.add_error(
-                "gallery_images",
-                _("Можно загрузить не больше %(limit)s фото.") % {"limit": _OWNER_GALLERY_MAX_FILES},
-            )
-
-        for file_obj in gallery_images:
-            try:
-                _validate_uploaded_image(file_obj)
-            except ValidationError as exc:
-                self.add_error("gallery_images", exc)
-                break
 
         return cleaned
 
@@ -1586,7 +1585,7 @@ class OwnerEventForm(forms.ModelForm):
                 }
             ),
             "photo": ImagePreviewFileInput(
-                attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}
+                attrs={"class": "field owner-file-uploader-input", "accept": "image/*,.heic,.heif,.hif"}
             ),
             "moderation_note": forms.Textarea(attrs={"class": "field", "rows": 2}),
         }
@@ -1718,7 +1717,7 @@ class OwnerEventForm(forms.ModelForm):
         photo = cleaned.get("photo")
         if photo:
             try:
-                _validate_uploaded_image(photo)
+                cleaned["photo"] = _validate_uploaded_image(photo)
             except ValidationError as exc:
                 self.add_error("photo", exc)
         return cleaned
@@ -1843,7 +1842,7 @@ class OwnerSpecialistForm(forms.ModelForm):
         )
         widgets = {
             "name": forms.TextInput(attrs={"class": "field", "placeholder": _("Имя и фамилия")}),
-            "photo": ImagePreviewFileInput(attrs={"class": "field owner-file-uploader-input", "accept": "image/*"}),
+            "photo": ImagePreviewFileInput(attrs={"class": "field owner-file-uploader-input", "accept": "image/*,.heic,.heif,.hif"}),
             "bio_az": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на азербайджанском")}),
             "bio_ru": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на русском")}),
             "bio_en": forms.Textarea(attrs={"class": "field", "rows": 3, "placeholder": _("О себе на английском")}),
@@ -1892,7 +1891,7 @@ class OwnerSpecialistForm(forms.ModelForm):
             photo = cleaned.get("photo")
             if photo:
                 try:
-                    _validate_uploaded_image(photo)
+                    cleaned["photo"] = _validate_uploaded_image(photo)
                 except ValidationError as exc:
                     self.add_error("photo", exc)
             return cleaned
@@ -1951,7 +1950,7 @@ class OwnerSpecialistForm(forms.ModelForm):
         photo = cleaned.get("photo")
         if photo:
             try:
-                _validate_uploaded_image(photo)
+                cleaned["photo"] = _validate_uploaded_image(photo)
             except ValidationError as exc:
                 self.add_error("photo", exc)
 

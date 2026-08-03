@@ -1515,7 +1515,20 @@ class PlaceAdmin(admin.ModelAdmin):
         "age_to",
         "offers_adult_classes",
     )
-    search_fields = ("name_az", "name_ru", "name_en", "name", "slug", "address", "instagram", "phone1", "owner__username", "owner__email")
+    search_fields = (
+        "name_az",
+        "name_ru",
+        "name_en",
+        "name",
+        "slug",
+        "address",
+        "instagram",
+        "phone1",
+        "phone2",
+        "phone3",
+        "owner__username",
+        "owner__email",
+    )
     search_help_text = _("Ищет по названию места на AZ, RU или EN. Можно также искать по адресу, телефону или владельцу.")
     readonly_fields = (
         "slug",
@@ -2073,7 +2086,10 @@ class PlaceAdmin(admin.ModelAdmin):
         missing = []
         missing_fields = set()
         for field_name, label in checklist:
-            if self._field_has_value(form, field_name, obj=obj):
+            is_open_ended_age = field_name == "age_to" and self._field_has_value(
+                form, "age_open_ended", obj=obj
+            )
+            if is_open_ended_age or self._field_has_value(form, field_name, obj=obj):
                 completed += 1
             else:
                 field_id = "id_name_az" if field_name == "name" else f"id_{field_name}"
@@ -2248,7 +2264,18 @@ class PlaceAdmin(admin.ModelAdmin):
             },
         ),
         (_("Локация"), {"fields": (("district", "metro"), "address", ("lat", "lng"), ("coordinates_status_display", "map_ready_status_display"))}),
-        (_("Контакты"), {"fields": (("phone1", "instagram", "website"), "schedule", "extra_conditions", "additional_info")}),
+        (
+            _("Контакты"),
+            {
+                "fields": (
+                    ("phone1", "phone2", "phone3"),
+                    ("instagram", "website"),
+                    "schedule",
+                    "extra_conditions",
+                    "additional_info",
+                )
+            },
+        ),
         (_("Фотографии"), {"fields": ("photo",)}),
         (_("Удаление"), {"classes": ("collapse",), "fields": ("deleted_at", "deleted_by")}),
         (
@@ -3254,6 +3281,8 @@ class PlaceAdmin(admin.ModelAdmin):
             | Q(slug__icontains=term)
             | Q(address__icontains=term)
             | Q(phone1__icontains=term)
+            | Q(phone2__icontains=term)
+            | Q(phone3__icontains=term)
             | Q(owner__username__icontains=term)
             | Q(owner__email__icontains=term)
         )

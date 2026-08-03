@@ -470,10 +470,35 @@
         </div>
         <div class="owner-photo-upload-grid">
           {% include "pages/includes/owner_form_field.html" with field=form.photo full_width=True %}
-          {% if wizard_mode == "create" %}
+          {% if wizard_mode == "edit" and place.gallery.all %}
             <div class="owner-form-field owner-form-field-full owner-gallery-upload-block">
               <div class="owner-gallery-upload-head">
-                <span class="meta">{% if CURRENT_LANGUAGE == "az" %}İstəyə görə, 10-dək əlavə şəkil.{% elif CURRENT_LANGUAGE == "en" %}Optional, up to 10 extra photos.{% else %}{% trans "Необязательно, до 10 дополнительных фото." %}{% endif %}</span>
+                <span class="meta">{% if CURRENT_LANGUAGE == "az" %}Saxlanmış qalereya şəkilləri{% elif CURRENT_LANGUAGE == "en" %}Saved gallery photos{% else %}{% trans "Сохранённые фотографии галереи" %}{% endif %}</span>
+              </div>
+              <div class="owner-file-uploader-list">
+                {% for gallery_photo in place.gallery.all %}
+                  <article class="owner-file-uploader-item">
+                    <a href="{{ gallery_photo.image.url }}" target="_blank" rel="noopener">
+                      <img src="{{ gallery_photo.image.url }}" alt="" class="owner-file-uploader-mini-preview" loading="lazy" />
+                    </a>
+                    <span class="owner-file-uploader-item-name">{{ gallery_photo.image.name|cut:"places/gallery/" }}</span>
+                    <div class="owner-file-uploader-item-actions">
+                      <button
+                        type="submit"
+                        form="owner-gallery-photo-delete-{{ gallery_photo.id }}"
+                        class="owner-file-uploader-item-remove"
+                        onclick="return confirm('{% if CURRENT_LANGUAGE == 'az' %}Bu şəkil silinsin?{% elif CURRENT_LANGUAGE == 'en' %}Delete this photo?{% else %}Удалить эту фотографию?{% endif %}');"
+                      >{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Delete{% else %}{% trans "Удалить" %}{% endif %}</button>
+                    </div>
+                  </article>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+          {% if wizard_mode == "create" or wizard_mode == "edit" %}
+            <div class="owner-form-field owner-form-field-full owner-gallery-upload-block">
+              <div class="owner-gallery-upload-head">
+                <span class="meta">{% if CURRENT_LANGUAGE == "az" %}İstəyə görə, cəmi 10-dək əlavə şəkil.{% elif CURRENT_LANGUAGE == "en" %}Optional, up to 10 extra photos total.{% else %}{% trans "Необязательно, до 10 дополнительных фото всего." %}{% endif %}</span>
               </div>
               {% include "pages/includes/owner_form_field.html" with field=form.gallery_images full_width=True %}
             </div>
@@ -583,7 +608,7 @@
             {% endif %}
             <button type="submit" name="form_action" value="save_draft" class="btn-secondary wz-icon-btn" data-loading-button formnovalidate>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı saxla{% elif CURRENT_LANGUAGE == "en" %}Save draft{% else %}{% trans "Сохранить черновик" %}{% endif %}</button>
             <div class="owner-publish-action">
-              <button type="submit" name="form_action" value="save_and_publish" class="btn btn-primary-submit" data-owner-publish-button data-loading-button disabled aria-disabled="true">{% if CURRENT_LANGUAGE == "az" %}Saxla və dərc et{% elif CURRENT_LANGUAGE == "en" %}Save and publish{% else %}{% trans "Сохранить и опубликовать" %}{% endif %}</button>
+              <button type="submit" name="form_action" value="save_and_publish" class="btn btn-primary-submit" data-owner-publish-button data-loading-button disabled aria-disabled="true">{% if CURRENT_LANGUAGE == "az" %}Saxla və moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Save and send for review{% else %}{% trans "Сохранить и отправить на модерацию" %}{% endif %}</button>
               <small class="owner-publish-hint" data-owner-publish-hint></small>
             </div>
           {% else %}

@@ -160,7 +160,7 @@ class Subcategory(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.PROTECT, related_name="subcategories", verbose_name=_("Категория")
     )
-    code = models.CharField(_("Код"), max_length=50, unique=True, null=True, blank=True)
+    code = models.CharField(_("Код"), max_length=50, unique=True)
     name = models.CharField(_("Название"), max_length=255)
     name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")

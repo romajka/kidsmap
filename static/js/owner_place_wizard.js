@@ -1584,20 +1584,25 @@
 
   async function optimizeUploaderImage(file) {
     const type = String(file && file.type || "").toLowerCase();
-    const hasImageExtension = /\.(?:avif|gif|heic|heif|jpe?g|png|webp)$/i.test(String(file && file.name || ""));
+    const hasImageExtension = /\.(?:heic|heif|hif|jpe?g|png|webp)$/i.test(String(file && file.name || ""));
+    const hasSupportedMime = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(type);
+    const isHeif = /\.(?:heic|heif|hif)$/i.test(String(file && file.name || ""))
+      || type === "image/heic"
+      || type === "image/heif";
     if (!file) {
       return file;
     }
     if (!file.size) {
       throw uploaderFileError("empty", file);
     }
-    if (type.indexOf("image/") !== 0 && !hasImageExtension) {
+    if (!hasSupportedMime && !hasImageExtension) {
       throw uploaderFileError("type", file);
     }
-    if (type === "image/gif" || type === "image/svg+xml") {
+    // Most browsers cannot decode HEIC reliably. Keep the original file and
+    // let the server validate orientation and convert it to JPEG.
+    if (isHeif) {
       return file;
     }
-
     let image;
     try {
       image = await loadImageForOptimization(file);
@@ -1688,7 +1693,10 @@
         errors.push(uploaderFileMessage(uploader, "uploadEmptyFile", file));
         return;
       }
-      if (file.type && file.type.indexOf("image/") !== 0) {
+      const hasSupportedExtension = /\.(?:heic|heif|hif|jpe?g|png|webp)$/i.test(String(file.name || ""));
+      const fileType = String(file.type || "").toLowerCase();
+      const hasSupportedMime = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(fileType);
+      if (!hasSupportedMime && !hasSupportedExtension) {
         errors.push(uploaderFileMessage(uploader, "uploadBadTypeFile", file, uploader.dataset.uploadBadType || ""));
         return;
       }
@@ -1908,6 +1916,13 @@
       return;
     }
 
+    const uploaderWithError = form.querySelector('[data-file-uploader][data-upload-error-active="1"]');
+    if (uploaderWithError) {
+      event.preventDefault();
+      uploaderWithError.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
     const submitter = event.submitter || document.activeElement;
     const isDraft = submitter && (
       submitter.value === "save_draft"
@@ -1931,6 +1946,14 @@
     form.querySelectorAll('input[type="file"][multiple]').forEach(function (input) {
       if (input._accumulatedFiles) {
         input.files = input._accumulatedFiles.files;
+      }
+    });
+    form.querySelectorAll("[data-file-uploader]").forEach(function (uploader) {
+      const input = uploader.querySelector("[data-upload-input]");
+      const meta = uploader.querySelector("[data-upload-meta]");
+      if (input && meta && getSelectedFiles(input).length) {
+        meta.textContent = uploader.dataset.uploadServerProcessing || uploader.dataset.uploadPending || "";
+        uploader.classList.add("is-processing");
       }
     });
     allowNavigation = true;
