@@ -118,6 +118,11 @@ def clean_public_taxonomy(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    # PostgreSQL cannot ALTER the subcategory table while the preceding data
+    # cleanup still has deferred foreign-key trigger events in the same
+    # transaction. The cleanup itself remains atomic inside RunPython.
+    atomic = False
+
     dependencies = [
         ("catalog", "0079_sync_public_taxonomy"),
     ]
