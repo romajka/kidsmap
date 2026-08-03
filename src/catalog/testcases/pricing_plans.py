@@ -55,8 +55,9 @@ class PricingPlansTests(TestCase):
         plan = {"lesson_format": "group", "payment_type": "per_month", "price": "120"}
 
         self.assertEqual(len(normalize_pricing_plans([plan.copy() for _ in range(20)])), 20)
-        with self.assertRaisesMessage(ValidationError, "Можно добавить не более 20 тарифов."):
-            normalize_pricing_plans([plan.copy() for _ in range(21)])
+        with override("ru"):
+            with self.assertRaisesMessage(ValidationError, "Можно добавить не более 20 тарифов."):
+                normalize_pricing_plans([plan.copy() for _ in range(21)])
 
     def test_accepts_open_visit_tariffs(self):
         plans = normalize_pricing_plans([

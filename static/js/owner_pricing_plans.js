@@ -2,7 +2,9 @@
   const MAX_PRICING_PLANS = 20;
   const editor = document.querySelector("[data-tariff-editor]");
   if (!editor) return;
-  const input = editor.querySelector("[data-tariff-input]");
+  const ownerForm = editor.closest("form");
+  const input = editor.querySelector("[data-tariff-input]")
+    || (ownerForm && ownerForm.querySelector("[data-tariff-input]"));
   const list = editor.querySelector("[data-tariff-list]");
   const add = editor.querySelector("[data-tariff-add]");
   if (!input || !list || !add) return;
@@ -61,7 +63,7 @@
   };
 
   const fields = [
-    ["title_az", labels.titleAz, "text", null, true],
+    ["title_az", labels.titleAz, "text", null, false],
     ["title_ru", labels.titleRu, "text", null, false],
     ["title_en", labels.titleEn, "text", null, false],
     ["lesson_format", labels.format, "select", [["group", labels.group], ["individual", labels.individual], ["open_visit", labels.openVisit]], true],

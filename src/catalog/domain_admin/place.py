@@ -1616,6 +1616,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     "offers_adult_classes",
                     ("price_from", "price_to", "price_per_lesson"),
                     ("price_per_month", "price_per_8_lessons"),
+                    "pricing_plans",
                 )
             },
         ),
@@ -2260,6 +2261,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     "offers_adult_classes",
                     ("price_from", "price_to", "price_per_lesson"),
                     ("price_per_month", "price_per_8_lessons"),
+                    "pricing_plans",
                 )
             },
         ),

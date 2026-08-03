@@ -423,7 +423,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Индивидуальный")
         self.assertContains(response, "&quot;price&quot;: &quot;40.00&quot;", html=False)
         self.assertContains(response, "owner_place_wizard.js")
-        self.assertContains(response, "?v=9")
+        self.assertContains(response, "?v=10")
 
     def test_owner_edit_shows_pricing_validation_error_and_keeps_saved_plans(self):
         existing_plans = [

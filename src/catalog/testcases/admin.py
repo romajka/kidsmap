@@ -1312,6 +1312,41 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertFalse(self.place.is_active)
         self.assertIsNone(self.place.published_at)
 
+    def test_place_admin_saves_pricing_plans_from_change_form(self):
+        pricing_plans = [
+            {
+                "lesson_format": "group",
+                "payment_type": "per_month",
+                "sessions_per_month": 12,
+                "price": "120",
+                "currency": "AZN",
+                "title_az": "Aylıq abonement",
+                "is_active": True,
+            },
+            {
+                "lesson_format": "individual",
+                "payment_type": "per_lesson",
+                "price": "40",
+                "currency": "AZN",
+                "is_active": True,
+            },
+        ]
+        payload = self._admin_place_change_payload(
+            pricing_plans=json.dumps(pricing_plans),
+            _save_draft="1",
+        )
+
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data=payload,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.place.refresh_from_db()
+        self.assertEqual(len(self.place.pricing_plans), 2)
+        self.assertEqual(self.place.pricing_plans[0]["price"], "120.00")
+        self.assertEqual(self.place.pricing_plans[1]["price"], "40.00")
+
     def test_place_admin_saves_gallery_photo_with_draft(self):
         payload = self._admin_place_change_payload(
             **{
