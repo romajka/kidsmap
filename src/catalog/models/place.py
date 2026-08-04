@@ -259,9 +259,9 @@ class Place(models.Model):
         errors = {}
         if self.age_from is not None and self.age_to is not None and self.age_from > self.age_to:
             errors["age_to"] = _("Возраст «до» не может быть меньше возраста «от».")
-        if self.offers_adult_classes and (self.age_from is None or self.age_to is None):
+        if self.offers_adult_classes and (self.age_from is None or (self.age_to is None and not self.age_open_ended)):
             errors["offers_adult_classes"] = _(
-                "Сначала укажите полный детский возрастной диапазон. Место не может быть только для взрослых."
+                "Сначала укажите детский возрастной диапазон. Место не может быть только для взрослых."
             )
         if errors:
             raise ValidationError(errors)

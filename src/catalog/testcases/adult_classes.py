@@ -34,6 +34,18 @@ class PlaceAdultClassesModelTests(TestCase):
 
         self.assertIn("offers_adult_classes", raised.exception.message_dict)
 
+    def test_adult_classes_allowed_with_open_ended_child_age_range(self):
+        place = Place(
+            name="Valid open ended adult place",
+            category_id="EDU",
+            age_from=0,
+            age_to=None,
+            age_open_ended=True,
+            offers_adult_classes=True,
+        )
+        place.full_clean()
+        self.assertTrue(place.offers_adult_classes)
+
     def test_child_age_minimum_cannot_exceed_maximum(self):
         place = Place(
             name="Invalid child ages",
