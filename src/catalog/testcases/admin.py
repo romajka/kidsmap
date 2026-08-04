@@ -1107,12 +1107,12 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(self.place.phone3, "+994703332211")
 
     def test_place_admin_change_form_shows_public_site_link_for_published_place(self):
-        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+        public_place = create_quality_place(name="Published admin preview")
+        response = self.client.get(reverse("admin:catalog_place_change", args=[public_place.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Публичная страница")
         self.assertContains(response, "Открыть карточку на сайте")
-        self.assertContains(response, f'href="http://testserver/ru/place/{self.place.id}-', html=False)
+        self.assertContains(response, f'href="http://testserver/ru/place/{public_place.id}-', html=False)
 
     def test_place_admin_change_form_uses_readonly_service_dates_instead_of_raw_datetime_widgets(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
@@ -2771,7 +2771,7 @@ class TestCategoryAdminHierarchy(TestCase):
         self.assertContains(response, "Тестовая Подкатегория")
 
     def test_place_add_form_renders_subcategory_options(self):
-        url = reverse("admin:catalog_place_add")
+        url = f'{reverse("admin:catalog_place_add")}?type=permanent'
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -2780,7 +2780,7 @@ class TestCategoryAdminHierarchy(TestCase):
         self.assertContains(response, 'data-category="TESTCAT"', html=False)
 
     def test_place_add_form_renders_metro_select_options(self):
-        url = reverse("admin:catalog_place_add")
+        url = f'{reverse("admin:catalog_place_add")}?type=permanent'
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)

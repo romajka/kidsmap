@@ -86,54 +86,68 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1920x1080 px, до 2 MB."),
     )
+    header_background_image = models.FileField(
+        _("Фон шапки сайта (Header)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется PNG/WebP/JPG 1600x120 px (пропорция ~13:1), до 500 KB."),
+    )
+    footer_background_image = models.FileField(
+        _("Фон подвала сайта (Footer)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px (пропорция ~16:5), до 1 MB."),
+    )
     home_hero_image = models.FileField(
         _("Фон главного баннера"),
         upload_to="site/",
         blank=True,
         null=True,
-        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB."),
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
     home_map_image = models.FileField(
         _("Фон блока карты"),
         upload_to="site/",
         blank=True,
         null=True,
-        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
     home_recommended_image = models.FileField(
         _("Фон блока рекомендаций"),
         upload_to="site/",
         blank=True,
         null=True,
-        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
     home_categories_image = models.FileField(
         _("Фон блока категорий"),
         upload_to="site/",
         blank=True,
         null=True,
-        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
     home_steps_image = models.FileField(
         _("Фон блока 'Как это работает'"),
         upload_to="site/",
         blank=True,
         null=True,
-        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
     home_trust_image = models.FileField(
         _("Фон блока преимуществ"),
         upload_to="site/",
         blank=True,
         null=True,
-        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
     home_cta_image = models.FileField(
         _("Фон нижнего призыва (CTA)"),
         upload_to="site/",
         blank=True,
         null=True,
-        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB."),
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px (пропорция ~16:5), до 1 MB."),
     )
     home_hero_show_decor = models.BooleanField(_("Показывать декор в hero"), default=True)
     home_title_ru = models.CharField(_("Hero заголовок (RU)"), max_length=220, blank=True, default="")
