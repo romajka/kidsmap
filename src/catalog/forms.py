@@ -874,8 +874,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "age_from",
             "age_to",
             "offers_adult_classes",
-            "price_from",
-            "price_to",
             "region",
             "district",
             "metro",
@@ -890,9 +888,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "lesson_format",
             "lessons_per_week",
             "lessons_per_month",
-            "price_per_lesson",
-            "price_per_month",
-            "price_per_8_lessons",
             "pricing_plans",
             "extra_conditions",
             "additional_info",
@@ -1061,13 +1056,12 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 "category",
                 "age_from",
                 "age_to",
-                "price_from",
-                "price_to",
                 "address",
                 "phone1",
                 "photo",
             ):
-                self.fields[field_name].required = True
+                if field_name in self.fields:
+                    self.fields[field_name].required = True
 
         from catalog.services.locations import init_location_fields
         init_location_fields(self, instance)
@@ -1102,6 +1096,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "Возраст выше относится к детским группам. Выберите второй вариант, если есть отдельные взрослые группы."
         )
         for field_name in ("price_from", "price_to"):
+            if field_name not in self.fields:
+                continue
             self.fields[field_name].error_messages.update(
                 {
                     "invalid": _("Введите цену числом. Например: 120."),
@@ -1109,6 +1105,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 }
             )
         for field_name in ("price_per_lesson", "price_per_month", "price_per_8_lessons"):
+            if field_name not in self.fields:
+                continue
             self.fields[field_name].error_messages.update(
                 {
                     "invalid": _("Введите цену числом. Например: 120."),
@@ -1163,11 +1161,12 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         else:
             free_price_hint = "Если бесплатно, укажите 0."
             free_range_hint = "Если место бесплатное, укажите 0 в обоих полях."
-        self.fields["price_from"].help_text = free_range_hint
-        self.fields["price_to"].help_text = free_range_hint
-        self.fields["price_per_lesson"].help_text = f"{_('Если есть отдельная цена.')} {free_price_hint}"
-        self.fields["price_per_month"].help_text = f"{_('Если есть абонемент.')} {free_price_hint}"
-        self.fields["price_per_8_lessons"].help_text = f"{_('Если есть пакет занятий.')} {free_price_hint}"
+        for field_name in ("price_from", "price_to"):
+            if field_name in self.fields:
+                self.fields[field_name].help_text = free_range_hint
+        for field_name in ("price_per_lesson", "price_per_month", "price_per_8_lessons"):
+            if field_name in self.fields:
+                self.fields[field_name].help_text = f"{_('Если есть отдельная цена.')} {free_price_hint}"
         self.fields["extra_conditions"].help_text = _("Скидки, пробный урок, форма.")
         self.fields["additional_info"].help_text = _("Только если есть важные детали.")
         self.fields["photo"].help_text = _("JPG, PNG или WEBP до 2 МБ. В каталоге главное фото показывается квадратом.")
@@ -1263,6 +1262,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
         try:
             cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]")
+            self.instance.pricing_plans = cleaned["pricing_plans"]
         except ValidationError as exc:
             self.add_error("pricing_plans", exc)
             cleaned["pricing_plans"] = []
@@ -1418,8 +1418,6 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
                 "category",
                 "age_from",
                 "age_to",
-                "price_from",
-                "price_to",
                 "address",
                 "phone1",
                 "photo",

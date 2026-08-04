@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
 
-from django.db.models import Q
+from django.db.models import Case, DecimalField, F, Q, Subquery, When
 from django.utils import timezone
 
 
@@ -162,15 +162,36 @@ class PlaceListFilters:
             qs = qs.filter(Q(age_from__isnull=True) | Q(age_from__lte=age_to_int))
 
         price_from_int, price_to_int = self._normalized_price_bounds()
+        if price_from_int is not None or price_to_int is not None or self.sort in {"price_asc", "price_desc"}:
+            from catalog.models import PricingPlan
+            from django.db.models import OuterRef
+            paid_price = (
+                PricingPlan.objects.filter(
+                    place_id=OuterRef("pk"), is_active=True, charge_role="primary", currency="AZN",
+                    price_kind__in=("exact", "from", "range"),
+                )
+                .annotate(
+                    effective_price=Case(
+                        When(price_kind="exact", then=F("price")),
+                        default=F("price_min"), output_field=DecimalField(max_digits=10, decimal_places=2),
+                    )
+                )
+                .filter(effective_price__gt=0)
+                .order_by("effective_price")
+                .values("effective_price")[:1]
+            )
+            qs = qs.annotate(catalog_paid_price=Subquery(paid_price, output_field=DecimalField(max_digits=10, decimal_places=2)))
         if price_from_int is not None:
-            qs = qs.filter(Q(price_to__isnull=True) | Q(price_to__gte=price_from_int))
+            qs = qs.filter(catalog_paid_price__gte=price_from_int)
         if price_to_int is not None:
-            qs = qs.filter(Q(price_from__isnull=True) | Q(price_from__lte=price_to_int))
+            qs = qs.filter(catalog_paid_price__lte=price_to_int)
+
+        qs = qs.prefetch_related("pricing_plan_records")
 
         if self.sort == "price_asc" and not self.force_new_only:
-            return qs.order_by("price_from", "-created_at")
+            return qs.order_by("catalog_paid_price", "-created_at")
         if self.sort == "price_desc" and not self.force_new_only:
-            return qs.order_by("-price_from", "-created_at")
+            return qs.order_by("-catalog_paid_price", "-created_at")
         if self.sort == "reviews_desc" and not self.force_new_only:
             return qs.order_by("-rating_count", "-rating_avg", "-created_at")
         self.sort = "new"

@@ -38,10 +38,10 @@
     {% endif %}
 
   {% if request.user.is_authenticated %}
-      <form method="post" action="{% url vote_url_name review.id %}" class="review-reactions-form" data-review-reaction-form>
+      <form method="post" action="{% url vote_url_name review.id %}" class="review-reactions-form"{% if review.user_id != request.user.id %} data-review-reaction-form{% endif %}>
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url|default:request.path }}">
-        <button type="submit" name="value" value="1" class="review-reaction-btn{% if review.current_reaction == 1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == 1 %}true{% else %}false{% endif %}">
+        <button type="submit" name="value" value="1" class="review-reaction-btn{% if review.current_reaction == 1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == 1 %}true{% else %}false{% endif %}"{% if review.user_id == request.user.id %} disabled title="{% trans 'Нельзя оценивать собственный отзыв.' %}"{% endif %}>
           <span class="review-reaction-icon" aria-hidden="true">
             <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
               <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>
@@ -51,7 +51,7 @@
           <span class="visually-hidden">{% if request.LANGUAGE_CODE == 'az' %}Bəyən{% elif request.LANGUAGE_CODE == 'en' %}Like{% else %}Лайк{% endif %}</span>
           <span class="review-reaction-count" data-review-like-count>{{ review.likes_count }}</span>
         </button>
-        <button type="submit" name="value" value="-1" class="review-reaction-btn dislike{% if review.current_reaction == -1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == -1 %}true{% else %}false{% endif %}">
+        <button type="submit" name="value" value="-1" class="review-reaction-btn dislike{% if review.current_reaction == -1 %} active{% endif %}" aria-pressed="{% if review.current_reaction == -1 %}true{% else %}false{% endif %}"{% if review.user_id == request.user.id %} disabled title="{% trans 'Нельзя оценивать собственный отзыв.' %}"{% endif %}>
           <span class="review-reaction-icon" aria-hidden="true">
             <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
               <path d="M7.8 8.1V5c0-1 .8-1.8 1.8-1.8.8 0 1.4.5 1.6 1.3l.6 2.3h3.1c1.1 0 1.9 1 1.7 2l-.9 5.2c-.1.8-.8 1.3-1.6 1.3H8.8c-.6 0-1-.4-1-1V8.1h0Z"></path>

@@ -1,5 +1,5 @@
 from django.db import IntegrityError, transaction
-from django.db.models import Q
+from django.db.models import Count, Q
 
 from catalog.models import (
     PlaceLike,
@@ -143,7 +143,16 @@ def _toggle_review_reaction(*, review, request, value: int, reaction_model):
                 )
             current_reaction = int(value)
 
-        locked_review.refresh_from_db(fields=["likes_count", "dislikes_count"])
+        stats = reaction_model.objects.filter(review=locked_review).aggregate(
+            likes=Count("id", filter=Q(value=1)),
+            dislikes=Count("id", filter=Q(value=-1)),
+        )
+        locked_review.likes_count = int(stats.get("likes") or 0)
+        locked_review.dislikes_count = int(stats.get("dislikes") or 0)
+        review.__class__.objects.filter(pk=locked_review.pk).update(
+            likes_count=locked_review.likes_count,
+            dislikes_count=locked_review.dislikes_count,
+        )
 
     return current_reaction, locked_review.likes_count, locked_review.dislikes_count
 

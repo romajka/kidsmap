@@ -151,6 +151,7 @@
                   <h3>{{ pricing_summary.strings.tariffs }}</h3>
                   <div class="detail-unified-pricing__plans-list" id="pricing-plans-container">
                     {% for plan in pricing_summary.plans %}
+                      {% ifchanged plan.group_key %}<h4 class="detail-unified-pricing__plan-group">{{ plan.group_label }}</h4>{% endifchanged %}
                       <div class="detail-unified-pricing__plan-row {% if forloop.counter > 3 %}detail-unified-pricing__plan-row--hidden{% endif %}"{% if forloop.counter > 3 %} style="display: none;"{% endif %}>
                         <div class="detail-unified-pricing__plan-left">
                           <strong class="detail-unified-pricing__plan-title">{{ plan.title }}</strong>

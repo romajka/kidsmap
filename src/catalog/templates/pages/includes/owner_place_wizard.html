@@ -94,9 +94,9 @@
       class="owner-wizard-step is-active"
       data-owner-step="1"
       data-owner-step-title="{% if CURRENT_LANGUAGE == 'az' %}Əsas{% elif CURRENT_LANGUAGE == 'en' %}Basics{% else %}{% trans 'Основное' %}{% endif %}"
-      data-owner-step-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to"
-      data-owner-step-permanent-required-fields="name_az,category,description_az,age_from,age_to,price_from,price_to"
-      data-owner-step-temporary-required-fields="name_az,category,description_az,temporary_start,temporary_end,price_from"
+      data-owner-step-required-fields="name_az,category,description_az,age_from,age_to"
+      data-owner-step-permanent-required-fields="name_az,category,description_az,age_from,age_to"
+      data-owner-step-temporary-required-fields="name_az,category,description_az,temporary_start,temporary_end"
     >
       <section class="owner-form-section owner-form-section-primary">
         <div class="owner-form-section-head">
@@ -192,20 +192,7 @@
               <strong>{% if CURRENT_LANGUAGE == "az" %}Qiymət aralığı{% elif CURRENT_LANGUAGE == "en" %}Price range{% else %}Стоимость занятий{% endif %}</strong>
             </div>
 
-            <div class="owner-price-free-toggle-wrapper">
-              <label class="owner-price-free-label">
-                <input type="checkbox" id="km-price-free-checkbox" class="owner-price-free-checkbox">
-                <span class="owner-price-free-checkbox-custom"></span>
-                <span>{% if CURRENT_LANGUAGE == "az" %}Ödənişsizdir (Pulsuz){% elif CURRENT_LANGUAGE == "en" %}Free entry / classes{% else %}Бесплатное посещение / занятия{% endif %}</span>
-              </label>
-            </div>
-
-            <div class="owner-form-group-card__grid" data-price-inputs-grid>
-              {% include "pages/includes/owner_form_field.html" with field=form.price_from %}
-              <div data-owner-mode-panel="permanent">
-                {% include "pages/includes/owner_form_field.html" with field=form.price_to %}
-              </div>
-            </div>
+            <p>{% if CURRENT_LANGUAGE == "az" %}Qiymətləri aşağıdakı tariflər bölməsində əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}Add prices in the pricing plans section below.{% else %}Добавьте цены в тарифах ниже.{% endif %}</p>
           </div>
         </div>
 
@@ -298,9 +285,6 @@
             {% include "pages/includes/owner_form_field.html" with field=form.lesson_duration_minutes %}
             {% include "pages/includes/owner_form_field.html" with field=form.lessons_per_week %}
             {% include "pages/includes/owner_form_field.html" with field=form.lessons_per_month %}
-            {% include "pages/includes/owner_form_field.html" with field=form.price_per_lesson %}
-            {% include "pages/includes/owner_form_field.html" with field=form.price_per_month %}
-            {% include "pages/includes/owner_form_field.html" with field=form.price_per_8_lessons %}
             <div
               class="owner-form-field owner-form-field-full owner-tariff-editor"
               data-tariff-editor

@@ -613,18 +613,27 @@
         async function submitJsonForm(form, submitButtons, onSuccess, submitter) {
           const buttons = submitButtons.filter(Boolean);
           if (buttons.some((button) => button.disabled)) return;
+          // Build the payload while the clicked submit button is still enabled.
+          // Disabled submitters are omitted from FormData, which used to drop
+          // the review reaction's value (1/-1) in some browsers.
+          const formPayload = buildFormPayload(form, submitter);
+          const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
           buttons.forEach((button) => {
             button.disabled = true;
           });
 
           try {
+            const headers = {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+            };
+            if (csrfInput && csrfInput.value) {
+              headers["X-CSRFToken"] = csrfInput.value;
+            }
             const response = await fetch(form.action, {
               method: "POST",
-              headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "Accept": "application/json",
-              },
-              body: buildFormPayload(form, submitter),
+              headers: headers,
+              body: formPayload,
               credentials: "same-origin",
             });
             const payload = await response.json().catch(function () {
@@ -632,6 +641,11 @@
             });
             if (response.status === 401 && handleAuthRequiredPayload(payload)) {
               showInlineFormNotice(form, payload.message || "", { duration: 4200 });
+              return;
+            }
+            if (!response.ok && payload && payload.message) {
+              showToast(payload.message, { variant: "error" });
+              showInlineFormNotice(form, payload.message, { variant: "error" });
               return;
             }
             if (!response.ok || !payload) throw new Error("Request failed");

@@ -3,6 +3,285 @@
   padding-top: 0;
 }
 
+/* Compact shared pricing-plan cards */
+.owner-tariff-editor,
+.km-pricing-editor {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.owner-tariff-editor .km-pricing-editor__list,
+.km-pricing-editor .km-pricing-editor__list {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+  min-width: 0;
+}
+
+.owner-tariff-editor .owner-tariff-row,
+.km-pricing-editor .owner-tariff-row {
+  display: block !important;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 !important;
+  border: 1px solid #dce9e1;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(20, 72, 47, 0.04);
+}
+
+.owner-tariff-card-head {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, #f4faf6, #fbfdfb);
+  border-bottom: 1px solid #e4eee8;
+}
+
+.owner-tariff-card-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #087a49;
+  background: #dcf3e5;
+}
+
+.owner-tariff-card-icon svg,
+.owner-tariff-advanced summary svg,
+.owner-tariff-actions svg,
+.owner-tariff-translation-toggle svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -3px;
+}
+
+.owner-tariff-card-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.owner-tariff-card-copy strong,
+.owner-tariff-card-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.owner-tariff-card-copy strong {
+  color: #183e2b;
+  font-size: 14px;
+}
+
+.owner-tariff-card-copy small {
+  color: #698072;
+  font-size: 11.5px;
+}
+
+.owner-tariff-card-number {
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: #527061;
+  background: #eaf3ed;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.owner-tariff-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+  min-width: 0;
+  padding: 14px;
+}
+
+.owner-tariff-grid .owner-tariff-field {
+  min-width: 0;
+}
+
+.owner-tariff-grid .owner-tariff-field > span {
+  display: block;
+  margin-bottom: 5px;
+  color: #50685b;
+  font-size: 11.5px;
+  font-weight: 750;
+}
+
+.owner-tariff-grid input:not([type="checkbox"]),
+.owner-tariff-grid select,
+.owner-tariff-grid textarea,
+.owner-tariff-grid .select2-container {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.owner-tariff-grid input:not([type="checkbox"]),
+.owner-tariff-grid select,
+.owner-tariff-grid textarea {
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid #d4e4da;
+  border-radius: 9px;
+  background: #fff;
+  color: #193126;
+}
+
+.owner-tariff-grid input:focus,
+.owner-tariff-grid select:focus,
+.owner-tariff-grid textarea:focus {
+  outline: none;
+  border-color: #0d8a52;
+  box-shadow: 0 0 0 3px rgba(13, 138, 82, 0.11);
+}
+
+.owner-tariff-field--title_az {
+  grid-column: auto;
+}
+
+.owner-tariff-translation-toggle {
+  grid-column: auto !important;
+  align-self: center;
+  margin: -3px 0 0;
+}
+
+.owner-tariff-row.translations--hidden .owner-tariff-field--title_az {
+  grid-column: auto !important;
+}
+
+.owner-tariff-advanced {
+  margin: 0 14px 12px;
+  border: 1px solid #e4ece7;
+  border-radius: 10px;
+  background: #fbfdfc;
+}
+
+.owner-tariff-advanced > summary {
+  display: flex !important;
+  grid-template-columns: none !important;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  color: #315541;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.owner-tariff-advanced > summary > span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.owner-tariff-advanced > summary > small {
+  margin-left: auto;
+  text-align: right;
+}
+
+.owner-tariff-advanced > summary::before,
+.owner-tariff-advanced > summary::after {
+  content: none !important;
+  display: none !important;
+}
+
+.owner-tariff-advanced > summary small {
+  color: #829187;
+  font-weight: 500;
+}
+
+.owner-tariff-advanced[open] > summary {
+  border-bottom: 1px solid #e4ece7;
+}
+
+.owner-tariff-advanced .owner-tariff-grid {
+  padding: 12px;
+}
+
+.owner-tariff-advanced:not([open]) > .owner-tariff-grid {
+  display: none !important;
+}
+
+.owner-tariff-footer {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 !important;
+  padding: 10px 14px !important;
+  border-top: 1px solid #edf2ef !important;
+  background: #fbfcfb;
+}
+
+.owner-tariff-active {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  margin: 0;
+  color: #466153;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.owner-tariff-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.owner-tariff-actions button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #d9e5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #4f6c5c;
+}
+
+.owner-tariff-actions .owner-tariff-remove {
+  color: #c63b43;
+  border-color: #f0cdd0;
+}
+
+.owner-tariff-editor .owner-tariff-field--hidden,
+.km-pricing-editor .owner-tariff-field--hidden,
+.owner-tariff-editor [hidden],
+.km-pricing-editor [hidden] {
+  display: none !important;
+}
+
+@media (max-width: 860px) {
+  .owner-tariff-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .owner-tariff-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-tariff-field--title_az {
+    grid-column: auto;
+  }
+
+  .owner-tariff-advanced > summary small {
+    display: none;
+  }
+}
+
 .app-catalog.model-place.change-form #content-main,
 .app-catalog.model-event.change-form #content-main {
   max-width: 1600px !important;
@@ -4290,4 +4569,673 @@ div[class*="related-modal"]:has(iframe[name*="category"]) .modal-header {
   .km-place-json-actions { display: grid; grid-template-columns: 1fr; }
   .km-place-json-import-trigger,
   .km-place-json-prompt-copy { width: 100%; }
+}
+
+/* Compact card management panel */
+.km-place-form-layout {
+  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-areas: "main sidebar";
+}
+
+.km-place-form-main {
+  grid-area: main;
+}
+
+.km-place-form-sidebar {
+  grid-area: sidebar;
+}
+
+.km-place-sidebar-card--management {
+  order: -2;
+  display: grid;
+  gap: 14px;
+  background:
+    radial-gradient(circle at top right, rgba(13, 138, 82, 0.08), transparent 34%),
+    linear-gradient(180deg, #ffffff, #f8fcfa);
+}
+
+.km-place-sidebar-card--summary {
+  order: -1;
+}
+
+.km-place-management-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 2px;
+}
+
+.km-place-management-head h2 {
+  margin: 4px 0 0;
+  color: var(--km-place-text);
+  font-size: 16px;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.km-place-management-state {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border: 1px solid rgba(13, 138, 82, 0.16);
+  border-radius: 10px;
+  background: #eaf7ef;
+  color: #0d8a52;
+  font-size: 13px;
+}
+
+.km-place-management-field {
+  display: grid;
+  gap: 6px;
+}
+
+.km-place-management-field > label {
+  margin: 0;
+  color: #496457;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.km-place-management-field > select,
+.km-place-management-field > input,
+.km-place-management-field > textarea,
+.km-place-management-field .select2-container {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.km-place-management-field > select,
+.km-place-management-field > input,
+.km-place-management-field > textarea,
+.km-place-management-field .select2-selection--single {
+  min-height: 38px !important;
+  border: 1px solid #c9ddd0 !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  color: #203b2d !important;
+  box-shadow: none !important;
+}
+
+.km-place-management-field > select,
+.km-place-management-field > input {
+  padding: 7px 10px !important;
+}
+
+.km-place-management-field > textarea {
+  min-height: 76px !important;
+  padding: 9px 10px !important;
+  resize: vertical;
+}
+
+.km-place-management-field .select2-selection--single .select2-selection__rendered {
+  padding-left: 10px !important;
+  line-height: 36px !important;
+}
+
+.km-place-management-field .select2-selection--single .select2-selection__arrow {
+  height: 36px !important;
+}
+
+.km-place-management-field > small {
+  color: #71877a;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.km-place-management-field--owner .related-widget-wrapper {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: 8px;
+  align-items: center;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.km-place-management-field--owner .related-widget-wrapper > select,
+.km-place-management-field--owner .related-widget-wrapper > .select2-container {
+  grid-column: 1 / -1;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.km-place-management-field--owner .related-widget-wrapper-link {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 32px;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  border: 1px solid #cfe1d5 !important;
+  border-radius: 9px !important;
+  background: #f7fbf8 !important;
+  color: #315443 !important;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.km-place-management-field--owner .related-widget-wrapper-link::after {
+  content: attr(data-action-label);
+  white-space: nowrap;
+}
+
+.km-place-management-field--owner .related-widget-wrapper-link img {
+  width: 14px !important;
+  height: 14px !important;
+  margin: 0 !important;
+}
+
+.km-place-management-field--owner .add-related {
+  grid-column: 1 / -1;
+  border-color: #b8dfc7 !important;
+  background: #eaf7ef !important;
+  color: #087846 !important;
+}
+
+.km-place-management-field--owner .change-related,
+.km-place-management-field--owner .view-related {
+  border-color: #d5e0da !important;
+  background: #fff !important;
+}
+
+.km-place-management-field--owner .related-widget-wrapper-link:hover {
+  border-color: #87c9a2 !important;
+  background: #e4f4ea !important;
+  color: #086a3f !important;
+}
+
+.km-place-management-field--owner .related-widget-wrapper-link[hidden],
+.km-place-management-field--owner .delete-related {
+  display: none !important;
+}
+
+.km-place-management-field[hidden] {
+  display: none !important;
+}
+
+.km-place-management-field--conditional {
+  padding: 10px;
+  border: 1px solid #e5d5b7;
+  border-radius: 11px;
+  background: #fffaf0;
+}
+
+.km-place-management-switches {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid #d9e8de;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.km-place-management-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  margin: 0;
+  padding: 10px 11px;
+  border-bottom: 1px solid #e7f0ea;
+  cursor: pointer;
+}
+
+.km-place-management-switch:last-child {
+  border-bottom: 0;
+}
+
+.km-place-management-switch:hover {
+  background: #f8fcfa;
+}
+
+.km-place-management-switch__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.km-place-management-switch__copy strong {
+  color: #274636;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.km-place-management-switch__copy small {
+  color: #789083;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.km-place-management-switch input[type="checkbox"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.km-place-management-switch__control {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: #d8e3dc;
+  box-shadow: inset 0 0 0 1px rgba(58, 87, 71, 0.08);
+  transition: background-color 0.18s ease;
+}
+
+.km-place-management-switch__control::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(26, 59, 40, 0.22);
+  transition: transform 0.18s ease;
+}
+
+.km-place-management-switch input[type="checkbox"]:checked + .km-place-management-switch__control {
+  background: #11945a;
+}
+
+.km-place-management-switch input[type="checkbox"]:checked + .km-place-management-switch__control::after {
+  transform: translateX(14px);
+}
+
+.km-place-management-switch input[type="checkbox"]:focus-visible + .km-place-management-switch__control {
+  outline: 3px solid rgba(17, 148, 90, 0.2);
+  outline-offset: 2px;
+}
+
+.km-place-management-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  padding-top: 2px;
+}
+
+.km-place-management-stats > div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 1px 5px;
+  min-width: 0;
+  padding: 9px 7px;
+  border: 1px solid #dceae1;
+  border-radius: 11px;
+  background: #f7fbf8;
+}
+
+.km-place-management-stats i {
+  grid-row: 1;
+  color: #0d8a52;
+  font-size: 11px;
+}
+
+.km-place-management-stats strong {
+  grid-row: 1;
+  color: #203b2d;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.km-place-management-stats span {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: #789083;
+  font-size: 9px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.km-place-management-error {
+  color: #b42318 !important;
+  font-weight: 700;
+}
+
+@media (max-width: 1100px) {
+  .km-place-form-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "sidebar"
+      "main";
+  }
+
+  .km-place-form-sidebar {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: none;
+    overflow: visible;
+  }
+
+  .km-place-sidebar-card--actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .km-place-form-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .km-place-sidebar-card--management {
+    order: -2;
+  }
+}
+
+/* Main details: use the free space beside the localized copy for taxonomy. */
+.km-taxonomy-context-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.km-taxonomy-context-head > div {
+  display: grid;
+  gap: 3px;
+}
+
+.km-taxonomy-context-head span {
+  color: var(--km-place-accent-deep);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.km-taxonomy-context-head strong {
+  color: var(--km-place-text);
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.km-taxonomy-context-head small {
+  max-width: 210px;
+  color: var(--km-place-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+@media (min-width: 951px) {
+  #basics-body.km-basics-layout {
+    grid-template-columns: minmax(0, 1.12fr) minmax(350px, 0.88fr);
+    column-gap: 22px;
+    align-items: start;
+  }
+
+  #basics-body.km-basics-layout > .km-basics-layout__copy {
+    grid-column: 1;
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  #basics-body .km-basics-layout__copy > .km-lang-tabs {
+    margin-bottom: 0;
+  }
+
+  #basics-body.km-basics-layout > .km-basics-layout__taxonomy {
+    grid-column: 2;
+    padding: 0 !important;
+    border-top: 0 !important;
+  }
+
+  #basics-body .km-basics-layout__copy > .form-group {
+    padding: 0 14px !important;
+    border-top: 0 !important;
+  }
+
+  #basics-body .km-basics-layout__taxonomy .km-taxonomy-picker {
+    gap: 12px;
+    padding: 14px;
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(18, 53, 35, 0.05);
+  }
+
+  #basics-body .km-basics-layout__taxonomy .km-taxonomy-selected-banner {
+    margin-bottom: 0;
+  }
+
+  #basics-body .km-basics-layout__taxonomy .km-taxonomy-grid {
+    grid-template-columns: 1fr;
+    max-height: 286px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  #basics-body .km-basics-layout__taxonomy .km-taxonomy-card {
+    min-height: 58px;
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  #basics-body .km-basics-layout__taxonomy .km-taxonomy-card__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  #basics-body .km-basics-layout__taxonomy .km-taxonomy-subpanel {
+    gap: 9px;
+    padding: 12px;
+    border-radius: 13px;
+  }
+
+  #basics-body .km-basics-layout__taxonomy .km-taxonomy-subgrid {
+    gap: 6px;
+  }
+
+  #basics-body .km-basics-layout__taxonomy .km-taxonomy-chip {
+    min-height: 34px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 950px) {
+  .km-taxonomy-context-head small {
+    display: none;
+  }
+}
+
+/* Pricing: compact overview instead of oversized one-field rows. */
+#pricing-body > .field-pricing_plans,
+#pricing-body > .field-offers_adult_classes[hidden],
+#pricing-body > .form-group[hidden] {
+  display: none !important;
+}
+
+#pricing-body > .km-pricing-overview,
+#pricing-body > .km-price-quick-panel {
+  padding: 16px !important;
+  border: 1px solid rgba(13, 138, 82, 0.16) !important;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff, #f8fcfa);
+  box-shadow: 0 8px 24px rgba(18, 53, 35, 0.045);
+}
+
+.km-pricing-panel-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.km-pricing-panel-head > div {
+  display: grid;
+  gap: 3px;
+}
+
+.km-pricing-panel-head span {
+  color: var(--km-place-accent-deep);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.km-pricing-panel-head strong {
+  color: var(--km-place-text);
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.km-pricing-panel-head small {
+  color: var(--km-place-muted);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+#pricing-body .km-pricing-overview > .row {
+  display: grid !important;
+  grid-template-columns: minmax(240px, 1.2fr) minmax(190px, 0.9fr) minmax(170px, 0.72fr) minmax(210px, 0.9fr) !important;
+  gap: 10px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+#pricing-body .km-pricing-overview > .row > .fieldBox,
+#pricing-body .km-price-quick-grid > .fieldBox {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start;
+  min-width: 0;
+  min-height: 112px !important;
+  gap: 9px !important;
+  padding: 12px !important;
+  border: 1px solid #dceae1 !important;
+  border-radius: 13px !important;
+  background: #f8fbf9 !important;
+  box-shadow: none !important;
+}
+
+#pricing-body .km-pricing-overview > .row > .fieldBox > label,
+#pricing-body .km-price-quick-grid > .fieldBox > label {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 30px;
+  margin: 0 !important;
+  color: var(--km-place-text) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+}
+
+#pricing-body .field-lesson_duration_minutes > label::after {
+  content: "необязательно";
+  display: block;
+  margin-top: 2px;
+  color: var(--km-place-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+#pricing-body .field-age_open_ended,
+#pricing-body .km-pricing-adults-control {
+  justify-content: space-between !important;
+}
+
+#pricing-body .field-age_open_ended input[type="checkbox"],
+#pricing-body .km-pricing-adults-control input[type="checkbox"] {
+  appearance: none !important;
+  width: 38px !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  margin: 0 !important;
+  border: 1px solid #c9d9cf !important;
+  border-radius: 999px !important;
+  background: radial-gradient(circle at 10px 50%, #fff 0 7px, transparent 7.5px), #dbe6df !important;
+  box-shadow: inset 0 0 0 1px rgba(40, 73, 54, 0.03) !important;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+#pricing-body .field-age_open_ended input[type="checkbox"]:checked,
+#pricing-body .km-pricing-adults-control input[type="checkbox"]:checked {
+  border-color: var(--km-place-accent) !important;
+  background: radial-gradient(circle at 27px 50%, #fff 0 7px, transparent 7.5px), var(--km-place-accent) !important;
+}
+
+#pricing-body .field-age_open_ended .help-block,
+#pricing-body .km-pricing-adults-control .help-block {
+  margin: 0 !important;
+  color: var(--km-place-muted) !important;
+  font-size: 10px !important;
+  line-height: 1.35 !important;
+}
+
+.km-price-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+#pricing-body .km-price-quick-grid > .fieldBox {
+  min-height: 100px !important;
+}
+
+#pricing-body .km-price-quick-grid .help-block {
+  margin: 0 !important;
+  font-size: 9px !important;
+  line-height: 1.3 !important;
+}
+
+@media (max-width: 1450px) {
+  #pricing-body .km-pricing-overview > .row,
+  .km-price-quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 620px) {
+  #pricing-body .km-pricing-overview > .row,
+  .km-price-quick-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .km-pricing-panel-head small {
+    display: none;
+  }
+}
+
+#pricing-body > .km-pricing-editor-section {
+  margin-top: 0 !important;
+  padding: 16px !important;
+}
+
+#pricing-body > .km-pricing-editor-section h3 {
+  margin-bottom: 8px !important;
+  font-size: 16px !important;
+}
+
+#pricing-body .km-pricing-editor__guide {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+#pricing-body .km-pricing-editor__list {
+  margin: 8px 0 !important;
 }

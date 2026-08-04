@@ -4,6 +4,7 @@ import json
 from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.utils.translation import gettext as _, get_language
 
 
@@ -70,7 +71,98 @@ def _legacy_plan(plan, index):
     }
 
 
-def normalize_pricing_plans(value, *, strict=True):
+def _compat_to_canonical(raw):
+    raw = dict(raw)
+    payment_type = str(raw.get("payment_type") or "").strip()
+    if raw.get("product_type"):
+        if raw.get("package_sessions") and not raw.get("quantity"):
+            raw["quantity"] = raw["package_sessions"]
+            raw["quantity_unit"] = "lesson"
+        return raw
+    mappings = {
+        "per_lesson": {"product_type": "lesson", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "lesson"},
+        "per_month": {"product_type": "membership", "billing_mode": "recurring", "billing_interval": "month", "billing_interval_count": 1},
+        "package": {"product_type": "lesson", "billing_mode": "one_time", "quantity": raw.get("package_sessions"), "quantity_unit": "lesson"},
+        "per_visit": {"product_type": "visit", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "visit"},
+        "entry_ticket": {"product_type": "admission", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "entry"},
+    }
+    for key, val in mappings.get(payment_type, {}).items():
+        raw.setdefault(key, val)
+    if "price_kind" not in raw:
+        raw["price_kind"] = "free" if str(raw.get("price", "")).strip() in {"0", "0.0", "0.00"} else "exact"
+    return raw
+
+
+def _model_to_compat(plan):
+    if plan.product_type == "membership" and plan.billing_mode == "recurring" and plan.billing_interval == "month" and plan.billing_interval_count == 1:
+        return "per_month"
+    if plan.product_type == "lesson" and plan.quantity_unit == "lesson" and (plan.quantity or 0) > 1:
+        return "package"
+    if plan.product_type == "lesson":
+        return "per_lesson"
+    if plan.product_type == "admission":
+        return "entry_ticket"
+    if plan.product_type == "visit":
+        return "per_visit"
+    return ""
+
+
+PRICING_STORAGE_FIELDS = (
+    "product_type", "lesson_format", "charge_role", "billing_mode", "billing_interval",
+    "billing_interval_count", "billing_cycles", "price_kind", "price", "price_min", "price_max",
+    "currency", "quantity", "quantity_unit", "sessions_per_week", "sessions_per_month", "is_unlimited",
+    "validity_interval", "validity_interval_count", "valid_from", "valid_until", "audience_type",
+    "age_from", "age_to", "min_people", "max_people", "day_type", "title_az", "title_ru", "title_en",
+    "conditions_az", "conditions_ru", "conditions_en", "is_required", "is_active", "sort_order",
+    "verified_at", "source_url",
+)
+
+
+def serialize_pricing_plan(plan, language=None):
+    data = {"id": plan.pk}
+    for field in PRICING_STORAGE_FIELDS:
+        value = getattr(plan, field)
+        if isinstance(value, Decimal):
+            value = format(value, ".2f")
+        elif hasattr(value, "isoformat"):
+            value = value.isoformat()
+        data[field] = value
+    payment_type = _model_to_compat(plan)
+    if payment_type:
+        data["payment_type"] = payment_type
+    if payment_type == "package":
+        data["package_sessions"] = plan.quantity
+    if language:
+        data["title"] = plan.title_i18n(language)
+        data["conditions"] = plan.conditions_i18n(language)
+    return data
+
+
+def serialize_pricing_plans(plans, language=None):
+    return [serialize_pricing_plan(plan, language) for plan in plans]
+
+
+def pricing_audit_summary(place):
+    """Compact, stable audit value; the full tariff state remains in its table."""
+    plans = list(place.pricing_plan_records.order_by("sort_order", "id"))
+    if not plans:
+        return "0 tariffs"
+    parts = []
+    for plan in plans[:5]:
+        if plan.price_kind in {"exact", "free"}:
+            amount = plan.price
+        elif plan.price_kind in {"from", "range"}:
+            amount = plan.price_min
+        else:
+            amount = None
+        price = plan.price_kind if amount is None else f"{amount:g} {plan.currency}"
+        state = "active" if plan.is_active else "inactive"
+        parts.append(f"#{plan.pk or '-'} {plan.product_type}/{plan.charge_role} {price} {state}")
+    suffix = f"; +{len(plans) - 5}" if len(plans) > 5 else ""
+    return f"{len(plans)} tariffs: " + "; ".join(parts) + suffix
+
+
+def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
     """Return storage-ready plans without mutating the supplied value.
 
     Legacy {name, price, frequency} entries are accepted and converted only in
@@ -98,59 +190,167 @@ def normalize_pricing_plans(value, *, strict=True):
             content_keys = {
                 "lesson_format", "sessions_per_week", "sessions_per_month", "payment_type",
                 "package_sessions", "price", "title_az", "title_ru", "title_en", "name", "frequency",
+                "product_type", "price_kind", "price_min", "price_max", "billing_mode",
             }
             if not any(str(raw.get(key) or "").strip() for key in content_keys):
                 continue
-            if {"name", "price", "frequency"}.intersection(raw) and not {
-                "lesson_format", "payment_type", "title_az", "title_ru", "title_en"
+            if {"name", "frequency"}.intersection(raw) and not {
+                "product_type", "price_kind", "lesson_format", "payment_type", "title_az", "title_ru", "title_en"
             }.intersection(raw):
                 legacy = _legacy_plan(raw, index)
                 if legacy["price"]:
                     normalized.append(legacy)
                 continue
 
-            lesson_format = str(raw.get("lesson_format") or "").strip()
-            payment_type = str(raw.get("payment_type") or "").strip()
-            currency = str(raw.get("currency") or DEFAULT_CURRENCY).strip().upper()[:3] or DEFAULT_CURRENCY
-            if lesson_format and lesson_format not in LESSON_FORMATS:
-                raise ValidationError(_("Неизвестный формат занятия."))
-            if payment_type and payment_type not in PAYMENT_TYPES:
-                raise ValidationError(_("Неизвестный тип оплаты."))
-            if not lesson_format and not payment_type and not raw.get("price"):
-                continue
-            if not lesson_format or not payment_type:
-                raise ValidationError(_("Укажите формат занятия и тип оплаты тарифа."))
-            package_sessions = _as_int(raw.get("package_sessions"), "package_sessions", required=payment_type == "package")
-            normalized.append(
-                {
-                    "lesson_format": lesson_format,
-                    "sessions_per_week": _as_int(raw.get("sessions_per_week"), "sessions_per_week"),
-                    "sessions_per_month": _as_int(raw.get("sessions_per_month"), "sessions_per_month"),
-                    "payment_type": payment_type,
-                    "package_sessions": package_sessions,
-                    "price": _as_price(raw.get("price")),
-                    "currency": currency,
-                    "title_az": str(raw.get("title_az") or "").strip()[:120],
-                    "title_ru": str(raw.get("title_ru") or "").strip()[:120],
-                    "title_en": str(raw.get("title_en") or "").strip()[:120],
-                    "is_active": bool(raw.get("is_active", True)),
-                    "sort_order": max(0, int(str(raw.get("sort_order")).strip())) if raw.get("sort_order") not in (None, "") and str(raw.get("sort_order")).strip().isdigit() else index,
-                }
-            )
+            raw = _compat_to_canonical(raw)
+            from catalog.models import PricingPlan
+            values = {field: raw.get(field) for field in PRICING_STORAGE_FIELDS if field in raw}
+            values.setdefault("charge_role", "primary")
+            values.setdefault("billing_mode", "one_time")
+            values.setdefault("price_kind", "exact")
+            values.setdefault("currency", DEFAULT_CURRENCY)
+            values.setdefault("audience_type", "all")
+            values.setdefault("day_type", "any")
+            values.setdefault("is_active", True)
+            values.setdefault("sort_order", index)
+            if not allow_verified:
+                values.pop("verified_at", None)
+            for price_field in ("price", "price_min", "price_max"):
+                if values.get(price_field) not in (None, ""):
+                    values[price_field] = Decimal(str(values[price_field]).replace(",", "."))
+                else:
+                    values[price_field] = None
+            for int_field in ("billing_interval_count", "billing_cycles", "quantity", "sessions_per_week", "sessions_per_month", "validity_interval_count", "age_from", "age_to", "min_people", "max_people", "sort_order"):
+                if values.get(int_field) not in (None, ""):
+                    values[int_field] = int(values[int_field])
+                elif int_field in values:
+                    values[int_field] = None
+            candidate = PricingPlan(**values)
+            candidate.full_clean(exclude=("place",))
+            clean = {}
+            for field in PRICING_STORAGE_FIELDS:
+                # Owners may edit tariff contents, but an omitted verification
+                # marker must leave the staff-owned value untouched.
+                if field == "verified_at" and not allow_verified:
+                    continue
+                val = getattr(candidate, field)
+                if isinstance(val, Decimal):
+                    val = format(val, ".2f")
+                elif hasattr(val, "isoformat"):
+                    val = val.isoformat()
+                clean[field] = val
+            payment_type = _model_to_compat(candidate)
+            if payment_type:
+                clean["payment_type"] = payment_type
+            if payment_type == "package":
+                clean["package_sessions"] = candidate.quantity
+            if raw.get("id") not in (None, ""):
+                clean["id"] = int(raw["id"])
+            normalized.append(clean)
         except ValidationError as exc:
             if strict:
-                message = exc.messages[0] if getattr(exc, "messages", None) else str(exc)
+                if getattr(exc, "error_dict", None):
+                    field_name = next(iter(exc.error_dict))
+                    field_errors = exc.error_dict[field_name]
+                    detail = field_errors[0].message if field_errors else str(exc)
+                    message = _("поле %(field)s: %(detail)s") % {"field": field_name, "detail": detail}
+                else:
+                    message = exc.messages[0] if getattr(exc, "messages", None) else str(exc)
                 raise ValidationError(
                     _("Тариф %(number)s: %(error)s"),
                     params={"number": index + 1, "error": message},
                 )
             continue
+        except (InvalidOperation, TypeError, ValueError) as exc:
+            if strict:
+                raise ValidationError(
+                    _("Тариф %(number)s: неверный тип или формат значения (%(error)s)."),
+                    params={"number": index + 1, "error": str(exc)},
+                )
+            continue
     return normalized
+
+
+@transaction.atomic
+def replace_place_pricing_plans(place, value, *, allow_verified=False):
+    from catalog.models import PricingPlan
+    plans = normalize_pricing_plans(value, allow_verified=allow_verified)
+    existing = {item.pk: item for item in PricingPlan.objects.select_for_update().filter(place=place)}
+    def fingerprint(item):
+        getter = item.get if isinstance(item, dict) else lambda key: getattr(item, key)
+        return tuple(str(getter(key) or "") for key in (
+            "product_type", "charge_role", "billing_mode", "billing_interval",
+            "billing_interval_count", "price_kind", "price", "price_min", "price_max",
+            "currency", "quantity", "quantity_unit", "audience_type", "age_from", "age_to",
+        ))
+    by_fingerprint = {}
+    for item in existing.values():
+        by_fingerprint.setdefault(fingerprint(item), []).append(item)
+    keep = set()
+    for index, raw in enumerate(plans):
+        plan_id = raw.pop("id", None)
+        instance = existing.get(plan_id) if plan_id else None
+        if instance is None:
+            candidates = by_fingerprint.get(fingerprint(raw), [])
+            instance = next((candidate for candidate in candidates if candidate.pk not in keep), None)
+        if instance is None:
+            instance = PricingPlan(place=place)
+        elif instance.place_id != place.pk:
+            raise ValidationError(_("Тариф не принадлежит этой карточке."))
+        for field in PRICING_STORAGE_FIELDS:
+            if field in raw:
+                setattr(instance, field, raw[field])
+        instance.sort_order = index
+        instance.full_clean()
+        instance._skip_legacy_sync = True
+        instance.save()
+        keep.add(instance.pk)
+    for stale in PricingPlan.objects.filter(place=place).exclude(pk__in=keep):
+        stale._skip_legacy_sync = True
+        stale.delete()
+    sync_legacy_price_fields(place.pk)
+    return list(PricingPlan.objects.filter(place=place))
+
+
+def _plan_bounds(plan):
+    if plan.price_kind in {"exact", "free"} and plan.price is not None:
+        return plan.price, plan.price
+    if plan.price_kind == "from" and plan.price_min is not None:
+        return plan.price_min, plan.price_min
+    if plan.price_kind == "range" and plan.price_min is not None and plan.price_max is not None:
+        return plan.price_min, plan.price_max
+    return None
+
+
+def sync_legacy_price_fields(place_id):
+    from catalog.models import Place, PricingPlan
+    plans = list(PricingPlan.objects.filter(place_id=place_id, is_active=True, charge_role="primary", currency="AZN"))
+    bounds = [_plan_bounds(plan) for plan in plans]
+    bounds = [item for item in bounds if item]
+    values = {
+        "price_from": min((item[0] for item in bounds), default=None),
+        "price_to": max((item[1] for item in bounds), default=None),
+        "price_per_lesson": None, "price_per_month": None, "price_per_8_lessons": None,
+    }
+    for plan in plans:
+        bound = _plan_bounds(plan)
+        if not bound:
+            continue
+        amount = bound[0]
+        if plan.product_type == "lesson" and plan.billing_mode == "one_time" and plan.quantity == 1 and plan.quantity_unit == "lesson":
+            values["price_per_lesson"] = min(filter(lambda x: x is not None, (values["price_per_lesson"], amount)), default=amount)
+        if plan.product_type == "membership" and plan.billing_mode == "recurring" and plan.billing_interval == "month" and plan.billing_interval_count == 1:
+            values["price_per_month"] = min(filter(lambda x: x is not None, (values["price_per_month"], amount)), default=amount)
+        if plan.product_type == "lesson" and plan.billing_mode == "one_time" and plan.quantity == 8 and plan.quantity_unit == "lesson":
+            values["price_per_8_lessons"] = min(filter(lambda x: x is not None, (values["price_per_8_lessons"], amount)), default=amount)
+    Place.objects.filter(pk=place_id).update(**values)
 
 
 def public_pricing_plans(value, language=None):
     """Safely normalize plans for display; invalid entries are hidden."""
     try:
+        if hasattr(value, "all"):
+            return serialize_pricing_plans(value.filter(is_active=True).order_by("sort_order", "id"), language)
         plans = normalize_pricing_plans(value, strict=False)
     except ValidationError:
         return []
@@ -171,12 +371,17 @@ def public_pricing_plans(value, language=None):
             or plan.get("title_en")
             or " · ".join(part for part in (format_label, payment_label) if part)
         )
+        conditions = (
+            plan.get(f"conditions_{lang}") or plan.get("conditions_az")
+            or plan.get("conditions_ru") or plan.get("conditions_en") or ""
+        )
         result.append(
             {
                 **plan,
                 "title": title,
                 "format_label": format_label,
                 "payment_label": payment_label,
+                "conditions": conditions,
             }
         )
     return result
@@ -191,14 +396,22 @@ def active_pricing_plan_range(value):
 
     prices = []
     for plan in plans:
-        if not plan.get("is_active", True) or plan.get("price") in (None, ""):
+        if not plan.get("is_active", True) or plan.get("charge_role", "primary") != "primary":
             continue
         # Place.price_from/price_to are AZN fields. Other currencies stay in
         # their tariff rows and must never overwrite the card's AZN range.
         if (plan.get("currency") or DEFAULT_CURRENCY).upper() != DEFAULT_CURRENCY:
             continue
         try:
-            prices.append(Decimal(str(plan["price"])))
+            if plan.get("price_kind") in {"exact", "free"}:
+                low = high = Decimal(str(plan["price"]))
+            elif plan.get("price_kind") == "from":
+                low = high = Decimal(str(plan["price_min"]))
+            elif plan.get("price_kind") == "range":
+                low, high = Decimal(str(plan["price_min"])), Decimal(str(plan["price_max"]))
+            else:
+                continue
+            prices.extend((low, high))
         except (InvalidOperation, TypeError, ValueError):
             continue
     if not prices:
@@ -223,6 +436,60 @@ def format_price_amount(value) -> str:
     if amount == amount.to_integral_value():
         return str(int(amount))
     return format(amount.normalize(), "f")
+
+
+def build_public_price_summary(place, language="ru"):
+    lang = (language or get_language() or "ru").split("-")[0]
+    labels = {
+        "ru": {"free": "Бесплатно", "mixed": "Есть бесплатные и платные варианты", "from": "От {value} ₼", "unknown": "Цена уточняется"},
+        "az": {"free": "Pulsuz", "mixed": "Pulsuz və ödənişli seçimlər var", "from": "{value} ₼-dən", "unknown": "Qiymət dəqiqləşdirilir"},
+        "en": {"free": "Free", "mixed": "Free and paid options available", "from": "From {value} ₼", "unknown": "Price on request"},
+    }.get(lang, None)
+    if labels is None:
+        lang, labels = "ru", {"free": "Бесплатно", "mixed": "Есть бесплатные и платные варианты", "from": "От {value} ₼", "unknown": "Цена уточняется"}
+    active_primary = []
+    if getattr(place, "pk", None):
+        active_primary = [
+            plan for plan in place.pricing_plan_records.all()
+            if plan.is_active and plan.charge_role == "primary"
+        ]
+    records = [plan for plan in active_primary if plan.currency == "AZN"]
+    if records:
+        free = [plan for plan in records if plan.price_kind == "free"]
+        paid = [(plan, _plan_bounds(plan)) for plan in records if plan.price_kind not in {"free", "on_request"}]
+        paid = [(plan, bounds) for plan, bounds in paid if bounds and bounds[0] > 0]
+        if free and not paid:
+            return {"kind": "free", "min_price": Decimal("0"), "max_price": Decimal("0"), "currency": "AZN", "label": labels["free"], "source": "pricing_plans"}
+        if free and paid:
+            return {"kind": "mixed", "min_price": min(x[1][0] for x in paid), "max_price": max(x[1][1] for x in paid), "currency": "AZN", "label": labels["mixed"], "source": "pricing_plans"}
+        if paid:
+            minimum = min(item[1][0] for item in paid)
+            maximum = max(item[1][1] for item in paid)
+            if len(paid) == 1 and paid[0][0].price_kind == "range":
+                label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} ₼"
+                kind = "range"
+            else:
+                label = labels["from"].format(value=format_price_amount(minimum))
+                kind = "from"
+            return {"kind": kind, "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": label, "source": "pricing_plans"}
+        return {"kind": "on_request", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["unknown"], "source": "pricing_plans"}
+
+    # Any active primary tariff ends the transition fallback. A foreign-currency
+    # plan is still real pricing, but it cannot be folded into the AZN headline.
+    if active_primary:
+        return {"kind": "on_request", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["unknown"], "source": "pricing_plans"}
+
+    legacy_values = [value for value in (place.price_from, place.price_to) if value is not None]
+    if legacy_values:
+        minimum, maximum = min(legacy_values), max(legacy_values)
+        if minimum == maximum == 0:
+            kind, label = "free", labels["free"]
+        elif minimum != maximum:
+            kind, label = "range", f"{format_price_amount(minimum)}–{format_price_amount(maximum)} ₼"
+        else:
+            kind, label = "from", labels["from"].format(value=format_price_amount(minimum))
+        return {"kind": kind, "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": label, "source": "legacy_fallback"}
+    return {"kind": "on_request", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["unknown"], "source": "none"}
 
 
 LOCALIZED_STRINGS = {
@@ -434,6 +701,24 @@ def format_price_range(minimum, maximum, lang, currency=DEFAULT_CURRENCY):
 
 
 def get_starting_price(place, public_plans, lang):
+    canonical = build_public_price_summary(place, lang)
+    if canonical["source"] in {"pricing_plans", "legacy_fallback"}:
+        payment_type = None
+        if canonical["source"] == "pricing_plans" and canonical["min_price"] is not None:
+            matching = [
+                plan for plan in place.pricing_plan_records.all()
+                if plan.is_active and plan.charge_role == "primary" and plan.currency == "AZN"
+                and _plan_bounds(plan) and _plan_bounds(plan)[0] == canonical["min_price"]
+            ]
+            if matching:
+                payment_type = _model_to_compat(matching[0]) or None
+        return {
+            "amount": float(canonical["min_price"]) if canonical["min_price"] is not None else None,
+            "max_amount": float(canonical["max_price"]) if canonical["max_price"] is not None else None,
+            "payment_type": payment_type,
+            "currency": canonical["currency"],
+            "formatted": {"full": canonical["label"], "amount": canonical["label"], "unit": ""},
+        }
     # A complete admin range is explicit content and must not be overwritten
     # by a narrower set of detailed tariffs (for example 3–50 vs 3–15).
     tariff_range = active_pricing_plan_range(place.pricing_plans)
@@ -621,12 +906,20 @@ def build_pricing_summary(place, lang="ru"):
         
         plan_price_val = plan.get("price")
         plan_price_str = ""
-        if plan_price_val is not None:
+        currency = plan.get("currency") or DEFAULT_CURRENCY
+        if plan.get("price_kind") == "free":
+            plan_price_str = LOCALIZED_STRINGS[lang]["free"]
+        elif plan.get("price_kind") == "on_request":
+            plan_price_str = LOCALIZED_STRINGS[lang]["price_unknown"]
+        elif plan.get("price_kind") == "from" and plan.get("price_min") is not None:
+            plan_price_str = LOCALIZED_STRINGS[lang]["from"] + " " + format_price_amount(plan["price_min"]) + " " + currency
+        elif plan.get("price_kind") == "range" and plan.get("price_min") is not None and plan.get("price_max") is not None:
+            plan_price_str = f"{format_price_amount(plan['price_min'])}–{format_price_amount(plan['price_max'])} {currency}"
+        elif plan_price_val is not None:
             price_float = float(plan_price_val)
             price_display = str(int(price_float)) if price_float.is_integer() else f"{price_float:.2f}"
-            unit = LOCALIZED_STRINGS[lang][plan.get("payment_type")]
-            currency = plan.get("currency") or DEFAULT_CURRENCY
-            plan_price_str = f"{price_display} {currency} / {unit}"
+            unit = LOCALIZED_STRINGS[lang].get(plan.get("payment_type"), "")
+            plan_price_str = f"{price_display} {currency}" + (f" / {unit}" if unit else "")
             
         whatsapp_url = ""
         if place.phone1:
@@ -656,14 +949,28 @@ def build_pricing_summary(place, lang="ru"):
             import urllib.parse
             whatsapp_url = f"https://wa.me/{clean_phone}?text={urllib.parse.quote(msg)}"
 
+        group_keys = {
+            "admission": "admission", "visit": "visits", "lesson": "lessons",
+            "membership": "memberships", "course": "courses", "camp": "camps",
+            "event": "events", "excursion": "events", "tour": "events", "rental": "rental",
+            "addon": "additional", "registration_fee": "additional", "deposit": "additional",
+        }
+        group_labels = {
+            "ru": {"admission": "Входные билеты", "visits": "Разовые посещения", "lessons": "Занятия и пакеты", "memberships": "Абонементы", "courses": "Курсы", "camps": "Лагеря", "events": "События и экскурсии", "rental": "Аренда", "additional": "Дополнительные платежи"},
+            "az": {"admission": "Giriş biletləri", "visits": "Birdəfəlik ziyarətlər", "lessons": "Dərslər və paketlər", "memberships": "Abunəliklər", "courses": "Kurslar", "camps": "Düşərgələr", "events": "Tədbirlər və ekskursiyalar", "rental": "İcarə", "additional": "Əlavə ödənişlər"},
+            "en": {"admission": "Admission", "visits": "Single visits", "lessons": "Lessons and packages", "memberships": "Memberships", "courses": "Courses", "camps": "Camps", "events": "Events and excursions", "rental": "Rental", "additional": "Additional charges"},
+        }
+        group_key = group_keys.get(plan.get("product_type"), "additional")
         plans_processed.append({
             "title": plan.get("title"),
-            "details": details_str,
+            "details": plan.get("conditions") or details_str,
             "price_str": plan_price_str,
             "fully_matches": fully_matches,
             "lesson_format": plan.get("lesson_format"),
             "payment_type": plan.get("payment_type"),
-            "whatsapp_url": whatsapp_url
+            "whatsapp_url": whatsapp_url,
+            "group_key": group_key,
+            "group_label": group_labels[lang][group_key],
         })
         
     return {

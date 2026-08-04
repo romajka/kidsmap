@@ -124,7 +124,7 @@ class JudoSeoLandingAggregateTests(TestCase):
     def test_aggregate_query_count_does_not_grow_per_place(self):
         page = CatalogContentSettings.get_solo().seo_pages("ru")[self.slug]
 
-        # One feature-settings lookup and one listing query, regardless of rows.
+        # Feature settings, listings and one tariff prefetch, regardless of rows.
         with CaptureQueriesContext(connection) as queries:
             aggregate = build_judo_landing_aggregates(
                 seo_slug=self.slug,
@@ -132,5 +132,5 @@ class JudoSeoLandingAggregateTests(TestCase):
                 language_code="ru",
             )
 
-        self.assertLessEqual(len(queries), 2)
+        self.assertLessEqual(len(queries), 3)
         self.assertEqual(len(aggregate["rows"]), 2)

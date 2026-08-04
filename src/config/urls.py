@@ -7,7 +7,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
 
 from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap
-from catalog.views import admin_add_choice
+from catalog.views import admin_add_choice, place_pricing_api
 from config.views import (
     healthz,
     indexnow_key_file,
@@ -24,6 +24,7 @@ sitemaps = {
 }
 
 urlpatterns = [
+    path("api/v1/places/<slug:slug>/pricing/", place_pricing_api, name="place_pricing_api"),
     path("favicon.ico", RedirectView.as_view(url="/static/img/logo.svg", permanent=False)),
     path("i18n/", include("django.conf.urls.i18n")),  # set_language endpoint
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),

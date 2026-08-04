@@ -382,32 +382,16 @@ def build_place_seo_payload(place, request, language_code):
         }
 
     offers = []
-    if place.price_per_lesson is not None:
-        offers.append(
-            {
-                "@type": "Offer",
-                "name": str(_("1 урок")),
-                "price": place.price_per_lesson,
-                "priceCurrency": "AZN",
-            }
-        )
-    if place.price_per_month is not None:
-        offers.append(
-            {
-                "@type": "Offer",
-                "name": str(_("1 месяц")),
-                "price": place.price_per_month,
-                "priceCurrency": "AZN",
-            }
-        )
-    if place.price_from is not None:
-        offer = {"@type": "Offer", "price": place.price_from, "priceCurrency": "AZN"}
-        if place.price_to is not None:
+    for plan in place.pricing_plan_records.filter(is_active=True, charge_role="primary").order_by("sort_order", "id"):
+        if plan.price_kind not in {"exact", "free", "range"}:
+            continue
+        offer = {"@type": "Offer", "name": plan.title_i18n(language_code), "priceCurrency": plan.currency}
+        if plan.price_kind in {"exact", "free"}:
+            offer["price"] = format(plan.price, ".2f")
+        elif plan.price_min is not None and plan.price_max is not None:
             offer["priceSpecification"] = {
-                "@type": "PriceSpecification",
-                "minPrice": place.price_from,
-                "maxPrice": place.price_to,
-                "priceCurrency": "AZN",
+                "@type": "PriceSpecification", "minPrice": format(plan.price_min, ".2f"),
+                "maxPrice": format(plan.price_max, ".2f"), "priceCurrency": plan.currency,
             }
         offers.append(offer)
     if offers:

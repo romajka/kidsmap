@@ -12,7 +12,7 @@ from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.http import HttpResponse
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.datastructures import MultiValueDict
 from django.utils import timezone
@@ -1789,6 +1789,19 @@ class TestCatalogEnhancements(TestCase):
             price_from=200,
             price_to=260,
         )
+        from catalog.models import PricingPlan
+        PricingPlan.objects.create(
+            place=overlapping_place,
+            product_type="lesson",
+            price_kind="exact",
+            price=100,
+        )
+        PricingPlan.objects.create(
+            place=out_of_range_place,
+            product_type="lesson",
+            price_kind="exact",
+            price=200,
+        )
 
         response = self.client.get(
             reverse("place_list"),
@@ -1846,7 +1859,7 @@ class TestCatalogEnhancements(TestCase):
         self.assertContains(response, "Цена и занятия")
         self.assertContains(response, "detail-unified-pricing--no-plans")
         self.assertContains(response, "detail-unified-pricing--with-schedule")
-        self.assertContains(response, "20 AZN")
+        self.assertContains(response, "80–120")
         self.assertNotContains(response, 'class="detail-unified-pricing__price-sub"', html=False)
         self.assertContains(response, "Формат занятий")
         self.assertContains(response, "Групповые")
@@ -1924,9 +1937,9 @@ class TestCatalogEnhancements(TestCase):
         with override("ru"):
             place = Place(price_from=80, category="EDU")
 
-            self.assertEqual(place.card_price_badge_label, "от")
-            self.assertEqual(place.card_price_badge_value, "80")
-            self.assertEqual(place.card_price_badge_currency, "AZN")
+            self.assertEqual(place.card_price_badge_label, "")
+            self.assertEqual(place.card_price_badge_value, "От 80 ₼")
+            self.assertEqual(place.card_price_badge_currency, "")
 
     def test_free_place_prices_are_localized_in_model_helpers(self):
         with override("ru"):
@@ -1943,8 +1956,8 @@ class TestCatalogEnhancements(TestCase):
 
         with override("en"):
             en_place = Place(category="EDU", price_per_lesson=0)
-            self.assertEqual(en_place.card_price_badge, "Free")
-            self.assertEqual(en_place.card_price_badge_value, "Free")
+            self.assertEqual(en_place.card_price_badge, "Price on request")
+            self.assertEqual(en_place.card_price_badge_value, "Price on request")
             self.assertEqual(en_place.card_price_badge_currency, "")
 
     def test_place_detail_and_catalog_show_free_instead_of_zero_price(self):
@@ -1965,12 +1978,13 @@ class TestCatalogEnhancements(TestCase):
         self.assertNotContains(detail_response, "0 AZN")
         self.assertContains(catalog_response, "Бесплатно")
 
-    def test_owner_place_form_explains_how_to_mark_free_price(self):
+    def test_owner_place_form_uses_tariffs_instead_of_legacy_price_fields(self):
         with override("ru"):
             form = OwnerPlaceCreateForm()
 
-        self.assertIn("0 в обоих полях", form.fields["price_from"].help_text)
-        self.assertIn("Если бесплатно, укажите 0.", form.fields["price_per_lesson"].help_text)
+        self.assertIn("pricing_plans", form.fields)
+        self.assertNotIn("price_from", form.fields)
+        self.assertNotIn("price_per_lesson", form.fields)
 
     def test_place_detail_renders_swipe_ready_gallery(self):
         place = create_quality_place(
@@ -2294,6 +2308,41 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(payload["dislikes_count"], 0)
         self.assertEqual(PlaceReviewReaction.objects.filter(review=review, user=self.user).count(), 1)
 
+    def test_place_review_reaction_can_be_removed_and_not_duplicated(self):
+        review = PlaceReview.objects.create(place=self.place, rating=5, text="Отлично", author_name="Other")
+        self.client.login(username="review_user", password="StrongPass123!!")
+        url = reverse("vote_place_review", args=[review.id])
+
+        self.client.post(url, data={"value": "1"}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        response = self.client.post(url, data={"value": "1"}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["current_reaction"], 0)
+        self.assertEqual(payload["likes_count"], 0)
+        self.assertEqual(payload["dislikes_count"], 0)
+        self.assertFalse(PlaceReviewReaction.objects.filter(review=review, user=self.user).exists())
+
+    def test_user_cannot_react_to_own_place_review(self):
+        review = PlaceReview.objects.create(
+            place=self.place,
+            user=self.user,
+            rating=5,
+            text="Мой отзыв",
+            author_name="Owner",
+        )
+        self.client.login(username="review_user", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("vote_place_review", args=[review.id]),
+            data={"value": "1"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(response.json()["ok"])
+        self.assertEqual(PlaceReviewReaction.objects.filter(review=review).count(), 0)
+
     def test_place_review_reaction_requires_login_for_guest_ajax(self):
         review = PlaceReview.objects.create(place=self.place, rating=5, text="Отлично", author_name="User")
 
@@ -2310,6 +2359,20 @@ class TestReviewEnhancements(TestCase):
         self.assertIn(reverse("account_login"), payload["redirect_url"])
         self.assertIn("message", payload)
         self.assertEqual(PlaceReviewReaction.objects.filter(review=review).count(), 0)
+
+    def test_place_review_reaction_requires_csrf_token(self):
+        review = PlaceReview.objects.create(place=self.place, rating=5, text="Отлично", author_name="Other")
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.force_login(self.user)
+
+        response = csrf_client.post(
+            reverse("vote_place_review", args=[review.id]),
+            data={"value": "1"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(PlaceReviewReaction.objects.filter(review=review).exists())
 
     def test_place_reviews_feed_shows_a_clear_link_to_the_reviewed_place(self):
         self.place.district = "Nərimanov"
@@ -2459,6 +2522,20 @@ class TestReviewEnhancements(TestCase):
         self.assertEqual(review.likes_count, 1)
         self.assertEqual(review.dislikes_count, 0)
         self.assertTrue(SiteReviewReaction.objects.filter(review=review, value=1).exists())
+
+    def test_user_cannot_react_to_own_site_review(self):
+        review = SiteReview.objects.create(user=self.user, author_name="Owner", rating=5, text="Мой отзыв")
+        self.client.login(username="review_user", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("vote_site_review", args=[review.id]),
+            data={"value": "-1"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(response.json()["ok"])
+        self.assertEqual(SiteReviewReaction.objects.filter(review=review).count(), 0)
 
     def test_site_review_reaction_requires_login_for_guest_ajax(self):
         review = SiteReview.objects.create(author_name="Site User", rating=5, text="Люблю этот сайт")

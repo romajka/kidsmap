@@ -124,6 +124,11 @@ def _price_bounds(place) -> tuple[int | None, int | None]:
     return (min(values), max(values)) if values else (None, None)
 
 
+def _price_text(value):
+    from catalog.services.pricing_plans import format_price_amount
+    return format_price_amount(value)
+
+
 def build_judo_landing_aggregates(*, seo_slug: str, page: dict, language_code: str) -> dict | None:
     if not is_judo_landing(seo_slug=seo_slug, page=page):
         return None
@@ -204,9 +209,9 @@ def build_judo_landing_aggregates(*, seo_slug: str, page: dict, language_code: s
         if price_min is None:
             price_range_label = labels["missing"]
         elif price_min == price_max:
-            price_range_label = f"{price_min} AZN"
+            price_range_label = f"{_price_text(price_min)} AZN"
         else:
-            price_range_label = labels["price_range"].format(minimum=price_min, maximum=price_max)
+            price_range_label = labels["price_range"].format(minimum=_price_text(price_min), maximum=_price_text(price_max))
 
         if age_min is None and age_max is None:
             age_range_label = labels["missing"]

@@ -49,7 +49,7 @@ class CleanPublicQueryMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        private_path = re.match(r"^/(?:[a-z]{2}/)?(?:admin|auth|account)(?:/|$)", request.path)
+        private_path = re.match(r"^/(?:[a-z]{2}/)?(?:admin|auth|account|api)(?:/|$)", request.path)
         if request.method not in {"GET", "HEAD"} or private_path:
             return self.get_response(request)
 

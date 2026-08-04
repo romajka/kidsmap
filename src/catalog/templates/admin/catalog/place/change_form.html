@@ -7,16 +7,16 @@
   {# <link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.css"> #}
   {# <script src="https://unpkg.com/filepond@4.32.12/dist/filepond.min.js" defer></script> #}
   {# <script src="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.js" defer></script> #}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=21">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=35">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=2">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=22">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_pricing.css' %}?v=1">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_pricing.css' %}?v=2">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=18" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=26" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=6" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=22" defer></script>
-  <script src="{% static 'js/owner_pricing_plans.js' %}?v=6" defer></script>
+  <script src="{% static 'js/owner_pricing_plans.js' %}?v=11" defer></script>
   {% if google_maps_api_key %}
     <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>
     <script
@@ -124,6 +124,11 @@
                 <i class="far fa-copy" aria-hidden="true"></i>
                 {% translate "Инструкция для ChatGPT" %}
               </button>
+              {% if original %}
+                <a class="km-place-json-prompt-copy" href="{% url 'admin:catalog_place_export_json' original.pk %}">
+                  <i class="fas fa-file-export" aria-hidden="true"></i> {% translate "Экспорт JSON" %}
+                </a>
+              {% endif %}
             </div>
             <div class="km-place-progress-compact">
               <div class="km-place-progress-text">
@@ -142,7 +147,7 @@
 
         <section class="km-place-duplicate-alert" data-place-duplicate-alert hidden aria-live="polite"></section>
 
-        <dialog class="km-place-json-import-dialog" data-place-json-import-dialog aria-labelledby="km-json-import-title">
+        <dialog class="km-place-json-import-dialog" data-place-json-import-dialog data-pricing-validate-url="{% url 'admin:catalog_place_pricing_import_validate' %}" aria-labelledby="km-json-import-title">
           <div class="km-place-json-import-dialog__head">
             <div>
               <p class="km-place-json-import-dialog__eyebrow">{% translate "Быстрое заполнение" %}</p>
@@ -588,14 +593,6 @@
                 </div>
               </div>
 
-              {% if km_place_form_summary.state_badges %}
-                <div class="km-place-sidebar-badges">
-                  {% for badge in km_place_form_summary.state_badges %}
-                    <span class="km-place-sidebar-badge km-place-sidebar-badge--{{ badge.tone }}">{{ badge.label }}</span>
-                  {% endfor %}
-                </div>
-              {% endif %}
-
               {% if km_place_form_summary.meta_items %}
                 <dl class="km-place-sidebar-meta">
                   {% for item in km_place_form_summary.meta_items %}
@@ -630,6 +627,96 @@
                   {% translate "Ключевые поля заполнены." %}
                 </p>
               </details>
+            </div>
+
+            <div class="km-place-sidebar-card km-place-sidebar-card--management" data-place-management>
+              <div class="km-place-management-head">
+                <div>
+                  <div class="km-place-sidebar-eyebrow">{% translate "Управление" %}</div>
+                  <h2>{% translate "Карточка и публикация" %}</h2>
+                </div>
+                <span class="km-place-management-state" aria-hidden="true"><i class="fas fa-sliders-h"></i></span>
+              </div>
+
+              <div class="km-place-management-field">
+                <label for="{{ adminform.form.status.id_for_label }}">{% translate "Состояние карточки" %}</label>
+                {{ adminform.form.status }}
+                {% for error in adminform.form.status.errors %}<small class="km-place-management-error">{{ error }}</small>{% endfor %}
+              </div>
+
+              <div
+                class="km-place-management-field km-place-management-field--conditional"
+                data-place-rejection-row
+                {% if adminform.form.status.value != adminform.form.instance.STATUS_REJECTED %}hidden{% endif %}
+              >
+                <label for="{{ adminform.form.rejection_reason.id_for_label }}">{% translate "Причина отклонения" %}</label>
+                {{ adminform.form.rejection_reason }}
+                {% for error in adminform.form.rejection_reason.errors %}<small class="km-place-management-error">{{ error }}</small>{% endfor %}
+              </div>
+
+              <div class="km-place-management-switches">
+                <label class="km-place-management-switch" for="{{ adminform.form.is_active.id_for_label }}">
+                  <span class="km-place-management-switch__copy">
+                    <strong>{% translate "Показывать на сайте" %}</strong>
+                    <small>{% translate "Карточка доступна посетителям после публикации" %}</small>
+                  </span>
+                  {{ adminform.form.is_active }}
+                  <span class="km-place-management-switch__control" aria-hidden="true"></span>
+                </label>
+
+                <label class="km-place-management-switch" for="{{ adminform.form.is_verified.id_for_label }}">
+                  <span class="km-place-management-switch__copy">
+                    <strong>{% translate "Проверено" %}</strong>
+                    <small>{% translate "Данные подтверждены модератором" %}</small>
+                  </span>
+                  {{ adminform.form.is_verified }}
+                  <span class="km-place-management-switch__control" aria-hidden="true"></span>
+                </label>
+
+                <label class="km-place-management-switch" for="{{ adminform.form.is_home_recommended.id_for_label }}">
+                  <span class="km-place-management-switch__copy">
+                    <strong>{% translate "На главной" %}</strong>
+                    <small>{% translate "Добавить в блок рекомендаций" %}</small>
+                  </span>
+                  {{ adminform.form.is_home_recommended }}
+                  <span class="km-place-management-switch__control" aria-hidden="true"></span>
+                </label>
+              </div>
+
+              <div
+                class="km-place-management-field km-place-management-field--compact km-place-management-field--conditional"
+                data-place-recommendation-order
+                {% if not adminform.form.is_home_recommended.value %}hidden{% endif %}
+              >
+                <label for="{{ adminform.form.home_recommended_order.id_for_label }}">{% translate "Порядок на главной" %}</label>
+                {{ adminform.form.home_recommended_order }}
+                <small>{% translate "Меньшее число показывается раньше" %}</small>
+              </div>
+
+              <div class="km-place-management-field km-place-management-field--owner">
+                <label for="{{ adminform.form.owner.id_for_label }}">{% translate "Владелец карточки" %}</label>
+                {{ adminform.form.owner }}
+                <small>{% translate "Назначьте пользователя, который сможет управлять карточкой" %}</small>
+                {% for error in adminform.form.owner.errors %}<small class="km-place-management-error">{{ error }}</small>{% endfor %}
+              </div>
+
+              <div class="km-place-management-stats" aria-label="{% translate 'Статистика карточки' %}">
+                <div title="{% translate 'Лайки' %}">
+                  <i class="far fa-heart" aria-hidden="true"></i>
+                  <strong>{{ original.likes_count|default:"0" }}</strong>
+                  <span>{% translate "Лайки" %}</span>
+                </div>
+                <div title="{% translate 'Средний рейтинг' %}">
+                  <i class="fas fa-star" aria-hidden="true"></i>
+                  <strong>{{ original.rating_avg|default:"0"|floatformat:1 }}</strong>
+                  <span>{% translate "Рейтинг" %}</span>
+                </div>
+                <div title="{% translate 'Отзывы' %}">
+                  <i class="far fa-comment-dots" aria-hidden="true"></i>
+                  <strong>{{ original.rating_count|default:"0" }}</strong>
+                  <span>{% translate "Отзывы" %}</span>
+                </div>
+              </div>
             </div>
 
             <div class="km-place-sidebar-card km-place-sidebar-card--actions">

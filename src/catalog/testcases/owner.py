@@ -66,11 +66,9 @@ from catalog.testcases.utils import *
 
 class TestOwnershipWorkflow(TestCase):
     def setUp(self):
-        self.place = Place.objects.create(
+        self.place = create_quality_place(
             name="Ownership Place",
             name_ru="Кружок для привязки",
-            category="EDU",
-            is_active=True,
         )
         self.owner_user = User.objects.create_user(
             username="owner_role_user",
@@ -458,9 +456,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Тариф 1:")
-        self.assertContains(response, "Укажите количество занятий в пакете.")
+        self.assertContains(response, "Количество и единица должны быть указаны вместе.")
         self.editor_place.refresh_from_db()
-        self.assertEqual(self.editor_place.pricing_plans, existing_plans)
+        self.assertEqual(len(self.editor_place.pricing_plans), 1)
+        self.assertEqual(self.editor_place.pricing_plans[0]["price"], "120.00")
 
     def test_owner_editor_can_save_incomplete_edit_as_draft(self):
         self.editor_place.name_az = "Redakte qaralama"
@@ -600,7 +599,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "data-map-search")
         self.assertContains(response, "owner_place_map_picker.js")
         self.assertContains(response, "owner_place_wizard.js")
-        self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
         self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
 

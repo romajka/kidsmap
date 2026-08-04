@@ -70,7 +70,7 @@ class DjangoPlaceRepository(IPlaceRepository):
         return (
             base_queryset
             .select_related("subcategory")
-            .prefetch_related("schedule_days__intervals")
+            .prefetch_related("schedule_days__intervals", "pricing_plan_records")
             .exclude(lat__isnull=True)
             .exclude(lng__isnull=True)
         )

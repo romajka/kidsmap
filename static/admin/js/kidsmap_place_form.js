@@ -8,6 +8,77 @@
   }
 
   ready(function () {
+    var management = document.querySelector("[data-place-management]");
+    if (!management) {
+      return;
+    }
+
+    var recommendationToggle = document.getElementById("id_is_home_recommended");
+    var recommendationOrder = management.querySelector("[data-place-recommendation-order]");
+    var statusSelect = document.getElementById("id_status");
+    var rejectionRow = management.querySelector("[data-place-rejection-row]");
+    var ownerSelect = document.getElementById("id_owner");
+    var ownerField = management.querySelector(".km-place-management-field--owner");
+    var form = management.closest("form");
+    var rejectedStatus = form ? form.getAttribute("data-rejected-status") || "rejected" : "rejected";
+
+    function syncRecommendationOrder() {
+      if (recommendationOrder && recommendationToggle) {
+        recommendationOrder.hidden = !recommendationToggle.checked;
+      }
+    }
+
+    function syncRejectionReason() {
+      if (rejectionRow && statusSelect) {
+        rejectionRow.hidden = statusSelect.value !== rejectedStatus;
+      }
+    }
+
+    function syncOwnerActions() {
+      if (!ownerField) {
+        return;
+      }
+      var hasOwner = !!(ownerSelect && ownerSelect.value);
+      var actionConfig = [
+        { selector: ".add-related", label: "Новый пользователь", visible: true },
+        { selector: ".change-related", label: "Изменить", visible: hasOwner },
+        { selector: ".view-related", label: "Открыть", visible: hasOwner },
+      ];
+
+      actionConfig.forEach(function (config) {
+        var action = ownerField.querySelector(config.selector);
+        if (!action) {
+          return;
+        }
+        action.hidden = !config.visible;
+        action.setAttribute("data-action-label", config.label);
+        action.setAttribute("title", config.label);
+        action.setAttribute("aria-label", config.label);
+      });
+
+      var deleteAction = ownerField.querySelector(".delete-related");
+      if (deleteAction) {
+        // This Django action deletes the user account; unassigning is done by
+        // selecting the empty owner value, so deletion does not belong here.
+        deleteAction.hidden = true;
+      }
+    }
+
+    if (recommendationToggle) {
+      recommendationToggle.addEventListener("change", syncRecommendationOrder);
+      syncRecommendationOrder();
+    }
+    if (statusSelect) {
+      statusSelect.addEventListener("change", syncRejectionReason);
+      syncRejectionReason();
+    }
+    if (ownerSelect) {
+      ownerSelect.addEventListener("change", syncOwnerActions);
+    }
+    syncOwnerActions();
+  });
+
+  ready(function () {
     var form = document.querySelector("[data-km-admin-form]") || document.getElementById("place_form");
     var sections = Array.prototype.slice.call(document.querySelectorAll("[data-place-accordion-section]"));
     if (!form || !sections.length) {
@@ -242,6 +313,13 @@
     picker.className = "km-taxonomy-picker";
     picker.setAttribute("aria-label", "Выбор категории и подкатегории");
 
+    var contextHead = document.createElement("div");
+    contextHead.className = "km-taxonomy-context-head";
+    contextHead.innerHTML =
+      '<div><span>Рубрика карточки</span><strong>Категория и подкатегория</strong></div>' +
+      '<small>Определяет, где посетители найдут это место.</small>';
+    picker.appendChild(contextHead);
+
     var selectedBanner = document.createElement("div");
     selectedBanner.className = "km-taxonomy-selected-banner";
     selectedBanner.style.display = "none";
@@ -427,6 +505,26 @@
     }
 
     anchor.parentElement.insertBefore(picker, anchor);
+    var basicsBody = picker.closest("#basics-body");
+    if (basicsBody) {
+      basicsBody.classList.add("km-basics-layout");
+      var taxonomyGroup = picker.parentElement;
+      if (taxonomyGroup && taxonomyGroup.classList) {
+        taxonomyGroup.classList.add("km-basics-layout__taxonomy");
+      }
+
+      var copyColumn = document.createElement("div");
+      copyColumn.className = "km-basics-layout__copy";
+      basicsBody.insertBefore(copyColumn, taxonomyGroup);
+      [
+        basicsBody.querySelector(":scope > .km-lang-tabs"),
+        basicsBody.querySelector(":scope > .field-name_az"),
+        basicsBody.querySelector(":scope > .field-name_ru"),
+        basicsBody.querySelector(":scope > .field-name_en")
+      ].forEach(function (node) {
+        if (node) copyColumn.appendChild(node);
+      });
+    }
     if (categoryField) categoryField.classList.add("km-taxonomy-native-field");
     if (subcategoryField) subcategoryField.classList.add("km-taxonomy-native-field");
     form.dataset.kmTaxonomyPickerBound = "1";
@@ -436,6 +534,84 @@
     });
     subcategorySelect.addEventListener("change", render);
     render();
+  });
+
+  ready(function () {
+    var body = document.getElementById("pricing-body");
+    if (!body || body.dataset.kmCompactPricingBound === "1") return;
+
+    function fieldLabel(name, text) {
+      var input = body.querySelector('[name="' + name + '"]');
+      var label = input && input.id ? body.querySelector('label[for="' + input.id + '"]') : null;
+      if (label) label.textContent = text;
+      return input;
+    }
+
+    fieldLabel("age_open_ended", "Нет максимального возраста");
+    fieldLabel("lesson_duration_minutes", "Длительность занятия");
+    fieldLabel("offers_adult_classes", "Занятия для взрослых");
+    fieldLabel("price_from", "Диапазон цены");
+    fieldLabel("price_per_lesson", "За одно занятие");
+    fieldLabel("price_per_month", "За месяц");
+    fieldLabel("price_per_8_lessons", "Абонемент на 8 занятий");
+
+    var overview = body.querySelector(".field-age_from.field-age_to");
+    var overviewRow = overview ? overview.querySelector(":scope > .row") : null;
+    if (overview && overviewRow) {
+      overview.classList.add("km-pricing-overview");
+      var overviewHead = document.createElement("div");
+      overviewHead.className = "km-pricing-panel-head";
+      overviewHead.innerHTML =
+        '<div><span>Основные параметры</span><strong>Возраст и формат занятий</strong></div>' +
+        '<small>Заполните только то, что известно.</small>';
+      overview.insertBefore(overviewHead, overviewRow);
+
+      var adultGroup = body.querySelector(":scope > .field-offers_adult_classes");
+      var adultInput = adultGroup && adultGroup.querySelector('input[name="offers_adult_classes"]');
+      var adultField = adultInput ? adultInput.closest("div") : null;
+      var adultLabel = adultInput && adultInput.id
+        ? adultGroup.querySelector('label[for="' + adultInput.id + '"]')
+        : null;
+      if (adultField) {
+        adultField.classList.add("fieldBox", "km-pricing-adults-control");
+        if (adultLabel) adultField.insertBefore(adultLabel, adultField.firstChild);
+        var adultHelp = adultField.querySelector(".help-block:not(.red):not(.text-red)");
+        if (adultHelp) adultHelp.textContent = "Отдельные программы для взрослых.";
+        overviewRow.appendChild(adultField);
+        adultGroup.hidden = true;
+      }
+
+      var ageOpenHelp = overview.querySelector(".field-age_open_ended .help-block:not(.red):not(.text-red)");
+      if (ageOpenHelp) ageOpenHelp.textContent = "Для формата 3+ или без ограничения.";
+    }
+
+    var priceGroups = [
+      body.querySelector(":scope > .field-price_from.field-price_to"),
+      body.querySelector(":scope > .field-price_per_month.field-price_per_8_lessons")
+    ].filter(Boolean);
+
+    if (priceGroups.length) {
+      var pricePanel = document.createElement("section");
+      pricePanel.className = "km-price-quick-panel";
+      pricePanel.innerHTML =
+        '<div class="km-pricing-panel-head"><div><span>Стоимость</span><strong>Базовая цена</strong></div>' +
+        '<small>Можно заполнить один или несколько вариантов.</small></div>' +
+        '<div class="km-price-quick-grid"></div>';
+      body.insertBefore(pricePanel, priceGroups[0]);
+
+      var priceGrid = pricePanel.querySelector(".km-price-quick-grid");
+      priceGroups.forEach(function (group) {
+        group.querySelectorAll(":scope > .row > .fieldBox").forEach(function (field) {
+          var input = field.querySelector("input");
+          var label = input && input.id ? group.querySelector('label[for="' + input.id + '"]') : null;
+          if (label && !field.contains(label)) field.insertBefore(label, field.firstChild);
+          priceGrid.appendChild(field);
+        });
+        group.hidden = true;
+      });
+    }
+
+    body.dataset.kmCompactPricingBound = "1";
   });
 
   ready(function () {

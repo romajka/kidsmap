@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Max, Prefetch, Q
 from django import forms
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
 from django.utils import timezone
@@ -40,7 +40,7 @@ from catalog.services.content_quality import place_quality_check, public_place_q
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
 from catalog.services.image_uploads import normalize_uploaded_image
-from catalog.services.pricing_plans import normalize_pricing_plans
+from catalog.services.pricing_plans import normalize_pricing_plans, pricing_audit_summary
 from catalog.services.place_schedule import FULL_DAY_LABELS, build_schedule_summary, serialize_place_schedule
 from .review import PlaceReviewInline
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
@@ -146,6 +146,10 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     class Meta:
         model = Place
         fields = "__all__"
+        exclude = (
+            "pricing_plans_legacy", "price_from", "price_to", "price_per_lesson",
+            "price_per_month", "price_per_8_lessons",
+        )
         widgets = {
             "temporary_start": forms.DateTimeInput(
                 attrs={"type": "datetime-local", "step": "900"},
@@ -191,7 +195,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         is_save_draft = bool(self.data and "_save_draft" in self.data)
         self.draft_save_only = is_save_draft
         try:
-            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]")
+            cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", allow_verified=True)
+            self.instance.pricing_plans = cleaned["pricing_plans"]
         except ValidationError as exc:
             self.add_error("pricing_plans", exc)
             cleaned["pricing_plans"] = []
@@ -1535,6 +1540,7 @@ class PlaceAdmin(admin.ModelAdmin):
     search_help_text = _("Ищет по названию места на AZ, RU или EN. Можно также искать по адресу, телефону или владельцу.")
     readonly_fields = (
         "slug",
+        "likes_count",
         "rating_avg",
         "rating_count",
         "lifecycle_status_display",
@@ -1588,7 +1594,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "id": "system",
             "title": _("Служебное"),
             "description": _("Служебные и административные поля, которые не нужны в основном сценарии заполнения."),
-            "fieldset_indexes": (6, 7),
+            "fieldset_indexes": (7, 8),
         },
     )
 
@@ -1617,8 +1623,6 @@ class PlaceAdmin(admin.ModelAdmin):
                 "fields": (
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
-                    ("price_from", "price_to", "price_per_lesson"),
-                    ("price_per_month", "price_per_8_lessons"),
                     "pricing_plans",
                 )
             },
@@ -1648,25 +1652,33 @@ class PlaceAdmin(admin.ModelAdmin):
         ),
         (_("Фотографии"), {"fields": ("photo",)}),
         (
-            _("Служебное"),
+            _("Управление карточкой"),
             {
-                "classes": ("collapse",),
                 "fields": (
-                    "cover_photo",
                     "is_active",
                     "is_verified",
                     ("is_home_recommended", "home_recommended_order"),
                     "status",
                     "rejection_reason",
                     "owner",
+                ),
+            },
+        ),
+        (
+            _("Служебное"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "cover_photo",
                     "last_verified_at_display",
                     "published_at_display",
                     "lifecycle_status_display",
                     "quality_status_display",
+                    "created_at",
+                    "updated_at",
                 ),
             },
         ),
-        (_("Служебное"), {"classes": ("collapse",), "fields": ("cover_photo", "created_at", "updated_at")}),
     )
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
@@ -2157,12 +2169,6 @@ class PlaceAdmin(admin.ModelAdmin):
                         "value": timezone.localtime(obj.published_at).strftime("%d.%m.%Y %H:%M"),
                     }
                 )
-            meta_items.append(
-                {
-                    "label": str(_("Владелец")),
-                    "value": obj.owner.username if obj.owner_id and obj.owner else str(_("Не назначен")),
-                }
-            )
         else:
             state_badges.append(
                 {
@@ -2233,15 +2239,6 @@ class PlaceAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("category", "subcategory"),
-                    ("is_active", "is_verified"),
-                    ("is_home_recommended", "home_recommended_order"),
-                    ("status", "rejection_reason"),
-                    "owner",
-                    "likes_count",
-                    "rating_avg",
-                    "rating_count",
-                    "lifecycle_status_display",
-                    "quality_status_display",
                 )
             },
         ),
@@ -2262,8 +2259,6 @@ class PlaceAdmin(admin.ModelAdmin):
                 "fields": (
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
-                    ("price_from", "price_to", "price_per_lesson"),
-                    ("price_per_month", "price_per_8_lessons"),
                     "pricing_plans",
                 )
             },
@@ -2282,6 +2277,19 @@ class PlaceAdmin(admin.ModelAdmin):
             },
         ),
         (_("Фотографии"), {"fields": ("photo",)}),
+        (
+            _("Управление карточкой"),
+            {
+                "fields": (
+                    "is_active",
+                    "is_verified",
+                    ("is_home_recommended", "home_recommended_order"),
+                    "status",
+                    "rejection_reason",
+                    "owner",
+                ),
+            },
+        ),
         (_("Удаление"), {"classes": ("collapse",), "fields": ("deleted_at", "deleted_by")}),
         (
             _("Служебное"),
@@ -3042,6 +3050,8 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         custom_urls = [
+            path("pricing/import/validate/", self.admin_site.admin_view(self.validate_pricing_import_view), name="catalog_place_pricing_import_validate"),
+            path("<int:object_id>/export-json/", self.admin_site.admin_view(self.export_place_json_view), name="catalog_place_export_json"),
             path(
                 "duplicate-candidates/",
                 self.admin_site.admin_view(self.duplicate_candidates_view),
@@ -3074,6 +3084,54 @@ class PlaceAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + super().get_urls()
+
+    def validate_pricing_import_view(self, request):
+        if request.method != "POST":
+            return JsonResponse({"ok": False, "error": str(_("Разрешён только POST."))}, status=405)
+        try:
+            payload = json.loads(request.body.decode("utf-8"))
+        except (ValueError, UnicodeDecodeError):
+            return JsonResponse({"ok": False, "error": str(_("Некорректный JSON."))}, status=400)
+        if not isinstance(payload, dict):
+            return JsonResponse({"ok": False, "error": str(_("Нужен один объект карточки."))}, status=400)
+        warnings = []
+        raw_plans = payload.get("pricing_plans")
+        if raw_plans is None:
+            raw_plans = []
+            legacy_specs = (
+                ("price_per_lesson", {"product_type": "lesson", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "lesson"}),
+                ("price_per_month", {"product_type": "membership", "billing_mode": "recurring", "billing_interval": "month", "billing_interval_count": 1}),
+                ("price_per_8_lessons", {"product_type": "lesson", "billing_mode": "one_time", "quantity": 8, "quantity_unit": "lesson"}),
+            )
+            for key, base in legacy_specs:
+                if payload.get(key) is not None:
+                    amount = payload[key]
+                    raw_plans.append({**base, "price_kind": "free" if str(amount) in {"0", "0.0", "0.00"} else "exact", "price": amount})
+            if payload.get("price_from") is not None or payload.get("price_to") is not None:
+                warnings.append(str(_("price_from/price_to не создают тариф: неизвестен продаваемый продукт.")))
+        try:
+            plans = normalize_pricing_plans(raw_plans, allow_verified=request.user.is_staff)
+        except ValidationError as exc:
+            return JsonResponse({"ok": False, "error": exc.messages[0]}, status=400)
+        return JsonResponse({"ok": True, "pricing_plans": plans, "warnings": warnings})
+
+    def export_place_json_view(self, request, object_id):
+        obj = Place.objects.filter(pk=object_id).first()
+        if obj is None or not self.has_view_or_change_permission(request, obj):
+            raise PermissionDenied
+        from catalog.services.pricing_plans import serialize_pricing_plans
+        payload = {
+            "name_az": obj.name_az, "name_ru": obj.name_ru, "name_en": obj.name_en,
+            "description_az": obj.description_az, "description_ru": obj.description_ru, "description_en": obj.description_en,
+            "category": obj.category_id, "subcategory": obj.subcategory_id,
+            "age_from": obj.age_from, "age_to": obj.age_to, "address": obj.address,
+            "district": obj.district, "metro": obj.metro, "phone1": obj.phone1,
+            "instagram": obj.instagram, "website": obj.website,
+            "pricing_plans": serialize_pricing_plans(obj.pricing_plan_records.all()),
+        }
+        response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2, default=str), content_type="application/json")
+        response["Content-Disposition"] = f'attachment; filename="place-{obj.pk}.json"'
+        return response
 
     def duplicate_candidates_view(self, request):
         if not self.has_view_or_change_permission(request):
@@ -3278,7 +3336,9 @@ class PlaceAdmin(admin.ModelAdmin):
             return JsonResponse({"results": []})
         language_code = getattr(request, "LANGUAGE_CODE", None)
 
-        queryset = self.get_queryset(request).filter(
+        # Suggestions must not inherit changelist-only filters or annotations
+        # from ModelAdmin.get_queryset(); search the canonical active table.
+        queryset = Place.objects.filter(deleted_at__isnull=True).filter(
             Q(name__icontains=term)
             | Q(name_az__icontains=term)
             | Q(name_ru__icontains=term)
@@ -3733,11 +3793,13 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         old_values = {}
+        old_pricing_value = "0 tariffs"
         old_schedule_value = ""
         old_status = None
         if change and obj.pk:
             old_obj = Place.objects.filter(pk=obj.pk).first()
             if old_obj:
+                old_pricing_value = pricing_audit_summary(old_obj)
                 old_status = old_obj.status
                 for field in self.AUDIT_TRACKED_FIELDS:
                     old_values[field] = getattr(old_obj, field)
@@ -3768,12 +3830,13 @@ class PlaceAdmin(admin.ModelAdmin):
             obj.created_by = request.user
 
         super().save_model(request, obj, form, change)
+        new_pricing_value = pricing_audit_summary(obj)
         if not change:
             self.place_audit_repository.create_entries(
                 place=obj,
                 changed_by=request.user,
                 source=PlaceChangeAudit.SOURCE_ADMIN,
-                changes={"created": ("", "1")},
+                changes={"created": ("", "1"), "pricing_plans": ("0 tariffs", new_pricing_value)},
             )
         if hasattr(form, "save_schedule"):
             form.save_schedule(obj)
@@ -3797,6 +3860,17 @@ class PlaceAdmin(admin.ModelAdmin):
                         field_name=field_name,
                         old_value=self._stringify_audit_value(old_value),
                         new_value=self._stringify_audit_value(new_value),
+                    )
+                )
+            if old_pricing_value != new_pricing_value:
+                audit_entries.append(
+                    PlaceChangeAudit(
+                        place=obj,
+                        changed_by=request.user,
+                        source=PlaceChangeAudit.SOURCE_ADMIN,
+                        field_name="pricing_plans",
+                        old_value=old_pricing_value,
+                        new_value=new_pricing_value,
                     )
                 )
             if audit_entries:

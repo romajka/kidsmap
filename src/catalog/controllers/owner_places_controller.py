@@ -22,6 +22,7 @@ from catalog.repositories.django_repositories import (
 )
 from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
 from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
+from catalog.services.pricing_plans import pricing_audit_summary
 from catalog.services.owner_place_use_cases import (
     OwnerAccessResult,
     build_owner_places_stats,
@@ -540,6 +541,7 @@ class OwnerPlacesController:
         model_field_names = {field.name for field in Place._meta.fields}
         tracked_fields = [field_name for field_name in result.form.fields.keys() if field_name in model_field_names]
         old_snapshot = {field: getattr(result.place, field) for field in tracked_fields}
+        old_pricing_value = pricing_audit_summary(result.place)
         old_photo_name = result.place.photo.name if result.place.photo else ""
         was_public = result.place.status == Place.STATUS_PUBLISHED and result.place.is_active
         was_pending = result.place.status == Place.STATUS_PENDING
@@ -640,6 +642,7 @@ class OwnerPlacesController:
         for field in tracked_fields:
             changes[field] = (old_snapshot.get(field), getattr(place, field))
         changes["schedule"] = (old_schedule_value, new_schedule_value)
+        changes["pricing_plans"] = (old_pricing_value, pricing_audit_summary(place))
 
         # Saving a formerly public card as a draft must not expose unmoderated
         # changes. The explicit submit action below moves it straight to pending.

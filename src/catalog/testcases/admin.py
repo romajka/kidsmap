@@ -159,6 +159,16 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertContains(response, "data-duplicate-candidates-url", html=False)
         self.assertContains(response, "kidsmap_place_duplicates.js", html=False)
 
+    def test_place_management_controls_are_compact_and_not_duplicated(self):
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-place-management", html=False)
+        self.assertContains(response, "data-place-recommendation-order", html=False)
+        self.assertContains(response, 'id="id_is_active"', count=1, html=False)
+        self.assertContains(response, 'id="id_is_verified"', count=1, html=False)
+        self.assertNotContains(response, 'name="likes_count"', html=False)
+
     def test_place_changelist_filters_by_staff_member_who_added_card(self):
         other_staff = User.objects.create_user(
             username="content_manager_filter",
@@ -710,6 +720,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, 'id="place-search-suggestions"', html=False)
 
     def test_admin_place_search_suggestions_returns_matching_places(self):
+        Category.objects.get_or_create(code="TECH", defaults={"name": "Technology"})
         Place.objects.create(
             name="Robot Academy",
             name_ru="Robot Academy",

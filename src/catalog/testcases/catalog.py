@@ -146,7 +146,8 @@ class CatalogMapQueryEfficiencyTests(TestCase):
             repository.active_queryset().filter(pk__in=place_ids)
         )
 
-        with self.assertNumQueries(3):
+        # Main queryset + schedule days + intervals + relational tariffs.
+        with self.assertNumQueries(4):
             serialized = PlaceController.build_default()._serialize_map_places(
                 queryset,
                 language_code="ru",
@@ -401,16 +402,16 @@ class TestSeedCatalogTaxonomyCommand(TestCase):
         self.assertTrue(Category.objects.filter(code="EDU").exists())
         cat = Category.objects.get(code="EDU")
         self.assertTrue(cat.icon.endswith(".svg"))
-        self.assertIn("img/icon/cooliocns SVG/Interface/Book_Open.svg", cat.icon)
+        self.assertEqual(cat.icon, "icons/categories/education.svg")
         waterpark = Category.objects.get(code="water-leisure")
         self.assertEqual(waterpark.name_ru, "Водный отдых")
         self.assertEqual(waterpark.name_az, "Su istirahəti")
         self.assertEqual(waterpark.name_en, "Water leisure")
-        self.assertEqual(waterpark.icon, "icons/categories/waterparks.svg")
+        self.assertEqual(waterpark.icon, "icons/categories/water-leisure.svg")
         self.assertTrue(waterpark.is_active)
         self.assertTrue(waterpark.subcategories.filter(code="waterparks").exists())
         zoo = Category.objects.get(code="ZOO")
-        self.assertEqual(zoo.name_ru, "Зоопарки и аквариумы")
+        self.assertEqual(zoo.name_ru, "Зоопарки")
         self.assertEqual(zoo.icon, "icons/categories/zoo.svg")
         self.assertTrue(zoo.is_active)
         self.assertTrue(zoo.subcategories.filter(code="aquariums-oceanariums").exists())

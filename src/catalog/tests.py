@@ -7,4 +7,5 @@ from catalog.testcases.owner import *  # noqa: F401,F403
 from catalog.testcases.catalog import *  # noqa: F401,F403
 from catalog.testcases.tracking import *  # noqa: F401,F403
 from catalog.testcases.pricing_plans import *  # noqa: F401,F403
+from catalog.testcases.pricing_plans_relational import *  # noqa: F401,F403
 from catalog.testcases.events_feature import *  # noqa: F401,F403

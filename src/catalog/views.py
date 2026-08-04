@@ -41,6 +41,32 @@ from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview
 from .models import FunnelEvent
 from .services.content_quality import approved_review_queryset
 from .services.pricing_plans import public_pricing_plans
+
+
+def place_pricing_api(request, slug):
+    from django.shortcuts import get_object_or_404
+    from catalog.models import Place
+    from catalog.services.pricing_plans import build_public_price_summary, serialize_pricing_plans
+
+    language = (request.GET.get("lang") or getattr(request, "LANGUAGE_CODE", "az") or "az").split("-")[0]
+    if language not in {"az", "ru", "en"}:
+        language = "az"
+    place = get_object_or_404(
+        Place.objects.prefetch_related("pricing_plan_records"),
+        slug=slug, is_active=True, status=Place.STATUS_PUBLISHED, deleted_at__isnull=True,
+    )
+    plans = place.pricing_plan_records.filter(is_active=True).order_by("sort_order", "id")
+    summary = build_public_price_summary(place, language)
+    summary = {
+        **summary,
+        "min_price": format(summary["min_price"], ".2f") if summary["min_price"] is not None else None,
+        "max_price": format(summary["max_price"], ".2f") if summary["max_price"] is not None else None,
+    }
+    return JsonResponse({
+        "place": {"id": place.pk, "slug": place.slug, "name": place.name_i18n(language)},
+        "summary": summary,
+        "pricing_plans": serialize_pricing_plans(plans, language),
+    })
 from .services.reactions import ensure_session_key
 from .services.owner_specialist_use_cases import save_owner_specialist_profile
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
@@ -419,15 +445,27 @@ def place_reviews(request):
 def vote_place_review(request, review_id):
     value = (request.POST.get("value") or "").strip()
     if value not in {"1", "-1"}:
-        messages.error(request, _("Не удалось обработать реакцию на отзыв."))
+        message = _("Не удалось обработать реакцию на отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=400)
+        messages.error(request, message)
         return redirect(reverse("home"))
 
     review = approved_review_queryset(PlaceReview.objects.select_related("place")).filter(pk=review_id).first()
     if review is None:
-        messages.error(request, _("Не удалось обработать реакцию на отзыв."))
+        message = _("Не удалось обработать реакцию на отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=404)
+        messages.error(request, message)
         return redirect(reverse("home"))
     if not request.user.is_authenticated:
         return _engagement_login_required_response(request, f"{review.place.get_absolute_url()}#reviews")
+    if review.user_id == request.user.id:
+        message = _("Нельзя оценивать собственный отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=403)
+        messages.error(request, message)
+        return redirect(_resolve_safe_next_url(request, f"{review.place.get_absolute_url()}#reviews"))
 
     result = engagement_controller.toggle_place_review_reaction(
         request=request,
@@ -450,15 +488,27 @@ def vote_place_review(request, review_id):
 def vote_site_review(request, review_id):
     value = (request.POST.get("value") or "").strip()
     if value not in {"1", "-1"}:
-        messages.error(request, _("Не удалось обработать реакцию на отзыв."))
+        message = _("Не удалось обработать реакцию на отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=400)
+        messages.error(request, message)
         return redirect(reverse("site_reviews"))
 
     review = approved_review_queryset(SiteReview.objects.all()).filter(pk=review_id).first()
     if review is None:
-        messages.error(request, _("Не удалось обработать реакцию на отзыв."))
+        message = _("Не удалось обработать реакцию на отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=404)
+        messages.error(request, message)
         return redirect(reverse("site_reviews"))
     if not request.user.is_authenticated:
         return _engagement_login_required_response(request, reverse("site_reviews"))
+    if review.user_id == request.user.id:
+        message = _("Нельзя оценивать собственный отзыв.")
+        if _is_ajax_request(request):
+            return JsonResponse({"ok": False, "message": message}, status=403)
+        messages.error(request, message)
+        return redirect(reverse("site_reviews"))
 
     result = engagement_controller.toggle_site_review_reaction(
         request=request,

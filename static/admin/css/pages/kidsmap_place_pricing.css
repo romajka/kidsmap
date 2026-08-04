@@ -309,3 +309,16 @@
     grid-template-columns: 1fr;
   }
 }
+/* The canonical editor renders its own compact header, main grid and advanced block. */
+.km-place-form-page .km-pricing-editor__list .owner-tariff-row {
+  display: block !important;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+.km-place-form-page .km-pricing-editor__list .owner-tariff-card-head {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 10px;
+}

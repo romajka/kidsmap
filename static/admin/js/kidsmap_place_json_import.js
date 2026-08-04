@@ -134,18 +134,14 @@
       lesson_format: "group",
       lessons_per_week: null,
       lessons_per_month: null,
-      price_from: null,
-      price_to: null,
-      price_per_lesson: null,
-      price_per_month: null,
-      price_per_8_lessons: null,
       pricing_plans: [{
+        product_type: "membership",
         lesson_format: "group",
-        sessions_per_week: null,
-        sessions_per_month: null,
-        payment_type: "per_month",
-        package_sessions: null,
-        price: 0,
+        billing_mode: "recurring",
+        billing_interval: "month",
+        billing_interval_count: 1,
+        price_kind: "exact",
+        price: 120,
         currency: "AZN",
         title_az: "",
         title_ru: "",
@@ -171,7 +167,7 @@
       "Описание делай полезным для каталога и SEO: 2–4 естественные, конкретные фразы без воды и набивки ключевиками. Укажи, что это за место, для какого возраста, какие занятия или услуги есть, район/город и важные условия — только если это подтверждено в источнике. Не пиши рекламные обещания и не придумывай факты.",
       "Расписание передавай только в schedule_days: ровно 7 объектов в порядке mon, tue, wed, thu, fri, sat, sun. Для закрытого дня: is_closed: true, is_24_hours: false, intervals: []. Для круглосуточного: is_closed: false, is_24_hours: true, intervals: []. Для обычного дня: is_closed: false, is_24_hours: false и один или несколько интервалов {start: 'HH:MM', end: 'HH:MM'}. Интервалы не пересекаются и не переходят через полночь.",
       "category и subcategory выбирай только из списков ниже: используй точный код или точное название. subcategory должна относиться к выбранной category.",
-      "Если известны тарифы, добавь pricing_plans: один объект на каждый реальный вариант оплаты. Для каждого обязательны lesson_format, payment_type и price. lesson_format: group, individual или open_visit. payment_type: per_lesson, per_month, package, per_visit или entry_ticket. Для package обязательно package_sessions. currency — AZN. Не добавляй больше 20 тарифов и не выдумывай цену или тип оплаты. Если тариф неполный, не добавляй его в JSON и объясни в примечании, чего не хватает.",
+      "Если известны тарифы, добавь pricing_plans: один объект на каждый реальный вариант оплаты. Обязательны product_type, billing_mode и price_kind. Для exact укажи price, для from — price_min, для range — price_min и price_max, для free и on_request числовая цена не нужна. Пакет задавай через quantity и quantity_unit. currency — AZN. Не добавляй больше 20 тарифов и не выдумывай данные.",
       "Полная структура поддерживаемого JSON (это образец типов; незаполненные поля нужно убрать):",
       JSON.stringify(example, null, 2),
       "Доступные категории:",
@@ -251,7 +247,7 @@
       if (event.target === dialog) dialog.close();
     });
 
-    dialog.querySelector("[data-place-json-import-apply]").addEventListener("click", function () {
+    dialog.querySelector("[data-place-json-import-apply]").addEventListener("click", async function () {
       var data;
       try {
         data = parsePlaceJson(input.value);
@@ -262,6 +258,29 @@
       if (!data || Array.isArray(data) || typeof data !== "object") {
         showMessage("Нужен один объект JSON с данными места.", true);
         return;
+      }
+
+      var validateUrl = dialog.dataset.pricingValidateUrl;
+      if (validateUrl) {
+        try {
+          var csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+          var validationResponse = await fetch(validateUrl, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {"Content-Type": "application/json", "X-CSRFToken": csrfInput ? csrfInput.value : ""},
+            body: JSON.stringify(data)
+          });
+          var validation = await validationResponse.json();
+          if (!validationResponse.ok || !validation.ok) {
+            showMessage(validation.error || "Не удалось проверить тарифы.", true);
+            return;
+          }
+          data.pricing_plans = validation.pricing_plans;
+          if (validation.warnings && validation.warnings.length) showMessage(validation.warnings.join(" "), false);
+        } catch (error) {
+          showMessage("Не удалось проверить тарифы на сервере.", true);
+          return;
+        }
       }
 
       var filled = 0;
@@ -283,11 +302,6 @@
         website: ["website", "site", "сайт"],
         lat: ["lat", "latitude", "широта"],
         lng: ["lng", "longitude", "долгота"],
-        price_from: ["price_from", "цена_от"],
-        price_to: ["price_to", "цена_до"],
-        price_per_lesson: ["price_per_lesson", "цена_за_занятие"],
-        price_per_month: ["price_per_month", "цена_за_месяц"],
-        price_per_8_lessons: ["price_per_8_lessons", "цена_за_8_занятий"],
         lesson_duration_minutes: ["lesson_duration_minutes", "длительность_минуты"],
         lessons_per_week: ["lessons_per_week", "занятий_в_неделю"],
         lessons_per_month: ["lessons_per_month", "занятий_в_месяц"],

@@ -5,6 +5,7 @@ from .review import PlaceReview, PlaceReviewReaction, SiteReview, SiteReviewReac
 from .owner import PlaceOwnershipRequest, PlaceOwnershipRequestAudit, OwnerTeamMembership, OwnerTeamInvitation, PlaceChangeAudit
 from .site import SiteSettings, SiteGalleryImage, SiteBrandingSettings, SiteAboutSettings, SiteContactsSettings, SiteFooterSettings, SiteEmptyStateSettings, SiteVisibilitySettings, SiteAnalytics, SiteVisit, FunnelEvent, CatalogContentSettings
 from .specialist import Region, District, MetroStation, SpecialistSpecialization, Specialist, SpecialistPracticeLocation, SpecialistScheduleDay, SpecialistScheduleInterval, SpecialistDocument, SpecialistReview
+from .pricing_plan import PricingPlan
 
 __all__ = [
     'Category',
@@ -52,4 +53,5 @@ __all__ = [
     'SpecialistScheduleInterval',
     'SpecialistDocument',
     'SpecialistReview',
+    'PricingPlan',
 ]
