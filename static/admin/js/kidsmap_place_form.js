@@ -478,6 +478,15 @@
         return !!item.initial;
       }
 
+      // An open-ended age range intentionally has no upper bound. Treat the
+      // empty, disabled age_to field as complete while the checkbox is active.
+      if (item.input_id === "id_age_to") {
+        var ageOpenEndedInput = document.getElementById("id_age_open_ended");
+        if (ageOpenEndedInput && ageOpenEndedInput.checked) {
+          return true;
+        }
+      }
+
       if (input.type === "file") {
         var clearCheckbox = document.getElementById(item.input_id + "-clear");
         var hasSelectedFile = !!(input.files && input.files.length);
