@@ -206,6 +206,15 @@ class Place(models.Model):
         with_translation = str(translate(self.metro))
         return with_translation or self.metro
 
+    @property
+    def safe_photo_size(self):
+        if not self.photo:
+            return 0
+        try:
+            return self.photo.size
+        except Exception:
+            return 0
+
     def instagram_url(self):
         value = (self.instagram or "").strip()
         if not value:
@@ -532,6 +541,15 @@ class PlacePhoto(models.Model):
         ordering = ("order", "id")
         verbose_name = _("Фото галереи")
         verbose_name_plural = _("Фото галереи")
+
+    @property
+    def safe_image_size(self):
+        if not self.image:
+            return 0
+        try:
+            return self.image.size
+        except Exception:
+            return 0
 
     def __str__(self):
         return f"{self.place.name_i18n()} #{self.order}"

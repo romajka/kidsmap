@@ -19,7 +19,7 @@
           <span class="km-media-main__placeholder-hint">{% translate "Превью показывает квадратный кроп для афиши." %}</span>
         </div>
         {% if obj.photo and obj.photo.name %}
-          <img src="{{ obj.photo.url }}" alt="{{ obj.name_i18n }}" class="km-media-main__image" data-main-photo-preview data-main-photo-initial-url="{{ obj.photo.url }}" data-main-photo-initial-name="{{ obj.photo.name }}"{% if obj.photo.size %} data-main-photo-initial-size="{{ obj.photo.size }}"{% endif %}>
+          <img src="{{ obj.photo.url }}" alt="{{ obj.name_i18n }}" class="km-media-main__image" data-main-photo-preview data-main-photo-initial-url="{{ obj.photo.url }}" data-main-photo-initial-name="{{ obj.photo.name }}"{% if obj.safe_photo_size %} data-main-photo-initial-size="{{ obj.safe_photo_size }}"{% endif %}>
         {% else %}
           <img class="km-media-main__image" alt="" hidden data-main-photo-preview>
         {% endif %}

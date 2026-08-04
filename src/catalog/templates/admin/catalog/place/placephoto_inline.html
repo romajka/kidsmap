@@ -34,7 +34,7 @@
                   data-gallery-preview
                   data-gallery-initial-url="{{ inline_admin_form.original.image.url }}"
                   data-gallery-initial-name="{{ inline_admin_form.original.image.name }}"
-                  {% if inline_admin_form.original.image.size %}data-gallery-initial-size="{{ inline_admin_form.original.image.size }}"{% endif %}
+                  {% if inline_admin_form.original.safe_image_size %}data-gallery-initial-size="{{ inline_admin_form.original.safe_image_size }}"{% endif %}
                 >
               {% else %}
                 <img class="km-photo-card__image" alt="" hidden data-gallery-preview>
