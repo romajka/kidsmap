@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="home-hero panel animate-on-scroll is-visible" {% if site_settings and site_settings.home_hero_image %}style="--home-hero-image:url('{{ site_settings.home_hero_image.url }}');"{% endif %}>
+<section class="home-hero panel animate-on-scroll is-visible" style="background: url('{% static "img/home/hero_illustration.webp" %}') center / cover no-repeat !important;">
   <div class="home-hero-bg-glows" aria-hidden="true">
     <div class="glow-blob blob-1"></div>
     <div class="glow-blob blob-2"></div>

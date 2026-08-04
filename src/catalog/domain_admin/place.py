@@ -388,6 +388,18 @@ class EventAdminForm(forms.ModelForm):
     PICKER_DATETIME_FORMAT = "%Y-%m-%d %H:%M"
     require_location_region = False
 
+    # The custom admin template renders one text input per date. Declaring the
+    # fields prevents ModelAdmin from replacing them with SplitDateTimeField,
+    # which expects a two-item POST value and rejects the browser payload.
+    start_datetime = forms.DateTimeField(
+        label=_("Начало мероприятия"), required=False,
+        widget=forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "start", "data-allow-input": "1"}),
+    )
+    end_datetime = forms.DateTimeField(
+        label=_("Окончание мероприятия"), required=False,
+        widget=forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "end", "data-allow-input": "1"}),
+    )
+
     region = forms.ChoiceField(
         label=_("Город / регион"), required=False, choices=(),
         widget=forms.Select(attrs={"class": "field", "data-km-location-region": ""}),

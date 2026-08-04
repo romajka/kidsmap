@@ -6,11 +6,7 @@ from django.db import migrations, models
 
 def require_postgresql(apps, schema_editor):
     connection = schema_editor.connection
-    is_django_sqlite_test_database = (
-        connection.vendor == "sqlite"
-        and str(connection.settings_dict.get("NAME", "")).startswith("file:memorydb_")
-    )
-    if connection.vendor != "postgresql" and not is_django_sqlite_test_database:
+    if connection.vendor not in ("postgresql", "sqlite"):
         raise RuntimeError(
             "Migration 0073 is the PostgreSQL cutover boundary and must not run on MariaDB/MySQL."
         )

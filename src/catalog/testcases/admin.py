@@ -68,6 +68,10 @@ from catalog.testcases.utils import *
 
 class TestAdminTemporaryEventInputs(TestCase):
     def setUp(self):
+        Category.objects.get_or_create(
+            code="EDU",
+            defaults={"name": "Education", "name_ru": "Образование"},
+        )
         self.superuser = User.objects.create_superuser(
             username="admin_temp_fields",
             email="admin-temp-fields@example.com",
@@ -1605,6 +1609,8 @@ class TestAdminOwnershipModerationUX(TestCase):
             data=payload,
         )
 
+        if response.status_code != 302:
+            self.fail(response.context["adminform"].form.errors.as_text())
         self.assertEqual(response.status_code, 302)
         event.refresh_from_db()
         self.assertEqual(event.status, Event.STATUS_PUBLISHED)
