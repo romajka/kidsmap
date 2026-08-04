@@ -1185,8 +1185,8 @@ class TestAdminOwnershipModerationUX(TestCase):
 
     def test_published_place_with_test_content_is_clearly_hidden_from_public_catalog(self):
         hidden_place = create_quality_place(
-            name="Hidden demo place",
-            name_ru="Скрытая демо-карточка",
+            name="Test place",
+            name_ru="Тестовое место",
             phone1="+994501234567",
             lat=40.3754,
             lng=49.8327,

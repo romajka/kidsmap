@@ -93,6 +93,7 @@ def create_quality_place(**overrides):
         "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
         "price_from": 80,
         "price_to": 80,
+        "photo": "places/quality_test.jpg",
         "is_active": True,
         "status": Place.STATUS_PUBLISHED,
     }

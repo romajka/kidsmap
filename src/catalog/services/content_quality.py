@@ -214,6 +214,8 @@ def place_quality_check(place) -> QualityCheck:
 
     if place.photo or place.cover_photo or place.gallery.exists():
         score += 5
+    else:
+        errors.append("missing_photo")
 
     return QualityCheck(score=min(score, 100), errors=tuple(errors))
 
