@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="home-hero panel animate-on-scroll is-visible" style="background: url('{% static "img/home/hero_illustration.webp" %}') center / cover no-repeat !important;">
+<section class="home-hero panel animate-on-scroll is-visible" style="{% if site_settings and site_settings.home_hero_image %}background: url('{{ site_settings.home_hero_image.url }}') center / cover no-repeat !important;{% else %}background: url('{% static "img/home/hero_illustration.webp" %}') center / cover no-repeat !important;{% endif %}">
   <div class="home-hero-bg-glows" aria-hidden="true">
     <div class="glow-blob blob-1"></div>
     <div class="glow-blob blob-2"></div>
@@ -297,7 +297,7 @@
 </section>
 
 {% if map_places %}
-<section class="panel home-map-panel" id="home-map-section">
+<section class="panel home-map-panel" id="home-map-section" {% if site_settings and site_settings.home_map_image %}style="background: url('{{ site_settings.home_map_image.url }}') center / cover no-repeat !important;"{% endif %}>
   <div class="home-map-head">
     <div class="home-map-copy">
       <h2>
@@ -329,7 +329,7 @@
 {% endif %}
 
 {% if popular_places %}
-<section class="panel home-recommended">
+<section class="panel home-recommended" {% if site_settings and site_settings.home_recommended_image %}style="background: url('{{ site_settings.home_recommended_image.url }}') center / cover no-repeat !important;"{% endif %}>
   <h2>{% trans "Рекомендуемые места и занятия" %}</h2>
   <div class="grid">
     {% for place in popular_places %}
@@ -346,7 +346,7 @@
 {% endif %}
 
 <section class="home-steps panel home-steps-lite animate-on-scroll" id="how-it-works"
-  aria-label="{% trans 'Как это работает' %}">
+  aria-label="{% trans 'Как это работает' %}" {% if site_settings and site_settings.home_steps_image %}style="background: url('{{ site_settings.home_steps_image.url }}') center / cover no-repeat !important;"{% endif %}>
   <div class="home-steps-lite-head">
     <div>
       <h2>{% trans "Как это работает" %}</h2>
@@ -406,7 +406,7 @@
 </section>
 
 {% url 'owner_places_dashboard' as owner_dashboard_url %}
-<section class="panel home-owner-banner animate-on-scroll" id="for-owners">
+<section class="panel home-owner-banner animate-on-scroll" id="for-owners" {% if site_settings and site_settings.home_trust_image %}style="background: url('{{ site_settings.home_trust_image.url }}') center / cover no-repeat !important;"{% endif %}>
   <div class="home-owner-banner-grid">
     <div class="home-owner-copy">
       <div class="home-owner-badge">
@@ -1396,7 +1396,7 @@
   }
 </style>
 
-<section class="panel home-faq-panel" id="faq">
+<section class="panel home-faq-panel" id="faq" {% if site_settings and site_settings.home_cta_image %}style="background: url('{{ site_settings.home_cta_image.url }}') center / cover no-repeat !important;"{% endif %}>
   <div class="home-faq-head">
     <div class="home-faq-copy">
       <p class="home-owner-eyebrow">{% trans "FAQ" %}</p>

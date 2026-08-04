@@ -30,6 +30,12 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
         "logo_preview",
         "site_background_image_preview",
         "home_hero_image_preview",
+        "home_map_image_preview",
+        "home_recommended_image_preview",
+        "home_categories_image_preview",
+        "home_steps_image_preview",
+        "home_trust_image_preview",
+        "home_cta_image_preview",
         "empty_results_image_preview",
         "catalog_hero_image_preview",
         "about_hero_image_preview",
@@ -94,6 +100,30 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
     @admin.display(description=_("Текущий фон баннера"))
     def home_hero_image_preview(self, obj):
         return self._render_image_preview(obj, "home_hero_image")
+
+    @admin.display(description=_("Текущий фон блока карты"))
+    def home_map_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_map_image")
+
+    @admin.display(description=_("Текущий фон блока рекомендаций"))
+    def home_recommended_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_recommended_image")
+
+    @admin.display(description=_("Текущий фон блока категорий"))
+    def home_categories_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_categories_image")
+
+    @admin.display(description=_("Текущий фон блока 'Как это работает'"))
+    def home_steps_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_steps_image")
+
+    @admin.display(description=_("Текущий фон блока преимуществ"))
+    def home_trust_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_trust_image")
+
+    @admin.display(description=_("Текущий фон нижнего призыва (CTA)"))
+    def home_cta_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_cta_image")
 
     @admin.display(description=_("Текущая картинка пустого результата"))
     def empty_results_image_preview(self, obj):
@@ -373,6 +403,12 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
         "logo",
         "site_background_image",
         "home_hero_image",
+        "home_map_image",
+        "home_recommended_image",
+        "home_categories_image",
+        "home_steps_image",
+        "home_trust_image",
+        "home_cta_image",
         "empty_results_image",
         "catalog_hero_image",
         "about_hero_image",
@@ -489,6 +525,60 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
                 "location": "Фоновое изображение главной страницы (большой баннер)",
                 "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
                 "file": get_file_info(site.home_hero_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока карты",
+                "field_name": "home_map_image",
+                "location": "Фоновое изображение под блоком интерактивной карты на главной",
+                "size_hint": "JPG/WebP, 1600×600 px, до 1 MB",
+                "file": get_file_info(site.home_map_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока рекомендаций",
+                "field_name": "home_recommended_image",
+                "location": "Фоновое изображение под блоком рекомендуемых мест на главной",
+                "size_hint": "JPG/WebP, 1600×600 px, до 1 MB",
+                "file": get_file_info(site.home_recommended_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока категорий",
+                "field_name": "home_categories_image",
+                "location": "Фоновое изображение под блоком популярных категорий на главной",
+                "size_hint": "JPG/WebP, 1600×600 px, до 1 MB",
+                "file": get_file_info(site.home_categories_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока 'Как это работает'",
+                "field_name": "home_steps_image",
+                "location": "Фоновое изображение под блоком шагов использования на главной",
+                "size_hint": "JPG/WebP, 1600×600 px, до 1 MB",
+                "file": get_file_info(site.home_steps_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока преимуществ",
+                "field_name": "home_trust_image",
+                "location": "Фоновое изображение под блоком преимуществ и доверия на главной",
+                "size_hint": "JPG/WebP, 1600×600 px, до 1 MB",
+                "file": get_file_info(site.home_trust_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон нижнего призыва (CTA)",
+                "field_name": "home_cta_image",
+                "location": "Фоновое изображение под финальным рекламным баннером призыва на главной",
+                "size_hint": "JPG/WebP, 1600×500 px, до 1 MB",
+                "file": get_file_info(site.home_cta_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },

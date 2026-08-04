@@ -1008,9 +1008,11 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             },
         )
 
-        if response.status_code != 302:
-            self.fail(response.context["form"].errors.as_text())
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.status_code,
+            302,
+            response.context["form"].errors.as_text() if response.status_code != 302 else "",
+        )
         self.assertEqual(response.headers["Location"], reverse("owner_places_dashboard"))
 
         place = Place.objects.get(owner=self.manager_user, name_ru="Новая карточка владельца")

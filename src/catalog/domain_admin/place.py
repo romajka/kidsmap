@@ -193,6 +193,13 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             cleaned["home_recommended_order"] = 0
         cleaned = self._clean_schedule_editor(cleaned)
         is_save_draft = bool(self.data and "_save_draft" in self.data)
+        skips_publish_validation = bool(
+            self.data
+            and any(
+                action in self.data
+                for action in ("_save_draft", "_refresh_coordinates_from_address", "_unpublish_place")
+            )
+        )
         self.draft_save_only = is_save_draft
         try:
             cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", allow_verified=True)
@@ -224,7 +231,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             status = getattr(self.instance, "status", "")
         # Use getattr to safely access STATUS_PUBLISHED from instance or just string
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
-        if (is_active or status == status_published) and not is_save_draft:
+        if (is_active or status == status_published) and not skips_publish_validation:
             checklist = [
                 ("name", _("Название")),
                 ("category", _("Категория")),
@@ -399,6 +406,13 @@ class EventAdminForm(forms.ModelForm):
         label=_("Окончание мероприятия"), required=False,
         widget=forms.TextInput(attrs={"class": "field", "data-kidsmap-datetime-picker": "1", "data-event-datetime": "end", "data-allow-input": "1"}),
     )
+    published_at = forms.DateTimeField(
+        label=_("Дата публикации"), required=False,
+        widget=forms.DateTimeInput(
+            attrs={"type": "datetime-local", "step": "900"},
+            format=ADMIN_DATETIME_LOCAL_FORMAT,
+        ),
+    )
 
     region = forms.ChoiceField(
         label=_("Город / регион"), required=False, choices=(),
@@ -446,6 +460,9 @@ class EventAdminForm(forms.ModelForm):
         if start_datetime and end_datetime and end_datetime <= start_datetime:
             self.add_error("end_datetime", _("Окончание мероприятия должно быть позже начала."))
         is_save_draft = bool(self.data and "_save_draft" in self.data)
+        skips_publish_validation = bool(
+            self.data and any(action in self.data for action in ("_save_draft", "_unpublish_event"))
+        )
         is_active = cleaned.get("is_active")
         if is_active is None:
             is_active = getattr(self.instance, "is_active", False)
@@ -453,7 +470,7 @@ class EventAdminForm(forms.ModelForm):
         if status is None:
             status = getattr(self.instance, "status", "")
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
-        if (is_active or status == status_published) and not is_save_draft:
+        if (is_active or status == status_published) and not skips_publish_validation:
             checklist = (
                 ("name", _("Название")),
                 ("category", _("Категория")),

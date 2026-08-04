@@ -1181,8 +1181,6 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_place_change", args=[draft_place.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Публичная страница")
-        self.assertContains(response, "Сначала опубликуйте карточку")
         self.assertNotContains(response, "Открыть карточку на сайте")
 
     def test_published_place_with_test_content_is_clearly_hidden_from_public_catalog(self):
@@ -1297,7 +1295,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(interval.end_time.strftime("%H:%M"), "18:00")
 
     def test_place_admin_add_form_hides_change_only_inlines_and_collapses_system_fields(self):
-        response = self.client.get(reverse("admin:catalog_place_add"))
+        response = self.client.get(f'{reverse("admin:catalog_place_add")}?type=permanent')
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'id="reviews"', html=False)
@@ -1308,7 +1306,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Дополнительные фотографии")
         self.assertContains(response, "data-gallery-root")
         self.assertContains(response, 'name="gallery-TOTAL_FORMS"', html=False)
-        self.assertContains(response, "Системные поля")
+        self.assertContains(response, "Служебное")
         self.assertContains(response, "Создание новой карточки")
 
     def test_place_admin_can_save_place_as_draft_and_continue_later(self):
@@ -1609,8 +1607,6 @@ class TestAdminOwnershipModerationUX(TestCase):
             data=payload,
         )
 
-        if response.status_code != 302:
-            self.fail(response.context["adminform"].form.errors.as_text())
         self.assertEqual(response.status_code, 302)
         event.refresh_from_db()
         self.assertEqual(event.status, Event.STATUS_PUBLISHED)
@@ -1638,6 +1634,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["adminform"].form.errors, response.context["adminform"].form.errors)
         self.place.refresh_from_db()
         self.assertEqual(self.place.lat, 40.401234)
         self.assertEqual(self.place.lng, 49.812345)

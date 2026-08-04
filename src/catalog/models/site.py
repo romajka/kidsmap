@@ -93,6 +93,48 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB."),
     )
+    home_map_image = models.FileField(
+        _("Фон блока карты"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+    )
+    home_recommended_image = models.FileField(
+        _("Фон блока рекомендаций"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+    )
+    home_categories_image = models.FileField(
+        _("Фон блока категорий"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+    )
+    home_steps_image = models.FileField(
+        _("Фон блока 'Как это работает'"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+    )
+    home_trust_image = models.FileField(
+        _("Фон блока преимуществ"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x600 px, до 1 MB."),
+    )
+    home_cta_image = models.FileField(
+        _("Фон нижнего призыва (CTA)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB."),
+    )
     home_hero_show_decor = models.BooleanField(_("Показывать декор в hero"), default=True)
     home_title_ru = models.CharField(_("Hero заголовок (RU)"), max_length=220, blank=True, default="")
     home_title_en = models.CharField(_("Hero заголовок (EN)"), max_length=220, blank=True, default="")
