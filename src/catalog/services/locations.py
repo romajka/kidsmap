@@ -75,6 +75,7 @@ AZERBAIJAN_REGIONS_MAP = {
     "sheki": {"ru": "Шеки", "az": "Şəki", "en": "Sheki"},
     "shirvan": {"ru": "Ширван", "az": "Şirvan", "en": "Shirvan"},
     "shusha": {"ru": "Шуша", "az": "Şuşa", "en": "Shusha"},
+    "khankendi": {"ru": "Ханкенди", "az": "Xankəndi", "en": "Khankendi"},
     "yardimly": {"ru": "Ярдымлы", "az": "Yardımlı", "en": "Yardimly"},
 }
 
@@ -94,6 +95,16 @@ BAKU_DISTRICTS_MAP = {
 }
 
 LEGACY_MAPPING = {
+    "шамахы": "shamakhi",
+    "шамаха": "shamakhi",
+    "шемаха": "shamakhi",
+    "шамахи": "shamakhi",
+    "shamakhi": "shamakhi",
+    "şamaxı": "shamakhi",
+    "ханкенди": "khankendi",
+    "khankendi": "khankendi",
+    "xankəndi": "khankendi",
+    "степанакерт": "khankendi",
     "баку": "baku",
     "baku": "baku",
     "bakı": "baku",

@@ -5,7 +5,7 @@ CATEGORIES = [
     {"code": "water-leisure", "ru": "Водный отдых", "az": "Su istirahəti", "en": "Water leisure", "icon": "icons/categories/waterparks.svg", "bg": "#DBEAFE", "text": "#2563EB"},
     {"code": "parks-playgrounds", "ru": "Парки и детские площадки", "az": "Parklar və uşaq meydançaları", "en": "Parks & playgrounds", "icon": "img/icon/cooliocns SVG/Environment/Leaf.svg", "bg": "#E8F5EE", "text": "#0C7A47"},
     {"code": "FUN", "ru": "Развлечения и досуг", "az": "Əyləncə və asudə vaxt", "en": "Entertainment & leisure", "icon": "img/icon/cooliocns SVG/Interface/Ticket_Voucher.svg", "bg": "#FFEDD5", "text": "#C2410C"},
-    {"code": "ZOO", "ru": "Зоопарки и аквариумы", "az": "Zooparklar və akvariumlar", "en": "Zoos & aquariums", "icon": "icons/categories/zoo.svg", "bg": "#ECFCCB", "text": "#4D7C0F"},
+    {"code": "ZOO", "ru": "Зоопарки", "az": "Zooparklar", "en": "Zoos", "icon": "icons/categories/zoo.svg", "bg": "#ECFCCB", "text": "#4D7C0F"},
     {"code": "museums-culture", "ru": "Музеи и культура", "az": "Muzeylər və mədəniyyət", "en": "Museums & culture", "icon": "img/icon/cooliocns SVG/Navigation/Building_04.svg", "bg": "#FEF3C7", "text": "#A16207"},
     {"code": "dance", "ru": "Танцульки", "az": "Rəqslər", "en": "Dance", "icon": "icons/categories/dance.svg", "bg": "#FFE4E6", "text": "#E11D48"},
     {"code": "EDU", "ru": "Образование", "az": "Təhsil", "en": "Education", "icon": "img/icon/cooliocns SVG/Interface/Book_Open.svg", "bg": "#E0E7FF", "text": "#4338CA"},

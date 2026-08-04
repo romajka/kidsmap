@@ -341,7 +341,7 @@
     PARK: '<path d="M10 22v-6.5M18 22v-5M10 15.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /><path d="M18 17a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z" />',
     BEACH: '<path d="M4 11c1.8-3.7 5.1-6 8-6s6.2 2.3 8 6" /><path d="M12 5v14" /><path d="M8 11c.8-2.3 2.2-4.2 4-6 1.8 1.8 3.2 3.7 4 6" /><path d="M4 18c1.4-1 2.8-.5 4 0s2.6 1 4 0 2.8-1 4 0 2.6 1 4 0" />',
     WATERPARK: '<path d="M4 17V3h3"></path><path d="M4 7h3M4 11h3M4 15h3"></path><path d="M7 3c1.5 0 3 .5 4 2l4 6c1 1.5 2.5 2.5 4.5 2.5h2.5"></path><path d="M2 20c1.5-1 3.5-1 5 0s3.5 1 5 0s3.5-1 5 0s3.5 1 5 0"></path>',
-    ZOO: '<circle cx="8" cy="8" r="2"></circle><circle cx="16" cy="8" r="2"></circle><circle cx="6" cy="15" r="1.5"></circle><circle cx="18" cy="15" r="1.5"></circle><path d="M8.5 18.5c.8-2.2 2.1-3.5 3.5-3.5s2.7 1.3 3.5 3.5c.5 1.3-.4 2.5-1.8 2.5h-3.4c-1.4 0-2.3-1.2-1.8-2.5Z"></path>'
+    ZOO: '<path d="M12 12.5c-3 0-5.5 1.8-5.5 4 0 1.8 2 3.5 5.5 3.5s5.5-1.7 5.5-3.5c0-2.2-2.5-4-5.5-4Z"></path><circle cx="6.5" cy="10" r="1.8"></circle><circle cx="10" cy="6.5" r="1.8"></circle><circle cx="14" cy="6.5" r="1.8"></circle><circle cx="17.5" cy="10" r="1.8"></circle>'
   };
 
   function categoryIconDataUrl(place, color) {
