@@ -86,12 +86,26 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1920x1080 px, до 2 MB."),
     )
+    site_background_mobile_image = models.FileField(
+        _("Фон всего сайта (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x1400 px (пропорция ~4:7, вертикальная), до 1 MB."),
+    )
     header_background_image = models.FileField(
         _("Фон шапки сайта (Header)"),
         upload_to="site/",
         blank=True,
         null=True,
         help_text=_("Рекомендуется PNG/WebP/JPG 1600x120 px (пропорция ~13:1), до 500 KB."),
+    )
+    header_background_mobile_image = models.FileField(
+        _("Фон шапки сайта (Header, мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется PNG/WebP/JPG 800x160 px (пропорция ~5:1, полоса), до 300 KB."),
     )
     footer_background_image = models.FileField(
         _("Фон подвала сайта (Footer)"),
@@ -100,12 +114,26 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px (пропорция ~16:5), до 1 MB."),
     )
+    footer_background_mobile_image = models.FileField(
+        _("Фон подвала сайта (Footer, мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x1000 px (пропорция ~4:5, вертикальная), до 800 KB."),
+    )
     home_hero_image = models.FileField(
         _("Фон главного баннера"),
         upload_to="site/",
         blank=True,
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
+    )
+    home_hero_mobile_image = models.FileField(
+        _("Фон главного баннера (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x1000 px (пропорция ~4:5, вертикальная), до 800 KB."),
     )
     home_map_image = models.FileField(
         _("Фон блока карты"),
@@ -114,12 +142,26 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
+    home_map_mobile_image = models.FileField(
+        _("Фон блока карты (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x900 px (пропорция ~8:9, вертикальная), до 800 KB."),
+    )
     home_recommended_image = models.FileField(
         _("Фон блока рекомендаций"),
         upload_to="site/",
         blank=True,
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
+    )
+    home_recommended_mobile_image = models.FileField(
+        _("Фон блока рекомендаций (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x900 px (пропорция ~8:9, вертикальная), до 800 KB."),
     )
     home_categories_image = models.FileField(
         _("Фон блока категорий"),
@@ -128,12 +170,26 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
+    home_categories_mobile_image = models.FileField(
+        _("Фон блока категорий (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x900 px (пропорция ~8:9, вертикальная), до 800 KB."),
+    )
     home_steps_image = models.FileField(
         _("Фон блока 'Как это работает'"),
         upload_to="site/",
         blank=True,
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
+    )
+    home_steps_mobile_image = models.FileField(
+        _("Фон блока 'Как это работает' (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x900 px (пропорция ~8:9, вертикальная), до 800 KB."),
     )
     home_trust_image = models.FileField(
         _("Фон блока преимуществ"),
@@ -142,12 +198,26 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x600 px (пропорция ~8:3), до 1 MB."),
     )
+    home_trust_mobile_image = models.FileField(
+        _("Фон блока преимуществ (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x900 px (пропорция ~8:9, вертикальная), до 800 KB."),
+    )
     home_cta_image = models.FileField(
         _("Фон нижнего призыва (CTA)"),
         upload_to="site/",
         blank=True,
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px (пропорция ~16:5), до 1 MB."),
+    )
+    home_cta_mobile_image = models.FileField(
+        _("Фон нижнего призыва (CTA, мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x900 px (пропорция ~8:9, вертикальная), до 800 KB."),
     )
     home_hero_show_decor = models.BooleanField(_("Показывать декор в hero"), default=True)
     home_title_ru = models.CharField(_("Hero заголовок (RU)"), max_length=220, blank=True, default="")
@@ -188,12 +258,26 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется в каталоге."),
     )
+    catalog_hero_mobile_image = models.FileField(
+        _("Баннер каталога (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x500 px (пропорция ~8:5), до 600 KB."),
+    )
     about_hero_image = models.FileField(
         _("Баннер страницы 'О проекте'"),
         upload_to="site/",
         blank=True,
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется на странице О проекте."),
+    )
+    about_hero_mobile_image = models.FileField(
+        _("Баннер страницы 'О проекте' (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x500 px (пропорция ~8:5), до 600 KB."),
     )
     reviews_hero_image = models.FileField(
         _("Баннер страницы отзывов"),
@@ -202,6 +286,13 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется на странице отзывов."),
     )
+    reviews_hero_mobile_image = models.FileField(
+        _("Баннер страницы отзывов (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x500 px (пропорция ~8:5), до 600 KB."),
+    )
     for_business_hero_image = models.FileField(
         _("Баннер страницы владельцам"),
         upload_to="site/",
@@ -209,12 +300,26 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется на странице владельцев."),
     )
+    for_business_hero_mobile_image = models.FileField(
+        _("Баннер страницы владельцам (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x500 px (пропорция ~8:5), до 600 KB."),
+    )
     dashboard_hero_image = models.FileField(
         _("Баннер личного кабинета"),
         upload_to="site/",
         blank=True,
         null=True,
         help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется в личном кабинете."),
+    )
+    dashboard_hero_mobile_image = models.FileField(
+        _("Баннер личного кабинета (мобильный)"),
+        upload_to="site/",
+        blank=True,
+        null=True,
+        help_text=_("Рекомендуется JPG/WebP 800x500 px (пропорция ~8:5), до 600 KB."),
     )
     specialists_section_enabled = models.BooleanField(
         _("Показывать раздел «Педагоги и специалисты»"),

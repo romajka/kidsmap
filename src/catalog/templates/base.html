@@ -100,10 +100,10 @@
   </head>
   <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     data-analytics-page-type="{{ analytics_page_type }}"
-    data-page-language="{{ current_lang_code }}"{% if site_settings and site_settings.site_background_image %} style="--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');"{% endif %}>
+    data-page-language="{{ current_lang_code }}"style="{% if site_settings and site_settings.site_background_image %}--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');{% endif %}{% if site_settings and site_settings.site_background_mobile_image %}--custom-site-bg-mobile-url:url('{{ site_settings.site_background_mobile_image.url|escape }}');{% endif %}">
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div class="site-shell">
-      <header class="topbar"{% if site_settings and site_settings.header_background_image %} style="background: url('{{ site_settings.header_background_image.url|escape }}') center / cover no-repeat !important;"{% endif %}>
+      <header class="topbar" style="{% if site_settings and site_settings.header_background_image %}--header-bg-desktop:url('{{ site_settings.header_background_image.url|escape }}');{% endif %}{% if site_settings and site_settings.header_background_mobile_image %}--header-bg-mobile:url('{{ site_settings.header_background_mobile_image.url|escape }}');{% endif %}">
         <a class="brand-wrap" href="{% url 'home' %}">
           <span class="logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}');" aria-hidden="true"></span>
           <span class="brand">{{ brand_name }}</span>
@@ -299,7 +299,7 @@
       </main>
 
       {% if request.resolver_match.url_name != 'owner_place_create' and request.resolver_match.url_name != 'owner_place_edit' and request.resolver_match.url_name != 'owner_event_create' and request.resolver_match.url_name != 'owner_event_edit' %}
-        <footer class="site-footer panel"{% if site_settings and site_settings.footer_background_image %} style="background: url('{{ site_settings.footer_background_image.url|escape }}') center / cover no-repeat !important;"{% endif %}>
+        <footer class="site-footer panel" style="{% if site_settings and site_settings.footer_background_image %}--footer-bg-desktop:url('{{ site_settings.footer_background_image.url|escape }}');{% endif %}{% if site_settings and site_settings.footer_background_mobile_image %}--footer-bg-mobile:url('{{ site_settings.footer_background_mobile_image.url|escape }}');{% endif %}">
           <div class="footer-grid">
             <section class="footer-brand-block">
               <a class="footer-brand-link" href="{% url 'home' %}">

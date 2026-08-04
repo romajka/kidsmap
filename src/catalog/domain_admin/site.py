@@ -29,21 +29,36 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
         "updated_at",
         "logo_preview",
         "header_background_image_preview",
+        "header_background_mobile_image_preview",
         "footer_background_image_preview",
+        "footer_background_mobile_image_preview",
         "site_background_image_preview",
+        "site_background_mobile_image_preview",
         "home_hero_image_preview",
+        "home_hero_mobile_image_preview",
         "home_map_image_preview",
+        "home_map_mobile_image_preview",
         "home_recommended_image_preview",
+        "home_recommended_mobile_image_preview",
         "home_categories_image_preview",
+        "home_categories_mobile_image_preview",
         "home_steps_image_preview",
+        "home_steps_mobile_image_preview",
         "home_trust_image_preview",
+        "home_trust_mobile_image_preview",
         "home_cta_image_preview",
+        "home_cta_mobile_image_preview",
         "empty_results_image_preview",
         "catalog_hero_image_preview",
+        "catalog_hero_mobile_image_preview",
         "about_hero_image_preview",
+        "about_hero_mobile_image_preview",
         "reviews_hero_image_preview",
+        "reviews_hero_mobile_image_preview",
         "for_business_hero_image_preview",
+        "for_business_hero_mobile_image_preview",
         "dashboard_hero_image_preview",
+        "dashboard_hero_mobile_image_preview",
     )
 
     def get_model_perms(self, request):
@@ -99,45 +114,105 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
     def header_background_image_preview(self, obj):
         return self._render_image_preview(obj, "header_background_image")
 
+    @admin.display(description=_("Текущий фон шапки (мобильный 📱)"))
+    def header_background_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "header_background_mobile_image")
+
     @admin.display(description=_("Текущий фон подвала сайта (Footer)"))
     def footer_background_image_preview(self, obj):
         return self._render_image_preview(obj, "footer_background_image")
+
+    @admin.display(description=_("Текущий фон подвала (мобильный 📱)"))
+    def footer_background_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "footer_background_mobile_image")
 
     @admin.display(description=_("Текущий фон сайта"))
     def site_background_image_preview(self, obj):
         return self._render_image_preview(obj, "site_background_image")
 
+    @admin.display(description=_("Текущий фон сайта (мобильный 📱)"))
+    def site_background_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "site_background_mobile_image")
+
     @admin.display(description=_("Текущий фон баннера"))
     def home_hero_image_preview(self, obj):
         return self._render_image_preview(obj, "home_hero_image")
+
+    @admin.display(description=_("Текущий фон баннера (мобильный 📱)"))
+    def home_hero_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_hero_mobile_image")
 
     @admin.display(description=_("Текущий фон блока карты"))
     def home_map_image_preview(self, obj):
         return self._render_image_preview(obj, "home_map_image")
 
+    @admin.display(description=_("Текущий фон блока карты (мобильный 📱)"))
+    def home_map_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_map_mobile_image")
+
     @admin.display(description=_("Текущий фон блока рекомендаций"))
     def home_recommended_image_preview(self, obj):
         return self._render_image_preview(obj, "home_recommended_image")
+
+    @admin.display(description=_("Текущий фон блока рекомендаций (мобильный 📱)"))
+    def home_recommended_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_recommended_mobile_image")
 
     @admin.display(description=_("Текущий фон блока категорий"))
     def home_categories_image_preview(self, obj):
         return self._render_image_preview(obj, "home_categories_image")
 
+    @admin.display(description=_("Текущий фон блока категорий (мобильный 📱)"))
+    def home_categories_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_categories_mobile_image")
+
     @admin.display(description=_("Текущий фон блока 'Как это работает'"))
     def home_steps_image_preview(self, obj):
         return self._render_image_preview(obj, "home_steps_image")
+
+    @admin.display(description=_("Текущий фон блока 'Как это работает' (мобильный 📱)"))
+    def home_steps_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_steps_mobile_image")
 
     @admin.display(description=_("Текущий фон блока преимуществ"))
     def home_trust_image_preview(self, obj):
         return self._render_image_preview(obj, "home_trust_image")
 
+    @admin.display(description=_("Текущий фон блока преимуществ (мобильный 📱)"))
+    def home_trust_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_trust_mobile_image")
+
     @admin.display(description=_("Текущий фон нижнего призыва (CTA)"))
     def home_cta_image_preview(self, obj):
         return self._render_image_preview(obj, "home_cta_image")
 
+    @admin.display(description=_("Текущий фон нижнего призыва (мобильный 📱)"))
+    def home_cta_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "home_cta_mobile_image")
+
     @admin.display(description=_("Текущая картинка пустого результата"))
     def empty_results_image_preview(self, obj):
         return self._render_image_preview(obj, "empty_results_image")
+
+    @admin.display(description=_("Текущий баннер каталога (мобильный 📱)"))
+    def catalog_hero_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "catalog_hero_mobile_image")
+
+    @admin.display(description=_("Текущий баннер страницы 'О проекте' (мобильный 📱)"))
+    def about_hero_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "about_hero_mobile_image")
+
+    @admin.display(description=_("Текущий баннер отзывов (мобильный 📱)"))
+    def reviews_hero_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "reviews_hero_mobile_image")
+
+    @admin.display(description=_("Текущий баннер владельцам (мобильный 📱)"))
+    def for_business_hero_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "for_business_hero_mobile_image")
+
+    @admin.display(description=_("Текущий баннер личного кабинета (мобильный 📱)"))
+    def dashboard_hero_mobile_image_preview(self, obj):
+        return self._render_image_preview(obj, "dashboard_hero_mobile_image")
 
     @admin.display(description=_("Текущий баннер каталога"))
     def catalog_hero_image_preview(self, obj):
@@ -412,21 +487,36 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
     MAIN_IMAGE_FIELDS = {
         "logo",
         "header_background_image",
+        "header_background_mobile_image",
         "footer_background_image",
+        "footer_background_mobile_image",
         "site_background_image",
+        "site_background_mobile_image",
         "home_hero_image",
+        "home_hero_mobile_image",
         "home_map_image",
+        "home_map_mobile_image",
         "home_recommended_image",
+        "home_recommended_mobile_image",
         "home_categories_image",
+        "home_categories_mobile_image",
         "home_steps_image",
+        "home_steps_mobile_image",
         "home_trust_image",
+        "home_trust_mobile_image",
         "home_cta_image",
+        "home_cta_mobile_image",
         "empty_results_image",
         "catalog_hero_image",
+        "catalog_hero_mobile_image",
         "about_hero_image",
+        "about_hero_mobile_image",
         "reviews_hero_image",
+        "reviews_hero_mobile_image",
         "for_business_hero_image",
+        "for_business_hero_mobile_image",
         "dashboard_hero_image",
+        "dashboard_hero_mobile_image",
     }
 
     change_form_template = "admin/catalog/shared_settings_change_form.html"
@@ -523,137 +613,272 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон всего сайта (общий за подложкой)",
+                "title": "Фон всего сайта (ПК)",
                 "field_name": "site_background_image",
-                "location": "Декоративная общая фоновая подложка всего сайта за панелями",
+                "location": "Декоративная фоновая подложка всего сайта для ПК",
                 "size_hint": "JPG/WebP | Размер: 1920×1080 px (пропорция 16:9) | до 2 MB",
                 "file": get_file_info(site.site_background_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон шапки сайта (Header)",
+                "title": "Фон всего сайта (Мобильный 📱)",
+                "field_name": "site_background_mobile_image",
+                "location": "Декоративная фоновая подложка всего сайта для смартфонов (экраны <768px)",
+                "size_hint": "JPG/WebP | Размер: 800×1400 px (пропорция ~4:7, вертикальная) | до 1 MB",
+                "file": get_file_info(site.site_background_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон шапки сайта (Header, ПК)",
                 "field_name": "header_background_image",
-                "location": "Фоновая иллюстрация верхней навигационной панели (шапки)",
-                "size_hint": "PNG/WebP/JPG | Размер: 1600×120 px (пропорция ~13:1, узкая полоса) | до 500 KB",
+                "location": "Фоновая иллюстрация верхней навигации для ПК",
+                "size_hint": "PNG/WebP/JPG | Размер: 1600×120 px (пропорция ~13:1, полоса) | до 500 KB",
                 "file": get_file_info(site.header_background_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон hero-баннера",
+                "title": "Фон шапки сайта (Header, Мобильный 📱)",
+                "field_name": "header_background_mobile_image",
+                "location": "Фоновая иллюстрация верхней навигации для смартфонов (экраны <768px)",
+                "size_hint": "PNG/WebP/JPG | Размер: 800×160 px (пропорция ~5:1, узкая полоса) | до 300 KB",
+                "file": get_file_info(site.header_background_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон hero-баннера (ПК)",
                 "field_name": "home_hero_image",
-                "location": "Фоновое изображение главного блока на странице (большой баннер)",
+                "location": "Фоновое изображение главного блока на странице для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×600 px (пропорция ~8:3) | до 1 MB",
                 "file": get_file_info(site.home_hero_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон блока карты",
+                "title": "Фон hero-баннера (Мобильный 📱)",
+                "field_name": "home_hero_mobile_image",
+                "location": "Фоновое изображение главного блока на странице для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×1000 px (пропорция ~4:5, вертикальная) | до 800 KB",
+                "file": get_file_info(site.home_hero_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока карты (ПК)",
                 "field_name": "home_map_image",
-                "location": "Фоновое изображение под блоком интерактивной карты на главной",
+                "location": "Фоновое изображение под блоком интерактивной карты для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×600 px (пропорция ~8:3) | до 1 MB",
                 "file": get_file_info(site.home_map_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон блока рекомендаций",
+                "title": "Фон блока карты (Мобильный 📱)",
+                "field_name": "home_map_mobile_image",
+                "location": "Фоновое изображение под блоком карты для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×900 px (пропорция ~8:9, вертикальная) | до 800 KB",
+                "file": get_file_info(site.home_map_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока рекомендаций (ПК)",
                 "field_name": "home_recommended_image",
-                "location": "Фоновое изображение под блоком рекомендуемых мест на главной",
+                "location": "Фоновое изображение под рекомендуемыми местами для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×600 px (пропорция ~8:3) | до 1 MB",
                 "file": get_file_info(site.home_recommended_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон блока категорий",
+                "title": "Фон блока рекомендаций (Мобильный 📱)",
+                "field_name": "home_recommended_mobile_image",
+                "location": "Фоновое изображение под рекомендуемыми местами для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×900 px (пропорция ~8:9, вертикальная) | до 800 KB",
+                "file": get_file_info(site.home_recommended_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока категорий (ПК)",
                 "field_name": "home_categories_image",
-                "location": "Фоновое изображение под блоком популярных категорий на главной",
+                "location": "Фоновое изображение под блоком популярных категорий для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×600 px (пропорция ~8:3) | до 1 MB",
                 "file": get_file_info(site.home_categories_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон блока 'Как это работает'",
+                "title": "Фон блока категорий (Мобильный 📱)",
+                "field_name": "home_categories_mobile_image",
+                "location": "Фоновое изображение под блоком категорий для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×900 px (пропорция ~8:9, вертикальная) | до 800 KB",
+                "file": get_file_info(site.home_categories_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока 'Как это работает' (ПК)",
                 "field_name": "home_steps_image",
-                "location": "Фоновое изображение под блоком шагов использования на главной",
+                "location": "Фоновое изображение под шагами использования для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×600 px (пропорция ~8:3) | до 1 MB",
                 "file": get_file_info(site.home_steps_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон блока преимуществ",
+                "title": "Фон блока 'Как это работает' (Мобильный 📱)",
+                "field_name": "home_steps_mobile_image",
+                "location": "Фоновое изображение под шагами использования для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×900 px (пропорция ~8:9, вертикальная) | до 800 KB",
+                "file": get_file_info(site.home_steps_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон блока преимуществ (ПК)",
                 "field_name": "home_trust_image",
-                "location": "Фоновое изображение под блоком преимуществ и доверия на главной",
+                "location": "Фоновое изображение под блоком преимуществ для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×600 px (пропорция ~8:3) | до 1 MB",
                 "file": get_file_info(site.home_trust_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон нижнего призыва (CTA)",
+                "title": "Фон блока преимуществ (Мобильный 📱)",
+                "field_name": "home_trust_mobile_image",
+                "location": "Фоновое изображение под блоком преимуществ для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×900 px (пропорция ~8:9, вертикальная) | до 800 KB",
+                "file": get_file_info(site.home_trust_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон нижнего призыва (CTA, ПК)",
                 "field_name": "home_cta_image",
-                "location": "Фоновое изображение под финальным рекламным баннером призыва на главной",
+                "location": "Фоновое изображение под баннером FAQ/призыва для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×500 px (пропорция ~16:5) | до 1 MB",
                 "file": get_file_info(site.home_cta_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Фон подвала сайта (Footer)",
+                "title": "Фон нижнего призыва (CTA, Мобильный 📱)",
+                "field_name": "home_cta_mobile_image",
+                "location": "Фоновое изображение под баннером FAQ/призыва для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×900 px (пропорция ~8:9, вертикальная) | до 800 KB",
+                "file": get_file_info(site.home_cta_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Фон подвала сайта (Footer, ПК)",
                 "field_name": "footer_background_image",
-                "location": "Фоновая иллюстрация нижнего блока подвала (футера) сайта",
+                "location": "Фоновая иллюстрация подвала (футера) для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×500 px (пропорция ~16:5) | до 1 MB",
                 "file": get_file_info(site.footer_background_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("home"),
             },
             {
-                "title": "Баннер каталога",
+                "title": "Фон подвала сайта (Footer, Мобильный 📱)",
+                "field_name": "footer_background_mobile_image",
+                "location": "Фоновая иллюстрация подвала (футера) для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×1000 px (пропорция ~4:5, вертикальная) | до 800 KB",
+                "file": get_file_info(site.footer_background_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("home"),
+            },
+            {
+                "title": "Баннер каталога (ПК)",
                 "field_name": "catalog_hero_image",
-                "location": "Фоновое изображение вверху страницы каталога кружков",
+                "location": "Фоновое изображение вверху каталога для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×500 px (пропорция ~16:5) | до 1 MB",
                 "file": get_file_info(site.catalog_hero_image, "img/banners/catalog-hero.webp"),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("place_list"),
             },
             {
-                "title": "Баннер страницы 'О проекте'",
+                "title": "Баннер каталога (Мобильный 📱)",
+                "field_name": "catalog_hero_mobile_image",
+                "location": "Фоновое изображение вверху каталога для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×500 px (пропорция ~8:5) | до 600 KB",
+                "file": get_file_info(site.catalog_hero_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("place_list"),
+            },
+            {
+                "title": "Баннер страницы 'О проекте' (ПК)",
                 "field_name": "about_hero_image",
-                "location": "Фоновое изображение вверху страницы «О проекте»",
+                "location": "Фоновое изображение вверху страницы «О проекте» для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×500 px (пропорция ~16:5) | до 1 MB",
                 "file": get_file_info(site.about_hero_image, "img/banners/about-hero.webp"),
                 "edit_url": reverse("admin:catalog_siteaboutsettings_changelist"),
                 "preview_url": reverse("about"),
             },
             {
-                "title": "Баннер страницы отзывов",
+                "title": "Баннер страницы 'О проекте' (Мобильный 📱)",
+                "field_name": "about_hero_mobile_image",
+                "location": "Фоновое изображение вверху страницы «О проекте» для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×500 px (пропорция ~8:5) | до 600 KB",
+                "file": get_file_info(site.about_hero_mobile_image),
+                "edit_url": reverse("admin:catalog_siteaboutsettings_changelist"),
+                "preview_url": reverse("about"),
+            },
+            {
+                "title": "Баннер страницы отзывов (ПК)",
                 "field_name": "reviews_hero_image",
-                "location": "Фоновое изображение вверху страницы отзывов о проекте",
+                "location": "Фоновое изображение страницы отзывов для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×500 px (пропорция ~16:5) | до 1 MB",
                 "file": get_file_info(site.reviews_hero_image, "img/banners/reviews-hero.webp"),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("site_reviews"),
             },
             {
-                "title": "Баннер страницы владельцам",
+                "title": "Баннер страницы отзывов (Мобильный 📱)",
+                "field_name": "reviews_hero_mobile_image",
+                "location": "Фоновое изображение страницы отзывов для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×500 px (пропорция ~8:5) | до 600 KB",
+                "file": get_file_info(site.reviews_hero_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("site_reviews"),
+            },
+            {
+                "title": "Баннер страницы владельцам (ПК)",
                 "field_name": "for_business_hero_image",
-                "location": "Фоновое изображение вверху страницы «Для бизнеса»",
+                "location": "Фоновое изображение «Для бизнеса» для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×500 px (пропорция ~16:5) | до 1 MB",
                 "file": get_file_info(site.for_business_hero_image, "img/banners/for-business-hero.webp"),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("for_business"),
             },
             {
-                "title": "Баннер личного кабинета",
+                "title": "Баннер страницы владельцам (Мобильный 📱)",
+                "field_name": "for_business_hero_mobile_image",
+                "location": "Фоновое изображение «Для бизнеса» для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×500 px (пропорция ~8:5) | до 600 KB",
+                "file": get_file_info(site.for_business_hero_mobile_image),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("for_business"),
+            },
+            {
+                "title": "Баннер личного кабинета (ПК)",
                 "field_name": "dashboard_hero_image",
-                "location": "Фоновое изображение в шапке личного кабинета (дашборда)",
+                "location": "Фоновое изображение шапки дашборда для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×500 px (пропорция ~16:5) | до 1 MB",
                 "file": get_file_info(site.dashboard_hero_image, "img/banners/owner-dashboard-hero.webp"),
+                "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
+                "preview_url": reverse("account_profile"),
+            },
+            {
+                "title": "Баннер личного кабинета (Мобильный 📱)",
+                "field_name": "dashboard_hero_mobile_image",
+                "location": "Фоновое изображение шапки дашборда для смартфонов",
+                "size_hint": "JPG/WebP | Размер: 800×500 px (пропорция ~8:5) | до 600 KB",
+                "file": get_file_info(site.dashboard_hero_mobile_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
                 "preview_url": reverse("account_profile"),
             },

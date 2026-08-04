@@ -17059,6 +17059,43 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   }
 }
 
+/* Custom Panel & Navigation Background Layering with Mobile Overrides */
+[style*="--panel-bg-desktop"] {
+  background-image: var(--panel-bg-desktop) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+.topbar[style*="--header-bg-desktop"] {
+  background-image: var(--header-bg-desktop) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+.site-footer[style*="--footer-bg-desktop"] {
+  background-image: var(--footer-bg-desktop) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+@media (max-width: 768px) {
+  [style*="--panel-bg-mobile"] {
+    background-image: var(--panel-bg-mobile, var(--panel-bg-desktop)) !important;
+  }
+  .topbar[style*="--header-bg-mobile"] {
+    background-image: var(--header-bg-mobile, var(--header-bg-desktop)) !important;
+  }
+  .site-footer[style*="--footer-bg-mobile"] {
+    background-image: var(--footer-bg-mobile, var(--footer-bg-desktop)) !important;
+  }
+  body[style*="--custom-site-bg-mobile-url"] {
+    background-image: var(--custom-site-bg-mobile-url, var(--custom-site-bg-url)) !important;
+  }
+}
+
 /* Homepage refresh: clearer first-screen value, quick category entry, trust
    stats, and a lightweight collage built from optimized local photos. */
 .page-home .home-hero.panel {
