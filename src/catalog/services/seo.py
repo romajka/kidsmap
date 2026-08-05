@@ -407,7 +407,7 @@ def build_place_seo_payload(place, request, language_code):
         }
         query = f"{place.lat},{place.lng}"
         map_embed_url = f"https://maps.google.com/maps?q={query}&z=15&output=embed"
-        map_open_url = f"https://www.google.com/maps/search/?api=1&query={query}"
+        map_open_url = f"https://www.google.com/maps/dir/?api=1&destination={query}"
 
     breadcrumb_schema_json = _build_breadcrumb_schema(
         [

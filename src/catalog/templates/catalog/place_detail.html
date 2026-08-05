@@ -363,13 +363,14 @@
             data-category-color-bg="{{ place.category.resolved_color_bg|default:'#F3F4F6' }}"
             data-category-code="{{ place.category_code|default:'ALL' }}"
             data-place-name="{{ place.name_i18n }}"
+            data-map-open-url="{{ map_open_url }}"
           ></div>
           <div style="display: none;" id="detail-map-icon-svg">
             {% include "catalog/includes/category_icon.html" with code=place.category_code|default:'ALL' %}
           </div>
           <div class="detail-map-foot">
             <p class="detail-map-link">
-              <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% if language == "az" %}Böyük xəritədə aç{% elif language == "en" %}Open larger map{% else %}Открыть большую карту{% endif %}</a>
+              <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% if language == "az" %}Marşrut qur{% elif language == "en" %}Get directions{% else %}Проложить маршрут{% endif %}</a>
             </p>
             {% if place.lat and place.lng %}
               <p class="detail-map-coordinates">{{ place.lat }}, {{ place.lng }}</p>
@@ -888,6 +889,7 @@
 
         const colorText = mapEl.getAttribute('data-category-color-text') || '#087443';
         const placeName = mapEl.getAttribute('data-place-name') || '';
+        const mapOpenUrl = mapEl.getAttribute('data-map-open-url') || '';
         const position = { lat: lat, lng: lng };
 
         const map = new google.maps.Map(mapEl, {
@@ -906,16 +908,23 @@
           '<circle cx="19" cy="18" r="5" fill="' + colorText + '" />' +
           '</svg>';
 
-        new google.maps.Marker({
+        const marker = new google.maps.Marker({
           position: position,
           map: map,
           title: placeName,
+          cursor: mapOpenUrl ? 'pointer' : 'default',
           icon: {
             url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
             scaledSize: new google.maps.Size(38, 48),
             anchor: new google.maps.Point(19, 48),
           }
         });
+
+        if (mapOpenUrl) {
+          marker.addListener('click', function() {
+            window.location.assign(mapOpenUrl);
+          });
+        }
       }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitDetailMap" async defer></script>

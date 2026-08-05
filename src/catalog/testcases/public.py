@@ -813,6 +813,33 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, '"AggregateRating"', html=False)
         self.assertContains(response, "<title>SEO кружок — Образование для детей в регионе Баку, Ясамальский район | KidsMap</title>", html=False)
 
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    def test_place_detail_map_pin_and_link_open_directions(self):
+        place = create_quality_place(
+            name="Directions Place",
+            name_ru="Место с маршрутом",
+            lat=40.4093,
+            lng=49.8671,
+        )
+
+        with override("ru"):
+            response = self.client.get(place.get_absolute_url(), follow=True)
+
+        directions_url = (
+            "https://www.google.com/maps/dir/?api=1"
+            "&destination=40.4093,49.8671"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["map_open_url"], directions_url)
+        self.assertContains(
+            response,
+            f'data-map-open-url="{directions_url.replace("&", "&amp;")}"',
+            html=False,
+        )
+        self.assertContains(response, "marker.addListener('click'", html=False)
+        self.assertContains(response, "window.location.assign(mapOpenUrl)", html=False)
+        self.assertContains(response, "Проложить маршрут")
+
     def test_place_detail_page_shows_all_phone_numbers(self):
         place = create_quality_place(
             name="Multiple phones place",

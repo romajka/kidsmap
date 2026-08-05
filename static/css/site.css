@@ -16037,6 +16037,15 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 
 @media (max-width: 760px) {
 
+  .gm-style .gm-style-iw-c,
+  .gm-style .gm-style-iw-d {
+    max-width: calc(100vw - 42px) !important;
+  }
+
+  .leaflet-popup-content {
+    width: min(230px, calc(100vw - 56px)) !important;
+  }
+
   .site-reviews-hero,
   .site-reviews-teaser-head,
   .site-reviews-list {
@@ -16088,11 +16097,61 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   }
 
   .home-map-popup {
-    width: 230px;
+    width: min(230px, calc(100vw - 56px));
+    border-radius: 14px;
+  }
+
+  .home-map-popup-thumb-link {
+    aspect-ratio: 16 / 9;
+  }
+
+  .home-map-popup-body {
+    gap: 4px;
+    padding: 9px 11px 11px;
   }
 
   .home-map-popup-title {
-    font-size: 15px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .home-map-popup-details {
+    gap: 3px;
+    margin: 1px 0 3px;
+  }
+
+  .home-map-popup-info-row {
+    gap: 6px;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .home-map-popup-link-btn {
+    min-height: 32px;
+    padding: 7px 11px;
+    border-radius: 9px;
+    font-size: 12px;
+  }
+
+  .home-map-popup-price {
+    top: 7px;
+    left: 8px;
+    min-height: 22px;
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+
+  .home-map-popup-badges {
+    right: 8px;
+    bottom: 7px;
+    left: 8px;
+    gap: 4px;
+  }
+
+  .home-map-popup-badge-cat,
+  .home-map-popup-badge-age {
+    padding: 3px 6px;
+    font-size: 9px;
   }
 
   .home-map-popup-category {
