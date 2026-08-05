@@ -617,7 +617,7 @@
   function mountGoogleMap(sharedState) {
     if (!window.google || !window.google.maps || !sharedState) return false;
 
-    const { mapEl, mapNoteEl, places, detailsLabel } = sharedState;
+    const { mapEl, mapNoteEl, places, detailsLabel, ageLabels } = sharedState;
     if (mapEl.dataset.mapInitialized === "1") return true;
 
     mapEl.dataset.mapInitialized = "1";
@@ -723,7 +723,7 @@
       });
 
       marker.addListener("click", function () {
-        infoWindow.setContent(renderPopupContent(place, detailsLabel, state.ageLabels));
+        infoWindow.setContent(renderPopupContent(place, detailsLabel, ageLabels));
         infoWindow.open({
           anchor: marker,
           map: map,

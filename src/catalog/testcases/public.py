@@ -2758,6 +2758,19 @@ class PublicLanguageConsistencyTests(TestCase):
         self.assertIn("{from}–{to} лет", template_source)
         self.assertIn("Ages {from}–{to}", template_source)
 
+    def test_home_map_marker_click_uses_shared_age_labels(self):
+        source = (settings.BASE_DIR / "static/js/home_map.js").read_text()
+
+        self.assertIn(
+            "const { mapEl, mapNoteEl, places, detailsLabel, ageLabels } = sharedState;",
+            source,
+        )
+        self.assertIn(
+            "renderPopupContent(place, detailsLabel, ageLabels)",
+            source,
+        )
+        self.assertNotIn("state.ageLabels", source)
+
 
 class EventsLandingTests(TestCase):
     def setUp(self):
