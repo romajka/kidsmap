@@ -3126,6 +3126,8 @@ class PlaceAdmin(admin.ModelAdmin):
         warnings = []
         raw_plans = payload.get("pricing_plans")
         if raw_plans is None:
+            raw_plans = payload.get("tariffs")
+        if raw_plans is None:
             raw_plans = []
             legacy_specs = (
                 ("price_per_lesson", {"product_type": "lesson", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "lesson"}),

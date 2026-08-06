@@ -51,13 +51,13 @@ class PricingPlansTests(TestCase):
                 {"lesson_format": "group", "payment_type": "package", "price": "90"},
             ])
 
-    def test_accepts_twenty_tariffs_and_rejects_twenty_one(self):
+    def test_accepts_twelve_tariffs_and_rejects_thirteen(self):
         plan = {"lesson_format": "group", "payment_type": "per_month", "price": "120"}
 
-        self.assertEqual(len(normalize_pricing_plans([plan.copy() for _ in range(20)])), 20)
+        self.assertEqual(len(normalize_pricing_plans([plan.copy() for _ in range(12)])), 12)
         with override("ru"):
-            with self.assertRaisesMessage(ValidationError, "Можно добавить не более 20 тарифов."):
-                normalize_pricing_plans([plan.copy() for _ in range(21)])
+            with self.assertRaisesMessage(ValidationError, "Можно добавить не более 12 тарифов."):
+                normalize_pricing_plans([plan.copy() for _ in range(13)])
 
     def test_accepts_open_visit_tariffs(self):
         plans = normalize_pricing_plans([

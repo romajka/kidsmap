@@ -1105,7 +1105,6 @@
 
     (function () {
       const selectInputs = Array.from(document.querySelectorAll("[data-option-search-for]"));
-      if (!selectInputs.length) return;
 
       const optionCache = new Map();
 
@@ -1446,6 +1445,17 @@
           targetField.value = targetValue;
           targetField.dispatchEvent(new Event("change", { bubbles: true }));
           syncTargetButtons(targetName, targetValue);
+          if (targetName === "category" && window.matchMedia("(max-width: 760px)").matches) {
+            const filtersForm = document.getElementById("filters-form");
+            if (filtersForm) {
+              if (window.kidsMapBuildCatalogFiltersUrl) {
+                window.location.href = window.kidsMapBuildCatalogFiltersUrl(filtersForm).href;
+              } else {
+                filtersForm.requestSubmit ? filtersForm.requestSubmit() : filtersForm.submit();
+              }
+            }
+            return;
+          }
           if (button.closest("[data-quick-menu]")) {
             if (window.kidsMapCloseQuickMenus) {
               window.kidsMapCloseQuickMenus();
@@ -1531,10 +1541,14 @@
       function buildFormUrl(form) {
         const formData = new FormData(form);
         const params = new URLSearchParams();
+        const neutralAgeRange = formData.get("age_from") === "0" && formData.get("age_to") === "18";
+        const neutralPriceRange = formData.get("price_from") === "0" && formData.get("price_to") === "500";
 
         formData.forEach(function (value, key) {
           const cleanValue = String(value || "").trim();
           if (!cleanValue || key === "page") return;
+          if (neutralAgeRange && (key === "age_from" || key === "age_to")) return;
+          if (neutralPriceRange && (key === "price_from" || key === "price_to")) return;
           params.append(key, cleanValue);
         });
 
@@ -1547,6 +1561,8 @@
       function buildFiltersUrl() {
         return buildFormUrl(filtersForm);
       }
+
+      window.kidsMapBuildCatalogFiltersUrl = buildFormUrl;
 
       function showResultsLoading() {
         const grid = document.querySelector(".grid");

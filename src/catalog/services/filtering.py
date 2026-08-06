@@ -53,6 +53,10 @@ class PlaceListFilters:
             data.event_type = ""
         if data.event_type and not cls._events_section_enabled():
             data.event_type = ""
+        if data.age_from == "0" and data.age_to == "18":
+            data.age_from = data.age_to = ""
+        if data.price_from == "0" and data.price_to == "500":
+            data.price_from = data.price_to = ""
         if data.force_new_only:
             data.sort = "new"
             if data.days not in {"7", "14", "30"}:

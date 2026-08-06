@@ -14,9 +14,9 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=26" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
-  <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=6" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=8" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=22" defer></script>
-  <script src="{% static 'js/owner_pricing_plans.js' %}?v=11" defer></script>
+  <script src="{% static 'js/owner_pricing_plans.js' %}?v=12" defer></script>
   {% if google_maps_api_key %}
     <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>
     <script
@@ -157,7 +157,7 @@
           </div>
           <p class="km-place-json-import-dialog__hint">{% translate "Вставьте ответ ChatGPT целиком: JSON и примечание. Заполнятся только данные из JSON, а перед сохранением всё можно изменить вручную." %}</p>
           <textarea data-place-json-import-input rows="15" spellcheck="false" placeholder='{"name_az":"...", "category":"WATERPARK", "address":"...", "phone":"+994...", "price_from":20}'></textarea>
-          <p class="km-place-json-import-dialog__example">{% translate "Поддерживаются: name, name_az, name_ru, name_en, description, category, subcategory, возраст, адрес, контакты, цены, расписание и координаты." %}</p>
+          <p class="km-place-json-import-dialog__example">{% translate "Поддерживаются: name, name_az, name_ru, name_en, description, category, subcategory, возраст, адрес, контакты, pricing_plans или tariffs (до 12 тарифов), расписание и координаты." %}</p>
           <p class="km-place-json-import-dialog__message" data-place-json-import-message role="status" aria-live="polite"></p>
           <div class="km-place-json-import-dialog__actions">
             <button type="button" class="km-place-json-import-dialog__cancel" data-place-json-import-close>{% translate "Отмена" %}</button>

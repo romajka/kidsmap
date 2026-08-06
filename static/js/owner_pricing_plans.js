@@ -1,5 +1,5 @@
 (function () {
-  const MAX_PRICING_PLANS = 20;
+  const MAX_PRICING_PLANS = 12;
   const editor = document.querySelector("[data-tariff-editor]");
   if (!editor) return;
   const ownerForm = editor.closest("form");

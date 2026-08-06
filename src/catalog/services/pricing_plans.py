@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils.translation import gettext as _, get_language
 
 
-MAX_PRICING_PLANS = 20
+MAX_PRICING_PLANS = 12
 DEFAULT_CURRENCY = "AZN"
 LESSON_FORMATS = {"group", "individual", "open_visit"}
 PAYMENT_TYPES = {"per_lesson", "per_month", "package", "per_visit", "entry_ticket"}
@@ -73,12 +73,17 @@ def _legacy_plan(plan, index):
 
 def _compat_to_canonical(raw):
     raw = dict(raw)
-    payment_type = str(raw.get("payment_type") or "").strip()
-    if raw.get("product_type"):
-        if raw.get("package_sessions") and not raw.get("quantity"):
-            raw["quantity"] = raw["package_sessions"]
-            raw["quantity_unit"] = "lesson"
-        return raw
+    for language in ("az", "ru", "en"):
+        title_key = f"title_{language}"
+        name_key = f"name_{language}"
+        if not raw.get(title_key) and raw.get(name_key):
+            raw[title_key] = raw[name_key]
+    if not raw.get("lesson_format") and raw.get("format"):
+        raw["lesson_format"] = raw["format"]
+    payment_type = str(raw.get("payment_type") or raw.get("payment") or "").strip()
+    if raw.get("package_sessions") and not raw.get("quantity"):
+        raw["quantity"] = raw["package_sessions"]
+        raw["quantity_unit"] = "lesson"
     mappings = {
         "per_lesson": {"product_type": "lesson", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "lesson"},
         "per_month": {"product_type": "membership", "billing_mode": "recurring", "billing_interval": "month", "billing_interval_count": 1},
@@ -178,7 +183,7 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
     if not isinstance(value, list):
         raise ValidationError(_("Проверьте список тарифов."))
     if len(value) > MAX_PRICING_PLANS:
-        raise ValidationError(_("Можно добавить не более 20 тарифов."))
+        raise ValidationError(_("Можно добавить не более 12 тарифов."))
 
     normalized = []
     for index, raw in enumerate(value):
@@ -190,9 +195,12 @@ def normalize_pricing_plans(value, *, strict=True, allow_verified=False):
             content_keys = {
                 "lesson_format", "sessions_per_week", "sessions_per_month", "payment_type",
                 "package_sessions", "price", "title_az", "title_ru", "title_en", "name", "frequency",
+                "name_az", "name_ru", "name_en", "format", "payment",
                 "product_type", "price_kind", "price_min", "price_max", "billing_mode",
             }
             if not any(str(raw.get(key) or "").strip() for key in content_keys):
+                if strict:
+                    raise ValidationError({"product_type": _("Укажите тип тарифа.")})
                 continue
             if {"name", "frequency"}.intersection(raw) and not {
                 "product_type", "price_kind", "lesson_format", "payment_type", "title_az", "title_ru", "title_en"
