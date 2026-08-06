@@ -375,7 +375,12 @@ class SEOAuditEngine:
 
     def _audit_places_all(self, *, run: SEOAuditRun, issues: list[SEOIssue], tested_urls: set[str], target_language: str | None = None, limit: int | None = None):
         from django.utils.translation import override
-        queryset = Place.objects.filter(deleted_at__isnull=True).order_by("-updated_at")
+        queryset = Place.objects.filter(
+            deleted_at__isnull=True,
+            is_temporary=False,
+            is_active=True,
+            status=Place.STATUS_PUBLISHED,
+        ).order_by("-updated_at")
         if limit:
             queryset = queryset[:limit]
 
@@ -384,6 +389,11 @@ class SEOAuditEngine:
 
     def _audit_place(self, place: Place, *, run: SEOAuditRun, issues: list[SEOIssue], tested_urls: set[str], target_language: str | None = None):
         from django.utils.translation import override
+
+        # Ignore drafts, unpublished, deleted, or temporary places
+        if place.deleted_at is not None or place.is_temporary or not place.is_active or place.status != Place.STATUS_PUBLISHED:
+            return
+
         languages = [target_language] if target_language else ["az", "ru", "en"]
         quality = place_quality_check(place)
 
