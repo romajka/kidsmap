@@ -48,6 +48,11 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.apply_fixes_now_view),
                 name="catalog_seoauditrun_apply_fixes_now",
             ),
+            path(
+                "clear-history-now/",
+                self.admin_site.admin_view(self.clear_history_now_view),
+                name="catalog_seoauditrun_clear_history_now",
+            ),
         ]
         return custom_urls + urls
 
@@ -78,6 +83,22 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
                 messages.info(request, "⚡ Нет открытых проблем Level A — все автоисправления уже применены.")
         except Exception as exc:
             messages.error(request, f"Ошибка применения автоисправлений: {exc}")
+
+        from django.shortcuts import redirect
+        return redirect("admin:catalog_seoauditrun_changelist")
+
+    def clear_history_now_view(self, request):
+        try:
+            runs_count = SEOAuditRun.objects.count()
+            issues_count = SEOIssue.objects.count()
+            SEOAuditRun.objects.all().delete()
+            SEOIssue.objects.filter(audit_run__isnull=True).delete()
+            messages.success(
+                request,
+                f"🗑 История прошлых аудитов успешно очищена ({runs_count} запусков, {issues_count} проблем)."
+            )
+        except Exception as exc:
+            messages.error(request, f"Ошибка очистки истории: {exc}")
 
         from django.shortcuts import redirect
         return redirect("admin:catalog_seoauditrun_changelist")

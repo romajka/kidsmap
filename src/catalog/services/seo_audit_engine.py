@@ -64,6 +64,10 @@ class SEOAuditEngine:
             elif target_url:
                 self._audit_single_url(target_url, run=run, issues=issues, tested_urls=tested_urls)
             else:
+                # Clean up old open and orphan issues from previous runs for a fresh state
+                SEOIssue.objects.filter(status=SEOIssue.STATUS_OPEN).delete()
+                SEOIssue.objects.filter(audit_run__isnull=True).delete()
+
                 if audit_type in (SEOAuditRun.AUDIT_TYPE_FULL, SEOAuditRun.AUDIT_TYPE_SITEMAP, SEOAuditRun.AUDIT_TYPE_TECHNICAL):
                     self._audit_sitemap_and_robots(run=run, issues=issues, tested_urls=tested_urls)
 

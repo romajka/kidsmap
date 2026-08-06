@@ -21,6 +21,28 @@
     opacity: 0.75 !important;
     cursor: wait !important;
 }
+
+/* Modal Popup Overlay */
+.seo-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+}
+.seo-modal-box {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #0f172a;
+}
 </style>
 
 <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
@@ -33,13 +55,16 @@
                 Запускайте сканирование сайта в 1 клик или применяйте безопасные автоисправления (Level A) без риска для контента.
             </p>
         </div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <a href="{% url 'admin:catalog_seoauditrun_run_now' %}" id="btnRunAuditNow" class="btn" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 10px 18px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); transition: all 0.2s;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'admin:catalog_seoauditrun_run_now' %}" id="btnRunAuditNow" class="btn" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 10px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); transition: all 0.2s;">
                 <span id="iconRunAudit">🚀</span> <span id="textRunAudit">▶ Запустить SEO-аудит сайта</span>
             </a>
-            <a href="{% url 'admin:catalog_seoauditrun_apply_fixes_now' %}" id="btnApplyFixesNow" class="btn" style="background-color: #059669; color: #ffffff; font-weight: 600; padding: 10px 18px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); transition: all 0.2s;">
+            <a href="{% url 'admin:catalog_seoauditrun_apply_fixes_now' %}" id="btnApplyFixesNow" class="btn" style="background-color: #059669; color: #ffffff; font-weight: 600; padding: 10px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); transition: all 0.2s;">
                 <span id="iconApplyFixes">⚡</span> <span id="textApplyFixes">Применить автоисправления (Level A)</span>
             </a>
+            <button type="button" id="btnOpenClearModal" class="btn" style="background-color: #dc2626; color: #ffffff; font-weight: 600; padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3); transition: all 0.2s;">
+                <span>🗑</span> <span>Очистить историю</span>
+            </button>
         </div>
     </div>
 
@@ -50,10 +75,32 @@
     </div>
 </div>
 
+<!-- Modal Confirmation Popup -->
+<div id="seoClearModal" class="seo-modal-overlay">
+    <div class="seo-modal-box">
+        <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
+        <h3 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 700; color: #0f172a;">Очистить историю аудитов?</h3>
+        <p style="margin: 0 0 20px 0; font-size: 14px; color: #64748b; line-height: 1.5;">
+            Вы уверены, что хотите удалить прошлые записи аудитов и связанные старые SEO-проблемы из базы? Это действие необратимо.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+            <button type="button" id="btnCancelClear" style="background: #e2e8f0; color: #334155; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                Отмена
+            </button>
+            <a href="{% url 'admin:catalog_seoauditrun_clear_history_now' %}" style="background: #dc2626; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; display: inline-block;">
+                Да, очистить историю
+            </a>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     var btnRun = document.getElementById("btnRunAuditNow");
     var btnFix = document.getElementById("btnApplyFixesNow");
+    var btnOpenModal = document.getElementById("btnOpenClearModal");
+    var btnCancelClear = document.getElementById("btnCancelClear");
+    var modal = document.getElementById("seoClearModal");
     var banner = document.getElementById("seoProgressBanner");
     var msg = document.getElementById("seoProgressMessage");
 
@@ -64,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("iconRunAudit").className = "seo-spinner";
             document.getElementById("iconRunAudit").innerText = "";
             document.getElementById("textRunAudit").innerText = "Идёт сканирование сайта...";
-            msg.innerText = "⏳ Сканируются все страницы сайта и проверяется валидность XML sitemap... Пожалуйста, не закрывайте вкладку.";
+            msg.innerText = "⏳ Сканируются все публичные страницы сайта и проверяется валидность sitemap... Пожалуйста, не закрывайте вкладку.";
             banner.style.display = "flex";
         });
     }
@@ -78,6 +125,18 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("textApplyFixes").innerText = "Применение автоисправлений...";
             msg.innerText = "⚡ Применяются безопасные автоисправления Level A и очищается кэш...";
             banner.style.display = "flex";
+        });
+    }
+
+    if (btnOpenModal) {
+        btnOpenModal.addEventListener("click", function() {
+            modal.style.display = "flex";
+        });
+    }
+
+    if (btnCancelClear) {
+        btnCancelClear.addEventListener("click", function() {
+            modal.style.display = "none";
         });
     }
 });
