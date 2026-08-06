@@ -10,6 +10,17 @@ from django.views.static import serve as serve_static_file
 from catalog.services.public_urls import build_public_absolute_uri, filtered_query_string_for_path
 
 
+from django.contrib.sitemaps.views import sitemap as django_sitemap
+
+
+def public_sitemap(request, sitemaps, **kwargs):
+    """Render sitemap.xml without X-Robots-Tag: noindex header required by GSC validator."""
+    response = django_sitemap(request, sitemaps=sitemaps, **kwargs)
+    if "X-Robots-Tag" in response.headers:
+        del response.headers["X-Robots-Tag"]
+    return response
+
+
 def indexnow_key_file(request, key):
     expected_key = (getattr(settings, "INDEXNOW_KEY", "") or "").strip()
     if not expected_key or key != expected_key:

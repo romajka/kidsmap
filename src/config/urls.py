@@ -3,7 +3,6 @@ from django.urls import path, include, re_path
 from django.conf.urls.i18n import i18n_patterns
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.sitemaps.views import sitemap
 from django.views.generic.base import RedirectView
 
 from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap
@@ -11,6 +10,7 @@ from catalog.views import admin_add_choice, place_pricing_api
 from config.views import (
     healthz,
     indexnow_key_file,
+    public_sitemap,
     redirect_legacy_default_language_prefix,
     robots_txt,
     serve_media_file,
@@ -27,7 +27,7 @@ urlpatterns = [
     path("api/v1/places/<slug:slug>/pricing/", place_pricing_api, name="place_pricing_api"),
     path("favicon.ico", RedirectView.as_view(url="/static/img/logo.svg", permanent=False)),
     path("i18n/", include("django.conf.urls.i18n")),  # set_language endpoint
-    path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
+    path("sitemap.xml", public_sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
     path("robots.txt", robots_txt, name="robots_txt"),
     path("healthz", healthz, name="healthz"),
     re_path(
