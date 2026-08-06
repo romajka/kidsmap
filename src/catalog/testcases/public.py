@@ -915,6 +915,115 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(robots_response.status_code, 200)
         self.assertContains(robots_response, "Sitemap: https://kidsmap.az/sitemap.xml")
 
+    def test_sitemap_xml_is_valid_xml(self):
+        create_quality_place(name="Valid XML test place", category="EDU")
+        response = self.client.get("/sitemap.xml")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("application/xml", response["Content-Type"])
+
+        import xml.etree.ElementTree as ET
+        try:
+            root = ET.fromstring(response.content)
+        except ET.ParseError as exc:
+            self.fail(f"sitemap.xml is not valid XML: {exc}")
+
+        self.assertEqual(root.tag, "{http://www.sitemaps.org/schemas/sitemap/0.9}urlset")
+        ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        urls = root.findall("s:url", ns)
+        self.assertGreater(len(urls), 0)
+        for url_el in urls:
+            loc = url_el.find("s:loc", ns)
+            self.assertIsNotNone(loc, "Every <url> must have a <loc>")
+            self.assertTrue(
+                loc.text.startswith("http://") or loc.text.startswith("https://"),
+                f"URL must be absolute: {loc.text}",
+            )
+
+    def test_sitemap_excludes_place_new(self):
+        response = self.client.get("/sitemap.xml")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "/catalog/new/")
+
+    def test_sitemap_excludes_draft_places(self):
+        create_quality_place(
+            name="Draft place",
+            name_az="Qaralama məkan",
+            category="EDU",
+            status=Place.STATUS_DRAFT,
+        )
+        published = create_quality_place(
+            name="Published place",
+            name_az="Nəşr olunmuş məkan",
+            category="EDU",
+        )
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Draft place")
+        self.assertContains(response, published.get_absolute_url())
+
+    def test_sitemap_excludes_deleted_places(self):
+        from django.utils import timezone
+        deleted = create_quality_place(
+            name="Deleted place",
+            name_az="Silinmiş məkan",
+            category="EDU",
+        )
+        deleted.deleted_at = timezone.now()
+        deleted.save(update_fields=["deleted_at"])
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertNotContains(response, deleted.get_absolute_url())
+
+    def test_sitemap_has_no_duplicate_urls(self):
+        create_quality_place(name="Unique place", category="EDU")
+
+        response = self.client.get("/sitemap.xml")
+
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(response.content)
+        ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        locs = [u.find("s:loc", ns).text for u in root.findall("s:url", ns)]
+        self.assertEqual(len(locs), len(set(locs)), f"Duplicate URLs found: {[l for l in locs if locs.count(l) > 1]}")
+
+    def test_sitemap_lastmod_matches_model_updated_at(self):
+        place = create_quality_place(name="Lastmod check place", name_az="Lastmod yoxlama məkanı", category="EDU")
+
+        response = self.client.get("/sitemap.xml")
+
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(response.content)
+        ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+
+        place_path = place.get_absolute_url()
+        found = False
+        for url_el in root.findall("s:url", ns):
+            loc = url_el.find("s:loc", ns)
+            if loc is not None and loc.text.endswith(place_path):
+                lastmod = url_el.find("s:lastmod", ns)
+                self.assertIsNotNone(lastmod, "Place URL must have lastmod")
+                expected_date = place.updated_at.strftime("%Y-%m-%d")
+                self.assertTrue(
+                    lastmod.text.startswith(expected_date),
+                    f"lastmod {lastmod.text} should start with {expected_date}",
+                )
+                found = True
+                break
+
+        self.assertTrue(found, f"Place URL ending with {place_path} not found in sitemap")
+
+    def test_sitemap_does_not_contain_changefreq_or_priority(self):
+        create_quality_place(name="Clean sitemap place", category="EDU")
+
+        response = self.client.get("/sitemap.xml")
+
+        self.assertNotContains(response, "<changefreq>")
+        self.assertNotContains(response, "<priority>")
+
     def test_seo_landing_uses_matching_language_content_and_hreflang(self):
         checks = (
             (

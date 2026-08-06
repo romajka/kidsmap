@@ -28,14 +28,12 @@ class LocalizedSitemap(Sitemap):
 
 
 class StaticViewSitemap(LocalizedSitemap):
-    changefreq = "weekly"
-    priority = 0.7
+    """Static pages that should be indexed by search engines."""
 
     def items(self):
         items = [
             "home",
             "place_list",
-            "place_new",
             "site_reviews",
             "about",
             "contacts",
@@ -56,8 +54,7 @@ class StaticViewSitemap(LocalizedSitemap):
 
 
 class PlaceSitemap(LocalizedSitemap):
-    changefreq = "daily"
-    priority = 0.8
+    """Published places that pass public quality checks."""
 
     def items(self):
         return public_place_queryset(Place.objects.all()).order_by("-updated_at")
@@ -67,11 +64,11 @@ class PlaceSitemap(LocalizedSitemap):
 
 
 class SeoLandingSitemap(LocalizedSitemap):
-    changefreq = "weekly"
-    priority = 0.75
+    """SEO landing pages that meet the minimum indexable threshold."""
 
     def items(self):
-        visibility = build_seo_landing_visibility(CatalogContentSettings.get_solo())
+        self._settings = CatalogContentSettings.get_solo()
+        visibility = build_seo_landing_visibility(self._settings)
         default_language = (settings.LANGUAGE_CODE or "az").split("-", 1)[0]
         return [
             slug
@@ -82,9 +79,15 @@ class SeoLandingSitemap(LocalizedSitemap):
     def location(self, item):
         return reverse("seo_landing", kwargs={"seo_slug": item})
 
+    def lastmod(self, item):
+        settings_obj = getattr(self, "_settings", None)
+        if settings_obj and hasattr(settings_obj, "updated_at"):
+            return settings_obj.updated_at
+        return None
+
+
 class SpecialistSitemap(LocalizedSitemap):
-    changefreq = "daily"
-    priority = 0.8
+    """Published specialists."""
 
     def items(self):
         if not is_specialists_section_enabled():
