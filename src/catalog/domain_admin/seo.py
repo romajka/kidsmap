@@ -34,6 +34,54 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
         "summary_notes",
     )
 
+    def get_urls(self):
+        from django.urls import path
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "run-audit-now/",
+                self.admin_site.admin_view(self.run_audit_now_view),
+                name="catalog_seoauditrun_run_now",
+            ),
+            path(
+                "apply-fixes-now/",
+                self.admin_site.admin_view(self.apply_fixes_now_view),
+                name="catalog_seoauditrun_apply_fixes_now",
+            ),
+        ]
+        return custom_urls + urls
+
+    def run_audit_now_view(self, request):
+        from catalog.services.seo_audit_engine import SEOAuditEngine
+        try:
+            engine = SEOAuditEngine(environment="admin_trigger")
+            run = engine.run_audit()
+            messages.success(
+                request,
+                f"🚀 SEO-аудит успешно выполнен (Запуск #{run.pk})! "
+                f"Проверено {run.total_urls} URL. Найдено ошибок: {run.error_count}, предупреждений: {run.warning_count}."
+            )
+        except Exception as exc:
+            messages.error(request, f"Ошибка выполнения SEO-аудита: {exc}")
+
+        from django.shortcuts import redirect
+        return redirect("admin:catalog_seoauditrun_changelist")
+
+    def apply_fixes_now_view(self, request):
+        from catalog.services.seo_fix_engine import SEOFixEngine
+        try:
+            engine = SEOFixEngine()
+            changes = engine.apply_safe_fixes(dry_run=False)
+            if changes:
+                messages.success(request, f"⚡ Успешно применено {len(changes)} безопасных автоисправлений Level A!")
+            else:
+                messages.info(request, "⚡ Нет открытых проблем Level A — все автоисправления уже применены.")
+        except Exception as exc:
+            messages.error(request, f"Ошибка применения автоисправлений: {exc}")
+
+        from django.shortcuts import redirect
+        return redirect("admin:catalog_seoauditrun_changelist")
+
     def status_badge(self, obj):
         color = "green" if obj.status == "completed" else "red" if obj.status == "failed" else "orange"
         return format_html(

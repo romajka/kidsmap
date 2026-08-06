@@ -1,0 +1,27 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 26px;">🔍</span> Управление SEO-аудитом KidsMap
+            </h2>
+            <p style="margin: 0; color: #94a3b8; font-size: 14px;">
+                Запускайте сканирование сайта в 1 клик или применяйте безопасные автоисправления (Level A) без риска для контента.
+            </p>
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="{% url 'admin:catalog_seoauditrun_run_now' %}" class="btn" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 10px 18px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); transition: all 0.2s;">
+                <span>🚀</span> ▶ Запустить SEO-аудит сайта
+            </a>
+            <a href="{% url 'admin:catalog_seoauditrun_apply_fixes_now' %}" class="btn" style="background-color: #059669; color: #ffffff; font-weight: 600; padding: 10px 18px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); transition: all 0.2s;">
+                <span>⚡</span> Применить автоисправления (Level A)
+            </a>
+        </div>
+    </div>
+</div>
+
+{{ block.super }}
+{% endblock %}
