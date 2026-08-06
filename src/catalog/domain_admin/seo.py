@@ -221,8 +221,8 @@ class SEOIssueAdmin(admin.ModelAdmin):
         "severity_badge",
         "status_badge",
         "issue_code",
-        "url",
-        "page_type",
+        "url_link",
+        "edit_object_button",
         "language",
         "detected_at",
     )
@@ -272,6 +272,34 @@ class SEOIssueAdmin(admin.ModelAdmin):
             obj.get_status_display(),
         )
     status_badge.short_description = _("Статус")
+
+    def url_link(self, obj):
+        if not obj.url:
+            return "-"
+        return format_html(
+            '<a href="{}" target="_blank" style="color: #2563eb; font-weight: 600; text-decoration: underline; display: inline-flex; align-items: center; gap: 4px;">🌐 {} ↗</a>',
+            obj.url,
+            obj.url,
+        )
+    url_link.short_description = _("URL страницы")
+
+    def edit_object_button(self, obj):
+        from django.urls import reverse
+        if obj.place_id:
+            edit_url = reverse("admin:catalog_place_change", args=[obj.place_id])
+            return format_html(
+                '<a class="button" href="{}" target="_blank" style="background-color: #059669; color: #ffffff; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">✏️ Редактировать карточку #{place_id}</a>',
+                edit_url,
+                place_id=obj.place_id,
+            )
+        elif obj.page_type == "static" or "contacts" in obj.url or "about" in obj.url:
+            edit_url = reverse("admin:catalog_catalogcontentsettings_changelist")
+            return format_html(
+                '<a class="button" href="{}" target="_blank" style="background-color: #475569; color: #ffffff; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">⚙️ Редактировать настройки</a>',
+                edit_url,
+            )
+        return format_html('<span style="color: #94a3b8; font-size: 12px;">—</span>')
+    edit_object_button.short_description = _("Быстрое редактирование")
 
     @admin.action(description=_("Утвердить выбранные предложения (Level B)"))
     def approve_selected_proposals(self, request, queryset):
