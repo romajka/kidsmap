@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% load i18n static %}
 
-{% block title %}{% trans "О проекте" %}{% endblock %}
-{% block title_plain %}{% trans "О проекте" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "О проекте" %} | KidsMap{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block title_plain %}{{ page_title }}{% endblock %}
+{% block title_plain_twitter %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}

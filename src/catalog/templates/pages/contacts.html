@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% load i18n static %}
 
-{% block title %}{% trans "Контакты" %}{% endblock %}
-{% block title_plain %}{% trans "Контакты" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Контакты" %} | KidsMap{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block title_plain %}{{ page_title }}{% endblock %}
+{% block title_plain_twitter %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'css/pages/contacts.css' %}" />

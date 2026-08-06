@@ -544,18 +544,46 @@ def seo_landing(request, seo_slug):
 
 
 def about(request):
+    lang = (request.LANGUAGE_CODE or "az").split("-")[0]
+    titles = {
+        "az": "KidsMap haqqında | Uşaq dərnəkləri və idman bölmələri kataloqu",
+        "ru": "О проекте KidsMap | Каталог детских кружков и секций в Баку",
+        "en": "About KidsMap | Children's Clubs & Sports Directory in Baku",
+    }
+    meta_descriptions = {
+        "az": "KidsMap haqqında: Bakı və Аzərbaycanda uşaq dərnəkləri, bölmələr və inkişaf mərkəzləri kataloqu.",
+        "ru": "О проекте KidsMap: полный каталог детских кружков, спортивных секций и центров развития в Баку и Азербайджане.",
+        "en": "About KidsMap project: comprehensive directory of children's clubs, sports sections and development centers in Baku, Azerbaijan.",
+    }
     return render(
         request,
         "pages/about.html",
-        {"meta_description": _("О проекте KidsMap: каталог детских кружков и секций по Азербайджану.")},
+        {
+            "page_title": titles.get(lang, titles["az"]),
+            "meta_description": meta_descriptions.get(lang, meta_descriptions["az"]),
+        },
     )
 
 
 def contacts(request):
+    lang = (request.LANGUAGE_CODE or "az").split("-")[0]
+    titles = {
+        "az": "KidsMap Əlaqə | Telefon, ünvan və əlaqə vasitələri",
+        "ru": "Контакты KidsMap | Связаться с нами и адрес в Баку",
+        "en": "Contact KidsMap | Address, Phone & Support in Baku",
+    }
+    meta_descriptions = {
+        "az": "KidsMap layihəsi ilə əlaqə: telefon, e-poçt, ünvan və rəy forması.",
+        "ru": "Контакты проекта KidsMap: телефон, e-mail, адрес и форма обратной связи.",
+        "en": "Contact KidsMap team: phone, email, address and feedback form.",
+    }
     return render(
         request,
         "pages/contacts.html",
-        {"meta_description": _("Контакты проекта KidsMap.")},
+        {
+            "page_title": titles.get(lang, titles["az"]),
+            "meta_description": meta_descriptions.get(lang, meta_descriptions["az"]),
+        },
     )
 
 
