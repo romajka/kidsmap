@@ -1,0 +1,89 @@
+{% load i18n %}
+<style>
+.pagination, .pagination ul, ul.pagination {
+    list-style: none !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    align-items: center !important;
+}
+.pagination li {
+    list-style: none !important;
+    list-style-type: none !important;
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.pagination li::before {
+    content: "" !important;
+    display: none !important;
+}
+.pagination li a, .pagination li span, .pagination a, .pagination span.this-page {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    padding: 0 12px !important;
+    border-radius: 8px !important;
+    border: 1px solid #cbd5e1 !important;
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    transition: all 0.15s ease-in-out !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+.pagination li.active a, .pagination li.active span, .pagination span.this-page, .pagination a.active {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3) !important;
+}
+.pagination li a:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+}
+.pagination-container-clean {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    padding: 14px 18px !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-radius: 0 0 8px 8px !important;
+}
+</style>
+
+<div class="pagination-container-clean">
+    <div style="font-size: 13px; color: #64748b; font-weight: 600;">
+        {{ cl.paginator.count }} {% if cl.name %}{{ cl.name }}{% else %}{% translate "записи(ей)" %}{% endif %}
+        {% if show_all_url %}
+            <a href="{{ show_all_url }}" style="margin-left: 10px; color: #2563eb; font-weight: 600; text-decoration: none; border-bottom: 1px dashed #2563eb;">{% translate "Показать все" %}</a>
+        {% endif %}
+    </div>
+
+    {% if pagination_required %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% for page in page_range %}
+                {% if page == cl.page_num %}
+                    <li class="active"><span class="this-page">{{ page }}</span></li>
+                {% else %}
+                    {% if page == cl.paginator.ELLIPSIS %}
+                        <li><span class="clear">{{ page }}</span></li>
+                    {% else %}
+                        <li><a href="{{ cl.get_query_string }}p={{ page }}">{{ page }}</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
