@@ -193,7 +193,15 @@ class PricingPlan(models.Model):
             self.billing_cycles = None
 
         if bool(self.quantity) != bool(self.quantity_unit):
-            errors["quantity"] = _("Количество и единица должны быть указаны вместе.")
+            if self.quantity and not self.quantity_unit:
+                default_units = {
+                    "admission": "entry", "visit": "visit", "lesson": "lesson",
+                    "membership": "lesson", "course": "course", "camp": "camp_shift",
+                    "event": "event", "excursion": "event", "tour": "event", "rental": "hour",
+                }
+                self.quantity_unit = default_units.get(self.product_type, "entry" if self.product_type == "admission" else "lesson")
+            else:
+                errors["quantity"] = _("Количество и единица должны быть указаны вместе.")
         if self.validity_interval_count and not self.validity_interval:
             errors["validity_interval"] = _("Укажите единицу срока действия.")
         if self.validity_interval and not self.validity_interval_count:

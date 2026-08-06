@@ -157,6 +157,18 @@
     }
     if (["addon", "registration_fee", "deposit"].indexOf(plan.editor_kind) < 0) plan.is_required = false;
     if (!plan.currency) plan.currency = "AZN";
+    
+    // Auto-default quantity_unit when quantity is set
+    const defaultUnits = {
+      admission: "entry", visit: "visit", lesson: "lesson", package: "lesson",
+      membership: "lesson", course: "course", camp: "camp_shift", event: "event",
+      excursion: "event", tour: "event", rental: "hour"
+    };
+    var kindKey = plan.editor_kind || plan.product_type || "";
+    if (plan.quantity != null && plan.quantity !== "" && !plan.quantity_unit) {
+      plan.quantity_unit = defaultUnits[kindKey] || "entry";
+    }
+
     delete plan.payment_type; delete plan.package_sessions;
   }
 

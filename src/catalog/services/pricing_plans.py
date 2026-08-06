@@ -95,6 +95,18 @@ def _compat_to_canonical(raw):
         raw.setdefault(key, val)
     if "price_kind" not in raw:
         raw["price_kind"] = "free" if str(raw.get("price", "")).strip() in {"0", "0.0", "0.00"} else "exact"
+
+    product_type = raw.get("product_type") or raw.get("editor_kind") or ""
+    quantity = raw.get("quantity")
+    quantity_unit = str(raw.get("quantity_unit") or "").strip()
+    DEFAULT_UNITS = {
+        "admission": "entry", "visit": "visit", "lesson": "lesson",
+        "membership": "lesson", "course": "course", "camp": "camp_shift",
+        "event": "event", "excursion": "event", "tour": "event", "rental": "hour",
+    }
+    if quantity not in (None, "") and not quantity_unit:
+        raw["quantity_unit"] = DEFAULT_UNITS.get(product_type, "entry" if product_type == "admission" else "lesson")
+
     return raw
 
 

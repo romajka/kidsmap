@@ -51,6 +51,13 @@ class PricingPlansTests(TestCase):
                 {"lesson_format": "group", "payment_type": "package", "price": "90"},
             ])
 
+    def test_auto_defaults_quantity_unit_when_quantity_is_provided(self):
+        plans = normalize_pricing_plans([
+            {"product_type": "admission", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "", "price": "2.00", "title_az": "Uşaqlar (4-16 yaş)"}
+        ])
+        self.assertEqual(plans[0]["quantity"], 1)
+        self.assertEqual(plans[0]["quantity_unit"], "entry")
+
     def test_accepts_twelve_tariffs_and_rejects_thirteen(self):
         plan = {"lesson_format": "group", "payment_type": "per_month", "price": "120"}
 
