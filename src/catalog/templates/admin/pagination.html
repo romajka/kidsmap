@@ -1,71 +1,83 @@
 {% load i18n %}
 <style>
-.pagination, .pagination ul, ul.pagination {
+/* Full-width seamless Jazzmin admin pagination */
+.pagination-container-full {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    padding: 12px 20px !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-radius: 0 0 12px 12px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+.pagination-container-full ul.pagination,
+.pagination-container-full nav ul {
     list-style: none !important;
-    padding-left: 0 !important;
+    padding: 0 !important;
     margin: 0 !important;
     display: inline-flex !important;
     flex-wrap: wrap !important;
-    gap: 4px !important;
+    gap: 6px !important;
     align-items: center !important;
 }
-.pagination li {
+
+.pagination-container-full ul.pagination li {
     list-style: none !important;
-    list-style-type: none !important;
     display: inline-block !important;
     margin: 0 !important;
     padding: 0 !important;
 }
-.pagination li::before {
+
+.pagination-container-full ul.pagination li::before {
     content: "" !important;
     display: none !important;
 }
-.pagination li a, .pagination li span, .pagination a, .pagination span.this-page {
+
+.pagination-container-full ul.pagination li a,
+.pagination-container-full ul.pagination li span {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     min-width: 34px !important;
     height: 34px !important;
     padding: 0 12px !important;
-    border-radius: 8px !important;
-    border: 1px solid #cbd5e1 !important;
+    border-radius: 50px !important;
+    border: 1px solid #e2e8f0 !important;
     background-color: #ffffff !important;
-    color: #334155 !important;
+    color: #059669 !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     text-decoration: none !important;
     transition: all 0.15s ease-in-out !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
-.pagination li.active a, .pagination li.active span, .pagination span.this-page, .pagination a.active {
-    background-color: #2563eb !important;
+
+.pagination-container-full ul.pagination li.active a,
+.pagination-container-full ul.pagination li.active span,
+.pagination-container-full ul.pagination span.this-page {
+    background-color: #059669 !important;
     color: #ffffff !important;
-    border-color: #2563eb !important;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3) !important;
+    border-color: #059669 !important;
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25) !important;
 }
-.pagination li a:hover {
-    background-color: #f1f5f9 !important;
-    border-color: #94a3b8 !important;
-    color: #0f172a !important;
-}
-.pagination-container-clean {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    flex-wrap: wrap !important;
-    gap: 12px !important;
-    padding: 14px 18px !important;
-    background: #ffffff !important;
-    border-top: 1px solid #e2e8f0 !important;
-    border-radius: 0 0 8px 8px !important;
+
+.pagination-container-full ul.pagination li a:hover {
+    background-color: #f0fdf4 !important;
+    border-color: #10b981 !important;
+    color: #047857 !important;
 }
 </style>
 
-<div class="pagination-container-clean">
-    <div style="font-size: 13px; color: #64748b; font-weight: 600;">
+<div class="pagination-container-full">
+    <div style="font-size: 13px; color: #475569; font-weight: 600;">
         {{ cl.paginator.count }} {% if cl.name %}{{ cl.name }}{% else %}{% translate "записи(ей)" %}{% endif %}
         {% if show_all_url %}
-            <a href="{{ show_all_url }}" style="margin-left: 10px; color: #2563eb; font-weight: 600; text-decoration: none; border-bottom: 1px dashed #2563eb;">{% translate "Показать все" %}</a>
+            <a href="{{ show_all_url }}" style="margin-left: 10px; color: #059669; font-weight: 600; text-decoration: underline;">{% translate "Показать все" %}</a>
         {% endif %}
     </div>
 
@@ -77,7 +89,7 @@
                     <li class="active"><span class="this-page">{{ page }}</span></li>
                 {% else %}
                     {% if page == cl.paginator.ELLIPSIS %}
-                        <li><span class="clear">{{ page }}</span></li>
+                        <li><span class="clear" style="border: none; background: transparent; color: #94a3b8;">{{ page }}</span></li>
                     {% else %}
                         <li><a href="{{ cl.get_query_string }}p={{ page }}">{{ page }}</a></li>
                     {% endif %}
