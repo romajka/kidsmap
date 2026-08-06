@@ -2,36 +2,121 @@
 {% load i18n static %}
 
 {% block content %}
-<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-    <h3 style="margin: 0 0 14px 0; font-size: 18px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-        <span>📌</span> Пояснение уровней автоматизации SEO:
+<style>
+/* Modern SaaS Dashboard Styling for SEO Issues */
+.seo-filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s ease;
+}
+.seo-filter-tab:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+.seo-filter-tab.active {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.seo-card-badge {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.seo-card-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08) !important;
+}
+
+/* Custom Table Row Polish */
+#result_list tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+</style>
+
+<!-- Header & Quick Action Bar -->
+<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 20px 24px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 26px;">🎯</span> Реестр SEO-проблем и рекомендаций
+            </h2>
+            <p style="margin: 0; color: #94a3b8; font-size: 14px;">
+                Фильтруйте замечания по уровням, переходите на сайт или редактируйте данные карточек в 1 клик.
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{% url 'admin:catalog_seoauditrun_run_now' %}" class="btn" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);">
+                <span>🚀</span> ▶ Запустить аудит
+            </a>
+            <a href="{% url 'admin:catalog_seoauditrun_apply_fixes_now' %}" class="btn" style="background-color: #059669; color: #ffffff; font-weight: 600; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);">
+                <span>⚡</span> Применить Level A
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Quick Filter Tabs -->
+<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;">
+    <span style="font-size: 13px; font-weight: 700; color: #64748b; margin-right: 4px;">Быстрый фильтр:</span>
+    <a href="{% url 'admin:catalog_seoissue_changelist' %}" class="seo-filter-tab {% if not request.GET.level and not request.GET.severity %}active{% endif %}">
+        🔍 Все замечания
+    </a>
+    <a href="{% url 'admin:catalog_seoissue_changelist' %}?level__exact=A" class="seo-filter-tab {% if request.GET.level == 'A' %}active{% endif %}" style="border-color: #bbf7d0;">
+        🟢 Level A (Автоисправления)
+    </a>
+    <a href="{% url 'admin:catalog_seoissue_changelist' %}?level__exact=B" class="seo-filter-tab {% if request.GET.level == 'B' %}active{% endif %}" style="border-color: #fed7aa;">
+        🟠 Level B (На утверждение)
+    </a>
+    <a href="{% url 'admin:catalog_seoissue_changelist' %}?level__exact=C" class="seo-filter-tab {% if request.GET.level == 'C' %}active{% endif %}" style="border-color: #fecaca;">
+        🔴 Level C (Ручной осмотр)
+    </a>
+    <a href="{% url 'admin:catalog_seoissue_changelist' %}?severity__exact=critical" class="seo-filter-tab {% if request.GET.severity == 'critical' %}active{% endif %}" style="border-color: #fca5a5; color: #dc2626;">
+        🛑 Только критические
+    </a>
+</div>
+
+<!-- Level Cards Legend -->
+<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+    <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+        <span>📌</span> Справочник уровней автоматизации SEO:
     </h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px;">
-            <div style="font-weight: 700; color: #166534; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+        <div class="seo-card-badge" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px;">
+            <div style="font-weight: 700; color: #166534; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                 <span style="background-color: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Level A</span>
                 Безопасный авто-фикс
             </div>
             <p style="margin: 0; color: #15803d; font-size: 13px; line-height: 1.4;">
-                Технические задачи (sitemap, lastmod, canonical, hreflang, schema). Исправляются автоматически одной кнопкой.
+                Технические задачи (sitemap, canonical, schema). Исправляются 1 кнопкой.
             </p>
         </div>
-        <div style="background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 14px;">
-            <div style="font-weight: 700; color: #9a3412; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+        <div class="seo-card-badge" style="background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 14px;">
+            <div style="font-weight: 700; color: #9a3412; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                 <span style="background-color: #f97316; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Level B</span>
                 Требует утверждения
             </div>
             <p style="margin: 0; color: #c2410c; font-size: 13px; line-height: 1.4;">
-                Предложения по заголовкам, описаниям и FAQ. Отметьте галкой и нажмите действие <b>«Утвердить выбранные»</b>.
+                Предложения по заголовкам и мета-тегам. Выберите галкой и утвердите.
             </p>
         </div>
-        <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 14px;">
-            <div style="font-weight: 700; color: #991b1b; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+        <div class="seo-card-badge" style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px;">
+            <div style="font-weight: 700; color: #991b1b; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                 <span style="background-color: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Level C</span>
                 Ручной осмотр
             </div>
             <p style="margin: 0; color: #b91c1c; font-size: 13px; line-height: 1.4;">
-                Факты о заведениях (GPS-координаты, фото, цены). Робот не меняет их сам, чтобы не исказить реальные данные.
+                Факты о заведениях (GPS, фото). Робот не изменяет их автоматически.
             </p>
         </div>
     </div>
