@@ -6,6 +6,7 @@ from .owner import PlaceOwnershipRequest, PlaceOwnershipRequestAudit, OwnerTeamM
 from .site import SiteSettings, SiteGalleryImage, SiteBrandingSettings, SiteAboutSettings, SiteContactsSettings, SiteFooterSettings, SiteEmptyStateSettings, SiteVisibilitySettings, SiteAnalytics, SiteVisit, FunnelEvent, CatalogContentSettings
 from .specialist import Region, District, MetroStation, SpecialistSpecialization, Specialist, SpecialistPracticeLocation, SpecialistScheduleDay, SpecialistScheduleInterval, SpecialistDocument, SpecialistReview
 from .pricing_plan import PricingPlan
+from .seo import SEOAuditRun, SEOIssue, SEOChange
 
 __all__ = [
     'Category',
@@ -54,4 +55,7 @@ __all__ = [
     'SpecialistDocument',
     'SpecialistReview',
     'PricingPlan',
+    'SEOAuditRun',
+    'SEOIssue',
+    'SEOChange',
 ]

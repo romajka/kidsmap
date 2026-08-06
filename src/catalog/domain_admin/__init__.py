@@ -524,6 +524,16 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
             ],
         },
         {
+            "key": "seo_monitoring",
+            "label": _("SEO Мониторинг"),
+            "icon": "fas fa-search",
+            "items": [
+                _build_sidebar_item(request, model=SEOAuditRun, label=_("Запуски аудита"), icon="fas fa-history"),
+                _build_sidebar_item(request, model=SEOIssue, label=_("SEO-проблемы"), icon="fas fa-exclamation-triangle"),
+                _build_sidebar_item(request, model=SEOChange, label=_("История изменений SEO"), icon="fas fa-tools"),
+            ],
+        },
+        {
             "key": "system",
             "label": _("Система"),
             "icon": "fas fa-cogs",
@@ -582,3 +592,4 @@ from .site import *
 from .category import *
 from .place import *
 from .specialist import *
+from .seo import *
