@@ -68,7 +68,6 @@
           />
           {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
           {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
-          {% if selected.metro %}<input type="hidden" name="metro" value="{{ selected.metro }}" />{% endif %}
           {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
           {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
           {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
@@ -82,7 +81,7 @@
     {% if not is_new_page %}
       <div class="mobile-hero-caption">
         <h1>{% if language == "az" %}Uşağınız üçün uyğun məkan tapın{% elif language == "en" %}Find the right place for your child{% else %}Найдите подходящее место для ребёнка{% endif %}</h1>
-        <p>{% if language == "az" %}Kursları və məşğələləri yaş, rayon və metroya görə rahat seçin.{% elif language == "en" %}Choose classes by age, district, and metro with ease.{% else %}Выбирайте курсы и занятия по возрасту, району и метро.{% endif %}</p>
+        <p>{% if language == "az" %}Kursları və məşğələləri yaş və rayona görə rahat seçin.{% elif language == "en" %}Choose classes by age and district with ease.{% else %}Выбирайте курсы и занятия по возрасту и району.{% endif %}</p>
       </div>
     {% endif %}
   </section>
@@ -93,7 +92,6 @@
         <form class="mobile-catalog-search" method="get" action="{% url 'place_list' %}">
           {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
           {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
-          {% if selected.metro %}<input type="hidden" name="metro" value="{{ selected.metro }}" />{% endif %}
           {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
           {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
           {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
@@ -114,7 +112,6 @@
 
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" data-filter-focus="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.metro %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="metro" data-filter-focus="metro" aria-expanded="false" aria-controls="quick-menu-metro">{% if language == "az" %}Metro{% elif language == "en" %}Metro{% else %}Метро{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="age" data-filter-focus="age" aria-expanded="false" aria-controls="quick-menu-age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.min_rating %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="min_rating" data-filter-focus="min_rating" aria-expanded="false" aria-controls="quick-menu-min_rating">{% if language == "az" %}Reytinq{% elif language == "en" %}Rating{% else %}Рейтинг{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %}{% if selected.price_from != '0' or selected.price_to != '500' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="price" data-filter-focus="price" aria-expanded="false" aria-controls="quick-menu-price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
@@ -133,20 +130,6 @@
               {% endfor %}
             </div>
             <button type="button" class="mobile-quick-menu-more" data-filters-open data-filter-focus="district">{% if language == "az" %}Bütün rayonlar{% elif language == "en" %}All districts{% else %}Все районы{% endif %}</button>
-          </section>
-
-          <section class="mobile-quick-menu" id="quick-menu-metro" data-quick-menu="metro" hidden>
-            <div class="mobile-quick-menu-head">
-              <strong>{% if language == "az" %}Metro{% elif language == "en" %}Metro{% else %}Метро{% endif %}</strong>
-              <button type="button" class="mobile-quick-menu-close" data-quick-menu-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}">×</button>
-            </div>
-            <div class="mobile-quick-menu-options">
-              <button type="button" class="mobile-quick-option{% if not selected.metro %} is-active{% endif %}" data-select-target="metro" data-select-value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}Все{% endif %}</button>
-              {% for metro in popular_metro|slice:":5" %}
-                <button type="button" class="mobile-quick-option{% if selected.metro == metro.value %} is-active{% endif %}" data-select-target="metro" data-select-value="{{ metro.value }}">{% firstof metro.label_with_count metro.label %}</button>
-              {% endfor %}
-            </div>
-            <button type="button" class="mobile-quick-menu-more" data-filters-open data-filter-focus="metro">{% if language == "az" %}Bütün metro stansiyaları{% elif language == "en" %}All metro stations{% else %}Все станции метро{% endif %}</button>
           </section>
 
           <section class="mobile-quick-menu" id="quick-menu-age" data-quick-menu="age" hidden>
@@ -246,7 +229,7 @@
           <span class="desktop-filter-head-icon" aria-hidden="true"></span>
           <div>
             <h2>{% if language == "az" %}Dərnək seçin{% elif language == "en" %}Find a club{% else %}Подобрать кружок{% endif %}</h2>
-            <p>{% if language == "az" %}Kateqoriya, rayon, metro, yaş və büdcə bir yerdə.{% elif language == "en" %}Category, district, metro, age, and budget in one place.{% else %}Категория, район, метро, возраст и бюджет в одном месте.{% endif %}</p>
+            <p>{% if language == "az" %}Kateqoriya, rayon, yaş və büdcə bir yerdə.{% elif language == "en" %}Category, district, age, and budget in one place.{% else %}Категория, район, возраст и бюджет в одном месте.{% endif %}</p>
           </div>
         </div>
       {% endif %}
@@ -422,11 +405,11 @@
       {% endif %}
 
       {% if not is_new_page %}
-        <details class="catalog-advanced-filters"{% if selected.min_rating or selected.metro or selected.price_from or selected.price_to %} open{% endif %}>
+        <details class="catalog-advanced-filters"{% if selected.min_rating or selected.price_from or selected.price_to %} open{% endif %}>
           <summary>
             <span class="catalog-advanced-summary-copy">
               <strong>{% if language == "az" %}Əlavə filtrlər{% elif language == "en" %}More filters{% else %}Еще фильтры{% endif %}</strong>
-              <small>{% if language == "az" %}Qiymət, reytinq və metro üzrə dəqiqləşdirin{% elif language == "en" %}Refine by price, rating, and metro{% else %}Уточните по цене, рейтингу и метро{% endif %}</small>
+              <small>{% if language == "az" %}Qiymət və reytinq üzrə dəqiqləşdirin{% elif language == "en" %}Refine by price and rating{% else %}Уточните по цене и рейтингу{% endif %}</small>
             </span>
             <span class="catalog-advanced-summary-toggle" aria-hidden="true">
               <span class="catalog-advanced-summary-toggle-open">{% if language == "az" %}Aç{% elif language == "en" %}Open{% else %}Открыть{% endif %}</span>
@@ -509,71 +492,6 @@
           </select>
         </label>
       {% else %}
-        <label class="filter-item filter-metro" data-mobile-filter-section="metro">
-          {% if language == "az" %}Metro{% elif language == "en" %}Metro{% else %}{% trans "Метро" %}{% endif %}
-          <div class="filter-mobile-tools">
-            <div
-              class="filter-autocomplete"
-              data-autocomplete="metro"
-              data-empty-label="{% if request.LANGUAGE_CODE == 'az' %}Nəticə tapılmadı{% elif request.LANGUAGE_CODE == 'en' %}No results found{% else %}Ничего не найдено{% endif %}"
-            >
-              <input
-                class="field filter-option-search"
-                type="search"
-                inputmode="search"
-                autocomplete="off"
-                placeholder="{% if language == 'az' %}Metro tapın{% elif language == 'en' %}Find metro{% else %}{% trans 'Найти метро' %}{% endif %}"
-                data-option-search-for="metro"
-                aria-autocomplete="list"
-                aria-expanded="false"
-                aria-controls="metro-autocomplete-dropdown"
-              />
-              <div
-                id="metro-autocomplete-dropdown"
-                class="filter-autocomplete-dropdown"
-                data-autocomplete-dropdown
-                role="listbox"
-                hidden
-              ></div>
-              <div class="filter-selected-chip-wrap" data-autocomplete-chip hidden>
-                <button type="button" class="filter-selected-chip" data-autocomplete-clear>
-                  <span class="filter-selected-chip-label" data-autocomplete-chip-label></span>
-                  <span class="filter-selected-chip-clear" aria-hidden="true">×</span>
-                </button>
-              </div>
-            </div>
-            {% if popular_metro %}
-              <div class="filter-popular-options" aria-label="{% if language == 'az' %}Populyar metro stansiyaları{% elif language == 'en' %}Popular metro stations{% else %}{% trans 'Популярные станции метро' %}{% endif %}">
-                {% for metro in popular_metro|slice:":3" %}
-                  <button
-                    type="button"
-                    class="filter-popular-chip"
-                    data-select-target="metro"
-                    data-select-value="{{ metro.value }}"
-                  >
-                    {% firstof metro.label_with_count metro.label %}
-                  </button>
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
-          <select class="filter-select filter-select-fallback" name="metro" aria-hidden="true" tabindex="-1">
-            <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
-            {% for metro in metro_options %}
-              <option
-                value="{{ metro.value }}"
-                data-label-current="{{ metro.label }}"
-                data-label-az="{{ metro.label_az }}"
-                data-label-ru="{{ metro.label_ru }}"
-                data-label-en="{{ metro.label_en }}"
-                {% if selected.metro == metro.value %}selected{% endif %}
-              >{% firstof metro.label_with_count metro.label %}</option>
-            {% endfor %}
-          </select>
-        </label>
-
-
-
         </details>
 
       {% endif %}

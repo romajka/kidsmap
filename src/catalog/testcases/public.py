@@ -1263,16 +1263,17 @@ class TestLocalizedFilterOptions(TestCase):
         self.assertContains(response, '<option value="">Все категории</option>', html=False)
         self.assertNotContains(response, '<option value="">Категория</option>', html=False)
 
-    def test_catalog_autocomplete_options_include_fallback_labels_for_search(self):
+    def test_catalog_autocomplete_omits_hidden_metro_search(self):
         response = self.client.get("/az/catalog/", follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'data-label-current="Bakı"', html=False)
         self.assertContains(response, 'data-label-ru="Баку"', html=False)
         self.assertContains(response, 'data-label-en="Baku"', html=False)
-        self.assertContains(response, 'data-label-current="İçərişəhər"', html=False)
-        self.assertContains(response, 'data-label-ru="Ичеришехер"', html=False)
-        self.assertContains(response, 'data-label-en="Icherisheher"', html=False)
+        self.assertNotContains(response, 'data-autocomplete="metro"', html=False)
+        self.assertNotContains(response, 'class="filter-item filter-metro"', html=False)
+        self.assertNotContains(response, 'id="quick-menu-metro"', html=False)
+        self.assertNotContains(response, 'name="metro"', html=False)
 
     def test_owner_place_form_uses_current_language_labels_and_stable_codes(self):
         with override("en"):
@@ -1479,7 +1480,7 @@ class TestPublicFilterCounts(TestCase):
         self.assertTrue(any(item["value"] == "Пустое метро" and item.get("count") is None for item in response.context["metro_options"]))
         self.assertContains(response, 'option value="EMPTYCAT" selected', html=False)
         self.assertContains(response, 'name="district" value="пустой район"', html=False)
-        self.assertContains(response, 'name="metro" value="Пустое метро"', html=False)
+        self.assertNotContains(response, 'name="metro"', html=False)
 
     def test_public_filter_counts_are_localized_in_all_languages(self):
         az_response = self.client.get("/az/catalog/", follow=True)
@@ -2508,9 +2509,9 @@ class TestReviewEnhancements(TestCase):
         az_catalog = self.client.get("/az/catalog/", follow=True)
         self.assertEqual(az_catalog.status_code, 200)
         self.assertContains(az_catalog, "Dərnək seçin")
-        self.assertContains(az_catalog, "Kateqoriya, rayon, metro, yaş və büdcə bir yerdə.")
+        self.assertContains(az_catalog, "Kateqoriya, rayon, yaş və büdcə bir yerdə.")
         self.assertNotContains(az_catalog, "Подобрать кружок")
-        self.assertNotContains(az_catalog, "Категория, район, метро, возраст и бюджет в одном месте.")
+        self.assertNotContains(az_catalog, "Категория, район, возраст и бюджет в одном месте.")
 
         en_home = self.client.get("/en/", follow=True)
         self.assertEqual(en_home.status_code, 200)
