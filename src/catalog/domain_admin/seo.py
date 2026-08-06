@@ -18,9 +18,11 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
         "auto_fix_count",
         "started_at",
         "finished_at",
+        "view_report_button",
     )
     list_filter = ("audit_type", "status", "environment")
     readonly_fields = (
+        "formatted_report_html",
         "started_at",
         "finished_at",
         "audit_type",
@@ -111,6 +113,98 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
             obj.get_status_display(),
         )
     status_badge.short_description = _("Статус")
+
+    def view_report_button(self, obj):
+        from django.urls import reverse
+        url = reverse("admin:catalog_seoissue_changelist") + f"?audit_run__id__exact={obj.id}"
+        total_issues = obj.error_count + obj.warning_count
+        btn_color = "#2563eb" if total_issues > 0 else "#64748b"
+        return format_html(
+            '<a class="button" style="background-color: {}; color: #ffffff; padding: 5px 12px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;" href="{}">👁 Смотреть отчёт ({})</a>',
+            btn_color,
+            url,
+            total_issues,
+        )
+    view_report_button.short_description = _("Отчёт и проблемы")
+
+    def formatted_report_html(self, obj):
+        if not obj or not obj.pk:
+            return ""
+
+        from django.urls import reverse
+        issues_url = reverse("admin:catalog_seoissue_changelist") + f"?audit_run__id__exact={obj.id}"
+        issues_list = obj.issues.all()[:50]
+
+        issues_rows_html = ""
+        for issue in issues_list:
+            level_bg = "#22c55e" if issue.level == "A" else "#f97316" if issue.level == "B" else "#ef4444"
+            sev_bg = "#dc2626" if issue.severity == "critical" else "#f59e0b"
+            issues_rows_html += f"""
+            <tr style="border-bottom: 1px solid #f1f5f9;">
+                <td style="padding: 8px 10px;"><span style="background: {level_bg}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700;">Level {issue.level}</span></td>
+                <td style="padding: 8px 10px;"><span style="background: {sev_bg}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">{issue.get_severity_display()}</span></td>
+                <td style="padding: 8px 10px; font-family: monospace; font-size: 12px; font-weight: 600;">{issue.issue_code}</td>
+                <td style="padding: 8px 10px;"><a href="{issue.url}" target="_blank" style="color: #2563eb; text-decoration: underline;">{issue.url}</a></td>
+                <td style="padding: 8px 10px; font-size: 13px; color: #334155;">{issue.description}</td>
+            </tr>
+            """
+
+        if not issues_rows_html:
+            issues_rows_html = '<tr><td colspan="5" style="padding: 16px; text-align: center; color: #166534; font-weight: 600;">🎉 Ошибок не обнаружено! Все проверенные URL в идеальном порядке.</td></tr>'
+
+        return format_html(
+            f"""
+            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 16px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">📊 Отчёт аудита #{obj.id}</h3>
+                        <span style="font-size: 13px; color: #64748b;">Тип: {obj.get_audit_type_display()} | Статус: {obj.get_status_display()}</span>
+                    </div>
+                    <a href="{issues_url}" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px;">
+                        🔍 Открыть список проблем ({obj.error_count + obj.warning_count})
+                    </a>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+                    <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                        <div style="font-size: 12px; color: #64748b; font-weight: 600;">ПРОВЕРЕНО URL</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #0f172a;">{obj.total_urls}</div>
+                    </div>
+                    <div style="background: #fef2f2; padding: 12px; border-radius: 8px; border: 1px solid #fecaca; text-align: center;">
+                        <div style="font-size: 12px; color: #991b1b; font-weight: 600;">ОШИБОК</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #dc2626;">{obj.error_count}</div>
+                    </div>
+                    <div style="background: #fff7ed; padding: 12px; border-radius: 8px; border: 1px solid #fed7aa; text-align: center;">
+                        <div style="font-size: 12px; color: #9a3412; font-weight: 600;">ПРЕДУПРЕЖДЕНИЙ</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #d97706;">{obj.warning_count}</div>
+                    </div>
+                    <div style="background: #f0fdf4; padding: 12px; border-radius: 8px; border: 1px solid #bbf7d0; text-align: center;">
+                        <div style="font-size: 12px; color: #166534; font-weight: 600;">АВТОИСПРАВЛЕНИЙ</div>
+                        <div style="font-size: 22px; font-weight: 800; color: #16a34a;">{obj.auto_fix_count}</div>
+                    </div>
+                </div>
+
+                <h4 style="margin: 0 0 10px 0; font-size: 15px; font-weight: 700; color: #1e293b;">Выявленные замечания:</h4>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                        <thead>
+                            <tr style="background: #f1f5f9; color: #475569; font-weight: 700;">
+                                <th style="padding: 8px 10px;">Уровень</th>
+                                <th style="padding: 8px 10px;">Важность</th>
+                                <th style="padding: 8px 10px;">Код</th>
+                                <th style="padding: 8px 10px;">URL</th>
+                                <th style="padding: 8px 10px;">Описание</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {issues_rows_html}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            """
+        )
+    formatted_report_html.short_description = _("Наглядный отчёт аудита")
 
     def has_add_permission(self, request):
         return False
