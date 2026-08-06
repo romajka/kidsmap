@@ -14,6 +14,7 @@ from config.views import (
     redirect_legacy_default_language_prefix,
     robots_txt,
     serve_media_file,
+    sitemap_xsl,
 )
 
 sitemaps = {
@@ -28,6 +29,7 @@ urlpatterns = [
     path("favicon.ico", RedirectView.as_view(url="/static/img/logo.svg", permanent=False)),
     path("i18n/", include("django.conf.urls.i18n")),  # set_language endpoint
     path("sitemap.xml", public_sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
+    path("sitemap.xsl", sitemap_xsl, name="sitemap_xsl"),
     path("robots.txt", robots_txt, name="robots_txt"),
     path("healthz", healthz, name="healthz"),
     re_path(

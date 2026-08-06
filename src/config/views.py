@@ -10,14 +10,34 @@ from django.views.static import serve as serve_static_file
 from catalog.services.public_urls import build_public_absolute_uri, filtered_query_string_for_path
 
 
+from django.shortcuts import render
 from django.contrib.sitemaps.views import sitemap as django_sitemap
 
 
+def sitemap_xsl(request):
+    """Render sitemap.xsl stylesheet for browser rendering."""
+    return render(request, "sitemap.xsl", content_type="text/xml; charset=utf-8")
+
+
 def public_sitemap(request, sitemaps, **kwargs):
-    """Render sitemap.xml without X-Robots-Tag: noindex header required by GSC validator."""
+    """Render sitemap.xml with XSL stylesheet instruction and without X-Robots-Tag header."""
     response = django_sitemap(request, sitemaps=sitemaps, **kwargs)
     if "X-Robots-Tag" in response.headers:
         del response.headers["X-Robots-Tag"]
+
+    if hasattr(response, "render") and callable(response.render):
+        response.render()
+
+    if response.status_code == 200 and hasattr(response, "content") and isinstance(response.content, (bytes, bytearray)):
+        content = response.content.decode("utf-8")
+        if "<?xml-stylesheet" not in content:
+            content = content.replace(
+                '<?xml version="1.0" encoding="UTF-8"?>',
+                '<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>',
+            )
+            response.content = content.encode("utf-8")
+            response["Content-Length"] = len(response.content)
+
     return response
 
 
