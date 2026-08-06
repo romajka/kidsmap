@@ -20,7 +20,8 @@ def sitemap_xsl(request):
 
 
 def public_sitemap(request, sitemaps, **kwargs):
-    """Render sitemap.xml with XSL stylesheet instruction and without X-Robots-Tag header."""
+    """Render sitemap.xml with XSL stylesheet instruction, pretty linebreaks/indentation, and without X-Robots-Tag header."""
+    import xml.dom.minidom
     response = django_sitemap(request, sitemaps=sitemaps, **kwargs)
     if "X-Robots-Tag" in response.headers:
         del response.headers["X-Robots-Tag"]
@@ -30,13 +31,34 @@ def public_sitemap(request, sitemaps, **kwargs):
 
     if response.status_code == 200 and hasattr(response, "content") and isinstance(response.content, (bytes, bytearray)):
         content = response.content.decode("utf-8")
+        try:
+            dom = xml.dom.minidom.parseString(content)
+            pretty = dom.toprettyxml(indent="  ", encoding="utf-8").decode("utf-8")
+            content = "\n".join([line for line in pretty.splitlines() if line.strip()])
+            if '<?xml version="1.0" ?>' in content:
+                content = content.replace('<?xml version="1.0" ?>', '<?xml version="1.0" encoding="UTF-8"?>')
+        except Exception:
+            pass
+
         if "<?xml-stylesheet" not in content:
-            content = content.replace(
-                '<?xml version="1.0" encoding="UTF-8"?>',
-                '<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>',
-            )
-            response.content = content.encode("utf-8")
-            response["Content-Length"] = len(response.content)
+            if '<?xml version="1.0" encoding="utf-8"?>' in content:
+                content = content.replace(
+                    '<?xml version="1.0" encoding="utf-8"?>',
+                    '<?xml version="1.0" encoding="utf-8"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>',
+                )
+            elif '<?xml version="1.0" encoding="UTF-8"?>' in content:
+                content = content.replace(
+                    '<?xml version="1.0" encoding="UTF-8"?>',
+                    '<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>',
+                )
+            elif '<?xml version="1.0"?>' in content:
+                content = content.replace(
+                    '<?xml version="1.0"?>',
+                    '<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>',
+                )
+
+        response.content = content.encode("utf-8")
+        response["Content-Length"] = len(response.content)
 
     return response
 
