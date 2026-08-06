@@ -30,9 +30,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from django.test import Client
+        from catalog.services.public_urls import public_hostname
+
+        host = public_hostname() or "kidsmap.az"
+        if host not in settings.ALLOWED_HOSTS and "testserver" in settings.ALLOWED_HOSTS:
+            host = "testserver"
 
         client = Client()
-        response = client.get("/sitemap.xml")
+        response = client.get("/sitemap.xml", secure=True, HTTP_HOST=host)
+        if response.status_code == 301 and response.headers.get("Location"):
+            response = client.get(response.headers["Location"], secure=True, HTTP_HOST=host)
 
         content = response.content
         self.stdout.write(f"\n{'=' * 60}")
@@ -192,6 +199,11 @@ class Command(BaseCommand):
 
     def _check_live(self, locs):
         from django.test import Client
+        from catalog.services.public_urls import public_hostname
+
+        host = public_hostname() or "kidsmap.az"
+        if host not in settings.ALLOWED_HOSTS and "testserver" in settings.ALLOWED_HOSTS:
+            host = "testserver"
 
         self.stdout.write(f"\nLive URL check ({len(locs)} URLs)...")
         client = Client()
@@ -202,7 +214,7 @@ class Command(BaseCommand):
             parsed = urlparse(loc)
             path = parsed.path
             try:
-                response = client.get(path, follow=False)
+                response = client.get(path, secure=True, HTTP_HOST=host, follow=False)
                 status = response.status_code
                 if status != 200:
                     issues.append((loc, f"HTTP {status}"))
