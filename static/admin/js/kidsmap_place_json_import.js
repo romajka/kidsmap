@@ -35,6 +35,45 @@
     return true;
   }
 
+  function setDistrictSelect(value) {
+    if (value === undefined || value === null || value === "") return false;
+    var select = document.getElementById("id_district");
+    if (!select) return false;
+    var raw = normalize(value);
+    var clean = raw.replace(/^baku_/, "").replace(/район|rayonu|rayon/g, "").trim();
+
+    var districtAliasMap = {
+      "narimanov": "baku_narimanov", "нариманов": "baku_narimanov", "наримановский": "baku_narimanov", "nərimanov": "baku_narimanov",
+      "yasamal": "baku_yasamal", "ясамал": "baku_yasamal", "ясамальский": "baku_yasamal",
+      "khatai": "baku_khatai", "хатаи": "baku_khatai", "хатаинский": "baku_khatai", "xətai": "baku_khatai",
+      "binagadi": "baku_binagadi", "бинагади": "baku_binagadi", "бинагадинский": "baku_binagadi", "binəqədi": "baku_binagadi",
+      "nasimi": "baku_nasimi", "насими": "baku_nasimi", "насиминский": "baku_nasimi", "nəsimi": "baku_nasimi",
+      "nizami": "baku_nizami", "низами": "baku_nizami", "низаминский": "baku_nizami",
+      "sabail": "baku_sabail", "сабаил": "baku_sabail", "сабаильский": "baku_sabail", "səbail": "baku_sabail",
+      "sabunchu": "baku_sabunchu", "сабунчи": "baku_sabunchu", "сабунчинский": "baku_sabunchu", "sabunçu": "baku_sabunchu",
+      "surakhani": "baku_surakhani", "сураханы": "baku_surakhani", "сураханский": "baku_surakhani", "suraxanı": "baku_surakhani",
+      "khazar": "baku_khazar", "хазар": "baku_khazar", "хазарский": "baku_khazar", "xəzər": "baku_khazar",
+      "garadagh": "baku_garadagh", "гарадаг": "baku_garadagh", "карадаг": "baku_garadagh", "гарадагский": "baku_garadagh", "qaradağ": "baku_garadagh",
+      "pirallahi": "baku_pirallahi", "пираллахи": "baku_pirallahi", "пираллахинский": "baku_pirallahi", "pirallahı": "baku_pirallahi"
+    };
+
+    var targetKey = districtAliasMap[clean] || districtAliasMap[raw] || raw;
+
+    var option = Array.prototype.find.call(select.options, function (item) {
+      var val = normalize(item.value);
+      var txt = normalize(item.textContent);
+      return val === targetKey 
+        || val.replace(/^baku_/, "") === clean
+        || txt === targetKey
+        || txt === clean
+        || (clean.length >= 4 && txt.indexOf(clean) !== -1);
+    });
+    if (!option) return false;
+    select.value = option.value;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  }
+
   function setStructuredSchedule(value) {
     if (value === undefined || value === null || value === "") return false;
     var days = value;
@@ -362,7 +401,7 @@
       if (setStructuredSchedule(first(data, ["schedule_days", "structured_schedule", "расписание_по_дням"]))) filled += 1;
 
       if (setSelectByValueOrLabel("region", first(data, ["region", "город", "регион"]))) filled += 1;
-      if (setSelectByValueOrLabel("district", first(data, ["district", "район"]))) filled += 1;
+      if (setDistrictSelect(first(data, ["district", "район"])) || setSelectByValueOrLabel("district", first(data, ["district", "район"]))) filled += 1;
       if (setSelectByValueOrLabel("lesson_format", first(data, ["lesson_format", "формат_занятий"]))) filled += 1;
 
       var adultClasses = first(data, ["offers_adult_classes", "занятия_для_взрослых"]);

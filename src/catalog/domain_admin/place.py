@@ -238,10 +238,13 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 ("description_az", _("Описание (AZ)")),
                 ("age_from", _("Возраст от")),
                 ("age_to", _("Возраст до")),
+                ("region", _("Город / регион")),
                 ("address", _("Адрес")),
                 ("phone1", _("Телефон")),
                 ("photo", _("Главное фото")),
             ]
+            if cleaned.get("region") == "baku":
+                checklist.append(("district", _("Район Баку")))
             if cleaned.get("age_open_ended"):
                 checklist = [item for item in checklist if item[0] != "age_to"]
             missing = []
@@ -2116,16 +2119,24 @@ class PlaceAdmin(admin.ModelAdmin):
         }
 
     def _build_place_form_summary(self, *, form, obj=None, add=False):
-        checklist = (
+        region_val = form.data.get(form.add_prefix("region")) if form.is_bound else form.initial.get("region", getattr(obj, "region", ""))
+        is_baku = (region_val or "").strip() == "baku"
+
+        checklist = [
             ("name", _("Название")),
             ("category", _("Категория")),
             ("description_az", _("Описание (AZ)")),
             ("age_from", _("Возраст от")),
             ("age_to", _("Возраст до")),
+            ("region", _("Регион / Город")),
+        ]
+        if is_baku:
+            checklist.append(("district", _("Район Баку")))
+        checklist.extend([
             ("address", _("Адрес")),
             ("phone1", _("Телефон")),
             ("photo", _("Главное фото")),
-        )
+        ])
 
         completed = 0
         missing = []
