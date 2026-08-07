@@ -44,15 +44,18 @@ class RelationalPricingPlanTests(TestCase):
         self.assertEqual(self.place.price_per_month, Decimal("120"))
         self.assertEqual(self.place.price_per_8_lessons, Decimal("90"))
 
-    def test_addons_and_limited_free_do_not_create_zero_headline(self):
+    def test_free_event_with_on_request_main_tuition_does_not_show_free(self):
         replace_place_pricing_plans(self.place, [
-            {"product_type": "lesson", "price_kind": "free", "audience_type": "child", "age_to": 6},
-            {"product_type": "lesson", "price_kind": "exact", "price": 40},
-            {"product_type": "deposit", "charge_role": "deposit", "price_kind": "exact", "price": 5},
+            {"product_type": "membership", "price_kind": "on_request", "title_az": "Aylıq təhsil"},
+            {"product_type": "event", "price_kind": "free", "title_az": "Uşaqlar üçün açıq tədbir"},
         ])
-        summary = build_public_price_summary(self.place, "ru")
-        self.assertEqual(summary["kind"], "mixed")
-        self.assertEqual(summary["label"], "Есть бесплатные и платные варианты")
+        summary_az = build_public_price_summary(self.place, "az")
+        self.assertEqual(summary_az["kind"], "on_request")
+        self.assertEqual(summary_az["label"], "Qiymət dəqiqləşdirilir")
+
+        summary_ru = build_public_price_summary(self.place, "ru")
+        self.assertEqual(summary_ru["kind"], "on_request")
+        self.assertEqual(summary_ru["label"], "Цена уточняется")
 
     def test_on_request_disables_legacy_fallback(self):
         Place.objects.filter(pk=self.place.pk).update(price_from=30, price_to=50)

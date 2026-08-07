@@ -476,12 +476,11 @@ def build_public_price_summary(place, language="ru"):
     records = [plan for plan in active_primary if plan.currency == "AZN"]
     if records:
         free = [plan for plan in records if plan.price_kind == "free"]
+        on_request = [plan for plan in records if plan.price_kind == "on_request"]
         paid = [(plan, _plan_bounds(plan)) for plan in records if plan.price_kind not in {"free", "on_request"}]
         paid = [(plan, bounds) for plan, bounds in paid if bounds and bounds[0] > 0]
-        if free and not paid:
+        if free and not paid and not on_request:
             return {"kind": "free", "min_price": Decimal("0"), "max_price": Decimal("0"), "currency": "AZN", "label": labels["free"], "source": "pricing_plans"}
-        if free and paid:
-            return {"kind": "mixed", "min_price": min(x[1][0] for x in paid), "max_price": max(x[1][1] for x in paid), "currency": "AZN", "label": labels["mixed"], "source": "pricing_plans"}
         if paid:
             minimum = min(item[1][0] for item in paid)
             maximum = max(item[1][1] for item in paid)
