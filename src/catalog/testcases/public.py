@@ -518,6 +518,12 @@ class TestPublicPagesSmoke(TestCase):
                     "https://kidsmap.az/ru/catalog/?category=SPRT&page=2",
                 )
 
+    def test_legacy_azerbaijani_reviews_url_redirects_to_canonical_reviews_page(self):
+        response = self.client.get("/az/reviews/?sort=likes", follow=False)
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], "/reviews/?sort=likes")
+
     @override_settings(
         PUBLIC_BASE_URL="https://kidsmap.az",
         ALLOWED_HOSTS=["admin.kidsmap.az", "kidsmap.az", "testserver"],

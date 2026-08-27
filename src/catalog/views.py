@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.db.models import Q
 from django.db.utils import OperationalError, ProgrammingError
-from django.http import JsonResponse
+from django.http import HttpResponseGone, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -274,7 +274,12 @@ def place_new(request):
 
 
 def events_landing(request):
-    require_events_section_enabled()
+    # Events are retired rather than temporarily unavailable. A 410 removes
+    # obsolete /events/ URLs from search indexes faster than a soft 404.
+    from .services.features import is_events_section_enabled
+
+    if not is_events_section_enabled():
+        return HttpResponseGone()
     context = place_controller.build_events_landing_context(request)
     return render(request, "catalog/events_landing.html", context)
 
@@ -1013,7 +1018,10 @@ def owner_event_delete(request, pk):
 
 
 def event_detail(request, pk, slug):
-    require_events_section_enabled()
+    from .services.features import is_events_section_enabled
+
+    if not is_events_section_enabled():
+        return HttpResponseGone()
     event = get_object_or_404(
         Event.objects.select_related("related_place").prefetch_related("gallery"),
         pk=pk,

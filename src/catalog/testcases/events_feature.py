@@ -35,7 +35,7 @@ class TestEventsFeatureFlag(TestCase):
             reverse("events_landing"),
             self.event.get_absolute_url(),
         ):
-            self.assertEqual(self.client.get(url).status_code, 404)
+            self.assertEqual(self.client.get(url).status_code, 410)
 
         home = self.client.get(reverse("home"))
         self.assertEqual(home.status_code, 200)
