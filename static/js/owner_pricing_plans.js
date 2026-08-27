@@ -432,6 +432,18 @@
   // JSON import and other form helpers update the hidden field after this
   // editor has already loaded. Rehydrate the editor instead of letting its
   // stale in-memory copy overwrite the imported tariffs on the next action.
+  const presetButtons = editor.querySelectorAll("[data-badge-preset-az], [data-badge-preset]");
+  presetButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const azInput = document.getElementById("id_custom_price_badge_az");
+      const ruInput = document.getElementById("id_custom_price_badge_ru");
+      const enInput = document.getElementById("id_custom_price_badge_en");
+      if (azInput) azInput.value = button.dataset.badgePresetAz || "";
+      if (ruInput) ruInput.value = button.dataset.badgePresetRu || "";
+      if (enInput) enInput.value = button.dataset.badgePresetEn || "";
+    });
+  });
+
   input.addEventListener("input", () => {
     plans = parsePlans(input.value);
     render();

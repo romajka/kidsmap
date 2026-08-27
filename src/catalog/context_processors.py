@@ -169,6 +169,9 @@ def seo_urls(request):
         "bing_site_verification": (
             getattr(settings, "BING_SITE_VERIFICATION", "") or ""
         ).strip(),
+        "google_maps_map_id": (
+            getattr(settings, "GOOGLE_MAPS_MAP_ID", "") or ""
+        ).strip(),
     }
 
 

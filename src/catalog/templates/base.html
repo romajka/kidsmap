@@ -36,13 +36,6 @@
     {% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
     <link rel="icon" type="image/svg+xml" href="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />
     <link rel="apple-touch-icon" href="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />
-    <link
-      rel="preload"
-      href="{% static 'fonts/chiron/ChironGoRoundTC-PublicSubset.woff2' %}"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
     {% if google_analytics_enabled %}
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_measurement_id|urlencode }}"></script>
       <script>
@@ -52,7 +45,7 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
-    <link rel="stylesheet" href="{% static 'css/site.css' %}?v=hero_bg" />
+    <link rel="stylesheet" href="{% static 'css/site.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     <style>
       /* ── KidsMap Card Overrides ── */
@@ -518,10 +511,21 @@
           document.querySelectorAll("img[data-photo-fallback]").forEach(function (img) {
             const text = img.getAttribute("data-placeholder-text") || "{% trans 'Фото скоро будет.' %}";
             const applyFallback = function () {
+              const fallbackSrc = img.getAttribute("data-fallback-src");
+              if (fallbackSrc && img.getAttribute("data-fallback-applied") !== "1") {
+                img.setAttribute("data-fallback-applied", "1");
+                img.src = fallbackSrc;
+                return;
+              }
+
               const container = img.closest(".card-media");
               if (!container || container.querySelector(".image-placeholder")) return;
+              const mediaLink = img.closest(".card-media-link");
+              container.querySelectorAll(".card-media-blur-bg").forEach(function (background) {
+                background.remove();
+              });
               img.remove();
-              container.appendChild(buildImagePlaceholder(text));
+              (mediaLink || container).appendChild(buildImagePlaceholder(text));
             };
 
             img.addEventListener("error", applyFallback);

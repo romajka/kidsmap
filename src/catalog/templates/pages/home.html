@@ -2047,7 +2047,9 @@
 <script src="{% static 'js/home_hero_slider.js' %}"></script>
 {% endif %}
 {% if map_places %}
+<script src="{% static 'js/google_maps_markers.js' %}"></script>
 <script src="{% static 'js/home_map.js' %}" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+  data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"
   data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="

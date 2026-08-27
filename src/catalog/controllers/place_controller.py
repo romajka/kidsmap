@@ -725,7 +725,7 @@ class PlaceController:
                     "category_icon_is_font": cat_icon_is_font,
                     "category_icon_name": cat_icon_name,
                     "category_icon_svg": place.category.icon_svg_source if place.category else "",
-                    "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
+                    "image_url": place.public_image_url,
                     "price": str(place.card_price_badge),
                     "location": " / ".join(location_parts),
                     "address": ", ".join(part for part in address_parts if part),

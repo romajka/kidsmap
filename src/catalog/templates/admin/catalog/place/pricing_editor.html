@@ -19,6 +19,41 @@
     </div>
   </div>
 
+  <div class="km-price-badge-override-panel" style="margin-bottom: 20px; padding: 16px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+      <strong style="font-size: 14px; color: #111827; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-tag" style="color: #10B981;"></i>
+        {% translate "Плашка цены на карточке места" %}
+      </strong>
+      <span style="font-size: 12px; color: #6B7280;">{% translate "По умолчанию вычисляется автоматически" %}</span>
+    </div>
+
+    <div class="km-price-badge-presets" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+      <span style="font-size: 12px; color: #374151; align-self: center; margin-right: 4px;">{% translate "Быстрый выбор:" %}</span>
+      <button type="button" class="button button-small" data-badge-preset="" style="font-size: 11px; padding: 3px 8px;">🔄 {% translate "Автоматически по тарифам" %}</button>
+      <button type="button" class="button button-small" data-badge-preset-az="Pulsuz" data-badge-preset-ru="Бесплатно" data-badge-preset-en="Free" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "Pulsuz / Бесплатно" %}</button>
+      <button type="button" class="button button-small" data-badge-preset-az="Qiymət dəqiqləşdirilir" data-badge-preset-ru="Цена уточняется" data-badge-preset-en="Price on request" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "Qiymət dəqiqləşdirilir" %}</button>
+      <button type="button" class="button button-small" data-badge-preset-az="İlk dərs pulsuzdur" data-badge-preset-ru="Первый урок бесплатно" data-badge-preset-en="First lesson free" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "İlk dərs pulsuzdur" %}</button>
+      <button type="button" class="button button-small" data-badge-preset-az="Ödənişsiz sınaq dərsi var" data-badge-preset-ru="Есть бесплатный пробный урок" data-badge-preset-en="Free trial lesson available" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "Sınaq dərsi var" %}</button>
+      <button type="button" class="button button-small" data-badge-preset-az="Abunəyə endirim var" data-badge-preset-ru="Скидка на абонемент" data-badge-preset-en="Discount on membership" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "Endirim var" %}</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+      <div>
+        <label for="id_custom_price_badge_az" style="font-size: 12px; font-weight: 600; color: #4B5563; display: block; margin-bottom: 4px;">{% translate "Текст плашки (AZ)" %}</label>
+        <input type="text" name="custom_price_badge_az" id="id_custom_price_badge_az" value="{{ adminform.form.custom_price_badge_az.value|default:'' }}" class="vTextField" style="width: 100%; border-radius: 6px;" placeholder="напр. Pulsuz или 120 ₼-dən" />
+      </div>
+      <div>
+        <label for="id_custom_price_badge_ru" style="font-size: 12px; font-weight: 600; color: #4B5563; display: block; margin-bottom: 4px;">{% translate "Текст плашки (RU)" %}</label>
+        <input type="text" name="custom_price_badge_ru" id="id_custom_price_badge_ru" value="{{ adminform.form.custom_price_badge_ru.value|default:'' }}" class="vTextField" style="width: 100%; border-radius: 6px;" placeholder="напр. От 120 ₼ или Бесплатно" />
+      </div>
+      <div>
+        <label for="id_custom_price_badge_en" style="font-size: 12px; font-weight: 600; color: #4B5563; display: block; margin-bottom: 4px;">{% translate "Текст плашки (EN)" %}</label>
+        <input type="text" name="custom_price_badge_en" id="id_custom_price_badge_en" value="{{ adminform.form.custom_price_badge_en.value|default:'' }}" class="vTextField" style="width: 100%; border-radius: 6px;" placeholder="e.g. From 120 ₼ or Free" />
+      </div>
+    </div>
+  </div>
+
   <div class="km-pricing-editor__list" data-tariff-list></div>
   <button type="button" class="button km-pricing-editor__add" data-tariff-add>+ {% translate "Добавить тариф" %}</button>
   {% if adminform.form.pricing_plans.errors %}<ul class="errorlist">{{ adminform.form.pricing_plans.errors }}</ul>{% endif %}

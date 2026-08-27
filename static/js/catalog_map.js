@@ -400,6 +400,7 @@
       emptyMessage: panel.dataset.emptyMessage || "",
       fallbackMessage: panel.dataset.fallbackMessage || "",
       loadingMessage: panel.dataset.loadingMessage || "",
+      mapId: (panel.dataset.googleMapId || "").trim(),
       initialized: false,
       bound: false,
       googleMap: null,
@@ -590,7 +591,7 @@
       return;
     }
 
-    state.googleMap = new google.maps.Map(state.mapEl, {
+    const mapOptions = {
       center: { lat: state.places[0].lat, lng: state.places[0].lng },
       zoom: state.places.length === 1 ? 15 : 11,
       mapTypeControl: false,
@@ -598,7 +599,9 @@
       fullscreenControl: false,
       gestureHandling: "cooperative",
       clickableIcons: false,
-    });
+    };
+    if (state.mapId) mapOptions.mapId = state.mapId;
+    state.googleMap = new google.maps.Map(state.mapEl, mapOptions);
 
     state.bounds = new google.maps.LatLngBounds();
     ensureMapChrome(state);
@@ -633,10 +636,11 @@
         jitterLng = radius * Math.sin(angle) * 1.5;
       }
       const position = { lat: place.lat + jitterLat, lng: place.lng + jitterLng };
-      const marker = new google.maps.Marker({
+      const marker = window.kidsMapCreateGoogleMarker({
         position: position,
         title: place.name || "",
         icon: buildMarkerIcon(place),
+        mapId: state.mapId,
       });
 
       if (place.url) {
@@ -684,14 +688,15 @@
             const count = cluster.count;
             const position = cluster.position;
             const svg = buildGoogleClusterSvg(count);
-            return new google.maps.Marker({
+            return window.kidsMapCreateGoogleMarker({
               position: position,
               icon: {
                 url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
                 scaledSize: new google.maps.Size(54, 54),
                 anchor: new google.maps.Point(27, 27),
               },
-              zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+              zIndex: 1000000 + count,
+              mapId: state.mapId,
             });
           }
         },

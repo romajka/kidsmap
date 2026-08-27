@@ -9,6 +9,7 @@
 
     return {
       googleMapsApiKey: (scriptEl.dataset.homeMapGoogleKey || "").trim(),
+      googleMapsMapId: (scriptEl.dataset.homeMapGoogleMapId || "").trim(),
       unavailableLabel: (scriptEl.dataset.homeMapUnavailableLabel || "Map is temporarily unavailable.").trim(),
     };
   })();
@@ -622,14 +623,16 @@
 
     mapEl.dataset.mapInitialized = "1";
 
-    const map = new google.maps.Map(mapEl, {
+    const mapOptions = {
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false,
       gestureHandling: "cooperative",
-    });
+    };
+    if (SCRIPT_CONFIG.googleMapsMapId) mapOptions.mapId = SCRIPT_CONFIG.googleMapsMapId;
+    const map = new google.maps.Map(mapEl, mapOptions);
     const infoWindow = new google.maps.InfoWindow();
 
     // ── Interaction tracking ────────────────────────────────────────────────
@@ -671,14 +674,15 @@
             const count = cluster.count;
             const position = cluster.position;
             const svg = buildGoogleClusterSvg(count);
-            return new google.maps.Marker({
+            return window.kidsMapCreateGoogleMarker({
               position: position,
               icon: {
                 url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
                 scaledSize: new google.maps.Size(54, 54),
                 anchor: new google.maps.Point(27, 27),
               },
-              zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+              zIndex: 1000000 + count,
+              mapId: SCRIPT_CONFIG.googleMapsMapId,
             });
           }
         },
@@ -716,10 +720,11 @@
       }
 
       const position = { lat: place.lat + jitterLat, lng: place.lng + jitterLng };
-      const marker = new google.maps.Marker({
+      const marker = window.kidsMapCreateGoogleMarker({
         position: position,
         title: place.name || "",
         icon: buildGoogleMarkerIcon(place),
+        mapId: SCRIPT_CONFIG.googleMapsMapId,
       });
 
       marker.addListener("click", function () {
@@ -1141,7 +1146,7 @@
       const src =
         "https://maps.googleapis.com/maps/api/js?key=" +
         encodeURIComponent(SCRIPT_CONFIG.googleMapsApiKey) +
-        "&callback=kidsMapHomeMapGoogleLoaded";
+        "&loading=async&libraries=marker&callback=kidsMapHomeMapGoogleLoaded";
 
       return loadScript(src);
     }

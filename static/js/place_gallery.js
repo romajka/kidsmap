@@ -32,7 +32,7 @@
       }
     }
 
-    const mainSwiper = new window.Swiper(mainEl, {
+    const swiperOptions = {
       slidesPerView: 1,
       spaceBetween: 0,
       speed: 320,
@@ -49,13 +49,6 @@
       watchOverflow: true,
       allowTouchMove: true,
       autoHeight: false,
-      navigation:
-        prevEl && nextEl
-          ? {
-              prevEl: prevEl,
-              nextEl: nextEl,
-            }
-          : undefined,
       on: {
         init: function (swiper) {
           updateCounter(swiper, currentEl);
@@ -66,7 +59,16 @@
           syncThumbs(swiper.realIndex);
         },
       },
-    });
+    };
+
+    if (prevEl && nextEl) {
+      swiperOptions.navigation = {
+        prevEl: prevEl,
+        nextEl: nextEl,
+      };
+    }
+
+    const mainSwiper = new window.Swiper(mainEl, swiperOptions);
 
     thumbButtons.forEach(function (thumb, idx) {
       thumb.addEventListener("click", function () {

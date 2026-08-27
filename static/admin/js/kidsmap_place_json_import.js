@@ -392,6 +392,9 @@
         additional_info_az: ["additional_info_az"],
         additional_info_ru: ["additional_info_ru"],
         additional_info_en: ["additional_info_en"],
+        custom_price_badge_az: ["custom_price_badge_az", "плашка_цены_az", "надпись_цены_az"],
+        custom_price_badge_ru: ["custom_price_badge_ru", "custom_price_badge", "плашка_цены", "надпись_цены"],
+        custom_price_badge_en: ["custom_price_badge_en", "плашка_цены_en"],
         pricing_plans: ["pricing_plans", "tariffs"]
       };
       Object.keys(fields).forEach(function (fieldName) {

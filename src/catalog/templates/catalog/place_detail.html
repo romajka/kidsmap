@@ -13,8 +13,8 @@
   <script type="application/ld+json">{{ place_schema_json|safe }}</script>
 {% endblock %}
 {% block extra_head %}
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=3" />
+  <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -45,6 +45,8 @@
                             <img
                               class="place-gallery__backdrop"
                               src="{{ file.url }}"
+                              data-photo-fallback="1"
+                              data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}"
                               alt=""
                               aria-hidden="true"
                               draggable="false"
@@ -53,6 +55,8 @@
                             <img
                               class="place-gallery__image"
                               src="{{ file.url }}"
+                              data-photo-fallback="1"
+                              data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}"
                               alt="{{ place.name_i18n }}"
                               draggable="false"
                               decoding="async"
@@ -93,7 +97,7 @@
                             data-index="{{ forloop.counter0 }}"
                             aria-label="{% blocktrans with number=forloop.counter %}Открыть фото {{ number }}{% endblocktrans %}"
                           >
-                            <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" draggable="false" />
+                            <img src="{{ file.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" draggable="false" data-photo-fallback="1" data-fallback-src="{% static 'img/banners/listing-placeholder.webp' %}" />
                           </button>
                         {% endfor %}
                       </div>
@@ -364,6 +368,7 @@
             data-category-code="{{ place.category_code|default:'ALL' }}"
             data-place-name="{{ place.name_i18n }}"
             data-map-open-url="{{ map_open_url }}"
+            data-google-map-id="{{ google_maps_map_id|default:''|escape }}"
           ></div>
           <div style="display: none;" id="detail-map-icon-svg">
             {% include "catalog/includes/category_icon.html" with code=place.category_code|default:'ALL' %}
@@ -873,10 +878,11 @@
   </script>
 {% endblock %}
 {% block extra_body %}
-  <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+  <script src="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.js' %}"></script>
   <script src="{% static 'js/place_gallery.js' %}"></script>
   <script src="{% static 'js/temporary_event_timer.js' %}"></script>
   {% if google_maps_api_key %}
+    <script src="{% static 'js/google_maps_markers.js' %}"></script>
     <script>
       function kidsMapInitDetailMap() {
         const mapEl = document.getElementById('detail-map');
@@ -892,7 +898,8 @@
         const mapOpenUrl = mapEl.getAttribute('data-map-open-url') || '';
         const position = { lat: lat, lng: lng };
 
-        const map = new google.maps.Map(mapEl, {
+        const mapId = (mapEl.getAttribute('data-google-map-id') || '').trim();
+        const mapOptions = {
           center: position,
           zoom: 15,
           mapTypeControl: false,
@@ -900,7 +907,9 @@
           fullscreenControl: false,
           gestureHandling: "cooperative",
           clickableIcons: false,
-        });
+        };
+        if (mapId) mapOptions.mapId = mapId;
+        const map = new google.maps.Map(mapEl, mapOptions);
 
         const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="38" height="48" viewBox="0 0 38 48" fill="none">' +
           '<path d="M19 47C13.5 39 3 31 3 18C3 8.5 10 1 19 1C28 1 35 8.5 35 18C35 31 24.5 39 19 47Z" fill="' + colorText + '" stroke="white" stroke-width="2.2"/>' +
@@ -908,11 +917,12 @@
           '<circle cx="19" cy="18" r="5" fill="' + colorText + '" />' +
           '</svg>';
 
-        const marker = new google.maps.Marker({
+        const marker = window.kidsMapCreateGoogleMarker({
           position: position,
           map: map,
           title: placeName,
           cursor: mapOpenUrl ? 'pointer' : 'default',
+          mapId: mapId,
           icon: {
             url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
             scaledSize: new google.maps.Size(38, 48),
@@ -927,7 +937,7 @@
         }
       }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitDetailMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitDetailMap" async></script>
   {% else %}
     <script>
       (function() {

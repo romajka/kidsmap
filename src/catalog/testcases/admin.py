@@ -163,6 +163,62 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertContains(response, "data-duplicate-candidates-url", html=False)
         self.assertContains(response, "kidsmap_place_duplicates.js", html=False)
 
+    def test_place_admin_form_exposes_and_saves_custom_price_badges(self):
+        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        form_class = response.context["adminform"].form.__class__
+        badge_fields = {
+            "custom_price_badge_az",
+            "custom_price_badge_ru",
+            "custom_price_badge_en",
+        }
+        self.assertTrue(badge_fields.issubset(form_class.base_fields))
+        self.assertContains(response, 'name="custom_price_badge_az"', count=1, html=False)
+        self.assertContains(response, 'name="custom_price_badge_ru"', count=1, html=False)
+        self.assertContains(response, 'name="custom_price_badge_en"', count=1, html=False)
+
+        form = form_class(
+            data={
+                "_save_draft": "1",
+                "name_az": self.place.name_az,
+                "category": "EDU",
+                "pricing_plans": "[]",
+                "custom_price_badge_az": "İlk dərs pulsuzdur",
+                "custom_price_badge_ru": "Первый урок бесплатно",
+                "custom_price_badge_en": "First lesson free",
+            },
+            instance=self.place,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.custom_price_badge_az, "İlk dərs pulsuzdur")
+        self.assertEqual(self.place.custom_price_badge_ru, "Первый урок бесплатно")
+        self.assertEqual(self.place.custom_price_badge_en, "First lesson free")
+
+    def test_place_json_export_includes_custom_price_badges(self):
+        self.place.custom_price_badge_az = "Pulsuz"
+        self.place.custom_price_badge_ru = "Бесплатно"
+        self.place.custom_price_badge_en = "Free"
+        self.place.save(
+            update_fields=[
+                "custom_price_badge_az",
+                "custom_price_badge_ru",
+                "custom_price_badge_en",
+            ]
+        )
+
+        response = self.client.get(
+            reverse("admin:catalog_place_export_json", args=[self.place.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = json.loads(response.content)
+        self.assertEqual(payload["custom_price_badge_az"], "Pulsuz")
+        self.assertEqual(payload["custom_price_badge_ru"], "Бесплатно")
+        self.assertEqual(payload["custom_price_badge_en"], "Free")
+
     def test_place_management_controls_are_compact_and_not_duplicated(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.pk]))
 

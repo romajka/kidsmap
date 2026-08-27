@@ -1265,6 +1265,19 @@ class TestCatalogContentSettingsWiring(TestCase):
         self.assertEqual(len(files), 1)
         self.assertIn("cover-photo", files[0].name)
 
+    def test_place_public_media_ignores_missing_storage_files(self):
+        place = Place.objects.create(
+            name="Missing Media Place",
+            name_ru="Место без файла",
+            category="EDU",
+            photo="places/missing-public-image.jpg",
+        )
+
+        self.assertEqual(place.gallery_files(), [])
+        self.assertIsNone(place.public_image_file)
+        self.assertEqual(place.public_image_url, "")
+        self.assertFalse(place.has_public_image)
+
     def test_catalog_filter_values_are_sorted_alphabetically(self):
         settings_obj = CatalogContentSettings.get_solo()
         settings_obj.districts_json = ["Забрат", "Ахмедлы", "Бинагади"]

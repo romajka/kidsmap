@@ -76,7 +76,7 @@ class HomeController:
                 "metro_label": place.metro_i18n(language_code) if place.metro else "",
                 "age_from": place.age_from,
                 "age_to": place.age_to,
-                "image_url": place.photo.url if place.photo else (place.cover_photo.url if place.cover_photo else ""),
+                "image_url": place.public_image_url,
                 "price": str(place.card_price_badge),
                 "phone": place.phone1 or "",
                 "address": place.address_i18n(language_code) or "",

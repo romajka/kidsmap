@@ -467,6 +467,14 @@ def build_public_price_summary(place, language="ru"):
     }.get(lang, None)
     if labels is None:
         lang, labels = "ru", {"free": "Бесплатно", "mixed": "Есть бесплатные и платные варианты", "from": "От {value} ₼", "unknown": "Цена уточняется"}
+    custom = (
+        getattr(place, f"custom_price_badge_{lang}", "")
+        or getattr(place, "custom_price_badge_ru", "")
+        or getattr(place, "custom_price_badge_az", "")
+    )
+    custom = (custom or "").strip()
+    if custom:
+        return {"kind": "custom", "min_price": None, "max_price": None, "currency": "AZN", "label": custom, "source": "custom_override"}
     active_primary = []
     if getattr(place, "pk", None):
         active_primary = [
@@ -481,6 +489,10 @@ def build_public_price_summary(place, language="ru"):
         paid = [(plan, bounds) for plan, bounds in paid if bounds and bounds[0] > 0]
         if free and not paid and not on_request:
             return {"kind": "free", "min_price": Decimal("0"), "max_price": Decimal("0"), "currency": "AZN", "label": labels["free"], "source": "pricing_plans"}
+        if free and paid:
+            minimum = min(item[1][0] for item in paid)
+            maximum = max(item[1][1] for item in paid)
+            return {"kind": "mixed", "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": labels["mixed"], "source": "pricing_plans"}
         if paid:
             minimum = min(item[1][0] for item in paid)
             maximum = max(item[1][1] for item in paid)

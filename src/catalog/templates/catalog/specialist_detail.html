@@ -343,7 +343,7 @@
           </div>
 
           {% if has_coords %}
-            <div id="specialist-map" class="km-detail-map-container"></div>
+            <div id="specialist-map" class="km-detail-map-container" data-google-map-id="{{ google_maps_map_id|default:''|escape }}"></div>
           {% endif %}
         </div>
       {% else %}
@@ -465,6 +465,7 @@
 </script>
 
 {% if has_coords %}
+<script src="{% static 'js/google_maps_markers.js' %}"></script>
 <script>
   function initSpecialistMap() {
     const mapElement = document.getElementById("specialist-map");
@@ -485,17 +486,20 @@
       if (locations.length > 0 && window.google && window.google.maps) {
         mapElement.dataset.mapInitialized = '1';
         const first = locations[0];
-        const map = new google.maps.Map(mapElement, {
+        const mapId = (mapElement.dataset.googleMapId || '').trim();
+        const mapOptions = {
           center: { lat: first.lat, lng: first.lng },
           zoom: 14,
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: false,
           gestureHandling: 'cooperative'
-        });
+        };
+        if (mapId) mapOptions.mapId = mapId;
+        const map = new google.maps.Map(mapElement, mapOptions);
         const bounds = new google.maps.LatLngBounds();
         locations.forEach(function(loc) {
-          const marker = new google.maps.Marker({ position: { lat: loc.lat, lng: loc.lng }, map: map, title: loc.placeName });
+          const marker = window.kidsMapCreateGoogleMarker({ position: { lat: loc.lat, lng: loc.lng }, map: map, title: loc.placeName, mapId: mapId });
           const infoWindow = new google.maps.InfoWindow({ content: "<b>" + loc.placeName + "</b><br/>" + loc.address });
           marker.addListener('click', function() { infoWindow.open({ map: map, anchor: marker }); });
           bounds.extend(marker.getPosition());
@@ -513,7 +517,7 @@
   document.addEventListener("DOMContentLoaded", initSpecialistMap);
 </script>
 {% if google_maps_api_key %}
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitSpecialistMap"></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitSpecialistMap"></script>
 {% endif %}
 {% endif %}
 {% endblock %}

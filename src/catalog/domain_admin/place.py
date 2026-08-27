@@ -119,6 +119,12 @@ class PlaceChangeAuditInline(admin.TabularInline):
 class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     DATETIME_LOCAL_FORMAT = ADMIN_DATETIME_LOCAL_FORMAT
     name = forms.CharField(required=False, widget=forms.HiddenInput())
+    # These controls are rendered inside pricing_editor.html rather than by a
+    # regular admin fieldset. Declare them explicitly so ModelAdmin.get_form()
+    # does not drop them when it restricts the form to fieldset fields.
+    custom_price_badge_az = forms.CharField(required=False, max_length=120)
+    custom_price_badge_ru = forms.CharField(required=False, max_length=120)
+    custom_price_badge_en = forms.CharField(required=False, max_length=120)
     pricing_plans = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={"data-tariff-input": ""}),
@@ -351,6 +357,20 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             if field_name in self.fields and hasattr(self.fields[field_name].widget, "attrs"):
                 self.fields[field_name].widget.attrs.setdefault("placeholder", str(placeholder))
         self._init_schedule_editor()
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        for field_name in (
+            "custom_price_badge_az",
+            "custom_price_badge_ru",
+            "custom_price_badge_en",
+        ):
+            if field_name in self.cleaned_data:
+                setattr(instance, field_name, self.cleaned_data[field_name])
+        if commit:
+            instance.save()
+            self._save_m2m()
+        return instance
 
     def clean_phone1(self):
         value = self.cleaned_data.get("phone1") or ""
@@ -3169,6 +3189,9 @@ class PlaceAdmin(admin.ModelAdmin):
             "age_from": obj.age_from, "age_to": obj.age_to, "address": obj.address,
             "district": obj.district, "metro": obj.metro, "phone1": obj.phone1,
             "instagram": obj.instagram, "website": obj.website,
+            "custom_price_badge_az": obj.custom_price_badge_az,
+            "custom_price_badge_ru": obj.custom_price_badge_ru,
+            "custom_price_badge_en": obj.custom_price_badge_en,
             "pricing_plans": serialize_pricing_plans(obj.pricing_plan_records.all()),
         }
         response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2, default=str), content_type="application/json")

@@ -128,6 +128,9 @@ class Place(models.Model):
     additional_info_az = models.TextField(_("Дополнительная информация (AZ)"), blank=True, default="")
     additional_info_ru = models.TextField(_("Дополнительная информация (RU)"), blank=True, default="")
     additional_info_en = models.TextField(_("Дополнительная информация (EN)"), blank=True, default="")
+    custom_price_badge_az = models.CharField(_("Надпись цены на карточке (AZ)"), max_length=120, blank=True, default="")
+    custom_price_badge_ru = models.CharField(_("Надпись цены на карточке (RU)"), max_length=120, blank=True, default="")
+    custom_price_badge_en = models.CharField(_("Надпись цены на карточке (EN)"), max_length=120, blank=True, default="")
     likes_count = models.PositiveIntegerField(_("Лайки"), default=0)
     rating_avg = models.FloatField(_("Средний рейтинг"), default=0)
     rating_count = models.PositiveIntegerField(_("Количество отзывов"), default=0)
@@ -240,7 +243,7 @@ class Place(models.Model):
         seen = set()
 
         def add_file(file_field):
-            if file_field and getattr(file_field, "name", ""):
+            if self._public_file_exists(file_field):
                 name = file_field.name
                 if name not in seen:
                     seen.add(name)
@@ -252,6 +255,38 @@ class Place(models.Model):
         for item in self.gallery.order_by("order", "id"):
             add_file(item.image)
         return files
+
+    def _public_file_exists(self, file_field) -> bool:
+        name = getattr(file_field, "name", "") if file_field else ""
+        if not name:
+            return False
+        cache = getattr(self, "_public_file_exists_cache", None)
+        if cache is None:
+            cache = {}
+            self._public_file_exists_cache = cache
+        if name not in cache:
+            try:
+                cache[name] = bool(file_field.storage.exists(name))
+            except (OSError, ValueError):
+                cache[name] = False
+        return cache[name]
+
+    @property
+    def public_image_file(self):
+        if self._public_file_exists(self.photo):
+            return self.photo
+        if self._public_file_exists(self.cover_photo):
+            return self.cover_photo
+        return None
+
+    @property
+    def public_image_url(self) -> str:
+        image = self.public_image_file
+        return image.url if image else ""
+
+    @property
+    def has_public_image(self) -> bool:
+        return self.public_image_file is not None
 
     @property
     def age_display(self) -> str:

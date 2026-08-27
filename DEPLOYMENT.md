@@ -5,7 +5,7 @@
 cd /home/ramin/kidsmap
 source .venv/bin/activate
 ./scripts/migrate.sh
-GOOGLE_MAPS_API_KEY="YOUR_KEY" python manage.py runserver 0.0.0.0:8000
+GOOGLE_MAPS_API_KEY="YOUR_KEY" GOOGLE_MAPS_MAP_ID="YOUR_MAP_ID" python manage.py runserver 0.0.0.0:8000
 ```
 
 ## Local (Windows PowerShell)
@@ -14,6 +14,7 @@ cd C:\path\to\kidsmap
 .venv\Scripts\activate
 python manage.py migrate
 $env:GOOGLE_MAPS_API_KEY="YOUR_KEY"
+$env:GOOGLE_MAPS_MAP_ID="YOUR_MAP_ID"
 python manage.py runserver 0.0.0.0:8000
 ```
 
@@ -252,7 +253,7 @@ docker compose run --rm web ./scripts/migrate.sh
 ```
 
 ## Production release checklist
-1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `SERVE_MEDIA_FILES=1`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`, `GOOGLE_ANALYTICS_PROPERTY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, `INDEXNOW_KEY`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`, `MEDIA_CACHE_MAX_AGE`.
+1. Set env vars: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `SERVE_MEDIA_FILES=1`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_MAP_ID`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`, `GOOGLE_ANALYTICS_PROPERTY_ID`, `GOOGLE_APPLICATION_CREDENTIALS`, `INDEXNOW_KEY`, `DB_*`, `EMAIL_*`, `DEFAULT_FROM_EMAIL`, `MEDIA_CACHE_MAX_AGE`.
 2. Avoid editing tracked files on server (`docker-compose.yml`, `src/config/settings.py`); keep server-specific values in `.env`.
 3. Ensure server can access GitHub via SSH (`./scripts/setup-github-ssh.sh` + `ssh -T git@github.com`).
 4. Install/update nginx config from `deploy/nginx/kidsmap.az.conf`.

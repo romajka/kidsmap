@@ -31,12 +31,12 @@
         {% if not is_new_page %}
           <source
             media="(max-width: 760px)"
-            srcset="{% static 'img/banners/catalog-hero-mobile.webp' %}?v=family-map-mobile-20260519"
+            srcset="{% static 'img/banners/catalog-hero-mobile.webp' %}"
           >
         {% endif %}
         <img
           class="catalog-hero-image"
-          src="{% static 'img/banners/catalog-hero.webp' %}?v=family-map-20260519"
+          src="{% static 'img/banners/catalog-hero.webp' %}"
           width="1600"
           height="500"
           alt=""
@@ -574,6 +574,7 @@
         class="panel catalog-map-panel"
         data-catalog-map-panel
         data-map-provider="{% if google_maps_api_key %}google{% else %}fallback{% endif %}"
+        data-google-map-id="{{ google_maps_map_id|default:''|escape }}"
         data-details-label="{% if language == 'az' %}Ətraflı{% elif language == 'en' %}Details{% else %}Подробнее{% endif %}"
         data-route-label="{% if language == 'az' %}Marşrut{% elif language == 'en' %}Route{% else %}Маршрут{% endif %}"
         data-call-label="{% if language == 'az' %}Zəng et{% elif language == 'en' %}Call{% else %}Позвонить{% endif %}"
@@ -659,10 +660,8 @@
           {% for place in timeline_places %}
             <article class="card">
               <div class="card-media">
-                {% if place.photo %}
-                  <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
-                {% elif place.cover_photo %}
-                  <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
+                {% if place.public_image_file %}
+                  <img src="{{ place.public_image_url }}" alt="{{ place.name_i18n }}" loading="lazy" decoding="async" data-photo-fallback="1" data-placeholder-text="{% trans 'Фото скоро будет.' %}" />
                 {% else %}
                   <img class="listing-placeholder-image" src="{% static 'img/banners/listing-placeholder.webp' %}" alt="{% trans 'Фото скоро будет.' %}" loading="lazy" decoding="async" />
                 {% endif %}
@@ -680,7 +679,7 @@
                 </div>
                 <div class="card-trust-badges" aria-label="{% if language == 'az' %}Məkan üstünlükləri{% elif language == 'en' %}Place highlights{% else %}Преимущества места{% endif %}">
                   {% if place.is_verified %}<span class="card-trust-icon card-trust-icon--verified" title="{% if language == 'az' %}Yoxlanılıb{% elif language == 'en' %}Verified{% else %}Проверено{% endif %}" aria-label="{% if language == 'az' %}Yoxlanılıb{% elif language == 'en' %}Verified{% else %}Проверено{% endif %}"></span>{% endif %}
-                  {% if place.photo or place.cover_photo %}<span class="card-trust-icon card-trust-icon--photo" title="{% if language == 'az' %}Foto var{% elif language == 'en' %}Has photos{% else %}Есть фото{% endif %}" aria-label="{% if language == 'az' %}Foto var{% elif language == 'en' %}Has photos{% else %}Есть фото{% endif %}"></span>{% endif %}
+                  {% if place.has_public_image %}<span class="card-trust-icon card-trust-icon--photo" title="{% if language == 'az' %}Foto var{% elif language == 'en' %}Has photos{% else %}Есть фото{% endif %}" aria-label="{% if language == 'az' %}Foto var{% elif language == 'en' %}Has photos{% else %}Есть фото{% endif %}"></span>{% endif %}
                   {% if place.phone1 %}<span class="card-trust-icon card-trust-icon--whatsapp" title="WhatsApp" aria-label="WhatsApp"></span>{% endif %}
                   {% if place.has_coordinates %}<span class="card-trust-icon card-trust-icon--map" title="{% if language == 'az' %}Xəritədə{% elif language == 'en' %}On map{% else %}На карте{% endif %}" aria-label="{% if language == 'az' %}Xəritədə{% elif language == 'en' %}On map{% else %}На карте{% endif %}"></span>{% endif %}
                 </div>
@@ -870,12 +869,12 @@
   </section>
 
   {% if not is_new_page %}
+    <script src="{% static 'js/google_maps_markers.js' %}"></script>
     <script src="{% static 'js/catalog_map.js' %}"></script>
     {% if google_maps_api_key %}
       <script
-        src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&callback=kidsMapInitCatalogResultsMap"
+        src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitCatalogResultsMap"
         async
-        defer
       ></script>
     {% endif %}
   {% endif %}
