@@ -2966,6 +2966,10 @@ class TestAdminSidebarStructure(TestCase):
         self.assertContains(response, "Рабочая очередь модерации")
         self.assertContains(response, "Места на проверке")
         self.assertContains(response, "Pending place")
+        self.assertContains(response, "Добавлено")
+        pending_place = Place.objects.get(name="Pending place")
+        self.assertContains(response, timezone.localtime(pending_place.created_at).strftime("%d.%m.%Y"))
+        self.assertContains(response, timezone.localtime(pending_place.created_at).strftime("%H:%M"))
         self.assertNotContains(response, "Visible place")
         self.assertContains(response, "Одобрить и опубликовать")
         self.assertContains(response, "Вернуть на доработку")
@@ -2982,6 +2986,47 @@ class TestAdminSidebarStructure(TestCase):
 
         response = self.client.get(moderation_review_url)
         self.assertContains(response, "Нет отзывов, ожидающих проверки")
+
+    def test_place_moderation_shows_whether_creator_used_admin_or_site(self):
+        site_user = User.objects.create_user("site_creator", "site_creator@example.com", "pass")
+        admin_place = Place.objects.create(
+            name="Created in admin",
+            category="EDU",
+            is_active=False,
+            status=Place.STATUS_PENDING,
+            created_by=self.admin,
+        )
+        site_place = Place.objects.create(
+            name="Created on site",
+            category="EDU",
+            is_active=False,
+            status=Place.STATUS_PENDING,
+            owner=site_user,
+            created_by=site_user,
+        )
+        PlaceChangeAudit.objects.create(
+            place=admin_place,
+            changed_by=self.admin,
+            source=PlaceChangeAudit.SOURCE_ADMIN,
+            field_name="created",
+            old_value="",
+            new_value="1",
+        )
+        PlaceChangeAudit.objects.create(
+            place=site_place,
+            changed_by=site_user,
+            source=PlaceChangeAudit.SOURCE_OWNER_PANEL,
+            field_name="created",
+            old_value="",
+            new_value="1",
+        )
+
+        response = self.client.get(reverse("admin:catalog_moderation_moderationplace_changelist"))
+
+        self.assertContains(response, "admin")
+        self.assertContains(response, "Сотрудник через админку")
+        self.assertContains(response, "site_creator")
+        self.assertContains(response, "Пользователь через сайт")
 
     def test_hidden_public_sections_remain_available_in_admin(self):
         site_settings = SiteSettings.get_solo()

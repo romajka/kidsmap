@@ -21,6 +21,7 @@ from catalog.repositories.django_repositories import (
     DjangoUserProfileRepository,
 )
 from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
+from catalog.services.content_quality import QualityCheck, place_quality_check
 from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
 from catalog.services.pricing_plans import pricing_audit_summary
 from catalog.services.owner_place_use_cases import (
@@ -87,6 +88,48 @@ class OwnerPlacesController:
     @staticmethod
     def _draft_fallback_category() -> Category | None:
         return Category.objects.order_by("order", "name", "code").first()
+
+    @staticmethod
+    def _quality_issue_labels(quality: QualityCheck) -> list[str]:
+        labels = {
+            "missing_name": _("название"),
+            "missing_category": _("категория"),
+            "description_too_short": _("описание не менее 120 символов"),
+            "test_content": _("корректные данные без тестового текста"),
+            "missing_contact": _("телефон, сайт или Instagram"),
+            "missing_address": _("адрес"),
+            "missing_age": _("возраст"),
+            "missing_price": _("цена"),
+            "missing_schedule": _("расписание"),
+            "missing_photo": _("главное фото или фото в галерее"),
+        }
+        return [str(labels.get(code, code)) for code in quality.errors]
+
+    @classmethod
+    def _quality_error_message(cls, quality: QualityCheck) -> str:
+        return _("Перед отправкой на проверку заполните: %(fields)s.") % {
+            "fields": ", ".join(cls._quality_issue_labels(quality)),
+        }
+
+    @classmethod
+    def _add_quality_errors_to_form(cls, form, quality: QualityCheck) -> None:
+        fields = {
+            "missing_name": "name_az",
+            "missing_category": "category",
+            "description_too_short": "description_az",
+            "missing_contact": "phone1",
+            "missing_address": "address",
+            "missing_age": "age_from",
+            "missing_price": "price_from",
+            "missing_schedule": "schedule",
+            "missing_photo": "photo",
+        }
+        for code in quality.errors:
+            field_name = fields.get(code)
+            form.add_error(
+                field_name if field_name in form.fields else None,
+                cls._quality_error_message(QualityCheck(score=0, errors=(code,))),
+            )
 
     @staticmethod
     def _coordinates_changed(*, previous_values: dict[str, object], place: Place) -> bool:
@@ -380,6 +423,16 @@ class OwnerPlacesController:
             )
 
         place = result.form.save(commit=False)
+        if not draft_save_only:
+            quality = place_quality_check(place)
+            if not quality.is_ready:
+                self._add_quality_errors_to_form(result.form, quality)
+                return OwnerPlaceActionResult(
+                    ok=False,
+                    message=self._quality_error_message(quality),
+                    form=result.form,
+                    profile=result.profile,
+                )
         manual_coordinates_selected = self._has_manual_coordinates(place)
         place.owner = request.user
         place.created_by = request.user
@@ -721,6 +774,16 @@ class OwnerPlacesController:
                 profile=access.profile,
             )
 
+        if is_active:
+            quality = place_quality_check(place)
+            if not quality.is_ready:
+                return OwnerPlaceActionResult(
+                    ok=False,
+                    message=self._quality_error_message(quality),
+                    place=place,
+                    profile=access.profile,
+                )
+
         previous_active = place.is_active
         previous_status = place.status
         place.is_active = bool(is_active)
@@ -767,6 +830,15 @@ class OwnerPlacesController:
             return OwnerPlaceActionResult(
                 ok=False,
                 message=_("Эта карточка уже отправлена на модерацию."),
+                place=place,
+                profile=access.profile,
+            )
+
+        quality = place_quality_check(place)
+        if not quality.is_ready:
+            return OwnerPlaceActionResult(
+                ok=False,
+                message=self._quality_error_message(quality),
                 place=place,
                 profile=access.profile,
             )

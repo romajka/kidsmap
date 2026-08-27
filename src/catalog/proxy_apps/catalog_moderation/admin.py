@@ -88,6 +88,11 @@ class ModerationPlaceAdmin(PendingModerationAdminMixin, PlaceAdmin):
     moderation_empty_description = _("Новые места появятся здесь после отправки на модерацию.")
     moderation_actions = ("mark_published", "mark_rejected", "return_for_revision")
 
+    def get_list_display(self, request):
+        columns = list(super().get_list_display(request))
+        columns.insert(columns.index("engagement_summary"), "created_summary")
+        return tuple(columns)
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.filter(

@@ -2517,6 +2517,17 @@ class PlaceAdmin(admin.ModelAdmin):
             return audits[0] if audits else None
         return obj.change_audits.select_related("changed_by").order_by("-created_at").first()
 
+    def _creation_place_audit(self, obj):
+        audits = getattr(obj, "km_prefetched_change_audits", None)
+        if audits is not None:
+            return next((audit for audit in reversed(audits) if audit.field_name == "created"), None)
+        return (
+            obj.change_audits.select_related("changed_by")
+            .filter(field_name="created")
+            .order_by("created_at", "pk")
+            .first()
+        )
+
     def _first_ownership_request(self, obj):
         requests = getattr(obj, "km_prefetched_ownership_requests", None)
         if requests is not None:
@@ -2619,20 +2630,37 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Добавил"))
     def owner_display(self, obj):
-        if obj.created_by_id:
+        creation_audit = self._creation_place_audit(obj)
+        creator = creation_audit.changed_by if creation_audit and creation_audit.changed_by_id else obj.created_by
+        creator_label = self._user_label(creator)
+
+        if creation_audit and creation_audit.source == PlaceChangeAudit.SOURCE_ADMIN:
+            source_label = _("Сотрудник через админку")
+        elif creation_audit and creation_audit.source == PlaceChangeAudit.SOURCE_OWNER_PANEL:
+            source_label = _("Пользователь через сайт")
+        elif creation_audit and creation_audit.source == PlaceChangeAudit.SOURCE_SYSTEM:
+            source_label = _("Система")
+        elif creator:
+            source_label = _("Сотрудник через админку") if creator.is_staff else _("Пользователь через сайт")
+        else:
+            source_label = _("Источник не определён")
+
+        if creator_label:
             return format_html(
                 '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span></div>',
-                self._user_label(obj.created_by),
-                _("сотрудник"),
+                creator_label,
+                source_label,
             )
-        audit = self._latest_place_audit(obj)
-        if audit and audit.changed_by_id:
-            return format_html(
-                '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span></div>',
-                self._user_label(audit.changed_by),
-                audit.get_source_display(),
-            )
-        return format_html('<span class="km-admin-meta">{}</span>', _("Не указан"))
+        return format_html('<span class="km-admin-meta">{}</span>', source_label)
+
+    @admin.display(description=_("Добавлено"), ordering="created_at")
+    def created_summary(self, obj):
+        created_at = timezone.localtime(obj.created_at)
+        return format_html(
+            '<div class="km-admin-stack"><span class="km-admin-title">{}</span><span class="km-admin-meta">{}</span></div>',
+            created_at.strftime("%d.%m.%Y"),
+            created_at.strftime("%H:%M"),
+        )
 
     @admin.display(description=_("Статистика"))
     def engagement_summary(self, obj):
@@ -3074,7 +3102,8 @@ class PlaceAdmin(admin.ModelAdmin):
             obj.save(update_fields=["status", "is_active", "updated_at"])
             self.message_user(
                 request,
-                _("Карточка сохранена, но не опубликована: сначала заполните обязательные поля и фото."),
+                _("Карточка сохранена, но не опубликована: %(reasons)s.")
+                % {"reasons": place_quality_error_labels(quality.errors)},
                 level=messages.WARNING,
             )
             return HttpResponseRedirect(self._place_change_url(obj))
@@ -3379,7 +3408,8 @@ class PlaceAdmin(admin.ModelAdmin):
             if not quality.is_ready:
                 self.message_user(
                     request,
-                    _("Карточка не опубликована: сначала заполните обязательные поля и фото."),
+                    _("Карточка не опубликована: %(reasons)s.")
+                    % {"reasons": place_quality_error_labels(quality.errors)},
                     messages.WARNING,
                 )
             else:

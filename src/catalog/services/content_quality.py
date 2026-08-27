@@ -193,7 +193,7 @@ def place_quality_check(place) -> QualityCheck:
     else:
         errors.append("missing_age")
 
-    if any(
+    has_legacy_price = any(
         value is not None
         for value in (
             place.price_from,
@@ -202,7 +202,12 @@ def place_quality_check(place) -> QualityCheck:
             place.price_per_month,
             place.price_per_8_lessons,
         )
-    ):
+    )
+    has_pricing_plan = any(
+        isinstance(plan, dict) and plan.get("price") not in (None, "")
+        for plan in (getattr(place, "pricing_plans", None) or [])
+    )
+    if has_legacy_price or has_pricing_plan:
         score += 10
     else:
         errors.append("missing_price")
@@ -212,7 +217,8 @@ def place_quality_check(place) -> QualityCheck:
     else:
         errors.append("missing_schedule")
 
-    if place.photo or place.cover_photo or place.gallery.exists():
+    has_gallery_photo = bool(getattr(place, "pk", None) and place.gallery.exists())
+    if place.photo or place.cover_photo or has_gallery_photo:
         score += 5
     else:
         errors.append("missing_photo")

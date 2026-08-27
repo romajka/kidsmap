@@ -718,6 +718,14 @@
 }
 
 .km-custom-changelist .place-admin-dashboard__table-wrap {
+  /*
+   * The table may need a horizontal scrollbar on narrow screens.  It must
+   * never become a vertically clipped viewport though: otherwise the last
+   * rows and the paginator are unreachable with the page scroll.
+   */
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0;
   overflow-x: auto;
   border: 0;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
@@ -725,7 +733,17 @@
 
 .km-custom-changelist .place-admin-dashboard__table-wrap .results {
   margin: 0;
+  height: auto !important;
+  max-height: none !important;
   overflow: visible;
+}
+
+/* On desktop the table fits the workspace, so keep vertical scrolling on the
+ * document itself instead of creating a nested scroll area in the list. */
+@media (min-width: 1140px) {
+  .km-custom-changelist .place-admin-dashboard__table-wrap {
+    overflow: visible;
+  }
 }
 
 .km-custom-changelist .place-admin-dashboard #result_list,

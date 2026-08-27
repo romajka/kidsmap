@@ -340,9 +340,11 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
     def test_owner_can_resubmit_published_place_for_moderation(self):
-        self.manager_place.status = Place.STATUS_PUBLISHED
-        self.manager_place.is_active = True
-        self.manager_place.save(update_fields=["status", "is_active", "updated_at"])
+        self.manager_place = create_quality_place(
+            owner=self.manager_user,
+            name="Manager Place",
+            name_ru="Кружок менеджера",
+        )
         PlaceOwnershipRequest.objects.create(
             place=self.manager_place,
             applicant=self.manager_user,
@@ -782,6 +784,13 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(self.editor_place.is_active)
 
     def test_owner_manager_can_publish_draft(self):
+        self.manager_place = create_quality_place(
+            owner=self.manager_user,
+            name="Manager Place",
+            name_ru="Кружок менеджера",
+            is_active=False,
+            status=Place.STATUS_DRAFT,
+        )
         PlaceOwnershipRequest.objects.create(
             place=self.manager_place,
             applicant=self.manager_user,
@@ -979,7 +988,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "name_az": "Yeni owner karti",
                 "name_en": "",
                 "description_ru": "Описание новой карточки",
-                "description_az": "Yeni owner kartinin tesviri",
+                "description_az": (
+                    "Yeni owner karti ushaqlar ucun robototexnika dersleri, praktiki meshgeler, "
+                    "muntezem cedvel ve valideynlerle aciq elaqe imkani teqdim edir."
+                ),
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Робототехника",
@@ -987,6 +999,15 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
+                "pricing_plans": json.dumps([
+                    {
+                        "lesson_format": "group",
+                        "payment_type": "per_month",
+                        "price": "100",
+                        "currency": "AZN",
+                        "is_active": True,
+                    }
+                ]),
                 "district": "Yasamal",
                 "metro": "İnşaatçılar",
                 "address": "Улица 1",
@@ -1575,7 +1596,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "49.900000")
         geocode_mock.assert_not_called()
 
-    def test_owner_editor_can_submit_draft_for_moderation(self):
+    def test_owner_cannot_submit_incomplete_draft_for_moderation(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
 
         first_response = self.client.post(
@@ -1583,20 +1604,12 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             follow=True,
         )
         self.assertEqual(first_response.status_code, 200)
+        self.assertContains(first_response, "Перед отправкой на проверку заполните")
+        self.editor_place.refresh_from_db()
+        self.assertNotEqual(self.editor_place.status, Place.STATUS_PENDING)
         self.assertEqual(
             PlaceOwnershipRequest.objects.filter(place=self.editor_place, applicant=self.editor_user).count(),
-            1,
-        )
-
-        second_response = self.client.post(
-            reverse("owner_place_submit_review", args=[self.editor_place.id]),
-            follow=True,
-        )
-        self.assertEqual(second_response.status_code, 200)
-        self.assertContains(second_response, "уже отправлена")
-        self.assertEqual(
-            PlaceOwnershipRequest.objects.filter(place=self.editor_place, applicant=self.editor_user).count(),
-            1,
+            0,
         )
 
     def test_regular_user_can_open_places_dashboard(self):
