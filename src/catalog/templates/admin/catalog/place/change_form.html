@@ -7,12 +7,12 @@
   {# <link rel="stylesheet" href="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.css"> #}
   {# <script src="https://unpkg.com/filepond@4.32.12/dist/filepond.min.js" defer></script> #}
   {# <script src="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.min.js" defer></script> #}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=35">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=36">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_location.css' %}?v=2">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=22">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_pricing.css' %}?v=2">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=27" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=28" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=8" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=22" defer></script>
@@ -197,28 +197,27 @@
         {% endif %}
 
         {% if errors or km_place_form_errors %}
-          <div class="km-place-form-alert km-place-form-alert--danger" role="alert" tabindex="-1">
+          <div id="km-place-error-summary" class="km-place-form-alert km-place-form-alert--danger km-place-form-alert--errors" role="alert" tabindex="-1" data-place-error-summary>
             <div class="km-place-form-alert__icon" aria-hidden="true">!</div>
             <div class="km-place-form-alert__content">
               <div class="km-place-form-alert__heading">
                 {% if km_place_draft_save_failed %}
-                  {% translate "Черновик не сохранён. Изменения не сохранены" %}
+                  {% translate "Карточка не сохранена: нужно исправить ошибки" %}
                 {% else %}
-                  {% translate "Изменения не сохранены" %}
+                  {% translate "Карточка не сохранена: нужно исправить ошибки" %}
                 {% endif %}
               </div>
               <p class="km-place-form-alert__description">
-                {% if km_place_draft_save_failed %}
-                  {% translate "Исправьте ошибку и сохраните черновик ещё раз: выбранные фото не загружаются, пока форма содержит ошибку." %}
-                {% else %}
-                  {% translate "Исправьте указанные пункты и нажмите «Сохранить и продолжить» ещё раз." %}
-                {% endif %}
+                {% translate "Остальные текстовые поля и выбранные значения сохранены в форме. Нажмите на проблему — откроется нужное поле." %}
               </p>
+              {% if km_place_file_reselect_note %}
+                <p class="km-place-form-alert__file-note"><strong>{% translate "Важно:" %}</strong> {% translate "новые файлы браузер не может вернуть после ошибки. Выберите их ещё раз перед сохранением." %}</p>
+              {% endif %}
               {% if km_place_form_errors %}
                 <ul class="km-place-form-error-list">
                   {% for error in km_place_form_errors %}
                     <li>
-                      <a href="{{ error.target }}">
+                      <a href="{{ error.target }}" data-place-error-link{% if error.section %} data-place-error-section="{{ error.section }}"{% endif %}>
                         <strong>{{ error.label }}:</strong> {{ error.message }}
                         <span class="km-place-form-error-list__action">{% translate "Исправить" %} →</span>
                       </a>

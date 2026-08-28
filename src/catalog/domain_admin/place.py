@@ -1797,6 +1797,8 @@ class PlaceAdmin(admin.ModelAdmin):
                 adminform.form,
                 inline_admin_formsets=inline_admin_formsets,
             )
+            context["km_place_error_preservation_note"] = bool(context["km_place_form_errors"])
+            context["km_place_file_reselect_note"] = bool(request.FILES and context["km_place_form_errors"])
             context["km_place_taxonomy_picker"] = self._build_taxonomy_picker_config(adminform.form)
             context["km_place_map_alert"] = self._build_place_map_alert(
                 form=adminform.form,
@@ -1849,13 +1851,12 @@ class PlaceAdmin(admin.ModelAdmin):
         for weekday, messages_for_day in getattr(form, "schedule_editor_errors", {}).items():
             day_label = FULL_DAY_LABELS.get(weekday, weekday)
             for message in messages_for_day:
-                errors.append(
-                    {
-                        "label": str(_("Расписание: %(day)s") % {"day": day_label}),
-                        "message": str(message),
-                        "target": f"#admin-place-schedule-row-{weekday}",
-                    }
-                )
+                errors.append({
+                    "label": str(_("Расписание: %(day)s") % {"day": day_label}),
+                    "message": str(message),
+                    "target": f"#admin-place-schedule-row-{weekday}",
+                    "section": "#pricing",
+                })
 
         for field_name, messages_for_field in form.errors.items():
             if field_name == "structured_schedule" and getattr(form, "schedule_editor_errors", None):
@@ -1864,12 +1865,16 @@ class PlaceAdmin(admin.ModelAdmin):
             if field_name == "__all__":
                 label = str(_("Карточка"))
                 target = "#verification"
+                section = "#verification"
             else:
                 field = form.fields.get(field_name)
                 label = str(field.label) if field is not None else field_name
-                target = section_by_field.get(field_name, f"#id_{field_name}")
+                section = section_by_field.get(field_name, "")
+                target = f"#id_{field_name}" if field_name in form.fields else (section or "#verification")
+                if field_name in {"pricing_plans", "structured_schedule"}:
+                    target = section or target
             for message in messages_for_field:
-                errors.append({"label": label, "message": str(message), "target": target})
+                errors.append({"label": label, "message": str(message), "target": target, "section": section})
 
         # Django puts inline-form errors (for example, gallery photos) into the
         # top-level ``errors`` object, not into the main form. Surface them here
@@ -1879,13 +1884,13 @@ class PlaceAdmin(admin.ModelAdmin):
             inline_label = str(inline_admin_formset.opts.verbose_name)
             target = "#media" if inline_admin_formset.opts.model.__name__ == "PlacePhoto" else "#verification"
             for message in formset.non_form_errors():
-                errors.append({"label": inline_label, "message": str(message), "target": target})
+                errors.append({"label": inline_label, "message": str(message), "target": target, "section": target})
             for inline_form in formset.forms:
                 for field_name, messages_for_field in inline_form.errors.items():
                     field = inline_form.fields.get(field_name)
                     label = str(field.label) if field is not None else inline_label
                     for message in messages_for_field:
-                        errors.append({"label": label, "message": str(message), "target": target})
+                        errors.append({"label": label, "message": str(message), "target": target, "section": target})
 
         return errors
 

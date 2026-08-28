@@ -67,3 +67,16 @@ class PlaceCardValidationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Отчёт качества карточек")
         self.assertContains(response, self.place.name)
+
+    def test_admin_error_summary_keeps_card_unchanged_after_failed_save(self):
+        user = get_user_model().objects.create_superuser("form-admin", "form@example.com", "password")
+        self.client.force_login(user)
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.pk]),
+            {"_continue": "1"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Карточка не сохранена: нужно исправить ошибки")
+        self.assertContains(response, "data-place-error-link", html=False)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.name, "Mərkəz")

@@ -8,6 +8,45 @@
   }
 
   ready(function () {
+    var summary = document.querySelector("[data-place-error-summary]");
+    if (!summary) {
+      return;
+    }
+
+    window.setTimeout(function () {
+      summary.classList.add("is-ready");
+      summary.focus({ preventScroll: true });
+    }, 30);
+
+    summary.querySelectorAll("[data-place-error-link]").forEach(function (link) {
+      link.addEventListener("click", function (event) {
+        event.preventDefault();
+        var sectionSelector = link.getAttribute("data-place-error-section");
+        var section = sectionSelector ? document.querySelector(sectionSelector) : null;
+        if (section && section.matches("[data-place-accordion-section]")) {
+          var toggle = section.querySelector("[data-place-section-toggle]");
+          if (toggle && section.classList.contains("is-collapsed")) {
+            toggle.click();
+          }
+        }
+        var target = document.querySelector(link.getAttribute("href"));
+        if (!target && section) {
+          target = section.querySelector("input:not([type='hidden']), select, textarea");
+        }
+        if (!target) {
+          return;
+        }
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(function () {
+          if (typeof target.focus === "function") target.focus({ preventScroll: true });
+          target.setAttribute("data-place-error-pulse", "");
+          window.setTimeout(function () { target.removeAttribute("data-place-error-pulse"); }, 1200);
+        }, 260);
+      });
+    });
+  });
+
+  ready(function () {
     var management = document.querySelector("[data-place-management]");
     if (!management) {
       return;
