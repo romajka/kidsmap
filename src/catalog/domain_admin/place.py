@@ -4309,7 +4309,10 @@ class PlaceReviewsByClubAdmin(admin.ModelAdmin):
         # catalog quality gate out of this list.
         queryset = public_place_queryset(super().get_queryset(request))
         queryset = queryset.annotate(
-            visible_review_count=Count("reviews", filter=public_review_filter("reviews__")),
+            # public_place_queryset() joins structured schedule rows. Count
+            # review primary keys distinctly so one review is not multiplied by
+            # the number of schedule days (for example, 1 review × 7 days).
+            visible_review_count=Count("reviews", filter=public_review_filter("reviews__"), distinct=True),
             visible_rating_avg=Avg("reviews__rating", filter=public_review_filter("reviews__")),
         )
         return queryset.order_by("-visible_review_count", "-visible_rating_avg", "-updated_at")

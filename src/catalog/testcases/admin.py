@@ -2829,6 +2829,8 @@ class TestPlaceRatingsAdmin(TestCase):
             rating=1,
             text="test review that must never affect the rating",
         )
+        for weekday in ("mon", "tue", "wed", "thu", "fri", "sat", "sun"):
+            PlaceScheduleDay.objects.create(place=visible, weekday=weekday)
         deleted = create_quality_place(name="Deleted rating place", name_ru="Удалённое рейтинговое место")
         deleted.soft_delete(deleted_by=self.admin_user)
         legacy = Place.objects.create(
