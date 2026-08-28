@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main" class="km-place-form-page">
+  <h1>{% translate "Проверка качества карточки" %}</h1>
+  <p><strong>{{ original }}</strong></p>
+
+  {% if result.is_valid %}
+    <div class="messagelist"><div class="success">{% translate "Критических ошибок нет. Карточку можно отметить как проверенную." %}</div></div>
+  {% else %}
+    <div class="messagelist"><div class="error">{% translate "Карточку нельзя отметить как проверенную, пока не исправлены ошибки." %}</div></div>
+    <h2>{% translate "Ошибки" %}</h2>
+    <ul>
+      {% for issue in result.errors %}
+        <li><a href="{{ change_url }}#id_{{ issue.field }}"><strong>{{ issue.code }}</strong>: {{ issue.message }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if result.warnings %}
+    <h2>{% translate "Предупреждения" %}</h2>
+    <ul>
+      {% for issue in result.warnings %}
+        <li><a href="{{ change_url }}#id_{{ issue.field }}"><strong>{{ issue.code }}</strong>: {{ issue.message }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p><a class="button" href="{{ change_url }}">{% translate "Вернуться к карточке" %}</a></p>
+</div>
+{% endblock %}

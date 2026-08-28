@@ -43,6 +43,9 @@
           {% translate "К местам" %}
         </a>
       {% elif has_add_permission %}
+        <a href="{% url cl.opts|admin_urlname:'quality_report' %}" class="place-admin-dashboard__add-link place-admin-dashboard__add-link--secondary">
+          {% translate "Отчёт качества" %}
+        </a>
         {% url cl.opts|admin_urlname:'add' as add_url %}
         <a href="{% add_preserved_filters add_url %}" class="place-admin-dashboard__add-link">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>

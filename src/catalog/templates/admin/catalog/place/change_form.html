@@ -733,6 +733,11 @@
                   <button type="submit" name="_save_draft" class="km-btn--sidebar km-btn--draft">
                     <i class="fas fa-file-alt"></i> {% translate 'Сохранить черновик' %}
                   </button>
+                  {% if original %}
+                    <button type="submit" formmethod="post" formaction="{% url opts|admin_urlname:'quality_check' original.pk %}" class="km-btn--sidebar km-btn--info">
+                      <i class="fas fa-clipboard-check"></i> {% translate 'Проверить карточку' %}
+                    </button>
+                  {% endif %}
                 </div>
 
                 <!-- Группа 3: Служебные действия -->

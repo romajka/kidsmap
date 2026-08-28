@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div id="content-main" class="km-place-form-page">
+  <p><a href="{{ changelist_url }}">← {% translate "К списку мест" %}</a></p>
+  <h1>{% translate "Отчёт качества карточек" %}</h1>
+  <p>{% translate "Отчёт только показывает проблемы и ничего не меняет." %}</p>
+
+  <table>
+    <thead><tr><th>{% translate "Проверено" %}</th><th>{% translate "Без проблем" %}</th><th>{% translate "Предупреждения" %}</th><th>{% translate "Критические ошибки" %}</th></tr></thead>
+    <tbody><tr><td>{{ summary.checked }}</td><td>{{ summary.clean }}</td><td>{{ summary.warnings }}</td><td>{{ summary.errors }}</td></tr></tbody>
+  </table>
+
+  {% if rows %}
+    <h2>{% translate "Карточки с проблемами" %}</h2>
+    <table>
+      <thead><tr><th>{% translate "Карточка" %}</th><th>{% translate "Ошибки" %}</th><th>{% translate "Предупреждения" %}</th></tr></thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td><a href="{{ row.change_url }}">{{ row.place }}</a></td>
+            <td>{% for issue in row.result.errors %}<div><strong>{{ issue.code }}</strong> — {{ issue.message }}</div>{% empty %}—{% endfor %}</td>
+            <td>{% for issue in row.result.warnings %}<div><strong>{{ issue.code }}</strong> — {{ issue.message }}</div>{% empty %}—{% endfor %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>{% translate "Проблем не найдено." %}</p>
+  {% endif %}
+</div>
+{% endblock %}

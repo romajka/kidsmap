@@ -42,6 +42,7 @@ from catalog.services.options import sort_translated_values
 from catalog.services.image_uploads import normalize_uploaded_image
 from catalog.services.pricing_plans import normalize_pricing_plans, pricing_audit_summary
 from catalog.services.place_schedule import FULL_DAY_LABELS, build_schedule_summary, serialize_place_schedule
+from catalog.services.place_card_validation import validate_place_card
 from .review import PlaceReviewInline
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container
 
@@ -265,6 +266,26 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                     missing.append(str(label))
             if missing:
                 self.add_error(None, _("Нельзя опубликовать карточку. Обязательны для заполнения: {}").format(", ".join(missing)))
+
+        # Verification is a separate promise to visitors: never trust the
+        # checkbox alone. Run the same server-side validator used by the
+        # manual admin check and by the bulk action.
+        verification_requested = bool(cleaned.get("is_verified")) and not bool(self.initial.get("is_verified"))
+        if verification_requested:
+            candidate = Place(pk=self.instance.pk)
+            for field_name in (
+                "age_from", "age_to", "photo", "cover_photo", "lat", "lng",
+                "district", "phone1", "phone2", "phone3", "instagram", "website", "price_from",
+                "name_az", "name_ru", "name_en", "description_az", "description_ru", "description_en",
+                "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
+                "additional_info_az", "additional_info_ru", "additional_info_en",
+            ):
+                setattr(candidate, field_name, cleaned.get(field_name, getattr(self.instance, field_name, None)))
+            candidate.pricing_plans = cleaned.get("pricing_plans", [])
+            validation = validate_place_card(candidate)
+            for issue in validation.errors:
+                self.add_error(issue.field if issue.field in self.fields else None, issue.message)
+            self.card_validation_warnings = validation.warnings
 
         return cleaned
 
@@ -3142,6 +3163,16 @@ class PlaceAdmin(admin.ModelAdmin):
             path("pricing/import/validate/", self.admin_site.admin_view(self.validate_pricing_import_view), name="catalog_place_pricing_import_validate"),
             path("<int:object_id>/export-json/", self.admin_site.admin_view(self.export_place_json_view), name="catalog_place_export_json"),
             path(
+                "<int:object_id>/quality-check/",
+                self.admin_site.admin_view(self.place_quality_check_view),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_quality_check",
+            ),
+            path(
+                "quality-report/",
+                self.admin_site.admin_view(self.place_quality_report_view),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_quality_report",
+            ),
+            path(
                 "duplicate-candidates/",
                 self.admin_site.admin_view(self.duplicate_candidates_view),
                 name=f"{self.opts.app_label}_{self.opts.model_name}_duplicate_candidates",
@@ -3173,6 +3204,55 @@ class PlaceAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + super().get_urls()
+
+    def place_quality_check_view(self, request, object_id):
+        obj = Place.objects.filter(pk=object_id).first()
+        if obj is None or not self.has_view_or_change_permission(request, obj):
+            raise PermissionDenied
+        if request.method != "POST":
+            raise PermissionDenied
+        result = validate_place_card(obj)
+        context = {
+            **self.admin_site.each_context(request),
+            "opts": self.opts,
+            "original": obj,
+            "result": result,
+            "change_url": self._place_change_url(obj),
+            "title": _("Проверка качества карточки"),
+        }
+        return TemplateResponse(request, "admin/catalog/place/quality_check.html", context)
+
+    def place_quality_report_view(self, request):
+        if not self.has_view_permission(request):
+            raise PermissionDenied
+        places = self.get_queryset(request).filter(is_temporary=False).prefetch_related(
+            "gallery", "schedule_days__intervals", "pricing_plan_records"
+        )
+        rows = []
+        summary = {"checked": 0, "clean": 0, "warnings": 0, "errors": 0}
+        for place in places.order_by("pk"):
+            result = validate_place_card(place)
+            summary["checked"] += 1
+            if result.errors:
+                summary["errors"] += 1
+            elif result.warnings:
+                summary["warnings"] += 1
+            else:
+                summary["clean"] += 1
+            if result.errors or result.warnings:
+                rows.append({"place": place, "result": result, "change_url": self._place_change_url(place)})
+        context = {
+            **self.admin_site.each_context(request),
+            "opts": self.opts,
+            "title": _("Отчёт качества карточек"),
+            "summary": summary,
+            "rows": rows,
+            "changelist_url": reverse(
+                f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",
+                current_app=self.admin_site.name,
+            ),
+        }
+        return TemplateResponse(request, "admin/catalog/place/quality_report.html", context)
 
     def validate_pricing_import_view(self, request):
         if request.method != "POST":
@@ -3601,8 +3681,18 @@ class PlaceAdmin(admin.ModelAdmin):
     @admin.action(description=_("Отметить как проверенные"))
     def mark_verified(self, request, queryset):
         now = timezone.now()
-        updated_count = queryset.update(is_verified=True, updated_at=now)
-        queryset.filter(last_verified_at__isnull=True).update(last_verified_at=now)
+        updated_count = 0
+        blocked_count = 0
+        for place in queryset.prefetch_related("gallery", "schedule_days__intervals", "pricing_plan_records"):
+            validation = validate_place_card(place)
+            if validation.errors:
+                blocked_count += 1
+                continue
+            place.is_verified = True
+            if place.last_verified_at is None:
+                place.last_verified_at = now
+            place.save(update_fields=["is_verified", "last_verified_at", "updated_at"])
+            updated_count += 1
         self.message_user(
             request,
             ngettext(
@@ -3613,6 +3703,16 @@ class PlaceAdmin(admin.ModelAdmin):
             % {"count": updated_count},
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
+        if blocked_count:
+            self.message_user(
+                request,
+                ngettext(
+                    "%(count)d карточка не отмечена: есть ошибки качества.",
+                    "%(count)d карточки не отмечены: есть ошибки качества.",
+                    blocked_count,
+                ) % {"count": blocked_count},
+                level=messages.WARNING,
+            )
 
     @admin.action(description=_("Снять отметку проверки"))
     def mark_unverified(self, request, queryset):
@@ -3925,6 +4025,8 @@ class PlaceAdmin(admin.ModelAdmin):
             obj.created_by = request.user
 
         super().save_model(request, obj, form, change)
+        for issue in getattr(form, "card_validation_warnings", []):
+            self.message_user(request, issue.message, level=messages.WARNING)
         new_pricing_value = pricing_audit_summary(obj)
         if not change:
             self.place_audit_repository.create_entries(
