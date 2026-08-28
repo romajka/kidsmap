@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 from urllib.parse import parse_qs, urlparse
 from unittest.mock import patch
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.management import call_command
@@ -38,6 +39,7 @@ from catalog.models import (
     PlaceOwnershipRequestAudit,
     PlaceReview,
     PlaceReviewReaction,
+    PlaceReviewsByClub,
     SiteGalleryImage,
     SiteSettings,
     SiteReview,
@@ -2798,6 +2800,108 @@ class TestAdminChangelistUI(TestCase):
         # Verify that the quick tab link contains the query parameters
         self.assertContains(response, "q=Bad")
         self.assertContains(response, "rating=1")
+
+
+class TestPlaceRatingsAdmin(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        Category.objects.get_or_create(
+            code="EDU",
+            defaults={"name": "Education", "name_ru": "Образование"},
+        )
+        cls.admin_user = User.objects.create_superuser("ratings_admin", "ratings@example.com", "pass")
+
+    def setUp(self):
+        self.client.force_login(self.admin_user)
+
+    def test_changelist_uses_current_public_review_stats_and_hides_deleted_places(self):
+        visible = create_quality_place(
+            name="Ratings visible place",
+            name_ru="Рейтинговое место",
+            district="Bakı",
+            is_verified=True,
+            rating_count=99,
+            rating_avg=1,
+        )
+        PlaceReview.objects.create(place=visible, rating=5, text="Очень хорошее место для регулярных детских занятий.")
+        PlaceReview.objects.create(
+            place=visible,
+            rating=1,
+            text="test review that must never affect the rating",
+        )
+        deleted = create_quality_place(name="Deleted rating place", name_ru="Удалённое рейтинговое место")
+        deleted.soft_delete(deleted_by=self.admin_user)
+        legacy = Place.objects.create(
+            name="Legacy rating place",
+            name_ru="Старое место вне сайта",
+            category="EDU",
+            is_active=True,
+            status=Place.STATUS_PUBLISHED,
+            rating_count=5,
+            rating_avg=4.8,
+        )
+
+        response = self.client.get(reverse("admin:catalog_placereviewsbyclub_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Рейтинговое место")
+        self.assertNotContains(response, "Удалённое рейтинговое место")
+        self.assertNotContains(response, "Старое место вне сайта")
+        self.assertContains(response, ">1<", html=False)
+        self.assertContains(response, "5.0")
+
+    def test_hard_delete_cascades_reviews_with_the_place(self):
+        place = create_quality_place(name="Place to remove", name_ru="Место для удаления")
+        review = PlaceReview.objects.create(
+            place=place,
+            rating=5,
+            text="Настоящий отзыв, который должен удалиться только вместе с карточкой.",
+        )
+
+        place.delete()
+
+        self.assertFalse(Place.objects.filter(pk=place.pk).exists())
+        self.assertFalse(PlaceReview.objects.filter(pk=review.pk).exists())
+
+    def test_changelist_pagination_preserves_filters_search_and_sorting(self):
+        for index in range(5):
+            place = create_quality_place(
+                name=f"Ratings page {index}",
+                name_ru=f"Пагинация рейтинг {index}",
+                district="Bakı",
+                is_verified=True,
+            )
+            PlaceReview.objects.create(
+                place=place,
+                rating=5 - (index % 2),
+                text=f"Подробный опубликованный отзыв номер {index} о занятиях для детей.",
+            )
+
+        ratings_admin = admin.site._registry[PlaceReviewsByClub]
+        original_per_page = ratings_admin.list_per_page
+        self.addCleanup(setattr, ratings_admin, "list_per_page", original_per_page)
+        ratings_admin.list_per_page = 2
+        url = reverse("admin:catalog_placereviewsbyclub_changelist")
+        query = "?category__code__exact=EDU&district=baku&is_active__exact=1&is_verified__exact=1&q=Пагинация&o=-1"
+
+        first = self.client.get(url + query)
+        second = self.client.get(url + query + "&p=2")
+        last = self.client.get(url + query + "&p=3")
+
+        for response in (first, second, last):
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "km-pagination-links")
+            self.assertContains(response, "category__code__exact=EDU")
+            self.assertContains(response, "district=baku")
+            self.assertContains(response, "is_verified__exact=1")
+            self.assertContains(response, "q=%D0%9F%D0%B0%D0%B3%D0%B8%D0%BD%D0%B0%D1%86%D0%B8%D1%8F")
+            self.assertContains(response, "o=-1")
+
+        self.assertContains(first, 'aria-current="page">1')
+        self.assertContains(second, 'aria-current="page">2')
+        self.assertContains(last, 'aria-current="page">3')
+        self.assertContains(last, 'aria-disabled="true"')
+        self.assertContains(last, "Далее")
 
 class TestCategoryAdminHierarchy(TestCase):
     def setUp(self):

@@ -100,23 +100,33 @@ def published_place_queryset(queryset: QuerySet) -> QuerySet:
     )
 
 
-def public_review_queryset(queryset: QuerySet) -> QuerySet:
-    """Return only moderated reviews that are approved and have a valid rating."""
+def public_review_filter(prefix: str = "") -> Q:
+    """Build the reusable condition for a review that may affect a public rating."""
 
-    qs = queryset.filter(
-        is_approved=True,
-        status=REVIEW_STATUS_APPROVED,
-        rating__gte=1,
-        rating__lte=5,
+    def field(name: str) -> str:
+        return f"{prefix}{name}"
+
+    valid_q = Q(
+        **{
+            field("is_approved"): True,
+            field("status"): REVIEW_STATUS_APPROVED,
+            field("rating__gte"): 1,
+            field("rating__lte"): 5,
+        }
     )
     # PostgreSQL and SQLite disagree on the regular-expression meaning of
     # ``\b``. Use Django's portable case-insensitive containment lookup so a
     # review that was rejected as test content cannot reappear after a DB move.
     junk_q = Q()
     for token in ("aaa", "test", "lorem", "ipsum", "123456", "qwerty", "asdf", "йцукен"):
-        junk_q |= Q(text__icontains=token) | Q(author_name__icontains=token)
-    qs = qs.exclude(junk_q)
-    return qs
+        junk_q |= Q(**{field("text__icontains"): token}) | Q(**{field("author_name__icontains"): token})
+    return valid_q & ~junk_q
+
+
+def public_review_queryset(queryset: QuerySet) -> QuerySet:
+    """Return only moderated reviews that are approved and have a valid rating."""
+
+    return queryset.filter(public_review_filter())
 
 
 def approved_review_queryset(queryset: QuerySet) -> QuerySet:

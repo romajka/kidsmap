@@ -1,6 +1,7 @@
 {% load i18n %}
 <style>
-/* Full-width seamless Jazzmin admin pagination */
+/* Shared admin pagination. Keep this self-contained: Jazzmin's list styles
+   otherwise turn page links into a vertical bullet list on some changelists. */
 .pagination-container-full {
     width: 100% !important;
     display: flex !important;
@@ -16,31 +17,19 @@
     margin: 0 !important;
 }
 
-.pagination-container-full ul.pagination,
-.pagination-container-full nav ul {
+.pagination-container-full .km-pagination-links {
     list-style: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    display: inline-flex !important;
+    display: flex !important;
     flex-wrap: wrap !important;
     gap: 6px !important;
     align-items: center !important;
 }
 
-.pagination-container-full ul.pagination li {
-    list-style: none !important;
-    display: inline-block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.pagination-container-full ul.pagination li::before {
-    content: "" !important;
-    display: none !important;
-}
-
-.pagination-container-full ul.pagination li a,
-.pagination-container-full ul.pagination li span {
+.pagination-container-full .km-pagination-link,
+.pagination-container-full .km-pagination-current,
+.pagination-container-full .km-pagination-ellipsis {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -57,16 +46,14 @@
     transition: all 0.15s ease-in-out !important;
 }
 
-.pagination-container-full ul.pagination li.active a,
-.pagination-container-full ul.pagination li.active span,
-.pagination-container-full ul.pagination span.this-page {
+.pagination-container-full .km-pagination-current {
     background-color: #059669 !important;
     color: #ffffff !important;
     border-color: #059669 !important;
     box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25) !important;
 }
 
-.pagination-container-full ul.pagination li a:hover {
+.pagination-container-full .km-pagination-link:hover {
     background-color: #f0fdf4 !important;
     border-color: #10b981 !important;
     color: #047857 !important;
@@ -82,20 +69,28 @@
     </div>
 
     {% if pagination_required %}
-    <nav aria-label="Page navigation">
-        <ul class="pagination">
+    <nav class="km-pagination-links" aria-label="{% translate 'Пагинация' %}">
+            {% if cl.page_num > 1 %}
+                <a class="km-pagination-link" href="{{ cl.get_query_string }}p={{ cl.page_num|add:'-1' }}">← {% translate "Назад" %}</a>
+            {% else %}
+                <span class="km-pagination-link" aria-disabled="true">← {% translate "Назад" %}</span>
+            {% endif %}
             {% for page in page_range %}
                 {% if page == cl.page_num %}
-                    <li class="active"><span class="this-page">{{ page }}</span></li>
+                    <span class="km-pagination-current" aria-current="page">{{ page }}</span>
                 {% else %}
                     {% if page == cl.paginator.ELLIPSIS %}
-                        <li><span class="clear" style="border: none; background: transparent; color: #94a3b8;">{{ page }}</span></li>
+                        <span class="km-pagination-ellipsis">{{ page }}</span>
                     {% else %}
-                        <li><a href="{{ cl.get_query_string }}p={{ page }}">{{ page }}</a></li>
+                        <a class="km-pagination-link" href="{{ cl.get_query_string }}p={{ page }}">{{ page }}</a>
                     {% endif %}
                 {% endif %}
             {% endfor %}
-        </ul>
+            {% if cl.page_num < cl.paginator.num_pages %}
+                <a class="km-pagination-link" href="{{ cl.get_query_string }}p={{ cl.page_num|add:'1' }}">{% translate "Далее" %} →</a>
+            {% else %}
+                <span class="km-pagination-link" aria-disabled="true">{% translate "Далее" %} →</span>
+            {% endif %}
     </nav>
     {% endif %}
 </div>

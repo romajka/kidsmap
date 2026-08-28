@@ -7,7 +7,7 @@ from django.contrib.admin import helpers
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count, Max, Prefetch, Q
+from django.db.models import Avg, Count, Max, Prefetch, Q
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import path, reverse
@@ -36,7 +36,7 @@ from catalog.models import (
     CatalogContentSettings,
 )
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
-from catalog.services.content_quality import place_quality_check, public_place_queryset
+from catalog.services.content_quality import place_quality_check, public_place_queryset, public_review_filter
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
 from catalog.services.image_uploads import normalize_uploaded_image
@@ -3260,7 +3260,14 @@ class PlaceAdmin(admin.ModelAdmin):
             else:
                 summary["clean"] += 1
             if result.errors or result.warnings:
-                rows.append({"place": place, "result": result, "change_url": self._place_change_url(place)})
+                rows.append(
+                    {
+                        "place": place,
+                        "result": result,
+                        "change_url": self._place_change_url(place),
+                        "public_url": place.get_absolute_url() if place.is_public else "",
+                    }
+                )
         context = {
             **self.admin_site.each_context(request),
             "opts": self.opts,
@@ -4284,15 +4291,40 @@ class PlaceAdmin(admin.ModelAdmin):
 
 @admin.register(PlaceReviewsByClub)
 class PlaceReviewsByClubAdmin(admin.ModelAdmin):
-    list_display = ("display_name", "rating_count", "rating_avg", "reviews_link", "updated_at")
+    list_display = ("display_name", "visible_review_count", "visible_rating_avg", "reviews_link", "updated_at")
     list_filter = ("category", "district", "is_active", "is_verified")
     search_fields = ("name_ru", "name_en", "name_az", "name")
-    ordering = ("-rating_count", "-rating_avg", "-updated_at")
+    ordering = ()
     readonly_fields = ("rating_count", "rating_avg")
+
+    def get_queryset(self, request):
+        """Show only live Place rows and calculate stats from public reviews.
+
+        ``PlaceReviewsByClub`` is a proxy model, so a soft-deleted Place used
+        to leak into this admin list with stale cached rating fields.
+        """
+
+        # A rating is meaningful only for a card that is actually available in
+        # the public catalog. This also keeps legacy/demo cards that fail the
+        # catalog quality gate out of this list.
+        queryset = public_place_queryset(super().get_queryset(request))
+        queryset = queryset.annotate(
+            visible_review_count=Count("reviews", filter=public_review_filter("reviews__")),
+            visible_rating_avg=Avg("reviews__rating", filter=public_review_filter("reviews__")),
+        )
+        return queryset.order_by("-visible_review_count", "-visible_rating_avg", "-updated_at")
 
     @admin.display(description=_("Название"))
     def display_name(self, obj):
         return obj.name_ru or obj.name
+
+    @admin.display(description=_("Количество отзывов"), ordering="visible_review_count")
+    def visible_review_count(self, obj):
+        return obj.visible_review_count
+
+    @admin.display(description=_("Средний рейтинг"), ordering="visible_rating_avg")
+    def visible_rating_avg(self, obj):
+        return f"{float(obj.visible_rating_avg or 0):.1f}"
 
     @admin.display(description=_("Отзывы"))
     def reviews_link(self, obj):

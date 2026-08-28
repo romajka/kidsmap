@@ -1,4 +1,29 @@
 {% load admin_list jazzmin admin_dashboard_tags i18n %}
+<style>
+  .km-changelist-pagination .km-pagination-links {
+    display: flex !important;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .km-changelist-pagination .km-pagination-links > * {
+    flex: 0 0 auto;
+    margin: 0 !important;
+    list-style: none !important;
+  }
+
+  .km-changelist-pagination .km-pagination-links > .active.page-link {
+    background: var(--km-admin-accent, #009a4e);
+    border-color: var(--km-admin-accent, #009a4e);
+    color: #fff;
+  }
+
+  .km-changelist-pagination .km-pagination-links > .disabled.page-link {
+    opacity: .4;
+    cursor: not-allowed;
+  }
+</style>
 <div class="km-changelist-pagination">
   <div class="km-changelist-pagination__info">
     <span class="km-changelist-pagination__count">{% paginator_count_label cl %}</span>
@@ -18,29 +43,27 @@
   </div>
   
   {% if pagination_required %}
-    <nav class="km-changelist-pagination__nav" aria-label="{% translate 'Пагинация' %}">
-      <ul class="km-pagination-list">
+    <nav class="km-changelist-pagination__nav km-pagination-links" aria-label="{% translate 'Пагинация' %}">
         {% if cl.page_num > 1 %}
-          <li><a class="page-link page-link--direction" href="{% paginator_page_url cl cl.page_num|add:'-1' %}" aria-label="{% translate 'Предыдущая страница' %}"><span aria-hidden="true">←</span><span class="page-link__label">{% translate "Назад" %}</span></a></li>
+          <a class="page-link page-link--direction" href="{% paginator_page_url cl cl.page_num|add:'-1' %}" aria-label="{% translate 'Предыдущая страница' %}"><span aria-hidden="true">←</span><span class="page-link__label">{% translate "Назад" %}</span></a>
         {% else %}
-          <li class="disabled"><span class="page-link page-link--direction" aria-disabled="true"><span aria-hidden="true">←</span><span class="page-link__label">{% translate "Назад" %}</span></span></li>
+          <span class="disabled page-link page-link--direction" aria-disabled="true"><span aria-hidden="true">←</span><span class="page-link__label">{% translate "Назад" %}</span></span>
         {% endif %}
         {% paginator_page_range cl as km_page_range %}
         {% for i in km_page_range %}
           {% if i == '…' %}
-            <li class="km-pagination-list__ellipsis" aria-hidden="true">…</li>
+            <span class="km-pagination-list__ellipsis" aria-hidden="true">…</span>
           {% elif i == cl.page_num %}
-            <li class="active"><span class="page-link" aria-current="page">{{ i }}</span></li>
+            <span class="active page-link" aria-current="page">{{ i }}</span>
           {% else %}
-            <li><a class="page-link" href="{% paginator_page_url cl i %}" aria-label="{% translate 'Страница' %} {{ i }}">{{ i }}</a></li>
+            <a class="page-link" href="{% paginator_page_url cl i %}" aria-label="{% translate 'Страница' %} {{ i }}">{{ i }}</a>
           {% endif %}
         {% endfor %}
         {% if cl.page_num < cl.paginator.num_pages %}
-          <li><a class="page-link page-link--direction" href="{% paginator_page_url cl cl.page_num|add:'1' %}" aria-label="{% translate 'Следующая страница' %}"><span class="page-link__label">{% translate "Далее" %}</span><span aria-hidden="true">→</span></a></li>
+          <a class="page-link page-link--direction" href="{% paginator_page_url cl cl.page_num|add:'1' %}" aria-label="{% translate 'Следующая страница' %}"><span class="page-link__label">{% translate "Далее" %}</span><span aria-hidden="true">→</span></a>
         {% else %}
-          <li class="disabled"><span class="page-link page-link--direction" aria-disabled="true"><span class="page-link__label">{% translate "Далее" %}</span><span aria-hidden="true">→</span></span></li>
+          <span class="disabled page-link page-link--direction" aria-disabled="true"><span class="page-link__label">{% translate "Далее" %}</span><span aria-hidden="true">→</span></span>
         {% endif %}
-      </ul>
     </nav>
   {% endif %}
 </div>
