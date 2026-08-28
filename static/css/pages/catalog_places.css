@@ -309,6 +309,12 @@
     width: 100% !important;
     min-width: 0 !important;
   }
+
+  .page-place_list .results-toolbar-sort-select {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
 }
 
 /* Responsive fixes for mobile screen */
@@ -356,5 +362,244 @@
     height: 48px !important;
     min-height: 48px !important;
     border-radius: 12px !important;
+  }
+}
+
+/* Mobile catalog: one clear filter entry point, then results immediately. */
+@media (max-width: 760px) {
+  .page-place_list .mobile-catalog-controls {
+    gap: 8px !important;
+    padding: 8px 0 6px !important;
+  }
+
+  .page-place_list .mobile-catalog-search {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  .page-place_list .mobile-search-field input {
+    min-height: 48px !important;
+    border-radius: 14px !important;
+  }
+
+  .page-place_list .mobile-search-filter {
+    position: relative;
+    min-width: 106px !important;
+    min-height: 48px !important;
+    padding: 0 13px !important;
+    border-radius: 14px !important;
+    color: #0d6b35;
+    gap: 7px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  .page-place_list .mobile-search-filter::before {
+    display: none;
+  }
+
+  .page-place_list .mobile-search-filter__icon {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+    background: currentColor;
+    -webkit-mask: url("../../img/icon/coolicons.iconjar/icons/filter.svg") center / contain no-repeat;
+    mask: url("../../img/icon/coolicons.iconjar/icons/filter.svg") center / contain no-repeat;
+  }
+
+  .page-place_list .mobile-search-filter__count {
+    position: absolute;
+    top: -6px;
+    right: -5px;
+    display: grid;
+    place-items: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    border: 2px solid #f6fbf8;
+    border-radius: 999px;
+    background: #0d8a52;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  /* The old 2×2 grid duplicates the full filter drawer and pushes cards below the fold. */
+  .page-place_list .mobile-quick-filters,
+  .page-place_list .mobile-quick-menus {
+    display: none !important;
+  }
+
+  .page-place_list .mobile-active-chips {
+    gap: 6px;
+    margin: 0 -2px;
+    padding: 1px 2px 3px;
+  }
+
+  .page-place_list .mobile-active-chip {
+    min-height: 30px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+
+  .page-place_list .catalog-top-stack {
+    margin-top: 0 !important;
+  }
+
+  .page-place_list .catalog-layout .results-toolbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 110px 64px !important;
+    align-items: center !important;
+    column-gap: 10px !important;
+    padding: 2px 0 8px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .page-place_list .mobile-results-summary {
+    display: flex !important;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .page-place_list .mobile-results-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    flex: 0 0 30px;
+  }
+
+  .page-place_list .mobile-results-icon::before {
+    width: 15px;
+    height: 15px;
+  }
+
+  .page-place_list .mobile-results-summary strong {
+    overflow: hidden;
+    color: #183a29;
+    font-size: 13px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .page-place_list .results-toolbar-actions {
+    display: contents !important;
+    margin: 0 !important;
+  }
+
+  .page-place_list .results-toolbar-sort {
+    grid-column: 2;
+    min-width: 0 !important;
+  }
+
+  .page-place_list .results-toolbar-sort-select {
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 28px 0 9px !important;
+    border-radius: 12px !important;
+    background-color: #fff !important;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .page-place_list .results-toolbar-actions .results-map-toggle {
+    grid-column: 3;
+    width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    color: #0d6b35 !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    white-space: nowrap;
+    overflow: hidden !important;
+  }
+
+  .page-place_list .results-toolbar-actions .results-map-toggle::before {
+    display: none !important;
+  }
+
+  .page-place_list .results-toolbar-actions .results-map-toggle::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .page-place_list [data-filters-drawer] {
+    max-height: min(calc(100dvh - 44px), 88vh) !important;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .page-place_list .mobile-filters-head h2::after {
+    content: "";
+  }
+}
+
+/* Keep sort and map as two separate controls on narrow phones. */
+@media (max-width: 760px) {
+  .page-place_list .catalog-layout .results-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    column-gap: 10px !important;
+  }
+
+  .page-place_list .results-toolbar-actions {
+    display: flex !important;
+    grid-column: 2 !important;
+    align-items: center;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  .page-place_list .results-toolbar-sort {
+    grid-column: auto !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  .page-place_list .results-toolbar-sort-select {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .page-place_list .results-toolbar-actions .results-map-toggle {
+    grid-column: auto !important;
+    flex: 0 0 70px !important;
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    gap: 4px !important;
+    padding: 0 7px !important;
+    overflow: visible !important;
+  }
+
+  .page-place_list .results-map-toggle-icon {
+    display: block;
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+  }
+
+  .page-place_list .results-map-toggle-label {
+    display: block;
+    font-size: 11px;
+    line-height: 1;
   }
 }

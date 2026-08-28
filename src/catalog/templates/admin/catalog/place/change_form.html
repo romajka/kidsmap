@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=22">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_pricing.css' %}?v=2">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=26" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=27" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_json_import.js' %}?v=8" defer></script>
   <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=22" defer></script>
   <script src="{% static 'js/owner_pricing_plans.js' %}?v=12" defer></script>
   {% if google_maps_api_key %}
-    <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=1" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_location.js' %}?v=2" defer></script>
     <script
       defer
       src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitAdminPlaceLocation"

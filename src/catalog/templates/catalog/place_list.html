@@ -107,7 +107,13 @@
               placeholder="{% if language == 'az' %}Məkan, məşğələ və ya açar söz...{% elif language == 'en' %}Place, class, or keyword...{% else %}Место, занятие или ключевое слово...{% endif %}"
             />
           </label>
-          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-expanded="false" aria-label="{% if language == 'az' %}Filtrləri aç{% elif language == 'en' %}Open filters{% else %}Открыть фильтры{% endif %}"></button>
+          <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-expanded="false">
+            <span class="mobile-search-filter__icon" aria-hidden="true"></span>
+            <span class="mobile-search-filter__label">{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</span>
+            {% if active_filter_chips %}
+              <span class="mobile-search-filter__count" aria-label="{% if language == 'az' %}{{ active_filter_chips|length }} filtr seçilib{% elif language == 'en' %}{{ active_filter_chips|length }} filters selected{% else %}Выбрано фильтров: {{ active_filter_chips|length }}{% endif %}">{{ active_filter_chips|length }}</span>
+            {% endif %}
+          </button>
         </form>
 
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
@@ -560,7 +566,8 @@
           aria-expanded="false"
           aria-label="{% if language == 'az' %}Nəticələri xəritədə göstər{% elif language == 'en' %}Show results on map{% else %}Показать результаты на карте{% endif %}"
         >
-          {% if language == "az" %}Xəritə{% elif language == "en" %}Map{% else %}{% trans "На карте" %}{% endif %}
+          <svg class="results-map-toggle-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+          <span class="results-map-toggle-label">{% if language == "az" %}Xəritə{% elif language == "en" %}Map{% else %}{% trans "Карта" %}{% endif %}</span>
           <span class="results-map-count">{{ catalog_map_places_count }}</span>
         </button>
       </div>
@@ -701,11 +708,12 @@
                 {% else %}
                   <p class="meta card-no-reviews">{% if language == "az" %}Hələ rəy yoxdur{% elif language == "en" %}No reviews yet{% else %}Пока нет отзывов{% endif %}</p>
                 {% endif %}
-                <p class="meta card-location{% if not place.district and not place.metro %} is-empty{% endif %}">
+                <p class="meta card-location{% if not place.district and not place.metro and not place.address %} is-empty{% endif %}">
                   {% if place.district %}{{ place.district_i18n }}{% endif %}
                   {% if place.district and place.metro %} / {% endif %}
-                  {% if place.metro %}{% trans place.metro %}{% endif %}
-                  {% if not place.district and not place.metro %}&nbsp;{% endif %}
+                  {% if place.metro %}{{ place.metro_i18n }}{% endif %}
+                  {% if not place.district and not place.metro and place.address %}{{ place.address_i18n|truncatechars:48 }}{% endif %}
+                  {% if not place.district and not place.metro and not place.address %}&nbsp;{% endif %}
                 </p>
                 {% if place.age_display %}
                   <p class="meta card-age-audience"><b>{% trans "Возраст" %}:</b> {{ place.age_display }} {% if language == "az" %}yaş{% elif language == "en" %}years{% else %}лет{% endif %}{% if place.offers_adult_classes %}<span class="card-age-audience__separator" aria-hidden="true">·</span><span class="card-age-audience__adult">{% if language == "az" %}Böyüklər üçün qruplar{% elif language == "en" %}Adult groups{% else %}Взрослые группы{% endif %}</span>{% endif %}</p>

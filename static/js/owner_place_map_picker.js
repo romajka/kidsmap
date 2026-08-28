@@ -36,6 +36,10 @@
 
     const badgeEl = root.querySelector("[data-geocoding-status-badge]");
 
+    function notifyChange() {
+      if (form) form.dispatchEvent(new CustomEvent("km:map-change", { bubbles: true }));
+    }
+
     function updateGeocodingStatus(statusType) {
       if (!badgeEl) return;
       const lang = document.documentElement.lang || "ru";
@@ -78,6 +82,7 @@
       searchUnsupportedLabel: searchUnsupportedLabel,
       updateStatus: updateStatus,
       updateGeocodingStatus: updateGeocodingStatus,
+      notifyChange: notifyChange,
     };
   }
 
@@ -139,6 +144,7 @@
       options.setPoint(location.lat(), location.lng(), { isGeocoded: true });
       if (shared.addressInput && place.formatted_address) {
         shared.addressInput.value = place.formatted_address;
+        shared.addressInput.dispatchEvent(new Event("input", { bubbles: true }));
       }
       shared.searchInput.value = place.formatted_address || place.name || rawQuery;
 
@@ -276,6 +282,7 @@
 
       shared.updateStatus(lat, lng);
       shared.updateGeocodingStatus(isGeocoded ? "found" : "refine");
+      if (!options || !options.silent) shared.notifyChange();
       if (recenter) {
         map.setView([lat, lng], Math.max(map.getZoom(), 15));
       }
@@ -290,6 +297,7 @@
       }
       shared.updateStatus(null, null);
       shared.updateGeocodingStatus(null);
+      shared.notifyChange();
     }
 
     map.on("click", function (event) {
@@ -309,7 +317,7 @@
     const initialLng = parseCoordinate(shared.lngInput.value);
     if (initialLat !== null && initialLng !== null) {
       map.setView([initialLat, initialLng], 15);
-      setPoint(initialLat, initialLng, { recenter: false });
+      setPoint(initialLat, initialLng, { recenter: false, silent: true });
     } else {
       map.setView([shared.defaultLat, shared.defaultLng], 12);
       shared.updateStatus(null, null);
@@ -378,6 +386,7 @@
 
       shared.updateStatus(lat, lng);
       shared.updateGeocodingStatus(isGeocoded ? "found" : "refine");
+      if (!options || !options.silent) shared.notifyChange();
       if (recenter) {
         map.setCenter({ lat: lat, lng: lng });
         if (map.getZoom() < 15) {
@@ -395,6 +404,7 @@
       }
       shared.updateStatus(null, null);
       shared.updateGeocodingStatus(null);
+      shared.notifyChange();
     }
 
     map.addListener("click", function (event) {
@@ -412,7 +422,7 @@
     }
 
     if (hasInitialPoint) {
-      setPoint(initialLat, initialLng, { recenter: false });
+      setPoint(initialLat, initialLng, { recenter: false, silent: true });
     } else {
       shared.updateStatus(null, null);
     }

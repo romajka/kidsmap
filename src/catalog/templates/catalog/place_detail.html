@@ -14,7 +14,7 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=2" />
 {% endblock %}
 
 {% block content %}
@@ -344,6 +344,11 @@
                 <span class="meta-label">{% if language == "az" %}Sayt{% elif language == "en" %}Website{% else %}Сайт{% endif %}</span>
                 <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a>
               </div>
+            </div>
+          {% endif %}
+          {% if not place.phone_numbers and not place.instagram and not place.address and not place.website %}
+            <div class="detail-contact-empty" role="status">
+              {% if language == "az" %}Əlaqə məlumatları dəqiqləşdirilir.{% elif language == "en" %}Contact details are being confirmed.{% else %}Контактные данные уточняются.{% endif %}
             </div>
           {% endif %}
         </div>

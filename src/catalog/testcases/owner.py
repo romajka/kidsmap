@@ -398,6 +398,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Saxla və çıx")
         self.assertContains(response, 'data-owner-step="4"', html=False)
         self.assertContains(response, "owner-wizard-progressbar")
+        self.assertContains(response, "data-owner-validation-notice")
         self.assertContains(response, "owner_place_wizard.js")
         self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
@@ -423,7 +424,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Индивидуальный")
         self.assertContains(response, "&quot;price&quot;: &quot;40.00&quot;", html=False)
         self.assertContains(response, "owner_place_wizard.js")
-        self.assertContains(response, "?v=10")
+        self.assertContains(response, "?v=11")
 
     def test_owner_edit_shows_pricing_validation_error_and_keeps_saved_plans(self):
         existing_plans = [
@@ -599,6 +600,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "data-owner-wizard-shell")
         self.assertContains(response, "data-map-search-input")
         self.assertContains(response, "data-map-search")
+        self.assertContains(response, "data-owner-validation-notice")
         self.assertContains(response, "owner_place_map_picker.js")
         self.assertContains(response, "owner_place_wizard.js")
         self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")

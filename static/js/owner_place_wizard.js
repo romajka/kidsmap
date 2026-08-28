@@ -26,6 +26,12 @@
   const leaveGuardSave = leaveGuard ? leaveGuard.querySelector("[data-owner-leave-save]") : null;
   const leaveGuardCancel = leaveGuard ? leaveGuard.querySelector("[data-owner-leave-cancel]") : null;
   const leaveGuardDiscard = leaveGuard ? leaveGuard.querySelector("[data-owner-leave-discard]") : null;
+  const validationNotice = form.querySelector("[data-owner-validation-notice]");
+  const validationNoticeTitle = validationNotice ? validationNotice.querySelector("[data-owner-validation-title]") : null;
+  const validationNoticeDetail = validationNotice ? validationNotice.querySelector("[data-owner-validation-detail]") : null;
+  const validationNoticeFocus = validationNotice ? validationNotice.querySelector("[data-owner-validation-focus]") : null;
+  const validationNoticeClose = validationNotice ? validationNotice.querySelector("[data-owner-validation-close]") : null;
+  let validationNoticeItem = null;
   let currentStep = 1;
   let allowNavigation = false;
   let pendingNavigationUrl = "";
@@ -308,6 +314,13 @@
 
   function getField(name) {
     return form.querySelector('[name="' + name + '"]');
+  }
+
+  function selectedOptionText(name) {
+    const field = getField(name);
+    if (!field || !field.value || field.selectedIndex < 0) return "";
+    const option = field.options[field.selectedIndex];
+    return option ? String(option.textContent || "").trim() : "";
   }
 
   function getFieldLabel(name) {
@@ -697,7 +710,10 @@
         link.textContent = item.label;
         link.addEventListener("click", function (e) {
           e.preventDefault();
-          updateWizard(item.stepIndex);
+          const field = item.name.indexOf("|") >= 0
+            ? item.name.split("|").map(getField).find(Boolean)
+            : getField(item.name);
+          focusRequiredItem({ name: item.name, label: item.label, field: field }, steps[item.stepIndex - 1]);
         });
 
         li.appendChild(link);
@@ -782,9 +798,14 @@
 
     const titleEl = document.getElementById("km-preview-title");
     if (titleEl) {
-      const lang = document.documentElement.lang || "ru";
-      const nameField = getField("name_" + lang) || getField("name_az") || getField("name_ru") || getField("name_en");
-      titleEl.textContent = (nameField ? nameField.value : "") || "-";
+      const lang = (document.documentElement.lang || "ru").split("-")[0];
+      const titleCandidates = ["name_" + lang, "name_az", "name_ru", "name_en"];
+      const title = titleCandidates
+        .map(function (name) { return getField(name); })
+        .filter(Boolean)
+        .map(function (field) { return String(field.value || "").trim(); })
+        .find(Boolean);
+      titleEl.textContent = title || "-";
     }
 
     const ageEl = document.getElementById("km-preview-age");
@@ -817,8 +838,12 @@
 
     const locEl = document.getElementById("km-preview-loc-text");
     if (locEl) {
-      const address = getField("address")?.value;
-      locEl.textContent = address || "-";
+      const address = String(getField("address")?.value || "").trim();
+      const locationParts = [selectedOptionText("region"), selectedOptionText("district") || selectedOptionText("metro"), address]
+        .filter(Boolean)
+        .filter(function (value, index, values) { return values.indexOf(value) === index; });
+      locEl.textContent = locationParts.length ? locationParts.join(", ") : "-";
+      locEl.title = locationParts.join(", ");
     }
 
     const phoneContainer = document.getElementById("km-preview-phone");
@@ -1244,6 +1269,9 @@
   function showRequiredAlert(step, label) {
     if (!step || !label) return;
     form.querySelectorAll("[data-owner-required-alert]").forEach(function (alert) { alert.remove(); });
+    // The sticky notice already explains the problem and links to the field.
+    // Avoid stacking a second banner above the same step on small screens.
+    if (validationNotice) return;
     const alert = document.createElement("div");
     alert.className = "owner-required-alert";
     alert.setAttribute("data-owner-required-alert", "");
@@ -1251,6 +1279,64 @@
     alert.setAttribute("tabindex", "-1");
     alert.textContent = buildTip(form.dataset.ownerRequiredTipPrefix || "", "", [label], "");
     step.insertBefore(alert, step.firstChild);
+  }
+
+  function showValidationNotice(item, total) {
+    if (!validationNotice || !item) return;
+    validationNoticeItem = item;
+    validationNotice.hidden = false;
+    if (validationNoticeTitle) validationNoticeTitle.textContent = validationNotice.dataset.title || "";
+    if (validationNoticeDetail) {
+      const countText = total === 1
+        ? (validationNotice.dataset.single || "")
+        : (validationNotice.dataset.many || "") + " " + total + ".";
+      validationNoticeDetail.textContent = [countText, item.label].filter(Boolean).join(" ");
+    }
+    if (validationNoticeFocus) validationNoticeFocus.textContent = validationNotice.dataset.go || "";
+    if (validationNoticeClose) validationNoticeClose.setAttribute("aria-label", validationNotice.dataset.close || "");
+  }
+
+  function hideValidationNotice() {
+    if (!validationNotice) return;
+    validationNotice.hidden = true;
+    validationNoticeItem = null;
+  }
+
+  function isValidationNoticeResolved() {
+    if (!validationNoticeItem) return true;
+    if (validationNoticeItem.name.indexOf("|") >= 0) {
+      return validationNoticeItem.name.split("|").some(function (name) {
+        return isFieldFilledByName(name);
+      });
+    }
+    return !!isFieldFilledByName(validationNoticeItem.name);
+  }
+
+  function problemItemForStep(step) {
+    const missing = missingStepItem(step);
+    if (missing) return missing;
+    const error = step ? step.querySelector(".auth-field-error, .auth-errors") : null;
+    const wrapper = error ? error.closest(".owner-form-field, .owner-form-toggle-field, .owner-form-file-field") : null;
+    const field = wrapper ? wrapper.querySelector("input[name], select[name], textarea[name]") : null;
+    if (!field) return null;
+    return { name: field.name, label: getFieldLabel(field.name), field: field };
+  }
+
+  function stepProblemCount(step) {
+    if (!step) return 0;
+    const missingFields = parseList(step.dataset.ownerStepRequiredFields).filter(function (name) {
+      return !isFieldFilledByName(name);
+    }).length;
+    const missingGroups = parseGroups(step.dataset.ownerStepRequiredGroups).filter(function (group) {
+      return !group.some(function (name) { return isFieldFilledByName(name); });
+    }).length;
+    const extraInvalid = Array.from(step.querySelectorAll("input, select, textarea")).filter(function (field) {
+      return field.name
+        && isFieldFilledByName(field.name)
+        && typeof field.checkValidity === "function"
+        && !field.checkValidity();
+    }).length;
+    return missingFields + missingGroups + extraInvalid;
   }
 
   function focusRequiredItem(item, explicitStep) {
@@ -1330,6 +1416,11 @@
     }
 
     if (firstInvalid) {
+      showValidationNotice({
+        name: firstInvalid.name,
+        label: getFieldLabel(firstInvalid.name),
+        field: firstInvalid,
+      }, Math.max(1, stepProblemCount(activeStep)));
       focusFirstProblem(activeStep);
       return false;
     }
@@ -1342,6 +1433,8 @@
       ) {
         setScheduleClientError(true);
       }
+      const missing = missingStepItem(activeStep);
+      if (missing) showValidationNotice(missing, Math.max(1, stepProblemCount(activeStep)));
       focusFirstProblem(activeStep);
       return false;
     }
@@ -1971,6 +2064,13 @@
         const state = getStepState(step);
         if (!state.complete) {
           event.preventDefault();
+          const missing = problemItemForStep(step);
+          if (missing) {
+            const totalMissing = steps.slice(0, 4).reduce(function (count, candidateStep) {
+              return count + stepProblemCount(candidateStep);
+            }, 0);
+            showValidationNotice(missing, Math.max(1, totalMissing));
+          }
           updateWizard(i);
           focusFirstProblem(step);
           return;
@@ -2019,6 +2119,18 @@
     const makeMainFileBtn = event.target.closest("[data-make-main-file]");
     const uploadTrigger = event.target.closest("[data-upload-trigger]");
     const findOnMapBtn = event.target.closest("[data-action-find-on-map]");
+
+    if (event.target.closest("[data-owner-validation-close]")) {
+      event.preventDefault();
+      hideValidationNotice();
+      return;
+    }
+
+    if (event.target.closest("[data-owner-validation-focus]")) {
+      event.preventDefault();
+      if (validationNoticeItem) focusRequiredItem(validationNoticeItem);
+      return;
+    }
 
     if (uploadTrigger) {
       event.preventDefault();
@@ -2238,6 +2350,9 @@
     updateCompletion();
     updateFinalSummary();
     updateWizard(currentStep);
+    if (validationNoticeItem && isValidationNoticeResolved()) {
+      hideValidationNotice();
+    }
     scheduleDraftSave();
   });
 
@@ -2246,6 +2361,16 @@
     if (event.target && typeof event.target.checkValidity === "function" && event.target.checkValidity()) {
       clearFieldError(event.target);
     }
+    updateCompletion();
+    updateFinalSummary();
+    updateWizard(currentStep);
+    if (validationNoticeItem && isValidationNoticeResolved()) {
+      hideValidationNotice();
+    }
+    scheduleDraftSave();
+  });
+
+  form.addEventListener("km:map-change", function () {
     updateCompletion();
     updateFinalSummary();
     updateWizard(currentStep);
@@ -2485,6 +2610,9 @@
   const initialStep = restoredStep || firstErrorStep();
   updateWizard(initialStep);
   if (hasServerErrors) {
+    const serverStep = steps[initialStep - 1];
+    const serverItem = problemItemForStep(serverStep);
+    if (serverItem) showValidationNotice(serverItem, Math.max(1, stepProblemCount(serverStep)));
     window.setTimeout(function () {
       focusFirstProblem(steps[initialStep - 1]);
     }, 40);

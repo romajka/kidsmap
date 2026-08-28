@@ -2543,6 +2543,7 @@
 
     form.addEventListener("input", updateAllVerificationAndMockupStates);
     form.addEventListener("change", updateAllVerificationAndMockupStates);
+    form.addEventListener("km:location-change", updateAllVerificationAndMockupStates);
 
     document.addEventListener("click", function(e) {
       var target = e.target;

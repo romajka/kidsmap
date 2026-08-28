@@ -224,6 +224,8 @@
     state.latInput.value = formatCoordinate(normalizedLat);
     state.lngInput.value = formatCoordinate(normalizedLng);
     updateBadges(state);
+    var form = state.root.closest("form");
+    if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
 
     if (state.mapProvider === "google" && state.mapInstance && window.google && window.google.maps) {
       var point = { lat: normalizedLat, lng: normalizedLng };
@@ -277,6 +279,8 @@
     state.marker = null;
     updateFoundAddress(state, "");
     updateBadges(state);
+    var form = state.root.closest("form");
+    if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
   }
 
   function reverseGeocodeGoogle(state, lat, lng) {
@@ -335,6 +339,8 @@
       if (!place || !place.geometry || !place.geometry.location) return;
       ensureMapVisible(state);
       state.addressInput.value = place.formatted_address || place.name || state.addressInput.value;
+      var form = state.root.closest("form");
+      if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
       updateFoundAddress(state, state.addressInput.value);
       setPoint(state, place.geometry.location.lat(), place.geometry.location.lng(), { recenter: true, reverseGeocode: false });
       if (place.geometry.viewport && state.mapInstance && typeof state.mapInstance.fitBounds === "function") {
@@ -506,6 +512,8 @@
         if (!state.pendingAddress) return;
         state.addressInput.value = state.pendingAddress;
         updateBadges(state);
+        var form = state.root.closest("form");
+        if (form) form.dispatchEvent(new CustomEvent("km:location-change", { bubbles: true }));
       });
       state.applyAddressButton.dataset.kmBound = "1";
     }

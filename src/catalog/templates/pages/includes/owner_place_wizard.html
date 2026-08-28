@@ -89,6 +89,27 @@
     </div>
   </div>
 
+  <div
+    class="owner-validation-notice"
+    data-owner-validation-notice
+    data-title="{% if CURRENT_LANGUAGE == 'az' %}Bir az məlumat çatışmır{% elif CURRENT_LANGUAGE == 'en' %}A few details are missing{% else %}Не хватает нескольких данных{% endif %}"
+    data-single="{% if CURRENT_LANGUAGE == 'az' %}1 sahəni yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Check 1 field.{% else %}Проверьте 1 поле.{% endif %}"
+    data-many="{% if CURRENT_LANGUAGE == 'az' %}Yoxlanılmalı sahələrin sayı:{% elif CURRENT_LANGUAGE == 'en' %}Fields to check:{% else %}Полей для проверки:{% endif %}"
+    data-go="{% if CURRENT_LANGUAGE == 'az' %}Sahəyə keç{% elif CURRENT_LANGUAGE == 'en' %}Go to field{% else %}Перейти к полю{% endif %}"
+    data-close="{% if CURRENT_LANGUAGE == 'az' %}Bildirişi bağla{% elif CURRENT_LANGUAGE == 'en' %}Dismiss notification{% else %}Закрыть уведомление{% endif %}"
+    hidden
+    role="alert"
+    aria-live="assertive"
+  >
+    <span class="owner-validation-notice__icon" aria-hidden="true">!</span>
+    <span class="owner-validation-notice__copy">
+      <strong data-owner-validation-title></strong>
+      <span data-owner-validation-detail></span>
+    </span>
+    <button type="button" class="owner-validation-notice__go" data-owner-validation-focus></button>
+    <button type="button" class="owner-validation-notice__close" data-owner-validation-close aria-label="">×</button>
+  </div>
+
   <div class="owner-wizard-stage" data-owner-stage>
     <section
       class="owner-wizard-step is-active"

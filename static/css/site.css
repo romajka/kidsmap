@@ -26285,6 +26285,89 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
   font-size: 12px;
 }
 
+.owner-validation-notice {
+  position: sticky;
+  top: 12px;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 13px 14px;
+  border: 1px solid #f6c56e;
+  border-radius: 16px;
+  background: rgba(255, 250, 235, .98);
+  color: #713f12;
+  box-shadow: 0 12px 30px rgba(120, 78, 12, .14);
+  backdrop-filter: blur(10px);
+}
+
+.owner-validation-notice[hidden] {
+  display: none;
+}
+
+.owner-validation-notice__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #fff;
+  font-weight: 900;
+}
+
+.owner-validation-notice__copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.owner-validation-notice__copy strong {
+  font-size: 14px;
+}
+
+.owner-validation-notice__go,
+.owner-validation-notice__close {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.owner-validation-notice__go {
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(146, 64, 14, .2);
+  font-weight: 800;
+}
+
+.owner-validation-notice__close {
+  padding: 4px;
+  font-size: 22px;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .owner-validation-notice {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .owner-validation-notice__go {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+
+  .owner-validation-notice__close {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
 .owner-wizard-form .is-required-attention .field,
 .owner-wizard-form .is-required-attention .filter-select,
 .owner-wizard-form .field.is-required-attention,
