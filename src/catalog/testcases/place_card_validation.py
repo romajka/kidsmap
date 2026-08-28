@@ -67,6 +67,8 @@ class PlaceCardValidationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Отчёт качества карточек")
         self.assertContains(response, self.place.name)
+        changelist = self.client.get(reverse("admin:catalog_place_changelist"))
+        self.assertContains(changelist, "Отчёт качества")
 
     def test_admin_error_summary_keeps_card_unchanged_after_failed_save(self):
         user = get_user_model().objects.create_superuser("form-admin", "form@example.com", "password")

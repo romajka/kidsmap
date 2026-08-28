@@ -6,7 +6,7 @@
 
 {% block extrahead %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=3">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=1">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=2" defer></script>
@@ -38,20 +38,27 @@
           {% endif %}
         </p>
       </div>
-      {% if km_is_trash_changelist %}
-        <a href="?" class="place-admin-dashboard__add-link place-admin-dashboard__add-link--secondary">
-          {% translate "К местам" %}
-        </a>
-      {% elif has_add_permission %}
-        <a href="{% url cl.opts|admin_urlname:'quality_report' %}" class="place-admin-dashboard__add-link place-admin-dashboard__add-link--secondary">
-          {% translate "Отчёт качества" %}
-        </a>
-        {% url cl.opts|admin_urlname:'add' as add_url %}
-        <a href="{% add_preserved_filters add_url %}" class="place-admin-dashboard__add-link">
-          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-          {% translate "Добавить место" %}
-        </a>
-      {% endif %}
+      <div class="place-admin-dashboard__header-actions">
+        {% if km_is_trash_changelist %}
+          <a href="?" class="place-admin-dashboard__add-link place-admin-dashboard__add-link--secondary">
+            {% translate "К местам" %}
+          </a>
+        {% else %}
+          {% if km_place_quality_report_url %}
+            <a href="{{ km_place_quality_report_url }}" class="place-admin-dashboard__add-link place-admin-dashboard__quality-report-link">
+              <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+              {% translate "Отчёт качества" %}
+            </a>
+          {% endif %}
+          {% if has_add_permission %}
+            {% url cl.opts|admin_urlname:'add' as add_url %}
+            <a href="{% add_preserved_filters add_url %}" class="place-admin-dashboard__add-link">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              {% translate "Добавить место" %}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
     </section>
 
     {% if not km_is_trash_changelist %}

@@ -3576,6 +3576,14 @@ class PlaceAdmin(admin.ModelAdmin):
             "place_bulk_actions": self._place_trash_bulk_actions() if is_trash else self._place_bulk_actions(),
             "km_is_trash_changelist": is_trash,
             "km_changelist_reset_url": "?deleted_state=deleted" if is_trash else "?",
+            "km_place_quality_report_url": (
+                reverse(
+                    f"admin:{self.opts.app_label}_{self.opts.model_name}_quality_report",
+                    current_app=self.admin_site.name,
+                )
+                if not is_trash and self.has_view_permission(request)
+                else ""
+            ),
             "home_recommendation_editor": (
                 {
                     "cards": [

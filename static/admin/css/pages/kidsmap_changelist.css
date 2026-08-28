@@ -29,6 +29,25 @@
   padding: 4px 0 0;
 }
 
+.km-custom-changelist .place-admin-dashboard__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.km-custom-changelist .place-admin-dashboard__quality-report-link {
+  background: #fff8e8;
+  border-color: #ecd08d;
+  color: #735400 !important;
+}
+
+.km-custom-changelist .place-admin-dashboard__quality-report-link:hover,
+.km-custom-changelist .place-admin-dashboard__quality-report-link:focus-visible {
+  background: #fff0c6;
+  border-color: #d7ad45;
+}
+
 .km-custom-changelist .place-admin-dashboard__title-block {
   display: grid;
   gap: 6px;
