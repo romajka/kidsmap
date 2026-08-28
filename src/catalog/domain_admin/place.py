@@ -3230,14 +3230,29 @@ class PlaceAdmin(admin.ModelAdmin):
     def place_quality_report_view(self, request):
         if not self.has_view_permission(request):
             raise PermissionDenied
-        places = self.get_queryset(request).filter(is_temporary=False).prefetch_related(
+        scope = request.GET.get("scope", "all")
+        if scope not in {"all", "published"}:
+            scope = "all"
+        base_places = self.get_queryset(request).filter(is_temporary=False)
+        scope_counts = {
+            "all": base_places.count(),
+            "published": base_places.filter(
+                is_active=True,
+                status=Place.STATUS_PUBLISHED,
+                deleted_at__isnull=True,
+            ).count(),
+        }
+        places = base_places
+        if scope == "published":
+            places = places.filter(is_active=True, status=Place.STATUS_PUBLISHED, deleted_at__isnull=True)
+        places = places.prefetch_related(
             "gallery", "schedule_days__intervals", "pricing_plan_records"
         )
         rows = []
-        summary = {"checked": 0, "clean": 0, "warnings": 0, "errors": 0}
+        summary = {"total": 0, "clean": 0, "warnings": 0, "errors": 0}
         for place in places.order_by("pk"):
             result = validate_place_card(place)
-            summary["checked"] += 1
+            summary["total"] += 1
             if result.errors:
                 summary["errors"] += 1
             elif result.warnings:
@@ -3251,6 +3266,8 @@ class PlaceAdmin(admin.ModelAdmin):
             "opts": self.opts,
             "title": _("Отчёт качества карточек"),
             "summary": summary,
+            "scope": scope,
+            "scope_counts": scope_counts,
             "rows": rows,
             "changelist_url": reverse(
                 f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist",

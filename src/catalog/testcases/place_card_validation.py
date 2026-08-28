@@ -67,6 +67,9 @@ class PlaceCardValidationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Отчёт качества карточек")
         self.assertContains(response, self.place.name)
+        published_response = self.client.get(reverse("admin:catalog_place_quality_report"), {"scope": "published"})
+        self.assertContains(published_response, "В выбранном разделе")
+        self.assertContains(published_response, "На сайте")
         changelist = self.client.get(reverse("admin:catalog_place_changelist"))
         self.assertContains(changelist, "Отчёт качества")
 
