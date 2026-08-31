@@ -11,15 +11,15 @@
     <div class="owner-page-head">
       <div>
         <h1>{% trans "Модерация отзывов" %}</h1>
-        <p class="auth-subtitle">{% trans "Отзывы по вашим кружкам. Модератор может управлять только этим разделом." %}</p>
+        <p class="auth-subtitle">{% trans "Отзывы по вашим местам. Модератор может управлять только этим разделом." %}</p>
       </div>
       <div class="owner-page-actions">
         <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% trans "Мои места" %}</a>
       </div>
     </div>
 
-    <nav class="owner-section-nav" aria-label="{% trans 'Разделы владельца' %}">
-      <a class="chip-link" href="{% url 'owner_places_dashboard' %}">{% trans "Управление карточками" %}</a>
+    <nav class="owner-section-nav" aria-label="{% trans 'Управление местами' %}">
+      <a class="chip-link" href="{% url 'owner_places_dashboard' %}">{% trans "Мои места" %}</a>
       <a class="chip-link active" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
     </nav>
 

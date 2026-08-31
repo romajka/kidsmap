@@ -367,7 +367,9 @@ if LEGACY_DATABASE_URL:
 REDIS_URL = (os.getenv("REDIS_URL", "") or "").strip()
 if TESTING:
     # Parallel test workers use cloned databases but would otherwise share
-    # Redis keys, leaking cached state between unrelated tests.
+    # Redis keys, leaking cached state between unrelated tests. The locmem
+    # cache is still shared by every test inside one worker, so
+    # KidsMapTestRunner clears it before each test.
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -424,6 +426,10 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Resets the shared locmem cache and the active language before each test so
+# results do not depend on execution order. See config/test_runner.py.
+TEST_RUNNER = "config.test_runner.KidsMapTestRunner"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {

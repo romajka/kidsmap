@@ -18,6 +18,30 @@
       summary.focus({ preventScroll: true });
     }, 30);
 
+    function isVisible(element) {
+      if (!element) return false;
+      var style = window.getComputedStyle(element);
+      return style.display !== "none" && style.visibility !== "hidden" && element.getClientRects().length > 0;
+    }
+
+    function resolveErrorTarget(target, section) {
+      // The real file input is deliberately hidden in the custom media UI.
+      // Scrolling to it looks like the error link did nothing, so use the
+      // visible action that opens the file picker instead.
+      if (target && target.matches("input[type='file']")) {
+        return (section && section.querySelector("[data-main-photo-pick]")) || target;
+      }
+
+      if (isVisible(target)) return target;
+
+      if (section) {
+        return section.querySelector(
+          "input:not([type='hidden']):not([type='file']), select, textarea, button"
+        ) || target;
+      }
+      return target;
+    }
+
     summary.querySelectorAll("[data-place-error-link]").forEach(function (link) {
       link.addEventListener("click", function (event) {
         event.preventDefault();
@@ -30,9 +54,7 @@
           }
         }
         var target = document.querySelector(link.getAttribute("href"));
-        if (!target && section) {
-          target = section.querySelector("input:not([type='hidden']), select, textarea");
-        }
+        target = resolveErrorTarget(target, section);
         if (!target) {
           return;
         }

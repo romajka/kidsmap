@@ -463,13 +463,6 @@ def _build_sidebar_sections(request, *, metrics: dict[str, int]) -> list[dict]:
                 _build_sidebar_item(request, model=SiteRegisteredUser, label=_("Все пользователи"), icon="far fa-user"),
                 _build_sidebar_item(
                     request,
-                    model=SiteRegisteredUser,
-                    label=_("Владельцы"),
-                    icon="fas fa-store",
-                    query_params="profile__role__exact=owner",
-                ),
-                _build_sidebar_item(
-                    request,
                     model=StaffAccessUser,
                     label=_("Добавить администратора"),
                     icon="fas fa-user-plus",

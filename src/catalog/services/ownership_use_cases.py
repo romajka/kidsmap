@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 from django.utils.translation import gettext as _
 
-from catalog.interfaces.repositories import IPlaceOwnershipRequestRepository, IUserProfileRepository
-from catalog.models import Place, PlaceOwnershipRequest, UserProfile
+from catalog.interfaces.repositories import IPlaceOwnershipRequestRepository
+from catalog.models import Place, PlaceOwnershipRequest
 
 
 @dataclass(slots=True)
@@ -21,7 +21,6 @@ def submit_place_ownership_request(
     request,
     place: Place,
     ownership_repository: IPlaceOwnershipRequestRepository,
-    profile_repository: IUserProfileRepository,
 ) -> OwnershipRequestResult:
     if not request.user.is_authenticated:
         return OwnershipRequestResult(
@@ -29,8 +28,6 @@ def submit_place_ownership_request(
             created=False,
             message=_("Для отправки заявки войдите в аккаунт и повторите действие."),
         )
-
-    profile = profile_repository.get_or_create_for_user(request.user)
 
     if place.owner_id == request.user.id:
         return OwnershipRequestResult(

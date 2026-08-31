@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{{ content.title }} — KidsMap{% endblock %}
+{% block title_plain %}{{ content.title }} — KidsMap{% endblock %}
+{% block meta_description %}{{ content.subtitle }}{% endblock %}
+
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/pages/add_place.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="add-place-wrapper">
+
+  <!-- 1. Hero Section -->
+  <section class="add-place-hero">
+    <div class="add-place-hero__surface">
+      <picture class="add-place-hero__picture">
+        {% if site_settings.for_business_hero_image %}
+          <img
+            class="add-place-hero__image"
+            src="{{ site_settings.for_business_hero_image.url }}"
+            width="1600"
+            height="900"
+            alt=""
+            decoding="async"
+            fetchpriority="high"
+          >
+        {% else %}
+          <source
+            media="(max-width: 760px)"
+            srcset="{% static 'img/banners/for-business-hero-mobile.webp' %}"
+          >
+          <img
+            class="add-place-hero__image"
+            src="{% static 'img/banners/for-business-hero.webp' %}"
+            width="1600"
+            height="900"
+            alt=""
+            decoding="async"
+            fetchpriority="high"
+          >
+        {% endif %}
+      </picture>
+      <div class="add-place-hero__overlay" aria-hidden="true"></div>
+
+      <div class="add-place-hero__content">
+        <div class="add-place-hero__badges">
+          <span class="add-place-badge-eyebrow">{{ content.eyebrow }}</span>
+          <span class="add-place-badge-free">
+            <span class="material-symbols-rounded" style="font-size: 16px;">check_circle</span>
+            {{ content.free_badge }}
+          </span>
+        </div>
+
+        <h1 class="add-place-hero__title">
+          <span class="business-title-desktop">{{ content.title }}</span>
+          <span class="business-title-mobile">{{ content.mobile_title }}</span>
+        </h1>
+
+        <p class="add-place-hero__subtitle">{{ content.subtitle }}</p>
+
+        <div class="add-place-hero__actions">
+          <a class="add-place-btn-primary" href="{% url 'owner_place_create' %}?fresh=1">
+            <span class="material-symbols-rounded">add_circle</span>
+            <span>{{ content.primary_cta }}</span>
+          </a>
+          <a class="add-place-btn-secondary" href="{% url 'place_list' %}">
+            <span class="material-symbols-rounded">search</span>
+            <span>{{ content.secondary_cta }}</span>
+          </a>
+        </div>
+
+        <p class="add-place-hero__note">
+          <span class="dot"></span>
+          <span>{{ content.moderation_note }}</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Live Platform Stats Strip -->
+  <section class="add-place-stats-grid">
+    <div class="add-place-stat-box">
+      <div class="add-place-stat-icon green">
+        <span class="material-symbols-rounded">price_check</span>
+      </div>
+      <div class="add-place-stat-info">
+        <span class="add-place-stat-value">0 AZN</span>
+        <span class="add-place-stat-label">
+          {% if CURRENT_LANGUAGE == "az" %}Əsas yerləşdirmə pulsuzdur{% elif CURRENT_LANGUAGE == "en" %}Free basic listing{% else %}Базовое размещение бесплатно{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="add-place-stat-box">
+      <div class="add-place-stat-icon gold">
+        <span class="material-symbols-rounded">storefront</span>
+      </div>
+      <div class="add-place-stat-info">
+        <span class="add-place-stat-value">{{ places_count|default:"0" }}</span>
+        <span class="add-place-stat-label">
+          {% if CURRENT_LANGUAGE == "az" %}Aktiv məkan kataloqda{% elif CURRENT_LANGUAGE == "en" %}Active places in catalog{% else %}Мест уже в каталоге{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="add-place-stat-box">
+      <div class="add-place-stat-icon blue">
+        <span class="material-symbols-rounded">verified_user</span>
+      </div>
+      <div class="add-place-stat-info">
+        <span class="add-place-stat-value">24 saat</span>
+        <span class="add-place-stat-label">
+          {% if CURRENT_LANGUAGE == "az" %}Sürətli moderasiya{% elif CURRENT_LANGUAGE == "en" %}Fast moderation{% else %}Быстрая модерация{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="add-place-stat-box">
+      <div class="add-place-stat-icon purple">
+        <span class="material-symbols-rounded">call</span>
+      </div>
+      <div class="add-place-stat-info">
+        <span class="add-place-stat-value">100%</span>
+        <span class="add-place-stat-label">
+          {% if CURRENT_LANGUAGE == "az" %}Birbaşa valideyn zəngləri{% elif CURRENT_LANGUAGE == "en" %}Direct parent contacts{% else %}Прямые заявки родителей{% endif %}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Step-by-Step Publication Workflow -->
+  <section class="add-place-steps-wrapper" aria-labelledby="business-process-title">
+    <div class="add-place-section-head">
+      <span class="add-place-section-badge">KidsMap</span>
+      <h2 class="add-place-section-title" id="business-process-title">{{ content.steps_title }}</h2>
+      <p class="add-place-section-sub">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Məkanınızı qeydiyyatdan keçirib dərhal yeni şagirdlər cəlb etməyə başlayın.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Publish your venue quickly and start connecting directly with interested parents.
+        {% else %}
+          Быстрая публикация карточки и прямой поток обращений от заинтересованных родителей.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="add-place-steps-grid">
+      {% for title, description in content.steps %}
+      <article class="add-place-step-card">
+        <div class="add-place-step-top">
+          <span class="add-place-step-num">{{ forloop.counter|stringformat:"02d" }}</span>
+          <div class="add-place-step-icon">
+            {% if forloop.counter == 1 %}
+              <span class="material-symbols-rounded">person_add</span>
+            {% elif forloop.counter == 2 %}
+              <span class="material-symbols-rounded">edit_note</span>
+            {% elif forloop.counter == 3 %}
+              <span class="material-symbols-rounded">published_with_changes</span>
+            {% else %}
+              <span class="material-symbols-rounded">visibility</span>
+            {% endif %}
+          </div>
+        </div>
+        <h3 class="add-place-step-title">{{ title }}</h3>
+        <p class="add-place-step-desc">{{ description }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- 4. Value / Detail Cards -->
+  <section class="add-place-details-wrapper" aria-labelledby="business-details-title">
+    <div class="add-place-section-head">
+      <span class="add-place-section-badge">
+        {% if CURRENT_LANGUAGE == "az" %}Ətraflı məlumat{% elif CURRENT_LANGUAGE == "en" %}Details{% else %}Подробно{% endif %}
+      </span>
+      <h2 class="add-place-section-title" id="business-details-title">{{ content.details_title }}</h2>
+      <p class="add-place-section-sub">{{ content.details_intro }}</p>
+    </div>
+
+    <div class="add-place-details-grid" style="margin-top: 20px;">
+      {% for title, items in content.detail_cards %}
+      <article class="add-place-detail-card card-{{ forloop.counter }}">
+        <div class="add-place-detail-head">
+          <div class="add-place-detail-icon">
+            {% if forloop.counter == 1 %}
+              <span class="material-symbols-rounded">verified</span>
+            {% elif forloop.counter == 2 %}
+              <span class="material-symbols-rounded">fact_check</span>
+            {% else %}
+              <span class="material-symbols-rounded">autorenew</span>
+            {% endif %}
+          </div>
+          <h3 class="add-place-detail-title">{{ title }}</h3>
+        </div>
+
+        <ul class="add-place-detail-list">
+          {% for item in items %}
+          <li>
+            <span class="material-symbols-rounded check-icon">check_circle</span>
+            <span>{{ item }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- 5. Bottom CTA Section -->
+  <section class="add-place-cta-card">
+    <div class="add-place-cta-info">
+      <h2 class="add-place-cta-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Məkanınızı KidsMap-də yerləşdirməyə hazırsınız?
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Ready to list your kids club on KidsMap?
+        {% else %}
+          Готовы разместить свой детский центр на KidsMap?
+        {% endif %}
+      </h2>
+      <p class="add-place-cta-desc">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Qeydiyyatdan keçin və bir neçə dəqiqə ərzində məkanınızın kartını yaradın.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Create an account and publish your venue details in just a few minutes.
+        {% else %}
+          Пройдите простую регистрацию и создайте карточку своего центра всего за пару минут.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="add-place-cta-actions">
+      <a class="add-place-cta-btn-white" href="{% url 'owner_place_create' %}?fresh=1">
+        <span class="material-symbols-rounded">add_circle</span>
+        <span>{{ content.primary_cta }}</span>
+      </a>
+      <a class="add-place-cta-btn-outline" href="{% url 'place_list' %}">
+        <span class="material-symbols-rounded">search</span>
+        <span>{{ content.secondary_cta }}</span>
+      </a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

@@ -17,13 +17,12 @@
     {% if place.has_schedule_content or place.lesson_duration_display %}
       <div class="place-more-section">
         <span class="place-more-label">{% trans "Расписание" %}</span>
-        {% if place.has_structured_schedule %}
-          {% for row in place.schedule_rows %}
-            <p class="place-more-text"><b>{{ row.days }}</b>: {{ row.lines|join:", " }}</p>
-          {% endfor %}
-        {% elif place.schedule %}
-          <p class="place-more-text">{{ place.schedule|linebreaksbr }}</p>
-        {% endif %}
+        {% for row in place.schedule_rows %}
+          <p class="place-more-text">
+            {% if row.days %}<b>{{ row.days }}</b>: {% endif %}
+            {% if row.url %}<a href="{{ row.url }}">{{ row.lines|join:", " }}</a>{% else %}{{ row.lines|join:", " }}{% endif %}
+          </p>
+        {% endfor %}
         {% if place.lesson_duration_display %}
           <p class="place-more-meta"><b>{% trans "Длительность" %}:</b> {{ place.lesson_duration_display }}</p>
         {% endif %}

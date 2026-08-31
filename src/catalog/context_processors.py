@@ -3,7 +3,7 @@ from django.templatetags.static import static
 from django.db.utils import OperationalError, ProgrammingError
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
-from .models import SiteSettings, UserProfile
+from .models import SiteSettings
 from .services.seo import DEFAULT_ROBOTS_CONTENT, build_sitewide_schema_payload
 from .services.tracking import (
     PUBLIC_ANALYTICS_PAGE_TYPES,
@@ -62,7 +62,6 @@ NOINDEX_URL_NAMES = {
     "password_reset_done",
     "password_reset_confirm",
     "password_reset_complete",
-    "owner_cabinet",
     "owner_places_dashboard",
     "owner_place_create",
     "owner_place_edit",
@@ -188,29 +187,6 @@ def _google_analytics_context(request) -> dict[str, object]:
 def site_settings(request):
     queued_analytics_events = pop_queued_google_analytics_events(request)
     google_analytics_context = _google_analytics_context(request)
-    user_role_data = {
-        "current_user_role": "",
-        "current_user_role_label": "",
-        "current_owner_role": "",
-        "current_owner_role_label": "",
-    }
-    if getattr(request, "user", None) is not None and request.user.is_authenticated:
-        try:
-            profile = UserProfile.get_or_create_for_user(request.user)
-            user_role_data = {
-                "current_user_role": profile.role,
-                "current_user_role_label": profile.get_role_display(),
-                "current_owner_role": profile.owner_role if profile.role == UserProfile.ROLE_OWNER else "",
-                "current_owner_role_label": profile.get_owner_role_display() if profile.role == UserProfile.ROLE_OWNER else "",
-            }
-        except (OperationalError, ProgrammingError):
-            user_role_data = {
-                "current_user_role": UserProfile.ROLE_USER,
-                "current_user_role_label": _("Обычный пользователь"),
-                "current_owner_role": "",
-                "current_owner_role_label": "",
-            }
-
     try:
         cfg = SiteSettings.get_solo()
     except (OperationalError, ProgrammingError):
@@ -242,7 +218,6 @@ def site_settings(request):
             "is_specialists_section_enabled": is_specialists_section_enabled(),
             "is_events_section_enabled": is_events_section_enabled(),
             **schema_payload,
-            **user_role_data,
         }
 
     lang = (request.LANGUAGE_CODE or settings.LANGUAGE_CODE or "az").split("-")[0]
@@ -293,5 +268,4 @@ def site_settings(request):
         "is_specialists_section_enabled": is_specialists_section_enabled(),
         "is_events_section_enabled": is_events_section_enabled(),
         **schema_payload,
-        **user_role_data,
     }

@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import Event, UserProfile
+from catalog.models import Event
 from catalog.forms import OwnerEventForm
 
 @dataclass
@@ -12,13 +12,6 @@ class EventActionResponse:
     message: str
     event: Event | None = None
     form: OwnerEventForm | None = None
-    profile: UserProfile | None = None
-
-def get_owner_profile(user) -> UserProfile | None:
-    if not user.is_authenticated:
-        return None
-    profile, _ = UserProfile.objects.get_or_create(user=user)
-    return profile
 
 def _event_required_missing(event: Event) -> list[str]:
     missing = []
@@ -45,8 +38,7 @@ def _event_required_missing(event: Event) -> list[str]:
     return missing
 
 def create_event(request, data, files, draft_save_only: bool) -> EventActionResponse:
-    profile = get_owner_profile(request.user)
-    if profile is None:
+    if not request.user.is_authenticated:
         return EventActionResponse(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
 
     form = OwnerEventForm(data=data, files=files, user=request.user, draft_save_only=draft_save_only)
@@ -61,11 +53,10 @@ def create_event(request, data, files, draft_save_only: bool) -> EventActionResp
         message = _("Qaralama saxlanıldı.") if draft_save_only else _("Tədbir moderasiyaya göndərildi.")
         return EventActionResponse(ok=True, message=message, event=event)
     
-    return EventActionResponse(ok=False, message=_("Ошибка в форме."), form=form, profile=profile)
+    return EventActionResponse(ok=False, message=_("Ошибка в форме."), form=form)
 
 def edit_event(request, pk: int, data, files, draft_save_only: bool) -> EventActionResponse:
-    profile = get_owner_profile(request.user)
-    if profile is None:
+    if not request.user.is_authenticated:
         return EventActionResponse(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
 
     event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
@@ -85,7 +76,7 @@ def edit_event(request, pk: int, data, files, draft_save_only: bool) -> EventAct
         message = _("Qaralama saxlanıldı.") if draft_save_only else _("Tədbir moderasiyaya göndərildi.")
         return EventActionResponse(ok=True, message=message, event=event)
 
-    return EventActionResponse(ok=False, message=_("Ошибка в форме."), form=form, profile=profile, event=event)
+    return EventActionResponse(ok=False, message=_("Ошибка в форме."), form=form, event=event)
 
 def submit_event_for_review(request, pk: int) -> EventActionResponse:
     event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)

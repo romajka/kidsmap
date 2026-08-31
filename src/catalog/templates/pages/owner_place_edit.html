@@ -7,7 +7,7 @@
 {% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Məkanı redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit place{% else %}Редактирование места{% endif %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=22">
+  <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=25">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_taxonomy_picker.css' %}?v=3">
 {% endblock %}
 
@@ -37,7 +37,7 @@
       data-owner-required-groups="district|metro"
       data-owner-permanent-required-groups="district|metro"
       data-owner-temporary-required-groups=""
-      data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,offers_adult_classes,instagram,website,schedule,lesson_format,lesson_duration_minutes,lessons_per_week,lessons_per_month,pricing_plans,extra_conditions,additional_info"
+      data-owner-optional-fields="subcategory,name_ru,name_en,description_ru,description_en,offers_adult_classes,instagram,website,schedule,schedule_mode,schedule_note_az,schedule_note_ru,schedule_note_en,lesson_format,lesson_duration_minutes,lessons_per_week,lessons_per_month,pricing_plans,extra_conditions,additional_info"
       data-owner-optional-groups="lat|lng"
       data-owner-location-group-label="{% if CURRENT_LANGUAGE == 'az' %}Region, rayon və ya metro{% elif CURRENT_LANGUAGE == 'en' %}Region, district, or metro{% else %}{% trans 'Регион, район или метро' %}{% endif %}"
       data-owner-map-group-label="{% if CURRENT_LANGUAGE == 'az' %}Xəritədə nöqtə{% elif CURRENT_LANGUAGE == 'en' %}Map point{% else %}{% trans 'Точка на карте' %}{% endif %}"
@@ -94,7 +94,7 @@
 {% endblock %}
 
 {% block extra_body %}
-  <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=21"></script>
+  <script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=25"></script>
   <script src="{% static 'js/owner_place_wizard.js' %}?v=11"></script>
   <script src="{% static 'js/owner_pricing_plans.js' %}?v=12"></script>
   <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}"></script>

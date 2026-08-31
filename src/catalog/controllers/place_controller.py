@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext, override
 
 from catalog.interfaces.repositories import IPlaceRepository, ISettingsRepository
-from catalog.models import Event, FunnelEvent, Place, Category
+from catalog.models import Event, FunnelEvent, Place, Category, Subcategory
 from catalog.repositories.django_repositories import DjangoPlaceRepository, DjangoSettingsRepository
 from catalog.services.filtering import PlaceListFilters, build_new_page_stats
 from catalog.services.public_filter_options import build_public_place_filter_options
@@ -136,6 +136,7 @@ class PlaceController:
         public_filter_options = build_public_place_filter_options(
             language_code=language_code,
             selected_category=selected.get("category", ""),
+            selected_subcategory=selected.get("subcategory", ""),
             selected_district=selected.get("district", ""),
             selected_metro=selected.get("metro", ""),
         )
@@ -162,6 +163,24 @@ class PlaceController:
             "categories": public_filter_options.categories,
             "active_category_codes": {item["value"] for item in public_filter_options.categories},
             "subcategory_options": public_filter_options.subcategories,
+            # Подкатегории показываем только внутри выбранной категории и
+            # только те, за которыми реально есть места (пустые отсеяны ещё
+            # в build_public_place_filter_options). Пустой список — значит
+            # блок подкатегорий не рисуется вовсе.
+            "selected_category_label": next(
+                (
+                    option["label"]
+                    for option in public_filter_options.categories
+                    if option["value"] == selected.get("category")
+                ),
+                "",
+            ),
+            "subcategory_options_for_category": [
+                option
+                for option in public_filter_options.subcategories
+                if selected.get("category")
+                and option.get("category_code") == selected.get("category")
+            ],
             "district_options": district_options,
             "metro_options": metro_options,
             "is_new_page": force_new_only,
@@ -444,6 +463,7 @@ class PlaceController:
 
         add_param("q", selected.get("q"))
         add_param("category", selected.get("category"))
+        add_param("subcategory", selected.get("subcategory"))
         add_param("district", selected.get("district"))
         add_param("min_rating", selected.get("min_rating"))
         if not force_new_only:
@@ -515,7 +535,27 @@ class PlaceController:
             chips.append(
                 {
                     "label": label,
-                    "remove_url": remove_url("category"),
+                    # Снимая категорию, снимаем и подкатегорию: без родителя
+                    # она не показывается в сайдбаре и осталась бы висеть
+                    # невидимым фильтром.
+                    "remove_url": remove_url("category", "subcategory"),
+                }
+            )
+
+        subcategory = str(selected.get("subcategory") or "").strip()
+        if subcategory:
+            sub_obj = Subcategory.objects.filter(pk=subcategory).first() if subcategory.isdigit() else None
+            subcategory_label = sub_obj.name_i18n(language_code) if sub_obj else subcategory
+            if language_code == "az":
+                label = f"Alt kateqoriya: {subcategory_label}"
+            elif language_code == "en":
+                label = f"Subcategory: {subcategory_label}"
+            else:
+                label = _("Подкатегория: %(value)s") % {"value": subcategory_label}
+            chips.append(
+                {
+                    "label": label,
+                    "remove_url": remove_url("subcategory"),
                 }
             )
 
@@ -643,7 +683,7 @@ class PlaceController:
         query = (selected.get("q") or "").strip()
         active_filters: list[str] = []
 
-        for name in ("category", "district", "metro", "min_rating", "with_photo", "verified", "event_type"):
+        for name in ("category", "subcategory", "district", "metro", "min_rating", "with_photo", "verified", "event_type"):
             value = selected.get(name)
             if value not in (None, "", "0"):
                 active_filters.append(name)
@@ -743,7 +783,15 @@ class PlaceController:
         return get_object_or_404(published_place_queryset(Place.objects.all()), pk=pk)
 
     def get_active_place_with_gallery(self, *, pk: int) -> Place:
-        return get_object_or_404(published_place_queryset(Place.objects.all()).prefetch_related("gallery"), pk=pk)
+        return get_object_or_404(
+            published_place_queryset(Place.objects.all()).prefetch_related(
+                "gallery",
+                "events",
+                "schedule_days__intervals",
+                "pricing_plan_records",
+            ),
+            pk=pk,
+        )
 
     def build_detail_context(self, request: HttpRequest, *, place: Place) -> dict:
         liked_ids = liked_place_ids(request)

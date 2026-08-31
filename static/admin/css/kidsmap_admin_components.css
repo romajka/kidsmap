@@ -118,19 +118,92 @@ select:focus-visible {
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
 }
 
+/* ===== Очистка поиска ===== */
+.km-admin-search-clear-wrapper {
+  position: relative;
+  display: inline-block;
+  min-width: 0;
+}
+
+.place-admin-dashboard__search-combined .km-admin-search-clear-wrapper {
+  flex: 1 1 0%;
+  width: 0;
+}
+
+.km-search-box .km-admin-search-clear-wrapper {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.km-admin-search-clear-wrapper > input[name="q"] {
+  box-sizing: border-box;
+  padding-right: 42px !important;
+}
+
+.km-admin-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #edf5f0;
+  color: #466353;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.km-admin-search-clear::before,
+.km-admin-search-clear::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.km-admin-search-clear::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.km-admin-search-clear::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.km-admin-search-clear:hover {
+  background: #dcece2;
+  color: #174f31;
+}
+
+.km-admin-search-clear:focus-visible {
+  outline: 3px solid rgba(13, 138, 82, 0.25);
+  outline-offset: 2px;
+}
+
 /* ===== Badges / Статусы ===== */
+/* Единственное определение бейджа. Раньше их было два — здесь и в
+   kidsmap_admin.css; второе выигрывало по каскаду (собственные правила файла
+   идут после его @import), но ссылалось на необъявленные токены, поэтому
+   бейджи рисовались вообще без фона. Геометрия ниже — та, что фактически
+   применялась, цвета берутся из семантической палитры. */
 .km-admin-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 600;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
-  line-height: 1.4;
-  border: 1px solid transparent;
 }
 
 .km-admin-badge--good {
@@ -159,9 +232,11 @@ select:focus-visible {
 
 .km-admin-badge--muted,
 .km-admin-badge--neutral {
-  background: var(--km-admin-gray-bg);
-  color: var(--km-admin-gray);
-  border-color: var(--km-admin-gray-border);
+  background: var(--km-admin-badge-muted-bg);
+  /* --km-admin-gray (#94A3B8) на светло-сером фоне давал контраст ~2.3:1 —
+     текст был почти нечитаем. Тот же токен, что у нейтральных меток аудита. */
+  color: var(--km-admin-badge-muted-fg);
+  border-color: var(--km-admin-badge-muted-border);
 }
 
 /* Stack (группировка элементов в столбцах) */

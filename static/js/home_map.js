@@ -10,6 +10,7 @@
     return {
       googleMapsApiKey: (scriptEl.dataset.homeMapGoogleKey || "").trim(),
       googleMapsMapId: (scriptEl.dataset.homeMapGoogleMapId || "").trim(),
+      language: (scriptEl.dataset.homeMapLanguage || "az").trim(),
       unavailableLabel: (scriptEl.dataset.homeMapUnavailableLabel || "Map is temporarily unavailable.").trim(),
     };
   })();
@@ -1146,7 +1147,9 @@
       const src =
         "https://maps.googleapis.com/maps/api/js?key=" +
         encodeURIComponent(SCRIPT_CONFIG.googleMapsApiKey) +
-        "&loading=async&libraries=marker&callback=kidsMapHomeMapGoogleLoaded";
+        "&loading=async&libraries=marker&language=" +
+        encodeURIComponent(SCRIPT_CONFIG.language) +
+        "&region=AZ&callback=kidsMapHomeMapGoogleLoaded";
 
       return loadScript(src);
     }

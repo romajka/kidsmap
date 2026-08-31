@@ -57,6 +57,22 @@ class RelationalPricingPlanTests(TestCase):
         self.assertEqual(summary_ru["kind"], "on_request")
         self.assertEqual(summary_ru["label"], "Цена уточняется")
 
+    def test_free_and_paid_tariffs_show_actual_zero_to_maximum_range(self):
+        replace_place_pricing_plans(self.place, [
+            {"product_type": "admission", "price_kind": "free"},
+            {"product_type": "admission", "price_kind": "exact", "price": 10},
+            {"product_type": "admission", "price_kind": "range", "price_min": 12, "price_max": 15},
+            {"product_type": "admission", "price_kind": "exact", "price": 99, "is_active": False},
+        ])
+
+        summary = build_public_price_summary(self.place, "ru")
+
+        self.assertEqual(summary["kind"], "mixed")
+        self.assertEqual(summary["min_price"], Decimal("0"))
+        self.assertEqual(summary["max_price"], Decimal("15"))
+        self.assertEqual(summary["label"], "0–15 ₼")
+        self.assertEqual(self.place.card_price_badge_value, "0–15 ₼")
+
     def test_on_request_disables_legacy_fallback(self):
         Place.objects.filter(pk=self.place.pk).update(price_from=30, price_to=50)
         self.place.refresh_from_db()

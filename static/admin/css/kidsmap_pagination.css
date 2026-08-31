@@ -1,0 +1,211 @@
+/* Пагинация списков админки.
+   Подключается глобально через kidsmap_admin.css, поэтому выглядит одинаково
+   на всех changelist, а не только на тех, что грузят kidsmap_changelist.css.
+
+   ВАЖНО: селекторы должны совпадать с разметкой templates/admin/pagination.html.
+   Раньше стили были написаны под .km-pagination-list с <li>, которых шаблон
+   не рендерит, и весь блок молча не применялся. */
+
+.km-changelist-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  /* Jazzmin вставляет блок внутрь <div class="row">. Это флекс-контейнер
+     Bootstrap: без явной ширины блок сжимается по содержимому, а с width:100%
+     вылезает за края контента, потому что у .row отрицательные поля -15px.
+     Поэтому — растянуть на всю строку и вернуть эти 15px обратно, чтобы
+     полоса встала ровно под таблицей. */
+  flex: 1 1 100%;
+  box-sizing: border-box;
+  margin: 18px 0 0;
+  padding: 12px 18px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: 16px;
+  background: var(--km-admin-surface);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.035);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.km-changelist-pagination__info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+}
+
+.km-changelist-pagination__count {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--km-admin-text);
+}
+
+.km-changelist-pagination__page-status {
+  padding-left: 12px;
+  border-left: 1px solid var(--km-admin-border);
+  color: var(--km-admin-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.km-changelist-pagination__show-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #c7e5d2;
+  border-radius: 999px;
+  background: var(--km-admin-accent-soft);
+  color: #17663d;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.km-changelist-pagination__show-all-btn:hover {
+  background: #dff2e6;
+  border-color: #a3d4b6;
+  color: #0f522e;
+}
+
+.row > .km-changelist-pagination {
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+/* Навигация по страницам */
+
+.km-changelist-pagination__nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* .page-link — класс Bootstrap, поэтому обязательно перебиваем его
+   через родителя, а не !important. */
+.km-changelist-pagination .page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--km-admin-border);
+  border-radius: 999px;
+  background: var(--km-admin-surface);
+  color: var(--km-admin-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.km-changelist-pagination .page-link--direction {
+  gap: 6px;
+  min-width: auto;
+}
+
+.km-changelist-pagination .page-link:hover {
+  background: var(--km-admin-button-hover-bg);
+  border-color: var(--km-admin-button-border);
+  color: var(--km-admin-accent);
+}
+
+.km-changelist-pagination .page-link.active {
+  background: var(--km-admin-accent);
+  border-color: var(--km-admin-accent);
+  color: #fff;
+}
+
+.km-changelist-pagination .page-link.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.km-changelist-pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  color: var(--km-admin-text-muted);
+  font-weight: 700;
+}
+
+/* Тёмная тема */
+
+body.dark-mode .km-changelist-pagination {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .km-changelist-pagination__count {
+  color: #f8fafc;
+}
+
+body.dark-mode .km-changelist-pagination__page-status {
+  border-color: #475569;
+  color: #94a3b8;
+}
+
+body.dark-mode .km-changelist-pagination__show-all-btn {
+  background: #1e3a2f;
+  border-color: #1b5e20;
+  color: #4ade80;
+}
+
+body.dark-mode .km-changelist-pagination__show-all-btn:hover {
+  background: #14532d;
+  border-color: #22c55e;
+  color: #86efac;
+}
+
+body.dark-mode .km-changelist-pagination .page-link {
+  background: #1e293b;
+  border-color: #475569;
+  color: #cbd5e1;
+}
+
+body.dark-mode .km-changelist-pagination .page-link:hover {
+  background: #334155;
+  border-color: #64748b;
+  color: #38bdf8;
+}
+
+body.dark-mode .km-changelist-pagination .page-link.active {
+  background: #10b981;
+  border-color: #10b981;
+  color: #fff;
+}
+
+/* Узкие экраны: счётчик сверху, номера страниц уезжают в горизонтальный скролл,
+   у стрелок остаются только сами стрелки без подписей. */
+
+@media (max-width: 640px) {
+  .km-changelist-pagination {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .km-changelist-pagination__nav {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+
+  .km-changelist-pagination .page-link {
+    flex: 0 0 auto;
+  }
+
+  .km-changelist-pagination .page-link__label {
+    display: none;
+  }
+}

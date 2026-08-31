@@ -2,110 +2,87 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from catalog.models import OwnerTeamMembership, Place, UserProfile
+from catalog.models import Place
+from catalog.services.place_access import (
+    PlacePermissionScope,
+    direct_place_permissions,
+)
 
 
 @dataclass(slots=True)
 class OwnerAccessResult:
     ok: bool
     message: str
-    profile: UserProfile | None = None
 
 
-@dataclass(slots=True)
-class OwnerPermissionScope:
-    owner_id: int
-    role: str
-    permissions: set[str]
-    source: str
-    membership_id: int | None = None
+# Compatibility alias while owner-named controllers and routes still exist.
+OwnerPermissionScope = PlacePermissionScope
 
 
-def ensure_owner_permission(
-    *,
-    user,
-    profile_repository,
-    permission_code: str | None = None,
-) -> OwnerAccessResult:
+def ensure_owner_permission(*, user) -> OwnerAccessResult:
+    """Authentication gate only.
+
+    What a user may do is decided per place by `has_place_permission`. Nothing
+    here may consult UserProfile: a public profile role must never widen or
+    narrow access to a place.
+    """
     if not user.is_authenticated:
         return OwnerAccessResult(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
-
-    profile = profile_repository.get_or_create_for_user(user)
-    basic_permissions = {
-        UserProfile.OWNER_PERMISSION_VIEW_PLACES,
-        UserProfile.OWNER_PERMISSION_EDIT_PLACES,
-        UserProfile.OWNER_PERMISSION_VIEW_STATS,
-    }
-    if permission_code in basic_permissions:
-        # A regular account may manage cards it created. Accounts explicitly
-        # configured as owner-team roles must still respect that role's grants.
-        if profile.role != UserProfile.ROLE_OWNER or profile.has_owner_permission(permission_code):
-            return OwnerAccessResult(ok=True, message="", profile=profile)
-        return OwnerAccessResult(
-            ok=False,
-            message=_("Недостаточно прав для редактирования карточек."),
-            profile=profile,
-        )
-
-    if permission_code and permission_code not in basic_permissions and not profile.has_owner_permission(permission_code):
-        return OwnerAccessResult(
-            ok=False,
-            message=_(
-                "Недостаточно прав для выполнения этого действия. "
-                "Обратитесь к администратору, чтобы изменить доступ."
-            ),
-            profile=profile,
-        )
-
-    return OwnerAccessResult(ok=True, message="", profile=profile)
+    return OwnerAccessResult(ok=True, message="")
 
 
-def resolve_owner_permission_scopes(
-    *,
-    user,
-    profile_repository,
-    team_repository,
-) -> list[OwnerPermissionScope]:
+def resolve_owner_permission_scopes(*, user, team_repository) -> list[OwnerPermissionScope]:
+    """Return permissions scoped to individual places, never to a user role."""
     if not user.is_authenticated:
         return []
 
-    scopes_map: dict[int, OwnerPermissionScope] = {}
-
-    profile = profile_repository.get_or_create_for_user(user)
-    if profile.role == UserProfile.ROLE_OWNER:
-        scopes_map[user.id] = OwnerPermissionScope(
-            owner_id=user.id,
-            role=profile.owner_role,
-            permissions=set(profile.get_owner_permissions()),
-            source="self",
+    scopes: dict[int, OwnerPermissionScope] = {}
+    # Ownership decides; created_by only stands in while nobody owns the card.
+    direct_places = Place.objects.filter(
+        Q(owner=user) | Q(owner__isnull=True, created_by=user),
+        deleted_at__isnull=True,
+    ).distinct()
+    for place in direct_places:
+        scopes[place.id] = OwnerPermissionScope(
+            place_id=place.id,
+            role="DIRECT",
+            permissions=direct_place_permissions(user=user, place=place),
+            source="direct",
         )
 
-    memberships = team_repository.list_active_memberships_for_user(user=user)
-    for membership in memberships:
-        member_permissions = membership.get_permissions()
-        existing = scopes_map.get(membership.owner_id)
+    for membership in team_repository.list_active_memberships_for_user(user=user):
+        if membership.place_id is None:
+            # Owner-wide memberships predate place-scoped access. They remain
+            # stored for migration, but no longer grant access to every place.
+            continue
+        permissions = membership.get_permissions()
+        existing = scopes.get(membership.place_id)
         if existing is None:
-            scopes_map[membership.owner_id] = OwnerPermissionScope(
-                owner_id=membership.owner_id,
+            scopes[membership.place_id] = OwnerPermissionScope(
+                place_id=membership.place_id,
                 role=membership.role,
-                permissions=set(member_permissions),
+                permissions=set(permissions),
                 source="team",
                 membership_id=membership.id,
             )
             continue
-
-        existing.permissions.update(member_permissions)
-        if existing.source != "self":
+        existing.permissions.update(permissions)
+        if existing.source != "direct":
             existing.role = membership.role
             existing.membership_id = membership.id
 
-    return list(scopes_map.values())
+    return list(scopes.values())
 
 
-def owner_ids_for_permission(scopes: list[OwnerPermissionScope], permission_code: str) -> list[int]:
-    return [scope.owner_id for scope in scopes if permission_code in scope.permissions]
+def place_ids_for_permission(scopes: list[OwnerPermissionScope], permission_code: str) -> list[int]:
+    return [scope.place_id for scope in scopes if permission_code in scope.permissions]
+
+
+# Kept temporarily for import compatibility with owner-named controllers.
+owner_ids_for_permission = place_ids_for_permission
 
 
 def build_owner_places_stats(*, places) -> dict:
@@ -117,10 +94,8 @@ def build_owner_places_stats(*, places) -> dict:
     map_ready_places = sum(1 for place in place_list if place.is_map_ready)
     total_reviews = sum(int(place.rating_count or 0) for place in place_list)
     total_likes = sum(int(place.likes_count or 0) for place in place_list)
-
     weighted_rating_sum = sum(float(place.rating_avg or 0) * int(place.rating_count or 0) for place in place_list)
     avg_rating = (weighted_rating_sum / total_reviews) if total_reviews else 0.0
-
     return {
         "total_places": total_places,
         "published_places": published_places,

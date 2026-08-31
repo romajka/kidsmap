@@ -4,7 +4,8 @@ import json
 from dataclasses import dataclass
 from datetime import time
 
-from django.utils.translation import get_language, gettext as _
+from django.utils import timezone
+from django.utils.translation import get_language, gettext as _, override
 
 
 WEEKDAY_ORDER = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
@@ -29,6 +30,105 @@ SHORT_DAY_LABELS = {
     "sat": "Сб",
     "sun": "Вс",
 }
+
+SCHEDULE_MODE_COPY = {
+    "ru": {
+        "regular": "Расписание",
+        "by_appointment": "По предварительной записи",
+        "variable": "Переменное расписание",
+        "events": "Ближайшие мероприятия",
+        "variable_default": "Расписание меняется. Уточняйте актуальное время у организации.",
+        "events_empty": "Ближайшие мероприятия пока не добавлены.",
+        "regular_note": "Актуальное время лучше уточнить перед посещением.",
+    },
+    "az": {
+        "regular": "Cədvəl",
+        "by_appointment": "Əvvəlcədən qeydiyyatla",
+        "variable": "Dəyişən cədvəl",
+        "events": "Yaxın tədbirlər",
+        "variable_default": "Cədvəl dəyişir. Aktual vaxtı təşkilatdan dəqiqləşdirin.",
+        "events_empty": "Yaxın tədbirlər hələ əlavə edilməyib.",
+        "regular_note": "Ziyarətdən əvvəl aktual vaxtı dəqiqləşdirmək məsləhətdir.",
+    },
+    "en": {
+        "regular": "Schedule",
+        "by_appointment": "By appointment",
+        "variable": "Variable schedule",
+        "events": "Upcoming events",
+        "variable_default": "The schedule changes. Confirm the current time with the organization.",
+        "events_empty": "No upcoming events have been added yet.",
+        "regular_note": "Confirm the current time before visiting.",
+    },
+}
+
+EVENT_MONTHS = {
+    "ru": ("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"),
+    "az": ("yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"),
+    "en": ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+}
+
+
+def _schedule_lang(language=None) -> str:
+    lang = (language or get_language() or "ru").split("-")[0]
+    return lang if lang in SCHEDULE_MODE_COPY else "ru"
+
+
+def schedule_mode_label(place, language=None) -> str:
+    lang = _schedule_lang(language)
+    mode = getattr(place, "schedule_mode", "regular") or "regular"
+    return SCHEDULE_MODE_COPY[lang].get(mode, SCHEDULE_MODE_COPY[lang]["regular"])
+
+
+def schedule_mode_note(place, language=None) -> str:
+    lang = _schedule_lang(language)
+    mode = getattr(place, "schedule_mode", "regular") or "regular"
+    custom_note = ""
+    if hasattr(place, "schedule_note_i18n"):
+        custom_note = (place.schedule_note_i18n(lang) or "").strip()
+    if custom_note:
+        return custom_note
+    if mode == "variable":
+        return SCHEDULE_MODE_COPY[lang]["variable_default"]
+    if mode == "regular":
+        return SCHEDULE_MODE_COPY[lang]["regular_note"]
+    return ""
+
+
+def _format_event_date(value, lang: str) -> str:
+    local_value = timezone.localtime(value) if timezone.is_aware(value) else value
+    month = EVENT_MONTHS[lang][local_value.month - 1]
+    if lang == "en":
+        return f"{month} {local_value.day}"
+    return f"{local_value.day} {month}"
+
+
+def _upcoming_place_events(place, limit=3):
+    if not getattr(place, "pk", None) or not getattr(place, "events", None):
+        return []
+    from catalog.services.features import is_events_section_enabled
+
+    if not is_events_section_enabled():
+        return []
+    now = timezone.now()
+    prefetched = getattr(place, "_prefetched_objects_cache", {}).get("events")
+    if prefetched is not None:
+        candidates = [
+            event for event in prefetched
+            if event.status == "published"
+            and event.deleted_at is None
+            and event.start_datetime is not None
+            and event.end_datetime is not None
+            and event.end_datetime >= now
+        ]
+        return sorted(candidates, key=lambda event: (event.start_datetime, event.id))[:limit]
+    return list(
+        place.events.filter(
+            status="published",
+            deleted_at__isnull=True,
+            start_datetime__isnull=False,
+            end_datetime__gte=now,
+        ).order_by("start_datetime", "id")[:limit]
+    )
 
 
 def build_default_schedule_payload() -> list[dict[str, object]]:
@@ -314,15 +414,20 @@ def build_schedule_rows(days: list[dict[str, object]]) -> list[dict[str, object]
         if len(current_group) == 1:
             day_label = weekday_full_label(first_weekday)
         else:
-            day_label = f"{weekday_full_label(first_weekday)}-{weekday_full_label(last_weekday)}"
+            day_label = f"{weekday_full_label(first_weekday)}–{weekday_full_label(last_weekday)}"
 
         if current_group[0]["is_closed"]:
             lines = [_localized_closed_label()]
         elif current_group[0]["is_24_hours"]:
             lines = [_localized_around_clock_label()]
         else:
-            lines = [f"{item['start']}-{item['end']}" for item in current_group[0]["intervals"]]
-        rows.append({"days": day_label, "lines": lines})
+            lines = [f"{item['start']}–{item['end']}" for item in current_group[0]["intervals"]]
+        rows.append({
+            "days": day_label,
+            "lines": lines,
+            "is_closed": current_group[0]["is_closed"],
+            "is_24_hours": current_group[0]["is_24_hours"],
+        })
         current_group = []
         current_signature = None
 
@@ -344,4 +449,61 @@ def build_schedule_summary(days: list[dict[str, object]]) -> str:
     return "\n".join(
         f"{row['days']}  {'; '.join(row['lines'])}"
         for row in build_schedule_rows(days)
+    )
+
+
+def build_public_schedule_rows(place, language=None, *, event_limit=3) -> list[dict[str, object]]:
+    """Build one public row shape for weekly, variable and event schedules."""
+    lang = _schedule_lang(language)
+    mode = getattr(place, "schedule_mode", "regular") or "regular"
+    copy = SCHEDULE_MODE_COPY[lang]
+
+    if mode == "by_appointment":
+        text = copy["by_appointment"]
+        return [{"days": "", "time": text, "lines": [text], "is_closed": False, "url": ""}]
+
+    if mode == "variable":
+        text = schedule_mode_note(place, lang)
+        return [{"days": "", "time": text, "lines": [text], "is_closed": False, "url": ""}]
+
+    if mode == "events":
+        events = _upcoming_place_events(place, event_limit)
+        if not events:
+            text = copy["events_empty"]
+            return [{"days": "", "time": text, "lines": [text], "is_closed": False, "url": ""}]
+        rows = []
+        for event in events:
+            starts_at = timezone.localtime(event.start_datetime) if timezone.is_aware(event.start_datetime) else event.start_datetime
+            event_text = f"{starts_at:%H:%M} · {event.name_i18n(lang)}"
+            rows.append({
+                "days": _format_event_date(event.start_datetime, lang),
+                "time": event_text,
+                "lines": [event_text],
+                "is_closed": False,
+                "url": event.get_absolute_url(),
+            })
+        return rows
+
+    if getattr(place, "has_structured_schedule", False):
+        with override(lang):
+            weekly_rows = build_schedule_rows(serialize_place_schedule(place))
+        public_rows = []
+        all_day_label = "24h" if lang == "en" else ("24 saat" if lang == "az" else "круглосуточно")
+        for row in weekly_rows:
+            lines = [all_day_label] if row["is_24_hours"] else row["lines"]
+            public_rows.append({**row, "lines": lines, "time": ", ".join(lines), "url": ""})
+        return public_rows
+
+    legacy_text = (getattr(place, "schedule", "") or "").strip()
+    if legacy_text:
+        return [{"days": "", "time": legacy_text, "lines": [legacy_text], "is_closed": False, "url": ""}]
+    return []
+
+
+def build_public_schedule_summary(place, language=None) -> str:
+    rows = build_public_schedule_rows(place, language)
+    return "\n".join(
+        f"{row['days']}  {row['time']}".strip()
+        for row in rows
+        if row.get("time")
     )

@@ -5,7 +5,7 @@ def _terms_sections_az() -> list[dict]:
         section(
             "general",
             "1. Ümumi müddəalar",
-            paragraph("Bu İstifadə Şərtləri https://kidsmap.az ünvanında yerləşən KidsMap saytına girişi və təşkilatların kataloqu, tədbirlər, şəxsi kabinetlər, rəylər, reytinqlər, seçilmişlər, idarəetmə sorğuları və sahiblərin funksiyaları daxil olmaqla onun imkanlarından istifadəni tənzimləyir."),
+            paragraph("Bu İstifadə Şərtləri https://kidsmap.az ünvanında yerləşən KidsMap saytına girişi və təşkilatların kataloqu, tədbirlər, şəxsi kabinetlər, rəylər, reytinqlər, seçilmişlər, məkan əlavə etmə və idarəetmə sorğuları daxil olmaqla onun imkanlarından istifadəni tənzimləyir."),
             paragraph("İstifadəçi saytdan istifadə etməklə, hesab yaratmaqla və ya forma göndərməklə bu Şərtlərlə tanış olduğunu və onlara əməl etməyi öhdəsinə götürdüyünü təsdiq edir."),
             paragraph("İstifadəçi Şərtlərlə razılaşmırsa, bu Şərtlərin qəbul edilməsini tələb edən sayt funksiyalarından istifadəni dayandırmalıdır."),
             paragraph("Azərbaycan Respublikasının qanunvericiliyində nəzərdə tutulmuş istifadəçilərin məcburi hüquqları bu sənədlə məhdudlaşdırılmır.")
@@ -56,7 +56,7 @@ def _terms_sections_az() -> list[dict]:
             ),
             paragraph("KidsMap administrasiyası bütün məlumatların hər an tam, aktual və səhvsiz olmasına zəmanət vermir. Qeydiyyatdan, ödənişdən və ya ziyarətdən əvvəl istifadəçi əsas şərtləri birbaşa təşkilatla özü dəqiqləşdirməlidir."),
             paragraph("Əgər istifadəçi səhv aşkar edərsə, bu barədə aşağıdakı ünvana yaza bilər:"),
-            email_block("kidsmap.az@gmail.com"),
+            email_block("KidsMap əlaqə emaili:"),
             paragraph("Bu bölmədəki heç bir müddəa KidsMap-ı qanunla istisna edilə bilməyən məsuliyyətdən azad etmir.")
         ),
         section(
@@ -79,7 +79,7 @@ def _terms_sections_az() -> list[dict]:
             paragraph("Sayt əsasən yetkinlik yaşına çatmış istifadəçilər, valideynlər, uşaqların qanuni nümayəndələri və təşkilatların nümayəndələri üçün nəzərdə tutulub."),
             paragraph("Yetkinlik yaşına çatmayan şəxs müstəqil şəkildə aşağıdakıları etməməlidir:"),
             bullets(
-                "sahib (owner) hesabı yaratmaq;",
+                "təşkilat kartı əlavə etmək;",
                 "təşkilatı idarə etmək üçün sorğu göndərmək;",
                 "fərdi məlumatları dərc etmək;",
                 "öhdəliklər götürmək;",
@@ -107,10 +107,12 @@ def _terms_sections_az() -> list[dict]:
         ),
         section(
             "roles",
-            "7. İstifadəçi rolları",
-            paragraph("Yeni qeydiyyatdan keçmiş istifadəçi adi istifadəçi kimi yaradılır."),
-            paragraph("Səhifəni idarə etmək imkanı mülkiyyət sorğusu təsdiqləndikdən və ya sistem tərəfindən nəzərdə tutulmuş proses vasitəsilə müvafiq hüquqlar verildikdən sonra təqdim olunur."),
-            paragraph("Sahib (owner) rolunun alınması KidsMap-ə mülkiyyət hüququnun verilməsi, istifadəçinin bütün bəyanatlarının təsdiqi, dövlət orqanı tərəfindən lisenziyanın verilməsi və ya gələcək bütün nəşrlərin avtomatik təsdiqlənməsi demək deyil.")
+            "7. İstifadəçilər və kart üzrə hüquqlar",
+            paragraph("Saytda qeydiyyatdan keçmiş istifadəçinin yalnız bir növü var. Ayrıca sahib hesabı və ya biznes hesabı nəzərdə tutulmayıb."),
+            paragraph("Qeydiyyatdan keçmiş istənilən istifadəçi kataloqa məkan əlavə edə bilər."),
+            paragraph("Sahib və ya təşkilatın nümayəndəsi olmaq — konkret şəxsin konkret karta münasibətidir, hesab növü deyil. Kartı idarə etmək hüququ idarəetmə sorğusu təsdiqləndikdən və ya sistem tərəfindən nəzərdə tutulmuş proses vasitəsilə verilir və yalnız həmin karta şamil olunur."),
+            paragraph("Kartı idarə etmək hüququnun alınması KidsMap-ə mülkiyyət hüququnun verilməsi, istifadəçinin bütün bəyanatlarının təsdiqi, dövlət orqanı tərəfindən lisenziyanın verilməsi və ya gələcək bütün nəşrlərin avtomatik təsdiqlənməsi demək deyil."),
+            paragraph("KidsMap əməkdaşlarının rolları (moderator, administrator) ayrıca xidməti rollardır və adi istifadəçi hesabı ilə birlikdə verilmir.")
         ),
         section(
             "ownership",
@@ -136,8 +138,8 @@ def _terms_sections_az() -> list[dict]:
         ),
         section(
             "team",
-            "9. Sahib komandası (team)",
-            paragraph("Sistem tərəfindən belə funksiya nəzərdə tutulubsa, sahib komandaya digər istifadəçiləri dəvət edə bilər."),
+            "9. Kart komandası (team)",
+            paragraph("Sistem tərəfindən belə funksiya nəzərdə tutulubsa, kartı idarə edən istifadəçi həmin kartın komandasına digər istifadəçiləri dəvət edə bilər."),
             paragraph("Dəvət göndərən şəxs düzgün e-poçtdan istifadə etməyə, yalnız səlahiyyətli şəxsləri dəvət etməyə, minimum zəruri hüquqları təyin etməyə və təşkilatı daha təmsil etməyən şəxslərin girişini silməyə borcludur."),
             paragraph("Komanda üzvü hüquqlardan yalnız verilmiş rol daxilində istifadə etməlidir. KidsMap təhlükəsizliyin və ya bu Şərtlərin pozulması halında komanda üzvünün girişini məhdudlaşdırmaq hüququna malikdir.")
         ),
@@ -198,7 +200,7 @@ def _terms_sections_az() -> list[dict]:
             ),
             paragraph("Uşağın ünvanını, əlaqə məlumatlarını, tibbi məlumatlarını, dəqiq marşrutunu və digər həssas məlumatları yayan materialları dərc etmək qadağandır."),
             paragraph("KidsMap şikayət üzrə yoxlama başa çatana qədər materialı dərhal gizlətmək hüququna malikdir. Silinmə sorğusu aşağıdakı ünvana göndərilməlidir:"),
-            email_block("kidsmap.az@gmail.com")
+            email_block("KidsMap əlaqə emaili:")
         ),
         section(
             "prohibited-content",
@@ -230,21 +232,19 @@ def _terms_sections_az() -> list[dict]:
             "complaints",
             "18. Hüquq pozuntuları ilə bağlı şikayətlər",
             paragraph("Şikayət aşağıdakı ünvana göndərilə bilər:"),
-            email_block("kidsmap.az@gmail.com"),
+            email_block("KidsMap əlaqə emaili:"),
             paragraph("Şikayətdə müraciət edənin adını, əlaqə e-poçtunu, materiala keçidi, pozuntunun təsvirini və tələb olunan hərəkəti göstərmək tövsiyə olunur."),
             paragraph("KidsMap əlavə məlumat tələb etmək və yoxlama dövründə mübahisəli materialı müvəqqəti olaraq gizlətmək hüququna malikdir. Bilə-bilə yalan şikayət sui-istifadə hesab edilə bilər.")
         ),
         section(
             "advertising",
-            "19. Reklam və irəli çəkilən səhifələr",
-            paragraph("Əgər saytda VIP yerləşdirmə, reklam kartları, sponsorluq materialları və ya ödənişli qaldırma istifadə olunursa, onlar adi məzmundan ayrılır və anlaşıqlı şəkildə işarələnir."),
+            "19. Reklam",
             paragraph("Reklam materialları istifadəçini çaşdırmamalı, reklam xarakterini gizlətməməli və uşaqlar haqqında məlumatlardan qanunsuz şəkildə istifadə etməməlidir.")
         ),
         section(
-            "paid-services",
-            "20. Ödənişli xidmətlər",
-            paragraph("Saytın cari versiyasında KidsMap vasitəsilə onlayn ödəniş həyata keçirilmir."),
-            paragraph("Gələcəkdə ödənişli funksiyalar tətbiq edildiyi halda, ödəniş edilməzdən əvvəl ayrıca aydın ödəniş, qaytarılma və xidmət göstərilməsi şərtləri tətbiq ediləcəkdir.")
+            "platform-access",
+            "20. Platformadan istifadə",
+            paragraph("KidsMap-in əsas imkanlarından pulsuz istifadə etmək olar.")
         ),
         section(
             "third-parties",
@@ -280,7 +280,7 @@ def _terms_sections_az() -> list[dict]:
             "deletion",
             "26. Hesabın silinməsi",
             paragraph("İstifadəçi hesabın silinməsi üçün aşağıdakı ünvana sorğu göndərə bilər:"),
-            email_block("kidsmap.az@gmail.com"),
+            email_block("KidsMap əlaqə emaili:"),
             paragraph("Hesabın silinməsi həmişə hər bir qeydin dərhal fiziki olaraq silinməsi demək deyil. Məlumatların bir hissəsi audit, təhlükəsizlik, mübahisələrin həlli və bazanın bütövlüyünün qorunması üçün qanunla nəzərdə tutulmuş hədlərdə saxlanıla bilər.")
         ),
         section(
@@ -318,7 +318,7 @@ def _terms_sections_az() -> list[dict]:
             "disputes",
             "31. Mübahisələrin həlli",
             paragraph("İstifadəçi ilk olaraq müraciətini aşağıdakı ünvana göndərə bilər:"),
-            email_block("kidsmap.az@gmail.com"),
+            email_block("KidsMap əlaqə emaili:"),
             paragraph("Tərəflər mübahisəni danışıqlar yolu ilə həll etməyə çalışırlar. Bu, istifadəçinin səlahiyyətli dövlət orqanına və ya məhkəməyə müraciət etmək hüququnu məhdudlaşdırmır.")
         ),
         section(
@@ -336,6 +336,6 @@ def _terms_sections_az() -> list[dict]:
             "contacts",
             "34. Əlaqə",
             paragraph("Saytdan istifadə, şikayətlər, səhifələr, hesablar və məzmunla bağlı suallar üçün müraciət edin:"),
-            email_block("kidsmap.az@gmail.com")
+            email_block("KidsMap əlaqə emaili:")
         )
     ]

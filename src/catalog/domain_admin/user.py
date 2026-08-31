@@ -116,9 +116,6 @@ class UserProfileInline(admin.StackedInline):
     fields = (
         "avatar_preview",
         "avatar",
-        "role",
-        "owner_role",
-        "owner_permissions_override",
         "phone",
         "gender",
         "created_at",
@@ -190,11 +187,6 @@ class _BaseKidsMapUserAdmin(UserAdmin):
             *ModelAdmin.get_urls(self),
         ]
 
-    @admin.display(description=_("Статус на сайте"))
-    def site_role(self, obj):
-        profile = getattr(obj, "profile", None)
-        return profile.get_role_display() if profile else "-"
-
     @admin.display(description=_("Телефон"))
     def site_phone(self, obj):
         profile = getattr(obj, "profile", None)
@@ -207,7 +199,6 @@ class _BaseKidsMapUserAdmin(UserAdmin):
 
     @admin.display(description=_("Профиль"))
     def identity_summary(self, obj):
-        profile = getattr(obj, "profile", None)
         email_verification = getattr(obj, "email_verification", None)
         title = obj.username or "-"
         details: list[str] = []
@@ -225,10 +216,7 @@ class _BaseKidsMapUserAdmin(UserAdmin):
             badges.append('<span class="km-badge km-badge--danger" style="margin-right:4px;">Суперадмин</span>')
         elif obj.is_staff:
             badges.append('<span class="km-badge km-badge--info" style="margin-right:4px;">Админ</span>')
-            
-        if profile and profile.role == "OWNER":
-            badges.append('<span class="km-badge km-badge--primary" style="margin-right:4px;">Владелец</span>')
-            
+
         if not obj.is_active:
             badges.append('<span class="km-badge km-badge--neutral" style="margin-right:4px;">Неактивен</span>')
 
@@ -318,7 +306,6 @@ class _BaseKidsMapUserAdmin(UserAdmin):
                 "phone": profile.phone if profile else "",
                 "avatar_url": profile.avatar.url if profile and profile.avatar else "",
                 "avatar_initial": (obj.get_full_name() or obj.get_username() or "?").strip()[:1].upper(),
-                "role": profile.get_role_display() if profile else "",
                 "is_active": obj.is_active,
                 "is_staff": obj.is_staff,
                 "is_superuser": obj.is_superuser,
@@ -359,7 +346,7 @@ class HiddenBaseUserAdmin(_HiddenFromAdminIndexMixin, _BaseKidsMapUserAdmin):
 @admin.register(SiteRegisteredUser)
 class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
     change_list_template = "admin/catalog/siteregistereduser/change_list.html"
-    km_primary_filters = ("profile__role", "is_active", "date_joined")
+    km_primary_filters = ("is_active", "date_joined")
     list_per_page = 15
     fieldsets = (
         (_("Аккаунт"), {"fields": ("username", "email", "first_name", "last_name", "is_active", "password_summary")}),
@@ -375,8 +362,8 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
         ),
     )
     readonly_fields = ("password_summary", "last_login", "date_joined")
-    list_display = ("identity_summary", "site_role", "site_phone", "site_gender", "is_active", "date_joined", "last_login", "row_actions")
-    list_filter = ("is_active", "date_joined", "last_login", "profile__role", "profile__gender")
+    list_display = ("identity_summary", "site_phone", "site_gender", "is_active", "date_joined", "last_login", "row_actions")
+    list_filter = ("is_active", "date_joined", "last_login", "profile__gender")
 
     def get_queryset(self, request):
         return super().get_queryset(request).filter(is_staff=False, is_superuser=False)
@@ -400,19 +387,32 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
         return build_admin_query_string(request, clear=clear, **updates)
 
     def _user_quick_filters(self, request):
-        current_role = request.GET.get("profile__role__exact")
-        keys = ("profile__role__exact",)
-        
-        counts = {
-            "all": SiteRegisteredUser.objects.filter(is_staff=False, is_superuser=False).count(),
-            "users": SiteRegisteredUser.objects.filter(is_staff=False, is_superuser=False, profile__role="user").count(),
-            "owners": SiteRegisteredUser.objects.filter(is_staff=False, is_superuser=False, profile__role="owner").count(),
-        }
-        
+        # Registered accounts are a single category: managing a listing is a
+        # relation to that listing, not a kind of account. So these tabs split
+        # on account activity, which is the one distinction that still exists.
+        current = request.GET.get("is_active__exact")
+        keys = ("is_active__exact",)
+        base = SiteRegisteredUser.objects.filter(is_staff=False, is_superuser=False)
+
         return (
-            {"label": _("Все пользователи"), "url": self._build_user_changelist_query_string(request, clear=keys), "active": not current_role, "count": counts["all"]},
-            {"label": _("Владельцы кружков"), "url": self._build_user_changelist_query_string(request, clear=keys, profile__role__exact="owner"), "active": current_role == "owner", "count": counts["owners"]},
-            {"label": _("Обычные пользователи"), "url": self._build_user_changelist_query_string(request, clear=keys, profile__role__exact="user"), "active": current_role == "user", "count": counts["users"]},
+            {
+                "label": _("Все пользователи"),
+                "url": self._build_user_changelist_query_string(request, clear=keys),
+                "active": current not in {"0", "1"},
+                "count": base.count(),
+            },
+            {
+                "label": _("Активные"),
+                "url": self._build_user_changelist_query_string(request, clear=keys, is_active__exact="1"),
+                "active": current == "1",
+                "count": base.filter(is_active=True).count(),
+            },
+            {
+                "label": _("Неактивные"),
+                "url": self._build_user_changelist_query_string(request, clear=keys, is_active__exact="0"),
+                "active": current == "0",
+                "count": base.filter(is_active=False).count(),
+            },
         )
 
     def changelist_view(self, request, extra_context=None):
@@ -420,7 +420,7 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
             "km_primary_quick_filters": self._user_quick_filters(request),
             "km_secondary_quick_filters": [],
             "title": _("Пользователи сайта"),
-            "subtitle": _("Управление зарегистрированными пользователями (владельцы кружков и обычные пользователи)."),
+            "subtitle": _("Управление зарегистрированными пользователями сайта."),
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)
@@ -587,7 +587,6 @@ class UserProfileAccessLevelFilter(admin.SimpleListFilter):
         return (
             ("superadmin", _("Суперадмин")),
             ("admin", _("Админ")),
-            ("owner", _("Владелец")),
             ("user", _("Пользователь")),
         )
 
@@ -597,30 +596,8 @@ class UserProfileAccessLevelFilter(admin.SimpleListFilter):
             return queryset.filter(user__is_superuser=True)
         if value == "admin":
             return queryset.filter(user__is_staff=True, user__is_superuser=False)
-        if value == "owner":
-            return queryset.filter(role=UserProfile.ROLE_OWNER, user__is_staff=False, user__is_superuser=False)
         if value == "user":
-            return queryset.filter(role=UserProfile.ROLE_USER, user__is_staff=False, user__is_superuser=False)
-        return queryset
-
-
-class UserProfileOwnerRoleFilter(admin.SimpleListFilter):
-    title = _("Роль владельца")
-    parameter_name = "owner_role_localized"
-
-    ROLE_LABELS = {
-        UserProfile.OWNER_ROLE_MANAGER: _("Менеджер владельца"),
-        UserProfile.OWNER_ROLE_MODERATOR: _("Модератор владельца"),
-        UserProfile.OWNER_ROLE_EDITOR: _("Редактор владельца"),
-    }
-
-    def lookups(self, request, model_admin):
-        return tuple((value, label) for value, label in self.ROLE_LABELS.items())
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value in self.ROLE_LABELS:
-            return queryset.filter(owner_role=value)
+            return queryset.filter(user__is_staff=False, user__is_superuser=False)
         return queryset
 
 
@@ -631,19 +608,14 @@ class UserProfileAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
         "access_level",
         "phone",
         "gender",
-        "role",
-        "owner_role_display",
-        "owner_permissions_preview",
         "created_at",
         "updated_at",
     )
-    list_filter = (UserProfileAccessLevelFilter, UserProfileOwnerRoleFilter, "gender", "role", "created_at")
+    list_filter = (UserProfileAccessLevelFilter, "gender", "created_at")
     search_fields = ("user__username", "user__email", "phone")
     readonly_fields = ("created_at", "updated_at")
     fieldsets = (
         (_("Пользователь"), {"fields": ("user", "phone", "gender")}),
-        (_("Роли"), {"fields": ("role", "owner_role")}),
-        (_("Гранулярные права владельца"), {"fields": ("owner_permissions_override",)}),
         (_("Служебное"), {"classes": ("collapse",), "fields": ("created_at", "updated_at")}),
     )
 
@@ -653,28 +625,7 @@ class UserProfileAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
             return _("Суперадмин")
         if obj.user.is_staff:
             return _("Админ")
-        if obj.role == UserProfile.ROLE_OWNER:
-            return _("Владелец")
         return _("Пользователь")
-
-    @admin.display(description=_("Роль владельца"))
-    def owner_role_display(self, obj):
-        if obj.role != UserProfile.ROLE_OWNER:
-            return "-"
-        labels = {
-            UserProfile.OWNER_ROLE_MANAGER: _("Менеджер владельца"),
-            UserProfile.OWNER_ROLE_MODERATOR: _("Модератор владельца"),
-            UserProfile.OWNER_ROLE_EDITOR: _("Редактор владельца"),
-        }
-        return labels.get(obj.owner_role, obj.get_owner_role_display())
-
-    @admin.display(description=_("Права владельца"))
-    def owner_permissions_preview(self, obj):
-        labels_by_code = {code: label for code, label in UserProfile.OWNER_PERMISSION_CHOICES}
-        permissions = sorted(str(labels_by_code.get(code, code)) for code in obj.get_owner_permissions())
-        if not permissions:
-            return "-"
-        return ", ".join(permissions)
 
 
 @admin.register(UserEmailVerification)

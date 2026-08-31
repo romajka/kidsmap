@@ -210,7 +210,7 @@ class TestSpecialistFlows(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, self.specialist.get_absolute_url() + "#reviews")
         
-        # Check review is created in pending status
+        # Specialist reviews wait for the same manual moderation as other reviews.
         review = SpecialistReview.objects.get(specialist=self.specialist, user=self.user)
         self.assertEqual(review.rating, 5)
         self.assertEqual(review.text, "Прекрасный специалист!")

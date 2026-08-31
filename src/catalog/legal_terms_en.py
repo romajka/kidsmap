@@ -5,7 +5,7 @@ def _terms_sections_en() -> list[dict]:
         section(
             "general",
             "1. General provisions",
-            paragraph("These Terms of Use govern access to the KidsMap site at https://kidsmap.az, and the use of its features, including the catalog, events, user dashboards, reviews, ratings, favorites, ownership requests, and owner functions."),
+            paragraph("These Terms of Use govern access to the KidsMap site at https://kidsmap.az, and the use of its features, including the catalog, events, user dashboards, reviews, ratings, favorites, adding places, and ownership requests."),
             paragraph("By using the site, creating an account, or submitting a form, the user confirms that they have read and agree to be bound by these Terms."),
             paragraph("If the user does not agree with the Terms, they must stop using the site features that require acceptance of these Terms."),
             paragraph("The mandatory rights of users provided by the legislation of the Republic of Azerbaijan are not limited by this document.")
@@ -56,7 +56,7 @@ def _terms_sections_en() -> list[dict]:
             ),
             paragraph("The KidsMap administration does not guarantee that all information is complete, current, and error-free at every moment. Before booking, paying, or visiting, the user must independently verify the key conditions directly with the organization."),
             paragraph("If a user finds an error, they can report it to:"),
-            email_block("kidsmap.az@gmail.com"),
+            email_block("KidsMap contact email:"),
             paragraph("Nothing in this section releases KidsMap from liability that cannot be excluded by law.")
         ),
         section(
@@ -79,7 +79,7 @@ def _terms_sections_en() -> list[dict]:
             paragraph("The site is primarily intended for adult users, parents, legal guardians of children, and representatives of organizations."),
             paragraph("A minor must not independently:"),
             bullets(
-                "create an owner account;",
+                "add an organization listing;",
                 "apply to manage an organization;",
                 "publish personal data;",
                 "assume obligations;",
@@ -107,10 +107,12 @@ def _terms_sections_en() -> list[dict]:
         ),
         section(
             "roles",
-            "7. User roles",
-            paragraph("A newly registered user is created as a regular user."),
-            paragraph("The ability to manage a listing is granted after the approval of an ownership request or the granting of appropriate rights through the system-provided process."),
-            paragraph("Obtaining the owner role does not mean transferring ownership rights to KidsMap, confirming all user statements, issuing a license by a state body, or automatically approving all future publications.")
+            "7. Users and listing rights",
+            paragraph("There is a single type of registered user on the site. There is no separate owner account or business account."),
+            paragraph("Any registered user can add a place to the catalog."),
+            paragraph("Being an owner or a representative of an organization is a relationship between a specific person and a specific listing, not a type of account. Rights to manage a listing are granted after the approval of an ownership request or through the system-provided process, and they apply only to that listing."),
+            paragraph("Obtaining rights to manage a listing does not mean transferring ownership rights to KidsMap, confirming all user statements, issuing a license by a state body, or automatically approving all future publications."),
+            paragraph("KidsMap staff roles (moderator, administrator) are separate internal roles and are not granted together with a regular user account.")
         ),
         section(
             "ownership",
@@ -136,8 +138,8 @@ def _terms_sections_en() -> list[dict]:
         ),
         section(
             "team",
-            "9. Owner team",
-            paragraph("The owner can invite other users to the team if such a feature is provided by the system."),
+            "9. Listing team",
+            paragraph("A user who manages a listing can invite other users to that listing's team if such a feature is provided by the system."),
             paragraph("The person sending the invitation must use a correct email, invite only authorized persons, assign the minimum necessary rights, and revoke access for persons who no longer represent the organization."),
             paragraph("A team member must use their rights only within the granted role. KidsMap has the right to restrict access to a team member in case of security breaches or violations of these Terms.")
         ),
@@ -198,7 +200,7 @@ def _terms_sections_en() -> list[dict]:
             ),
             paragraph("It is prohibited to publish materials revealing a child's address, contact details, medical information, exact route, and other sensitive information."),
             paragraph("KidsMap has the right to immediately hide the material until a complaint check is completed. Removal requests should be sent to:"),
-            email_block("kidsmap.az@gmail.com")
+            email_block("KidsMap contact email:")
         ),
         section(
             "prohibited-content",
@@ -230,21 +232,19 @@ def _terms_sections_en() -> list[dict]:
             "complaints",
             "18. Complaints about rights violations",
             paragraph("Complaints can be sent to:"),
-            email_block("kidsmap.az@gmail.com"),
+            email_block("KidsMap contact email:"),
             paragraph("The complaint should preferably include the applicant's name, contact email, link to the material, description of the violation, and the requested action."),
             paragraph("KidsMap may request additional information and temporarily hide the disputed material during the review. A knowingly false complaint may be considered abuse.")
         ),
         section(
             "advertising",
-            "19. Advertising and promoted listings",
-            paragraph("If VIP placements, promotional listings, sponsored materials, or paid boosting are used on the site, they are separated from regular content and clearly marked."),
+            "19. Advertising",
             paragraph("Advertising materials must not mislead the user, hide their advertising nature, or misuse children's information.")
         ),
         section(
-            "paid-services",
-            "20. Paid services",
-            paragraph("In the current version of the site, online payment via KidsMap is not implemented."),
-            paragraph("If paid features are introduced in the future, separate clear terms of payment, refunds, and service provision will apply before payment is made.")
+            "platform-access",
+            "20. Platform access",
+            paragraph("Core KidsMap features are available free of charge.")
         ),
         section(
             "third-parties",
@@ -280,7 +280,7 @@ def _terms_sections_en() -> list[dict]:
             "deletion",
             "26. Account deletion",
             paragraph("The user can send a request to delete their account to:"),
-            email_block("kidsmap.az@gmail.com"),
+            email_block("KidsMap contact email:"),
             paragraph("Account deletion does not always mean the immediate physical deletion of every record. Some data may be retained within limits provided by law for audit, security, dispute resolution, and maintaining database integrity.")
         ),
         section(
@@ -318,7 +318,7 @@ def _terms_sections_en() -> list[dict]:
             "disputes",
             "31. Dispute resolution",
             paragraph("The user may first send an appeal to:"),
-            email_block("kidsmap.az@gmail.com"),
+            email_block("KidsMap contact email:"),
             paragraph("The parties shall strive to settle the dispute through negotiations. This does not limit the user's right to apply to a competent state body or court.")
         ),
         section(
@@ -336,6 +336,6 @@ def _terms_sections_en() -> list[dict]:
             "contacts",
             "34. Contacts",
             paragraph("For questions about using the site, complaints, listings, accounts, and content, contact:"),
-            email_block("kidsmap.az@gmail.com")
+            email_block("KidsMap contact email:")
         )
     ]

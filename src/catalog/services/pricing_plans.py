@@ -461,12 +461,12 @@ def format_price_amount(value) -> str:
 def build_public_price_summary(place, language="ru"):
     lang = (language or get_language() or "ru").split("-")[0]
     labels = {
-        "ru": {"free": "Бесплатно", "mixed": "Есть бесплатные и платные варианты", "from": "От {value} ₼", "unknown": "Цена уточняется"},
-        "az": {"free": "Pulsuz", "mixed": "Pulsuz və ödənişli seçimlər var", "from": "{value} ₼-dən", "unknown": "Qiymət dəqiqləşdirilir"},
-        "en": {"free": "Free", "mixed": "Free and paid options available", "from": "From {value} ₼", "unknown": "Price on request"},
+        "ru": {"free": "Бесплатно", "from": "От {value} ₼", "unknown": "Цена уточняется"},
+        "az": {"free": "Pulsuz", "from": "{value} ₼-dən", "unknown": "Qiymət dəqiqləşdirilir"},
+        "en": {"free": "Free", "from": "From {value} ₼", "unknown": "Price on request"},
     }.get(lang, None)
     if labels is None:
-        lang, labels = "ru", {"free": "Бесплатно", "mixed": "Есть бесплатные и платные варианты", "from": "От {value} ₼", "unknown": "Цена уточняется"}
+        lang, labels = "ru", {"free": "Бесплатно", "from": "От {value} ₼", "unknown": "Цена уточняется"}
     custom = (
         getattr(place, f"custom_price_badge_{lang}", "")
         or getattr(place, "custom_price_badge_ru", "")
@@ -490,18 +490,22 @@ def build_public_price_summary(place, language="ru"):
         if free and not paid and not on_request:
             return {"kind": "free", "min_price": Decimal("0"), "max_price": Decimal("0"), "currency": "AZN", "label": labels["free"], "source": "pricing_plans"}
         if free and paid:
-            minimum = min(item[1][0] for item in paid)
             maximum = max(item[1][1] for item in paid)
-            return {"kind": "mixed", "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": labels["mixed"], "source": "pricing_plans"}
+            minimum = Decimal("0")
+            label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} ₼"
+            return {"kind": "mixed", "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": label, "source": "pricing_plans"}
         if paid:
             minimum = min(item[1][0] for item in paid)
             maximum = max(item[1][1] for item in paid)
-            if len(paid) == 1 and paid[0][0].price_kind == "range":
+            if minimum != maximum:
                 label = f"{format_price_amount(minimum)}–{format_price_amount(maximum)} ₼"
                 kind = "range"
-            else:
+            elif any(plan.price_kind == "from" for plan, _bounds in paid):
                 label = labels["from"].format(value=format_price_amount(minimum))
                 kind = "from"
+            else:
+                label = f"{format_price_amount(minimum)} ₼"
+                kind = "exact"
             return {"kind": kind, "min_price": minimum, "max_price": maximum, "currency": "AZN", "label": label, "source": "pricing_plans"}
         return {"kind": "on_request", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["unknown"], "source": "pricing_plans"}
 
@@ -624,85 +628,9 @@ LOCALIZED_STRINGS = {
 
 
 def build_compact_schedule_rows(place, lang="ru"):
-    from catalog.services.place_schedule import serialize_place_schedule, schedule_signature
-    days = serialize_place_schedule(place)
-    
-    has_structured = False
-    if getattr(place, "pk", None) and getattr(place, "schedule_days", None):
-        has_structured = place.schedule_days.exists()
-    
-    if not has_structured:
-        txt = (place.schedule or "").strip()
-        if txt:
-            return [{"days": "", "time": txt, "is_closed": False}]
-        return []
-        
-    az_day_labels = {
-        "mon": "Bazar ertəsi",
-        "tue": "Çərşənbə axşamı",
-        "wed": "Çərşənbə",
-        "thu": "Cümə axşamı",
-        "fri": "Cümə",
-        "sat": "Şənbə",
-        "sun": "Bazar",
-    }
-    ru_day_labels = {
-        "mon": "Понедельник",
-        "tue": "Вторник",
-        "wed": "Среда",
-        "thu": "Четверг",
-        "fri": "Пятница",
-        "sat": "Суббота",
-        "sun": "Воскресенье",
-    }
-    en_day_labels = {
-        "mon": "Monday",
-        "tue": "Tuesday",
-        "wed": "Wednesday",
-        "thu": "Thursday",
-        "fri": "Friday",
-        "sat": "Saturday",
-        "sun": "Sunday",
-    }
-    
-    day_labels = az_day_labels if lang == "az" else (en_day_labels if lang == "en" else ru_day_labels)
-    
-    groups = []
-    current_group = []
-    current_sig = None
-    
-    for day in days:
-        sig = schedule_signature(day)
-        if current_sig is None or sig == current_sig:
-            current_group.append(day)
-            current_sig = sig
-        else:
-            groups.append(current_group)
-            current_group = [day]
-            current_sig = sig
-    if current_group:
-        groups.append(current_group)
-        
-    rows = []
-    for g in groups:
-        first_day = g[0]["weekday"]
-        last_day = g[-1]["weekday"]
-        
-        if len(g) == 1:
-            days_str = day_labels.get(first_day)
-        else:
-            days_str = f"{day_labels.get(first_day)}–{day_labels.get(last_day)}"
-            
-        if g[0]["is_closed"]:
-            time_str = "Bağlıdır" if lang == "az" else ("Closed" if lang == "en" else "Закрыто")
-        elif g[0]["is_24_hours"]:
-            time_str = "24h" if lang == "en" else ("24 saat" if lang == "az" else "круглосуточно")
-        else:
-            time_str = ", ".join(f"{interval['start']}–{interval['end']}" for interval in g[0]["intervals"])
-            
-        rows.append({"days": days_str, "time": time_str, "is_closed": g[0]["is_closed"]})
-        
-    return rows
+    from catalog.services.place_schedule import build_public_schedule_rows
+
+    return build_public_schedule_rows(place, lang)
 
 
 def _format_starting_price(amount, payment_type, lang, currency=DEFAULT_CURRENCY):
@@ -882,19 +810,28 @@ def build_pricing_summary(place, lang="ru"):
     if place.lesson_duration_minutes:
         duration_label = LOCALIZED_STRINGS[lang]["minutes"].format(count=place.lesson_duration_minutes)
         
-    schedule_text = (place.schedule or "").lower()
-    by_appt_markers = ["договор", "запис", "appoint", "razılaş", "rezer", "təyin"]
-    is_by_appt = any(marker in schedule_text for marker in by_appt_markers)
+    from catalog.services.place_schedule import schedule_mode_label, schedule_mode_note
+
+    schedule_mode = getattr(place, "schedule_mode", "regular") or "regular"
+    strings = dict(LOCALIZED_STRINGS[lang])
+    if schedule_mode == "events":
+        event_heading = {
+            "az": ("Qiymət və tədbirlər", "Biletlər və yaxın tədbirlərin vaxtı"),
+            "ru": ("Цена и мероприятия", "Билеты и даты ближайших событий"),
+            "en": ("Price and events", "Tickets and upcoming event dates"),
+        }[lang]
+        strings["title"], strings["subtitle"] = event_heading
     is_working_hours = place.category_id in ["PARK", "BEACH", "FUN", "CAMP", "WATERPARK", "ZOO"]
-    
-    if is_by_appt:
-        schedule_type_label = LOCALIZED_STRINGS[lang]["schedule_by_appointment"]
+
+    if schedule_mode != "regular":
+        schedule_type_label = schedule_mode_label(place, lang)
     elif is_working_hours:
         schedule_type_label = LOCALIZED_STRINGS[lang]["schedule_working_hours"]
     else:
         schedule_type_label = LOCALIZED_STRINGS[lang]["schedule_label"]
-        
+
     schedule_rows = build_compact_schedule_rows(place, lang)
+    public_schedule_note = schedule_mode_note(place, lang) or LOCALIZED_STRINGS[lang]["schedule_note"]
     
     plans_processed = []
     for plan in plans:
@@ -1016,10 +953,10 @@ def build_pricing_summary(place, lang="ru"):
         "plans": plans_processed,
         "schedule_rows": schedule_rows,
         "schedule_type_label": schedule_type_label,
-        "schedule_note": LOCALIZED_STRINGS[lang]["schedule_note"],
+        "schedule_note": public_schedule_note,
         "lesson_format": lesson_format,
         "format_label": format_label,
         "frequency": frequency_label,
         "duration": duration_label,
-        "strings": LOCALIZED_STRINGS[lang],
+        "strings": strings,
     }

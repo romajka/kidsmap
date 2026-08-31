@@ -58,11 +58,28 @@ from catalog.testcases.auth_flow import (
     TestPasswordResetIdentifierSupport,
 )
 from catalog.services.tracking import GA4_CONVERSION_EVENT_NAMES, TRACKED_EVENT_NAMES
+from catalog.controllers.owner_places_controller import OwnerPlacesController
+from catalog.repositories.django_repositories import DjangoOwnerTeamRepository
+from catalog.services.owner_place_use_cases import resolve_owner_permission_scopes
+from catalog.services.place_access import (
+    PLACE_PERMISSION_EDIT,
+    PLACE_PERMISSION_MANAGE_TEAM,
+    PLACE_PERMISSION_MODERATE_REVIEWS,
+    PLACE_PERMISSION_VIEW,
+    PLACE_ROLE_EDITOR,
+    PLACE_ROLE_MANAGER,
+    PLACE_ROLE_MODERATOR,
+    has_place_permission,
+)
 from catalog.testcases.tracking import TestGoogleAnalyticsEvents, TestSiteVisitMiddleware, TestTrackingController
 from config.views import serve_media_file
 User = get_user_model()
 
 from catalog.testcases.utils import *
+
+# Historical cabinet entry point, kept alive as a permanent redirect.
+LEGACY_OWNER_CABINET_URL = "/account/owner/"
+
 
 class TestOwnershipWorkflow(TestCase):
     def setUp(self):
@@ -86,8 +103,8 @@ class TestOwnershipWorkflow(TestCase):
             password="StrongPass123!!",
         )
 
-        UserProfile.objects.create(user=self.owner_user, role=UserProfile.ROLE_OWNER)
-        UserProfile.objects.create(user=self.regular_user, role=UserProfile.ROLE_USER)
+        UserProfile.objects.create(user=self.owner_user)
+        UserProfile.objects.create(user=self.regular_user)
 
     def test_owner_can_submit_place_ownership_request(self):
         self.client.login(username="owner_role_user", password="StrongPass123!!")
@@ -107,14 +124,14 @@ class TestOwnershipWorkflow(TestCase):
         self.assertContains(response, '"name": "claim_place_submit"')
         self.assertContains(response, f'"place_id": {self.place.id}')
 
-    def test_owner_cabinet_redirects_to_places_dashboard(self):
+    def test_legacy_owner_cabinet_url_redirects_to_places_dashboard(self):
         self.client.login(username="owner_role_user", password="StrongPass123!!")
-        response = self.client.get(reverse("owner_cabinet"))
+        response = self.client.get(LEGACY_OWNER_CABINET_URL)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 301)
         self.assertEqual(response.url, reverse("owner_places_dashboard"))
 
-    def test_owner_cabinet_ignores_legacy_claim_search_and_redirects(self):
+    def test_legacy_owner_cabinet_url_ignores_legacy_claim_search_and_redirects(self):
         Place.objects.create(
             name="Another Place",
             name_ru="Другой кружок",
@@ -122,12 +139,12 @@ class TestOwnershipWorkflow(TestCase):
             is_active=True,
         )
         self.client.login(username="owner_role_user", password="StrongPass123!!")
-        response = self.client.get(reverse("owner_cabinet"), data={"claim_q": "Другой"})
+        response = self.client.get(LEGACY_OWNER_CABINET_URL, data={"claim_q": "Другой"})
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("owner_places_dashboard"))
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.url, f"{reverse('owner_places_dashboard')}?claim_q=%D0%94%D1%80%D1%83%D0%B3%D0%BE%D0%B9")
 
-    def test_owner_cabinet_does_not_render_legacy_request_sections(self):
+    def test_legacy_owner_cabinet_url_does_not_render_legacy_request_sections(self):
         PlaceOwnershipRequest.objects.create(
             place=self.place,
             applicant=self.owner_user,
@@ -148,7 +165,7 @@ class TestOwnershipWorkflow(TestCase):
         )
 
         self.client.login(username="owner_role_user", password="StrongPass123!!")
-        response = self.client.get(reverse("owner_cabinet"), follow=True)
+        response = self.client.get(LEGACY_OWNER_CABINET_URL, follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Заявки на рассмотрении")
@@ -190,8 +207,6 @@ class TestOwnershipWorkflow(TestCase):
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_APPROVED)
         self.assertEqual(ownership_request.moderated_by, self.moderator)
         self.assertEqual(self.place.owner, self.regular_user)
-        self.regular_user.profile.refresh_from_db()
-        self.assertEqual(self.regular_user.profile.role, UserProfile.ROLE_OWNER)
         self.assertEqual(PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).count(), 2)
         latest_audit = PlaceOwnershipRequestAudit.objects.filter(ownership_request=ownership_request).first()
         self.assertEqual(latest_audit.action, PlaceOwnershipRequestAudit.ACTION_APPROVED)
@@ -261,22 +276,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             password="StrongPass123!!",
         )
 
-        UserProfile.objects.create(
-            user=self.manager_user,
-            role=UserProfile.ROLE_OWNER,
-            owner_role=UserProfile.OWNER_ROLE_MANAGER,
-        )
-        UserProfile.objects.create(
-            user=self.editor_user,
-            role=UserProfile.ROLE_OWNER,
-            owner_role=UserProfile.OWNER_ROLE_EDITOR,
-        )
-        UserProfile.objects.create(
-            user=self.moderator_user,
-            role=UserProfile.ROLE_OWNER,
-            owner_role=UserProfile.OWNER_ROLE_MODERATOR,
-        )
-        UserProfile.objects.create(user=self.regular_user, role=UserProfile.ROLE_USER)
+        UserProfile.objects.create(user=self.manager_user)
+        UserProfile.objects.create(user=self.editor_user)
+        UserProfile.objects.create(user=self.moderator_user)
+        UserProfile.objects.create(user=self.regular_user)
 
         self.manager_place = Place.objects.create(
             name="Manager Place",
@@ -785,7 +788,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.editor_place.refresh_from_db()
         self.assertFalse(self.editor_place.is_active)
 
-    def test_owner_manager_can_publish_draft(self):
+    def test_legacy_owner_profile_cannot_publish_draft_without_staff_permission(self):
         self.manager_place = create_quality_place(
             owner=self.manager_user,
             name="Manager Place",
@@ -807,7 +810,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.manager_place.refresh_from_db()
-        self.assertTrue(self.manager_place.is_active)
+        self.assertFalse(self.manager_place.is_active)
 
     def test_owner_manager_cannot_publish_draft_without_approval(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
@@ -819,6 +822,31 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.manager_place.refresh_from_db()
         self.assertFalse(self.manager_place.is_active)
+
+    def test_staff_with_change_place_permission_can_publish_after_approval(self):
+        from django.contrib.auth.models import Permission
+
+        self.manager_place = create_quality_place(
+            owner=self.manager_user,
+            name="Staff Publish Place",
+            name_ru="Карточка для служебной публикации",
+            is_active=False,
+            status=Place.STATUS_DRAFT,
+        )
+        PlaceOwnershipRequest.objects.create(
+            place=self.manager_place,
+            applicant=self.manager_user,
+            status=PlaceOwnershipRequest.STATUS_APPROVED,
+        )
+        staff = User.objects.create_user(username="place_staff", password="StrongPass123!!", is_staff=True)
+        staff.user_permissions.add(Permission.objects.get(codename="change_place"))
+        self.client.login(username="place_staff", password="StrongPass123!!")
+
+        response = self.client.post(reverse("owner_place_publish", args=[self.manager_place.id]), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.manager_place.refresh_from_db()
+        self.assertTrue(self.manager_place.is_active)
 
     def test_owner_dashboard_shows_publish_hint_for_unapproved_draft(self):
         PlaceOwnershipRequest.objects.create(
@@ -978,7 +1006,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.moderator_place.refresh_from_db()
-        self.assertNotEqual(self.moderator_place.name_ru, "Изменение от модератора")
+        self.assertEqual(self.moderator_place.name_ru, "Изменение от модератора")
 
     def test_owner_manager_can_create_place_and_send_for_moderation(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
@@ -1011,7 +1039,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                     }
                 ]),
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "",
                 "address": "Улица 1",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -1132,7 +1160,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "name_az": "Geokodlasdirma karti",
                 "name_en": "",
                 "description_ru": "Описание новой карточки",
-                "description_az": "Geokodlasdirma kartinin tesviri",
+                "description_az": (
+                    "Geokodlasdirma karti ushaqlar ucun robototexnika dersleri, praktiki meshgeler, "
+                    "muntezem cedvel ve valideynlerle aciq elaqe imkani teqdim edir."
+                ),
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Робототехника",
@@ -1140,8 +1171,15 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "12",
                 "price_from": "100",
                 "price_to": "200",
+                "pricing_plans": json.dumps([{
+                    "lesson_format": "group",
+                    "payment_type": "per_month",
+                    "price": "100",
+                    "currency": "AZN",
+                    "is_active": True,
+                }]),
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "",
                 "address": "Улица 5",
                 "phone1": "+994501112233",
                 "instagram": "",
@@ -1181,7 +1219,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "name_az": "Xeritede el ile secilen kart",
                 "name_en": "",
                 "description_ru": "Описание новой карточки",
-                "description_az": "Xeritede el ile secilen kartin tesviri",
+                "description_az": (
+                    "Xeritede el ile secilen kart ushaqlar ucun yaradiciliq dersleri, praktiki meshgeler, "
+                    "muntezem cedvel ve valideynlerle aciq elaqe imkani teqdim edir."
+                ),
                 "description_en": "",
                 "category": "EDU",
                 "subcategory": "Рисование",
@@ -1189,8 +1230,15 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "age_to": "10",
                 "price_from": "80",
                 "price_to": "140",
+                "pricing_plans": json.dumps([{
+                    "lesson_format": "group",
+                    "payment_type": "per_month",
+                    "price": "80",
+                    "currency": "AZN",
+                    "is_active": True,
+                }]),
                 "district": "Yasamal",
-                "metro": "İnşaatçılar",
+                "metro": "",
                 "address": "Улица с ручной точкой 8",
                 "lat": "40.377700",
                 "lng": "49.892200",
@@ -1446,6 +1494,20 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "Müvəqqəti tədbir")
         self.assertFalse(Event.objects.filter(name_az="Tarixsiz tədbir").exists())
 
+    def test_owner_event_create_prefills_related_place_from_schedule_editor(self):
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response = self.client.get(
+            reverse("owner_event_create"),
+            {"related_place": self.manager_place.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            str(response.context["form"].initial["related_place"]),
+            str(self.manager_place.pk),
+        )
+
     def test_owner_place_create_rejects_custom_metro_value(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(
@@ -1621,9 +1683,9 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Мои места")
 
-    def test_regular_user_owner_cabinet_redirects_to_places_dashboard(self):
+    def test_regular_user_legacy_owner_cabinet_url_redirects_to_places_dashboard(self):
         self.client.login(username="regular_for_owner_pages", password="StrongPass123!!")
-        response = self.client.get(reverse("owner_cabinet"), follow=True)
+        response = self.client.get(LEGACY_OWNER_CABINET_URL, follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.redirect_chain[-1][0], reverse("owner_places_dashboard"))
@@ -1805,17 +1867,20 @@ class TestOwnerTeamAndReviewModeration(TestCase):
             email="team-other@example.com",
             password="StrongPass123!!",
         )
-        UserProfile.objects.create(
-            user=self.owner_manager,
-            role=UserProfile.ROLE_OWNER,
-            owner_role=UserProfile.OWNER_ROLE_MANAGER,
-        )
-        UserProfile.objects.create(user=self.team_member, role=UserProfile.ROLE_USER)
-        UserProfile.objects.create(user=self.other_user, role=UserProfile.ROLE_USER)
+        UserProfile.objects.create(user=self.owner_manager)
+        UserProfile.objects.create(user=self.team_member)
+        UserProfile.objects.create(user=self.other_user)
 
         self.place = Place.objects.create(
             name="Team Place",
             name_ru="Кружок команды",
+            category="EDU",
+            owner=self.owner_manager,
+            is_active=True,
+        )
+        self.second_place = Place.objects.create(
+            name="Second Team Place",
+            name_ru="Второй кружок команды",
             category="EDU",
             owner=self.owner_manager,
             is_active=True,
@@ -1833,21 +1898,22 @@ class TestOwnerTeamAndReviewModeration(TestCase):
         self.client.login(username="team_owner_manager", password="StrongPass123!!")
         response = self.client.post(
             reverse("owner_team_invite"),
-            data={"email": "team-member@example.com", "role": UserProfile.OWNER_ROLE_MODERATOR},
+            data={"place": self.place.id, "email": "team-member@example.com", "role": PLACE_ROLE_MODERATOR},
             follow=True,
         )
 
         self.assertEqual(response.status_code, 200)
-        invitation = OwnerTeamInvitation.objects.get(owner=self.owner_manager, email="team-member@example.com")
+        invitation = OwnerTeamInvitation.objects.get(place=self.place, email="team-member@example.com")
         self.assertEqual(invitation.status, OwnerTeamInvitation.STATUS_PENDING)
-        self.assertEqual(invitation.role, UserProfile.OWNER_ROLE_MODERATOR)
+        self.assertEqual(invitation.role, PLACE_ROLE_MODERATOR)
 
     def test_user_can_accept_team_invitation(self):
         invitation = OwnerTeamInvitation.objects.create(
+            place=self.place,
             owner=self.owner_manager,
             invited_by=self.owner_manager,
             email="team-member@example.com",
-            role=UserProfile.OWNER_ROLE_MODERATOR,
+            role=PLACE_ROLE_MODERATOR,
         )
 
         self.client.login(username="team_member_user", password="StrongPass123!!")
@@ -1859,22 +1925,19 @@ class TestOwnerTeamAndReviewModeration(TestCase):
         self.assertEqual(response.status_code, 200)
         invitation.refresh_from_db()
         self.assertEqual(invitation.status, OwnerTeamInvitation.STATUS_ACCEPTED)
-        membership = OwnerTeamMembership.objects.get(owner=self.owner_manager, member=self.team_member)
+        membership = OwnerTeamMembership.objects.get(place=self.place, member=self.team_member)
         self.assertTrue(membership.is_active)
-        self.assertEqual(membership.role, UserProfile.OWNER_ROLE_MODERATOR)
+        self.assertEqual(membership.role, PLACE_ROLE_MODERATOR)
 
     def test_team_moderator_can_moderate_reviews_but_cannot_edit_content(self):
         OwnerTeamMembership.objects.create(
+            place=self.place,
             owner=self.owner_manager,
             member=self.team_member,
-            role=UserProfile.OWNER_ROLE_MODERATOR,
+            role=PLACE_ROLE_MODERATOR,
             is_active=True,
             invited_by=self.owner_manager,
         )
-        profile = UserProfile.get_or_create_for_user(self.team_member)
-        profile.role = UserProfile.ROLE_OWNER
-        profile.owner_role = UserProfile.OWNER_ROLE_MODERATOR
-        profile.save(update_fields=["role", "owner_role", "updated_at"])
 
         self.client.login(username="team_member_user", password="StrongPass123!!")
         reviews_response = self.client.get(reverse("owner_reviews_dashboard"))
@@ -1921,6 +1984,24 @@ class TestOwnerTeamAndReviewModeration(TestCase):
         self.place.refresh_from_db()
         self.assertEqual(self.place.name_ru, "Кружок команды")
 
+    def test_membership_does_not_grant_access_to_another_place(self):
+        OwnerTeamMembership.objects.create(
+            place=self.place,
+            owner=self.owner_manager,
+            member=self.team_member,
+            role=PLACE_ROLE_EDITOR,
+            is_active=True,
+            invited_by=self.owner_manager,
+        )
+        self.client.login(username="team_member_user", password="StrongPass123!!")
+
+        allowed = self.client.get(reverse("owner_place_edit", args=[self.place.id]))
+        denied = self.client.get(reverse("owner_place_edit", args=[self.second_place.id]), follow=True)
+
+        self.assertEqual(allowed.status_code, 200)
+        self.assertEqual(denied.status_code, 200)
+        self.assertNotContains(denied, reverse("owner_place_edit", args=[self.second_place.id]))
+
     def test_owner_edit_creates_place_change_audit(self):
         self.client.login(username="team_owner_manager", password="StrongPass123!!")
         response = self.client.post(
@@ -1956,3 +2037,528 @@ class TestOwnerTeamAndReviewModeration(TestCase):
         audits = PlaceChangeAudit.objects.filter(place=self.place, changed_by=self.owner_manager)
         self.assertGreaterEqual(audits.count(), 1)
         self.assertTrue(audits.filter(field_name="name_ru").exists())
+
+
+class TestPlaceScopedAccessIsolation(TestCase):
+    """Access granted on one place must never reach another place.
+
+    These guard the core invariant of the place-scoped access model: a team
+    role is a grant on exactly one card, and a legacy owner-wide row that was
+    never resolved to a card grants nothing at all.
+    """
+
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            username="isolation_owner",
+            email="isolation-owner@example.com",
+            password="StrongPass123!!",
+        )
+        self.member = User.objects.create_user(
+            username="isolation_member",
+            email="isolation-member@example.com",
+            password="StrongPass123!!",
+        )
+        self.reviewer = User.objects.create_user(
+            username="isolation_reviewer",
+            email="isolation-reviewer@example.com",
+            password="StrongPass123!!",
+        )
+
+        self.granted_place = Place.objects.create(
+            name="Granted Place",
+            name_ru="Разрешённый кружок",
+            category="EDU",
+            owner=self.owner,
+            is_active=True,
+        )
+        self.other_place = Place.objects.create(
+            name="Other Place",
+            name_ru="Другой кружок",
+            category="EDU",
+            owner=self.owner,
+            is_active=True,
+        )
+        # Same owner, so an owner-wide grant would have covered both cards.
+        self.membership = OwnerTeamMembership.objects.create(
+            place=self.granted_place,
+            owner=self.owner,
+            member=self.member,
+            role=PLACE_ROLE_MANAGER,
+            is_active=True,
+            invited_by=self.owner,
+        )
+        self.other_place_review = PlaceReview.objects.create(
+            place=self.other_place,
+            user=self.reviewer,
+            author_name="Тест",
+            rating=4,
+            text="Отзыв о другом кружке",
+            is_approved=True,
+        )
+
+    def _scopes(self):
+        return resolve_owner_permission_scopes(
+            user=self.member,
+            team_repository=DjangoOwnerTeamRepository(),
+        )
+
+    def test_membership_grants_permissions_only_on_its_own_place(self):
+        for permission in (
+            PLACE_PERMISSION_VIEW,
+            PLACE_PERMISSION_EDIT,
+            PLACE_PERMISSION_MODERATE_REVIEWS,
+            PLACE_PERMISSION_MANAGE_TEAM,
+        ):
+            self.assertTrue(
+                has_place_permission(
+                    user=self.member, place=self.granted_place, permission_code=permission
+                ),
+                msg=f"{permission} should be granted on the member's own place",
+            )
+            self.assertFalse(
+                has_place_permission(
+                    user=self.member, place=self.other_place, permission_code=permission
+                ),
+                msg=f"{permission} must not leak to another place of the same owner",
+            )
+
+    def test_resolved_scopes_contain_only_the_granted_place(self):
+        place_ids = {scope.place_id for scope in self._scopes()}
+        self.assertEqual(place_ids, {self.granted_place.id})
+
+    def test_member_cannot_edit_another_place(self):
+        self.client.login(username="isolation_member", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_place_edit", args=[self.other_place.id]),
+            data={
+                "name_ru": "Захват чужой карточки",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.other_place.refresh_from_db()
+        self.assertNotEqual(self.other_place.name_ru, "Захват чужой карточки")
+
+    def test_member_cannot_moderate_reviews_of_another_place(self):
+        self.client.login(username="isolation_member", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_review_reject", args=[self.other_place_review.id]),
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.other_place_review.refresh_from_db()
+        self.assertTrue(self.other_place_review.is_approved)
+
+    def test_member_cannot_invite_to_another_place(self):
+        self.client.login(username="isolation_member", password="StrongPass123!!")
+        response = self.client.post(
+            reverse("owner_team_invite"),
+            data={
+                "place": self.other_place.id,
+                "email": "outsider@example.com",
+                "role": PLACE_ROLE_EDITOR,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            OwnerTeamInvitation.objects.filter(
+                place=self.other_place, email="outsider@example.com"
+            ).exists()
+        )
+
+    def test_legacy_membership_without_place_grants_nothing(self):
+        legacy_member = User.objects.create_user(
+            username="isolation_legacy",
+            email="isolation-legacy@example.com",
+            password="StrongPass123!!",
+        )
+        OwnerTeamMembership.objects.create(
+            place=None,
+            owner=self.owner,
+            member=legacy_member,
+            role=PLACE_ROLE_MANAGER,
+            is_active=True,
+            invited_by=self.owner,
+        )
+
+        for place in (self.granted_place, self.other_place):
+            for permission in (PLACE_PERMISSION_VIEW, PLACE_PERMISSION_EDIT, PLACE_PERMISSION_MANAGE_TEAM):
+                self.assertFalse(
+                    has_place_permission(user=legacy_member, place=place, permission_code=permission),
+                    msg="an unresolved owner-wide membership must not grant access",
+                )
+
+        scopes = resolve_owner_permission_scopes(
+            user=legacy_member,
+            team_repository=DjangoOwnerTeamRepository(),
+        )
+        self.assertEqual(scopes, [])
+
+    def test_deactivated_membership_stops_granting_access(self):
+        self.membership.is_active = False
+        self.membership.save(update_fields=["is_active"])
+
+        self.assertFalse(
+            has_place_permission(
+                user=self.member, place=self.granted_place, permission_code=PLACE_PERMISSION_EDIT
+            )
+        )
+        self.assertEqual(self._scopes(), [])
+
+
+class TestLegacyTeamAccessBackfill(TestCase):
+    """Migration 0093 converts only rows whose owner has exactly one place."""
+
+    def setUp(self):
+        from importlib import import_module
+
+        # The module name starts with a digit, so it can only be imported by name.
+        module = import_module("catalog.migrations.0093_backfill_place_scoped_team_access")
+        self.backfill = module.backfill_place_scope
+
+    def _apply(self):
+        from django.apps import apps as global_apps
+
+        self.backfill(global_apps, None)
+
+    def test_membership_is_assigned_when_owner_has_exactly_one_place(self):
+        owner = User.objects.create_user(username="bf_single", password="StrongPass123!!")
+        member = User.objects.create_user(username="bf_single_member", password="StrongPass123!!")
+        place = Place.objects.create(
+            name="Single", name_ru="Одна карточка", category="EDU", owner=owner, is_active=True
+        )
+        membership = OwnerTeamMembership.objects.create(
+            place=None, owner=owner, member=member, role=PLACE_ROLE_EDITOR, is_active=True
+        )
+
+        self._apply()
+
+        membership.refresh_from_db()
+        self.assertEqual(membership.place_id, place.id)
+
+    def test_membership_is_left_alone_when_owner_has_several_places(self):
+        owner = User.objects.create_user(username="bf_many", password="StrongPass123!!")
+        member = User.objects.create_user(username="bf_many_member", password="StrongPass123!!")
+        Place.objects.create(name="A", name_ru="А", category="EDU", owner=owner, is_active=True)
+        Place.objects.create(name="B", name_ru="Б", category="EDU", owner=owner, is_active=True)
+        membership = OwnerTeamMembership.objects.create(
+            place=None, owner=owner, member=member, role=PLACE_ROLE_EDITOR, is_active=True
+        )
+
+        self._apply()
+
+        membership.refresh_from_db()
+        self.assertIsNone(membership.place_id)
+
+    def test_membership_is_left_alone_when_owner_has_no_places(self):
+        owner = User.objects.create_user(username="bf_none", password="StrongPass123!!")
+        member = User.objects.create_user(username="bf_none_member", password="StrongPass123!!")
+        membership = OwnerTeamMembership.objects.create(
+            place=None, owner=owner, member=member, role=PLACE_ROLE_EDITOR, is_active=True
+        )
+
+        self._apply()
+
+        membership.refresh_from_db()
+        self.assertIsNone(membership.place_id)
+
+    def test_soft_deleted_place_still_counts_as_ambiguity(self):
+        owner = User.objects.create_user(username="bf_deleted", password="StrongPass123!!")
+        member = User.objects.create_user(username="bf_deleted_member", password="StrongPass123!!")
+        Place.objects.create(name="Live", name_ru="Живая", category="EDU", owner=owner, is_active=True)
+        Place.objects.create(
+            name="Gone",
+            name_ru="Удалённая",
+            category="EDU",
+            owner=owner,
+            is_active=False,
+            deleted_at=timezone.now(),
+        )
+        membership = OwnerTeamMembership.objects.create(
+            place=None, owner=owner, member=member, role=PLACE_ROLE_EDITOR, is_active=True
+        )
+
+        self._apply()
+
+        membership.refresh_from_db()
+        self.assertIsNone(membership.place_id)
+
+    def test_existing_place_scoped_row_blocks_a_conflicting_assignment(self):
+        owner = User.objects.create_user(username="bf_clash", password="StrongPass123!!")
+        member = User.objects.create_user(username="bf_clash_member", password="StrongPass123!!")
+        place = Place.objects.create(
+            name="Clash", name_ru="Конфликт", category="EDU", owner=owner, is_active=True
+        )
+        OwnerTeamMembership.objects.create(
+            place=place, owner=owner, member=member, role=PLACE_ROLE_MANAGER, is_active=True
+        )
+        legacy = OwnerTeamMembership.objects.create(
+            place=None, owner=owner, member=member, role=PLACE_ROLE_EDITOR, is_active=True
+        )
+
+        self._apply()
+
+        legacy.refresh_from_db()
+        self.assertIsNone(legacy.place_id)
+
+    def test_pending_invitation_is_assigned_for_single_place_owner(self):
+        owner = User.objects.create_user(username="bf_inv", password="StrongPass123!!")
+        place = Place.objects.create(
+            name="Inv", name_ru="Приглашение", category="EDU", owner=owner, is_active=True
+        )
+        invitation = OwnerTeamInvitation.objects.create(
+            place=None,
+            owner=owner,
+            invited_by=owner,
+            email="invited@example.com",
+            role=PLACE_ROLE_EDITOR,
+            status=OwnerTeamInvitation.STATUS_PENDING,
+        )
+
+        self._apply()
+
+        invitation.refresh_from_db()
+        self.assertEqual(invitation.place_id, place.id)
+
+    def test_backfilled_membership_grants_access_only_to_that_place(self):
+        owner = User.objects.create_user(username="bf_scope", password="StrongPass123!!")
+        member = User.objects.create_user(username="bf_scope_member", password="StrongPass123!!")
+        place = Place.objects.create(
+            name="Scoped", name_ru="Скоуп", category="EDU", owner=owner, is_active=True
+        )
+        OwnerTeamMembership.objects.create(
+            place=None, owner=owner, member=member, role=PLACE_ROLE_MANAGER, is_active=True
+        )
+
+        self._apply()
+
+        other_owner = User.objects.create_user(username="bf_scope_other", password="StrongPass123!!")
+        elsewhere = Place.objects.create(
+            name="Elsewhere", name_ru="Чужая", category="EDU", owner=other_owner, is_active=True
+        )
+        self.assertTrue(
+            has_place_permission(user=member, place=place, permission_code=PLACE_PERMISSION_EDIT)
+        )
+        self.assertFalse(
+            has_place_permission(user=member, place=elsewhere, permission_code=PLACE_PERMISSION_EDIT)
+        )
+
+
+class TestCreatedByIsAuditOnly(TestCase):
+    """`Place.created_by` records who made the card and never grants standing rights.
+
+    Management flows through `Place.owner` plus place-scoped memberships, so a
+    handover moves control with ownership while the creation record stays put.
+    """
+
+    def setUp(self):
+        self.creator = User.objects.create_user(
+            username="audit_creator",
+            email="audit-creator@example.com",
+            password="StrongPass123!!",
+        )
+        self.new_owner = User.objects.create_user(
+            username="audit_new_owner",
+            email="audit-new-owner@example.com",
+            password="StrongPass123!!",
+        )
+        self.moderator = User.objects.create_user(
+            username="audit_moderator",
+            email="audit-moderator@example.com",
+            password="StrongPass123!!",
+            is_staff=True,
+        )
+        self.place = create_quality_place(
+            owner=self.creator,
+            created_by=self.creator,
+            name="Audit Place",
+            name_ru="Карточка создателя",
+        )
+
+    def _transfer_to_new_owner(self):
+        ownership_request = PlaceOwnershipRequest.objects.create(
+            place=self.place,
+            applicant=self.new_owner,
+            status=PlaceOwnershipRequest.STATUS_PENDING,
+        )
+        ownership_request.apply_moderation(
+            moderator=self.moderator,
+            new_status=PlaceOwnershipRequest.STATUS_APPROVED,
+        )
+        self.place.refresh_from_db()
+
+    def test_creator_manages_the_new_place_through_ownership(self):
+        self.assertEqual(self.place.owner, self.creator)
+        for permission in (PLACE_PERMISSION_VIEW, PLACE_PERMISSION_EDIT, PLACE_PERMISSION_MANAGE_TEAM):
+            self.assertTrue(
+                has_place_permission(user=self.creator, place=self.place, permission_code=permission)
+            )
+
+        scopes = resolve_owner_permission_scopes(
+            user=self.creator, team_repository=DjangoOwnerTeamRepository()
+        )
+        self.assertEqual({scope.place_id for scope in scopes}, {self.place.id})
+        self.assertEqual({scope.source for scope in scopes}, {"direct"})
+
+    def test_creator_loses_management_after_ownership_transfer(self):
+        self._transfer_to_new_owner()
+
+        self.assertEqual(self.place.owner, self.new_owner)
+        for permission in (
+            PLACE_PERMISSION_VIEW,
+            PLACE_PERMISSION_EDIT,
+            PLACE_PERMISSION_MANAGE_TEAM,
+            PLACE_PERMISSION_MODERATE_REVIEWS,
+        ):
+            self.assertFalse(
+                has_place_permission(user=self.creator, place=self.place, permission_code=permission),
+                msg=f"created_by must not keep {permission} after a handover",
+            )
+        self.assertTrue(
+            has_place_permission(
+                user=self.new_owner, place=self.place, permission_code=PLACE_PERMISSION_EDIT
+            )
+        )
+
+    def test_creator_cannot_edit_or_invite_after_transfer_over_http(self):
+        self._transfer_to_new_owner()
+        self.client.login(username="audit_creator", password="StrongPass123!!")
+
+        edit_response = self.client.post(
+            reverse("owner_place_edit", args=[self.place.id]),
+            data={
+                "name_ru": "Правка бывшего создателя",
+                "name_az": "",
+                "name_en": "",
+                "description_ru": "",
+                "description_az": "",
+                "description_en": "",
+                "category": "EDU",
+                "subcategory": "",
+                "age_from": "",
+                "age_to": "",
+                "price_from": "",
+                "price_to": "",
+                "district": "",
+                "metro": "",
+                "address": "",
+                "phone1": "",
+                "instagram": "",
+                "website": "",
+                "schedule": "",
+                "is_temporary": "",
+                "temporary_start": "",
+                "temporary_end": "",
+            },
+            follow=True,
+        )
+        self.assertEqual(edit_response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertNotEqual(self.place.name_ru, "Правка бывшего создателя")
+
+        invite_response = self.client.post(
+            reverse("owner_team_invite"),
+            data={
+                "place": self.place.id,
+                "email": "someone@example.com",
+                "role": PLACE_ROLE_EDITOR,
+            },
+            follow=True,
+        )
+        self.assertEqual(invite_response.status_code, 200)
+        self.assertFalse(
+            OwnerTeamInvitation.objects.filter(place=self.place, email="someone@example.com").exists()
+        )
+
+    def test_membership_survives_transfer_with_only_its_granted_rights(self):
+        holder = User.objects.create_user(
+            username="audit_member",
+            email="audit-member@example.com",
+            password="StrongPass123!!",
+        )
+        OwnerTeamMembership.objects.create(
+            place=self.place,
+            owner=self.creator,
+            member=holder,
+            role=PLACE_ROLE_MODERATOR,
+            is_active=True,
+            invited_by=self.creator,
+        )
+        self._transfer_to_new_owner()
+
+        self.assertTrue(
+            has_place_permission(
+                user=holder, place=self.place, permission_code=PLACE_PERMISSION_MODERATE_REVIEWS
+            )
+        )
+        self.assertTrue(
+            has_place_permission(user=holder, place=self.place, permission_code=PLACE_PERMISSION_VIEW)
+        )
+        # A moderator grant never included editing or team management.
+        for permission in (PLACE_PERMISSION_EDIT, PLACE_PERMISSION_MANAGE_TEAM):
+            self.assertFalse(
+                has_place_permission(user=holder, place=self.place, permission_code=permission),
+                msg=f"a moderator membership must not gain {permission} through a handover",
+            )
+
+    def test_created_by_is_unchanged_by_the_transfer(self):
+        self._transfer_to_new_owner()
+
+        self.assertEqual(self.place.created_by, self.creator)
+        self.assertEqual(self.place.owner, self.new_owner)
+
+    def test_creator_slot_is_released_after_transfer(self):
+        controller = OwnerPlacesController.build_default()
+
+        _, before = controller._has_place_capacity(user=self.creator)
+        self.assertEqual(before, 1)
+
+        self._transfer_to_new_owner()
+
+        _, after = controller._has_place_capacity(user=self.creator)
+        self.assertEqual(after, 0, "a handed-over card must stop occupying the creator's quota")
+        _, new_owner_count = controller._has_place_capacity(user=self.new_owner)
+        self.assertEqual(new_owner_count, 1)
+
+    def test_unowned_card_stays_reachable_for_its_creator(self):
+        orphan = Place.objects.create(
+            name="Orphan",
+            name_ru="Карточка без владельца",
+            category="EDU",
+            created_by=self.creator,
+            owner=None,
+        )
+        self.assertTrue(
+            has_place_permission(user=self.creator, place=orphan, permission_code=PLACE_PERMISSION_EDIT)
+        )
+        # ...but only for its creator, and only while nobody owns it.
+        self.assertFalse(
+            has_place_permission(user=self.new_owner, place=orphan, permission_code=PLACE_PERMISSION_EDIT)
+        )
+        orphan.owner = self.new_owner
+        orphan.save(update_fields=["owner"])
+        self.assertFalse(
+            has_place_permission(user=self.creator, place=orphan, permission_code=PLACE_PERMISSION_EDIT)
+        )

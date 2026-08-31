@@ -64,8 +64,17 @@
             type="search"
             name="q"
             value="{{ selected.q }}"
+            data-search-input
             placeholder="{% if language == 'az' %}Dərnək və ya açar söz axtarın...{% elif language == 'en' %}Search for a club or keyword...{% else %}Искать кружок или ключевое слово...{% endif %}"
           />
+          <button
+            class="catalog-search-clear"
+            type="button"
+            data-search-clear
+            data-search-target="catalog-hero-search-input"
+            aria-label="{% if language == 'az' %}Axtarışı təmizlə{% elif language == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
+            {% if not selected.q %}hidden{% endif %}
+          ></button>
           {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
           {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
           {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
@@ -98,15 +107,25 @@
           {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
           {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
           {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
-          <label class="mobile-search-field">
-            <span class="visually-hidden">{% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}Поиск{% endif %}</span>
+          <div class="mobile-search-field">
+            <label class="visually-hidden" for="catalog-mobile-search">{% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}Поиск{% endif %}</label>
             <input
               id="catalog-mobile-search"
+              type="search"
               name="q"
               value="{{ selected.q }}"
+              data-search-input
               placeholder="{% if language == 'az' %}Məkan, məşğələ və ya açar söz...{% elif language == 'en' %}Place, class, or keyword...{% else %}Место, занятие или ключевое слово...{% endif %}"
             />
-          </label>
+            <button
+              class="catalog-search-clear"
+              type="button"
+              data-search-clear
+              data-search-target="catalog-mobile-search"
+              aria-label="{% if language == 'az' %}Axtarışı təmizlə{% elif language == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
+              {% if not selected.q %}hidden{% endif %}
+            ></button>
+          </div>
           <button type="button" class="mobile-search-filter" data-filters-open aria-controls="filters-form" aria-expanded="false">
             <span class="mobile-search-filter__icon" aria-hidden="true"></span>
             <span class="mobile-search-filter__label">{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</span>
@@ -297,6 +316,37 @@
           {% endfor %}
         </select>
       </label>
+
+      {% comment %}
+        Подкатегории появляются только после выбора категории и только те,
+        за которыми есть места — список формируется в контроллере
+        (subcategory_options_for_category), пустой блок не рисуется.
+      {% endcomment %}
+      {% if subcategory_options_for_category %}
+        <label class="filter-item filter-subcategory" data-subcategory-filter>
+          <span class="filter-subcategory__legend">
+            {% if language == "az" %}Alt kateqoriya{% elif language == "en" %}Subcategory{% else %}{% trans "Подкатегория" %}{% endif %}
+            {% if selected_category_label %}<span class="filter-subcategory__parent">{{ selected_category_label }}</span>{% endif %}
+          </span>
+          <div class="subcategory-options" aria-label="{% if language == 'az' %}Alt kateqoriya{% elif language == 'en' %}Subcategory{% else %}{% trans 'Подкатегория' %}{% endif %}">
+            <button type="button" class="subcategory-chip{% if not selected.subcategory %} is-active{% endif %}" data-select-target="subcategory" data-select-value="">
+              <span class="subcategory-chip__label">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
+            </button>
+            {% for subcategory in subcategory_options_for_category %}
+              <button type="button" class="subcategory-chip{% if selected.subcategory == subcategory.value %} is-active{% endif %}" data-select-target="subcategory" data-select-value="{{ subcategory.value }}">
+                <span class="subcategory-chip__label">{{ subcategory.label }}</span>
+                {% if subcategory.count %}<span class="subcategory-chip__count">{{ subcategory.count }}</span>{% endif %}
+              </button>
+            {% endfor %}
+          </div>
+          <select class="filter-select" name="subcategory">
+            <option value="">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</option>
+            {% for subcategory in subcategory_options_for_category %}
+              <option value="{{ subcategory.value }}" {% if selected.subcategory == subcategory.value %}selected{% endif %}>{% firstof subcategory.label_with_count subcategory.label %}</option>
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
 
       {% if not is_new_page %}
         {% if is_events_section_enabled %}
@@ -518,11 +568,19 @@
 
 
   <div class="top-search-wrapper">
-    <label class="top-search-label">
-      <span class="visually-hidden">{% if language == "az" %}Ada görə axtarış{% elif language == "en" %}Search by name{% else %}{% trans "Поиск по названию" %}{% endif %}</span>
+    <div class="top-search-label">
+      <label class="visually-hidden" for="catalog-top-search">{% if language == "az" %}Ada görə axtarış{% elif language == "en" %}Search by name{% else %}{% trans "Поиск по названию" %}{% endif %}</label>
       <span class="top-search-icon" aria-hidden="true"></span>
-      <input class="field top-search-field" type="search" name="q" value="{{ selected.q }}" form="filters-form" placeholder="{% if language == 'az' %}Krujok və ya açar söz axtarın... məsələn robototexnika{% elif language == 'en' %}Search for a club or keyword... e.g., robotics{% else %}{% trans 'Искать кружок или ключевое слово... например робототехника' %}{% endif %}" />
-    </label>
+      <input id="catalog-top-search" class="field top-search-field" type="search" name="q" value="{{ selected.q }}" form="filters-form" data-search-input placeholder="{% if language == 'az' %}Krujok və ya açar söz axtarın... məsələn robototexnika{% elif language == 'en' %}Search for a club or keyword... e.g., robotics{% else %}{% trans 'Искать кружок или ключевое слово... например робототехника' %}{% endif %}" />
+      <button
+        class="catalog-search-clear"
+        type="button"
+        data-search-clear
+        data-search-target="catalog-top-search"
+        aria-label="{% if language == 'az' %}Axtarışı təmizlə{% elif language == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
+        {% if not selected.q %}hidden{% endif %}
+      ></button>
+    </div>
   </div>
 
   <div class="catalog-top-stack">
@@ -1431,7 +1489,28 @@
         });
       });
 
-      document.querySelectorAll("[data-select-target]").forEach(function (button) {
+      // Список подкатегорий строится от выбранной категории, поэтому при её
+      // смене старое значение обнуляем: иначе фильтр ушёл бы в запрос вместе
+      // с новой категорией и выдача оказалась бы пустой.
+      function resetSubcategoryField() {
+        const subField = getFilterField("subcategory");
+        if (!subField || !subField.value) return;
+        subField.value = "";
+        syncTargetButtons("subcategory", "");
+      }
+
+      const categorySelectField = getSelect("category");
+      if (categorySelectField) {
+        categorySelectField.addEventListener("change", resetSubcategoryField);
+      }
+
+      // Блок подкатегорий пересобирается при AJAX-фильтрации, поэтому привязку
+      // вынесли в функцию: новые кнопки нужно подключать заново, а старые —
+      // не по второму разу (отсюда флаг selectBound).
+      function bindSelectTargetButtons(root) {
+        (root || document).querySelectorAll("[data-select-target]").forEach(function (button) {
+        if (button.dataset.selectBound === "true") return;
+        button.dataset.selectBound = "true";
         button.addEventListener("click", function () {
           const targetName = button.dataset.selectTarget;
           const targetValue = button.dataset.selectValue || "";
@@ -1450,6 +1529,9 @@
             rebuildOptions(targetSelect, "");
           }
           targetField.value = targetValue;
+          if (targetName === "category") {
+            resetSubcategoryField();
+          }
           targetField.dispatchEvent(new Event("change", { bubbles: true }));
           syncTargetButtons(targetName, targetValue);
           if (targetName === "category" && window.matchMedia("(max-width: 760px)").matches) {
@@ -1472,7 +1554,11 @@
             }
           }
         });
-      });
+        });
+      }
+
+      bindSelectTargetButtons(document);
+      window.kidsMapBindSelectTargets = bindSelectTargetButtons;
 
       document.querySelectorAll("[data-age-from][data-age-to]").forEach(function (button) {
         button.addEventListener("click", function () {
@@ -1584,6 +1670,36 @@
         grid.innerHTML = skeletonHtml;
       }
 
+      function syncSubcategoryFilter(nextDocument) {
+        const current = document.querySelector("[data-subcategory-filter]");
+        const next = nextDocument.querySelector("[data-subcategory-filter]");
+
+        if (current && next) {
+          current.replaceWith(next);
+        } else if (current) {
+          current.remove();          // категорию сняли — подкатегориям неоткуда взяться
+          return;
+        } else if (next) {
+          const categoryBlock = document.querySelector(".filter-item.filter-category");
+          if (!categoryBlock) return;
+          categoryBlock.insertAdjacentElement("afterend", next);
+        } else {
+          return;
+        }
+
+        const block = document.querySelector("[data-subcategory-filter]");
+        if (window.kidsMapBindSelectTargets) {
+          window.kidsMapBindSelectTargets(block);
+        }
+        // Значение из чипа попадает в select, а отправляет форму именно его
+        // change — у свежевставленного узла слушателя ещё нет.
+        const select = block && block.querySelector(".filter-select");
+        if (select && select.dataset.submitBound !== "true") {
+          select.dataset.submitBound = "true";
+          select.addEventListener("change", triggerSubmit);
+        }
+      }
+
       function replaceCatalogFragment(nextDocument, scrollTop, url) {
         const currentTopStack = document.querySelector(".catalog-top-stack");
         const nextTopStack = nextDocument.querySelector(".catalog-top-stack");
@@ -1599,12 +1715,18 @@
         currentTopStack.replaceWith(nextTopStack);
         currentMainColumn.replaceWith(nextMainColumn);
 
+        // Сайдбар при AJAX-фильтрации не переписывается, а список подкатегорий
+        // зависит от выбранной категории — иначе после её смены в блоке
+        // остались бы подкатегории прошлой категории.
+        syncSubcategoryFilter(nextDocument);
+
         const currentHeroSearch = document.getElementById("catalog-hero-search-input");
         const nextHeroSearch = nextDocument.getElementById("catalog-hero-search-input");
         const currentTopSearch = document.querySelector('.top-search-field[name="q"]');
         const nextTopSearch = nextDocument.querySelector('.top-search-field[name="q"]');
         if (currentHeroSearch && nextHeroSearch) {
           currentHeroSearch.value = nextHeroSearch.value;
+          syncSearchClearButton(currentHeroSearch);
         }
         if (currentTopSearch && nextTopSearch) {
           currentTopSearch.value = nextTopSearch.value;
@@ -1721,6 +1843,43 @@
           }
         });
       }
+
+      function syncSearchClearButton(input) {
+        if (!input || !input.id) return;
+        const button = document.querySelector('[data-search-clear][data-search-target="' + input.id + '"]');
+        if (button) {
+          button.hidden = !input.value;
+        }
+      }
+
+      document.querySelectorAll("[data-search-input]").forEach(syncSearchClearButton);
+
+      document.addEventListener("input", function (event) {
+        if (event.target.matches("[data-search-input]")) {
+          syncSearchClearButton(event.target);
+        }
+      });
+
+      document.addEventListener("click", function (event) {
+        const button = event.target.closest("[data-search-clear]");
+        if (!button) return;
+
+        const input = document.getElementById(button.dataset.searchTarget);
+        if (!input) return;
+
+        input.value = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.focus();
+
+        const form = input.form || button.closest("form");
+        if (form) {
+          if (form.classList.contains("mobile-catalog-search")) {
+            window.location.href = buildFormUrl(form).href;
+            return;
+          }
+          form.requestSubmit ? form.requestSubmit() : form.submit();
+        }
+      });
 
       function initLocationTreeSelect() {
         const container = document.querySelector('[data-tree-select="district"]');

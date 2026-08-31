@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from contextvars import ContextVar
+
 from django.conf import settings
 
 
-PRIVACY_EMAIL = "kidsmap.az@gmail.com"
+DEFAULT_LEGAL_CONTACT_EMAIL = "noreply@kidsmap.az"
+_legal_contact_email: ContextVar[str] = ContextVar(
+    "legal_contact_email", default=DEFAULT_LEGAL_CONTACT_EMAIL
+)
 
 
 def paragraph(text: str) -> dict:
@@ -15,7 +20,15 @@ def bullets(*items: str) -> dict:
 
 
 def email_block(label: str) -> dict:
-    return {"type": "email", "label": label, "email": PRIVACY_EMAIL}
+    return {"type": "email", "label": label, "email": _legal_contact_email.get()}
+
+
+def _current_legal_contact_email() -> str:
+    """Use the public contact address configured in the admin panel."""
+    from .models import SiteSettings
+
+    configured_email = (SiteSettings.get_solo().footer_email or "").strip()
+    return configured_email or DEFAULT_LEGAL_CONTACT_EMAIL
 
 
 def section(section_id: str, title: str, *content: dict, children: list[dict] | None = None) -> dict:
@@ -83,7 +96,7 @@ def _privacy_sections_ru(*, analytics_enabled: bool, maps_enabled: bool) -> list
         section(
             "user-categories",
             "3. Категории пользователей",
-            paragraph("Функциями сайта могут пользоваться незарегистрированные посетители, зарегистрированные пользователи, родители и законные представители детей, владельцы и представители организаций, участники owner-команд, модераторы и администраторы."),
+            paragraph("Функциями сайта могут пользоваться незарегистрированные посетители, зарегистрированные пользователи, родители и законные представители детей, владельцы и представители организаций, участники команд карточек, модераторы и администраторы."),
             paragraph("Сайт в первую очередь рассчитан на совершеннолетних пользователей."),
             paragraph("Дети не должны самостоятельно передавать персональные данные через сайт без участия родителя или законного представителя."),
         ),
@@ -434,7 +447,7 @@ def _privacy_sections_az(*, analytics_enabled: bool, maps_enabled: bool) -> list
         section(
             "user-categories",
             "3. İstifadəçi kateqoriyaları",
-            paragraph("Sayt funksiyalarından qeydiyyatsız ziyarətçilər, qeydiyyatdan keçmiş istifadəçilər, valideynlər və qanuni nümayəndələr, təşkilat sahibləri və nümayəndələri, owner-team iştirakçıları, moderatorlar və administratorlar istifadə edə bilər."),
+            paragraph("Sayt funksiyalarından qeydiyyatsız ziyarətçilər, qeydiyyatdan keçmiş istifadəçilər, valideynlər və qanuni nümayəndələr, təşkilat sahibləri və nümayəndələri, kart komandalarının iştirakçıları, moderatorlar və administratorlar istifadə edə bilər."),
             paragraph("Sayt ilk növbədə yetkin istifadəçilər üçün nəzərdə tutulub."),
             paragraph("Uşaqlar valideyn və ya qanuni nümayəndənin iştirakı olmadan sayt vasitəsilə şəxsi məlumat göndərməməlidirlər."),
         ),
@@ -785,7 +798,7 @@ def _privacy_sections_en(*, analytics_enabled: bool, maps_enabled: bool) -> list
         section(
             "user-categories",
             "3. Categories of users",
-            paragraph("The site may be used by anonymous visitors, registered users, parents and legal guardians, business owners and representatives, owner-team members, moderators, and administrators."),
+            paragraph("The site may be used by anonymous visitors, registered users, parents and legal guardians, business owners and representatives, listing team members, moderators, and administrators."),
             paragraph("The site is primarily intended for adult users."),
             paragraph("Children should not submit personal data through the site without the involvement of a parent or legal guardian."),
         ),
@@ -1126,6 +1139,7 @@ LEGAL_CONTENT = {
         "az": (
             "Yerləşdirmə qaydaları",
             [
+                "Qeydiyyatdan keçmiş istənilən istifadəçi məkan əlavə edə bilər; bunun üçün ayrıca sahib və ya biznes hesabı tələb olunmur.",
                 "Kartda ad, kateqoriya, ünvan, kontakt, yaş, qiymət və cədvəl kimi əsas məlumatlar olmalıdır.",
                 "Natamam və test kartları kataloqda göstərilmir.",
             ],
@@ -1133,6 +1147,7 @@ LEGAL_CONTENT = {
         "ru": (
             "Правила размещения",
             [
+                "Добавить место может любой зарегистрированный пользователь; отдельный аккаунт владельца или бизнес-аккаунт для этого не нужен.",
                 "В карточке должны быть базовые данные: название, категория, адрес, контакт, возраст, цена и расписание.",
                 "Неполные и тестовые карточки не показываются в каталоге.",
             ],
@@ -1140,6 +1155,7 @@ LEGAL_CONTENT = {
         "en": (
             "Listing Rules",
             [
+                "Any registered user can add a place; no separate owner or business account is required.",
                 "A listing should include core data such as name, category, address, contact details, age range, price, and schedule.",
                 "Incomplete and test listings are not shown in the catalog.",
             ],
@@ -1156,6 +1172,8 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
     safe_language = language if language in {"az", "ru", "en"} else "az"
     analytics_enabled = bool(getattr(settings, "GOOGLE_ANALYTICS_MEASUREMENT_ID", ""))
     maps_enabled = bool(getattr(settings, "GOOGLE_MAPS_API_KEY", ""))
+    contact_email = _current_legal_contact_email()
+    _legal_contact_email.set(contact_email)
 
     if page_slug == "privacy":
         sections_map = {
@@ -1234,7 +1252,7 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
             "sections": sections,
             "contact_title": meta["contact_title"],
             "contact_body": meta["contact_body"],
-            "contact_email": PRIVACY_EMAIL,
+            "contact_email": contact_email,
             "toc_items": [{"id": item["id"], "title": item["title"]} for item in sections],
         }
 
@@ -1315,7 +1333,7 @@ def get_legal_page_content(*, page_slug: str, language: str) -> dict:
             "sections": sections,
             "contact_title": meta["contact_title"],
             "contact_body": meta["contact_body"],
-            "contact_email": PRIVACY_EMAIL,
+            "contact_email": contact_email,
             "toc_items": [{"id": item["id"], "title": item["title"]} for item in sections],
         }
 

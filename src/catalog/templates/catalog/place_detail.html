@@ -142,7 +142,7 @@
                     {% for row in pricing_summary.schedule_rows %}
                       <div class="schedule-row-item{% if row.is_closed %} schedule-row-item--closed{% endif %}{% if not row.days %} schedule-row-item--time-only{% endif %}">
                         {% if row.days %}<span class="schedule-row-days">{{ row.days }}</span><span class="schedule-row-separator">·</span>{% endif %}
-                        <strong class="schedule-row-time">{{ row.time }}</strong>
+                        <strong class="schedule-row-time">{% if row.url %}<a href="{{ row.url }}">{{ row.time }}</a>{% else %}{{ row.time }}{% endif %}</strong>
                       </div>
                     {% endfor %}
                   </div>
@@ -392,7 +392,7 @@
 
           <section id="reviews" class="detail-reviews detail-section detail-body-card detail-body-card--reviews">
             <div class="detail-section-head">
-              <h2>{% trans "Отзывы" %}</h2>
+              <h2>{% if language == "az" %}Rəylər{% elif language == "en" %}Reviews{% else %}Отзывы{% endif %}</h2>
               <div class="detail-reviews-summary">
                 <div class="detail-reviews-summary__rating">
                   <span class="rating-stars small" style="--rating: {{ place.rating_avg|stringformat:'.2f' }};" aria-hidden="true"></span>
@@ -422,11 +422,11 @@
 
             <div class="detail-reviews-listing">
               <div class="detail-reviews-listing__head">
-                <h3>{% trans "Последние отзывы" %}</h3>
+                <h3>{% if language == "az" %}Son rəylər{% elif language == "en" %}Latest reviews{% else %}Последние отзывы{% endif %}</h3>
                 {% if place_reviews %}
                   <form method="get" class="reviews-toolbar">
                     <label class="filter-item filter-sort filter-sort--inline">
-                      <span class="filter-sort-label">{% trans "Сортировка" %}:</span>
+                      <span class="filter-sort-label">{% if language == "az" %}Sıralama{% elif language == "en" %}Sort{% else %}Сортировка{% endif %}:</span>
                       <select class="filter-select" name="review_sort" onchange="this.form.submit()">
                         {% for value, label in review_sort_choices %}
                           <option value="{{ value }}" {% if review_sort == value %}selected{% endif %}>{{ label }}</option>
@@ -438,16 +438,14 @@
               </div>
 
               {% if place_reviews %}
-                <div class="detail-reviews-panel">
-                  <div class="reviews-list detail-reviews-list">
-                    {% for review in place_reviews %}
-                      {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_place_review" show_place_link=False next_url=place.get_absolute_url|add:'#reviews' %}
-                    {% endfor %}
-                  </div>
+                <div class="reviews-list detail-reviews-list">
+                  {% for review in place_reviews %}
+                    {% include "catalog/includes/review_item.html" with review=review vote_url_name="vote_place_review" show_place_link=False next_url=place.get_absolute_url|add:'#reviews' %}
+                  {% endfor %}
                 </div>
               {% else %}
                 <div class="detail-reviews-empty">
-                  <p>{% trans "Пока нет опубликованных отзывов." %}</p>
+                  <p>{% if language == "az" %}Hələ dərc olunmuş rəy yoxdur.{% elif language == "en" %}No published reviews yet.{% else %}Пока нет опубликованных отзывов.{% endif %}</p>
                 </div>
               {% endif %}
             </div>
@@ -459,7 +457,7 @@
                   {% csrf_token %}
                   
                   <div class="km-review-rating-row">
-                    <span class="km-review-rating-label">{% trans "Ваша оценка" %}:</span>
+                    <span class="km-review-rating-label">{% if language == "az" %}Qiymətiniz{% elif language == "en" %}Your rating{% else %}Ваша оценка{% endif %}:</span>
                     <div class="km-star-rating" data-rating="5">
                       {% for value in "12345" %}
                         <button type="button" class="km-star" data-value="{{ value }}" aria-label="{% if language == 'az' %}5 baldan {{ value }} bal{% elif language == 'en' %}{{ value }} out of 5 stars{% else %}{{ value }} из 5 звёзд{% endif %}"><span aria-hidden="true">★</span></button>
@@ -469,20 +467,20 @@
                   </div>
 
                   <div class="km-review-textarea-row">
-                    <textarea class="km-review-textarea" name="text" rows="3" placeholder="{% trans 'Что вам понравилось или не понравилось?' %}" required></textarea>
+                    <textarea class="km-review-textarea" name="text" rows="3" placeholder="{% if language == 'az' %}Nəyi bəyəndiniz və ya bəyənmədiniz?{% elif language == 'en' %}What did you like or dislike?{% else %}Что вам понравилось или не понравилось?{% endif %}" required></textarea>
                   </div>
 
                   <div class="km-review-submit-row">
-                    <button type="submit" class="btn km-review-submit-btn" data-loading-button>{% trans "Отправить отзыв" %}</button>
+                    <button type="submit" class="btn km-review-submit-btn" data-loading-button>{% if language == "az" %}Rəyi göndər{% elif language == "en" %}Submit review{% else %}Отправить отзыв{% endif %}</button>
                   </div>
                 </form>
               </div>
             {% else %}
               <div class="km-review-auth-wrap">
-                <p>{% trans "Чтобы оставить отзыв, войдите или зарегистрируйтесь." %}</p>
+                <p>{% if language == "az" %}Rəy yazmaq üçün daxil olun və ya qeydiyyatdan keçin.{% elif language == "en" %}To leave a review, log in or register.{% else %}Чтобы оставить отзыв, войдите или зарегистрируйтесь.{% endif %}</p>
                 <div class="km-review-auth-actions">
-                  <a class="btn" href="{% url 'account_login' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Войти" %}</a>
-                  <a class="link-btn" href="{% url 'account_register' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% trans "Регистрация" %}</a>
+                  <a class="btn" href="{% url 'account_login' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% if language == "az" %}Daxil ol{% elif language == "en" %}Log in{% else %}Войти{% endif %}</a>
+                  <a class="link-btn" href="{% url 'account_register' %}?next={{ place.get_absolute_url|add:'#reviews'|urlencode }}">{% if language == "az" %}Qeydiyyat{% elif language == "en" %}Register{% else %}Регистрация{% endif %}</a>
                 </div>
               </div>
             {% endif %}

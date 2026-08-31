@@ -14,319 +14,277 @@
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}" />
 {% endblock %}
 
 {% block content %}
-  <section class="panel auth-panel profile-panel account-dashboard">
-    <header class="account-dashboard__hero">
-      <div class="account-dashboard__hero-surface">
-        {% if site_settings.dashboard_hero_image %}
-          <img src="{{ site_settings.dashboard_hero_image.url }}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+<div class="account-page-wrapper">
+  
+  <!-- Signed in notification banner -->
+  <div class="account-alert-banner">
+    <span class="material-symbols-rounded">check_circle</span>
+    <span>
+      {% if CURRENT_LANGUAGE == "az" %}
+        Hesabınıza daxil oldunuz.
+      {% elif CURRENT_LANGUAGE == "en" %}
+        You are signed in to your account.
+      {% else %}
+        Вы вошли в аккаунт.
+      {% endif %}
+    </span>
+  </div>
+
+  <!-- User Identity Header Card -->
+  <div class="account-user-card">
+    <div class="account-user-avatar">
+      {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+    </div>
+    <div class="account-user-info">
+      <h1 class="account-user-name">{{ request.user.get_full_name|default:request.user.username }}</h1>
+      <span class="account-user-email">{{ request.user.email|default:request.user.username }}</span>
+    </div>
+    <div class="account-user-meta">
+      <span class="material-symbols-rounded">event_available</span>
+      <span>
+        {% if CURRENT_LANGUAGE == "az" %}
+          Qeydiyyat: {{ request.user.date_joined|date:"d.m.Y" }}
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Joined: {{ request.user.date_joined|date:"d.m.Y" }}
         {% else %}
-          <img src="{% static 'img/banners/owner-dashboard-hero.webp' %}" alt="" loading="lazy" class="account-dashboard__hero-image" />
+          С нами с {{ request.user.date_joined|date:"d.m.Y" }}
         {% endif %}
-        <div class="account-dashboard__hero-copy">
-          <div class="account-dashboard__hero-badge" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4.75 6.75h14.5v10.5H4.75V6.75Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>
-              <path d="M8 4.75h8M8 12h3.5M8 15h6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <h1>{% if CURRENT_LANGUAGE == "az" %}Kabinet icmalı{% elif CURRENT_LANGUAGE == "en" %}Cabinet overview{% else %}Обзор кабинета{% endif %}</h1>
-            <p class="auth-subtitle">
-              {% if CURRENT_LANGUAGE == "az" %}
-                Profil, seçilmişlər, baxış tarixçəsi və əlavə etdiyiniz məkanlar bir ekranda.
-              {% elif CURRENT_LANGUAGE == "en" %}
-                Profile, favorites, viewing history, and your places in one screen.
-              {% else %}
-                Профиль, избранное, история просмотров и ваши места на одном экране.
-              {% endif %}
-            </p>
-          </div>
+      </span>
+    </div>
+    <div class="account-user-actions">
+      <a href="{% url 'account_settings' %}" class="account-edit-profile-btn">
+        <span class="material-symbols-rounded">edit</span>
+        <span>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Profili redaktə et
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Edit profile
+          {% else %}
+            Редактировать профиль
+          {% endif %}
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main 2-column Grid: Sidebar + Content -->
+  <div class="account-main-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="account-nav-sidebar">
+      <a href="{% url 'account_dashboard' %}" class="account-nav-item is-active">
+        <span class="material-symbols-rounded">grid_view</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Ümumi baxış{% elif CURRENT_LANGUAGE == "en" %}Overview{% else %}Обзор{% endif %}</span>
+      </a>
+      <a href="{% url 'owner_places_dashboard' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">location_on</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+        {% if managed_places_count %}<span class="account-nav-count">{{ managed_places_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'owner_reviews_dashboard' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">star</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
+        {% if user_reviews_count %}<span class="account-nav-count">{{ user_reviews_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'account_favorites' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">favorite</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
+        {% if favorites_count %}<span class="account-nav-count">{{ favorites_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'account_settings' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">settings</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Tənzimləmələr{% elif CURRENT_LANGUAGE == "en" %}Settings{% else %}Настройки{% endif %}</span>
+      </a>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <section class="account-main-content">
+      
+      <!-- Summary Metric Pills -->
+      <div class="account-metric-pills">
+        <div class="account-metric-pill">
+          <span class="material-symbols-rounded metric-icon-green">location_on</span>
+          <strong>{{ managed_places_count }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+        </div>
+        <div class="account-metric-pill">
+          <span class="material-symbols-rounded metric-icon-gold">star</span>
+          <strong>{{ user_reviews_count|default:0 }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
+        </div>
+        <div class="account-metric-pill">
+          <span class="material-symbols-rounded metric-icon-red">favorite</span>
+          <strong>{{ favorites_count }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
         </div>
       </div>
-    </header>
 
-    <div class="account-dashboard__tabs-row">
-      <nav class="account-dashboard__tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Kabinet bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Cabinet sections{% else %}Разделы кабинета{% endif %}">
-        <a class="account-dashboard__tab is-active" href="{% url 'account_dashboard' %}">
-          {% if CURRENT_LANGUAGE == "az" %}İcmal{% elif CURRENT_LANGUAGE == "en" %}Overview{% else %}Обзор{% endif %}
-        </a>
-        <a class="account-dashboard__tab" href="{% url 'account_profile' %}">
-          {% if CURRENT_LANGUAGE == "az" %}Profil{% elif CURRENT_LANGUAGE == "en" %}Profile{% else %}Профиль{% endif %}
-        </a>
-        <a class="account-dashboard__tab" href="{% url 'account_favorites' %}">
-          <span>{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
-          <span class="account-dashboard__tab-count">{{ favorites_count }}</span>
-        </a>
-        <a class="account-dashboard__tab" href="{% url 'owner_places_dashboard' %}">
-          <span>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
-          <span class="account-dashboard__tab-count">{{ managed_places_count }}</span>
-        </a>
-      </nav>
-      <div class="account-dashboard__tabs-actions">
-        <a class="btn account-dashboard__tabs-add" href="{% url 'owner_place_create' %}?fresh=1">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M12 5.25v13.5M5.25 12h13.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
-        </a>
-      </div>
-    </div>
-
-    <div class="account-dashboard__grid">
-      <section class="account-card account-card--summary">
-        <div class="account-card__head account-card__head--inline">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Hesab xülasəsi{% elif CURRENT_LANGUAGE == "en" %}Account summary{% else %}Сводка аккаунта{% endif %}</h2>
-          <a class="account-card__action" href="{% url 'account_profile' %}">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 1 1 14 0" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>{% if CURRENT_LANGUAGE == "az" %}Profili aç{% elif CURRENT_LANGUAGE == "en" %}Open profile{% else %}Открыть профиль{% endif %}</span>
+      <!-- Continue Draft Action Card -->
+      {% if latest_actionable_draft_place %}
+        <div class="account-continue-card">
+          <span class="material-symbols-rounded account-continue-icon">play_arrow</span>
+          <div class="account-continue-info">
+            <div class="account-continue-header">
+              <span class="account-continue-title">{% if CURRENT_LANGUAGE == "az" %}İşi davam et{% elif CURRENT_LANGUAGE == "en" %}Continue work{% else %}Продолжить работу{% endif %}</span>
+              <span class="account-continue-placename">{{ latest_actionable_draft_place.name_i18n }}</span>
+            </div>
+            <div class="account-progress-row">
+              <div class="account-progress-track">
+                <div class="account-progress-bar" style="width: {% if latest_actionable_draft_place.status == 'rejected' %}80%{% else %}65%{% endif %};"></div>
+              </div>
+              <span class="account-progress-label">{% if latest_actionable_draft_place.status == 'rejected' %}80%{% else %}65%{% endif %}</span>
+            </div>
+            <span class="account-continue-hint">
+              {% if latest_actionable_draft_place.status == "rejected" %}
+                {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır: yoxlama qeydlərini nəzərdən keçirin{% else %}Требуются исправления: проверьте замечания модератора{% endif %}
+              {% else %}
+                {% if CURRENT_LANGUAGE == "az" %}Qaralamanı tamamlayıb moderasiyaya göndərin{% else %}Осталось указать адрес, фото и отправить на проверку{% endif %}
+              {% endif %}
+            </span>
+          </div>
+          <a href="{% url 'owner_place_edit' latest_actionable_draft_place.id %}" class="account-btn-action">
+            {% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}
           </a>
         </div>
-        <div class="account-summary">
-          <div class="account-summary__identity">
-            <div class="account-summary__avatar" aria-hidden="true">
-              <span>{{ request.user.first_name|default:request.user.username|slice:":1"|upper }}</span>
+      {% endif %}
+
+      <!-- My Places List Card -->
+      {% if managed_places %}
+        <div class="account-card-box" id="my-places">
+          <div class="account-card-box__head">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h2>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <a href="{% url 'owner_place_create' %}" class="account-link-all">
+                <span class="material-symbols-rounded">add</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
+              </a>
+              <a href="{% url 'owner_places_dashboard' %}" class="account-link-all">
+                <span>{% if CURRENT_LANGUAGE == "az" %}Hamısına bax{% elif CURRENT_LANGUAGE == "en" %}Show all{% else %}Все{% endif %}</span>
+                <span class="material-symbols-rounded">arrow_forward</span>
+              </a>
             </div>
-            <div class="account-summary__identity-copy">
-              <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
-              <p>{{ request.user.email|default:"-" }}</p>
-              <div class="account-summary__badges">
-                <span class="account-badge account-badge--status {% if request.user.is_active %}is-active{% endif %}">
-                  {% if request.user.is_active %}
-                    {% if CURRENT_LANGUAGE == "az" %}Aktiv{% elif CURRENT_LANGUAGE == "en" %}Active{% else %}Активен{% endif %}
+          </div>
+          <div class="account-places-list">
+            {% for place in managed_places|slice:":4" %}
+              <a href="{% url 'owner_place_edit' place.id %}" class="account-place-item">
+                <span class="material-symbols-rounded account-place-item__icon">
+                  {% if "sport" in place.category or "idman" in place.category %}sports_soccer
+                  {% elif "music" in place.category or "musiqi" in place.category %}music_note
+                  {% elif "dance" in place.category or "reqs" in place.category %}music_note
+                  {% elif "lang" in place.category or "dil" in place.category %}translate
+                  {% elif "art" in place.category or "ressam" in place.category %}palette
+                  {% elif "pool" in place.category or "uzguculuk" in place.category %}pool
+                  {% elif "chess" in place.category or "sahmat" in place.category %}extension
+                  {% else %}location_on{% endif %}
+                </span>
+                <div class="account-place-item__info">
+                  <strong class="account-place-item__name">{{ place.name_i18n }}</strong>
+                  <span class="account-place-item__meta">{{ place.get_category_display }}{% if place.district %} · {{ place.get_district_display }}{% endif %}</span>
+                </div>
+                <span class="account-status-pill account-status-pill--{{ place.status }}">
+                  {% if place.status == "published" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% else %}Опубликовано{% endif %}
+                  {% elif place.status == "moderation" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Yoxlamada{% else %}На модерации{% endif %}
+                  {% elif place.status == "rejected" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır{% else %}Требуются исправления{% endif %}
                   {% else %}
-                    {% if CURRENT_LANGUAGE == "az" %}Məhdud{% elif CURRENT_LANGUAGE == "en" %}Limited{% else %}Ограничен{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Qaralama{% else %}Черновик{% endif %}
+                  {% endif %}
+                </span>
+                <span class="material-symbols-rounded account-place-item__arrow">chevron_right</span>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <div class="account-card-box account-empty-first-card">
+          <span class="material-symbols-rounded empty-card-icon">add_location_alt</span>
+          <h3>{% if CURRENT_LANGUAGE == "az" %}İlk məkanınızı əlavə edin{% elif CURRENT_LANGUAGE == "en" %}Add your first place{% else %}Добавьте первое место{% endif %}</h3>
+          <p>{% if CURRENT_LANGUAGE == "az" %}Kartı doldurun — yoxlamadan sonra məkan kataloqda görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Fill out the place card — after review it will appear in the catalog.{% else %}Заполните карточку — после проверки место появится в каталоге.{% endif %}</p>
+          <a href="{% url 'owner_place_create' %}?fresh=1" class="account-btn-action">
+            {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}
+          </a>
+        </div>
+      {% endif %}
+
+      <!-- Favorites Section -->
+      {% if favorite_places %}
+        <div class="account-card-box">
+          <div class="account-card-box__head">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</h2>
+            <a href="{% url 'account_favorites' %}" class="account-link-all">
+              <span>{% if CURRENT_LANGUAGE == "az" %}Hamısına bax{% elif CURRENT_LANGUAGE == "en" %}Show all{% else %}Все{% endif %}</span>
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </a>
+          </div>
+          <div class="account-favs-row">
+            {% for place in favorite_places|slice:":4" %}
+              <a href="{{ place.get_absolute_url }}" class="account-fav-chip-link">
+                <span class="material-symbols-rounded fav-chip-icon">
+                  {% if "sport" in place.category %}sports_soccer
+                  {% elif "music" in place.category %}music_note
+                  {% elif "lang" in place.category %}translate
+                  {% elif "chess" in place.category %}extension
+                  {% else %}favorite{% endif %}
+                </span>
+                <span class="fav-chip-name">{{ place.name_i18n }}</span>
+                {% if place.rating_avg or place.rating %}
+                  <span class="fav-chip-star">
+                    <span class="material-symbols-rounded">star</span>
+                    {{ place.rating_avg|default:place.rating|floatformat:1 }}
+                  </span>
+                {% endif %}
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Reviews Section -->
+      {% if user_reviews %}
+        <div class="account-card-box">
+          <div class="account-card-box__head">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}My reviews{% else %}Мои отзывы{% endif %}</h2>
+            <a href="{% url 'owner_reviews_dashboard' %}" class="account-link-all">
+              <span>{% if CURRENT_LANGUAGE == "az" %}Hamısına bax{% elif CURRENT_LANGUAGE == "en" %}Show all{% else %}Все{% endif %}</span>
+              <span class="material-symbols-rounded">arrow_forward</span>
+            </a>
+          </div>
+          <div class="account-reviews-list">
+            {% for review in user_reviews|slice:":2" %}
+              <div class="account-review-item">
+                <div class="account-review-stars">
+                  {% if review.rating >= 1 %}★{% endif %}{% if review.rating >= 2 %}★{% endif %}{% if review.rating >= 3 %}★{% endif %}{% if review.rating >= 4 %}★{% endif %}{% if review.rating >= 5 %}★{% endif %}
+                </div>
+                <div class="account-review-content">
+                  <strong class="account-review-placename">{{ review.place.name_i18n }}</strong>
+                  <p class="account-review-text">{{ review.text|truncatechars:110 }}</p>
+                </div>
+                <span class="account-status-pill account-status-pill--{{ review.status }}">
+                  {% if review.status == "approved" or review.status == "published" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% else %}Опубликован{% endif %}
+                  {% elif review.status == "pending" %}
+                    {% if CURRENT_LANGUAGE == "az" %}Yoxlamada{% else %}На модерации{% endif %}
+                  {% else %}
+                    {% if CURRENT_LANGUAGE == "az" %}Rədd edilib{% else %}Отклонён{% endif %}
                   {% endif %}
                 </span>
               </div>
-            </div>
-          </div>
-
-          <div class="account-summary__stats">
-            <article class="account-summary__stat">
-              <span class="account-summary__stat-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7.5 5.75h9a1.75 1.75 0 0 1 1.75 1.75v10.75l-6.25-3.2-6.25 3.2V7.5A1.75 1.75 0 0 1 7.5 5.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <strong>{{ favorites_count }}</strong>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Favorite places{% else %}Избранные места{% endif %}</span>
-            </article>
-            <article class="account-summary__stat">
-              <span class="account-summary__stat-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.75 12a7.25 7.25 0 1 1 14.5 0 7.25 7.25 0 0 1-14.5 0Z" stroke="currentColor" stroke-width="1.8"/>
-                  <path d="m12 8.75.05 3.5 2.2 1.55" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <strong>{{ history_count }}</strong>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Baxılan kartlar{% elif CURRENT_LANGUAGE == "en" %}Viewed cards{% else %}Просмотренные карточки{% endif %}</span>
-            </article>
-            <article class="account-summary__stat">
-              <span class="account-summary__stat-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 8.25h14M7 5.75h10a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-8.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <strong>{{ managed_places_count }}</strong>
-              <span>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <aside class="account-card account-card--quick">
-        <div class="account-card__head">
-          <h2>{% trans "Следующее действие" %}</h2>
-        </div>
-        <div class="account-next-action">
-          {% if latest_actionable_draft_place %}
-            <p class="account-next-action__copy">
-              {% blocktrans count total=actionable_draft_places_count %}У вас есть {{ total }} черновик. Завершите публикацию, чтобы место можно было отправить на проверку.{% plural %}У вас есть {{ total }} черновика. Завершите публикацию, чтобы места можно было отправить на проверку.{% endblocktrans %}
-            </p>
-            <a class="btn account-next-action__btn" href="{% url 'owner_place_edit' latest_actionable_draft_place.id %}">
-              {% trans "Продолжить черновик" %}
-            </a>
-          {% elif managed_places_count %}
-            <p class="account-next-action__copy">{% trans "Проверьте опубликованные места, ответы на отзывы и актуальность контактов." %}</p>
-            <a class="btn account-next-action__btn" href="{% url 'owner_places_dashboard' %}">
-              {% trans "Открыть мои места" %}
-            </a>
-          {% else %}
-            <p class="account-next-action__copy">{% trans "Добавьте первое детское место, чтобы родители могли найти его в каталоге и на карте." %}</p>
-            <a class="btn account-next-action__btn" href="{% url 'owner_place_create' %}?fresh=1">
-              {% trans "Добавить место" %}
-            </a>
-          {% endif %}
-        </div>
-        <div class="account-quick-links account-quick-links--secondary">
-          <a class="account-quick-link" href="{% url 'account_profile' %}">
-            <span class="account-quick-link__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 1 1 14 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-            <span class="account-quick-link__label">{% if CURRENT_LANGUAGE == "az" %}Profil və təhlükəsizlik{% elif CURRENT_LANGUAGE == "en" %}Profile and security{% else %}Профиль и безопасность{% endif %}</span>
-          </a>
-          <a class="account-quick-link" href="{% url 'account_favorites' %}">
-            <span class="account-quick-link__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 5.75h9a1.75 1.75 0 0 1 1.75 1.75v10.75l-6.25-3.2-6.25 3.2V7.5A1.75 1.75 0 0 1 7.5 5.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-            <span class="account-quick-link__label">{% if CURRENT_LANGUAGE == "az" %}Seçilmişlərə bax{% elif CURRENT_LANGUAGE == "en" %}View favorites{% else %}Смотреть избранное{% endif %}</span>
-            <span class="account-quick-link__count">{{ favorites_count }}</span>
-          </a>
-          <a class="account-quick-link" href="{% url 'owner_places_dashboard' %}">
-            <span class="account-quick-link__icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.75 7.75h14.5v8.5H4.75v-8.5Zm4-3h6.5v3h-6.5v-3Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-            <span class="account-quick-link__label">{% if CURRENT_LANGUAGE == "az" %}Məkanları idarə et{% elif CURRENT_LANGUAGE == "en" %}Manage places{% else %}Управлять местами{% endif %}</span>
-            <span class="account-quick-link__count">{{ managed_places_count }}</span>
-          </a>
-        </div>
-      </aside>
-    </div>
-
-    <div class="account-dashboard__forms-row">
-      <section class="account-card">
-        <div class="account-card__head account-card__head--inline">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Son baxılanlar{% elif CURRENT_LANGUAGE == "en" %}Recent views{% else %}Недавние просмотры{% endif %}</h2>
-          <a class="account-card__action" href="{% url 'place_list' %}">
-            <span>{% if CURRENT_LANGUAGE == "az" %}Kataloqa keç{% elif CURRENT_LANGUAGE == "en" %}Open catalog{% else %}Открыть каталог{% endif %}</span>
-          </a>
-        </div>
-        {% if history_events %}
-          <div class="account-stack">
-            {% for item in history_events %}
-              <article class="account-place-card">
-                <div class="account-place-card__head">
-                  <div>
-                    <h3><a href="{{ item.place.get_absolute_url }}">{{ item.place.name_i18n }}</a></h3>
-                    <p class="account-place-card__meta">
-                      {{ item.place.get_category_display }}
-                      {% if item.place.district %} · {% trans item.place.district %}{% endif %}
-                    </p>
-                  </div>
-                  <span class="account-mini-chip">{{ item.opened_at|date:"d.m.Y H:i" }}</span>
-                </div>
-              </article>
             {% endfor %}
           </div>
-          {% if top_interest_categories %}
-            <div class="account-chip-row">
-              {% for category in top_interest_categories %}
-                <span class="account-mini-chip">{{ category.label }} · {{ category.hits }}</span>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% else %}
-          <div class="account-empty-state">
-            <p>{% if CURRENT_LANGUAGE == "az" %}Tarixçə kataloqda kartlara baxdıqdan sonra burada görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Your history will appear here after you open place cards from the catalog.{% else %}История появится здесь после просмотра карточек в каталоге.{% endif %}</p>
-          </div>
-        {% endif %}
-      </section>
+        </div>
+      {% endif %}
 
-      <section class="account-card">
-        <div class="account-card__head account-card__head--inline">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Seçilmiş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Saved favorites{% else %}Сохранённое избранное{% endif %}</h2>
-          <a class="account-card__action" href="{% url 'account_favorites' %}">
-            <span>{% if CURRENT_LANGUAGE == "az" %}Hamısına bax{% elif CURRENT_LANGUAGE == "en" %}View all{% else %}Смотреть всё{% endif %}</span>
-          </a>
-        </div>
-        {% if favorite_places %}
-          <div class="account-stack">
-            {% for place in favorite_places|slice:":6" %}
-              <article class="account-place-card">
-                <div class="account-place-card__head">
-                  <div>
-                    <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-                    <p class="account-place-card__meta">
-                      {{ place.get_category_display }}
-                      {% if place.district %} · {% trans place.district %}{% endif %}
-                    </p>
-                  </div>
-                  <span class="account-mini-chip">{% if place.price_monthly %}{{ place.price_monthly }} AZN{% else %}♥{% endif %}</span>
-                </div>
-              </article>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="account-empty-state">
-            <p>{% if CURRENT_LANGUAGE == "az" %}Hələ seçilmiş məkan yoxdur. Kataloqda ürək işarəsinə klikləyin və onları burada saxlayın.{% elif CURRENT_LANGUAGE == "en" %}You do not have favorite places yet. Click the heart in the catalog and they will appear here.{% else %}Пока нет избранных мест. Нажмите на сердечко в каталоге, и они появятся здесь.{% endif %}</p>
-            <a class="btn-secondary" href="{% url 'place_list' %}">{% if CURRENT_LANGUAGE == "az" %}Kataloqa keç{% elif CURRENT_LANGUAGE == "en" %}Go to catalog{% else %}Перейти в каталог{% endif %}</a>
-          </div>
-        {% endif %}
-      </section>
-    </div>
-
-    <div class="account-dashboard__bottom-row">
-      <aside class="account-card account-card--status">
-        <div class="account-card__head">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Hesab statusu{% elif CURRENT_LANGUAGE == "en" %}Account status{% else %}Статус аккаунта{% endif %}</h2>
-        </div>
-        <div class="account-status">
-          <div class="account-status__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 3.75 19.25 6v5.35c0 4.1-2.85 7.85-7.25 8.9-4.4-1.05-7.25-4.8-7.25-8.9V6L12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="m9.5 11.95 1.7 1.7 3.45-3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <strong>
-            {% if request.user.is_active %}
-              {% if CURRENT_LANGUAGE == "az" %}Hesabınız aktivdir{% elif CURRENT_LANGUAGE == "en" %}Your account is active{% else %}Ваш аккаунт активен{% endif %}
-            {% else %}
-              {% if CURRENT_LANGUAGE == "az" %}Hesabınız məhduddur{% elif CURRENT_LANGUAGE == "en" %}Your account is limited{% else %}Ваш аккаунт ограничен{% endif %}
-            {% endif %}
-          </strong>
-          <p>
-            {% if CURRENT_LANGUAGE == "az" %}
-              Kabinet və owner bölmələri üçün əsas məlumatlarınız doldurulubsa, siz işə davam edə bilərsiniz.
-            {% elif CURRENT_LANGUAGE == "en" %}
-              If your base profile details are filled in, you can continue using both cabinet and owner sections.
-            {% else %}
-              Если базовые данные профиля заполнены, можно продолжать работу и в кабинете, и в owner-разделах.
-            {% endif %}
-          </p>
-          <a class="btn-secondary account-status__link" href="{% url 'account_settings' %}">
-            {% if CURRENT_LANGUAGE == "az" %}Tənzimləmələri aç{% elif CURRENT_LANGUAGE == "en" %}Open settings{% else %}Открыть настройки{% endif %}
-          </a>
-        </div>
-      </aside>
-
-      <aside class="account-card account-card--listings">
-        <div class="account-card__head">
-          <h2>
-            {% if CURRENT_LANGUAGE == "az" %}Məkan aktivliyi{% elif CURRENT_LANGUAGE == "en" %}Place activity{% else %}Активность мест{% endif %}
-          </h2>
-        </div>
-        <div class="account-listings">
-          <div class="account-listings__count">{{ managed_places_count }}</div>
-          <p>
-            {% if CURRENT_LANGUAGE == "az" %}
-              Əlavə etdiyiniz və ya idarə etdiyiniz məkanların ümumi sayı.
-            {% elif CURRENT_LANGUAGE == "en" %}
-              The total number of places you added or currently manage.
-            {% else %}
-              Общее количество мест, которые вы добавили или которыми управляете.
-            {% endif %}
-          </p>
-          <dl class="account-listings__meta">
-            <div>
-              <dt>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</dt>
-              <dd>{{ active_managed_places_count }}</dd>
-            </div>
-            <div>
-              <dt>{% if CURRENT_LANGUAGE == "az" %}Qaralamalar və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts and moderation{% else %}Черновики и модерация{% endif %}</dt>
-              <dd>{{ draft_managed_places_count }}</dd>
-            </div>
-          </dl>
-          <a class="btn-secondary account-status__link" href="{% url 'owner_places_dashboard' %}">
-            {% if CURRENT_LANGUAGE == "az" %}Məkanları idarə et{% elif CURRENT_LANGUAGE == "en" %}Manage places{% else %}Управлять местами{% endif %}
-          </a>
-        </div>
-      </aside>
-    </div>
-  </section>
+    </section>
+  </div>
+</div>
 {% endblock %}
+

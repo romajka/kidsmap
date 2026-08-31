@@ -1,8 +1,11 @@
 import json
 
+from django.conf import settings
+from django.core.cache import cache
 from django.test import RequestFactory
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import translation
 
 from catalog.models import FunnelEvent, Place, SiteVisit
 from catalog.context_processors import _google_analytics_context
@@ -175,12 +178,20 @@ class TestGoogleAnalyticsEvents(TestCase):
         self.assertContains(response, '"place_id": %s' % place.id)
 
     @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
-    def test_register_page_with_owner_intent_renders_owner_signup_start_event(self):
+    def test_register_page_with_add_place_intent_renders_add_place_signup_start_event(self):
+        response = self.client.get(f"{reverse('account_register')}?intent=add_place")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"name": "add_place_signup_start"')
+        self.assertContains(response, '"intent": "add_place"')
+
+    @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
+    def test_register_page_still_accepts_legacy_owner_place_intent(self):
         response = self.client.get(f"{reverse('account_register')}?intent=owner_place")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '"name": "owner_signup_start"')
-        self.assertContains(response, '"intent": "owner_place"')
+        self.assertContains(response, '"name": "add_place_signup_start"')
+        self.assertContains(response, '"intent": "add_place"')
 
     def test_tracking_registry_includes_named_events_and_conversions(self):
         self.assertEqual(
@@ -196,8 +207,8 @@ class TestGoogleAnalyticsEvents(TestCase):
                 FunnelEvent.EVENT_REVIEW_SUBMIT,
                 FunnelEvent.EVENT_CLAIM_PLACE_START,
                 FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
-                FunnelEvent.EVENT_OWNER_SIGNUP_START,
-                FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+                FunnelEvent.EVENT_ADD_PLACE_SIGNUP_START,
+                FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
                 FunnelEvent.EVENT_AI_REFERRAL_VISIT,
             ),
         )
@@ -208,7 +219,7 @@ class TestGoogleAnalyticsEvents(TestCase):
                 FunnelEvent.EVENT_CTA_WHATSAPP,
                 FunnelEvent.EVENT_REVIEW_SUBMIT,
                 FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
-                FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+                FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
             ),
         )
 
@@ -227,3 +238,74 @@ class TestSiteVisitMiddleware(TestCase):
     def test_site_visit_skips_localized_admin_path(self):
         self.client.get("/ru/admin/login/")
         self.assertEqual(SiteVisit.objects.count(), 0)
+
+
+class TestCacheIsolationBetweenTests(TestCase):
+    """The shared locmem cache must not carry state from one test to the next.
+
+    The database is rolled back after every test, the cache is not, so without
+    KidsMapTestRunner clearing it a leftover rate-limit counter would make
+    unrelated tests pass or fail depending on what ran before them.
+
+    unittest runs methods within a class in alphabetical order, so `test_a_`
+    seeds the cache and `test_b_` checks what the next test starts with.
+    """
+
+    def setUp(self):
+        self.place = Place.objects.create(
+            name="Cache Isolation Place",
+            name_ru="Кружок для проверки кеша",
+            category="EDU",
+            is_active=True,
+        )
+
+    @override_settings(TRACKING_EVENT_RATE_LIMIT=1, TRACKING_EVENT_RATE_WINDOW_SECONDS=60)
+    def test_a_seeds_a_rate_limit_counter(self):
+        payload = {
+            "event_type": FunnelEvent.EVENT_CTA_CALL,
+            "place_id": self.place.id,
+            "source": "catalog-list",
+            "path": "/ru/catalog/",
+        }
+        for _ in range(2):
+            self.client.post(
+                reverse("track_event"),
+                data=json.dumps(payload),
+                content_type="application/json",
+            )
+        self.assertTrue(self._tracking_rate_keys(), "the rate limiter should have written to the cache")
+
+    def test_b_starts_with_an_empty_cache(self):
+        self.assertEqual(
+            self._tracking_rate_keys(),
+            [],
+            "a previous test leaked rate-limit state into this one",
+        )
+
+    @staticmethod
+    def _tracking_rate_keys() -> list[str]:
+        return [str(key) for key in cache._cache if "tracking-rate" in str(key)]
+
+
+class TestLanguageIsolationBetweenTests(TestCase):
+    """A request must not leave its language active for the next test.
+
+    LocaleMiddleware activates a language per request and never restores it, so
+    without KidsMapTestRunner resetting it one call to a `/ru/` URL would leave
+    every later test formatting text in Russian. Anything asserting on
+    localized output would then pass or fail depending on what ran first.
+
+    unittest runs methods within a class in alphabetical order, so `test_a_`
+    switches the language and `test_b_` checks what the next test starts with.
+    """
+
+    def test_a_request_activates_russian(self):
+        self.client.get("/ru/catalog/")
+        self.assertEqual(translation.get_language(), "ru")
+
+    def test_b_starts_from_the_default_language(self):
+        self.assertEqual(
+            translation.get_language(),
+            settings.LANGUAGE_CODE,
+            "a previous test leaked its active language into this one",
+        )

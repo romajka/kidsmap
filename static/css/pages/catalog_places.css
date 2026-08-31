@@ -37,6 +37,26 @@
   box-shadow: 0 4px 20px rgba(18, 53, 35, 0.03) !important;
 }
 
+/* Keep desktop filters available while the results column scrolls. The grid is
+   their containing block, so the panel naturally stops before the catalogue's
+   lower sections. Long filter sets scroll inside the panel instead of leaving
+   controls outside the viewport. */
+@media (min-width: 821px) {
+  .page-place_list .catalog-layout .filter-panel-catalog {
+    position: sticky;
+    top: 16px;
+    bottom: auto;
+    max-height: calc(100dvh - 32px);
+  }
+
+  .page-place_list .catalog-layout .filters-catalog {
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+}
+
 .page-place_list .top-search-label {
   border: 1px solid #dbe8df !important;
   border-radius: 16px !important;

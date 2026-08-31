@@ -29,9 +29,6 @@
       {% for inline_admin_formset in inline_admin_formsets %}
         {{ inline_admin_formset.formset.management_form }}
       {% endfor %}
-      <input type="hidden" name="profile-0-role" value="USER">
-      <input type="hidden" name="profile-0-owner_role" value="MANAGER">
-      <input type="hidden" name="profile-0-owner_permissions_override" value="[]">
       <input type="hidden" name="profile-0-gender" value="U">
       <input type="hidden" name="profile-0-phone" value="">
 
@@ -184,10 +181,6 @@
                   <span class="km-badge km-badge--danger">{% translate "Суперадмин" %}</span>
                 {% elif km_user_form_summary.is_staff %}
                   <span class="km-badge km-badge--info">{% translate "Админ" %}</span>
-                {% endif %}
-                
-                {% if km_user_form_summary.role == 'Владелец кружка / бизнеса' or km_user_form_summary.role == 'OWNER' %}
-                  <span class="km-badge km-badge--primary">{% translate "Владелец" %}</span>
                 {% endif %}
                 
                 {% if not km_user_form_summary.is_active %}

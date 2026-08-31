@@ -1,12 +1,14 @@
 import json
+from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.utils import timezone
 from django.utils.translation import override
 
 from catalog.domain_admin.place import PlaceAdminForm
 from catalog.forms import OwnerPlaceEditForm
-from catalog.models import Place
+from catalog.models import Event, Place, SiteSettings
 from catalog.services.pricing_plans import normalize_pricing_plans, public_pricing_plans
 from catalog.testcases.utils import create_quality_place
 
@@ -166,6 +168,38 @@ class PricingPlansTests(TestCase):
 
         self.assertEqual([item["id"] for item in saved.pricing_plans], [item["id"] for item in reopened_plans])
 
+    def test_event_schedule_mode_does_not_validate_unused_weekday_intervals(self):
+        invalid_weekly_schedule = json.dumps([
+            {
+                "weekday": "mon",
+                "is_closed": False,
+                "is_24_hours": False,
+                "intervals": [{"start": "18:00", "end": "09:00"}],
+            }
+        ])
+        form = PlaceAdminForm(
+            data={
+                "name_az": "Qiymət yeri",
+                "category": "EDU",
+                "status": Place.STATUS_DRAFT,
+                "is_active": "",
+                "likes_count": "0",
+                "rating_avg": "0",
+                "rating_count": "0",
+                "region": "baku",
+                "district": "baku_yasamal",
+                "schedule_mode": Place.SCHEDULE_MODE_EVENTS,
+                "structured_schedule": invalid_weekly_schedule,
+                "pricing_plans": "[]",
+                "_save_draft": "1",
+            },
+            instance=self.place,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["schedule_mode"], Place.SCHEDULE_MODE_EVENTS)
+        self.assertEqual(form.schedule_editor_errors, {})
+
     def test_public_plans_filter_sort_and_localize(self):
         plans = [
             {"lesson_format": "individual", "payment_type": "per_lesson", "price": "40", "sort_order": 2, "title_ru": "Форма"},
@@ -273,7 +307,7 @@ class PublicPricingSummaryTests(TestCase):
         self.assertEqual(summary["amount"], 40.0)
         self.assertEqual(summary["payment_type"], "per_lesson")
         self.assertEqual(summary["max_amount"], 120.0)
-        self.assertEqual(summary["formatted_price"], "От 40 ₼")
+        self.assertEqual(summary["formatted_price"], "40–120 ₼")
 
     def test_starting_price_per_month_secondary(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -298,6 +332,7 @@ class PublicPricingSummaryTests(TestCase):
         summary = build_pricing_summary(self.place, "ru")
         self.assertEqual(summary["amount"], 90.0)
         self.assertEqual(summary["payment_type"], "package")
+        self.assertEqual(summary["formatted_price"], "90 ₼")
 
     def test_inactive_prices_are_ignored_and_active_free_tariff_is_included(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -309,9 +344,9 @@ class PublicPricingSummaryTests(TestCase):
         self.place.pricing_plans = plans
         self.place.save()
         summary = build_pricing_summary(self.place, "ru")
-        self.assertEqual(summary["amount"], 40.0)
+        self.assertEqual(summary["amount"], 0.0)
         self.assertEqual(summary["max_amount"], 40.0)
-        self.assertEqual(summary["formatted_price"], "Есть бесплатные и платные варианты")
+        self.assertEqual(summary["formatted_price"], "0–40 ₼")
 
     def test_legacy_fields_fallbacks(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -385,10 +420,10 @@ class PublicPricingSummaryTests(TestCase):
         self.place.save()
         
         summary_az = build_pricing_summary(self.place, "az")
-        self.assertEqual(summary_az["formatted_price"], "45 ₼-dən")
+        self.assertEqual(summary_az["formatted_price"], "45 ₼")
 
         summary_en = build_pricing_summary(self.place, "en")
-        self.assertEqual(summary_en["formatted_price"], "From 45 ₼")
+        self.assertEqual(summary_en["formatted_price"], "45 ₼")
 
     def test_active_tariffs_replace_stale_legacy_price_with_full_range(self):
         from catalog.services.pricing_plans import build_pricing_summary
@@ -527,3 +562,76 @@ class PublicPricingSummaryTests(TestCase):
         sync_place_schedule(self.place, schedule_closed)
         summary_closed = build_pricing_summary(self.place, "ru")
         self.assertEqual(len(summary_closed["schedule_rows"]), 0)
+
+    def test_non_regular_schedule_modes_do_not_require_weekday_intervals(self):
+        from catalog.services.pricing_plans import build_pricing_summary
+
+        self.place.schedule_mode = Place.SCHEDULE_MODE_BY_APPOINTMENT
+        self.place.save(update_fields=["schedule_mode"])
+        by_appointment = build_pricing_summary(self.place, "ru")
+        self.assertEqual(by_appointment["schedule_type_label"], "По предварительной записи")
+        self.assertEqual(by_appointment["schedule_rows"][0]["time"], "По предварительной записи")
+
+        self.place.schedule_mode = Place.SCHEDULE_MODE_VARIABLE
+        self.place.schedule_note_ru = "Время спектаклей обновляется каждую неделю."
+        self.place.save(update_fields=["schedule_mode", "schedule_note_ru"])
+        variable = build_pricing_summary(self.place, "ru")
+        self.assertEqual(variable["schedule_type_label"], "Переменное расписание")
+        self.assertEqual(variable["schedule_rows"][0]["time"], "Время спектаклей обновляется каждую неделю.")
+
+    def test_event_schedule_uses_only_upcoming_published_related_events(self):
+        from catalog.services.pricing_plans import build_pricing_summary
+
+        site_settings = SiteSettings.get_solo()
+        site_settings.events_section_enabled = True
+        site_settings.save(update_fields=["events_section_enabled"])
+        self.place.schedule_mode = Place.SCHEDULE_MODE_EVENTS
+        self.place.save(update_fields=["schedule_mode"])
+        now = timezone.now()
+        later = Event.objects.create(
+            name="Later",
+            name_ru="Поздний спектакль",
+            category="EDU",
+            related_place=self.place,
+            status=Event.STATUS_PUBLISHED,
+            start_datetime=now + timedelta(days=3),
+            end_datetime=now + timedelta(days=3, hours=2),
+        )
+        sooner = Event.objects.create(
+            name="Sooner",
+            name_ru="Ближайший спектакль",
+            category="EDU",
+            related_place=self.place,
+            status=Event.STATUS_PUBLISHED,
+            start_datetime=now + timedelta(days=1),
+            end_datetime=now + timedelta(days=1, hours=2),
+        )
+        Event.objects.create(
+            name="Draft",
+            name_ru="Черновик",
+            category="EDU",
+            related_place=self.place,
+            status=Event.STATUS_DRAFT,
+            start_datetime=now + timedelta(hours=1),
+            end_datetime=now + timedelta(hours=2),
+        )
+
+        summary = build_pricing_summary(self.place, "ru")
+
+        self.assertEqual(summary["strings"]["title"], "Цена и мероприятия")
+        self.assertEqual(summary["strings"]["subtitle"], "Билеты и даты ближайших событий")
+        self.assertEqual(summary["schedule_type_label"], "Ближайшие мероприятия")
+        self.assertEqual(len(summary["schedule_rows"]), 2)
+        self.assertIn("Ближайший спектакль", summary["schedule_rows"][0]["time"])
+        self.assertEqual(summary["schedule_rows"][0]["url"], sooner.get_absolute_url())
+        self.assertIn("Поздний спектакль", summary["schedule_rows"][1]["time"])
+        self.assertEqual(summary["schedule_rows"][1]["url"], later.get_absolute_url())
+        self.assertNotIn("Черновик", str(summary["schedule_rows"]))
+
+        with override("ru"):
+            response = self.client.get(self.place.get_absolute_url())
+            sooner_url = sooner.get_absolute_url()
+        self.assertContains(response, "Ближайшие мероприятия")
+        self.assertContains(response, "Цена и мероприятия")
+        self.assertContains(response, "Ближайший спектакль")
+        self.assertContains(response, f'href="{sooner_url}"', html=False)

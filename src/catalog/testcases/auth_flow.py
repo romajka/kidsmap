@@ -94,18 +94,6 @@ class TestAuthValidationAndNextSecurity(TestCase):
         self.assertTrue(user.username)
         self.assertNotEqual(user.username, "generated-login@example.com")
 
-    def test_register_defaults_to_regular_user_role(self):
-        response = self.client.post(
-            reverse("account_register"),
-            data=self._registration_payload(
-                email="default-role@example.com",
-            ),
-        )
-
-        self.assertEqual(response.status_code, 302)
-        user = User.objects.get(email="default-role@example.com")
-        self.assertEqual(user.profile.role, UserProfile.ROLE_USER)
-
     def test_register_rejects_external_next_redirect(self):
         response = self.client.post(
             f"{reverse('account_register')}?next=https://evil.example",
@@ -302,7 +290,6 @@ class TestEmailVerificationFlow(TestCase):
             "email": email,
             "phone": "+994 50 111 22 33",
             "agreement": "on",
-            "role": UserProfile.ROLE_USER,
             "password1": "StrongPass123!!",
             "password2": "StrongPass123!!",
         }
@@ -350,7 +337,7 @@ class TestEmailVerificationFlow(TestCase):
         self.assertEqual(int(self.client.session["_auth_user_id"]), user.id)
 
     @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
-    def test_verify_email_with_owner_intent_queues_owner_signup_complete_event(self):
+    def test_verify_email_with_add_place_intent_queues_add_place_signup_complete_event(self):
         register_response, user = self._register(username="owner_verify_user", email="owner-verify@example.com", code="123456")
         self.assertEqual(register_response.status_code, 302)
 
@@ -361,7 +348,7 @@ class TestEmailVerificationFlow(TestCase):
                 "email": "owner-verify@example.com",
                 "code": "123456",
                 "next": reverse("account_profile"),
-                "intent": "owner_place",
+                "intent": "add_place",
             },
             follow=True,
         )
@@ -369,8 +356,8 @@ class TestEmailVerificationFlow(TestCase):
         self.assertEqual(verify_response.status_code, 200)
         user.refresh_from_db()
         self.assertTrue(user.is_active)
-        self.assertContains(verify_response, '"name": "owner_signup_complete"')
-        self.assertContains(verify_response, '"intent": "owner_place"')
+        self.assertContains(verify_response, '"name": "add_place_signup_complete"')
+        self.assertContains(verify_response, '"intent": "add_place"')
 
     def test_verify_email_rejects_expired_code(self):
         _, user = self._register(username="expired_user", email="expired@example.com", code="123456")
@@ -437,7 +424,7 @@ class TestEmailVerificationFlow(TestCase):
             password="StrongPass123!!",
             is_active=False,
         )
-        UserProfile.objects.create(user=user, role=UserProfile.ROLE_USER, phone="+994 50 111 22 33")
+        UserProfile.objects.create(user=user, phone="+994 50 111 22 33")
         self.assertFalse(UserEmailVerification.objects.filter(user=user).exists())
 
         with patch("catalog.services.email_verification._generate_code", return_value="333333"):
@@ -465,7 +452,7 @@ class TestAccountProfileUpdates(TestCase):
             first_name="Старое",
             last_name="Имя",
         )
-        UserProfile.objects.create(user=self.user, role=UserProfile.ROLE_USER, phone="+994 50 000 00 00")
+        UserProfile.objects.create(user=self.user, phone="+994 50 000 00 00")
         self.client.login(username="profile_user", password="StrongPass123!!")
 
     def test_account_profile_opens_for_authenticated_user(self):

@@ -28,28 +28,63 @@
 
     <div class="km-schedule-editor__head">
       <div>
-        <h3 class="km-schedule-editor__title">{% if CURRENT_LANGUAGE == "az" %}İş qrafiki{% elif CURRENT_LANGUAGE == "en" %}Opening hours{% else %}{% trans "Расписание работы" %}{% endif %}</h3>
+        <h3 class="km-schedule-editor__title">{% if CURRENT_LANGUAGE == "az" %}Ziyarət vaxtı{% elif CURRENT_LANGUAGE == "en" %}Visit schedule{% else %}Когда можно прийти{% endif %}</h3>
         <p class="km-schedule-editor__subtitle">
           {% if CURRENT_LANGUAGE == "az" %}
-            Məkanın iş qrafikini göstərin. Bir gün üçün bir neçə interval əlavə etmələr olar.
+            Əvvəlcə uyğun cədvəl növünü seçin: həftəlik, qeydiyyatla, dəyişən və ya tədbirlərə görə.
           {% elif CURRENT_LANGUAGE == "en" %}
-            Set opening hours for the place. You can add multiple intervals for one day.
+            First choose the right schedule type: weekly, by appointment, variable, or by events.
           {% else %}
-            {% trans "Укажите график работы места. Можно добавить несколько интервалов в один день." %}
-          {% endif %}
-        </p>
-        <p class="km-schedule-editor__hint" style="margin-top: 8px; font-size: 0.82rem; color: var(--km-schedule-accent-dark); font-weight: 700;">
-          {% if CURRENT_LANGUAGE == "az" %}
-            İş saatlarını qeyd etmək üçün günü aktivləşdirin.
-          {% elif CURRENT_LANGUAGE == "en" %}
-            Enable a day to specify its opening hours.
-          {% else %}
-            {% trans "Включите день, чтобы указать часы работы." %}
+            Сначала выберите подходящий вариант: по дням недели, по записи, переменный график или мероприятия.
           {% endif %}
         </p>
       </div>
     </div>
 
+    <div class="km-schedule-editor__mode">
+      <label for="{{ form.schedule_mode.id_for_label }}" class="km-schedule-editor__mode-label">
+        {% if CURRENT_LANGUAGE == "az" %}Cədvəl növü{% elif CURRENT_LANGUAGE == "en" %}Schedule type{% else %}Тип расписания{% endif %}
+      </label>
+      {{ form.schedule_mode }}
+      {{ form.schedule_mode.errors }}
+      <p class="km-schedule-editor__mode-help">
+        {% if CURRENT_LANGUAGE == "az" %}Teatrlar və tədbir məkanları üçün «Tədbirlərə görə» seçin.{% elif CURRENT_LANGUAGE == "en" %}For theatres and event venues, choose “By events”.{% else %}Для театров и событийных площадок выберите «По мероприятиям».{% endif %}
+      </p>
+    </div>
+
+    <div class="km-schedule-editor__mode-summary" data-km-schedule-mode-summary hidden></div>
+
+    <div class="km-schedule-editor__events-action" data-km-schedule-events-action hidden>
+      <div>
+        <strong>{% if CURRENT_LANGUAGE == "az" %}Tədbirlər ayrıca yaradılır{% elif CURRENT_LANGUAGE == "en" %}Events are created separately{% else %}Мероприятия создаются отдельно{% endif %}</strong>
+        <p>{% if CURRENT_LANGUAGE == "az" %}Dərc edildikdən sonra üç yaxın tədbir burada avtomatik görünəcək.{% elif CURRENT_LANGUAGE == "en" %}After publication, the next three events will appear here automatically.{% else %}После публикации три ближайших события появятся здесь автоматически.{% endif %}</p>
+      </div>
+      {% if form.instance.pk %}
+        {% if variant == "admin" %}
+          <a href="{% url 'admin:catalog_event_add' %}?related_place={{ form.instance.pk }}" target="_blank" rel="noopener">{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et ↗{% elif CURRENT_LANGUAGE == "en" %}Add an event ↗{% else %}Добавить мероприятие ↗{% endif %}</a>
+        {% else %}
+          <a href="{% url 'owner_event_create' %}?related_place={{ form.instance.pk }}" target="_blank" rel="noopener">{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et ↗{% elif CURRENT_LANGUAGE == "en" %}Add an event ↗{% else %}Добавить мероприятие ↗{% endif %}</a>
+        {% endif %}
+      {% else %}
+        <span>{% if CURRENT_LANGUAGE == "az" %}Əvvəlcə məkanı qaralama kimi yadda saxlayın.{% elif CURRENT_LANGUAGE == "en" %}Save the place as a draft first.{% else %}Сначала сохраните карточку как черновик.{% endif %}</span>
+      {% endif %}
+    </div>
+
+    <div class="km-schedule-editor__mode-notes" data-km-schedule-mode-notes hidden>
+      <p class="km-schedule-editor__mode-help">
+        {% if CURRENT_LANGUAGE == "az" %}Lazım olduqda ziyarətçiyə qısa izah əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}Add a short clarification for visitors if needed.{% else %}При необходимости добавьте короткое пояснение для посетителя.{% endif %}
+      </p>
+      <div class="km-schedule-editor__note-grid">
+        <div>{{ form.schedule_note_az.label_tag }}{{ form.schedule_note_az }}{{ form.schedule_note_az.errors }}</div>
+        <div>{{ form.schedule_note_ru.label_tag }}{{ form.schedule_note_ru }}{{ form.schedule_note_ru.errors }}</div>
+        <div>{{ form.schedule_note_en.label_tag }}{{ form.schedule_note_en }}{{ form.schedule_note_en.errors }}</div>
+      </div>
+    </div>
+
+    <div data-km-schedule-regular>
+    <p class="km-schedule-editor__regular-hint">
+      {% if CURRENT_LANGUAGE == "az" %}İş saatlarını qeyd etmək üçün günü aktivləşdirin. Bir günə bir neçə interval əlavə etmək olar.{% elif CURRENT_LANGUAGE == "en" %}Enable a day to set its hours. You can add several intervals to one day.{% else %}Включите нужные дни и укажите часы. На один день можно добавить несколько интервалов.{% endif %}
+    </p>
     <div class="km-schedule-editor__presets">
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="all-days">{% if CURRENT_LANGUAGE == "az" %}Hər gün 09:00–21:00{% elif CURRENT_LANGUAGE == "en" %}Every day 09:00–21:00{% else %}{% trans "Каждый день 09:00–21:00" %}{% endif %}</button>
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekdays">{% if CURRENT_LANGUAGE == "az" %}Bazar ertəsi–Cümə 09:00–18:00{% elif CURRENT_LANGUAGE == "en" %}Monday–Friday 09:00–18:00{% else %}{% trans "Понедельник–Пятница 09:00–18:00" %}{% endif %}</button>
@@ -159,6 +194,7 @@
         <span>{% if CURRENT_LANGUAGE == "az" %}Saxlamadan yenilənir{% elif CURRENT_LANGUAGE == "en" %}Updates instantly{% else %}{% trans "Обновляется без сохранения" %}{% endif %}</span>
       </div>
       <div class="km-schedule-editor__preview-body" data-km-schedule-preview></div>
+    </div>
     </div>
 
     <div class="km-schedule-editor__toast" data-km-schedule-toast hidden></div>

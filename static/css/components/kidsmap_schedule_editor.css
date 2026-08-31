@@ -34,6 +34,134 @@
   line-height: 1.45;
 }
 
+.km-schedule-editor__mode {
+  margin-bottom: 14px;
+}
+
+.km-schedule-editor__mode-label,
+.km-schedule-editor__note-grid label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--km-schedule-text);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.km-schedule-editor__mode select,
+.km-schedule-editor__note-grid textarea {
+  width: 100%;
+  border: 1px solid var(--km-schedule-border-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--km-schedule-text);
+  padding: 9px 11px;
+}
+
+.km-schedule-editor__mode .select2-container {
+  width: 100% !important;
+}
+
+.km-schedule-editor__mode-help {
+  margin: 6px 0 0;
+  color: var(--km-schedule-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.km-schedule-editor__mode-summary,
+.km-schedule-editor__mode-notes,
+.km-schedule-editor__events-action {
+  margin-bottom: 14px;
+  border: 1px solid rgba(19, 147, 95, 0.2);
+  border-radius: 9px;
+  background: var(--km-schedule-soft);
+  padding: 11px 12px;
+  color: var(--km-schedule-accent-dark);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.km-schedule-editor__events-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-weight: 400;
+}
+
+.km-schedule-editor__events-action[hidden] {
+  display: none;
+}
+
+.km-schedule-editor__events-action strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--km-schedule-text);
+}
+
+.km-schedule-editor__events-action p {
+  margin: 0;
+  color: var(--km-schedule-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.km-schedule-editor__events-action a,
+.km-schedule-editor__events-action > span {
+  flex: 0 0 auto;
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.km-schedule-editor__events-action a {
+  background: var(--km-schedule-accent);
+  color: #fff;
+  text-decoration: none;
+}
+
+.km-schedule-editor__events-action > span {
+  background: rgba(25, 44, 57, 0.06);
+  color: var(--km-schedule-muted);
+}
+
+.km-schedule-editor__regular-hint {
+  margin: 0 0 12px;
+  color: var(--km-schedule-accent-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.km-schedule-editor__note-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.km-schedule-editor__note-grid textarea {
+  min-height: 76px;
+  resize: vertical;
+}
+
+@media (max-width: 760px) {
+  .km-schedule-editor__note-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .km-schedule-editor__events-action {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .km-schedule-editor__events-action a,
+  .km-schedule-editor__events-action > span {
+    text-align: center;
+  }
+}
+
 .km-schedule-editor__presets,
 .km-schedule-editor__footer,
 .km-schedule-editor__copy-actions {

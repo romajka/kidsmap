@@ -293,15 +293,17 @@ class SiteSettings(models.Model):
         null=True,
         help_text=_("Рекомендуется JPG/WebP 800x500 px (пропорция ~8:5), до 600 KB."),
     )
+    # Field names stay as-is: renaming them would churn every reference for no
+    # behavioural gain. Only the labels users actually read are updated.
     for_business_hero_image = models.FileField(
-        _("Баннер страницы владельцам"),
+        _("Баннер страницы «Добавить место»"),
         upload_to="site/",
         blank=True,
         null=True,
-        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется на странице владельцев."),
+        help_text=_("Рекомендуется JPG/WebP 1600x500 px, до 1 MB. Используется на странице добавления места."),
     )
     for_business_hero_mobile_image = models.FileField(
-        _("Баннер страницы владельцам (мобильный)"),
+        _("Баннер страницы «Добавить место» (мобильный)"),
         upload_to="site/",
         blank=True,
         null=True,
@@ -576,8 +578,11 @@ class FunnelEvent(models.Model):
     EVENT_REVIEW_SUBMIT = "review_submit"
     EVENT_CLAIM_PLACE_START = "claim_place_start"
     EVENT_CLAIM_PLACE_SUBMIT = "claim_place_submit"
-    EVENT_OWNER_SIGNUP_START = "owner_signup_start"
-    EVENT_OWNER_SIGNUP_COMPLETE = "owner_signup_complete"
+    EVENT_ADD_PLACE_SIGNUP_START = "add_place_signup_start"
+    EVENT_ADD_PLACE_SIGNUP_COMPLETE = "add_place_signup_complete"
+    # Legacy values kept so historical rows stay readable in the admin.
+    EVENT_LEGACY_OWNER_SIGNUP_START = "owner_signup_start"
+    EVENT_LEGACY_OWNER_SIGNUP_COMPLETE = "owner_signup_complete"
     EVENT_AI_REFERRAL_VISIT = "ai_referral_visit"
 
     EVENT_CHOICES = (
@@ -591,9 +596,11 @@ class FunnelEvent(models.Model):
         (EVENT_REVIEW_SUBMIT, _("Отправка отзыва")),
         (EVENT_CLAIM_PLACE_START, _("Начало заявки на управление")),
         (EVENT_CLAIM_PLACE_SUBMIT, _("Отправка заявки на управление")),
-        (EVENT_OWNER_SIGNUP_START, _("Начало регистрации владельца")),
-        (EVENT_OWNER_SIGNUP_COMPLETE, _("Завершение регистрации владельца")),
+        (EVENT_ADD_PLACE_SIGNUP_START, _("Начало регистрации для добавления места")),
+        (EVENT_ADD_PLACE_SIGNUP_COMPLETE, _("Завершение регистрации для добавления места")),
         (EVENT_AI_REFERRAL_VISIT, _("Переход из AI-сервиса")),
+        (EVENT_LEGACY_OWNER_SIGNUP_START, _("Начало регистрации владельца (архив)")),
+        (EVENT_LEGACY_OWNER_SIGNUP_COMPLETE, _("Завершение регистрации владельца (архив)")),
     )
 
     event_type = models.CharField(_("Событие"), max_length=32, choices=EVENT_CHOICES, db_index=True)

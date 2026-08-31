@@ -65,7 +65,6 @@ class AuthController:
         user = form.save(commit=False)
         user.is_active = False
         user.save()
-        self.profile_repository.set_role(user=user, role=UserProfile.ROLE_USER)
         self.profile_repository.set_phone(user=user, phone=form.cleaned_data.get("phone", ""))
         self.profile_repository.set_gender(user=user, gender=UserProfile.GENDER_UNSPECIFIED)
         return user

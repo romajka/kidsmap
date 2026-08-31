@@ -23,8 +23,8 @@ TRACKED_EVENT_NAMES = (
     FunnelEvent.EVENT_REVIEW_SUBMIT,
     FunnelEvent.EVENT_CLAIM_PLACE_START,
     FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
-    FunnelEvent.EVENT_OWNER_SIGNUP_START,
-    FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+    FunnelEvent.EVENT_ADD_PLACE_SIGNUP_START,
+    FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
     FunnelEvent.EVENT_AI_REFERRAL_VISIT,
 )
 
@@ -35,7 +35,7 @@ GA4_CONVERSION_EVENT_NAMES = (
     FunnelEvent.EVENT_CTA_WHATSAPP,
     FunnelEvent.EVENT_REVIEW_SUBMIT,
     FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
-    FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+    FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
 )
 
 SESSION_ANALYTICS_EVENTS_KEY = "kidsmap_queued_analytics_events"
@@ -86,7 +86,7 @@ PUBLIC_ANALYTICS_PAGE_TYPES = {
     "place_reviews": "place_reviews",
     "about": "about",
     "contacts": "contacts",
-    "for_business": "for_business",
+    "add_place": "add_place",
     "privacy": "legal",
     "terms": "legal",
     "review_rules": "legal",

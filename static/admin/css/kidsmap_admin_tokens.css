@@ -78,6 +78,52 @@
   --km-admin-shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
   --km-admin-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
 
+  /* Поверхности панелей и карточек.
+     Эти имена используются по всей админке (--km-admin-panel-bg — 18 раз),
+     но раньше нигде не объявлялись: var() не находил значение, объявление
+     становилось невалидным и фон просто не рисовался. */
+  --km-admin-page-bg: #F4F6F9;
+  --km-admin-panel-bg: #FFFFFF;
+  --km-admin-panel-bg-soft: #F8FAFC;
+  --km-admin-panel-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Текстовые синонимы (исторические имена, встречаются в старых блоках) */
+  --km-admin-text-primary: #1E293B;
+  --km-admin-muted: #64748B;
+  --km-admin-text-meta: #94A3B8;
+
+  /* Бейджи и статус-пилюли: аудит-лог, статусы карточек, роли сотрудников */
+  --km-admin-badge-good-bg: #D1FAE5;
+  --km-admin-badge-good-fg: #047857;
+  --km-admin-badge-good-border: #A7F3D0;
+  --km-admin-badge-warn-bg: #FEF3C7;
+  --km-admin-badge-warn-fg: #B45309;
+  --km-admin-badge-warn-border: #FDE68A;
+  --km-admin-badge-info-bg: #E0F2FE;
+  --km-admin-badge-info-fg: #0369A1;
+  --km-admin-badge-info-border: #BAE6FD;
+  --km-admin-badge-muted-bg: #F1F5F9;
+  --km-admin-badge-muted-fg: #475569;
+  --km-admin-badge-muted-border: #E2E8F0;
+
+  --km-admin-pill-bg: #F1F5F9;
+  --km-admin-pill-fg: #475569;
+
+  /* Вторичная строка сохранения (черновики) */
+  --km-admin-submit-secondary-bg: #F8FAFC;
+  --km-admin-submit-secondary-border: #E2E8F0;
+  --km-admin-submit-secondary-btn-bg: #FFFFFF;
+  --km-admin-submit-secondary-btn-fg: #1E293B;
+  --km-admin-submit-secondary-btn-hover-bg: #F1F5F9;
+  --km-admin-submit-secondary-btn-hover-fg: #009A4E;
+
+  /* Галерея изображений */
+  --km-admin-gallery-card-bg: #FFFFFF;
+  --km-admin-gallery-thumb-bg: #F8FAFC;
+  --km-admin-gallery-thumb-border: #E2E8F0;
+  --km-admin-gallery-empty-bg: #F8FAFC;
+  --km-admin-gallery-empty-fg: #64748B;
+
   --km-admin-sidebar-width: 300px;
   --km-admin-sidebar-collapsed-width: 72px;
   --km-admin-sidebar-content-gap: 24px;
@@ -131,6 +177,44 @@ body.theme-dark,
   --km-admin-input-border: #475569;
   --km-admin-input-fg: #F8FAFC;
   --km-admin-input-placeholder: #64748B;
+  --km-admin-page-bg: #0F172A;
+  --km-admin-panel-bg: #1E293B;
+  --km-admin-panel-bg-soft: #334155;
+  --km-admin-panel-shadow: none;
+
+  --km-admin-text-primary: #F8FAFC;
+  --km-admin-muted: #94A3B8;
+  --km-admin-text-meta: #64748B;
+
+  --km-admin-badge-good-bg: rgba(16, 185, 129, 0.15);
+  --km-admin-badge-good-fg: #6EE7B7;
+  --km-admin-badge-good-border: rgba(16, 185, 129, 0.3);
+  --km-admin-badge-warn-bg: rgba(245, 158, 11, 0.15);
+  --km-admin-badge-warn-fg: #FDE047;
+  --km-admin-badge-warn-border: rgba(245, 158, 11, 0.3);
+  --km-admin-badge-info-bg: rgba(14, 165, 233, 0.15);
+  --km-admin-badge-info-fg: #7DD3FC;
+  --km-admin-badge-info-border: rgba(14, 165, 233, 0.3);
+  --km-admin-badge-muted-bg: rgba(148, 163, 184, 0.15);
+  --km-admin-badge-muted-fg: #CBD5E1;
+  --km-admin-badge-muted-border: rgba(148, 163, 184, 0.3);
+
+  --km-admin-pill-bg: rgba(148, 163, 184, 0.15);
+  --km-admin-pill-fg: #CBD5E1;
+
+  --km-admin-submit-secondary-bg: #1E293B;
+  --km-admin-submit-secondary-border: #475569;
+  --km-admin-submit-secondary-btn-bg: #334155;
+  --km-admin-submit-secondary-btn-fg: #F8FAFC;
+  --km-admin-submit-secondary-btn-hover-bg: #475569;
+  --km-admin-submit-secondary-btn-hover-fg: #F8FAFC;
+
+  --km-admin-gallery-card-bg: #1E293B;
+  --km-admin-gallery-thumb-bg: #334155;
+  --km-admin-gallery-thumb-border: #475569;
+  --km-admin-gallery-empty-bg: #334155;
+  --km-admin-gallery-empty-fg: #94A3B8;
+
   --km-admin-shadow-sm: none;
   --km-admin-shadow-md: none;
 }

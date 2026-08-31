@@ -133,10 +133,10 @@
             >{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
             {% endif %}
             <a
-              href="{% url 'for_business' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'for_business' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'for_business' %}aria-current="page"{% endif %}
-            >{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
+              href="{% url 'add_place' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'add_place' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'add_place' %}aria-current="page"{% endif %}
+            >{% if CURRENT_LANGUAGE == "en" %}Add a place{% elif CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% else %}Добавить место{% endif %}</a>
             <a
               href="{% url 'about' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
@@ -177,10 +177,10 @@
           >{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
           {% endif %}
           <a
-            href="{% url 'for_business' %}"
-            class="{% if request.resolver_match.url_name == 'for_business' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'for_business' %}aria-current="page"{% endif %}
-          >{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
+            href="{% url 'add_place' %}"
+            class="{% if request.resolver_match.url_name == 'add_place' %}active{% endif %}"
+            {% if request.resolver_match.url_name == 'add_place' %}aria-current="page"{% endif %}
+          >{% if CURRENT_LANGUAGE == "en" %}Add a place{% elif CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% else %}Добавить место{% endif %}</a>
           <details class="header-menu nav-dropdown-menu">
             <summary class="nav-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'contacts' %}active{% endif %}">
               {% if CURRENT_LANGUAGE == "az" %}Bizim haqqımızda{% elif CURRENT_LANGUAGE == "en" %}About{% else %}О нас{% endif %}
@@ -216,9 +216,9 @@
                     {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}aria-current="page"{% endif %}
                   >{% trans "Личный кабинет" %}</a>
                   <a
-                    class="auth-pill auth-pill-places {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
+                    class="auth-pill auth-pill-places {% if request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
                     href="{% url 'owner_places_dashboard' %}"
-                    {% if request.resolver_match.url_name == 'owner_cabinet' or request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
+                    {% if request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
                   >
                     {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
                   </a>
@@ -318,7 +318,7 @@
                   {% if is_events_section_enabled %}
                     <a href="{% url 'events_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
                   {% endif %}
-                  <a href="{% url 'for_business' %}">{% if CURRENT_LANGUAGE == "en" %}For owners{% elif CURRENT_LANGUAGE == "az" %}Sahiblər üçün{% else %}Для владельцев{% endif %}</a>
+                  <a href="{% url 'add_place' %}">{% if CURRENT_LANGUAGE == "en" %}Add a place{% elif CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% else %}Добавить место{% endif %}</a>
                   <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
 
                   <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>

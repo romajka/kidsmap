@@ -79,10 +79,6 @@ class IUserProfileRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def set_role(self, *, user, role: str) -> UserProfile:
-        raise NotImplementedError
-
-    @abstractmethod
     def set_phone(self, *, user, phone: str) -> UserProfile:
         raise NotImplementedError
 
@@ -166,11 +162,11 @@ class IOwnerPlaceRepository(ABC):
 
 class IOwnerTeamRepository(ABC):
     @abstractmethod
-    def list_members(self, *, owner) -> QuerySet:
+    def list_members(self, *, place_ids: list[int]) -> QuerySet:
         raise NotImplementedError
 
     @abstractmethod
-    def list_invitations(self, *, owner) -> QuerySet:
+    def list_invitations(self, *, place_ids: list[int]) -> QuerySet:
         raise NotImplementedError
 
     @abstractmethod
@@ -178,11 +174,11 @@ class IOwnerTeamRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def create_invitation(self, *, owner, invited_by, email: str, role: str) -> OwnerTeamInvitation:
+    def create_invitation(self, *, place: Place, invited_by, email: str, role: str) -> OwnerTeamInvitation:
         raise NotImplementedError
 
     @abstractmethod
-    def get_pending_owner_invitation(self, *, owner, invitation_id: int) -> OwnerTeamInvitation | None:
+    def get_pending_owner_invitation(self, *, invitation_id: int) -> OwnerTeamInvitation | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -202,11 +198,11 @@ class IOwnerTeamRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update_membership_role(self, *, owner, membership_id: int, role: str) -> OwnerTeamMembership | None:
+    def update_membership_role(self, *, membership_id: int, role: str) -> OwnerTeamMembership | None:
         raise NotImplementedError
 
     @abstractmethod
-    def remove_membership(self, *, owner, membership_id: int) -> bool:
+    def remove_membership(self, *, membership_id: int) -> bool:
         raise NotImplementedError
 
     @abstractmethod
@@ -216,11 +212,11 @@ class IOwnerTeamRepository(ABC):
 
 class IPlaceReviewRepository(ABC):
     @abstractmethod
-    def list_for_owner_scope(self, *, owner_ids: list[int], include_unapproved: bool = True) -> QuerySet:
+    def list_for_place_scope(self, *, place_ids: list[int], include_unapproved: bool = True) -> QuerySet:
         raise NotImplementedError
 
     @abstractmethod
-    def get_for_owner_scope(self, *, review_id: int, owner_ids: list[int]) -> PlaceReview | None:
+    def get_for_place_scope(self, *, review_id: int, place_ids: list[int]) -> PlaceReview | None:
         raise NotImplementedError
 
 

@@ -125,8 +125,8 @@ class TestOwnerImageNormalization(TestCase):
 class TestOwnerImagePersistenceFailures(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="photo_owner", password="StrongPass123!!")
-        UserProfile.objects.create(user=self.user, role=UserProfile.ROLE_USER)
-        self.request = RequestFactory().post("/account/owner/places/create/")
+        UserProfile.objects.create(user=self.user)
+        self.request = RequestFactory().post("/account/places/create/")
         self.request.user = self.user
         self.controller = OwnerPlacesController.build_default()
 
@@ -304,8 +304,8 @@ class TestOwnerImagePersistenceFailures(TestCase):
         )
         gallery_photo = place.gallery.create(image=build_image_upload("protected.png"))
         other_user = User.objects.create_user(username="other_photo_owner", password="StrongPass123!!")
-        UserProfile.objects.create(user=other_user, role=UserProfile.ROLE_USER)
-        other_request = RequestFactory().post("/account/owner/places/1/photos/1/delete/")
+        UserProfile.objects.create(user=other_user)
+        other_request = RequestFactory().post("/account/places/1/photos/1/delete/")
         other_request.user = other_user
 
         result = self.controller.delete_gallery_photo(

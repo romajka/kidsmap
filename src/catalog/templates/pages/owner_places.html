@@ -2,9 +2,9 @@
 {% load i18n static catalog_i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %}{% endblock %}
-{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %} | KidsMap{% endblock %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}{% endblock %}
+{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap{% endblock %}
+{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
@@ -14,7 +14,7 @@
 
     <header class="owner-dashboard-head">
       <div>
-        <h1>{% if CURRENT_LANGUAGE == "az" %}Mənim elanlarım{% elif CURRENT_LANGUAGE == "en" %}My listings{% else %}Мои объявления{% endif %}</h1>
+        <h1>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h1>
         <p class="auth-subtitle">
           {% if CURRENT_LANGUAGE == "az" %}
             Məkan və tədbirlərinizi əlavə edin, moderasiya statusunu izləyin.
@@ -47,7 +47,7 @@
       {% endif %}
     </nav>
 
-    <nav class="owner-dashboard-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Kabinet bölmələri{% elif CURRENT_LANGUAGE == 'en' %}Cabinet sections{% else %}Разделы кабинета{% endif %}">
+    <nav class="owner-dashboard-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Məkanların idarə edilməsi{% elif CURRENT_LANGUAGE == 'en' %}Manage places{% else %}Управление местами{% endif %}">
       <a class="owner-dashboard-tab is-active" href="{% url 'owner_places_dashboard' %}">
         <span aria-hidden="true">⌖</span>
         {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}

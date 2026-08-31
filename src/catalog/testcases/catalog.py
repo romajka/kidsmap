@@ -247,8 +247,9 @@ class PostgreSqlUniquenessTests(TestCase):
             status=PlaceOwnershipRequest.STATUS_PENDING,
         )
 
-    def test_only_one_pending_team_invitation_per_owner_and_email(self):
+    def test_only_one_pending_team_invitation_per_place_and_email(self):
         invitation = OwnerTeamInvitation.objects.create(
+            place=self.place,
             owner=self.owner,
             invited_by=self.owner,
             email="Member@Example.com",
@@ -257,6 +258,7 @@ class PostgreSqlUniquenessTests(TestCase):
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 OwnerTeamInvitation.objects.create(
+                    place=self.place,
                     owner=self.owner,
                     invited_by=self.owner,
                     email="member@example.com",
@@ -269,6 +271,7 @@ class PostgreSqlUniquenessTests(TestCase):
         self.assertEqual(invitation.status, OwnerTeamInvitation.STATUS_ACCEPTED)
 
         OwnerTeamInvitation.objects.create(
+            place=self.place,
             owner=self.owner,
             invited_by=self.owner,
             email="member@example.com",
@@ -766,3 +769,123 @@ class TestCategorySoftDelete(TestCase):
         edu.refresh_from_db()
         self.assertFalse(edu.is_active)
         self.assertIsNotNone(edu.deleted_at)
+
+
+class CatalogSubcategoryFilterTests(TestCase):
+    """Задача 22: фильтрация каталога по подкатегориям.
+
+    Подкатегории показываются только внутри выбранной категории и только
+    те, за которыми реально есть опубликованные места.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        # EDU/SPRT приезжают из миграции с базовой таксономией.
+        cls.edu, _ = Category.objects.get_or_create(
+            code="EDU", defaults={"name": "Образование", "name_ru": "Образование", "order": 1}
+        )
+        cls.sport, _ = Category.objects.get_or_create(
+            code="SPRT", defaults={"name": "Спорт", "name_ru": "Спорт", "order": 2}
+        )
+
+        # Коды с префиксом: часть таксономии уже засеяна миграцией, а code уникален.
+        cls.robotics = Subcategory.objects.create(category=cls.edu, code="t22-robotics", name="Робототехника", name_ru="Робототехника")
+        cls.languages = Subcategory.objects.create(category=cls.edu, code="t22-languages", name="Языки", name_ru="Языки")
+        cls.empty_edu = Subcategory.objects.create(category=cls.edu, code="t22-chess", name="Шахматы", name_ru="Шахматы")
+        cls.judo = Subcategory.objects.create(category=cls.sport, code="t22-judo", name="Дзюдо", name_ru="Дзюдо")
+
+        cls.robotics_place = create_quality_place(name="Robotics club", category="EDU", subcategory=cls.robotics)
+        cls.languages_place = create_quality_place(name="Language school", category="EDU", subcategory=cls.languages)
+        cls.judo_place = create_quality_place(name="Judo academy", category="SPRT", subcategory=cls.judo)
+
+    def _names(self, response):
+        return {place.name for place in response.context["places"]}
+
+    def test_selected_subcategory_actually_filters_the_catalog(self):
+        response = self.client.get(reverse("place_list"), {"category": "EDU", "subcategory": str(self.robotics.pk)})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self._names(response), {"Robotics club"})
+
+    def test_subcategories_are_offered_only_for_the_selected_category(self):
+        response = self.client.get(reverse("place_list"), {"category": "EDU"})
+
+        offered = {option["value"] for option in response.context["subcategory_options_for_category"]}
+        self.assertIn(str(self.robotics.pk), offered)
+        self.assertIn(str(self.languages.pk), offered)
+        self.assertNotIn(str(self.judo.pk), offered, "подкатегория чужой категории")
+
+    def test_empty_subcategories_are_not_offered(self):
+        response = self.client.get(reverse("place_list"), {"category": "EDU"})
+
+        offered = {option["value"] for option in response.context["subcategory_options_for_category"]}
+        self.assertNotIn(str(self.empty_edu.pk), offered, "подкатегория без мест не должна предлагаться")
+
+    def test_block_is_hidden_until_a_category_is_chosen(self):
+        response = self.client.get(reverse("place_list"))
+
+        self.assertEqual(response.context["subcategory_options_for_category"], [])
+        self.assertNotContains(response, "filter-subcategory")
+
+    def test_block_is_rendered_once_a_category_is_chosen(self):
+        response = self.client.get(reverse("place_list"), {"category": "EDU"})
+
+        self.assertContains(response, "filter-subcategory")
+        self.assertContains(response, 'data-select-target="subcategory"')
+
+    def test_subcategory_from_a_foreign_category_is_dropped(self):
+        response = self.client.get(reverse("place_list"), {"category": "EDU", "subcategory": str(self.judo.pk)})
+
+        self.assertEqual(response.context["selected"]["subcategory"], "")
+        self.assertEqual(self._names(response), {"Robotics club", "Language school"})
+
+    def test_subcategory_without_category_selects_its_parent(self):
+        """Ссылкой можно поделиться — фильтр должен остаться видимым в сайдбаре."""
+        response = self.client.get(reverse("place_list"), {"subcategory": str(self.judo.pk)})
+
+        self.assertEqual(response.context["selected"]["category"], "SPRT")
+        self.assertEqual(response.context["selected"]["subcategory"], str(self.judo.pk))
+        self.assertEqual(self._names(response), {"Judo academy"})
+
+    def test_garbage_subcategory_is_ignored(self):
+        for value in ("abc", "0", "999999"):
+            with self.subTest(value=value):
+                response = self.client.get(reverse("place_list"), {"category": "EDU", "subcategory": value})
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.context["selected"]["subcategory"], "")
+
+    def test_subcategory_combines_with_other_filters(self):
+        create_quality_place(name="Robotics in Ganja", category="EDU", subcategory=self.robotics, district="Gəncə", age_from=10, age_to=14)
+
+        response = self.client.get(
+            reverse("place_list"),
+            {"category": "EDU", "subcategory": str(self.robotics.pk), "district": "baku"},
+        )
+
+        self.assertEqual(self._names(response), {"Robotics club"}, "район должен сужать выдачу вместе с подкатегорией")
+
+        by_age = self.client.get(
+            reverse("place_list"),
+            {"category": "EDU", "subcategory": str(self.robotics.pk), "age_from": "13", "age_to": "14"},
+        )
+        self.assertEqual(self._names(by_age), {"Robotics in Ganja"}, "возраст должен сужать выдачу вместе с подкатегорией")
+
+    def test_subcategory_survives_in_normalized_url_and_has_a_removable_chip(self):
+        response = self.client.get(reverse("place_list"), {"category": "EDU", "subcategory": str(self.robotics.pk)})
+
+        self.assertIn(f"subcategory={self.robotics.pk}", response.context["query_without_page"])
+
+        # Метки чипов зависят от языка, поэтому опознаём их по ссылке снятия.
+        chips = response.context["active_filter_chips"]
+        subcategory_chips = [chip for chip in chips if "Робототехника" in chip["label"]]
+        self.assertEqual(len(subcategory_chips), 1)
+        self.assertNotIn("subcategory=", subcategory_chips[0]["remove_url"])
+        self.assertIn("category=EDU", subcategory_chips[0]["remove_url"], "категория остаётся")
+
+        category_chips = [chip for chip in chips if "category=EDU" not in chip["remove_url"]]
+        self.assertTrue(category_chips, "чип категории не найден")
+        self.assertNotIn(
+            "subcategory=",
+            category_chips[0]["remove_url"],
+            "снимая категорию, надо снимать и подкатегорию",
+        )

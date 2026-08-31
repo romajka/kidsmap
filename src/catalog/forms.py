@@ -32,6 +32,7 @@ from catalog.services.place_schedule import (
 from catalog.services.options import sort_translated_values
 from catalog.services.pricing_plans import normalize_pricing_plans
 from catalog.services.image_uploads import normalize_uploaded_image
+from catalog.services.place_access import PLACE_ROLE_CHOICES, PLACE_ROLE_EDITOR
 
 try:
     import phonenumbers
@@ -83,6 +84,36 @@ class MultipleFileField(forms.FileField):
 class PlaceScheduleEditorFormMixin:
     def _init_schedule_editor(self):
         from catalog.services.place_schedule import parse_schedule_payload
+        if "schedule_mode" in self.fields:
+            # Older clients and saved browser drafts do not send this new field.
+            # Treat an omitted value as the original weekly mode.
+            self.fields["schedule_mode"].required = False
+            lang = (get_language() or "ru").split("-")[0]
+            mode_labels = {
+                "ru": ("По дням недели", "По предварительной записи", "Переменный график", "По мероприятиям"),
+                "az": ("Həftəlik cədvəl", "Əvvəlcədən qeydiyyatla", "Dəyişən cədvəl", "Tədbirlərə görə"),
+                "en": ("Weekly schedule", "By appointment", "Variable schedule", "By events"),
+            }
+            labels = mode_labels.get(lang, mode_labels["ru"])
+            self.fields["schedule_mode"].choices = tuple(zip(
+                (
+                    Place.SCHEDULE_MODE_REGULAR,
+                    Place.SCHEDULE_MODE_BY_APPOINTMENT,
+                    Place.SCHEDULE_MODE_VARIABLE,
+                    Place.SCHEDULE_MODE_EVENTS,
+                ),
+                labels,
+            ))
+            note_label = {
+                "ru": "Примечание к расписанию",
+                "az": "Cədvəl qeydi",
+                "en": "Schedule note",
+            }.get(lang, "Примечание к расписанию")
+            for note_lang in ("az", "ru", "en"):
+                field_name = f"schedule_note_{note_lang}"
+                if field_name in self.fields:
+                    self.fields[field_name].label = f"{note_label} ({note_lang.upper()})"
+                    self.fields[field_name].widget.attrs["rows"] = 3
         if "structured_schedule" not in self.fields:
             self.fields["structured_schedule"] = forms.CharField(
                 required=False,
@@ -117,8 +148,10 @@ class PlaceScheduleEditorFormMixin:
     def _clean_schedule_editor(self, cleaned):
         raw_value = cleaned.get("structured_schedule") or self.data.get("structured_schedule") or self.fields["structured_schedule"].initial or ""
         validation = validate_schedule_payload(raw_value)
+        schedule_mode = cleaned.get("schedule_mode") or getattr(self.instance, "schedule_mode", Place.SCHEDULE_MODE_REGULAR)
+        cleaned["schedule_mode"] = schedule_mode
         self.schedule_editor_payload = raw_value
-        self.schedule_editor_errors = validation.errors
+        self.schedule_editor_errors = validation.errors if schedule_mode == Place.SCHEDULE_MODE_REGULAR else {}
         self.cleaned_schedule_days = validation.days
         self.schedule_editor_days = [
             {
@@ -126,12 +159,12 @@ class PlaceScheduleEditorFormMixin:
                 "is_closed": day["is_closed"],
                 "is_24_hours": day["is_24_hours"],
                 "intervals": day["intervals"],
-                "errors": validation.errors.get(day["weekday"], []),
+                "errors": self.schedule_editor_errors.get(day["weekday"], []),
             }
             for day in validation.days
         ]
 
-        if validation.errors:
+        if self.schedule_editor_errors:
             self.add_error("structured_schedule", _("Проверьте расписание работы."))
 
         cleaned["structured_schedule"] = dump_schedule_payload(validation.days)
@@ -140,7 +173,8 @@ class PlaceScheduleEditorFormMixin:
     def save_schedule(self, place):
         from catalog.services.place_schedule import sync_place_schedule
 
-        sync_place_schedule(place, self.cleaned_schedule_days)
+        if place.schedule_mode == Place.SCHEDULE_MODE_REGULAR:
+            sync_place_schedule(place, self.cleaned_schedule_days)
 
 
 def _normalize_whitespace(value: str) -> str:
@@ -884,6 +918,10 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "instagram",
             "website",
             "schedule",
+            "schedule_mode",
+            "schedule_note_az",
+            "schedule_note_ru",
+            "schedule_note_en",
             "lesson_duration_minutes",
             "lesson_format",
             "lessons_per_week",
@@ -923,6 +961,10 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "instagram": forms.TextInput(attrs={"class": "field"}),
             "website": forms.URLInput(attrs={"class": "field"}),
             "schedule": forms.Textarea(attrs={"class": "field", "rows": 2}),
+            "schedule_mode": forms.Select(attrs={"class": "field", "data-km-schedule-mode": ""}),
+            "schedule_note_az": forms.Textarea(attrs={"class": "field", "rows": 2}),
+            "schedule_note_ru": forms.Textarea(attrs={"class": "field", "rows": 2}),
+            "schedule_note_en": forms.Textarea(attrs={"class": "field", "rows": 2}),
             "lesson_duration_minutes": forms.TextInput(
                 attrs={"class": "field", "inputmode": "numeric", "pattern": "[0-9]*", "placeholder": "60"}
             ),
@@ -981,6 +1023,10 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "instagram": _("Instagram"),
             "website": _("Сайт"),
             "schedule": _("Расписание"),
+            "schedule_mode": _("Тип расписания"),
+            "schedule_note_az": _("Примечание к расписанию (AZ)"),
+            "schedule_note_ru": _("Примечание к расписанию (RU)"),
+            "schedule_note_en": _("Примечание к расписанию (EN)"),
             "lesson_duration_minutes": _("Длительность урока (мин)"),
             "lesson_format": _("Формат занятий"),
             "lessons_per_week": _("Занятий в неделю"),
@@ -1303,6 +1349,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             and not (lat is not None and lng is not None)
             and not cleaned.get("is_temporary")
             and not (cleaned.get("schedule") or "").strip()
+            and cleaned.get("schedule_mode", Place.SCHEDULE_MODE_REGULAR) == Place.SCHEDULE_MODE_REGULAR
             and not is_meaningful_schedule(self.cleaned_schedule_days)
         ):
             self.add_error("structured_schedule", _("Укажите, когда место работает."))
@@ -1737,6 +1784,12 @@ class OwnerEventForm(forms.ModelForm):
 
 
 class OwnerTeamInvitationForm(forms.Form):
+    place = LocalizedModelChoiceField(
+        label=_("Карточка"),
+        queryset=Place.objects.none(),
+        error_messages={"required": _("Выберите карточку."), "invalid_choice": _("Выберите доступную карточку.")},
+        widget=forms.Select(attrs={"class": "field"}),
+    )
     email = forms.EmailField(
         label=_("Email участника"),
         error_messages={
@@ -1747,8 +1800,8 @@ class OwnerTeamInvitationForm(forms.Form):
     )
     role = forms.ChoiceField(
         label=_("Роль"),
-        choices=UserProfile.OWNER_ROLE_CHOICES,
-        initial=UserProfile.OWNER_ROLE_EDITOR,
+        choices=PLACE_ROLE_CHOICES,
+        initial=PLACE_ROLE_EDITOR,
         error_messages={
             "required": _("Выберите роль участника."),
             "invalid_choice": _("Некорректная роль. Выберите manager, moderator или editor."),
@@ -1756,11 +1809,15 @@ class OwnerTeamInvitationForm(forms.Form):
         widget=forms.Select(attrs={"class": "field"}),
     )
 
+    def __init__(self, *args, places=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["place"].queryset = places if places is not None else Place.objects.none()
+
 
 class OwnerTeamRoleUpdateForm(forms.Form):
     role = forms.ChoiceField(
         label=_("Роль"),
-        choices=UserProfile.OWNER_ROLE_CHOICES,
+        choices=PLACE_ROLE_CHOICES,
         error_messages={
             "required": _("Выберите роль участника."),
             "invalid_choice": _("Некорректная роль. Выберите manager, moderator или editor."),

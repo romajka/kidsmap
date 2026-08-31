@@ -12,7 +12,7 @@ from django.urls import Resolver404, resolve
 
 PUBLIC_QUERY_PARAMS = {
     "place_list": {
-        "q", "category", "district", "metro", "min_rating", "event_type",
+        "q", "category", "subcategory", "district", "metro", "min_rating", "event_type",
         "age_from", "age_to", "price_from", "price_to", "sort", "page",
     },
     "place_new": {"q", "category", "district", "min_rating", "days", "with_photo", "verified", "page"},

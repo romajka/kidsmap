@@ -37,7 +37,7 @@ class StaticViewSitemap(LocalizedSitemap):
             "site_reviews",
             "about",
             "contacts",
-            "for_business",
+            "add_place",
             "privacy",
             "terms",
             "review_rules",

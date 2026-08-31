@@ -206,7 +206,7 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
     def reviews_hero_mobile_image_preview(self, obj):
         return self._render_image_preview(obj, "reviews_hero_mobile_image")
 
-    @admin.display(description=_("Текущий баннер владельцам (мобильный 📱)"))
+    @admin.display(description=_("Текущий баннер страницы «Добавить место» (мобильный 📱)"))
     def for_business_hero_mobile_image_preview(self, obj):
         return self._render_image_preview(obj, "for_business_hero_mobile_image")
 
@@ -226,7 +226,7 @@ class _BaseSiteSettingsSectionAdmin(admin.ModelAdmin):
     def reviews_hero_image_preview(self, obj):
         return self._render_image_preview(obj, "reviews_hero_image")
 
-    @admin.display(description=_("Текущий баннер владельцам"))
+    @admin.display(description=_("Текущий баннер страницы «Добавить место»"))
     def for_business_hero_image_preview(self, obj):
         return self._render_image_preview(obj, "for_business_hero_image")
 
@@ -847,22 +847,22 @@ class SiteGalleryImageAdmin(admin.ModelAdmin):
                 "preview_url": reverse("site_reviews"),
             },
             {
-                "title": "Баннер страницы владельцам (ПК)",
+                "title": "Баннер страницы «Добавить место» (ПК)",
                 "field_name": "for_business_hero_image",
-                "location": "Фоновое изображение «Для бизнеса» для ПК",
+                "location": "Фоновое изображение страницы «Добавить место» для ПК",
                 "size_hint": "JPG/WebP | Размер: 1600×500 px (пропорция ~16:5) | до 1 MB",
                 "file": get_file_info(site.for_business_hero_image, "img/banners/for-business-hero.webp"),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
-                "preview_url": reverse("for_business"),
+                "preview_url": reverse("add_place"),
             },
             {
-                "title": "Баннер страницы владельцам (Мобильный 📱)",
+                "title": "Баннер страницы «Добавить место» (Мобильный 📱)",
                 "field_name": "for_business_hero_mobile_image",
-                "location": "Фоновое изображение «Для бизнеса» для смартфонов",
+                "location": "Фоновое изображение страницы «Добавить место» для смартфонов",
                 "size_hint": "JPG/WebP | Размер: 800×500 px (пропорция ~8:5) | до 600 KB",
                 "file": get_file_info(site.for_business_hero_mobile_image),
                 "edit_url": reverse("admin:catalog_sitebrandingsettings_changelist"),
-                "preview_url": reverse("for_business"),
+                "preview_url": reverse("add_place"),
             },
             {
                 "title": "Баннер личного кабинета (ПК)",

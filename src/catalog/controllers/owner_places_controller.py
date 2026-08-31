@@ -4,6 +4,7 @@ import logging
 from dataclasses import dataclass
 
 from django.db import transaction
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from catalog.forms import OwnerPlaceCreateForm, OwnerPlaceEditForm
@@ -11,23 +12,29 @@ from catalog.interfaces.repositories import (
     IPlaceChangeAuditRepository,
     IOwnerPlaceRepository,
     IPlaceOwnershipRequestRepository,
-    IUserProfileRepository,
 )
-from catalog.models import Category, Place, PlaceChangeAudit, PlaceOwnershipRequest, UserProfile
+from catalog.models import Category, Place, PlaceChangeAudit, PlaceOwnershipRequest
 from catalog.repositories.django_repositories import (
     DjangoOwnerPlaceRepository,
     DjangoPlaceChangeAuditRepository,
     DjangoPlaceOwnershipRequestRepository,
-    DjangoUserProfileRepository,
 )
 from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
 from catalog.services.content_quality import QualityCheck, place_quality_check
-from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
 from catalog.services.pricing_plans import pricing_audit_summary
 from catalog.services.owner_place_use_cases import (
     OwnerAccessResult,
     build_owner_places_stats,
     ensure_owner_permission,
+)
+from catalog.services.place_access import (
+    PLACE_PERMISSION_EDIT,
+    PLACE_PERMISSION_MANAGE_TEAM,
+    PLACE_PERMISSION_MODERATE_REVIEWS,
+    PLACE_PERMISSION_PUBLISH,
+    PLACE_PERMISSION_VIEW_STATS,
+    has_place_permission,
+    staff_has_place_permission,
 )
 
 _OWNER_MAX_MANAGED_PLACES = 10
@@ -40,7 +47,6 @@ class OwnerPlaceActionResult:
     message: str
     place: Place | None = None
     form: OwnerPlaceEditForm | None = None
-    profile: UserProfile | None = None
     ownership_request: PlaceOwnershipRequest | None = None
 
 
@@ -48,7 +54,6 @@ class OwnerPlaceActionResult:
 class OwnerPlacesController:
     owner_place_repository: IOwnerPlaceRepository
     ownership_repository: IPlaceOwnershipRequestRepository
-    profile_repository: IUserProfileRepository
     place_audit_repository: IPlaceChangeAuditRepository
     geocoding_service: PlaceGeocodingService
 
@@ -57,7 +62,6 @@ class OwnerPlacesController:
         return cls(
             owner_place_repository=DjangoOwnerPlaceRepository(),
             ownership_repository=DjangoPlaceOwnershipRequestRepository(),
-            profile_repository=DjangoUserProfileRepository(),
             place_audit_repository=DjangoPlaceChangeAuditRepository(),
             geocoding_service=PlaceGeocodingService.build_default(),
         )
@@ -121,7 +125,7 @@ class OwnerPlacesController:
             "missing_address": "address",
             "missing_age": "age_from",
             "missing_price": "price_from",
-            "missing_schedule": "schedule",
+            "missing_schedule": "schedule_mode",
             "missing_photo": "photo",
         }
         for code in quality.errors:
@@ -141,9 +145,7 @@ class OwnerPlacesController:
 
     @staticmethod
     def _schedule_audit_value(place: Place) -> str:
-        if getattr(place, "has_structured_schedule", False):
-            return build_schedule_summary(serialize_place_schedule(place))
-        return (place.schedule or "").strip()
+        return place.schedule_summary
 
     def _build_create_geocoding_message(self, *, geocoding_result) -> str:
         point = geocoding_result.point
@@ -206,38 +208,44 @@ class OwnerPlacesController:
         return not place.is_deleted
 
     @staticmethod
+    def _has_permission(*, user, place: Place, permission_code: str) -> bool:
+        return has_place_permission(user=user, place=place, permission_code=permission_code)
+
+    @staticmethod
     def _build_ownership_note(*, form, fallback: str) -> str:
         if form is None:
             return fallback
         return (form.cleaned_data.get("moderation_note") or "").strip() or fallback
 
     def _has_place_capacity(self, *, user) -> tuple[bool, int]:
-        managed_count = self.owner_place_repository.managed_queryset(user=user).count()
+        # The cap is about how many places a user currently runs. Cards they
+        # created but have since handed over belong to someone else now and
+        # must stop occupying a slot; an unowned card they created still does.
+        managed_count = (
+            Place.objects.filter(
+                Q(owner=user) | Q(owner__isnull=True, created_by=user),
+                deleted_at__isnull=True,
+            )
+            .distinct()
+            .count()
+        )
         return managed_count < _OWNER_MAX_MANAGED_PLACES, managed_count
 
     def build_dashboard_context(self, *, request) -> tuple[dict, OwnerAccessResult]:
-        access = ensure_owner_permission(
-            user=request.user,
-            profile_repository=self.profile_repository,
-            permission_code=UserProfile.OWNER_PERMISSION_VIEW_PLACES,
-        )
+        access = ensure_owner_permission(user=request.user)
         if not access.ok:
             return {}, access
 
         managed_places = list(self.owner_place_repository.managed_queryset(user=request.user))
-        owner_permissions = access.profile.get_owner_permissions() if access.profile and access.profile.role == UserProfile.ROLE_OWNER else set()
-        profile_can_edit = (
-            access.profile is None
-            or access.profile.role != UserProfile.ROLE_OWNER
-            or UserProfile.OWNER_PERMISSION_EDIT_PLACES in owner_permissions
-        )
         latest_request_by_place: dict[int, PlaceOwnershipRequest] = {}
         for ownership_request in self.ownership_repository.list_for_user(user=request.user):
             latest_request_by_place.setdefault(ownership_request.place_id, ownership_request)
         for place in managed_places:
             latest_request = latest_request_by_place.get(place.id)
             place.latest_moderation_request = latest_request
-            place.owner_can_edit = profile_can_edit and self._is_user_editable_place(place)
+            place.owner_can_edit = self._is_user_editable_place(place) and self._has_permission(
+                user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT
+            )
         published_places = [place for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active]
         draft_places = [place for place in managed_places if place.status != Place.STATUS_PUBLISHED or not place.is_active]
         editable_draft_places = [place for place in draft_places if place.owner_can_edit]
@@ -251,7 +259,6 @@ class OwnerPlacesController:
         }
 
         context = {
-            "owner_profile": access.profile,
             "managed_places": managed_places,
             "published_places": published_places,
             "draft_places": draft_places,
@@ -262,12 +269,21 @@ class OwnerPlacesController:
             "max_managed_places": _OWNER_MAX_MANAGED_PLACES,
             "remaining_place_slots": max(_OWNER_MAX_MANAGED_PLACES - managed_count, 0),
             "can_create_more_places": can_create_more,
-            "can_edit_places": profile_can_edit,
+            "can_edit_places": any(place.owner_can_edit for place in managed_places),
             "can_publish_places": False,
-            "can_view_stats": True,
-            "can_moderate_reviews": UserProfile.OWNER_PERMISSION_MODERATE_REVIEWS in owner_permissions,
-            "can_manage_team": UserProfile.OWNER_PERMISSION_MANAGE_TEAM in owner_permissions,
-            "owner_permissions": sorted(owner_permissions),
+            "can_view_stats": any(
+                self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_VIEW_STATS)
+                for place in managed_places
+            ),
+            "can_moderate_reviews": any(
+                self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_MODERATE_REVIEWS)
+                for place in managed_places
+            ),
+            "can_manage_team": any(
+                self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_MANAGE_TEAM)
+                for place in managed_places
+            ),
+            "owner_permissions": [],
         }
         return context, access
 
@@ -282,13 +298,9 @@ class OwnerPlacesController:
         coordinate_refresh_only: bool = False,
         submit_for_moderation: bool = False,
     ) -> OwnerPlaceActionResult:
-        access = ensure_owner_permission(
-            user=request.user,
-            profile_repository=self.profile_repository,
-            permission_code=UserProfile.OWNER_PERMISSION_EDIT_PLACES,
-        )
+        access = ensure_owner_permission(user=request.user)
         if not access.ok:
-            return OwnerPlaceActionResult(ok=False, message=access.message, profile=access.profile)
+            return OwnerPlaceActionResult(ok=False, message=access.message)
 
         place = self.owner_place_repository.get_managed_by_pk(user=request.user, pk=place_id)
         if place is None:
@@ -298,13 +310,13 @@ class OwnerPlacesController:
                     "Карточка не найдена или не привязана к вашему аккаунту. "
                     "Проверьте список «Мои кружки» и повторите действие."
                 ),
-                profile=access.profile,
             )
+        if not self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT):
+            return OwnerPlaceActionResult(ok=False, message=_("Недостаточно прав для редактирования этой карточки."))
         if not self._is_user_editable_place(place):
             return OwnerPlaceActionResult(
                 ok=False,
                 message=_("Məkan yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."),
-                profile=access.profile,
                 place=place,
             )
 
@@ -316,7 +328,7 @@ class OwnerPlacesController:
             coordinate_refresh_only=coordinate_refresh_only,
             submit_for_moderation=submit_for_moderation,
         )
-        return OwnerPlaceActionResult(ok=True, message="", place=place, form=form, profile=access.profile)
+        return OwnerPlaceActionResult(ok=True, message="", place=place, form=form)
 
     def build_create_form_context(
         self,
@@ -327,20 +339,15 @@ class OwnerPlacesController:
         geocoding_check_only: bool = False,
         draft_save_only: bool = False,
     ) -> OwnerPlaceActionResult:
-        access = ensure_owner_permission(
-            user=request.user,
-            profile_repository=self.profile_repository,
-            permission_code=UserProfile.OWNER_PERMISSION_EDIT_PLACES,
-        )
+        access = ensure_owner_permission(user=request.user)
         if not access.ok:
-            return OwnerPlaceActionResult(ok=False, message=access.message, profile=access.profile)
+            return OwnerPlaceActionResult(ok=False, message=access.message)
 
         has_capacity, managed_count = self._has_place_capacity(user=request.user)
         if not has_capacity:
             return OwnerPlaceActionResult(
                 ok=False,
                 message=_("Hazırda maksimum 10 məkan limiti aktivdir. Yeni məkan əlavə etmək üçün mövcud kartlardan birini silin."),
-                profile=access.profile,
             )
 
         form = OwnerPlaceCreateForm(
@@ -349,7 +356,7 @@ class OwnerPlacesController:
             geocoding_check_only=geocoding_check_only,
             draft_save_only=draft_save_only,
         )
-        return OwnerPlaceActionResult(ok=True, message="", form=form, profile=access.profile)
+        return OwnerPlaceActionResult(ok=True, message="", form=form)
 
     def preview_create_coordinates(self, *, request, data, files) -> OwnerPlaceActionResult:
         result = self.build_create_form_context(
@@ -366,7 +373,6 @@ class OwnerPlacesController:
                 ok=False,
                 message="",
                 form=result.form,
-                profile=result.profile,
             )
 
         lat = result.form.cleaned_data.get("lat")
@@ -376,7 +382,6 @@ class OwnerPlacesController:
                 ok=True,
                 message=self._build_manual_point_preview_message(lat=lat, lng=lng),
                 form=result.form,
-                profile=result.profile,
             )
 
         geocoding_result = self.geocoding_service.geocode_location(
@@ -400,7 +405,6 @@ class OwnerPlacesController:
             ok=geocoding_result.resolved,
             message=self._build_create_geocoding_message(geocoding_result=geocoding_result),
             form=result.form,
-            profile=result.profile,
         )
 
     @transaction.atomic
@@ -419,7 +423,6 @@ class OwnerPlacesController:
                 ok=False,
                 message="",
                 form=result.form,
-                profile=result.profile,
             )
 
         place = result.form.save(commit=False)
@@ -431,7 +434,6 @@ class OwnerPlacesController:
                     ok=False,
                     message=self._quality_error_message(quality),
                     form=result.form,
-                    profile=result.profile,
                 )
         manual_coordinates_selected = self._has_manual_coordinates(place)
         place.owner = request.user
@@ -475,7 +477,6 @@ class OwnerPlacesController:
                 ok=False,
                 message="",
                 form=result.form,
-                profile=result.profile,
             )
         result.form.save_schedule(place)
 
@@ -512,7 +513,6 @@ class OwnerPlacesController:
                 ok=False,
                 message="",
                 form=result.form,
-                profile=result.profile,
             )
         if not draft_save_only:
             ownership_request = self.ownership_repository.create_pending(
@@ -563,7 +563,6 @@ class OwnerPlacesController:
             ),
             place=place,
             form=result.form,
-            profile=result.profile,
             ownership_request=ownership_request,
         )
 
@@ -606,7 +605,6 @@ class OwnerPlacesController:
                 message="",
                 place=result.place,
                 form=result.form,
-                profile=result.profile,
             )
 
         try:
@@ -639,7 +637,6 @@ class OwnerPlacesController:
                 message="",
                 place=result.place,
                 form=result.form,
-                profile=result.profile,
             )
         new_photo_name = place.photo.name if place.photo else ""
         if old_photo_name and old_photo_name != new_photo_name:
@@ -671,7 +668,6 @@ class OwnerPlacesController:
                 message="",
                 place=result.place,
                 form=result.form,
-                profile=result.profile,
             )
         new_schedule_value = self._schedule_audit_value(place)
         location_changed = place_location_fields_changed(previous_values=old_snapshot, place=place)
@@ -719,7 +715,6 @@ class OwnerPlacesController:
                 message=_("Изменения сохранены. Карточка остаётся на модерации."),
                 place=place,
                 form=result.form,
-                profile=result.profile,
             )
         if submit_for_moderation:
             return self.submit_for_moderation(request=request, place_id=place.pk)
@@ -745,33 +740,37 @@ class OwnerPlacesController:
             ),
             place=place,
             form=result.form,
-            profile=result.profile,
         )
 
     def set_publication_state(self, *, request, place_id: int, is_active: bool) -> OwnerPlaceActionResult:
-        access = ensure_owner_permission(
-            user=request.user,
-            profile_repository=self.profile_repository,
-            permission_code=UserProfile.OWNER_PERMISSION_PUBLISH_PLACES,
-        )
+        access = ensure_owner_permission(user=request.user)
         if not access.ok:
-            return OwnerPlaceActionResult(ok=False, message=access.message, profile=access.profile)
+            return OwnerPlaceActionResult(ok=False, message=access.message)
 
         place = self.owner_place_repository.get_managed_by_pk(user=request.user, pk=place_id)
+        if place is None and staff_has_place_permission(user=request.user, permission_code=PLACE_PERMISSION_PUBLISH):
+            place = Place.objects.filter(pk=place_id, deleted_at__isnull=True).first()
         if place is None:
             return OwnerPlaceActionResult(
                 ok=False,
                 message=_("Карточка не найдена или не привязана к вашему аккаунту."),
-                profile=access.profile,
+            )
+        if not self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_PUBLISH):
+            return OwnerPlaceActionResult(
+                ok=False,
+                message=_("Публикация выполняется только через модерацию или служебное разрешение."),
+                place=place,
             )
 
-        latest_request = self.ownership_repository.latest_for_user_and_place(user=request.user, place=place)
-        if is_active and (latest_request is None or latest_request.status != PlaceOwnershipRequest.STATUS_APPROVED):
+        has_approved_moderation = PlaceOwnershipRequest.objects.filter(
+            place=place,
+            status=PlaceOwnershipRequest.STATUS_APPROVED,
+        ).exists()
+        if is_active and not has_approved_moderation:
             return OwnerPlaceActionResult(
                 ok=False,
                 message=_("Публикация доступна только после одобрения модератором."),
                 place=place,
-                profile=access.profile,
             )
 
         if is_active:
@@ -781,7 +780,6 @@ class OwnerPlacesController:
                     ok=False,
                     message=self._quality_error_message(quality),
                     place=place,
-                    profile=access.profile,
                 )
 
         previous_active = place.is_active
@@ -802,26 +800,22 @@ class OwnerPlacesController:
             ok=True,
             message=_("Карточка опубликована.") if is_active else _("Карточка переведена в черновик."),
             place=place,
-            profile=access.profile,
         )
 
     @transaction.atomic
     def submit_for_moderation(self, *, request, place_id: int) -> OwnerPlaceActionResult:
-        access = ensure_owner_permission(
-            user=request.user,
-            profile_repository=self.profile_repository,
-            permission_code=UserProfile.OWNER_PERMISSION_EDIT_PLACES,
-        )
+        access = ensure_owner_permission(user=request.user)
         if not access.ok:
-            return OwnerPlaceActionResult(ok=False, message=access.message, profile=access.profile)
+            return OwnerPlaceActionResult(ok=False, message=access.message)
 
         place = self.owner_place_repository.get_managed_by_pk(user=request.user, pk=place_id)
         if place is None:
             return OwnerPlaceActionResult(
                 ok=False,
                 message=_("Карточка не найдена или не привязана к вашему аккаунту."),
-                profile=access.profile,
             )
+        if not self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT):
+            return OwnerPlaceActionResult(ok=False, message=_("Недостаточно прав для редактирования этой карточки."))
 
         latest_request = self.ownership_repository.latest_for_user_and_place(user=request.user, place=place)
         if place.status == Place.STATUS_PENDING or (
@@ -831,7 +825,6 @@ class OwnerPlacesController:
                 ok=False,
                 message=_("Эта карточка уже отправлена на модерацию."),
                 place=place,
-                profile=access.profile,
             )
 
         quality = place_quality_check(place)
@@ -840,7 +833,6 @@ class OwnerPlacesController:
                 ok=False,
                 message=self._quality_error_message(quality),
                 place=place,
-                profile=access.profile,
             )
 
         previous_status = place.status
@@ -853,7 +845,7 @@ class OwnerPlacesController:
         ownership_request = self.ownership_repository.create_pending(
             place=place,
             applicant=request.user,
-            note=_("Карточка отправлена на модерацию из кабинета владельца."),
+            note=_("Карточка отправлена пользователем на модерацию."),
         )
         self.place_audit_repository.create_entries(
             place=place,
@@ -869,34 +861,29 @@ class OwnerPlacesController:
             ok=True,
             message=_("Məkan moderasiyaya göndərildi."),
             place=place,
-            profile=access.profile,
             ownership_request=ownership_request,
         )
 
     @transaction.atomic
     def delete_gallery_photo(self, *, request, place_id: int, photo_id: int) -> OwnerPlaceActionResult:
-        access = ensure_owner_permission(
-            user=request.user,
-            profile_repository=self.profile_repository,
-            permission_code=UserProfile.OWNER_PERMISSION_EDIT_PLACES,
-        )
+        access = ensure_owner_permission(user=request.user)
         if not access.ok:
-            return OwnerPlaceActionResult(ok=False, message=access.message, profile=access.profile)
+            return OwnerPlaceActionResult(ok=False, message=access.message)
 
         place = self.owner_place_repository.get_managed_by_pk(user=request.user, pk=place_id)
         if place is None:
             return OwnerPlaceActionResult(
                 ok=False,
                 message=_("Карточка не найдена или не привязана к вашему аккаунту."),
-                profile=access.profile,
             )
+        if not self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT):
+            return OwnerPlaceActionResult(ok=False, message=_("Недостаточно прав для редактирования этой карточки."))
         photo = place.gallery.filter(pk=photo_id).first()
         if photo is None:
             return OwnerPlaceActionResult(
                 ok=False,
                 message=_("Фотография не найдена в этой карточке."),
                 place=place,
-                profile=access.profile,
             )
 
         storage = photo.image.storage
@@ -908,17 +895,12 @@ class OwnerPlacesController:
             ok=True,
             message=_("Фотография удалена из галереи."),
             place=place,
-            profile=access.profile,
         )
 
     def delete_place(self, *, request, place_id: int) -> OwnerPlaceActionResult:
-        access = ensure_owner_permission(
-            user=request.user,
-            profile_repository=self.profile_repository,
-            permission_code=UserProfile.OWNER_PERMISSION_EDIT_PLACES,
-        )
+        access = ensure_owner_permission(user=request.user)
         if not access.ok:
-            return OwnerPlaceActionResult(ok=False, message=access.message, profile=access.profile)
+            return OwnerPlaceActionResult(ok=False, message=access.message)
 
         place = self.owner_place_repository.get_managed_by_pk(user=request.user, pk=place_id)
         if place is None:
@@ -928,8 +910,9 @@ class OwnerPlacesController:
                     "Карточка не найдена или не привязана к вашему аккаунту. "
                     "Обновите список карточек и попробуйте снова."
                 ),
-                profile=access.profile,
             )
+        if not self._has_permission(user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT):
+            return OwnerPlaceActionResult(ok=False, message=_("Недостаточно прав для редактирования этой карточки."))
 
         previous = {
             "is_active": place.is_active,
@@ -942,7 +925,6 @@ class OwnerPlacesController:
                 ok=True,
                 message=_("Карточка уже удалена."),
                 place=place,
-                profile=access.profile,
             )
 
         self.place_audit_repository.create_entries(
@@ -955,5 +937,4 @@ class OwnerPlacesController:
             ok=True,
             message=_("Карточка удалена. При необходимости ее можно восстановить через администратора."),
             place=place,
-            profile=access.profile,
         )

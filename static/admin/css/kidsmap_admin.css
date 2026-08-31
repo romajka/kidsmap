@@ -1,9 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import 'kidsmap_admin_tokens.css?v=4';
+@import 'kidsmap_admin_tokens.css?v=5';
 @import 'kidsmap_admin_layout.css?v=4';
-@import 'kidsmap_admin_components.css?v=2';
+@import 'kidsmap_admin_components.css?v=4';
 @import 'kidsmap_admin_tables.css?v=2';
 @import 'kidsmap_admin_forms.css?v=3';
+@import 'kidsmap_pagination.css?v=1';
 @import 'pages/kidsmap_dashboard.css?v=2';
 @import 'pages/kidsmap_admin_sidebar.css?v=5';
 
@@ -772,43 +773,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.km-admin-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 24px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-.km-admin-badge--good {
-  background: var(--km-admin-badge-good-bg);
-  border-color: var(--km-admin-badge-good-border);
-  color: var(--km-admin-badge-good-fg);
-}
-
-.km-admin-badge--warn {
-  background: var(--km-admin-badge-warn-bg);
-  border-color: var(--km-admin-badge-warn-border);
-  color: var(--km-admin-badge-warn-fg);
-}
-
-.km-admin-badge--muted {
-  background: var(--km-admin-badge-muted-bg);
-  border-color: var(--km-admin-badge-muted-border);
-  color: var(--km-admin-badge-muted-fg);
-}
-
-.km-admin-badge--info {
-  background: var(--km-admin-badge-info-bg);
-  border-color: var(--km-admin-badge-info-border);
-  color: var(--km-admin-badge-info-fg);
 }
 
 .km-audit-intro {

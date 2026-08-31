@@ -37,9 +37,9 @@ from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
 from .forms import OwnerEventForm, OwnerSpecialistForm
 from .legal_content import get_legal_page_content
-from .models import Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, SiteSettings, UserProfile, Specialist
+from .models import Category, Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, SiteSettings, Specialist
 from .models import FunnelEvent
-from .services.content_quality import approved_review_queryset
+from .services.content_quality import approved_review_queryset, public_place_queryset, public_review_queryset
 from .services.pricing_plans import public_pricing_plans
 
 
@@ -72,6 +72,7 @@ from .services.owner_specialist_use_cases import save_owner_specialist_profile
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event
 from .services.features import require_events_section_enabled, require_specialists_section_enabled
 from .services.auth_redirects import resolve_safe_next_url
+from .services.place_access import PLACE_PERMISSION_EDIT, has_place_permission
 
 home_controller = HomeController.build_default()
 place_controller = PlaceController.build_default()
@@ -210,7 +211,10 @@ def _redirect_to_login(request):
 def _build_managed_places_summary(user) -> dict:
     managed_places = list(
         Place.objects.filter(
-            Q(owner=user) | Q(owner__isnull=True, created_by=user),
+            # created_by only stands in while the card has no owner at all.
+            Q(owner=user)
+            | Q(owner__isnull=True, created_by=user)
+            | Q(team_memberships__member=user, team_memberships__is_active=True),
             deleted_at__isnull=True,
         )
         .distinct()
@@ -229,10 +233,9 @@ def _build_managed_places_summary(user) -> dict:
         for place in managed_places
         if place.status in {Place.STATUS_DRAFT, Place.STATUS_REJECTED} or not place.is_active
     ]
-    profile = UserProfile.get_or_create_for_user(user)
-    can_edit_managed_places = (
-        profile.role != UserProfile.ROLE_OWNER
-        or profile.has_owner_permission(UserProfile.OWNER_PERMISSION_EDIT_PLACES)
+    can_edit_managed_places = any(
+        has_place_permission(user=user, place=place, permission_code=PLACE_PERMISSION_EDIT)
+        for place in managed_places
     )
     return {
         "managed_places": managed_places,
@@ -245,10 +248,15 @@ def _build_managed_places_summary(user) -> dict:
     }
 
 
+AUTH_INTENT_ADD_PLACE = "add_place"
+# "owner_place" is the historical value; keep accepting it so old links keep working.
+LEGACY_AUTH_INTENT_ADD_PLACE = "owner_place"
+
+
 def _resolve_auth_intent(request) -> str:
     intent = (request.POST.get("intent") or request.GET.get("intent") or "").strip()
-    if intent == "owner_place":
-        return "owner_place"
+    if intent in {AUTH_INTENT_ADD_PLACE, LEGACY_AUTH_INTENT_ADD_PLACE}:
+        return AUTH_INTENT_ADD_PLACE
     return ""
 
 
@@ -560,12 +568,19 @@ def about(request):
         "ru": "О проекте KidsMap: полный каталог детских кружков, спортивных секций и центров развития в Баку и Азербайджане.",
         "en": "About KidsMap project: comprehensive directory of children's clubs, sports sections and development centers in Baku, Azerbaijan.",
     }
+    places_count = public_place_queryset(Place.objects.all()).count()
+    categories_count = Category.objects.filter(is_active=True).count()
+    reviews_count = public_review_queryset(PlaceReview.objects.all()).count()
+
     return render(
         request,
         "pages/about.html",
         {
             "page_title": titles.get(lang, titles["az"]),
             "meta_description": meta_descriptions.get(lang, meta_descriptions["az"]),
+            "places_count": places_count,
+            "categories_count": categories_count,
+            "reviews_count": reviews_count,
         },
     )
 
@@ -592,11 +607,11 @@ def contacts(request):
     )
 
 
-FOR_BUSINESS_CONTENT = {
+ADD_PLACE_CONTENT = {
     "az": {
         "title": "Uşaq məkanınızı KidsMap-də yerləşdirin",
         "mobile_title": "Məkanınızı yerləşdirin",
-        "eyebrow": "Məkan sahibləri üçün",
+        "eyebrow": "KidsMap-də yerləşdirmə",
         "free_badge": "Əsas yerləşdirmə pulsuzdur",
         "subtitle": "Foto, ünvan, əlaqə məlumatları, iş qrafiki və qiyməti olan kart yaradın. Kart moderasiyadan sonra kataloqda dərc olunur.",
         "moderation_note": "Dərc edilməzdən əvvəl məlumatların dolğunluğunu və qaydalara uyğunluğunu yoxlayırıq.",
@@ -616,12 +631,11 @@ FOR_BUSINESS_CONTENT = {
             ("Moderasiya nəyi yoxlayır", ["Məcburi məlumatların doldurulmasını", "Məlumatların aydın və ziddiyyətsiz olmasını", "Məzmunun KidsMap qaydalarına uyğunluğunu", "Test və natamam kartlar dərc edilmir"]),
             ("Məlumatları necə yeniləmək olar", ["Şəxsi kabinetdə kartınızı açın", "Lazım olan sahələri dəyişin", "Yenilənmiş məlumatları yoxlamaya göndərin", "Dəyişikliklər yenidən moderasiya oluna bilər"]),
         ],
-        "vip_note": "Gələcəkdə əlavə VIP imkanları yarana bilər. Onlardan istifadə məcburi olmayacaq və əsas pulsuz yerləşdirməni əvəz etməyəcək.",
     },
     "ru": {
         "title": "Разместите детское место на KidsMap",
         "mobile_title": "Разместите место",
-        "eyebrow": "Для владельцев мест",
+        "eyebrow": "Размещение на KidsMap",
         "free_badge": "Базовое размещение бесплатно",
         "subtitle": "Создайте карточку с фото, адресом, контактами, расписанием и ценой. После модерации она появится в каталоге.",
         "moderation_note": "Перед публикацией мы проверяем полноту данных и соответствие правилам площадки.",
@@ -641,12 +655,11 @@ FOR_BUSINESS_CONTENT = {
             ("Что проверяет модерация", ["Заполнены ли обязательные данные", "Понятна ли информация и нет ли противоречий", "Соответствует ли содержание правилам KidsMap", "Тестовые и неполные карточки не публикуются"]),
             ("Как обновить данные", ["Откройте карточку в личном кабинете", "Измените нужные поля", "Отправьте обновлённые данные на проверку", "Изменения могут повторно пройти модерацию"]),
         ],
-        "vip_note": "В будущем могут появиться дополнительные VIP-возможности. Они будут необязательными и не заменят базовое бесплатное размещение.",
     },
     "en": {
         "title": "List your kids place on KidsMap",
         "mobile_title": "List your place",
-        "eyebrow": "For place owners",
+        "eyebrow": "Listing on KidsMap",
         "free_badge": "Basic listing is free",
         "subtitle": "Create a listing with photos, address, contacts, schedule and price. It will appear in the catalog after moderation.",
         "moderation_note": "Before publishing, we check that the information is complete and follows the platform rules.",
@@ -666,28 +679,48 @@ FOR_BUSINESS_CONTENT = {
             ("What moderation checks", ["All required information is provided", "Information is clear and consistent", "Content follows the KidsMap rules", "Test and incomplete listings are not published"]),
             ("How to update information", ["Open the listing in your account", "Edit the necessary fields", "Send the updated information for review", "Changes may be moderated again"]),
         ],
-        "vip_note": "Optional VIP features may be introduced in the future. They will not replace the free basic listing.",
     },
 }
 
 
-def for_business(request):
-    language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in FOR_BUSINESS_CONTENT else "az"
-    content = FOR_BUSINESS_CONTENT[language]
-    return render(request, "pages/for_business.html", {"content": content, "meta_description": content["subtitle"]})
+def add_place(request):
+    language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in ADD_PLACE_CONTENT else "az"
+    content = ADD_PLACE_CONTENT[language]
+    places_count = public_place_queryset(Place.objects.all()).count()
+    return render(
+        request,
+        "pages/add_place.html",
+        {
+            "content": content,
+            "meta_description": content["subtitle"],
+            "places_count": places_count,
+        },
+    )
+
+
+def _permanent_redirect_with_query(request, target: str):
+    query = request.META.get("QUERY_STRING", "")
+    if query:
+        target = f"{target}?{query}"
+    return redirect(target, permanent=True)
+
+
+def legacy_for_business_redirect(request):
+    """Keep the historical /for-business/ URL alive after the rename to /add-place/."""
+    return _permanent_redirect_with_query(request, reverse("add_place"))
+
+
+def legacy_owner_section_redirect(request, subpath: str = ""):
+    """Keep historical /account/owner/... URLs alive after the move to /account/places/..."""
+    if subpath == "places" or subpath.startswith("places/"):
+        subpath = subpath[len("places/"):]
+    return _permanent_redirect_with_query(request, f"{reverse('owner_places_dashboard')}{subpath}")
 
 
 def legal_page(request, page_slug):
     language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in {"az", "ru", "en"} else "az"
     context = get_legal_page_content(page_slug=page_slug, language=language)
     return render(request, "pages/legal.html", context)
-
-
-def owner_cabinet(request):
-    if not request.user.is_authenticated:
-        return _redirect_to_login(request)
-
-    return redirect("owner_places_dashboard")
 
 
 def owner_places_dashboard(request):
@@ -818,7 +851,6 @@ def owner_place_create(request):
                     messages.error(request, result.message)
             context = {
                 "form": result.form,
-                "owner_profile": result.profile,
                 "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
                 "meta_description": _("Создание места в личном кабинете KidsMap."),
                 "draft_client_key": draft_client_key,
@@ -843,7 +875,6 @@ def owner_place_create(request):
 
             context = {
                 "form": result.form,
-                "owner_profile": result.profile,
                 "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
                 "meta_description": _("Создание места в личном кабинете KidsMap."),
                 "draft_client_key": draft_client_key,
@@ -866,7 +897,6 @@ def owner_place_create(request):
 
         context = {
             "form": result.form,
-            "owner_profile": result.profile,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Создание места в личном кабинете KidsMap."),
             "draft_client_key": draft_client_key,
@@ -881,7 +911,6 @@ def owner_place_create(request):
 
     context = {
         "form": result.form,
-        "owner_profile": result.profile,
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         "meta_description": _("Создание места в личном кабинете KidsMap."),
         "draft_client_key": _build_owner_create_draft_key(request, prefix="owner-place-create"),
@@ -913,20 +942,18 @@ def owner_event_create(request):
             return redirect("owner_places_dashboard")
 
         form = result.form
-        profile = result.profile
     else:
-        profile = owner_events_controller.get_owner_profile(request.user)
-        if profile is None:
-            messages.error(request, _("Для доступа войдите в аккаунт и повторите действие."))
-            return redirect("owner_places_dashboard")
-        form = OwnerEventForm(user=request.user)
+        related_place = (request.GET.get("related_place") or "").strip()
+        form = OwnerEventForm(
+            user=request.user,
+            initial={"related_place": related_place} if related_place else None,
+        )
 
     return render(
         request,
         "pages/owner_event_form.html",
         {
             "form": form,
-            "owner_profile": profile,
             "event": None,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Создание временного мероприятия KidsMap."),
@@ -958,14 +985,8 @@ def owner_event_edit(request, pk):
             return redirect("owner_places_dashboard")
             
         form = result.form
-        profile = result.profile
         event = result.event
     else:
-        profile = owner_events_controller.get_owner_profile(request.user)
-        if profile is None:
-            messages.error(request, _("Для доступа войдите в аккаунт и повторите действие."))
-            return redirect("owner_places_dashboard")
-            
         event = get_object_or_404(Event, pk=pk, owner=request.user, deleted_at__isnull=True)
         if event.status in {Event.STATUS_PENDING, Event.STATUS_PUBLISHED}:
             messages.error(request, _("Tədbir yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."))
@@ -978,7 +999,6 @@ def owner_event_edit(request, pk):
         "pages/owner_event_form.html",
         {
             "form": form,
-            "owner_profile": profile,
             "event": event,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Редактирование временного мероприятия KidsMap."),
@@ -1078,7 +1098,6 @@ def owner_place_edit(request, pk):
         context = {
             "form": result.form,
             "place": result.place,
-            "owner_profile": result.profile,
             "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
             "meta_description": _("Редактирование места в личном кабинете KidsMap."),
             "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
@@ -1093,7 +1112,6 @@ def owner_place_edit(request, pk):
     context = {
         "form": result.form,
         "place": result.place,
-        "owner_profile": result.profile,
         "google_maps_api_key": settings.GOOGLE_MAPS_API_KEY,
         "meta_description": _("Редактирование места в личном кабинете KidsMap."),
         "km_place_taxonomy_picker": _build_owner_taxonomy_picker_config(result.form),
@@ -1177,11 +1195,11 @@ def owner_team_dashboard(request):
     context, access = owner_team_controller.build_manager_context(request=request)
     if not access.ok:
         messages.error(request, access.message)
-        return redirect("owner_cabinet")
+        return redirect("owner_places_dashboard")
 
     context.update(
         {
-            "meta_description": _("Команда владельца KidsMap: приглашения, роли и управление доступами."),
+            "meta_description": _("Команда KidsMap: приглашения, роли и управление доступом к вашим местам."),
         }
     )
     return render(request, "pages/owner_team.html", context)
@@ -1200,10 +1218,10 @@ def owner_team_invite(request):
     messages.error(request, result.message)
     context, access = owner_team_controller.build_manager_context(request=request, form=result.form)
     if not access.ok:
-        return redirect("owner_cabinet")
+        return redirect("owner_places_dashboard")
     context.update(
         {
-            "meta_description": _("Команда владельца KidsMap: приглашения, роли и управление доступами."),
+            "meta_description": _("Команда KidsMap: приглашения, роли и управление доступом к вашим местам."),
         }
     )
     return render(request, "pages/owner_team.html", context)
@@ -1258,7 +1276,7 @@ def owner_team_accept_invitation(request, invitation_id):
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
-    return redirect("owner_cabinet")
+    return redirect("owner_places_dashboard")
 
 
 @require_POST
@@ -1271,7 +1289,7 @@ def owner_team_reject_invitation(request, invitation_id):
         messages.success(request, result.message)
     else:
         messages.error(request, result.message)
-    return redirect("owner_cabinet")
+    return redirect("owner_places_dashboard")
 
 
 def owner_reviews_dashboard(request):
@@ -1281,11 +1299,11 @@ def owner_reviews_dashboard(request):
     context, result = owner_reviews_controller.build_context(request=request)
     if not result.ok:
         messages.error(request, result.message)
-        return redirect("owner_cabinet")
+        return redirect("owner_places_dashboard")
 
     context.update(
         {
-            "meta_description": _("Модерация отзывов владельца: управление публикацией отзывов по вашим кружкам."),
+            "meta_description": _("Модерация отзывов: управление публикацией отзывов по вашим местам."),
         }
     )
     return render(request, "pages/owner_reviews.html", context)
@@ -1385,17 +1403,17 @@ def account_verify_email(request):
                 )
                 if result.ok and result.user is not None:
                     auth_login(request, result.user)
-                    if auth_intent == "owner_place":
+                    if auth_intent == AUTH_INTENT_ADD_PLACE:
                         track_funnel_event(
                             request=request,
-                            event_type=FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+                            event_type=FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
                             meta={"intent": auth_intent},
                         )
                         queue_google_analytics_event(
                             request=request,
-                            name=FunnelEvent.EVENT_OWNER_SIGNUP_COMPLETE,
+                            name=FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
                             params={
-                                "page_type": "owner_signup",
+                                "page_type": "add_place_signup",
                                 "intent": auth_intent,
                             },
                         )
@@ -1583,11 +1601,11 @@ def account_register(request):
             "auth_intent": auth_intent,
             "analytics_events": [
                 {
-                    "name": FunnelEvent.EVENT_OWNER_SIGNUP_START,
-                    "params": {"page_type": "owner_signup", "intent": auth_intent},
+                    "name": FunnelEvent.EVENT_ADD_PLACE_SIGNUP_START,
+                    "params": {"page_type": "add_place_signup", "intent": auth_intent},
                 }
             ]
-            if auth_intent == "owner_place"
+            if auth_intent == AUTH_INTENT_ADD_PLACE
             else [],
         },
     )
@@ -2020,8 +2038,8 @@ def add_specialist_review(request, pk):
         "rating": rating,
         "text": moderated.text,
         "author_name": moderated.author_name,
-        "status": SpecialistReview.STATUS_APPROVED,
-        "is_approved": True,
+        "status": SpecialistReview.STATUS_PENDING,
+        "is_approved": False,
         "rejection_reason": "",
     }
 
@@ -2031,7 +2049,7 @@ def add_specialist_review(request, pk):
         defaults=defaults
     )
 
-    message = _("Спасибо за отзыв! Он опубликован.")
+    message = _("Ваш отзыв отправлен на модерацию и будет опубликован после проверки.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 

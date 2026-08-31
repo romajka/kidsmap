@@ -70,7 +70,7 @@ class DjangoPlaceRepository(IPlaceRepository):
         return (
             base_queryset
             .select_related("subcategory")
-            .prefetch_related("schedule_days__intervals", "pricing_plan_records")
+            .prefetch_related("schedule_days__intervals", "pricing_plan_records", "events")
             .exclude(lat__isnull=True)
             .exclude(lng__isnull=True)
         )
@@ -136,13 +136,6 @@ class DjangoSettingsRepository(ISettingsRepository):
 class DjangoUserProfileRepository(IUserProfileRepository):
     def get_or_create_for_user(self, user) -> UserProfile:
         return UserProfile.get_or_create_for_user(user)
-
-    def set_role(self, *, user, role: str) -> UserProfile:
-        profile = self.get_or_create_for_user(user)
-        if profile.role != role:
-            profile.role = role
-            profile.save(update_fields=["role", "updated_at"])
-        return profile
 
     def set_phone(self, *, user, phone: str) -> UserProfile:
         profile = self.get_or_create_for_user(user)
@@ -283,7 +276,10 @@ class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
     def managed_queryset(self, *, user) -> QuerySet:
         return (
             Place.objects.filter(
-                Q(owner=user) | Q(owner__isnull=True, created_by=user),
+                # created_by only stands in while the card has no owner at all.
+                Q(owner=user)
+                | Q(owner__isnull=True, created_by=user)
+                | Q(team_memberships__member=user, team_memberships__is_active=True),
                 deleted_at__isnull=True,
             )
             .distinct()
@@ -333,18 +329,18 @@ class DjangoOwnerPlaceRepository(IOwnerPlaceRepository):
 
 
 class DjangoOwnerTeamRepository(IOwnerTeamRepository):
-    def list_members(self, *, owner) -> QuerySet:
+    def list_members(self, *, place_ids: list[int]) -> QuerySet:
         return (
-            OwnerTeamMembership.objects.filter(owner=owner, is_active=True)
-            .select_related("member", "invited_by")
-            .order_by("member__username", "member__email")
+            OwnerTeamMembership.objects.filter(place_id__in=place_ids, is_active=True)
+            .select_related("place", "member", "invited_by")
+            .order_by("place_id", "member__username", "member__email")
         )
 
-    def list_invitations(self, *, owner) -> QuerySet:
+    def list_invitations(self, *, place_ids: list[int]) -> QuerySet:
         return (
-            OwnerTeamInvitation.objects.filter(owner=owner)
-            .select_related("invited_by", "invited_user")
-            .order_by("-created_at")
+            OwnerTeamInvitation.objects.filter(place_id__in=place_ids)
+            .select_related("place", "invited_by", "invited_user")
+            .order_by("place_id", "-created_at")
         )
 
     def list_pending_invitations_for_user(self, *, user) -> QuerySet:
@@ -353,35 +349,35 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
             return OwnerTeamInvitation.objects.none()
         return (
             OwnerTeamInvitation.objects.filter(email=email, status=OwnerTeamInvitation.STATUS_PENDING)
-            .select_related("owner", "invited_by")
+            .select_related("place", "owner", "invited_by")
             .order_by("-created_at")
         )
 
-    def create_invitation(self, *, owner, invited_by, email: str, role: str) -> OwnerTeamInvitation:
+    def create_invitation(self, *, place: Place, invited_by, email: str, role: str) -> OwnerTeamInvitation:
         normalized_email = (email or "").strip().lower()
         pending = OwnerTeamInvitation.objects.filter(
-            owner=owner,
+            place=place,
             email=normalized_email,
             status=OwnerTeamInvitation.STATUS_PENDING,
         ).first()
         if pending:
             return pending
         return OwnerTeamInvitation.objects.create(
-            owner=owner,
+            place=place,
+            owner=place.owner or place.created_by or invited_by,
             invited_by=invited_by,
             email=normalized_email,
             role=role,
             status=OwnerTeamInvitation.STATUS_PENDING,
         )
 
-    def get_pending_owner_invitation(self, *, owner, invitation_id: int) -> OwnerTeamInvitation | None:
+    def get_pending_owner_invitation(self, *, invitation_id: int) -> OwnerTeamInvitation | None:
         return (
             OwnerTeamInvitation.objects.filter(
                 id=invitation_id,
-                owner=owner,
                 status=OwnerTeamInvitation.STATUS_PENDING,
             )
-            .select_related("owner", "invited_by")
+            .select_related("place", "owner", "invited_by")
             .first()
         )
 
@@ -395,16 +391,17 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
                 email=email,
                 status=OwnerTeamInvitation.STATUS_PENDING,
             )
-            .select_related("owner", "invited_by")
+            .select_related("place", "owner", "invited_by")
             .first()
         )
 
     @transaction.atomic
     def accept_invitation(self, *, invitation: OwnerTeamInvitation, user) -> OwnerTeamMembership:
         membership, _ = OwnerTeamMembership.objects.update_or_create(
-            owner=invitation.owner,
+            place=invitation.place,
             member=user,
             defaults={
+                "owner": invitation.owner,
                 "role": invitation.role,
                 "is_active": True,
                 "invited_by": invitation.invited_by,
@@ -428,10 +425,10 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
         invitation.save(update_fields=["status", "responded_at", "updated_at"])
         return invitation
 
-    def update_membership_role(self, *, owner, membership_id: int, role: str) -> OwnerTeamMembership | None:
+    def update_membership_role(self, *, membership_id: int, role: str) -> OwnerTeamMembership | None:
         membership = (
-            OwnerTeamMembership.objects.filter(id=membership_id, owner=owner, is_active=True)
-            .select_related("member")
+            OwnerTeamMembership.objects.filter(id=membership_id, is_active=True)
+            .select_related("place", "member")
             .first()
         )
         if membership is None:
@@ -441,8 +438,8 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
             membership.save(update_fields=["role", "updated_at"])
         return membership
 
-    def remove_membership(self, *, owner, membership_id: int) -> bool:
-        membership = OwnerTeamMembership.objects.filter(id=membership_id, owner=owner, is_active=True).first()
+    def remove_membership(self, *, membership_id: int) -> bool:
+        membership = OwnerTeamMembership.objects.filter(id=membership_id, is_active=True).first()
         if membership is None:
             return False
         membership.is_active = False
@@ -452,21 +449,21 @@ class DjangoOwnerTeamRepository(IOwnerTeamRepository):
     def list_active_memberships_for_user(self, *, user) -> QuerySet:
         return (
             OwnerTeamMembership.objects.filter(member=user, is_active=True)
-            .select_related("owner", "invited_by")
-            .order_by("owner_id")
+            .select_related("place", "owner", "invited_by")
+            .order_by("place_id")
         )
 
 
 class DjangoPlaceReviewRepository(IPlaceReviewRepository):
-    def list_for_owner_scope(self, *, owner_ids: list[int], include_unapproved: bool = True) -> QuerySet:
-        qs = PlaceReview.objects.filter(place__owner_id__in=owner_ids).select_related("place", "user")
+    def list_for_place_scope(self, *, place_ids: list[int], include_unapproved: bool = True) -> QuerySet:
+        qs = PlaceReview.objects.filter(place_id__in=place_ids).select_related("place", "user")
         if not include_unapproved:
             qs = public_review_queryset(qs)
         return qs.order_by("-created_at")
 
-    def get_for_owner_scope(self, *, review_id: int, owner_ids: list[int]) -> PlaceReview | None:
+    def get_for_place_scope(self, *, review_id: int, place_ids: list[int]) -> PlaceReview | None:
         return (
-            PlaceReview.objects.filter(id=review_id, place__owner_id__in=owner_ids)
+            PlaceReview.objects.filter(id=review_id, place_id__in=place_ids)
             .select_related("place", "user")
             .first()
         )

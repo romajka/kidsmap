@@ -8,6 +8,7 @@ from django.utils import timezone
 @dataclass
 class PlaceListFilters:
     category: str = ""
+    subcategory: str = ""
     query: str = ""
     district: str = ""
     metro: str = ""
@@ -31,6 +32,7 @@ class PlaceListFilters:
         from catalog.services.locations import normalize_to_key
         data = cls(
             category=(request.GET.get("category") or "").strip(),
+            subcategory=(request.GET.get("subcategory") or "").strip(),
             query=(request.GET.get("q") or "").strip(),
             district=normalize_to_key((request.GET.get("district") or "").strip()),
             metro=(request.GET.get("metro") or "").strip(),
@@ -57,11 +59,40 @@ class PlaceListFilters:
             data.age_from = data.age_to = ""
         if data.price_from == "0" and data.price_to == "500":
             data.price_from = data.price_to = ""
+        data._normalize_subcategory()
         if data.force_new_only:
             data.sort = "new"
             if data.days not in {"7", "14", "30"}:
                 data.days = "30"
         return data
+
+    def _normalize_subcategory(self) -> None:
+        """Подкатегория хранится как pk и осмысленна только вместе со своей
+        категорией. Мусор отбрасываем, а ссылку вида ?subcategory=12 без
+        категории достраиваем — иначе фильтр применился бы, но в сайдбаре
+        его было бы не видно и не снять."""
+        if not self.subcategory:
+            return
+        if not self.subcategory.isdigit():
+            self.subcategory = ""
+            return
+
+        from catalog.models import Subcategory
+
+        subcategory = (
+            Subcategory.active.select_related("category")
+            .filter(pk=self.subcategory)
+            .first()
+        )
+        if subcategory is None:
+            self.subcategory = ""
+            return
+
+        parent_code = subcategory.category.code
+        if self.category and self.category != parent_code:
+            self.subcategory = ""
+        elif not self.category:
+            self.category = parent_code
 
     @staticmethod
     def _events_section_enabled() -> bool:
@@ -109,6 +140,9 @@ class PlaceListFilters:
 
         if self.category:
             qs = qs.filter(category=self.category)
+
+        if self.subcategory:
+            qs = qs.filter(subcategory_id=self.subcategory)
 
         if self.query:
             qs = qs.filter(
@@ -206,6 +240,7 @@ class PlaceListFilters:
         price_from_int, price_to_int = self._normalized_price_bounds()
         return {
             "category": self.category,
+            "subcategory": self.subcategory,
             "q": self.query,
             "district": self.district,
             "metro": self.metro,

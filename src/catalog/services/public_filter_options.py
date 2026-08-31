@@ -75,6 +75,9 @@ def _build_subcategory_option(subcategory: Subcategory, *, language_code: str, c
         raw["count"] = count
     option = build_localized_option(raw, language_code)
     option["category"] = subcategory.category_id
+    # Шаблон сопоставляет подкатегорию с выбранной категорией по коду:
+    # в selected.category лежит именно код, а не pk.
+    option["category_code"] = subcategory.category.code
     option["code"] = subcategory.code or ""
     return option
 

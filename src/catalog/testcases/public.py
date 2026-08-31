@@ -72,6 +72,17 @@ class TestPublicPagesSmoke(TestCase):
         self.assertNotContains(response, "total_place_reviews_count")
         self.assertNotContains(response, "data-count-target")
 
+    def test_home_hero_statistics_do_not_add_plus_to_exact_counts(self):
+        template_source = (settings.BASE_DIR / "src/catalog/templates/pages/home.html").read_text()
+
+        self.assertIn("<strong>{{ map_places|length }}</strong>", template_source)
+        self.assertIn(
+            "<strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>",
+            template_source,
+        )
+        self.assertNotIn("{{ map_places|length }}+</strong>", template_source)
+        self.assertNotIn("{{ total_place_reviews_count }}+", template_source)
+
     def test_legacy_az_urls_redirect_to_default_language_without_prefix(self):
         response = self.client.get("/az/catalog/", {"category": "EDU"})
 
@@ -107,6 +118,7 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "+994 50 540 66 39")
+        self.assertNotContains(response, "contacts-hero-subtext", html=False)
 
     def test_contacts_page_shows_public_social_links(self):
         response = self.client.get("/contacts/")
@@ -125,11 +137,11 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "icon-facebook")
         self.assertContains(response, "icon-linkedin")
 
-    def test_business_and_legal_pages_open_in_languages(self):
+    def test_add_place_and_legal_pages_open_in_languages(self):
         checks = {
-            "/for-business/": "Uşaq məkanınızı KidsMap-də yerləşdirin",
-            "/ru/for-business/": "Разместите детское место на KidsMap",
-            "/en/for-business/": "List your kids place on KidsMap",
+            "/add-place/": "Uşaq məkanınızı KidsMap-də yerləşdirin",
+            "/ru/add-place/": "Разместите детское место на KidsMap",
+            "/en/add-place/": "List your kids place on KidsMap",
             "/privacy/": "Məxfilik siyasəti",
             "/ru/terms/": "Условия использования",
             "/en/review-rules/": "Review Rules",
@@ -140,23 +152,23 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertContains(response, text)
 
-    def test_business_page_explains_free_listing_moderation_and_actions_in_all_languages(self):
+    def test_add_place_page_explains_free_listing_moderation_and_actions_in_all_languages(self):
         checks = {
-            "/for-business/": (
+            "/add-place/": (
                 "Əsas yerləşdirmə pulsuzdur",
                 "Foto, ünvan, əlaqə məlumatları, iş qrafiki və qiyməti olan kart yaradın.",
                 "Məkan əlavə et",
                 "Mövcud kartı tap",
                 "Moderasiya nəyi yoxlayır",
             ),
-            "/ru/for-business/": (
+            "/ru/add-place/": (
                 "Базовое размещение бесплатно",
                 "Создайте карточку с фото, адресом, контактами, расписанием и ценой.",
                 "Добавить место",
                 "Найти существующую карточку",
                 "Что проверяет модерация",
             ),
-            "/en/for-business/": (
+            "/en/add-place/": (
                 "Basic listing is free",
                 "Create a listing with photos, address, contacts, schedule and price.",
                 "Add a place",
@@ -171,17 +183,18 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertEqual(response.status_code, 200)
                 for text in texts:
                     self.assertContains(response, text)
-                language_prefix = path.removesuffix("/for-business/")
+                language_prefix = path.removesuffix("/add-place/")
                 self.assertContains(
                     response,
-                    f'href="{language_prefix}/account/owner/places/create/?fresh=1"',
+                    f'href="{language_prefix}/account/places/create/?fresh=1"',
                     html=False,
                 )
                 self.assertContains(response, f'href="{language_prefix}/catalog/"', html=False)
                 self.assertNotContains(response, "готовую структуру", html=False)
                 self.assertNotContains(response, "Coming soon", html=False)
+                self.assertNotContains(response, "VIP", html=False)
 
-                create_url = f"{language_prefix}/account/owner/places/create/?fresh=1"
+                create_url = f"{language_prefix}/account/places/create/?fresh=1"
                 create_response = self.client.get(create_url)
                 login_url = urlparse(create_response.headers["Location"])
                 self.assertEqual(login_url.path, f"{language_prefix}/auth/login/")
@@ -195,7 +208,46 @@ class TestPublicPagesSmoke(TestCase):
                 )
                 self.assertEqual(register_response.context["next_url"], create_url)
 
+    def test_legacy_for_business_url_redirects_permanently_to_add_place(self):
+        checks = {
+            "/for-business/": "/add-place/",
+            "/ru/for-business/": "/ru/add-place/",
+            "/en/for-business/": "/en/add-place/",
+        }
+        for legacy_path, target in checks.items():
+            with self.subTest(path=legacy_path):
+                response = self.client.get(legacy_path)
+                self.assertEqual(response.status_code, 301)
+                self.assertEqual(response.headers["Location"], target)
+
+    def test_legacy_owner_account_urls_redirect_permanently_to_places_section(self):
+        checks = {
+            "/account/owner/": "/account/places/",
+            "/account/owner/places/": "/account/places/",
+            "/account/owner/places/create/": "/account/places/create/",
+            "/account/owner/places/12/edit/": "/account/places/12/edit/",
+            "/account/owner/events/create/": "/account/places/events/create/",
+            "/account/owner/team/": "/account/places/team/",
+            "/account/owner/reviews/": "/account/places/reviews/",
+            "/ru/account/owner/places/": "/ru/account/places/",
+        }
+        for legacy_path, target in checks.items():
+            with self.subTest(path=legacy_path):
+                response = self.client.get(legacy_path)
+                self.assertEqual(response.status_code, 301)
+                self.assertEqual(response.headers["Location"], target)
+
+    def test_legacy_owner_account_url_keeps_query_string(self):
+        response = self.client.get("/account/owner/places/", {"tab": "events"})
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.headers["Location"], "/account/places/?tab=events")
+
     def test_privacy_policy_is_full_document_in_all_languages(self):
+        current_email = "legal@kidsmap.az"
+        site_settings = SiteSettings.get_solo()
+        site_settings.footer_email = current_email
+        site_settings.save(update_fields=["footer_email"])
         checks = (
             (
                 "/privacy/",
@@ -241,15 +293,15 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertTemplateUsed(response, "pages/legal.html")
                 self.assertContains(response, title)
                 self.assertContains(response, effective_date)
-                self.assertContains(response, "kidsmap.az@gmail.com")
-                self.assertContains(response, 'href="mailto:kidsmap.az@gmail.com"', html=False)
+                self.assertContains(response, current_email)
+                self.assertContains(response, f'href="mailto:{current_email}"', html=False)
                 self.assertContains(response, toc_title)
                 self.assertContains(response, f'<link rel="canonical" href="{canonical}" />', html=False)
                 for code, url in alternates.items():
                     self.assertContains(response, f'<link rel="alternate" hreflang="{code}" href="{url}" />', html=False)
                 self.assertNotContains(response, "[kidsmap.az@gmail.com]")
                 self.assertNotContains(response, "[]")
-                self.assertNotContains(response, "privacy@kidsmap.az")
+                self.assertNotContains(response, "kidsmap.az@gmail.com")
                 self.assertNotContains(response, "VÖEN")
 
                 page_sections = response.context["sections"]
@@ -257,6 +309,10 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertEqual(len(anchor_ids), len(set(anchor_ids)))
 
     def test_terms_of_use_is_full_document_in_all_languages(self):
+        current_email = "legal@kidsmap.az"
+        site_settings = SiteSettings.get_solo()
+        site_settings.footer_email = current_email
+        site_settings.save(update_fields=["footer_email"])
         checks = (
             (
                 "/terms/",
@@ -302,15 +358,15 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertTemplateUsed(response, "pages/legal.html")
                 self.assertContains(response, title)
                 self.assertContains(response, effective_date)
-                self.assertContains(response, "kidsmap.az@gmail.com")
-                self.assertContains(response, 'href="mailto:kidsmap.az@gmail.com"', html=False)
+                self.assertContains(response, current_email)
+                self.assertContains(response, f'href="mailto:{current_email}"', html=False)
                 self.assertContains(response, toc_title)
                 self.assertContains(response, f'<link rel="canonical" href="{canonical}" />', html=False)
                 for code, url in alternates.items():
                     self.assertContains(response, f'<link rel="alternate" hreflang="{code}" href="{url}" />', html=False)
                 self.assertNotContains(response, "[kidsmap.az@gmail.com]")
                 self.assertNotContains(response, "[]")
-                self.assertNotContains(response, "privacy@kidsmap.az")
+                self.assertNotContains(response, "kidsmap.az@gmail.com")
 
                 page_sections = response.context["sections"]
                 anchor_ids = [item["id"] for item in page_sections]
@@ -337,7 +393,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "Что такое KidsMap")
         self.assertContains(response, "Как это работает")
         self.assertContains(response, "Что получает родитель")
-        self.assertContains(response, "Что получает владелец кружка")
+        self.assertContains(response, "Что даёт размещение кружка")
 
     def test_en_login_page_uses_english_auth_labels(self):
         response = self.client.get("/en/auth/login/")
@@ -678,7 +734,7 @@ class TestPublicPagesSmoke(TestCase):
             'class="panel home-map-panel"',
             'class="panel home-recommended"',
             'class="home-steps panel home-steps-lite',
-            'id="for-owners"',
+            'id="add-place"',
             'class="panel home-faq-panel"',
         )
         positions = [content.index(marker) for marker in ordered_markers]
@@ -715,6 +771,26 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, 'data-home-map-google-key="test-key"', html=False)
         self.assertNotContains(response, "maps.googleapis.com/maps/api/js?key=test-key")
         self.assertNotContains(response, "kidsMapInitHomeMap")
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    def test_home_map_uses_current_page_language_for_google_maps(self):
+        create_quality_place(
+            name="Home Map Place",
+            name_ru="Кружок для карты на главной",
+            category="EDU",
+            is_active=True,
+            lat=40.4093,
+            lng=49.8671,
+        )
+
+        ru_response = self.client.get("/ru/", follow=True)
+        en_response = self.client.get("/en/", follow=True)
+        source = (settings.BASE_DIR / "static/js/home_map.js").read_text()
+
+        self.assertContains(ru_response, 'data-home-map-language="ru"', html=False)
+        self.assertContains(en_response, 'data-home-map-language="en"', html=False)
+        self.assertIn("&language=", source)
+        self.assertIn("&region=AZ", source)
 
     def test_home_page_does_not_render_manual_static_version_query_params(self):
         response = self.client.get("/", follow=True)
@@ -812,7 +888,9 @@ class TestPublicPagesSmoke(TestCase):
             rating_count=12,
         )
 
-        response = self.client.get(place.get_absolute_url())
+        # The assertions below are on Russian output, so ask for the Russian URL
+        # rather than relying on whatever language a previous test left active.
+        response = self.client.get(f"/ru{place.get_absolute_url()}")
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '"@type": "BreadcrumbList"', html=False)
@@ -1797,7 +1875,7 @@ class TestCatalogEnhancements(TestCase):
 
     def test_authenticated_favorite_exposes_pressed_state_and_both_labels(self):
         user = User.objects.create_user(username="accessible_user", password="StrongPass123!!")
-        UserProfile.objects.create(user=user, role=UserProfile.ROLE_USER)
+        UserProfile.objects.create(user=user)
         place = create_quality_place(name="Favorite Accessible Place")
         PlaceLike.objects.create(place=place, user=user)
         self.client.force_login(user)
@@ -1812,7 +1890,7 @@ class TestCatalogEnhancements(TestCase):
 
     def test_place_detail_star_picker_has_localized_names_and_hidden_glyphs(self):
         user = User.objects.create_user(username="rating_access_user", password="StrongPass123!!")
-        UserProfile.objects.create(user=user, role=UserProfile.ROLE_USER)
+        UserProfile.objects.create(user=user)
         place = create_quality_place(name="Rating Accessible Place")
         self.client.force_login(user)
         expectations = {
@@ -2050,7 +2128,7 @@ class TestCatalogEnhancements(TestCase):
     def test_place_detail_does_not_show_owner_request_block(self):
         place = create_quality_place(
             name="Owner Claim Place",
-            name_ru="Кружок без блока владельца",
+            name_ru="Кружок без блока управления",
             address="Баку, Низами 10",
             schedule="Пн-Пт 10:00-18:00",
             phone1="+994501112233",
@@ -2393,7 +2471,7 @@ class TestReviewEnhancements(TestCase):
             email="review_user@example.com",
             password="StrongPass123!!",
         )
-        UserProfile.objects.create(user=self.user, role=UserProfile.ROLE_USER)
+        UserProfile.objects.create(user=self.user)
         self.place = Place.objects.create(
             name="Review Place",
             name_ru="Кружок для отзывов",
@@ -2834,6 +2912,85 @@ class PublicLanguageConsistencyTests(TestCase):
                 self.assertContains(response, expected)
                 for phrase in forbidden:
                     self.assertNotContains(response, phrase)
+
+    def test_place_review_block_uses_the_page_language_for_all_system_copy(self):
+        checks = (
+            ("/ru/", ("Отзывы", "Последние отзывы", "Пока нет опубликованных отзывов.", "Чтобы оставить отзыв"), ("Rəylər", "Son rəylər", "Latest reviews")),
+            ("/en/", ("Reviews", "Latest reviews", "No published reviews yet.", "To leave a review"), ("Rəylər", "Son rəylər", "Последние отзывы")),
+            ("/", ("Rəylər", "Son rəylər", "Hələ dərc olunmuş rəy yoxdur.", "Rəy yazmaq üçün"), ("Отзывы", "Latest reviews")),
+        )
+
+        for prefix, expected, forbidden in checks:
+            with self.subTest(prefix=prefix):
+                response = self.client.get(f"{prefix}place/{self.place.pk}-{self.place.slug}/")
+                content = response.content.decode()
+                section_start = content.index('id="reviews"')
+                section_end = content.index("</section>", section_start)
+                section = content[section_start:section_end]
+                for phrase in expected:
+                    self.assertIn(phrase, section)
+                for phrase in forbidden:
+                    self.assertNotIn(phrase, section)
+
+    def test_place_review_list_has_no_extra_framed_wrapper(self):
+        PlaceReview.objects.create(
+            place=self.place,
+            author_name="Review author",
+            rating=5,
+            text="Полезный отзыв о занятиях для проверки карточки.",
+        )
+
+        response = self.client.get(f"/ru/place/{self.place.pk}-{self.place.slug}/")
+
+        self.assertContains(response, 'class="reviews-list detail-reviews-list"', html=False)
+        self.assertNotContains(response, 'class="detail-reviews-panel"', html=False)
+
+    def test_home_how_it_works_block_uses_one_language_only(self):
+        checks = (
+            (
+                "/",
+                (
+                    "Necə işləyir",
+                    "Filtrləri seçin",
+                    "Variantları müqayisə edin",
+                    "Məkanla əlaqə saxlayın",
+                ),
+                ("Как это работает", "Choose filters"),
+            ),
+            (
+                "/ru/",
+                (
+                    "Как это работает",
+                    "Выберите фильтры",
+                    "Сравните варианты",
+                    "Свяжитесь с местом",
+                ),
+                ("Necə işləyir", "Choose filters"),
+            ),
+            (
+                "/en/",
+                (
+                    "How it works",
+                    "Choose filters",
+                    "Compare options",
+                    "Contact the place",
+                ),
+                ("Necə işləyir", "Выберите фильтры"),
+            ),
+        )
+
+        for path, expected, forbidden in checks:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                content = response.content.decode()
+                section_start = content.index('id="how-it-works"')
+                section_end = content.index("</section>", section_start)
+                section = content[section_start:section_end]
+                for phrase in expected:
+                    self.assertIn(phrase, section)
+                for phrase in forbidden:
+                    self.assertNotIn(phrase, section)
 
     def test_base_template_uses_request_language_even_if_active_locale_differs(self):
         with override("ru"):

@@ -1,38 +1,17 @@
 {% load admin_list jazzmin admin_dashboard_tags i18n %}
-<style>
-  .km-changelist-pagination .km-pagination-links {
-    display: flex !important;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .km-changelist-pagination .km-pagination-links > * {
-    flex: 0 0 auto;
-    margin: 0 !important;
-    list-style: none !important;
-  }
-
-  .km-changelist-pagination .km-pagination-links > .active.page-link {
-    background: var(--km-admin-accent, #009a4e);
-    border-color: var(--km-admin-accent, #009a4e);
-    color: #fff;
-  }
-
-  .km-changelist-pagination .km-pagination-links > .disabled.page-link {
-    opacity: .4;
-    cursor: not-allowed;
-  }
-</style>
+{% comment %}
+  Стили: static/admin/css/kidsmap_pagination.css — подключается глобально
+  через kidsmap_admin.css. Меняя классы здесь, правь и там.
+{% endcomment %}
 <div class="km-changelist-pagination">
   <div class="km-changelist-pagination__info">
     <span class="km-changelist-pagination__count">{% paginator_count_label cl %}</span>
     {% if pagination_required %}
-      <span class="km-changelist-pagination__page-status">{% translate "Страница" %} {{ cl.page_num }} {% translate "из" %} {{ cl.paginator.num_pages }}</span>
+      <span class="km-changelist-pagination__page-status">{% blocktranslate with current=cl.page_num total=cl.paginator.num_pages %}Страница {{ current }} из {{ total }}{% endblocktranslate %}</span>
     {% endif %}
     {% if show_all_url %}
       <a href="{{ show_all_url }}" class="km-changelist-pagination__show-all-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="16"></line>
           <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -41,9 +20,9 @@
       </a>
     {% endif %}
   </div>
-  
+
   {% if pagination_required %}
-    <nav class="km-changelist-pagination__nav km-pagination-links" aria-label="{% translate 'Пагинация' %}">
+    <nav class="km-changelist-pagination__nav" aria-label="{% translate 'Пагинация' %}">
         {% if cl.page_num > 1 %}
           <a class="page-link page-link--direction" href="{% paginator_page_url cl cl.page_num|add:'-1' %}" aria-label="{% translate 'Предыдущая страница' %}"><span aria-hidden="true">←</span><span class="page-link__label">{% translate "Назад" %}</span></a>
         {% else %}
@@ -52,11 +31,11 @@
         {% paginator_page_range cl as km_page_range %}
         {% for i in km_page_range %}
           {% if i == '…' %}
-            <span class="km-pagination-list__ellipsis" aria-hidden="true">…</span>
+            <span class="km-changelist-pagination__ellipsis" aria-hidden="true">…</span>
           {% elif i == cl.page_num %}
             <span class="active page-link" aria-current="page">{{ i }}</span>
           {% else %}
-            <a class="page-link" href="{% paginator_page_url cl i %}" aria-label="{% translate 'Страница' %} {{ i }}">{{ i }}</a>
+            <a class="page-link" href="{% paginator_page_url cl i %}" aria-label="{% blocktranslate with page=i %}Страница {{ page }}{% endblocktranslate %}">{{ i }}</a>
           {% endif %}
         {% endfor %}
         {% if cl.page_num < cl.paginator.num_pages %}

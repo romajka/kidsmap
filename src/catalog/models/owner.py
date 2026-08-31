@@ -15,7 +15,11 @@ from django.utils import timezone
 from django.dispatch import receiver
 
 from .place import Place
-from .user import UserProfile
+from catalog.services.place_access import (
+    PLACE_ROLE_CHOICES,
+    PLACE_ROLE_EDITOR,
+    permissions_for_role,
+)
 
 
 class PlaceOwnershipRequest(models.Model):
@@ -90,7 +94,7 @@ class PlaceOwnershipRequest(models.Model):
 
     @transaction.atomic
     def apply_moderation(self, *, moderator, new_status: str, note: str = ""):
-        # The request, place ownership and applicant profile must change as one
+        # The request and place ownership must change as one
         # operation. Lock the current row first: two admin workers may otherwise
         # approve/reject the same request from separate browser sessions.
         current = type(self).objects.select_for_update().get(pk=self.pk)
@@ -116,10 +120,6 @@ class PlaceOwnershipRequest(models.Model):
                 self.place.is_active = True
                 update_fields.append("is_active")
             self.place.save(update_fields=update_fields)
-            applicant_profile = UserProfile.get_or_create_for_user(self.applicant)
-            if applicant_profile.role != UserProfile.ROLE_OWNER:
-                applicant_profile.role = UserProfile.ROLE_OWNER
-                applicant_profile.save(update_fields=["role", "updated_at"])
 
         PlaceOwnershipRequestAudit.log_event(
             ownership_request=self,
@@ -208,6 +208,14 @@ class PlaceOwnershipRequestAudit(models.Model):
 
 
 class OwnerTeamMembership(models.Model):
+    place = models.ForeignKey(
+        Place,
+        on_delete=models.CASCADE,
+        related_name="team_memberships",
+        verbose_name=_("Карточка"),
+        null=True,
+        blank=True,
+    )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -223,8 +231,8 @@ class OwnerTeamMembership(models.Model):
     role = models.CharField(
         _("Роль в команде"),
         max_length=16,
-        choices=UserProfile.OWNER_ROLE_CHOICES,
-        default=UserProfile.OWNER_ROLE_EDITOR,
+        choices=PLACE_ROLE_CHOICES,
+        default=PLACE_ROLE_EDITOR,
         db_index=True,
     )
     is_active = models.BooleanField(_("Активна"), default=True, db_index=True)
@@ -243,7 +251,11 @@ class OwnerTeamMembership(models.Model):
         verbose_name = _("Участник команды владельца")
         verbose_name_plural = _("Участники команды владельца")
         constraints = [
-            models.UniqueConstraint(fields=("owner", "member"), name="unique_owner_team_member"),
+            models.UniqueConstraint(
+                fields=("place", "member"),
+                condition=models.Q(place__isnull=False),
+                name="unique_place_team_member",
+            ),
             models.CheckConstraint(condition=~Q(owner=models.F("member")), name="owner_team_member_not_owner"),
         ]
         ordering = ("owner_id", "member_id")
@@ -252,7 +264,7 @@ class OwnerTeamMembership(models.Model):
         return f"{self.owner} -> {self.member} ({self.get_role_display()})"
 
     def get_permissions(self) -> set[str]:
-        return UserProfile.default_permissions_for_owner_role(self.role)
+        return permissions_for_role(self.role)
 
 
 class OwnerTeamInvitation(models.Model):
@@ -267,6 +279,14 @@ class OwnerTeamInvitation(models.Model):
         (STATUS_CANCELED, _("Отменено")),
     ]
 
+    place = models.ForeignKey(
+        Place,
+        on_delete=models.CASCADE,
+        related_name="team_invitations",
+        verbose_name=_("Карточка"),
+        null=True,
+        blank=True,
+    )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -277,8 +297,8 @@ class OwnerTeamInvitation(models.Model):
     role = models.CharField(
         _("Роль в команде"),
         max_length=16,
-        choices=UserProfile.OWNER_ROLE_CHOICES,
-        default=UserProfile.OWNER_ROLE_EDITOR,
+        choices=PLACE_ROLE_CHOICES,
+        default=PLACE_ROLE_EDITOR,
         db_index=True,
     )
     status = models.CharField(
@@ -315,9 +335,9 @@ class OwnerTeamInvitation(models.Model):
         ordering = ("-created_at",)
         constraints = [
             models.UniqueConstraint(
-                fields=("owner", "email"),
-                condition=models.Q(status="PENDING"),
-                name="unique_pending_team_invitation_per_owner_email",
+                fields=("place", "email"),
+                condition=models.Q(status="PENDING", place__isnull=False),
+                name="unique_pending_team_invitation_per_place_email",
             ),
             models.CheckConstraint(condition=~Q(owner=models.F("invited_user")), name="owner_invited_user_not_owner"),
         ]
@@ -341,7 +361,7 @@ class PlaceChangeAudit(models.Model):
     SOURCE_ADMIN = "ADMIN"
     SOURCE_SYSTEM = "SYSTEM"
     SOURCE_CHOICES = [
-        (SOURCE_OWNER_PANEL, _("Кабинет владельца")),
+        (SOURCE_OWNER_PANEL, _("Управление местами")),
         (SOURCE_ADMIN, _("Админка")),
         (SOURCE_SYSTEM, _("Система")),
     ]

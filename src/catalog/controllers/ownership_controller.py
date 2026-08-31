@@ -7,13 +7,11 @@ from django.shortcuts import get_object_or_404
 from catalog.interfaces.repositories import (
     IPlaceOwnershipRequestRepository,
     IPlaceRepository,
-    IUserProfileRepository,
 )
-from catalog.models import PlaceOwnershipRequest, UserProfile
+from catalog.models import PlaceOwnershipRequest
 from catalog.repositories.django_repositories import (
     DjangoPlaceOwnershipRequestRepository,
     DjangoPlaceRepository,
-    DjangoUserProfileRepository,
 )
 from catalog.services.ownership_use_cases import OwnershipRequestResult, submit_place_ownership_request
 
@@ -22,46 +20,13 @@ from catalog.services.ownership_use_cases import OwnershipRequestResult, submit_
 class OwnershipController:
     place_repository: IPlaceRepository
     ownership_repository: IPlaceOwnershipRequestRepository
-    profile_repository: IUserProfileRepository
 
     @classmethod
     def build_default(cls) -> "OwnershipController":
         return cls(
             place_repository=DjangoPlaceRepository(),
             ownership_repository=DjangoPlaceOwnershipRequestRepository(),
-            profile_repository=DjangoUserProfileRepository(),
         )
-
-    def build_owner_cabinet_context(self, *, request) -> dict:
-        profile = self.profile_repository.get_or_create_for_user(request.user)
-        requests = list(self.ownership_repository.list_for_user(user=request.user))
-        permissions = profile.get_owner_permissions() if profile.role == UserProfile.ROLE_OWNER else set()
-        pending_requests = [item for item in requests if item.status == PlaceOwnershipRequest.STATUS_PENDING]
-        approved_requests = [item for item in requests if item.status == PlaceOwnershipRequest.STATUS_APPROVED]
-        rejected_requests = [item for item in requests if item.status == PlaceOwnershipRequest.STATUS_REJECTED]
-        claim_query = (request.GET.get("claim_q") or "").strip()
-        claimable_places = list(
-            self.place_repository.claim_candidates_for_user(
-                user=request.user,
-                query=claim_query,
-                limit=8,
-            )
-        )
-        return {
-            "owner_profile": profile,
-            "is_owner_role": profile.role == UserProfile.ROLE_OWNER,
-            "owner_role_label": profile.get_owner_role_display() if profile.role == UserProfile.ROLE_OWNER else "",
-            "owner_permissions": sorted(permissions),
-            "can_edit_places": UserProfile.OWNER_PERMISSION_EDIT_PLACES in permissions,
-            "managed_places": list(request.user.managed_places.order_by("-updated_at")),
-            "ownership_requests": requests,
-            "pending_requests": pending_requests,
-            "approved_requests": approved_requests,
-            "rejected_requests": rejected_requests,
-            "ownership_pending_count": sum(1 for item in requests if item.status == PlaceOwnershipRequest.STATUS_PENDING),
-            "claim_query": claim_query,
-            "claimable_places": claimable_places,
-        }
 
     def build_place_claim_context(self, *, request, place) -> dict:
         if not request.user.is_authenticated:
@@ -69,12 +34,9 @@ class OwnershipController:
                 "can_claim_place": False,
                 "can_claim_reason": "auth_required",
                 "latest_ownership_request": None,
-                "is_owner_role": False,
             }
 
-        profile = self.profile_repository.get_or_create_for_user(request.user)
         latest = self.ownership_repository.latest_for_user_and_place(user=request.user, place=place)
-        is_owner_role = profile.role == UserProfile.ROLE_OWNER
         has_pending = bool(latest and latest.status == PlaceOwnershipRequest.STATUS_PENDING)
         already_owner = place.owner_id == request.user.id
         can_claim = not has_pending and not already_owner
@@ -89,7 +51,6 @@ class OwnershipController:
             "can_claim_place": can_claim,
             "can_claim_reason": reason,
             "latest_ownership_request": latest,
-            "is_owner_role": is_owner_role,
         }
 
     def submit_claim_request(self, *, request, place_id: int) -> tuple[object, OwnershipRequestResult]:
@@ -98,6 +59,5 @@ class OwnershipController:
             request=request,
             place=place,
             ownership_repository=self.ownership_repository,
-            profile_repository=self.profile_repository,
         )
         return place, result

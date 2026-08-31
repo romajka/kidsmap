@@ -25,6 +25,16 @@ def _localized_free_label(lang: str | None = None) -> str:
 
 
 class Place(models.Model):
+    SCHEDULE_MODE_REGULAR = "regular"
+    SCHEDULE_MODE_BY_APPOINTMENT = "by_appointment"
+    SCHEDULE_MODE_VARIABLE = "variable"
+    SCHEDULE_MODE_EVENTS = "events"
+    SCHEDULE_MODE_CHOICES = [
+        (SCHEDULE_MODE_REGULAR, _("Регулярное по дням недели")),
+        (SCHEDULE_MODE_BY_APPOINTMENT, _("По предварительной записи")),
+        (SCHEDULE_MODE_VARIABLE, _("Расписание меняется")),
+        (SCHEDULE_MODE_EVENTS, _("По мероприятиям")),
+    ]
     LESSON_FORMAT_GROUP = "group"
     LESSON_FORMAT_INDIVIDUAL = "individual"
     LESSON_FORMAT_CHOICES = [
@@ -104,6 +114,15 @@ class Place(models.Model):
     instagram = models.CharField(_("Instagram"), max_length=255, blank=True)
     website = models.URLField(_("Сайт"), blank=True)
     schedule = models.TextField(_("Расписание"), blank=True)
+    schedule_mode = models.CharField(
+        _("Тип расписания"),
+        max_length=20,
+        choices=SCHEDULE_MODE_CHOICES,
+        default=SCHEDULE_MODE_REGULAR,
+    )
+    schedule_note_az = models.TextField(_("Примечание к расписанию (AZ)"), blank=True, default="")
+    schedule_note_ru = models.TextField(_("Примечание к расписанию (RU)"), blank=True, default="")
+    schedule_note_en = models.TextField(_("Примечание к расписанию (EN)"), blank=True, default="")
     lesson_duration_minutes = models.PositiveSmallIntegerField(_("Длительность урока (мин)"), null=True, blank=True)
     lesson_format = models.CharField(_("Формат занятий"), max_length=16, choices=LESSON_FORMAT_CHOICES, blank=True, default="")
     lessons_per_week = models.PositiveSmallIntegerField(_("Занятий в неделю"), null=True, blank=True)
@@ -429,23 +448,26 @@ class Place(models.Model):
 
     @property
     def has_schedule_content(self) -> bool:
-        return self.has_structured_schedule or bool((self.schedule or "").strip())
+        return (
+            self.schedule_mode != self.SCHEDULE_MODE_REGULAR
+            or self.has_structured_schedule
+            or bool((self.schedule or "").strip())
+        )
+
+    def schedule_note_i18n(self, lang=None) -> str:
+        return self._localized_text("schedule_note", lang)
 
     @property
     def schedule_rows(self) -> list[dict[str, object]]:
-        if not self.has_structured_schedule:
-            return []
-        from catalog.services.place_schedule import build_schedule_rows, serialize_place_schedule
+        from catalog.services.place_schedule import build_public_schedule_rows
 
-        return build_schedule_rows(serialize_place_schedule(self))
+        return build_public_schedule_rows(self, self._normalize_lang(None))
 
     @property
     def schedule_summary(self) -> str:
-        if self.has_structured_schedule:
-            from catalog.services.place_schedule import build_schedule_summary, serialize_place_schedule
+        from catalog.services.place_schedule import build_public_schedule_summary
 
-            return build_schedule_summary(serialize_place_schedule(self))
-        return (self.schedule or "").strip()
+        return build_public_schedule_summary(self, self._normalize_lang(None))
 
     @property
     def has_coordinates(self) -> bool:

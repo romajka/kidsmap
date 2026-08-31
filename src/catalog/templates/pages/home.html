@@ -46,7 +46,7 @@
             </svg>
           </div>
           <div class="km-stat-details">
-            <strong>{{ map_places|length }}+</strong>
+            <strong>{{ map_places|length }}</strong>
             <span>{% trans "мест и занятий на карте" %}</span>
           </div>
         </a>
@@ -63,7 +63,7 @@
             </svg>
           </div>
           <div class="km-stat-details">
-            <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}+{% else %}—{% endif %}</strong>
+            <strong>{% if total_place_reviews_count %}{{ total_place_reviews_count }}{% else %}—{% endif %}</strong>
             <span>
               {% if total_place_reviews_count %}
               {% if request.LANGUAGE_CODE == 'az' %}valideyn rəyi
@@ -320,7 +320,7 @@
   </div>
   <p class="home-map-note" id="home-map-note" hidden aria-live="polite"></p>
   <noscript>
-    <iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed"
+    <iframe class="home-map home-map-fallback" src="https://maps.google.com/maps?q=Azerbaijan&z=7&output=embed&hl={{ request.LANGUAGE_CODE|urlencode }}"
       loading="lazy" referrerpolicy="no-referrer-when-downgrade"
       title="{% trans 'Карта детских мест по Азербайджану' %}"></iframe>
   </noscript>
@@ -406,7 +406,7 @@
 </section>
 
 {% url 'owner_places_dashboard' as owner_dashboard_url %}
-<section class="panel home-owner-banner animate-on-scroll" id="for-owners" style="{% if site_settings and site_settings.home_trust_image %}--panel-bg-desktop:url('{{ site_settings.home_trust_image.url }}');{% endif %}{% if site_settings and site_settings.home_trust_mobile_image %}--panel-bg-mobile:url('{{ site_settings.home_trust_mobile_image.url }}');{% endif %}">
+<section class="panel home-owner-banner animate-on-scroll" id="add-place" style="{% if site_settings and site_settings.home_trust_image %}--panel-bg-desktop:url('{{ site_settings.home_trust_image.url }}');{% endif %}{% if site_settings and site_settings.home_trust_mobile_image %}--panel-bg-mobile:url('{{ site_settings.home_trust_mobile_image.url }}');{% endif %}">
   <div class="home-owner-banner-grid">
     <div class="home-owner-copy">
       <div class="home-owner-badge">
@@ -531,7 +531,7 @@
         </a>
         {% else %}
         <a class="home-owner-cta-new"
-          href="{% url 'account_login' %}?intent=owner_place&amp;next={{ owner_dashboard_url|urlencode }}">
+          href="{% url 'account_login' %}?intent=add_place&amp;next={{ owner_dashboard_url|urlencode }}">
           <span>
             {% if request.LANGUAGE_CODE == 'az' %}Məkanınızı əlavə edin
             {% elif request.LANGUAGE_CODE == 'en' %}Add your place
@@ -735,7 +735,7 @@
 
 <style>
   /* Scoped styles for the Place Owner Interactive Widget */
-  #for-owners {
+  #add-place {
     background: #ffffff;
     border: 1.5px solid rgba(16, 185, 129, 0.12);
     border-radius: 28px;
@@ -1347,7 +1347,7 @@
       max-width: none !important;
     }
 
-    #for-owners {
+    #add-place {
       padding: 28px 18px;
       border-radius: 20px;
     }
@@ -1407,7 +1407,7 @@
     </div>
     <div class="home-faq-actions" aria-label="{% trans 'Быстрые переходы' %}">
       <a class="home-faq-action" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
-      <a class="home-faq-action" href="#for-owners">{% trans "Размещение для владельцев" %}</a>
+      <a class="home-faq-action" href="#add-place">{% trans "Добавить место" %}</a>
     </div>
   </div>
 
@@ -1461,13 +1461,13 @@
       <summary class="home-faq-question">
         <span class="home-faq-q-left">
           <span class="home-faq-badge-icon" aria-hidden="true">＋</span>
-          <span class="home-faq-title">{% trans "Как владельцу кружка разместить карточку на сайте?" %}</span>
+          <span class="home-faq-title">{% trans "Как разместить карточку кружка на сайте?" %}</span>
         </span>
         <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
       </summary>
       <div class="home-faq-answer-wrapper">
         <div class="home-faq-answer-inner">
-          {% trans "Нажмите «Разместить кружок», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
+          {% trans "Нажмите «Добавить место», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
         </div>
       </div>
     </details>
@@ -2050,6 +2050,7 @@
 <script src="{% static 'js/google_maps_markers.js' %}"></script>
 <script src="{% static 'js/home_map.js' %}" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
+  data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"
   data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"
   data-home-map-leaflet-css="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   data-home-map-leaflet-css-integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="

@@ -73,9 +73,61 @@
     });
   }
 
+  function syncSearchClearButton(input) {
+    var button = input.parentElement.querySelector("[data-km-admin-search-clear]");
+    if (button) {
+      button.hidden = !input.value;
+    }
+  }
+
+  function initSearchClearButtons() {
+    document
+      .querySelectorAll('input[name="q"]:not([type="hidden"])')
+      .forEach(function (input) {
+        if (input.closest("[data-km-admin-search-clear-wrapper]")) {
+          return;
+        }
+
+        var wrapper = document.createElement("span");
+        wrapper.className = "km-admin-search-clear-wrapper";
+        wrapper.setAttribute("data-km-admin-search-clear-wrapper", "");
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "km-admin-search-clear";
+        button.setAttribute("data-km-admin-search-clear", "");
+        button.setAttribute("aria-label", "Очистить поиск");
+        wrapper.appendChild(button);
+
+        button.addEventListener("click", function () {
+          input.value = "";
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          input.focus();
+
+          var form = input.form || input.closest("form");
+          if (form) {
+            form.requestSubmit ? form.requestSubmit() : form.submit();
+          }
+        });
+
+        input.addEventListener("input", function () {
+          syncSearchClearButton(input);
+        });
+        syncSearchClearButton(input);
+      });
+  }
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initSidebarGroups);
   } else {
     initSidebarGroups();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSearchClearButtons);
+  } else {
+    initSearchClearButtons();
   }
 })();

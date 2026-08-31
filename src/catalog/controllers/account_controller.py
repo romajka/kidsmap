@@ -76,13 +76,30 @@ class AccountController:
             "top_interest_categories": top_categories,
         }
 
+    def build_user_reviews_context(self, *, user) -> dict:
+        from catalog.models import PlaceReview
+
+        user_reviews = list(
+            PlaceReview.objects.filter(user=user)
+            .select_related("place", "place__category")
+            .order_by("-created_at")[:10]
+        )
+        total_user_reviews_count = PlaceReview.objects.filter(user=user).count()
+        return {
+            "user_reviews": user_reviews,
+            "user_reviews_count": total_user_reviews_count,
+        }
+
     def build_dashboard_context(self, *, user) -> dict:
         profile = self.ensure_profile(user=user)
         favorites_context = self.build_favorites_context(user=user)
         history_context = self.build_history_context(user=user, limit=8)
+        reviews_context = self.build_user_reviews_context(user=user)
 
         return {
             "profile_model": profile,
             **favorites_context,
             **history_context,
+            **reviews_context,
         }
+

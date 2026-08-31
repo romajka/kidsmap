@@ -425,9 +425,55 @@
       input: input,
       daysContainer: daysContainer,
       preview: preview,
+      modeField: root.querySelector('[name="schedule_mode"]'),
+      regularPanel: root.querySelector("[data-km-schedule-regular]"),
+      modeSummary: root.querySelector("[data-km-schedule-mode-summary]"),
+      modeNotes: root.querySelector("[data-km-schedule-mode-notes]"),
+      eventsAction: root.querySelector("[data-km-schedule-events-action]"),
       config: config,
       days: normalizeDays(parsePayload(input.value))
     };
+  }
+
+  function scheduleModeMessage(mode) {
+    var lang = ((document.documentElement.lang || "ru").split("-")[0] || "ru").toLowerCase();
+    var copy = {
+      ru: {
+        by_appointment: "На сайте будет показано: «По предварительной записи».",
+        variable: "На сайте будет показано пояснение о переменном расписании.",
+        events: "На сайте появятся три ближайших опубликованных мероприятия, связанных с этим местом.",
+      },
+      az: {
+        by_appointment: "Saytda «Əvvəlcədən qeydiyyatla» göstəriləcək.",
+        variable: "Saytda dəyişən cədvəl haqqında izah göstəriləcək.",
+        events: "Saytda bu məkanla əlaqəli üç yaxın dərc olunmuş tədbir göstəriləcək.",
+      },
+      en: {
+        by_appointment: "The site will show “By appointment”.",
+        variable: "The site will show an explanation for the variable schedule.",
+        events: "The site will show the next three published events linked to this place.",
+      },
+    };
+    return (copy[lang] || copy.ru)[mode] || "";
+  }
+
+  function applyScheduleMode(state, notify) {
+    var mode = state.modeField ? state.modeField.value : "regular";
+    var isRegular = mode === "regular";
+    if (state.regularPanel) state.regularPanel.hidden = !isRegular;
+    if (state.modeSummary) {
+      state.modeSummary.hidden = isRegular || (mode === "events" && Boolean(state.eventsAction));
+      state.modeSummary.textContent = scheduleModeMessage(mode);
+    }
+    if (state.modeNotes) {
+      state.modeNotes.hidden = mode === "regular";
+    }
+    if (state.eventsAction) {
+      state.eventsAction.hidden = mode !== "events";
+    }
+    if (notify) {
+      state.input.dispatchEvent(new Event("km:schedule-change", { bubbles: true }));
+    }
   }
 
   function normalizeDays(days) {
@@ -677,6 +723,12 @@
   }
 
   function bindEvents(state) {
+    if (state.modeField) {
+      state.modeField.addEventListener("change", function () {
+        applyScheduleMode(state, true);
+      });
+    }
+
     state.input.addEventListener("km:schedule-import", function () {
       state.days = normalizeDays(parsePayload(state.input.value));
       syncAllRowsDom(state);
@@ -1065,6 +1117,7 @@
     if (!state) return;
     root.dataset.kmScheduleInitialized = "1";
     bindEvents(state);
+    applyScheduleMode(state, false);
     renderPreview(state);
   }
 

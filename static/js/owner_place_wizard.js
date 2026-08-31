@@ -362,6 +362,10 @@
   }
 
   function isStructuredScheduleFilled(field) {
+    const scheduleMode = getField("schedule_mode");
+    if (scheduleMode && scheduleMode.value && scheduleMode.value !== "regular") {
+      return true;
+    }
     let days = [];
     try {
       const parsed = JSON.parse(field.value || "[]");

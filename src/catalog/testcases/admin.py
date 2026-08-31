@@ -494,8 +494,8 @@ class TestAdminOwnershipModerationUX(TestCase):
             email="owner-adminux-second@example.com",
             password="StrongPass123!!",
         )
-        UserProfile.objects.create(user=self.owner_user, role=UserProfile.ROLE_OWNER)
-        UserProfile.objects.create(user=self.second_owner_user, role=UserProfile.ROLE_OWNER)
+        UserProfile.objects.create(user=self.owner_user)
+        UserProfile.objects.create(user=self.second_owner_user)
         self.place = Place.objects.create(
             name="Admin UX Place",
             name_ru="Кружок для модерации",
@@ -602,6 +602,10 @@ class TestAdminOwnershipModerationUX(TestCase):
             "instagram": self.place.instagram,
             "website": self.place.website,
             "schedule": self.place.schedule,
+            "schedule_mode": self.place.schedule_mode,
+            "schedule_note_az": self.place.schedule_note_az,
+            "schedule_note_ru": self.place.schedule_note_ru,
+            "schedule_note_en": self.place.schedule_note_en,
             "extra_conditions": self.place.extra_conditions,
             "additional_info": self.place.additional_info,
             "gallery-TOTAL_FORMS": "0",
@@ -2402,6 +2406,46 @@ class UserAdminUXTests(TestCase):
         self.assertIn("Test User", content)
         self.assertIn("+994501234567", content)
 
+    def test_site_gallery_changelist_renders_banner_overview(self):
+        """The banner overview links to /add-place/, the page the old /for-business/ became."""
+        response = self.client.get(reverse("admin:catalog_sitegalleryimage_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertIn(reverse("add_place"), content)
+        self.assertNotIn("Баннер страницы владельцам", content)
+
+    def test_registered_users_are_shown_as_one_category(self):
+        """The public account is a single kind: no owner/regular split in admin."""
+        url = reverse("admin:catalog_siteregistereduser_changelist")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertNotIn("profile__role", content)
+        self.assertNotIn("Владельцы кружков", content)
+        self.assertNotIn("Обычные пользователи", content)
+        self.assertNotIn("Статус на сайте", content)
+
+    def test_registered_user_change_form_has_no_owner_role_fields(self):
+        url = reverse("admin:catalog_siteregistereduser_change", args=[self.user.pk])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertNotIn('name="profile-0-role"', content)
+        self.assertNotIn('name="profile-0-owner_role"', content)
+        self.assertNotIn('name="profile-0-owner_permissions_override"', content)
+        self.assertNotIn("Роль владельца", content)
+
+    def test_admin_sidebar_has_no_owners_entry(self):
+        response = self.client.get(reverse("admin:index"))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertNotIn("profile__role__exact=owner", content)
+        self.assertIn('href="/admin/catalog/siteregistereduser/"', content)
+
     def test_staffaccessuser_changelist_is_compact_and_supports_role_filter(self):
         staff_user = User.objects.create_user(
             username="staff-list-user",
@@ -2456,7 +2500,9 @@ class UserAdminUXTests(TestCase):
         self.assertContains(response, "Модератор")
         self.assertContains(response, "Контент-менеджер")
         self.assertContains(response, "Суперадмин")
-        self.assertContains(response, 'name="profile-0-role"', html=False)
+        self.assertNotContains(response, 'name="profile-0-role"', html=False)
+        self.assertNotContains(response, 'name="profile-0-owner_role"', html=False)
+        self.assertNotContains(response, 'name="profile-0-owner_permissions_override"', html=False)
         self.assertNotContains(response, "Профили пользователей")
 
         response = self.client.post(
@@ -2475,9 +2521,6 @@ class UserAdminUXTests(TestCase):
                 "profile-INITIAL_FORMS": "0",
                 "profile-MIN_NUM_FORMS": "0",
                 "profile-MAX_NUM_FORMS": "1",
-                "profile-0-role": UserProfile.ROLE_USER,
-                "profile-0-owner_role": UserProfile.OWNER_ROLE_MANAGER,
-                "profile-0-owner_permissions_override": "[]",
                 "profile-0-phone": "",
                 "profile-0-gender": UserProfile.GENDER_UNSPECIFIED,
                 "_save": "Save",
@@ -2489,7 +2532,7 @@ class UserAdminUXTests(TestCase):
         self.assertTrue(created_user.is_staff)
         self.assertFalse(created_user.is_superuser)
         self.assertEqual(created_user.email, "new-staff@example.com")
-        self.assertEqual(created_user.profile.role, UserProfile.ROLE_USER)
+        self.assertIsNotNone(created_user.profile)
         self.assertTrue(created_user.has_perm("catalog.change_placereview"))
         self.assertFalse(created_user.has_perm("catalog.change_place"))
 
@@ -2508,9 +2551,6 @@ class UserAdminUXTests(TestCase):
                 "profile-INITIAL_FORMS": "0",
                 "profile-MIN_NUM_FORMS": "0",
                 "profile-MAX_NUM_FORMS": "1",
-                "profile-0-role": UserProfile.ROLE_USER,
-                "profile-0-owner_role": UserProfile.OWNER_ROLE_MANAGER,
-                "profile-0-owner_permissions_override": "[]",
                 "profile-0-phone": "",
                 "profile-0-gender": UserProfile.GENDER_UNSPECIFIED,
                 "_save": "Save",
@@ -2533,9 +2573,6 @@ class UserAdminUXTests(TestCase):
             "profile-INITIAL_FORMS": "0",
             "profile-MIN_NUM_FORMS": "0",
             "profile-MAX_NUM_FORMS": "1",
-            "profile-0-role": UserProfile.ROLE_USER,
-            "profile-0-owner_role": UserProfile.OWNER_ROLE_MANAGER,
-            "profile-0-owner_permissions_override": "[]",
             "profile-0-phone": "",
             "profile-0-gender": UserProfile.GENDER_UNSPECIFIED,
             "_save": "Save",
@@ -2801,6 +2838,105 @@ class TestAdminChangelistUI(TestCase):
         self.assertContains(response, "q=Bad")
         self.assertContains(response, "rating=1")
 
+    def test_pagination_classes_match_the_stylesheet(self):
+        """Стили пагинации молча отваливались, когда шаблон и CSS расходились
+        в именах классов. Проверяем, что каждый km-класс из шаблона реально
+        объявлен в kidsmap_pagination.css."""
+        import re
+
+        template = (settings.BASE_DIR / "templates" / "admin" / "pagination.html").read_text(encoding="utf-8")
+        stylesheet = (
+            settings.BASE_DIR / "static" / "admin" / "css" / "kidsmap_pagination.css"
+        ).read_text(encoding="utf-8")
+
+        template_classes = set()
+        for attr in re.findall(r'class="([^"{}]+)"', template):
+            template_classes.update(c for c in attr.split() if c.startswith("km-"))
+        styled = set(re.findall(r"\.(km-[a-z0-9_-]+)", stylesheet))
+
+        self.assertTrue(template_classes, "в шаблоне пагинации не нашлось km-классов")
+        self.assertEqual(
+            template_classes - styled,
+            set(),
+            "классы есть в шаблоне, но не описаны в kidsmap_pagination.css",
+        )
+
+    def test_pagination_stylesheet_is_loaded_on_every_changelist(self):
+        """Файл подключается глобально, а не только на страницах,
+        которые грузят kidsmap_changelist.css."""
+        global_css = (
+            settings.BASE_DIR / "static" / "admin" / "css" / "kidsmap_admin.css"
+        ).read_text(encoding="utf-8")
+        self.assertIn("kidsmap_pagination.css", global_css)
+        self.assertEqual(settings.JAZZMIN_SETTINGS["custom_css"], "admin/css/kidsmap_admin.css")
+
+    def test_pagination_page_status_is_translated_as_one_string(self):
+        """Строка собиралась из кусков и выдавала смесь языков
+        вроде «Səhifə 1 из 19»."""
+        place = create_quality_place(name="Pagination locale place")
+        self.assertTrue(place.pk)
+        url = reverse("admin:catalog_place_changelist")
+
+        with override("az"):
+            response = self.client.get(url, HTTP_ACCEPT_LANGUAGE="az")
+            self.assertEqual(response.status_code, 200)
+            body = response.content.decode()
+
+        self.assertNotIn("Səhifə 1 из", body)
+        self.assertNotIn("Страница 1 из", body)
+
+    def test_pagination_template_does_not_leak_its_own_comment(self):
+        """{# … #} работает только в одну строку — многострочный комментарий
+        Django печатает на страницу как обычный текст."""
+        response = self.client.get(reverse("admin:catalog_category_changelist"))
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertNotIn("kidsmap_pagination.css", body)
+        self.assertNotIn("{#", body)
+
+
+
+class TestAdminStylesheetIntegrity(TestCase):
+    """Сторожа против тихих поломок в CSS админки.
+
+    var(--несуществующий-токен) без запасного значения делает объявление
+    невалидным, и свойство просто не применяется — без ошибки в консоли.
+    Так по всей админке пропали фоны панелей и бейджей.
+    """
+
+    CSS_ROOT = Path(settings.BASE_DIR) / "static" / "admin" / "css"
+
+    def _stylesheets(self):
+        return sorted(self.CSS_ROOT.rglob("*.css"))
+
+    def test_every_used_token_is_declared(self):
+        import re
+
+        declared = set()
+        for path in self._stylesheets():
+            declared.update(re.findall(r"(--km-[a-z0-9-]+)\s*:", path.read_text(encoding="utf-8")))
+
+        broken = []
+        for path in self._stylesheets():
+            for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                # var(--token) без запятой = без fallback
+                for match in re.finditer(r"var\(\s*(--km-[a-z0-9-]+)\s*\)", line):
+                    if match.group(1) not in declared:
+                        broken.append(f"{path.relative_to(self.CSS_ROOT)}:{number} {match.group(1)}")
+
+        self.assertEqual(broken, [], "var() ссылается на необъявленные токены")
+
+    def test_badge_component_has_a_single_definition(self):
+        """Определений .km-admin-badge было два, побеждало сломанное."""
+        import re
+
+        owners = [
+            path.name
+            for path in self._stylesheets()
+            if re.search(r"^\.km-admin-badge\s*\{", path.read_text(encoding="utf-8"), re.M)
+        ]
+        self.assertEqual(owners, ["kidsmap_admin_components.css"])
+
 
 class TestPlaceRatingsAdmin(TestCase):
     @classmethod
@@ -2892,7 +3028,7 @@ class TestPlaceRatingsAdmin(TestCase):
 
         for response in (first, second, last):
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response, "km-pagination-links")
+            self.assertContains(response, "km-changelist-pagination__nav")
             self.assertContains(response, "category__code__exact=EDU")
             self.assertContains(response, "district=baku")
             self.assertContains(response, "is_verified__exact=1")

@@ -42,7 +42,6 @@ class TestAccountsAndReviewAccess(TestCase):
         user = User.objects.get(email="owner@example.com")
         self.assertFalse(user.is_active)
         self.assertNotIn("_auth_user_id", self.client.session)
-        self.assertEqual(user.profile.role, UserProfile.ROLE_USER)
         self.assertEqual(user.profile.phone, "+994 50 123 45 67")
         self.assertEqual(user.profile.gender, UserProfile.GENDER_UNSPECIFIED)
         self.assertEqual(user.first_name, "Рамин")
@@ -74,7 +73,7 @@ class TestAccountsAndReviewAccess(TestCase):
 
     def test_authenticated_user_can_submit_place_review(self):
         user = User.objects.create_user(username="member", email="member@example.com", password="StrongPass123!!")
-        UserProfile.objects.create(user=user, role=UserProfile.ROLE_USER)
+        UserProfile.objects.create(user=user)
         self.client.login(username="member", password="StrongPass123!!")
 
         response = self.client.post(
@@ -87,8 +86,27 @@ class TestAccountsAndReviewAccess(TestCase):
         review = PlaceReview.objects.first()
         self.assertEqual(review.user, user)
         self.assertEqual(review.author_name, "member")
+        self.assertEqual(review.status, PlaceReview.STATUS_PENDING)
+        self.assertFalse(review.is_approved)
+        self.assertContains(response, "Ваш отзыв отправлен на модерацию")
         self.assertContains(response, '"name": "review_submit"')
         self.assertContains(response, '"review_scope": "place"')
+
+    def test_authenticated_user_sees_site_review_moderation_confirmation(self):
+        user = User.objects.create_user(username="site_member", email="site_member@example.com", password="StrongPass123!!")
+        UserProfile.objects.create(user=user)
+        self.client.login(username="site_member", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("add_site_review"),
+            data={"rating": "5", "text": "Очень полезный каталог для родителей."},
+            follow=True,
+        )
+
+        review = SiteReview.objects.get(user=user)
+        self.assertEqual(review.status, SiteReview.STATUS_PENDING)
+        self.assertFalse(review.is_approved)
+        self.assertContains(response, "Ваш отзыв отправлен на модерацию")
 
     def test_registration_page_shows_required_fields_note_in_current_language(self):
         with override("az"):

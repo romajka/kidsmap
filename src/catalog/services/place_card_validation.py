@@ -129,8 +129,6 @@ def validate_place_card(place) -> PlaceCardValidationResult:
         displayed = _decimal(place.price_from)
         if displayed != minimum:
             error(PlaceCardIssue("PRICE_MISMATCH", "pricing_plans", f"Минимальная цена карточки — {displayed if displayed is not None else 'не указана'} AZN, а минимальный основной тариф — {minimum} AZN."))
-        if displayed == 0 and any(price > 0 for price in prices):
-            error(PlaceCardIssue("FREE_PRICE_MISMATCH", "pricing_plans", "Карточка отмечена как бесплатная, хотя есть платный основной тариф."))
 
     days = list(place.schedule_days.prefetch_related("intervals").all()) if place.pk else []
     for day in days:
