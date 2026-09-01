@@ -1,0 +1,1250 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block title_plain %}{{ page_title }}{% endblock %}
+{% block title_plain_twitter %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+  .faq-page-wrapper {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  @keyframes faqIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes faqRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes faqOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-24px, 18px) scale(1.12); } }
+  @keyframes faqOrb2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(20px, -16px) scale(1.08); } }
+  @keyframes faqPing { 0% { transform: scale(.5); opacity: .6; } 100% { transform: scale(2.4); opacity: 0; } }
+  @keyframes faqPop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+
+  /* Breadcrumbs */
+  .faq-crumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #7d8b88;
+  }
+  .faq-crumbs a {
+    color: #7d8b88;
+    text-decoration: none;
+    transition: color .2s ease;
+  }
+  .faq-crumbs a:hover { color: #136f38; }
+  .faq-crumbs .sep { font-size: 16px; color: #a4b3af; }
+  .faq-crumbs .cur { color: #12211f; font-weight: 700; }
+
+  /* Hero Section */
+  .faq-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    background: linear-gradient(140deg, #f2f9f5 0%, #e7f5ec 100%);
+    border: 1px solid #cbe7d8;
+    padding: clamp(28px, 4vw, 40px) clamp(20px, 4vw, 44px);
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 36px;
+    align-items: center;
+    animation: faqRise .6s cubic-bezier(.2,.8,.3,1) both;
+  }
+  .faq-hero-orb1 {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    right: -60px;
+    top: -150px;
+    background: radial-gradient(circle, rgba(19,111,56,.12), rgba(19,111,56,0) 70%);
+    animation: faqOrb 9s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .faq-hero-orb2 {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    left: 42%;
+    bottom: -170px;
+    background: radial-gradient(circle, rgba(19,111,56,.08), rgba(19,111,56,0) 70%);
+    animation: faqOrb2 11s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .faq-hero-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .faq-hero-badge {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #e2f4ea;
+    border: 1px solid #cbe7d8;
+    color: #0d4924;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+  .faq-hero-ping-dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #136f38;
+    display: inline-block;
+  }
+  .faq-hero-ping-dot span {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #136f38;
+    animation: faqPing 1.8s ease-out infinite;
+  }
+  .faq-hero h1 {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: #12211f;
+  }
+  .faq-hero-lead {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4c5b58;
+    max-width: 540px;
+  }
+  .faq-hero-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .faq-btn {
+    min-height: 50px;
+    padding: 0 20px;
+    border-radius: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .25s ease;
+  }
+  .faq-btn--primary {
+    background: #136f38;
+    color: #fff;
+    border: 1px solid #136f38;
+    box-shadow: 0 4px 14px rgba(19,111,56,.2);
+  }
+  .faq-btn--primary:hover {
+    background: #0d4924;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px -20px rgba(13,73,36,.7);
+  }
+  .faq-btn--outline {
+    border: 1px solid #cfdcd8;
+    background: #fff;
+    color: #12211f;
+  }
+  .faq-btn--outline:hover {
+    border-color: #136f38;
+    color: #136f38;
+    transform: translateY(-2px);
+  }
+
+  .faq-hero-stats {
+    position: relative;
+    display: grid;
+    gap: 10px;
+  }
+  .faq-stat-box {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.88);
+    border: 1px solid #cbe7d8;
+    backdrop-filter: blur(8px);
+  }
+  .faq-stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #e2f4ea;
+    display: grid;
+    place-items: center;
+    font-size: 21px;
+    color: #136f38;
+    flex-shrink: 0;
+  }
+  .faq-stat-val {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #12211f;
+    line-height: 1.2;
+  }
+  .faq-stat-lbl {
+    font-size: 13px;
+    color: #6b7b78;
+    font-weight: 600;
+  }
+
+  /* Track Switcher */
+  .faq-tracks {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .faq-track-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 16px;
+    border: 1.5px solid #dbe3e1;
+    background: #ffffff;
+    color: #12211f;
+    cursor: pointer;
+    text-align: left;
+    transition: all .25s ease;
+  }
+  .faq-track-btn:hover {
+    border-color: #136f38;
+    transform: translateY(-1px);
+  }
+  .faq-track-btn.is-active {
+    border-color: #136f38;
+    background: #f2f9f5;
+    box-shadow: 0 4px 14px rgba(19,111,56,.08);
+  }
+  .faq-track-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #e2f4ea;
+    color: #136f38;
+    display: grid;
+    place-items: center;
+    font-size: 19px;
+    transition: all .2s;
+  }
+  .faq-track-btn.is-active .faq-track-icon {
+    background: #136f38;
+    color: #ffffff;
+  }
+  .faq-track-title {
+    font-size: 15px;
+    font-weight: 800;
+    display: block;
+  }
+  .faq-track-sub {
+    font-size: 12.5px;
+    color: #6b7b78;
+    font-weight: 600;
+  }
+
+  /* Layout Grid */
+  .faq-main-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* Sidebar */
+  .faq-sidebar {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .faq-toc-box {
+    border: 1px solid #e6ebea;
+    border-radius: 20px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: #ffffff;
+  }
+  .faq-toc-head {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #9aa8a5;
+    padding: 0 8px 8px;
+  }
+  .faq-toc-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #3c4b48;
+    padding: 9px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all .22s ease;
+  }
+  .faq-toc-link:hover,
+  .faq-toc-link.is-active {
+    background: #eaf6ef;
+    color: #136f38;
+    padding-left: 16px;
+  }
+  .faq-toc-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #b5c2bf;
+    transition: background .2s;
+  }
+  .faq-toc-link:hover .faq-toc-dot,
+  .faq-toc-link.is-active .faq-toc-dot {
+    background: #136f38;
+  }
+  .faq-toc-count {
+    margin-left: auto;
+    font-size: 12px;
+    color: #8a9996;
+    background: #f1f4f4;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  .faq-contact-card {
+    border: 1px solid #e6ebea;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: linear-gradient(#fbfdfc, #f2f7f5);
+  }
+  .faq-contact-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #12211f;
+  }
+  .faq-contact-link {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #12211f;
+    text-decoration: none;
+    transition: color .2s;
+  }
+  .faq-contact-link:hover { color: #136f38; }
+  .faq-contact-link .material-symbols-rounded { font-size: 19px; color: #136f38; }
+  .faq-contact-hours { font-size: 13px; color: #7d8b88; font-weight: 600; }
+
+  /* Content Sections */
+  .faq-content {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+  .faq-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-margin-top: 24px;
+    animation: faqIn .5s cubic-bezier(.2,.8,.3,1) both;
+  }
+  .faq-section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .faq-section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #e2f4ea;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    color: #136f38;
+  }
+  .faq-section h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -.022em;
+    color: #12211f;
+  }
+  .faq-section-badge {
+    font-size: 13px;
+    font-weight: 800;
+    color: #7d8b88;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f1f4f4;
+  }
+
+  /* Accordion Item Card */
+  .faq-accordion-item {
+    border-radius: 18px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    overflow: hidden;
+    transition: all .28s cubic-bezier(.16,1,.3,1);
+  }
+  .faq-accordion-item:hover {
+    border-color: #136f38;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(19,111,56,0.08);
+  }
+  .faq-accordion-item[open] {
+    border-color: #136f38;
+    background: #ffffff;
+    box-shadow: 0 12px 28px -6px rgba(19,111,56,.12), 0 0 0 1px #136f38;
+  }
+
+  .faq-accordion-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+    list-style: none;
+    user-select: none;
+    outline: none;
+  }
+  .faq-accordion-btn::-webkit-details-marker { display: none; }
+
+  .faq-acc-icon {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 12px;
+    background: #e2f4ea;
+    color: #136f38;
+    border: 1px solid #cbe7d8;
+    display: inline-grid;
+    place-items: center;
+    font-size: 22px;
+    transition: all .25s ease;
+  }
+  .faq-accordion-item:hover .faq-acc-icon { transform: scale(1.08); }
+  .faq-accordion-item[open] .faq-acc-icon {
+    background: #136f38;
+    color: #ffffff;
+    border-color: transparent;
+  }
+
+  .faq-acc-title {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -.01em;
+    transition: color .2s ease;
+  }
+  .faq-accordion-item[open] .faq-acc-title { color: #136f38; }
+
+  .faq-acc-chevron {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    display: inline-grid;
+    place-items: center;
+    transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .faq-accordion-item:hover .faq-acc-chevron { background: #e2e8f0; color: #0f172a; }
+  .faq-accordion-item[open] .faq-acc-chevron {
+    background: #136f38;
+    color: #ffffff;
+    transform: rotate(180deg);
+  }
+
+  .faq-acc-body-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .32s cubic-bezier(.16,1,.3,1);
+  }
+  .faq-accordion-item[open] .faq-acc-body-wrap { grid-template-rows: 1fr; }
+
+  .faq-acc-body-inner {
+    overflow: hidden;
+    padding: 0 22px 20px 82px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    color: #4c5b58;
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .faq-acc-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    border-top: 1px dashed #dfe8e5;
+  }
+  .faq-acc-cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #136f38;
+    text-decoration: none;
+  }
+  .faq-acc-cta-link:hover { text-decoration: underline; }
+
+  /* Voting buttons */
+  .faq-vote-box {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #7d8b88;
+    font-weight: 600;
+  }
+  .faq-vote-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid #dbe3e1;
+    background: #ffffff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .faq-vote-btn:hover {
+    border-color: #136f38;
+    background: #eaf6ef;
+    transform: translateY(-2px);
+  }
+  .faq-vote-thanks {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #136f38;
+    animation: faqPop .35s ease both;
+  }
+
+  /* Review Rules Card */
+  .faq-rules-card {
+    border: 1px solid #e6ebea;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: linear-gradient(#fbfdfc, #f6faf8);
+    margin-top: 4px;
+  }
+  .faq-rules-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .faq-rule-box--allow {
+    border: 1px solid #cbe7d8;
+    border-radius: 16px;
+    padding: 18px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform .25s, box-shadow .25s;
+  }
+  .faq-rule-box--allow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px -30px rgba(19,111,56,.4);
+  }
+  .faq-rule-box--deny {
+    border: 1px solid #e9dcdf;
+    border-radius: 16px;
+    padding: 18px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform .25s, box-shadow .25s;
+  }
+  .faq-rule-box--deny:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px -30px rgba(80,30,35,.35);
+  }
+  .faq-rule-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 800;
+  }
+  .faq-rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: #4c5b58;
+  }
+
+  /* Question Form Section */
+  .faq-form-section {
+    border-radius: 24px;
+    border: 1px solid #cbe7d8;
+    background: linear-gradient(140deg, #f2f9f5, #e7f5ec);
+    padding: 32px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 32px;
+    align-items: start;
+    scroll-margin-top: 24px;
+  }
+  .faq-form-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .faq-form-sidebar h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -.022em;
+    color: #12211f;
+  }
+  .faq-topic-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .faq-topic-chip {
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid #dbe3e1;
+    background: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    color: #12211f;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .faq-topic-chip:hover { border-color: #136f38; }
+  .faq-topic-chip.is-active {
+    background: #136f38;
+    color: #ffffff;
+    border-color: #136f38;
+  }
+  .faq-input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .faq-input, .faq-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #dbe3e1;
+    background: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    color: #12211f;
+    outline: 0;
+    transition: border-color .25s, box-shadow .25s;
+    font-family: inherit;
+  }
+  .faq-input:focus, .faq-textarea:focus {
+    border-color: #136f38;
+    box-shadow: 0 0 0 4px rgba(19,111,56,.12);
+  }
+  .faq-textarea {
+    resize: vertical;
+    min-height: 110px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 960px) {
+    .faq-hero {
+      grid-template-columns: 1fr;
+    }
+    .faq-main-grid {
+      grid-template-columns: 1fr;
+    }
+    .faq-sidebar {
+      position: static;
+    }
+    .faq-form-section {
+      grid-template-columns: 1fr;
+    }
+    .faq-rules-grid {
+      grid-template-columns: 1fr;
+    }
+    .faq-acc-body-inner {
+      padding-left: 22px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="faq-page-wrapper">
+
+  <!-- Breadcrumbs -->
+  <nav class="faq-crumbs" aria-label="{% trans 'Навигация' %}">
+    <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+    <span class="sep material-symbols-rounded">chevron_right</span>
+    <span class="cur">{% trans "FAQ" %}</span>
+  </nav>
+
+  <!-- Hero Header -->
+  <section class="faq-hero">
+    <div class="faq-hero-orb1" aria-hidden="true"></div>
+    <div class="faq-hero-orb2" aria-hidden="true"></div>
+
+    <div class="faq-hero-content">
+      <span class="faq-hero-badge">
+        <span class="faq-hero-ping-dot"><span></span></span>
+        {% trans "FAQ" %}
+      </span>
+      <h1>
+        {% if request.LANGUAGE_CODE == 'az' %}KidsMap haqqında tez-tez verilən suallar
+        {% elif request.LANGUAGE_CODE == 'en' %}Frequently Asked Questions about KidsMap
+        {% else %}Частые вопросы о KidsMap{% endif %}
+      </h1>
+      <p class="faq-hero-lead">
+        {% if request.LANGUAGE_CODE == 'az' %}Valideynlərin və dərnək sahiblərinin ən çox verdiyi suallarla tanış olun. Cavab tapmadınızsa — aşağıdakı forma ilə bizə yazın.
+        {% elif request.LANGUAGE_CODE == 'en' %}Explore popular questions from parents and activity center owners. If you cannot find an answer, write to us using the form below.
+        {% else %}Изучите популярные вопросы родителей и владельцев секций. Если не нашли ответ — напишите нам через форму внизу.{% endif %}
+      </p>
+      <div class="faq-hero-actions">
+        <a href="#faq-form" class="faq-btn faq-btn--primary">
+          <span class="material-symbols-rounded">edit_note</span>
+          {% trans "Задать вопрос" %}
+        </a>
+        <a href="{% url 'place_list' %}" class="faq-btn faq-btn--outline">
+          <span class="material-symbols-rounded">explore</span>
+          {% trans "Открыть каталог" %}
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="faq-hero-stats">
+      <div class="faq-stat-box">
+        <span class="faq-stat-icon material-symbols-rounded">pin_drop</span>
+        <div>
+          <div class="faq-stat-val">{{ places_count|default:"69" }}+ {% trans "мест" %}</div>
+          <div class="faq-stat-lbl">{% trans "на карте и в каталоге" %}</div>
+        </div>
+      </div>
+      <div class="faq-stat-box">
+        <span class="faq-stat-icon material-symbols-rounded">category</span>
+        <div>
+          <div class="faq-stat-val">{{ categories_count|default:"10" }} {% trans "категорий" %}</div>
+          <div class="faq-stat-lbl">{% trans "от спорта до науки" %}</div>
+        </div>
+      </div>
+      <div class="faq-stat-box">
+        <span class="faq-stat-icon material-symbols-rounded">schedule</span>
+        <div>
+          <div class="faq-stat-val">1 {% trans "рабочий день" %}</div>
+          <div class="faq-stat-lbl">{% trans "ответ на все обращения" %}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Track Switcher -->
+  <div class="faq-tracks">
+    <button type="button" class="faq-track-btn is-active" data-track-btn="all">
+      <span class="faq-track-icon material-symbols-rounded">select_all</span>
+      <span>
+        <span class="faq-track-title">{% trans "Все темы" %}</span>
+        <span class="faq-track-sub">{% trans "9 вопросов" %}</span>
+      </span>
+    </button>
+    <button type="button" class="faq-track-btn" data-track-btn="parents">
+      <span class="faq-track-icon material-symbols-rounded">family_restroom</span>
+      <span>
+        <span class="faq-track-title">{% trans "Для родителей" %}</span>
+        <span class="faq-track-sub">{% trans "Поиск, фильтры и отзывы" %}</span>
+      </span>
+    </button>
+    <button type="button" class="faq-track-btn" data-track-btn="owners">
+      <span class="faq-track-icon material-symbols-rounded">storefront</span>
+      <span>
+        <span class="faq-track-title">{% trans "Для владельцев" %}</span>
+        <span class="faq-track-sub">{% trans "Размещение и условия" %}</span>
+      </span>
+    </button>
+  </div>
+
+  <!-- Main Grid: Sidebar + Accordions -->
+  <div class="faq-main-grid">
+
+    <!-- Left Sticky Sidebar -->
+    <aside class="faq-sidebar">
+      <div class="faq-toc-box">
+        <div class="faq-toc-head">{% trans "Разделы" %}</div>
+        <a href="#sec-search" class="faq-toc-link is-active">
+          <span class="faq-toc-dot"></span>
+          <span>{% trans "Поиск и фильтры" %}</span>
+          <span class="faq-toc-count">3</span>
+        </a>
+        <a href="#sec-reviews" class="faq-toc-link">
+          <span class="faq-toc-dot"></span>
+          <span>{% trans "Отзывы и правила" %}</span>
+          <span class="faq-toc-count">1</span>
+        </a>
+        <a href="#sec-owners" class="faq-toc-link">
+          <span class="faq-toc-dot"></span>
+          <span>{% trans "Владельцам мест" %}</span>
+          <span class="faq-toc-count">3</span>
+        </a>
+        <a href="#sec-account" class="faq-toc-link">
+          <span class="faq-toc-dot"></span>
+          <span>{% trans "Аккаунт" %}</span>
+          <span class="faq-toc-count">2</span>
+        </a>
+        <a href="#faq-form" class="faq-toc-link" style="margin-top: 6px; border-top: 1px solid #eef1f1; color: #136f38;">
+          <span class="material-symbols-rounded" style="font-size: 19px;">forum</span>
+          <span>{% trans "Задать вопрос" %}</span>
+        </a>
+      </div>
+
+      <div class="faq-contact-card">
+        <div class="faq-contact-title">{% trans "Прямая связь" %}</div>
+        <a href="tel:+994554979723" class="faq-contact-link">
+          <span class="material-symbols-rounded">call</span>
+          +994 55 497 97 23
+        </a>
+        <a href="mailto:info@kidsmap.az" class="faq-contact-link">
+          <span class="material-symbols-rounded">mail</span>
+          info@kidsmap.az
+        </a>
+        <div class="faq-contact-hours">{% trans "Пн–Пт 10:00–18:00" %}</div>
+      </div>
+    </aside>
+
+    <!-- Right Content Sections -->
+    <div class="faq-content">
+
+      <!-- 1. Search Section -->
+      <section id="sec-search" class="faq-section" data-group="parents">
+        <div class="faq-section-head">
+          <span class="faq-section-icon material-symbols-rounded">search</span>
+          <h2>{% trans "Поиск и фильтры" %}</h2>
+          <span class="faq-section-badge">3</span>
+        </div>
+
+        <details class="faq-accordion-item" open>
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">search</span>
+            <span class="faq-acc-title">{% trans "Как быстро найти кружок для ребёнка?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% trans "Начать поиск" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q1">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-accordion-item">
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">tune</span>
+            <span class="faq-acc-title">{% trans "Есть ли фильтры по возрасту, району и цене?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Да. Фильтры по возрастным группам (0+, 6+, 9+, 12+, 16+), регионам, станциям метро, категориям и ценовым диапазонам работают одновременно. Ссылкой на настроенный поиск можно делиться." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% trans "Попробовать фильтры" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q2">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-accordion-item">
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">travel_explore</span>
+            <span class="faq-acc-title">{% trans "Есть ли занятия за пределами Баку?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Да, наш каталог охватывает весь Азербайджан. Выберите нужный регион в фильтрах — доступные кружки и центры сразу отобразятся на интерактивной карте." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% trans "Смотреть регионы" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q3">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- 2. Reviews Section -->
+      <section id="sec-reviews" class="faq-section" data-group="parents">
+        <div class="faq-section-head">
+          <span class="faq-section-icon material-symbols-rounded">star</span>
+          <h2>{% trans "Отзывы и правила" %}</h2>
+          <span class="faq-section-badge">1</span>
+        </div>
+
+        <details class="faq-accordion-item">
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">reviews</span>
+            <span class="faq-acc-title">{% trans "Как оставить отзыв или поставить лайк?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Все отзывы проходят модерацию." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'site_reviews' %}" class="faq-acc-cta-link">{% trans "Все отзывы" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q4">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- Rules Box -->
+        <div class="faq-rules-card">
+          <div>
+            <strong style="font-size: 18px; color: #12211f;">{% trans "Правила публикации отзывов" %}</strong>
+            <p style="margin: 4px 0 0; font-size: 14px; color: #6b7b78;">{% trans "Модерация занимает до 1 рабочего дня. Нарушающие правила отзывы отклоняются." %}</p>
+          </div>
+          <div class="faq-rules-grid">
+            <div class="faq-rule-box--allow">
+              <div class="faq-rule-title" style="color: #0a4f45;">
+                <span class="material-symbols-rounded" style="font-size: 20px;">task_alt</span>
+                {% trans "Что приветствуется:" %}
+              </div>
+              <div class="faq-rule-item">
+                <span class="material-symbols-rounded" style="color: #136f38; font-size: 18px;">check</span>
+                {% trans "Личный опыт: впечатления от занятий, тренеров, чистоты, цен." %}
+              </div>
+              <div class="faq-rule-item">
+                <span class="material-symbols-rounded" style="color: #136f38; font-size: 18px;">check</span>
+                {% trans "Возраст ребёнка и как долго вы посещали секцию." %}
+              </div>
+              <div class="faq-rule-item">
+                <span class="material-symbols-rounded" style="color: #136f38; font-size: 18px;">check</span>
+                {% trans "Конструктивные плюсы и минусы." %}
+              </div>
+            </div>
+            <div class="faq-rule-box--deny">
+              <div class="faq-rule-title" style="color: #a83247;">
+                <span class="material-symbols-rounded" style="font-size: 20px;">block</span>
+                {% trans "Что запрещено:" %}
+              </div>
+              <div class="faq-rule-item">
+                <span class="material-symbols-rounded" style="color: #a83247; font-size: 18px;">close</span>
+                {% trans "Оскорбления, ненормативная лексика, личные данные третьих лиц." %}
+              </div>
+              <div class="faq-rule-item">
+                <span class="material-symbols-rounded" style="color: #a83247; font-size: 18px;">close</span>
+                {% trans "Реклама, ссылки на сторонние ресурсы, спам." %}
+              </div>
+              <div class="faq-rule-item">
+                <span class="material-symbols-rounded" style="color: #a83247; font-size: 18px;">close</span>
+                {% trans "Отзывы о местах, которые вы не посещали лично." %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Place Owners Section -->
+      <section id="sec-owners" class="faq-section" data-group="owners">
+        <div class="faq-section-head">
+          <span class="faq-section-icon material-symbols-rounded">storefront</span>
+          <h2>{% trans "Владельцам мест" %}</h2>
+          <span class="faq-section-badge">3</span>
+        </div>
+
+        <details class="faq-accordion-item">
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">add_business</span>
+            <span class="faq-acc-title">{% trans "Как разместить карточку кружка на сайте?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Нажмите «Добавить место», создайте аккаунт и отправьте карточку на проверку. После публикации кружок появится в каталоге и на карте, а вы сможете редактировать информацию из личного кабинета." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'add_place' %}" class="faq-acc-cta-link">{% trans "Добавить место" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q5">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-accordion-item">
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">payments</span>
+            <span class="faq-acc-title">{% trans "Размещение платное?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Базовое размещение карточки полностью бесплатное: фото, описание, контакты, возраст и расписание. Дополнительные рекламные опции обсуждаются напрямую — никаких скрытых комиссий." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'contacts' %}" class="faq-acc-cta-link">{% trans "Связаться с нами" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q6">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-accordion-item">
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">photo_library</span>
+            <span class="faq-acc-title">{% trans "Можно ли показывать фото и контакты кружка?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Да — галерею фотографий, телефон, WhatsApp, Instagram, сайт, расписание и цены. Чем полнее карточка, тем быстрее родители выберут ваше место." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'add_place' %}" class="faq-acc-cta-link">{% trans "Создать профиль места" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q7">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- 4. Account Section -->
+      <section id="sec-account" class="faq-section" data-group="parents">
+        <div class="faq-section-head">
+          <span class="faq-section-icon material-symbols-rounded">manage_accounts</span>
+          <h2>{% trans "Аккаунт и избранное" %}</h2>
+          <span class="faq-section-badge">2</span>
+        </div>
+
+        <details class="faq-accordion-item">
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">lock_open</span>
+            <span class="faq-acc-title">{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен для сохранения в избранное, отзывов и управления своими секциями." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% trans "Смотреть каталог" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q8">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-accordion-item">
+          <summary class="faq-accordion-btn">
+            <span class="faq-acc-icon material-symbols-rounded">favorite</span>
+            <span class="faq-acc-title">{% trans "Можно ли сохранить понравившиеся места?" %}</span>
+            <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+          </summary>
+          <div class="faq-acc-body-wrap">
+            <div class="faq-acc-body-inner">
+              <p>{% trans "Да. Войдите в аккаунт и нажимайте на иконку сердечка на любой карточке. Все сохранённые кружки будут собраны на странице «Избранное» для удобного сравнения." %}</p>
+              <div class="faq-acc-actions">
+                <a href="{% url 'account_favorites' %}" class="faq-acc-cta-link">{% trans "Моё избранное" %} ➔</a>
+                <div class="faq-vote-box" data-vote-id="q9">
+                  <span>{% trans "Было полезно?" %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
+                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- 5. Question Form Section -->
+      <section id="faq-form" class="faq-form-section">
+        <div class="faq-form-sidebar">
+          <span style="width: 46px; height: 46px; border-radius: 14px; background: #136f38; color: #fff; display: grid; place-items: center; font-size: 23px;" class="material-symbols-rounded">forum</span>
+          <h3>{% trans "Остались вопросы?" %}</h3>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4c5b58;">{% trans "Напишите нам — мы ответим в течение 1 рабочего дня по электронной почте." %}</p>
+          <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #0a4f45;">
+            <span class="material-symbols-rounded" style="font-size: 18px;">lock</span>
+            {% trans "Конфиденциальность гарантирована" %}
+          </span>
+        </div>
+
+        <form id="faq-interactive-form" onsubmit="handleFaqFormSubmit(event)">
+          <div class="faq-topic-chips">
+            <button type="button" class="faq-topic-chip is-active" data-topic="Axtarış">{% trans "Поиск" %}</button>
+            <button type="button" class="faq-topic-chip" data-topic="Rəylər">{% trans "Отзывы" %}</button>
+            <button type="button" class="faq-topic-chip" data-topic="Yerləşdirmə">{% trans "Размещение" %}</button>
+            <button type="button" class="faq-topic-chip" data-topic="Digər">{% trans "Другое" %}</button>
+          </div>
+
+          <div class="faq-input-grid">
+            <input type="text" id="faq-name" class="faq-input" placeholder="{% trans 'Ваше имя' %}" required>
+            <input type="email" id="faq-email" class="faq-input" placeholder="{% trans 'Электронная почта' %}" required>
+          </div>
+
+          <textarea id="faq-message" class="faq-textarea" placeholder="{% trans 'Опишите ваш вопрос подробно...' %}" required></textarea>
+
+          <button type="submit" class="faq-btn faq-btn--primary" style="width: 100%; justify-content: center;">
+            <span class="material-symbols-rounded">send</span>
+            {% trans "Отправить вопрос" %}
+          </button>
+        </form>
+
+        <div id="faq-form-success" style="display: none; padding: 24px; border-radius: 16px; background: #dcefe9; border: 1px solid #c3e2d8; color: #0a4f45; text-align: center; animation: faqPop .4s ease both;">
+          <span class="material-symbols-rounded" style="font-size: 36px; color: #136f38; display: block; margin-bottom: 8px;">check_circle</span>
+          <strong style="font-size: 18px; display: block; margin-bottom: 4px;">{% trans "Спасибо за вопрос!" %}</strong>
+          <p style="margin: 0; font-size: 14.5px; color: #4c5b58;">{% trans "Мы получили ваше обращение и ответим на указанную почту в ближайшее время." %}</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Track switcher
+  document.querySelectorAll('[data-track-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-track-btn]').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const track = btn.dataset.trackBtn;
+      document.querySelectorAll('.faq-section').forEach(sec => {
+        if (track === 'all' || sec.dataset.group === track) {
+          sec.style.display = 'flex';
+        } else {
+          sec.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Smooth single-open accordion in sections
+  document.querySelectorAll('.faq-accordion-item').forEach(item => {
+    item.addEventListener('toggle', () => {
+      if (item.open) {
+        const parentSec = item.closest('.faq-section');
+        if (parentSec) {
+          parentSec.querySelectorAll('.faq-accordion-item').forEach(other => {
+            if (other !== item && other.open) other.open = false;
+          });
+        }
+      }
+    });
+  });
+
+  // Helpful voting
+  document.querySelectorAll('.faq-vote-box').forEach(box => {
+    box.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', () => {
+        box.innerHTML = `<span class="faq-vote-thanks"><span class="material-symbols-rounded" style="font-size:18px;">favorite</span>{% trans "Спасибо за ваш отзыв!" %}</span>`;
+      });
+    });
+  });
+
+  // Topic chips
+  document.querySelectorAll('.faq-topic-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.faq-topic-chip').forEach(c => c.classList.remove('is-active'));
+      chip.classList.add('is-active');
+    });
+  });
+
+  // Question form submit handler
+  function handleFaqFormSubmit(e) {
+    e.preventDefault();
+    const form = document.getElementById('faq-interactive-form');
+    const success = document.getElementById('faq-form-success');
+    if (form && success) {
+      form.style.display = 'none';
+      success.style.display = 'block';
+    }
+  }
+</script>
+{% endblock %}

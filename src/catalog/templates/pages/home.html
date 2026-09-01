@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="home-hero panel animate-on-scroll is-visible" style="{% if site_settings and site_settings.home_hero_image %}--panel-bg-desktop:url('{{ site_settings.home_hero_image.url }}');{% else %}--panel-bg-desktop:url('{% static "img/home/hero_illustration.webp" %}');{% endif %}{% if site_settings and site_settings.home_hero_mobile_image %}--panel-bg-mobile:url('{{ site_settings.home_hero_mobile_image.url }}');{% endif %}">
+<section class="home-hero panel animate-on-scroll is-visible">
   <div class="home-hero-bg-glows" aria-hidden="true">
     <div class="glow-blob blob-1"></div>
     <div class="glow-blob blob-2"></div>
@@ -297,7 +297,7 @@
 </section>
 
 {% if map_places %}
-<section class="panel home-map-panel" id="home-map-section" style="{% if site_settings and site_settings.home_map_image %}--panel-bg-desktop:url('{{ site_settings.home_map_image.url }}');{% endif %}{% if site_settings and site_settings.home_map_mobile_image %}--panel-bg-mobile:url('{{ site_settings.home_map_mobile_image.url }}');{% endif %}">
+<section class="panel home-map-panel" id="home-map-section">
   <div class="home-map-head">
     <div class="home-map-copy">
       <h2>
@@ -329,7 +329,7 @@
 {% endif %}
 
 {% if popular_places %}
-<section class="panel home-recommended" style="{% if site_settings and site_settings.home_recommended_image %}--panel-bg-desktop:url('{{ site_settings.home_recommended_image.url }}');{% endif %}{% if site_settings and site_settings.home_recommended_mobile_image %}--panel-bg-mobile:url('{{ site_settings.home_recommended_mobile_image.url }}');{% endif %}">
+<section class="panel home-recommended">
   <h2>{% trans "Рекомендуемые места и занятия" %}</h2>
   <div class="grid">
     {% for place in popular_places %}
@@ -346,7 +346,7 @@
 {% endif %}
 
 <section class="home-steps panel home-steps-lite animate-on-scroll" id="how-it-works"
-  aria-label="{% trans 'Как это работает' %}" style="{% if site_settings and site_settings.home_steps_image %}--panel-bg-desktop:url('{{ site_settings.home_steps_image.url }}');{% endif %}{% if site_settings and site_settings.home_steps_mobile_image %}--panel-bg-mobile:url('{{ site_settings.home_steps_mobile_image.url }}');{% endif %}">
+  aria-label="{% trans 'Как это работает' %}">
   <div class="home-steps-lite-head">
     <div>
       <h2>{% trans "Как это работает" %}</h2>
@@ -406,7 +406,7 @@
 </section>
 
 {% url 'owner_places_dashboard' as owner_dashboard_url %}
-<section class="panel home-owner-banner animate-on-scroll" id="add-place" style="{% if site_settings and site_settings.home_trust_image %}--panel-bg-desktop:url('{{ site_settings.home_trust_image.url }}');{% endif %}{% if site_settings and site_settings.home_trust_mobile_image %}--panel-bg-mobile:url('{{ site_settings.home_trust_mobile_image.url }}');{% endif %}">
+<section class="panel home-owner-banner animate-on-scroll" id="add-place">
   <div class="home-owner-banner-grid">
     <div class="home-owner-copy">
       <div class="home-owner-badge">
@@ -1394,111 +1394,752 @@
       stroke-dashoffset: 0 !important;
     }
   }
+
+  /* ── Ultra-Modern Clean Animated FAQ Home Block ── */
+  @keyframes faqIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes faqRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes faqOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-24px, 18px) scale(1.12); } }
+  @keyframes faqOrb2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(20px, -16px) scale(1.08); } }
+  @keyframes faqPing { 0% { transform: scale(.5); opacity: .6; } 100% { transform: scale(2.4); opacity: 0; } }
+  @keyframes faqPop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+
+  .page-home .home-faq-panel {
+    position: relative;
+    background: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Home FAQ Hero Header */
+  .home-faq-header-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    background: linear-gradient(140deg, #f2f9f5 0%, #e7f5ec 100%);
+    border: 1px solid #cbe7d8;
+    padding: clamp(28px, 4vw, 38px) clamp(20px, 4vw, 44px);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: end;
+    animation: faqRise .6s cubic-bezier(.2,.8,.3,1) both;
+  }
+
+  .home-faq-orb1 {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    right: -60px;
+    top: -150px;
+    background: radial-gradient(circle, rgba(19,111,56,.12), rgba(19,111,56,0) 70%);
+    animation: faqOrb 9s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .home-faq-orb2 {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    left: 40%;
+    bottom: -170px;
+    background: radial-gradient(circle, rgba(19,111,56,.08), rgba(19,111,56,0) 70%);
+    animation: faqOrb2 11s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .home-faq-copy {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .home-faq-badge {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #e2f4ea;
+    border: 1px solid #cbe7d8;
+    color: #0d4924;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .home-faq-ping-dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #136f38;
+    display: inline-block;
+  }
+
+  .home-faq-ping-dot span {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #136f38;
+    animation: faqPing 1.8s ease-out infinite;
+  }
+
+  .home-faq-copy h2 {
+    margin: 0;
+    color: #12211f;
+    font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.03em;
+  }
+
+  .home-faq-lead {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4c5b58;
+    max-width: 560px;
+  }
+
+  .home-faq-header-actions {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .home-faq-btn {
+    min-height: 50px;
+    padding: 0 20px;
+    border-radius: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .25s ease;
+  }
+
+  .home-faq-btn--primary {
+    background: #136f38;
+    color: #fff;
+    border: 1px solid #136f38;
+    box-shadow: 0 4px 14px rgba(19,111,56,.2);
+  }
+
+  .home-faq-btn--primary:hover {
+    background: #0d4924;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px -20px rgba(13,73,36,.7);
+  }
+
+  .home-faq-btn--outline {
+    border: 1px solid #cfdcd8;
+    background: #fff;
+    color: #12211f;
+  }
+
+  .home-faq-btn--outline:hover {
+    border-color: #136f38;
+    color: #136f38;
+    transform: translateY(-2px);
+  }
+
+  /* List & Cards */
+  .home-faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .home-faq-item {
+    border-radius: 18px;
+    border: 1.5px solid #dfeae6;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-faq-item:hover {
+    border-color: #136f38;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(19, 111, 56, 0.08);
+  }
+
+  .home-faq-item[open] {
+    border-color: #136f38;
+    background: #ffffff;
+    box-shadow: 0 12px 28px -6px rgba(19, 111, 56, 0.12), 0 0 0 1px #136f38;
+  }
+
+  .home-faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    text-align: left;
+    list-style: none;
+    user-select: none;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .home-faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .home-faq-badge-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 12px;
+    background: #e2f4ea;
+    color: #136f38;
+    border: 1px solid #cbe7d8;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .home-faq-badge-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .home-faq-item:hover .home-faq-badge-icon {
+    transform: scale(1.08);
+  }
+
+  .home-faq-item[open] .home-faq-badge-icon {
+    background: #136f38;
+    color: #ffffff;
+    border-color: transparent;
+  }
+
+  .home-faq-title {
+    flex: 1;
+    color: #1e293b;
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    transition: color 0.2s ease;
+  }
+
+  .home-faq-item[open] .home-faq-title {
+    color: #136f38;
+  }
+
+  .home-faq-toggle-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-faq-item:hover .home-faq-toggle-btn {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: scale(1.05);
+  }
+
+  .home-faq-toggle-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .home-faq-item[open] .home-faq-toggle-btn {
+    background: #136f38;
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(19, 111, 56, 0.3);
+  }
+
+  .home-faq-item[open] .home-faq-toggle-chevron {
+    transform: rotate(180deg);
+  }
+
+  .home-faq-answer-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-faq-item[open] .home-faq-answer-wrapper {
+    grid-template-rows: 1fr;
+  }
+
+  .home-faq-answer-inner {
+    overflow: hidden;
+    padding: 0 22px 20px 82px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    color: #4c5b58;
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+
+  .home-faq-answer-inner p {
+    margin: 0;
+  }
+
+  .home-faq-card-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    border-top: 1px dashed #dfe8e5;
+  }
+
+  .home-faq-cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #136f38;
+    text-decoration: none;
+  }
+
+  .home-faq-cta-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Helpful voting */
+  .home-faq-vote-box {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: #7d8b88;
+    font-weight: 600;
+  }
+
+  .home-faq-vote-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid #dbe3e1;
+    background: #ffffff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .home-faq-vote-btn:hover {
+    border-color: #136f38;
+    background: #eaf6ef;
+    transform: translateY(-2px);
+  }
+
+  .home-faq-vote-thanks {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #136f38;
+    animation: faqPop .35s ease both;
+  }
+
+  /* Bottom CTA Bar */
+  .home-faq-bottom-bar {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 18px 24px;
+    border-radius: 20px;
+    border: 1px solid #cbe7d8;
+    background: linear-gradient(140deg, #fbfdfc, #f2f9f5);
+  }
+
+  .home-faq-bottom-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #e2f4ea;
+    color: #136f38;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+
+  .home-faq-bottom-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .home-faq-bottom-text {
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #12211f;
+  }
+
+  .home-faq-bottom-text span {
+    display: block;
+    font-weight: 600;
+    color: #6b7b78;
+    font-size: 14px;
+  }
+
+  .home-faq-bottom-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* Popular queries links */
+  .home-faq-popular {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+  }
+
+  .home-faq-popular-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #136f38;
+  }
+
+  .home-faq-popular h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 0.9rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .home-faq-popular-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .home-faq-pill-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.3;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-faq-pill-link:hover {
+    background: #136f38;
+    border-color: #136f38;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(19, 111, 56, 0.25);
+  }
+
+  @media (max-width: 900px) {
+    .home-faq-header-card {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .home-faq-bottom-actions {
+      margin-left: 0;
+      width: 100%;
+    }
+    .home-faq-answer-inner {
+      padding-left: 22px;
+    }
+  }
 </style>
 
-<section class="panel home-faq-panel" id="faq" style="{% if site_settings and site_settings.home_cta_image %}--panel-bg-desktop:url('{{ site_settings.home_cta_image.url }}');{% endif %}{% if site_settings and site_settings.home_cta_mobile_image %}--panel-bg-mobile:url('{{ site_settings.home_cta_mobile_image.url }}');{% endif %}">
-  <div class="home-faq-head">
+<section class="panel home-faq-panel" id="faq">
+  <!-- Top Hero Header -->
+  <div class="home-faq-header-card">
+    <div class="home-faq-orb1" aria-hidden="true"></div>
+    <div class="home-faq-orb2" aria-hidden="true"></div>
+
     <div class="home-faq-copy">
-      <p class="home-owner-eyebrow">{% trans "FAQ" %}</p>
+      <span class="home-faq-badge">
+        <span class="home-faq-ping-dot"><span></span></span>
+        {% trans "FAQ" %}
+      </span>
       <h2>{% trans "Частые вопросы о KidsMap" %}</h2>
       <p class="home-faq-lead">
-        {% trans "Собрали короткие ответы, чтобы было проще понять, как работает поиск кружков, отзывы и размещение карточек." %}
+        {% if request.LANGUAGE_CODE == 'az' %}Ən çox verilən 4 sual. Qalanları tam FAQ səhifəsindədir.
+        {% elif request.LANGUAGE_CODE == 'en' %}Top 4 frequently asked questions. See all answers on the full FAQ page.
+        {% else %}4 самых частых вопроса. Полный список с поиском доступен на странице FAQ.{% endif %}
       </p>
     </div>
-    <div class="home-faq-actions" aria-label="{% trans 'Быстрые переходы' %}">
-      <a class="home-faq-action" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
-      <a class="home-faq-action" href="#add-place">{% trans "Добавить место" %}</a>
+
+    <div class="home-faq-header-actions">
+      <a class="home-faq-btn home-faq-btn--primary" href="{% url 'place_list' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+        <span>{% trans "Открыть каталог" %}</span>
+      </a>
+      <a class="home-faq-btn home-faq-btn--outline" href="{% url 'add_place' %}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        <span>{% trans "Добавить место" %}</span>
+      </a>
     </div>
   </div>
 
+  <!-- 4 Main Accordion Questions -->
   <div class="home-faq-list">
+    <!-- Question 1 -->
     <details class="home-faq-item" open>
       <summary class="home-faq-question">
-        <span class="home-faq-q-left">
-          <span class="home-faq-badge-icon" aria-hidden="true">⌕</span>
-          <span class="home-faq-title">{% trans "Как быстро найти кружок для ребёнка?" %}</span>
+        <span class="home-faq-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
         </span>
-        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
+        <span class="home-faq-title">{% trans "Как быстро найти кружок для ребёнка?" %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true">
+          <span class="home-faq-toggle-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </span>
       </summary>
       <div class="home-faq-answer-wrapper">
         <div class="home-faq-answer-inner">
-          {% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}
+          <p>{% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'place_list' %}">
+              <span>{% trans "Начать поиск" %}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <div class="home-faq-vote-box" data-vote-id="home-q1">
+              <span>{% trans "Было полезно?" %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+            </div>
+          </div>
         </div>
       </div>
     </details>
 
+    <!-- Question 2 -->
     <details class="home-faq-item">
       <summary class="home-faq-question">
-        <span class="home-faq-q-left">
-          <span class="home-faq-badge-icon" aria-hidden="true">♙</span>
-          <span class="home-faq-title">{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
+        <span class="home-faq-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"></line>
+            <line x1="4" y1="10" x2="4" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12" y2="3"></line>
+            <line x1="20" y1="21" x2="20" y2="16"></line>
+            <line x1="20" y1="12" x2="20" y2="3"></line>
+            <line x1="1" y1="14" x2="7" y2="14"></line>
+            <line x1="9" y1="8" x2="15" y2="8"></line>
+            <line x1="17" y1="16" x2="23" y2="16"></line>
+          </svg>
         </span>
-        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
+        <span class="home-faq-title">{% trans "Есть ли фильтры по возрасту, району и цене?" %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true">
+          <span class="home-faq-toggle-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </span>
       </summary>
       <div class="home-faq-answer-wrapper">
         <div class="home-faq-answer-inner">
-          {% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}
+          <p>{% trans "Да. Фильтры по возрастным группам (0+, 6+, 9+, 12+, 16+), регионам, станциям метро, категориям и ценовым диапазонам работают одновременно. Ссылкой на настроенный поиск можно делиться." %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'place_list' %}">
+              <span>{% trans "Попробовать фильтры" %}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <div class="home-faq-vote-box" data-vote-id="home-q2">
+              <span>{% trans "Было полезно?" %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+            </div>
+          </div>
         </div>
       </div>
     </details>
 
+    <!-- Question 3 -->
     <details class="home-faq-item">
       <summary class="home-faq-question">
-        <span class="home-faq-q-left">
-          <span class="home-faq-badge-icon" aria-hidden="true">★</span>
-          <span class="home-faq-title">{% trans "Как оставить отзыв или поставить лайк?" %}</span>
+        <span class="home-faq-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
         </span>
-        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
+        <span class="home-faq-title">{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true">
+          <span class="home-faq-toggle-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </span>
       </summary>
       <div class="home-faq-answer-wrapper">
         <div class="home-faq-answer-inner">
-          {% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}
+          <p>{% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен, если вы хотите ставить лайки, оставлять отзывы или управлять своими кружками." %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'place_list' %}">
+              <span>{% trans "Открыть весь каталог" %}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <div class="home-faq-vote-box" data-vote-id="home-q3">
+              <span>{% trans "Было полезно?" %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+            </div>
+          </div>
         </div>
       </div>
     </details>
 
+    <!-- Question 4 -->
     <details class="home-faq-item">
       <summary class="home-faq-question">
-        <span class="home-faq-q-left">
-          <span class="home-faq-badge-icon" aria-hidden="true">＋</span>
-          <span class="home-faq-title">{% trans "Как разместить карточку кружка на сайте?" %}</span>
+        <span class="home-faq-badge-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
         </span>
-        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
+        <span class="home-faq-title">{% trans "Как оставить отзыв или поставить лайк?" %}</span>
+        <span class="home-faq-toggle-btn" aria-hidden="true">
+          <span class="home-faq-toggle-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </span>
       </summary>
       <div class="home-faq-answer-wrapper">
         <div class="home-faq-answer-inner">
-          {% trans "Нажмите «Добавить место», создайте аккаунт и отправьте карточку на проверку. После публикации кружок будет виден в каталоге и на карте, а вы сможете обновлять данные из кабинета." %}
-        </div>
-      </div>
-    </details>
-
-    <details class="home-faq-item">
-      <summary class="home-faq-question">
-        <span class="home-faq-q-left">
-          <span class="home-faq-badge-icon" aria-hidden="true">◫</span>
-          <span class="home-faq-title">{% trans "Можно ли показывать фото и контакты кружка?" %}</span>
-        </span>
-        <span class="home-faq-toggle-btn" aria-hidden="true"><span class="home-faq-toggle-chevron">⌄</span></span>
-      </summary>
-      <div class="home-faq-answer-wrapper">
-        <div class="home-faq-answer-inner">
-          {% trans "Да, в карточке можно указать фото, описание, телефон, сайт, Instagram, возраст, расписание, цены и дополнительные условия, чтобы родителям было проще принять решение." %}
+          <p>{% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Это помогает другим родителям быстрее выбирать." %}</p>
+          <div class="home-faq-card-footer">
+            <a class="home-faq-cta-link" href="{% url 'site_reviews' %}">
+              <span>{% trans "Страница отзывов" %}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            </a>
+            <div class="home-faq-vote-box" data-vote-id="home-q4">
+              <span>{% trans "Было полезно?" %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+            </div>
+          </div>
         </div>
       </div>
     </details>
   </div>
 
+  <!-- Bottom CTA Bar (Link to full FAQ Page) -->
+  <div class="home-faq-bottom-bar">
+    <div class="home-faq-bottom-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    </div>
+    <div class="home-faq-bottom-text">
+      {% if request.LANGUAGE_CODE == 'az' %}Daha 5 sual — axtarış, rəylər və yerləşdirmə üzrə
+      <span>Tam FAQ səhifəsində cavabları axtarışla tapın.</span>
+      {% elif request.LANGUAGE_CODE == 'en' %}5 more questions — search, reviews, and listings
+      <span>Find all detailed answers on our full FAQ page.</span>
+      {% else %}Ещё 5 вопросов — поиск, отзывы и размещение секций
+      <span>Найдите все ответы и задайте свой вопрос на полной странице FAQ.</span>{% endif %}
+    </div>
+    <div class="home-faq-bottom-actions">
+      <a class="home-faq-btn home-faq-btn--primary" href="{% url 'faq_page' %}">
+        <span>{% if request.LANGUAGE_CODE == 'az' %}Bütün suallar{% elif request.LANGUAGE_CODE == 'en' %}All questions{% else %}Все вопросы{% endif %}</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+      </a>
+      <a class="home-faq-btn home-faq-btn--outline" href="{% url 'faq_page' %}#faq-form">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        <span>{% if request.LANGUAGE_CODE == 'az' %}Sual yaz{% elif request.LANGUAGE_CODE == 'en' %}Ask question{% else %}Задать вопрос{% endif %}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom: Popular Queries Cloud -->
   <div class="home-faq-popular" aria-labelledby="home-popular-queries-title">
-    <h3 id="home-popular-queries-title">{% trans "Популярные запросы" %}</h3>
+    <div class="home-faq-popular-title-wrap">
+      <svg class="home-faq-popular-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <h3 id="home-popular-queries-title">{% trans "Популярные запросы" %}</h3>
+    </div>
     <div class="home-faq-popular-links">
-      <a href="{% url 'place_list' %}">{% trans "Кружки в Азербайджане для детей" %}</a>
-      {% if 'EDU' in active_category_codes %}<a href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Азербайджане" %}</a>{% endif %}
-      {% if 'SPRT' in active_category_codes %}<a href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Азербайджане" %}</a>{% endif %}
-      {% if 'ART' in active_category_codes %}<a href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Азербайджане" %}</a>{% endif %}
-      {% if 'TECH' in active_category_codes %}<a href="{% url 'place_list' %}?category=TECH&amp;q=program">{% trans "Программирование для детей в Азербайджане" %}</a>{% endif %}
+      <a class="home-faq-pill-link" href="{% url 'place_list' %}">{% trans "Кружки в Азербайджане для детей" %}</a>
+      {% if 'EDU' in active_category_codes %}<a class="home-faq-pill-link" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Азербайджане" %}</a>{% endif %}
+      {% if 'SPRT' in active_category_codes %}<a class="home-faq-pill-link" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Азербайджане" %}</a>{% endif %}
+      {% if 'ART' in active_category_codes %}<a class="home-faq-pill-link" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Азербайджане" %}</a>{% endif %}
+      {% if 'TECH' in active_category_codes %}<a class="home-faq-pill-link" href="{% url 'place_list' %}?category=TECH&amp;q=program">{% trans "Программирование для детей в Азербайджане" %}</a>{% endif %}
     </div>
   </div>
 </section>
+
+<script>
+  (function () {
+    const faqItems = document.querySelectorAll('.home-faq-item');
+    faqItems.forEach((item) => {
+      item.addEventListener('toggle', () => {
+        if (item.open) {
+          faqItems.forEach((other) => {
+            if (other !== item && other.open) {
+              other.open = false;
+            }
+          });
+        }
+      });
+    });
+
+    document.querySelectorAll('.home-faq-vote-box').forEach(box => {
+      box.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          box.innerHTML = `<span class="home-faq-vote-thanks"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> {% trans "Спасибо за отзыв!" %}</span>`;
+        });
+      });
+    });
+  })();
+</script>
 
 <script>
   (function () {

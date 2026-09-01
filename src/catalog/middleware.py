@@ -2,8 +2,14 @@ import re
 
 from django.conf import settings
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
+from django.urls import is_valid_path
 
-from catalog.services.public_urls import canonical_public_path, filtered_query_string, public_hostname, public_origin
+from catalog.services.public_urls import (
+    canonical_public_path,
+    filtered_query_string_for_path,
+    public_hostname,
+    public_origin,
+)
 
 
 class CanonicalPublicHostMiddleware:
@@ -55,9 +61,13 @@ class CleanPublicQueryMiddleware:
 
         original_query = request.META.get("QUERY_STRING", "")
         if original_query:
-            clean_query = filtered_query_string(request)
+            target_path = canonical_public_path(request.path)
+            if not target_path.endswith("/") and is_valid_path(f"{target_path}/"):
+                target_path = f"{target_path}/"
+
+            clean_query = filtered_query_string_for_path(target_path, request.GET)
             if clean_query != original_query:
-                target = canonical_public_path(request.path)
+                target = target_path
                 if clean_query:
                     target = f"{target}?{clean_query}"
                 return HttpResponsePermanentRedirect(target)

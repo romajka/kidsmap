@@ -11,6 +11,7 @@
 {% block googlebot_meta %}{{ seo_robots_content }}{% endblock %}
 
 {% block content %}
+  {% include "catalog/includes/breadcrumbs.html" with items=seo_breadcrumb_items %}
   <section class="panel">
     <h1>{{ seo_page.title }}</h1>
     <p>{{ seo_page.intro }}</p>

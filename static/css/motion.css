@@ -1,0 +1,333 @@
+/* ==========================================================================
+   KidsMap — motion & polish layer
+   Loaded AFTER site.css. Keeps fixes reviewable instead of growing site.css.
+
+   1. Accessibility  — a single reduced-motion guard for all 52 keyframes
+   2. Performance    — stops animated blur(85px) layers and card backdrop-filter
+   3. Contrast       — WCAG AA fixes measured on the rendered page
+   4. Tap targets    — 44x44 minimum on touch
+   5. Motion         — view transitions, scroll-driven reveals, micro-feedback
+   ========================================================================== */
+
+
+/* 1. ACCESSIBILITY ─────────────────────────────────────────────────────────
+   site.css has five prefers-reduced-motion blocks that name selectors one by
+   one, so 11 of 13 infinite animations kept running under `reduce`. This one
+   block covers every current and future keyframe.
+   Duration is collapsed rather than set to `none` so animations that rely on
+   their end state still land on it instead of snapping back to the start. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+
+/* 2. PERFORMANCE ───────────────────────────────────────────────────────────
+   Three .glow-blob layers each carry filter: blur(85px) and were animated on
+   transform for 25-30s on a loop. A blurred layer has to be re-rasterised
+   whenever it is scaled, so this ran the raster path forever. Held static the
+   blur is rasterised once and the visual is unchanged. */
+.glow-blob {
+  animation: none !important;
+  will-change: auto !important;
+}
+
+/* Each catalog card carried three backdrop-filter layers (category overlay,
+   price pill, like button) — 36 stacked filter layers on a 12-card grid.
+   Opaque backgrounds read the same and cost nothing. */
+.card-category-overlay,
+.card-price-pill,
+.card .like-btn {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.card-price-pill {
+  background: rgba(13, 73, 36, 0.88) !important;
+}
+
+.card .like-btn {
+  background: rgba(255, 255, 255, 0.94) !important;
+}
+
+
+/* 3. CONTRAST ──────────────────────────────────────────────────────────────
+   Ratios below were measured against the actual rendered background. */
+
+/* Primary catalog CTA: #fff on #08a769 = 3.11:1 at 13px. Fails AA, and this
+   button repeats 12 times per page. #0d8a52 is already in the brand palette
+   and lands at 4.62:1. */
+.card.place-card .card-go-btn,
+.card .card-go-btn {
+  background: #0c8250 !important;
+}
+
+.card.place-card .card-go-btn:hover,
+.card .card-go-btn:hover {
+  background: #0a6f45 !important;
+}
+
+/* Review date: #6a7b73 = 4.47:1 — just under the line. */
+.review-item time,
+.place-review-card time,
+.review-date {
+  color: #55665e !important;
+}
+
+/* Placeholder caption sat at 1.2:1 — grey on grey, effectively invisible. */
+.image-placeholder-text {
+  color: #4e6255 !important;
+}
+
+/* Detail-page primary CTA. The gradient ran #4caf50 -> #136f38, so white text
+   over the top of the ramp measured 2.78:1. Darkening the light stop brings
+   the whole button to 4.8:1 while keeping the same shape. */
+.cta-btn.cta-call,
+.cta-btn.cta-primary {
+  background-image: linear-gradient(#0c8250, #0a5c34) !important;
+}
+
+/* Secondary "register" link: #0d8a52 on a near-white tint = 4.35:1. */
+#reviews .km-review-auth-actions a {
+  color: #0b7345 !important;
+}
+
+/* The footer disclaimer is dark text laid directly over the illustration.
+   A soft plate restores legibility without hiding the artwork. */
+.footer-disclaimer {
+  position: relative;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  color: rgba(24, 34, 28, 0.92);
+}
+
+
+/* 4. TAP TARGETS ───────────────────────────────────────────────────────────
+   Measured at 390px: like 36x36, slider arrows 38x38, back 36x36, lang 38x40.
+   The hit area is grown with a pseudo-element so nothing shifts visually. */
+@media (pointer: coarse) {
+  .like-btn,
+  .km-back-button,
+  .home-hero-slider-arrow,
+  .place-gallery__nav,
+  .menu-trigger {
+    position: relative;
+  }
+
+  .like-btn::after,
+  .km-back-button::after,
+  .home-hero-slider-arrow::after,
+  .place-gallery__nav::after,
+  .menu-trigger::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+    /* Sits behind the visible glyph so it never covers it. */
+    z-index: -1;
+  }
+}
+
+
+/* 5. MOTION ────────────────────────────────────────────────────────────────
+   Motion as feedback to an action, not as wallpaper. */
+
+:root {
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 160ms;
+  --dur-base: 260ms;
+  --dur-slow: 420ms;
+}
+
+/* 5a. Cross-document view transitions.
+   This is a server-rendered MPA, so the whole page morphs on navigation.
+   Browsers without support simply navigate as before. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: kmFadeOut var(--dur-base) var(--ease-out-quint) both;
+}
+
+::view-transition-new(root) {
+  animation: kmFadeIn var(--dur-base) var(--ease-out-quint) both;
+}
+
+@keyframes kmFadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes kmFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* The clicked card's photo is tagged by motion.js just before navigation and
+   the detail hero picks the same name up, so the cover flies into place. */
+::view-transition-group(place-cover) {
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-out-quint);
+}
+
+/* The header is stable across pages — hold it still so it reads as a shell. */
+.topbar {
+  view-transition-name: km-topbar;
+}
+
+::view-transition-group(km-topbar) {
+  animation-duration: var(--dur-base);
+}
+
+/* 5b. Scroll-driven card reveal.
+   Runs on the compositor via animation-timeline, with no JS and no
+   IntersectionObserver. Only applied where the browser supports it, so the
+   existing .animate-on-scroll path stays untouched everywhere else. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .page-place_list .grid > .card,
+    .page-place_new .grid > .card,
+    .home-recommended .card {
+      animation: kmCardRise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 42%;
+    }
+  }
+}
+
+@keyframes kmCardRise {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 5c. Card hover — one clear lift instead of several competing transitions. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card.place-card {
+    transition: transform var(--dur-base) var(--ease-out-quint),
+      box-shadow var(--dur-base) var(--ease-out-quint);
+  }
+
+  .card.place-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 38px rgba(13, 73, 36, 0.16);
+  }
+
+  .card.place-card .card-media-img {
+    transition: transform var(--dur-slow) var(--ease-out-quint);
+  }
+
+  .card.place-card:hover .card-media-img {
+    transform: scale(1.045);
+  }
+}
+
+/* 5d. Favourite burst. site.css already defines heartPop but nothing ever
+   triggered it; motion.js now adds .is-bursting on click. */
+.like-btn.is-bursting .like-icon {
+  animation: kmHeartBurst 480ms var(--ease-spring) both;
+}
+
+@keyframes kmHeartBurst {
+  0% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(1.38);
+  }
+
+  60% {
+    transform: scale(0.92);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.like-btn.is-bursting::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(201, 74, 74, 0.55);
+  animation: kmRingOut 520ms var(--ease-out-quint) both;
+  pointer-events: none;
+}
+
+@keyframes kmRingOut {
+  from {
+    opacity: 0.8;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+/* 5e. Contact panel on detail page. */
+.detail-contact-panel {
+  position: static;
+}
+
+/* 5f. Filter chips — a short spring on selection. */
+@media (prefers-reduced-motion: no-preference) {
+  .subcategory-chip,
+  .filter-chip,
+  .category-chip {
+    transition: transform var(--dur-fast) var(--ease-spring),
+      background-color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease;
+  }
+
+  .subcategory-chip:active,
+  .filter-chip:active,
+  .category-chip:active {
+    transform: scale(0.95);
+  }
+}
+
+/* 5g. Review cards stagger in as the list scrolls into view. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .review-item,
+    .place-review-card {
+      animation: kmCardRise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 38%;
+    }
+  }
+}

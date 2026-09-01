@@ -2,6 +2,7 @@ import json
 
 from django.templatetags.static import static
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.text import Truncator
 from django.utils.translation import get_language, gettext as _
 
@@ -281,14 +282,25 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
         intro = f"{title_base}. {cards_found} в каталоге KidsMap."
 
     breadcrumb_name = _("Новое в каталоге") if is_new_page else _("Каталог")
-    breadcrumb_schema_json = _build_breadcrumb_schema(
-        [
-            {"name": _("Главная"), "url": _absolute_uri(request, reverse("home"))},
+    breadcrumb_items = [
+        {"name": str(_("Главная")), "url": reverse("home")},
+        {
+            "name": str(breadcrumb_name),
+            "url": reverse("place_new" if is_new_page else "place_list"),
+        },
+    ]
+    # A category filter is the one narrowing that also exists as a level in the
+    # place card trail, so keep the two chains identical up to that point.
+    selected_category = _normalize_text(selected.get("category"))
+    if selected_category and not is_new_page:
+        breadcrumb_items.append(
             {
-                "name": breadcrumb_name,
-                "url": _absolute_uri(request, reverse("place_new" if is_new_page else "place_list")),
-            },
-        ]
+                "name": str(_catalog_category_label(selected_category)),
+                "url": f"{reverse('place_list')}?{urlencode({'category': selected_category})}",
+            }
+        )
+    breadcrumb_schema_json = _build_breadcrumb_schema(
+        [{"name": item["name"], "url": _absolute_uri(request, item["url"])} for item in breadcrumb_items]
     )
 
     position_offset = max(int(page_number or 1) - 1, 0) * 10
@@ -311,6 +323,7 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
         "catalog_heading": title_base,
         "catalog_intro": intro,
         "catalog_breadcrumb_schema_json": breadcrumb_schema_json,
+        "catalog_breadcrumb_items": breadcrumb_items,
         "catalog_item_list_schema_json": item_list_schema_json,
     }
 
@@ -409,12 +422,21 @@ def build_place_seo_payload(place, request, language_code):
         map_embed_url = f"https://maps.google.com/maps?q={query}&z=15&output=embed"
         map_open_url = f"https://www.google.com/maps/dir/?api=1&destination={query}"
 
+    breadcrumb_items = [
+        {"name": str(_("Главная")), "url": reverse("home")},
+        {"name": str(_("Каталог")), "url": reverse("place_list")},
+    ]
+    if place.category_id:
+        breadcrumb_items.append(
+            {
+                "name": str(place.get_category_display()),
+                "url": f"{reverse('place_list')}?{urlencode({'category': place.category_id})}",
+            }
+        )
+    breadcrumb_items.append({"name": place.name_i18n(language_code), "url": place.get_absolute_url()})
+
     breadcrumb_schema_json = _build_breadcrumb_schema(
-        [
-            {"name": _("Главная"), "url": _absolute_uri(request, reverse("home"))},
-            {"name": _("Каталог"), "url": _absolute_uri(request, reverse("place_list"))},
-            {"name": place.name_i18n(language_code), "url": _absolute_uri(request, place.get_absolute_url())},
-        ]
+        [{"name": item["name"], "url": _absolute_uri(request, item["url"])} for item in breadcrumb_items]
     )
 
     return {
@@ -423,6 +445,7 @@ def build_place_seo_payload(place, request, language_code):
         "first_image_url": first_image_url,
         "schema_json": json.dumps(schema, ensure_ascii=False),
         "breadcrumb_schema_json": breadcrumb_schema_json,
+        "breadcrumb_items": breadcrumb_items,
         "map_embed_url": map_embed_url,
         "map_open_url": map_open_url,
     }
@@ -453,11 +476,15 @@ def build_site_reviews_seo_payload(*, request, review_count: int) -> dict:
 
 
 def build_seo_landing_schema_payload(request, page):
+    # Landings live under /catalog/<slug>/, so the catalog is their real parent
+    # both in the URL and in the site hierarchy.
+    breadcrumb_items = [
+        {"name": str(_("Главная")), "url": reverse("home")},
+        {"name": str(_("Каталог")), "url": reverse("place_list")},
+        {"name": page["title"], "url": request.path},
+    ]
     breadcrumb_schema = _build_breadcrumb_schema(
-        [
-            {"name": _("Главная"), "url": _absolute_uri(request, reverse("home"))},
-            {"name": page["title"], "url": _absolute_uri(request, request.path)},
-        ]
+        [{"name": item["name"], "url": _absolute_uri(request, item["url"])} for item in breadcrumb_items]
     )
     faq_schema = {
         "@context": "https://schema.org",
@@ -473,5 +500,6 @@ def build_seo_landing_schema_payload(request, page):
     }
     return {
         "breadcrumb_schema_json": breadcrumb_schema,
+        "breadcrumb_items": breadcrumb_items,
         "faq_schema_json": json.dumps(faq_schema, ensure_ascii=False),
     }

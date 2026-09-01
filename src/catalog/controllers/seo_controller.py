@@ -53,6 +53,7 @@ class SeoController:
             ),
             "seo_aggregate": aggregate_data,
             "breadcrumb_schema_json": schema_payload["breadcrumb_schema_json"],
+            "seo_breadcrumb_items": schema_payload["breadcrumb_items"],
             "faq_schema_json": schema_payload["faq_schema_json"],
         }
 

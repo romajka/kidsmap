@@ -247,6 +247,8 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 ("age_to", _("Возраст до")),
                 ("region", _("Город / регион")),
                 ("address", _("Адрес")),
+                ("lat", _("Точка на карте")),
+                ("lng", _("Точка на карте")),
                 ("phone1", _("Телефон")),
                 ("photo", _("Главное фото")),
             ]
@@ -3779,16 +3781,21 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.action(description=_("Отправить на модерацию"))
     def mark_pending(self, request, queryset):
-        updated_count = queryset.update(
-            status=Place.STATUS_PENDING,
-            is_active=False,
-            rejection_reason="",
-            updated_at=timezone.now(),
-        )
+        updated_count = 0
+        skipped_count = 0
+        for place in queryset.prefetch_related("gallery").iterator(chunk_size=100):
+            if not place_quality_check(place).is_ready:
+                skipped_count += 1
+                continue
+            place.status = Place.STATUS_PENDING
+            place.is_active = False
+            place.rejection_reason = ""
+            place.save(update_fields=["status", "is_active", "rejection_reason", "updated_at"])
+            updated_count += 1
         self.message_user(
             request,
-            ngettext("%(count)d карточка отправлена на модерацию.", "%(count)d карточки отправлены на модерацию.", updated_count)
-            % {"count": updated_count},
+            _("Отправлено на модерацию: %(updated)d. Пропущено из-за незаполненной карточки: %(skipped)d.")
+            % {"updated": updated_count, "skipped": skipped_count},
             level=messages.SUCCESS if updated_count else messages.WARNING,
         )
 

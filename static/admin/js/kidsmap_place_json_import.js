@@ -91,6 +91,41 @@
     return true;
   }
 
+  function setCheckbox(fieldName, value) {
+    if (value === undefined || value === null) return false;
+    var input = document.getElementById("id_" + fieldName);
+    if (!input || input.type !== "checkbox") return false;
+    input.checked = value === true || value === 1 || value === "1" || normalize(value) === "true";
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  }
+
+  function showEditorReview(review) {
+    var notice = document.querySelector("[data-place-json-review]");
+    if (!notice) return;
+    if (!review || typeof review !== "object") {
+      notice.hidden = true;
+      notice.textContent = "";
+      return;
+    }
+    var rows = [];
+    var missing = Array.isArray(review.missing_fields) ? review.missing_fields.filter(Boolean) : [];
+    var verification = Array.isArray(review.needs_verification) ? review.needs_verification.filter(Boolean) : [];
+    var conflicts = Array.isArray(review.conflicts) ? review.conflicts.filter(Boolean) : [];
+    if (missing.length) rows.push("Не найдено: " + missing.join(", "));
+    if (verification.length) rows.push("Проверить: " + verification.join(", "));
+    if (conflicts.length) rows.push("Расхождения: " + conflicts.join(", "));
+    if (review.map_task) rows.push("Карта: " + review.map_task);
+    if (Array.isArray(review.media_to_upload) && review.media_to_upload.length) rows.push("Загрузить вручную: " + review.media_to_upload.join(", "));
+    if (!rows.length) {
+      notice.hidden = true;
+      notice.textContent = "";
+      return;
+    }
+    notice.textContent = "AI-проверка карточки. " + rows.join(". ");
+    notice.hidden = false;
+  }
+
   function first(data, keys) {
     for (var index = 0; index < keys.length; index += 1) {
       if (data[keys[index]] !== undefined && data[keys[index]] !== null && data[keys[index]] !== "") return data[keys[index]];
@@ -148,6 +183,7 @@
       subcategory: "",
       age_from: 0,
       age_to: 18,
+      age_open_ended: false,
       offers_adult_classes: false,
       region: "",
       district: "",
@@ -158,6 +194,10 @@
       phone3: "",
       instagram: "",
       website: "",
+      schedule_mode: "regular",
+      schedule_note_az: "",
+      schedule_note_ru: "",
+      schedule_note_en: "",
       schedule_days: [
         { weekday: "mon", is_closed: false, is_24_hours: false, intervals: [{ start: "09:00", end: "18:00" }] },
         { weekday: "tue", is_closed: false, is_24_hours: false, intervals: [{ start: "09:00", end: "18:00" }] },
@@ -173,6 +213,9 @@
       lesson_format: "group",
       lessons_per_week: null,
       lessons_per_month: null,
+      is_temporary: false,
+      temporary_start: null,
+      temporary_end: null,
       pricing_plans: [{
         product_type: "membership",
         lesson_format: "group",
@@ -195,59 +238,32 @@
       extra_conditions_en: "",
       additional_info_az: "",
       additional_info_ru: "",
-      additional_info_en: ""
+      additional_info_en: "",
+      custom_price_badge_az: "",
+      custom_price_badge_ru: "",
+      custom_price_badge_en: "",
+      editor_review: {
+        status: "incomplete",
+        missing_fields: [],
+        needs_verification: [],
+        conflicts: [],
+        generated_translations: [],
+        map_task: "",
+        media_to_upload: [],
+        sources: []
+      }
     };
     return [
-      "Собери ПОЛНУЮ, ТОЧНУЮ и SEO-ОПТИМИЗИРОВАННУЮ карточку места для каталога KidsMap по исходным данным ниже.",
-      "ОБЯЗАТЕЛЬНОЕ ПРАВИЛО 1 (ПОЛНОТА И БЕЗ ПОТЕРЬ): Все имеющиеся в источнике данные (названия, контакты, адрес, расписание, возрастной диапазон, форматы занятий, доп. условия и ВСЕ варианты тарифов/цен) ДОЛЖНЫ быть 100% перенесены в соответствующие ключи JSON. Никакая информация из источника не должна быть упущена.",
-      "ОБЯЗАТЕЛЬНОЕ ПРАВИЛО 2 (СТРОГО БЕЗ ВЫДУМЫВАНИЯ): Категорически запрещено выдумывать факты, угадывать координаты, придумывать фиктивные телефоны, неточные адреса или вымышленные цены, если их НЕТ в источнике. Если конкретного поля нет в источнике, не включай этот ключ в JSON (или задай null) и перенеси вопрос в раздел «ПРИМЕЧАНИЕ ДЛЯ РЕДАКТОРА».",
-      "ФОРМАТ ОТВЕТА: Верни сначала один валидный JSON-объект в блоке ```json ... ``` (без комментариев до и внутри JSON), а после него раздел «ПРИМЕЧАНИЕ ДЛЯ РЕДАКТОРА».",
-      "СТРУКТУРА ПОЛЕЙ И ТРЕБОВАНИЯ К ДАННЫМ:",
-      "1. НАЗВАНИЯ И ОПИСАНИЯ:",
-      "   - name_az, name_ru, name_en: точные официальные наименования места на 3 языках.",
-      "   - description_az, description_ru, description_en: информативное SEO-описание из 2-4 конкретных предложений (для кого место, какие направления/занятия, особенности и район). Без клише 'лучший' и рекламного мусора.",
-      "2. ЛОКАЦИЯ И КОНТАКТЫ:",
-      "   - region: код/название города. Если в источнике упомянут Баку или район Баку, ставь 'baku'.",
-      "   - district: название района города.",
-      "   - address: улицу, дом, корпус.",
-      "   - metro: ближайшая станция метро.",
-      "   - phone1, phone2, phone3: телефоны в международном формате (+994...).",
-      "   - instagram, website: полные ссылки.",
-      "   - lat, lng: числовые координаты (Широта, Долгота) ТОЛЬКО если они явно даны в источнике.",
-      "3. ВОЗРАСТ И УСЛОВИЯ:",
-      "   - age_from, age_to: минимальный и максимальный возраст детей (числа).",
-      "   - offers_adult_classes: true если есть программы/занятия для взрослых, иначе false.",
-      "   - lesson_duration_minutes, lessons_per_week, lessons_per_month: параметры занятий.",
-      "   - extra_conditions_az/ru/en, additional_info_az/ru/en: доп. условия и инфо.",
-      "4. РАСПИСАНИЕ (schedule_days):",
-      "   - Ровно 7 объектов по дням недели в порядке: mon, tue, wed, thu, fri, sat, sun.",
-      "   - Для обычного дня: { weekday: 'mon', is_closed: false, is_24_hours: false, intervals: [{ start: '09:00', end: '18:00' }] }.",
-      "   - Для закрытого дня: { weekday: 'sat', is_closed: true, is_24_hours: false, intervals: [] }.",
-      "   - Для круглосуточного: { weekday: 'sun', is_closed: false, is_24_hours: true, intervals: [] }.",
-      "5. ТАРИФЫ И ЦЕНЫ (pricing_plans):",
-      "   - ВНИМАНИЕ: Ключ pricing_plans КРАЙНЕ ВАЖЕН! Если в источнике есть ЛЮБЫЕ упоминания цен, абонементов, занятий или их вариантов, выдели КАЖДЫЙ вариант в отдельный объект массива pricing_plans (до 12 штук).",
-      "   - Если цены в тексте не указаны вовсе, обязательно добавь 1 тариф с price_kind: 'on_request' (по запросу).",
-      "   - product_type: admission (входной билет), visit (посещение), lesson (занятие), membership (абонемент), course (курс), camp (лагерь), event (мероприятие), excursion (экскурсия), tour (тур), rental (аренда), addon (доп. услуга), registration_fee (взнос), deposit (депозит).",
-      "   - lesson_format: group (групповой), individual (индивидуальный), open_visit (свободное посещение).",
-      "   - billing_mode: one_time (разовый), recurring (регулярный), installment (частями).",
-      "   - Для recurring обязательны: billing_interval ('day'|'week'|'month'|'year') и billing_interval_count (>0).",
-      "   - Для installment обязательны: billing_cycles (>0).",
-      "   - price_kind: exact (передавай price), free (цена 0), from (передавай price_min), range (передавай price_min и price_max), on_request (по запросу).",
-      "   - quantity и quantity_unit: например quantity: 12, quantity_unit: 'lesson'.",
-      "   - title_az, title_ru, title_en: понятное название тарифа (например 'Пробное занятие', 'Абонемент на месяц').",
-      "   - conditions_az, conditions_ru, conditions_en: условия тарифа.",
-      "   - currency: по умолчанию 'AZN'.",
-      "   - is_active: true, sort_order: 0, 1, 2...",
-      "6. КАТЕГОРИИ:",
-      "   - category и subcategory выбери строго из предоставленного ниже списка.",
-      [
-        "ПРИМЕЧАНИЕ ДЛЯ РЕДАКТОРА:",
-        "- НЕ НАЙДЕНО: укажи, каких важных данных (телефоны, цены, расписание) не было в источнике.",
-        "- ТРЕБУЕТ ПРОВЕРКИ: укажи сомнительные или устаревающие сведения.",
-        "- ТАРИФЫ: укажи нюансы по расхождению цен или периодам оплаты.",
-        "- МЕДИА: перечисли фото/логотипы для ручной загрузки."
-      ].join("\n"),
-      "Пример полной структуры поддерживаемого JSON (незаполненные поля нужно убрать):",
+      "Подготовь ПОЛНУЮ карточку детского места для KidsMap в Азербайджане по материалам ниже.",
+      "Сначала изучи все переданные ссылки, сайт, соцсети, Google Maps, прайс и текст. Если доступен поиск, используй только официальные страницы места, его соцсети, Google Maps и надёжные площадки.",
+      "НЕ ВЫДУМЫВАЙ факты: адрес, телефон, возраст, расписание, цены, координаты, метро, услуги и ссылки. Неизвестное значение оставляй null, пустой строкой или []. Все ключи из структуры обязательны — не удаляй их.",
+      "Если источники расходятся, не выбирай наугад: внеси подтверждённый свежий вариант и опиши конфликт в editor_review. Координаты указывай только если они есть в источнике; иначе оставь null и добавь задачу в editor_review.map_task.",
+      "SEO: description_az, description_ru и description_en — 2–4 конкретных предложения, минимум 120 символов. Пиши для родителей: направления, возраст, формат, район и проверенные особенности. Без «лучший», «номер один» и рекламного мусора. Переводы, созданные тобой, перечисли в editor_review.generated_translations.",
+      "Расписание: заполняй schedule_days только когда часы работы известны. Для полного недельного графика дай ровно 7 дней в порядке mon,tue,wed,thu,fri,sat,sun. Если занятия по записи — schedule_mode='by_appointment'; если график меняется — 'variable' и заполни schedule_note_* подтверждённым текстом.",
+      "Тарифы: каждый подтверждённый вариант цены — отдельный объект pricing_plans, максимум 12. Не объединяй пробный урок, разовое занятие, абонемент и индивидуальные занятия. Используй product_type из: admission, visit, lesson, membership, course, camp, event, excursion, tour, rental, addon, registration_fee, deposit. price_kind: exact (price), free (price: 0), from (price_min), range (price_min и price_max), on_request. on_request допустим только если источник прямо говорит «по запросу»; если цены просто не найдены — pricing_plans: [] и missing_fields: ['prices'].",
+      "category и subcategory выбирай строго из списка ниже. Подкатегория должна принадлежать категории. Если подходящей нет — оставь поля пустыми и объясни это в editor_review.",
+      "Верни РОВНО один валидный JSON-объект в блоке ```json. После него не пиши текст. editor_review — служебный блок для редактора и не публикуется на сайте.",
+      "Полная структура JSON:",
       JSON.stringify(example, null, 2),
       "Доступные категории:",
       categories || "Нет доступных категорий.",
@@ -384,6 +400,12 @@
         lesson_duration_minutes: ["lesson_duration_minutes", "длительность_минуты"],
         lessons_per_week: ["lessons_per_week", "занятий_в_неделю"],
         lessons_per_month: ["lessons_per_month", "занятий_в_месяц"],
+        schedule_mode: ["schedule_mode"],
+        schedule_note_az: ["schedule_note_az"],
+        schedule_note_ru: ["schedule_note_ru"],
+        schedule_note_en: ["schedule_note_en"],
+        temporary_start: ["temporary_start"],
+        temporary_end: ["temporary_end"],
         extra_conditions: ["extra_conditions", "дополнительные_условия"],
         additional_info: ["additional_info", "что_есть_на_месте", "дополнительная_информация"],
         extra_conditions_az: ["extra_conditions_az"],
@@ -402,6 +424,9 @@
       });
 
       if (setStructuredSchedule(first(data, ["schedule_days", "structured_schedule", "расписание_по_дням"]))) filled += 1;
+
+      if (setCheckbox("is_temporary", first(data, ["is_temporary"]))) filled += 1;
+      if (setCheckbox("age_open_ended", first(data, ["age_open_ended"]))) filled += 1;
 
       if (setSelectByValueOrLabel("region", first(data, ["region", "город", "регион"]))) filled += 1;
       if (setDistrictSelect(first(data, ["district", "район"])) || setSelectByValueOrLabel("district", first(data, ["district", "район"]))) filled += 1;
@@ -439,6 +464,7 @@
         showMessage("Поля не найдены. Используйте ключи из подсказки под полем JSON.", true);
         return;
       }
+      showEditorReview(data.editor_review);
       showMessage("Заполнено полей: " + filled + ". Проверьте данные и сохраните карточку.", false);
       dialog.close();
       window.setTimeout(function () { openButton.focus(); }, 0);

@@ -85,6 +85,27 @@ class OwnerPlacesController:
                 coordinate_changes[field_name] = (old_value, new_value)
         return coordinate_changes, geocoding_result
 
+    def _resolve_coordinates_before_create(
+        self,
+        *,
+        place: Place,
+    ) -> tuple[dict[str, tuple[object, object]], PlaceGeocodingResult]:
+        """Resolve a new card's location before deciding whether to accept it."""
+        lookup = self.geocoding_service.geocode_location(
+            address=place.address,
+            district=place.district,
+            metro=place.metro,
+        )
+        if not lookup.resolved or lookup.point is None:
+            return {}, PlaceGeocodingResult(updated=False, reason=lookup.reason)
+
+        place.lat = lookup.point.lat
+        place.lng = lookup.point.lng
+        return {
+            "lat": (None, place.lat),
+            "lng": (None, place.lng),
+        }, PlaceGeocodingResult(updated=True, reason="updated", point=lookup.point)
+
     @staticmethod
     def _has_manual_coordinates(place: Place) -> bool:
         return place.lat is not None and place.lng is not None
@@ -102,6 +123,7 @@ class OwnerPlacesController:
             "test_content": _("корректные данные без тестового текста"),
             "missing_contact": _("телефон, сайт или Instagram"),
             "missing_address": _("адрес"),
+            "missing_coordinates": _("точка на карте"),
             "missing_age": _("возраст"),
             "missing_price": _("цена"),
             "missing_schedule": _("расписание"),
@@ -123,6 +145,7 @@ class OwnerPlacesController:
             "description_too_short": "description_az",
             "missing_contact": "phone1",
             "missing_address": "address",
+            "missing_coordinates": "lat",
             "missing_age": "age_from",
             "missing_price": "price_from",
             "missing_schedule": "schedule_mode",
@@ -426,6 +449,11 @@ class OwnerPlacesController:
             )
 
         place = result.form.save(commit=False)
+        manual_coordinates_selected = self._has_manual_coordinates(place)
+        coordinate_changes: dict[str, tuple[object, object]] = {}
+        geocoding_result: PlaceGeocodingResult | None = None
+        if not draft_save_only and not manual_coordinates_selected:
+            coordinate_changes, geocoding_result = self._resolve_coordinates_before_create(place=place)
         if not draft_save_only:
             quality = place_quality_check(place)
             if not quality.is_ready:
@@ -435,7 +463,6 @@ class OwnerPlacesController:
                     message=self._quality_error_message(quality),
                     form=result.form,
                 )
-        manual_coordinates_selected = self._has_manual_coordinates(place)
         place.owner = request.user
         place.created_by = request.user
         if draft_save_only and not place.category_id:
@@ -480,15 +507,11 @@ class OwnerPlacesController:
             )
         result.form.save_schedule(place)
 
-        coordinate_changes: dict[str, tuple[object, object]] = {}
-        geocoding_result: PlaceGeocodingResult | None = None
         if manual_coordinates_selected:
             coordinate_changes = {
                 "lat": ("", place.lat),
                 "lng": ("", place.lng),
             }
-        elif not draft_save_only:
-            coordinate_changes, geocoding_result = self._sync_place_coordinates(place=place, overwrite=True)
         gallery_images = result.form.cleaned_data.get("gallery_images") or []
         try:
             self.owner_place_repository.add_gallery_images(place=place, image_files=gallery_images)

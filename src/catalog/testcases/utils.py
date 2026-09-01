@@ -89,6 +89,8 @@ def create_quality_place(**overrides):
         "age_to": 12,
         "district": "Bakı",
         "address": "Bakı şəhəri, Nizami küçəsi 10",
+        "lat": 40.4093,
+        "lng": 49.8671,
         "phone1": "+994501112233",
         "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
         "price_from": 80,

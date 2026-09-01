@@ -15,6 +15,7 @@
 {% endblock %}
 
 {% block content %}
+  {% include "catalog/includes/breadcrumbs.html" with items=catalog_breadcrumb_items %}
   <section class="hero">
     <picture class="catalog-hero-picture">
       {% if site_settings.catalog_hero_image %}

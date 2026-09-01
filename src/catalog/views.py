@@ -585,6 +585,34 @@ def about(request):
     )
 
 
+def faq_page(request):
+    lang = (request.LANGUAGE_CODE or "az").split("-")[0]
+    titles = {
+        "az": "KidsMap haqqında tez-tez verilən suallar | FAQ",
+        "ru": "Частые вопросы о KidsMap | FAQ",
+        "en": "Frequently Asked Questions about KidsMap | FAQ",
+    }
+    meta_descriptions = {
+        "az": "KidsMap haqqında tez-tez verilən suallar: valideynlər üçün dərnək axtarışı, rəylər və məkan sahibləri üçün kartın yerləşdirilməsi.",
+        "ru": "Частые вопросы о KidsMap: поиск кружков для родителей, отзывы и размещение карточек для владельцев мест.",
+        "en": "Frequently asked questions about KidsMap: finding kids clubs, leaving reviews, and place listing for owners.",
+    }
+    places_count = public_place_queryset(Place.objects.all()).count()
+    categories_count = Category.objects.filter(is_active=True).count()
+
+    return render(
+        request,
+        "pages/faq.html",
+        {
+            "page_title": titles.get(lang, titles["az"]),
+            "meta_description": meta_descriptions.get(lang, meta_descriptions["az"]),
+            "places_count": places_count,
+            "categories_count": categories_count,
+        },
+    )
+
+
+
 def contacts(request):
     lang = (request.LANGUAGE_CODE or "az").split("-")[0]
     titles = {
@@ -708,6 +736,16 @@ def _permanent_redirect_with_query(request, target: str):
 def legacy_for_business_redirect(request):
     """Keep the historical /for-business/ URL alive after the rename to /add-place/."""
     return _permanent_redirect_with_query(request, reverse("add_place"))
+
+
+def place_root_redirect(request):
+    """/place/ has no page of its own, so send the bare segment to the catalog.
+
+    Place cards live at /place/<id>-<slug>/, and both the visible breadcrumbs and
+    the BreadcrumbList markup name the catalog as their parent. Truncating the URL
+    should land on that parent instead of a 404.
+    """
+    return _permanent_redirect_with_query(request, reverse("place_list"))
 
 
 def legacy_owner_section_redirect(request, subpath: str = ""):

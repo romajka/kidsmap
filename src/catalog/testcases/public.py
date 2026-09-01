@@ -101,6 +101,23 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '<html lang="az">', html=False)
 
+    def test_public_pages_without_trailing_slash_redirect_to_canonical_url(self):
+        checks = {
+            "/catalog": "/catalog/",
+            "/contacts": "/contacts/",
+            "/about": "/about/",
+            "/ru/catalog": "/ru/catalog/",
+            "/en/contacts": "/en/contacts/",
+            "/ru/about?source=footer": "/ru/about/",
+            "/catalog?category=EDU": "/catalog/?category=EDU",
+        }
+
+        for source_url, canonical_url in checks.items():
+            with self.subTest(source_url=source_url):
+                response = self.client.get(source_url)
+                self.assertEqual(response.status_code, 301)
+                self.assertEqual(response["Location"], canonical_url)
+
     def test_site_reviews_page_opens_with_i18n_redirect(self):
         response = self.client.get("/reviews/")
 
@@ -503,6 +520,17 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "Kataloqa bax")
         self.assertNotContains(response, "Частые вопросы о KidsMap")
 
+    def test_faq_page_loads_in_all_languages(self):
+        for path, expected_text in [
+            ("/faq/", "KidsMap haqqında tez-tez verilən suallar"),
+            ("/ru/faq/", "Частые вопросы о KidsMap"),
+            ("/en/faq/", "Frequently Asked Questions about KidsMap"),
+        ]:
+            with self.subTest(path=path):
+                response = self.client.get(path, follow=True)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, expected_text)
+
     def test_az_reviews_page_translates_reaction_helper(self):
         response = self.client.get("/reviews/")
 
@@ -896,6 +924,80 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, '"@type": "BreadcrumbList"', html=False)
         self.assertContains(response, '"AggregateRating"', html=False)
         self.assertContains(response, "<title>SEO кружок — Образование для детей в регионе Баку, Ясамальский район | KidsMap</title>", html=False)
+
+    def test_seo_landing_breadcrumbs_include_the_catalog_level(self):
+        response = self.client.get("/ru/catalog/kruzhki-v-baku/")
+
+        self.assertEqual(response.status_code, 200)
+        # The landing lives under /catalog/<slug>/, so the catalog is its parent
+        # in both the visible trail and the BreadcrumbList markup.
+        self.assertContains(response, '<a class="km-breadcrumbs__link" href="/ru/catalog/">Каталог</a>', html=False)
+        self.assertContains(response, '"position": 3', html=False)
+
+    def test_catalog_page_renders_visible_breadcrumbs(self):
+        response = self.client.get("/ru/catalog/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<span class="km-breadcrumbs__current" aria-current="page">Каталог</span>',
+            html=False,
+        )
+
+    def test_filtered_catalog_breadcrumbs_match_the_place_card_trail(self):
+        create_quality_place(
+            name="Seo Place",
+            name_ru="SEO кружок",
+            category="EDU",
+            is_active=True,
+            district="Ясамал",
+        )
+
+        response = self.client.get("/ru/catalog/", {"category": "EDU"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<a class="km-breadcrumbs__link" href="/ru/catalog/">Каталог</a>', html=False)
+        self.assertContains(
+            response,
+            '<span class="km-breadcrumbs__current" aria-current="page">Образование</span>',
+            html=False,
+        )
+        self.assertContains(response, '"position": 3', html=False)
+
+    def test_bare_place_segment_redirects_to_catalog(self):
+        # Breadcrumbs name the catalog as the parent of a place card, so the
+        # /place/ segment must resolve instead of returning 404.
+        response = self.client.get("/ru/place/")
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response.headers["Location"], "/ru/catalog/")
+
+    def test_place_detail_page_renders_visible_breadcrumbs(self):
+        place = create_quality_place(
+            name="Seo Place",
+            name_ru="SEO кружок",
+            category="EDU",
+            is_active=True,
+            district="Ясамал",
+        )
+
+        response = self.client.get(f"/ru{place.get_absolute_url()}")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'aria-label="Хлебные крошки"', html=False)
+        self.assertContains(response, '<a class="km-breadcrumbs__link" href="/ru/catalog/">Каталог</a>', html=False)
+        self.assertContains(
+            response,
+            '<a class="km-breadcrumbs__link" href="/ru/catalog/?category=EDU">Образование</a>',
+            html=False,
+        )
+        self.assertContains(
+            response,
+            '<span class="km-breadcrumbs__current" aria-current="page">SEO кружок</span>',
+            html=False,
+        )
+        # The visible trail and the BreadcrumbList markup must stay in sync.
+        self.assertContains(response, '"position": 4', html=False)
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     def test_place_detail_map_pin_and_link_open_directions(self):
@@ -1793,9 +1895,9 @@ class TestPublicFilterCounts(TestCase):
         self.assertNotContains(en_response, "Пока нет отзывов")
         self.assertNotContains(en_response, "Понедельник")
 
-        self.assertEqual(len(az_response.context["map_places"]), 3)
-        self.assertEqual(len(ru_response.context["map_places"]), 3)
-        self.assertEqual(len(en_response.context["map_places"]), 3)
+        self.assertEqual(len(az_response.context["map_places"]), 6)
+        self.assertEqual(len(ru_response.context["map_places"]), 6)
+        self.assertEqual(len(en_response.context["map_places"]), 6)
         self.assertEqual(
             {item["value"]: item.get("count") for item in az_response.context["home_categories"]},
             {item["value"]: item.get("count") for item in ru_response.context["home_categories"]},
@@ -2478,6 +2580,30 @@ class TestReviewEnhancements(TestCase):
             category="EDU",
             is_active=True,
         )
+
+    def test_guest_review_block_is_localized_on_place_detail(self):
+        expected_by_language = {
+            "ru": (
+                "Отзывы",
+                "Пока нет опубликованных отзывов.",
+                "Чтобы оставить отзыв, войдите или зарегистрируйтесь.",
+            ),
+            "en": (
+                "Reviews",
+                "No published reviews yet.",
+                "To leave a review, log in or register.",
+            ),
+        }
+
+        for language_code, labels in expected_by_language.items():
+            with self.subTest(language_code=language_code):
+                response = self.client.get(
+                    f"/{language_code}/place/{self.place.pk}-{self.place.slug}/"
+                )
+
+                self.assertEqual(response.status_code, 200)
+                for label in labels:
+                    self.assertContains(response, label)
 
     def test_place_review_profanity_is_masked_before_publish(self):
         self.client.login(username="review_user", password="StrongPass123!!")

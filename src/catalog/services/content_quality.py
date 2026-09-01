@@ -198,6 +198,11 @@ def place_quality_check(place) -> QualityCheck:
     else:
         errors.append("missing_address")
 
+    if place.lat is not None and place.lng is not None:
+        score += 10
+    else:
+        errors.append("missing_coordinates")
+
     if place.age_from is not None or place.age_to is not None:
         score += 10
     else:

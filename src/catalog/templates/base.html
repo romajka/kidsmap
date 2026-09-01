@@ -90,13 +90,18 @@
     {% endif %}
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
+    {% comment %}
+      motion.css is the last layer on purpose: page-level CSS injected through
+      extra_head (e.g. catalog_places.css) would otherwise outrank it.
+    {% endcomment %}
+    <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
   </head>
   <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     data-analytics-page-type="{{ analytics_page_type }}"
-    data-page-language="{{ current_lang_code }}"style="{% if site_settings and site_settings.site_background_image %}--custom-site-bg-url:url('{{ site_settings.site_background_image.url|escape }}');{% endif %}{% if site_settings and site_settings.site_background_mobile_image %}--custom-site-bg-mobile-url:url('{{ site_settings.site_background_mobile_image.url|escape }}');{% endif %}">
+    data-page-language="{{ current_lang_code }}">
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div class="site-shell">
-      <header class="topbar" style="{% if site_settings and site_settings.header_background_image %}--header-bg-desktop:url('{{ site_settings.header_background_image.url|escape }}');{% endif %}{% if site_settings and site_settings.header_background_mobile_image %}--header-bg-mobile:url('{{ site_settings.header_background_mobile_image.url|escape }}');{% endif %}">
+      <header class="topbar">
         <a class="brand-wrap" href="{% url 'home' %}">
           <span class="logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}');" aria-hidden="true"></span>
           <span class="brand">{{ brand_name }}</span>
@@ -142,7 +147,11 @@
               class="mobile-nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
               {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
             >{% trans "О проекте" %}</a>
-
+            <a
+              href="{% url 'faq_page' %}"
+              class="mobile-nav-link {% if request.resolver_match.url_name == 'faq_page' %}active{% endif %}"
+              {% if request.resolver_match.url_name == 'faq_page' %}aria-current="page"{% endif %}
+            >FAQ</a>
             <a
               href="{% url 'contacts' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
@@ -182,7 +191,7 @@
             {% if request.resolver_match.url_name == 'add_place' %}aria-current="page"{% endif %}
           >{% if CURRENT_LANGUAGE == "en" %}Add a place{% elif CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% else %}Добавить место{% endif %}</a>
           <details class="header-menu nav-dropdown-menu">
-            <summary class="nav-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'contacts' %}active{% endif %}">
+            <summary class="nav-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'contacts' or request.resolver_match.url_name == 'faq_page' %}active{% endif %}">
               {% if CURRENT_LANGUAGE == "az" %}Bizim haqqımızda{% elif CURRENT_LANGUAGE == "en" %}About{% else %}О нас{% endif %}
               <span class="lang-arrow" aria-hidden="true"></span>
             </summary>
@@ -190,7 +199,7 @@
               <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">
                 {% trans "О проекте" %}
               </a>
-              <a href="{% url 'home' %}#faq">
+              <a href="{% url 'faq_page' %}" class="{% if request.resolver_match.url_name == 'faq_page' %}active{% endif %}">
                 FAQ
               </a>
               <a href="{% url 'contacts' %}" class="{% if request.resolver_match.url_name == 'contacts' %}active{% endif %}">
@@ -292,7 +301,7 @@
       </main>
 
       {% if request.resolver_match.url_name != 'owner_place_create' and request.resolver_match.url_name != 'owner_place_edit' and request.resolver_match.url_name != 'owner_event_create' and request.resolver_match.url_name != 'owner_event_edit' %}
-        <footer class="site-footer panel" style="{% if site_settings and site_settings.footer_background_image %}--footer-bg-desktop:url('{{ site_settings.footer_background_image.url|escape }}');{% endif %}{% if site_settings and site_settings.footer_background_mobile_image %}--footer-bg-mobile:url('{{ site_settings.footer_background_mobile_image.url|escape }}');{% endif %}">
+        <footer class="site-footer panel">
           <div class="footer-grid">
             <section class="footer-brand-block">
               <a class="footer-brand-link" href="{% url 'home' %}">
@@ -320,9 +329,8 @@
                   {% endif %}
                   <a href="{% url 'add_place' %}">{% if CURRENT_LANGUAGE == "en" %}Add a place{% elif CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% else %}Добавить место{% endif %}</a>
                   <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
-
+                  <a href="{% url 'faq_page' %}">{% trans "FAQ" %}</a>
                   <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
-                  <a href="{% url 'home' %}#faq">{% trans "FAQ" %}</a>
                 </nav>
               </div>
             </section>
@@ -918,6 +926,7 @@
       })();
     </script>
     <script src="{% static 'js/ai_referral_tracking.js' %}"></script>
+    <script src="{% static 'js/motion.js' %}" defer></script>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}
     {% endif %}
@@ -978,6 +987,21 @@
         });
       })();
     </script>
+    {% if CURRENT_LANGUAGE == "az" %}
+      {# Azerbaijani Tawk.to widget. Add the RU and EN widget IDs here once created. #}
+      <script>
+        var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+        (function () {
+          var widgetScript = document.createElement("script");
+          var firstScript = document.getElementsByTagName("script")[0];
+          widgetScript.async = true;
+          widgetScript.src = "https://embed.tawk.to/6a9682339978f7344698bb03/1k1dup6p9";
+          widgetScript.charset = "UTF-8";
+          widgetScript.setAttribute("crossorigin", "*");
+          firstScript.parentNode.insertBefore(widgetScript, firstScript);
+        })();
+      </script>
+    {% endif %}
     {% block extra_body %}{% endblock %}
   </body>
 </html>

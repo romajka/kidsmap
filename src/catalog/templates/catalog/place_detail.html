@@ -14,7 +14,7 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=2" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=5" />
 {% endblock %}
 
 {% block content %}
@@ -24,6 +24,7 @@
       {% with gallery=place.gallery_files language=request.LANGUAGE_CODE %}
 
         <div class="detail-column-left">
+          {% include "catalog/includes/breadcrumbs.html" with items=place_breadcrumb_items %}
           <div class="detail-top-media">
             <div class="km-detail-header">
               <a class="km-back-button" href="{{ catalog_return_url }}" aria-label="{% trans 'Назад' %}">
@@ -283,112 +284,6 @@
               </div>
             {% endif %}
           </section>
-
-          <section class="detail-side-card detail-contact-panel detail-body-card detail-body-card--contact">
-        <div class="detail-section-head detail-section-head-compact">
-          <h2>{% if language == "az" %}Əlaqə məlumatları{% elif language == "en" %}Contact details{% else %}Контакты и связь{% endif %}</h2>
-          <p class="meta">{% if language == "az" %}Əsas əlaqə kanalları bir yerdə{% elif language == "en" %}Core contact channels in one place{% else %}Короткий список контактов без лишних дублей{% endif %}</p>
-        </div>
-        <div class="detail-contact-list">
-          {% for phone in place.phone_numbers %}
-            <div class="detail-contact-row">
-              <span class="detail-contact-row__icon detail-contact-row__icon--phone" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <div class="detail-contact-row__body">
-                <span class="meta-label">{% if forloop.first %}{% if language == "az" %}Əsas telefon{% elif language == "en" %}Main phone{% else %}Основной телефон{% endif %}{% else %}{% if language == "az" %}Əlavə telefon{% elif language == "en" %}Additional phone{% else %}Дополнительный телефон{% endif %}{% endif %}</span>
-                <a href="tel:{{ phone }}">{{ phone }}</a>
-              </div>
-            </div>
-          {% endfor %}
-          {% if place.instagram %}
-            <div class="detail-contact-row">
-              <span class="detail-contact-row__icon detail-contact-row__icon--instagram" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <rect x="4.75" y="4.75" width="14.5" height="14.5" rx="4.25" stroke="currentColor" stroke-width="1.8"/>
-                  <circle cx="12" cy="12" r="3.35" stroke="currentColor" stroke-width="1.8"/>
-                  <circle cx="16.55" cy="7.45" r="1" fill="currentColor"/>
-                </svg>
-              </span>
-              <div class="detail-contact-row__body">
-                <span class="meta-label">Instagram</span>
-                <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a>
-              </div>
-            </div>
-          {% endif %}
-          {% if place.address %}
-            <div class="detail-contact-row">
-              <span class="detail-contact-row__icon detail-contact-row__icon--address" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                  <circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.8"/>
-                </svg>
-              </span>
-              <div class="detail-contact-row__body">
-                <span class="meta-label">{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</span>
-                <span class="detail-contact-value detail-contact-value--address">{{ place.address_i18n }}</span>
-              </div>
-            </div>
-          {% endif %}
-          {% if place.website %}
-            <div class="detail-contact-row">
-              <span class="detail-contact-row__icon detail-contact-row__icon--website" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/>
-                  <path d="M3.9 12h16.2M12 3.75c2.1 2.28 3.15 5 3.15 8.25S14.1 17.97 12 20.25c-2.1-2.28-3.15-5-3.15-8.25S9.9 6.03 12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <div class="detail-contact-row__body">
-                <span class="meta-label">{% if language == "az" %}Sayt{% elif language == "en" %}Website{% else %}Сайт{% endif %}</span>
-                <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a>
-              </div>
-            </div>
-          {% endif %}
-          {% if not place.phone_numbers and not place.instagram and not place.address and not place.website %}
-            <div class="detail-contact-empty" role="status">
-              {% if language == "az" %}Əlaqə məlumatları dəqiqləşdirilir.{% elif language == "en" %}Contact details are being confirmed.{% else %}Контактные данные уточняются.{% endif %}
-            </div>
-          {% endif %}
-        </div>
-          </section>
-
-          {% if map_embed_url %}
-        <section class="detail-side-card detail-map-wrap detail-body-card detail-body-card--map">
-          <div class="detail-section-head detail-section-head-compact">
-            <h2 class="detail-map-title">{% if language == "az" %}Xəritədə{% elif language == "en" %}On the map{% else %}На карте{% endif %}</h2>
-            <p class="meta">{% if language == "az" %}Ünvan və xəritədə baxış{% elif language == "en" %}Address and map preview{% else %}Ориентир по месту и быстрый переход в большую карту{% endif %}</p>
-          </div>
-          {% if place.address %}
-            <p class="detail-map-address detail-map-address--compact">{{ place.address_i18n }}</p>
-          {% endif %}
-          <div
-            id="detail-map"
-            class="detail-map-frame"
-            data-lat="{{ place.lat }}"
-            data-lng="{{ place.lng }}"
-            data-category-color-text="{{ place.category.resolved_color_text|default:'#6B7280' }}"
-            data-category-color-bg="{{ place.category.resolved_color_bg|default:'#F3F4F6' }}"
-            data-category-code="{{ place.category_code|default:'ALL' }}"
-            data-place-name="{{ place.name_i18n }}"
-            data-map-open-url="{{ map_open_url }}"
-            data-google-map-id="{{ google_maps_map_id|default:''|escape }}"
-          ></div>
-          <div style="display: none;" id="detail-map-icon-svg">
-            {% include "catalog/includes/category_icon.html" with code=place.category_code|default:'ALL' %}
-          </div>
-          <div class="detail-map-foot">
-            <p class="detail-map-link">
-              <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% if language == "az" %}Marşrut qur{% elif language == "en" %}Get directions{% else %}Проложить маршрут{% endif %}</a>
-            </p>
-            {% if place.lat and place.lng %}
-              <p class="detail-map-coordinates">{{ place.lat }}, {{ place.lng }}</p>
-            {% endif %}
-          </div>
-        </section>
-          {% endif %}
-
 
           <section id="reviews" class="detail-reviews detail-section detail-body-card detail-body-card--reviews">
             <div class="detail-section-head">
@@ -670,7 +565,75 @@
             </section>
           </div>
 
-
+          <section class="detail-side-card detail-contact-panel detail-body-card detail-body-card--contact">
+            <div class="detail-section-head detail-section-head-compact">
+              <h2>{% if language == "az" %}Əlaqə məlumatları{% elif language == "en" %}Contact details{% else %}Контакты и связь{% endif %}</h2>
+              <p class="meta">{% if language == "az" %}Əsas əlaqə kanalları bir yerdə{% elif language == "en" %}Core contact channels in one place{% else %}Короткий список контактов без лишних дублей{% endif %}</p>
+            </div>
+            <div class="detail-contact-list">
+              {% for phone in place.phone_numbers %}
+                <div class="detail-contact-row">
+                  <span class="detail-contact-row__icon detail-contact-row__icon--phone" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <div class="detail-contact-row__body">
+                    <span class="meta-label">{% if forloop.first %}{% if language == "az" %}Əsas telefon{% elif language == "en" %}Main phone{% else %}Основной телефон{% endif %}{% else %}{% if language == "az" %}Əlavə telefon{% elif language == "en" %}Additional phone{% else %}Дополнительный телефон{% endif %}{% endif %}</span>
+                    <a href="tel:{{ phone }}">{{ phone }}</a>
+                  </div>
+                </div>
+              {% endfor %}
+              {% if place.instagram %}
+                <div class="detail-contact-row">
+                  <span class="detail-contact-row__icon detail-contact-row__icon--instagram" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <rect x="4.75" y="4.75" width="14.5" height="14.5" rx="4.25" stroke="currentColor" stroke-width="1.8"/>
+                      <circle cx="12" cy="12" r="3.35" stroke="currentColor" stroke-width="1.8"/>
+                      <circle cx="16.55" cy="7.45" r="1" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <div class="detail-contact-row__body">
+                    <span class="meta-label">Instagram</span>
+                    <a href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">{{ place.instagram }}</a>
+                  </div>
+                </div>
+              {% endif %}
+              {% if place.address %}
+                <div class="detail-contact-row">
+                  <span class="detail-contact-row__icon detail-contact-row__icon--address" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M12 20.25s5.75-5.2 5.75-10.05a5.75 5.75 0 1 0-11.5 0c0 4.85 5.75 10.05 5.75 10.05Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <circle cx="12" cy="10.25" r="2.35" stroke="currentColor" stroke-width="1.8"/>
+                    </svg>
+                  </span>
+                  <div class="detail-contact-row__body">
+                    <span class="meta-label">{% if language == "az" %}Ünvan{% elif language == "en" %}Address{% else %}Адрес{% endif %}</span>
+                    <span class="detail-contact-value detail-contact-value--address">{{ place.address_i18n }}</span>
+                  </div>
+                </div>
+              {% endif %}
+              {% if place.website %}
+                <div class="detail-contact-row">
+                  <span class="detail-contact-row__icon detail-contact-row__icon--website" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/>
+                      <path d="M3.9 12h16.2M12 3.75c2.1 2.28 3.15 5 3.15 8.25S14.1 17.97 12 20.25c-2.1-2.28-3.15-5-3.15-8.25S9.9 6.03 12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <div class="detail-contact-row__body">
+                    <span class="meta-label">{% if language == "az" %}Sayt{% elif language == "en" %}Website{% else %}Сайт{% endif %}</span>
+                    <a href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">{{ place.website }}</a>
+                  </div>
+                </div>
+              {% endif %}
+              {% if not place.phone_numbers and not place.instagram and not place.address and not place.website %}
+                <div class="detail-contact-empty" role="status">
+                  {% if language == "az" %}Əlaqə məlumatları dəqiqləşdirilir.{% elif language == "en" %}Contact details are being confirmed.{% else %}Контактные данные уточняются.{% endif %}
+                </div>
+              {% endif %}
+            </div>
+          </section>
 
           <section class="detail-side-card detail-facts-panel detail-body-card detail-body-card--facts">
             <div class="detail-section-head detail-section-head-compact">
@@ -725,8 +688,55 @@
           </p>
           </div>
 
+          <aside class="detail-sponsor-slot" aria-label="Reklam">
+            <span class="detail-sponsor-slot__label">REKLAM</span>
+            <a class="detail-sponsor-slot__link" href="https://iseqebul.az/vakansiyalar/" target="_blank" rel="sponsored noopener noreferrer">
+              <span class="detail-sponsor-slot__icon detail-sponsor-slot__icon--iseqebul" aria-hidden="true"><img src="https://iseqebul.az/wp-content/uploads/2023/06/iseqebul-logo-line-curves-02.svg" alt="" /></span>
+              <span class="detail-sponsor-slot__copy">
+                <strong>Aktiv iş elanları və vakansiyalar</strong>
+                <span>iseqebul.az</span>
+              </span>
+              <span class="detail-sponsor-slot__arrow" aria-hidden="true">→</span>
+            </a>
+          </aside>
+
 
         </div><!-- /detail-column-right -->
+
+        {% if map_embed_url %}
+          <section class="detail-side-card detail-map-wrap detail-body-card detail-body-card--map">
+            <div class="detail-section-head detail-section-head-compact">
+              <h2 class="detail-map-title">{% if language == "az" %}Xəritədə{% elif language == "en" %}On the map{% else %}На карте{% endif %}</h2>
+              <p class="meta">{% if language == "az" %}Ünvan və xəritədə baxış{% elif language == "en" %}Address and map preview{% else %}Ориентир по месту и быстрый переход в большую карту{% endif %}</p>
+            </div>
+            {% if place.address %}
+              <p class="detail-map-address detail-map-address--compact">{{ place.address_i18n }}</p>
+            {% endif %}
+            <div
+              id="detail-map"
+              class="detail-map-frame"
+              data-lat="{{ place.lat }}"
+              data-lng="{{ place.lng }}"
+              data-category-color-text="{{ place.category.resolved_color_text|default:'#6B7280' }}"
+              data-category-color-bg="{{ place.category.resolved_color_bg|default:'#F3F4F6' }}"
+              data-category-code="{{ place.category_code|default:'ALL' }}"
+              data-place-name="{{ place.name_i18n }}"
+              data-map-open-url="{{ map_open_url }}"
+              data-google-map-id="{{ google_maps_map_id|default:''|escape }}"
+            ></div>
+            <div style="display: none;" id="detail-map-icon-svg">
+              {% include "catalog/includes/category_icon.html" with code=place.category_code|default:'ALL' %}
+            </div>
+            <div class="detail-map-foot">
+              <p class="detail-map-link">
+                <a href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">{% if language == "az" %}Marşrut qur{% elif language == "en" %}Get directions{% else %}Проложить маршрут{% endif %}</a>
+              </p>
+              {% if place.lat and place.lng %}
+                <p class="detail-map-coordinates">{{ place.lat }}, {{ place.lng }}</p>
+              {% endif %}
+            </div>
+          </section>
+        {% endif %}
 
       {% endwith %}
     </article>

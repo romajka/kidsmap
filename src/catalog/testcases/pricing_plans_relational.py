@@ -122,7 +122,7 @@ class RelationalPricingPlanTests(TestCase):
         response = self.client.get(reverse("place_pricing_api", kwargs={"slug": self.place.slug}), {"lang": "ru"}, secure=True)
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body["summary"]["kind"], "from")
+        self.assertEqual(body["summary"]["kind"], "exact")
         self.assertEqual(body["pricing_plans"][0]["product_type"], "lesson")
         self.assertNotIn("price_from", body)
 

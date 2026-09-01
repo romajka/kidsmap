@@ -1210,6 +1210,41 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_manager_cannot_submit_a_place_without_coordinates(self, geocode_mock):
+        geocode_mock.return_value = None
+        self.client.login(username="owner_manager", password="StrongPass123!!")
+
+        response = self.client.post(
+            reverse("owner_place_create"),
+            data={
+                "name_ru": "Карточка без точки",
+                "name_az": "Xeritesiz kart",
+                "description_az": "Bu təsvir kifayət qədər uzundur və məkanın uşaqlar üçün proqramlarını, müəllimlərini və dərs cədvəlini izah edir.",
+                "category": "EDU",
+                "age_from": "7",
+                "age_to": "12",
+                "price_from": "100",
+                "pricing_plans": json.dumps([{
+                    "lesson_format": "group",
+                    "payment_type": "per_month",
+                    "price": "100",
+                    "currency": "AZN",
+                    "is_active": True,
+                }]),
+                "district": "Yasamal",
+                "address": "Tapılmayan ünvan 5",
+                "phone1": "+994501112233",
+                "schedule": "Пн-Сб",
+                "photo": self._image_upload("missing-coordinates.png"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("lat", response.context["form"].errors)
+        self.assertFalse(Place.objects.filter(name_ru="Карточка без точки").exists())
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
     def test_owner_manager_create_place_keeps_manual_map_coordinates(self, geocode_mock):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(

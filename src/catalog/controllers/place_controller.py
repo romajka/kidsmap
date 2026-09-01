@@ -158,6 +158,7 @@ class PlaceController:
             "catalog_heading": seo_payload["catalog_heading"],
             "catalog_intro": seo_payload["catalog_intro"],
             "catalog_breadcrumb_schema_json": seo_payload["catalog_breadcrumb_schema_json"],
+            "catalog_breadcrumb_items": seo_payload["catalog_breadcrumb_items"],
             "catalog_item_list_schema_json": seo_payload["catalog_item_list_schema_json"],
             "selected": selected,
             "categories": public_filter_options.categories,
@@ -784,7 +785,7 @@ class PlaceController:
 
     def get_active_place_with_gallery(self, *, pk: int) -> Place:
         return get_object_or_404(
-            published_place_queryset(Place.objects.all()).prefetch_related(
+            published_place_queryset(Place.objects.all()).select_related("category").prefetch_related(
                 "gallery",
                 "events",
                 "schedule_days__intervals",
@@ -813,6 +814,7 @@ class PlaceController:
             "seo_image_url": seo_payload["first_image_url"],
             "place_schema_json": seo_payload["schema_json"],
             "place_breadcrumb_schema_json": seo_payload["breadcrumb_schema_json"],
+            "place_breadcrumb_items": seo_payload["breadcrumb_items"],
             "map_embed_url": seo_payload["map_embed_url"],
             "map_open_url": seo_payload["map_open_url"],
             "place_reviews": place_reviews,
