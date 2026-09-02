@@ -1837,6 +1837,15 @@ a.detail-contacts__row:hover {
     min-height: 52px;
     font-size: 15px;
   }
+
+  /* Tawk injects its launcher outside our template. Keep it above the fixed
+     call bar so both actions remain fully tappable on a place page. */
+  body.page-place_detail #tawk-bubble-container,
+  body.page-place_detail #tawk-chat-container,
+  body.page-place_detail iframe[title="chat widget"],
+  body.page-place_detail iframe[src*="tawk.to"] {
+    bottom: calc(84px + env(safe-area-inset-bottom)) !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

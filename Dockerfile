@@ -15,6 +15,11 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY . /app
 
+# Translation binaries must live in the web image. Release tasks run in a
+# temporary container, so compiling them only there leaves Gunicorn with the
+# Russian fallback catalogue after a restart.
+RUN python manage.py compilemessages --ignore .venv --ignore venv
+
 EXPOSE 8000
 
 CMD ["./scripts/start-server.sh"]
