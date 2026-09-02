@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+  body { margin: 0; background: #eef1ee; font-family: Manrope, system-ui, sans-serif; color: #16211a; }
+  a { color: #136F38; text-decoration: none; }
+  a:hover { color: #0d5029; }
+  .ms { font-family: 'Material Symbols Rounded'; font-weight: 400; font-style: normal; line-height: 1; }
+  @keyframes kmRise { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+  @keyframes kmFadeA { from { opacity: 0; transform: scale(1.02) } to { opacity: 1; transform: none } }
+  @keyframes kmFadeB { from { opacity: 0; transform: scale(1.02) } to { opacity: 1; transform: none } }
+  @keyframes kmShine { 0% { transform: translateX(-120%) skewX(-14deg) } 100% { transform: translateX(320%) skewX(-14deg) } }
+  @keyframes kmPop { 0%,100% { transform: scale(1) } 42% { transform: scale(1.24) } }
+  @keyframes kmSlideUp { from { opacity: 0; transform: translateY(26px) } to { opacity: 1; transform: none } }
+  @keyframes kmTick { 0%,100% { transform: translateX(0) } 50% { transform: translateX(-6px) } }
+  @keyframes kmGlow { 0%,100% { box-shadow: 0 10px 22px -14px rgba(19,111,56,.8) } 50% { box-shadow: 0 16px 32px -12px rgba(19,111,56,.95) } }
+  @keyframes kmSwipeHint { 0%,72%,100% { transform: translateX(0) } 84% { transform: translateX(-26px) } }
+  @keyframes kmPulseDot { 0%,100% { opacity: 1; transform: scale(1) } 50% { opacity: .45; transform: scale(.72) } }
+  * { -webkit-tap-highlight-color: transparent }
+  button:focus-visible, a:focus-visible { outline: 3px solid #A8D59B; outline-offset: 2px; border-radius: 12px }
+</style>
+</helmet>
+
+<section style="padding: 36px; display: flex; flex-direction: column; gap: 24px">
+
+  <div style="display: flex; gap: 44px; flex-wrap: wrap; align-items: flex-start">
+
+    <!-- ============================= OPTION 3A ============================= -->
+    <div id="3a" style="display: flex; flex-direction: column; gap: 16px">
+      <div style="width: 1320px; background: #fff; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 70px -34px rgba(12,40,26,.4); border: 1px solid #E3EAE4">
+
+        <!-- site header (mövcud) -->
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; border-bottom: 1px solid #EDF1ED">
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 800; letter-spacing: -.02em">
+            <img src="./assets/kidsmap-logo.svg" alt="KidsMap" style="height: 34px; width: auto; display: block"><span style="color: #136F38">KidsMap</span>
+          </div>
+          <nav style="display: flex; align-items: center; gap: 22px; font-size: 14.5px; font-weight: 600; color: #3C4B42">
+            <a href="#3a" style="color: #3C4B42" style-hover="color: #136F38">Ana səhifə</a>
+            <a href="#3a" style="color: #136F38; font-weight: 700">Kataloq</a>
+            <a href="#3a" style="color: #3C4B42" style-hover="color: #136F38">Pedaqoqlar və mütəxəssislər</a>
+            <a href="#3a" style="color: #3C4B42" style-hover="color: #136F38">Afişa</a>
+            <a href="#3a" style="color: #3C4B42" style-hover="color: #136F38">Məkan əlavə et</a>
+            <span style="display: inline-flex; align-items: center; gap: 6px; color: #3C4B42; cursor: default">Bizim haqqımızda<span class="ms" style="font-size: 18px; color: #5D6B62">expand_more</span></span>
+          </nav>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span style="min-height: 40px; padding: 0 12px; border-radius: 11px; border: 1px solid #E3EAE4; display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #16211a; transition: border-color .2s" style-hover="border-color: #A8D59B">
+              <img src="./assets/login.svg" alt="" style="width: 19px; height: 19px; display: block">Daxil ol
+            </span>
+            <span style="min-height: 40px; padding: 0 10px; border-radius: 11px; border: 1px solid #E3EAE4; display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700">
+              <img src="./assets/flag-az.png" alt="" style="width: 20px; height: 20px; border-radius: 999px; display: block">AZ<span class="ms" style="font-size: 17px; color: #5D6B62">expand_more</span>
+            </span>
+          </div>
+        </div>
+
+        <div style="background: #F7FAF7; padding: 18px 32px 40px">
+          <!-- nav + h1 -->
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #5D6B62; flex-wrap: wrap">
+              <a href="#3a" style="width: 36px; height: 36px; border-radius: 10px; background: #fff; border: 1px solid #E3EAE4; display: grid; place-items: center; color: #16211a; font-size: 20px" class="ms" title="Geri">arrow_back</a>
+              <a href="#3a">Ana səhifə</a><span class="ms" style="font-size: 16px">chevron_right</span>
+              <a href="#3a">Kataloq</a><span class="ms" style="font-size: 16px">chevron_right</span>
+              <a href="#3a">Zooparklar və akvariumlar</a><span class="ms" style="font-size: 16px">chevron_right</span>
+              <span style="color: #16211a; font-weight: 600">Bakı Zooloji Parkı</span>
+            </div>
+            <h1 style="margin: 0; font-size: 38px; line-height: 1.12; font-weight: 800; letter-spacing: -.03em; max-width: 900px; text-wrap: pretty">Bakı Zooloji Parkı</h1>
+          </div>
+
+          <!-- hero: gallery + decision panel -->
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 424px; gap: 24px; align-items: start">
+
+            <!-- gallery -->
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="position: relative; aspect-ratio: 4/3; border-radius: 20px; overflow: hidden; background: repeating-linear-gradient(135deg, #E4EBE4 0 14px, #DBE3DB 14px 28px); animation: kmRise .55s cubic-bezier(.2,.8,.3,1) both">
+                <div style="position: absolute; inset: 0; width: 45%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: kmShine 2.8s cubic-bezier(.4,0,.6,1) infinite; pointer-events: none"></div>
+                <div style="position: absolute; inset: 0; display: grid; place-items: center; gap: 6px; align-content: center; text-align: center; animation: {{ shotAnim }}">
+                  <span class="ms" style="font-size: 30px; color: #5D6B62">image</span>
+                  <span style="font: 500 12px ui-monospace, monospace; color: #4C5B52; letter-spacing: .08em">{{ shotLabel }}</span>
+                </div>
+                <button onClick="{{ prev }}" aria-label="Əvvəlki foto" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 999px; border: 0; background: rgba(255,255,255,.94); box-shadow: 0 6px 18px rgba(12,40,26,.18); cursor: pointer; display: grid; place-items: center; color: #16211a; transition: transform .2s cubic-bezier(.2,.8,.3,1), box-shadow .2s, background .2s" style-hover="background: #fff; transform: translateY(-50%) scale(1.08); box-shadow: 0 10px 26px rgba(12,40,26,.26)">
+                  <span class="ms" style="font-size: 24px">chevron_left</span>
+                </button>
+                <button onClick="{{ next }}" aria-label="Növbəti foto" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 46px; height: 46px; border-radius: 999px; border: 0; background: rgba(255,255,255,.94); box-shadow: 0 6px 18px rgba(12,40,26,.18); cursor: pointer; display: grid; place-items: center; color: #16211a; transition: transform .2s cubic-bezier(.2,.8,.3,1), box-shadow .2s, background .2s" style-hover="background: #fff; transform: translateY(-50%) scale(1.08); box-shadow: 0 10px 26px rgba(12,40,26,.26)">
+                  <span class="ms" style="font-size: 24px">chevron_right</span>
+                </button>
+                <span style="position: absolute; bottom: 14px; right: 14px; padding: 6px 12px; border-radius: 999px; background: rgba(10,26,17,.66); color: #fff; font-size: 12.5px; font-weight: 700; backdrop-filter: blur(6px); transition: background .2s">{{ counter }}</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px">
+                <sc-for list="{{ shots }}" as="s" hint-placeholder-count="6">
+                  <button onClick="{{ s.pick }}" aria-label="Foto seç" style="height: 74px; border-radius: 12px; cursor: pointer; padding: 0; background: repeating-linear-gradient(135deg, #E4EBE4 0 10px, #DBE3DB 10px 20px); border: {{ s.ring }}; opacity: {{ s.op }}; transform: {{ s.tr }}; transition: opacity .2s, border-color .2s, transform .2s cubic-bezier(.2,.8,.3,1), box-shadow .2s; font: 500 10px ui-monospace, monospace; color: #4C5B52" style-hover="opacity: 1; transform: translateY(-3px); box-shadow: 0 10px 20px -12px rgba(12,40,26,.5)"></button>
+                </sc-for>
+              </div>
+            </div>
+
+            <!-- decision panel: bir kart, iç-içə çərçivə yox -->
+            <div style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 14px 34px -26px rgba(12,40,26,.4); animation: kmRise .55s cubic-bezier(.2,.8,.3,1) .08s both">
+
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+                <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+                  <span style="font-size: 13px; font-weight: 700; color: #136F38; background: #E8F3E5; padding: 6px 11px; border-radius: 999px; align-self: flex-start">Zooparklar və akvariumlar · Zooparklar</span>
+                  <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #5D6B62">
+                    <span class="ms" style="font-size: 18px; color: #136F38">location_on</span>
+                    <span>Nərimanov rayonu · <span style="font-weight: 600; color: #16211a">m. Gənclik</span></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #5D6B62">
+                    <span class="ms" style="font-size: 18px; color: #C9A227">star</span>
+                    <span>Hələ rəy yoxdur — <a href="#3a" style="font-weight: 700">birinci siz yazın</a></span>
+                  </div>
+                </div>
+                <button onClick="{{ toggleFav }}" aria-label="Seçilmişlərə əlavə et" style="width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; border: 1px solid {{ favBorder }}; background: {{ favBg }}; color: {{ favColor }}; cursor: pointer; display: grid; place-items: center; transition: background .2s, color .2s, border-color .2s, transform .2s cubic-bezier(.2,.8,.3,1)" style-hover="transform: scale(1.06); border-color: #A8D59B">
+                  <span class="ms" style="font-size: 23px; font-variation-settings: {{ favFill }}; animation: {{ favAnim }}">favorite</span>
+                </button>
+              </div>
+
+              <!-- qiymət / yaş / cədvəl: birinci ekran -->
+              <div style="display: flex; flex-direction: column; gap: 14px; padding: 16px 0; border-top: 1px solid #EDF1ED; border-bottom: 1px solid #EDF1ED">
+                <div style="display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap">
+                  <span style="font-size: 32px; font-weight: 800; letter-spacing: -.03em; color: #136F38; line-height: 1">2–7 ₼</span>
+                  <span style="font-size: 13.5px; color: #5D6B62; padding-bottom: 4px">giriş bileti · 9 tarif</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px">
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <span class="ms" style="font-size: 20px; color: #136F38">child_care</span>
+                    <span style="display: flex; flex-direction: column"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Yaş</span><span style="font-size: 14.5px; font-weight: 700">Bütün yaşlar · 0+</span></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <span class="ms" style="font-size: 20px; color: #136F38">apartment</span>
+                    <span style="display: flex; flex-direction: column"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Format</span><span style="font-size: 14.5px; font-weight: 700">Daimi məkan</span></span>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 10px">
+                  <span class="ms" style="font-size: 20px; color: #136F38; margin-top: 2px">schedule</span>
+                  <div style="display: flex; flex-direction: column; gap: 3px; font-size: 14px">
+                    <span style="font-weight: 700; color: #1E7A3F; display: inline-flex; align-items: center; gap: 7px"><span style="width: 8px; height: 8px; border-radius: 999px; background: #2FA35A; animation: kmPulseDot 2s ease-in-out infinite"></span>Bu gün açıq · 10:00–19:00</span>
+                    <span style="color: #5D6B62; font-size: 13.5px">B.e–Cümə 10:00–19:00 · Şənbə–Bazar 09:00–19:00</span>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: #5D6B62">
+                  <span class="ms" style="font-size: 20px; color: #136F38">place</span>
+                  <span style="text-wrap: pretty">Bakı şəhəri, Nərimanov rayonu, Abbasqulu ağa Bakıxanov küçəsi 39</span>
+                </div>
+              </div>
+
+              <!-- CTA -->
+              <div style="display: flex; flex-direction: column; gap: 8px">
+                <a href="#3a" style="min-height: 52px; border-radius: 14px; background: #136F38; color: #fff; display: flex; align-items: center; justify-content: center; gap: 9px; font-size: 16px; font-weight: 700; box-shadow: 0 12px 26px -16px rgba(19,111,56,.9); transition: background .2s, transform .2s cubic-bezier(.2,.8,.3,1), box-shadow .2s" style-hover="background: #0d5029; transform: translateY(-2px); box-shadow: 0 18px 34px -16px rgba(19,111,56,.75)">
+                  <span class="ms" style="font-size: 21px">call</span>Zəng et · +994 12 440 10 96
+                </a>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+                  <a href="#3a" style="min-height: 46px; border-radius: 13px; border: 1px solid #CDE7C5; background: #F3F9F2; color: #136F38; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14.5px; font-weight: 700; transition: background .2s, transform .2s, border-color .2s" style-hover="background: #E8F3E5; transform: translateY(-2px); border-color: #A8D59B">
+                    <span class="ms" style="font-size: 20px">chat</span>WhatsApp
+                  </a>
+                  <a href="#3a" style="min-height: 46px; border-radius: 13px; border: 1px solid #E3EAE4; background: #fff; color: #16211a; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14.5px; font-weight: 700; transition: transform .2s, border-color .2s, box-shadow .2s" style-hover="border-color: #A8D59B; transform: translateY(-2px); box-shadow: 0 12px 24px -18px rgba(12,40,26,.6)">
+                    <span class="ms" style="font-size: 20px">directions</span>Marşrut
+                  </a>
+                </div>
+              </div>
+
+              <p style="margin: 0; font-size: 13.5px; line-height: 1.6; color: #4C5B52; text-wrap: pretty; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden">Bakı Zooloji Parkı Nərimanov rayonunda yerləşən və bütün yaş qruplarından olan ziyarətçiləri qəbul edən zooloji parkdır. Parkda 125 heyvan növü təqdim olunur, onlardan 22-si Qırmızı Kitaba daxildir.</p>
+              <a href="#3a" style="font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px">Məkan haqqında<span class="ms" style="font-size: 18px">arrow_downward</span></a>
+            </div>
+          </div>
+
+          <!-- content: 2/3 + 1/3 -->
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 372px; gap: 24px; margin-top: 28px; align-items: start">
+
+            <div style="display: flex; flex-direction: column; gap: 20px">
+
+              <!-- O məkan haqqında -->
+              <div style-hover="box-shadow: 0 22px 46px -32px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; transition: box-shadow .28s ease, border-color .28s ease; padding: 24px">
+                <h2 style="margin: 0 0 12px; font-size: 20px; font-weight: 800; letter-spacing: -.02em">Məkan haqqında</h2>
+                <p style="margin: 0 0 10px; font-size: 15px; line-height: 1.65; color: #3C4B42; max-width: 68ch; text-wrap: pretty">Bakı Zooloji Parkı Nərimanov rayonunda yerləşən və bütün yaş qruplarından olan ziyarətçiləri qəbul edən zooloji parkdır. Parkda 125 heyvan növü təqdim olunur, onlardan 22-si Azərbaycanın Qırmızı Kitabına daxildir.</p>
+                <p style="margin: 0; font-size: 15px; line-height: 1.65; color: #3C4B42; max-width: 68ch; text-wrap: pretty">Ailələr kontakt zooparkına, uşaq meydançasına, lektoriyaya, kafeyə və poni gəzintisi zonasına baş çəkə bilərlər.</p>
+              </div>
+
+              <!-- Stoimost və şərtlər -->
+              <div style-hover="box-shadow: 0 22px 46px -32px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; transition: box-shadow .28s ease, border-color .28s ease; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+                  <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em">Dəyər və şərtlər</h2>
+                  <span style="font-size: 13px; color: #5D6B62">Giriş biletləri · 9 tarif</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column">
+                  <span style="font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: #136F38; padding-bottom: 8px">Giriş biletləri</span>
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                    <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Böyüklər</span></span>
+                    <span style="font-size: 15px; font-weight: 800; color: #136F38; white-space: nowrap">7 ₼ <span style="font-weight: 600; color: #5D6B62; font-size: 13px">/ bilet</span></span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                    <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Məktəblilər (7–16 yaş)</span><span style="font-size: 13px; color: #5D6B62">7–16 yaş arası məktəblilər üçün</span></span>
+                    <span style="font-size: 15px; font-weight: 800; color: #136F38; white-space: nowrap">2 ₼ <span style="font-weight: 600; color: #5D6B62; font-size: 13px">/ bilet</span></span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                    <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Uşaqlar (4–16 yaş)</span><span style="font-size: 13px; color: #5D6B62">4–16 yaş arası uşaqlar üçün</span></span>
+                    <span style="font-size: 15px; font-weight: 800; color: #136F38; white-space: nowrap">2 ₼ <span style="font-weight: 600; color: #5D6B62; font-size: 13px">/ bilet</span></span>
+                  </div>
+                  <sc-if value="{{ tariffsOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; flex-direction: column; animation: kmRise .28s ease both">
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                        <span style="font-size: 15px; font-weight: 700">3 yaşa qədər uşaqlar</span>
+                        <span style="font-size: 15px; font-weight: 800; color: #136F38">Pulsuz</span>
+                      </div>
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                        <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Əlilliyi olan şəxslər</span><span style="font-size: 13px; color: #5D6B62">Sənəd təqdim edildikdə</span></span>
+                        <span style="font-size: 15px; font-weight: 800; color: #136F38">Pulsuz</span>
+                      </div>
+                      <span style="font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: #136F38; padding: 16px 0 8px">Əlavə xidmətlər</span>
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                        <span style="font-size: 15px; font-weight: 700">Poni gəzintisi</span>
+                        <span style="font-size: 15px; font-weight: 800; color: #136F38; white-space: nowrap">5 ₼ <span style="font-weight: 600; color: #5D6B62; font-size: 13px">/ gəzinti</span></span>
+                      </div>
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                        <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Kontakt zooparkına giriş</span><span style="font-size: 13px; color: #5D6B62">Yalnız 3 yaşdan yuxarı, valideyn müşayiəti ilə</span></span>
+                        <span style="font-size: 15px; font-weight: 800; color: #136F38; white-space: nowrap">3 ₼ <span style="font-weight: 600; color: #5D6B62; font-size: 13px">/ giriş</span></span>
+                      </div>
+                      <span style="font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: #136F38; padding: 16px 0 8px">Qrup və ekskursiyalar</span>
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                        <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 700">Məktəb qrupu üçün ekskursiya (15 nəfərdən)</span><span style="font-size: 13px; color: #5D6B62">Əvvəlcədən qeydiyyat tələb olunur</span></span>
+                        <span style="font-size: 15px; font-weight: 800; color: #136F38; white-space: nowrap">Sorğu ilə</span>
+                      </div>
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 10px; margin: 0 -10px; border-radius: 10px; border-top: 1px solid #EDF1ED; transition: background .18s" style-hover="background: #F7FAF7">
+                        <span style="font-size: 15px; font-weight: 700">Ad günü proqramı</span>
+                        <span style="font-size: 15px; font-weight: 800; color: #136F38; white-space: nowrap">80 ₼-dan</span>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+
+                <button onClick="{{ toggleTariffs }}" style="min-height: 46px; border-radius: 13px; border: 1px solid #CDE7C5; background: #F3F9F2; color: #136F38; font-family: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s, transform .2s" style-hover="background: #E8F3E5; transform: translateY(-1px)">
+                  {{ tariffLabel }}<span class="ms" style="font-size: 20px; transform: {{ tariffArrow }}; transition: transform .2s">expand_more</span>
+                </button>
+
+                <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #5D6B62">Qiymətlər açıq mənbələrdən götürülüb — ziyarətdən əvvəl təşkilatla dəqiqləşdirin.</p>
+              </div>
+
+              <!-- Cədvəl -->
+              <div style-hover="box-shadow: 0 22px 46px -32px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; transition: box-shadow .28s ease, border-color .28s ease; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+                <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+                  <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em">Cədvəl</h2>
+                  <span style="font-size: 13px; font-weight: 700; color: #1E7A3F; background: #E8F3E5; padding: 5px 11px; border-radius: 999px">İş saatları</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px">
+                  <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; border-radius: 14px; background: #F7FAF7; text-align: center; transition: background .2s, transform .2s" style-hover="background: #EDF3ED; transform: translateY(-2px)">
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5D6B62">B.e</span><span style="font-size: 13px; font-weight: 700">10:00<br>19:00</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; border-radius: 14px; background: #F7FAF7; text-align: center; transition: background .2s, transform .2s" style-hover="background: #EDF3ED; transform: translateY(-2px)">
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5D6B62">Ç.a</span><span style="font-size: 13px; font-weight: 700">10:00<br>19:00</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; border-radius: 14px; background: #F7FAF7; text-align: center; transition: background .2s, transform .2s" style-hover="background: #EDF3ED; transform: translateY(-2px)">
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5D6B62">Çər</span><span style="font-size: 13px; font-weight: 700">10:00<br>19:00</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; border-radius: 14px; background: #E8F3E5; border: 1px solid #A8D59B; text-align: center">
+                    <span style="font-size: 12.5px; font-weight: 800; color: #136F38">C.a · bu gün</span><span style="font-size: 13px; font-weight: 800; color: #136F38">10:00<br>19:00</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; border-radius: 14px; background: #F7FAF7; text-align: center; transition: background .2s, transform .2s" style-hover="background: #EDF3ED; transform: translateY(-2px)">
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5D6B62">Cümə</span><span style="font-size: 13px; font-weight: 700">10:00<br>19:00</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; border-radius: 14px; background: #F7FAF7; text-align: center; transition: background .2s, transform .2s" style-hover="background: #EDF3ED; transform: translateY(-2px)">
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5D6B62">Şən</span><span style="font-size: 13px; font-weight: 700">09:00<br>19:00</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; border-radius: 14px; background: #F7FAF7; text-align: center; transition: background .2s, transform .2s" style-hover="background: #EDF3ED; transform: translateY(-2px)">
+                    <span style="font-size: 12.5px; font-weight: 700; color: #5D6B62">Bazar</span><span style="font-size: 13px; font-weight: 700">09:00<br>19:00</span>
+                  </div>
+                </div>
+                <p style="margin: 0; font-size: 13px; color: #5D6B62">Kassa bağlanışdan 30 dəqiqə əvvəl işini dayandırır.</p>
+              </div>
+
+              <!-- Əsas məlumatlar -->
+              <div style-hover="box-shadow: 0 22px 46px -32px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; transition: box-shadow .28s ease, border-color .28s ease; padding: 24px; display: flex; flex-direction: column; gap: 16px">
+                <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em">Əsas məlumatlar</h2>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 24px">
+                  <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Yaş</span><span style="font-size: 15px; font-weight: 700">0+ yaş</span></div>
+                  <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Böyük qrupları</span><span style="font-size: 15px; font-weight: 700">Bəli</span></div>
+                  <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Format</span><span style="font-size: 15px; font-weight: 700">Daimi məkan</span></div>
+                  <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Kateqoriya</span><span style="font-size: 15px; font-weight: 700">Zooparklar və akvariumlar</span></div>
+                  <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Alt kateqoriya</span><span style="font-size: 15px; font-weight: 700">Zooparklar</span></div>
+                  <div style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Metro</span><span style="font-size: 15px; font-weight: 700">Gənclik</span></div>
+                  <div style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 3px"><span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: #5D6B62; font-weight: 700">Ünvan</span><span style="font-size: 15px; font-weight: 700; text-wrap: pretty">Bakı şəhəri, Nərimanov rayonu, Abbasqulu ağa Bakıxanov küçəsi 39</span></div>
+                </div>
+              </div>
+
+              <!-- Rəylər: boş hal + rəy yazma + nümunə doldurulmuş hal -->
+              <div style-hover="box-shadow: 0 22px 46px -32px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; transition: box-shadow .28s ease, border-color .28s ease; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+                  <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
+                    <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em">Rəylər</h2>
+                    <span style="font-size: 13.5px; color: #5D6B62">{{ revCountLabel }}</span>
+                  </div>
+                  <div style="display: flex; gap: 6px; align-items: center">
+                    <span style="font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 800; color: #5D6B62">Nümunə</span>
+                    <sc-for list="{{ revModes }}" as="m" hint-placeholder-count="2">
+                      <button onClick="{{ m.pick }}" style="min-height: 36px; padding: 0 12px; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid {{ m.bd }}; background: {{ m.bg }}; color: {{ m.fg }}; transition: background .2s, color .2s, transform .2s" style-hover="transform: translateY(-1px)">{{ m.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <sc-if value="{{ revEmpty }}" hint-placeholder-val="{{ true }}">
+                  <div style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; background: #F7FAF7; animation: kmRise .35s ease both">
+                    <span class="ms" style="font-size: 24px; color: #136F38">rate_review</span>
+                    <span style="font-size: 14.5px; color: #3C4B42">Bu məkan üçün hələ rəy yoxdur — ilk rəyi siz yazın, valideynlərə kömək edin.</span>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ revFilled }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; flex-direction: column; gap: 18px; animation: kmRise .35s ease both">
+                    <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 16px 18px; border-radius: 16px; background: #F3F9F2">
+                      <div style="display: flex; align-items: center; gap: 14px">
+                        <span style="font-size: 36px; font-weight: 800; color: #136F38; letter-spacing: -.03em; line-height: 1">4,6</span>
+                        <div style="display: flex; flex-direction: column; gap: 3px">
+                          <span class="ms" style="color: #C9A227; font-size: 17px; letter-spacing: 2px">star star star star star_half</span>
+                          <span style="font-size: 13px; color: #3C4B42">18 rəy · valideynlərdən</span>
+                        </div>
+                      </div>
+                      <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 5px; min-width: 200px">
+                        <sc-for list="{{ histogram }}" as="h" hint-placeholder-count="5">
+                          <div style="display: flex; align-items: center; gap: 8px">
+                            <span style="font-size: 12px; font-weight: 700; color: #5D6B62; width: 10px">{{ h.star }}</span>
+                            <span style="flex: 1 1 0; height: 7px; border-radius: 999px; background: #E1EBE1; overflow: hidden"><span style="display: block; height: 100%; width: {{ h.pct }}; border-radius: 999px; background: #A8D59B; transition: width .6s cubic-bezier(.2,.8,.3,1)"></span></span>
+                            <span style="font-size: 12px; color: #5D6B62; width: 20px; text-align: right">{{ h.n }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                      <sc-for list="{{ sorts }}" as="s" hint-placeholder-count="3">
+                        <button onClick="{{ s.pick }}" style="min-height: 40px; padding: 0 14px; border-radius: 11px; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; border: 1px solid {{ s.bd }}; background: {{ s.bg }}; color: {{ s.fg }}; transition: background .2s, color .2s, transform .2s" style-hover="transform: translateY(-1px)">{{ s.label }}</button>
+                      </sc-for>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column">
+                      <div style="display: flex; gap: 14px; padding: 16px 12px; margin: 0 -12px; border-radius: 16px; transition: background .2s" style-hover="background: #F9FBF9">
+                        <span style="width: 44px; height: 44px; flex: 0 0 44px; border-radius: 999px; background: #E8F3E5; color: #136F38; display: grid; place-items: center; font-size: 16px; font-weight: 800">N</span>
+                        <div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+                          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+                            <span style="font-size: 15px; font-weight: 700">Nərmin</span>
+                            <span class="ms" style="color: #C9A227; font-size: 15px">star star star star star</span>
+                            <span style="font-size: 12.5px; color: #5D6B62">12.08.2026</span>
+                          </div>
+                          <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: #3C4B42; text-wrap: pretty">Uşaqlarla 3 saat gəzdik, kontakt zooparkı çox xoşlarına gəldi. Kolyaska ilə rahat hərəkət etmək olur, kafedə qiymətlər normaldır.</p>
+                          <div style="display: flex; gap: 8px">
+                            <button onClick="{{ likeUp }}" style="min-height: 40px; padding: 0 13px; border-radius: 11px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; border: 1px solid {{ upBd }}; background: {{ upBg }}; color: {{ upFg }}; transition: background .2s, color .2s, transform .2s" style-hover="transform: translateY(-2px)">
+                              <span class="ms" style="font-size: 17px; font-variation-settings: {{ upFill }}">thumb_up</span>{{ upCount }}
+                            </button>
+                            <button onClick="{{ likeDown }}" style="min-height: 40px; padding: 0 13px; border-radius: 11px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; border: 1px solid {{ dnBd }}; background: {{ dnBg }}; color: {{ dnFg }}; transition: background .2s, color .2s, transform .2s" style-hover="transform: translateY(-2px)">
+                              <span class="ms" style="font-size: 17px; font-variation-settings: {{ dnFill }}">thumb_down</span>{{ dnCount }}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div style="display: flex; gap: 14px; padding: 16px 12px; margin: 0 -12px; border-radius: 16px; border-top: 1px solid #EDF1ED; transition: background .2s" style-hover="background: #F9FBF9">
+                        <span style="width: 44px; height: 44px; flex: 0 0 44px; border-radius: 999px; background: #F1F4F1; color: #5D6B62; display: grid; place-items: center; font-size: 16px; font-weight: 800">A</span>
+                        <div style="display: flex; flex-direction: column; gap: 7px; min-width: 0">
+                          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+                            <span style="font-size: 15px; font-weight: 700">Aysel</span>
+                            <span class="ms" style="color: #C9A227; font-size: 15px">star star star star star_border</span>
+                            <span style="font-size: 12.5px; color: #5D6B62">02.08.2026</span>
+                            <span style="font-size: 12px; font-weight: 700; color: #8A6A12; background: #FFF6E0; padding: 4px 9px; border-radius: 999px">Moderasiyada</span>
+                          </div>
+                          <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: #3C4B42; text-wrap: pretty">Həftə sonu çox adam olur — açılışa yaxın gəlmək daha rahatdır.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button style="min-height: 46px; border-radius: 13px; border: 1px solid #CDE7C5; background: #F3F9F2; color: #136F38; font-family: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; transition: background .2s, transform .2s" style-hover="background: #E8F3E5; transform: translateY(-1px)">Daha 16 rəy göstər</button>
+                  </div>
+                </sc-if>
+
+                <!-- rəy yazma formu -->
+                <div style="padding-top: 18px; border-top: 1px solid #EDF1ED; display: flex; flex-direction: column; gap: 14px">
+                  <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+                    <div style="display: flex; flex-direction: column; gap: 14px">
+                      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
+                        <span style="font-size: 16.5px; font-weight: 800">Rəy yaz</span>
+                        <span style="font-size: 13px; color: #5D6B62">Bir məkan üçün bir rəy · moderasiyadan sonra dərc olunur</span>
+                      </div>
+
+                      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+                        <div style="display: flex; gap: 2px">
+                          <sc-for list="{{ stars }}" as="st" hint-placeholder-count="5">
+                            <button onClick="{{ st.pick }}" aria-label="Qiymət ver" style="width: 46px; height: 46px; border: 0; background: transparent; cursor: pointer; color: {{ st.color }}; display: grid; place-items: center; transition: color .15s, transform .2s cubic-bezier(.2,.8,.3,1); transform: {{ st.tr }}" style-hover="transform: scale(1.2)">
+                              <span class="ms" style="font-size: 30px; font-variation-settings: {{ st.fill }}">star</span>
+                            </button>
+                          </sc-for>
+                        </div>
+                        <span style="font-size: 14px; font-weight: 700; color: {{ starHintColor }}">{{ starHint }}</span>
+                      </div>
+
+                      <div style="display: flex; gap: 7px; flex-wrap: wrap">
+                        <sc-for list="{{ chips }}" as="c" hint-placeholder-count="5">
+                          <button onClick="{{ c.add }}" style="min-height: 38px; padding: 0 13px; border-radius: 11px; border: 1px dashed #CDE7C5; background: #fff; color: #136F38; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background .2s, transform .2s" style-hover="background: #F3F9F2; transform: translateY(-2px)">
+                            <span class="ms" style="font-size: 16px">add</span>{{ c.label }}
+                          </button>
+                        </sc-for>
+                      </div>
+
+                      <div style="position: relative; display: flex; flex-direction: column; gap: 8px">
+                        <textarea ref="{{ taRef }}" onInput="{{ onText }}" placeholder="Nəyi bəyəndiniz? Uşaqlar üçün nə faydalı oldu? Nə çatmadı?" style="width: 100%; box-sizing: border-box; min-height: 116px; resize: vertical; padding: 14px 16px; border-radius: 16px; border: 1.5px solid {{ taBorder }}; background: #FBFDFB; font-family: inherit; font-size: 14.5px; line-height: 1.6; color: #16211a; outline: none; transition: border-color .2s, background .2s"></textarea>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+                          <span style="font-size: 12.5px; color: {{ hintColor }}">{{ lenHint }}</span>
+                          <span style="font-size: 12.5px; color: #5D6B62; font-variant-numeric: tabular-nums">{{ lenCount }}</span>
+                        </div>
+                      </div>
+
+                      <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap">
+                        <button onClick="{{ toggleAnon }}" style="min-height: 44px; padding: 0 12px 0 8px; border-radius: 12px; border: 1px solid {{ anonBd }}; background: {{ anonBg }}; color: {{ anonFg }}; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; transition: background .2s, color .2s, border-color .2s">
+                          <span class="ms" style="font-size: 21px; font-variation-settings: {{ anonFill }}">{{ anonIcon }}</span>Adımı göstərmə
+                        </button>
+                        <button onClick="{{ send }}" style="min-height: 50px; padding: 0 24px; border-radius: 14px; border: 0; background: {{ sendBg }}; color: {{ sendFg }}; font-family: inherit; font-size: 15px; font-weight: 700; cursor: {{ sendCursor }}; display: inline-flex; align-items: center; gap: 9px; box-shadow: {{ sendShadow }}; transition: background .2s, color .2s, transform .2s cubic-bezier(.2,.8,.3,1), box-shadow .2s" style-hover="transform: {{ sendLift }}">
+                          <span class="ms" style="font-size: 20px">send</span>Rəyi göndər
+                        </button>
+                      </div>
+
+                      <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; background: #F7FAF7">
+                        <span class="ms" style="font-size: 20px; color: #136F38">lock</span>
+                        <span style="font-size: 13px; color: #3C4B42">Qonaq rejimindəsinizsə — <a href="#3a" style="font-weight: 700">daxil olun</a>, rəy hesabınıza bağlanacaq.</span>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+                    <div style="display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 16px; background: #E8F3E5; border: 1px solid #A8D59B; animation: kmRise .4s cubic-bezier(.2,.8,.3,1) both">
+                      <span class="ms" style="width: 44px; height: 44px; flex: 0 0 44px; border-radius: 999px; background: #136F38; color: #fff; display: grid; place-items: center; font-size: 24px; animation: kmPop .5s cubic-bezier(.2,.8,.3,1) .1s both">check</span>
+                      <div style="display: flex; flex-direction: column; gap: 3px">
+                        <span style="font-size: 15px; font-weight: 800; color: #0d5029">Təşəkkür edirik! Rəyiniz göndərildi</span>
+                        <span style="font-size: 13.5px; color: #3C4B42">Moderasiyadan sonra kartda görünəcək — bu, adətən 1 iş günü çəkir.</span>
+                      </div>
+                      <div style="flex: 1 1 20px"></div>
+                      <button onClick="{{ reset }}" style="min-height: 42px; padding: 0 14px; border-radius: 12px; border: 1px solid #A8D59B; background: #fff; color: #136F38; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer">Yenidən bax</button>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+
+              <!-- Xəritə -->
+              <div style-hover="box-shadow: 0 22px 46px -32px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; transition: box-shadow .28s ease, border-color .28s ease; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+                  <h2 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em">Xəritədə</h2>
+                  <a href="#3a" style="min-height: 40px; padding: 0 14px; border-radius: 11px; border: 1px solid #E3EAE4; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #16211a" style-hover="border-color: #A8D59B">
+                    <span class="ms" style="font-size: 19px; color: #136F38">directions</span>Marşrut qur
+                  </a>
+                </div>
+                <div style="height: 300px; border-radius: 16px; overflow: hidden; position: relative; background: repeating-linear-gradient(135deg, #E7EDE7 0 16px, #DFE6DF 16px 32px); display: grid; place-items: center">
+                  <div style="position: absolute; inset: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent); animation: kmShine 3.4s cubic-bezier(.4,0,.6,1) infinite; pointer-events: none"></div>
+                  <span style="font: 500 12px ui-monospace, monospace; color: #4C5B52; letter-spacing: .08em">google maps embed · marker</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- sticky yan sütun -->
+            <div style="display: flex; flex-direction: column; gap: 16px">
+              <div style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 4px">
+                <h2 style="margin: 0 0 12px; font-size: 18px; font-weight: 800; letter-spacing: -.02em">Əlaqə</h2>
+                <a href="#3a" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 10px; margin: 0 -10px; border-radius: 12px; color: #16211a; transition: background .18s, color .18s" style-hover="color: #136F38; background: #F7FAF7">
+                  <span class="ms" style="width: 38px; height: 38px; border-radius: 11px; background: #E8F3E5; color: #136F38; display: grid; place-items: center; font-size: 20px">call</span>
+                  <span style="display: flex; flex-direction: column"><span style="font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: #5D6B62; font-weight: 700">Əsas telefon</span><span style="font-size: 15px; font-weight: 700">+994 12 440 10 96</span></span>
+                </a>
+                <a href="#3a" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 10px; margin: 0 -10px; border-radius: 12px; color: #16211a; border-top: 1px solid #EDF1ED; transition: background .18s, color .18s" style-hover="color: #136F38; background: #F7FAF7">
+                  <span class="ms" style="width: 38px; height: 38px; border-radius: 11px; background: #E8F3E5; color: #136F38; display: grid; place-items: center; font-size: 20px">call</span>
+                  <span style="display: flex; flex-direction: column"><span style="font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: #5D6B62; font-weight: 700">Əlavə telefon</span><span style="font-size: 15px; font-weight: 700">+994 50 220 41 18</span></span>
+                </a>
+                <a href="#3a" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 10px; margin: 0 -10px; border-radius: 12px; color: #16211a; border-top: 1px solid #EDF1ED; transition: background .18s, color .18s" style-hover="color: #136F38; background: #F7FAF7">
+                  <span class="ms" style="width: 38px; height: 38px; border-radius: 11px; background: #FDF0EC; color: #C2643F; display: grid; place-items: center; font-size: 20px">photo_camera</span>
+                  <span style="display: flex; flex-direction: column"><span style="font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: #5D6B62; font-weight: 700">Instagram</span><span style="font-size: 15px; font-weight: 700">Instagram-da aç</span></span>
+                </a>
+                <a href="#3a" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 10px; margin: 0 -10px; border-radius: 12px; color: #16211a; border-top: 1px solid #EDF1ED; transition: background .18s, color .18s" style-hover="color: #136F38; background: #F7FAF7">
+                  <span class="ms" style="width: 38px; height: 38px; border-radius: 11px; background: #EDF3FB; color: #3B6EA8; display: grid; place-items: center; font-size: 20px">language</span>
+                  <span style="display: flex; flex-direction: column"><span style="font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: #5D6B62; font-weight: 700">Sayt</span><span style="font-size: 15px; font-weight: 700">bakuzoo.az</span></span>
+                </a>
+                <a href="#3a" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; color: #16211a; border-top: 1px solid #EDF1ED" style-hover="color: #136F38">
+                  <span class="ms" style="width: 38px; height: 38px; flex: 0 0 38px; border-radius: 11px; background: #F4EEF9; color: #7A4FA8; display: grid; place-items: center; font-size: 20px">place</span>
+                  <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: #5D6B62; font-weight: 700">Ünvan</span><span style="font-size: 14.5px; font-weight: 700; line-height: 1.45; text-wrap: pretty">Abbasqulu ağa Bakıxanov küçəsi 39</span><span style="font-size: 13px; font-weight: 700; color: #136F38">Marşrut qur</span></span>
+                </a>
+              </div>
+
+              <!-- Paylaş: yalnız frontend -->
+              <div style-hover="box-shadow: 0 22px 46px -32px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 20px; transition: box-shadow .28s ease, border-color .28s ease; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+                <h2 style="margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.02em">Valideynlərlə paylaş</h2>
+                <div style="display: flex; gap: 8px">
+                  <button onClick="{{ copyLink }}" style="flex: 1 1 0; min-height: 46px; border-radius: 13px; border: 1px solid {{ copyBorder }}; background: {{ copyBg }}; color: {{ copyColor }}; font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: background .2s, color .2s, border-color .2s, transform .2s" style-hover="transform: translateY(-2px)">
+                    <span class="ms" style="font-size: 19px">{{ copyIcon }}</span>{{ copyLabel }}
+                  </button>
+                  <a href="#3a" title="WhatsApp-da paylaş" style="width: 46px; height: 46px; border-radius: 13px; border: 1px solid #E3EAE4; display: grid; place-items: center; color: #136F38; transition: transform .2s, border-color .2s" style-hover="transform: translateY(-2px); border-color: #A8D59B">
+                    <span class="ms" style="font-size: 20px">chat</span>
+                  </a>
+                  <button onClick="{{ toggleQr }}" title="QR kod" style="width: 46px; height: 46px; border-radius: 13px; border: 1px solid {{ qrBorder }}; background: {{ qrBg }}; color: {{ qrColor }}; cursor: pointer; display: grid; place-items: center; transition: background .2s, color .2s, transform .2s" style-hover="transform: translateY(-2px)">
+                    <span class="ms" style="font-size: 20px">qr_code_2</span>
+                  </button>
+                </div>
+                <sc-if value="{{ qrOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; background: #F7FAF7; animation: kmRise .3s ease both">
+                    <span style="width: 76px; height: 76px; flex: 0 0 76px; border-radius: 10px; background: repeating-conic-gradient(#16211a 0 25%, #fff 0 50%) 0 0/12px 12px"></span>
+                    <span style="font-size: 12.5px; line-height: 1.5; color: #5D6B62">Kameranı yönəldin — kart telefonda açılacaq</span>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div style="border-radius: 20px; padding: 18px 20px; background: #F3F9F2; border: 1px solid #CDE7C5; display: flex; gap: 12px">
+                <span class="ms" style="font-size: 20px; color: #136F38; margin-top: 1px">info</span>
+                <div style="display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #136F38">Vacib qeyd</span>
+                  <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #3C4B42">Cədvəli, qiyməti və şərtləri ziyarətdən əvvəl birbaşa təşkilatla dəqiqləşdirin.</p>
+                  <span style="font-size: 12.5px; color: #5D6B62">Kartın əlavə tarixi: 23.07.2026</span>
+                </div>
+              </div>
+
+              <div style="border-radius: 20px; border: 1px dashed #DCE3DC; padding: 14px 16px; display: flex; align-items: center; gap: 12px; background: #fff">
+                <span style="width: 40px; height: 40px; border-radius: 12px; background: repeating-linear-gradient(135deg, #E7EDE7 0 8px, #DFE6DF 8px 16px)"></span>
+                <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                  <span style="font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: #5D6B62; font-weight: 800">Reklam</span>
+                  <span style="font-size: 13.5px; font-weight: 700">Aktiv iş elanları</span>
+                  <span style="font-size: 12.5px; color: #5D6B62">iseqebul.az</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- mobile 390 -->
+      <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: 8px">
+        <div style="width: 390px; background: #F7FAF7; border-radius: 26px; border: 1px solid #E3EAE4; overflow: hidden; box-shadow: 0 22px 50px -30px rgba(12,40,26,.4); position: relative; padding-bottom: 84px; animation: kmRise .6s cubic-bezier(.2,.8,.3,1) both">
+          <div style="padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 10px; background: #fff; border-bottom: 1px solid #EDF1ED">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <span class="ms" style="width: 40px; height: 40px; border-radius: 12px; border: 1px solid #E3EAE4; display: grid; place-items: center; font-size: 21px">arrow_back</span>
+              <span style="font-size: 12.5px; color: #5D6B62; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Kataloq · Zooparklar və akvariumlar</span>
+            </div>
+            <div style="font-size: 25px; line-height: 1.16; font-weight: 800; letter-spacing: -.025em; text-wrap: pretty">Bakı Zooloji Parkı</div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 12.5px; font-weight: 700">
+              <span style="padding: 5px 10px; border-radius: 999px; background: #E8F3E5; color: #136F38">Zooparklar</span>
+              <span style="padding: 5px 10px; border-radius: 999px; background: #F1F4F1; color: #3C4B42">Nərimanov · m. Gənclik</span>
+            </div>
+          </div>
+          <div style="padding: 12px 16px 20px; display: flex; flex-direction: column; gap: 14px">
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div style="position: relative; aspect-ratio: 4/3; border-radius: 16px; overflow: hidden; background: repeating-linear-gradient(135deg, #E4EBE4 0 12px, #DBE3DB 12px 24px); display: grid; place-items: center">
+                <div style="position: absolute; inset: 0; width: 45%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: kmShine 2.6s cubic-bezier(.4,0,.6,1) infinite; pointer-events: none"></div>
+                <span style="font: 500 11px ui-monospace, monospace; color: #4C5B52; animation: {{ mShotAnim }}">{{ mShotLabel }}</span>
+                <span style="position: absolute; top: 10px; left: 10px; padding: 5px 10px; border-radius: 999px; background: #fff; color: #1E7A3F; font-size: 11.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; border-radius: 999px; background: #2FA35A; animation: kmPulseDot 2s ease-in-out infinite"></span>Açıq</span>
+                <span style="position: absolute; bottom: 10px; right: 10px; padding: 5px 10px; border-radius: 999px; background: rgba(10,26,17,.66); color: #fff; font-size: 12px; font-weight: 700; backdrop-filter: blur(6px)">{{ mCounter }}</span>
+                <div style="position: absolute; bottom: 12px; left: 12px; display: flex; gap: 5px">
+                  <sc-for list="{{ mThumbs }}" as="d" hint-placeholder-count="6">
+                    <span style="width: 6px; height: 6px; border-radius: 999px; background: #fff; opacity: {{ d.op }}; transition: opacity .35s"></span>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px; overflow: hidden">
+                <div style="display: flex; gap: 8px; animation: kmSwipeHint 7s cubic-bezier(.3,.7,.3,1) infinite">
+                  <sc-for list="{{ mThumbs }}" as="t" hint-placeholder-count="6">
+                    <span style="width: 74px; height: 58px; flex: 0 0 74px; border-radius: 11px; border: {{ t.ring }}; opacity: {{ t.op }}; transform: {{ t.tr }}; transition: opacity .35s, border-color .35s, transform .35s cubic-bezier(.2,.8,.3,1); background: repeating-linear-gradient(135deg, #E4EBE4 0 10px, #DBE3DB 10px 20px)"></span>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div style-hover="box-shadow: 0 16px 34px -28px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 18px; transition: box-shadow .28s ease, border-color .28s ease; padding: 16px; animation: kmRise .5s cubic-bezier(.2,.8,.3,1) both; display: flex; flex-direction: column; gap: 12px">
+              <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 10px">
+                <span style="font-size: 27px; font-weight: 800; color: #136F38; letter-spacing: -.03em; line-height: 1">2–7 ₼</span>
+                <span style="font-size: 12.5px; color: #5D6B62; padding-bottom: 3px">giriş bileti · 9 tarif</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span class="ms" style="font-size: 19px; color: #136F38">child_care</span><span style="font-weight: 700">Bütün yaşlar · 0+</span></div>
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><span class="ms" style="font-size: 19px; color: #136F38">schedule</span><span><span style="font-weight: 700; color: #1E7A3F; display: inline-flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; border-radius: 999px; background: #2FA35A; animation: kmPulseDot 2s ease-in-out infinite"></span>Bu gün açıq</span> · 10:00–19:00</span></div>
+              <div style="display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: #5D6B62"><span class="ms" style="font-size: 19px; color: #136F38">place</span><span style="text-wrap: pretty">Abbasqulu ağa Bakıxanov küçəsi 39</span></div>
+            </div>
+
+            <div style="display: flex; gap: 8px">
+              <button onClick="{{ toggleMFav }}" style="flex: 1 1 0; min-height: 48px; border-radius: 13px; border: 1px solid {{ mFavBd }}; background: {{ mFavBg }}; color: {{ mFavFg }}; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .2s, color .2s, border-color .2s, transform .2s" style-hover="transform: translateY(-2px)"><span class="ms" style="font-size: 19px; font-variation-settings: {{ mFavFill }}; animation: {{ mFavAnim }}">favorite</span>{{ mFavLabel }}</button>
+              <span style="flex: 1 1 0; min-height: 48px; border-radius: 13px; border: 1px solid #E3EAE4; background: #fff; display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 14px; font-weight: 700; transition: transform .2s, border-color .2s" style-hover="transform: translateY(-2px); border-color: #A8D59B"><span class="ms" style="font-size: 19px; color: #136F38">directions</span>Marşrut</span>
+            </div>
+
+            <div style-hover="box-shadow: 0 16px 34px -28px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 18px; transition: box-shadow .28s ease, border-color .28s ease; padding: 16px; animation: kmRise .5s cubic-bezier(.2,.8,.3,1) both; display: flex; flex-direction: column; gap: 8px">
+              <div style="font-size: 17px; font-weight: 800">Məkan haqqında</div>
+              <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #3C4B42; text-wrap: pretty">Bakı Zooloji Parkı bütün yaş qrupları üçün açıq zooloji parkdır. 125 heyvan növü, kontakt zooparkı, uşaq meydançası və poni gəzintisi zonası var.</p>
+            </div>
+
+            <div style-hover="box-shadow: 0 16px 34px -28px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 18px; transition: box-shadow .28s ease, border-color .28s ease; padding: 16px; animation: kmRise .5s cubic-bezier(.2,.8,.3,1) both; display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 17px; font-weight: 800">Dəyər və şərtlər</div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #EDF1ED"><span style="font-size: 14px; font-weight: 700">Böyüklər</span><span style="font-size: 14px; font-weight: 800; color: #136F38">7 ₼</span></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid #EDF1ED"><span style="font-size: 14px; font-weight: 700">Məktəblilər (7–16)</span><span style="font-size: 14px; font-weight: 800; color: #136F38">2 ₼</span></div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px"><span style="font-size: 14px; font-weight: 700">Uşaqlar (4–16)</span><span style="font-size: 14px; font-weight: 800; color: #136F38">2 ₼</span></div>
+              <span style="min-height: 44px; border-radius: 12px; background: #F3F9F2; border: 1px solid #CDE7C5; color: #136F38; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700">Daha 6 tarif</span>
+            </div>
+
+            <div style-hover="box-shadow: 0 16px 34px -28px rgba(12,40,26,.5); border-color: #CDE7C5" style="background: #fff; border: 1px solid #E3EAE4; border-radius: 18px; transition: box-shadow .28s ease, border-color .28s ease; padding: 16px; animation: kmRise .5s cubic-bezier(.2,.8,.3,1) both; display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 17px; font-weight: 800">Rəylər</div>
+              <div style="display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 14px; background: #F7FAF7">
+                <span class="ms" style="font-size: 22px; color: #136F38">rate_review</span>
+                <span style="font-size: 13.5px; color: #3C4B42">Hələ rəy yoxdur — ilk rəyi siz yazın</span>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 12px 10px; border-radius: 14px; border: 1px dashed #CDE7C5">
+                <div style="display: flex; gap: 2px">
+                  <sc-for list="{{ stars }}" as="st" hint-placeholder-count="5">
+                    <button onClick="{{ st.pick }}" aria-label="Qiymət ver" style="width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; color: {{ st.color }}; display: grid; place-items: center; transform: {{ st.tr }}; transition: color .15s, transform .2s cubic-bezier(.2,.8,.3,1)" style-hover="transform: scale(1.18)">
+                      <span class="ms" style="font-size: 26px; font-variation-settings: {{ st.fill }}">star</span>
+                    </button>
+                  </sc-for>
+                </div>
+                <span style="font-size: 12.5px; font-weight: 700; color: {{ starHintColor }}; padding-left: 4px">{{ starHint }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 16px 16px; background: rgba(255,255,255,.96); border-top: 1px solid #E3EAE4; display: flex; gap: 8px; backdrop-filter: blur(8px); animation: kmSlideUp .6s cubic-bezier(.2,.8,.3,1) .25s both">
+            <span style="flex: 1 1 0; min-height: 52px; border-radius: 14px; background: #136F38; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 700; animation: kmGlow 2.6s ease-in-out infinite; transition: transform .2s" style-hover="transform: translateY(-2px)"><span class="ms" style="font-size: 20px">call</span>Zəng et</span>
+            <span style="flex: 1 1 0; min-height: 52px; border-radius: 14px; border: 1px solid #CDE7C5; background: #F3F9F2; color: #136F38; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 700"><span class="ms" style="font-size: 20px">chat</span>WhatsApp</span>
+          </div>
+        </div>
+
+        <div style="width: 320px; display: flex; flex-direction: column; gap: 10px; padding-top: 8px">
+          <span style="font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 800; color: #5D6B62">Mobil 390 px — nə dəyişdi</span>
+          <span style="font-size: 13.5px; line-height: 1.6; color: #3C4B42">Ad → qalereya → qiymət/yaş/cədvəl → hərəkətlər. Miniatürlər üfüqi sürüşür, alt panel yalnız zəng varsa görünür, səhifəyə panel hündürlüyü + <span style="font-family: ui-monospace, monospace; font-size: 12.5px">safe-area-inset-bottom</span> qədər boşluq əlavə olunur, çat panelin üstündə qalır.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1000}}">
+class Component extends DCLogic {
+  state = {
+    shot: 0, tariffs: false, fav: false, sort: 0, stars: 0, copied: false, qr: false,
+    revMode: 'empty', vote: 0, text: '', anon: false, sent: false, mShot: 0, mFav: false,
+  };
+
+  componentDidMount() {
+    this._t = setInterval(() => this.setState(s => ({ mShot: (s.mShot + 1) % 6 })), 3400);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._t);
+    clearTimeout(this._ct);
+  }
+
+  renderVals() {
+    const labels = ['giriş qapısı', 'kontakt zooparkı', 'park xəritəsi', 'zürafə vollyeri', 'uşaq meydançası', 'yaşıl zona'];
+    const n = labels.length;
+    const i = this.state.shot;
+    const fav = this.state.fav;
+    const open = this.state.tariffs;
+    const sortNames = ['Yenilər', 'Yüksək bal', 'Faydalı'];
+    const v = this.state.vote;
+    const len = (this.state.text || '').length;
+    const ready = len >= 20 && this.state.stars > 0;
+    return {
+      shots: labels.map((l, k) => ({
+        key: k,
+        ring: k === i ? '2px solid #136F38' : '2px solid transparent',
+        op: k === i ? 1 : 0.66,
+        tr: k === i ? 'none' : 'scale(.98)',
+        pick: () => this.setState({ shot: k }),
+      })),
+      shotAnim: (i % 2 ? 'kmFadeB' : 'kmFadeA') + ' .42s cubic-bezier(.2,.8,.3,1) both',
+      favAnim: fav ? 'kmPop .34s cubic-bezier(.2,.8,.3,1)' : 'none',
+      shotLabel: 'foto ' + (i + 1) + ' · ' + labels[i],
+      counter: (i + 1) + ' / ' + n,
+      prev: () => this.setState({ shot: (i - 1 + n) % n }),
+      next: () => this.setState({ shot: (i + 1) % n }),
+      toggleFav: () => this.setState({ fav: !fav }),
+      favLabel: fav ? 'Seçilmişlərdə' : 'Seçilmişlərə',
+      favBg: fav ? '#136F38' : '#fff',
+      favColor: fav ? '#fff' : '#16211a',
+      favBorder: fav ? '#136F38' : '#E3EAE4',
+      favFill: fav ? "'FILL' 1" : "'FILL' 0",
+      tariffsOpen: open,
+      tariffLabel: open ? 'Gizlət' : 'Daha 6 tarif göstər',
+      tariffArrow: open ? 'rotate(180deg)' : 'none',
+      toggleTariffs: () => this.setState({ tariffs: !open }),
+      sorts: sortNames.map((label, k) => ({
+        key: k, label,
+        bg: this.state.sort === k ? '#136F38' : '#fff',
+        fg: this.state.sort === k ? '#fff' : '#3C4B42',
+        bd: this.state.sort === k ? '#136F38' : '#E3EAE4',
+        pick: () => this.setState({ sort: k }),
+      })),
+      stars: [1, 2, 3, 4, 5].map(v => ({
+        key: v,
+        color: v <= this.state.stars ? '#C9A227' : '#C9D3C9',
+        fill: v <= this.state.stars ? "'FILL' 1" : "'FILL' 0",
+        tr: v <= this.state.stars ? 'scale(1.06)' : 'none',
+        pick: () => this.setState({ stars: v }),
+      })),
+      starHint: this.state.stars ? ['Çox pis', 'Pis', 'Normaldır', 'Yaxşıdır', 'Mükəmməl!'][this.state.stars - 1] : 'Bir toxunuşla qiymət verin',
+      starHintColor: this.state.stars ? '#136F38' : '#5D6B62',
+
+      // rəy bölməsi: nümunə vəziyyətləri
+      revEmpty: this.state.revMode === 'empty',
+      revFilled: this.state.revMode === 'filled',
+      revCountLabel: this.state.revMode === 'filled' ? '18 rəy' : 'hələ rəy yoxdur',
+      revModes: [['empty', 'Boş'], ['filled', 'Doldurulmuş']].map(([id, label]) => ({
+        key: id, label,
+        bg: this.state.revMode === id ? '#136F38' : '#fff',
+        fg: this.state.revMode === id ? '#fff' : '#3C4B42',
+        bd: this.state.revMode === id ? '#136F38' : '#E3EAE4',
+        pick: () => this.setState({ revMode: id }),
+      })),
+      histogram: [[5, 11], [4, 5], [3, 1], [2, 1], [1, 0]].map(([star, cnt]) => ({
+        key: star, star, n: cnt, pct: Math.round((cnt / 11) * 100) + '%',
+      })),
+
+      // faydalı / faydasız
+      likeUp: () => this.setState(s => ({ vote: s.vote === 1 ? 0 : 1 })),
+      likeDown: () => this.setState(s => ({ vote: s.vote === -1 ? 0 : -1 })),
+      upCount: 7 + (v === 1 ? 1 : 0),
+      dnCount: 0 + (v === -1 ? 1 : 0),
+      upBg: v === 1 ? '#E8F3E5' : '#fff',
+      upFg: v === 1 ? '#136F38' : '#3C4B42',
+      upBd: v === 1 ? '#A8D59B' : '#E3EAE4',
+      upFill: v === 1 ? "'FILL' 1" : "'FILL' 0",
+      dnBg: v === -1 ? '#F1F4F1' : '#fff',
+      dnFg: v === -1 ? '#16211a' : '#3C4B42',
+      dnBd: v === -1 ? '#C9D3C9' : '#E3EAE4',
+      dnFill: v === -1 ? "'FILL' 1" : "'FILL' 0",
+
+      // rəy formu
+      notSent: !this.state.sent,
+      sent: this.state.sent,
+      onText: e => this.setState({ text: e.target.value }),
+      taRef: el => { this._ta = el; },
+      taBorder: len ? '#A8D59B' : '#E3EAE4',
+      lenCount: len + ' / 1000',
+      lenHint: len === 0 ? 'Ən azı 20 simvol yazın' : (len < 20 ? (20 - len) + ' simvol daha lazımdır' : 'Yaza bilərsiniz — hazırdır'),
+      hintColor: len >= 20 ? '#136F38' : '#5D6B62',
+      chips: ['Uşaqlar üçün rahat', 'Kolyaska ilə keçmək olur', 'Qiymət uyğundur', 'Çox adam olur', 'Kafe var'].map((label, k) => ({
+        key: k, label,
+        add: () => {
+          const t = (this.state.text ? this.state.text.replace(/\s*$/, '') + ' ' : '') + label + '. ';
+          this.setState({ text: t });
+          if (this._ta) { this._ta.value = t; this._ta.focus(); }
+        },
+      })),
+      toggleAnon: () => this.setState(s => ({ anon: !s.anon })),
+      anonBg: this.state.anon ? '#136F38' : '#fff',
+      anonFg: this.state.anon ? '#fff' : '#3C4B42',
+      anonBd: this.state.anon ? '#136F38' : '#E3EAE4',
+      anonIcon: this.state.anon ? 'check_box' : 'check_box_outline_blank',
+      anonFill: this.state.anon ? "'FILL' 1" : "'FILL' 0",
+      send: () => { if (ready) this.setState({ sent: true }); },
+      sendBg: ready ? '#136F38' : '#E7EDE7',
+      sendFg: ready ? '#fff' : '#8A998D',
+      sendCursor: ready ? 'pointer' : 'not-allowed',
+      sendShadow: ready ? '0 12px 26px -16px rgba(19,111,56,.9)' : 'none',
+      sendLift: ready ? 'translateY(-2px)' : 'none',
+      reset: () => this.setState({ sent: false, text: '', stars: 0, anon: false }),
+
+      // mobil kadr: canlı hərəkət
+      mShotLabel: 'foto ' + (this.state.mShot + 1) + ' · ' + labels[this.state.mShot],
+      mCounter: (this.state.mShot + 1) + ' / 6',
+      mShotAnim: (this.state.mShot % 2 ? 'kmFadeB' : 'kmFadeA') + ' .5s cubic-bezier(.2,.8,.3,1) both',
+      mThumbs: labels.map((l, k) => ({
+        key: k,
+        ring: k === this.state.mShot ? '2px solid #136F38' : '2px solid transparent',
+        op: k === this.state.mShot ? 1 : 0.6,
+        tr: k === this.state.mShot ? 'translateY(-2px)' : 'none',
+      })),
+      mFav: this.state.mFav,
+      toggleMFav: () => this.setState(s => ({ mFav: !s.mFav })),
+      mFavBg: this.state.mFav ? '#136F38' : '#fff',
+      mFavFg: this.state.mFav ? '#fff' : '#16211a',
+      mFavBd: this.state.mFav ? '#136F38' : '#E3EAE4',
+      mFavFill: this.state.mFav ? "'FILL' 1" : "'FILL' 0",
+      mFavAnim: this.state.mFav ? 'kmPop .34s cubic-bezier(.2,.8,.3,1)' : 'none',
+      mFavLabel: this.state.mFav ? 'Seçilmişdə' : 'Seçilmiş',
+      copyLabel: this.state.copied ? 'Kopyalandı' : 'Linki kopyala',
+      copyIcon: this.state.copied ? 'check' : 'link',
+      copyBg: this.state.copied ? '#136F38' : '#fff',
+      copyColor: this.state.copied ? '#fff' : '#16211a',
+      copyBorder: this.state.copied ? '#136F38' : '#E3EAE4',
+      copyLink: () => {
+        try { navigator.clipboard && navigator.clipboard.writeText(location.href); } catch (e) {}
+        this.setState({ copied: true });
+        clearTimeout(this._ct);
+        this._ct = setTimeout(() => this.setState({ copied: false }), 1800);
+      },
+      qrOpen: this.state.qr,
+      toggleQr: () => this.setState({ qr: !this.state.qr }),
+      qrBg: this.state.qr ? '#136F38' : '#fff',
+      qrColor: this.state.qr ? '#fff' : '#16211a',
+      qrBorder: this.state.qr ? '#136F38' : '#E3EAE4',
+    };
+  }
+}
+</script>
+</body>
+</html>

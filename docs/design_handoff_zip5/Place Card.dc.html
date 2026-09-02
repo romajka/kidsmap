@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+  body { margin: 0; background: #f4f6f8; font-family: Manrope, system-ui, sans-serif; }
+  a { color: #0f6d5f; text-decoration: none; }
+  a:hover { color: #0a4f45; }
+  @keyframes kmRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes kmPulse { 0%,100% { transform: scale(1); } 40% { transform: scale(1.35); } }
+  @keyframes kmShine { from { transform: translateX(-120%) skewX(-18deg); } to { transform: translateX(320%) skewX(-18deg); } }
+</style>
+</helmet>
+
+<section style="padding: 48px 40px 64px; display: flex; flex-direction: column; gap: 28px">
+  <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap">
+    <span style="font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: #0f6d5f; background: #dcefe9; padding: 6px 12px; border-radius: 999px; font-weight: 700">2a</span>
+    <h1 style="margin: 0; font-size: 30px; font-weight: 800; color: #12211f; letter-spacing: -.02em">Страница места — предложение</h1>
+    <p style="margin: 0; font-size: 15px; color: #6b7b78; max-width: 640px">Переключайте галерею, дни недели, группы, тарифы и рейтинг — всё живое.</p>
+  </div>
+
+  <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 13px; color: #6b7b78">
+    <span style="padding: 7px 12px; border-radius: 999px; background: #fff; border: 1px solid #e3e8e7">Описание поднято наверх — сейчас оно под отзывами</span>
+    <span style="padding: 7px 12px; border-radius: 999px; background: #fff; border: 1px solid #e3e8e7">9 секций → 5</span>
+    <span style="padding: 7px 12px; border-radius: 999px; background: #fff; border: 1px solid #e3e8e7">Контакты не повторяются трижды</span>
+    <span style="padding: 7px 12px; border-radius: 999px; background: #fff; border: 1px solid #e3e8e7">Убраны «0,0» и сырые координаты</span>
+  </div>
+
+  <div style="background: #fff; border-radius: 24px; border: 1px solid #e6ebea; box-shadow: 0 24px 60px -30px rgba(12,40,34,.28); overflow: hidden; width: 1240px; min-width: 1240px">
+
+    <div style="padding: 20px 32px 0; display: flex; flex-direction: column; gap: 16px">
+      <nav style="display: flex; gap: 8px; align-items: center; font-size: 13px; color: #8d9b98; flex-wrap: wrap">
+        <a href="#2a">Ana səhifə</a><span>›</span>
+        <a href="#2a">Kataloq</a><span>›</span>
+        <a href="#2a">İdman</a><span>›</span>
+        <a href="#2a">Stolüstü tennis</a><span>›</span>
+        <a href="#2a">Nərimanov rayonu</a>
+      </nav>
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap">
+        <div style="display: flex; flex-direction: column; gap: 10px; max-width: 700px">
+          <h2 style="margin: 0; font-size: 34px; line-height: 1.15; font-weight: 800; color: #12211f; letter-spacing: -.025em">Sonic Athletics Club</h2>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 12.5px; font-weight: 600">
+            <span style="padding: 6px 11px; border-radius: 999px; background: #dcefe9; color: #0f6d5f">İdman · Stolüstü tennis</span>
+            <span style="padding: 6px 11px; border-radius: 999px; background: #f1f4f4; color: #3c4b48">6–15 yaş</span>
+            <span style="padding: 6px 11px; border-radius: 999px; background: #f1f4f4; color: #3c4b48">Daimi məkan</span>
+            <span style="padding: 6px 11px; border-radius: 999px; background: #eef5ff; color: #1a5aa8">✓ Sahib tərəfindən yenilənib · 21.07</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center">{{ headerActions }}</div>
+      </div>
+    </div>
+
+    <div style="padding: 22px 32px 0; display: grid; grid-template-columns: 1fr 372px; gap: 28px; align-items: start">
+
+      <div style="display: flex; flex-direction: column; gap: 26px; min-width: 0">
+        {{ gallery }}
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: #e6ebea; border: 1px solid #e6ebea; border-radius: 16px; overflow: hidden">
+          <div style="background: #fff; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #9aa8a5; font-weight: 700">Qiymət</span>
+            <span style="font-size: 17px; font-weight: 800; color: #12211f">120 ₼ <span style="font-size: 12px; font-weight: 600; color: #7d8b88">/ ay</span></span>
+          </div>
+          <div style="background: #fff; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #9aa8a5; font-weight: 700">Dərs</span>
+            <span style="font-size: 17px; font-weight: 800; color: #12211f">60 dəqiqə</span>
+          </div>
+          <div style="background: #fff; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #9aa8a5; font-weight: 700">Metro</span>
+            <span style="font-size: 17px; font-weight: 800; color: #12211f">Gənclik · 7 dəq</span>
+          </div>
+          <div style="background: #fff; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #9aa8a5; font-weight: 700">İlk dərs</span>
+            <span style="font-size: 17px; font-weight: 800; color: #0f6d5f">Pulsuz sınaq</span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #12211f; letter-spacing: -.015em">Uşağınız burada nə edəcək</h3>
+          <p style="margin: 0; font-size: 15.5px; line-height: 1.6; color: #3c4b48; max-width: 660px; text-wrap: pretty">Uşağınız üçün düzgün idman başlanğıcı: sürət, dözümlülük, güc və sağlam həyat tərzi. Məşqlər yaşa və hazırlıq səviyyəsinə uyğun qruplarda keçirilir, uşaqlarda koordinasiya, intizam və idmana maraq yaradır.</p>
+        </div>
+
+        <div style="border: 1px solid #e6ebea; border-radius: 18px; overflow: hidden">
+          <div style="padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; border-bottom: 1px solid #eef1f1">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #12211f">Cədvəl</h3>
+            <div style="display: flex; gap: 7px">{{ groupTabs }}</div>
+          </div>
+          <div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+            {{ weekGrid }}
+            <p style="margin: 0; font-size: 12.5px; color: #8d9b98">Dəqiq vaxtı təşkilatla dəqiqləşdirin — cədvəl mövsümə görə dəyişə bilər.</p>
+          </div>
+        </div>
+
+        <div style="border: 1px solid #e6ebea; border-radius: 18px; overflow: hidden">
+          <div style="padding: 16px 18px; border-bottom: 1px solid #eef1f1; display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #12211f">Tariflər</h3>
+            <span style="font-size: 12.5px; color: #8d9b98">Bakı Zooparkı nümunəsi — çoxsaylı bilet növü</span>
+          </div>
+          {{ tariffs }}
+        </div>
+
+        <div style="border: 1px solid #e6ebea; border-radius: 18px; overflow: hidden">
+          <div style="padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap">
+            <div style="display: flex; flex-direction: column; gap: 3px">
+              <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #12211f">6 Olimpiya küç., Nərimanov rayonu</h3>
+              <span style="font-size: 13px; color: #7d8b88">Gənclik metrosundan 7 dəqiqə piyada</span>
+            </div>
+            <a href="#2a" style="min-height: 44px; padding: 0 18px; border-radius: 12px; background: #12211f; color: #fff; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center" style-hover="background: #0f6d5f"><span style="font-family: Material Symbols Rounded; font-size: 19px; margin-right: 7px">directions</span>Yol göstər</a>
+          </div>
+          <div style="height: 220px; background: repeating-linear-gradient(135deg, #e4ebe9 0 12px, #dce4e2 12px 24px); position: relative; display: grid; place-items: center">
+            <span style="width: 18px; height: 18px; border-radius: 999px; background: #0f6d5f; box-shadow: 0 0 0 6px rgba(15,109,95,.22)"></span>
+            <span style="position: absolute; bottom: 14px; left: 16px; font: 500 11px ui-monospace, monospace; color: #8a9896; letter-spacing: .08em">xəritə · marker + yaxınlıqdakı 3 məkan</span>
+          </div>
+        </div>
+
+        {{ reviews }}
+
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #12211f; letter-spacing: -.015em">Yaxınlıqda oxşar məkanlar</h3>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px">{{ nearby }}</div>
+        </div>
+
+        <p style="margin: 0 0 26px; font-size: 12.5px; line-height: 1.6; color: #9aa8a5; border-top: 1px solid #eef1f1; padding-top: 14px">Məlumatların bir hissəsi açıq mənbələrdən götürülüb. Cədvəli və qiyməti ziyarətdən əvvəl təşkilatla dəqiqləşdirin. <a href="#2a">Səhv tapdınız?</a></p>
+      </div>
+
+      {{ sidebar }}
+    </div>
+  </div>
+</section>
+
+<section style="padding: 48px 40px 72px; display: flex; flex-direction: column; gap: 40px">
+  <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap">
+    <span style="font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: #0f6d5f; background: #dcefe9; padding: 6px 12px; border-radius: 999px; font-weight: 700">1a</span>
+    <h1 style="margin: 0; font-size: 30px; font-weight: 800; color: #12211f; letter-spacing: -.02em">Карточка места — визуальная переработка</h1>
+    <p style="margin: 0; font-size: 15px; color: #6b7b78; max-width: 620px">Наведите курсор на карточку: фото приближается, кнопки поднимаются, «Yol göstər» появляется. Слева — как сейчас, справа — предложение.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 360px 1fr; gap: 44px; align-items: start">
+
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <span style="font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #9aa8a5; font-weight: 700">Сейчас</span>
+      <div style="background: #fff; border: 1px solid #e3e8e7; border-radius: 12px; overflow: hidden; opacity: .85">
+        <div style="height: 150px; background: repeating-linear-gradient(135deg, #eef1f1 0 8px, #e6eaea 8px 16px); display: flex; align-items: center; justify-content: center; font: 500 11px ui-monospace, monospace; color: #9aa8a5">место фото</div>
+        <div style="padding: 14px; display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #7d8b88">
+            <span>İdman</span><span>♥ 0</span>
+          </div>
+          <div style="font-size: 16px; font-weight: 700; color: #12211f">Safarov Judo Academy — Mərdanov qardaşları filialı</div>
+          <div style="font-size: 13px; color: #7d8b88; line-height: 1.5">Safarov Judo Academy-nin Mərdanov qardaşları küçəsində yerləşən filialında 5–18 yaşlı uşaql…</div>
+          <div style="font-size: 12px; color: #7d8b88">5–18 yaş · Daimi · ★ Rəy yoxdur</div>
+          <div style="font-size: 12px; color: #7d8b88">Bakı, Nəsimi rayonu</div>
+          <div style="display: flex; gap: 8px; padding-top: 4px">
+            <span style="flex: 1; text-align: center; font-size: 13px; padding: 9px; border: 1px solid #d9e0df; border-radius: 8px; color: #12211f">Ətraflı</span>
+            <span style="width: 40px; text-align: center; font-size: 13px; padding: 9px 0; border: 1px solid #d9e0df; border-radius: 8px">☎</span>
+          </div>
+        </div>
+      </div>
+      <ul style="margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.75; color: #6b7b78">
+        <li>«♥ 0» и «Rəy yoxdur» кричат о пустоте</li>
+        <li>Описание начинается с названия — строка впустую</li>
+        <li>Обрезка рвёт слово: «uşaql…»</li>
+        <li>Нет расстояния, метро, расписания</li>
+        <li>Только звонок — без WhatsApp и маршрута</li>
+      </ul>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <span style="font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #0f6d5f; font-weight: 700">Предложение</span>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 22px">
+        {{ cards }}
+      </div>
+      <ul style="margin: 4px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.75; color: #6b7b78; max-width: 680px">
+        <li>Вместо нулей — то, что уже есть: филиалы, метро, «Yeni»</li>
+        <li>Первая строка описания отвечает «почему сюда», не повторяет название</li>
+        <li>Рейтинг в один тап прямо в карточке — так набираются первые отзывы</li>
+        <li>Три действия: WhatsApp, звонок, маршрут — все в один палец, 44px+</li>
+        <li>Филиалы одного клуба схлопнуты: чипы районов вместо пяти дублей</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const DATA = [
+  {
+    id: 'judo',
+    cat: 'İdman', catColor: '#0f6d5f', catBg: '#dcefe9',
+    name: 'Safarov Judo Academy',
+    hook: 'İlk məşq pulsuz. Milli çempion məşqçilər, 5–18 yaş üzrə qruplar.',
+    price: '80 ₼', priceNote: 'ayda',
+    age: '5–18 yaş',
+    metro: 'Nəsimi · 6 dəq piyada',
+    branches: ['Mərdanov qardaşları', 'Qara Qarayev', 'İdman Akademiyası'],
+    schedule: 'B.e–Ş · 16:00–20:00',
+    openNow: true,
+    flag: 'Yoxlanılmış',
+    photo: 'judo zalı',
+  },
+  {
+    id: 'moka',
+    cat: 'Əyləncə', catColor: '#8a4b12', catBg: '#f6e7d6',
+    name: 'Moka Kids — Zefir Mall',
+    hook: 'Kafedə valideyn gözləyir, uşaq oynayır. Ad günü zalı var.',
+    price: '20 ₼', priceNote: 'saat',
+    age: '1–13 yaş',
+    metro: 'Yasamal · İnşaatçılar 9 dəq',
+    branches: [],
+    schedule: 'Hər gün · 10:00–22:00',
+    openNow: true,
+    flag: 'Yeni',
+    photo: 'oyun mərkəzi',
+  },
+];
+
+class Component extends DCLogic {
+  state = { hover: null, rated: {}, hoverStar: {}, fav: {}, branch: {}, pop: null };
+
+  // Material Symbols Rounded — один набор на всю страницу, 20px, вес 500
+  icon(name, opts = {}) {
+    return React.createElement('span', {
+      key: 'i-' + name,
+      'aria-hidden': 'true',
+      style: {
+        fontFamily: 'Material Symbols Rounded',
+        fontSize: (opts.size || 20) + 'px',
+        lineHeight: 1,
+        fontWeight: 400,
+        color: opts.color,
+        fontVariationSettings: `'FILL' ${opts.fill ? 1 : 0}, 'wght' 500, 'GRAD' 0, 'opsz' 24`,
+        display: 'inline-block',
+        transform: opts.spin ? 'rotate(180deg)' : 'none',
+        transition: 'transform .25s ease, color .2s',
+        flexShrink: 0,
+      },
+    }, name);
+  }
+
+  componentDidMount() {
+    this.t = setTimeout(() => this.setState({ pop: 'judo' }), 900);
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+
+  star(id, i) {
+    const filled = (this.state.hoverStar[id] ?? this.state.rated[id] ?? 0) >= i;
+    return React.createElement('button', {
+      key: i,
+      onMouseEnter: () => this.setState(s => ({ hoverStar: { ...s.hoverStar, [id]: i } })),
+      onMouseLeave: () => this.setState(s => ({ hoverStar: { ...s.hoverStar, [id]: null } })),
+      onClick: () => this.setState(s => ({ rated: { ...s.rated, [id]: i } })),
+      style: {
+        background: 'none', border: 0, padding: '2px', cursor: 'pointer', lineHeight: 1,
+        fontSize: '19px', color: filled ? '#f0a020' : '#cfd8d6',
+        transition: 'color .15s, transform .15s',
+        transform: filled ? 'scale(1.08)' : 'none',
+        animation: this.state.rated[id] === i ? 'kmPulse .45s ease' : 'none',
+      },
+    }, this.icon('star', { size: 21, fill: filled }));
+  }
+
+  card(d, idx) {
+    const hovered = this.state.hover === d.id;
+    const rated = this.state.rated[d.id];
+    const bi = this.state.branch[d.id] ?? 0;
+    const e = React.createElement;
+
+    const chip = (label, opts = {}) => e('span', {
+      key: label,
+      style: {
+        display: 'inline-flex', alignItems: 'center', gap: '5px',
+        fontSize: '12px', fontWeight: 600, padding: '5px 10px', borderRadius: '999px',
+        background: opts.bg || 'rgba(255,255,255,.92)', color: opts.color || '#12211f',
+        backdropFilter: 'blur(6px)', whiteSpace: 'nowrap',
+        boxShadow: opts.flat ? 'none' : '0 2px 8px rgba(10,30,26,.14)',
+      },
+    }, label);
+
+    const action = (label, bg, color, primary, ico) => e('button', {
+      key: label,
+      style: {
+        flex: primary ? '1 1 auto' : '0 0 auto',
+        minHeight: '46px', padding: primary ? '0 18px' : '0 15px',
+        border: primary ? '0' : '1px solid #dbe3e1', borderRadius: '12px',
+        background: bg, color, fontFamily: 'inherit', fontSize: '14px', fontWeight: 700,
+        cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+        transition: 'transform .18s cubic-bezier(.2,.8,.3,1), box-shadow .18s, background .18s',
+        transform: hovered ? 'translateY(-2px)' : 'none',
+        boxShadow: primary && hovered ? '0 10px 22px rgba(15,109,95,.28)' : 'none',
+        position: 'relative', overflow: 'hidden',
+      },
+    }, ico ? this.icon(ico, { size: 19 }) : null, label || null, primary && hovered ? e('span', {
+      style: {
+        position: 'absolute', inset: 0, width: '40%',
+        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent)',
+        animation: 'kmShine 1.1s ease-out',
+      },
+    }) : null);
+
+    return e('article', {
+      key: d.id,
+      onMouseEnter: () => this.setState({ hover: d.id }),
+      onMouseLeave: () => this.setState({ hover: null }),
+      style: {
+        background: '#fff', borderRadius: '20px', overflow: 'hidden',
+        border: '1px solid ' + (hovered ? 'rgba(15,109,95,.35)' : '#e6ebea'),
+        boxShadow: hovered ? '0 22px 46px -18px rgba(12,40,34,.34)' : '0 2px 10px rgba(12,40,34,.06)',
+        transform: hovered ? 'translateY(-5px)' : 'none',
+        transition: 'transform .3s cubic-bezier(.2,.8,.3,1), box-shadow .3s, border-color .3s',
+        display: 'flex', flexDirection: 'column',
+        animation: `kmRise .5s ${idx * 0.09}s cubic-bezier(.2,.8,.3,1) both`,
+      },
+    },
+      e('div', { style: { position: 'relative', height: '186px', overflow: 'hidden', background: '#e9eeed' } },
+        e('div', {
+          style: {
+            position: 'absolute', inset: 0,
+            background: 'repeating-linear-gradient(135deg, #dfe6e4 0 10px, #d6dedc 10px 20px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            font: '500 11px ui-monospace, monospace', color: '#8a9896', letterSpacing: '.08em',
+            transform: hovered ? 'scale(1.06)' : 'scale(1)', transition: 'transform .6s cubic-bezier(.2,.8,.3,1)',
+          },
+        }, d.photo),
+        e('div', { style: { position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(8,26,22,.62) 0%, rgba(8,26,22,.12) 42%, transparent 70%)' } }),
+        e('div', { style: { position: 'absolute', top: '12px', left: '12px', right: '12px', display: 'flex', gap: '7px', flexWrap: 'wrap' } },
+          chip(d.cat, { bg: d.catBg, color: d.catColor, flat: true }),
+          d.flag ? chip(d.flag === 'Yeni' ? 'Yeni' : '✓ ' + d.flag) : null,
+        ),
+        e('button', {
+          onClick: () => this.setState(s => ({ fav: { ...s.fav, [d.id]: !s.fav[d.id] } })),
+          title: 'Seçilmişlərə əlavə et',
+          style: {
+            position: 'absolute', top: '10px', right: '10px', width: '44px', height: '44px',
+            borderRadius: '999px', border: 0, cursor: 'pointer',
+            background: 'rgba(255,255,255,.9)', backdropFilter: 'blur(6px)',
+            fontSize: '18px', color: this.state.fav[d.id] ? '#e0424c' : '#7d8b88',
+            display: 'grid', placeItems: 'center',
+            transition: 'transform .2s, color .2s',
+            transform: hovered ? 'scale(1.06)' : 'scale(1)',
+            animation: this.state.fav[d.id] ? 'kmPulse .4s ease' : 'none',
+            opacity: 0.96,
+          },
+        }, this.icon('favorite', { size: 22, fill: this.state.fav[d.id] })),
+        e('div', { style: { position: 'absolute', bottom: '12px', left: '14px', right: '14px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '10px' } },
+          e('div', { style: { color: '#fff' } },
+            e('div', { style: { fontSize: '19px', fontWeight: 800, letterSpacing: '-.01em', lineHeight: 1.2, textShadow: '0 1px 12px rgba(0,0,0,.35)' } }, d.name),
+            e('div', { style: { fontSize: '12.5px', fontWeight: 600, opacity: .92, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' } },
+              this.icon('subway', { size: 16 }), d.metro),
+          ),
+          e('div', { style: { textAlign: 'right', color: '#fff', flexShrink: 0 } },
+            e('div', { style: { fontSize: '20px', fontWeight: 800, letterSpacing: '-.02em' } }, d.price),
+            e('div', { style: { fontSize: '11px', opacity: .85, fontWeight: 600 } }, '/ ' + d.priceNote),
+          ),
+        ),
+      ),
+
+      e('div', { style: { padding: '16px 16px 18px', display: 'flex', flexDirection: 'column', gap: '14px', flex: 1 } },
+        e('p', { style: { margin: 0, fontSize: '14.5px', lineHeight: 1.55, color: '#3c4b48', textWrap: 'pretty' } }, d.hook),
+
+        e('div', { style: { display: 'flex', gap: '7px', flexWrap: 'wrap' } },
+          chip(d.age, { bg: '#f1f4f4', flat: true }),
+          chip(d.schedule, { bg: '#f1f4f4', flat: true }),
+          d.openNow ? e('span', {
+            key: 'open',
+            style: {
+              display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700,
+              padding: '5px 10px', borderRadius: '999px', background: '#e7f5ec', color: '#146c37',
+            },
+          },
+            e('span', { style: { width: '7px', height: '7px', borderRadius: '999px', background: '#1c9c4d', animation: 'kmPulse 2s ease-in-out infinite' } }),
+            'İndi açıq') : null,
+        ),
+
+        d.branches.length ? e('div', { style: { display: 'flex', flexDirection: 'column', gap: '7px' } },
+          e('div', { style: { fontSize: '11.5px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9aa8a5' } }, d.branches.length + ' filial — ən yaxını seçin'),
+          e('div', { style: { display: 'flex', gap: '7px', flexWrap: 'wrap' } },
+            d.branches.map((b, i) => e('button', {
+              key: b,
+              onClick: () => this.setState(s => ({ branch: { ...s.branch, [d.id]: i } })),
+              style: {
+                fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 600, cursor: 'pointer',
+                padding: '7px 11px', borderRadius: '10px',
+                border: '1px solid ' + (bi === i ? '#0f6d5f' : '#dbe3e1'),
+                background: bi === i ? '#0f6d5f' : '#fff',
+                color: bi === i ? '#fff' : '#3c4b48',
+                transition: 'background .18s, color .18s, border-color .18s',
+              },
+            }, b)),
+          ),
+        ) : null,
+
+        e('div', { style: { marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' } },
+          e('div', {
+            style: {
+              display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap',
+              padding: '10px 12px', borderRadius: '12px',
+              background: rated ? '#e7f5ec' : '#f7f9f9',
+              transition: 'background .3s',
+            },
+          },
+            e('div', { style: { display: 'flex' } }, [1, 2, 3, 4, 5].map(i => this.star(d.id, i))),
+            e('span', { style: { fontSize: '12.5px', fontWeight: 600, color: rated ? '#146c37' : '#7d8b88' } },
+              rated ? 'Təşəkkür! Rəy yazmaq ▸' : 'Bir toxunuşla qiymətləndirin'),
+          ),
+          e('div', { style: { display: 'flex', gap: '8px' } },
+            action('WhatsApp', '#0f6d5f', '#fff', true, 'chat_bubble'),
+            action('', '#fff', '#12211f', false, 'call'),
+            action('Yol göstər', '#fff', '#12211f', false, 'directions'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------- place page ----------
+  btn(label, opts = {}) {
+    const e = React.createElement;
+    const primary = opts.primary;
+    return e('a', {
+      key: label, href: '#2a', title: opts.title || label,
+      onMouseEnter: () => this.setState({ hoverBtn: label }),
+      onMouseLeave: () => this.setState({ hoverBtn: null }),
+      style: {
+        boxSizing: 'border-box',
+        minHeight: '46px', padding: opts.icon ? '0' : '0 18px', width: opts.icon ? '46px' : (opts.full ? '100%' : 'auto'),
+        borderRadius: '12px', border: primary ? 0 : '1px solid #dbe3e1',
+        background: primary ? '#0f6d5f' : '#fff', color: primary ? '#fff' : '#12211f',
+        fontSize: '14px', fontWeight: 700, textDecoration: 'none',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+        transition: 'transform .18s cubic-bezier(.2,.8,.3,1), box-shadow .18s, background .18s',
+        transform: this.state.hoverBtn === label ? 'translateY(-2px)' : 'none',
+        boxShadow: this.state.hoverBtn === label ? (primary ? '0 12px 24px rgba(15,109,95,.3)' : '0 8px 18px rgba(12,40,34,.12)') : 'none',
+        flex: opts.grow ? '1 1 auto' : '0 0 auto',
+      },
+    }, opts.icon || [opts.ico ? this.icon(opts.ico, { size: 19 }) : null, label]);
+  }
+
+  renderGallery() {
+    const e = React.createElement;
+    const shots = ['zal · masalar', 'məşq anı', 'komanda', 'turnir'];
+    const i = this.state.shot ?? 0;
+    return e('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } },
+      e('div', {
+        style: {
+          position: 'relative', height: '340px', borderRadius: '18px', overflow: 'hidden',
+          background: 'repeating-linear-gradient(135deg, #dfe6e4 0 12px, #d6dedc 12px 24px)',
+        },
+      },
+        e('div', {
+          key: i,
+          style: {
+            position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
+            font: '500 12px ui-monospace, monospace', color: '#8a9896', letterSpacing: '.1em',
+            animation: 'kmRise .45s cubic-bezier(.2,.8,.3,1) both',
+          },
+        }, shots[i]),
+        e('div', { style: { position: 'absolute', top: '14px', left: '14px', display: 'flex', gap: '7px' } },
+          e('span', { style: { fontSize: '12px', fontWeight: 700, padding: '6px 11px', borderRadius: '999px', background: 'rgba(255,255,255,.92)', color: '#146c37', display: 'inline-flex', alignItems: 'center', gap: '6px' } }, [this.icon('schedule', { size: 16, color: '#146c37' }), 'İndi açıq · 20:00-a qədər']),
+        ),
+        e('div', { style: { position: 'absolute', bottom: '14px', right: '14px', fontSize: '12px', fontWeight: 700, padding: '6px 11px', borderRadius: '999px', background: 'rgba(8,26,22,.62)', color: '#fff', backdropFilter: 'blur(6px)' } }, (i + 1) + ' / ' + shots.length),
+      ),
+      e('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' } },
+        shots.map((s, k) => e('button', {
+          key: s,
+          onClick: () => this.setState({ shot: k }),
+          style: {
+            height: '76px', borderRadius: '12px', cursor: 'pointer', padding: 0,
+            border: '2px solid ' + (k === i ? '#0f6d5f' : 'transparent'),
+            background: 'repeating-linear-gradient(135deg, #e4ebe9 0 10px, #dce4e2 10px 20px)',
+            font: '500 10px ui-monospace, monospace', color: '#8a9896',
+            opacity: k === i ? 1 : .72, transition: 'opacity .2s, border-color .2s, transform .2s',
+            transform: k === i ? 'none' : 'scale(.985)',
+          },
+        }, s)),
+      ),
+    );
+  }
+
+  renderGroupTabs() {
+    const e = React.createElement;
+    const groups = ['1-ci qrup', '2-ci qrup', 'Şənbə qrupu'];
+    const g = this.state.group ?? 0;
+    return groups.map((label, k) => e('button', {
+      key: label,
+      onClick: () => this.setState({ group: k }),
+      style: {
+        fontFamily: 'inherit', fontSize: '12.5px', fontWeight: 700, cursor: 'pointer',
+        padding: '8px 12px', borderRadius: '10px',
+        border: '1px solid ' + (g === k ? '#0f6d5f' : '#dbe3e1'),
+        background: g === k ? '#0f6d5f' : '#fff', color: g === k ? '#fff' : '#3c4b48',
+        transition: 'background .18s, color .18s, border-color .18s',
+      },
+    }, label));
+  }
+
+  renderWeek() {
+    const e = React.createElement;
+    const g = this.state.group ?? 0;
+    const days = ['B.e', 'Ç.a', 'Ç', 'C.a', 'C', 'Ş', 'B'];
+    const plans = [
+      ['16:00', null, '16:00', null, '16:00', null, null],
+      [null, '19:00', null, '19:00', null, null, null],
+      [null, null, null, null, null, '09:00', null],
+    ];
+    const today = 2;
+    return e('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' } },
+      days.map((d, k) => {
+        const time = plans[g][k];
+        const active = !!time;
+        return e('div', {
+          key: d,
+          style: {
+            borderRadius: '12px', padding: '11px 6px', textAlign: 'center',
+            background: active ? '#dcefe9' : '#f7f9f9',
+            border: '1px solid ' + (k === today ? '#0f6d5f' : 'transparent'),
+            transition: 'background .25s, color .25s',
+            display: 'flex', flexDirection: 'column', gap: '5px',
+          },
+        },
+          e('span', { style: { fontSize: '11.5px', fontWeight: 700, color: active ? '#0f6d5f' : '#9aa8a5', letterSpacing: '.04em' } }, d),
+          e('span', { style: { fontSize: '13.5px', fontWeight: 800, color: active ? '#12211f' : '#c3cecb' } }, time || '—'),
+        );
+      }),
+    );
+  }
+
+  renderTariffs() {
+    const e = React.createElement;
+    const open = !!this.state.tariffsOpen;
+    const rows = [
+      ['Uşaqlar 4–16 yaş', '2 ₼', true],
+      ['Böyüklər', '7 ₼', false],
+      ['3 yaşa qədər', 'Pulsuz', true],
+      ['Məktəblilər 7–16 yaş', '2 ₼', true],
+      ['Tələbələr', '2 ₼', false],
+      ['Şəhid ailələri', 'Pulsuz', false],
+      ['Əlilliyi olan şəxslər', '2 ₼', false],
+      ['Müharibə veteranları', '2 ₼', false],
+      ['Xarici vətəndaşlar', '15 ₼', false],
+    ];
+    const shown = open ? rows : rows.slice(0, 3);
+    return e('div', null,
+      e('div', { style: { display: 'flex', flexDirection: 'column' } },
+        shown.map((r, k) => e('div', {
+          key: r[0],
+          style: {
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px',
+            padding: '13px 18px', borderTop: k ? '1px solid #f2f5f4' : 0,
+            background: r[2] ? '#fcfdfd' : '#fff',
+            animation: k > 2 ? `kmRise .35s ${(k - 3) * 0.04}s ease both` : 'none',
+          },
+        },
+          e('span', { style: { fontSize: '14px', fontWeight: r[2] ? 700 : 500, color: r[2] ? '#12211f' : '#3c4b48' } },
+            r[0], r[2] ? e('span', { style: { marginLeft: '8px', fontSize: '11px', fontWeight: 700, color: '#0f6d5f', background: '#dcefe9', padding: '3px 8px', borderRadius: '999px' } }, 'uşaq') : null),
+          e('span', { style: { fontSize: '14px', fontWeight: 800, color: r[1] === 'Pulsuz' ? '#146c37' : '#12211f', whiteSpace: 'nowrap' } }, r[1]),
+        )),
+      ),
+      e('button', {
+        onClick: () => this.setState({ tariffsOpen: !open }),
+        style: {
+          width: '100%', minHeight: '46px', border: 0, borderTop: '1px solid #f2f5f4', background: '#f7f9f9',
+          fontFamily: 'inherit', fontSize: '13.5px', fontWeight: 700, color: '#0f6d5f', cursor: 'pointer',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+        },
+      }, open ? 'Yığ' : 'Bütün 9 tarifi göstər', this.icon('expand_more', { size: 19, spin: open })),
+    );
+  }
+
+  renderReviews() {
+    const e = React.createElement;
+    const r = this.state.rated['page'];
+    return e('div', { style: { border: '1px solid #e6ebea', borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' } },
+      e('div', { style: { display: 'flex', gap: '14px', alignItems: 'flex-start', flexWrap: 'wrap', justifyContent: 'space-between' } },
+        e('div', { style: { display: 'flex', flexDirection: 'column', gap: '5px' } },
+          e('h3', { style: { margin: 0, fontSize: '18px', fontWeight: 800, color: '#12211f' } }, r ? 'Təşəkkür! Qiymətiniz qeydə alındı' : 'İlk rəyi siz yazın'),
+          e('p', { style: { margin: 0, fontSize: '14px', color: '#6b7b78', maxWidth: '460px', lineHeight: 1.5 } },
+            r ? 'İstəsəniz bir cümlə əlavə edin — digər valideynlər üçün ən dəyərlisi budur.' : 'Bu məkan haqqında hələ rəy yoxdur. Bir toxunuş — və valideynlər seçim edə bilər.'),
+        ),
+        e('div', { style: { display: 'flex', gap: '2px' } }, [1, 2, 3, 4, 5].map(i => this.star('page', i))),
+      ),
+      r ? e('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', animation: 'kmRise .35s ease both' } },
+        ['Məşqçi əladır', 'Uşaq sevir', 'Təmiz zal', 'Rahat yer'].map(t => e('button', {
+          key: t,
+          style: { fontFamily: 'inherit', fontSize: '13px', fontWeight: 600, padding: '9px 13px', borderRadius: '999px', border: '1px solid #dbe3e1', background: '#fff', cursor: 'pointer', color: '#3c4b48', display: 'inline-flex', alignItems: 'center', gap: '6px' },
+        }, this.icon('add', { size: 17 }), t)),
+      ) : null,
+      r ? this.btn('Rəy yaz', { primary: true }) : null,
+    );
+  }
+
+  renderNearby() {
+    const e = React.createElement;
+    const items = [
+      ['Budo Judo İK', 'İdman · 6–18 yaş', '80 ₼', '900 m'],
+      ['Tusi-Bohm Planetarium', 'Muzey · 3+', '5 ₼', '1,4 km'],
+      ['Gənclik Parkı', 'Park · 0+', 'Pulsuz', '1,8 km'],
+    ];
+    return items.map(([n, s, p, d], k) => e('a', {
+      key: n, href: '#2a',
+      onMouseEnter: () => this.setState({ hoverNear: k }),
+      onMouseLeave: () => this.setState({ hoverNear: null }),
+      style: {
+        border: '1px solid ' + (this.state.hoverNear === k ? 'rgba(15,109,95,.4)' : '#e6ebea'),
+        borderRadius: '14px', overflow: 'hidden', textDecoration: 'none', display: 'block',
+        transform: this.state.hoverNear === k ? 'translateY(-3px)' : 'none',
+        boxShadow: this.state.hoverNear === k ? '0 14px 28px -14px rgba(12,40,34,.28)' : 'none',
+        transition: 'transform .25s cubic-bezier(.2,.8,.3,1), box-shadow .25s, border-color .25s',
+      },
+    },
+      e('div', { style: { height: '92px', background: 'repeating-linear-gradient(135deg, #e4ebe9 0 10px, #dce4e2 10px 20px)' } }),
+      e('div', { style: { padding: '11px 13px', display: 'flex', flexDirection: 'column', gap: '4px' } },
+        e('span', { style: { fontSize: '14px', fontWeight: 700, color: '#12211f' } }, n),
+        e('span', { style: { fontSize: '12.5px', color: '#7d8b88' } }, s),
+        e('span', { style: { fontSize: '13px', fontWeight: 700, color: '#0f6d5f', display: 'inline-flex', alignItems: 'center', gap: '5px' } }, p + ' · ', this.icon('near_me', { size: 15 }), d),
+      ),
+    ));
+  }
+
+  renderSidebar() {
+    const e = React.createElement;
+    return e('aside', { style: { position: 'sticky', top: '20px', display: 'flex', flexDirection: 'column', gap: '14px', paddingBottom: '26px' } },
+      e('div', { style: { border: '1px solid #e6ebea', borderRadius: '18px', padding: '18px', display: 'flex', flexDirection: 'column', gap: '14px', background: 'linear-gradient(#fbfdfc, #fff)' } },
+        e('div', { style: { display: 'flex', alignItems: 'baseline', gap: '8px' } },
+          e('span', { style: { fontSize: '30px', fontWeight: 800, color: '#12211f', letterSpacing: '-.03em' } }, '120 ₼'),
+          e('span', { style: { fontSize: '13px', fontWeight: 600, color: '#7d8b88' } }, '/ ay · həftədə 3 dərs'),
+        ),
+        e('div', { style: { fontSize: '13px', fontWeight: 700, color: '#146c37', background: '#e7f5ec', padding: '9px 12px', borderRadius: '10px' } }, 'İlk sınaq dərsi pulsuz'),
+        e('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } },
+          this.btn('WhatsApp ilə yazın', { primary: true, full: true, ico: 'chat_bubble' }),
+          e('div', { style: { display: 'flex', gap: '8px' } },
+            this.btn('Zəng et', { grow: true, ico: 'call' }),
+            this.btn('Instagram', { grow: true, ico: 'photo_camera' }),
+          ),
+        ),
+        e('p', { style: { margin: 0, fontSize: '12px', color: '#9aa8a5', lineHeight: 1.5 } }, 'Adətən 1 saat içində cavab verirlər. KidsMap-dan gəldiyinizi qeyd edin.'),
+      ),
+      e('button', {
+        onClick: () => this.setState(s => ({ fav: { ...s.fav, page: !s.fav.page } })),
+        style: {
+          minHeight: '46px', borderRadius: '14px', cursor: 'pointer', fontFamily: 'inherit',
+          border: '1px solid ' + (this.state.fav.page ? '#e0424c' : '#dbe3e1'),
+          background: this.state.fav.page ? '#fdeced' : '#fff',
+          color: this.state.fav.page ? '#c0323c' : '#12211f', fontSize: '14px', fontWeight: 700,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+          transition: 'background .2s, border-color .2s, color .2s',
+        },
+      }, e('span', { style: { display: 'inline-flex', animation: this.state.fav.page ? 'kmPulse .4s ease' : 'none' } }, this.icon('favorite', { size: 21, fill: this.state.fav.page })),
+        this.state.fav.page ? 'Seçilmişlərdə' : 'Seçilmişlərə əlavə et'),
+      e('div', { style: { border: '1px dashed #cfdad7', borderRadius: '18px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '9px' } },
+        e('span', { style: { fontSize: '14px', fontWeight: 700, color: '#12211f' } }, 'Bu sizin məkanınızdır?'),
+        e('span', { style: { fontSize: '13px', color: '#6b7b78', lineHeight: 1.5 } }, 'Qiyməti, cədvəli və fotoları özünüz idarə edin — pulsuz.'),
+        e('a', { href: '#2a', style: { fontSize: '13.5px', fontWeight: 700, color: '#0f6d5f', display: 'inline-flex', alignItems: 'center', gap: '6px' } }, 'Səhifəni mənimsə', this.icon('arrow_forward', { size: 18 })),
+      ),
+    );
+  }
+
+  renderVals() {
+    return {
+      cards: DATA.map((d, i) => this.card(d, i)),
+      gallery: this.renderGallery(),
+      groupTabs: this.renderGroupTabs(),
+      weekGrid: this.renderWeek(),
+      tariffs: this.renderTariffs(),
+      reviews: this.renderReviews(),
+      nearby: this.renderNearby(),
+      sidebar: this.renderSidebar(),
+      headerActions: [
+        this.btn('Paylaş', { icon: this.icon('share', { size: 20 }), title: 'Paylaş' }),
+        this.btn('Yol göstər', { ico: 'directions' }),
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

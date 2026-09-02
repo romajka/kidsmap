@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F5F8F6; font-family: Manrope, system-ui, sans-serif; color: #193126; -webkit-font-smoothing: antialiased; }
+  a { color: #0D8A52; text-decoration: none; }
+  a:hover { color: #0a6c40; }
+  @keyframes sk { 0% { opacity: .55 } 50% { opacity: 1 } 100% { opacity: .55 } }
+  select, input, button { font-family: inherit; }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; display: flex; flex-direction: column">
+
+  <div style="background: #193126; color: #cfe0d6; padding: 8px 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 12.5px">
+    <span style="display: inline-flex; align-items: center; gap: 7px; font-weight: 700; color: #fff">
+      <span style="font-family: Material Symbols Rounded; font-size: 17px; color: #6fd39c">tune</span>Прототип
+    </span>
+    <span style="display: inline-flex; align-items: center; gap: 6px">Роль:</span>
+    <div style="display: flex; gap: 4px; background: rgba(255,255,255,.08); padding: 3px; border-radius: 8px">
+      <button onClick="{{ setSuper }}" style="border: 0; cursor: pointer; padding: 5px 11px; border-radius: 6px; font-size: 12.5px; font-weight: 700; background: {{ superBg }}; color: {{ superFg }}">Суперадмин</button>
+      <button onClick="{{ setSelf }}" style="border: 0; cursor: pointer; padding: 5px 11px; border-radius: 6px; font-size: 12.5px; font-weight: 700; background: {{ selfBg }}; color: {{ selfFg }}">Свой профиль</button>
+    </div>
+    <span>Состояние:</span>
+    <select value="{{ uiState }}" onChange="{{ onStateChange }}" style="background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.18); border-radius: 8px; padding: 5px 8px; font-size: 12.5px; font-weight: 600">
+      <option value="ready">Обычное</option>
+      <option value="loading">Загрузка (skeleton)</option>
+      <option value="empty">Пусто (ничего не добавлял)</option>
+      <option value="error">Ошибка загрузки</option>
+      <option value="disabled">Сотрудник отключён</option>
+    </select>
+  </div>
+
+  <div style="flex: 1; display: flex; align-items: stretch; min-height: 0">
+
+    <div style="flex: none; width: 296px; background: #0C2C1C; color: #DCE7E0; position: sticky; top: 0; align-self: flex-start; height: 100vh; overflow-y: auto; display: flex; flex-direction: column">
+      <div style="padding: 18px 20px; display: flex; align-items: center; gap: 10px">
+        <span style="width: 30px; height: 30px; border-radius: 9px; background: #0D8A52; color: #fff; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 20px">pin_drop</span>
+        <span style="font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -.02em">KidsMap</span>
+      </div>
+      <div style="padding: 14px 20px; display: flex; align-items: center; gap: 11px; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08)">
+        <span style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px">person</span>
+        <span style="display: flex; flex-direction: column">
+          <span style="font-size: 14px; font-weight: 700; color: #fff">roma</span>
+          <span style="font-size: 12.5px; color: #8FA79A">Администратор</span>
+        </span>
+      </div>
+      <div style="padding: 12px 12px 28px; display: flex; flex-direction: column; gap: 2px">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="18">
+          <sc-if value="{{ n.isHeader }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 9px; padding: 14px 10px 7px; font-size: 13.5px; font-weight: 700; color: #C7D6CD">
+              <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #7FB79A">{{ n.icon }}</span>{{ n.label }}
+              <span style="margin-left: auto; font-family: Material Symbols Rounded; font-size: 18px; color: #7FB79A">expand_less</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ n.isItem }}" hint-placeholder-val="{{ true }}">
+            <a href="#" style="display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 13.5px; font-weight: {{ n.weight }}; background: {{ n.bg }}; color: {{ n.color }}" style-hover="background: rgba(255,255,255,.07)">
+              <span style="font-family: Material Symbols Rounded; font-size: 18px; opacity: .9">{{ n.icon }}</span>
+              <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis">{{ n.label }}</span>
+              <sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}">
+                <span style="flex: none; padding: 1px 8px; border-radius: 999px; background: {{ n.badgeBg }}; color: {{ n.badgeFg }}; font-size: 11.5px; font-weight: 700">{{ n.badge }}</span>
+              </sc-if>
+              <sc-if value="{{ n.hidden }}" hint-placeholder-val="{{ false }}">
+                <span style="flex: none; font-family: Material Symbols Rounded; font-size: 17px; color: #7FB79A">visibility_off</span>
+              </sc-if>
+            </a>
+          </sc-if>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; background: #F5F8F6">
+
+      <div style="background: #fff; border-bottom: 1px solid #DBE8DF; padding: 10px 22px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+        <span style="font-family: Material Symbols Rounded; font-size: 22px; color: #193126; cursor: pointer">menu</span>
+        <a href="#" style="font-size: 14.5px; font-weight: 600; color: #193126">Главная</a>
+        <a href="#" style="font-size: 14.5px; font-weight: 600; color: #193126">Перейти на сайт</a>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+          <label style="display: inline-flex; align-items: center; border: 1px solid #DBE8DF; border-radius: 8px; overflow: hidden; height: 36px">
+            <input placeholder="Найти Постоянные Места..." style="border: 0; outline: none; padding: 0 11px; width: 210px; font-size: 13.5px; color: #193126">
+            <span style="width: 40px; height: 100%; background: #F1F6F3; border-left: 1px solid #DBE8DF; display: grid; place-items: center; cursor: pointer; font-family: Material Symbols Rounded; font-size: 19px; color: #193126">search</span>
+          </label>
+          <label style="display: inline-flex; align-items: center; border: 1px solid #DBE8DF; border-radius: 8px; overflow: hidden; height: 36px">
+            <input placeholder="Найти Пользователи..." style="border: 0; outline: none; padding: 0 11px; width: 190px; font-size: 13.5px; color: #193126">
+            <span style="width: 40px; height: 100%; background: #F1F6F3; border-left: 1px solid #DBE8DF; display: grid; place-items: center; cursor: pointer; font-family: Material Symbols Rounded; font-size: 19px; color: #193126">search</span>
+          </label>
+        </div>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 14px; color: #678070">
+          <span style="font-family: Material Symbols Rounded; font-size: 21px; cursor: pointer">language</span>
+          <span style="font-family: Material Symbols Rounded; font-size: 21px; cursor: pointer">account_circle</span>
+        </div>
+      </div>
+
+      <div style="background: #fff; border-bottom: 1px solid #EDF3EF; padding: 12px 22px; display: flex; align-items: center; gap: 8px">
+        <div style="display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: #8B9E93; font-weight: 600">
+          <a href="#" style="font-weight: 700">Home</a>
+          <span style="font-family: Material Symbols Rounded; font-size: 17px; color: #A9BCB0">chevron_right</span>
+          <a href="#" style="font-weight: 700">Сотрудники</a>
+          <span style="font-family: Material Symbols Rounded; font-size: 17px; color: #A9BCB0">chevron_right</span>
+          <span style="color: #678070">{{ person.name }}</span>
+        </div>
+      </div>
+
+  <div style="max-width: 1440px; width: 100%; margin: 0 auto; padding: 20px 22px 56px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <a href="#" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700">
+          <span style="font-family: Material Symbols Rounded; font-size: 18px">arrow_back</span>Все сотрудники
+        </a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; position: relative">
+        <button style="min-height: 38px; padding: 0 16px; border-radius: 8px; border: 0; background: #0D8A52; color: #fff; cursor: pointer; font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 7px" style-hover="background: #0a6c40">
+          <span style="font-family: Material Symbols Rounded; font-size: 18px">edit</span>Редактировать профиль
+        </button>
+        <sc-if value="{{ isSuper }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ toggleMenu }}" style="width: 38px; height: 38px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; color: #678070; font-family: Material Symbols Rounded; font-size: 20px" style-hover="border-color: #A9BCB0">more_vert</button>
+        </sc-if>
+        <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position: absolute; top: 44px; right: 0; z-index: 30; width: 250px; background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; box-shadow: 0 8px 24px rgba(25,49,38,.1); padding: 6px; display: flex; flex-direction: column">
+            <button onClick="{{ noop }}" style="text-align: left; border: 0; background: transparent; cursor: pointer; padding: 9px 10px; border-radius: 7px; font-size: 13.5px; font-weight: 600; color: #193126; display: flex; align-items: center; gap: 9px" style-hover="background: #F1F6F3">
+              <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #678070">lock_reset</span>Сбросить пароль
+            </button>
+            <button onClick="{{ askDisable }}" style="text-align: left; border: 0; background: transparent; cursor: pointer; padding: 9px 10px; border-radius: 7px; font-size: 13.5px; font-weight: 600; color: #B4322C; display: flex; align-items: center; gap: 9px" style-hover="background: #FDF1F0">
+              <span style="font-family: Material Symbols Rounded; font-size: 18px">block</span>Отключить сотрудника
+            </button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <sc-if value="{{ isDisabled }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 11px; padding: 12px 14px; border: 1px solid #F0D2CF; background: #FDF4F3; border-radius: 12px; font-size: 13.5px; color: #7E2B27">
+        <span style="font-family: Material Symbols Rounded; font-size: 20px; color: #B4322C">block</span>
+        <span><b>Аккаунт отключён</b> 12.08.2026 Лейлой Керимовой. Вход и любые действия заблокированы. История сохранена и доступна только для чтения.</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ confirmDisable }}" hint-placeholder-val="{{ false }}">
+      <div style="border: 1px solid #F0D2CF; background: #FDF4F3; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+        <span style="font-family: Material Symbols Rounded; font-size: 22px; color: #B4322C">warning</span>
+        <div style="flex: 1; min-width: 260px; font-size: 13.5px; color: #7E2B27; line-height: 1.5">
+          <b>Отключить Рамина Алиева?</b> Он потеряет доступ к админке. Добавленные карточки и история действий останутся без изменений.
+        </div>
+        <div style="display: flex; gap: 8px">
+          <button onClick="{{ cancelDisable }}" style="min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13px; font-weight: 700">Отмена</button>
+          <button onClick="{{ doDisable }}" style="min-height: 36px; padding: 0 14px; border-radius: 8px; border: 0; background: #B4322C; color: #fff; cursor: pointer; font-size: 13px; font-weight: 700">Да, отключить</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 20px; display: flex; gap: 18px; align-items: center">
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: #E7EFEA; animation: sk 1.2s infinite"></div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 10px">
+            <div style="width: 220px; height: 18px; border-radius: 6px; background: #E7EFEA; animation: sk 1.2s infinite"></div>
+            <div style="width: 340px; height: 13px; border-radius: 6px; background: #EDF3EF; animation: sk 1.2s infinite .1s"></div>
+            <div style="width: 460px; height: 13px; border-radius: 6px; background: #EDF3EF; animation: sk 1.2s infinite .2s"></div>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+          <div style="height: 84px; background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; animation: sk 1.2s infinite"></div>
+          <div style="height: 84px; background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; animation: sk 1.2s infinite .1s"></div>
+          <div style="height: 84px; background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; animation: sk 1.2s infinite .2s"></div>
+          <div style="height: 84px; background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; animation: sk 1.2s infinite .3s"></div>
+        </div>
+        <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+          <div style="width: 100%; height: 13px; border-radius: 6px; background: #EDF3EF; animation: sk 1.2s infinite"></div>
+          <div style="width: 92%; height: 13px; border-radius: 6px; background: #EDF3EF; animation: sk 1.2s infinite .1s"></div>
+          <div style="width: 74%; height: 13px; border-radius: 6px; background: #EDF3EF; animation: sk 1.2s infinite .2s"></div>
+          <div style="width: 84%; height: 13px; border-radius: 6px; background: #EDF3EF; animation: sk 1.2s infinite .3s"></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+      <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 48px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+        <span style="width: 52px; height: 52px; border-radius: 14px; background: #FDF1F0; color: #B4322C; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 26px">cloud_off</span>
+        <div style="font-size: 16px; font-weight: 800">Не удалось загрузить профиль</div>
+        <div style="font-size: 13.5px; color: #678070; max-width: 420px; line-height: 1.55">Сервер не ответил за 30 секунд. Данные не изменены — попробуйте обновить страницу.</div>
+        <button onClick="{{ retry }}" style="margin-top: 4px; min-height: 38px; padding: 0 16px; border-radius: 8px; border: 0; background: #0D8A52; color: #fff; cursor: pointer; font-size: 13.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 7px">
+          <span style="font-family: Material Symbols Rounded; font-size: 18px">refresh</span>Повторить
+        </button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showBody }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 16px">
+
+        <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 20px; display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start">
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: #DCEFE4; color: #0D8A52; display: grid; place-items: center; font-size: 24px; font-weight: 800; letter-spacing: -.02em; filter: {{ avatarFilter }}">РА</div>
+          <div style="flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+              <h1 style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.02em">{{ person.name }}</h1>
+              <span style="padding: 3px 9px; border-radius: 999px; background: #DCEFE4; color: #0a6c40; font-size: 11.5px; font-weight: 800; letter-spacing: .01em">{{ person.role }}</span>
+              <span style="padding: 3px 9px; border-radius: 999px; background: {{ statusBg }}; color: {{ statusFg }}; font-size: 11.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ statusFg }}"></span>{{ statusLabel }}
+              </span>
+            </div>
+            <div style="display: flex; gap: 18px; flex-wrap: wrap; font-size: 13.5px; color: #678070">
+              <span style="display: inline-flex; align-items: center; gap: 6px"><span style="font-family: Material Symbols Rounded; font-size: 17px">alternate_email</span>{{ person.username }}</span>
+              <a href="#" style="display: inline-flex; align-items: center; gap: 6px"><span style="font-family: Material Symbols Rounded; font-size: 17px">mail</span>{{ person.email }}</a>
+              <span style="display: inline-flex; align-items: center; gap: 6px"><span style="font-family: Material Symbols Rounded; font-size: 17px">call</span>+994 50 447 21 08</span>
+            </div>
+            <div style="display: flex; gap: 26px; flex-wrap: wrap; margin-top: 4px; padding-top: 12px; border-top: 1px solid #EDF3EF">
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11.5px; color: #678070; font-weight: 600">Регистрация</span>
+                <span style="font-size: 13.5px; font-weight: 700">14 марта 2025</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11.5px; color: #678070; font-weight: 600">Последний вход</span>
+                <span style="font-size: 13.5px; font-weight: 700">{{ lastLogin }}</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11.5px; color: #678070; font-weight: 600">Последняя активность</span>
+                <span style="font-size: 13.5px; font-weight: 700">{{ lastActivity }}</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <span style="font-size: 11.5px; color: #678070; font-weight: 600">Права выданы</span>
+                <span style="font-size: 13.5px; font-weight: 700">Лейла Керимова</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px">
+          <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+            <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+              <span style="font-size: 12.5px; color: #678070; font-weight: 600; display: inline-flex; align-items: center; gap: 7px">
+                <span style="font-family: Material Symbols Rounded; font-size: 17px; color: #0D8A52">{{ s.icon }}</span>{{ s.label }}
+              </span>
+              <span style="font-size: 23px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1">{{ s.value }}</span>
+              <span style="font-size: 12px; color: #8B9E93">{{ s.hint }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap">
+            <div style="display: flex; flex-direction: column; gap: 3px">
+              <h2 style="margin: 0; font-size: 17px; font-weight: 800; letter-spacing: -.015em">Карточки, добавленные сотрудником</h2>
+              <span style="font-size: 12.5px; color: #678070">{{ gSummary }}</span>
+            </div>
+            <button style="min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 7px; color: #193126" style-hover="border-color: #A9BCB0">
+              <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #0D8A52">add</span>Добавить карточку
+            </button>
+          </div>
+
+          <sc-if value="{{ hasUnfinished }}" hint-placeholder-val="{{ true }}">
+            <div style="background: #fff; border: 1px solid #C8E4D3; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px">
+              <div style="display: flex; align-items: center; gap: 9px; flex-wrap: wrap">
+                <span style="font-family: Material Symbols Rounded; font-size: 19px; color: #0D8A52">play_circle</span>
+                <span style="font-size: 14.5px; font-weight: 800">Продолжить работу</span>
+                <span style="font-size: 12.5px; color: #678070">Незавершённые карточки — можно вернуться к заполнению в один клик</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 10px">
+                <sc-for list="{{ unfinished }}" as="u" hint-placeholder-count="4">
+                  <div style="border: 1px solid #DBE8DF; border-radius: 10px; padding: 11px 12px; display: flex; flex-direction: column; gap: 9px; background: #FAFCFB">
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <span style="padding: 2px 8px; border-radius: 999px; background: {{ u.bg }}; color: {{ u.fg }}; font-size: 11px; font-weight: 800">{{ u.status }}</span>
+                      <span style="margin-left: auto; font-size: 11.5px; color: #8B9E93; font-weight: 600">{{ u.updatedAgo }}</span>
+                    </div>
+                    <span style="font-size: 13.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ u.title }}</span>
+                    <div style="display: flex; flex-direction: column; gap: 8px">
+                      <div style="display: flex; flex-direction: column; gap: 4px">
+                        <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; color: #678070; font-weight: 600">
+                          <span>Минимум для модерации</span><span style="color: {{ u.minColor }}; font-weight: 800">{{ u.minPctLabel }}</span>
+                        </div>
+                        <div style="height: 5px; border-radius: 999px; background: #EDF3EF; overflow: hidden">
+                          <div style="height: 100%; width: {{ u.minWidth }}; background: {{ u.minColor }}; border-radius: 999px"></div>
+                        </div>
+                        <span style="font-size: 11px; color: #8B9E93">{{ u.minLabel }}</span>
+                      </div>
+                      <div style="display: flex; flex-direction: column; gap: 4px">
+                        <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; color: #678070; font-weight: 600">
+                          <span>Полное заполнение</span><span style="font-weight: 800">{{ u.fullPctLabel }}</span>
+                        </div>
+                        <div style="height: 5px; border-radius: 999px; background: #EDF3EF; overflow: hidden">
+                          <div style="height: 100%; width: {{ u.fullWidth }}; background: #20558F; border-radius: 999px"></div>
+                        </div>
+                        <span style="font-size: 11px; color: #8B9E93">{{ u.fullLabel }}</span>
+                      </div>
+                      <div style="display: flex; gap: 7px; align-items: flex-start; padding: 7px 9px; border: 1px solid {{ u.readyBorder }}; background: {{ u.readyBg }}; border-radius: 8px; font-size: 11.5px; line-height: 1.4; color: {{ u.readyColor }}">
+                        <span style="flex: none; font-family: Material Symbols Rounded; font-size: 15px">{{ u.readyIcon }}</span>{{ u.readyNote }}
+                      </div>
+                    </div>
+                    <button style="min-height: 34px; border-radius: 8px; border: 0; background: #0D8A52; color: #fff; cursor: pointer; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 7px" style-hover="background: #0a6c40">
+                      <span style="font-family: Material Symbols Rounded; font-size: 17px">{{ u.actionIcon }}</span>{{ u.actionLabel }}
+                    </button>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 11px 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+            <label style="display: inline-flex; align-items: center; gap: 7px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 10px; min-height: 36px; flex: 1; min-width: 190px; max-width: 280px">
+              <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #A9BCB0">search</span>
+              <input value="{{ gSearch }}" onChange="{{ onGSearch }}" placeholder="Поиск по названию" style="border: 0; outline: none; font-size: 13.5px; width: 100%; background: transparent; color: #193126">
+            </label>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap">
+              <sc-for list="{{ gFilters }}" as="f" hint-placeholder-count="6">
+                <button onClick="{{ f.onClick }}" style="min-height: 34px; padding: 0 11px; border-radius: 8px; border: 1px solid {{ f.border }}; background: {{ f.bg }}; color: {{ f.fg }}; cursor: pointer; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap">
+                  {{ f.label }}<span style="font-size: 11.5px; font-weight: 700; opacity: .7">{{ f.count }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <select value="{{ gSort }}" onChange="{{ onGSort }}" style="margin-left: auto; min-height: 36px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 8px; font-size: 13px; font-weight: 600; background: #fff; color: #193126">
+              <option value="updated">Недавно изменённые</option>
+              <option value="created">Недавно созданные</option>
+              <option value="old">Сначала старые</option>
+              <option value="status">По статусу</option>
+            </select>
+          </div>
+
+          <sc-if value="{{ gridEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 48px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px">
+              <span style="width: 46px; height: 46px; border-radius: 12px; background: #F1F6F3; color: #A9BCB0; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 24px">{{ gridEmptyIcon }}</span>
+              <div style="font-size: 14.5px; font-weight: 700">{{ gridEmptyTitle }}</div>
+              <div style="font-size: 13px; color: #678070; max-width: 380px; line-height: 1.55">{{ gridEmptyText }}</div>
+              <button onClick="{{ resetGrid }}" style="margin-top: 4px; min-height: 34px; padding: 0 13px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13px; font-weight: 700">{{ gridEmptyAction }}</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ gridHasRows }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 12px">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px">
+                <sc-for list="{{ gridCards }}" as="c" hint-placeholder-count="6">
+                  <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column" style-hover="border-color: #A9BCB0">
+                    <div style="position: relative; height: 128px; background: #EDF3EF; display: grid; place-items: center">
+                      <span style="font-family: Material Symbols Rounded; font-size: 34px; color: #A9BCB0">{{ c.icon }}</span>
+                      <span style="position: absolute; top: 10px; left: 10px; padding: 3px 9px; border-radius: 999px; background: {{ c.bg }}; color: {{ c.fg }}; font-size: 11.5px; font-weight: 800">{{ c.status }}</span>
+                      <span style="position: absolute; bottom: 8px; right: 10px; font-size: 11px; color: #8B9E93; font-weight: 600">{{ c.photoLabel }}</span>
+                    </div>
+                    <div style="padding: 13px 14px 14px; display: flex; flex-direction: column; gap: 9px; flex: 1">
+                      <div style="display: flex; flex-direction: column; gap: 2px">
+                        <span style="font-size: 14.5px; font-weight: 800; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.title }}</span>
+                        <span style="font-size: 12.5px; color: #678070">{{ c.category }} · {{ c.district }} · ID {{ c.id }}</span>
+                      </div>
+                      <div style="display: flex; flex-direction: column; gap: 7px">
+                        <sc-if value="{{ c.hasMin }}" hint-placeholder-val="{{ false }}">
+                          <div style="display: flex; flex-direction: column; gap: 4px">
+                            <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; font-weight: 600; color: #678070">
+                              <span>Минимум для модерации</span><span style="color: {{ c.minColor }}; font-weight: 800">{{ c.minPctLabel }}</span>
+                            </div>
+                            <div style="height: 5px; border-radius: 999px; background: #EDF3EF; overflow: hidden">
+                              <div style="height: 100%; width: {{ c.minWidth }}; background: {{ c.minColor }}; border-radius: 999px"></div>
+                            </div>
+                            <span style="font-size: 11px; color: #8B9E93">{{ c.minLabel }}</span>
+                          </div>
+                        </sc-if>
+                        <div style="display: flex; flex-direction: column; gap: 4px">
+                          <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; font-weight: 600; color: #678070">
+                            <span>Полное заполнение</span><span style="color: {{ c.fillColor }}; font-weight: 800">{{ c.fillLabel }}</span>
+                          </div>
+                          <div style="height: 5px; border-radius: 999px; background: #EDF3EF; overflow: hidden">
+                            <div style="height: 100%; width: {{ c.fillWidth }}; background: {{ c.fillColor }}; border-radius: 999px"></div>
+                          </div>
+                          <sc-if value="{{ c.hasMin }}" hint-placeholder-val="{{ false }}">
+                            <span style="font-size: 11px; color: #8B9E93">{{ c.fillCaption }}</span>
+                          </sc-if>
+                        </div>
+                      </div>
+                      <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #8B9E93">
+                        <span style="display: inline-flex; align-items: center; gap: 5px"><span style="font-family: Material Symbols Rounded; font-size: 15px">event</span>Создана {{ c.created }}</span>
+                        <span style="display: inline-flex; align-items: center; gap: 5px"><span style="font-family: Material Symbols Rounded; font-size: 15px">history</span>Изменена {{ c.updated }}</span>
+                      </div>
+                      <sc-if value="{{ c.hasReason }}" hint-placeholder-val="{{ false }}">
+                        <div style="display: flex; gap: 8px; padding: 8px 10px; border: 1px solid #F0E4BB; background: #FDF8E7; border-radius: 8px; font-size: 12.5px; color: #8B6A16; line-height: 1.45">
+                          <span style="flex: none; font-family: Material Symbols Rounded; font-size: 16px">report</span>
+                          <span><b>Возвращена модератором:</b> {{ c.reason }}</span>
+                        </div>
+                      </sc-if>
+                      <button style="margin-top: auto; min-height: 36px; border-radius: 8px; border: 1px solid {{ c.actionBorder }}; background: {{ c.actionBg }}; color: {{ c.actionFg }}; cursor: pointer; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 7px">
+                        <span style="font-family: Material Symbols Rounded; font-size: 17px">{{ c.actionIcon }}</span>{{ c.actionLabel }}
+                      </button>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ gHasMore }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ showMore }}" style="align-self: center; min-height: 38px; padding: 0 16px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13.5px; font-weight: 700; color: #193126">{{ gMoreLabel }}</button>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="display: flex; gap: 4px; border-bottom: 1px solid #DBE8DF; overflow-x: auto">
+          <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.onClick }}" style="border: 0; background: transparent; cursor: pointer; padding: 11px 14px; font-size: 13.5px; font-weight: 700; white-space: nowrap; color: {{ t.color }}; box-shadow: {{ t.underline }}; display: inline-flex; align-items: center; gap: 8px">
+              {{ t.label }}
+              <sc-if value="{{ t.hasCount }}" hint-placeholder-val="{{ true }}">
+                <span style="padding: 1px 7px; border-radius: 999px; background: {{ t.pillBg }}; color: {{ t.pillFg }}; font-size: 11px; font-weight: 800">{{ t.count }}</span>
+              </sc-if>
+            </button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start">
+            <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; display: flex; flex-direction: column">
+              <div style="padding: 14px 16px; border-bottom: 1px solid #EDF3EF; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+                <span style="font-size: 14.5px; font-weight: 800">Последние действия</span>
+                <button onClick="{{ goHistory }}" style="border: 0; background: transparent; cursor: pointer; font-size: 13px; font-weight: 700; color: #0D8A52; display: inline-flex; align-items: center; gap: 5px">Вся история<span style="font-family: Material Symbols Rounded; font-size: 17px">arrow_forward</span></button>
+              </div>
+              <sc-if value="{{ isEmptyState }}" hint-placeholder-val="{{ false }}">
+                <div style="padding: 36px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px">
+                  <span style="width: 44px; height: 44px; border-radius: 12px; background: #F1F6F3; color: #A9BCB0; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 23px">history</span>
+                  <div style="font-size: 14px; font-weight: 700">История пуста</div>
+                  <div style="font-size: 12.5px; color: #678070; max-width: 300px; line-height: 1.5">Сотрудник ещё не выполнял действий в админке.</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ hasFeed }}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; flex-direction: column">
+                  <sc-for list="{{ recentActions }}" as="a" hint-placeholder-count="8">
+                    <div style="padding: 11px 16px; border-bottom: 1px solid #F1F6F3; display: flex; gap: 11px; align-items: flex-start; cursor: pointer" style-hover="background: #FAFCFB">
+                      <span style="flex: none; width: 28px; height: 28px; border-radius: 8px; background: {{ a.bg }}; color: {{ a.fg }}; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 17px">{{ a.icon }}</span>
+                      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                        <span style="font-size: 13.5px; font-weight: 600; line-height: 1.4">{{ a.text }}</span>
+                        <span style="font-size: 12px; color: #8B9E93">{{ a.meta }}</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isCards }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; display: flex; flex-direction: column">
+            <div style="padding: 12px 14px; border-bottom: 1px solid #EDF3EF; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+              <label style="display: inline-flex; align-items: center; gap: 7px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 10px; min-height: 36px; flex: 1; min-width: 200px; max-width: 320px">
+                <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #A9BCB0">search</span>
+                <input value="{{ cardSearch }}" onChange="{{ onCardSearch }}" placeholder="Поиск по названию" style="border: 0; outline: none; font-size: 13.5px; width: 100%; background: transparent; color: #193126">
+              </label>
+              <select value="{{ cardStatus }}" onChange="{{ onCardStatus }}" style="min-height: 36px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 8px; font-size: 13px; font-weight: 600; background: #fff; color: #193126">
+                <option value="all">Все статусы</option>
+                <option value="Опубликована">Опубликована</option>
+                <option value="Черновик">Черновик</option>
+                <option value="На модерации">На модерации</option>
+                <option value="Скрыта">Скрыта</option>
+                <option value="Удалена">Удалена</option>
+              </select>
+              <select value="{{ cardPeriod }}" onChange="{{ onCardPeriod }}" style="min-height: 36px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 8px; font-size: 13px; font-weight: 600; background: #fff; color: #193126">
+                <option value="all">За всё время</option>
+                <option value="30">30 дней</option>
+                <option value="90">90 дней</option>
+                <option value="year">2026 год</option>
+              </select>
+              <button onClick="{{ resetCards }}" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13px; font-weight: 700; color: #678070">Сбросить</button>
+              <span style="margin-left: auto; font-size: 12.5px; color: #678070; font-weight: 600">{{ cardsCountLabel }}</span>
+            </div>
+
+            <sc-if value="{{ cardsEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="padding: 48px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px">
+                <span style="width: 46px; height: 46px; border-radius: 12px; background: #F1F6F3; color: #A9BCB0; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 24px">filter_alt_off</span>
+                <div style="font-size: 14.5px; font-weight: 700">{{ cardsEmptyTitle }}</div>
+                <div style="font-size: 13px; color: #678070; max-width: 360px; line-height: 1.55">{{ cardsEmptyText }}</div>
+                <button onClick="{{ resetCards }}" style="margin-top: 4px; min-height: 34px; padding: 0 13px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13px; font-weight: 700">Сбросить фильтры</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ cardsHasRows }}" hint-placeholder-val="{{ true }}">
+              <div style="overflow-x: auto">
+                <div style="min-width: 860px">
+                  <div style="display: grid; grid-template-columns: 2.4fr 1.1fr .9fr .9fr 1fr 84px; gap: 12px; padding: 9px 16px; background: #FAFCFB; border-bottom: 1px solid #EDF3EF; font-size: 11.5px; font-weight: 700; color: #678070; text-transform: uppercase; letter-spacing: .03em">
+                    <span>Карточка</span><span>Категория</span><span>Статус</span><span>Добавлена</span><span>Изменена</span><span></span>
+                  </div>
+                  <sc-for list="{{ pageCards }}" as="c" hint-placeholder-count="6">
+                    <div style="display: grid; grid-template-columns: 2.4fr 1.1fr .9fr .9fr 1fr 84px; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #F1F6F3; align-items: center; cursor: pointer; font-size: 13.5px" style-hover="background: #FAFCFB">
+                      <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                        <span style="font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ c.title }}</span>
+                        <span style="font-size: 12px; color: #8B9E93">{{ c.district }} · ID {{ c.id }}</span>
+                      </div>
+                      <span style="color: #678070">{{ c.category }}</span>
+                      <span><span style="padding: 3px 9px; border-radius: 999px; background: {{ c.bg }}; color: {{ c.fg }}; font-size: 11.5px; font-weight: 700">{{ c.status }}</span></span>
+                      <span style="color: #678070">{{ c.created }}</span>
+                      <span style="color: #678070">{{ c.updated }}</span>
+                      <span style="text-align: right">
+                        <a href="#" style="font-size: 13px; font-weight: 700; pointer-events: {{ c.linkEvents }}; color: {{ c.linkColor }}">{{ c.linkLabel }}</a>
+                      </span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="padding: 11px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+                <span style="font-size: 12.5px; color: #678070">{{ pageLabel }}</span>
+                <div style="display: flex; gap: 6px">
+                  <button onClick="{{ prevPage }}" style="width: 34px; height: 34px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; color: #678070; font-family: Material Symbols Rounded; font-size: 18px">chevron_left</button>
+                  <sc-for list="{{ pages }}" as="p" hint-placeholder-count="3">
+                    <button onClick="{{ p.onClick }}" style="min-width: 34px; height: 34px; border-radius: 8px; border: 1px solid {{ p.border }}; background: {{ p.bg }}; color: {{ p.fg }}; cursor: pointer; font-size: 13px; font-weight: 700">{{ p.n }}</button>
+                  </sc-for>
+                  <button onClick="{{ nextPage }}" style="width: 34px; height: 34px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; color: #678070; font-family: Material Symbols Rounded; font-size: 18px">chevron_right</button>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 12px">
+            <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 12px 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+              <label style="display: inline-flex; align-items: center; gap: 7px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 10px; min-height: 36px; flex: 1; min-width: 200px; max-width: 300px">
+                <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #A9BCB0">search</span>
+                <input value="{{ hSearch }}" onChange="{{ onHSearch }}" placeholder="Карточка, отзыв, объект" style="border: 0; outline: none; font-size: 13.5px; width: 100%; background: transparent; color: #193126">
+              </label>
+              <select value="{{ hPeriod }}" onChange="{{ onHPeriod }}" style="min-height: 36px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 8px; font-size: 13px; font-weight: 600; background: #fff; color: #193126">
+                <option value="all">Весь период</option>
+                <option value="7">7 дней</option>
+                <option value="30">30 дней</option>
+                <option value="90">90 дней</option>
+              </select>
+              <select value="{{ hType }}" onChange="{{ onHType }}" style="min-height: 36px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 8px; font-size: 13px; font-weight: 600; background: #fff; color: #193126">
+                <option value="all">Все действия</option>
+                <option value="create">Создание</option>
+                <option value="publish">Публикация</option>
+                <option value="edit">Изменение</option>
+                <option value="unpublish">Снятие с публикации</option>
+                <option value="approve">Одобрение</option>
+                <option value="reject">Отклонение</option>
+                <option value="delete">Удаление</option>
+                <option value="restore">Восстановление</option>
+                <option value="system">Системное</option>
+              </select>
+              <select value="{{ hObject }}" onChange="{{ onHObject }}" style="min-height: 36px; border: 1px solid #DBE8DF; border-radius: 8px; padding: 0 8px; font-size: 13px; font-weight: 600; background: #fff; color: #193126">
+                <option value="all">Все объекты</option>
+                <option value="Карточка">Карточка</option>
+                <option value="Отзыв">Отзыв</option>
+                <option value="Заявка">Заявка</option>
+                <option value="Пользователь">Пользователь</option>
+              </select>
+              <button onClick="{{ resetHistory }}" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13px; font-weight: 700; color: #678070">Сбросить</button>
+              <span style="margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #8B9E93; font-weight: 600">
+                <span style="font-family: Material Symbols Rounded; font-size: 16px">lock</span>Журнал только для чтения
+              </span>
+            </div>
+
+            <sc-if value="{{ historyEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; padding: 48px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px">
+                <span style="width: 46px; height: 46px; border-radius: 12px; background: #F1F6F3; color: #A9BCB0; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 24px">search_off</span>
+                <div style="font-size: 14.5px; font-weight: 700">{{ histEmptyTitle }}</div>
+                <div style="font-size: 13px; color: #678070; max-width: 380px; line-height: 1.55">{{ histEmptyText }}</div>
+                <button onClick="{{ resetHistory }}" style="margin-top: 4px; min-height: 34px; padding: 0 13px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13px; font-weight: 700">Сбросить фильтры</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ historyHasRows }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+                  <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; display: flex; flex-direction: column">
+                    <div style="padding: 10px 16px; border-bottom: 1px solid #EDF3EF; display: flex; align-items: center; gap: 10px; background: #FAFCFB; border-radius: 12px 12px 0 0">
+                      <span style="font-size: 13px; font-weight: 800">{{ g.date }}</span>
+                      <span style="font-size: 12px; color: #8B9E93">{{ g.count }}</span>
+                    </div>
+                    <sc-for list="{{ g.items }}" as="a" hint-placeholder-count="4">
+                      <div style="padding: 12px 16px; border-bottom: 1px solid #F1F6F3; display: flex; gap: 12px; align-items: flex-start">
+                        <span style="flex: none; width: 30px; height: 30px; border-radius: 8px; background: {{ a.bg }}; color: {{ a.fg }}; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 18px">{{ a.icon }}</span>
+                        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px">
+                          <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap">
+                            <span style="font-size: 13.5px; font-weight: 700; line-height: 1.4">{{ a.text }}</span>
+                            <span style="padding: 2px 7px; border-radius: 5px; background: #F1F6F3; color: #678070; font-size: 11px; font-weight: 700">{{ a.objType }}</span>
+                          </div>
+                          <sc-if value="{{ a.hasDiff }}" hint-placeholder-val="{{ false }}">
+                            <div style="display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; border: 1px solid #EDF3EF; border-radius: 8px; background: #FAFCFB">
+                              <div style="display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.5">
+                                <span style="flex: none; color: #8B9E93; font-weight: 700; width: 52px">Было</span>
+                                <span style="color: #678070; text-decoration: line-through; word-break: break-word">{{ a.oldShown }}</span>
+                              </div>
+                              <div style="display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; line-height: 1.5">
+                                <span style="flex: none; color: #8B9E93; font-weight: 700; width: 52px">Стало</span>
+                                <span style="color: #193126; font-weight: 600; word-break: break-word">{{ a.newShown }}</span>
+                              </div>
+                              <sc-if value="{{ a.longDiff }}" hint-placeholder-val="{{ false }}">
+                                <button onClick="{{ a.onExpand }}" style="align-self: flex-start; border: 0; background: transparent; cursor: pointer; padding: 0; font-size: 12.5px; font-weight: 700; color: #0D8A52">{{ a.expandLabel }}</button>
+                              </sc-if>
+                            </div>
+                          </sc-if>
+                          <sc-if value="{{ a.gone }}" hint-placeholder-val="{{ false }}">
+                            <div style="display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: #8B7A2B; background: #FDF8E7; border: 1px solid #F0E4BB; border-radius: 8px; padding: 6px 9px; align-self: flex-start">
+                              <span style="font-family: Material Symbols Rounded; font-size: 16px">info</span>Объект удалён окончательно — открыть нельзя
+                            </div>
+                          </sc-if>
+                          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; font-size: 12px; color: #8B9E93">
+                            <span style="display: inline-flex; align-items: center; gap: 5px"><span style="font-family: Material Symbols Rounded; font-size: 15px">schedule</span>{{ a.time }}</span>
+                            <span style="display: inline-flex; align-items: center; gap: 5px"><span style="font-family: Material Symbols Rounded; font-size: 15px">{{ a.srcIcon }}</span>{{ a.source }}</span>
+                            <span style="display: inline-flex; align-items: center; gap: 5px"><span style="font-family: Material Symbols Rounded; font-size: 15px">tag</span>{{ a.objId }}</span>
+                            <sc-if value="{{ a.openable }}" hint-placeholder-val="{{ true }}">
+                              <a href="#" style="font-weight: 700; display: inline-flex; align-items: center; gap: 4px">Открыть объект<span style="font-family: Material Symbols Rounded; font-size: 15px">north_east</span></a>
+                            </sc-if>
+                          </div>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+                <button onClick="{{ noop }}" style="align-self: center; min-height: 38px; padding: 0 16px; border-radius: 8px; border: 1px solid #DBE8DF; background: #fff; cursor: pointer; font-size: 13.5px; font-weight: 700; color: #193126">Показать более раннее</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isPerms }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; gap: 11px; padding: 11px 14px; border: 1px solid {{ permNoteBorder }}; background: {{ permNoteBg }}; border-radius: 12px; font-size: 13px; color: {{ permNoteFg }}">
+              <span style="font-family: Material Symbols Rounded; font-size: 19px">{{ permNoteIcon }}</span>{{ permNote }}
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 12px; align-items: start">
+              <sc-for list="{{ permSections }}" as="ps" hint-placeholder-count="6">
+                <div style="background: #fff; border: 1px solid #DBE8DF; border-radius: 12px; display: flex; flex-direction: column">
+                  <div style="padding: 12px 16px; border-bottom: 1px solid #EDF3EF; display: flex; align-items: center; gap: 9px">
+                    <span style="font-family: Material Symbols Rounded; font-size: 19px; color: #0D8A52">{{ ps.icon }}</span>
+                    <span style="font-size: 14px; font-weight: 800">{{ ps.title }}</span>
+                    <span style="margin-left: auto; font-size: 12px; color: #8B9E93; font-weight: 600">{{ ps.summary }}</span>
+                  </div>
+                  <sc-for list="{{ ps.items }}" as="p" hint-placeholder-count="3">
+                    <div style="padding: 10px 16px; border-bottom: 1px solid #F1F6F3; display: flex; align-items: center; gap: 12px">
+                      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                        <span style="font-size: 13.5px; font-weight: 600">{{ p.label }}</span>
+                        <span style="font-size: 12px; color: #8B9E93">{{ p.hint }}</span>
+                      </div>
+                      <button onClick="{{ p.onToggle }}" style="flex: none; width: 40px; height: 22px; border-radius: 999px; border: 0; cursor: {{ p.cursor }}; background: {{ p.trackBg }}; padding: 3px; display: flex; justify-content: {{ p.knobPos }}; opacity: {{ p.opacity }}">
+                        <span style="width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(25,49,38,.2)"></span>
+                      </button>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ isSuper }}" hint-placeholder-val="{{ true }}">
+              <div style="background: #fff; border: 1px solid #F0D2CF; border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+                <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 3px">
+                  <span style="font-size: 14px; font-weight: 800; color: #7E2B27">Опасная зона</span>
+                  <span style="font-size: 12.5px; color: #678070; line-height: 1.5">Отключение блокирует вход, но сохраняет карточки и журнал действий. Требуется подтверждение.</span>
+                </div>
+                <button onClick="{{ askDisable }}" style="min-height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #E7B7B3; background: #fff; color: #B4322C; cursor: pointer; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 7px" style-hover="background: #FDF4F3">
+                  <span style="font-family: Material Symbols Rounded; font-size: 18px">block</span>Отключить сотрудника
+                </button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+      </div>
+    </sc-if>
+  </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1100}}">
+const A = [
+  { d: "Сегодня, 31 августа 2026", items: [
+    { t: "publish", text: "Опубликовал карточку «Mini Academy»", objType: "Карточка", objId: "card/1841", time: "31.08.2026, 14:22", src: "Админка" },
+    { t: "edit", text: "Изменил телефон карточки «Happy Kids»", objType: "Карточка", objId: "card/1836", time: "31.08.2026, 13:57", src: "Админка", o: "+994 50 123 45 67", n: "+994 55 765 43 21" },
+    { t: "approve", text: "Одобрил заявку владельца на «Robotics Lab Baku»", objType: "Заявка", objId: "claim/318", time: "31.08.2026, 12:40", src: "Кабинет владельца" },
+    { t: "reject", text: "Отклонил отзыв к карточке «Sunny Dance»", objType: "Отзыв", objId: "review/9042", time: "31.08.2026, 11:18", src: "Админка", o: "На модерации", n: "Отклонён — реклама сторонней школы" },
+    { t: "create", text: "Добавил карточку «Mini Academy»", objType: "Карточка", objId: "card/1841", time: "31.08.2026, 10:05", src: "Админка" }
+  ]},
+  { d: "Вчера, 30 августа 2026", items: [
+    { t: "edit", text: "Изменил адрес карточки «Bakı Şahmat Mərkəzi»", objType: "Карточка", objId: "card/1802", time: "30.08.2026, 18:31", src: "Админка",
+      o: "Баку, Насиминский район, ул. Азадлыг 42, 2-й этаж, вход со двора, ориентир — аптека «Zeytun»",
+      n: "Баку, Насиминский район, пр. Азадлыг 44А, бизнес-центр «Ay Plaza», 3-й этаж, офис 312, вход с проспекта, парковка со стороны двора" },
+    { t: "unpublish", text: "Снял с публикации карточку «Bright Steps»", objType: "Карточка", objId: "card/1774", time: "30.08.2026, 16:12", src: "Админка", o: "Опубликована", n: "Скрыта — не отвечает телефон" },
+    { t: "restore", text: "Восстановил карточку «Little Chef Studio»", objType: "Карточка", objId: "card/1690", time: "30.08.2026, 15:44", src: "Админка" },
+    { t: "system", text: "Автовыход по истечении сессии", objType: "Пользователь", objId: "user/27", time: "30.08.2026, 22:00", src: "Система" }
+  ]},
+  { d: "28 августа 2026", items: [
+    { t: "delete", text: "Переместил карточку «Kids Time Xırdalan» в удалённые", objType: "Карточка", objId: "card/1588", time: "28.08.2026, 17:03", src: "Админка", gone: true },
+    { t: "edit", text: "Изменил возрастной диапазон карточки «Aqua Baby»", objType: "Карточка", objId: "card/1655", time: "28.08.2026, 14:26", src: "Админка", o: "3–7 лет", n: "1–6 лет" },
+    { t: "approve", text: "Одобрил отзыв к карточке «Happy Kids»", objType: "Отзыв", objId: "review/8977", time: "28.08.2026, 11:09", src: "Админка" }
+  ]},
+  { d: "26 августа 2026", items: [
+    { t: "create", text: "Добавил карточку «Baku Art School»", objType: "Карточка", objId: "card/1830", time: "26.08.2026, 16:40", src: "Админка" },
+    { t: "edit", text: "Изменил цену карточки «Chess Kids»", objType: "Карточка", objId: "card/1612", time: "26.08.2026, 12:15", src: "Кабинет владельца", o: "60 ₼ / мес", n: "75 ₼ / мес" }
+  ]}
+];
+
+const CARDS = [
+  { id: 1841, title: "Mini Academy", category: "Развивающие центры", status: "Опубликована", created: "31.08.2026", updated: "31.08.2026", district: "Ясамал", fill: 100, icon: "school", photos: 6 },
+  { id: 1836, title: "Happy Kids", category: "Детские сады", status: "Опубликована", created: "29.08.2026", updated: "31.08.2026", district: "Наримановский", fill: 96, icon: "child_care", photos: 4 },
+  { id: 1830, title: "Baku Art School", category: "Рисование", status: "На модерации", created: "26.08.2026", updated: "27.08.2026", district: "Сабаил", fill: 88, icon: "palette", photos: 3 },
+  { id: 1823, title: "Bala Bağçası Günəş", category: "Детские сады", status: "Возвращена", created: "24.08.2026", updated: "31.08.2026", district: "Бинагади", fill: 68, photos: 1,
+    req: [7, 9], opt: [5, 12], left: "телефон с кодом города, расписание групп",
+    reason: "Телефон указан без кода города, не заполнено расписание групп и стоимость месяца." },
+  { id: 1802, title: "Bakı Şahmat Mərkəzi", category: "Шахматы", status: "Опубликована", created: "21.08.2026", updated: "30.08.2026", district: "Насиминский", fill: 100, icon: "extension", photos: 5 },
+  { id: 1774, title: "Bright Steps", category: "Развивающие центры", status: "Скрыта", created: "14.08.2026", updated: "30.08.2026", district: "Хатаи", fill: 74, icon: "school", photos: 2 },
+  { id: 1755, title: "Aqua Baby", category: "Плавание", status: "Опубликована", created: "09.08.2026", updated: "28.08.2026", district: "Ясамал", fill: 92, icon: "pool", photos: 4 },
+  { id: 1740, title: "Lego Master Studio", category: "Робототехника", status: "Возвращена", created: "06.08.2026", updated: "29.08.2026", district: "Хатаи", fill: 82, photos: 2,
+    req: [9, 9], opt: [8, 12], left: "собственные фото зала",
+    reason: "Фотографии дублируются с карточкой «Robotics Lab Baku» — нужны собственные снимки зала." },
+  { id: 1712, title: "Robotics Lab Baku", category: "Робототехника", status: "Опубликована", created: "02.08.2026", updated: "31.08.2026", district: "Сабаил", fill: 100, icon: "smart_toy", photos: 7 },
+  { id: 1690, title: "Little Chef Studio", category: "Кулинария", status: "Черновик", created: "24.07.2026", updated: "30.08.2026", district: "Бинагади", fill: 45, icon: "restaurant", photos: 0,
+    req: [6, 9], opt: [2, 12], left: "адрес, фото, возрастной диапазон" },
+  { id: 1655, title: "Sunny Dance", category: "Танцы", status: "Опубликована", created: "11.07.2026", updated: "25.08.2026", district: "Наримановский", fill: 94, icon: "music_note", photos: 5 },
+  { id: 1612, title: "Chess Kids", category: "Шахматы", status: "Опубликована", created: "28.06.2026", updated: "26.08.2026", district: "Хатаи", fill: 100, icon: "extension", photos: 3 },
+  { id: 1588, title: "Kids Time Xırdalan", category: "Развивающие центры", status: "Удалена", created: "19.06.2026", updated: "28.08.2026", district: "Хырдалан", fill: 60, icon: "school", photos: 2 },
+  { id: 1560, title: "Speak Up Kids", category: "Языки", status: "Скрыта", created: "12.06.2026", updated: "19.08.2026", district: "Наримановский", fill: 86, icon: "translate", photos: 3 },
+  { id: 1540, title: "Tennis Junior Club", category: "Спорт", status: "Опубликована", created: "05.06.2026", updated: "12.08.2026", district: "Сабаил", fill: 100, icon: "sports_tennis", photos: 6 },
+  { id: 1502, title: "Mərcan Musiqi Studiyası", category: "Музыка", status: "Черновик", created: "27.05.2026", updated: "03.08.2026", district: "Ясамал", fill: 30, icon: "music_note", photos: 0,
+    req: [3, 9], opt: [1, 12], left: "телефон, адрес, категория, фото" }
+];
+
+const NEXT = {
+  "Черновик":     { label: "Продолжить заполнение", icon: "edit_note",  bg: "#0D8A52", fg: "#fff",     border: "#0D8A52" },
+  "Возвращена":   { label: "Исправить замечания",   icon: "build",      bg: "#0D8A52", fg: "#fff",     border: "#0D8A52" },
+  "На модерации": { label: "Посмотреть",            icon: "visibility", bg: "#fff",    fg: "#193126",  border: "#DBE8DF" },
+  "Опубликована": { label: "Редактировать",         icon: "edit",       bg: "#fff",    fg: "#193126",  border: "#DBE8DF" },
+  "Скрыта":       { label: "Открыть и проверить",   icon: "fact_check", bg: "#fff",    fg: "#193126",  border: "#DBE8DF" },
+  "Удалена":      { label: "Восстановить",          icon: "restore",    bg: "#fff",    fg: "#193126",  border: "#DBE8DF" }
+};
+
+const NAV = [
+  { icon: "dashboard", label: "Панель управления" },
+  { header: true, icon: "folder", label: "Каталог" },
+  { icon: "location_on", label: "Постоянные места", badge: "282" },
+  { icon: "event", label: "Временные мероприятия", badge: "0", hidden: true },
+  { icon: "person", label: "Специалисты", badge: "0", hidden: true },
+  { icon: "star", label: "Отзывы" },
+  { icon: "delete", label: "Корзина", badge: "19" },
+  { header: true, icon: "shield", label: "Модерация" },
+  { icon: "location_on", label: "Места на проверке", badge: "0" },
+  { icon: "event", label: "Мероприятия на проверке", badge: "0" },
+  { icon: "person", label: "Специалисты на проверке", badge: "0" },
+  { icon: "star", label: "Отзывы на проверке", badge: "0" },
+  { icon: "work", label: "Заявки на владение", badge: "0" },
+  { header: true, icon: "menu_book", label: "Справочники" },
+  { icon: "category", label: "Категории" },
+  { icon: "map", label: "Регионы и районы" },
+  { header: true, icon: "group", label: "Пользователи" },
+  { icon: "badge", label: "Сотрудники", active: true },
+  { icon: "people", label: "Пользователи сайта", badge: "4 128" },
+  { icon: "history", label: "Журнал действий" }
+];
+
+const GFILTERS = [
+  { id: "all", label: "Все", match: () => true },
+  { id: "draft", label: "Черновики", match: c => c.status === "Черновик" },
+  { id: "returned", label: "Требуют исправления", match: c => c.status === "Возвращена" },
+  { id: "moderation", label: "На модерации", match: c => c.status === "На модерации" },
+  { id: "published", label: "Опубликованные", match: c => c.status === "Опубликована" },
+  { id: "hidden", label: "Скрытые", match: c => c.status === "Скрыта" }
+];
+
+const STATUS_ORDER = ["Возвращена", "Черновик", "На модерации", "Опубликована", "Скрыта", "Удалена"];
+const toTs = d => Number(d.slice(6) + d.slice(3, 5) + d.slice(0, 2));
+const fillColor = f => (f >= 90 ? "#0D8A52" : f >= 60 ? "#8B6A16" : "#B4322C");
+const prog = c => {
+  if (!c.req) return { minPct: 100, fullPct: c.fill, hasCounts: false, ready: true };
+  const req = c.req, opt = c.opt;
+  const total = req[1] + opt[1], done = req[0] + opt[0];
+  return {
+    minPct: Math.round(req[0] / req[1] * 100),
+    fullPct: Math.round(done / total * 100),
+    hasCounts: true, ready: req[0] >= req[1],
+    minLabel: req[0] + " из " + req[1] + " обязательных",
+    fullLabel: done + " из " + total + " " + plural(total, "поля", "полей", "полей")
+  };
+};
+const parseD = d => new Date(+d.slice(6), +d.slice(3, 5) - 1, +d.slice(0, 2));
+const NOW = new Date(2026, 7, 31);
+const agoLabel = d => {
+  const dd = Math.round((NOW - parseD(d)) / 86400000);
+  return dd <= 0 ? "изменена сегодня" : dd === 1 ? "изменена вчера"
+    : "изменена " + dd + " " + plural(dd, "день", "дня", "дней") + " назад";
+};
+
+const TYPE = {
+  create:    { icon: "add_circle",     bg: "#DCEFE4", fg: "#0a6c40" },
+  publish:   { icon: "public",         bg: "#DCEFE4", fg: "#0a6c40" },
+  restore:   { icon: "restore",        bg: "#DCEFE4", fg: "#0a6c40" },
+  approve:   { icon: "check_circle",   bg: "#DCEFE4", fg: "#0a6c40" },
+  edit:      { icon: "edit",           bg: "#E1ECFB", fg: "#20558F" },
+  unpublish: { icon: "visibility_off", bg: "#FDF3DC", fg: "#8B6A16" },
+  reject:    { icon: "cancel",         bg: "#FBE4E2", fg: "#B4322C" },
+  delete:    { icon: "delete",         bg: "#FBE4E2", fg: "#B4322C" },
+  system:    { icon: "settings",       bg: "#F1F6F3", fg: "#678070" }
+};
+const STATUS = {
+  "Опубликована": { bg: "#DCEFE4", fg: "#0a6c40" },
+  "Черновик":     { bg: "#F1F6F3", fg: "#678070" },
+  "На модерации": { bg: "#FDF3DC", fg: "#8B6A16" },
+  "Возвращена":   { bg: "#FBE4E2", fg: "#B4322C" },
+  "Скрыта":       { bg: "#EDEFF2", fg: "#5A6672" },
+  "Удалена":      { bg: "#FBE4E2", fg: "#B4322C" }
+};
+const SRC = { "Админка": "admin_panel_settings", "Кабинет владельца": "storefront", "Система": "memory" };
+const PER_PAGE = 6;
+const CUT = 90;
+
+function plural(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m100 >= 11 && m100 <= 14) return many;
+  if (m10 === 1) return one;
+  if (m10 >= 2 && m10 <= 4) return few;
+  return many;
+}
+
+class Component extends DCLogic {
+  state = {
+    tab: "overview", viewer: "super", ui: "ready", menuOpen: false, confirmDisable: false, disabled: false,
+    cardSearch: "", cardStatus: "all", cardPeriod: "all", page: 1,
+    gFilter: "all", gSearch: "", gSort: "updated", gShown: 6,
+    hSearch: "", hPeriod: "all", hType: "all", hObject: "all",
+    expanded: {},
+    perms: {
+      "cards.view": true, "cards.add": true, "cards.edit": true, "cards.publish": true, "cards.delete": false,
+      "rev.view": true, "rev.moderate": true, "rev.delete": false,
+      "own.view": true, "own.decide": true,
+      "usr.view": false, "usr.edit": false,
+      "sys.settings": false, "sys.integrations": false,
+      "log.view": true, "log.export": true
+    }
+  };
+
+  set = (k, v) => this.setState({ [k]: v });
+
+  renderVals() {
+    const s = this.state;
+    const isSuper = s.viewer === "super";
+    const ui = s.ui;
+    const disabled = s.disabled || ui === "disabled";
+    const emptyMode = ui === "empty";
+
+    // ---- history filtering
+    const matchPeriod = (time, p) => {
+      if (p === "all") return true;
+      const day = parseInt(time.slice(0, 2), 10), mon = parseInt(time.slice(3, 5), 10);
+      const days = mon === 8 ? 31 - day : 31 + (30 - day);
+      return days <= parseInt(p, 10);
+    };
+    const groups = emptyMode ? [] : A.map(g => ({
+      date: g.d,
+      items: g.items.filter(a =>
+        (s.hType === "all" || a.t === s.hType) &&
+        (s.hObject === "all" || a.objType === s.hObject) &&
+        matchPeriod(a.time, s.hPeriod) &&
+        (s.hSearch.trim() === "" || (a.text + " " + a.objId).toLowerCase().includes(s.hSearch.trim().toLowerCase())))
+    })).filter(g => g.items.length).map(g => ({
+      date: g.date,
+      count: g.items.length + " " + plural(g.items.length, "действие", "действия", "действий"),
+      items: g.items.map((a, i) => {
+        const k = g.date + i;
+        const meta = TYPE[a.t];
+        const long = (a.o && a.o.length > CUT) || (a.n && a.n.length > CUT);
+        const open = !!s.expanded[k];
+        const cut = v => (long && !open && v && v.length > CUT ? v.slice(0, CUT) + "…" : v);
+        return {
+          icon: meta.icon, bg: meta.bg, fg: meta.fg, text: a.text, objType: a.objType, objId: a.objId,
+          time: a.time, source: a.src, srcIcon: SRC[a.src],
+          hasDiff: !!a.o, oldShown: cut(a.o), newShown: cut(a.n),
+          longDiff: !!long, expandLabel: open ? "Свернуть" : "Показать полностью",
+          onExpand: () => this.setState(p => ({ expanded: Object.assign({}, p.expanded, { [k]: !p.expanded[k] }) })),
+          gone: !!a.gone, openable: !a.gone && a.t !== "system"
+        };
+      })
+    }));
+    const histTotal = A.reduce((n, g) => n + g.items.length, 0);
+    const histFiltered = groups.reduce((n, g) => n + g.items.length, 0);
+    const histClean = s.hSearch === "" && s.hPeriod === "all" && s.hType === "all" && s.hObject === "all";
+
+    // ---- cards filtering
+    const cardsAll = emptyMode ? [] : CARDS;
+    const filtered = cardsAll.filter(c =>
+      (s.cardStatus === "all" || c.status === s.cardStatus) &&
+      (s.cardPeriod === "all" || (s.cardPeriod === "year" ? c.created.endsWith("2026") : (() => {
+        const day = parseInt(c.created.slice(0, 2), 10), mon = parseInt(c.created.slice(3, 5), 10);
+        const days = (8 - mon) * 30 + (31 - day);
+        return days <= parseInt(s.cardPeriod, 10);
+      })())) &&
+      (s.cardSearch.trim() === "" || c.title.toLowerCase().includes(s.cardSearch.trim().toLowerCase())));
+    const maxPage = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+    const page = Math.min(s.page, maxPage);
+    const decorate = c => {
+      const st = STATUS[c.status];
+      const gone = c.status === "Удалена";
+      return Object.assign({}, c, { bg: st.bg, fg: st.fg,
+        linkLabel: gone ? "Недоступна" : "Открыть",
+        linkColor: gone ? "#A9BCB0" : "#0D8A52",
+        linkEvents: gone ? "none" : "auto" });
+    };
+    const pageCards = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE).map(decorate);
+    const cardsClean = s.cardSearch === "" && s.cardStatus === "all" && s.cardPeriod === "all";
+
+    // ---- main cards section (grid)
+    const gridAll = cardsAll.filter(c => c.status !== "Удалена");
+    const unfinishedAll = gridAll.filter(c => c.status === "Черновик" || c.status === "Возвращена")
+      .slice().sort((a, b) => toTs(b.updated) - toTs(a.updated));
+    const gFilterDef = GFILTERS.find(f => f.id === s.gFilter) || GFILTERS[0];
+    const gridFiltered = gridAll.filter(c => gFilterDef.match(c) &&
+      (s.gSearch.trim() === "" || c.title.toLowerCase().includes(s.gSearch.trim().toLowerCase())))
+      .slice().sort((a, b) => {
+        if (s.gSort === "created") return toTs(b.created) - toTs(a.created);
+        if (s.gSort === "old") return toTs(a.created) - toTs(b.created);
+        if (s.gSort === "status") return STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status) || toTs(b.updated) - toTs(a.updated);
+        return toTs(b.updated) - toTs(a.updated);
+      });
+    const gridVisible = gridFiltered.slice(0, s.gShown);
+
+    const tabDefs = [
+      { id: "overview", label: "Обзор", count: "" },
+      { id: "cards", label: "Все карточки — таблица", count: cardsAll.length },
+      { id: "history", label: "История действий", count: emptyMode ? 0 : histTotal },
+      { id: "perms", label: "Права доступа", count: Object.values(s.perms).filter(Boolean).length }
+    ];
+
+    const permDefs = [
+      { key: "cards", icon: "inventory_2", title: "Доступ к карточкам", items: [
+        { k: "cards.view", label: "Просмотр карточек", hint: "Все карточки каталога" },
+        { k: "cards.add", label: "Добавление карточек", hint: "Создание новых записей" },
+        { k: "cards.edit", label: "Редактирование карточек", hint: "Контакты, адрес, цены, фото" },
+        { k: "cards.publish", label: "Публикация и снятие с публикации", hint: "Смена статуса карточки" },
+        { k: "cards.delete", label: "Перемещение в удалённые", hint: "Только суперадмин по умолчанию" }
+      ]},
+      { key: "rev", icon: "reviews", title: "Модерация отзывов", items: [
+        { k: "rev.view", label: "Просмотр отзывов", hint: "Включая отзывы на модерации" },
+        { k: "rev.moderate", label: "Одобрение и отклонение", hint: "Решение по отзыву с причиной" },
+        { k: "rev.delete", label: "Удаление отзывов", hint: "Безвозвратное удаление" }
+      ]},
+      { key: "own", icon: "verified_user", title: "Ownership-заявки", items: [
+        { k: "own.view", label: "Просмотр заявок владельцев", hint: "Очередь подтверждения прав" },
+        { k: "own.decide", label: "Одобрение и отклонение заявок", hint: "Передача карточки владельцу" }
+      ]},
+      { key: "usr", icon: "group", title: "Управление пользователями", items: [
+        { k: "usr.view", label: "Просмотр сотрудников", hint: "Список и профили" },
+        { k: "usr.edit", label: "Изменение ролей и прав", hint: "Доступно только суперадмину" }
+      ]},
+      { key: "sys", icon: "settings", title: "Системные настройки", items: [
+        { k: "sys.settings", label: "Настройки каталога", hint: "Категории, районы, теги" },
+        { k: "sys.integrations", label: "Интеграции и API-ключи", hint: "Значения секретов не отображаются" }
+      ]},
+      { key: "log", icon: "history", title: "История изменений", items: [
+        { k: "log.view", label: "Просмотр журнала действий", hint: "Свои и чужие действия" },
+        { k: "log.export", label: "Экспорт журнала", hint: "CSV за выбранный период" }
+      ]}
+    ];
+
+    return {
+      nav: NAV.map(n => ({
+        isHeader: !!n.header, isItem: !n.header, icon: n.icon, label: n.label,
+        hasBadge: !!n.badge, badge: n.badge, hidden: !!n.hidden,
+        bg: n.active ? "#0D8A52" : "transparent",
+        color: n.active ? "#fff" : "#DCE7E0",
+        weight: n.active ? "700" : "500",
+        badgeBg: n.active ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.1)",
+        badgeFg: n.active ? "#fff" : "#A8BFB2"
+      })),
+      person: { name: "Рамин Алиев", username: "ramin.aliyev", email: "ramin.aliyev@kidsmap.az", role: "Админ" },
+      isSuper, menuOpen: s.menuOpen, confirmDisable: s.confirmDisable, isDisabled: disabled,
+      superBg: isSuper ? "#0D8A52" : "transparent", superFg: isSuper ? "#fff" : "#cfe0d6",
+      selfBg: isSuper ? "transparent" : "#0D8A52", selfFg: isSuper ? "#cfe0d6" : "#fff",
+      setSuper: () => this.setState({ viewer: "super" }),
+      setSelf: () => this.setState({ viewer: "self", tab: s.tab }),
+      uiState: ui, onStateChange: e => this.setState({ ui: e.target.value, menuOpen: false }),
+      isLoading: ui === "loading", isError: ui === "error",
+      showBody: ui !== "loading" && ui !== "error",
+      isEmptyState: emptyMode, hasFeed: !emptyMode,
+      retry: () => this.setState({ ui: "ready" }),
+      toggleMenu: () => this.setState(p => ({ menuOpen: !p.menuOpen })),
+      askDisable: () => this.setState({ confirmDisable: true, menuOpen: false }),
+      cancelDisable: () => this.setState({ confirmDisable: false }),
+      doDisable: () => this.setState({ confirmDisable: false, disabled: true }),
+      noop: () => {},
+
+      statusBg: disabled ? "#FBE4E2" : "#DCEFE4",
+      statusFg: disabled ? "#B4322C" : "#0a6c40",
+      statusLabel: disabled ? "Отключён" : "Активен",
+      avatarFilter: disabled ? "grayscale(1)" : "none",
+      lastLogin: disabled ? "12.08.2026, 09:14 — до отключения" : "31.08.2026, 09:41",
+      lastActivity: emptyMode ? "Активности нет" : (disabled ? "12.08.2026, 17:52" : "31.08.2026, 14:22"),
+
+      stats: [
+        { icon: "inventory_2", label: "Добавлено карточек", value: emptyMode ? "0" : "48", hint: emptyMode ? "Ни одной карточки" : "из них 39 опубликованы" },
+        { icon: "edit_note", label: "Изменений за 30 дней", value: emptyMode ? "0" : "126", hint: emptyMode ? "Нет изменений" : "в среднем 4,2 в день" },
+        { icon: "gavel", label: "Решений по модерации", value: emptyMode ? "0" : "31", hint: emptyMode ? "Нет решений" : "24 одобрено · 7 отклонено" },
+        { icon: "schedule", label: "Последняя активность", value: emptyMode ? "—" : (disabled ? "19 дней назад" : "12 мин назад"), hint: emptyMode ? "Нет данных" : "Опубликовал «Mini Academy»" }
+      ],
+
+      tabs: tabDefs.map(t => ({
+        label: t.label, count: t.count, hasCount: t.count !== "", onClick: () => this.setState({ tab: t.id }),
+        color: s.tab === t.id ? "#0D8A52" : "#678070",
+        underline: s.tab === t.id ? "inset 0 -2px 0 0 #0D8A52" : "none",
+        pillBg: s.tab === t.id ? "#DCEFE4" : "#F1F6F3",
+        pillFg: s.tab === t.id ? "#0a6c40" : "#8B9E93"
+      })),
+      isOverview: s.tab === "overview", isCards: s.tab === "cards", isHistory: s.tab === "history", isPerms: s.tab === "perms",
+      goHistory: () => this.setState({ tab: "history" }),
+      goCards: () => this.setState({ tab: "cards" }),
+
+      recentActions: emptyMode ? [] : A.reduce((acc, g) => acc.concat(g.items.map(a => Object.assign({}, a, { day: g.d }))), [])
+        .slice(0, 8).map(a => ({
+          icon: TYPE[a.t].icon, bg: TYPE[a.t].bg, fg: TYPE[a.t].fg, text: a.text,
+          meta: a.time + " · " + a.objType + " · " + a.src
+        })),
+      recentCards: emptyMode ? [] : CARDS.slice(0, 5).map(decorate),
+
+      gSearch: s.gSearch, gSort: s.gSort,
+      onGSearch: e => this.setState({ gSearch: e.target.value, gShown: 6 }),
+      onGSort: e => this.setState({ gSort: e.target.value }),
+      resetGrid: () => this.setState({ gFilter: "all", gSearch: "", gShown: 6 }),
+      gSummary: gridAll.length === 0 ? "Пока ни одной карточки" :
+        gridAll.length + " " + plural(gridAll.length, "карточка", "карточки", "карточек") + " · " +
+        unfinishedAll.length + " " + plural(unfinishedAll.length, "требует", "требуют", "требуют") + " внимания",
+      gFilters: GFILTERS.map(f => ({
+        label: f.label, count: gridAll.filter(f.match).length,
+        onClick: () => this.setState({ gFilter: f.id, gShown: 6 }),
+        bg: s.gFilter === f.id ? "#0D8A52" : "#fff",
+        fg: s.gFilter === f.id ? "#fff" : "#678070",
+        border: s.gFilter === f.id ? "#0D8A52" : "#DBE8DF"
+      })),
+      hasUnfinished: unfinishedAll.length > 0,
+      unfinished: unfinishedAll.slice(0, 5).map(c => {
+        const p = prog(c);
+        return {
+          title: c.title, status: c.status, bg: STATUS[c.status].bg, fg: STATUS[c.status].fg,
+          updatedAgo: agoLabel(c.updated),
+          minLabel: p.minLabel, minPctLabel: p.minPct + "%", minWidth: p.minPct + "%",
+          minColor: p.ready ? "#0D8A52" : "#8B6A16",
+          fullLabel: p.fullLabel, fullPctLabel: p.fullPct + "%", fullWidth: p.fullPct + "%",
+          readyNote: p.ready ? "Минимум собран — можно отправлять на модерацию" : "Осталось до минимума: " + (c.left || "обязательные поля"),
+          readyIcon: p.ready ? "check_circle" : "pending",
+          readyColor: p.ready ? "#0a6c40" : "#8B6A16",
+          readyBg: p.ready ? "#EFF8F2" : "#FDF8E7",
+          readyBorder: p.ready ? "#C8E4D3" : "#F0E4BB",
+          actionLabel: NEXT[c.status].label, actionIcon: NEXT[c.status].icon
+        };
+      }),
+      gridCards: gridVisible.map(c => Object.assign({}, {
+        id: c.id, title: c.title, category: c.category, district: c.district, status: c.status,
+        created: c.created, updated: c.updated, icon: c.icon || "photo_camera",
+        photoLabel: c.photos === 0 ? "Фото не загружены" : c.photos + " " + plural(c.photos, "фото", "фото", "фото"),
+        bg: STATUS[c.status].bg, fg: STATUS[c.status].fg,
+        fillLabel: prog(c).fullPct + "%", fillWidth: prog(c).fullPct + "%", fillColor: fillColor(prog(c).fullPct),
+        fillCaption: prog(c).hasCounts ? prog(c).fullLabel : "",
+        hasMin: prog(c).hasCounts,
+        minPctLabel: prog(c).minPct + "%", minWidth: prog(c).minPct + "%",
+        minColor: prog(c).ready ? "#0D8A52" : "#8B6A16", minLabel: prog(c).minLabel,
+        hasReason: !!c.reason, reason: c.reason,
+        actionLabel: NEXT[c.status].label, actionIcon: NEXT[c.status].icon,
+        actionBg: NEXT[c.status].bg, actionFg: NEXT[c.status].fg, actionBorder: NEXT[c.status].border
+      })),
+      gridEmpty: gridFiltered.length === 0, gridHasRows: gridFiltered.length > 0,
+      gridEmptyIcon: gridAll.length === 0 ? "inventory_2" : "filter_alt_off",
+      gridEmptyTitle: gridAll.length === 0 ? "Сотрудник ещё ничего не добавил" : "По фильтрам ничего не найдено",
+      gridEmptyText: gridAll.length === 0
+        ? "Как только он создаст первую карточку, она появится здесь — вместе с процентом заполнения и следующим шагом."
+        : "Ни одна карточка не подходит под выбранный фильтр или поиск.",
+      gridEmptyAction: gridAll.length === 0 ? "Назначить первую задачу" : "Сбросить фильтры",
+      gHasMore: gridFiltered.length > gridVisible.length,
+      gMoreLabel: "Показать ещё " + Math.min(6, gridFiltered.length - gridVisible.length) + " из " + gridFiltered.length,
+      showMore: () => this.setState(p => ({ gShown: p.gShown + 6 })),
+
+      cardSearch: s.cardSearch, cardStatus: s.cardStatus, cardPeriod: s.cardPeriod,
+      onCardSearch: e => this.setState({ cardSearch: e.target.value, page: 1 }),
+      onCardStatus: e => this.setState({ cardStatus: e.target.value, page: 1 }),
+      onCardPeriod: e => this.setState({ cardPeriod: e.target.value, page: 1 }),
+      resetCards: () => this.setState({ cardSearch: "", cardStatus: "all", cardPeriod: "all", page: 1 }),
+      cardsCountLabel: filtered.length + " из " + cardsAll.length,
+      cardsEmpty: filtered.length === 0, cardsHasRows: filtered.length > 0,
+      cardsEmptyTitle: cardsAll.length === 0 ? "Сотрудник ещё ничего не добавил" : "По фильтрам ничего не найдено",
+      cardsEmptyText: cardsAll.length === 0
+        ? "Как только он создаст первую карточку, она появится здесь вместе с историей изменений."
+        : "Попробуйте изменить статус, период или очистить поиск.",
+      pageCards,
+      pageLabel: "Показано " + ((page - 1) * PER_PAGE + 1) + "–" + Math.min(page * PER_PAGE, filtered.length) + " из " + filtered.length,
+      pages: Array.from({ length: maxPage }, (_, i) => i + 1).map(n => ({
+        n, onClick: () => this.setState({ page: n }),
+        bg: n === page ? "#0D8A52" : "#fff", fg: n === page ? "#fff" : "#193126",
+        border: n === page ? "#0D8A52" : "#DBE8DF"
+      })),
+      prevPage: () => this.setState({ page: Math.max(1, page - 1) }),
+      nextPage: () => this.setState({ page: Math.min(maxPage, page + 1) }),
+
+      hSearch: s.hSearch, hPeriod: s.hPeriod, hType: s.hType, hObject: s.hObject,
+      onHSearch: e => this.setState({ hSearch: e.target.value }),
+      onHPeriod: e => this.setState({ hPeriod: e.target.value }),
+      onHType: e => this.setState({ hType: e.target.value }),
+      onHObject: e => this.setState({ hObject: e.target.value }),
+      resetHistory: () => this.setState({ hSearch: "", hPeriod: "all", hType: "all", hObject: "all" }),
+      groups, historyEmpty: histFiltered === 0, historyHasRows: histFiltered > 0,
+      histEmptyTitle: emptyMode || histClean ? "История пуста" : "По фильтрам ничего не найдено",
+      histEmptyText: emptyMode || histClean
+        ? "Сотрудник ещё не выполнял действий в админке. Записи появятся автоматически."
+        : "Ни одно действие не подходит под выбранные фильтры. Попробуйте расширить период.",
+
+      permNote: isSuper
+        ? "Вы суперадмин — можете менять права. Каждое изменение попадает в журнал действий."
+        : "Режим просмотра: изменять права может только суперадмин. Обратитесь к Лейле Керимовой.",
+      permNoteIcon: isSuper ? "shield_person" : "visibility",
+      permNoteBg: isSuper ? "#F1F8F4" : "#F5F8F6",
+      permNoteBorder: isSuper ? "#C8E4D3" : "#DBE8DF",
+      permNoteFg: isSuper ? "#0a6c40" : "#678070",
+      permSections: permDefs.map(sec => {
+        const on = sec.items.filter(i => s.perms[i.k]).length;
+        return {
+          icon: sec.icon, title: sec.title, summary: on + " из " + sec.items.length,
+          items: sec.items.map(i => {
+            const v = s.perms[i.k];
+            return {
+              label: i.label, hint: i.hint,
+              trackBg: v ? "#0D8A52" : "#DBE8DF",
+              knobPos: v ? "flex-end" : "flex-start",
+              cursor: isSuper ? "pointer" : "not-allowed",
+              opacity: isSuper ? "1" : "0.55",
+              onToggle: () => { if (isSuper) this.setState(p => ({ perms: Object.assign({}, p.perms, { [i.k]: !p.perms[i.k] }) })); }
+            };
+          })
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

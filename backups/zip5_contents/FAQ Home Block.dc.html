@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+  body { margin: 0; background: #fff; font-family: Manrope, system-ui, sans-serif; color: #12211f; }
+  a { color: #0f6d5f; text-decoration: none; }
+  a:hover { color: #0a4f45; }
+  button { font: inherit; }
+  @keyframes faqIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes faqRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  @keyframes faqOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-24px, 18px) scale(1.12); } }
+  @keyframes faqOrb2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(20px, -16px) scale(1.08); } }
+  @keyframes faqPing { 0% { transform: scale(.5); opacity: .6; } 100% { transform: scale(2.4); opacity: 0; } }
+</style>
+</helmet>
+
+<div style="width: 1440px; margin: 0 auto; padding: 56px 0 72px; background: #fff">
+  <section id="faq" style="max-width: 1240px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 28px">
+
+    <div style="position: relative; overflow: hidden; border-radius: 28px; background: linear-gradient(140deg, #f4faf7 0%, #eaf4f0 100%); border: 1px solid #dfeae6; padding: 38px 44px; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: end; animation: faqRise .6s cubic-bezier(.2,.8,.3,1) both">
+      <div style="position: absolute; width: 340px; height: 340px; border-radius: 50%; right: -60px; top: -150px; background: radial-gradient(circle, rgba(15,109,95,.13), rgba(15,109,95,0) 70%); animation: faqOrb 9s ease-in-out infinite"></div>
+      <div style="position: absolute; width: 260px; height: 260px; border-radius: 50%; left: 40%; bottom: -170px; background: radial-gradient(circle, rgba(15,109,95,.09), rgba(15,109,95,0) 70%); animation: faqOrb2 11s ease-in-out infinite"></div>
+      <div style="position: relative; display: flex; flex-direction: column; gap: 14px">
+        <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: #dcefe9; border: 1px solid #c3e2d8; color: #0a4f45; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase">
+          <span style="position: relative; width: 7px; height: 7px; border-radius: 50%; background: #0f6d5f; display: inline-block">
+            <span style="position: absolute; inset: 0; border-radius: 50%; background: #0f6d5f; animation: faqPing 1.8s ease-out infinite"></span>
+          </span>
+          FAQ
+        </span>
+        <h2 style="{{ titleStyle }}">KidsMap haqqında tez-tez verilən suallar</h2>
+        <p style="margin: 0; font-size: 16.5px; line-height: 1.6; color: #4c5b58; max-width: 560px; text-wrap: pretty">{{ lead }}</p>
+      </div>
+      <div style="position: relative; display: flex; gap: 10px; flex-wrap: wrap">
+        <a href="#faq" style="min-height: 50px; padding: 0 20px; border-radius: 13px; background: #0f6d5f; color: #fff; display: inline-flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 800; transition: transform .25s, box-shadow .25s, background .25s" style-hover="background: #0a4f45; color: #fff; transform: translateY(-2px); box-shadow: 0 16px 30px -20px rgba(10,79,69,.7)">
+          <span style="font-family: Material Symbols Rounded; font-size: 20px">explore</span>Kataloqu aç
+        </a>
+        <a href="#faq" style="min-height: 50px; padding: 0 20px; border-radius: 13px; border: 1px solid #cfdcd8; background: #fff; color: #12211f; display: inline-flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 800; transition: border-color .25s, color .25s" style-hover="border-color: #0f6d5f; color: #0f6d5f">
+          <span style="font-family: Material Symbols Rounded; font-size: 20px">add_business</span>Məkan əlavə et
+        </a>
+      </div>
+    </div>
+
+    <div style="{{ gridStyle }}">
+      <div style="display: flex; flex-direction: column; gap: 14px">
+
+        <sc-if value="{{ showTools }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+          <span style="font-size: 13px; font-weight: 700; color: #7d8b88; margin-right: 4px">Bölmə:</span>
+          <sc-for list="{{ cats }}" as="c" hint-placeholder-count="5">
+            <button onClick="{{ c.onPick }}" style="{{ c.style }}" style-hover="border-color: #0f6d5f">
+              {{ c.label }}
+              <span style="{{ c.badgeStyle }}">{{ c.n }}</span>
+            </button>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px">
+          <sc-for list="{{ items }}" as="it" hint-placeholder-count="5">
+            <div style="{{ it.cardStyle }}">
+              <button onClick="{{ it.onToggle }}" style="width: 100%; display: flex; align-items: center; gap: 14px; padding: 18px 20px; background: transparent; border: 0; cursor: pointer; text-align: left">
+                <span style="{{ it.iconStyle }}">{{ it.icon }}</span>
+                <span style="{{ it.qStyle }}">{{ it.q }}</span>
+                <span style="{{ it.chevStyle }}">expand_more</span>
+              </button>
+              <div style="{{ it.rowStyle }}">
+                <div style="overflow: hidden">
+                  <div style="padding: 0 20px 18px 74px; display: flex; flex-direction: column; gap: 14px">
+                    <p style="margin: 0; font-size: 15.5px; line-height: 1.65; color: #4c5b58; max-width: 660px; text-wrap: pretty">{{ it.a }}</p>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 12px; border-top: 1px dashed #dfe8e5">
+                      <a href="#faq" style="display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 800">{{ it.cta }}<span style="font-family: Material Symbols Rounded; font-size: 18px">arrow_forward</span></a>
+                      <sc-if value="{{ it.voted }}" hint-placeholder-val="{{ false }}">
+                        <span style="margin-left: auto; display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 700; color: #0f6d5f; animation: faqIn .35s ease both">
+                          <span style="font-family: Material Symbols Rounded; font-size: 18px">favorite</span>Rəyiniz üçün təşəkkür!
+                        </span>
+                      </sc-if>
+                      <sc-if value="{{ it.notVoted }}" hint-placeholder-val="{{ true }}">
+                        <span style="margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: #7d8b88; font-weight: 600">
+                          Faydalı oldu?
+                          <button onClick="{{ it.onYes }}" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid #dbe3e1; background: #fff; display: grid; place-items: center; cursor: pointer; transition: transform .2s, border-color .2s, background .2s" style-hover="border-color: #0f6d5f; background: #eaf3f0; transform: translateY(-2px)">
+                            <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #0f6d5f">thumb_up</span>
+                          </button>
+                          <button onClick="{{ it.onNo }}" style="width: 34px; height: 34px; border-radius: 10px; border: 1px solid #dbe3e1; background: #fff; display: grid; place-items: center; cursor: pointer; transition: transform .2s, border-color .2s, background .2s" style-hover="border-color: #b9c4c1; background: #f4f6f6; transform: translateY(-2px)">
+                            <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #7d8b88">thumb_down</span>
+                          </button>
+                        </span>
+                      </sc-if>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+            <div style="border: 1px dashed #cfdad7; border-radius: 18px; padding: 34px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; animation: faqIn .4s ease both">
+              <span style="width: 48px; height: 48px; border-radius: 14px; background: #eaf3f0; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 24px; color: #0f6d5f">help</span>
+              <span style="font-size: 17px; font-weight: 800">Bu bölmədə hazır cavab yoxdur</span>
+              <p style="margin: 0; font-size: 14.5px; color: #6b7b78; max-width: 380px; line-height: 1.55">Sualınızı bizə yazın — bir iş günü içində cavablandırırıq.</p>
+              <a href="mailto:info@kidsmap.az" style="margin-top: 6px; min-height: 44px; padding: 0 18px; border-radius: 12px; background: #0f6d5f; color: #fff; display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 800" style-hover="background: #0a4f45; color: #fff">
+                <span style="font-family: Material Symbols Rounded; font-size: 19px">mail</span>Sual göndər
+              </a>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 6px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 18px 22px; border-radius: 18px; border: 1px solid #e6ebea; background: linear-gradient(#fbfdfc, #f4f9f7)">
+            <span style="width: 42px; height: 42px; border-radius: 12px; background: #dcefe9; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 21px; color: #0f6d5f">quiz</span>
+            <span style="font-size: 15.5px; font-weight: 700; line-height: 1.4">Daha 5 sual — axtarış, rəylər və yerləşdirmə üzrə<br><span style="font-weight: 600; color: #6b7b78; font-size: 14.5px">Tam FAQ səhifəsində cavabları axtarışla tapın.</span></span>
+            <a href="#faq" style="margin-left: auto; min-height: 46px; padding: 0 18px; border-radius: 12px; background: #0f6d5f; color: #fff; display: inline-flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 800; transition: transform .25s, background .25s" style-hover="background: #0a4f45; color: #fff; transform: translateY(-2px)">Bütün suallar<span style="font-family: Material Symbols Rounded; font-size: 19px">arrow_forward</span></a>
+            <a href="mailto:info@kidsmap.az" style="min-height: 46px; padding: 0 16px; border-radius: 12px; border: 1px solid #dbe3e1; background: #fff; color: #12211f; display: inline-flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 800" style-hover="border-color: #0f6d5f; color: #0f6d5f"><span style="font-family: Material Symbols Rounded; font-size: 19px">mail</span>Sual yaz</a>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ showAside }}" hint-placeholder-val="{{ true }}">
+      <aside style="position: sticky; top: 24px; display: flex; flex-direction: column; gap: 14px; animation: faqRise .7s cubic-bezier(.2,.8,.3,1) both">
+        <div style="border: 1px solid #e6ebea; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 12px; background: linear-gradient(#fbfdfc, #f2f7f5)">
+          <span style="width: 44px; height: 44px; border-radius: 13px; background: #0f6d5f; color: #fff; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px">support_agent</span>
+          <span style="font-size: 18px; font-weight: 800; letter-spacing: -.015em">Cavab tapmadınız?</span>
+          <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: #4c5b58">Yazın və ya zəng edin — B.e–C 10:00–18:00 arası cavab veririk.</p>
+          <a href="tel:+994554979723" style="min-height: 46px; padding: 0 16px; border-radius: 12px; background: #0f6d5f; color: #fff; display: inline-flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 800; transition: transform .25s" style-hover="background: #0a4f45; color: #fff; transform: translateY(-2px)">
+            <span style="font-family: Material Symbols Rounded; font-size: 19px">call</span>+994 55 497 97 23
+          </a>
+          <a href="mailto:info@kidsmap.az" style="min-height: 46px; padding: 0 16px; border-radius: 12px; border: 1px solid #dbe3e1; background: #fff; color: #12211f; display: inline-flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 800; transition: border-color .25s" style-hover="border-color: #0f6d5f; color: #0f6d5f">
+            <span style="font-family: Material Symbols Rounded; font-size: 19px">mail</span>info@kidsmap.az
+          </a>
+        </div>
+        <div style="border: 1px solid #e6ebea; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+          <span style="font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #9aa8a5">Populyar sorğular</span>
+          <sc-for list="{{ seo }}" as="s" hint-placeholder-count="5">
+            <a href="#faq" style="display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 600; color: #3c4b48; padding: 8px 10px; border-radius: 10px; transition: background .22s, color .22s, padding-left .22s" style-hover="background: #eaf3f0; color: #0f6d5f; padding-left: 14px">
+              <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #0f6d5f">north_east</span>{{ s }}
+            </a>
+          </sc-for>
+        </div>
+      </aside>
+      </sc-if>
+    </div>
+  </section>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;home&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;page&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#0f6d5f&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#0f6d5f&quot;,&quot;#0a4f45&quot;,&quot;#146c8c&quot;,&quot;#8a4b12&quot;]},&quot;singleOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const CATS = [
+  { key: 'all', label: 'Hamısı' },
+  { key: 'search', label: 'Axtarış' },
+  { key: 'account', label: 'Hesab' },
+  { key: 'reviews', label: 'Rəylər' },
+  { key: 'owners', label: 'Məkan sahibləri' },
+];
+
+const DATA = [
+  { id: 'q1', cat: 'search', icon: 'search', q: 'Uşaq üçün dərnəyi necə tez tapmaq olar?', a: 'Ana səhifədəki axtarışda kateqoriya, region, metro və uşağın yaşını seçin. Xəritə və dərnək siyahısı eyni anda yenilənir — variantları müqayisə edib uyğun kartı açırsınız.', cta: 'Axtarışa başla' },
+  { id: 'q2', cat: 'search', icon: 'tune', q: 'Yaşa, rayona və qiymətə görə süzgəc var?', a: 'Bəli. Yaş qrupları (0+, 6+, 9+, 12+, 16+), region və metro, kateqoriya və qiymət aralığı birlikdə işləyir. Seçdiyiniz filtrlər linkdə saxlanır — nəticəni paylaşa bilərsiniz.', cta: 'Filtrləri sına' },
+  { id: 'q3', cat: 'account', icon: 'lock_open', q: 'Kataloqa baxmaq üçün qeydiyyat lazımdır?', a: 'Xeyr. Kataloqa, xəritəyə və dərnək kartlarına qeydiyyatsız baxmaq olar. Hesab yalnız bəyənmə, rəy yazmaq və ya öz məkanınızı idarə etmək üçün lazımdır.', cta: 'Kataloqu aç' },
+  { id: 'q4', cat: 'reviews', icon: 'star', q: 'Rəy yazmaq və ya bəyənmə etmək necə olar?', a: 'Dərnək kartını və ya rəylər səhifəsini açın, hesaba daxil olun və qiymət, mətn rəyi yaxud reaksiya əlavə edin. Reklam və təhqir olan rəylər dərc olunmur.', cta: 'Rəy qaydaları' },
+  { id: 'q5', cat: 'owners', icon: 'add_business', q: 'Dərnək kartını saytda necə yerləşdirmək olar?', a: '«Məkan əlavə et» düyməsini basın, hesab yaradın və kartı yoxlamaya göndərin. Dərc olunduqdan sonra dərnək kataloqda və xəritədə görünür, məlumatları kabinetdən istənilən vaxt yeniləyirsiniz.', cta: 'Məkan əlavə et' },
+  { id: 'q6', cat: 'owners', icon: 'payments', q: 'Yerləşdirmə ödənişlidir?', a: 'Əsas kart pulsuzdur: foto, təsvir, əlaqə, yaş aralığı və cədvəl. Əlavə görünürlük seçimləri barədə komanda ilə birbaşa danışırıq — gizli ödəniş yoxdur.', cta: 'Şərtləri soruş' },
+  { id: 'q7', cat: 'owners', icon: 'photo_library', q: 'Dərnəyin fotolarını və kontaktlarını göstərmək olar?', a: 'Bəli — foto qalereya, təsvir, telefon, WhatsApp, sayt, Instagram, yaş aralığı, cədvəl, qiymətlər və əlavə şərtlər. Kart nə qədər dolğun olsa, valideyn bir o qədər tez qərar verir.', cta: 'Kart nümunəsinə bax' },
+  { id: 'q8', cat: 'search', icon: 'travel_explore', q: 'Bakıdan kənar rayonlar da var?', a: 'Bəli, kataloq bütün Azərbaycan üzrədir. Region süzgəcini seçin — həmin ərazidə mövcud dərnəklər və məkanlar xəritədə dərhal göstərilir.', cta: 'Regionlara bax' },
+  { id: 'q9', cat: 'account', icon: 'favorite', q: 'Seçdiyim dərnəkləri saxlaya bilərəm?', a: 'Hesabınıza daxil olduqda ürək işarəsi ilə dərnəkləri seçilmişlərə əlavə edirsiniz. Sonra kabinetdə hamısını yanaşı müqayisə edə bilərsiniz.', cta: 'Hesaba daxil ol' },
+];
+
+const SEO = [
+  'Azərbaycanda uşaqlar üçün dərnəklər',
+  'Azərbaycanda uşaqlar üçün kurslar',
+  'Azərbaycanda idman bölmələri',
+  'Azərbaycanda yaradıcı dərnəklər',
+  'Azərbaycanda proqramlaşdırma dərnəkləri',
+];
+
+const norm = (s) => (s || '').toLowerCase().replace(/[ıİ]/g, 'i').replace(/ə/g, 'e').replace(/ş/g, 's').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ö/g, 'o').replace(/ü/g, 'u');
+
+class Component extends DCLogic {
+  state = { q: '', cat: 'all', open: 'q1', votes: {}, focus: false };
+
+  renderVals() {
+    const accent = this.props.accent ?? '#0f6d5f';
+    const single = this.props.singleOpen ?? true;
+    const isHome = (this.props.variant ?? 'home') === 'home';
+    let list = DATA.filter((d) => this.state.cat === 'all' || d.cat === this.state.cat);
+    if (isHome) list = list.slice(0, 4);
+    const openSet = single ? [this.state.open] : (Array.isArray(this.state.open) ? this.state.open : [this.state.open]);
+
+    const toggle = (id) => {
+      if (single) return this.setState((s) => ({ open: s.open === id ? null : id }));
+      this.setState((s) => {
+        const cur = Array.isArray(s.open) ? s.open : [s.open];
+        return { open: cur.includes(id) ? cur.filter((x) => x !== id) : cur.concat(id) };
+      });
+    };
+
+    return {
+      q: this.state.q,
+      isHome,
+      showTools: !isHome,
+      showAside: !isHome,
+      lead: isHome
+        ? 'Ən çox verilən 4 sual. Qalanları tam FAQ səhifəsindədir.'
+        : 'Dərnək axtarışı, rəylər və kart yerləşdirmə — hər şey qısa cavablarda. Cavabı tapmasanız, bizə yazın.',
+      titleStyle: {
+        margin: 0, fontSize: isHome ? 34 : 40, lineHeight: 1.1, fontWeight: 800,
+        letterSpacing: '-.032em', color: '#12211f', maxWidth: 640, textWrap: 'balance',
+      },
+      gridStyle: {
+        display: 'grid', gridTemplateColumns: isHome ? '1fr' : '1fr 320px', gap: 20, alignItems: 'start',
+      },
+      empty: list.length === 0,
+      seo: SEO,
+      cats: CATS.map((c) => {
+        const active = c.key === this.state.cat;
+        const n = c.key === 'all' ? DATA.length : DATA.filter((d) => d.cat === c.key).length;
+        return {
+          label: c.label, n,
+          onPick: () => this.setState({ cat: c.key, open: null }),
+          style: {
+            display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 14px', borderRadius: 999,
+            cursor: 'pointer', fontSize: 14, fontWeight: 700,
+            border: '1px solid ' + (active ? accent : '#dbe3e1'),
+            background: active ? accent : '#fff',
+            color: active ? '#fff' : '#3c4b48',
+            transition: 'background .25s, color .25s, border-color .25s, transform .2s',
+            transform: active ? 'translateY(-1px)' : 'none',
+          },
+          badgeStyle: {
+            fontSize: 12, fontWeight: 800, padding: '2px 7px', borderRadius: 999,
+            background: active ? 'rgba(255,255,255,.22)' : '#f1f4f4',
+            color: active ? '#fff' : '#7d8b88',
+          },
+        };
+      }),
+      items: list.map((d, i) => {
+        const open = openSet.includes(d.id);
+        const vote = this.state.votes[d.id];
+        return {
+          q: d.q, a: d.a, icon: d.icon, cta: d.cta,
+          voted: !!vote, notVoted: !vote,
+          onToggle: () => toggle(d.id),
+          onYes: () => this.setState((s) => ({ votes: Object.assign({}, s.votes, { [d.id]: 'up' }) })),
+          onNo: () => this.setState((s) => ({ votes: Object.assign({}, s.votes, { [d.id]: 'down' }) })),
+          cardStyle: {
+            borderRadius: 18, overflow: 'hidden',
+            border: '1px solid ' + (open ? 'rgba(15,109,95,.35)' : '#e6ebea'),
+            background: open ? 'linear-gradient(#fbfdfc, #f4f9f7)' : '#fff',
+            boxShadow: open ? '0 26px 50px -34px rgba(12,60,50,.55)' : 'none',
+            transition: 'border-color .3s, background .3s, box-shadow .35s, transform .25s',
+            animation: 'faqIn .5s cubic-bezier(.2,.8,.3,1) both',
+            animationDelay: (i * 55) + 'ms',
+          },
+          iconStyle: {
+            width: 42, height: 42, borderRadius: 13, flex: '0 0 auto', display: 'grid', placeItems: 'center',
+            fontFamily: 'Material Symbols Rounded', fontSize: 21,
+            background: open ? accent : '#eaf3f0', color: open ? '#fff' : accent,
+            transform: open ? 'rotate(-6deg) scale(1.04)' : 'none',
+            transition: 'background .3s, color .3s, transform .35s cubic-bezier(.2,.8,.3,1)',
+          },
+          qStyle: {
+            fontSize: 16.5, fontWeight: 800, letterSpacing: '-.012em',
+            color: open ? '#0a4f45' : '#12211f', transition: 'color .25s',
+          },
+          chevStyle: {
+            marginLeft: 'auto', flex: '0 0 auto', fontFamily: 'Material Symbols Rounded', fontSize: 24,
+            color: open ? accent : '#9aa8a5',
+            transform: open ? 'rotate(180deg)' : 'none',
+            transition: 'transform .38s cubic-bezier(.2,.8,.3,1), color .25s',
+          },
+          rowStyle: {
+            display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0,
+            transition: 'grid-template-rows .42s cubic-bezier(.2,.8,.3,1), opacity .3s',
+          },
+        };
+      }),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

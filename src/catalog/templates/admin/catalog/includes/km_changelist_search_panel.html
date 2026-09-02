@@ -1,98 +1,128 @@
 {% load i18n static admin_list admin_urls jazzmin admin_dashboard_tags %}
 
-<section class="place-admin-dashboard__search-panel" aria-labelledby="changelist-search-heading">
-  <div class="place-admin-dashboard__search-form-wrapper km-place-search-panel">
-    <form id="changelist-search" method="get" role="search" class="place-admin-dashboard__search-form">
-      <!-- Единая строка: Широкий поиск + Выпадающие фильтры + Доп фильтры + Сброс -->
-      <div class="place-admin-dashboard__row-search place-admin-dashboard__row-search--unified">
-        <div
-          class="place-admin-dashboard__search-combined"
-          {% if not km_disable_search_suggestions %}
-          data-search-suggest-root
-          data-suggestions-url="{% url 'admin:catalog_place_search_suggestions' %}"
-          data-suggestions-empty="{% translate 'Ничего не найдено' %}"
-          {% endif %}
-        >
-          <span class="place-admin-dashboard__search-icon" aria-hidden="true">
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          </span>
-          <input
-            type="text"
-            name="q"
-            value="{{ cl.query }}"
-            id="searchbar"
-            class="place-admin-dashboard__search-input"
-            aria-label="{% if km_search_label %}{{ km_search_label }}{% else %}{% translate 'Поиск по названию места' %}{% endif %}"
-            placeholder="{% if km_search_placeholder %}{{ km_search_placeholder }}{% else %}{% translate 'Название места...' %}{% endif %}"
-            autocomplete="off"
-            spellcheck="false"
-            {% if cl.search_help_text %}aria-describedby="searchbar_helptext"{% endif %}
-            {% if not km_disable_search_suggestions %}
-              aria-autocomplete="list"
-              aria-expanded="false"
-              aria-controls="place-search-suggestions"
-            {% endif %}
+<section class="place-admin-dashboard__search-panel km-search-section" aria-labelledby="changelist-search-heading">
+  <!-- Строка вкладок-фильтров по статусу (1a) -->
+  {% if km_primary_quick_filters %}
+    <div class="km-status-tabs-row place-admin-dashboard__row-tabs">
+      <div class="km-status-tabs" aria-label="{% translate 'Вкладки по статусу' %}">
+        {% for item in km_primary_quick_filters %}
+          <a
+            href="{{ item.url|default:'?' }}"
+            class="km-status-tab{% if item.active %} is-active{% endif %}"
+            {% if item.active %}aria-current="true"{% endif %}
           >
-          <button type="submit" class="place-admin-dashboard__search-submit">
-            {% translate "Искать" %}
-          </button>
-          {% if not km_disable_search_suggestions %}
-            <div
-              id="place-search-suggestions"
-              class="place-admin-dashboard__search-suggestions"
-              data-search-suggestions
-              role="listbox"
-              hidden
-            ></div>
-          {% endif %}
-        </div>
-        
-        <div class="place-admin-dashboard__selects-group">
-          {% if cl.has_filters and not km_is_trash_changelist %}
-            {% for spec in cl.filter_specs %}
-              {% if spec.field_path in cl.model_admin.km_primary_filters %}
-                <label class="place-admin-dashboard__filter-control" aria-label="{{ spec.title }}">
-                  <span class="place-admin-dashboard__filter-label">{{ spec.title }}</span>
-                  {% admin_filter_choices cl spec as spec_choices %}
-                  <select class="place-admin-dashboard__filter-select km-admin-select-placeholder" data-filter-select data-field="{{ spec.field_path }}">
-                    {% for choice in spec_choices %}
-                      <option value="{{ choice.query_string }}"{% if choice.selected %} selected{% endif %}>{{ choice.display }}</option>
-                    {% endfor %}
-                  </select>
-                </label>
-              {% endif %}
-            {% endfor %}
-          {% endif %}
-        </div>
-
-        <div class="place-admin-dashboard__top-actions">
-          {% if cl.has_filters and not km_is_trash_changelist %}
-            <details class="place-admin-dashboard__extra-filters">
-              <summary>
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-                <span>{% translate "Фильтры" %}</span>
-              </summary>
-              <div class="place-admin-dashboard__extra-filters-grid">
-                {% for spec in cl.filter_specs %}
-                  {% if spec.field_path not in cl.model_admin.km_primary_filters %}
-                    {% jazzmin_list_filter cl spec %}
-                  {% endif %}
-                {% endfor %}
-              </div>
-            </details>
-          {% endif %}
-
-          <a href="{{ km_changelist_reset_url|default:'?' }}" class="place-admin-dashboard__reset-link">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            <span>{% translate "Сбросить" %}</span>
+            <span>{{ item.label }}</span>
+            <span class="km-status-tab__count">{{ item.count }}</span>
           </a>
-        </div>
+        {% endfor %}
+        {% if km_secondary_quick_filters %}
+          <details class="km-status-tabs__more">
+            <summary class="km-status-tab">
+              <span>{% translate "Ещё" %}</span>
+              <span class="ms km-status-tabs__more-icon">expand_more</span>
+            </summary>
+            <div class="km-status-tabs__dropdown">
+              {% for item in km_secondary_quick_filters %}
+                <a
+                  href="{{ item.url|default:'?' }}"
+                  class="km-status-tabs__dropdown-item{% if item.active %} is-active{% endif %}"
+                >
+                  <span>{{ item.label }}</span>
+                  <span class="km-status-tab__count">{{ item.count }}</span>
+                </a>
+              {% endfor %}
+            </div>
+          </details>
+        {% endif %}
+      </div>
+      <span class="km-status-tabs__hint">{% translate "Вкладки — единственный фильтр по статусу" %}</span>
+    </div>
+  {% endif %}
+
+  <!-- Панель поиска и тулбар (1a) -->
+  <div class="km-toolbar place-admin-dashboard__row-search--unified">
+    <form id="changelist-search" method="get" role="search" class="km-search-form">
+      <div class="km-search-box"
+        {% if not km_disable_search_suggestions %}
+        data-search-suggest-root
+        data-suggestions-url="{% url 'admin:catalog_place_search_suggestions' %}"
+        data-suggestions-empty="{% translate 'Ничего не найдено' %}"
+        {% endif %}
+      >
+        <span class="ms km-search-icon" aria-hidden="true">search</span>
+        <input
+          type="text"
+          name="q"
+          value="{{ cl.query }}"
+          id="searchbar"
+          class="km-search-input"
+          aria-label="{% translate 'Поиск' %}"
+          placeholder="{% translate 'Название AZ/RU/EN, адрес, телефон, владелец' %}"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        {% if not km_disable_search_suggestions %}
+          <div
+            id="place-search-suggestions"
+            class="km-search-suggestions"
+            data-search-suggestions
+            role="listbox"
+            hidden
+          ></div>
+        {% endif %}
       </div>
 
-      {% if cl.has_filters and cl.search_help_text %}
-        <div class="help place-admin-dashboard__search-help" id="searchbar_helptext">{{ cl.search_help_text }}</div>
+      {% get_active_filter_chips cl as active_chips %}
+      <button type="button" class="km-btn-filter{% if active_chips %} is-active{% endif %}" id="km-toggle-filters-btn" aria-expanded="false" aria-controls="km-filters-drawer">
+        <span class="ms" aria-hidden="true">filter_alt</span>
+        <span>{% translate "Фильтры" %}</span>
+        {% if active_chips %}
+          <span class="km-btn-filter__badge">{{ active_chips|length }}</span>
+        {% endif %}
+      </button>
+
+      {% if active_chips or cl.query %}
+        <a href="{{ km_changelist_reset_url|default:'?' }}" class="km-btn-reset">
+          {% translate "Сбросить" %}
+        </a>
       {% endif %}
 
+      <div class="km-toolbar-right">
+        <span class="km-sort-indicator">
+          {% translate "Сортировка" %}: <strong>{% translate "Обновлено" %}</strong>
+          <span class="ms">arrow_downward</span>
+        </span>
+        <details class="km-columns-details" id="km-columns-menu">
+          <summary class="km-btn-columns">
+            <span class="ms">view_column</span>
+            <span>{% translate "Колонки" %}</span>
+          </summary>
+          <div class="km-columns-dropdown">
+            <label class="km-column-option">
+              <input type="checkbox" data-toggle-col="column-col_place" checked disabled>
+              <span>{% translate "Место" %}</span>
+            </label>
+            <label class="km-column-option">
+              <input type="checkbox" data-toggle-col="column-col_location" checked>
+              <span>{% translate "Локация" %}</span>
+            </label>
+            <label class="km-column-option">
+              <input type="checkbox" data-toggle-col="column-col_state" checked>
+              <span>{% translate "Состояние" %}</span>
+            </label>
+            <label class="km-column-option">
+              <input type="checkbox" data-toggle-col="column-col_marks" checked>
+              <span>{% translate "Метки" %}</span>
+            </label>
+            <label class="km-column-option">
+              <input type="checkbox" data-toggle-col="column-col_updated" checked>
+              <span>{% translate "Обновлено" %}</span>
+            </label>
+          </div>
+        </details>
+      </div>
+
+      <!-- Сохранение прочих GET-параметров -->
       {% admin_extra_filters cl as extra_filters %}
       {% for pair in extra_filters.items %}
         {% if pair.0 != 'q' %}
@@ -100,40 +130,88 @@
         {% endif %}
       {% endfor %}
     </form>
+  </div>
 
-    <!-- Третья строка: Быстрые фильтры (табы) -->
-    {% if km_primary_quick_filters %}
-    <div class="place-admin-dashboard__row-tabs">
-      <div class="place-admin-dashboard__quick-filters km-place-quick-filters" aria-label="{% translate 'Быстрые фильтры' %}">
-        {% for item in km_primary_quick_filters %}
-          <a
-            href="{{ item.url|default:'?' }}"
-            class="place-admin-dashboard__quick-filter km-place-quick-filter{% if item.active %} is-active{% endif %}"
-            {% if item.active %}aria-current="true"{% endif %}
-          >
-            <span>{{ item.label }}</span>
-            <strong>{{ item.count }}</strong>
+  <!-- Активные фильтры (чипсы под строкой поиска) -->
+  {% if active_chips or cl.query %}
+    <div class="km-active-filters-chips-bar">
+      <span class="km-active-filters-title">{% translate "Применённые фильтры" %}:</span>
+      {% if cl.query %}
+        <span class="km-active-filter-chip">
+          <span class="km-active-filter-chip__key">{% translate "Поиск" %}:</span>
+          <strong class="km-active-filter-chip__val">«{{ cl.query }}»</strong>
+          <a href="{{ km_search_remove_url|default:'?' }}" class="km-active-filter-chip__remove" title="{% translate 'Очистить поиск' %}">
+            <span class="ms">close</span>
           </a>
+        </span>
+      {% endif %}
+      {% for chip in active_chips %}
+        <span class="km-active-filter-chip">
+          <span class="km-active-filter-chip__key">{{ chip.title }}:</span>
+          <strong class="km-active-filter-chip__val">{{ chip.label }}</strong>
+          <a href="{{ chip.remove_url }}" class="km-active-filter-chip__remove" title="{% translate 'Снять этот фильтр' %}">
+            <span class="ms">close</span>
+          </a>
+        </span>
+      {% endfor %}
+      <a href="{{ km_changelist_reset_url|default:'?' }}" class="km-active-filters-reset-all">
+        {% translate "Сбросить все" %}
+      </a>
+    </div>
+  {% endif %}
+
+  <!-- Выпадающая панель фильтров (1f) -->
+  <div class="km-filters-drawer place-admin-dashboard__extra-filters" id="km-filters-drawer" hidden>
+    <div class="km-filters-drawer__grid">
+      {% for spec in cl.filter_specs %}
+        {% if spec.field_path == 'created_by' or spec.field_path == 'category' or spec.field_path == 'district' or spec.field_path == 'is_verified' %}
+          <div class="km-filter-group">
+            <label class="km-filter-label">{{ spec.title }}</label>
+            {% admin_filter_choices cl spec as spec_choices %}
+            <div class="km-select-wrap">
+              <select class="km-filter-select" data-filter-select data-field="{{ spec.field_path }}">
+                {% for choice in spec_choices %}
+                  <option value="{{ choice.query_string }}"{% if choice.selected %} selected{% endif %}>{{ choice.display }}</option>
+                {% endfor %}
+              </select>
+              <span class="ms km-select-arrow">expand_more</span>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="km-filter-chips-section">
+      <span class="km-filter-label">{% translate "Качество данных" %}</span>
+      <div class="km-filter-chips">
+        {% for spec in cl.filter_specs %}
+          {% if spec.field_path == 'coordinates_status' or spec.field_path == 'is_home_recommended' or spec.field_path == 'map_ready_status' %}
+            {% admin_filter_choices cl spec as spec_choices %}
+            {% for choice in spec_choices %}
+              {% if not forloop.first %}
+                <a href="{{ choice.query_string }}" class="km-filter-chip{% if choice.selected %} is-active{% endif %}">
+                  {% if choice.selected %}<span class="ms">check</span>{% endif %}
+                  {{ choice.display }}
+                </a>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
         {% endfor %}
       </div>
-      {% if km_secondary_quick_filters %}
-        <details class="place-admin-dashboard__quick-filters-more">
-          <summary>{% translate "Ещё" %} ▾</summary>
-          <div class="place-admin-dashboard__quick-filters-dropdown">
-            {% for item in km_secondary_quick_filters %}
-              <a
-                href="{{ item.url|default:'?' }}"
-                class="place-admin-dashboard__quick-filter km-place-quick-filter{% if item.active %} is-active{% endif %}"
-                {% if item.active %}aria-current="true"{% endif %}
-              >
-                <span>{{ item.label }}</span>
-                <strong>{{ item.count }}</strong>
-              </a>
-            {% endfor %}
-          </div>
-        </details>
-      {% endif %}
     </div>
-    {% endif %}
+
+    <div class="km-filters-drawer__footer">
+      <span class="km-filters-count-info">
+        {% blocktranslate with count=cl.result_count %}Найдено {{ count }} карточек{% endblocktranslate %}
+      </span>
+      <div class="km-filters-drawer__actions">
+        <a href="{{ km_changelist_reset_url|default:'?' }}" class="km-btn-reset-drawer">
+          {% translate "Сбросить" %}
+        </a>
+        <button type="button" class="km-btn-apply" id="km-apply-filters-btn">
+          {% translate "Применить" %}
+        </button>
+      </div>
+    </div>
   </div>
 </section>

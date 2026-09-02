@@ -652,17 +652,18 @@ class PlaceCreatedByFilter(admin.SimpleListFilter):
     field_path = "created_by"
 
     def lookups(self, request, model_admin):
-        queryset = model_admin.get_queryset(request)
+        model = getattr(model_admin, "model", Place)
         user_ids = (
-            queryset
+            model.objects
+            .filter(deleted_at__isnull=True)
             .exclude(created_by_id__isnull=True)
             .order_by()
             .values_list("created_by_id", flat=True)
             .distinct()
         )
-        users = get_user_model().objects.filter(pk__in=user_ids).order_by("username", "email")
+        users = get_user_model().objects.filter(pk__in=user_ids).order_by("first_name", "last_name", "username")
         lookups = [(str(user.pk), model_admin._user_label(user)) for user in users]
-        if queryset.filter(created_by_id__isnull=True).exists():
+        if model.objects.filter(deleted_at__isnull=True, created_by_id__isnull=True).exists():
             lookups.append(("__unknown__", _("Не указан — старые карточки")))
         return tuple(lookups)
 
@@ -1578,24 +1579,20 @@ class PlaceAdmin(admin.ModelAdmin):
     delete_selected_confirmation_template = "admin/catalog/place_delete_selected_confirmation.html"
     list_select_related = ("owner", "created_by", "category", "subcategory")
     list_display = (
-        "display_name",
-        "category_summary",
-        "location_summary",
-        "publication_status",
-        "publication_readiness",
-        "home_recommendation_status",
-        "map_status_summary",
-        "owner_display",
-        "engagement_summary",
-        "updated_summary",
-        "row_actions",
+        "col_place",
+        "col_location",
+        "col_state",
+        "col_marks",
+        "col_updated",
+        "col_actions",
     )
     trash_list_display = (
-        "display_name",
+        "col_place",
+        "col_location",
+        "col_state",
+        "col_marks",
         "deleted_at_display",
-        "deleted_by_display",
-        "updated_at",
-        "row_actions",
+        "col_actions",
     )
     list_filter = (
         PlaceDeletedFilter,
@@ -2470,6 +2467,241 @@ class PlaceAdmin(admin.ModelAdmin):
             return [inline for inline in inline_instances if isinstance(inline, PlacePhotoInline)]
         return inline_instances
 
+    @staticmethod
+    def _state_visual(obj: Place, score: int) -> tuple[str, str, str, str]:
+        """Visual states from the redesign: icon + dot, never a red cross."""
+        if obj.is_deleted:
+            return "deleted", "delete", str(_("В удалённых")), "km-dot--deleted"
+        if obj.status == Place.STATUS_PUBLISHED and obj.is_active:
+            if score >= 100:
+                return "published", "public", str(_("Опубликовано")), "km-dot--published"
+            return "published-incomplete", "public", str(_("Опубликовано · неполная")), "km-dot--published"
+        if obj.status == Place.STATUS_PENDING:
+            return "pending", "hourglass_top", str(_("На модерации")), "km-dot--pending"
+        if obj.status == Place.STATUS_REJECTED:
+            return "blocked", "block", str(_("Нельзя опубликовать")), "km-dot--draft"
+        if obj.has_coordinates:
+            return "draft", "edit_note", str(_("Черновик")), "km-dot--draft"
+        return "draft-incomplete", "visibility_off", str(_("Черновик")), "km-dot--draft"
+
+    @admin.display(description=_("Место"), ordering="name")
+    def col_place(self, obj):
+        name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else (getattr(obj, "name_i18n", "") or obj.name_az or obj.name_ru or obj.name_en or obj.name)) or f"Place #{obj.pk}"
+        cat_label = obj.category.name_i18n() if obj.category else obj.get_category_display()
+        meta = f"ID {obj.pk} · {cat_label}"
+        if getattr(obj, "subcategory_id", None) and obj.subcategory:
+            sub_name = obj.subcategory.name_i18n() if callable(getattr(obj.subcategory, "name_i18n", None)) else (getattr(obj.subcategory, "name_i18n", "") or obj.subcategory.name)
+            if sub_name:
+                meta += f" · {sub_name}"
+
+        preview = ""
+        image_url = getattr(obj, "public_image_url", "")
+        if image_url:
+            try:
+                preview = format_html(
+                    '<img src="{}" alt="" class="km-col-thumb" loading="lazy" onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\';">'
+                    '<span class="km-col-thumb km-col-thumb--pattern" style="display:none;" aria-hidden="true"></span>',
+                    image_url,
+                )
+            except Exception:
+                preview = ""
+        if not preview:
+            preview = mark_safe('<span class="km-col-thumb km-col-thumb--pattern" aria-hidden="true"></span>')
+
+        marks_inline = format_html(
+            '<span class="km-place-marks-inline" aria-label="{}">'
+            '<span class="ms km-mark {}" title="{}">home</span>'
+            '<span class="ms km-mark {}" title="{}">{}</span>'
+            '</span>',
+            _("Метки карточки"),
+            "is-on" if obj.is_home_recommended else "is-off",
+            _("На главной") if obj.is_home_recommended else _("Не на главной"),
+            "is-on" if obj.has_coordinates else "is-off",
+            _("Точка на карте есть") if obj.has_coordinates else _("Нет координат"),
+            "place" if obj.has_coordinates else "location_off",
+        )
+        return format_html(
+            '<div class="km-col-place">'
+            '{}'
+            '<div class="km-col-place-info">'
+            '<a href="{}" class="km-col-place-name" title="{}">{}</a>'
+            '<span class="km-col-place-meta">{}</span>'
+            '{}'
+            '</div>'
+            '</div>',
+            preview,
+            self._place_change_url(obj),
+            name,
+            name,
+            meta,
+            marks_inline,
+        )
+
+    @admin.display(description=_("Локация"))
+    def col_location(self, obj):
+        address = obj.address_i18n() if callable(getattr(obj, "address_i18n", None)) else (obj.address or "")
+        address = (address or "").strip() or "—"
+        if obj.has_coordinates:
+            loc2 = (obj.district_i18n() if callable(getattr(obj, "district_i18n", None)) else getattr(obj, "district", "")) or ""
+            if getattr(obj, "metro", None):
+                metro_label = (obj.metro_i18n() if callable(getattr(obj, "metro_i18n", None)) else getattr(obj, "metro", "")) or ""
+                loc2 = f"{loc2} · {metro_label}" if loc2 and metro_label else (loc2 or metro_label)
+            loc2_html = format_html('<span class="km-col-loc-sub">{}</span>', loc2) if loc2 else ""
+        else:
+            loc2_html = mark_safe('<span class="km-col-loc-sub km-col-loc-sub--warn">нет координат</span>')
+
+        return format_html(
+            '<div class="km-col-location">'
+            '<span class="km-col-loc-addr" title="{}">{}</span>'
+            '{}'
+            '</div>',
+            address,
+            address,
+            loc2_html,
+        )
+
+    @admin.display(description=_("Состояние"))
+    def col_state(self, obj):
+        quality = place_quality_check(obj)
+        score = int(quality.score or 0)
+        bar_color_class = "km-bar--warn" if score < 60 else "km-bar--good"
+
+        state_key, state_icon, status_text, dot_class = self._state_visual(obj, score)
+
+        photos_count = getattr(obj, "photos_count", 0) or (1 if obj.photo or obj.cover_photo else 0)
+        has_coords = 1 if obj.has_coordinates else 0
+        has_price = 1 if (getattr(obj, "price_from", None) or getattr(obj, "price_to", None) or getattr(obj, "has_pricing_plans", False) or getattr(obj, "pricing_plans", None)) else 0
+        has_desc = 1 if (obj.description_az or obj.description_ru or obj.description_en) else 0
+        has_cat = 1 if obj.category_id else 0
+
+        name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_i18n", "")) or obj.name_az or obj.name_ru or obj.name_en or obj.name or f"Place #{obj.pk}"
+
+        return format_html(
+            '<div class="km-col-state km-col-state--{}" data-state="{}">'
+            '<div class="km-col-state-top">'
+            '<span class="km-state-dot {}"></span>'
+            '<span class="ms km-state-visibility" aria-hidden="true">{}</span>'
+            '<span class="km-state-label">{}</span>'
+            '</div>'
+            '<div class="km-col-state-bottom">'
+            '<span class="km-state-bar-wrap"><span class="km-state-bar {} km-state-bar--{}"></span></span>'
+            '<button type="button" class="km-readiness-trigger" data-readiness-trigger '
+            'data-place-id="{}" data-place-name="{}" data-score="{}" '
+            'data-has-coords="{}" data-has-price="{}" data-photos-count="{}" '
+            'data-has-desc="{}" data-has-cat="{}" data-edit-url="{}">{}%</button>'
+            '</div>'
+            '</div>',
+            state_key,
+            state_key,
+            dot_class,
+            state_icon,
+            status_text,
+            bar_color_class,
+            score,
+            obj.pk,
+            name,
+            score,
+            has_coords,
+            has_price,
+            photos_count,
+            has_desc,
+            has_cat,
+            self._place_change_url(obj),
+            score,
+        )
+
+    @admin.display(description=_("Метки"))
+    def col_marks(self, obj):
+        home_on = bool(obj.is_home_recommended)
+        home_title = _("На главной") if home_on else _("Не на главной")
+        home_class = "is-on" if home_on else "is-off"
+
+        map_on = bool(obj.has_coordinates)
+        map_title = _("Точка на карте есть") if map_on else _("Нет координат")
+        map_class = "is-on" if map_on else "is-off"
+        map_icon = "place" if map_on else "location_off"
+
+        rating_val = f"{float(obj.rating_avg or 0):.1f}" if obj.rating_avg else "—"
+        reviews_count = int(obj.rating_count or 0)
+
+        return format_html(
+            '<div class="km-col-marks">'
+            '<span class="ms km-mark km-mark--home {}" title="{}">home</span>'
+            '<span class="ms km-mark km-mark--map {}" title="{}">{}</span>'
+            '<span class="km-mark-stat" title="{}"><span class="ms">chat_bubble</span><span>{}</span></span>'
+            '<span class="km-mark-stat" title="{}"><span class="ms">star</span><span>{}</span></span>'
+            '</div>',
+            home_class,
+            home_title,
+            map_class,
+            map_title,
+            map_icon,
+            _("Отзывы"),
+            reviews_count,
+            _("Рейтинг"),
+            rating_val,
+        )
+
+    @admin.display(description=_("Обновлено"), ordering="updated_at")
+    def col_updated(self, obj):
+        audit = self._latest_place_audit(obj)
+        if audit:
+            actor = self._user_label(audit.changed_by) or _("система")
+            source = audit.get_source_display().lower()
+            dt = timezone.localtime(audit.created_at)
+        else:
+            actor = self._user_label(obj.created_by) or _("админка")
+            source = _("создано")
+            dt = timezone.localtime(obj.updated_at)
+
+        dt_str = dt.strftime("%d.%m %H:%M")
+        meta_str = f"{actor} · {source}"
+        return format_html(
+            '<div class="km-col-updated">'
+            '<span class="km-col-upd-time">{}</span>'
+            '<span class="km-col-upd-author" title="{}">{}</span>'
+            '</div>',
+            dt_str,
+            meta_str,
+            meta_str,
+        )
+
+    @admin.display(description=_("Действия"))
+    def col_actions(self, obj):
+        edit_url = self._place_change_url(obj)
+        view_url = obj.get_absolute_url() if hasattr(obj, "get_absolute_url") else f"/places/{obj.pk}/"
+        action_base_url = edit_url.rsplit("change/", 1)[0]
+        name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_i18n", "")) or obj.name_az or obj.name_ru or obj.name_en or obj.name or f"Place #{obj.pk}"
+
+        return format_html(
+            '<div class="km-col-actions">'
+            '<a href="{}" class="km-action-icon-btn" title="{}"><span class="ms">edit</span></a>'
+            '<a href="{}" target="_blank" class="km-action-icon-btn" title="{}"><span class="ms">visibility</span></a>'
+            '<button type="button" class="km-action-icon-btn km-action-more-btn" data-more-actions-btn '
+            'data-place-id="{}" data-place-name="{}" data-status="{}" data-is-active="{}" '
+            'data-is-deleted="{}" data-has-coords="{}" data-is-home="{}" data-edit-url="{}" data-view-url="{}" '
+            'data-toggle-publication-url="{}toggle-publication/" data-quick-action-url="{}quick-action/" title="{}">'
+            '<span class="ms">more_horiz</span>'
+            '</button>'
+            '</div>',
+            edit_url,
+            _("Редактировать"),
+            view_url,
+            _("Просмотр на сайте"),
+            obj.pk,
+            name,
+            obj.status,
+            1 if obj.is_active else 0,
+            1 if obj.is_deleted else 0,
+            1 if obj.has_coordinates else 0,
+            1 if obj.is_home_recommended else 0,
+            edit_url,
+            view_url,
+            action_base_url,
+            action_base_url,
+            _("Ещё действия"),
+        )
+
     @admin.display(description=_("Название"))
     def display_name(self, obj):
         title = obj.name_az or obj.name_ru or obj.name_en or obj.name
@@ -2831,6 +3063,34 @@ class PlaceAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         actions.pop("delete_selected", None)
         return actions
+
+    def place_state_rules(self, obj: Place, user) -> dict[str, tuple[str, str]]:
+        """One transition matrix for row actions; labels stay visible when disabled."""
+        no_rights = str(_("Недостаточно прав для этого действия."))
+        deleted = bool(obj.is_deleted)
+        can_change = bool(getattr(user, "is_superuser", False) or user.has_perm("catalog.change_place"))
+        can_delete = bool(getattr(user, "is_superuser", False) or user.has_perm("catalog.delete_place"))
+        published = obj.status == Place.STATUS_PUBLISHED and obj.is_active
+        quality = place_quality_check(obj)
+
+        def rule(ok: bool, reason: str = no_rights):
+            return ("allowed", "") if ok else ("disabled", reason)
+
+        publish = rule(not deleted and can_change)
+        if publish[0] == "allowed" and not published and not quality.is_ready:
+            publish = ("conditional", str(_("Заполните обязательные данные перед публикацией.")))
+        home = rule(not deleted and can_change)
+        if home[0] == "allowed" and not obj.is_home_recommended and (not published or quality.score < 100):
+            home = ("conditional", str(_("На главную можно поставить только опубликованную карточку с готовностью 100%.")))
+        return {
+            "toggle_pub": publish,
+            "to_draft": rule(not deleted and can_change and obj.status != Place.STATUS_DRAFT, str(_("Карточка уже в черновике."))),
+            "to_pending": rule(not deleted and can_change and obj.status != Place.STATUS_PENDING, str(_("Карточка уже на модерации."))),
+            "refresh_coords": rule(not deleted and can_change),
+            "toggle_home": home,
+            "soft_delete": rule(not deleted and can_delete),
+            "restore": rule(deleted and can_change, str(_("Восстановить можно только карточку из удалённых."))),
+        }
 
     def get_deleted_objects(self, objs, request):
         objects = list(objs)
@@ -3306,6 +3566,11 @@ class PlaceAdmin(admin.ModelAdmin):
                 name="catalog_place_toggle_publication",
             ),
             path(
+                "<int:object_id>/quick-action/",
+                self.admin_site.admin_view(self.quick_action_view),
+                name="catalog_place_quick_action",
+            ),
+            path(
                 "<path:object_id>/restore/",
                 self.admin_site.admin_view(self.restore_view),
                 name="catalog_place_restore",
@@ -3614,20 +3879,39 @@ class PlaceAdmin(admin.ModelAdmin):
         if place is None:
             raise PermissionDenied
 
+        publication_rule, publication_reason = self.place_state_rules(place, request.user)["toggle_pub"]
+        if publication_rule != "allowed":
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"ok": False, "error": "transition_not_allowed", "message": publication_reason}, status=400)
+            self.message_user(request, publication_reason, messages.WARNING)
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
+
+        is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("accept", "")
+
         if place.status == Place.STATUS_PUBLISHED and place.is_active:
             place.status = Place.STATUS_DRAFT
             place.is_active = False
             place.save(update_fields=["status", "is_active", "updated_at"])
-            self.message_user(request, _("Карточка снята с публикации и скрыта с сайта."), messages.SUCCESS)
+            msg = _("Карточка снята с публикации — на сайте больше не показывается")
+            if is_ajax:
+                return JsonResponse({
+                    "ok": True,
+                    "status": place.status,
+                    "is_active": place.is_active,
+                    "message": str(msg),
+                })
+            self.message_user(request, msg, messages.SUCCESS)
         else:
             quality = place_quality_check(place)
             if not quality.is_ready:
-                self.message_user(
-                    request,
-                    _("Карточка не опубликована: %(reasons)s.")
-                    % {"reasons": place_quality_error_labels(quality.errors)},
-                    messages.WARNING,
-                )
+                err_text = _("Нельзя опубликовать: %(reasons)s.") % {"reasons": place_quality_error_labels(quality.errors)}
+                if is_ajax:
+                    return JsonResponse({
+                        "ok": False,
+                        "error": "not_ready",
+                        "message": str(err_text),
+                    }, status=400)
+                self.message_user(request, err_text, messages.WARNING)
             else:
                 place.status = Place.STATUS_PUBLISHED
                 place.is_active = True
@@ -3637,8 +3921,88 @@ class PlaceAdmin(admin.ModelAdmin):
                     place.published_at = timezone.now()
                     update_fields.append("published_at")
                 place.save(update_fields=update_fields)
-                self.message_user(request, _("Карточка опубликована и теперь может показываться на сайте."), messages.SUCCESS)
+                msg = _("Карточка опубликована — уже видна на сайте")
+                if is_ajax:
+                    return JsonResponse({
+                        "ok": True,
+                        "status": place.status,
+                        "is_active": place.is_active,
+                        "message": str(msg),
+                    })
+                self.message_user(request, msg, messages.SUCCESS)
 
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
+
+    def quick_action_view(self, request, object_id):
+        if request.method != "POST":
+            raise PermissionDenied
+        if not self.has_change_permission(request):
+            raise PermissionDenied
+
+        place = Place.objects.filter(pk=object_id).first()
+        if place is None:
+            raise PermissionDenied
+
+        action = request.POST.get("action")
+        is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest" or "application/json" in request.headers.get("accept", "")
+
+        action_rules = self.place_state_rules(place, request.user)
+        if action not in action_rules:
+            raise PermissionDenied
+        action_rule, action_reason = action_rules[action]
+        if action_rule != "allowed":
+            if is_ajax:
+                return JsonResponse({"ok": False, "error": "transition_not_allowed", "message": action_reason}, status=400)
+            self.message_user(request, action_reason, messages.WARNING)
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
+
+        if action == "to_draft":
+            place.status = Place.STATUS_DRAFT
+            place.is_active = False
+            place.save(update_fields=["status", "is_active", "updated_at"])
+            msg = _("Карточка возвращена в черновик.")
+        elif action == "to_pending":
+            place.status = Place.STATUS_PENDING
+            place.is_active = False
+            place.save(update_fields=["status", "is_active", "updated_at"])
+            msg = _("Карточка отправлена на модерацию.")
+        elif action == "toggle_home":
+            if place.is_home_recommended:
+                place.is_home_recommended = False
+                place.home_recommended_order = 0
+                place.save(update_fields=["is_home_recommended", "home_recommended_order", "updated_at"])
+                msg = _("Карточка убрана с главной страницы.")
+            else:
+                quality = place_quality_check(place)
+                if quality.score < 100 or place.status != Place.STATUS_PUBLISHED or not place.is_active:
+                    err_msg = _("Слот главной доступен только для опубликованных карточек с готовностью 100%.")
+                    if is_ajax:
+                        return JsonResponse({"ok": False, "message": str(err_msg)}, status=400)
+                    self.message_user(request, err_msg, messages.WARNING)
+                    return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
+                place.is_home_recommended = True
+                place.save(update_fields=["is_home_recommended", "updated_at"])
+                msg = _("Карточка добавлена в рекомендуемые на главной.")
+        elif action == "refresh_coords":
+            self._refresh_place_coordinates_with_audit(place=place, changed_by=request.user)
+            if place.has_coordinates:
+                msg = _("Координаты успешно обновлены.")
+            else:
+                msg = _("Не удалось автоматически определить координаты по адресу.")
+        elif action == "soft_delete":
+            self._soft_delete_place(place=place, user=request.user)
+            msg = _("Карточка перемещена в удалённые.")
+        elif action == "restore":
+            self._restore_place(place=place, user=request.user, activate=False)
+            msg = _("Карточка восстановлена в черновики.")
+        else:
+            if is_ajax:
+                return JsonResponse({"ok": False, "message": "Unknown action"}, status=400)
+            raise PermissionDenied
+
+        if is_ajax:
+            return JsonResponse({"ok": True, "message": str(msg)})
+        self.message_user(request, msg, messages.SUCCESS)
         return HttpResponseRedirect(request.META.get("HTTP_REFERER") or reverse("admin:catalog_place_changelist"))
 
     def search_suggestions_view(self, request):
@@ -3697,13 +4061,20 @@ class PlaceAdmin(admin.ModelAdmin):
         dashboard_counts = self._place_dashboard_counts()
         quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
         is_trash = self._is_trash_changelist(request)
-        primary_filter_keys = {"all", "published", "unpublished", "draft", "pending", "inactive", "without_coordinates", "deleted"}
+        primary_filter_order = ["all", "published", "draft", "pending", "without_coordinates", "deleted"]
         if is_trash:
-            primary_filter_keys = {"all", "deleted"}
+            primary_filter_order = ["all", "deleted"]
+
+        quick_filter_map = {item.get("key"): item for item in quick_filters}
+        primary_quick_filters = [quick_filter_map[key] for key in primary_filter_order if key in quick_filter_map]
+        secondary_quick_filters = [item for item in quick_filters if item.get("key") not in primary_filter_order]
+
         extra_context = {
             "place_dashboard_stats": self._place_dashboard_stats(request, counts=dashboard_counts),
-            "km_primary_quick_filters": [item for item in quick_filters if item.get("key") in primary_filter_keys],
-            "km_secondary_quick_filters": [item for item in quick_filters if item.get("key") not in primary_filter_keys],
+            "km_primary_quick_filters": primary_quick_filters,
+            "km_secondary_quick_filters": secondary_quick_filters,
+            "km_total_places_count": dashboard_counts.get("quick_all", 0),
+            "km_total_trash_count": dashboard_counts.get("quick_deleted", 0),
             "place_bulk_actions": self._place_trash_bulk_actions() if is_trash else self._place_bulk_actions(),
             "km_is_trash_changelist": is_trash,
             "km_changelist_reset_url": "?deleted_state=deleted" if is_trash else "?",

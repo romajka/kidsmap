@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as translate, override
 from catalog.controllers.place_controller import PlaceController
 from catalog.forms import OwnerPlaceCreateForm
-from catalog.domain_admin.place import EventAdminForm, PlaceAdminForm
+from catalog.domain_admin.place import EventAdminForm, PlaceAdmin, PlaceAdminForm
 from catalog.interfaces.geocoding import GeocodingPoint
 from catalog.models import (
     CatalogContentSettings,
@@ -1012,10 +1012,8 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "km-place-bulk-bar")
-        self.assertContains(response, "Выберите карточки, чтобы действия стали доступны.")
-        self.assertContains(response, 'data-action="move_selected_to_deleted"', html=False)
-        self.assertContains(response, 'data-action="restore_selected"', html=False)
+        self.assertContains(response, "km-bulk-floating-bar")
+        self.assertContains(response, 'data-bulk-submit="move_selected_to_deleted"', html=False)
         self.assertContains(response, "Все на странице")
         self.assertContains(response, "Снять выбор")
         self.assertContains(response, "Опубликованы")
@@ -1023,19 +1021,32 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, 'href="?status__exact=draft"', html=False)
         self.assertContains(response, "В удалённых")
         self.assertContains(response, "Без координат")
-        self.assertContains(response, reverse("admin:catalog_place_delete", args=[self.place.id]))
-        self.assertContains(response, reverse("admin:catalog_place_toggle_publication", args=[self.place.id]))
+        self.assertContains(response, 'data-row-action="toggle_pub"', html=False)
 
         deleted_response = self.client.get(
             reverse("admin:catalog_place_changelist"),
             data={"deleted_state": "deleted"},
         )
-        self.assertContains(deleted_response, reverse("admin:catalog_place_restore", args=[deleted_place.id]))
-        self.assertContains(response, "km-place-row-actions")
+        self.assertContains(deleted_response, 'data-row-action="restore"', html=False)
+        self.assertContains(response, "km-row-actions-dropdown")
         self.assertContains(response, "В удалённые")
         self.assertContains(response, "Восстановить")
         self.assertContains(response, "place-admin-dashboard")
         self.assertContains(response, "admin/css/pages/kidsmap_changelist.css")
+
+    def test_place_state_rules_explain_blocked_publication_and_deleted_restore(self):
+        place_admin = PlaceAdmin(Place, admin.site)
+        self.place.status = Place.STATUS_DRAFT
+        self.place.is_active = False
+        self.place.save(update_fields=["status", "is_active", "updated_at"])
+        draft_rules = place_admin.place_state_rules(self.place, self.superuser)
+        self.assertEqual(draft_rules["toggle_pub"][0], "conditional")
+        self.assertTrue(draft_rules["toggle_pub"][1])
+
+        self.place.soft_delete(deleted_by=self.superuser)
+        deleted_rules = place_admin.place_state_rules(self.place, self.superuser)
+        self.assertEqual(deleted_rules["restore"][0], "allowed")
+        self.assertEqual(deleted_rules["toggle_pub"][0], "disabled")
 
     def test_event_admin_changelist_shows_bulk_bar_and_visibility_actions(self):
         response = self.client.get(reverse("admin:catalog_event_changelist"))

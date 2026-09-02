@@ -3,144 +3,292 @@
 
 {% block content_title %}{% endblock %}
 {% block page_actions %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block admin_topbar_context %}
+  <li class="nav-item km-place-topbar-crumbs" aria-label="{% translate 'Навигация' %}">
+    <a href="{% url 'admin:app_list' app_label='catalog' %}" class="km-place-topbar-crumbs__link">{% translate 'Каталог' %}</a>
+    <span class="ms km-place-topbar-crumbs__separator" aria-hidden="true">chevron_right</span>
+    <span class="km-place-topbar-crumbs__current">{% translate 'Постоянные места' %}</span>
+  </li>
+{% endblock %}
+
+{% block admin_topbar_menu_icon %}<span class="ms">menu</span>{% endblock %}
+{% block admin_topbar_account_icon %}<span class="ms" aria-hidden="true">account_circle</span>{% endblock %}
 
 {% block extrahead %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=5">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=82">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=2">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=2" defer></script>
-  <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=1" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=28" defer></script>
+  <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=2" defer></script>
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} km-custom-changelist{% if km_is_trash_changelist %} km-place-trash-changelist{% endif %}{% endblock %}
 
 {% block search %}
-  <div class="place-admin-dashboard">
-    <section class="place-admin-dashboard__header">
-      <div class="place-admin-dashboard__title-block">
-        <h1 class="place-admin-dashboard__title">
-          {% if km_is_trash_changelist %}
-            {% translate "Корзина" %}
-          {% else %}
-            {% translate "Места" %}
-          {% endif %}
-        </h1>
-        <p class="place-admin-dashboard__subtitle">
-          {% if km_is_trash_changelist %}
-            {% blocktranslate trimmed %}
-              Здесь только удалённые карточки. Выберите нужные и восстановите их, если они снова должны вернуться в работу.
-            {% endblocktranslate %}
-          {% else %}
-            {% blocktranslate trimmed %}
-              Управляйте публикацией, качеством данных, координатами и удалёнными карточками без изменения существующего moderation flow.
-            {% endblocktranslate %}
-          {% endif %}
-        </p>
-      </div>
-      <div class="place-admin-dashboard__header-actions">
-        {% if km_is_trash_changelist %}
-          <a href="?" class="place-admin-dashboard__add-link place-admin-dashboard__add-link--secondary">
-            {% translate "К местам" %}
-          </a>
-        {% else %}
-          {% if km_place_quality_report_url %}
-            <a href="{{ km_place_quality_report_url }}" class="place-admin-dashboard__add-link place-admin-dashboard__quality-report-link">
-              <i class="fas fa-clipboard-check" aria-hidden="true"></i>
-              {% translate "Отчёт качества" %}
-            </a>
-          {% endif %}
-          {% if has_add_permission %}
-            {% url cl.opts|admin_urlname:'add' as add_url %}
-            <a href="{% add_preserved_filters add_url %}" class="place-admin-dashboard__add-link">
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              {% translate "Добавить место" %}
-            </a>
-          {% endif %}
-        {% endif %}
-      </div>
-    </section>
-
-    {% if not km_is_trash_changelist %}
-      <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика мест' %}">
-        {% for item in place_dashboard_stats %}
-          <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}">
-            {% if item.icon %}
-              <div class="place-admin-dashboard__stat-icon" aria-hidden="true">{{ item.icon|safe }}</div>
+  <div class="col-12 p-0">
+    <div class="place-admin-dashboard km-admin-root">
+      <section class="place-admin-dashboard__header">
+        <div class="place-admin-dashboard__title-block">
+          <h1 class="place-admin-dashboard__title">
+            {% if km_is_trash_changelist %}
+              {% translate "Корзина" %}
+            {% else %}
+              {% translate "Постоянные места" %}
             {% endif %}
-            <div class="place-admin-dashboard__stat-content">
-              <span class="place-admin-dashboard__stat-label">{{ item.label }}</span>
-              <strong class="place-admin-dashboard__stat-value">{{ item.count }}</strong>
-            </div>
-          </a>
-        {% endfor %}
+          </h1>
+          <p class="place-admin-dashboard__subtitle">
+            {% if km_is_trash_changelist %}
+              {% blocktranslate trimmed %}
+                Здесь только удалённые карточки. Выберите нужные и восстановите их, если они снова должны вернуться в работу.
+              {% endblocktranslate %}
+            {% else %}
+              {% blocktranslate trimmed with total=km_total_places_count|default:cl.result_count %}
+                Публикация, качество данных и координаты — {{ total }} карточки
+              {% endblocktranslate %}
+            {% endif %}
+          </p>
+        </div>
+        <div class="place-admin-dashboard__header-actions">
+          {% if km_is_trash_changelist %}
+            <a href="?" class="place-admin-dashboard__add-link place-admin-dashboard__add-link--secondary">
+              {% translate "К местам" %}
+            </a>
+          {% else %}
+            {% if km_place_quality_report_url %}
+              <a href="{{ km_place_quality_report_url }}" class="km-btn-quality-report">
+                <span class="ms">assessment</span>
+                <span>{% translate "Отчёт качества" %}</span>
+              </a>
+            {% endif %}
+            {% if has_add_permission %}
+              {% url cl.opts|admin_urlname:'add' as add_url %}
+              <a href="{% add_preserved_filters add_url %}" class="km-btn-add-place">
+                <span class="ms">add</span>
+                <span>{% translate "Добавить место" %}</span>
+              </a>
+            {% endif %}
+          {% endif %}
+        </div>
       </section>
-    {% endif %}
 
-    {% if home_recommendation_editor %}
-      {% include "admin/catalog/place/home_recommendation_editor.html" %}
-    {% endif %}
+      {% if home_recommendation_editor %}
+        <details class="km-home-recs-accordion">
+          <summary class="km-home-recs-accordion__summary">
+            <span class="ms km-accordion-arrow">expand_more</span>
+            <span class="km-accordion-title">{% translate "Рекомендуемые места на главной" %}</span>
+            <span class="km-accordion-meta">4 из 4 слотов · {% translate "порядок сохраняется автоматически" %}</span>
+            <span class="km-accordion-btn">{% translate "Настроить" %}</span>
+          </summary>
+          <div class="km-home-recs-accordion__body">
+            {% include "admin/catalog/place/home_recommendation_editor.html" %}
+          </div>
+        </details>
+      {% endif %}
 
-    {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
+      {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
+    </div>
   </div>
 {% endblock %}
 
 {% block result_list %}
-  <div class="place-admin-dashboard">
-    <section
-      class="place-admin-dashboard__bulk-bar km-place-bulk-bar"
-      data-empty-label="{% translate 'Выберите карточки, чтобы действия стали доступны.' %}"
-      data-selected-label="{% if km_is_trash_changelist %}{% translate 'Можно восстановить выбранные карточки' %}{% else %}{% translate 'Массовые действия доступны' %}{% endif %}"
-    >
-      <div class="place-admin-dashboard__bulk-summary" aria-live="polite">
-        <div class="place-admin-dashboard__selection-state">
-          <span class="place-admin-dashboard__selection-icon" aria-hidden="true">
-            <i class="far fa-check-square"></i>
-          </span>
-          <span class="place-admin-dashboard__bulk-count-label">{% translate "Выбрано" %}</span>
-          <strong class="place-admin-dashboard__bulk-count">0</strong>
-        </div>
-        <span class="place-admin-dashboard__bulk-text">{% translate "Выберите карточки, чтобы действия стали доступны." %}</span>
-      </div>
-      <div class="place-admin-dashboard__bulk-controls">
-        <div class="place-admin-dashboard__bulk-selection">
-          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="page">
-            <i class="far fa-check-square" aria-hidden="true"></i>
-            <span>{% translate "Все на странице" %}</span>
-          </button>
-          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="clear">
-            <i class="fas fa-times" aria-hidden="true"></i>
-            <span>{% translate "Снять выбор" %}</span>
-          </button>
-        </div>
-        <div class="place-admin-dashboard__bulk-actions" role="group" aria-label="{% translate 'Массовые действия' %}">
-          {% for item in place_bulk_actions %}
-            <button
-              type="button"
-              class="place-admin-dashboard__bulk-action place-admin-dashboard__bulk-action--{{ item.tone }}"
-              data-action="{{ item.name }}"
-              {% if item.confirm %}data-confirm="{{ item.confirm }}"{% endif %}
-              title="{{ item.description }}"
-              disabled
-            >
-              {% if item.icon %}<i class="{{ item.icon }}" aria-hidden="true"></i>{% endif %}
-              <span>{{ item.label }}</span>
-            </button>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-
+  <div class="place-admin-dashboard km-admin-root">
     {% if action_form and actions_on_top and cl.show_admin_actions %}
       <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
     {% endif %}
 
-    <div class="place-admin-dashboard__table-wrap">
+    <div class="place-admin-dashboard__table-wrap km-table-container">
       {% result_list cl %}
+      {% if cl.result_count == 0 %}
+        <div class="km-empty-state">
+          <span class="ms km-empty-state__icon">search_off</span>
+          <h3 class="km-empty-state__title">{% translate "Ничего не найдено" %}</h3>
+          <p class="km-empty-state__desc">
+            {% if cl.query %}
+              {% blocktranslate with q=cl.query %}По запросу «{{ q }}» карточек не найдено. Сбросьте фильтры или измените запрос.{% endblocktranslate %}
+            {% else %}
+              {% translate "По выбранным фильтрам карточек нет. Сбросьте фильтры для просмотра всех записей." %}
+            {% endif %}
+          </p>
+          <div class="km-empty-state__actions">
+            <a href="{{ km_changelist_reset_url|default:'?' }}" class="km-empty-state__btn km-empty-state__btn--primary">
+              {% translate "Сбросить фильтры" %}
+            </a>
+            {% if cl.is_filtered %}
+              <a href="?" class="km-empty-state__btn km-empty-state__btn--secondary">
+                {% translate "Искать во всех статусах" %}
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+      <div class="km-place-pagination-inline">
+        <div class="km-redesign-pagination">
+          <span class="km-redesign-pagination__count">{% paginator_range_label cl %}</span>
+          <div class="km-redesign-pagination__controls">
+            {% if cl.page_num > 1 %}
+              <a href="{% paginator_page_url cl cl.page_num|add:'-1' %}" class="km-redesign-pagination__btn" title="{% translate 'Предыдущая страница' %}" aria-label="{% translate 'Предыдущая страница' %}">
+                <span class="ms">chevron_left</span>
+              </a>
+            {% else %}
+              <span class="km-redesign-pagination__btn is-disabled" aria-disabled="true">
+                <span class="ms">chevron_left</span>
+              </span>
+            {% endif %}
+
+            <span class="km-redesign-pagination__page">{{ cl.page_num }} / {{ cl.paginator.num_pages|default:1 }}</span>
+
+            {% if cl.page_num < cl.paginator.num_pages %}
+              <a href="{% paginator_page_url cl cl.page_num|add:'1' %}" class="km-redesign-pagination__btn" title="{% translate 'Следующая страница' %}" aria-label="{% translate 'Следующая страница' %}">
+                <span class="ms">chevron_right</span>
+              </a>
+            {% else %}
+              <span class="km-redesign-pagination__btn is-disabled" aria-disabled="true">
+                <span class="ms">chevron_right</span>
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
     </div>
 
     {% if action_form and actions_on_bottom and cl.show_admin_actions %}
       <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
     {% endif %}
+
+    <!-- Закреплённая панель массовых действий снизу (1c) -->
+    <div class="km-bulk-floating-bar" id="km-bulk-bar" hidden>
+      <div class="km-bulk-floating-bar__inner">
+        <span class="km-bulk-floating-bar__count" id="km-bulk-count-label">{% translate "Выбрано" %} 0</span>
+        <button type="button" class="km-bulk-floating-bar__link-btn" data-bulk-action="select-all">
+          {% translate "Все на странице" %} ({{ cl.result_list|length }})
+        </button>
+        <span class="km-bulk-floating-bar__divider"></span>
+        <button type="button" class="km-bulk-btn km-bulk-btn--primary" data-bulk-submit="mark_published">
+          <span class="ms">campaign</span>
+          <span>{% translate "Опубликовать" %}</span>
+        </button>
+        <button type="button" class="km-bulk-btn km-bulk-btn--outline" data-bulk-submit="refresh_coordinates">
+          <span class="ms">my_location</span>
+          <span>{% translate "Обновить координаты" %}</span>
+        </button>
+        <details class="km-bulk-more-actions">
+          <summary class="km-bulk-btn km-bulk-btn--outline">
+            <span>{% translate "Ещё действия" %}</span>
+            <span class="ms">expand_less</span>
+          </summary>
+          <div class="km-bulk-more-dropdown">
+            <button type="button" class="km-bulk-dropdown-item" data-bulk-submit="mark_inactive">
+              <span class="ms">visibility_off</span>
+              <span>{% translate "Снять с публикации" %}</span>
+            </button>
+            <button type="button" class="km-bulk-dropdown-item" data-bulk-submit="mark_draft">
+              <span class="ms">history_edu</span>
+              <span>{% translate "Вернуть в черновик" %}</span>
+            </button>
+            <button type="button" class="km-bulk-dropdown-item" data-bulk-submit="mark_pending">
+              <span class="ms">hourglass_empty</span>
+              <span>{% translate "Отправить на модерацию" %}</span>
+            </button>
+            <button type="button" class="km-bulk-dropdown-item" data-bulk-submit="add_to_home_recommendations">
+              <span class="ms">home</span>
+              <span>{% translate "На главную" %}</span>
+            </button>
+            <div class="km-bulk-dropdown-divider"></div>
+            <button type="button" class="km-bulk-dropdown-item km-bulk-dropdown-item--danger" data-bulk-submit="move_selected_to_deleted">
+              <span class="ms">delete</span>
+              <span>{% translate "В удалённые" %}</span>
+            </button>
+          </div>
+        </details>
+        <button type="button" class="km-bulk-floating-bar__clear" data-bulk-action="clear-all">
+          <span class="ms">close</span>
+          <span>{% translate "Снять выбор" %}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Поповер «Готовность» (1d) -->
+    <div class="km-readiness-popover" id="km-readiness-popover" hidden>
+      <div class="km-readiness-popover__head">
+        <span class="km-readiness-popover__title" id="km-pop-score-label">{% translate "Готовность" %} 0%</span>
+        <span class="km-readiness-popover__count" id="km-pop-items-count">0 из 5</span>
+      </div>
+      <div class="km-readiness-popover__bar-wrap">
+        <span class="km-readiness-popover__bar" id="km-pop-bar" style="width: 0%"></span>
+      </div>
+      <div class="km-readiness-popover__list" id="km-pop-list">
+        <div class="km-readiness-popover__item" data-item="coords">
+          <span class="ms km-pop-icon">radio_button_unchecked</span>
+          <span>{% translate "Точка на карте — координаты" %}</span>
+        </div>
+        <div class="km-readiness-popover__item" data-item="price">
+          <span class="ms km-pop-icon">radio_button_unchecked</span>
+          <span>{% translate "Цена: «от» или тариф" %}</span>
+        </div>
+        <div class="km-readiness-popover__item" data-item="photos">
+          <span class="ms km-pop-icon">radio_button_unchecked</span>
+          <span>{% translate "Фото: минимум 3" %}</span>
+        </div>
+        <div class="km-readiness-popover__item" data-item="desc">
+          <span class="ms km-pop-icon">radio_button_unchecked</span>
+          <span>{% translate "Описание RU / AZ" %}</span>
+        </div>
+        <div class="km-readiness-popover__item" data-item="cat">
+          <span class="ms km-pop-icon">radio_button_unchecked</span>
+          <span>{% translate "Категория и подкатегория" %}</span>
+        </div>
+      </div>
+      <div class="km-readiness-popover__footer">
+        <a href="#" class="km-readiness-popover__link" id="km-pop-edit-link">
+          <span>{% translate "Заполнить в карточке" %}</span>
+          <span class="ms">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Меню действий строки ⋯ (1e) -->
+    <div class="km-row-actions-dropdown" id="km-row-actions-dropdown" hidden>
+      <button type="button" class="km-row-actions-item" data-row-action="toggle_pub" id="km-row-act-pub">
+        <span class="ms" id="km-row-act-pub-icon">visibility_off</span>
+        <span id="km-row-act-pub-label">{% translate "Снять с публикации" %}</span>
+      </button>
+      <a href="#" class="km-row-actions-item" id="km-row-act-view-link" target="_blank" rel="noopener noreferrer">
+        <span class="ms">open_in_new</span>
+        <span>{% translate "Посмотреть на сайте" %}</span>
+      </a>
+      <button type="button" class="km-row-actions-item" data-row-action="restore" id="km-row-act-restore" hidden>
+        <span class="ms">restore_from_trash</span>
+        <span>{% translate "Восстановить" %}</span>
+      </button>
+      <div class="km-row-actions-divider" id="km-row-act-divider"></div>
+      <button type="button" class="km-row-actions-item km-row-actions-item--danger" data-row-action="soft_delete" id="km-row-act-delete">
+        <span class="ms">delete</span>
+        <span>{% translate "Удалить" %}</span>
+      </button>
+    </div>
+
+    <!-- Тост оповещения с кнопкой «Отменить» (2d) -->
+    <div class="km-toast" id="km-toast" hidden>
+      <span class="ms km-toast__icon">check_circle</span>
+      <span class="km-toast__text" id="km-toast-text">{% translate "Готово" %}</span>
+      <button type="button" class="km-toast__undo" id="km-toast-undo">{% translate "Отменить" %}</button>
+    </div>
+    <div id="km-changelist-i18n" hidden
+      data-selected-label="{% translate 'Выбрано' %}"
+      data-readiness-label="{% translate 'Готовность' %}"
+      data-items-label="{% translate 'из 5 пунктов' %}"
+      data-published-label="{% translate 'Опубликовано' %}"
+      data-draft-label="{% translate 'Черновик' %}"
+      data-publish-error="{% translate 'Нельзя опубликовать: заполните обязательные данные.' %}"
+      data-action-error="{% translate 'Действие недоступно' %}"
+      data-toast-error="{% translate 'Ошибка выполнения действия' %}"></div>
   </div>
 {% endblock %}
+
+{% block pagination %}{% endblock %}

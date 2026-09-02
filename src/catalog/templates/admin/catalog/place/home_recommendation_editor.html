@@ -11,27 +11,22 @@
   {{ home_recommendation_editor.cards|json_script:"km-home-recommendation-data" }}
 
   <header class="km-home-recs__header">
-    <div>
-      <p class="km-home-recs__eyebrow">{% translate "Главная страница" %}</p>
-      <h2 class="km-home-recs__title">{% translate "Рекомендуемые места" %}</h2>
-      <p class="km-home-recs__hint">
-        {% translate "Перетащите карточки, чтобы изменить порядок. Все изменения сохраняются автоматически." %}
-      </p>
-    </div>
-    <div class="km-home-recs__header-actions">
-      <span class="km-home-recs__counter" data-home-recs-counter aria-live="polite"></span>
-      <button type="button" class="km-home-recs__add" data-home-recs-open>
-        <i class="fas fa-plus" aria-hidden="true"></i>
-        <span>{% translate "Добавить место" %}</span>
-      </button>
-    </div>
+    <button type="button" class="km-home-recs__collapse" data-home-recs-collapse aria-label="{% translate 'Свернуть' %}">
+      <span class="ms">expand_less</span>
+    </button>
+    <strong class="km-home-recs__title">{% translate "Рекомендуемые места на главной" %}</strong>
+    <span class="km-home-recs__counter" data-home-recs-counter aria-live="polite"></span>
+    <button type="button" class="km-home-recs__add" data-home-recs-open>
+      <span class="ms">add</span>
+      <span>{% translate "Заменить слот" %}</span>
+    </button>
   </header>
 
   <div class="km-home-recs__status" data-home-recs-status role="status" aria-live="polite"></div>
   <div class="km-home-recs__slots" data-home-recs-slots></div>
 
   <div class="km-home-recs__empty-note" data-home-recs-fallback>
-    <i class="fas fa-magic" aria-hidden="true"></i>
+    <span class="ms" aria-hidden="true">auto_awesome</span>
     <span>{% translate "Если список пуст, сайт автоматически показывает самые популярные места." %}</span>
   </div>
 
@@ -44,7 +39,7 @@
       <button type="button" class="km-home-recs__dialog-close" data-home-recs-close aria-label="{% translate 'Закрыть' %}">×</button>
     </div>
     <label class="km-home-recs__search">
-      <i class="fas fa-search" aria-hidden="true"></i>
+      <span class="ms" aria-hidden="true">search</span>
       <input
         type="search"
         data-home-recs-search

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+  body { margin: 0; background: #fff; font-family: Manrope, system-ui, sans-serif; color: #12211f; }
+  a { color: #0f6d5f; text-decoration: none; }
+  a:hover { color: #0a4f45; }
+  summary::-webkit-details-marker { display: none; }
+  @keyframes hmRise { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes hmPop { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  @keyframes hmDrop { from { opacity: 0; transform: translate(-50%,-160%); } to { opacity: 1; transform: translate(-50%,-100%); } }
+  @keyframes hmTicker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes hmSweep { from { transform: scale(.4); opacity: .55; } to { transform: scale(2.6); opacity: 0; } }
+  @keyframes hmFade { 0%,8% { opacity: 0; transform: translateY(6px); } 16%,84% { opacity: 1; transform: none; } 96%,100% { opacity: 0; transform: translateY(-6px); } }
+  @keyframes hmPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: .55; } }
+  @keyframes hmFloat { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(-2deg); } }
+  @keyframes hmFloat2 { 0%,100% { transform: translateY(0) rotate(3deg); } 50% { transform: translateY(-14px) rotate(3deg); } }
+</style>
+</helmet>
+
+<div style="width: 1440px; margin: 0 auto; overflow: hidden">
+
+  <header data-header="1" style="position: sticky; top: 0; z-index: 40; transition: box-shadow .3s, background .3s; background: rgba(255,255,255,.86); backdrop-filter: blur(14px); border-bottom: 1px solid #eef1f1">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 28px">
+      <a href="#top" style="display: flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 800; letter-spacing: -.02em; color: #12211f">
+        <span style="width: 30px; height: 30px; border-radius: 9px; background: #0f6d5f; color: #fff; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 19px">pin_drop</span>
+        KidsMap
+      </a>
+      <nav style="display: flex; gap: 22px; font-size: 14.5px; font-weight: 600; margin-left: 8px">
+        <a href="#categories" style="color: #3c4b48" style-hover="color: #0f6d5f">Kataloq</a>
+        <a href="#map" style="color: #3c4b48" style-hover="color: #0f6d5f">Xəritə</a>
+        <a href="#districts" style="color: #3c4b48" style-hover="color: #0f6d5f">Rayonlar</a>
+        <a href="#owners" style="color: #3c4b48" style-hover="color: #0f6d5f">Sahiblər üçün</a>
+        <a href="#faq" style="color: #3c4b48" style-hover="color: #0f6d5f">FAQ</a>
+      </nav>
+      <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+        <div style="display: flex; gap: 2px; padding: 3px; background: #f1f4f4; border-radius: 10px; font-size: 12.5px; font-weight: 700">
+          <span style="padding: 6px 10px; border-radius: 8px; background: #fff; color: #12211f; box-shadow: 0 1px 3px rgba(12,40,34,.12)">AZ</span>
+          <a href="#top" style="padding: 6px 10px; border-radius: 8px; color: #7d8b88" style-hover="background: #e8eded; color: #12211f">RU</a>
+          <a href="#top" style="padding: 6px 10px; border-radius: 8px; color: #7d8b88" style-hover="background: #e8eded; color: #12211f">EN</a>
+        </div>
+        <a href="#top" style="min-height: 42px; padding: 0 16px; border-radius: 11px; border: 1px solid #dbe3e1; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #12211f" style-hover="border-color: #0f6d5f; color: #0f6d5f">
+          <span style="font-family: Material Symbols Rounded; font-size: 19px">person</span>Daxil ol
+        </a>
+        <a href="#owners" style="min-height: 42px; padding: 0 16px; border-radius: 11px; background: #0f6d5f; color: #fff; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700" style-hover="background: #0a4f45; color: #fff">
+          <span style="font-family: Material Symbols Rounded; font-size: 19px">add_business</span>Məkan əlavə et
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <section style="background: linear-gradient(#fbfdfc 0%, #f2f7f5 100%); border-bottom: 1px solid #eaf0ee">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 56px 24px 44px; display: grid; grid-template-columns: 1fr 420px; gap: 48px; align-items: center">
+      <div style="display: flex; flex-direction: column; gap: 22px; animation: hmRise .6s cubic-bezier(.2,.8,.3,1) both">
+        {{ statBadge }}
+        <h1 style="margin: 0; font-size: 54px; line-height: 1.06; font-weight: 800; letter-spacing: -.035em; max-width: 640px; text-wrap: balance">Uşağınıza uyğun dərnəyi<br>iki dəqiqədə tapın</h1>
+        <p style="margin: 0; font-size: 17.5px; line-height: 1.55; color: #4c5b58; max-width: 520px; text-wrap: pretty">İdman, yaradıcılıq, musiqi, elm — yaşa, rayona və büdcəyə görə. Qiymət, cədvəl və əlaqə birbaşa kartda.</p>
+        {{ searchBar }}
+        <div style="display: flex; gap: 9px; flex-wrap: wrap; align-items: center">
+          <span style="font-size: 13px; color: #7d8b88; font-weight: 600">Tez keçidlər:</span>
+          {{ quickChips }}
+        </div>
+      </div>
+      {{ heroCollage }}
+    </div>
+  </section>
+
+  <section style="border-bottom: 1px solid #eef1f1">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 22px 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span style="width: 42px; height: 42px; border-radius: 12px; background: #dcefe9; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px; color: #0f6d5f">verified</span>
+        <span style="font-size: 14.5px; font-weight: 700; line-height: 1.35">Yoxlanılmış və<br>aktiv məkanlar</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span style="width: 42px; height: 42px; border-radius: 12px; background: #dcefe9; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px; color: #0f6d5f">tune</span>
+        <span style="font-size: 14.5px; font-weight: 700; line-height: 1.35">Yaş, rayon və<br>qiymət filtrləri</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span style="width: 42px; height: 42px; border-radius: 12px; background: #dcefe9; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px; color: #0f6d5f">chat_bubble</span>
+        <span style="font-size: 14.5px; font-weight: 700; line-height: 1.35">Zəng və WhatsApp-a<br>bir toxunuşla keçid</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span style="width: 42px; height: 42px; border-radius: 12px; background: #dcefe9; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px; color: #0f6d5f">devices</span>
+        <span style="font-size: 14.5px; font-weight: 700; line-height: 1.35">Telefonda və<br>kompüterdə rahat</span>
+      </div>
+    </div>
+  </section>
+
+  {{ ticker }}
+
+  <section id="categories" data-reveal="1" style="max-width: 1240px; margin: 0 auto; padding: 64px 24px 8px">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 22px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -.028em">Kateqoriya üzrə seçin</h2>
+        <p style="margin: 0; font-size: 15.5px; color: #6b7b78">Ən çox axtarılan bölmələr — kataloqun bütün 72 kartı burada bölünür.</p>
+      </div>
+      <a href="#map" style="min-height: 46px; padding: 0 18px; border-radius: 12px; border: 1px solid #dbe3e1; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: #12211f" style-hover="border-color: #0f6d5f; color: #0f6d5f">Bütün kataloq<span style="font-family: Material Symbols Rounded; font-size: 19px">arrow_forward</span></a>
+    </div>
+    {{ categoryTiles }}
+  </section>
+
+  <section style="max-width: 1240px; margin: 0 auto; padding: 44px 24px 0">
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 18px 22px; border-radius: 18px; background: #12211f">
+      <span style="font-size: 15px; font-weight: 700; color: #fff; display: inline-flex; align-items: center; gap: 9px">
+        <span style="font-family: Material Symbols Rounded; font-size: 21px; color: #7fd3bf">child_care</span>Uşağın yaşına görə
+      </span>
+      {{ ageRail }}
+    </div>
+  </section>
+
+  <section id="map" data-reveal="1" style="max-width: 1240px; margin: 0 auto; padding: 56px 24px 0">
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px">
+      <h2 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -.028em">Xəritədə baxın</h2>
+      <p style="margin: 0; font-size: 15.5px; color: #6b7b78">Kateqoriyaya toxunun — markerlər və siyahı dərhal yenilənir.</p>
+    </div>
+    {{ mapSection }}
+  </section>
+
+  <section data-reveal="1" style="max-width: 1240px; margin: 0 auto; padding: 60px 24px 0">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 22px">
+      <h2 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -.028em">Bu həftə ən çox baxılanlar</h2>
+      <a href="#map" style="font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 7px">Hamısına bax<span style="font-family: Material Symbols Rounded; font-size: 19px">arrow_forward</span></a>
+    </div>
+    {{ popular }}
+  </section>
+
+  <section id="how" data-reveal="1" style="max-width: 1240px; margin: 0 auto; padding: 64px 24px 0">
+    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 44px; align-items: start">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -.028em">Necə işləyir</h2>
+        <p style="margin: 0; font-size: 15.5px; color: #6b7b78; line-height: 1.55">Üç addım — və uşağınız üçün uyğun dərnəyi tapdınız.</p>
+        <a href="#categories" style="align-self: flex-start; min-height: 46px; padding: 0 18px; border-radius: 12px; background: #0f6d5f; color: #fff; display: inline-flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 700; margin-top: 4px" style-hover="background: #0a4f45; color: #fff">
+          <span style="font-family: Material Symbols Rounded; font-size: 20px">search</span>Axtarışa başla
+        </a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
+        <div style="border: 1px solid #e6ebea; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <span style="width: 42px; height: 42px; border-radius: 12px; background: #dcefe9; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px; color: #0f6d5f">tune</span>
+            <span style="font-size: 34px; font-weight: 800; color: #eef1f1; letter-spacing: -.04em; line-height: 1">01</span>
+          </div>
+          <span style="font-size: 17px; font-weight: 800">Filtrləri seçin</span>
+          <p style="margin: 0; font-size: 14.5px; line-height: 1.55; color: #4c5b58">Kateqoriya, rayon və uşağın dəqiq yaşı — üç saniyə.</p>
+        </div>
+        <div style="border: 1px solid #e6ebea; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <span style="width: 42px; height: 42px; border-radius: 12px; background: #dcefe9; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px; color: #0f6d5f">compare_arrows</span>
+            <span style="font-size: 34px; font-weight: 800; color: #eef1f1; letter-spacing: -.04em; line-height: 1">02</span>
+          </div>
+          <span style="font-size: 17px; font-weight: 800">Variantları müqayisə edin</span>
+          <p style="margin: 0; font-size: 14.5px; line-height: 1.55; color: #4c5b58">Foto, qiymət, cədvəl, rəylər və xəritədə yerləşmə bir ekranda.</p>
+        </div>
+        <div style="border: 1px solid #e6ebea; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <span style="width: 42px; height: 42px; border-radius: 12px; background: #dcefe9; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 22px; color: #0f6d5f">call</span>
+            <span style="font-size: 34px; font-weight: 800; color: #eef1f1; letter-spacing: -.04em; line-height: 1">03</span>
+          </div>
+          <span style="font-size: 17px; font-weight: 800">Məkanla əlaqə saxlayın</span>
+          <p style="margin: 0; font-size: 14.5px; line-height: 1.55; color: #4c5b58">Kartdan birbaşa zəng, WhatsApp, Instagram və ya marşrut.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="districts" data-reveal="1" style="max-width: 1240px; margin: 0 auto; padding: 60px 24px 0">
+    <div style="border: 1px solid #e6ebea; border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <h2 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 10px">
+          <span style="font-family: Material Symbols Rounded; font-size: 26px; color: #0f6d5f">location_on</span>Rayon üzrə
+        </h2>
+        <p style="margin: 0; font-size: 15px; color: #6b7b78">Öz rayonunuzu seçin — ən çox axtarılan giriş nöqtəsi.</p>
+      </div>
+      {{ districtLinks }}
+    </div>
+  </section>
+
+  <section id="owners" data-reveal="1" style="max-width: 1240px; margin: 0 auto; padding: 64px 24px 0">
+    <div style="border-radius: 24px; background: #0f6d5f; padding: 40px; display: grid; grid-template-columns: 1fr 400px; gap: 40px; align-items: center; position: relative; overflow: hidden">
+      <div style="display: flex; flex-direction: column; gap: 18px; position: relative; z-index: 2">
+        <span style="align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #a8e3d3">Məkan sahibləri üçün</span>
+        <h2 style="margin: 0; font-size: 34px; line-height: 1.15; font-weight: 800; letter-spacing: -.028em; color: #fff; max-width: 480px">Valideynlər sizi rayonunuzda axtarır</h2>
+        <p style="margin: 0; font-size: 16px; line-height: 1.55; color: #cfeae1; max-width: 470px">Kartı özünüz doldurun: foto, qiymət, cədvəl, əlaqə. Yerləşdirmə pulsuzdur, redaktə kabinetdən.</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap">
+          <a href="#owners" style="min-height: 50px; padding: 0 22px; border-radius: 13px; background: #fff; color: #0f6d5f; display: inline-flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 700" style-hover="background: #eafaf5; color: #0a4f45">
+            <span style="font-family: Material Symbols Rounded; font-size: 20px">add_business</span>Məkanı əlavə edin
+          </a>
+          <a href="#faq" style="min-height: 50px; padding: 0 20px; border-radius: 13px; border: 1px solid rgba(255,255,255,.4); color: #fff; display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700" style-hover="border-color: #fff; color: #fff">Necə işləyir?</a>
+        </div>
+      </div>
+      {{ ownerCard }}
+      <span style="position: absolute; right: -80px; top: -80px; width: 320px; height: 320px; border-radius: 999px; background: rgba(255,255,255,.06)"></span>
+    </div>
+  </section>
+
+  <section id="faq" data-reveal="1" style="max-width: 1240px; margin: 0 auto; padding: 64px 24px 0; display: grid; grid-template-columns: 320px 1fr; gap: 44px; align-items: start">
+    <div style="display: flex; flex-direction: column; gap: 12px; position: sticky; top: 90px">
+      <h2 style="margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -.028em">Tez-tez verilən suallar</h2>
+      <p style="margin: 0; font-size: 15.5px; color: #6b7b78; line-height: 1.55">Cavabı tapmadınız? <a href="#top">info@kidsmap.az</a> — bir iş günü içində cavablandırırıq.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <details style="border: 1px solid #e6ebea; border-radius: 16px; padding: 4px 18px; background: #fff">
+        <summary style="display: flex; align-items: center; gap: 12px; list-style: none; cursor: pointer; padding: 16px 0; font-size: 16.5px; font-weight: 700">
+          <span style="font-family: Material Symbols Rounded; font-size: 21px; color: #0f6d5f">search</span>Uşaq üçün dərnəyi necə tez tapmaq olar?
+        </summary>
+        <p style="margin: 0 0 16px; padding-left: 33px; font-size: 15px; line-height: 1.6; color: #4c5b58">Yuxarıdaki axtarışda uşağın yaşını yazın, rayonu və kateqoriyanı seçin. Xəritə və siyahı eyni anda yenilənir — kartı açıb birbaşa zəng edə bilərsiniz.</p>
+      </details>
+      <details style="border: 1px solid #e6ebea; border-radius: 16px; padding: 4px 18px; background: #fff">
+        <summary style="display: flex; align-items: center; gap: 12px; list-style: none; cursor: pointer; padding: 16px 0; font-size: 16.5px; font-weight: 700">
+          <span style="font-family: Material Symbols Rounded; font-size: 21px; color: #0f6d5f">lock_open</span>Kataloqa baxmaq üçün qeydiyyat lazımdır?
+        </summary>
+        <p style="margin: 0 0 16px; padding-left: 33px; font-size: 15px; line-height: 1.6; color: #4c5b58">Xeyr. Hesab yalnız seçilmişləri saxlamaq, rəy yazmaq və ya öz məkanınızı idarə etmək üçün lazımdır.</p>
+      </details>
+      <details style="border: 1px solid #e6ebea; border-radius: 16px; padding: 4px 18px; background: #fff">
+        <summary style="display: flex; align-items: center; gap: 12px; list-style: none; cursor: pointer; padding: 16px 0; font-size: 16.5px; font-weight: 700">
+          <span style="font-family: Material Symbols Rounded; font-size: 21px; color: #0f6d5f">star</span>Rəylər necə yoxlanılır?
+        </summary>
+        <p style="margin: 0 0 16px; padding-left: 33px; font-size: 15px; line-height: 1.6; color: #4c5b58">Rəyi yalnız hesabı olan valideyn yaza bilər, hər məkan üçün bir dəfə. Reklam və təhqir olan rəylər dərc olunmur — <a href="#top">rəy qaydaları</a>.</p>
+      </details>
+      <details style="border: 1px solid #e6ebea; border-radius: 16px; padding: 4px 18px; background: #fff">
+        <summary style="display: flex; align-items: center; gap: 12px; list-style: none; cursor: pointer; padding: 16px 0; font-size: 16.5px; font-weight: 700">
+          <span style="font-family: Material Symbols Rounded; font-size: 21px; color: #0f6d5f">add_business</span>Məkanı saytda necə yerləşdirmək olar?
+        </summary>
+        <p style="margin: 0 0 16px; padding-left: 33px; font-size: 15px; line-height: 1.6; color: #4c5b58">Hesab yaradın, kartı doldurun və yoxlamaya göndərin. Dərc olunduqdan sonra məkan kataloqda və xəritədə görünür, məlumatları istənilən vaxt kabinetdən dəyişirsiniz.</p>
+      </details>
+      <details style="border: 1px solid #e6ebea; border-radius: 16px; padding: 4px 18px; background: #fff">
+        <summary style="display: flex; align-items: center; gap: 12px; list-style: none; cursor: pointer; padding: 16px 0; font-size: 16.5px; font-weight: 700">
+          <span style="font-family: Material Symbols Rounded; font-size: 21px; color: #0f6d5f">photo_library</span>Kartda foto və əlaqələri göstərmək olar?
+        </summary>
+        <p style="margin: 0 0 16px; padding-left: 33px; font-size: 15px; line-height: 1.6; color: #4c5b58">Bəli — foto qalereya, təsvir, telefon, WhatsApp, sayt, Instagram, yaş aralığı, cədvəl, qiymətlər və əlavə şərtlər. Səhifə nə qədər dolğun olsa, valideyn bir o qədər tez qərar verir.</p>
+      </details>
+    </div>
+  </section>
+
+  <section style="max-width: 1240px; margin: 0 auto; padding: 60px 24px 0">
+    <div style="border-top: 1px solid #eef1f1; padding-top: 26px; display: flex; flex-direction: column; gap: 14px">
+      <span style="font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #9aa8a5">Tez-tez axtarılır</span>
+      {{ seoLinks }}
+    </div>
+  </section>
+
+  <footer style="margin-top: 64px; background: #12211f; color: #cfd8d6">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 46px 24px 28px; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 36px">
+      <div style="display: flex; flex-direction: column; gap: 14px">
+        <span style="display: flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 800; color: #fff">
+          <span style="width: 30px; height: 30px; border-radius: 9px; background: #0f6d5f; color: #fff; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 19px">pin_drop</span>KidsMap
+        </span>
+        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #9aa8a5; max-width: 280px">Azərbaycanda uşaq dərnəkləri, kursları və məkanları kataloqu.</p>
+        <div style="display: flex; gap: 8px">
+          <a href="#top" style="width: 40px; height: 40px; border-radius: 11px; background: rgba(255,255,255,.08); display: grid; place-items: center; color: #cfd8d6; font-family: Material Symbols Rounded; font-size: 20px" style-hover="background: #0f6d5f; color: #fff">photo_camera</a>
+          <a href="#top" style="width: 40px; height: 40px; border-radius: 11px; background: rgba(255,255,255,.08); display: grid; place-items: center; color: #cfd8d6; font-family: Material Symbols Rounded; font-size: 20px" style-hover="background: #0f6d5f; color: #fff">send</a>
+          <a href="#top" style="width: 40px; height: 40px; border-radius: 11px; background: rgba(255,255,255,.08); display: grid; place-items: center; color: #cfd8d6; font-family: Material Symbols Rounded; font-size: 20px" style-hover="background: #0f6d5f; color: #fff">play_circle</a>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 11px">
+        <span style="font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #7d8b88">Kataloq</span>
+        <a href="#categories" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">Bütün məkanlar</a>
+        <a href="#map" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">Xəritə</a>
+        <a href="#districts" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">Rayonlar</a>
+        <a href="#categories" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">Rayonlar</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 11px">
+        <span style="font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #7d8b88">Layihə</span>
+        <a href="#top" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">Haqqımızda</a>
+        <a href="#owners" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">Sahiblər üçün</a>
+        <a href="#faq" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">FAQ</a>
+        <a href="#top" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">Əlaqə</a>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 11px">
+        <span style="font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #7d8b88">Əlaqə</span>
+        <a href="tel:+994554979723" style="font-size: 17px; font-weight: 700; color: #fff" style-hover="color: #7fd3bf">+994 55 497 97 23</a>
+        <a href="#top" style="font-size: 14.5px; color: #cfd8d6" style-hover="color: #fff">info@kidsmap.az</a>
+        <span style="font-size: 13px; color: #7d8b88; line-height: 1.5">B.e–C 10:00–18:00</span>
+      </div>
+    </div>
+    <div style="border-top: 1px solid rgba(255,255,255,.09)">
+      <div style="max-width: 1240px; margin: 0 auto; padding: 18px 24px; display: flex; gap: 18px; flex-wrap: wrap; align-items: center; font-size: 13px; color: #7d8b88">
+        <span>© 2026 KidsMap</span>
+        <a href="#top" style="color: #7d8b88" style-hover="color: #fff">Məxfilik</a>
+        <a href="#top" style="color: #7d8b88" style-hover="color: #fff">İstifadə şərtləri</a>
+        <a href="#top" style="color: #7d8b88" style-hover="color: #fff">Rəy qaydaları</a>
+        <span style="margin-left: auto; max-width: 560px; line-height: 1.5">Məlumatların bir hissəsi açıq mənbələrdən götürülüb — qeydiyyatdan əvvəl təşkilatla dəqiqləşdirin.</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const CATS = [
+  { key: 'SPRT', name: 'İdman', n: 55, ico: 'sports_soccer', tone: '#dcefe9', fg: '#0f6d5f' },
+  { key: 'FUN', name: 'Əyləncə və asudə vaxt', n: 5, ico: 'attractions', tone: '#f6e7d6', fg: '#8a4b12' },
+  { key: 'MUS', name: 'Muzeylər və mədəniyyət', n: 3, ico: 'museum', tone: '#e9e6f7', fg: '#4a3d8f' },
+  { key: 'PARK', name: 'Parklar və meydançalar', n: 3, ico: 'park', tone: '#e3f2df', fg: '#2f6b2a' },
+  { key: 'TECH', name: 'Elm və texnologiyalar', n: 1, ico: 'science', tone: '#e2eef8', fg: '#1a5aa8' },
+  { key: 'DEV', name: 'İnkişaf və dəstək', n: 1, ico: 'psychology', tone: '#fbe7ea', fg: '#a83247' },
+  { key: 'DANCE', name: 'Rəqslər', n: 1, ico: 'music_note', tone: '#f7e6f2', fg: '#8f3577' },
+  { key: 'EDU', name: 'Təhsil', n: 1, ico: 'school', tone: '#eaeef2', fg: '#3a4a5c' },
+  { key: 'ART', name: 'Yaradıcılıq', n: 1, ico: 'palette', tone: '#f9ecd9', fg: '#946218' },
+  { key: 'ZOO', name: 'Zooparklar və akvariumlar', n: 1, ico: 'pets', tone: '#e5f0ee', fg: '#146c5c' },
+];
+
+const PLACES = [
+  { id: 1, cat: 'SPRT', name: 'Sonic Athletics Club', sub: 'Stolüstü tennis', price: '120 ₼/ay', age: '6–15', area: 'Nərimanov rayonu', x: 62, y: 38, trial: true },
+  { id: 2, cat: 'ZOO', name: 'Bakı Zooloji Parkı', sub: '125 heyvan növü', price: '2 ₼ uşaq bileti', age: '0+', area: 'Nərimanov rayonu', x: 54, y: 30, trial: false },
+  { id: 3, cat: 'FUN', name: 'Moka Kids — Zefir Mall', sub: 'Oyun mərkəzi', price: '20 ₼/saat', age: '1–13', area: 'Yasamal rayonu', x: 34, y: 55, trial: false },
+  { id: 4, cat: 'MUS', name: 'Tusi-Bohm Planetarium', sub: 'Astronomiya şouları', price: '5 ₼-dən', age: '3+', area: 'Səbail rayonu', x: 44, y: 68, trial: false },
+  { id: 5, cat: 'SPRT', name: 'Safarov Judo Academy', sub: '3 filial · cüdo', price: '80 ₼/ay', age: '5–18', area: 'Nəsimi rayonu', x: 72, y: 58, trial: true },
+  { id: 6, cat: 'PARK', name: 'Gənclik Parkı', sub: 'Meşə-park zonası', price: 'Pulsuz', age: '0+', area: 'Xətai rayonu', x: 80, y: 44, trial: false },
+];
+
+const AGES = [
+  { label: '0–3', n: 18 }, { label: '3–6', n: 31 }, { label: '6–10', n: 49 },
+  { label: '10–14', n: 44 }, { label: '14+', n: 22 },
+];
+
+const METRO = [
+  { name: 'Gənclik', n: 12 }, { name: 'Nizami', n: 8 }, { name: 'İçərişəhər', n: 6 },
+  { name: 'Sahil', n: 5 }, { name: 'Şah İsmayıl Xətai', n: 5 }, { name: 'Həzi Aslanov', n: 4 },
+  { name: 'İnşaatçılar', n: 3 },
+];
+
+const DISTRICTS = ['Nərimanov 15', 'Xətai 13', 'Nizami 8', 'Səbail 6', 'Yasamal 6', 'Sabunçu 5', 'Xəzər 5', 'Binəqədi 4', 'Suraxanı 4', 'Nəsimi 3', 'Qaradağ 2', 'Qusar 1'];
+
+const QUICK = [
+  { label: 'Yaxınlığımda', ico: 'my_location' },
+  { label: 'Pulsuz', ico: 'sell' },
+  { label: 'İndi açıq', ico: 'schedule' },
+  { label: 'İlk dərs pulsuz', ico: 'redeem' },
+  { label: 'Həftəsonu', ico: 'weekend' },
+];
+
+const SEO = [
+  'Bakıda uşaqlar üçün dərnəklər', 'Nərimanov rayonunda cüdo', 'Xətai rayonunda rəqs',
+  '3 yaşdan uşaqlar üçün məşğələlər', 'Bakıda proqramlaşdırma kursları', 'Pulsuz uşaq parkları',
+  'Həftəsonu uşaq məşğələləri',
+];
+
+class Component extends DCLogic {
+  state = { age: 7, cat: null, chip: null, hoverPin: null, hoverTile: null, hoverPop: null, region: 'Bütün Bakı', nPlaces: 0, nDistricts: 0, hint: 0, scrolled: false, pinKey: 0 };
+
+  componentDidMount() {
+    // счётчики
+    const t0 = performance.now();
+    const tick = now => {
+      const k = Math.min(1, (now - t0) / 1100);
+      const ease = 1 - Math.pow(1 - k, 3);
+      this.setState({ nPlaces: Math.round(72 * ease), nDistricts: Math.round(12 * ease) });
+      if (k < 1) this.raf = requestAnimationFrame(tick);
+    };
+    this.raf = requestAnimationFrame(tick);
+
+    // ротация подсказок
+    this.hintTimer = setInterval(() => this.setState(s => ({ hint: (s.hint + 1) % 4 })), 2600);
+
+    // тень у шапки при скролле
+    this.onScroll = () => {
+      const y = window.scrollY;
+      if ((y > 12) !== this.state.scrolled) this.setState({ scrolled: y > 12 });
+      const h = document.querySelector('[data-header]');
+      if (h) h.style.boxShadow = y > 12 ? '0 10px 30px -18px rgba(12,40,34,.4)' : 'none';
+    };
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+
+    // появление секций
+    this.io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        en.target.style.opacity = '1';
+        en.target.style.transform = 'none';
+        this.io.unobserve(en.target);
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+
+    this.revealTimer = setTimeout(() => {
+      document.querySelectorAll('[data-reveal]').forEach(el => {
+        el.style.transition = 'opacity .7s cubic-bezier(.2,.8,.3,1), transform .7s cubic-bezier(.2,.8,.3,1)';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(26px)';
+        this.io.observe(el);
+      });
+    }, 60);
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    clearInterval(this.hintTimer);
+    clearTimeout(this.revealTimer);
+    window.removeEventListener('scroll', this.onScroll);
+    if (this.io) this.io.disconnect();
+  }
+
+  setCat(cat) { this.setState(s => ({ cat, openPin: null, pinKey: s.pinKey + 1 })); }
+
+  renderBadge() {
+    const e = React.createElement;
+    return e('span', {
+      style: {
+        alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: '8px',
+        fontSize: '12.5px', fontWeight: 700, letterSpacing: '.04em', padding: '7px 13px',
+        borderRadius: '999px', background: '#dcefe9', color: '#0f6d5f',
+      },
+    },
+      this.ico('verified', { size: 17, color: '#0f6d5f' }),
+      this.state.nPlaces + ' yoxlanılmış məkan · ' + this.state.nDistricts + ' rayon',
+    );
+  }
+
+  renderTicker() {
+    const e = React.createElement;
+    const items = [
+      ['sports_soccer', 'Sonic Athletics Club', 'Nərimanov'],
+      ['pets', 'Bakı Zooloji Parkı', 'Nərimanov'],
+      ['science', 'STEP IT Academy', 'Nərimanov'],
+      ['museum', 'Miniatür Kitab Muzeyi', 'Səbail'],
+      ['attractions', 'Moka Kids — Zefir Mall', 'Yasamal'],
+      ['park', 'Nizami Gəncəvi Parkı', 'Xətai'],
+      ['sports_soccer', 'Safarov Judo Academy', 'Nəsimi'],
+      ['museum', 'Tusi-Bohm Planetarium', 'Nərimanov'],
+    ];
+    const row = key => e('div', { key, style: { display: 'flex', gap: '10px', flexShrink: 0, paddingRight: '10px' } },
+      items.map((it, k) => e('span', {
+        key: key + k,
+        style: {
+          display: 'inline-flex', alignItems: 'center', gap: '8px', flexShrink: 0,
+          padding: '8px 14px', borderRadius: '999px', background: '#fff', border: '1px solid #e6ebea',
+          fontSize: '13.5px', fontWeight: 700, color: '#12211f', whiteSpace: 'nowrap',
+        },
+      }, this.ico(it[0], { size: 17, color: '#0f6d5f', k: key + k }), it[1],
+        e('span', { style: { fontSize: '12.5px', fontWeight: 600, color: '#9aa8a5' } }, it[2]))),
+    );
+    return e('section', { style: { background: '#f7f9f9', borderBottom: '1px solid #eef1f1', overflow: 'hidden' } },
+      e('div', { style: { maxWidth: '1240px', margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '18px' } },
+        e('span', { style: { display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#0f6d5f', flexShrink: 0 } },
+          e('span', { style: { width: '8px', height: '8px', borderRadius: '999px', background: '#1c9c4d', animation: 'hmPulse 2.4s ease-in-out infinite' } }),
+          'Yeni əlavə olundu'),
+        e('div', { style: { overflow: 'hidden', flex: 1, maskImage: 'linear-gradient(90deg, transparent, #000 4%, #000 92%, transparent)', WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 4%, #000 92%, transparent)' } },
+          e('div', {
+            onMouseEnter: ev => { ev.currentTarget.style.animationPlayState = 'paused'; },
+            onMouseLeave: ev => { ev.currentTarget.style.animationPlayState = 'running'; },
+            style: { display: 'flex', width: 'max-content', animation: 'hmTicker 34s linear infinite' },
+          }, row('a'), row('b')),
+        ),
+      ),
+    );
+  }
+
+  ico(name, opts = {}) {
+    return React.createElement('span', {
+      key: 'i' + name + (opts.k || ''),
+      'aria-hidden': 'true',
+      style: {
+        fontFamily: 'Material Symbols Rounded', fontSize: (opts.size || 20) + 'px', lineHeight: 1,
+        color: opts.color, display: 'inline-block', flexShrink: 0,
+        fontVariationSettings: `'FILL' ${opts.fill ? 1 : 0}, 'wght' 500, 'GRAD' 0, 'opsz' 24`,
+        transition: 'color .2s, transform .2s',
+        transform: opts.nudge ? 'translateX(3px)' : 'none',
+      },
+    }, name);
+  }
+
+  get matches() {
+    const c = this.state.cat;
+    return PLACES.filter(p => !c || p.cat === c);
+  }
+
+  renderSearch() {
+    const e = React.createElement;
+    const field = (label, node, w) => e('div', {
+      key: label,
+      style: {
+        flex: w || '1 1 0', minWidth: 0, padding: '11px 16px',
+        borderRight: '1px solid #eef1f1', display: 'flex', flexDirection: 'column', gap: '3px',
+      },
+    },
+      e('span', { style: { fontSize: '11px', fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase', color: '#9aa8a5' } }, label),
+      node,
+    );
+
+    const select = (value, opts) => e('select', {
+      value, onChange: ev => this.setState({ region: ev.target.value }),
+      style: {
+        border: 0, background: 'transparent', fontFamily: 'inherit', fontSize: '15px',
+        fontWeight: 700, color: '#12211f', padding: 0, cursor: 'pointer', outline: 'none',
+        appearance: 'none', width: '100%',
+      },
+    }, opts.map(o => e('option', { key: o, value: o }, o)));
+
+    const step = d => this.setState(s => ({ age: Math.max(0, Math.min(17, s.age + d)) }));
+    const stepBtn = (ico, d) => e('button', {
+      key: ico, onClick: () => step(d), 'aria-label': ico,
+      style: {
+        width: '28px', height: '28px', borderRadius: '9px', border: '1px solid #dbe3e1', background: '#fff',
+        cursor: 'pointer', display: 'grid', placeItems: 'center', color: '#0f6d5f', padding: 0,
+        transition: 'background .15s, border-color .15s',
+      },
+    }, this.ico(ico, { size: 17, k: d }));
+
+    return e('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '760px' } },
+      e('div', {
+        style: {
+          display: 'flex', alignItems: 'stretch', background: '#fff', borderRadius: '18px',
+          border: '1px solid #e0e8e6', boxShadow: '0 18px 40px -22px rgba(12,40,34,.34)', overflow: 'hidden',
+        },
+      },
+        field('Kateqoriya', e('div', { style: { display: 'flex', alignItems: 'center', gap: '7px' } },
+          this.ico(this.state.cat ? CATS.find(c => c.key === this.state.cat).ico : 'interests', { size: 19, color: '#0f6d5f' }),
+          e('select', {
+            value: this.state.cat || '',
+            onChange: ev => this.setState({ cat: ev.target.value || null }),
+            style: { border: 0, background: 'transparent', fontFamily: 'inherit', fontSize: '15px', fontWeight: 700, color: '#12211f', padding: 0, cursor: 'pointer', outline: 'none', appearance: 'none', width: '100%' },
+          },
+            e('option', { value: '' }, 'Hamısı'),
+            CATS.map(c => e('option', { key: c.key, value: c.key }, c.name)),
+          ),
+        ), '1.3 1 0'),
+        field('Rayon', e('div', { style: { display: 'flex', alignItems: 'center', gap: '7px' } },
+          this.ico('location_on', { size: 19, color: '#0f6d5f' }),
+          select(this.state.region, ['Bütün Bakı', 'Nərimanov', 'Xətai', 'Nizami', 'Səbail', 'Yasamal', 'Qusar']),
+        ), '1.1 1 0'),
+        field('Uşağın yaşı', e('div', { style: { display: 'flex', alignItems: 'center', gap: '9px' } },
+          stepBtn('remove', -1),
+          e('span', { style: { fontSize: '16px', fontWeight: 800, minWidth: '54px', textAlign: 'center' } }, this.state.age + ' yaş'),
+          stepBtn('add', 1),
+        ), '0 0 190px'),
+        e('button', {
+          onMouseEnter: () => this.setState({ hoverSearch: true }),
+          onMouseLeave: () => this.setState({ hoverSearch: false }),
+          style: {
+            margin: '8px', padding: '0 26px', minHeight: '56px', border: 0, borderRadius: '13px',
+            background: '#0f6d5f', color: '#fff', fontFamily: 'inherit', fontSize: '15.5px', fontWeight: 700,
+            cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '9px', flexShrink: 0,
+            transition: 'background .2s, box-shadow .2s, transform .2s',
+            transform: this.state.hoverSearch ? 'translateY(-1px)' : 'none',
+            boxShadow: this.state.hoverSearch ? '0 12px 26px rgba(15,109,95,.34)' : 'none',
+          },
+        }, this.ico('search', { size: 21 }), 'Axtar'),
+      ),
+      e('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '4px', minHeight: '20px' } },
+        e('span', { style: { fontSize: '13.5px', color: '#0f6d5f', fontWeight: 700 } }, this.matches.length + ' məkan uyğun gəlir'),
+        e('span', { style: { fontSize: '13.5px', color: '#c3cecb' } }, '·'),
+        e('span', { key: this.state.hint, style: { fontSize: '13.5px', color: '#6b7b78', fontWeight: 600, animation: 'hmFade 2.6s ease both', display: 'inline-flex', alignItems: 'center', gap: '7px' } },
+          this.ico('trending_up', { size: 16, color: '#9aa8a5', k: 'h' + this.state.hint }),
+          ['valideynlər axtarır: cüdo', 'valideynlər axtarır: rəsm dərsi', 'valideynlər axtarır: planetarium', 'valideynlər axtarır: üzgüçülük'][this.state.hint]),
+      ),
+    );
+  }
+
+  renderQuick() {
+    const e = React.createElement;
+    return QUICK.map(q => {
+      const on = this.state.chip === q.label;
+      return e('button', {
+        key: q.label,
+        onClick: () => this.setState({ chip: on ? null : q.label }),
+        style: {
+          fontFamily: 'inherit', fontSize: '13.5px', fontWeight: 700, cursor: 'pointer',
+          padding: '9px 14px', borderRadius: '999px',
+          border: '1px solid ' + (on ? '#0f6d5f' : '#dbe3e1'),
+          background: on ? '#0f6d5f' : 'rgba(255,255,255,.8)', color: on ? '#fff' : '#3c4b48',
+          display: 'inline-flex', alignItems: 'center', gap: '7px',
+          transition: 'background .2s, color .2s, border-color .2s, transform .2s',
+          transform: on ? 'translateY(-1px)' : 'none',
+        },
+      }, this.ico(q.ico, { size: 17, k: q.label }), q.label);
+    });
+  }
+
+  renderCollage() {
+    const e = React.createElement;
+    const shot = (label, style, anim) => e('div', {
+      key: label,
+      style: {
+        borderRadius: '20px', overflow: 'hidden', border: '5px solid #fff',
+        boxShadow: '0 22px 50px -24px rgba(12,40,34,.4)',
+        background: 'repeating-linear-gradient(135deg, #dfe6e4 0 12px, #d6dedc 12px 24px)',
+        display: 'grid', placeItems: 'center',
+        font: '500 11px ui-monospace, monospace', color: '#8a9896', letterSpacing: '.07em',
+        animation: anim, ...style,
+      },
+    }, label);
+
+    return e('div', { style: { position: 'relative', height: '430px', animation: 'hmRise .7s .1s cubic-bezier(.2,.8,.3,1) both' } },
+      shot('məşq anı', { position: 'absolute', top: 0, right: '30px', width: '250px', height: '300px' }, 'hmFloat 7s ease-in-out infinite'),
+      shot('rəsm dərsi', { position: 'absolute', bottom: '18px', left: 0, width: '190px', height: '230px' }, 'hmFloat2 8s ease-in-out infinite'),
+      e('div', {
+        style: {
+          position: 'absolute', bottom: '58px', right: '0', width: '236px',
+          background: '#fff', borderRadius: '16px', padding: '13px 15px',
+          boxShadow: '0 20px 44px -20px rgba(12,40,34,.44)', display: 'flex', flexDirection: 'column', gap: '9px',
+        },
+      },
+        e('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 700, color: '#146c37' } },
+          e('span', { style: { width: '8px', height: '8px', borderRadius: '999px', background: '#1c9c4d', animation: 'hmPulse 2.4s ease-in-out infinite' } }),
+          'İndi açıq · 3 qrup boş'),
+        e('div', { style: { fontSize: '15px', fontWeight: 800, lineHeight: 1.25 } }, 'Sonic Athletics Club'),
+        e('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#7d8b88', fontWeight: 600 } },
+          this.ico('location_on', { size: 16 }), 'Nərimanov rayonu'),
+        e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '3px', borderTop: '1px solid #f2f5f4' } },
+          e('span', { style: { fontSize: '15px', fontWeight: 800 } }, '120 ₼', e('span', { style: { fontSize: '11.5px', fontWeight: 600, color: '#7d8b88' } }, ' / ay')),
+          e('span', { style: { fontSize: '11.5px', fontWeight: 700, color: '#0f6d5f', background: '#dcefe9', padding: '5px 9px', borderRadius: '999px' } }, 'sınaq pulsuz'),
+        ),
+      ),
+    );
+  }
+
+  renderTiles() {
+    const e = React.createElement;
+    return e('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '14px' } },
+      CATS.map((c, k) => {
+        const on = this.state.hoverTile === c.key;
+        const sel = this.state.cat === c.key;
+        return e('button', {
+          key: c.key,
+          onClick: () => this.setCat(sel ? null : c.key),
+          onMouseEnter: () => this.setState({ hoverTile: c.key }),
+          onMouseLeave: () => this.setState({ hoverTile: null }),
+          style: {
+            textAlign: 'left', fontFamily: 'inherit', cursor: 'pointer',
+            padding: '18px', borderRadius: '18px',
+            border: '1px solid ' + (sel ? '#0f6d5f' : on ? 'rgba(15,109,95,.35)' : '#e6ebea'),
+            background: '#fff', display: 'flex', flexDirection: 'column', gap: '12px',
+            transform: on ? 'translateY(-4px)' : 'none',
+            boxShadow: on ? '0 18px 34px -18px rgba(12,40,34,.3)' : '0 1px 2px rgba(12,40,34,.04)',
+            transition: 'transform .28s cubic-bezier(.2,.8,.3,1), box-shadow .28s, border-color .28s',
+            animation: `hmRise .5s ${k * 0.04}s cubic-bezier(.2,.8,.3,1) both`,
+          },
+        },
+          e('span', {
+            style: {
+              width: '44px', height: '44px', borderRadius: '13px', background: c.tone,
+              display: 'grid', placeItems: 'center',
+              transform: on ? 'scale(1.06) rotate(-4deg)' : 'none', transition: 'transform .28s cubic-bezier(.2,.8,.3,1)',
+            },
+          }, this.ico(c.ico, { size: 24, color: c.fg, k: c.key })),
+          e('span', { style: { fontSize: '15px', fontWeight: 700, lineHeight: 1.25, color: '#12211f' } }, c.name),
+          e('span', { style: { fontSize: '13px', fontWeight: 700, color: on || sel ? '#0f6d5f' : '#9aa8a5', display: 'inline-flex', alignItems: 'center', gap: '5px', transition: 'color .2s' } },
+            c.n + ' məkan', this.ico('arrow_forward', { size: 16, nudge: on, k: c.key })),
+        );
+      }),
+    );
+  }
+
+  renderAgeRail() {
+    const e = React.createElement;
+    return e('div', { style: { display: 'flex', gap: '8px', marginLeft: 'auto', flexWrap: 'wrap' } },
+      AGES.map(a => e('button', {
+        key: a.label,
+        onClick: () => this.setState({ age: parseInt(a.label, 10) + 1 }),
+        style: {
+          fontFamily: 'inherit', cursor: 'pointer', padding: '10px 16px', borderRadius: '12px',
+          border: '1px solid rgba(255,255,255,.18)', background: 'rgba(255,255,255,.08)', color: '#fff',
+          display: 'inline-flex', alignItems: 'center', gap: '9px', fontSize: '14px', fontWeight: 700,
+          transition: 'background .2s, border-color .2s',
+        },
+        onMouseEnter: ev => { ev.currentTarget.style.background = '#fff'; ev.currentTarget.style.color = '#12211f'; },
+        onMouseLeave: ev => { ev.currentTarget.style.background = 'rgba(255,255,255,.08)'; ev.currentTarget.style.color = '#fff'; },
+      }, a.label + ' yaş', e('span', { style: { fontSize: '12px', fontWeight: 700, opacity: .6 } }, a.n))),
+    );
+  }
+
+  renderPopup() {
+    const e = React.createElement;
+    const p = PLACES.find(x => x.id === this.state.openPin);
+    if (!p) return null;
+    const c = CATS.find(x => x.key === p.cat);
+    const clampL = Math.min(Math.max(p.x, 22), 78);
+    const MAP_H = 430, POP_H = 292;
+    const pinY = p.y / 100 * MAP_H;
+    const above = pinY - 14 >= POP_H;
+    const rawTop = above ? pinY - 14 - POP_H : pinY + 14;
+    const top = Math.min(Math.max(rawTop, 8), MAP_H - POP_H - 8);
+    const act = (label, ico, primary) => e('button', {
+      key: label,
+      style: {
+        boxSizing: 'border-box', flex: primary ? '1 1 auto' : '0 0 auto',
+        minHeight: '42px', padding: label ? '0 14px' : '0', width: label ? 'auto' : '42px',
+        border: primary ? 0 : '1px solid #dbe3e1', borderRadius: '11px',
+        background: primary ? '#0f6d5f' : '#fff', color: primary ? '#fff' : '#12211f',
+        fontFamily: 'inherit', fontSize: '13.5px', fontWeight: 700, cursor: 'pointer',
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+      },
+    }, this.ico(ico, { size: 18, k: 'a' + label }), label || null);
+
+    return e('div', {
+      style: {
+        position: 'absolute', left: clampL + '%', top: top + 'px',
+        transform: 'translate(-50%, 0)', width: '268px', zIndex: 9,
+        background: '#fff', borderRadius: '16px', overflow: 'hidden',
+        boxShadow: '0 26px 54px -20px rgba(12,40,34,.45)',
+        animation: 'hmPop .28s cubic-bezier(.2,.8,.3,1) both',
+      },
+    },
+      e('div', { style: { position: 'relative', height: '132px', background: 'repeating-linear-gradient(135deg, #dfe6e4 0 10px, #d6dedc 10px 20px)', display: 'grid', placeItems: 'center', font: '500 10.5px ui-monospace, monospace', color: '#8a9896' } },
+        'foto',
+        e('span', { style: { position: 'absolute', top: '10px', left: '10px', fontSize: '11.5px', fontWeight: 700, padding: '5px 10px', borderRadius: '999px', background: c.tone, color: c.fg, display: 'inline-flex', alignItems: 'center', gap: '6px' } },
+          this.ico(c.ico, { size: 15, color: c.fg, k: 'pc' + p.id }), c.name),
+        e('button', {
+          onClick: () => this.setState({ openPin: null }),
+          'aria-label': 'Bağla',
+          style: { position: 'absolute', top: '8px', right: '8px', width: '32px', height: '32px', borderRadius: '999px', border: 0, background: 'rgba(255,255,255,.92)', cursor: 'pointer', display: 'grid', placeItems: 'center', color: '#3c4b48' },
+        }, this.ico('close', { size: 18, k: 'x' + p.id })),
+      ),
+      e('div', { style: { padding: '13px 14px', display: 'flex', flexDirection: 'column', gap: '9px' } },
+        e('div', { style: { fontSize: '15.5px', fontWeight: 800, lineHeight: 1.25 } }, p.name),
+        e('div', { style: { fontSize: '12.5px', color: '#7d8b88', display: 'inline-flex', alignItems: 'center', gap: '6px' } },
+          this.ico('location_on', { size: 15, k: 'l' + p.id }), p.area),
+        e('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } },
+          e('span', { style: { fontSize: '12px', fontWeight: 600, padding: '5px 9px', borderRadius: '999px', background: '#f1f4f4', color: '#3c4b48' } }, p.age + ' yaş'),
+          e('span', { style: { fontSize: '12px', fontWeight: 700, padding: '5px 9px', borderRadius: '999px', background: '#f1f4f4', color: '#12211f' } }, p.price),
+          p.trial ? e('span', { style: { fontSize: '12px', fontWeight: 700, padding: '5px 9px', borderRadius: '999px', background: '#e7f5ec', color: '#146c37' } }, 'sınaq pulsuz') : null,
+        ),
+        e('div', { style: { display: 'flex', gap: '7px', paddingTop: '2px' } },
+          act('Kartı aç', 'arrow_forward', true),
+          act('', 'call'),
+          act('', 'chat_bubble'),
+        ),
+      ),
+    );
+  }
+
+  renderMap() {
+    const e = React.createElement;
+    const list = this.matches;
+    const chipRow = e('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
+      [{ key: null, name: 'Hamısı', n: PLACES.length }].concat(CATS.slice(0, 6).map(c => ({ key: c.key, name: c.name, n: c.n }))).map(c => {
+        const on = this.state.cat === c.key;
+        return e('button', {
+          key: c.name,
+          onClick: () => this.setCat(c.key),
+          style: {
+            fontFamily: 'inherit', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+            padding: '8px 13px', borderRadius: '999px',
+            border: '1px solid ' + (on ? '#0f6d5f' : '#dbe3e1'),
+            background: on ? '#0f6d5f' : '#fff', color: on ? '#fff' : '#3c4b48',
+            transition: 'background .2s, color .2s, border-color .2s',
+          },
+        }, c.name);
+      }),
+    );
+
+    return e('div', { style: { border: '1px solid #e6ebea', borderRadius: '22px', overflow: 'hidden' } },
+      e('div', { style: { padding: '16px 18px', borderBottom: '1px solid #eef1f1', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' } },
+        chipRow,
+        e('span', { style: { marginLeft: 'auto', fontSize: '13.5px', fontWeight: 700, color: '#0f6d5f' } }, list.length + ' nəticə'),
+      ),
+      e('div', { style: { display: 'grid', gridTemplateColumns: '1fr 380px' } },
+        e('div', {
+          style: {
+            position: 'relative', height: '430px',
+            background: 'repeating-linear-gradient(135deg, #eaf0ee 0 14px, #e3ebe8 14px 28px)',
+          },
+        },
+          list.map(p => {
+            const c = CATS.find(x => x.key === p.cat);
+            const on = this.state.hoverPin === p.id;
+            const open = this.state.openPin === p.id;
+            return e('button', {
+              key: p.id,
+              onMouseEnter: () => this.setState({ hoverPin: p.id }),
+              onMouseLeave: () => this.setState({ hoverPin: null }),
+              onClick: () => this.setState({ openPin: open ? null : p.id }),
+              'aria-label': p.name,
+              style: {
+                position: 'absolute', left: p.x + '%', top: p.y + '%',
+                transform: 'translate(-50%,-100%) scale(' + (on || open ? 1.12 : 1) + ')',
+                animation: 'hmDrop .5s ' + (list.indexOf(p) * 0.07) + 's cubic-bezier(.2,.9,.3,1) backwards',
+                border: 0, background: 'transparent', cursor: 'pointer', padding: 0,
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                transition: 'transform .22s cubic-bezier(.2,.8,.3,1)', zIndex: open ? 8 : on ? 5 : 1,
+              },
+            },
+              e('span', {
+                style: {
+                  position: 'relative',
+                  width: '40px', height: '40px', borderRadius: '999px',
+                  background: open ? '#0f6d5f' : '#fff', display: 'grid', placeItems: 'center',
+                  border: '2px solid ' + (open ? '#0f6d5f' : '#fff'),
+                  boxShadow: '0 6px 16px rgba(12,40,34,.26)' + (on || open ? ', 0 0 0 7px rgba(15,109,95,.16)' : ''),
+                  transition: 'background .2s, box-shadow .22s',
+                },
+              }, this.ico(c.ico, { size: 21, color: open ? '#fff' : c.fg, k: 'pin' + p.id }),
+                on || open ? e('span', {
+                  style: {
+                    position: 'absolute', width: '40px', height: '40px', borderRadius: '999px',
+                    border: '2px solid rgba(15,109,95,.5)', animation: 'hmSweep 1.4s ease-out infinite', pointerEvents: 'none',
+                  },
+                }) : null,
+              ),
+              e('span', { style: { width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '7px solid ' + (open ? '#0f6d5f' : '#fff'), filter: 'drop-shadow(0 2px 2px rgba(12,40,34,.18))' } }),
+            );
+          }),
+          this.renderPopup(),
+          e('div', { style: { position: 'absolute', bottom: '14px', left: '16px', font: '500 11px ui-monospace, monospace', color: '#8a9896', letterSpacing: '.08em' } }, 'interaktiv xəritə · 69 marker'),
+          e('button', {
+            style: {
+              position: 'absolute', top: '14px', right: '14px', minHeight: '44px', padding: '0 16px',
+              borderRadius: '12px', border: '1px solid #dbe3e1', background: '#fff', cursor: 'pointer',
+              fontFamily: 'inherit', fontSize: '13.5px', fontWeight: 700, color: '#12211f',
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+            },
+          }, this.ico('my_location', { size: 19, color: '#0f6d5f' }), 'Yaxınlığımda'),
+        ),
+        e('div', { style: { borderLeft: '1px solid #eef1f1', maxHeight: '430px', overflow: 'auto' } },
+          list.map((p, k) => {
+            const on = this.state.hoverPin === p.id;
+            return e('a', {
+              key: p.id, href: '#map',
+              onMouseEnter: () => this.setState({ hoverPin: p.id }),
+              onMouseLeave: () => this.setState({ hoverPin: null }),
+              onClick: ev => { ev.preventDefault(); this.setState({ openPin: p.id }); },
+              style: {
+                display: 'flex', gap: '12px', padding: '14px 16px',
+                borderTop: k ? '1px solid #f2f5f4' : 0, background: on ? '#f4faf8' : '#fff',
+                transition: 'background .2s', textDecoration: 'none',
+              },
+            },
+              e('span', { style: { width: '58px', height: '58px', borderRadius: '12px', flexShrink: 0, background: 'repeating-linear-gradient(135deg, #e4ebe9 0 8px, #dce4e2 8px 16px)' } }),
+              e('span', { style: { display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 } },
+                e('span', { style: { fontSize: '14.5px', fontWeight: 700, color: '#12211f' } }, p.name),
+                e('span', { style: { fontSize: '12.5px', color: '#7d8b88' } }, p.sub + ' · ' + p.age + ' yaş'),
+                e('span', { style: { fontSize: '12.5px', color: '#7d8b88', display: 'inline-flex', alignItems: 'center', gap: '5px' } }, this.ico('location_on', { size: 15, k: p.id }), p.area),
+                e('span', { style: { fontSize: '13.5px', fontWeight: 800, color: '#0f6d5f', paddingTop: '2px' } }, p.price),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  renderPopular() {
+    const e = React.createElement;
+    return e('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' } },
+      PLACES.slice(0, 4).map((p, k) => {
+        const on = this.state.hoverPop === p.id;
+        const c = CATS.find(x => x.key === p.cat);
+        return e('a', {
+          key: p.id, href: '#map',
+          onMouseEnter: () => this.setState({ hoverPop: p.id }),
+          onMouseLeave: () => this.setState({ hoverPop: null }),
+          style: {
+            border: '1px solid ' + (on ? 'rgba(15,109,95,.35)' : '#e6ebea'), borderRadius: '18px',
+            overflow: 'hidden', textDecoration: 'none', display: 'flex', flexDirection: 'column',
+            transform: on ? 'translateY(-5px)' : 'none',
+            boxShadow: on ? '0 22px 40px -20px rgba(12,40,34,.32)' : '0 1px 2px rgba(12,40,34,.04)',
+            transition: 'transform .28s cubic-bezier(.2,.8,.3,1), box-shadow .28s, border-color .28s',
+            animation: `hmRise .5s ${k * 0.05}s cubic-bezier(.2,.8,.3,1) both`,
+          },
+        },
+          e('span', { style: { position: 'relative', height: '148px', overflow: 'hidden', display: 'block' } },
+            e('span', {
+              style: {
+                position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
+                background: 'repeating-linear-gradient(135deg, #dfe6e4 0 10px, #d6dedc 10px 20px)',
+                font: '500 10.5px ui-monospace, monospace', color: '#8a9896',
+                transform: on ? 'scale(1.07)' : 'none', transition: 'transform .6s cubic-bezier(.2,.8,.3,1)',
+              },
+            }, 'foto'),
+            e('span', { style: { position: 'absolute', top: '11px', left: '11px', fontSize: '11.5px', fontWeight: 700, padding: '5px 10px', borderRadius: '999px', background: c.tone, color: c.fg } }, c.name),
+            p.trial ? e('span', { style: { position: 'absolute', top: '11px', right: '11px', fontSize: '11.5px', fontWeight: 700, padding: '5px 10px', borderRadius: '999px', background: 'rgba(255,255,255,.94)', color: '#146c37' } }, 'sınaq pulsuz') : null,
+          ),
+          e('span', { style: { padding: '14px', display: 'flex', flexDirection: 'column', gap: '7px', flex: 1 } },
+            e('span', { style: { fontSize: '15.5px', fontWeight: 800, lineHeight: 1.25, color: '#12211f' } }, p.name),
+            e('span', { style: { fontSize: '13px', color: '#7d8b88' } }, p.sub),
+            e('span', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', paddingTop: '2px' } },
+              e('span', { style: { fontSize: '12px', fontWeight: 600, padding: '5px 9px', borderRadius: '999px', background: '#f1f4f4', color: '#3c4b48' } }, p.age + ' yaş'),
+              e('span', { style: { fontSize: '12px', fontWeight: 600, padding: '5px 9px', borderRadius: '999px', background: '#f1f4f4', color: '#3c4b48' } }, p.area),
+            ),
+            e('span', { style: { marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid #f2f5f4', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+              e('span', { style: { fontSize: '15.5px', fontWeight: 800, color: '#12211f' } }, p.price),
+              e('span', { style: { fontSize: '13px', fontWeight: 700, color: '#0f6d5f', display: 'inline-flex', alignItems: 'center', gap: '5px' } }, 'Aç', this.ico('arrow_forward', { size: 17, nudge: on, k: 'p' + p.id })),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  renderMetro() {
+    const e = React.createElement;
+    return e('div', { style: { display: 'flex', gap: '10px', flexWrap: 'wrap' } },
+      METRO.map(m => e('a', {
+        key: m.name, href: '#map',
+        style: {
+          padding: '12px 16px', borderRadius: '14px', border: '1px solid #e6ebea', background: '#fbfdfc',
+          display: 'inline-flex', alignItems: 'center', gap: '9px', fontSize: '14.5px', fontWeight: 700,
+          color: '#12211f', transition: 'border-color .2s, background .2s, transform .2s',
+        },
+        onMouseEnter: ev => { ev.currentTarget.style.borderColor = '#0f6d5f'; ev.currentTarget.style.transform = 'translateY(-2px)'; },
+        onMouseLeave: ev => { ev.currentTarget.style.borderColor = '#e6ebea'; ev.currentTarget.style.transform = 'none'; },
+      },
+        this.ico('subway', { size: 19, color: '#0f6d5f', k: m.name }), m.name,
+        e('span', { style: { fontSize: '12.5px', fontWeight: 700, color: '#9aa8a5' } }, m.n),
+      )),
+    );
+  }
+
+  renderDistricts() {
+    const e = React.createElement;
+    return e('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '12px' } },
+      DISTRICTS.map(d => e('a', {
+        key: d, href: '#map',
+        style: { fontSize: '13.5px', fontWeight: 600, color: '#4c5b58', padding: '7px 12px', borderRadius: '999px', background: '#f4f7f6' },
+        onMouseEnter: ev => { ev.currentTarget.style.background = '#dcefe9'; ev.currentTarget.style.color = '#0f6d5f'; },
+        onMouseLeave: ev => { ev.currentTarget.style.background = '#f4f7f6'; ev.currentTarget.style.color = '#4c5b58'; },
+      }, d)),
+    );
+  }
+
+  renderOwnerCard() {
+    const e = React.createElement;
+    const row = (ico, label, val) => e('div', { key: label, style: { display: 'flex', alignItems: 'center', gap: '11px', padding: '13px 0', borderTop: '1px solid #f2f5f4' } },
+      e('span', { style: { width: '36px', height: '36px', borderRadius: '11px', background: '#dcefe9', display: 'grid', placeItems: 'center' } }, this.ico(ico, { size: 20, color: '#0f6d5f', k: label })),
+      e('span', { style: { fontSize: '14px', fontWeight: 700, color: '#12211f' } }, label),
+      e('span', { style: { marginLeft: 'auto', fontSize: '13.5px', fontWeight: 700, color: '#0f6d5f' } }, val),
+    );
+    return e('div', { style: { background: '#fff', borderRadius: '20px', padding: '22px', position: 'relative', zIndex: 2, boxShadow: '0 26px 50px -24px rgba(0,0,0,.4)' } },
+      e('div', { style: { display: 'flex', flexDirection: 'column', gap: '4px', paddingBottom: '13px' } },
+        e('span', { style: { fontSize: '12px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: '#9aa8a5' } }, 'Yerləşdirmə'),
+        e('span', { style: { fontSize: '26px', fontWeight: 800, letterSpacing: '-.03em' } }, 'Pulsuz'),
+      ),
+      row('photo_library', 'Foto qalereya', '10 ədəd'),
+      row('calendar_month', 'Cədvəl və qiymətlər', 'özünüz'),
+      row('chat_bubble', 'WhatsApp keçidi', 'birbaşa'),
+      row('insights', 'Baxış statistikası', 'kabinetdə'),
+      e('p', { style: { margin: '13px 0 0', fontSize: '12.5px', color: '#9aa8a5', lineHeight: 1.5 } }, 'Yoxlama 1 iş günü çəkir. Sıralamada yer satılmır.'),
+    );
+  }
+
+  renderSeo() {
+    const e = React.createElement;
+    return e('div', { style: { display: 'flex', gap: '9px', flexWrap: 'wrap' } },
+      SEO.map(s => e('a', {
+        key: s, href: '#map',
+        style: { fontSize: '14px', fontWeight: 600, color: '#4c5b58', padding: '9px 14px', borderRadius: '999px', border: '1px solid #e6ebea' },
+        onMouseEnter: ev => { ev.currentTarget.style.borderColor = '#0f6d5f'; ev.currentTarget.style.color = '#0f6d5f'; },
+        onMouseLeave: ev => { ev.currentTarget.style.borderColor = '#e6ebea'; ev.currentTarget.style.color = '#4c5b58'; },
+      }, s)),
+    );
+  }
+
+  renderVals() {
+    return {
+      statBadge: this.renderBadge(),
+      ticker: this.renderTicker(),
+      searchBar: this.renderSearch(),
+      quickChips: this.renderQuick(),
+      heroCollage: this.renderCollage(),
+      categoryTiles: this.renderTiles(),
+      ageRail: this.renderAgeRail(),
+      mapSection: this.renderMap(),
+      popular: this.renderPopular(),
+      districtLinks: this.renderDistricts(),
+      ownerCard: this.renderOwnerCard(),
+      seoLinks: this.renderSeo(),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

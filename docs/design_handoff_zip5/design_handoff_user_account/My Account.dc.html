@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F1F8F4; font-family: Nunito, system-ui, sans-serif; color: #17332A; -webkit-font-smoothing: antialiased; }
+  a { color: #0D8A52; text-decoration: none; }
+  a:hover { color: #0a6c40; }
+  input, select, button { font-family: inherit; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
+  @keyframes grow { from { width: 0 } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; padding: 12px 0 60px; background: radial-gradient(1100px 420px at 50% -80px, #DFF3E8 0%, rgba(223,243,232,0) 70%)">
+
+  <div style="max-width: 1180px; margin: 0 auto 10px; padding: 0 16px; box-sizing: border-box">
+    <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 12px 20px; display: flex; align-items: center; gap: 26px; flex-wrap: wrap">
+      <span style="display: flex; align-items: center; gap: 10px">
+        <span style="width: 40px; height: 40px; border-radius: 13px; background: #0D8A52; color: #fff; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 24px">pin_drop</span>
+        <span style="font-size: 25px; font-weight: 800; letter-spacing: -.02em; color: #0D8A52">KidsMap</span>
+      </span>
+      <div style="display: flex; gap: 22px; flex-wrap: wrap; font-size: 15px; font-weight: 600; color: #17332A">
+        <a href="#" style="color: #17332A">{{ t.navHome }}</a>
+        <a href="#" style="color: #17332A">{{ t.navCatalog }}</a>
+        <a href="#" style="color: #17332A">{{ t.navOwners }}</a>
+        <a href="#" style="color: #17332A">{{ t.navAbout }}</a>
+      </div>
+      <div style="margin-left: auto; display: flex; align-items: center; gap: 8px">
+        <span style="display: inline-flex; align-items: center; gap: 7px; border: 1px solid #E3F0E8; border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: border-color .2s ease" style-hover="border-color: #B7DCC7">
+          <span style="font-family: Material Symbols Rounded; font-size: 21px; color: #0D8A52">account_circle</span>{{ user.short }}
+        </span>
+        <button onClick="{{ toggleLang }}" style="display: inline-flex; align-items: center; gap: 6px; border: 1px solid #E3F0E8; background: #fff; border-radius: 999px; padding: 7px 12px; font-size: 14px; font-weight: 800; cursor: pointer; color: #17332A; transition: border-color .2s ease, background .2s ease" style-hover="border-color: #B7DCC7; background: #F6FBF8">
+          <span style="font-family: Material Symbols Rounded; font-size: 19px; color: #0D8A52">language</span>{{ langLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width: 1180px; margin: 0 auto 14px; padding: 0 16px; box-sizing: border-box">
+    <div style="background: #E9F7EF; border: 1px solid #CDE9D9; border-radius: 14px; padding: 11px 18px; font-size: 14.5px; font-weight: 700; color: #0a6c40; display: flex; align-items: center; gap: 9px">
+      <span style="font-family: Material Symbols Rounded; font-size: 20px">check_circle</span>{{ t.signedIn }}
+    </div>
+  </div>
+
+  <div style="max-width: 1180px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+
+    <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+      <span style="width: 56px; height: 56px; border-radius: 50%; background: #DFF3E8; color: #0D8A52; display: grid; place-items: center; font-size: 20px; font-weight: 800">{{ user.initials }}</span>
+      <div style="display: flex; flex-direction: column; gap: 2px; min-width: 180px">
+        <span style="font-size: 21px; font-weight: 800; letter-spacing: -.02em">{{ user.name }}</span>
+        <span style="font-size: 14.5px; color: #6B8578; font-weight: 600">{{ user.email }}</span>
+      </div>
+      <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; color: #6B8578; font-weight: 600; padding-left: 4px">
+        <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #9CB6A7">event_available</span>{{ t.joined }}
+      </span>
+      <button onClick="{{ goSettings }}" style="margin-left: auto; min-height: 42px; padding: 0 18px; border-radius: 999px; border: 0; background: #0D8A52; color: #fff; font-size: 14.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease, transform .2s ease" style-hover="background: #0a6c40; transform: translateY(-2px)">
+        <span style="font-family: Material Symbols Rounded; font-size: 19px">edit</span>{{ t.editProfile }}
+      </button>
+    </div>
+
+    <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start">
+
+      <div style="flex: 1 1 240px; background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 10px; display: flex; flex-wrap: wrap; gap: 4px; align-self: flex-start; position: sticky; top: 14px">
+        <sc-for list="{{ menu }}" as="m" hint-placeholder-count="5">
+          <button onClick="{{ m.onClick }}" style="flex: 1 1 180px; text-align: left; border: 0; cursor: pointer; padding: 11px 13px; border-radius: 13px; font-size: 15px; font-weight: {{ m.weight }}; background: {{ m.bg }}; color: {{ m.color }}; display: flex; align-items: center; gap: 11px; transition: background .2s ease, color .2s ease" style-hover="background: {{ m.hoverBg }}">
+            <span style="font-family: Material Symbols Rounded; font-size: 21px">{{ m.icon }}</span>
+            <span style="flex: 1; min-width: 0">{{ m.label }}</span>
+            <sc-if value="{{ m.hasCount }}" hint-placeholder-val="{{ false }}">
+              <span style="padding: 1px 9px; border-radius: 999px; background: {{ m.pillBg }}; color: {{ m.pillFg }}; font-size: 12.5px; font-weight: 800">{{ m.count }}</span>
+            </sc-if>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="flex: 999 1 360px; min-width: 300px; display: flex; flex-direction: column; gap: 14px">
+
+        <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 14px; animation: fadeUp .26s ease both">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14.5px; font-weight: 700; color: #6B8578">
+              <sc-for list="{{ summary }}" as="s" hint-placeholder-count="3">
+                <span style="display: inline-flex; align-items: center; gap: 7px; background: #fff; border: 1px solid #E3F0E8; border-radius: 999px; padding: 7px 14px; animation: fadeUp .3s ease both; animation-delay: {{ s.delay }}">
+                  <span style="font-family: Material Symbols Rounded; font-size: 18px; color: {{ s.color }}">{{ s.icon }}</span>
+                  <span style="color: #17332A; font-weight: 800">{{ s.value }}</span>{{ s.label }}
+                </span>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ hasDraft }}" hint-placeholder-val="{{ true }}">
+              <div style="background: #fff; border: 1px solid #CDE9D9; border-radius: 18px; padding: 18px 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap">
+                <span style="width: 46px; height: 46px; border-radius: 14px; background: #DFF3E8; color: #0D8A52; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 24px">play_arrow</span>
+                <div style="flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 8px">
+                  <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
+                    <span style="font-size: 17px; font-weight: 800">{{ t.continueTitle }}</span>
+                    <span style="font-size: 14px; color: #6B8578; font-weight: 600">{{ draft.name }}</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px">
+                    <div style="flex: 1; height: 8px; border-radius: 999px; background: #EDF5F0; overflow: hidden">
+                      <div style="height: 100%; width: {{ draft.fillWidth }}; background: #0D8A52; border-radius: 999px; animation: grow .5s ease both"></div>
+                    </div>
+                    <span style="font-size: 14px; font-weight: 800; color: #0D8A52">{{ draft.fillLabel }}</span>
+                  </div>
+                  <span style="font-size: 13.5px; color: #6B8578">{{ draft.hint }}</span>
+                </div>
+                <button onClick="{{ goPlaces }}" style="min-height: 44px; padding: 0 20px; border-radius: 999px; border: 0; background: #0D8A52; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; transition: background .2s ease, transform .2s ease" style-hover="background: #0a6c40; transform: translateY(-2px)">{{ t.continue }}</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasPlaces }}" hint-placeholder-val="{{ true }}">
+              <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; overflow: hidden">
+                <div style="padding: 15px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #F0F6F2">
+                  <span style="font-size: 17px; font-weight: 800">{{ t.myPlaces }}</span>
+                  <button onClick="{{ goPlacesAll }}" style="margin-left: auto; border: 0; background: transparent; cursor: pointer; font-size: 14px; font-weight: 800; color: #0D8A52; display: inline-flex; align-items: center; gap: 5px; transition: gap .2s ease" style-hover="gap: 9px">{{ t.showAll }}<span style="font-family: Material Symbols Rounded; font-size: 18px">arrow_forward</span></button>
+                </div>
+                <sc-for list="{{ overviewPlaces }}" as="p" hint-placeholder-count="3">
+                  <div onClick="{{ goPlacesAll }}" style="padding: 13px 20px; border-bottom: 1px solid #F5F9F7; display: flex; gap: 13px; align-items: center; cursor: pointer; animation: fadeUp .3s ease both; animation-delay: {{ p.delay }}; transition: background .2s ease" style-hover="background: #FAFDFB">
+                    <span style="flex: none; width: 38px; height: 38px; border-radius: 12px; background: #EDF5F0; color: #7FA592; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 21px">{{ p.icon }}</span>
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                      <span style="font-size: 15px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ p.name }}</span>
+                      <span style="font-size: 13px; color: #9CB6A7; font-weight: 600">{{ p.category }} · {{ p.district }}</span>
+                    </div>
+                    <span style="flex: none; padding: 3px 10px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeFg }}; font-size: 12.5px; font-weight: 800">{{ p.status }}</span>
+                    <span style="font-family: Material Symbols Rounded; font-size: 19px; color: #C0D5C9">chevron_right</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ noPlaces }}" hint-placeholder-val="{{ false }}">
+              <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 34px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+                <span style="width: 50px; height: 50px; border-radius: 16px; background: #E9F7EF; color: #0D8A52; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 26px">add_location_alt</span>
+                <span style="font-size: 17px; font-weight: 800">{{ t.firstPlaceTitle }}</span>
+                <span style="font-size: 14.5px; color: #6B8578; max-width: 340px; line-height: 1.5">{{ t.firstPlaceText }}</span>
+                <button style="margin-top: 4px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 0; background: #0D8A52; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; transition: background .2s ease, transform .2s ease" style-hover="background: #0a6c40; transform: translateY(-2px)">{{ t.addPlace }}</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasFavs }}" hint-placeholder-val="{{ true }}">
+              <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 15px 20px 18px; display: flex; flex-direction: column; gap: 12px">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <span style="font-size: 17px; font-weight: 800">{{ t.favorites }}</span>
+                  <button onClick="{{ goFavs }}" style="margin-left: auto; border: 0; background: transparent; cursor: pointer; font-size: 14px; font-weight: 800; color: #0D8A52; display: inline-flex; align-items: center; gap: 5px; transition: gap .2s ease" style-hover="gap: 9px">{{ t.showAll }}<span style="font-family: Material Symbols Rounded; font-size: 18px">arrow_forward</span></button>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <sc-for list="{{ overviewFavs }}" as="f" hint-placeholder-count="4">
+                    <span onClick="{{ goFavs }}" style="display: inline-flex; align-items: center; gap: 8px; border: 1px solid #E3F0E8; border-radius: 999px; padding: 8px 14px 8px 10px; font-size: 14px; font-weight: 700; cursor: pointer; animation: fadeUp .3s ease both; animation-delay: {{ f.delay }}; transition: transform .2s ease, border-color .2s ease" style-hover="transform: translateY(-2px); border-color: #C6E6D5">
+                      <span style="width: 26px; height: 26px; border-radius: 8px; background: #EDF5F0; color: #7FA592; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 16px">{{ f.icon }}</span>
+                      {{ f.name }}
+                      <span style="display: inline-flex; align-items: center; gap: 3px; color: #9CB6A7; font-weight: 700">
+                        <span style="font-family: Material Symbols Rounded; font-size: 15px; color: #E8B531">star</span>{{ f.rating }}
+                      </span>
+                    </span>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasReviews }}" hint-placeholder-val="{{ true }}">
+              <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 15px 20px 8px; display: flex; flex-direction: column; gap: 4px">
+                <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 6px">
+                  <span style="font-size: 17px; font-weight: 800">{{ t.myReviews }}</span>
+                  <button onClick="{{ goReviews }}" style="margin-left: auto; border: 0; background: transparent; cursor: pointer; font-size: 14px; font-weight: 800; color: #0D8A52; display: inline-flex; align-items: center; gap: 5px; transition: gap .2s ease" style-hover="gap: 9px">{{ t.showAll }}<span style="font-family: Material Symbols Rounded; font-size: 18px">arrow_forward</span></button>
+                </div>
+                <sc-for list="{{ overviewReviews }}" as="r" hint-placeholder-count="2">
+                  <div onClick="{{ goReviews }}" style="padding: 11px 0; border-top: 1px solid #F5F9F7; display: flex; gap: 12px; align-items: center; cursor: pointer; animation: fadeUp .3s ease both; animation-delay: {{ r.delay }}">
+                    <span style="flex: none; display: inline-flex; font-size: 15px; color: #E8B531; letter-spacing: 1px">{{ r.stars }}</span>
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                      <span style="font-size: 14.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ r.place }}</span>
+                      <span style="font-size: 13px; color: #9CB6A7; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ r.text }}</span>
+                    </div>
+                    <span style="flex: none; padding: 3px 10px; border-radius: 999px; background: {{ r.badgeBg }}; color: {{ r.badgeFg }}; font-size: 12.5px; font-weight: 800">{{ r.status }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isPlaces }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px; animation: fadeUp .26s ease both">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap">
+              <span style="display: flex; align-items: baseline; gap: 10px">
+                <span style="font-size: 24px; font-weight: 800; letter-spacing: -.025em">{{ t.myPlaces }}</span>
+                <span style="font-size: 15px; font-weight: 800; color: #0D8A52; background: #E9F7EF; border-radius: 999px; padding: 2px 11px">{{ placesTotal }}</span>
+              </span>
+              <button style="min-height: 44px; padding: 0 20px; border-radius: 999px; border: 0; background: #0D8A52; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease, transform .2s ease" style-hover="background: #0a6c40; transform: translateY(-2px)">
+                <span style="font-family: Material Symbols Rounded; font-size: 20px">add</span>{{ t.addPlace }}
+              </button>
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+                <button onClick="{{ f.onClick }}" style="min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid {{ f.border }}; background: {{ f.bg }}; color: {{ f.fg }}; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: background .2s ease, border-color .2s ease, color .2s ease" style-hover="border-color: #B7DCC7">
+                  {{ f.label }}<span style="font-size: 12.5px; font-weight: 800; opacity: .75">{{ f.count }}</span>
+                </button>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ placesEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 52px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px">
+                <span style="width: 52px; height: 52px; border-radius: 16px; background: #F1F8F4; color: #9CB6A7; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 26px">travel_explore</span>
+                <span style="font-size: 17px; font-weight: 800">{{ t.emptyTitle }}</span>
+                <span style="font-size: 14.5px; color: #6B8578; max-width: 360px; line-height: 1.5">{{ t.emptyText }}</span>
+              </div>
+            </sc-if>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px">
+              <sc-for list="{{ places }}" as="p" hint-placeholder-count="4">
+                <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease" style-hover="transform: translateY(-3px); border-color: #C6E6D5; box-shadow: 0 8px 20px rgba(23,51,42,.06)">
+                  <div style="position: relative; height: 132px; background: #EDF5F0; display: grid; place-items: center">
+                    <span style="font-family: Material Symbols Rounded; font-size: 34px; color: #A9C7B7">{{ p.icon }}</span>
+                    <span style="position: absolute; top: 12px; left: 12px; padding: 4px 11px; border-radius: 999px; background: {{ p.badgeBg }}; color: {{ p.badgeFg }}; font-size: 12.5px; font-weight: 800">{{ p.status }}</span>
+                  </div>
+                  <div style="padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; flex: 1">
+                    <div style="display: flex; flex-direction: column; gap: 3px">
+                      <span style="font-size: 17px; font-weight: 800; letter-spacing: -.015em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ p.name }}</span>
+                      <span style="font-size: 13.5px; color: #6B8578; font-weight: 600">{{ p.category }} · {{ p.district }}</span>
+                    </div>
+                    <sc-if value="{{ p.hasRating }}" hint-placeholder-val="{{ false }}">
+                      <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700">
+                        <span style="font-family: Material Symbols Rounded; font-size: 19px; color: #E8B531">star</span>{{ p.rating }}
+                        <span style="color: #9CB6A7; font-weight: 600">{{ p.reviewsLabel }}</span>
+                      </span>
+                    </sc-if>
+                    <sc-if value="{{ p.showProgress }}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; flex-direction: column; gap: 5px">
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #6B8578">
+                          <span>{{ t.readiness }}</span><span style="color: {{ p.fillColor }}; font-weight: 800">{{ p.fillLabel }}</span>
+                        </div>
+                        <div style="height: 7px; border-radius: 999px; background: #EDF5F0; overflow: hidden; margin-top: 5px">
+                          <div style="height: 100%; width: {{ p.fillWidth }}; background: {{ p.fillColor }}; border-radius: 999px; animation: grow .5s ease both"></div>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ p.hasNote }}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; gap: 8px; padding: 9px 11px; border-radius: 12px; background: {{ p.noteBg }}; color: {{ p.noteFg }}; font-size: 13.5px; line-height: 1.45">
+                        <span style="flex: none; font-family: Material Symbols Rounded; font-size: 17px">{{ p.noteIcon }}</span>{{ p.note }}
+                      </div>
+                    </sc-if>
+                    <div style="margin-top: auto; display: flex; gap: 8px; align-items: center">
+                      <button style="flex: 1; min-height: 42px; border-radius: 999px; border: 1px solid {{ p.actionBorder }}; background: {{ p.actionBg }}; color: {{ p.actionFg }}; font-size: 14.5px; font-weight: 800; cursor: pointer; transition: background .2s ease, transform .2s ease" style-hover="transform: translateY(-2px)">{{ p.actionLabel }}</button>
+                      <button style="width: 42px; height: 42px; border-radius: 50%; border: 1px solid #E3F0E8; background: #fff; color: #6B8578; cursor: pointer; font-family: Material Symbols Rounded; font-size: 20px; transition: border-color .2s ease, color .2s ease" style-hover="border-color: #B7DCC7; color: #17332A">more_horiz</button>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isReviews }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px; animation: fadeUp .26s ease both">
+            <span style="font-size: 24px; font-weight: 800; letter-spacing: -.025em">{{ t.myReviews }}</span>
+            <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="4">
+              <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; transition: transform .22s ease, border-color .22s ease" style-hover="transform: translateY(-2px); border-color: #C6E6D5">
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+                  <span style="font-size: 16.5px; font-weight: 800">{{ r.place }}</span>
+                  <span style="display: inline-flex; align-items: center; gap: 3px; font-family: Material Symbols Rounded; font-size: 18px; color: #E8B531">{{ r.stars }}</span>
+                  <span style="padding: 3px 10px; border-radius: 999px; background: {{ r.badgeBg }}; color: {{ r.badgeFg }}; font-size: 12.5px; font-weight: 800">{{ r.status }}</span>
+                  <span style="margin-left: auto; font-size: 13px; color: #9CB6A7; font-weight: 600">{{ r.date }}</span>
+                </div>
+                <p style="margin: 0; font-size: 14.5px; line-height: 1.6; color: #3C5D4E; text-wrap: pretty">{{ r.text }}</p>
+                <sc-if value="{{ r.hasReason }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; gap: 8px; padding: 9px 11px; border-radius: 12px; background: #FDEEEC; color: #A93B33; font-size: 13.5px; line-height: 1.45">
+                    <span style="flex: none; font-family: Material Symbols Rounded; font-size: 17px">info</span>{{ r.reason }}
+                  </div>
+                </sc-if>
+                <sc-if value="{{ r.editable }}" hint-placeholder-val="{{ true }}">
+                  <div style="display: flex; gap: 8px">
+                    <button style="min-height: 38px; padding: 0 15px; border-radius: 999px; border: 1px solid #E3F0E8; background: #fff; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; color: #17332A; transition: border-color .2s ease" style-hover="border-color: #B7DCC7">
+                      <span style="font-family: Material Symbols Rounded; font-size: 18px">edit</span>{{ t.edit }}
+                    </button>
+                    <button style="min-height: 38px; padding: 0 15px; border-radius: 999px; border: 1px solid #F5DCD9; background: #fff; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; color: #A93B33; transition: background .2s ease" style-hover="background: #FDF4F3">
+                      <span style="font-family: Material Symbols Rounded; font-size: 18px">delete</span>{{ t.remove }}
+                    </button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isFavs }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px; animation: fadeUp .26s ease both">
+            <div style="display: flex; align-items: baseline; gap: 10px">
+              <span style="font-size: 24px; font-weight: 800; letter-spacing: -.025em">{{ t.favorites }}</span>
+              <span style="font-size: 15px; font-weight: 800; color: #0D8A52; background: #E9F7EF; border-radius: 999px; padding: 2px 11px">{{ favCount }}</span>
+            </div>
+            <sc-if value="{{ favsEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 52px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px">
+                <span style="width: 52px; height: 52px; border-radius: 16px; background: #F1F8F4; color: #9CB6A7; display: grid; place-items: center; font-family: Material Symbols Rounded; font-size: 26px">favorite</span>
+                <span style="font-size: 17px; font-weight: 800">{{ t.favEmptyTitle }}</span>
+                <span style="font-size: 14.5px; color: #6B8578; max-width: 340px; line-height: 1.5">{{ t.favEmptyText }}</span>
+              </div>
+            </sc-if>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px">
+              <sc-for list="{{ favorites }}" as="f" hint-placeholder-count="6">
+                <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease" style-hover="transform: translateY(-3px); border-color: #C6E6D5; box-shadow: 0 8px 20px rgba(23,51,42,.06)">
+                  <div style="position: relative; height: 122px; background: #EDF5F0; display: grid; place-items: center">
+                    <span style="font-family: Material Symbols Rounded; font-size: 32px; color: #A9C7B7">{{ f.icon }}</span>
+                    <button onClick="{{ f.onRemove }}" style="position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255,255,255,.94); color: #A93B33; cursor: pointer; font-family: Material Symbols Rounded; font-size: 20px; display: grid; place-items: center; transition: transform .2s ease, background .2s ease" style-hover="transform: scale(1.08); background: #fff">favorite</button>
+                  </div>
+                  <div style="padding: 13px 15px 15px; display: flex; flex-direction: column; gap: 6px">
+                    <span style="font-size: 16px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ f.name }}</span>
+                    <span style="font-size: 13.5px; color: #6B8578; font-weight: 600">{{ f.category }} · {{ f.district }}</span>
+                    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700">
+                      <span style="font-family: Material Symbols Rounded; font-size: 18px; color: #E8B531">star</span>{{ f.rating }}
+                      <span style="color: #9CB6A7; font-weight: 600">{{ f.reviewsLabel }}</span>
+                    </span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; gap: 14px; animation: fadeUp .26s ease both">
+            <span style="font-size: 24px; font-weight: 800; letter-spacing: -.025em">{{ t.settings }}</span>
+
+            <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 16px">
+              <span style="font-size: 16.5px; font-weight: 800">{{ t.profileBlock }}</span>
+              <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap">
+                <span style="width: 60px; height: 60px; border-radius: 50%; background: #DFF3E8; color: #0D8A52; display: grid; place-items: center; font-size: 21px; font-weight: 800">{{ user.initials }}</span>
+                <button style="min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid #E3F0E8; background: #fff; font-size: 14px; font-weight: 700; cursor: pointer; color: #17332A; transition: border-color .2s ease" style-hover="border-color: #B7DCC7">{{ t.changeAvatar }}</button>
+                <span style="font-size: 13px; color: #9CB6A7; font-weight: 600">{{ t.avatarHint }}</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px">
+                <label style="display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 13.5px; font-weight: 700; color: #6B8578">{{ t.fieldName }}</span>
+                  <input value="{{ user.name }}" onChange="{{ noop }}" style="min-height: 44px; border: 1px solid #E3F0E8; border-radius: 12px; padding: 0 13px; font-size: 15px; color: #17332A; outline: none; transition: border-color .2s ease" style-focus="border-color: #0D8A52">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 13.5px; font-weight: 700; color: #6B8578">{{ t.fieldEmail }}</span>
+                  <input value="{{ user.email }}" onChange="{{ noop }}" style="min-height: 44px; border: 1px solid #E3F0E8; border-radius: 12px; padding: 0 13px; font-size: 15px; color: #17332A; outline: none; transition: border-color .2s ease" style-focus="border-color: #0D8A52">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 13.5px; font-weight: 700; color: #6B8578">{{ t.fieldPassword }}</span>
+                  <input value="" onChange="{{ noop }}" placeholder="••••••••" style="min-height: 44px; border: 1px solid #E3F0E8; border-radius: 12px; padding: 0 13px; font-size: 15px; color: #17332A; outline: none; transition: border-color .2s ease" style-focus="border-color: #0D8A52">
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 13.5px; font-weight: 700; color: #6B8578">{{ t.fieldLang }}</span>
+                  <select value="{{ lang }}" onChange="{{ onLangSelect }}" style="min-height: 44px; border: 1px solid #E3F0E8; border-radius: 12px; padding: 0 11px; font-size: 15px; font-weight: 600; background: #fff; color: #17332A; outline: none">
+                    <option value="az">Azərbaycan dili</option>
+                    <option value="ru">Русский</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div style="background: #fff; border: 1px solid #E3F0E8; border-radius: 18px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px">
+              <span style="font-size: 16.5px; font-weight: 800">{{ t.notifyBlock }}</span>
+              <sc-for list="{{ notifications }}" as="n" hint-placeholder-count="3">
+                <div style="display: flex; align-items: center; gap: 14px; padding: 9px 0; border-bottom: 1px solid #F5F9F7">
+                  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                    <span style="font-size: 14.5px; font-weight: 700">{{ n.label }}</span>
+                    <span style="font-size: 13px; color: #9CB6A7; font-weight: 600">{{ n.hint }}</span>
+                  </div>
+                  <button onClick="{{ n.onToggle }}" style="flex: none; width: 46px; height: 26px; border-radius: 999px; border: 0; cursor: pointer; background: {{ n.trackBg }}; padding: 3px; display: flex; justify-content: {{ n.knobPos }}; transition: background .2s ease">
+                    <span style="width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(23,51,42,.2); transition: transform .2s ease"></span>
+                  </button>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+              <button onClick="{{ save }}" style="min-height: 46px; padding: 0 22px; border-radius: 999px; border: 0; background: #0D8A52; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease, transform .2s ease" style-hover="background: #0a6c40; transform: translateY(-2px)">
+                <span style="font-family: Material Symbols Rounded; font-size: 20px">check</span>{{ t.save }}
+              </button>
+              <button style="margin-left: auto; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid #F5DCD9; background: #fff; color: #A93B33; font-size: 14.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease" style-hover="background: #FDF4F3">
+                <span style="font-family: Material Symbols Rounded; font-size: 19px">logout</span>{{ t.logout }}
+              </button>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 60; background: #17332A; color: #fff; border-radius: 999px; padding: 12px 20px; font-size: 14.5px; font-weight: 700; display: flex; align-items: center; gap: 9px; box-shadow: 0 10px 26px rgba(23,51,42,.2); animation: toastIn .24s ease both">
+      <span style="font-family: Material Symbols Rounded; font-size: 20px; color: #7FE3AE">check_circle</span>{{ toastText }}
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:1000}}">
+const L = {
+  az: {
+    navHome: "Ana səhifə", navCatalog: "Kataloq", navOwners: "Sahiblər üçün", navAbout: "Bizim haqqımızda",
+    signedIn: "Hesabınıza daxil oldunuz.", joined: "Qeydiyyat: mart 2025", editProfile: "Profili redaktə et",
+    menuOverview: "Ümumi baxış", menuPlaces: "Məkanlarım", menuReviews: "Rəylərim", menuFavs: "Seçilmişlər", menuSettings: "Tənzimləmələr",
+    statPlaces: "Məkanlarım", statModeration: "Yoxlamada", statPublished: "Dərc olunub", statReviews: "Rəylər", statFavs: "Seçilmişlər",
+    continueTitle: "İşi davam et", continue: "Davam et", activityTitle: "Son hadisələr",
+    myPlaces: "Məkanlarım", addPlace: "Məkan əlavə et", readiness: "Doldurulma",
+    fAll: "Hamısı", fDraft: "Qaralamalar", fModeration: "Yoxlamada", fPublished: "Dərc olunub", fFix: "Düzəliş lazımdır",
+    sDraft: "Qaralama", sModeration: "Yoxlamada", sPublished: "Dərc olunub", sFix: "Düzəliş lazımdır",
+    aContinue: "Doldurmağa davam et", aEdit: "Redaktə et", aView: "Bax", aFix: "Düzəliş et",
+    emptyTitle: "Bu filtrdə məkan yoxdur", emptyText: "Başqa filtr seçin və ya yeni məkan əlavə edin.",
+    myReviews: "Rəylərim", edit: "Redaktə", remove: "Sil",
+    rPublished: "Dərc olunub", rPending: "Yoxlamada", rRejected: "Rədd edilib",
+    favorites: "Seçilmişlər", favEmptyTitle: "Seçilmişlər boşdur", favEmptyText: "Kataloqda ürək işarəsinə toxunun — məkan burada saxlanacaq.",
+    settings: "Tənzimləmələr", profileBlock: "Profil", changeAvatar: "Avatarı dəyiş", avatarHint: "JPG və ya PNG, 2 MB-a qədər",
+    fieldName: "Ad və soyad", fieldEmail: "E-poçt", fieldPassword: "Yeni şifrə", fieldLang: "İnterfeys dili",
+    notifyBlock: "Bildirişlər", save: "Yadda saxla", logout: "Hesabdan çıx", saved: "Dəyişikliklər yadda saxlanıldı",
+    showAll: "Hamısına bax", firstPlaceTitle: "İlk məkanınızı əlavə edin",
+    firstPlaceText: "Kartı doldurun və yoxlamadan sonra məkan kataloqda görünəcək.",
+    unfaved: "Seçilmişlərdən silindi", reviewsWord: "rəy"
+  },
+  ru: {
+    navHome: "Главная", navCatalog: "Каталог", navOwners: "Владельцам", navAbout: "О нас",
+    signedIn: "Вы вошли в аккаунт.", joined: "С нами с марта 2025", editProfile: "Редактировать профиль",
+    menuOverview: "Обзор", menuPlaces: "Мои места", menuReviews: "Отзывы", menuFavs: "Избранное", menuSettings: "Настройки",
+    statPlaces: "Мои места", statModeration: "На модерации", statPublished: "Опубликовано", statReviews: "Отзывы", statFavs: "Избранное",
+    continueTitle: "Продолжить работу", continue: "Продолжить", activityTitle: "Последние действия",
+    myPlaces: "Мои места", addPlace: "Добавить место", readiness: "Готовность данных",
+    fAll: "Все", fDraft: "Черновики", fModeration: "На модерации", fPublished: "Опубликованные", fFix: "Требуют исправлений",
+    sDraft: "Черновик", sModeration: "На модерации", sPublished: "Опубликовано", sFix: "Требуются исправления",
+    aContinue: "Продолжить заполнение", aEdit: "Редактировать", aView: "Посмотреть", aFix: "Исправить",
+    emptyTitle: "Здесь пока ничего нет", emptyText: "Выберите другой фильтр или добавьте новое место.",
+    myReviews: "Мои отзывы", edit: "Редактировать", remove: "Удалить",
+    rPublished: "Опубликован", rPending: "На модерации", rRejected: "Отклонён",
+    favorites: "Избранное", favEmptyTitle: "В избранном пусто", favEmptyText: "Нажмите на сердечко в каталоге — место сохранится здесь.",
+    settings: "Настройки", profileBlock: "Профиль", changeAvatar: "Сменить аватар", avatarHint: "JPG или PNG, до 2 МБ",
+    fieldName: "Имя и фамилия", fieldEmail: "Email", fieldPassword: "Новый пароль", fieldLang: "Язык интерфейса",
+    notifyBlock: "Уведомления", save: "Сохранить изменения", logout: "Выйти из аккаунта", saved: "Изменения сохранены",
+    showAll: "Все", firstPlaceTitle: "Добавьте первое место",
+    firstPlaceText: "Заполните карточку — после проверки место появится в каталоге.",
+    unfaved: "Убрано из избранного", reviewsWord: "отзывов"
+  }
+};
+
+const PLACES = [
+  { id: 1, key: "draft", name: "Qız Qalası", cat: { az: "Muzeylər", ru: "Музеи" }, district: { az: "Səbail", ru: "Сабаил" }, fill: 65, icon: "castle",
+    note: { az: "Ünvan və iş saatları qalır", ru: "Осталось указать адрес и часы работы" } },
+  { id: 2, key: "published", name: "Bakı Zooloji Parkı", cat: { az: "Zooparklar", ru: "Зоопарки" }, district: { az: "Nərimanov", ru: "Наримановский" }, rating: 4.8, reviews: 32, icon: "pets" },
+  { id: 3, key: "published", name: "Sonic Athletics Club", cat: { az: "İdman", ru: "Спорт" }, district: { az: "Nərimanov", ru: "Наримановский" }, rating: 4.6, reviews: 18, icon: "sports_soccer" },
+  { id: 4, key: "moderation", name: "Moka Kids — Zefir Mall", cat: { az: "Əyləncə", ru: "Развлечения" }, district: { az: "Yasamal", ru: "Ясамал" }, icon: "toys",
+    note: { az: "Yoxlama 1–2 iş günü çəkir", ru: "Проверка занимает 1–2 рабочих дня" } },
+  { id: 5, key: "fix", name: "Uşaq Yaradıcılıq Mərkəzi", cat: { az: "İnkişaf", ru: "Развитие" }, district: { az: "Xətai", ru: "Хатаи" }, fill: 80, icon: "palette",
+    note: { az: "Telefon nömrəsi şəhər kodu olmadan göstərilib", ru: "Телефон указан без кода города — поправьте номер" } },
+  { id: 6, key: "published", name: "Aqua Baby Bakı", cat: { az: "Üzgüçülük", ru: "Плавание" }, district: { az: "Yasamal", ru: "Ясамал" }, rating: 4.9, reviews: 11, icon: "pool" },
+  { id: 7, key: "draft", name: "Şəhər Şahmat Klubu", cat: { az: "Şahmat", ru: "Шахматы" }, district: { az: "Nəsimi", ru: "Насиминский" }, fill: 30, icon: "extension",
+    note: { az: "Kateqoriya, ünvan və foto qalır", ru: "Осталось: категория, адрес и фото" } }
+];
+
+const STATUS_STYLE = {
+  draft:      { bg: "#EEF3F0", fg: "#5B7367" },
+  moderation: { bg: "#FDF3DA", fg: "#8A6712" },
+  published:  { bg: "#E3F5EA", fg: "#0a6c40" },
+  fix:        { bg: "#FDEEEC", fg: "#A93B33" }
+};
+const ACTION_STYLE = {
+  draft:      { bg: "#0D8A52", fg: "#fff", border: "#0D8A52" },
+  fix:        { bg: "#0D8A52", fg: "#fff", border: "#0D8A52" },
+  moderation: { bg: "#fff", fg: "#17332A", border: "#E3F0E8" },
+  published:  { bg: "#fff", fg: "#17332A", border: "#E3F0E8" }
+};
+
+const REVIEWS = [
+  { place: "Bakı Zooloji Parkı", rating: 5, status: "published", date: { az: "24 avqust 2026", ru: "24 августа 2026" },
+    text: { az: "Uşaqlarla 3 saat keçirdik. Yeni quş bölməsi çox rahatdır, arabalı gəzmək asandır.", ru: "Провели с детьми три часа. Новый птичий павильон очень удобный, легко пройти с коляской." } },
+  { place: "Sonic Athletics Club", rating: 4, status: "published", date: { az: "12 avqust 2026", ru: "12 августа 2026" },
+    text: { az: "Məşqçilər diqqətlidir, qrup kiçikdir. Soyunub-geyinmə otağı bir az darısqaldır.", ru: "Тренеры внимательные, группа небольшая. Раздевалка тесноватая." } },
+  { place: "Moka Kids — Zefir Mall", rating: 5, status: "pending", date: { az: "2 sentyabr 2026", ru: "2 сентября 2026" },
+    text: { az: "Ad günü keçirdik — animator uşaqları 2 saat saxladı, təmizlik yaxşıdır.", ru: "Отмечали день рождения — аниматор держал детей два часа, чисто." } },
+  { place: "Aqua Baby Bakı", rating: 2, status: "rejected", date: { az: "28 iyul 2026", ru: "28 июля 2026" },
+    text: { az: "Qiymətlər saytda göstərilməyib, telefonla cavab vermədilər.", ru: "Цены на сайте не указаны, по телефону не ответили." },
+    reason: { az: "Rəydə başqa məktəbin reklamı var idi", ru: "В отзыве была реклама другой школы" } }
+];
+
+const FAVS = [
+  { id: 1, name: "Bakı Şahmat Mərkəzi", cat: { az: "Şahmat", ru: "Шахматы" }, district: { az: "Nəsimi", ru: "Насиминский" }, rating: 4.7, reviews: 24, icon: "extension" },
+  { id: 2, name: "Little Chef Studio", cat: { az: "Kulinariya", ru: "Кулинария" }, district: { az: "Binəqədi", ru: "Бинагади" }, rating: 4.5, reviews: 9, icon: "restaurant" },
+  { id: 3, name: "Robotics Lab Baku", cat: { az: "Robototexnika", ru: "Робототехника" }, district: { az: "Səbail", ru: "Сабаил" }, rating: 4.9, reviews: 41, icon: "smart_toy" },
+  { id: 4, name: "Sunny Dance", cat: { az: "Rəqs", ru: "Танцы" }, district: { az: "Nərimanov", ru: "Наримановский" }, rating: 4.6, reviews: 17, icon: "music_note" },
+  { id: 5, name: "Speak Up Kids", cat: { az: "Dillər", ru: "Языки" }, district: { az: "Xətai", ru: "Хатаи" }, rating: 4.4, reviews: 12, icon: "translate" },
+  { id: 6, name: "Tennis Junior Club", cat: { az: "İdman", ru: "Спорт" }, district: { az: "Səbail", ru: "Сабаил" }, rating: 4.8, reviews: 20, icon: "sports_tennis" }
+];
+
+const ACTIVITY = [
+  { icon: "send", bg: "#FDF3DA", fg: "#8A6712", az: "«Moka Kids — Zefir Mall» yoxlamaya göndərildi", ru: "Место «Moka Kids — Zefir Mall» отправлено на модерацию", dAz: "bu gün, 11:20", dRu: "сегодня, 11:20" },
+  { icon: "public", bg: "#E3F5EA", fg: "#0a6c40", az: "«Aqua Baby Bakı» dərc olundu", ru: "Место «Aqua Baby Bakı» опубликовано", dAz: "dünən, 16:05", dRu: "вчера, 16:05" },
+  { icon: "rate_review", bg: "#E7EFFA", fg: "#20558F", az: "«Bakı Zooloji Parkı» üçün rəy yazdınız", ru: "Вы добавили отзыв к «Bakı Zooloji Parkı»", dAz: "24 avqust", dRu: "24 августа" },
+  { icon: "favorite", bg: "#FDEEEC", fg: "#A93B33", az: "«Robotics Lab Baku» seçilmişlərə əlavə edildi", ru: "«Robotics Lab Baku» сохранено в избранное", dAz: "22 avqust", dRu: "22 августа" },
+  { icon: "edit_note", bg: "#EEF3F0", fg: "#5B7367", az: "«Qız Qalası» qaralaması yeniləndi", ru: "Черновик «Qız Qalası» обновлён", dAz: "20 avqust", dRu: "20 августа" }
+];
+
+function plural(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m100 >= 11 && m100 <= 14) return many;
+  if (m10 === 1) return one;
+  if (m10 >= 2 && m10 <= 4) return few;
+  return many;
+}
+
+class Component extends DCLogic {
+  state = {
+    lang: "ru", tab: "overview", filter: "all", removedFavs: [], toast: "",
+    notify: { moderation: true, reviews: true, digest: false }
+  };
+
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  flash(text) {
+    this.setState({ toast: text });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: "" }), 2600);
+  }
+
+  renderVals() {
+    const s = this.state, lang = s.lang, t = L[lang];
+    const loc = v => (v && typeof v === "object" ? v[lang] : v);
+    const reviewsWord = n => (lang === "az" ? "rəy" : plural(n, "отзыв", "отзыва", "отзывов"));
+
+    const favorites = FAVS.filter(f => s.removedFavs.indexOf(f.id) === -1);
+    const byKey = k => PLACES.filter(p => p.key === k).length;
+    const filters = [
+      { id: "all", label: t.fAll, count: PLACES.length },
+      { id: "draft", label: t.fDraft, count: byKey("draft") },
+      { id: "moderation", label: t.fModeration, count: byKey("moderation") },
+      { id: "published", label: t.fPublished, count: byKey("published") },
+      { id: "fix", label: t.fFix, count: byKey("fix") }
+    ];
+    const statusLabel = { draft: t.sDraft, moderation: t.sModeration, published: t.sPublished, fix: t.sFix };
+    const actionLabel = { draft: t.aContinue, moderation: t.aView, published: t.aEdit, fix: t.aFix };
+    const noteStyle = {
+      draft: { bg: "#F4F8F6", fg: "#5B7367", icon: "info" },
+      moderation: { bg: "#FDF9EC", fg: "#8A6712", icon: "schedule" },
+      fix: { bg: "#FDEEEC", fg: "#A93B33", icon: "report" },
+      published: { bg: "#F4F8F6", fg: "#5B7367", icon: "info" }
+    };
+    const visible = PLACES.filter(p => s.filter === "all" || p.key === s.filter);
+    const draft = PLACES.filter(p => p.key === "draft").sort((a, b) => b.fill - a.fill)[0];
+
+    const menuDefs = [
+      { id: "overview", icon: "grid_view", label: t.menuOverview },
+      { id: "places", icon: "location_on", label: t.menuPlaces, count: PLACES.length },
+      { id: "reviews", icon: "star", label: t.menuReviews, count: REVIEWS.length },
+      { id: "favs", icon: "favorite", label: t.menuFavs, count: favorites.length },
+      { id: "settings", icon: "settings", label: t.menuSettings }
+    ];
+
+    const notifyDefs = [
+      { k: "moderation", label: lang === "az" ? "Məkanın statusu dəyişəndə" : "Изменение статуса моего места",
+        hint: lang === "az" ? "E-poçt bildirişi" : "Письмо на email" },
+      { k: "reviews", label: lang === "az" ? "Rəyimə cavab" : "Ответ на мой отзыв",
+        hint: lang === "az" ? "E-poçt bildirişi" : "Письмо на email" },
+      { k: "digest", label: lang === "az" ? "Həftəlik yeniliklər" : "Еженедельная подборка новых мест",
+        hint: lang === "az" ? "Hər cümə axşamı" : "Каждый четверг" }
+    ];
+
+    return {
+      t, lang, langLabel: lang === "az" ? "AZ" : "RU",
+      toggleLang: () => this.setState({ lang: s.lang === "az" ? "ru" : "az" }),
+      onLangSelect: e => this.setState({ lang: e.target.value }),
+      noop: () => {},
+      user: { name: "Roma Quliyev", short: "Roma", initials: "RQ", email: "roma.quliyev@gmail.com" },
+
+      menu: menuDefs.map(m => ({
+        icon: m.icon, label: m.label, hasCount: m.count !== undefined, count: m.count,
+        onClick: () => this.setState({ tab: m.id }),
+        bg: s.tab === m.id ? "#E9F7EF" : "transparent",
+        hoverBg: s.tab === m.id ? "#E9F7EF" : "#F6FBF8",
+        color: s.tab === m.id ? "#0a6c40" : "#3C5D4E",
+        weight: s.tab === m.id ? "800" : "600",
+        pillBg: s.tab === m.id ? "#CDE9D9" : "#F1F6F3",
+        pillFg: s.tab === m.id ? "#0a6c40" : "#8AA396"
+      })),
+      isOverview: s.tab === "overview", isPlaces: s.tab === "places",
+      isReviews: s.tab === "reviews", isFavs: s.tab === "favs", isSettings: s.tab === "settings",
+      goSettings: () => this.setState({ tab: "settings" }),
+      goPlaces: () => this.setState({ tab: "places", filter: "draft" }),
+
+      summary: [
+        { icon: "location_on", color: "#0D8A52", value: PLACES.length, label: t.statPlaces, delay: "0s" },
+        { icon: "star", color: "#E8B531", value: REVIEWS.length, label: t.statReviews, delay: ".06s" },
+        { icon: "favorite", color: "#D6685F", value: favorites.length, label: t.statFavs, delay: ".12s" }
+      ],
+
+      hasPlaces: PLACES.length > 0, noPlaces: PLACES.length === 0,
+      overviewPlaces: PLACES.slice(0, 4).map((p, i) => ({
+        name: p.name, category: loc(p.cat), district: loc(p.district), icon: p.icon,
+        status: statusLabel[p.key], badgeBg: STATUS_STYLE[p.key].bg, badgeFg: STATUS_STYLE[p.key].fg,
+        delay: (i * 0.05).toFixed(2) + "s"
+      })),
+      hasFavs: favorites.length > 0,
+      overviewFavs: favorites.slice(0, 4).map((f, i) => ({
+        name: f.name, rating: f.rating, icon: f.icon, delay: (i * 0.05).toFixed(2) + "s"
+      })),
+      hasReviews: REVIEWS.length > 0,
+      overviewReviews: REVIEWS.slice(0, 2).map((r, i) => ({
+        place: r.place, text: loc(r.text), stars: "★".repeat(r.rating),
+        status: r.status === "published" ? t.rPublished : r.status === "pending" ? t.rPending : t.rRejected,
+        badgeBg: r.status === "published" ? "#E3F5EA" : r.status === "pending" ? "#FDF3DA" : "#FDEEEC",
+        badgeFg: r.status === "published" ? "#0a6c40" : r.status === "pending" ? "#8A6712" : "#A93B33",
+        delay: (i * 0.05).toFixed(2) + "s"
+      })),
+      goPlacesAll: () => this.setState({ tab: "places", filter: "all" }),
+      goFavs: () => this.setState({ tab: "favs" }),
+      goReviews: () => this.setState({ tab: "reviews" }),
+
+      hasDraft: !!draft,
+      draft: draft ? { name: draft.name, fillLabel: draft.fill + "%", fillWidth: draft.fill + "%", hint: loc(draft.note) } : {},
+
+      placesTotal: PLACES.length,
+      filters: filters.map(f => ({
+        label: f.label, count: f.count, onClick: () => this.setState({ filter: f.id }),
+        bg: s.filter === f.id ? "#0D8A52" : "#fff",
+        fg: s.filter === f.id ? "#fff" : "#3C5D4E",
+        border: s.filter === f.id ? "#0D8A52" : "#E3F0E8"
+      })),
+      placesEmpty: visible.length === 0,
+      places: visible.map(p => ({
+        name: p.name, category: loc(p.cat), district: loc(p.district), icon: p.icon,
+        status: statusLabel[p.key], badgeBg: STATUS_STYLE[p.key].bg, badgeFg: STATUS_STYLE[p.key].fg,
+        hasRating: !!p.rating, rating: p.rating,
+        reviewsLabel: p.reviews ? "· " + p.reviews + " " + reviewsWord(p.reviews) : "",
+        showProgress: p.key === "draft" || p.key === "fix",
+        fillLabel: (p.fill || 0) + "%", fillWidth: (p.fill || 0) + "%",
+        fillColor: (p.fill || 0) >= 70 ? "#0D8A52" : "#D79A16",
+        hasNote: !!p.note, note: loc(p.note),
+        noteBg: noteStyle[p.key].bg, noteFg: noteStyle[p.key].fg, noteIcon: noteStyle[p.key].icon,
+        actionLabel: actionLabel[p.key],
+        actionBg: ACTION_STYLE[p.key].bg, actionFg: ACTION_STYLE[p.key].fg, actionBorder: ACTION_STYLE[p.key].border
+      })),
+
+      reviews: REVIEWS.map(r => ({
+        place: r.place, stars: "★".repeat(r.rating) + "☆".repeat(5 - r.rating),
+        text: loc(r.text), date: loc(r.date),
+        status: r.status === "published" ? t.rPublished : r.status === "pending" ? t.rPending : t.rRejected,
+        badgeBg: r.status === "published" ? "#E3F5EA" : r.status === "pending" ? "#FDF3DA" : "#FDEEEC",
+        badgeFg: r.status === "published" ? "#0a6c40" : r.status === "pending" ? "#8A6712" : "#A93B33",
+        hasReason: !!r.reason, reason: loc(r.reason), editable: r.status !== "rejected"
+      })),
+
+      favCount: favorites.length, favsEmpty: favorites.length === 0,
+      favorites: favorites.map(f => ({
+        name: f.name, category: loc(f.cat), district: loc(f.district), rating: f.rating, icon: f.icon,
+        reviewsLabel: "· " + f.reviews + " " + reviewsWord(f.reviews),
+        onRemove: () => { this.setState(p => ({ removedFavs: p.removedFavs.concat(f.id) })); this.flash(t.unfaved); }
+      })),
+
+      notifications: notifyDefs.map(n => {
+        const v = s.notify[n.k];
+        return {
+          label: n.label, hint: n.hint,
+          trackBg: v ? "#0D8A52" : "#DCE7E1", knobPos: v ? "flex-end" : "flex-start",
+          onToggle: () => this.setState(p => ({ notify: Object.assign({}, p.notify, { [n.k]: !p.notify[n.k] }) }))
+        };
+      }),
+      save: () => this.flash(t.saved),
+      toast: !!s.toast, toastText: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

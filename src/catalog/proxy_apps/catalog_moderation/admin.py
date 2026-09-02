@@ -90,7 +90,20 @@ class ModerationPlaceAdmin(PendingModerationAdminMixin, PlaceAdmin):
 
     def get_list_display(self, request):
         columns = list(super().get_list_display(request))
-        columns.insert(columns.index("engagement_summary"), "created_summary")
+        if "created_summary" not in columns:
+            if "col_updated" in columns:
+                columns.insert(columns.index("col_updated"), "created_summary")
+            elif "col_actions" in columns:
+                columns.insert(columns.index("col_actions"), "created_summary")
+            else:
+                columns.append("created_summary")
+        if "owner_display" not in columns:
+            if "col_updated" in columns:
+                columns.insert(columns.index("col_updated"), "owner_display")
+            elif "col_actions" in columns:
+                columns.insert(columns.index("col_actions"), "owner_display")
+            else:
+                columns.append("owner_display")
         return tuple(columns)
 
     def get_queryset(self, request):

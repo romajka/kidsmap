@@ -88,7 +88,7 @@
             <ul class="navbar-nav">
                 {% if jazzmin_settings.show_sidebar %}
                 <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button">{% block admin_topbar_menu_icon %}<i class="fas fa-bars"></i>{% endblock %}</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
@@ -99,6 +99,8 @@
                     </a>
                 </li>
                 {% endif %}
+
+                {% block admin_topbar_context %}{% endblock %}
 
                 {% get_top_menu user request.current_app|default:'admin' as top_menu %}
                 {% for link in top_menu %}
@@ -174,6 +176,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link btn" data-toggle="dropdown" href="#" title="Choose language">
                         <i class="fas fa-globe" aria-hidden="true"></i>
+                        <span class="km-topbar-language-code">{{ LANGUAGE_CODE|upper }}</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left" id="jazzy-languagemenu">
                         {% for item in admin_language_switch_items %}
@@ -194,7 +197,7 @@
 
                 <li class="nav-item dropdown">
                     <a class="nav-link btn" data-toggle="dropdown" href="#" title="{{ request.user }}">
-                        <i class="far fa-user" aria-hidden="true"></i>
+                        {% block admin_topbar_account_icon %}<i class="far fa-user" aria-hidden="true"></i>{% endblock %}
                     </a>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left" id="jazzy-usermenu">
                         <span class="dropdown-header">{% trans 'Account' %}</span>
@@ -303,9 +306,7 @@
                                         <ul class="km-admin-sidebar__sublist" role="list">
                                             {% for item in section.items %}
                                             <li class="km-admin-sidebar__entry">
-                                                <a href="{{ item.url }}"
-                                                    class="km-admin-sidebar__link{% if item.active %} is-active{% endif %}"
-                                                    title="{{ item.label }}">
+                                                <a href="{{ item.url }}" class="km-admin-sidebar__link{% if item.active %} is-active{% endif %}" title="{{ item.label }}">
                                                     <span class="km-admin-sidebar__icon-wrap">
                                                         <i class="nav-icon {{ item.icon }}" aria-hidden="true"></i>
                                                     </span>
@@ -317,8 +318,7 @@
                                                         class="km-admin-sidebar__badge km-admin-sidebar__badge--metric"
                                                         aria-label="{{ item.badge_label }}">{{ item.badge_label }}</span>
                                                     {% elif item.show_badge or item.badge_count %}
-                                                    <span class="km-admin-sidebar__badge"
-                                                        aria-label="{{ item.badge_count }}">{{ item.badge_count }}</span>
+                                                    <span class="km-admin-sidebar__badge" aria-label="{{ item.badge_count }}">{{ item.badge_count }}</span>
                                                     {% endif %}
                                                     {% if item.status_label %}
                                                     <span class="km-admin-sidebar__visibility-status"
