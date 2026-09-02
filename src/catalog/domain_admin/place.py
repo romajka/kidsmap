@@ -37,6 +37,7 @@ from catalog.models import (
 )
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from catalog.services.content_quality import (
+    _place_has_pricing_plan_price,
     format_place_quality_errors,
     place_catalog_visibility_reasons,
     place_quality_check,
@@ -244,6 +245,7 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 ("lng", _("Точка на карте")),
                 ("phone1", _("Телефон")),
                 ("photo", _("Главное фото")),
+                ("price", _("Цена или тариф")),
             ]
             if cleaned.get("region") == "baku":
                 checklist.append(("district", _("Район Баку")))
@@ -251,6 +253,19 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 checklist = [item for item in checklist if item[0] != "age_to"]
             missing = []
             for field_name, label in checklist:
+                if field_name == "price":
+                    has_price = bool(
+                        cleaned.get("price_from") is not None and cleaned.get("price_from") != ""
+                        or cleaned.get("price_to") is not None and cleaned.get("price_to") != ""
+                        or cleaned.get("price_per_month") is not None and cleaned.get("price_per_month") != ""
+                        or cleaned.get("price_per_lesson") is not None and cleaned.get("price_per_lesson") != ""
+                        or cleaned.get("is_free")
+                        or (self.instance and _place_has_pricing_plan_price(self.instance))
+                        or bool(cleaned.get("pricing_plans"))
+                    )
+                    if not has_price:
+                        missing.append(str(label))
+                    continue
                 val = cleaned.get(field_name)
                 if not val and val != 0:
                     if self.instance and self.instance.pk:
@@ -2211,12 +2226,45 @@ class PlaceAdmin(admin.ModelAdmin):
             ("address", _("Адрес")),
             ("phone1", _("Телефон")),
             ("photo", _("Главное фото")),
+            ("price", _("Цена или тарифы")),
         ])
 
         completed = 0
         missing = []
         missing_fields = set()
         for field_name, label in checklist:
+            if field_name == "price":
+                has_price = (
+                    bool(form.data.get(form.add_prefix("price_from")))
+                    or bool(form.initial.get("price_from"))
+                    or (getattr(obj, "price_from", None) is not None)
+                    or bool(form.data.get(form.add_prefix("price_to")))
+                    or bool(form.initial.get("price_to"))
+                    or (getattr(obj, "price_to", None) is not None)
+                    or bool(form.data.get(form.add_prefix("price_per_month")))
+                    or bool(form.initial.get("price_per_month"))
+                    or (getattr(obj, "price_per_month", None) is not None)
+                    or bool(form.data.get(form.add_prefix("price_per_lesson")))
+                    or bool(form.initial.get("price_per_lesson"))
+                    or (getattr(obj, "price_per_lesson", None) is not None)
+                    or bool(form.data.get(form.add_prefix("is_free")))
+                    or bool(form.initial.get("is_free"))
+                    or bool(getattr(obj, "is_free", False))
+                    or bool(getattr(obj, "is_price_free", False))
+                    or (obj is not None and _place_has_pricing_plan_price(obj))
+                    or bool(form.data.get("pricing_plans"))
+                    or bool(form.data.get("pricing_plans_payload") and form.data.get("pricing_plans_payload") != "[]")
+                )
+                if has_price:
+                    completed += 1
+                else:
+                    missing.append({
+                        "label": str(label),
+                        "field_id": "id_price_from"
+                    })
+                    missing_fields.add(field_name)
+                continue
+
             is_open_ended_age = field_name == "age_to" and self._field_has_value(
                 form, "age_open_ended", obj=obj
             )
@@ -2319,7 +2367,11 @@ class PlaceAdmin(admin.ModelAdmin):
             "checklist_items": [
                 {
                     "field_name": field_name,
-                    "input_id": "id_name_az" if field_name == "name" else f"id_{field_name}",
+                    "input_id": (
+                        "id_name_az" if field_name == "name"
+                        else "id_price_from" if field_name == "price"
+                        else f"id_{field_name}"
+                    ),
                     "label": str(label),
                     "initial": field_name not in missing_fields,
                 }
@@ -2568,11 +2620,11 @@ class PlaceAdmin(admin.ModelAdmin):
 
         state_key, state_icon, status_text, dot_class = self._state_visual(obj, score)
 
-        photos_count = getattr(obj, "photos_count", 0) or (1 if obj.photo or obj.cover_photo else 0)
-        has_coords = 1 if obj.has_coordinates else 0
-        has_price = 1 if (getattr(obj, "price_from", None) or getattr(obj, "price_to", None) or getattr(obj, "has_pricing_plans", False) or getattr(obj, "pricing_plans", None)) else 0
-        has_desc = 1 if (obj.description_az or obj.description_ru or obj.description_en) else 0
-        has_cat = 1 if obj.category_id else 0
+        photos_count = getattr(obj, "photos_count", 0) or (1 if (obj.photo or obj.cover_photo or (obj.pk and obj.gallery.exists())) else 0)
+        has_coords = 1 if (obj.has_coordinates and bool(obj.address)) else 0
+        has_price = 1 if (getattr(obj, "price_from", None) is not None or getattr(obj, "price_to", None) is not None or _place_has_pricing_plan_price(obj) or getattr(obj, "is_free", False)) else 0
+        has_desc = 1 if any(len((getattr(obj, f) or "").strip()) >= 120 for f in ("description_az", "description_ru", "description_en")) else 0
+        has_cat = 1 if (obj.category_id and bool((obj.name_i18n("az") if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_az", "")) or obj.name)) else 0
 
         name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_i18n", "")) or obj.name_az or obj.name_ru or obj.name_en or obj.name or f"Place #{obj.pk}"
 
@@ -3492,7 +3544,7 @@ class PlaceAdmin(admin.ModelAdmin):
             self.message_user(
                 request,
                 message
-                % {"reasons": place_quality_error_labels(quality.errors)},
+                % {"reasons": format_place_quality_errors(quality.errors)},
                 level=messages.WARNING,
             )
             return HttpResponseRedirect(self._place_change_url(obj))
@@ -3904,7 +3956,7 @@ class PlaceAdmin(admin.ModelAdmin):
         else:
             quality = place_quality_check(place)
             if not quality.is_ready:
-                err_text = _("Нельзя опубликовать: %(reasons)s.") % {"reasons": place_quality_error_labels(quality.errors)}
+                err_text = _("Нельзя опубликовать: %(reasons)s.") % {"reasons": format_place_quality_errors(quality.errors)}
                 if is_ajax:
                     return JsonResponse({
                         "ok": False,

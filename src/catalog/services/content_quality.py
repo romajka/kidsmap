@@ -239,7 +239,8 @@ def place_catalog_visibility_reasons(place) -> tuple[str, ...]:
         )
     )
     has_pricing_plan = _place_has_pricing_plan_price(place)
-    if not has_legacy_price and not has_pricing_plan:
+    has_is_free = bool(getattr(place, "is_free", False) or getattr(place, "is_price_free", False))
+    if not has_legacy_price and not has_pricing_plan and not has_is_free:
         errors.append("missing_price")
 
     if not (place.schedule > "" or place.schedule_days.exists()):
@@ -376,7 +377,8 @@ def place_quality_check(place) -> QualityCheck:
         )
     )
     has_pricing_plan = _place_has_pricing_plan_price(place)
-    if has_legacy_price or has_pricing_plan:
+    has_is_free = bool(getattr(place, "is_free", False) or getattr(place, "is_price_free", False))
+    if has_legacy_price or has_pricing_plan or has_is_free:
         score += 10
     else:
         errors.append("missing_price")

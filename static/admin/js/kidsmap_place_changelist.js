@@ -232,12 +232,13 @@
         var hasCoords = trigger.dataset.hasCoords === '1';
         var hasPrice = trigger.dataset.hasPrice === '1';
         var photosCount = parseInt(trigger.dataset.photosCount || '0', 10);
+        var hasPhoto = photosCount >= 1;
         var hasDesc = trigger.dataset.hasDesc === '1';
         var hasCat = trigger.dataset.hasCat === '1';
         var editUrl = trigger.dataset.editUrl || '#';
 
         // Count items done
-        var doneCount = (hasCoords ? 1 : 0) + (hasPrice ? 1 : 0) + (photosCount >= 3 ? 1 : 0) + (hasDesc ? 1 : 0) + (hasCat ? 1 : 0);
+        var doneCount = (hasCat ? 1 : 0) + (hasDesc ? 1 : 0) + (hasPrice ? 1 : 0) + (hasCoords ? 1 : 0) + (hasPhoto ? 1 : 0);
 
         var scoreLabel = document.getElementById('km-pop-score-label');
         if (scoreLabel) scoreLabel.textContent = (labels.readinessLabel || 'Готовность') + ' ' + score + '%';
@@ -248,7 +249,7 @@
         var popBar = document.getElementById('km-pop-bar');
         if (popBar) {
           popBar.style.width = score + '%';
-          popBar.style.background = score < 60 ? '#A98A3C' : '#4A5750';
+          popBar.style.background = score < 60 ? '#A98A3C' : '#136F38';
         }
 
         var editLink = document.getElementById('km-pop-edit-link');
@@ -256,20 +257,21 @@
 
         // Update items
         var itemsConfig = [
-          { key: 'coords', done: hasCoords, label: hasCoords ? 'Точка на карте есть' : 'Точка на карте — нет координат' },
-          { key: 'price', done: hasPrice, label: hasPrice ? 'Цена указана' : 'Цена: «от» или тариф' },
-          { key: 'photos', done: photosCount >= 3, label: photosCount >= 3 ? 'Фото: ' + photosCount : 'Фото: минимум 3' },
-          { key: 'desc', done: hasDesc, label: 'Описание RU / AZ' },
-          { key: 'cat', done: hasCat, label: 'Категория и подкатегория' }
+          { key: 'cat', done: hasCat, label: hasCat ? 'Название и категория' : 'Заполните название и категорию', hash: '#basics' },
+          { key: 'desc', done: hasDesc, label: hasDesc ? 'Описание заполнено' : 'Описание: от 120 символов', hash: '#basics' },
+          { key: 'price', done: hasPrice, label: hasPrice ? 'Цена / тариф указан' : 'Цена: «от» или добавьте тариф', hash: '#pricing' },
+          { key: 'coords', done: hasCoords, label: hasCoords ? 'Адрес и точка на карте есть' : 'Укажите адрес и координаты', hash: '#location' },
+          { key: 'photos', done: hasPhoto, label: hasPhoto ? 'Главное фото загружено' : 'Загрузите главное фото', hash: '#media' }
         ];
 
         itemsConfig.forEach(function (cfg) {
           var el = readinessPopover.querySelector('[data-item="' + cfg.key + '"]');
           if (el) {
+            el.href = editUrl + cfg.hash;
             el.classList.toggle('is-done', cfg.done);
-            var icon = el.querySelector('.ms');
+            var icon = el.querySelector('.km-pop-icon');
             if (icon) icon.textContent = cfg.done ? 'check' : 'radio_button_unchecked';
-            var text = el.querySelector('span:last-child');
+            var text = el.querySelector('.km-pop-text') || el.querySelector('span:nth-child(2)');
             if (text) text.textContent = cfg.label;
           }
         });

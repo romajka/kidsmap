@@ -724,6 +724,39 @@
         }
       }
 
+      if (item.input_id === "id_price_from" || item.field_name === "price") {
+        var priceFrom = document.getElementById("id_price_from");
+        var priceTo = document.getElementById("id_price_to");
+        var priceMonth = document.getElementById("id_price_per_month");
+        var priceLesson = document.getElementById("id_price_per_lesson");
+        var isFree = document.getElementById("id_is_free");
+        var payloadInput = document.getElementById("id_pricing_plans_payload");
+        var tariffRows = document.querySelectorAll("#km-pricing-plans-table tbody tr");
+
+        if (isFree && isFree.checked) {
+          return true;
+        }
+        if (priceFrom && (priceFrom.value || "").trim()) {
+          return true;
+        }
+        if (priceTo && (priceTo.value || "").trim()) {
+          return true;
+        }
+        if (priceMonth && (priceMonth.value || "").trim()) {
+          return true;
+        }
+        if (priceLesson && (priceLesson.value || "").trim()) {
+          return true;
+        }
+        if (tariffRows && tariffRows.length > 0) {
+          return true;
+        }
+        if (payloadInput && (payloadInput.value || "").trim() && payloadInput.value !== "[]") {
+          return true;
+        }
+        return !!item.initial;
+      }
+
       if (input.type === "file") {
         var clearCheckbox = document.getElementById(item.input_id + "-clear");
         var hasSelectedFile = !!(input.files && input.files.length);

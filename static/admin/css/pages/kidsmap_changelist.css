@@ -1100,7 +1100,7 @@ details[open] .km-accordion-arrow {
 .km-table-container table {
   width: 100% !important;
   border-collapse: collapse !important;
-  table-layout: auto !important;
+  table-layout: fixed !important;
   margin: 0 !important;
 }
 
@@ -1225,14 +1225,21 @@ details[open] .km-accordion-arrow {
   display: none !important;
 }
 
+/* Col 1: Checkbox */
+.km-table-container thead th:nth-child(1),
+.km-table-container thead th:first-child,
+.km-table-container thead th.djn-checkbox-select-all,
 .km-table-container thead th.action-checkbox-column {
-  width: 56px !important;
-  min-width: 56px !important;
-  max-width: 56px !important;
-  padding: 0 12px 0 18px !important;
+  width: 68px !important;
+  min-width: 68px !important;
+  max-width: 68px !important;
+  padding: 0 0 0 24px !important;
   vertical-align: middle !important;
+  box-sizing: border-box !important;
 }
 
+.km-table-container thead th:first-child .text,
+.km-table-container thead th.djn-checkbox-select-all .text,
 .km-table-container thead th.action-checkbox-column .text {
   display: flex !important;
   align-items: center !important;
@@ -1242,45 +1249,65 @@ details[open] .km-accordion-arrow {
   padding: 0 !important;
 }
 
-.km-table-container thead th.action-checkbox-column input#action-toggle {
+.km-table-container thead th input#action-toggle {
   margin: 0 !important;
   vertical-align: middle !important;
   display: block !important;
 }
 
+/* Col 2: Place */
+.km-table-container thead th:nth-child(2),
 .km-table-container thead th.column-col_place {
-  padding-left: 14px !important;
+  width: auto !important;
+  padding: 0 16px 0 20px !important;
+  box-sizing: border-box !important;
 }
 
+/* Col 3: Location */
+.km-table-container thead th:nth-child(3),
 .km-table-container thead th.column-col_location {
+  width: 22% !important;
   min-width: 170px !important;
   padding: 0 12px !important;
+  box-sizing: border-box !important;
 }
 
+/* Col 4: State */
+.km-table-container thead th:nth-child(4),
 .km-table-container thead th.column-col_state {
-  width: 170px !important;
-  min-width: 160px !important;
+  width: 15% !important;
+  min-width: 140px !important;
   padding: 0 12px !important;
+  box-sizing: border-box !important;
 }
 
+/* Col 5: Marks */
+.km-table-container thead th:nth-child(5),
 .km-table-container thead th.column-col_marks {
-  width: 110px !important;
-  min-width: 100px !important;
-  padding: 0 10px !important;
+  width: 9% !important;
+  min-width: 80px !important;
+  padding: 0 8px !important;
+  box-sizing: border-box !important;
 }
 
+/* Col 6: Updated */
+.km-table-container thead th:nth-child(6),
 .km-table-container thead th.column-col_updated {
-  width: 140px !important;
-  min-width: 130px !important;
-  padding: 0 12px !important;
+  width: 12% !important;
+  min-width: 110px !important;
+  padding: 0 10px !important;
+  box-sizing: border-box !important;
 }
 
-.km-table-container thead th.column-col_actions,
-.km-table-container thead th:last-child {
-  width: 110px !important;
-  min-width: 110px !important;
+/* Col 7: Actions */
+.km-table-container thead th:nth-child(7),
+.km-table-container thead th:last-child,
+.km-table-container thead th.column-col_actions {
+  width: 9% !important;
+  min-width: 90px !important;
   text-align: right !important;
-  padding-right: 18px !important;
+  padding-right: 16px !important;
+  box-sizing: border-box !important;
 }
 
 .km-table-container tbody tr {
@@ -1314,40 +1341,67 @@ details[open] .km-accordion-arrow {
   border-bottom: 1px solid var(--km-divider) !important;
   vertical-align: middle !important;
   box-sizing: border-box;
+  overflow: hidden !important;
 }
 
+.km-table-container tbody td:nth-child(1),
+.km-table-container tbody td:first-child,
 .km-table-container tbody td.action-checkbox {
-  width: 56px !important;
-  min-width: 56px !important;
-  max-width: 56px !important;
-  padding: 0 12px 0 18px !important;
+  width: 68px !important;
+  min-width: 68px !important;
+  max-width: 68px !important;
+  padding: 0 0 0 24px !important;
   vertical-align: middle !important;
+  box-sizing: border-box !important;
 }
 
+.km-table-container tbody td:nth-child(2),
 .km-table-container tbody td.field-col_place {
-  padding-left: 14px !important;
+  width: auto !important;
+  padding: 0 16px 0 20px !important;
+  box-sizing: border-box !important;
 }
 
+.km-table-container tbody td:nth-child(3),
 .km-table-container tbody td.field-col_location {
+  width: 22% !important;
+  min-width: 170px !important;
   padding: 0 12px !important;
+  box-sizing: border-box !important;
 }
 
+.km-table-container tbody td:nth-child(4),
 .km-table-container tbody td.field-col_state {
+  width: 15% !important;
+  min-width: 140px !important;
   padding: 0 12px !important;
+  box-sizing: border-box !important;
 }
 
+.km-table-container tbody td:nth-child(5),
 .km-table-container tbody td.field-col_marks {
-  padding: 0 10px !important;
+  width: 9% !important;
+  min-width: 80px !important;
+  padding: 0 8px !important;
+  box-sizing: border-box !important;
 }
 
+.km-table-container tbody td:nth-child(6),
 .km-table-container tbody td.field-col_updated {
-  padding: 0 12px !important;
+  width: 12% !important;
+  min-width: 110px !important;
+  padding: 0 10px !important;
+  box-sizing: border-box !important;
 }
 
-.km-table-container tbody td.field-col_actions,
-.km-table-container tbody td:last-child {
+.km-table-container tbody td:nth-child(7),
+.km-table-container tbody td:last-child,
+.km-table-container tbody td.field-col_actions {
+  width: 9% !important;
+  min-width: 90px !important;
   text-align: right !important;
-  padding-right: 18px !important;
+  padding-right: 16px !important;
+  box-sizing: border-box !important;
 }
 
 /* Custom Checkbox styles matching Mockup 1c */
@@ -1404,6 +1458,7 @@ details[open] .km-accordion-arrow {
   align-items: center;
   gap: 10px;
   min-width: 0;
+  width: 100%;
 }
 
 .km-col-thumb {
@@ -1425,6 +1480,8 @@ details[open] .km-accordion-arrow {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .km-col-place-name {
@@ -1456,6 +1513,8 @@ details[open] .km-accordion-arrow {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .km-col-loc-addr {
@@ -1999,16 +2058,39 @@ details[open] .km-accordion-arrow {
   gap: 8px;
   font-size: 12.5px;
   color: var(--km-text);
+  text-decoration: none !important;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: all .12s ease;
+}
+.km-readiness-popover__item:hover {
+  background: var(--km-bg-hover);
+  color: var(--km-accent);
 }
 .km-readiness-popover__item.is-done {
   color: var(--km-captions);
 }
+.km-readiness-popover__item.is-done:hover {
+  color: var(--km-text);
+}
 .km-readiness-popover__item .km-pop-icon {
   font-size: 16px !important;
-  color: var(--km-muted-icon);
+  color: var(--km-warn);
+  flex-shrink: 0;
 }
 .km-readiness-popover__item.is-done .km-pop-icon {
-  color: var(--km-text-2);
+  color: var(--km-accent);
+}
+.km-readiness-popover__item-arrow {
+  margin-left: auto;
+  font-size: 14px !important;
+  color: var(--km-muted-icon);
+  opacity: 0;
+  transition: opacity .12s ease;
+}
+.km-readiness-popover__item:hover .km-readiness-popover__item-arrow {
+  opacity: 1;
+  color: var(--km-accent);
 }
 
 .km-readiness-popover__footer {

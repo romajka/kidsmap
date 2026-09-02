@@ -21,10 +21,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=82">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=115">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=2">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=28" defer></script>
+  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=35" defer></script>
   <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=2" defer></script>
 {% endblock %}
 
@@ -223,30 +223,35 @@
         <span class="km-readiness-popover__bar" id="km-pop-bar" style="width: 0%"></span>
       </div>
       <div class="km-readiness-popover__list" id="km-pop-list">
-        <div class="km-readiness-popover__item" data-item="coords">
+        <a href="#" class="km-readiness-popover__item" data-item="cat" title="{% translate 'Перейти к названию и категории' %}">
           <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span>{% translate "Точка на карте — координаты" %}</span>
-        </div>
-        <div class="km-readiness-popover__item" data-item="price">
+          <span class="km-pop-text">{% translate "Название и категория" %}</span>
+          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
+        </a>
+        <a href="#" class="km-readiness-popover__item" data-item="desc" title="{% translate 'Перейти к описанию' %}">
           <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span>{% translate "Цена: «от» или тариф" %}</span>
-        </div>
-        <div class="km-readiness-popover__item" data-item="photos">
+          <span class="km-pop-text">{% translate "Описание (от 120 симв.)" %}</span>
+          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
+        </a>
+        <a href="#" class="km-readiness-popover__item" data-item="price" title="{% translate 'Перейти к ценам и тарифам' %}">
           <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span>{% translate "Фото: минимум 3" %}</span>
-        </div>
-        <div class="km-readiness-popover__item" data-item="desc">
+          <span class="km-pop-text">{% translate "Цена или тариф" %}</span>
+          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
+        </a>
+        <a href="#" class="km-readiness-popover__item" data-item="coords" title="{% translate 'Перейти к адресу и координатам' %}">
           <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span>{% translate "Описание RU / AZ" %}</span>
-        </div>
-        <div class="km-readiness-popover__item" data-item="cat">
+          <span class="km-pop-text">{% translate "Адрес и точка на карте" %}</span>
+          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
+        </a>
+        <a href="#" class="km-readiness-popover__item" data-item="photos" title="{% translate 'Перейти к фотографиям' %}">
           <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span>{% translate "Категория и подкатегория" %}</span>
-        </div>
+          <span class="km-pop-text">{% translate "Главное фото" %}</span>
+          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
+        </a>
       </div>
       <div class="km-readiness-popover__footer">
         <a href="#" class="km-readiness-popover__link" id="km-pop-edit-link">
-          <span>{% translate "Заполнить в карточке" %}</span>
+          <span>{% translate "Редактировать карточку" %}</span>
           <span class="ms">arrow_forward</span>
         </a>
       </div>
