@@ -707,17 +707,32 @@
           <section class="detail-card detail-card--tight">
             <h2 class="detail-card__title detail-card__title--sm">{% trans "Контакты" %}</h2>
             <div class="detail-contacts">
-              {% for phone in place.phone_numbers %}
-                <a class="detail-contacts__row" href="tel:{{ phone }}">
+              {% if place.phone_numbers %}
+                {% with primary_phone=place.phone_numbers|first %}
+                <a class="detail-contacts__row detail-contacts__row--primary" href="tel:{{ primary_phone }}">
                   <span class="detail-contacts__icon detail-contacts__icon--phone" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none"><path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </span>
                   <span class="detail-contacts__body">
-                    <span class="detail-label">{% if forloop.first %}{% trans "Основной телефон" %}{% else %}{% trans "Дополнительный телефон" %}{% endif %}</span>
-                    <strong>{{ phone }}</strong>
+                    <span class="detail-label">{% trans "Основной телефон" %}</span>
+                    <strong>{{ primary_phone }}</strong>
                   </span>
                 </a>
-              {% endfor %}
+                {% endwith %}
+                {% if place.phone_numbers|length > 1 %}
+                  <div class="detail-contacts__secondary" aria-label="{% trans 'Дополнительные номера' %}">
+                    <span class="detail-contacts__secondary-label">{% trans "Дополнительные номера" %}</span>
+                    {% for phone in place.phone_numbers|slice:"1:" %}
+                      <a class="detail-contacts__secondary-link" href="tel:{{ phone }}">
+                        <span class="detail-contacts__secondary-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none"><path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        <strong>{{ phone }}</strong>
+                      </a>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              {% endif %}
 
               {% if place.instagram %}
                 <a class="detail-contacts__row" href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">
