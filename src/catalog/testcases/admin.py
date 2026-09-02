@@ -51,7 +51,14 @@ from catalog.models import (
     UserProfile,
 )
 from catalog.services.geocoding import PlaceGeocodingService
-from catalog.services.content_quality import public_place_queryset, public_review_queryset, review_quality_check
+from catalog.services.content_quality import (
+    PLACE_QUALITY_ERROR_LABELS,
+    QualityCheck,
+    place_quality_error_labels,
+    public_place_queryset,
+    public_review_queryset,
+    review_quality_check,
+)
 from catalog.services.place_schedule import dump_schedule_payload
 from catalog.testcases.auth_access import TestAccountsAndReviewAccess
 from catalog.testcases.auth_flow import (
@@ -1260,6 +1267,19 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Скрыто с сайта")
         self.assertNotContains(response, "Открыть карточку на сайте")
 
+    def test_admin_visibility_badge_matches_public_catalog_queryset(self):
+        public_place = create_quality_place(name="Badge visible place")
+        hidden_place = create_quality_place(name="test badge hidden place")
+
+        for place in (public_place, hidden_place):
+            with self.subTest(place=place.pk):
+                response = self.client.get(reverse("admin:catalog_place_change", args=[place.pk]))
+                visibility = response.context["km_place_form_summary"]["visibility"]
+                in_catalog = public_place_queryset(Place.objects.filter(pk=place.pk)).exists()
+
+                self.assertEqual(visibility["is_public"], in_catalog)
+                self.assertEqual(visibility["label"], "Опубликовано" if in_catalog else "Скрыто с сайта")
+
     def test_place_admin_change_form_uses_step_layout(self):
         response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=permanent")
 
@@ -1582,6 +1602,44 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertTrue(ready_place.is_active)
         self.assertEqual(ready_place.status, Place.STATUS_PUBLISHED)
         self.assertIsNotNone(ready_place.published_at)
+
+    def test_place_quality_labels_cover_every_code_without_exposing_codes(self):
+        codes = tuple(PLACE_QUALITY_ERROR_LABELS)
+
+        labels = place_quality_error_labels(codes)
+
+        self.assertEqual(len(labels), len(codes))
+        self.assertTrue(all(label.strip() for label in labels))
+        self.assertTrue(all(code not in labels for code in codes))
+        self.assertNotEqual(place_quality_error_labels(("unknown_internal_code",))[0], "unknown_internal_code")
+
+    def test_failed_publish_keeps_published_card_active_and_shows_all_issues(self):
+        self.place = create_quality_place(
+            name="Already published place",
+            name_ru="Уже опубликованная карточка",
+            status=Place.STATUS_PUBLISHED,
+            is_active=True,
+        )
+        quality = QualityCheck(
+            score=0,
+            errors=("missing_coordinates", "missing_price", "missing_photo"),
+        )
+        payload = self._admin_place_change_payload(_publish_place="1")
+
+        with patch("catalog.domain_admin.place.place_quality_check", return_value=quality):
+            response = self.client.post(
+                reverse("admin:catalog_place_change", args=[self.place.id]),
+                data=payload,
+                follow=True,
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.place.refresh_from_db()
+        self.assertEqual(self.place.status, Place.STATUS_PUBLISHED)
+        self.assertTrue(self.place.is_active)
+        self.assertContains(response, "Карточка осталась опубликованной")
+        for label in place_quality_error_labels(quality.errors):
+            self.assertContains(response, label)
 
     def test_place_admin_change_form_keeps_gallery_reviews_and_audit_sections(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))

@@ -21,6 +21,7 @@ class ReviewPayload:
     rating: int
     text: str
     author_name: str
+    is_anonymous: bool = False
 
 
 def _author_name_from_account(user) -> str:
@@ -78,6 +79,8 @@ def _build_review_payload(
             rating=rating,
             text=review_text,
             author_name=author_name,
+            is_anonymous=str(request.POST.get("is_anonymous") or "").strip().lower()
+            in {"1", "true", "on", "yes"},
         ),
         "",
     )
@@ -111,7 +114,7 @@ def submit_place_review(*, request, place, require_auth: bool) -> ReviewSubmissi
         rating=payload.rating,
         review_text=moderated.text,
         author_name=moderated.author_name,
-        is_anonymous=False,
+        is_anonymous=payload.is_anonymous,
         contains_profanity=moderated.contains_profanity,
     )
     review_obj.status = PlaceReview.STATUS_PENDING
@@ -149,7 +152,7 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
         "rating": payload.rating,
         "text": moderated.text,
         "author_name": moderated.author_name,
-        "is_anonymous": False,
+        "is_anonymous": payload.is_anonymous,
         "contains_profanity": moderated.contains_profanity,
         "is_approved": False,
         "status": SiteReview.STATUS_PENDING,

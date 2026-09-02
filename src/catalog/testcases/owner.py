@@ -1703,7 +1703,9 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             follow=True,
         )
         self.assertEqual(first_response.status_code, 200)
-        self.assertContains(first_response, "Перед отправкой на проверку заполните")
+        self.assertContains(first_response, "Перед отправкой на проверку исправьте")
+        self.assertContains(first_response, "Фото: загрузите основное фото")
+        self.assertContains(first_response, "Точка на карте: выберите точку вручную")
         self.editor_place.refresh_from_db()
         self.assertNotEqual(self.editor_place.status, Place.STATUS_PENDING)
         self.assertEqual(

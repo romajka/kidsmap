@@ -225,8 +225,9 @@ class Place(models.Model):
     def metro_i18n(self, lang=None):
         if not self.metro:
             return ""
-        with_translation = str(translate(self.metro))
-        return with_translation or self.metro
+        from catalog.services.locations import get_metro_translation
+
+        return get_metro_translation(self.metro, self._normalize_lang(lang))
 
     @property
     def safe_photo_size(self):
@@ -479,6 +480,13 @@ class Place(models.Model):
 
     @property
     def is_public(self) -> bool:
+        """Whether the card has an active published state.
+
+        Catalog-quality visibility is deliberately checked by
+        ``public_place_queryset``. Keeping this property state-only avoids a
+        database query each time templates render a card.
+        """
+
         return self.is_active and self.status == self.STATUS_PUBLISHED and not self.is_deleted
 
     @property

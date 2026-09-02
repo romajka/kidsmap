@@ -1953,9 +1953,13 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
             </a>
             <div class="home-faq-vote-box" data-vote-id="home-q1">
-              <span>{% trans "Было полезно?" %}</span>
-              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
-              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+              <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+              </button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1994,9 +1998,13 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
             </a>
             <div class="home-faq-vote-box" data-vote-id="home-q2">
-              <span>{% trans "Было полезно?" %}</span>
-              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
-              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+              <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+              </button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+              </button>
             </div>
           </div>
         </div>
@@ -2028,9 +2036,13 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
             </a>
             <div class="home-faq-vote-box" data-vote-id="home-q3">
-              <span>{% trans "Было полезно?" %}</span>
-              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
-              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+              <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+              </button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+              </button>
             </div>
           </div>
         </div>
@@ -2061,9 +2073,13 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
             </a>
             <div class="home-faq-vote-box" data-vote-id="home-q4">
-              <span>{% trans "Было полезно?" %}</span>
-              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
-              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+              <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+              <button type="button" class="home-faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+              </button>
+              <button type="button" class="home-faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+              </button>
             </div>
           </div>
         </div>
@@ -2117,24 +2133,87 @@
 </section>
 
 <script>
-  (function () {
-    const faqItems = document.querySelectorAll('.home-faq-item');
-    faqItems.forEach((item) => {
-      item.addEventListener('toggle', () => {
+  (function initHomeFaqAccordion() {
+    const isAnimatingMap = new WeakMap();
+
+    function slideDown(item, wrap) {
+      if (isAnimatingMap.get(item)) return;
+      isAnimatingMap.set(item, true);
+
+      item.open = true;
+      const inner = wrap.firstElementChild || wrap;
+      const endHeight = inner.offsetHeight || wrap.scrollHeight;
+
+      wrap.style.overflow = 'hidden';
+      const anim = wrap.animate([
+        { height: '0px', opacity: 0 },
+        { height: endHeight + 'px', opacity: 1 }
+      ], {
+        duration: 320,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+      });
+
+      anim.onfinish = () => {
+        wrap.style.height = '';
+        wrap.style.overflow = '';
+        isAnimatingMap.set(item, false);
+      };
+    }
+
+    function slideUp(item, wrap) {
+      if (isAnimatingMap.get(item)) return;
+      isAnimatingMap.set(item, true);
+
+      const startHeight = wrap.offsetHeight || wrap.scrollHeight;
+      wrap.style.overflow = 'hidden';
+
+      const anim = wrap.animate([
+        { height: startHeight + 'px', opacity: 1 },
+        { height: '0px', opacity: 0 }
+      ], {
+        duration: 260,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+      });
+
+      anim.onfinish = () => {
+        item.open = false;
+        wrap.style.height = '';
+        wrap.style.overflow = '';
+        isAnimatingMap.set(item, false);
+      };
+    }
+
+    document.querySelectorAll('.home-faq-item').forEach(item => {
+      const summary = item.querySelector('.home-faq-question') || item.querySelector('summary');
+      const wrap = item.querySelector('.home-faq-answer-wrapper');
+      if (!summary || !wrap) return;
+
+      summary.addEventListener('click', (e) => {
+        e.preventDefault();
+
         if (item.open) {
-          faqItems.forEach((other) => {
-            if (other !== item && other.open) {
-              other.open = false;
-            }
-          });
+          slideUp(item, wrap);
+        } else {
+          // Close other open accordions smoothly
+          const parentList = item.closest('.home-faq-list') || item.parentElement;
+          if (parentList) {
+            parentList.querySelectorAll('.home-faq-item').forEach(other => {
+              if (other !== item && other.open) {
+                const otherWrap = other.querySelector('.home-faq-answer-wrapper');
+                if (otherWrap) slideUp(other, otherWrap);
+              }
+            });
+          }
+          slideDown(item, wrap);
         }
       });
     });
 
+    const voteThanksText = {% if request.LANGUAGE_CODE == 'az' %}'Rəyiniz üçün təşəkkür!'{% elif request.LANGUAGE_CODE == 'en' %}'Thank you for your feedback!'{% else %}'Спасибо за отзыв!'{% endif %};
     document.querySelectorAll('.home-faq-vote-box').forEach(box => {
       box.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', () => {
-          box.innerHTML = `<span class="home-faq-vote-thanks"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg> {% trans "Спасибо за отзыв!" %}</span>`;
+          box.innerHTML = `<span class="home-faq-vote-thanks"><span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">favorite</span> ${voteThanksText}</span>`;
         });
       });
     });
@@ -2183,7 +2262,7 @@
       const targetSelect = document.querySelector('select[name="district"]');
       if (!trigger || !dropdown || !targetSelect) return;
 
-      const currentLang = document.documentElement.lang || 'az';
+      const currentLang = (document.documentElement.lang || 'az').split('-')[0].toLowerCase();
 
       function getBütünBakıRayonlarıLabel() {
         if (currentLang === 'az') return 'Bütün Bakı rayonları';

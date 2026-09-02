@@ -801,16 +801,34 @@ def build_pricing_summary(place, lang="ru"):
             count = int(lessons_per_week)
             times = "раз в неделю" if (count % 10 == 1 and count % 100 != 11) else "раза в неделю"
             frequency_label = f"{count} {times}"
+        elif lang == "az":
+            frequency_label = f"həftədə {lessons_per_week} dəfə"
         else:
-            frequency_label = LOCALIZED_STRINGS[lang]["sessions_per_week"].format(count=lessons_per_week)
+            count = int(lessons_per_week)
+            times = "time / week" if count == 1 else "times / week"
+            frequency_label = f"{count} {times}"
     elif lessons_per_month:
-        frequency_label = LOCALIZED_STRINGS[lang]["sessions_per_month"].format(count=lessons_per_month)
-        
+        if lang == "ru":
+            count = int(lessons_per_month)
+            times = "раз в месяц" if (count % 10 == 1 and count % 100 != 11) else "раза в месяц"
+            frequency_label = f"{count} {times}"
+        elif lang == "az":
+            frequency_label = f"ayda {lessons_per_month} dəfə"
+        else:
+            count = int(lessons_per_month)
+            times = "time / month" if count == 1 else "times / month"
+            frequency_label = f"{count} {times}"
+
     duration_label = ""
     if place.lesson_duration_minutes:
         duration_label = LOCALIZED_STRINGS[lang]["minutes"].format(count=place.lesson_duration_minutes)
-        
-    from catalog.services.place_schedule import schedule_mode_label, schedule_mode_note
+
+    from catalog.services.place_schedule import (
+        build_open_status,
+        build_public_schedule_week,
+        schedule_mode_label,
+        schedule_mode_note,
+    )
 
     schedule_mode = getattr(place, "schedule_mode", "regular") or "regular"
     strings = dict(LOCALIZED_STRINGS[lang])
@@ -831,8 +849,10 @@ def build_pricing_summary(place, lang="ru"):
         schedule_type_label = LOCALIZED_STRINGS[lang]["schedule_label"]
 
     schedule_rows = build_compact_schedule_rows(place, lang)
+    schedule_week = build_public_schedule_week(place, lang)
+    open_status = build_open_status(place, lang)
     public_schedule_note = schedule_mode_note(place, lang) or LOCALIZED_STRINGS[lang]["schedule_note"]
-    
+
     plans_processed = []
     for plan in plans:
         fully_matches = False
@@ -841,10 +861,10 @@ def build_pricing_summary(place, lang="ru"):
             if plan_price == starting_price["amount"] and plan.get("payment_type") == starting_price["payment_type"]:
                 # Check format/sessions match parameter chips if present
                 fully_matches = True
-                
+
         details_list = []
         if plan.get("package_sessions"):
-            cnt = plan["package_sessions"]
+            cnt = int(plan["package_sessions"])
             if lang == "ru":
                 if cnt % 10 == 1 and cnt % 100 != 11:
                     unit_sess = "занятие"
@@ -857,7 +877,7 @@ def build_pricing_summary(place, lang="ru"):
                 details_list.append(f"{cnt} dərs")
             else:
                 details_list.append(f"{cnt} sessions" if cnt > 1 else f"{cnt} session")
-        
+
         sess_w = plan.get("sessions_per_week")
         sess_m = plan.get("sessions_per_month")
         if sess_w:
@@ -865,13 +885,26 @@ def build_pricing_summary(place, lang="ru"):
                 count = int(sess_w)
                 times = "раз в неделю" if (count % 10 == 1 and count % 100 != 11) else "раза в неделю"
                 details_list.append(f"{count} {times}")
+            elif lang == "az":
+                details_list.append(f"həftədə {sess_w} dəfə")
             else:
-                details_list.append(LOCALIZED_STRINGS[lang]["sessions_per_week"].format(count=sess_w))
+                count = int(sess_w)
+                times = "time / week" if count == 1 else "times / week"
+                details_list.append(f"{count} {times}")
         elif sess_m:
-            details_list.append(LOCALIZED_STRINGS[lang]["sessions_per_month"].format(count=sess_m))
-            
+            if lang == "ru":
+                count = int(sess_m)
+                times = "раз в месяц" if (count % 10 == 1 and count % 100 != 11) else "раза в месяц"
+                details_list.append(f"{count} {times}")
+            elif lang == "az":
+                details_list.append(f"ayda {sess_m} dəfə")
+            else:
+                count = int(sess_m)
+                times = "time / month" if count == 1 else "times / month"
+                details_list.append(f"{count} {times}")
+
         details_str = " · ".join(details_list)
-        
+
         plan_price_val = plan.get("price")
         plan_price_str = ""
         currency = plan.get("currency") or DEFAULT_CURRENCY
@@ -888,14 +921,14 @@ def build_pricing_summary(place, lang="ru"):
             price_display = str(int(price_float)) if price_float.is_integer() else f"{price_float:.2f}"
             unit = LOCALIZED_STRINGS[lang].get(plan.get("payment_type"), "")
             plan_price_str = f"{price_display} {currency}" + (f" / {unit}" if unit else "")
-            
+
         whatsapp_url = ""
         if place.phone1:
             clean_phone = place.phone1.replace(" ", "").replace("+", "")
             clean_phone = "".join(c for c in clean_phone if c.isdigit())
             if clean_phone.startswith("0") and not clean_phone.startswith("994"):
                 clean_phone = "994" + clean_phone[1:]
-            
+
             title_str = plan.get("title") or ""
             place_name = (
                 (place.name_az or place.name or "").strip()
@@ -906,14 +939,14 @@ def build_pricing_summary(place, lang="ru"):
                     else (place.name_ru or place.name or "").strip()
                 )
             )
-            
+
             if lang == "az":
-                msg = f"Salam! '{place_name}' təşkilatındakı '{title_str}' tarifi ilə maraqlanıram. Ətraflı məlumat verə bilərsiniz?"
+                msg = f"Salam! «{place_name}» üzrə «{title_str}» tarifi ilə maraqlanıram. Zəhmət olmasa, ətraflı məlumat verə bilərsiniz?"
             elif lang == "en":
-                msg = f"Hello! I am interested in the '{title_str}' tariff at '{place_name}'. Could you please provide more details?"
+                msg = f"Hello! I am interested in the '{title_str}' plan at '{place_name}'. Could you please provide more details?"
             else:
                 msg = f"Здравствуйте! Меня интересует тариф «{title_str}» в «{place_name}». Подскажите, пожалуйста, подробнее."
-            
+
             import urllib.parse
             whatsapp_url = f"https://wa.me/{clean_phone}?text={urllib.parse.quote(msg)}"
 
@@ -926,7 +959,7 @@ def build_pricing_summary(place, lang="ru"):
         group_labels = {
             "ru": {"admission": "Входные билеты", "visits": "Разовые посещения", "lessons": "Занятия и пакеты", "memberships": "Абонементы", "courses": "Курсы", "camps": "Лагеря", "events": "События и экскурсии", "rental": "Аренда", "additional": "Дополнительные платежи"},
             "az": {"admission": "Giriş biletləri", "visits": "Birdəfəlik ziyarətlər", "lessons": "Dərslər və paketlər", "memberships": "Abunəliklər", "courses": "Kurslar", "camps": "Düşərgələr", "events": "Tədbirlər və ekskursiyalar", "rental": "İcarə", "additional": "Əlavə ödənişlər"},
-            "en": {"admission": "Admission", "visits": "Single visits", "lessons": "Lessons and packages", "memberships": "Memberships", "courses": "Courses", "camps": "Camps", "events": "Events and excursions", "rental": "Rental", "additional": "Additional charges"},
+            "en": {"admission": "Admission", "visits": "Single visits", "lessons": "Lessons and packages", "memberships": "Memberships", "courses": "Courses", "camps": "Camps", "events": "Events and excursions", "rental": "Rental", "additional": "Additional payments"},
         }
         group_key = group_keys.get(plan.get("product_type"), "additional")
         plans_processed.append({
@@ -952,6 +985,8 @@ def build_pricing_summary(place, lang="ru"):
         "formatted_price_unit": starting_price["formatted"]["unit"],
         "plans": plans_processed,
         "schedule_rows": schedule_rows,
+        "schedule_week": schedule_week,
+        "open_status": open_status,
         "schedule_type_label": schedule_type_label,
         "schedule_note": public_schedule_note,
         "lesson_format": lesson_format,

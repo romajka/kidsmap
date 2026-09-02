@@ -95,6 +95,8 @@ class PlaceReview(models.Model):
 
     @property
     def author_name_i18n(self) -> str:
+        if self.is_anonymous:
+            return str(_("Аноним"))
         return self.author_name or str(_("Гость"))
 
     @property

@@ -5,19 +5,19 @@
     data-temporary-event-timer
     data-temporary-start="{% if place.temporary_start %}{{ place.temporary_start|date:'c' }}{% endif %}"
     data-temporary-end="{% if place.temporary_end %}{{ place.temporary_end|date:'c' }}{% endif %}"
-    data-label-upcoming="{% if language == 'az' %}Başlamasına{% elif language == 'en' %}Starts in{% else %}До начала{% endif %}"
-    data-label-running="{% if language == 'az' %}İndi gedir{% elif language == 'en' %}Happening now{% else %}Идёт сейчас{% endif %}"
-    data-label-ending="{% if language == 'az' %}Bitməsinə{% elif language == 'en' %}Ends in{% else %}До окончания{% endif %}"
-    data-label-ended="{% if language == 'az' %}Tədbir bitib{% elif language == 'en' %}Event ended{% else %}Мероприятие завершено{% endif %}"
-    data-label-days="{% if language == 'az' %}g{% elif language == 'en' %}d{% else %}д{% endif %}"
-    data-label-hours="{% if language == 'az' %}s{% elif language == 'en' %}h{% else %}ч{% endif %}"
-    data-label-minutes="{% if language == 'az' %}dəq{% elif language == 'en' %}min{% else %}мин{% endif %}"
-    data-label-seconds="{% if language == 'az' %}san{% elif language == 'en' %}sec{% else %}сек{% endif %}"
+    data-label-upcoming="{% trans 'До начала' %}"
+    data-label-running="{% trans 'Идёт сейчас' %}"
+    data-label-ending="{% trans 'До окончания' %}"
+    data-label-ended="{% trans 'Мероприятие завершено' %}"
+    data-label-days="{% trans 'д' %}"
+    data-label-hours="{% trans 'ч' %}"
+    data-label-minutes="{% trans 'мин' %}"
+    data-label-seconds="{% trans 'сек' %}"
   >
     <span class="temporary-event-badge__icon" aria-hidden="true"></span>
     <span class="temporary-event-badge__content">
       <span class="temporary-event-badge__title">
-        {% if language == "az" %}Müvəqqəti tədbir{% elif language == "en" %}Temporary event{% else %}Временное мероприятие{% endif %}
+        {% trans "Временное мероприятие" %}
       </span>
       <span class="temporary-event-badge__timer" data-temporary-event-timer-text>
         {% if place.temporary_start %}

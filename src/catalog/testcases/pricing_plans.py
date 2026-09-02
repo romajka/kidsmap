@@ -277,7 +277,8 @@ class PricingPlansTests(TestCase):
 
         self.assertContains(response, 'id="pricing-plans-toggle"', html=False)
         self.assertContains(response, "Показать все тарифы · +2")
-        self.assertContains(response, 'style="display: none;"', count=2, html=False)
+        # The extra rows are collapsed with the `hidden` attribute, not an inline style.
+        self.assertContains(response, 'class="detail-plans__row detail-plans__row--hidden" hidden', count=2, html=False)
 
     def test_empty_plans_have_no_public_block_data(self):
         self.assertEqual(public_pricing_plans([]), [])

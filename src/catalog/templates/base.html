@@ -45,6 +45,9 @@
         gtag("config", "{{ google_analytics_measurement_id|escapejs }}");
       </script>
     {% endif %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/site.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bg_admin_background.css' %}" />
     <style>
@@ -128,20 +131,20 @@
                 href="{% url 'specialist_list' %}"
                 class="mobile-nav-link {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}active{% endif %}"
                 {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}aria-current="page"{% endif %}
-              >{% if CURRENT_LANGUAGE == "az" %}Pedaqoqlar və mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Educators and Specialists{% else %}Педагоги и специалисты{% endif %}</a>
+              >{% trans "Педагоги и специалисты" %}</a>
             {% endif %}
             {% if is_events_section_enabled %}
             <a
               href="{% url 'events_landing' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
               {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
-            >{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
+            >{% trans "Афиша" %}</a>
             {% endif %}
             <a
               href="{% url 'add_place' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'add_place' %}active{% endif %}"
               {% if request.resolver_match.url_name == 'add_place' %}aria-current="page"{% endif %}
-            >{% if CURRENT_LANGUAGE == "en" %}Add a place{% elif CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% else %}Добавить место{% endif %}</a>
+            >{% trans "Добавить место" %}</a>
             <a
               href="{% url 'about' %}"
               class="mobile-nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
@@ -176,23 +179,23 @@
               href="{% url 'specialist_list' %}"
               class="{% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}active{% endif %}"
               {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}aria-current="page"{% endif %}
-            >{% if CURRENT_LANGUAGE == "az" %}Pedaqoqlar və mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Educators and Specialists{% else %}Педагоги и специалисты{% endif %}</a>
+            >{% trans "Педагоги и специалисты" %}</a>
           {% endif %}
           {% if is_events_section_enabled %}
           <a
             href="{% url 'events_landing' %}"
             class="{% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
             {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
-          >{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
+          >{% trans "Афиша" %}</a>
           {% endif %}
           <a
             href="{% url 'add_place' %}"
             class="{% if request.resolver_match.url_name == 'add_place' %}active{% endif %}"
             {% if request.resolver_match.url_name == 'add_place' %}aria-current="page"{% endif %}
-          >{% if CURRENT_LANGUAGE == "en" %}Add a place{% elif CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% else %}Добавить место{% endif %}</a>
+          >{% trans "Добавить место" %}</a>
           <details class="header-menu nav-dropdown-menu">
             <summary class="nav-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'contacts' or request.resolver_match.url_name == 'faq_page' %}active{% endif %}">
-              {% if CURRENT_LANGUAGE == "az" %}Bizim haqqımızda{% elif CURRENT_LANGUAGE == "en" %}About{% else %}О нас{% endif %}
+              {% trans "О нас" %}
               <span class="lang-arrow" aria-hidden="true"></span>
             </summary>
             <div class="nav-dropdown">
@@ -229,7 +232,7 @@
                     href="{% url 'owner_places_dashboard' %}"
                     {% if request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
                   >
-                    {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
+                    {% trans "Мои места" %}
                   </a>
                   <form method="post" action="{% url 'account_logout' %}" class="auth-logout-form">
                     {% csrf_token %}
@@ -322,12 +325,12 @@
                   <a href="{% url 'home' %}">{% trans "Главная" %}</a>
                   <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
                   {% if is_specialists_section_enabled %}
-                    <a href="{% url 'specialist_list' %}">{% if CURRENT_LANGUAGE == "az" %}Pedaqoqlar və mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Educators and Specialists{% else %}Педагоги и специалисты{% endif %}</a>
+                    <a href="{% url 'specialist_list' %}">{% trans "Педагоги и специалисты" %}</a>
                   {% endif %}
                   {% if is_events_section_enabled %}
-                    <a href="{% url 'events_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
+                    <a href="{% url 'events_landing' %}">{% trans "Афиша" %}</a>
                   {% endif %}
-                  <a href="{% url 'add_place' %}">{% if CURRENT_LANGUAGE == "en" %}Add a place{% elif CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% else %}Добавить место{% endif %}</a>
+                  <a href="{% url 'add_place' %}">{% trans "Добавить место" %}</a>
                   <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
                   <a href="{% url 'faq_page' %}">{% trans "FAQ" %}</a>
                   <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
@@ -374,19 +377,13 @@
             <div class="footer-bottom-left">
               <p>© {% now "Y" %} KidsMap</p>
               <div class="footer-legal-links">
-                <a href="{% url 'privacy' %}">{% if CURRENT_LANGUAGE == "en" %}Privacy Policy{% elif CURRENT_LANGUAGE == "az" %}Məxfilik siyasəti{% else %}Политика конфиденциальности{% endif %}</a>
-                <a href="{% url 'terms' %}">{% if CURRENT_LANGUAGE == "en" %}Terms of Use{% elif CURRENT_LANGUAGE == "az" %}İstifadə şərtləri{% else %}Условия использования{% endif %}</a>
-                <a href="{% url 'review_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Review Rules{% elif CURRENT_LANGUAGE == "az" %}Rəy qaydaları{% else %}Правила отзывов{% endif %}</a>
-                <a href="{% url 'listing_rules' %}">{% if CURRENT_LANGUAGE == "en" %}Listing Rules{% elif CURRENT_LANGUAGE == "az" %}Yerləşdirmə qaydaları{% else %}Правила размещения{% endif %}</a>
+                <a href="{% url 'privacy' %}">{% trans "Политика конфиденциальности" %}</a>
+                <a href="{% url 'terms' %}">{% trans "Условия использования" %}</a>
+                <a href="{% url 'review_rules' %}">{% trans "Правила отзывов" %}</a>
+                <a href="{% url 'listing_rules' %}">{% trans "Правила размещения" %}</a>
               </div>
               <p class="footer-disclaimer">
-                {% if CURRENT_LANGUAGE == "az" %}
-                  Saytdakı məlumatların bir hissəsi açıq mənbələrdən və üçüncü şəxslərdən götürülə bilər. Qeydiyyatdan və ya ödənişdən əvvəl məlumatları təşkilatla dəqiqləşdirin.
-                {% elif CURRENT_LANGUAGE == "en" %}
-                  Some information on the site may come from public sources and third parties. Please verify key details with the organization before booking or paying.
-                {% else %}
-                  Часть информации на сайте может быть получена из открытых источников и от третьих лиц. Перед записью или оплатой уточняйте данные у организации.
-                {% endif %}
+                {% trans "Часть информации на сайте может быть получена из открытых источников и от третьих лиц. Перед записью или оплатой уточняйте данные у организации." %}
               </p>
             </div>
             <a class="footer-bottom-link icon-only-link" href="#top">

@@ -61,6 +61,56 @@ SCHEDULE_MODE_COPY = {
     },
 }
 
+FULL_DAY_LABELS_I18N = {
+    "ru": FULL_DAY_LABELS,
+    "az": {
+        "mon": "Bazar ertəsi",
+        "tue": "Çərşənbə axşamı",
+        "wed": "Çərşənbə",
+        "thu": "Cümə axşamı",
+        "fri": "Cümə",
+        "sat": "Şənbə",
+        "sun": "Bazar",
+    },
+    "en": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday",
+    },
+}
+
+SHORT_DAY_LABELS_I18N = {
+    "ru": SHORT_DAY_LABELS,
+    "az": {
+        "mon": "B.e",
+        "tue": "Ç.a",
+        "wed": "Çər",
+        "thu": "C.a",
+        "fri": "Cümə",
+        "sat": "Şən",
+        "sun": "Bazar",
+    },
+    "en": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun",
+    },
+}
+
+OPEN_STATUS_COPY = {
+    "ru": {"open": "Сегодня открыто", "closed": "Сегодня закрыто", "today": "сегодня"},
+    "az": {"open": "Bu gün açıqdır", "closed": "Bu gün bağlıdır", "today": "bu gün"},
+    "en": {"open": "Open today", "closed": "Closed today", "today": "today"},
+}
+
 EVENT_MONTHS = {
     "ru": ("января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"),
     "az": ("yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"),
@@ -178,12 +228,14 @@ def is_meaningful_schedule(days: list[dict[str, object]]) -> bool:
     return False
 
 
-def weekday_full_label(weekday: str) -> str:
-    return str(_(FULL_DAY_LABELS.get(weekday, weekday)))
+def weekday_full_label(weekday: str, language=None) -> str:
+    lang = _schedule_lang(language)
+    return FULL_DAY_LABELS_I18N.get(lang, FULL_DAY_LABELS_I18N["ru"]).get(weekday, weekday)
 
 
-def weekday_short_label(weekday: str) -> str:
-    return str(_(SHORT_DAY_LABELS.get(weekday, weekday)))
+def weekday_short_label(weekday: str, language=None) -> str:
+    lang = _schedule_lang(language)
+    return SHORT_DAY_LABELS_I18N.get(lang, SHORT_DAY_LABELS_I18N["ru"]).get(weekday, weekday)
 
 
 def _coerce_bool(value) -> bool:
@@ -211,22 +263,22 @@ def _format_time(value: time) -> str:
     return value.strftime("%H:%M")
 
 
-def _localized_closed_label() -> str:
-    lang = (get_language() or "").split("-")[0]
+def _localized_closed_label(language=None) -> str:
+    lang = _schedule_lang(language)
     if lang == "az":
         return "Bağlıdır"
     if lang == "en":
         return "Closed"
-    return str(_("Закрыто"))
+    return "Закрыто"
 
 
-def _localized_around_clock_label() -> str:
-    lang = (get_language() or "").split("-")[0]
+def _localized_around_clock_label(language=None) -> str:
+    lang = _schedule_lang(language)
     if lang == "az":
         return "24 saat"
     if lang == "en":
         return "24 hours"
-    return str(_("24 часа"))
+    return "Круглосуточно"
 
 
 @dataclass(slots=True)
@@ -397,8 +449,9 @@ def schedule_signature(day: dict[str, object]) -> tuple:
     return (bool(day.get("is_closed")), bool(day.get("is_24_hours")), intervals)
 
 
-def build_schedule_rows(days: list[dict[str, object]]) -> list[dict[str, object]]:
-    if not days:
+def build_schedule_rows(days: list[dict[str, object]], language=None) -> list[dict[str, object]]:
+    lang = _schedule_lang(language)
+    if not is_meaningful_schedule(days):
         return []
 
     rows: list[dict[str, object]] = []
@@ -412,14 +465,14 @@ def build_schedule_rows(days: list[dict[str, object]]) -> list[dict[str, object]
         first_weekday = current_group[0]["weekday"]
         last_weekday = current_group[-1]["weekday"]
         if len(current_group) == 1:
-            day_label = weekday_full_label(first_weekday)
+            day_label = weekday_full_label(first_weekday, lang)
         else:
-            day_label = f"{weekday_full_label(first_weekday)}–{weekday_full_label(last_weekday)}"
+            day_label = f"{weekday_full_label(first_weekday, lang)}–{weekday_full_label(last_weekday, lang)}"
 
         if current_group[0]["is_closed"]:
-            lines = [_localized_closed_label()]
+            lines = [_localized_closed_label(lang)]
         elif current_group[0]["is_24_hours"]:
-            lines = [_localized_around_clock_label()]
+            lines = [_localized_around_clock_label(lang)]
         else:
             lines = [f"{item['start']}–{item['end']}" for item in current_group[0]["intervals"]]
         rows.append({
@@ -445,10 +498,10 @@ def build_schedule_rows(days: list[dict[str, object]]) -> list[dict[str, object]
     return rows
 
 
-def build_schedule_summary(days: list[dict[str, object]]) -> str:
+def build_schedule_summary(days: list[dict[str, object]], language=None) -> str:
     return "\n".join(
         f"{row['days']}  {'; '.join(row['lines'])}"
-        for row in build_schedule_rows(days)
+        for row in build_schedule_rows(days, language)
     )
 
 
@@ -485,8 +538,7 @@ def build_public_schedule_rows(place, language=None, *, event_limit=3) -> list[d
         return rows
 
     if getattr(place, "has_structured_schedule", False):
-        with override(lang):
-            weekly_rows = build_schedule_rows(serialize_place_schedule(place))
+        weekly_rows = build_schedule_rows(serialize_place_schedule(place), lang)
         public_rows = []
         all_day_label = "24h" if lang == "en" else ("24 saat" if lang == "az" else "круглосуточно")
         for row in weekly_rows:
@@ -507,3 +559,96 @@ def build_public_schedule_summary(place, language=None) -> str:
         for row in rows
         if row.get("time")
     )
+
+
+def _today_weekday_key() -> str:
+    return WEEKDAY_ORDER[timezone.localdate().weekday()]
+
+
+def _day_display_lines(day: dict[str, object], language=None) -> list[str]:
+    lang = _schedule_lang(language)
+    if day["is_closed"]:
+        return [_localized_closed_label(lang)]
+    if day["is_24_hours"]:
+        return [_localized_around_clock_label(lang)]
+    return [f"{item['start']}–{item['end']}" for item in day.get("intervals") or []]
+
+
+def build_public_schedule_week(place, language=None) -> list[dict[str, object]]:
+    """Seven per-day cells for the detail card grid; empty when there is no weekly schedule.
+
+    Reads the same prefetched ``schedule_days__intervals`` as the grouped rows,
+    so it costs no extra query on the place detail page.
+    """
+    mode = getattr(place, "schedule_mode", "regular") or "regular"
+    if mode != "regular" or not getattr(place, "has_structured_schedule", False):
+        return []
+
+    lang = _schedule_lang(language)
+    labels = SHORT_DAY_LABELS_I18N[lang]
+    today = _today_weekday_key()
+    cells = []
+    for day in serialize_place_schedule(place):
+        weekday = day["weekday"]
+        cells.append(
+            {
+                "weekday": weekday,
+                "label": labels.get(weekday, weekday),
+                "lines": _day_display_lines(day, lang),
+                "is_closed": bool(day["is_closed"]),
+                "is_24_hours": bool(day["is_24_hours"]),
+                "is_today": weekday == today,
+            }
+        )
+    return cells
+
+
+def build_open_status(place, language=None) -> dict[str, object]:
+    """Whether the place is open right now, for the "open today" marker.
+
+    Returns an empty dict when the schedule cannot answer the question, so the
+    template can simply skip the marker instead of guessing.
+    """
+    mode = getattr(place, "schedule_mode", "regular") or "regular"
+    if mode != "regular" or not getattr(place, "has_structured_schedule", False):
+        return {}
+
+    lang = _schedule_lang(language)
+    today = _today_weekday_key()
+    day = next(
+        (item for item in serialize_place_schedule(place) if item["weekday"] == today),
+        None,
+    )
+    if day is None:
+        return {}
+
+    lines = _day_display_lines(day, lang)
+
+    if day["is_closed"]:
+        return {"is_open": False, "label": OPEN_STATUS_COPY[lang]["closed"], "time": ""}
+    if day["is_24_hours"]:
+        return {"is_open": True, "label": OPEN_STATUS_COPY[lang]["open"], "time": lines[0] if lines else ""}
+
+    now = timezone.localtime().time()
+    is_open = False
+    for interval in day.get("intervals") or []:
+        start_value = _parse_time(interval.get("start"))
+        end_value = _parse_time(interval.get("end"))
+        if start_value is None or end_value is None:
+            continue
+        if end_value <= start_value:
+            # Interval runs past midnight.
+            if now >= start_value or now < end_value:
+                is_open = True
+                break
+        elif start_value <= now < end_value:
+            is_open = True
+            break
+
+    if not lines:
+        return {}
+    return {
+        "is_open": is_open,
+        "label": OPEN_STATUS_COPY[lang]["open" if is_open else "closed"],
+        "time": " · ".join(lines),
+    }

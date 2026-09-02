@@ -415,11 +415,11 @@
   /* Accordion Item Card */
   .faq-accordion-item {
     border-radius: 18px;
-    border: 1.5px solid #e2e8f0;
+    border: 1.5px solid #dfeae6;
     background: #ffffff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     overflow: hidden;
-    transition: all .28s cubic-bezier(.16,1,.3,1);
+    transition: border-color .28s cubic-bezier(.16,1,.3,1), box-shadow .28s cubic-bezier(.16,1,.3,1), transform .28s cubic-bezier(.16,1,.3,1);
   }
   .faq-accordion-item:hover {
     border-color: #136f38;
@@ -429,22 +429,17 @@
   .faq-accordion-item[open] {
     border-color: #136f38;
     background: #ffffff;
-    box-shadow: 0 12px 28px -6px rgba(19,111,56,.12), 0 0 0 1px #136f38;
+    box-shadow: 0 12px 28px -6px rgba(19,111,56,0.12), 0 0 0 1px #136f38;
   }
 
   .faq-accordion-btn {
-    width: 100%;
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 18px 22px;
-    background: transparent;
-    border: 0;
+    padding: 16px 20px;
     cursor: pointer;
-    text-align: left;
     list-style: none;
     user-select: none;
-    outline: none;
   }
   .faq-accordion-btn::-webkit-details-marker { display: none; }
 
@@ -487,7 +482,7 @@
     color: #64748b;
     display: inline-grid;
     place-items: center;
-    transition: all .35s cubic-bezier(.34,1.56,.64,1);
+    transition: transform .35s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s;
   }
   .faq-accordion-item:hover .faq-acc-chevron { background: #e2e8f0; color: #0f172a; }
   .faq-accordion-item[open] .faq-acc-chevron {
@@ -497,21 +492,20 @@
   }
 
   .faq-acc-body-wrap {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows .32s cubic-bezier(.16,1,.3,1);
+    overflow: hidden;
   }
-  .faq-accordion-item[open] .faq-acc-body-wrap { grid-template-rows: 1fr; }
 
   .faq-acc-body-inner {
-    overflow: hidden;
-    padding: 0 22px 20px 82px;
+    padding: 0 22px 20px 80px;
     display: flex;
     flex-direction: column;
     gap: 14px;
     color: #4c5b58;
     font-size: 15.5px;
     line-height: 1.65;
+  }
+  @media (max-width: 640px) {
+    .faq-acc-body-inner { padding-left: 20px; }
   }
   .faq-acc-actions {
     display: flex;
@@ -718,12 +712,18 @@
     }
     .faq-form-section {
       grid-template-columns: 1fr;
+      padding: 24px 20px;
+      gap: 24px;
+    }
+    .faq-input-grid {
+      grid-template-columns: 1fr;
     }
     .faq-rules-grid {
       grid-template-columns: 1fr;
     }
     .faq-acc-body-inner {
-      padding-left: 22px;
+      padding-left: 20px;
+      padding-right: 20px;
     }
   }
 </style>
@@ -762,11 +762,11 @@
       <div class="faq-hero-actions">
         <a href="#faq-form" class="faq-btn faq-btn--primary">
           <span class="material-symbols-rounded">edit_note</span>
-          {% trans "Задать вопрос" %}
+          {% if request.LANGUAGE_CODE == 'az' %}Sual yaz{% elif request.LANGUAGE_CODE == 'en' %}Ask question{% else %}Задать вопрос{% endif %}
         </a>
         <a href="{% url 'place_list' %}" class="faq-btn faq-btn--outline">
           <span class="material-symbols-rounded">explore</span>
-          {% trans "Открыть каталог" %}
+          {% if request.LANGUAGE_CODE == 'az' %}Kataloqu aç{% elif request.LANGUAGE_CODE == 'en' %}Open catalog{% else %}Открыть каталог{% endif %}
         </a>
       </div>
     </div>
@@ -776,22 +776,22 @@
       <div class="faq-stat-box">
         <span class="faq-stat-icon material-symbols-rounded">pin_drop</span>
         <div>
-          <div class="faq-stat-val">{{ places_count|default:"69" }}+ {% trans "мест" %}</div>
-          <div class="faq-stat-lbl">{% trans "на карте и в каталоге" %}</div>
+          <div class="faq-stat-val">{{ places_count|default:"69" }}+ {% if request.LANGUAGE_CODE == 'az' %}məkan{% elif request.LANGUAGE_CODE == 'en' %}places{% else %}мест{% endif %}</div>
+          <div class="faq-stat-lbl">{% if request.LANGUAGE_CODE == 'az' %}xəritədə və kataloqda{% elif request.LANGUAGE_CODE == 'en' %}on map and catalog{% else %}на карте и в каталоге{% endif %}</div>
         </div>
       </div>
       <div class="faq-stat-box">
         <span class="faq-stat-icon material-symbols-rounded">category</span>
         <div>
-          <div class="faq-stat-val">{{ categories_count|default:"10" }} {% trans "категорий" %}</div>
-          <div class="faq-stat-lbl">{% trans "от спорта до науки" %}</div>
+          <div class="faq-stat-val">{{ categories_count|default:"10" }} {% if request.LANGUAGE_CODE == 'az' %}kateqoriya{% elif request.LANGUAGE_CODE == 'en' %}categories{% else %}категорий{% endif %}</div>
+          <div class="faq-stat-lbl">{% if request.LANGUAGE_CODE == 'az' %}idmandan elmə qədər{% elif request.LANGUAGE_CODE == 'en' %}from sport to science{% else %}от спорта до науки{% endif %}</div>
         </div>
       </div>
       <div class="faq-stat-box">
         <span class="faq-stat-icon material-symbols-rounded">schedule</span>
         <div>
-          <div class="faq-stat-val">1 {% trans "рабочий день" %}</div>
-          <div class="faq-stat-lbl">{% trans "ответ на все обращения" %}</div>
+          <div class="faq-stat-val">1 {% if request.LANGUAGE_CODE == 'az' %}iş günü{% elif request.LANGUAGE_CODE == 'en' %}business day{% else %}рабочий день{% endif %}</div>
+          <div class="faq-stat-lbl">{% if request.LANGUAGE_CODE == 'az' %}bütün müraciətlərə cavab{% elif request.LANGUAGE_CODE == 'en' %}response to all requests{% else %}ответ на все обращения{% endif %}</div>
         </div>
       </div>
     </div>
@@ -802,22 +802,22 @@
     <button type="button" class="faq-track-btn is-active" data-track-btn="all">
       <span class="faq-track-icon material-symbols-rounded">select_all</span>
       <span>
-        <span class="faq-track-title">{% trans "Все темы" %}</span>
-        <span class="faq-track-sub">{% trans "9 вопросов" %}</span>
+        <span class="faq-track-title">{% if request.LANGUAGE_CODE == 'az' %}Bütün mövzular{% elif request.LANGUAGE_CODE == 'en' %}All topics{% else %}Все темы{% endif %}</span>
+        <span class="faq-track-sub">{% if request.LANGUAGE_CODE == 'az' %}9 sual{% elif request.LANGUAGE_CODE == 'en' %}9 questions{% else %}9 вопросов{% endif %}</span>
       </span>
     </button>
     <button type="button" class="faq-track-btn" data-track-btn="parents">
       <span class="faq-track-icon material-symbols-rounded">family_restroom</span>
       <span>
-        <span class="faq-track-title">{% trans "Для родителей" %}</span>
-        <span class="faq-track-sub">{% trans "Поиск, фильтры и отзывы" %}</span>
+        <span class="faq-track-title">{% if request.LANGUAGE_CODE == 'az' %}Valideynlər üçün{% elif request.LANGUAGE_CODE == 'en' %}For parents{% else %}Для родителей{% endif %}</span>
+        <span class="faq-track-sub">{% if request.LANGUAGE_CODE == 'az' %}Axtarış, filtrlər və rəylər{% elif request.LANGUAGE_CODE == 'en' %}Search, filters & reviews{% else %}Поиск, фильтры и отзывы{% endif %}</span>
       </span>
     </button>
     <button type="button" class="faq-track-btn" data-track-btn="owners">
       <span class="faq-track-icon material-symbols-rounded">storefront</span>
       <span>
-        <span class="faq-track-title">{% trans "Для владельцев" %}</span>
-        <span class="faq-track-sub">{% trans "Размещение и условия" %}</span>
+        <span class="faq-track-title">{% if request.LANGUAGE_CODE == 'az' %}Məkan sahiblərinə{% elif request.LANGUAGE_CODE == 'en' %}For place owners{% else %}Для владельцев{% endif %}</span>
+        <span class="faq-track-sub">{% if request.LANGUAGE_CODE == 'az' %}Yerləşdirmə və şərtlər{% elif request.LANGUAGE_CODE == 'en' %}Listing & terms{% else %}Размещение и условия{% endif %}</span>
       </span>
     </button>
   </div>
@@ -828,35 +828,35 @@
     <!-- Left Sticky Sidebar -->
     <aside class="faq-sidebar">
       <div class="faq-toc-box">
-        <div class="faq-toc-head">{% trans "Разделы" %}</div>
+        <div class="faq-toc-head">{% if request.LANGUAGE_CODE == 'az' %}Bölmələr{% elif request.LANGUAGE_CODE == 'en' %}Sections{% else %}Разделы{% endif %}</div>
         <a href="#sec-search" class="faq-toc-link is-active">
           <span class="faq-toc-dot"></span>
-          <span>{% trans "Поиск и фильтры" %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Axtarış və filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Search & filters{% else %}Поиск и фильтры{% endif %}</span>
           <span class="faq-toc-count">3</span>
         </a>
         <a href="#sec-reviews" class="faq-toc-link">
           <span class="faq-toc-dot"></span>
-          <span>{% trans "Отзывы и правила" %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Rəylər və qaydalar{% elif request.LANGUAGE_CODE == 'en' %}Reviews & rules{% else %}Отзывы и правила{% endif %}</span>
           <span class="faq-toc-count">1</span>
         </a>
         <a href="#sec-owners" class="faq-toc-link">
           <span class="faq-toc-dot"></span>
-          <span>{% trans "Владельцам мест" %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Məkan sahiblərinə{% elif request.LANGUAGE_CODE == 'en' %}Place owners{% else %}Владельцам мест{% endif %}</span>
           <span class="faq-toc-count">3</span>
         </a>
         <a href="#sec-account" class="faq-toc-link">
           <span class="faq-toc-dot"></span>
-          <span>{% trans "Аккаунт" %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Hesab və seçilmişlər{% elif request.LANGUAGE_CODE == 'en' %}Account{% else %}Аккаунт{% endif %}</span>
           <span class="faq-toc-count">2</span>
         </a>
         <a href="#faq-form" class="faq-toc-link" style="margin-top: 6px; border-top: 1px solid #eef1f1; color: #136f38;">
           <span class="material-symbols-rounded" style="font-size: 19px;">forum</span>
-          <span>{% trans "Задать вопрос" %}</span>
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Sual verin{% elif request.LANGUAGE_CODE == 'en' %}Ask question{% else %}Задать вопрос{% endif %}</span>
         </a>
       </div>
 
       <div class="faq-contact-card">
-        <div class="faq-contact-title">{% trans "Прямая связь" %}</div>
+        <div class="faq-contact-title">{% if request.LANGUAGE_CODE == 'az' %}Birbaşa əlaqə{% elif request.LANGUAGE_CODE == 'en' %}Direct contact{% else %}Прямая связь{% endif %}</div>
         <a href="tel:+994554979723" class="faq-contact-link">
           <span class="material-symbols-rounded">call</span>
           +994 55 497 97 23
@@ -865,7 +865,7 @@
           <span class="material-symbols-rounded">mail</span>
           info@kidsmap.az
         </a>
-        <div class="faq-contact-hours">{% trans "Пн–Пт 10:00–18:00" %}</div>
+        <div class="faq-contact-hours">{% if request.LANGUAGE_CODE == 'az' %}B.e.–C. 10:00–18:00{% elif request.LANGUAGE_CODE == 'en' %}Mon–Fri 10:00–18:00{% else %}Пн–Пт 10:00–18:00{% endif %}</div>
       </div>
     </aside>
 
@@ -876,25 +876,29 @@
       <section id="sec-search" class="faq-section" data-group="parents">
         <div class="faq-section-head">
           <span class="faq-section-icon material-symbols-rounded">search</span>
-          <h2>{% trans "Поиск и фильтры" %}</h2>
+          <h2>{% if request.LANGUAGE_CODE == 'az' %}Axtarış və filtrlər{% elif request.LANGUAGE_CODE == 'en' %}Search & filters{% else %}Поиск и фильтры{% endif %}</h2>
           <span class="faq-section-badge">3</span>
         </div>
 
         <details class="faq-accordion-item" open>
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">search</span>
-            <span class="faq-acc-title">{% trans "Как быстро найти кружок для ребёнка?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Uşaq üçün dərnəyi necə tez tapmaq olar?{% elif request.LANGUAGE_CODE == 'en' %}How to quickly find an activity for a child?{% else %}Как быстро найти кружок для ребёнка?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Əsas səhifədəki axtarışda kateqoriya, region, metro və ya uşağın yaşını seçin. Xəritə və dərnək siyahısı eyni anda yenilənir — variantları müqayisə edib uyğun kartı açırsınız.{% elif request.LANGUAGE_CODE == 'en' %}Select category, region, metro or child's age in search on the homepage. Map and activity list update simultaneously to help you compare options.{% else %}Выберите категорию, регион, метро или возраст в поиске на главной. Карта и список кружков помогут быстро сравнить варианты и открыть подходящую карточку.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% trans "Начать поиск" %} ➔</a>
+                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Axtarışa başla{% elif request.LANGUAGE_CODE == 'en' %}Start search{% else %}Начать поиск{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q1">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% trans 'Да' %}">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% trans 'Нет' %}">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -904,18 +908,22 @@
         <details class="faq-accordion-item">
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">tune</span>
-            <span class="faq-acc-title">{% trans "Есть ли фильтры по возрасту, району и цене?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Hansı filtrlər var?{% elif request.LANGUAGE_CODE == 'en' %}What filters are available?{% else %}Есть ли фильтры по возрасту, району и цене?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Да. Фильтры по возрастным группам (0+, 6+, 9+, 12+, 16+), регионам, станциям метро, категориям и ценовым диапазонам работают одновременно. Ссылкой на настроенный поиск можно делиться." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Yaş qrupları (0+, 6+, 9+, 12+, 16+), region və metro, kateqoriya və qiymət aralığı eyni vaxtda işləyir. Seçdiyiniz filtrlər linkdə saxlanır — dostlarınızla bölüşə bilərsiniz.{% elif request.LANGUAGE_CODE == 'en' %}Age groups (0+, 6+, 9+, 12+, 16+), regions, metro stations, categories and price ranges work simultaneously. You can share your filtered search link with friends.{% else %}Да. Фильтры по возрастным группам (0+, 6+, 9+, 12+, 16+), регионам, станциям метро, категориям и ценовым диапазонам работают одновременно. Ссылкой на настроенный поиск можно делиться.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% trans "Попробовать фильтры" %} ➔</a>
+                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Filtrləri sına{% elif request.LANGUAGE_CODE == 'en' %}Try filters{% else %}Попробовать фильтры{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q2">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -925,18 +933,22 @@
         <details class="faq-accordion-item">
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">travel_explore</span>
-            <span class="faq-acc-title">{% trans "Есть ли занятия за пределами Баку?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Bakıdan kənar rayonlar da var?{% elif request.LANGUAGE_CODE == 'en' %}Are there activities outside Baku?{% else %}Есть ли занятия за пределами Баку?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Да, наш каталог охватывает весь Азербайджан. Выберите нужный регион в фильтрах — доступные кружки и центры сразу отобразятся на интерактивной карте." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Bəli, kataloq bütün Azərbaycan üzrədir. Region süzgəcini seçin — həmin ərazidəki dərnəklər və məkanlar xəritədə dərhal göstərilir.{% elif request.LANGUAGE_CODE == 'en' %}Yes, our catalog covers all of Azerbaijan. Select a region filter to view activities on the map.{% else %}Да, наш каталог охватывает весь Азербайджан. Выберите нужный регион в фильтрах — доступные кружки и центры сразу отобразятся на интерактивной карте.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% trans "Смотреть регионы" %} ➔</a>
+                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Regionlara bax{% elif request.LANGUAGE_CODE == 'en' %}View regions{% else %}Смотреть регионы{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q3">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -948,25 +960,29 @@
       <section id="sec-reviews" class="faq-section" data-group="parents">
         <div class="faq-section-head">
           <span class="faq-section-icon material-symbols-rounded">star</span>
-          <h2>{% trans "Отзывы и правила" %}</h2>
+          <h2>{% if request.LANGUAGE_CODE == 'az' %}Rəylər və qaydalar{% elif request.LANGUAGE_CODE == 'en' %}Reviews & rules{% else %}Отзывы и правила{% endif %}</h2>
           <span class="faq-section-badge">1</span>
         </div>
 
         <details class="faq-accordion-item">
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">reviews</span>
-            <span class="faq-acc-title">{% trans "Как оставить отзыв или поставить лайк?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Rəy yazmaq və ya bəyənmə etmək necə olar?{% elif request.LANGUAGE_CODE == 'en' %}How to leave a review or like?{% else %}Как оставить отзыв или поставить лайк?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Все отзывы проходят модерацию." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Dərnək kartını və ya rəylər səhifəsini açın, hesaba daxil olun və qiymət, mətn rəyi yaxud reaksiya əlavə edin. Bütün rəylər moderasiyadan keçir.{% elif request.LANGUAGE_CODE == 'en' %}Open the place card or reviews page, log into your account and submit a rating, review or reaction. All reviews are moderated.{% else %}Откройте карточку кружка или страницу отзывов, войдите в аккаунт и оставьте оценку, текстовый отзыв или реакцию. Все отзывы проходят модерацию.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'site_reviews' %}" class="faq-acc-cta-link">{% trans "Все отзывы" %} ➔</a>
+                <a href="{% url 'site_reviews' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Bütün rəylər{% elif request.LANGUAGE_CODE == 'en' %}All reviews{% else %}Все отзывы{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q4">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -976,44 +992,44 @@
         <!-- Rules Box -->
         <div class="faq-rules-card">
           <div>
-            <strong style="font-size: 18px; color: #12211f;">{% trans "Правила публикации отзывов" %}</strong>
-            <p style="margin: 4px 0 0; font-size: 14px; color: #6b7b78;">{% trans "Модерация занимает до 1 рабочего дня. Нарушающие правила отзывы отклоняются." %}</p>
+            <strong style="font-size: 18px; color: #12211f;">{% if request.LANGUAGE_CODE == 'az' %}Rəy qaydaları qısaca{% elif request.LANGUAGE_CODE == 'en' %}Review rules summary{% else %}Правила публикации отзывов{% endif %}</strong>
+            <p style="margin: 4px 0 0; font-size: 14px; color: #6b7b78;">{% if request.LANGUAGE_CODE == 'az' %}Moderasiya bir iş günü çəkir. Qaydaya uyğun olmayan rəylər dərc edilmir.{% elif request.LANGUAGE_CODE == 'en' %}Moderation takes up to 1 business day. Violating reviews will be rejected.{% else %}Модерация занимает до 1 рабочего дня. Нарушающие правила отзывы отклоняются.{% endif %}</p>
           </div>
           <div class="faq-rules-grid">
             <div class="faq-rule-box--allow">
               <div class="faq-rule-title" style="color: #0a4f45;">
                 <span class="material-symbols-rounded" style="font-size: 20px;">task_alt</span>
-                {% trans "Что приветствуется:" %}
+                {% if request.LANGUAGE_CODE == 'az' %}Olar{% elif request.LANGUAGE_CODE == 'en' %}Allowed{% else %}Что приветствуется:{% endif %}
               </div>
               <div class="faq-rule-item">
                 <span class="material-symbols-rounded" style="color: #136f38; font-size: 18px;">check</span>
-                {% trans "Личный опыт: впечатления от занятий, тренеров, чистоты, цен." %}
+                {% if request.LANGUAGE_CODE == 'az' %}Şəxsi təcrübə: dərs, məşqçi, qiymət, cədvəl.{% elif request.LANGUAGE_CODE == 'en' %}Personal experience: coaches, prices, atmosphere.{% else %}Личный опыт: впечатления от занятий, тренеров, чистоты, цен.{% endif %}
               </div>
               <div class="faq-rule-item">
                 <span class="material-symbols-rounded" style="color: #136f38; font-size: 18px;">check</span>
-                {% trans "Возраст ребёнка и как долго вы посещали секцию." %}
+                {% if request.LANGUAGE_CODE == 'az' %}Uşağın yaşı və nə qədər davam etdiyi.{% elif request.LANGUAGE_CODE == 'en' %}Child age and attendance duration.{% else %}Возраст ребёнка и как долго вы посещали секцию.{% endif %}
               </div>
               <div class="faq-rule-item">
                 <span class="material-symbols-rounded" style="color: #136f38; font-size: 18px;">check</span>
-                {% trans "Конструктивные плюсы и минусы." %}
+                {% if request.LANGUAGE_CODE == 'az' %}Konkret müsbət və mənfi cəhətlər.{% elif request.LANGUAGE_CODE == 'en' %}Constructive pros and cons.{% else %}Конструктивные плюсы и минусы.{% endif %}
               </div>
             </div>
             <div class="faq-rule-box--deny">
               <div class="faq-rule-title" style="color: #a83247;">
                 <span class="material-symbols-rounded" style="font-size: 20px;">block</span>
-                {% trans "Что запрещено:" %}
+                {% if request.LANGUAGE_CODE == 'az' %}Olmaz{% elif request.LANGUAGE_CODE == 'en' %}Prohibited{% else %}Что запрещено:{% endif %}
               </div>
               <div class="faq-rule-item">
                 <span class="material-symbols-rounded" style="color: #a83247; font-size: 18px;">close</span>
-                {% trans "Оскорбления, ненормативная лексика, личные данные третьих лиц." %}
+                {% if request.LANGUAGE_CODE == 'az' %}Təhqir, nalayiq ifadələr, üçüncü şəxslərin məlumatları.{% elif request.LANGUAGE_CODE == 'en' %}Insults, profanity, third party personal data.{% else %}Оскорбления, ненормативная лексика, личные данные третьих лиц.{% endif %}
               </div>
               <div class="faq-rule-item">
                 <span class="material-symbols-rounded" style="color: #a83247; font-size: 18px;">close</span>
-                {% trans "Реклама, ссылки на сторонние ресурсы, спам." %}
+                {% if request.LANGUAGE_CODE == 'az' %}Reklam, kənar linklər, spam.{% elif request.LANGUAGE_CODE == 'en' %}Advertising, external links, spam.{% else %}Реклама, ссылки на сторонние ресурсы, спам.{% endif %}
               </div>
               <div class="faq-rule-item">
                 <span class="material-symbols-rounded" style="color: #a83247; font-size: 18px;">close</span>
-                {% trans "Отзывы о местах, которые вы не посещали лично." %}
+                {% if request.LANGUAGE_CODE == 'az' %}Şəxsən getmədiyiniz dərnək barədə rəy.{% elif request.LANGUAGE_CODE == 'en' %}Reviews for places you did not visit.{% else %}Отзывы о местах, которые вы не посещали лично.{% endif %}
               </div>
             </div>
           </div>
@@ -1024,25 +1040,29 @@
       <section id="sec-owners" class="faq-section" data-group="owners">
         <div class="faq-section-head">
           <span class="faq-section-icon material-symbols-rounded">storefront</span>
-          <h2>{% trans "Владельцам мест" %}</h2>
+          <h2>{% if request.LANGUAGE_CODE == 'az' %}Məkan sahiblərinə{% elif request.LANGUAGE_CODE == 'en' %}For place owners{% else %}Владельцам мест{% endif %}</h2>
           <span class="faq-section-badge">3</span>
         </div>
 
         <details class="faq-accordion-item">
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">add_business</span>
-            <span class="faq-acc-title">{% trans "Как разместить карточку кружка на сайте?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Dərnək kartını saytda necə yerləşdirmək olar?{% elif request.LANGUAGE_CODE == 'en' %}How to list an activity on the site?{% else %}Как разместить карточку кружка на сайте?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Нажмите «Добавить место», создайте аккаунт и отправьте карточку на проверку. После публикации кружок появится в каталоге и на карте, а вы сможете редактировать информацию из личного кабинета." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}«Məkan əlavə et» düyməsini basın, hesab yaradın və kartı yoxlamaya göndərin. Dərc olunduqdan sonra dərnək kataloqda və xəritədə görünür, məlumatları kabinetdən idarə edə bilərsiniz.{% elif request.LANGUAGE_CODE == 'en' %}Click "Add place", create an account and submit your card for review. Once published, your listing appears in the catalog and map.{% else %}Нажмите «Добавить место», создайте аккаунт и отправьте карточку на проверку. После публикации кружок появится в каталоге и на карте, а вы сможете редактировать информацию из личного кабинета.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'add_place' %}" class="faq-acc-cta-link">{% trans "Добавить место" %} ➔</a>
+                <a href="{% url 'add_place' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Məkan əlavə et{% elif request.LANGUAGE_CODE == 'en' %}Add place{% else %}Добавить место{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q5">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1052,18 +1072,22 @@
         <details class="faq-accordion-item">
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">payments</span>
-            <span class="faq-acc-title">{% trans "Размещение платное?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Yerləşdirmə ödənişlidir?{% elif request.LANGUAGE_CODE == 'en' %}Is listing paid?{% else %}Размещение платное?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Базовое размещение карточки полностью бесплатное: фото, описание, контакты, возраст и расписание. Дополнительные рекламные опции обсуждаются напрямую — никаких скрытых комиссий." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Əsas kart tamamilə pulsuzdur: foto, təsvir, əlaqə, yaş aralığı və cədvəl. Əlavə reklam seçimləri birbaşa danışılır — heç bir gizli komissiya yoxdur.{% elif request.LANGUAGE_CODE == 'en' %}Basic listing is completely free: photos, description, contacts, age range and schedule. Extra promotion options are discussed directly.{% else %}Базовое размещение карточки полностью бесплатное: фото, описание, контакты, возраст и расписание. Дополнительные рекламные опции обсуждаются напрямую — никаких скрытых комиссий.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'contacts' %}" class="faq-acc-cta-link">{% trans "Связаться с нами" %} ➔</a>
+                <a href="{% url 'contacts' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Bizimlə əlaqə{% elif request.LANGUAGE_CODE == 'en' %}Contact us{% else %}Связаться с нами{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q6">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1073,18 +1097,22 @@
         <details class="faq-accordion-item">
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">photo_library</span>
-            <span class="faq-acc-title">{% trans "Можно ли показывать фото и контакты кружка?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Kartda nə göstərmək olar?{% elif request.LANGUAGE_CODE == 'en' %}What details can be displayed?{% else %}Можно ли показывать фото и контакты кружка?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Да — галерею фотографий, телефон, WhatsApp, Instagram, сайт, расписание и цены. Чем полнее карточка, тем быстрее родители выберут ваше место." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Bəli — foto qalereya, telefon, WhatsApp, Instagram, sayt, cədvəl və qiymətlər. Dolğun kart valideynlərin daha tez seçim etməsinə kömək edir.{% elif request.LANGUAGE_CODE == 'en' %}Yes — photo gallery, phone, WhatsApp, Instagram, website, schedule and prices. Complete listings attract more attention.{% else %}Да — галерею фотографий, телефон, WhatsApp, Instagram, сайт, расписание и цены. Чем полнее карточка, тем быстрее родители выберут ваше место.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'add_place' %}" class="faq-acc-cta-link">{% trans "Создать профиль места" %} ➔</a>
+                <a href="{% url 'add_place' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Məkan profili yarat{% elif request.LANGUAGE_CODE == 'en' %}Create profile{% else %}Создать профиль места{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q7">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1096,25 +1124,29 @@
       <section id="sec-account" class="faq-section" data-group="parents">
         <div class="faq-section-head">
           <span class="faq-section-icon material-symbols-rounded">manage_accounts</span>
-          <h2>{% trans "Аккаунт и избранное" %}</h2>
+          <h2>{% if request.LANGUAGE_CODE == 'az' %}Hesab və seçilmişlər{% elif request.LANGUAGE_CODE == 'en' %}Account & favorites{% else %}Аккаунт и избранное{% endif %}</h2>
           <span class="faq-section-badge">2</span>
         </div>
 
         <details class="faq-accordion-item">
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">lock_open</span>
-            <span class="faq-acc-title">{% trans "Нужно ли регистрироваться, чтобы смотреть каталог?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Kataloqa baxmaq üçün qeydiyyat lazımdır?{% elif request.LANGUAGE_CODE == 'en' %}Do I need to register to view the catalog?{% else %}Нужно ли регистрироваться, чтобы смотреть каталог?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен для сохранения в избранное, отзывов и управления своими секциями." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Xeyr, kataloqa, xəritəyə və kartlara qeydiyyatsız baxmaq olar. Hesab seçilmişlərə saxlamaq, rəy yazmaq və dərnəkləri idarə etmək üçün lazımdır.{% elif request.LANGUAGE_CODE == 'en' %}No, you can browse the catalog and map without registration. An account is only needed to bookmark places, leave reviews, and manage listings.{% else %}Нет, смотреть каталог, карту и карточки кружков можно без регистрации. Аккаунт нужен для сохранения в избранное, отзывов и управления своими секциями.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% trans "Смотреть каталог" %} ➔</a>
+                <a href="{% url 'place_list' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Kataloqu aç{% elif request.LANGUAGE_CODE == 'en' %}Open catalog{% else %}Смотреть каталог{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q8">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1124,18 +1156,22 @@
         <details class="faq-accordion-item">
           <summary class="faq-accordion-btn">
             <span class="faq-acc-icon material-symbols-rounded">favorite</span>
-            <span class="faq-acc-title">{% trans "Можно ли сохранить понравившиеся места?" %}</span>
+            <span class="faq-acc-title">{% if request.LANGUAGE_CODE == 'az' %}Seçdiyim dərnəkləri saxlaya bilərəm?{% elif request.LANGUAGE_CODE == 'en' %}Can I save favorite places?{% else %}Можно ли сохранить понравившиеся места?{% endif %}</span>
             <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
           </summary>
           <div class="faq-acc-body-wrap">
             <div class="faq-acc-body-inner">
-              <p>{% trans "Да. Войдите в аккаунт и нажимайте на иконку сердечка на любой карточке. Все сохранённые кружки будут собраны на странице «Избранное» для удобного сравнения." %}</p>
+              <p>{% if request.LANGUAGE_CODE == 'az' %}Bəli. Hesaba daxil olun və istənilən kartda ürək işarəsini basın. Bütün saxlanılan dərnəklər rahat müqayisə üçün «Seçilmişlər» səhifəsində toplanır.{% elif request.LANGUAGE_CODE == 'en' %}Yes. Log in and tap the heart icon on any place card. All saved places will be stored on your Favorites page for easy comparison.{% else %}Да. Войдите в аккаунт и нажимайте на иконку сердечка на любой карточке. Все сохранённые кружки будут собраны на странице «Избранное» для удобного сравнения.{% endif %}</p>
               <div class="faq-acc-actions">
-                <a href="{% url 'account_favorites' %}" class="faq-acc-cta-link">{% trans "Моё избранное" %} ➔</a>
+                <a href="{% url 'account_favorites' %}" class="faq-acc-cta-link">{% if request.LANGUAGE_CODE == 'az' %}Mənim seçilmişlərim{% elif request.LANGUAGE_CODE == 'en' %}My favorites{% else %}Моё избранное{% endif %} ➔</a>
                 <div class="faq-vote-box" data-vote-id="q9">
-                  <span>{% trans "Было полезно?" %}</span>
-                  <button type="button" class="faq-vote-btn" data-vote="yes">👍</button>
-                  <button type="button" class="faq-vote-btn" data-vote="no">👎</button>
+                  <span>{% if request.LANGUAGE_CODE == 'az' %}Faydalı oldu?{% elif request.LANGUAGE_CODE == 'en' %}Was this helpful?{% else %}Было полезно?{% endif %}</span>
+                  <button type="button" class="faq-vote-btn" data-vote="yes" title="{% if request.LANGUAGE_CODE == 'az' %}Bəli{% elif request.LANGUAGE_CODE == 'en' %}Yes{% else %}Да{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #136f38;">thumb_up</span>
+                  </button>
+                  <button type="button" class="faq-vote-btn" data-vote="no" title="{% if request.LANGUAGE_CODE == 'az' %}Xeyr{% elif request.LANGUAGE_CODE == 'en' %}No{% else %}Нет{% endif %}">
+                    <span class="material-symbols-rounded" style="font-size: 18px; color: #7d8b88;">thumb_down</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1147,39 +1183,39 @@
       <section id="faq-form" class="faq-form-section">
         <div class="faq-form-sidebar">
           <span style="width: 46px; height: 46px; border-radius: 14px; background: #136f38; color: #fff; display: grid; place-items: center; font-size: 23px;" class="material-symbols-rounded">forum</span>
-          <h3>{% trans "Остались вопросы?" %}</h3>
-          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4c5b58;">{% trans "Напишите нам — мы ответим в течение 1 рабочего дня по электронной почте." %}</p>
+          <h3>{% if request.LANGUAGE_CODE == 'az' %}Cavab tapmadınız?{% elif request.LANGUAGE_CODE == 'en' %}Still have questions?{% else %}Остались вопросы?{% endif %}</h3>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4c5b58;">{% if request.LANGUAGE_CODE == 'az' %}Sualınızı yazın — bir iş günü içində e-poçtla cavab veririk.{% elif request.LANGUAGE_CODE == 'en' %}Write to us — we will reply within 1 business day via email.{% else %}Напишите нам — мы ответим в течение 1 рабочего дня по электронной почте.{% endif %}</p>
           <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #0a4f45;">
             <span class="material-symbols-rounded" style="font-size: 18px;">lock</span>
-            {% trans "Конфиденциальность гарантирована" %}
+            {% if request.LANGUAGE_CODE == 'az' %}Məlumatlar üçüncü şəxslərə verilmir{% elif request.LANGUAGE_CODE == 'en' %}Privacy guaranteed{% else %}Конфиденциальность гарантирована{% endif %}
           </span>
         </div>
 
         <form id="faq-interactive-form" onsubmit="handleFaqFormSubmit(event)">
           <div class="faq-topic-chips">
-            <button type="button" class="faq-topic-chip is-active" data-topic="Axtarış">{% trans "Поиск" %}</button>
-            <button type="button" class="faq-topic-chip" data-topic="Rəylər">{% trans "Отзывы" %}</button>
-            <button type="button" class="faq-topic-chip" data-topic="Yerləşdirmə">{% trans "Размещение" %}</button>
-            <button type="button" class="faq-topic-chip" data-topic="Digər">{% trans "Другое" %}</button>
+            <button type="button" class="faq-topic-chip is-active" data-topic="Axtarış">{% if request.LANGUAGE_CODE == 'az' %}Axtarış{% elif request.LANGUAGE_CODE == 'en' %}Search{% else %}Поиск{% endif %}</button>
+            <button type="button" class="faq-topic-chip" data-topic="Rəylər">{% if request.LANGUAGE_CODE == 'az' %}Rəylər{% elif request.LANGUAGE_CODE == 'en' %}Reviews{% else %}Отзывы{% endif %}</button>
+            <button type="button" class="faq-topic-chip" data-topic="Yerləşdirmə">{% if request.LANGUAGE_CODE == 'az' %}Yerləşdirmə{% elif request.LANGUAGE_CODE == 'en' %}Listing{% else %}Размещение{% endif %}</button>
+            <button type="button" class="faq-topic-chip" data-topic="Digər">{% if request.LANGUAGE_CODE == 'az' %}Digər{% elif request.LANGUAGE_CODE == 'en' %}Other{% else %}Другое{% endif %}</button>
           </div>
 
           <div class="faq-input-grid">
-            <input type="text" id="faq-name" class="faq-input" placeholder="{% trans 'Ваше имя' %}" required>
-            <input type="email" id="faq-email" class="faq-input" placeholder="{% trans 'Электронная почта' %}" required>
+            <input type="text" id="faq-name" class="faq-input" placeholder="{% if request.LANGUAGE_CODE == 'az' %}Adınız{% elif request.LANGUAGE_CODE == 'en' %}Your name{% else %}Ваше имя{% endif %}" required>
+            <input type="email" id="faq-email" class="faq-input" placeholder="{% if request.LANGUAGE_CODE == 'az' %}E-poçt{% elif request.LANGUAGE_CODE == 'en' %}Email{% else %}Электронная почта{% endif %}" required>
           </div>
 
-          <textarea id="faq-message" class="faq-textarea" placeholder="{% trans 'Опишите ваш вопрос подробно...' %}" required></textarea>
+          <textarea id="faq-message" class="faq-textarea" placeholder="{% if request.LANGUAGE_CODE == 'az' %}Sualınızı qeyd edin...{% elif request.LANGUAGE_CODE == 'en' %}Describe your question...{% else %}Опишите ваш вопрос подробно...{% endif %}" required></textarea>
 
           <button type="submit" class="faq-btn faq-btn--primary" style="width: 100%; justify-content: center;">
             <span class="material-symbols-rounded">send</span>
-            {% trans "Отправить вопрос" %}
+            {% if request.LANGUAGE_CODE == 'az' %}Sualı göndər{% elif request.LANGUAGE_CODE == 'en' %}Send question{% else %}Отправить вопрос{% endif %}
           </button>
         </form>
 
         <div id="faq-form-success" style="display: none; padding: 24px; border-radius: 16px; background: #dcefe9; border: 1px solid #c3e2d8; color: #0a4f45; text-align: center; animation: faqPop .4s ease both;">
           <span class="material-symbols-rounded" style="font-size: 36px; color: #136f38; display: block; margin-bottom: 8px;">check_circle</span>
-          <strong style="font-size: 18px; display: block; margin-bottom: 4px;">{% trans "Спасибо за вопрос!" %}</strong>
-          <p style="margin: 0; font-size: 14.5px; color: #4c5b58;">{% trans "Мы получили ваше обращение и ответим на указанную почту в ближайшее время." %}</p>
+          <strong style="font-size: 18px; display: block; margin-bottom: 4px;">{% if request.LANGUAGE_CODE == 'az' %}Sual göndərildi!{% elif request.LANGUAGE_CODE == 'en' %}Question sent!{% else %}Спасибо за вопрос!{% endif %}</strong>
+          <p style="margin: 0; font-size: 14.5px; color: #4c5b58;">{% if request.LANGUAGE_CODE == 'az' %}Bir iş günü içində e-poçtunuza cavab yazacağıq.{% elif request.LANGUAGE_CODE == 'en' %}We will reply to your email within 1 business day.{% else %}Мы получили ваше обращение и ответим на указанную почту в ближайшее время.{% endif %}</p>
         </div>
       </section>
 
@@ -1205,25 +1241,91 @@
     });
   });
 
-  // Smooth single-open accordion in sections
-  document.querySelectorAll('.faq-accordion-item').forEach(item => {
-    item.addEventListener('toggle', () => {
-      if (item.open) {
-        const parentSec = item.closest('.faq-section');
-        if (parentSec) {
-          parentSec.querySelectorAll('.faq-accordion-item').forEach(other => {
-            if (other !== item && other.open) other.open = false;
-          });
+  // Universal Ultra-Smooth Sliding Accordion Engine for all items
+  (function initFaqAccordion() {
+    const isAnimatingMap = new WeakMap();
+
+    function slideDown(item, wrap) {
+      if (isAnimatingMap.get(item)) return;
+      isAnimatingMap.set(item, true);
+
+      item.open = true;
+      const inner = wrap.firstElementChild || wrap;
+      const endHeight = inner.offsetHeight || wrap.scrollHeight;
+
+      wrap.style.overflow = 'hidden';
+      const anim = wrap.animate([
+        { height: '0px', opacity: 0 },
+        { height: endHeight + 'px', opacity: 1 }
+      ], {
+        duration: 320,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+      });
+
+      anim.onfinish = () => {
+        wrap.style.height = '';
+        wrap.style.overflow = '';
+        isAnimatingMap.set(item, false);
+      };
+    }
+
+    function slideUp(item, wrap, callback) {
+      if (isAnimatingMap.get(item)) return;
+      isAnimatingMap.set(item, true);
+
+      const startHeight = wrap.offsetHeight || wrap.scrollHeight;
+      wrap.style.overflow = 'hidden';
+
+      const anim = wrap.animate([
+        { height: startHeight + 'px', opacity: 1 },
+        { height: '0px', opacity: 0 }
+      ], {
+        duration: 260,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+      });
+
+      anim.onfinish = () => {
+        item.open = false;
+        wrap.style.height = '';
+        wrap.style.overflow = '';
+        isAnimatingMap.set(item, false);
+        if (callback) callback();
+      };
+    }
+
+    document.querySelectorAll('.faq-accordion-item').forEach(item => {
+      const summary = item.querySelector('.faq-accordion-btn') || item.querySelector('summary');
+      const wrap = item.querySelector('.faq-acc-body-wrap');
+      if (!summary || !wrap) return;
+
+      summary.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        if (item.open) {
+          slideUp(item, wrap);
+        } else {
+          // Close other open accordions in the same section smoothly
+          const parentSec = item.closest('.faq-section') || item.parentElement;
+          if (parentSec) {
+            parentSec.querySelectorAll('.faq-accordion-item').forEach(other => {
+              if (other !== item && other.open) {
+                const otherWrap = other.querySelector('.faq-acc-body-wrap');
+                if (otherWrap) slideUp(other, otherWrap);
+              }
+            });
+          }
+          slideDown(item, wrap);
         }
-      }
+      });
     });
-  });
+  })();
 
   // Helpful voting
+  const faqVoteThanksText = {% if request.LANGUAGE_CODE == 'az' %}'Rəyiniz üçün təşəkkür!'{% elif request.LANGUAGE_CODE == 'en' %}'Thank you for your feedback!'{% else %}'Спасибо за ваш отзыв!'{% endif %};
   document.querySelectorAll('.faq-vote-box').forEach(box => {
     box.querySelectorAll('button').forEach(b => {
       b.addEventListener('click', () => {
-        box.innerHTML = `<span class="faq-vote-thanks"><span class="material-symbols-rounded" style="font-size:18px;">favorite</span>{% trans "Спасибо за ваш отзыв!" %}</span>`;
+        box.innerHTML = `<span class="faq-vote-thanks"><span class="material-symbols-rounded" style="font-size:18px; color: #136f38;">favorite</span> ${faqVoteThanksText}</span>`;
       });
     });
   });

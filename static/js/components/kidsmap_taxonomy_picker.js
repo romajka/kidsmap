@@ -35,16 +35,57 @@
 
     // Determine language-specific UI labels from dataset attributes
     var wizardShell = document.querySelector("[data-owner-wizard-shell]") || form;
-    var changeLabel = wizardShell.dataset.taxonomyPickerChangeLabel || "Изменить";
-    var collapseLabel = wizardShell.dataset.taxonomyPickerCollapseLabel || "Свернуть";
-    var selectCategoryLabel = wizardShell.dataset.taxonomyPickerSelectCategoryLabel || "Выберите категорию";
-    var subcategoriesHint = wizardShell.dataset.taxonomyPickerSubcategoriesHint || "Подкатегории появятся сразу после выбора.";
-    var subcategoryLabel = wizardShell.dataset.taxonomyPickerSubcategoryLabel || "Подкатегория";
-    var subcategoriesCountMany = wizardShell.dataset.taxonomyPickerSubcategoriesCountMany || "подкатегорий";
-    var subcategoriesCountNone = wizardShell.dataset.taxonomyPickerSubcategoriesCountNone || "без подкатегорий";
-    var selectSubcategoryFirst = wizardShell.dataset.taxonomyPickerSelectSubcategoryFirst || "Сначала выберите категорию.";
-    var subcategoriesNotNeeded = wizardShell.dataset.taxonomyPickerSubcategoriesNotNeeded || "Для этой категории подкатегории не нужны.";
-    var subcategoriesVariants = wizardShell.dataset.taxonomyPickerSubcategoriesVariants || "вариантов";
+    var lang = ((document.documentElement.lang || "az").split("-")[0] || "az").toLowerCase();
+    var defaultLabelsMap = {
+      az: {
+        change: "Dəyişdir",
+        collapse: "Yığ",
+        selectCategory: "Kateqoriya seçin",
+        subcategoriesHint: "Alt kateqoriyalar seçimdən sonra görünəcək.",
+        subcategory: "Alt kateqoriya",
+        subcategoriesCountMany: "alt kateqoriya",
+        subcategoriesCountNone: "alt kateqoriyasız",
+        selectSubcategoryFirst: "Əvvəlcə kateqoriyanı seçin.",
+        subcategoriesNotNeeded: "Bu kateqoriya üçün alt kateqoriya tələb olunmur.",
+        subcategoriesVariants: "variant",
+      },
+      en: {
+        change: "Change",
+        collapse: "Collapse",
+        selectCategory: "Select category",
+        subcategoriesHint: "Subcategories will appear right after selection.",
+        subcategory: "Subcategory",
+        subcategoriesCountMany: "subcategories",
+        subcategoriesCountNone: "no subcategories",
+        selectSubcategoryFirst: "Please select a category first.",
+        subcategoriesNotNeeded: "No subcategories required for this category.",
+        subcategoriesVariants: "options",
+      },
+      ru: {
+        change: "Изменить",
+        collapse: "Свернуть",
+        selectCategory: "Выберите категорию",
+        subcategoriesHint: "Подкатегории появятся сразу после выбора.",
+        subcategory: "Подкатегория",
+        subcategoriesCountMany: "подкатегорий",
+        subcategoriesCountNone: "без подкатегорий",
+        selectSubcategoryFirst: "Сначала выберите категорию.",
+        subcategoriesNotNeeded: "Для этой категории подкатегории не нужны.",
+        subcategoriesVariants: "вариантов",
+      },
+    };
+    var currentLabels = defaultLabelsMap[lang] || defaultLabelsMap.az;
+
+    var changeLabel = wizardShell.dataset.taxonomyPickerChangeLabel || currentLabels.change;
+    var collapseLabel = wizardShell.dataset.taxonomyPickerCollapseLabel || currentLabels.collapse;
+    var selectCategoryLabel = wizardShell.dataset.taxonomyPickerSelectCategoryLabel || currentLabels.selectCategory;
+    var subcategoriesHint = wizardShell.dataset.taxonomyPickerSubcategoriesHint || currentLabels.subcategoriesHint;
+    var subcategoryLabel = wizardShell.dataset.taxonomyPickerSubcategoryLabel || currentLabels.subcategory;
+    var subcategoriesCountMany = wizardShell.dataset.taxonomyPickerSubcategoriesCountMany || currentLabels.subcategoriesCountMany;
+    var subcategoriesCountNone = wizardShell.dataset.taxonomyPickerSubcategoriesCountNone || currentLabels.subcategoriesCountNone;
+    var selectSubcategoryFirst = wizardShell.dataset.taxonomyPickerSelectSubcategoryFirst || currentLabels.selectSubcategoryFirst;
+    var subcategoriesNotNeeded = wizardShell.dataset.taxonomyPickerSubcategoriesNotNeeded || currentLabels.subcategoriesNotNeeded;
+    var subcategoriesVariants = wizardShell.dataset.taxonomyPickerSubcategoriesVariants || currentLabels.subcategoriesVariants;
 
     var categoryField = categorySelect.closest(".owner-form-field") || categorySelect.closest(".form-group");
     var subcategoryField = subcategorySelect.closest(".owner-form-details-secondary") || subcategorySelect.closest(".owner-form-field") || subcategorySelect.closest(".form-group");

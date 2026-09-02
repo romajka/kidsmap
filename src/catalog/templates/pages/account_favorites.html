@@ -142,7 +142,7 @@
                   </a>
                   <form method="post" action="{% url 'toggle_place_like' place.id %}" class="account-fav-remove-form">
                     {% csrf_token %}
-                    <button type="submit" class="account-fav-remove-btn" title="{% if CURRENT_LANGUAGE == 'az' %}Seçilmişlərdən sil{% else %}Удалить из избранного{% endif %}">
+                    <button type="submit" class="account-fav-remove-btn" title="{% if CURRENT_LANGUAGE == 'az' %}Seçilmişlərdən sil{% elif CURRENT_LANGUAGE == 'en' %}Remove from favorites{% else %}Удалить из избранного{% endif %}">
                       <span class="material-symbols-rounded">favorite</span>
                     </button>
                   </form>

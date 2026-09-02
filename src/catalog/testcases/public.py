@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 from io import StringIO
 from datetime import timedelta
@@ -530,6 +531,13 @@ class TestPublicPagesSmoke(TestCase):
                 response = self.client.get(path, follow=True)
                 self.assertEqual(response.status_code, 200)
                 self.assertContains(response, expected_text)
+
+    def test_faq_page_has_no_russian_copy_in_azerbaijani_or_english(self):
+        for path in ("/faq/", "/en/faq/"):
+            with self.subTest(path=path):
+                response = self.client.get(path, follow=True)
+                visible_text = re.findall(r">([^<>]*[А-Яа-яЁё][^<>]*)<", response.content.decode("utf-8"))
+                self.assertEqual(visible_text, [])
 
     def test_az_reviews_page_translates_reaction_helper(self):
         response = self.client.get("/reviews/")
@@ -2193,15 +2201,15 @@ class TestCatalogEnhancements(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Цена и занятия")
-        self.assertContains(response, "detail-unified-pricing--no-plans")
-        self.assertContains(response, "detail-unified-pricing--with-schedule")
+        self.assertContains(response, 'class="detail-decision__price-value"', html=False)
+        self.assertContains(response, 'class="detail-schedule-rows"', html=False)
         self.assertContains(response, "80–120")
-        self.assertNotContains(response, 'class="detail-unified-pricing__price-sub"', html=False)
-        self.assertContains(response, "Формат занятий")
+        self.assertContains(response, "Формат")
         self.assertContains(response, "Групповые")
+        self.assertContains(response, "Длительность")
         self.assertContains(response, "60 мин")
-        self.assertContains(response, "detail-highlight-card--lesson")
-        self.assertNotContains(response, "detail-highlight-card--schedule")
+        # A place without tariff rows must not render the collapsed tariff list.
+        self.assertNotContains(response, 'id="pricing-plans-container"', html=False)
         self.assertContains(response, "Пн/Ср/Пт 18:00-19:00")
         self.assertContains(response, "Пробный урок бесплатно")
         self.assertContains(response, "Нужна спортивная форма")
@@ -2502,11 +2510,13 @@ class TestCatalogEnhancements(TestCase):
             )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Əsas xüsusiyyətlər")
-        self.assertContains(response, "Qısa məlumat")
+        self.assertContains(response, "Əsas məlumatlar")
+        self.assertContains(response, "Əlaqə")
+        self.assertContains(response, "Dərsin müddəti")
         self.assertContains(response, "90 dəqiqə")
-        self.assertNotContains(response, "Основные характеристики")
-        self.assertNotContains(response, "Краткая информация")
+        self.assertNotContains(response, "Основные сведения")
+        self.assertNotContains(response, "Контакты")
+        self.assertNotContains(response, "Длительность")
         self.assertNotContains(response, "90 мин")
 
     def test_catalog_card_uses_localized_district_instead_of_code(self):

@@ -48,7 +48,14 @@ from catalog.models import (
 )
 from catalog.repositories.django_repositories import DjangoPlaceRepository
 from catalog.services.geocoding import PlaceGeocodingService
-from catalog.services.content_quality import public_place_queryset, public_review_queryset, review_quality_check
+from catalog.services.content_quality import (
+    contains_test_content,
+    place_quality_check,
+    place_catalog_visibility_reasons,
+    public_place_queryset,
+    public_review_queryset,
+    review_quality_check,
+)
 from catalog.services.place_schedule import dump_schedule_payload
 from catalog.services.slugs import PUBLIC_SLUG_MAX_LENGTH, build_ascii_slug
 from catalog.testcases.auth_access import TestAccountsAndReviewAccess
@@ -292,6 +299,118 @@ class ContentModerationPublicVisibilityTests(TestCase):
 
         self.assertEqual(public_place_queryset(Place.objects.all()).count(), 0)
 
+    def test_phone_number_with_test_like_digits_does_not_hide_valid_place(self):
+        place = create_quality_place(phone1="+994501234567")
+
+        self.assertTrue(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
+        self.assertTrue(place.is_public)
+        self.assertNotIn("test_content", place_quality_check(place).errors)
+
+    def test_junk_tokens_are_whole_tokens_not_substrings(self):
+        place = create_quality_place(name="Latest contest for children")
+
+        self.assertFalse(contains_test_content(place.name))
+        self.assertTrue(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
+        self.assertNotIn("test_content", place_catalog_visibility_reasons(place))
+
+    def test_test_tokens_in_public_text_fields_hide_place_and_match_admin_check(self):
+        cases = (
+            ("name", "Test children club"),
+            ("description_az", "Lorem " + "uşaqlar üçün faydalı dərslər və açıq qruplar. " * 4),
+            ("address", "Qwerty küçəsi 10"),
+        )
+
+        for field, value in cases:
+            with self.subTest(field=field):
+                place = create_quality_place(**{field: value})
+
+                self.assertTrue(contains_test_content(value))
+                self.assertFalse(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
+                self.assertIn("test_content", place_catalog_visibility_reasons(place))
+
+    def test_published_active_place_is_hidden_for_every_catalog_rule(self):
+        empty_category, _ = Category.objects.get_or_create(code="", defaults={"name": "Empty category"})
+        cases = (
+            ("missing_category", {"category": empty_category}),
+            ("missing_address", {"address": ""}),
+            ("missing_contact", {"phone1": "", "instagram": "", "website": ""}),
+            ("missing_age", {"age_from": None, "age_to": None}),
+            ("missing_price", {
+                "price_from": None, "price_to": None, "price_per_lesson": None,
+                "price_per_month": None, "price_per_8_lessons": None,
+            }),
+            ("description_too_short", {"description_az": "Коротко"}),
+            ("missing_schedule", {"schedule": ""}),
+            ("test_content", {"name": "test club"}),
+        )
+
+        for reason, overrides in cases:
+            with self.subTest(reason=reason):
+                place = create_quality_place(**overrides)
+                self.assertFalse(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
+                # ``is_public`` is the publication state; the catalog filter is
+                # intentionally stricter and is asserted above.
+                self.assertTrue(place.is_public)
+                self.assertIn(reason, place_catalog_visibility_reasons(place))
+
+    def test_price_only_in_active_pricing_plan_makes_place_public(self):
+        from catalog.models import PricingPlan
+
+        place = create_quality_place(
+            price_from=None,
+            price_to=None,
+            price_per_lesson=None,
+            price_per_month=None,
+            price_per_8_lessons=None,
+        )
+        PricingPlan.objects.create(place=place, product_type="lesson", price_kind="exact", price=80)
+        # PricingPlan signals normally keep legacy fields in sync. Clear them to
+        # prove catalog visibility is granted by the relational tariff itself.
+        Place.objects.filter(pk=place.pk).update(
+            price_from=None, price_to=None, price_per_lesson=None,
+            price_per_month=None, price_per_8_lessons=None,
+        )
+
+        self.assertTrue(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
+        place.refresh_from_db()
+        self.assertTrue(place.is_public)
+
+    def test_range_pricing_plan_is_a_price_for_both_quality_and_catalog(self):
+        from catalog.models import PricingPlan
+
+        place = create_quality_place(
+            price_from=None,
+            price_to=None,
+            price_per_lesson=None,
+            price_per_month=None,
+            price_per_8_lessons=None,
+        )
+        PricingPlan.objects.create(
+            place=place,
+            product_type="lesson",
+            price_kind="range",
+            price_min=40,
+            price_max=80,
+        )
+
+        self.assertTrue(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
+        self.assertNotIn("missing_price", place_quality_check(place).errors)
+
+    def test_temporary_place_is_hidden_when_events_section_is_disabled(self):
+        settings = SiteSettings.get_solo()
+        settings.events_section_enabled = False
+        settings.save(update_fields=["events_section_enabled"])
+        place = create_quality_place(is_temporary=True)
+
+        self.assertFalse(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
+        self.assertIn("events_section_disabled", place_catalog_visibility_reasons(place))
+
+    def test_finished_temporary_place_is_hidden(self):
+        place = create_quality_place(is_temporary=True, temporary_end=timezone.now() - timedelta(minutes=1))
+
+        self.assertFalse(public_place_queryset(Place.objects.filter(pk=place.pk)).exists())
+        self.assertIn("temporary_event_expired", place_catalog_visibility_reasons(place))
+
     def test_structured_schedule_counts_as_public_schedule_content(self):
         place = create_quality_place(schedule="")
         day = PlaceScheduleDay.objects.create(place=place, weekday="mon", is_closed=False, is_24_hours=False, order=0)
@@ -337,6 +456,18 @@ class ContentModerationPublicVisibilityTests(TestCase):
         )
 
         self.assertEqual(list(public_review_queryset(PlaceReview.objects.all())), [approved])
+
+    def test_diagnose_place_visibility_command_is_read_only(self):
+        place = create_quality_place(phone1="+994501234567")
+        before_count = Place.objects.count()
+        output = StringIO()
+
+        call_command("diagnose_place_visibility", "--examples", "2", stdout=output)
+
+        self.assertEqual(Place.objects.count(), before_count)
+        self.assertIn("published+active in catalog: 1", output.getvalue())
+        self.assertIn("junk false positives (old contact rule): 1", output.getvalue())
+        self.assertIn(str(place.pk), output.getvalue())
 
     def test_short_or_test_review_cannot_pass_quality_check(self):
         place = create_quality_place()

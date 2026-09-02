@@ -77,6 +77,37 @@ class PlaceCardValidationTests(TestCase):
         changelist = self.client.get(reverse("admin:catalog_place_changelist"))
         self.assertContains(changelist, "Отчёт качества")
 
+    def test_admin_changelist_shows_publication_readiness_for_unpublished_card(self):
+        self.place.photo = ""
+        self.place.status = Place.STATUS_DRAFT
+        self.place.is_active = False
+        self.place.save(update_fields=["photo", "status", "is_active", "updated_at"])
+        user = get_user_model().objects.create_superuser("readiness-admin", "readiness@example.com", "password")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertContains(response, "Готовность")
+        self.assertContains(response, "Не хватает данных")
+        self.assertContains(response, "Адрес:")
+        self.assertContains(response, "Фото:")
+        self.assertNotContains(response, "+2 ещё")
+        self.assertContains(response, "km-admin-readiness", html=False)
+
+    def test_admin_changelist_has_quick_filter_for_all_unpublished_cards(self):
+        self.place.status = Place.STATUS_DRAFT
+        self.place.is_active = False
+        self.place.save(update_fields=["status", "is_active", "updated_at"])
+        user = get_user_model().objects.create_superuser("unpublished-admin", "unpublished@example.com", "password")
+        self.client.force_login(user)
+
+        response = self.client.get(reverse("admin:catalog_place_changelist"))
+
+        self.assertContains(response, "Не опубликованы")
+        self.assertContains(response, "publication_state=unpublished", html=False)
+        filtered = self.client.get(reverse("admin:catalog_place_changelist"), {"publication_state": "unpublished"})
+        self.assertContains(filtered, self.place.name_az)
+
     def test_admin_error_summary_keeps_card_unchanged_after_failed_save(self):
         user = get_user_model().objects.create_superuser("form-admin", "form@example.com", "password")
         self.client.force_login(user)

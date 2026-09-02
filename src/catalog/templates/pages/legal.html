@@ -8,7 +8,7 @@
 
 {% block content %}
   <section class="panel content-page legal-page">
-    <nav class="legal-page__breadcrumb" aria-label="{{ breadcrumb_aria_label|default:'Хлебные крошки' }}">
+    <nav class="legal-page__breadcrumb" aria-label="{% trans 'Навигация по сайту' %}">
       <a href="{% url 'home' %}">{% trans "Главная" %}</a>
       <span aria-hidden="true">›</span>
       <span aria-current="page">{{ legal_title }}</span>

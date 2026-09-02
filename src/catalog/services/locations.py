@@ -156,6 +156,138 @@ LEGACY_MAPPING = {
     "ясамальский": "baku_yasamal",
 }
 
+BAKU_METRO_MAP = {
+    "28_may": {"ru": "28 Мая", "az": "28 May", "en": "28 May"},
+    "genclik": {"ru": "Гянджлик", "az": "Gənclik", "en": "Genclik"},
+    "narimanov": {"ru": "Нариман Нариманов", "az": "Nəriman Nərimanov", "en": "Nariman Narimanov"},
+    "elmler": {"ru": "Эльмляр Академиясы", "az": "Elmlər Akademiyası", "en": "Elmler Akademiyasi"},
+    "icherisheher": {"ru": "Ичеришехер", "az": "İçərişəhər", "en": "Icherisheher"},
+    "20_yanvar": {"ru": "20 Января", "az": "20 Yanvar", "en": "20 January"},
+    "memar_ecemi": {"ru": "Мемар Аджеми", "az": "Memar Əcəmi", "en": "Memar Ajami"},
+    "inshaatchilar": {"ru": "Иншаатчылар", "az": "İnşaatçılar", "en": "Inshaatchilar"},
+    "khatai": {"ru": "Хатаи", "az": "Xətai", "en": "Khatai"},
+    "sahil": {"ru": "Сахил", "az": "Sahil", "en": "Sahil"},
+    "koroglu": {"ru": "Кёроглу", "az": "Koroğlu", "en": "Koroglu"},
+    "azadlig": {"ru": "Азадлыг проспекти", "az": "Azadlıq prospekti", "en": "Azadlig avenue"},
+    "nasimi": {"ru": "Насими", "az": "Nəsimi", "en": "Nasimi"},
+    "ag_sheher": {"ru": "Белый город", "az": "Ağ Şəhər", "en": "White City"},
+    "nizami": {"ru": "Низами", "az": "Nizami", "en": "Nizami"},
+    "qara_qarayev": {"ru": "Кара Караев", "az": "Qara Qarayev", "en": "Gara Garayev"},
+    "neftchilar": {"ru": "Нефтчиляр", "az": "Neftçilər", "en": "Neftchilar"},
+    "xalqlar": {"ru": "Халглар Достлугу", "az": "Xalqlar Dostluğu", "en": "Khalglar Dostlugu"},
+    "ehmedli": {"ru": "Ахмедлы", "az": "Əhmədli", "en": "Ahmedli"},
+    "hezi_aslanov": {"ru": "Ази Асланов", "az": "Həzi Aslanov", "en": "Hazi Aslanov"},
+    "ulduz": {"ru": "Улдуз", "az": "Ulduz", "en": "Ulduz"},
+    "bakmil": {"ru": "Бакмил", "az": "Bakmil", "en": "Bakmil"},
+    "dernegul": {"ru": "Дарнагюль", "az": "Dərnəgül", "en": "Dernegul"},
+    "avtovagzal": {"ru": "Автовокзал", "az": "Avtovağzal", "en": "Avtovagzal"},
+    "8_noyabr": {"ru": "8 Ноября", "az": "8 Noyabr", "en": "8 November"},
+    "xocasen": {"ru": "Ходжасан", "az": "Xocəsən", "en": "Khojasan"},
+}
+
+METRO_LEGACY_MAPPING = {
+    "28 мая": "28_may",
+    "28 may": "28_may",
+    "гянджлик": "genclik",
+    "gənclik": "genclik",
+    "genclik": "genclik",
+    "нариман нариманов": "narimanov",
+    "нариманов": "narimanov",
+    "nəriman nərimanov": "narimanov",
+    "nərimanov": "narimanov",
+    "narimanov": "narimanov",
+    "nariman narimanov": "narimanov",
+    "эльмляр академиясы": "elmler",
+    "эльмляр": "elmler",
+    "академия наук": "elmler",
+    "elmlər akademiyası": "elmler",
+    "elmlər": "elmler",
+    "elmler akademiyasi": "elmler",
+    "ичеришехер": "icherisheher",
+    "ичери шехер": "icherisheher",
+    "içərişəhər": "icherisheher",
+    "içəri şəhər": "icherisheher",
+    "icherisheher": "icherisheher",
+    "20 января": "20_yanvar",
+    "20 yanvar": "20_yanvar",
+    "мемар аджеми": "memar_ecemi",
+    "memar əcəmi": "memar_ecemi",
+    "memar ecemi": "memar_ecemi",
+    "memar ajami": "memar_ecemi",
+    "иншаатчылар": "inshaatchilar",
+    "i̇nşaatçılar": "inshaatchilar",
+    "inşaatçılar": "inshaatchilar",
+    "inshaatchilar": "inshaatchilar",
+    "хатаи": "khatai",
+    "xətai": "khatai",
+    "khatai": "khatai",
+    "сахил": "sahil",
+    "sahil": "sahil",
+    "кёроглу": "koroglu",
+    "короглу": "koroglu",
+    "koroğlu": "koroglu",
+    "koroglu": "koroglu",
+    "азадлыг": "azadlig",
+    "азадлыг проспекти": "azadlig",
+    "azadlıq": "azadlig",
+    "azadlıq prospekti": "azadlig",
+    "насими": "nasimi",
+    "nəsimi": "nasimi",
+    "nasimi": "nasimi",
+    "белый город": "ag_sheher",
+    "аг шехер": "ag_sheher",
+    "ağ şəhər": "ag_sheher",
+    "ag sheher": "ag_sheher",
+    "низами": "nizami",
+    "nizami": "nizami",
+    "кара караев": "qara_qarayev",
+    "qara qarayev": "qara_qarayev",
+    "нефтчиляр": "neftchilar",
+    "neftçilər": "neftchilar",
+    "халглар достлугу": "xalqlar",
+    "xalqlar dostluğu": "xalqlar",
+    "ахмедлы": "ehmedli",
+    "əhmədli": "ehmedli",
+    "ази асланов": "hezi_aslanov",
+    "həzi aslanov": "hezi_aslanov",
+    "улдуз": "ulduz",
+    "ulduz": "ulduz",
+    "бакмил": "bakmil",
+    "bakmil": "bakmil",
+    "дарнагюль": "dernegul",
+    "dərnəgül": "dernegul",
+    "автовокзал": "avtovagzal",
+    "avtovağzal": "avtovagzal",
+    "8 ноября": "8_noyabr",
+    "8 noyabr": "8_noyabr",
+    "ходжасан": "xocasen",
+    "xocəsən": "xocasen",
+}
+
+def get_metro_translation(value: str, language_code: str = None) -> str:
+    if not value:
+        return ""
+    if not language_code:
+        from django.utils import translation
+        language_code = translation.get_language() or "az"
+    lang = (language_code or "az").strip().split("-")[0].lower()
+    if lang not in ("az", "ru", "en"):
+        lang = "az"
+
+    val = str(value).strip().lower()
+    key = METRO_LEGACY_MAPPING.get(val)
+    if not key:
+        for k, info in BAKU_METRO_MAP.items():
+            if val == k or val in [v.lower() for v in info.values()]:
+                key = k
+                break
+    if key and key in BAKU_METRO_MAP:
+        return BAKU_METRO_MAP[key].get(lang, value)
+
+    from django.utils.translation import override
+    with override(lang):
+        return _(value)
+
 def normalize_to_key(value: str) -> str:
     if not value:
         return ""

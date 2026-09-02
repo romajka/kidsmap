@@ -20,7 +20,7 @@ from catalog.repositories.django_repositories import (
     DjangoPlaceOwnershipRequestRepository,
 )
 from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
-from catalog.services.content_quality import QualityCheck, place_quality_check
+from catalog.services.content_quality import QualityCheck, place_quality_check, place_quality_error_labels
 from catalog.services.pricing_plans import pricing_audit_summary
 from catalog.services.owner_place_use_cases import (
     OwnerAccessResult,
@@ -116,24 +116,11 @@ class OwnerPlacesController:
 
     @staticmethod
     def _quality_issue_labels(quality: QualityCheck) -> list[str]:
-        labels = {
-            "missing_name": _("название"),
-            "missing_category": _("категория"),
-            "description_too_short": _("описание не менее 120 символов"),
-            "test_content": _("корректные данные без тестового текста"),
-            "missing_contact": _("телефон, сайт или Instagram"),
-            "missing_address": _("адрес"),
-            "missing_coordinates": _("точка на карте"),
-            "missing_age": _("возраст"),
-            "missing_price": _("цена"),
-            "missing_schedule": _("расписание"),
-            "missing_photo": _("главное фото или фото в галерее"),
-        }
-        return [str(labels.get(code, code)) for code in quality.errors]
+        return place_quality_error_labels(quality.errors)
 
     @classmethod
     def _quality_error_message(cls, quality: QualityCheck) -> str:
-        return _("Перед отправкой на проверку заполните: %(fields)s.") % {
+        return _("Перед отправкой на проверку исправьте: %(fields)s") % {
             "fields": ", ".join(cls._quality_issue_labels(quality)),
         }
 

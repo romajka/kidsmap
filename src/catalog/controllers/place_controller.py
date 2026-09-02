@@ -794,6 +794,53 @@ class PlaceController:
             pk=pk,
         )
 
+    @staticmethod
+    def _review_prompt_chips(language: str | None = None) -> list[str]:
+        """Short phrases the review composer appends to the textarea."""
+        lang = (language or "az").split("-")[0].lower()
+        chips = {
+            "az": [
+                "Uşaqların xoşuna gəldi",
+                "Rahat çatmaq olur",
+                "Təmiz və təhlükəsizdir",
+                "Diqqətli personal",
+                "Qiymət münasibdir",
+            ],
+            "en": [
+                "Kids loved it",
+                "Easy to reach",
+                "Clean and safe",
+                "Attentive staff",
+                "Good value for money",
+            ],
+            "ru": [
+                "Понравилось детям",
+                "Удобно добираться",
+                "Чисто и безопасно",
+                "Внимательный персонал",
+                "Цена оправдана",
+            ],
+        }
+        return chips.get(lang, chips["az"])
+
+    @staticmethod
+    def _build_review_histogram(reviews) -> list[dict[str, object]]:
+        """Rating distribution for the reviews card, counted from the already
+        loaded review list so the page keeps its current query count."""
+        counters = {star: 0 for star in range(1, 6)}
+        for review in reviews:
+            if review.rating in counters:
+                counters[review.rating] += 1
+        peak = max(counters.values()) if counters else 0
+        return [
+            {
+                "star": star,
+                "count": counters[star],
+                "percent": round(counters[star] * 100 / peak) if peak else 0,
+            }
+            for star in range(5, 0, -1)
+        ]
+
     def build_detail_context(self, request: HttpRequest, *, place: Place) -> dict:
         liked_ids = liked_place_ids(request)
         place.is_liked = place.id in liked_ids
@@ -819,6 +866,8 @@ class PlaceController:
             "map_open_url": seo_payload["map_open_url"],
             "place_reviews": place_reviews,
             "reviews_count": len(place_reviews),
+            "review_histogram": self._build_review_histogram(place_reviews),
+            "review_prompt_chips": self._review_prompt_chips(request.LANGUAGE_CODE),
             "review_sort": review_sort,
             "review_sort_choices": REVIEW_SORT_CHOICES,
             "catalog_return_url": reverse("place_list"),

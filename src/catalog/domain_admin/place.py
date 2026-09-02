@@ -7,7 +7,7 @@ from django.contrib.admin import helpers
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Avg, Count, Max, Prefetch, Q
+from django.db.models import Avg, Count, Exists, Max, OuterRef, Prefetch, Q
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import path, reverse
@@ -36,7 +36,14 @@ from catalog.models import (
     CatalogContentSettings,
 )
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
-from catalog.services.content_quality import place_quality_check, public_place_queryset, public_review_filter
+from catalog.services.content_quality import (
+    format_place_quality_errors,
+    place_catalog_visibility_reasons,
+    place_quality_check,
+    place_quality_error_labels as get_place_quality_error_labels,
+    public_place_queryset,
+    public_review_filter,
+)
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
 from catalog.services.image_uploads import normalize_uploaded_image
@@ -50,20 +57,6 @@ from .ui_utils import render_primary_action, render_action_menu, render_row_acti
 ADMIN_DATETIME_LOCAL_FORMAT = "%Y-%m-%dT%H:%M"
 DRAFT_PLACEHOLDER_NAME = "Черновик без названия"
 logger = logging.getLogger(__name__)
-
-PLACE_QUALITY_ERROR_LABELS = {
-    "missing_name": _("не указано название"),
-    "missing_category": _("не указана категория"),
-    "description_too_short": _("слишком короткое описание"),
-    "test_content": _("обнаружены тестовые данные"),
-    "missing_contact": _("не указан контакт"),
-    "missing_address": _("не указан адрес"),
-    "missing_age": _("не указан возраст"),
-    "missing_price": _("не указана цена"),
-    "missing_schedule": _("не указано расписание"),
-    "missing_photo": _("не добавлено фото"),
-}
-
 
 def _normalized_phone(value) -> str:
     return "".join(re.findall(r"\d", value or ""))
@@ -84,7 +77,7 @@ def _normalized_text(value) -> str:
 
 
 def place_quality_error_labels(errors) -> str:
-    return ", ".join(str(PLACE_QUALITY_ERROR_LABELS.get(error, error)) for error in errors)
+    return format_place_quality_errors(errors)
 
 
 class PlacePhotoInline(admin.TabularInline):
@@ -611,6 +604,25 @@ class PlaceMapReadyFilter(admin.SimpleListFilter):
             return queryset.filter(is_active=True).exclude(lat__isnull=True).exclude(lng__isnull=True)
         if value == "no":
             return queryset.filter(Q(is_active=False) | Q(lat__isnull=True) | Q(lng__isnull=True))
+        return queryset
+
+
+class PlacePublicationFilter(admin.SimpleListFilter):
+    title = _("Публикация")
+    parameter_name = "publication_state"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("published", _("Опубликованы")),
+            ("unpublished", _("Не опубликованы")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "published":
+            return queryset.filter(is_active=True, status=Place.STATUS_PUBLISHED)
+        if value == "unpublished":
+            return queryset.exclude(is_active=True, status=Place.STATUS_PUBLISHED)
         return queryset
 
 
@@ -1570,6 +1582,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "category_summary",
         "location_summary",
         "publication_status",
+        "publication_readiness",
         "home_recommendation_status",
         "map_status_summary",
         "owner_display",
@@ -1586,6 +1599,7 @@ class PlaceAdmin(admin.ModelAdmin):
     )
     list_filter = (
         PlaceDeletedFilter,
+        PlacePublicationFilter,
         PlaceCoordinatesFilter,
         PlaceMapReadyFilter,
         PlaceCreatedByFilter,
@@ -2056,16 +2070,26 @@ class PlaceAdmin(admin.ModelAdmin):
                 "hint": str(_("Карточка скрыта с сайта и перемещена в удалённые.")),
                 "is_public": False,
             }
-        quality = place_quality_check(obj)
-        if obj.status == obj.STATUS_PUBLISHED and obj.is_active and not quality.is_ready:
-            reasons = place_quality_error_labels(quality.errors)
+        # Changelists receive ``km_in_public_catalog`` as a correlated EXISTS
+        # annotation. Do not run a separate visibility query for every column
+        # and every row; the fallback is for objects loaded outside get_queryset.
+        is_in_public_catalog = False
+        if obj.status == obj.STATUS_PUBLISHED and obj.is_active:
+            annotated_visibility = getattr(obj, "km_in_public_catalog", None)
+            is_in_public_catalog = (
+                bool(annotated_visibility)
+                if annotated_visibility is not None
+                else public_place_queryset(Place.objects.filter(pk=obj.pk)).exists()
+            )
+        if obj.status == obj.STATUS_PUBLISHED and obj.is_active and not is_in_public_catalog:
+            reasons = format_place_quality_errors(place_catalog_visibility_reasons(obj))
             return {
                 "label": str(_("Скрыто с сайта")),
                 "tone": "danger",
                 "hint": str(_("Карточка имеет статус публикации, но не проходит проверку качества каталога: %(reasons)s.") % {"reasons": reasons}),
                 "is_public": False,
             }
-        if obj.is_public:
+        if is_in_public_catalog:
             return {
                 "label": str(_("Опубликовано")),
                 "tone": "good",
@@ -2415,7 +2439,11 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        return queryset.prefetch_related(
+        public_match = public_place_queryset(Place.objects.filter(pk=OuterRef("pk")))
+        return queryset.annotate(km_in_public_catalog=Exists(public_match)).prefetch_related(
+            "gallery",
+            "schedule_days",
+            "pricing_plan_records",
             Prefetch(
                 "ownership_requests",
                 queryset=PlaceOwnershipRequest.objects.select_related("applicant").order_by("created_at"),
@@ -2521,7 +2549,7 @@ class PlaceAdmin(admin.ModelAdmin):
         check = place_quality_check(obj)
         tone = "good" if check.is_ready else "warn"
         label = _("Готово к публикации") if check.is_ready else _("Нужна доработка")
-        details = place_quality_error_labels(check.errors[:4]) if check.errors else _("Критичных замечаний нет")
+        details = place_quality_error_labels(check.errors) if check.errors else _("Критичных замечаний нет")
         return format_html(
             '<div class="km-admin-stack"><span class="km-admin-badge km-admin-badge--{}">{} / 100</span><span class="km-admin-meta">{} · {}</span></div>',
             tone,
@@ -2646,6 +2674,51 @@ class PlaceAdmin(admin.ModelAdmin):
                 '<span class="km-admin-meta km-admin-status-note">{}</span>',
                 " · ".join(meta_bits),
             ) if meta_bits else "",
+        )
+
+    @admin.display(description=_("Готовность"))
+    def publication_readiness(self, obj):
+        """Show the exact publication checklist result for unpublished places."""
+        visibility = self._place_visibility_state(obj)
+        if visibility["is_public"]:
+            return self._render_place_state_badge(label=_("Опубликована"), tone="good")
+
+        check = place_quality_check(obj)
+        if check.is_ready:
+            tone = "good"
+            title = _("Карточка готова")
+            hint = _("Можно отправлять на модерацию или публиковать.")
+        elif "test_content" in check.errors:
+            tone = "danger"
+            title = _("Нужна доработка")
+            hint = _("Удалите тестовые данные перед публикацией.")
+        else:
+            tone = "warn" if check.score >= 50 else "danger"
+            title = _("Не хватает данных")
+            hint = _("Заполните пункты ниже, чтобы карточка стала готова.")
+
+        issue_labels = get_place_quality_error_labels(check.errors)
+        issues_html = format_html_join(
+            "",
+            '<span class="km-admin-readiness__issue">{}</span>',
+            ((label,) for label in issue_labels),
+        )
+
+        return format_html(
+            '<div class="km-admin-readiness km-admin-readiness--{}" aria-label="{}: {}%">'
+            '<div class="km-admin-readiness__top"><strong>{}</strong><b>{}%</b></div>'
+            '<div class="km-admin-readiness__track" aria-hidden="true"><span style="width: {}%"></span></div>'
+            '<span class="km-admin-readiness__hint">{}</span>'
+            '<div class="km-admin-readiness__issues">{}</div>'
+            '</div>',
+            tone,
+            title,
+            check.score,
+            title,
+            check.score,
+            check.score,
+            hint,
+            issues_html,
         )
 
     @admin.display(boolean=True, description=_("На главной"))
@@ -2875,8 +2948,9 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def _place_quick_filters(self, request, *, counts: dict[str, int] | None = None):
         counts = counts or self._place_dashboard_counts()
-        status_keys = ("deleted_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")
+        status_keys = ("deleted_state", "publication_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")
         current_deleted = request.GET.get("deleted_state")
+        current_publication = request.GET.get("publication_state")
         current_active = request.GET.get("is_active__exact")
         current_coordinates = request.GET.get("coordinates_status")
         current_map_ready = request.GET.get("map_ready_status")
@@ -2887,7 +2961,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "label": _("Все карточки"),
                 "count": int(counts["quick_all"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys),
-                "active": not any((current_deleted, current_active, current_coordinates, current_map_ready, current_status)),
+                "active": not any((current_deleted, current_publication, current_active, current_coordinates, current_map_ready, current_status)),
             },
             {
                 "key": "published",
@@ -2900,7 +2974,19 @@ class PlaceAdmin(admin.ModelAdmin):
                     is_active__exact="1",
                     status__exact=Place.STATUS_PUBLISHED,
                 ),
-                "active": current_deleted == "active" and current_active == "1" and current_status == Place.STATUS_PUBLISHED and not current_coordinates and not current_map_ready,
+                "active": current_deleted == "active" and current_active == "1" and current_status == Place.STATUS_PUBLISHED and not current_publication and not current_coordinates and not current_map_ready,
+            },
+            {
+                "key": "unpublished",
+                "label": _("Не опубликованы"),
+                "count": int(counts["quick_unpublished"]),
+                "url": self._build_changelist_query_string(
+                    request,
+                    clear=status_keys,
+                    deleted_state="active",
+                    publication_state="unpublished",
+                ),
+                "active": current_deleted == "active" and current_publication == "unpublished" and not current_active and not current_coordinates and not current_map_ready and not current_status,
             },
             {
                 "key": "inactive",
@@ -2912,14 +2998,14 @@ class PlaceAdmin(admin.ModelAdmin):
                     deleted_state="active",
                     is_active__exact="0",
                 ),
-                "active": current_deleted == "active" and current_active == "0" and not current_coordinates and not current_map_ready and not current_status,
+                "active": current_deleted == "active" and current_active == "0" and not current_publication and not current_coordinates and not current_map_ready and not current_status,
             },
             {
                 "key": "draft",
                 "label": _("Черновики"),
                 "count": int(counts["quick_draft"]),
                 "url": self._build_changelist_query_string(request, clear=status_keys, status__exact=Place.STATUS_DRAFT),
-                "active": current_status == Place.STATUS_DRAFT and not current_deleted and not current_active and not current_coordinates and not current_map_ready,
+                "active": current_status == Place.STATUS_DRAFT and not current_deleted and not current_publication and not current_active and not current_coordinates and not current_map_ready,
             },
             {
                 "key": "pending",
@@ -2962,6 +3048,7 @@ class PlaceAdmin(admin.ModelAdmin):
         counts = Place.objects.aggregate(
             quick_all=Count("pk", filter=Q(deleted_at__isnull=True)),
             quick_published=Count("pk", filter=Q(deleted_at__isnull=True, is_active=True, status=Place.STATUS_PUBLISHED)),
+            quick_unpublished=Count("pk", filter=Q(deleted_at__isnull=True) & ~Q(is_active=True, status=Place.STATUS_PUBLISHED)),
             quick_inactive=Count("pk", filter=Q(deleted_at__isnull=True, is_active=False)),
             quick_draft=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_DRAFT)),
             quick_pending=Count("pk", filter=Q(deleted_at__isnull=True, status=Place.STATUS_PENDING)),
@@ -3133,12 +3220,18 @@ class PlaceAdmin(admin.ModelAdmin):
     def _handle_publish_submit(self, request, obj: Place):
         quality = place_quality_check(obj)
         if not quality.is_ready:
-            obj.status = Place.STATUS_DRAFT
-            obj.is_active = False
+            was_published = bool(getattr(request, "_km_place_was_published_before_publish", False))
+            obj.status = Place.STATUS_PUBLISHED if was_published else Place.STATUS_DRAFT
+            obj.is_active = was_published
             obj.save(update_fields=["status", "is_active", "updated_at"])
+            message = (
+                _("Карточка осталась опубликованной. Исправьте замечания: %(reasons)s.")
+                if was_published
+                else _("Карточка сохранена как черновик и не опубликована: %(reasons)s.")
+            )
             self.message_user(
                 request,
-                _("Карточка сохранена, но не опубликована: %(reasons)s.")
+                message
                 % {"reasons": place_quality_error_labels(quality.errors)},
                 level=messages.WARNING,
             )
@@ -3604,7 +3697,7 @@ class PlaceAdmin(admin.ModelAdmin):
         dashboard_counts = self._place_dashboard_counts()
         quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
         is_trash = self._is_trash_changelist(request)
-        primary_filter_keys = {"all", "published", "draft", "pending", "inactive", "without_coordinates", "deleted"}
+        primary_filter_keys = {"all", "published", "unpublished", "draft", "pending", "inactive", "without_coordinates", "deleted"}
         if is_trash:
             primary_filter_keys = {"all", "deleted"}
         extra_context = {
@@ -4047,6 +4140,7 @@ class PlaceAdmin(admin.ModelAdmin):
         old_pricing_value = "0 tariffs"
         old_schedule_value = ""
         old_status = None
+        old_obj = None
         if change and obj.pk:
             old_obj = Place.objects.filter(pk=obj.pk).first()
             if old_obj:
@@ -4058,6 +4152,13 @@ class PlaceAdmin(admin.ModelAdmin):
                     old_schedule_value = build_schedule_summary(serialize_place_schedule(old_obj))
                 else:
                     old_schedule_value = (old_obj.schedule or "").strip()
+
+        if "_publish_place" in request.POST:
+            setattr(
+                request,
+                "_km_place_was_published_before_publish",
+                bool(old_obj and old_obj.status == Place.STATUS_PUBLISHED and old_obj.is_active),
+            )
 
         if "_save_draft" in request.POST:
             if not (obj.name or "").strip():

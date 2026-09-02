@@ -1,5 +1,4 @@
 {% load i18n static catalog_i18n %}
-{% get_current_language as CURRENT_LANG %}
 
 <article class="card place-card" data-place-id="{{ place.id }}">
   <div class="card-media">
@@ -32,8 +31,8 @@
 
     {% if place.is_temporary %}
     <span class="card-event-badge"
-      title="{% if CURRENT_LANG == 'az' %}Müvəqqəti tədbir{% elif CURRENT_LANG == 'en' %}Temporary event{% else %}Временное мероприятие{% endif %}"
-      aria-label="{% if CURRENT_LANG == 'az' %}Müvəqqəti tədbir{% elif CURRENT_LANG == 'en' %}Temporary event{% else %}Временное мероприятие{% endif %}"></span>
+      title="{% trans 'Временное мероприятие' %}"
+      aria-label="{% trans 'Временное мероприятие' %}"></span>
     {% endif %}
 
     {% if place.card_price_badge %}
@@ -48,9 +47,9 @@
       {% csrf_token %}
       <button type="submit" class="like-btn {% if place.is_liked %}active{% endif %}"
         aria-pressed="{% if place.is_liked %}true{% else %}false{% endif %}"
-        aria-label="{% if place.is_liked %}{% if CURRENT_LANG == 'az' %}Seçilmişlərdən çıxar{% elif CURRENT_LANG == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}{% else %}{% if CURRENT_LANG == 'az' %}Seçilmişlərə əlavə et{% elif CURRENT_LANG == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}{% endif %}"
-        data-favorite-add-label="{% if CURRENT_LANG == 'az' %}Seçilmişlərə əlavə et{% elif CURRENT_LANG == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
-        data-favorite-remove-label="{% if CURRENT_LANG == 'az' %}Seçilmişlərdən çıxar{% elif CURRENT_LANG == 'en' %}Remove from favorites{% else %}Убрать из избранного{% endif %}">
+        aria-label="{% if place.is_liked %}{% trans 'Убрать из избранного' %}{% else %}{% trans 'Добавить в избранное' %}{% endif %}"
+        data-favorite-add-label="{% trans 'Добавить в избранное' %}"
+        data-favorite-remove-label="{% trans 'Убрать из избранного' %}">
         <span class="like-icon" aria-hidden="true">♥</span>
         <span class="like-count visually-hidden">{{ place.likes_count }}</span>
       </button>
@@ -58,7 +57,7 @@
     {% else %}
     <div class="like-form">
       <button type="button" class="like-btn" aria-pressed="false"
-        aria-label="{% if CURRENT_LANG == 'az' %}Seçilmişlərə əlavə et{% elif CURRENT_LANG == 'en' %}Add to favorites{% else %}Добавить в избранное{% endif %}"
+        aria-label="{% trans 'Добавить в избранное' %}"
         data-auth-required-trigger
         data-auth-required-message="{% trans 'Чтобы ставить лайки и оставлять отзывы, войдите или зарегистрируйтесь.' %}"
         data-auth-required-url="{% url 'account_login' %}?next={{ request.get_full_path|urlencode }}">
@@ -84,10 +83,10 @@
       {% if place.age_display %}
         <span class="card-meta-chip card-meta-chip--age">
           <span class="card-meta-chip__value">
-            {{ place.age_display }} {% if CURRENT_LANG == "az" %}yaş{% elif CURRENT_LANG == "en" %}years{% else %}лет{% endif %}
+            {{ place.age_display }} {% trans "лет" %}
             {% if place.offers_adult_classes %}
               <span class="card-age-audience__separator" aria-hidden="true">·</span>
-              <span class="card-age-audience__adult">{% if CURRENT_LANG == "az" %}Böyüklər{% elif CURRENT_LANG == "en" %}Adults{% else %}Взрослые{% endif %}</span>
+              <span class="card-age-audience__adult">{% trans "Взрослые" %}</span>
             {% endif %}
           </span>
         </span>
@@ -95,9 +94,9 @@
 
       <span class="card-meta-chip card-meta-chip--type">
         {% if place.is_temporary %}
-          {% if CURRENT_LANG == "az" %}Müvəqqəti{% elif CURRENT_LANG == "en" %}Temporary{% else %}{% trans "Временное" %}{% endif %}
+          {% trans "Временное" %}
         {% else %}
-          {% if CURRENT_LANG == "az" %}Daimi{% elif CURRENT_LANG == "en" %}Permanent{% else %}{% trans "Постоянное" %}{% endif %}
+          {% trans "Постоянное" %}
         {% endif %}
       </span>
     </div>
@@ -105,7 +104,7 @@
     <div class="card-rating-row">
       {% if place.rating_count %}
       <span class="card-score"
-        aria-label="{% if CURRENT_LANG == 'az' %}Reytinq {{ place.rating_avg|floatformat:1 }} / 5{% elif CURRENT_LANG == 'en' %}Rating {{ place.rating_avg|floatformat:1 }} out of 5{% else %}Рейтинг {{ place.rating_avg|floatformat:1 }} из 5{% endif %}">
+        aria-label="{% blocktrans with score=place.rating_avg|floatformat:1 %}Рейтинг {{ score }} из 5{% endblocktrans %}">
         <span aria-hidden="true"><span class="card-score-star">★</span> {{ place.rating_avg|floatformat:1 }}</span>
       </span>
       <span class="card-review-count">
@@ -114,7 +113,7 @@
       {% else %}
       <span class="card-score card-score-empty">
         <span class="card-score-star card-score-star--empty">★</span>
-        {% if CURRENT_LANG == "az" %}Rəy yoxdur{% elif CURRENT_LANG == "en" %}No reviews{% else %}Нет отзывов{% endif %}
+        {% trans "Нет отзывов" %}
       </span>
       {% endif %}
     </div>
@@ -138,13 +137,13 @@
     <div class="card-action-stack">
       <div class="card-bottom-row">
         <a class="details-btn card-go-btn" href="{{ place.get_absolute_url }}">
-          {% if CURRENT_LANG == "az" %}Ətraflı{% elif CURRENT_LANG == "en" %}Details{% else %}{% trans "Перейти" %}{% endif %}
+          {% trans "Перейти" %}
         </a>
         {% if place.phone1 %}
         <a class="card-contact-toggle" href="tel:{{ place.phone1 }}" data-track-event="cta_call"
           data-track-place-id="{{ place.id }}" data-track-source="card"
-          title="{% if CURRENT_LANG == 'az' %}Zəng et{% elif CURRENT_LANG == 'en' %}Call{% else %}Позвонить{% endif %}"
-          aria-label="{% if CURRENT_LANG == 'az' %}Zəng et{% elif CURRENT_LANG == 'en' %}Call{% else %}Позвонить{% endif %}">
+          title="{% trans 'Позвонить' %}"
+          aria-label="{% trans 'Позвонить' %}">
           <span class="card-contact-toggle-icon" aria-hidden="true"></span>
         </a>
         {% endif %}

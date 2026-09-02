@@ -219,7 +219,7 @@
 }
 
 .km-custom-changelist .place-admin-dashboard__search-panel {
-  padding: 16px 18px;
+  padding: 12px 14px;
   width: 100%;
   background:
     radial-gradient(circle at top right, rgba(16, 185, 129, 0.045), transparent 28%),
@@ -228,13 +228,13 @@
 
 .km-custom-changelist .place-admin-dashboard__search-form-wrapper {
   display: grid;
-  gap: 15px;
+  gap: 10px;
   width: 100%;
 }
 
 .km-custom-changelist #changelist-search.place-admin-dashboard__search-form {
   display: grid;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -242,15 +242,15 @@
 .km-custom-changelist .place-admin-dashboard__row-search--unified {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 8px;
   align-items: center;
   width: 100%;
 }
 
 .km-custom-changelist .place-admin-dashboard__search-combined {
   display: flex;
-  flex: 1 1 280px;
-  min-width: 280px;
+  flex: 2 1 430px;
+  min-width: 360px;
   position: relative;
   align-items: center;
   min-height: 46px;
@@ -358,6 +358,7 @@
 .km-custom-changelist .place-admin-dashboard__top-actions {
   display: flex;
   align-items: center;
+  flex: 0 0 auto;
   gap: 8px;
 }
 
@@ -372,15 +373,16 @@
 
 .km-custom-changelist .place-admin-dashboard__selects-group {
   display: flex;
-  gap: 14px;
-  flex: 1 1 auto;
+  gap: 8px;
+  flex: 0 1 auto;
   flex-wrap: wrap;
 }
 
 .km-custom-changelist .place-admin-dashboard__filter-control {
   position: relative;
   isolation: isolate;
-  min-width: 146px;
+  flex: 0 1 150px;
+  min-width: 124px;
   margin: 0;
 }
 
@@ -483,7 +485,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 14px;
+  padding-top: 10px;
   border-top: 1px solid var(--km-admin-border);
 }
 
@@ -1001,6 +1003,108 @@
 .km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-status-note {
   display: block;
   margin-top: 5px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .field-publication_readiness {
+  min-width: 205px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness {
+  display: grid;
+  gap: 6px;
+  min-width: 190px;
+  max-width: 230px;
+  padding: 9px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: #334155;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness__top b {
+  font-size: 15px;
+  letter-spacing: -0.03em;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness__track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness__track span {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: inherit;
+  background: #e05252;
+  transition: width .2s ease;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness__hint {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness__issues {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness__issue,
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness__more {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 3px 5px;
+  border-radius: 5px;
+  background: #fff;
+  border: 1px solid #fecaca;
+  color: #b42318;
+  font-size: 9px;
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness--warn {
+  border-color: #f3d7a1;
+  background: #fffbeb;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness--warn .km-admin-readiness__track span {
+  background: #e9a326;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness--warn .km-admin-readiness__issue,
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness--warn .km-admin-readiness__more {
+  border-color: #f3d7a1;
+  color: #8a5b00;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness--good {
+  border-color: #bfe2cc;
+  background: #f0fdf4;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness--good .km-admin-readiness__track span {
+  background: #1a9a5b;
+}
+
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness--good .km-admin-readiness__issue,
+.km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-readiness--good .km-admin-readiness__more {
+  display: none;
 }
 
 .km-custom-changelist .place-admin-dashboard__table-wrap .km-admin-map-state {

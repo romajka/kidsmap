@@ -4,7 +4,7 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.text import Truncator
-from django.utils.translation import get_language, gettext as _
+from django.utils.translation import get_language, gettext as _, override
 
 from catalog.models import Place
 from catalog.services.public_urls import build_public_absolute_uri
@@ -329,126 +329,139 @@ def build_catalog_seo_payload(*, request, selected: dict, places, total_count: i
 
 
 def _place_description(place, language_code: str) -> str:
-    if place.description_i18n(language_code):
-        return _truncate_text(place.description_i18n(language_code), 180)
+    lang = (language_code or "az").split("-")[0].lower()
+    if place.description_i18n(lang):
+        return _truncate_text(place.description_i18n(lang), 180)
 
-    bits = [place.name_i18n(language_code), str(place.get_category_display())]
-    if place.district:
-        from catalog.services.locations import get_location_translation
-        bits.append(_("регион %(district)s") % {"district": get_location_translation(place.district, language_code)})
-    if place.metro:
-        bits.append(_("метро %(metro)s") % {"metro": str(_(place.metro))})
-    if place.age_display:
-        bits.append(_("возраст %(age)s") % {"age": place.age_display})
-    if place.price_range_display:
-        bits.append(_("цена %(price)s") % {"price": place.price_range_display})
-    return _truncate_text(". ".join(bits) + ".", 180)
+    category_label = place.get_category_display()
+    if place.category:
+        category_label = place.category.name_i18n(lang)
+
+    with override(lang):
+        bits = [place.name_i18n(lang), str(category_label)]
+        if place.district:
+            from catalog.services.locations import get_location_translation
+            bits.append(_("регион %(district)s") % {"district": get_location_translation(place.district, lang)})
+        if place.metro:
+            from catalog.services.locations import get_metro_translation
+            bits.append(_("метро %(metro)s") % {"metro": get_metro_translation(place.metro, lang)})
+        if place.age_display:
+            bits.append(_("возраст %(age)s") % {"age": place.age_display})
+        if place.price_range_display:
+            bits.append(_("цена %(price)s") % {"price": place.price_range_display})
+        return _truncate_text(". ".join(bits) + ".", 180)
 
 
 def build_place_seo_payload(place, request, language_code):
-    gallery = place.gallery_files()
-    first_image_url = _absolute_uri(request, gallery[0].url) if gallery else _absolute_uri(request, static("img/logo.svg"))
-    description = _place_description(place, language_code)
+    lang = (language_code or "az").split("-")[0].lower()
+    with override(lang):
+        gallery = place.gallery_files()
+        first_image_url = _absolute_uri(request, gallery[0].url) if gallery else _absolute_uri(request, static("img/logo.svg"))
+        description = _place_description(place, lang)
 
-    if place.district:
-        from catalog.services.locations import get_location_translation
-        title = _("%(name)s — %(category)s для детей в регионе %(district)s | KidsMap") % {
-            "name": place.name_i18n(language_code),
-            "category": place.get_category_display(),
-            "district": get_location_translation(place.district, language_code),
-        }
-    else:
-        title = _("%(name)s — кружок и секция для детей в Азербайджане | KidsMap") % {
-            "name": place.name_i18n(language_code),
-        }
+        category_label = place.get_category_display()
+        if place.category:
+            category_label = place.category.name_i18n(lang)
 
-    schema = {
-        "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": place.name_i18n(language_code),
-        "description": description,
-        "url": _absolute_uri(request, place.get_absolute_url()),
-        "image": first_image_url,
-        "telephone": place.phone1 or "",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": place.address or "",
-            "addressLocality": get_location_translation(place.district, language_code) if place.district else "Azerbaijan",
-            "addressCountry": "AZ",
-        },
-        "areaServed": {"@type": "Country", "name": "Azerbaijan"},
-        "additionalType": str(place.get_category_display()),
-    }
-
-    same_as = [place.website_url(), place.instagram_url()]
-    same_as = [item for item in same_as if item]
-    if same_as:
-        schema["sameAs"] = same_as
-
-    if place.rating_count:
-        schema["aggregateRating"] = {
-            "@type": "AggregateRating",
-            "ratingValue": round(float(place.rating_avg or 0), 1),
-            "reviewCount": int(place.rating_count),
-            "bestRating": 5,
-            "worstRating": 1,
-        }
-
-    offers = []
-    for plan in place.pricing_plan_records.filter(is_active=True, charge_role="primary").order_by("sort_order", "id"):
-        if plan.price_kind not in {"exact", "free", "range"}:
-            continue
-        offer = {"@type": "Offer", "name": plan.title_i18n(language_code), "priceCurrency": plan.currency}
-        if plan.price_kind in {"exact", "free"}:
-            offer["price"] = format(plan.price, ".2f")
-        elif plan.price_min is not None and plan.price_max is not None:
-            offer["priceSpecification"] = {
-                "@type": "PriceSpecification", "minPrice": format(plan.price_min, ".2f"),
-                "maxPrice": format(plan.price_max, ".2f"), "priceCurrency": plan.currency,
+        if place.district:
+            from catalog.services.locations import get_location_translation
+            title = _("%(name)s — %(category)s для детей в регионе %(district)s | KidsMap") % {
+                "name": place.name_i18n(lang),
+                "category": category_label,
+                "district": get_location_translation(place.district, lang),
             }
-        offers.append(offer)
-    if offers:
-        schema["offers"] = offers if len(offers) > 1 else offers[0]
-
-    map_embed_url = ""
-    map_open_url = ""
-    if place.lat is not None and place.lng is not None:
-        schema["geo"] = {
-            "@type": "GeoCoordinates",
-            "latitude": place.lat,
-            "longitude": place.lng,
-        }
-        query = f"{place.lat},{place.lng}"
-        map_embed_url = f"https://maps.google.com/maps?q={query}&z=15&output=embed"
-        map_open_url = f"https://www.google.com/maps/dir/?api=1&destination={query}"
-
-    breadcrumb_items = [
-        {"name": str(_("Главная")), "url": reverse("home")},
-        {"name": str(_("Каталог")), "url": reverse("place_list")},
-    ]
-    if place.category_id:
-        breadcrumb_items.append(
-            {
-                "name": str(place.get_category_display()),
-                "url": f"{reverse('place_list')}?{urlencode({'category': place.category_id})}",
+        else:
+            title = _("%(name)s — кружок и секция для детей в Азербайджане | KidsMap") % {
+                "name": place.name_i18n(lang),
             }
+
+        schema = {
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            "name": place.name_i18n(lang),
+            "description": description,
+            "url": _absolute_uri(request, place.get_absolute_url()),
+            "image": first_image_url,
+            "telephone": place.phone1 or "",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": place.address or "",
+                "addressLocality": get_location_translation(place.district, lang) if place.district else "Azerbaijan",
+                "addressCountry": "AZ",
+            },
+            "areaServed": {"@type": "Country", "name": "Azerbaijan"},
+            "additionalType": str(category_label),
+        }
+
+        same_as = [place.website_url(), place.instagram_url()]
+        same_as = [item for item in same_as if item]
+        if same_as:
+            schema["sameAs"] = same_as
+
+        if place.rating_count:
+            schema["aggregateRating"] = {
+                "@type": "AggregateRating",
+                "ratingValue": round(float(place.rating_avg or 0), 1),
+                "reviewCount": int(place.rating_count),
+                "bestRating": 5,
+                "worstRating": 1,
+            }
+
+        offers = []
+        for plan in place.pricing_plan_records.filter(is_active=True, charge_role="primary").order_by("sort_order", "id"):
+            if plan.price_kind not in {"exact", "free", "range"}:
+                continue
+            offer = {"@type": "Offer", "name": plan.title_i18n(lang), "priceCurrency": plan.currency}
+            if plan.price_kind in {"exact", "free"}:
+                offer["price"] = format(plan.price, ".2f")
+            elif plan.price_min is not None and plan.price_max is not None:
+                offer["priceSpecification"] = {
+                    "@type": "PriceSpecification", "minPrice": format(plan.price_min, ".2f"),
+                    "maxPrice": format(plan.price_max, ".2f"), "priceCurrency": plan.currency,
+                }
+            offers.append(offer)
+        if offers:
+            schema["offers"] = offers if len(offers) > 1 else offers[0]
+
+        map_embed_url = ""
+        map_open_url = ""
+        if place.lat is not None and place.lng is not None:
+            schema["geo"] = {
+                "@type": "GeoCoordinates",
+                "latitude": place.lat,
+                "longitude": place.lng,
+            }
+            query = f"{place.lat},{place.lng}"
+            map_embed_url = f"https://maps.google.com/maps?q={query}&z=15&output=embed"
+            map_open_url = f"https://www.google.com/maps/dir/?api=1&destination={query}"
+
+        breadcrumb_items = [
+            {"name": str(_("Главная")), "url": reverse("home")},
+            {"name": str(_("Каталог")), "url": reverse("place_list")},
+        ]
+        if place.category_id:
+            breadcrumb_items.append(
+                {
+                    "name": str(category_label),
+                    "url": f"{reverse('place_list')}?{urlencode({'category': place.category_id})}",
+                }
+            )
+        breadcrumb_items.append({"name": place.name_i18n(lang), "url": place.get_absolute_url()})
+
+        breadcrumb_schema_json = _build_breadcrumb_schema(
+            [{"name": item["name"], "url": _absolute_uri(request, item["url"])} for item in breadcrumb_items]
         )
-    breadcrumb_items.append({"name": place.name_i18n(language_code), "url": place.get_absolute_url()})
 
-    breadcrumb_schema_json = _build_breadcrumb_schema(
-        [{"name": item["name"], "url": _absolute_uri(request, item["url"])} for item in breadcrumb_items]
-    )
-
-    return {
-        "title": title,
-        "description": description,
-        "first_image_url": first_image_url,
-        "schema_json": json.dumps(schema, ensure_ascii=False),
-        "breadcrumb_schema_json": breadcrumb_schema_json,
-        "breadcrumb_items": breadcrumb_items,
-        "map_embed_url": map_embed_url,
-        "map_open_url": map_open_url,
-    }
+        return {
+            "title": title,
+            "description": description,
+            "first_image_url": first_image_url,
+            "schema_json": json.dumps(schema, ensure_ascii=False),
+            "breadcrumb_schema_json": breadcrumb_schema_json,
+            "breadcrumb_items": breadcrumb_items,
+            "map_embed_url": map_embed_url,
+            "map_open_url": map_open_url,
+        }
 
 
 def build_site_reviews_seo_payload(*, request, review_count: int) -> dict:

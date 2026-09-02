@@ -82,7 +82,7 @@
 
   function initSearchClearButtons() {
     document
-      .querySelectorAll('input[name="q"]:not([type="hidden"])')
+      .querySelectorAll('#changelist-search input[name="q"]:not([type="hidden"])')
       .forEach(function (input) {
         if (input.closest("[data-km-admin-search-clear-wrapper]")) {
           return;

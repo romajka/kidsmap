@@ -143,9 +143,9 @@
             </div>
             <span class="account-continue-hint">
               {% if latest_actionable_draft_place.status == "rejected" %}
-                {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır: yoxlama qeydlərini nəzərdən keçirin{% else %}Требуются исправления: проверьте замечания модератора{% endif %}
+                {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır: yoxlama qeydlərini nəzərdən keçirin{% elif CURRENT_LANGUAGE == "en" %}Action required: review moderation notes{% else %}Требуются исправления: проверьте замечания модератора{% endif %}
               {% else %}
-                {% if CURRENT_LANGUAGE == "az" %}Qaralamanı tamamlayıb moderasiyaya göndərin{% else %}Осталось указать адрес, фото и отправить на проверку{% endif %}
+                {% if CURRENT_LANGUAGE == "az" %}Qaralamanı tamamlayıb moderasiyaya göndərin{% elif CURRENT_LANGUAGE == "en" %}Complete draft and send for review{% else %}Осталось указать адрес, фото и отправить на проверку{% endif %}
               {% endif %}
             </span>
           </div>
@@ -190,13 +190,13 @@
                 </div>
                 <span class="account-status-pill account-status-pill--{{ place.status }}">
                   {% if place.status == "published" %}
-                    {% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% else %}Опубликовано{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}
                   {% elif place.status == "moderation" %}
-                    {% if CURRENT_LANGUAGE == "az" %}Yoxlamada{% else %}На модерации{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Yoxlamada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}
                   {% elif place.status == "rejected" %}
-                    {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır{% else %}Требуются исправления{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır{% elif CURRENT_LANGUAGE == "en" %}Needs changes{% else %}Требуются исправления{% endif %}
                   {% else %}
-                    {% if CURRENT_LANGUAGE == "az" %}Qaralama{% else %}Черновик{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Qaralama{% elif CURRENT_LANGUAGE == "en" %}Draft{% else %}Черновик{% endif %}
                   {% endif %}
                 </span>
                 <span class="material-symbols-rounded account-place-item__arrow">chevron_right</span>
@@ -270,11 +270,11 @@
                 </div>
                 <span class="account-status-pill account-status-pill--{{ review.status }}">
                   {% if review.status == "approved" or review.status == "published" %}
-                    {% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% else %}Опубликован{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликован{% endif %}
                   {% elif review.status == "pending" %}
-                    {% if CURRENT_LANGUAGE == "az" %}Yoxlamada{% else %}На модерации{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Yoxlamada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}
                   {% else %}
-                    {% if CURRENT_LANGUAGE == "az" %}Rədd edilib{% else %}Отклонён{% endif %}
+                    {% if CURRENT_LANGUAGE == "az" %}Rədd edilib{% elif CURRENT_LANGUAGE == "en" %}Rejected{% else %}Отклонён{% endif %}
                   {% endif %}
                 </span>
               </div>
