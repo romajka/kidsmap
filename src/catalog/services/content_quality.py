@@ -85,7 +85,7 @@ def _normalized_junk_expression(field_name: str):
 
     expression = Lower(field_name)
     for separator in TEST_TOKEN_SEPARATORS:
-        expression = Replace(expression, Value(separator), Value(" "))
+        expression = Replace(expression, Value(separator), Value(" "), output_field=TextField())
     return Concat(Value(" "), expression, Value(" "), output_field=TextField())
 
 
