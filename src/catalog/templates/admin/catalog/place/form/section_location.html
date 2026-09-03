@@ -1,0 +1,182 @@
+{% load i18n %}
+{% with form=adminform.form obj=adminform.form.instance %}
+  <div
+    class="km-pf-location"
+    data-km-location-section
+    data-km-place-location
+    data-map-provider="{% if google_maps_api_key %}google{% else %}unavailable{% endif %}"
+    data-default-lat="40.409264"
+    data-default-lng="49.867092"
+    data-selected-prefix="{% translate 'Выбрана точка:' %}"
+    data-empty-label="{% translate 'Точка на карте не выбрана.' %}"
+    data-locate-error="{% translate 'Не удалось определить геопозицию. Выберите точку вручную на карте.' %}"
+    data-locate-unsupported="{% translate 'Ваш браузер не поддерживает геолокацию. Выберите точку вручную на карте.' %}"
+    data-search-error="{% translate 'Не удалось найти место по этому запросу. Уточните адрес.' %}"
+    data-search-empty="{% translate 'Введите адрес или выберите точку на карте.' %}"
+    data-search-fallback="{% translate 'Поиск выполнится после сохранения формы и серверного пересчёта координат.' %}"
+    data-found-address-title="{% translate 'Найденный адрес:' %}"
+    data-found-address-action="{% translate 'Использовать этот адрес' %}"
+    data-coordinates-filled-label="{% translate 'Координаты определены' %}"
+    data-coordinates-missing-label="{% translate 'Координаты не указаны' %}"
+    data-map-ready-label="{% translate 'Готово для карты' %}"
+    data-map-not-ready-label="{% translate 'Не готово для карты' %}"
+    data-map-open-label="{% translate 'Скрыть карту' %}"
+    data-map-closed-label="{% translate 'Указать на карте' %}"
+  >
+    <div class="km-pf-group" data-pf-group="address">
+      <div class="km-pf-group__head">
+        <span class="km-pf-group__title">{% translate "Адрес" %}</span>
+      </div>
+      <div class="km-pf-grid km-pf-grid--3">
+        {% include "admin/catalog/place/form/_field.html" with field=form.region %}
+        <div class="km-pf-district" data-km-admin-district-box>
+          {% include "admin/catalog/place/form/_field.html" with field=form.district %}
+          {# Placeholder for the future "district detected from coordinates" hint. #}
+          <p class="km-pf-district__auto" data-pf-district-auto hidden>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>
+            <span>{% translate "Определён автоматически" %}</span>
+            <button type="button" class="km-pf-linkbtn" data-pf-district-manual>{% translate "Изменить вручную" %}</button>
+          </p>
+        </div>
+        <div data-km-admin-metro-box>
+          {% include "admin/catalog/place/form/_field.html" with field=form.metro optional=True %}
+        </div>
+      </div>
+      {% include "admin/catalog/place/form/_field.html" with field=form.address wide=True %}
+    </div>
+
+    <div class="km-pf-divider" role="presentation"></div>
+
+    <div class="km-pf-group" data-pf-group="map">
+      <div class="km-pf-group__head">
+        <span class="km-pf-group__title">{% translate "Карта и координаты" %}</span>
+        <span class="km-pf-group__note">{% translate "Адрес и точка на карте — два разных обязательных пункта" %}</span>
+      </div>
+
+      <div class="km-pf-maprow">
+        <div class="km-pf-btngroup" role="group" aria-label="{% translate 'Определение координат' %}">
+          <button type="button" class="km-pf-btngroup__item km-pf-btngroup__item--primary" data-km-place-location-search>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>{% translate "Найти по адресу" %}
+          </button>
+          <button
+            type="button"
+            class="km-pf-btngroup__item"
+            data-km-place-location-toggle
+            aria-expanded="{% if obj.has_coordinates %}true{% else %}false{% endif %}"
+            aria-controls="km-admin-place-map-panel"
+          >
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-map"></use></svg>
+            <span>{% if obj.has_coordinates %}{% translate "Скрыть карту" %}{% else %}{% translate "Указать на карте" %}{% endif %}</span>
+          </button>
+          <button type="button" class="km-pf-btngroup__item" data-km-place-location-locate>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-my_location"></use></svg>{% translate "Моё местоположение" %}
+          </button>
+        </div>
+
+        <p class="km-pf-coordchip" data-pf-coord-chip>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false" data-pf-coord-icon><use href="#kmi-location_off"></use></svg>
+          <strong data-pf-coord-label>{% translate "Координаты не указаны" %}</strong>
+          <span class="km-pf-coordchip__value" data-pf-coord-value></span>
+        </p>
+
+        <button type="submit" name="_refresh_coordinates_from_address" class="km-pf-linkbtn" data-km-place-location-refresh-submit>
+          {% translate "Сохранить и рассчитать координаты" %}
+        </button>
+      </div>
+
+      <div class="km-pf-maplatlng" data-pf-coord-fields hidden>
+        {% include "admin/catalog/place/form/_field.html" with field=form.lat %}
+        {% include "admin/catalog/place/form/_field.html" with field=form.lng %}
+      </div>
+
+      <div class="km-pf-mappanel" id="km-admin-place-map-panel" data-km-place-location-panel hidden>
+        <div class="km-pf-mappanel__head">
+          <div class="km-pf-mappanel__hint">
+            <strong>{% translate "Нажмите на карту или перетащите маркер" %}</strong>
+            <span>{% translate "Так можно быстро уточнить координаты без ручного ввода." %}</span>
+          </div>
+          <div class="km-pf-mappanel__tools">
+            <button type="button" class="km-pf-btn km-pf-btn--primary km-pf-btn--sm" data-km-place-location-confirm>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg>{% translate "Подтвердить точку" %}
+            </button>
+            <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-km-place-location-clear>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>{% translate "Очистить" %}
+            </button>
+            <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-pf-coord-manual>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-edit"></use></svg>{% translate "Ввести вручную" %}
+            </button>
+          </div>
+        </div>
+        <div class="km-pf-mappanel__map" data-km-place-location-map aria-label="{% translate 'Карта выбора координат' %}"></div>
+        <div class="km-pf-mappanel__found" data-km-place-location-found hidden>
+          <div>
+            <span class="km-pf-mappanel__found-label">{% translate "Найденный адрес:" %}</span>
+            <strong data-km-place-location-found-text></strong>
+          </div>
+          <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-km-place-location-apply-address>
+            {% translate "Использовать этот адрес" %}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="km-pf-divider" role="presentation"></div>
+
+    <div class="km-pf-group" data-pf-group="contacts">
+      <div class="km-pf-group__head">
+        <span class="km-pf-group__title">{% translate "Контакты" %}</span>
+      </div>
+      <div class="km-pf-grid km-pf-grid--3 km-pf-grid--top">
+        <div class="km-pf-phones" data-km-phone-editor>
+          <div data-km-phone-row>
+            {% include "admin/catalog/place/form/_field.html" with field=form.phone1 %}
+          </div>
+          <div data-km-phone-row{% if not form.phone2.value and not form.phone2.errors %} hidden{% endif %}>
+            <div class="km-pf-phones__extra">
+              {% include "admin/catalog/place/form/_field.html" with field=form.phone2 optional=True %}
+              <button type="button" class="km-pf-iconbtn" data-km-phone-remove aria-label="{% translate 'Удалить номер' %}" title="{% translate 'Удалить номер' %}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg></button>
+            </div>
+          </div>
+          <div data-km-phone-row{% if not form.phone3.value and not form.phone3.errors %} hidden{% endif %}>
+            <div class="km-pf-phones__extra">
+              {% include "admin/catalog/place/form/_field.html" with field=form.phone3 optional=True %}
+              <button type="button" class="km-pf-iconbtn" data-km-phone-remove aria-label="{% translate 'Удалить номер' %}" title="{% translate 'Удалить номер' %}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg></button>
+            </div>
+          </div>
+          <button type="button" class="km-pf-linkbtn km-pf-linkbtn--add" data-km-phone-add>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>{% translate "Добавить номер" %}
+          </button>
+        </div>
+        {% include "admin/catalog/place/form/_field.html" with field=form.instagram optional=True %}
+        {% include "admin/catalog/place/form/_field.html" with field=form.website optional=True %}
+      </div>
+    </div>
+
+    <div class="km-pf-divider" role="presentation"></div>
+
+    <div class="km-pf-group" data-pf-group="schedule">
+      {% include "includes/place_schedule_editor.html" with form=form variant="admin" editor_id="admin-place-schedule" %}
+    </div>
+
+    <div class="km-pf-divider" role="presentation"></div>
+
+    <div class="km-pf-group" data-pf-group="conditions">
+      <div class="km-pf-group__head">
+        <span class="km-pf-group__title">{% translate "Дополнительные условия" %}</span>
+        <span class="km-pf-group__note">{% translate "Три языка на вкладках, а не тремя полями подряд" %}</span>
+      </div>
+      {% include "admin/catalog/place/form/_langgroup.html" with group="conditions" tabs=km_place_condition_tabs %}
+    </div>
+
+    <details class="km-pf-disclosure" data-pf-group="extra-info">
+      <summary class="km-pf-disclosure__summary">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+        <span class="km-pf-disclosure__title">{% translate "Дополнительная информация" %}</span>
+        <span class="km-pf-disclosure__note">{% translate "Служебные заметки для карточки, на готовность не влияют" %}</span>
+      </summary>
+      <div class="km-pf-disclosure__body">
+        {% include "admin/catalog/place/form/_langgroup.html" with group="info" tabs=km_place_info_tabs %}
+      </div>
+    </details>
+  </div>
+{% endwith %}

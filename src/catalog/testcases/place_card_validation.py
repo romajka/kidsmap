@@ -4,15 +4,16 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from catalog.models import Place, PlaceScheduleDay, PlaceScheduleInterval, PricingPlan
+from catalog.models import Category, Place, PlaceScheduleDay, PlaceScheduleInterval, PricingPlan
 from catalog.services.district_geometry import district_for_coordinates
 from catalog.services.place_card_validation import validate_place_card
 
 
 class PlaceCardValidationTests(TestCase):
     def setUp(self):
+        self.category, _ = Category.objects.get_or_create(code="EDU", defaults={"name": "Education"})
         self.place = Place.objects.create(
-            name="Mərkəz", name_az="Uşaq Mərkəzi", category="EDU",
+            name="Uşaq Mərkəzi", name_az="Uşaq Mərkəzi", name_ru="Uşaq Mərkəzi", category=self.category,
             age_from=5, age_to=10, photo="places/card.jpg", lat=40.4093, lng=49.8671,
             phone1="+994501112233", price_from=Decimal("80"),
         )
@@ -87,12 +88,9 @@ class PlaceCardValidationTests(TestCase):
 
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 
-        self.assertContains(response, "Готовность")
-        self.assertContains(response, "Не хватает данных")
-        self.assertContains(response, "Адрес:")
-        self.assertContains(response, "Фото:")
-        self.assertNotContains(response, "+2 ещё")
-        self.assertContains(response, "km-admin-readiness", html=False)
+        self.assertContains(response, "Черновик")
+        self.assertContains(response, "km-readiness-trigger", html=False)
+        self.assertContains(response, "data-readiness-trigger", html=False)
 
     def test_admin_changelist_has_quick_filter_for_all_unpublished_cards(self):
         self.place.status = Place.STATUS_DRAFT
@@ -116,7 +114,7 @@ class PlaceCardValidationTests(TestCase):
             {"_continue": "1"},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Карточка не сохранена: нужно исправить ошибки")
+        self.assertContains(response, "Карточка не сохранена")
         self.assertContains(response, "data-place-error-link", html=False)
         self.place.refresh_from_db()
-        self.assertEqual(self.place.name, "Mərkəz")
+        self.assertEqual(self.place.name, "Uşaq Mərkəzi")

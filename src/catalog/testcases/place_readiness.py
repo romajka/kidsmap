@@ -70,6 +70,7 @@ class PlaceReadinessRulesTests(TestCase):
 
     def test_non_weekly_schedule_modes_are_satisfied_by_the_mode_itself(self):
         for mode in (
+            Place.SCHEDULE_MODE_ALWAYS_OPEN,
             Place.SCHEDULE_MODE_BY_APPOINTMENT,
             Place.SCHEDULE_MODE_VARIABLE,
             Place.SCHEDULE_MODE_EVENTS,
@@ -79,8 +80,21 @@ class PlaceReadinessRulesTests(TestCase):
                     with_schedule_days=False, schedule="", schedule_mode=mode
                 )
 
-                # "By events" must not require an upcoming event.
+                # "Always open", "By events", "By appointment", "Variable" satisfy schedule readiness.
                 self.assertTrue(evaluate_place_readiness(place).is_ready)
+
+    def test_custom_price_badge_satisfies_price_requirement_without_tariffs(self):
+        for badge_text in ("Бесплатно", "Вход бесплатный", "Цена зависит от мероприятия"):
+            with self.subTest(badge=badge_text):
+                place = create_ready_place(
+                    with_pricing_plan=False,
+                    price_from=None,
+                    price_to=None,
+                    custom_price_badge_ru=badge_text,
+                )
+                readiness = evaluate_place_readiness(place)
+                self.assertTrue(readiness.is_ready)
+                self.assertNotIn("price", [issue.code for issue in readiness.issues])
 
     def test_age_needs_upper_bound_or_the_open_ended_flag(self):
         without_upper = create_ready_place(age_to=None)

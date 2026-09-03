@@ -1008,7 +1008,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.moderator_place.refresh_from_db()
         self.assertEqual(self.moderator_place.name_ru, "Изменение от модератора")
 
-    def test_owner_manager_can_create_place_and_send_for_moderation(self):
+    @override_settings(GOOGLE_MAPS_API_KEY="test-key")
+    @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
+    def test_owner_manager_can_create_place_and_send_for_moderation(self, geocode_mock):
+        geocode_mock.return_value = GeocodingPoint(lat=40.380000, lng=49.820000)
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(
             reverse("owner_place_create"),

@@ -18,11 +18,11 @@
             draggable="true"
           >
             <button type="button" class="km-photo-card__remove" data-gallery-remove aria-label="{% translate 'Удалить фото' %}">
-              <span aria-hidden="true">×</span>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
             </button>
 
             <div class="km-photo-card__handle" data-gallery-drag-handle aria-label="{% translate 'Порядок фото' %}">
-              <span aria-hidden="true">⋮⋮</span>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-drag_indicator"></use></svg>
             </div>
 
             <div class="km-photo-card__preview" data-gallery-dropzone>
@@ -41,7 +41,7 @@
               {% endif %}
 
               <div class="km-photo-card__overlay-replace" data-gallery-replace-trigger aria-label="{% translate 'Заменить фото' %}">
-                <span class="km-photo-card__replace-icon" aria-hidden="true">📷</span>
+                <svg class="km-i km-photo-card__replace-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-photo_camera"></use></svg>
               </div>
 
               <span class="km-photo-card__placeholder" data-gallery-placeholder>
@@ -85,10 +85,10 @@
         {% endwith %}
       {% endfor %}
       <!-- Add photo card placeholder/trigger -->
-      <div class="km-photo-card km-photo-card--add-trigger" data-gallery-add-button-card style="display: none;">
+      <div class="km-photo-card km-photo-card--add-trigger" data-gallery-add-button-card hidden>
         <div class="km-photo-card__preview">
           <span class="km-photo-card__placeholder">
-            <span class="km-photo-card__add-plus-icon">+</span>
+            <svg class="km-i km-photo-card__add-plus-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>
             <strong>{% translate "Добавить фото" %}</strong>
           </span>
         </div>
@@ -99,18 +99,18 @@
       <template data-gallery-empty-template>
         <article class="km-photo-card km-photo-card--empty" data-gallery-card data-gallery-card-state="empty" draggable="true">
           <button type="button" class="km-photo-card__remove" data-gallery-remove aria-label="{% translate 'Удалить фото' %}">
-            <span aria-hidden="true">×</span>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
           </button>
 
           <div class="km-photo-card__handle" data-gallery-drag-handle aria-label="{% translate 'Порядок фото' %}">
-            <span aria-hidden="true">⋮⋮</span>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-drag_indicator"></use></svg>
           </div>
 
           <div class="km-photo-card__preview" data-gallery-dropzone>
             <img class="km-photo-card__image" alt="" hidden data-gallery-preview>
-            
+
             <div class="km-photo-card__overlay-replace" data-gallery-replace-trigger aria-label="{% translate 'Заменить фото' %}">
-              <span class="km-photo-card__replace-icon" aria-hidden="true">📷</span>
+              <svg class="km-i km-photo-card__replace-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-photo_camera"></use></svg>
             </div>
 
             <span class="km-photo-card__placeholder" data-gallery-placeholder>

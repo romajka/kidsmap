@@ -1,60 +1,99 @@
 {% load i18n %}
-<div class="km-pricing-editor" data-tariff-editor data-can-verify="1"
-  data-format-label="{% translate 'Формат' %}" data-group-label="{% translate 'Групповые' %}"
-  data-individual-label="{% translate 'Индивидуальные' %}" data-payment-label="{% translate 'Тип оплаты' %}"
-  data-open-visit-label="{% translate 'Свободное посещение' %}"
-  data-per-lesson-label="{% translate 'За занятие' %}" data-per-month-label="{% translate 'За месяц' %}"
-  data-package-label="{% translate 'Пакет' %}" data-per-visit-label="{% translate 'За посещение' %}" data-entry-ticket-label="{% translate 'Входной билет' %}" data-week-label="{% translate 'Занятий в неделю' %}"
-  data-month-label="{% translate 'Занятий в месяц' %}" data-package-sessions-label="{% translate 'Занятий в пакете' %}"
-  data-price-label="{% translate 'Цена (AZN)' %}" data-title-az-label="{% translate 'Название тарифа (AZ)' %}"
-  data-title-ru-label="{% translate 'Название тарифа (RU)' %}" data-title-en-label="{% translate 'Название тарифа (EN)' %}"
-  data-active-label="{% translate 'Активен' %}" data-remove-label="{% translate 'Удалить' %}"
-  data-up-label="{% translate 'Выше' %}" data-down-label="{% translate 'Ниже' %}"
-  data-choose-label="{% translate 'Выберите' %}">
-  <div class="km-pricing-editor__guide">
-    <span class="km-pricing-editor__guide-icon"><i class="fas fa-info-circle"></i></span>
-    <div class="km-pricing-editor__guide-content">
-      <strong>{% translate "Как настроить тарифы?" %}</strong>
-      <p>{% translate "Выберите формат и тип оплаты. Лишние поля скроются автоматически. Например, для абонемента: тип 'За месяц', 12 занятий, цена 120 AZN." %}</p>
+{% with form=adminform.form %}
+  <div
+    class="km-pf-tariffs"
+    data-tariff-editor
+    data-can-verify="1"
+    data-format-label="{% translate 'Формат' %}"
+    data-group-label="{% translate 'Групповые' %}"
+    data-individual-label="{% translate 'Индивидуальные' %}"
+    data-payment-label="{% translate 'Тип оплаты' %}"
+    data-open-visit-label="{% translate 'Свободное посещение' %}"
+    data-per-lesson-label="{% translate 'За занятие' %}"
+    data-per-month-label="{% translate 'За месяц' %}"
+    data-package-label="{% translate 'Пакет' %}"
+    data-per-visit-label="{% translate 'За посещение' %}"
+    data-entry-ticket-label="{% translate 'Входной билет' %}"
+    data-week-label="{% translate 'Занятий в неделю' %}"
+    data-month-label="{% translate 'Занятий в месяц' %}"
+    data-package-sessions-label="{% translate 'Занятий в пакете' %}"
+    data-price-label="{% translate 'Цена (AZN)' %}"
+    data-title-az-label="{% translate 'Название тарифа (AZ)' %}"
+    data-title-ru-label="{% translate 'Название тарифа (RU)' %}"
+    data-title-en-label="{% translate 'Название тарифа (EN)' %}"
+    data-active-label="{% translate 'Активен' %}"
+    data-remove-label="{% translate 'Удалить' %}"
+    data-up-label="{% translate 'Выше' %}"
+    data-down-label="{% translate 'Ниже' %}"
+    data-choose-label="{% translate 'Выберите' %}"
+  >
+    <div class="km-pf-price-policy" data-tariff-policy-group>
+      <label class="km-pf-price-policy__label">{% translate "Режим цены" %}</label>
+      <div class="km-pf-segmented km-pf-segmented--policy" role="radiogroup" aria-label="{% translate 'Режим цены' %}">
+        <button type="button" class="km-pf-segmented__item" data-price-policy="free">
+          {% translate "Бесплатно" %}
+        </button>
+        <button type="button" class="km-pf-segmented__item is-active" data-price-policy="tariffs">
+          {% translate "Есть тарифы" %}
+        </button>
+        <button type="button" class="km-pf-segmented__item" data-price-policy="free_admission_with_paid">
+          {% translate "Бесплатный вход + платные услуги" %}
+        </button>
+        <button type="button" class="km-pf-segmented__item" data-price-policy="events">
+          {% translate "Цена зависит от мероприятия" %}
+        </button>
+      </div>
+      <p class="km-pf-price-policy__hint" data-price-policy-hint></p>
     </div>
+
+    <div class="km-pf-tariffs__list" data-tariff-list></div>
+
+    <div class="km-pf-tariffs__empty" data-tariff-empty hidden>
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-sell"></use></svg>
+      <p data-tariff-empty-title>{% translate "Тарифы не добавлены" %}</p>
+      <small data-tariff-empty-desc>{% translate "Добавьте хотя бы один тариф или отметьте место как бесплатное — без этого карточку нельзя опубликовать." %}</small>
+    </div>
+
+    <div class="km-pf-tariffs__foot">
+      <button type="button" class="km-pf-btn km-pf-btn--dashed" data-tariff-add>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>{% translate "Добавить тариф" %}
+      </button>
+      <p class="km-pf-tariffs__computed" data-tariff-computed>
+        <strong data-tariff-computed-value>—</strong>
+        <span>{% translate "рассчитано автоматически из тарифов" %}</span>
+      </p>
+    </div>
+
+    {% for error in form.pricing_plans.errors %}
+      <p class="km-pf-field__error"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{{ error }}</p>
+    {% endfor %}
+
+    <details class="km-pf-disclosure km-pf-disclosure--tight">
+      <summary class="km-pf-disclosure__summary">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+        <span class="km-pf-disclosure__title">{% translate "Дополнительные настройки цены" %}</span>
+        <span class="km-pf-disclosure__note">{% translate "свой текст плашки AZ / RU / EN: «Бесплатно», «Цена уточняется»" %}</span>
+      </summary>
+      <div class="km-pf-disclosure__body">
+        <div class="km-pf-badgepresets" role="group" aria-label="{% translate 'Быстрый выбор текста плашки' %}">
+          <span class="km-pf-badgepresets__label">{% translate "Быстрый выбор:" %}</span>
+          <button type="button" class="km-pf-chipbtn" data-badge-preset="">{% translate "Автоматически по тарифам" %}</button>
+          <button type="button" class="km-pf-chipbtn" data-badge-preset-az="Pulsuz" data-badge-preset-ru="Бесплатно" data-badge-preset-en="Free">{% translate "Бесплатно" %}</button>
+          <button type="button" class="km-pf-chipbtn" data-badge-preset-az="Giriş pulsuzdur" data-badge-preset-ru="Вход бесплатный" data-badge-preset-en="Free admission">{% translate "Вход бесплатный" %}</button>
+          <button type="button" class="km-pf-chipbtn" data-badge-preset-az="Qiymət tədbirdən asılıdır" data-badge-preset-ru="Цена зависит от мероприятия" data-badge-preset-en="Price depends on event">{% translate "Цена зависит от мероприятия" %}</button>
+          <button type="button" class="km-pf-chipbtn" data-badge-preset-az="Qiymət dəqiqləşdirilir" data-badge-preset-ru="Цена уточняется" data-badge-preset-en="Price on request">{% translate "Цена уточняется" %}</button>
+          <button type="button" class="km-pf-chipbtn" data-badge-preset-az="İlk dərs pulsuzdur" data-badge-preset-ru="Первый урок бесплатно" data-badge-preset-en="First lesson free">{% translate "Первый урок бесплатно" %}</button>
+          <button type="button" class="km-pf-chipbtn" data-badge-preset-az="Ödənişsiz sınaq dərsi var" data-badge-preset-ru="Есть бесплатный пробный урок" data-badge-preset-en="Free trial lesson available">{% translate "Пробный урок" %}</button>
+          <button type="button" class="km-pf-chipbtn" data-badge-preset-az="Abunəyə endirim var" data-badge-preset-ru="Скидка на абонемент" data-badge-preset-en="Discount on membership">{% translate "Скидка на абонемент" %}</button>
+        </div>
+        <div class="km-pf-grid km-pf-grid--3">
+          {% include "admin/catalog/place/form/_field.html" with field=form.custom_price_badge_az optional=True %}
+          {% include "admin/catalog/place/form/_field.html" with field=form.custom_price_badge_ru optional=True %}
+          {% include "admin/catalog/place/form/_field.html" with field=form.custom_price_badge_en optional=True %}
+        </div>
+      </div>
+    </details>
+
+    <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.pricing_plans }}</div>
   </div>
-
-  <div class="km-price-badge-override-panel" style="margin-bottom: 20px; padding: 16px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px;">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-      <strong style="font-size: 14px; color: #111827; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-tag" style="color: #10B981;"></i>
-        {% translate "Плашка цены на карточке места" %}
-      </strong>
-      <span style="font-size: 12px; color: #6B7280;">{% translate "По умолчанию вычисляется автоматически" %}</span>
-    </div>
-
-    <div class="km-price-badge-presets" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
-      <span style="font-size: 12px; color: #374151; align-self: center; margin-right: 4px;">{% translate "Быстрый выбор:" %}</span>
-      <button type="button" class="button button-small" data-badge-preset="" style="font-size: 11px; padding: 3px 8px;">🔄 {% translate "Автоматически по тарифам" %}</button>
-      <button type="button" class="button button-small" data-badge-preset-az="Pulsuz" data-badge-preset-ru="Бесплатно" data-badge-preset-en="Free" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "Pulsuz / Бесплатно" %}</button>
-      <button type="button" class="button button-small" data-badge-preset-az="Qiymət dəqiqləşdirilir" data-badge-preset-ru="Цена уточняется" data-badge-preset-en="Price on request" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "Qiymət dəqiqləşdirilir" %}</button>
-      <button type="button" class="button button-small" data-badge-preset-az="İlk dərs pulsuzdur" data-badge-preset-ru="Первый урок бесплатно" data-badge-preset-en="First lesson free" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "İlk dərs pulsuzdur" %}</button>
-      <button type="button" class="button button-small" data-badge-preset-az="Ödənişsiz sınaq dərsi var" data-badge-preset-ru="Есть бесплатный пробный урок" data-badge-preset-en="Free trial lesson available" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "Sınaq dərsi var" %}</button>
-      <button type="button" class="button button-small" data-badge-preset-az="Abunəyə endirim var" data-badge-preset-ru="Скидка на абонемент" data-badge-preset-en="Discount on membership" style="font-size: 11px; padding: 3px 8px;">🏷️ {% translate "Endirim var" %}</button>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-      <div>
-        <label for="id_custom_price_badge_az" style="font-size: 12px; font-weight: 600; color: #4B5563; display: block; margin-bottom: 4px;">{% translate "Текст плашки (AZ)" %}</label>
-        <input type="text" name="custom_price_badge_az" id="id_custom_price_badge_az" value="{{ adminform.form.custom_price_badge_az.value|default:'' }}" class="vTextField" style="width: 100%; border-radius: 6px;" placeholder="напр. Pulsuz или 120 ₼-dən" />
-      </div>
-      <div>
-        <label for="id_custom_price_badge_ru" style="font-size: 12px; font-weight: 600; color: #4B5563; display: block; margin-bottom: 4px;">{% translate "Текст плашки (RU)" %}</label>
-        <input type="text" name="custom_price_badge_ru" id="id_custom_price_badge_ru" value="{{ adminform.form.custom_price_badge_ru.value|default:'' }}" class="vTextField" style="width: 100%; border-radius: 6px;" placeholder="напр. От 120 ₼ или Бесплатно" />
-      </div>
-      <div>
-        <label for="id_custom_price_badge_en" style="font-size: 12px; font-weight: 600; color: #4B5563; display: block; margin-bottom: 4px;">{% translate "Текст плашки (EN)" %}</label>
-        <input type="text" name="custom_price_badge_en" id="id_custom_price_badge_en" value="{{ adminform.form.custom_price_badge_en.value|default:'' }}" class="vTextField" style="width: 100%; border-radius: 6px;" placeholder="e.g. From 120 ₼ or Free" />
-      </div>
-    </div>
-  </div>
-
-  <div class="km-pricing-editor__list" data-tariff-list></div>
-  <button type="button" class="button km-pricing-editor__add" data-tariff-add>+ {% translate "Добавить тариф" %}</button>
-  {% if adminform.form.pricing_plans.errors %}<ul class="errorlist">{{ adminform.form.pricing_plans.errors }}</ul>{% endif %}
-</div>
+{% endwith %}

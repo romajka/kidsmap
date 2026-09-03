@@ -1,60 +1,274 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static catalog_i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% trans "Модерация отзывов" %}{% endblock %}
-{% block title_plain %}{% trans "Модерация отзывов" %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% trans "Модерация отзывов" %} | KidsMap{% endblock %}
+{% block title %}
+  {% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}
+{% endblock %}
+{% block title_plain %}
+  {% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %} | KidsMap
+{% endblock %}
+{% block title_plain_twitter %}
+  {% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %} | KidsMap
+{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}" />
+{% endblock %}
+
 {% block content %}
-  <section class="panel owner-reviews">
-    <div class="owner-page-head">
-      <div>
-        <h1>{% trans "Модерация отзывов" %}</h1>
-        <p class="auth-subtitle">{% trans "Отзывы по вашим местам. Модератор может управлять только этим разделом." %}</p>
-      </div>
-      <div class="owner-page-actions">
-        <a class="link-btn" href="{% url 'owner_places_dashboard' %}">{% trans "Мои места" %}</a>
-      </div>
+<div class="account-page-wrapper">
+
+  <!-- Signed in notification banner -->
+  <div class="account-alert-banner">
+    <span class="material-symbols-rounded">check_circle</span>
+    <span>
+      {% if CURRENT_LANGUAGE == "az" %}
+        Hesabınıza daxil oldunuz.
+      {% elif CURRENT_LANGUAGE == "en" %}
+        You are signed in to your account.
+      {% else %}
+        Вы вошли в аккаунт.
+      {% endif %}
+    </span>
+  </div>
+
+  <!-- User Identity Header Card -->
+  <div class="account-user-card">
+    <div class="account-user-avatar">
+      {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
     </div>
-
-    <nav class="owner-section-nav" aria-label="{% trans 'Управление местами' %}">
-      <a class="chip-link" href="{% url 'owner_places_dashboard' %}">{% trans "Мои места" %}</a>
-      <a class="chip-link active" href="{% url 'owner_reviews_dashboard' %}">{% trans "Отзывы" %}</a>
-    </nav>
-
-    <div class="owner-permissions">
-      <span class="chip">{% trans "Одобрено" %}: {{ owner_reviews_approved_count }}</span>
-      <span class="chip">{% trans "Скрыто" %}: {{ owner_reviews_pending_count }}</span>
+    <div class="account-user-info">
+      <h1 class="account-user-name">{{ request.user.get_full_name|default:request.user.username }}</h1>
+      <span class="account-user-email">{{ request.user.email|default:request.user.username }}</span>
     </div>
+    <div class="account-user-meta">
+      <span class="material-symbols-rounded">event_available</span>
+      <span>
+        {% if CURRENT_LANGUAGE == "az" %}
+          Qeydiyyat: {{ request.user.date_joined|date:"d.m.Y" }}
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Joined: {{ request.user.date_joined|date:"d.m.Y" }}
+        {% else %}
+          С нами с {{ request.user.date_joined|date:"d.m.Y" }}
+        {% endif %}
+      </span>
+    </div>
+    <div class="account-user-actions">
+      <a href="{% url 'account_settings' %}" class="account-edit-profile-btn">
+        <span class="material-symbols-rounded">edit</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Profili redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit profile{% else %}Редактировать профиль{% endif %}</span>
+      </a>
+    </div>
+  </div>
 
-    {% if owner_reviews %}
-      <div class="owner-review-list">
-        {% for review in owner_reviews %}
-          <article class="owner-review-item">
-            <h3><a href="{{ review.place.get_absolute_url }}">{{ review.place.name_i18n }}</a></h3>
-            <p class="meta">
-              {{ review.author_name_i18n }} · ★ {{ review.rating }} · {{ review.created_at|date:"d.m.Y H:i" }}
-            </p>
-            <p>{{ review.text|default:"—" }}</p>
-            <p class="meta">
-              {% trans "Статус" %}: <strong>{% if review.is_approved %}{% trans "Одобрен" %}{% else %}{% trans "Скрыт" %}{% endif %}</strong>
-            </p>
-            <div class="owner-place-actions">
-              <form method="post" action="{% url 'owner_review_approve' review.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn">{% trans "Одобрить" %}</button>
-              </form>
-              <form method="post" action="{% url 'owner_review_reject' review.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn-secondary">{% trans "Скрыть" %}</button>
-              </form>
+  <!-- Main 2-column Grid: Sidebar + Content -->
+  <div class="account-main-layout">
+
+    <!-- Sidebar Navigation -->
+    <aside class="account-nav-sidebar">
+      <a href="{% url 'account_dashboard' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">grid_view</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Ümumi baxış{% elif CURRENT_LANGUAGE == "en" %}Overview{% else %}Обзор{% endif %}</span>
+      </a>
+      <a href="{% url 'owner_places_dashboard' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">location_on</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+        {% if managed_places_count %}<span class="account-nav-count">{{ managed_places_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'owner_reviews_dashboard' %}" class="account-nav-item is-active">
+        <span class="material-symbols-rounded">star</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
+        {% if user_reviews_count %}<span class="account-nav-count">{{ user_reviews_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'account_favorites' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">favorite</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
+        {% if favorites_count %}<span class="account-nav-count">{{ favorites_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'account_settings' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">settings</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Tənzimləmələr{% elif CURRENT_LANGUAGE == "en" %}Settings{% else %}Настройки{% endif %}</span>
+      </a>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <section class="account-main-content">
+
+      <!-- Section Title -->
+      <div class="account-section-head-with-action">
+        <div class="account-section-title-wrap">
+          <h1>{% if CURRENT_LANGUAGE == "az" %}Rəylərin idarə edilməsi{% elif CURRENT_LANGUAGE == "en" %}Reviews Management{% else %}Управление отзывами{% endif %}</h1>
+          <p class="account-section-subtitle">
+            {% if can_moderate_reviews %}
+              {% if CURRENT_LANGUAGE == "az" %}
+                Məkanlarınıza yazılan rəyləri idarə edin və təsdiqləyin.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Manage and approve reviews for your places.
+              {% else %}
+                Отзывы по вашим местам. Управляйте видимостью и одобрением отзывов.
+              {% endif %}
+            {% else %}
+              {% if CURRENT_LANGUAGE == "az" %}
+                Kataloqdakı məkanlara yazdığınız rəylər və qiymətləndirmələr.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Reviews and ratings you have written for places in the catalog.
+              {% else %}
+                Отзывы и оценки, которые вы оставили к местам в каталоге.
+              {% endif %}
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <!-- Moderation Section (for Place Owners & Managers) -->
+      {% if can_moderate_reviews %}
+        <!-- Metric Pills for Moderation -->
+        <div class="account-metric-pills">
+          <div class="account-metric-pill">
+            <span class="material-symbols-rounded metric-icon-green">check_circle</span>
+            <strong>{{ owner_reviews_approved_count }}</strong>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрено{% endif %}</span>
+          </div>
+          <div class="account-metric-pill">
+            <span class="material-symbols-rounded metric-icon-gold">visibility_off</span>
+            <strong>{{ owner_reviews_pending_count }}</strong>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Gizlədilib{% elif CURRENT_LANGUAGE == "en" %}Hidden{% else %}Скрыто{% endif %}</span>
+          </div>
+        </div>
+
+        <div class="account-card-box">
+          <div class="account-card-box__head">
+            <h2>
+              <span class="material-symbols-rounded" style="color: #0D8A52; font-size: 20px;">rate_review</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Məkanlarınıza yazılan rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews for your places{% else %}Отзывы к вашим местам{% endif %}</span>
+              <span class="account-badge-counter">{{ owner_reviews|length }}</span>
+            </h2>
+          </div>
+
+          {% if owner_reviews %}
+            <div class="account-places-list">
+              {% for review in owner_reviews %}
+                <div class="account-owner-card">
+                  <div class="account-owner-card__main">
+                    <div class="account-owner-card__title-row">
+                      <h3 class="account-owner-card__name">
+                        <a href="{{ review.place.get_absolute_url }}">{{ review.place.name_i18n }}</a>
+                      </h3>
+                      <div class="account-owner-card__meta">
+                        <span><strong>{{ review.author_name_i18n }}</strong></span>
+                        <span>·</span>
+                        <span style="color: #E8B531; font-weight: 800;">★ {{ review.rating }}</span>
+                        <span>·</span>
+                        <span>{{ review.created_at|date:"d.m.Y H:i" }}</span>
+                      </div>
+                    </div>
+                    <div class="account-owner-card__badges">
+                      {% if review.is_approved %}
+                        <span class="account-status-pill account-status-pill--approved">
+                          {% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрен{% endif %}
+                        </span>
+                      {% else %}
+                        <span class="account-status-pill account-status-pill--draft">
+                          {% if CURRENT_LANGUAGE == "az" %}Gizlədilib{% elif CURRENT_LANGUAGE == "en" %}Hidden{% else %}Скрыт{% endif %}
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #2D4A3E;">{{ review.text|default:"—" }}</p>
+
+                  <div class="account-owner-card__actions">
+                    {% if not review.is_approved %}
+                      <form method="post" action="{% url 'owner_review_approve' review.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="account-btn-sm account-btn-sm--primary">
+                          <span class="material-symbols-rounded">check</span>
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Təsdiqlə{% elif CURRENT_LANGUAGE == "en" %}Approve{% else %}Одобрить{% endif %}</span>
+                        </button>
+                      </form>
+                    {% else %}
+                      <form method="post" action="{% url 'owner_review_reject' review.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="account-btn-sm account-btn-sm--secondary">
+                          <span class="material-symbols-rounded">visibility_off</span>
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Gizlət{% elif CURRENT_LANGUAGE == "en" %}Hide{% else %}Скрыть{% endif %}</span>
+                        </button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
             </div>
-          </article>
-        {% endfor %}
+          {% else %}
+            <div class="account-empty-first-card">
+              <div class="empty-card-icon" style="background: #E9F7EF; color: #0D8A52;">
+                <span class="material-symbols-rounded">reviews</span>
+              </div>
+              <h3>{% if CURRENT_LANGUAGE == "az" %}Hələ rəy yoxdur{% elif CURRENT_LANGUAGE == "en" %}No reviews yet{% else %}Отзывов к вашим местам пока нет{% endif %}</h3>
+              <p>{% if CURRENT_LANGUAGE == "az" %}Məkanlarınıza valideynlər tərəfindən yazılan rəylər burada görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Reviews left by parents for your places will appear here.{% else %}Отзывы посетителей к вашим местам появятся здесь.{% endif %}</p>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Section: User's Authored Reviews -->
+      <div class="account-card-box">
+        <div class="account-card-box__head">
+          <h2>
+            <span class="material-symbols-rounded" style="color: #E8B531; font-size: 20px;">star</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Yazdığım rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews written by me{% else %}Мои отзывы к местам{% endif %}</span>
+            <span class="account-badge-counter">{{ user_written_reviews|length }}</span>
+          </h2>
+        </div>
+
+        {% if user_written_reviews %}
+          <div class="account-places-list">
+            {% for rev in user_written_reviews %}
+              <div class="account-owner-card">
+                <div class="account-owner-card__main">
+                  <div class="account-owner-card__title-row">
+                    <h3 class="account-owner-card__name">
+                      <a href="{{ rev.place.get_absolute_url }}">{{ rev.place.name_i18n }}</a>
+                    </h3>
+                    <div class="account-owner-card__meta">
+                      <span style="color: #E8B531; font-weight: 800;">★ {{ rev.rating }}</span>
+                      <span>·</span>
+                      <span>{{ rev.created_at|date:"d.m.Y" }}</span>
+                      {% if rev.place.category %}<span>·</span><span>{{ rev.place.category.name_i18n }}</span>{% endif %}
+                    </div>
+                  </div>
+                  <div class="account-owner-card__badges">
+                    <a href="{{ rev.place.get_absolute_url }}" class="account-btn-sm account-btn-sm--secondary">
+                      <span class="material-symbols-rounded">open_in_new</span>
+                      <span>{% if CURRENT_LANGUAGE == "az" %}Məkana bax{% elif CURRENT_LANGUAGE == "en" %}View place{% else %}Перейти к месту{% endif %}</span>
+                    </a>
+                  </div>
+                </div>
+                <p style="margin: 0; font-size: 14px; line-height: 1.55; color: #2D4A3E;">{{ rev.text|default:"—" }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="account-empty-first-card">
+            <div class="empty-card-icon" style="background: #FFF8E6; color: #926C05;">
+              <span class="material-symbols-rounded">rate_review</span>
+            </div>
+            <h3>{% if CURRENT_LANGUAGE == "az" %}Hələ rəy yazmamısınız{% elif CURRENT_LANGUAGE == "en" %}You haven't written any reviews yet{% else %}Вы пока не оставили отзывов{% endif %}</h3>
+            <p>{% if CURRENT_LANGUAGE == "az" %}Kataloqdakı bölmələri gəzin və uşaqlarınızın getdiyi məkanlara rəy yazaraq digər valideynlərə kömək edin.{% elif CURRENT_LANGUAGE == "en" %}Explore places in the catalog and share your impressions to help other parents.{% else %}Находите интересные кружки и секции в каталоге, делитесь впечатлениями и помогайте другим родителям с выбором.{% endif %}</p>
+            <a href="{% url 'place_list' %}" class="account-btn-action" style="margin-top: 6px;">
+              <span class="material-symbols-rounded">search</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Kataloqu açın{% elif CURRENT_LANGUAGE == "en" %}Open catalog{% else %}Открыть каталог{% endif %}</span>
+            </a>
+          </div>
+        {% endif %}
       </div>
-    {% else %}
-      <p class="meta">{% trans "Отзывы для модерации не найдены." %}</p>
-    {% endif %}
-  </section>
+
+    </section>
+  </div>
+</div>
 {% endblock %}

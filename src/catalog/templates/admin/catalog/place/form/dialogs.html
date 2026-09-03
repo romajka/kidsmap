@@ -1,0 +1,45 @@
+{% load i18n %}
+<dialog
+  class="km-pf-dialog"
+  data-place-json-import-dialog
+  data-pricing-validate-url="{% url 'admin:catalog_place_pricing_import_validate' %}"
+  aria-labelledby="km-json-import-title"
+>
+  <div class="km-pf-dialog__head">
+    <div>
+      <span class="km-pf-dialog__eyebrow">{% translate "Быстрое заполнение" %}</span>
+      <h2 id="km-json-import-title">{% translate "Импорт карточки из JSON" %}</h2>
+    </div>
+    <button type="button" class="km-pf-iconbtn" data-place-json-import-close aria-label="{% translate 'Закрыть' %}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg></button>
+  </div>
+  <p class="km-pf-dialog__hint">{% translate "Вставьте ответ ChatGPT целиком: JSON и примечание. Заполнятся только данные из JSON, а перед сохранением всё можно изменить вручную." %}</p>
+  <textarea data-place-json-import-input rows="15" spellcheck="false" placeholder='{"name_az":"...", "category":"WATERPARK", "address":"...", "phone":"+994..."}'></textarea>
+  <p class="km-pf-dialog__note">{% translate "Поддерживаются: name, name_az, name_ru, name_en, description, category, subcategory, возраст, адрес, контакты, pricing_plans или tariffs (до 12 тарифов), расписание и координаты." %}</p>
+  <p class="km-pf-dialog__message" data-place-json-import-message role="status" aria-live="polite"></p>
+  <div class="km-pf-dialog__actions">
+    <button type="button" class="km-pf-btn km-pf-btn--quiet" data-place-json-import-close>{% translate "Отмена" %}</button>
+    <button type="button" class="km-pf-btn km-pf-btn--primary" data-place-json-import-apply>
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg>{% translate "Подставить данные" %}
+    </button>
+  </div>
+</dialog>
+
+<dialog class="km-pf-dialog" data-place-json-prompt-dialog aria-labelledby="km-json-prompt-title">
+  <div class="km-pf-dialog__head">
+    <div>
+      <span class="km-pf-dialog__eyebrow">ChatGPT</span>
+      <h2 id="km-json-prompt-title">{% translate "Инструкция для создания JSON" %}</h2>
+    </div>
+    <button type="button" class="km-pf-iconbtn" data-place-json-prompt-close aria-label="{% translate 'Закрыть' %}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg></button>
+  </div>
+  <p class="km-pf-dialog__hint">{% translate "Проверьте и отредактируйте текст под свою задачу. Затем скопируйте его и отправьте в ChatGPT вместе с данными о месте." %}</p>
+  <textarea data-place-json-prompt-input rows="20" spellcheck="false"></textarea>
+  <p class="km-pf-dialog__message" data-place-json-prompt-message role="status" aria-live="polite"></p>
+  <div class="km-pf-dialog__actions">
+    <button type="button" class="km-pf-btn km-pf-btn--quiet" data-place-json-prompt-reset>{% translate "Вернуть шаблон" %}</button>
+    <button type="button" class="km-pf-btn km-pf-btn--quiet" data-place-json-prompt-close>{% translate "Закрыть" %}</button>
+    <button type="button" class="km-pf-btn km-pf-btn--primary" data-place-json-prompt-copy-text>
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-content_copy"></use></svg>{% translate "Скопировать" %}
+    </button>
+  </div>
+</dialog>

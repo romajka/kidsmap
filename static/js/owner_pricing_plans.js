@@ -4,38 +4,254 @@
   if (!editor) return;
   const ownerForm = editor.closest("form");
   const input = editor.querySelector("[data-tariff-input]")
-    || (ownerForm && ownerForm.querySelector("[data-tariff-input]"));
+    || (ownerForm && ownerForm.querySelector("[data-tariff-input]"))
+    || document.getElementById("id_pricing_plans");
   const list = editor.querySelector("[data-tariff-list]");
+  const emptyState = editor.querySelector("[data-tariff-empty]");
+  const emptyTitle = editor.querySelector("[data-tariff-empty-title]");
+  const emptyDesc = editor.querySelector("[data-tariff-empty-desc]");
   const add = editor.querySelector("[data-tariff-add]");
+  const foot = editor.querySelector(".km-pf-tariffs__foot");
+  const computedBadge = editor.querySelector("[data-tariff-computed-value]");
+  const policyButtons = editor.querySelectorAll("[data-price-policy]");
+  const policyHint = editor.querySelector("[data-price-policy-hint]");
+  const azBadgeInput = document.getElementById("id_custom_price_badge_az");
+  const ruBadgeInput = document.getElementById("id_custom_price_badge_ru");
+  const enBadgeInput = document.getElementById("id_custom_price_badge_en");
   const canVerify = editor.dataset.canVerify === "1";
   if (!input || !list || !add) return;
 
-  const interfaceLanguage = (document.documentElement.lang || "ru").split("-")[0];
-  const interfaceCopy = {
+  const langKey = (document.documentElement.lang || "ru").split("-")[0].toLowerCase();
+
+  const pricingI18n = {
     az: {
-      tariff: "Tarif", chooseType: "Növü seçin", noPrice: "Qiymət göstərilməyib",
-      advanced: "Əlavə şərtlər", advancedHint: "auditoriya, müddət, tərcümələr, mənbə",
+      tariff: "Tarif",
+      chooseType: "Növü seçin",
+      noPrice: "Qiymət göstərilməyib",
+      free: "Pulsuz",
+      from: "başlayaraq",
+      onRequest: "Sorğu ilə",
+      format: "Format",
+      group: "Qrup",
+      individual: "Fərdi",
+      openVisit: "Sərbəst giriş",
+      paymentType: "Ödəniş növü",
+      perLesson: "Dərs üzrə",
+      perMonth: "Aylıq",
+      package: "Paket",
+      admission: "Giriş bileti",
+      visit: "Tək ziyarət",
+      course: "Kurs",
+      camp: "Düşərgə",
+      event: "Tədbir",
+      periodMonth: "ay",
+      periodLesson: "dərs",
+      periodLessons: "dərs",
+      periodPackage: "paket",
+      periodTicket: "bilet",
+      periodVisit: "ziyarət",
+      periodCourse: "kurs",
+      sessionsMonth: "Aylıq dərs sayı",
+      sessionsWeek: "Həftəlik dərs sayı",
+      sessionsPackage: "Paketdə dərs sayı",
+      sessionsCourse: "Kursda dərs sayı",
+      price: "Qiymət (AZN)",
+      titleAz: "Tarifin adı (AZ)",
+      titleRu: "Tarifin adı (RU)",
+      titleEn: "Tarifin adı (EN)",
+      conditionsAz: "Qısa təsvir / qeyd (AZ)",
+      conditionsRu: "Qısa təsvir / qeyd (RU)",
+      conditionsEn: "Qısa təsvir / qeyd (EN)",
+      collapse: "Yığcamlaşdır",
+      edit: "Düzəliş et",
+      copy: "Kopyala",
+      delete: "Sil",
+      active: "Aktivdir",
+      statusActive: "Aktiv",
+      statusInactive: "Qeyri-aktiv",
+      moveUp: "Yuxarı",
+      moveDown: "Aşağı",
+      advanced: "Əlavə şərtlər",
+      advancedHint: "auditoriya, müddət, yaş, mənbə",
+      translationsTitle: "Tərcümələr (RU / EN)",
+      priceKind: "Qiymət növü",
+      exact: "Dəqiq",
+      range: "Aralıq",
+      priceMin: "Qiymət min",
+      priceMax: "Qiymət max",
+      currency: "Valyuta",
+      validity: "Qüvvədə olma müddəti",
+      ageFrom: "Yaş min",
+      ageTo: "Yaş max",
+      sourceUrl: "Mənbə linki",
+      calculatedCardPrice: "Kartda qiymət:",
+      freeAdmission: "Giriş pulsuzdur",
+      dependsOnEvent: "Qiymət tədbirdən asılıdır",
+      hintFree: "Məkan ziyarət üçün tamamilə pulsuzdur. Tarif tələb olunmur.",
+      hintTariffs: "Əsas tarifləri və qiymətləri qeyd edin.",
+      hintFreeWithPaid: "Məkana giriş pulsuzdur. Lazım olduqda ödənişli xidmət və ya attraksionların qiymətlərini əlavə edə bilərsiniz (məcburi deyil).",
+      hintEvents: "Bu məkanın daimi qiyməti yoxdur. Qiymət hər tədbir üçün ayrıca göstərilir.",
+      emptyDefaultTitle: "Tariflər əlavə edilməyib",
+      emptyDefaultDesc: "Ən azı bir tarif əlavə edin və ya məkanı pulsuz olaraq qeyd edin.",
+      emptyFreeWithPaidDesc: "Ödənişli xidmətlər əlavə edilməyib (məcburi deyil, çünki giriş pulsuzdur).",
     },
     en: {
-      tariff: "Plan", chooseType: "Choose a type", noPrice: "Price not specified",
-      advanced: "Additional terms", advancedHint: "audience, validity, translations, source",
+      tariff: "Plan",
+      chooseType: "Choose type",
+      noPrice: "Price not specified",
+      free: "Free",
+      from: "from",
+      onRequest: "On request",
+      format: "Format",
+      group: "Group",
+      individual: "Individual",
+      openVisit: "Open visit",
+      paymentType: "Payment type",
+      perLesson: "Per lesson",
+      perMonth: "Monthly",
+      package: "Package",
+      admission: "Admission",
+      visit: "Single visit",
+      course: "Course",
+      camp: "Camp",
+      event: "Event",
+      periodMonth: "month",
+      periodLesson: "lesson",
+      periodLessons: "sessions",
+      periodPackage: "package",
+      periodTicket: "ticket",
+      periodVisit: "visit",
+      periodCourse: "course",
+      sessionsMonth: "Sessions / month",
+      sessionsWeek: "Sessions / week",
+      sessionsPackage: "Sessions in package",
+      sessionsCourse: "Sessions in course",
+      price: "Price (AZN)",
+      titleAz: "Plan title (AZ)",
+      titleRu: "Plan title (RU)",
+      titleEn: "Plan title (EN)",
+      conditionsAz: "Short note / description (AZ)",
+      conditionsRu: "Short note / description (RU)",
+      conditionsEn: "Short note / description (EN)",
+      collapse: "Collapse",
+      edit: "Edit",
+      copy: "Duplicate",
+      delete: "Delete",
+      active: "Active",
+      statusActive: "Active",
+      statusInactive: "Inactive",
+      moveUp: "Move up",
+      moveDown: "Move down",
+      advanced: "Additional terms",
+      advancedHint: "audience, validity, age, source",
+      translationsTitle: "Translations (RU / EN)",
+      priceKind: "Price kind",
+      exact: "Exact",
+      range: "Range",
+      priceMin: "Price from",
+      priceMax: "Price to",
+      currency: "Currency",
+      validity: "Validity duration",
+      ageFrom: "Age from",
+      ageTo: "Age to",
+      sourceUrl: "Source URL",
+      calculatedCardPrice: "Card price:",
+      freeAdmission: "Free admission",
+      dependsOnEvent: "Price depends on event",
+      hintFree: "The venue is completely free to visit. No pricing plans required.",
+      hintTariffs: "Specify primary pricing plans and admission rates.",
+      hintFreeWithPaid: "Entrance is free. You can add pricing for optional paid services or attractions below (optional).",
+      hintEvents: "This place has no fixed price. Pricing is specified separately for each event.",
+      emptyDefaultTitle: "No plans added",
+      emptyDefaultDesc: "Add at least one plan or mark the place as free.",
+      emptyFreeWithPaidDesc: "No paid services added (optional, as admission is free).",
     },
     ru: {
-      tariff: "Тариф", chooseType: "Выберите тип", noPrice: "Цена не указана",
-      advanced: "Дополнительные условия", advancedHint: "аудитория, сроки, переводы, источник",
+      tariff: "Тариф",
+      chooseType: "Выберите тип",
+      noPrice: "Цена не указана",
+      free: "Бесплатно",
+      from: "от",
+      onRequest: "По запросу",
+      format: "Формат",
+      group: "Групповые",
+      individual: "Индивидуальные",
+      openVisit: "Свободное посещение",
+      paymentType: "Тип оплаты",
+      perLesson: "За занятие",
+      perMonth: "За месяц",
+      package: "Пакет",
+      admission: "Входной билет",
+      visit: "Разовое посещение",
+      course: "Курс",
+      camp: "Лагерь",
+      event: "Событие",
+      periodMonth: "месяц",
+      periodLesson: "занятие",
+      periodLessons: "занятий",
+      periodPackage: "пакет",
+      periodTicket: "билет",
+      periodVisit: "посещение",
+      periodCourse: "курс",
+      sessionsMonth: "Занятий в месяц",
+      sessionsWeek: "Занятий в неделю",
+      sessionsPackage: "Занятий в пакете",
+      sessionsCourse: "Занятий в курсе",
+      price: "Цена (AZN)",
+      titleAz: "Название тарифа (AZ)",
+      titleRu: "Название тарифа (RU)",
+      titleEn: "Название тарифа (EN)",
+      conditionsAz: "Краткое описание / примечание (AZ)",
+      conditionsRu: "Краткое описание / примечание (RU)",
+      conditionsEn: "Краткое описание / примечание (EN)",
+      collapse: "Свернуть",
+      edit: "Редактировать",
+      copy: "Дублировать",
+      delete: "Удалить",
+      active: "Активен",
+      statusActive: "Активен",
+      statusInactive: "Неактивен",
+      moveUp: "Выше",
+      moveDown: "Ниже",
+      advanced: "Дополнительные условия",
+      advancedHint: "аудитория, сроки, возраст, источник",
+      translationsTitle: "Переводы названия и описания (RU / EN)",
+      priceKind: "Как указана цена",
+      exact: "Точная",
+      range: "Диапазон",
+      priceMin: "Цена от",
+      priceMax: "Цена до",
+      currency: "Валюта",
+      validity: "Срок действия",
+      ageFrom: "Возраст от",
+      ageTo: "Возраст до",
+      sourceUrl: "Источник",
+      calculatedCardPrice: "Цена на карточке:",
+      freeAdmission: "Вход бесплатный",
+      dependsOnEvent: "Цена зависит от мероприятия",
+      hintFree: "Место полностью бесплатное для посещения. Тарифы не требуются.",
+      hintTariffs: "Укажите основные тарифы и стоимость посещения.",
+      hintFreeWithPaid: "Вход на территорию бесплатный. Ниже вы можете указать тарифы на платные услуги или аттракционы (необязательно).",
+      hintEvents: "У этого места нет постоянной цены. Стоимость указывается отдельно для каждого мероприятия.",
+      emptyDefaultTitle: "Тарифы не добавлены",
+      emptyDefaultDesc: "Добавьте хотя бы один тариф или отметьте место как бесплатное — без этого карточку нельзя опубликовать.",
+      emptyFreeWithPaidDesc: "Платные услуги не добавлены (необязательно, так как вход бесплатный).",
     },
-  }[interfaceLanguage] || {
-    tariff: "Тариф", chooseType: "Выберите тип", noPrice: "Цена не указана",
-    advanced: "Дополнительные условия", advancedHint: "аудитория, сроки, переводы, источник",
   };
-  const icons = {
-    tag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13 13 20a2 2 0 0 1-3 0l-6-6a2 2 0 0 1 0-3V5a1 1 0 0 1 1-1h6a2 2 0 0 1 1 .5l8 8a1 1 0 0 1 0 1.5Z"/><circle cx="8" cy="8" r="1.5"/></svg>',
-    sliders: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/></svg>',
-    language: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h9M8.5 3v2c0 5-2.5 8-5.5 10M6 10c1.5 2 3 3.5 5 4.5M14 20l3.5-9 3.5 9M15.3 17h4.4"/></svg>',
-    up: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg>',
-    down: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>',
-    trash: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 3h6l1 4H8l1-4ZM7 7l1 14h8l1-14M10 11v6M14 11v6"/></svg>',
-  };
+
+  const labels = pricingI18n[langKey] || pricingI18n.ru;
+
+  function makeSvgIcon(id, className) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", className || "km-i");
+    svg.setAttribute("viewBox", "0 0 960 960");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.setAttribute("href", "#kmi-" + id);
+    svg.appendChild(use);
+    return svg;
+  }
 
   function parsePlans(value) {
     try {
@@ -60,215 +276,44 @@
 
   let plans = parsePlans(input.value);
 
-  const langKey = (document.documentElement.lang || "ru").split("-")[0].toLowerCase();
-  const pricingI18n = {
-    az: {
-      addTranslation: "Tərcümə əlavə et (RU, EN)",
-      egSessionsWeek: "məsələn, 3",
-      egSessionsMonth: "məsələn, 12",
-      egPackageSessions: "məsələn, 10",
-      egPrice: "məsələn, 120",
-      kind: "Tarif növü", priceKind: "Qiymət növü", exact: "Dəqiq", free: "Ödənişsiz",
-      from: "Başlayır", range: "Aralıq", onRequest: "Sorğu ilə", priceMin: "Qiymət min", priceMax: "Qiymət max",
-      billingMode: "Ödəniş forması", oneTime: "Birdəfəlik", recurring: "Daimi", installment: "Hissə-hissə",
-      interval: "Dövr", intervalCount: "Dövr sayı", cycles: "Ödəniş sayı",
-      quantity: "Miqdar", quantityUnit: "Vahid", audience: "Auditoriya", ageFrom: "Yaş min", ageTo: "Yaş max",
-      conditionsAz: "Şərtlər (AZ)", conditionsRu: "Şərtlər (RU)", conditionsEn: "Şərtlər (EN)", sourceUrl: "Mənbə linki",
-      verifiedAt: "Təsdiq tarixi",
-      currency: "Valyuta", unlimited: "Limitsiz", validity: "Qüvvədə olma müddəti", validityCount: "Müddət",
-      validFrom: "Başlama tarixi", validUntil: "Bitmə tarixi", minPeople: "Min. nəfər", maxPeople: "Max. nəfər",
-      dayType: "Günlər", required: "Məcburi ödəniş",
-      kinds: [
-        ["admission", "Giriş bileti"], ["visit", "Birdəfəlik ziyarət"], ["lesson", "Bir dərslik məşğələ"],
-        ["package", "Dərs paketi"], ["membership", "Abonement"], ["course", "Kurs və ya semestr"],
-        ["camp", "Düşərgə"], ["event", "Tədbir"], ["excursion", "Ekskursiya"], ["tour", "Tur"],
-        ["rental", "İcarə"], ["addon", "Əlavə xidmət"], ["registration_fee", "Qeydiyyat haqqı"], ["deposit", "Depozit"]
-      ],
-      intervals: [["day", "Gün"], ["week", "Həftə"], ["month", "Ay"], ["year", "İl"]],
-      quantityUnits: [
-        ["entry", "Giriş"], ["visit", "Ziyarət"], ["lesson", "Dərs"], ["minute", "Dəqiqə"], ["hour", "Saat"],
-        ["day", "Gün"], ["week", "Həftə"], ["month", "Ay"], ["course", "Kurs"], ["event", "Tədbir"],
-        ["camp_shift", "Növbə"], ["person", "Nəfər"], ["family", "Ailə"], ["group", "Qrup"]
-      ],
-      audiences: [["all", "Hamı"], ["child", "Uşaqlar"], ["adult", "Böyüklər"], ["family", "Ailə"], ["group", "Qrup"]],
-      dayTypes: [["any", "İstənilən gün"], ["weekday", "İş günləri"], ["weekend", "Həftəsonu"], ["holiday", "Bayram günləri"]],
-    },
-    en: {
-      addTranslation: "Add translation (RU, EN)",
-      egSessionsWeek: "e.g., 3",
-      egSessionsMonth: "e.g., 12",
-      egPackageSessions: "e.g., 10",
-      egPrice: "e.g., 120",
-      kind: "Plan type", priceKind: "Price type", exact: "Exact", free: "Free",
-      from: "From", range: "Range", onRequest: "On request", priceMin: "Price from", priceMax: "Price to",
-      billingMode: "Billing", oneTime: "One-time", recurring: "Recurring", installment: "Installments",
-      interval: "Period", intervalCount: "Period count", cycles: "Billing cycles",
-      quantity: "Quantity", quantityUnit: "Unit", audience: "Audience", ageFrom: "Age from", ageTo: "Age to",
-      conditionsAz: "Terms (AZ)", conditionsRu: "Terms (RU)", conditionsEn: "Terms (EN)", sourceUrl: "Source URL",
-      verifiedAt: "Verified by staff",
-      currency: "Currency", unlimited: "Unlimited", validity: "Validity period", validityCount: "Duration",
-      validFrom: "Valid from", validUntil: "Valid until", minPeople: "Min people", maxPeople: "Max people",
-      dayType: "Days", required: "Required payment",
-      kinds: [
-        ["admission", "Admission ticket"], ["visit", "Single visit"], ["lesson", "Single lesson"],
-        ["package", "Lesson package"], ["membership", "Membership"], ["course", "Course or semester"],
-        ["camp", "Camp"], ["event", "Event"], ["excursion", "Excursion"], ["tour", "Tour"],
-        ["rental", "Rental"], ["addon", "Add-on service"], ["registration_fee", "Registration fee"], ["deposit", "Deposit"]
-      ],
-      intervals: [["day", "Day"], ["week", "Week"], ["month", "Month"], ["year", "Year"]],
-      quantityUnits: [
-        ["entry", "Entry"], ["visit", "Visit"], ["lesson", "Lesson"], ["minute", "Minute"], ["hour", "Hour"],
-        ["day", "Day"], ["week", "Week"], ["month", "Month"], ["course", "Course"], ["event", "Event"],
-        ["camp_shift", "Shift"], ["person", "Person"], ["family", "Family"], ["group", "Group"]
-      ],
-      audiences: [["all", "All"], ["child", "Children"], ["adult", "Adults"], ["family", "Family"], ["group", "Group"]],
-      dayTypes: [["any", "Any day"], ["weekday", "Weekdays"], ["weekend", "Weekends"], ["holiday", "Holidays"]],
-    },
-    ru: {
-      addTranslation: "Добавить перевод (RU, EN)",
-      egSessionsWeek: "например, 3",
-      egSessionsMonth: "например, 12",
-      egPackageSessions: "например, 10",
-      egPrice: "например, 120",
-      kind: "Тип тарифа", priceKind: "Как указана цена", exact: "Точная", free: "Бесплатно",
-      from: "От", range: "Диапазон", onRequest: "По запросу", priceMin: "Цена от", priceMax: "Цена до",
-      billingMode: "Оплата", oneTime: "Разовая", recurring: "Регулярная", installment: "Частями",
-      interval: "Период", intervalCount: "Количество периодов", cycles: "Количество платежей",
-      quantity: "Количество", quantityUnit: "Единица", audience: "Аудитория", ageFrom: "Возраст от", ageTo: "Возраст до",
-      conditionsAz: "Условия (AZ)", conditionsRu: "Условия (RU)", conditionsEn: "Условия (EN)", sourceUrl: "Источник",
-      verifiedAt: "Подтверждено сотрудником",
-      currency: "Валюта", unlimited: "Без ограничений", validity: "Срок действия", validityCount: "Срок",
-      validFrom: "Действует с", validUntil: "Действует до", minPeople: "Минимум людей", maxPeople: "Максимум людей",
-      dayType: "Дни", required: "Обязательный платёж",
-      kinds: [
-        ["admission", "Входной билет"], ["visit", "Разовое посещение"], ["lesson", "Одно занятие"],
-        ["package", "Пакет занятий"], ["membership", "Абонемент"], ["course", "Курс или семестр"],
-        ["camp", "Лагерь"], ["event", "Событие"], ["excursion", "Экскурсия"], ["tour", "Тур"],
-        ["rental", "Аренда"], ["addon", "Дополнительная услуга"], ["registration_fee", "Регистрационный взнос"], ["deposit", "Депозит"]
-      ],
-      intervals: [["day", "День"], ["week", "Неделя"], ["month", "Месяц"], ["year", "Год"]],
-      quantityUnits: [
-        ["entry", "Вход"], ["visit", "Посещение"], ["lesson", "Занятие"], ["minute", "Минута"], ["hour", "Час"],
-        ["day", "День"], ["week", "Неделя"], ["month", "Месяц"], ["course", "Курс"], ["event", "Событие"],
-        ["camp_shift", "Смена"], ["person", "Человек"], ["family", "Семья"], ["group", "Группа"]
-      ],
-      audiences: [["all", "Все"], ["child", "Дети"], ["adult", "Взрослые"], ["family", "Семья"], ["group", "Группа"]],
-      dayTypes: [["any", "Любой день"], ["weekday", "Будни"], ["weekend", "Выходные"], ["holiday", "Праздники"]],
-    },
-  };
-
-  const currentDict = pricingI18n[langKey] || pricingI18n.ru;
-
-  const labels = {
-    format: editor.dataset.formatLabel || (langKey === "az" ? "Format" : (langKey === "en" ? "Format" : "Формат")),
-    group: editor.dataset.groupLabel || (langKey === "az" ? "Qrup" : (langKey === "en" ? "Group" : "Группа")),
-    individual: editor.dataset.individualLabel || (langKey === "az" ? "Fərdi" : (langKey === "en" ? "Individual" : "Индивидуально")),
-    openVisit: editor.dataset.openVisitLabel || (langKey === "az" ? "Sərbəst giriş" : (langKey === "en" ? "Open visit" : "Свободное посещение")),
-    payment: editor.dataset.paymentLabel || (langKey === "az" ? "Ödəniş" : (langKey === "en" ? "Payment" : "Оплата")),
-    perLesson: editor.dataset.perLessonLabel || (langKey === "az" ? "Dərs üzrə" : (langKey === "en" ? "Per lesson" : "За занятие")),
-    perMonth: editor.dataset.perMonthLabel || (langKey === "az" ? "Aylıq" : (langKey === "en" ? "Per month" : "В месяц")),
-    package: editor.dataset.packageLabel || (langKey === "az" ? "Paket" : (langKey === "en" ? "Package" : "Пакет")),
-    perVisit: editor.dataset.perVisitLabel || (langKey === "az" ? "Ziyarət üzrə" : (langKey === "en" ? "Per visit" : "За посещение")),
-    entryTicket: editor.dataset.entryTicketLabel || (langKey === "az" ? "Giriş bileti" : (langKey === "en" ? "Entry ticket" : "Входной билет")),
-    week: editor.dataset.weekLabel || (langKey === "az" ? "Dərs/həftə" : (langKey === "en" ? "Sessions/week" : "Занятий в неделю")),
-    month: editor.dataset.monthLabel || (langKey === "az" ? "Dərs/ay" : (langKey === "en" ? "Sessions/month" : "Занятий в месяц")),
-    packageSessions: editor.dataset.packageSessionsLabel || (langKey === "az" ? "Paketdə dərs sayı" : (langKey === "en" ? "Package sessions" : "Занятий в пакете")),
-    price: editor.dataset.priceLabel || (langKey === "az" ? "Qiymət" : (langKey === "en" ? "Price" : "Цена")),
-    titleAz: editor.dataset.titleAzLabel || "Plan title (AZ)",
-    titleRu: editor.dataset.titleRuLabel || "Plan title (RU)",
-    titleEn: editor.dataset.titleEnLabel || "Plan title (EN)",
-    active: editor.dataset.activeLabel || (langKey === "az" ? "Aktiv" : (langKey === "en" ? "Active" : "Активен")),
-    remove: editor.dataset.removeLabel || (langKey === "az" ? "Sil" : (langKey === "en" ? "Remove" : "Удалить")),
-    up: editor.dataset.upLabel || (langKey === "az" ? "Yuxarı" : (langKey === "en" ? "Move up" : "Вверх")),
-    down: editor.dataset.downLabel || (langKey === "az" ? "Aşağı" : (langKey === "en" ? "Move down" : "Вниз")),
-    addTranslation: editor.dataset.addTranslationLabel || currentDict.addTranslation,
-    egSessionsWeek: editor.dataset.egSessionsWeek || currentDict.egSessionsWeek,
-    egSessionsMonth: editor.dataset.egSessionsMonth || currentDict.egSessionsMonth,
-    egPackageSessions: editor.dataset.egPackageSessions || currentDict.egPackageSessions,
-    egPrice: editor.dataset.egPrice || currentDict.egPrice,
-    choose: editor.dataset.chooseLabel || (langKey === "az" ? "Seçin" : (langKey === "en" ? "Choose" : "Выберите")),
-    kind: currentDict.kind, priceKind: currentDict.priceKind, exact: currentDict.exact, free: currentDict.free,
-    from: currentDict.from, range: currentDict.range, onRequest: currentDict.onRequest, priceMin: currentDict.priceMin, priceMax: currentDict.priceMax,
-    billingMode: currentDict.billingMode, oneTime: currentDict.oneTime, recurring: currentDict.recurring, installment: currentDict.installment,
-    interval: currentDict.interval, intervalCount: currentDict.intervalCount, cycles: currentDict.cycles,
-    quantity: currentDict.quantity, quantityUnit: currentDict.quantityUnit, audience: currentDict.audience, ageFrom: currentDict.ageFrom, ageTo: currentDict.ageTo,
-    conditionsAz: currentDict.conditionsAz, conditionsRu: currentDict.conditionsRu, conditionsEn: currentDict.conditionsEn, sourceUrl: currentDict.sourceUrl,
-    verifiedAt: currentDict.verifiedAt,
-    currency: currentDict.currency, unlimited: currentDict.unlimited, validity: currentDict.validity, validityCount: currentDict.validityCount,
-    validFrom: currentDict.validFrom, validUntil: currentDict.validUntil, minPeople: currentDict.minPeople, maxPeople: currentDict.maxPeople,
-    dayType: currentDict.dayType, required: currentDict.required,
-  };
-
-  const fields = [
-    ["editor_kind", labels.kind, "select", currentDict.kinds, true],
-    ["title_az", labels.titleAz, "text", null, false],
-    ["title_ru", labels.titleRu, "text", null, false],
-    ["title_en", labels.titleEn, "text", null, false],
-    ["lesson_format", labels.format, "select", [["group", labels.group], ["individual", labels.individual], ["open_visit", labels.openVisit]], true],
-    ["billing_mode", labels.billingMode, "select", [["one_time", labels.oneTime], ["recurring", labels.recurring], ["installment", labels.installment]], true],
-    ["billing_interval", labels.interval, "select", currentDict.intervals, false],
-    ["billing_interval_count", labels.intervalCount, "number", null, false],
-    ["billing_cycles", labels.cycles, "number", null, false],
-    ["price_kind", labels.priceKind, "select", [["exact", labels.exact], ["free", labels.free], ["from", labels.from], ["range", labels.range], ["on_request", labels.onRequest]], true],
-    ["price", labels.price, "number", null, false],
-    ["price_min", labels.priceMin, "number", null, false],
-    ["price_max", labels.priceMax, "number", null, false],
-    ["currency", labels.currency, "select", [["AZN", "AZN"], ["USD", "USD"], ["EUR", "EUR"], ["RUB", "RUB"]], true],
-    ["quantity", labels.quantity, "number", null, false],
-    ["quantity_unit", labels.quantityUnit, "select", currentDict.quantityUnits, false],
-    ["sessions_per_week", labels.week, "number", null, false],
-    ["sessions_per_month", labels.month, "number", null, false],
-    ["is_unlimited", labels.unlimited, "checkbox", null, false],
-    ["validity_interval", labels.validity, "select", currentDict.intervals, false],
-    ["validity_interval_count", labels.validityCount, "number", null, false],
-    ["valid_from", labels.validFrom, "date", null, false], ["valid_until", labels.validUntil, "date", null, false],
-    ["audience_type", labels.audience, "select", currentDict.audiences, false],
-    ["age_from", labels.ageFrom, "number", null, false], ["age_to", labels.ageTo, "number", null, false],
-    ["min_people", labels.minPeople, "number", null, false], ["max_people", labels.maxPeople, "number", null, false],
-    ["day_type", labels.dayType, "select", currentDict.dayTypes, false],
-    ["is_required", labels.required, "checkbox", null, false],
-    ["conditions_az", labels.conditionsAz, "text", null, false], ["conditions_ru", labels.conditionsRu, "text", null, false], ["conditions_en", labels.conditionsEn, "text", null, false],
-    ["source_url", labels.sourceUrl, "url", null, false],
-    ["verified_at", labels.verifiedAt, "datetime-local", null, false],
-  ];
-
   function normalizeKind(plan) {
     if (!plan.editor_kind) {
-      if (plan.payment_type === "package" || (plan.product_type === "lesson" && Number(plan.quantity) > 1)) plan.editor_kind = "package";
-      else plan.editor_kind = plan.product_type || ({per_lesson:"lesson", per_month:"membership", per_visit:"visit", entry_ticket:"admission"}[plan.payment_type]) || "";
+      if (plan.payment_type === "package" || (plan.product_type === "lesson" && Number(plan.quantity) > 1)) {
+        plan.editor_kind = "package";
+      } else {
+        plan.editor_kind = plan.product_type || ({
+          per_lesson: "lesson",
+          per_month: "membership",
+          per_visit: "visit",
+          entry_ticket: "admission",
+        }[plan.payment_type]) || "lesson";
+      }
+    }
+    if (!plan.lesson_format) {
+      plan.lesson_format = "group";
     }
     plan.product_type = plan.editor_kind === "package" ? "lesson" : plan.editor_kind;
     plan.charge_role = ["addon", "registration_fee", "deposit"].indexOf(plan.product_type) >= 0 ? plan.product_type : "primary";
-    if (plan.editor_kind === "package") { plan.quantity_unit = "lesson"; if (!plan.quantity && plan.package_sessions) plan.quantity = plan.package_sessions; }
+
+    if (plan.editor_kind === "package") {
+      plan.quantity_unit = "lesson";
+      if (!plan.quantity && plan.package_sessions) plan.quantity = plan.package_sessions;
+    }
     if (!plan.price_kind) plan.price_kind = String(plan.price) === "0" ? "free" : "exact";
-    if (!plan.billing_mode) plan.billing_mode = plan.payment_type === "per_month" ? "recurring" : "one_time";
-    if (plan.billing_mode === "recurring" && !plan.billing_interval) { plan.billing_interval = "month"; plan.billing_interval_count = 1; }
+    if (!plan.billing_mode) plan.billing_mode = plan.editor_kind === "membership" || plan.payment_type === "per_month" ? "recurring" : "one_time";
+    if (plan.billing_mode === "recurring" && !plan.billing_interval) {
+      plan.billing_interval = "month";
+      plan.billing_interval_count = 1;
+    }
     if (plan.price_kind === "exact") { plan.price_min = null; plan.price_max = null; }
     if (plan.price_kind === "free") { plan.price = "0"; plan.price_min = null; plan.price_max = null; }
     if (plan.price_kind === "from") { plan.price = null; plan.price_max = null; }
-    if (plan.price_kind === "range") plan.price = null;
+    if (plan.price_kind === "range") { plan.price = null; }
     if (plan.price_kind === "on_request") { plan.price = null; plan.price_min = null; plan.price_max = null; }
-    if (plan.billing_mode === "recurring") plan.billing_cycles = null;
-    else if (plan.billing_mode === "installment") { plan.billing_interval = ""; plan.billing_interval_count = null; }
-    else { plan.billing_interval = ""; plan.billing_interval_count = null; plan.billing_cycles = null; }
-    if (["package", "membership", "course", "camp"].indexOf(plan.editor_kind) < 0) {
-      plan.validity_interval = ""; plan.validity_interval_count = null; plan.is_unlimited = false;
-    }
-    if (["addon", "registration_fee", "deposit"].indexOf(plan.editor_kind) < 0) plan.is_required = false;
     if (!plan.currency) plan.currency = "AZN";
-    
-    // Auto-default quantity_unit when quantity is set
-    const defaultUnits = {
-      admission: "entry", visit: "visit", lesson: "lesson", package: "lesson",
-      membership: "lesson", course: "course", camp: "camp_shift", event: "event",
-      excursion: "event", tour: "event", rental: "hour"
-    };
-    var kindKey = plan.editor_kind || plan.product_type || "";
-    if (plan.quantity != null && plan.quantity !== "" && !plan.quantity_unit) {
-      plan.quantity_unit = defaultUnits[kindKey] || "entry";
-    }
 
-    delete plan.payment_type; delete plan.package_sessions;
+    delete plan.payment_type;
+    delete plan.package_sessions;
   }
 
   plans.forEach(normalizeKind);
@@ -276,270 +321,983 @@
   function sync() {
     plans.forEach((plan, index) => { plan.sort_order = index; });
     plans.forEach(normalizeKind);
-    const contentKeys = ["editor_kind", "product_type", "price_kind", "price", "price_min", "price_max", "title_az", "title_ru", "title_en"];
+    const contentKeys = [
+      "editor_kind", "product_type", "price_kind", "price", "price_min", "price_max",
+      "title_az", "title_ru", "title_en", "conditions_az", "conditions_ru", "conditions_en",
+      "sessions_per_week", "sessions_per_month", "quantity", "quantity_unit",
+      "age_from", "age_to", "source_url", "lesson_format", "billing_mode"
+    ];
     const cleanPlans = plans
       .filter((plan) => contentKeys.some((key) => plan[key] !== "" && plan[key] !== null && plan[key] !== undefined))
       .map((plan) => Object.fromEntries(Object.entries(plan).filter(([key]) => !key.startsWith("_"))));
+
     input.value = JSON.stringify(cleanPlans);
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    updateComputedPrice();
   }
 
-  function addField(target, row, plan, key, label, type, options, required) {
-    const wrapper = document.createElement("label");
-    wrapper.className = "owner-tariff-field owner-tariff-field--" + key;
-    var kind = plan.editor_kind || "";
-    var priceKind = plan.price_kind || "exact";
-    var billingMode = plan.billing_mode || "one_time";
-    var lessonKinds = ["lesson", "package", "membership", "course"];
-    var visible = true;
-    if (key === "lesson_format") visible = lessonKinds.indexOf(kind) >= 0 || kind === "admission" || kind === "visit";
-    if (["sessions_per_week", "sessions_per_month"].indexOf(key) >= 0) visible = lessonKinds.indexOf(kind) >= 0;
-    if (["quantity", "quantity_unit"].indexOf(key) >= 0) visible = ["package", "rental", "camp", "course", "admission", "visit"].indexOf(kind) >= 0;
-    if (["billing_interval", "billing_interval_count"].indexOf(key) >= 0) visible = billingMode === "recurring";
-    if (key === "billing_cycles") visible = billingMode === "installment";
-    if (key === "price") visible = priceKind === "exact";
-    if (key === "price_min") visible = priceKind === "from" || priceKind === "range";
-    if (key === "price_max") visible = priceKind === "range";
-    if (key === "currency") visible = priceKind !== "free" && priceKind !== "on_request";
-    if (["is_unlimited", "validity_interval", "validity_interval_count"].indexOf(key) >= 0) visible = ["package", "membership", "course", "camp"].indexOf(kind) >= 0;
-    if (key === "is_required") visible = ["addon", "registration_fee", "deposit"].indexOf(kind) >= 0;
-    if (key === "verified_at") visible = canVerify;
-    wrapper.hidden = !visible;
-    
-    // Hide RU and EN translation fields by default if they are empty
-    if ((key === "title_ru" || key === "title_en") && !plan[key] && !plan._show_translations) {
-      wrapper.classList.add("owner-tariff-field--hidden");
-    }
+  function getKindLabel(kind) {
+    const map = {
+      lesson: labels.perLesson,
+      membership: labels.perMonth,
+      package: labels.package,
+      admission: labels.admission,
+      visit: labels.visit,
+      course: labels.course,
+      camp: labels.camp,
+      event: labels.event,
+    };
+    return map[kind] || labels.perLesson;
+  }
 
-    const labelHtml = required ? label + ' <span style="display: inline; color: #ef4444; font-weight: bold;">*</span>' : label;
-    wrapper.innerHTML = "<span>" + labelHtml + "</span>";
-    
-    let field;
-    if (type === "select") {
-      field = document.createElement("select");
-      field.innerHTML = '<option value="">' + labels.choose + '</option>' + options.map((item) => '<option value="' + item[0] + '">' + item[1] + '</option>').join("");
+  function getFormatLabel(format) {
+    const map = {
+      group: labels.group,
+      individual: labels.individual,
+      open_visit: labels.openVisit,
+    };
+    return map[format] || labels.group;
+  }
+
+  function formatPriceWithPeriod(plan) {
+    if (plan.price_kind === "free" || String(plan.price).trim() === "0") {
+      return labels.free;
+    }
+    if (plan.price_kind === "on_request") {
+      return labels.onRequest;
+    }
+    let pStr = "";
+    if (plan.price_kind === "range" && plan.price_min && plan.price_max) {
+      pStr = plan.price_min + "–" + plan.price_max + " ₼";
+    } else if (plan.price_kind === "from" && plan.price_min) {
+      pStr = labels.from + " " + plan.price_min + " ₼";
+    } else if (plan.price !== "" && plan.price !== null && plan.price !== undefined && !isNaN(Number(plan.price))) {
+      pStr = Number(plan.price) + " ₼";
     } else {
-      field = document.createElement("input");
-      field.type = type;
-      if (type === "number") {
-        const isMoney = ["price", "price_min", "price_max"].indexOf(key) >= 0;
-        field.min = isMoney ? "0" : "1";
-        field.step = isMoney ? "0.01" : "1";
-      }
-      const placeholders = {
-        sessions_per_week: labels.egSessionsWeek,
-        sessions_per_month: labels.egSessionsMonth,
-        package_sessions: labels.egPackageSessions,
-        price: labels.egPrice,
-        title_az: "məsələn, Aylıq abunə (12 dərs)",
-        title_ru: "например, Абонемент на месяц (12 занятий)",
-        title_en: "e.g., Monthly subscription (12 sessions)",
-      };
-      if (placeholders[key]) {
-        field.placeholder = placeholders[key];
-      }
+      return labels.noPrice;
     }
-    field.className = "field";
-    field.required = !!required;
-    if (type === "checkbox") field.checked = plan[key] === true;
-    else field.value = plan[key] == null ? "" : (key === "verified_at" ? String(plan[key]).slice(0, 16) : plan[key]);
-    field.dataset.tariffKey = key;
-    field.addEventListener("input", () => {
-      plan[key] = type === "checkbox" ? field.checked : field.value;
-      sync();
-      updateCardSummary(row, plan);
-    });
-    field.addEventListener("change", () => {
-      plan[key] = type === "checkbox" ? field.checked : field.value;
-      sync();
 
-      // Rebuilding the whole row here can reset a native <select> before the
-      // browser has committed its selected option. Update only the CSS state.
-      if (["editor_kind", "price_kind", "billing_mode"].indexOf(key) >= 0) {
-        normalizeKind(plan);
-        render();
-        return;
-      }
-      if (key === "payment_type") {
-        ["empty", "per-lesson", "per-month", "package", "per-visit", "entry-ticket"].forEach((typeName) => {
-          row.classList.remove("payment-type--" + typeName);
-        });
-        row.classList.add("payment-type--" + (field.value || "empty").replace("_", "-"));
-        const packageSessions = row.querySelector('[data-tariff-key="package_sessions"]');
-        if (packageSessions) {
-          packageSessions.required = field.value === "package";
-        }
-      }
-    });
-    wrapper.appendChild(field);
-    target.appendChild(wrapper);
+    const periods = {
+      membership: "/ " + labels.periodMonth,
+      lesson: "/ " + labels.periodLesson,
+      package: plan.quantity ? ("/ " + plan.quantity + " " + labels.periodLessons) : ("/ " + labels.periodPackage),
+      admission: "/ " + labels.periodTicket,
+      visit: "/ " + labels.periodVisit,
+      course: "/ " + labels.periodCourse,
+    };
+    const suffix = periods[plan.editor_kind] || "";
+    return suffix ? (pStr + " " + suffix) : pStr;
   }
 
   function tariffSummary(plan, index) {
-    const kindLabels = {
-      admission: "Билет", visit: "Посещение", lesson: "Занятие", package: "Пакет",
-      membership: "Абонемент", course: "Курс", camp: "Лагерь", event: "Событие",
-      excursion: "Экскурсия", tour: "Тур", rental: "Аренда", addon: "Доплата",
-      registration_fee: "Регистрация", deposit: "Депозит"
-    };
-    let price = interfaceCopy.noPrice;
-    if (plan.price_kind === "free") price = labels.free;
-    else if (plan.price_kind === "on_request") price = labels.onRequest;
-    else if (plan.price_kind === "range" && plan.price_min && plan.price_max) price = plan.price_min + "–" + plan.price_max + " " + (plan.currency || "AZN");
-    else if (plan.price_kind === "from" && plan.price_min) price = labels.from + " " + plan.price_min + " " + (plan.currency || "AZN");
-    else if (plan.price) price = plan.price + " " + (plan.currency || "AZN");
+    let title = plan.title_az || plan.title_ru || plan.title_en;
+    if (!title) {
+      if (plan.editor_kind === "membership") title = "Абонемент на месяц";
+      else if (plan.editor_kind === "package") title = "Пакет занятий";
+      else if (plan.editor_kind === "lesson") title = "Пробное / разовое занятие";
+      else title = labels.tariff + " #" + (index + 1);
+    }
+
+    let meta = "";
+    if (plan.conditions_ru || plan.conditions_az || plan.conditions_en) {
+      meta = plan.conditions_ru || plan.conditions_az || plan.conditions_en;
+    } else if (plan.editor_kind === "membership") {
+      if (plan.sessions_per_month) meta = plan.sessions_per_month + " занятий";
+      else if (plan.sessions_per_week) meta = plan.sessions_per_week + " раза в неделю";
+    } else if (plan.editor_kind === "package") {
+      if (plan.quantity) meta = plan.quantity + " занятий";
+    } else if (plan.editor_kind === "lesson") {
+      meta = "1 занятие";
+    }
+
     return {
-      title: plan.title_az || plan.title_ru || kindLabels[plan.editor_kind] || (interfaceCopy.tariff + " " + (index + 1)),
-      meta: (kindLabels[plan.editor_kind] || interfaceCopy.chooseType) + " · " + price,
+      title: title,
+      format: getFormatLabel(plan.lesson_format),
+      kind: getKindLabel(plan.editor_kind),
+      meta: meta,
+      price: formatPriceWithPeriod(plan),
     };
   }
 
-  function updateCardSummary(row, plan, index) {
-    const cardIndex = index === undefined ? Array.prototype.indexOf.call(list.children, row) : index;
-    const summary = tariffSummary(plan, cardIndex < 0 ? 0 : cardIndex);
-    const title = row.querySelector(".owner-tariff-card-copy strong");
-    const meta = row.querySelector(".owner-tariff-card-copy small");
-    if (title) title.textContent = summary.title;
-    if (meta) meta.textContent = summary.meta;
+  function detectPricePolicy() {
+    const az = (azBadgeInput ? azBadgeInput.value : "").trim();
+    const ru = (ruBadgeInput ? ruBadgeInput.value : "").trim();
+    const en = (enBadgeInput ? enBadgeInput.value : "").trim();
+
+    if (ru === "Бесплатно" || az === "Pulsuz" || en === "Free") {
+      return "free";
+    }
+    if (ru === "Вход бесплатный" || az === "Giriş pulsuzdur" || en === "Free admission") {
+      return "free_admission_with_paid";
+    }
+    if (ru === "Цена зависит от мероприятия" || az === "Qiymət tədbirdən asılıdır" || en === "Price depends on event") {
+      return "events";
+    }
+    return "tariffs";
   }
- 
+
+  let currentPolicy = detectPricePolicy();
+
+  function setBadgeInputs(az, ru, en) {
+    if (azBadgeInput) azBadgeInput.value = az;
+    if (ruBadgeInput) ruBadgeInput.value = ru;
+    if (enBadgeInput) enBadgeInput.value = en;
+    if (azBadgeInput) azBadgeInput.dispatchEvent(new Event("input", { bubbles: true }));
+    if (ruBadgeInput) ruBadgeInput.dispatchEvent(new Event("input", { bubbles: true }));
+    if (enBadgeInput) enBadgeInput.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  function applyPricePolicy(policy, userTriggered) {
+    currentPolicy = policy;
+    policyButtons.forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.pricePolicy === policy);
+    });
+
+    if (policy === "free") {
+      if (userTriggered) {
+        setBadgeInputs("Pulsuz", "Бесплатно", "Free");
+      }
+      if (policyHint) policyHint.textContent = labels.hintFree;
+      if (list) list.hidden = true;
+      if (emptyState) emptyState.hidden = true;
+      if (foot) foot.hidden = true;
+    } else if (policy === "free_admission_with_paid") {
+      if (userTriggered) {
+        setBadgeInputs("Giriş pulsuzdur", "Вход бесплатный", "Free admission");
+      }
+      if (policyHint) policyHint.textContent = labels.hintFreeWithPaid;
+      if (list) list.hidden = false;
+      if (emptyDesc) emptyDesc.textContent = labels.emptyFreeWithPaidDesc;
+      if (emptyState) emptyState.hidden = plans.length > 0;
+      if (foot) foot.hidden = false;
+    } else if (policy === "events") {
+      if (userTriggered) {
+        setBadgeInputs("Qiymət tədbirdən asılıdır", "Цена зависит от мероприятия", "Price depends on event");
+      }
+      if (policyHint) policyHint.textContent = labels.hintEvents;
+      if (list) list.hidden = true;
+      if (emptyState) emptyState.hidden = true;
+      if (foot) foot.hidden = true;
+    } else {
+      // Tariffs
+      if (userTriggered) {
+        const ru = (ruBadgeInput ? ruBadgeInput.value : "").trim();
+        const az = (azBadgeInput ? azBadgeInput.value : "").trim();
+        const en = (enBadgeInput ? enBadgeInput.value : "").trim();
+        if (
+          ru === "Бесплатно" || az === "Pulsuz" || en === "Free" ||
+          ru === "Вход бесплатный" || az === "Giriş pulsuzdur" || en === "Free admission" ||
+          ru === "Цена зависит от мероприятия" || az === "Qiymət tədbirdən asılıdır" || en === "Price depends on event"
+        ) {
+          setBadgeInputs("", "", "");
+        }
+      }
+      if (policyHint) policyHint.textContent = labels.hintTariffs;
+      if (list) list.hidden = false;
+      if (emptyDesc) emptyDesc.textContent = labels.emptyDefaultDesc;
+      if (emptyState) emptyState.hidden = plans.length > 0;
+      if (foot) foot.hidden = false;
+    }
+
+    updateComputedPrice();
+  }
+
+  function planHasData(plan) {
+    if (!plan) return false;
+    return Boolean(
+      (plan.price !== undefined && plan.price !== null && String(plan.price).trim() !== "") ||
+      (plan.price_min !== undefined && plan.price_min !== null && String(plan.price_min).trim() !== "") ||
+      (plan.price_max !== undefined && plan.price_max !== null && String(plan.price_max).trim() !== "") ||
+      (plan.title_az && plan.title_az.trim()) ||
+      (plan.title_ru && plan.title_ru.trim()) ||
+      (plan.title_en && plan.title_en.trim()) ||
+      (plan.conditions_az && plan.conditions_az.trim()) ||
+      (plan.conditions_ru && plan.conditions_ru.trim()) ||
+      (plan.conditions_en && plan.conditions_en.trim()) ||
+      plan.id
+    );
+  }
+
+  function confirmDeletePlan(index) {
+    const plan = plans[index];
+    if (!plan) return;
+    if (!planHasData(plan)) {
+      plans.splice(index, 1);
+      sync();
+      render();
+      return;
+    }
+
+    if (window.kmModal) {
+      window.kmModal.show({
+        icon: "delete",
+        iconTone: "danger",
+        title: "Удалить тариф?",
+        message: "Данные этого тарифа будут удалены.",
+        actions: [
+          { label: "Отмена", tone: "quiet" },
+          {
+            label: "Удалить",
+            tone: "danger-filled",
+            onClick: function () {
+              plans.splice(index, 1);
+              sync();
+              render();
+              if (window.kmToast) window.kmToast.info("Тариф удалён");
+            }
+          }
+        ]
+      });
+    } else {
+      plans.splice(index, 1);
+      sync();
+      render();
+    }
+  }
+
+  policyButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const targetPolicy = btn.dataset.pricePolicy;
+      if (targetPolicy === currentPolicy) return;
+
+      if ((targetPolicy === "free" || targetPolicy === "events") && plans.length > 0) {
+        var count = plans.length;
+        var countText = count + (count === 1 ? " тариф." : (count < 5 ? " тарифа." : " тарифов."));
+        if (window.kmModal) {
+          window.kmModal.show({
+            icon: "help",
+            iconTone: "warn",
+            title: "Что сделать с существующими тарифами?",
+            message: "В карточке уже есть " + countText,
+            actions: [
+              {
+                label: "Отмена",
+                tone: "quiet"
+              },
+              {
+                label: "Сохранить тарифы, но отключить",
+                tone: "primary",
+                onClick: function () {
+                  plans.forEach(function (p) { p.is_active = false; });
+                  sync();
+                  render();
+                  applyPricePolicy(targetPolicy, true);
+                  if (window.kmToast) window.kmToast.info("Тарифы отключены и сохранены");
+                }
+              },
+              {
+                label: "Удалить тарифы",
+                tone: "danger-filled",
+                onClick: function () {
+                  plans = [];
+                  sync();
+                  render();
+                  applyPricePolicy(targetPolicy, true);
+                  if (window.kmToast) window.kmToast.info("Тарифы удалены");
+                }
+              }
+            ]
+          });
+          return;
+        }
+      }
+
+      applyPricePolicy(targetPolicy, true);
+    });
+  });
+
+  function updateComputedPrice() {
+    if (!computedBadge) return;
+
+    if (currentPolicy === "free") {
+      computedBadge.textContent = labels.free;
+      syncPreviewPrice(labels.free);
+      return;
+    }
+
+    if (currentPolicy === "free_admission_with_paid") {
+      computedBadge.textContent = labels.freeAdmission;
+      syncPreviewPrice(labels.freeAdmission);
+      return;
+    }
+
+    if (currentPolicy === "events") {
+      computedBadge.textContent = labels.dependsOnEvent;
+      syncPreviewPrice(labels.dependsOnEvent);
+      return;
+    }
+
+    const activePlans = plans.filter((p) => p.is_active !== false);
+    if (!activePlans.length) {
+      computedBadge.textContent = "—";
+      syncPreviewPrice("—");
+      return;
+    }
+
+    const prices = [];
+    let hasFree = false;
+    let hasOnRequest = false;
+
+    activePlans.forEach((p) => {
+      if (p.price_kind === "free" || String(p.price).trim() === "0") {
+        hasFree = true;
+        prices.push(0);
+      } else if (p.price_kind === "on_request") {
+        hasOnRequest = true;
+      } else if (p.price_kind === "range" && p.price_min && p.price_max) {
+        const minVal = parseFloat(p.price_min);
+        const maxVal = parseFloat(p.price_max);
+        if (!isNaN(minVal)) prices.push(minVal);
+        if (!isNaN(maxVal)) prices.push(maxVal);
+      } else if (p.price_kind === "from" && p.price_min) {
+        const minVal = parseFloat(p.price_min);
+        if (!isNaN(minVal)) prices.push(minVal);
+      } else if (p.price !== "" && p.price !== null && p.price !== undefined) {
+        const val = parseFloat(p.price);
+        if (!isNaN(val)) {
+          if (val === 0) hasFree = true;
+          prices.push(val);
+        }
+      }
+    });
+
+    let computedText = "—";
+    if (!prices.length) {
+      if (hasFree) computedText = labels.free;
+      else if (hasOnRequest) computedText = labels.onRequest;
+      else computedText = "—";
+    } else {
+      const min = Math.min.apply(null, prices);
+      const max = Math.max.apply(null, prices);
+
+      if (min === max) {
+        if (min === 0) {
+          computedText = labels.free;
+        } else {
+          computedText = min + " ₼";
+        }
+      } else {
+        computedText = min + "–" + max + " ₼";
+      }
+    }
+
+    computedBadge.textContent = computedText;
+    syncPreviewPrice(computedText);
+  }
+
+  function syncPreviewPrice(computedText) {
+    const previewPriceEl = document.querySelector("[data-pf-preview-price]");
+    if (previewPriceEl) {
+      const customAz = (azBadgeInput || {}).value;
+      const customRu = (ruBadgeInput || {}).value;
+      const customEn = (enBadgeInput || {}).value;
+      const custom = (langKey === "az" ? customAz : (langKey === "en" ? customEn : customRu)) || customAz || customRu || customEn;
+      previewPriceEl.textContent = custom || (computedText !== "—" ? computedText : previewPriceEl.dataset.default || "—");
+    }
+  }
+
   function render() {
     list.innerHTML = "";
+    if (emptyState) {
+      emptyState.hidden = plans.length > 0 || currentPolicy === "free" || currentPolicy === "events";
+    }
+
     plans.forEach((plan, index) => {
-      const row = document.createElement("div");
       normalizeKind(plan);
-      const cleanType = (plan.editor_kind || "empty").replace("_", "-");
-      const hasTranslations = plan.title_ru || plan.title_en || plan._show_translations;
-      row.className = "owner-tariff-row payment-type--" + cleanType;
-
       const summary = tariffSummary(plan, index);
-      const cardHead = document.createElement("div");
-      cardHead.className = "owner-tariff-card-head";
-      const cardIcon = document.createElement("span");
-      cardIcon.className = "owner-tariff-card-icon";
-      cardIcon.setAttribute("aria-hidden", "true");
-      cardIcon.innerHTML = icons.tag;
-      const cardCopy = document.createElement("span");
-      cardCopy.className = "owner-tariff-card-copy";
-      const cardTitle = document.createElement("strong");
-      cardTitle.textContent = summary.title;
-      const cardMeta = document.createElement("small");
-      cardMeta.textContent = summary.meta;
-      cardCopy.append(cardTitle, cardMeta);
-      const cardNumber = document.createElement("span");
-      cardNumber.className = "owner-tariff-card-number";
-      cardNumber.textContent = "#" + (index + 1);
-      cardHead.append(cardIcon, cardCopy, cardNumber);
-      row.appendChild(cardHead);
+      const row = document.createElement("div");
+      row.className = "owner-tariff-row";
 
-      const mainGrid = document.createElement("div");
-      mainGrid.className = "owner-tariff-grid owner-tariff-grid--main";
-      row.appendChild(mainGrid);
+      if (plan._is_open !== true) {
+        // Collapsed state
+        row.classList.add("is-collapsed");
+        if (plan.is_active === false) {
+          row.classList.add("is-inactive");
+        }
 
-      const advanced = document.createElement("details");
-      advanced.className = "owner-tariff-advanced";
-      advanced.open = plan._advanced_open === true;
-      advanced.innerHTML = '<summary><span>' + icons.sliders + ' ' + interfaceCopy.advanced + '</span><small>' + interfaceCopy.advancedHint + '</small></summary>';
-      advanced.addEventListener("toggle", () => { plan._advanced_open = advanced.open; });
-      const advancedGrid = document.createElement("div");
-      advancedGrid.className = "owner-tariff-grid owner-tariff-grid--advanced";
-      advanced.appendChild(advancedGrid);
-      row.appendChild(advanced);
+        const drag = document.createElement("span");
+        drag.className = "owner-tariff-drag";
+        drag.appendChild(makeSvgIcon("drag_indicator"));
+        row.appendChild(drag);
 
-      const mainKeys = new Set(["editor_kind", "title_az", "billing_mode", "billing_interval", "billing_interval_count", "billing_cycles", "price_kind", "price", "price_min", "price_max", "currency", "quantity", "quantity_unit"]);
-      fields.forEach((field) => {
-        const target = mainKeys.has(field[0]) ? mainGrid : advancedGrid;
-        addField(target, row, plan, field[0], field[1], field[2], field[3], field[4]);
-        
-        // Render translations toggle link directly after default AZ title
-        if (field[0] === "title_az" && !hasTranslations) {
-          const toggleWrapper = document.createElement("div");
-          toggleWrapper.className = "owner-tariff-translation-toggle";
-          
-          const toggleBtn = document.createElement("button");
-          toggleBtn.type = "button";
-          toggleBtn.className = "km-btn-link";
-          toggleBtn.innerHTML = icons.language + " + " + labels.addTranslation;
-          toggleBtn.addEventListener("click", () => {
-            plan._show_translations = true;
+        const titleBox = document.createElement("div");
+        titleBox.className = "owner-tariff-title-box";
+        const titleStrong = document.createElement("strong");
+        titleStrong.className = "owner-tariff-title";
+        titleStrong.textContent = summary.title;
+        const formatSmall = document.createElement("small");
+        formatSmall.className = "owner-tariff-format";
+        formatSmall.textContent = summary.format;
+        titleBox.append(titleStrong, formatSmall);
+        row.appendChild(titleBox);
+
+        const kindBadge = document.createElement("span");
+        kindBadge.className = "owner-tariff-kind-badge";
+        kindBadge.textContent = summary.kind;
+        row.appendChild(kindBadge);
+
+        const metaSpan = document.createElement("span");
+        metaSpan.className = "owner-tariff-meta";
+        metaSpan.textContent = summary.meta;
+        row.appendChild(metaSpan);
+
+        const statusTag = document.createElement("span");
+        statusTag.className = "owner-tariff-status " + (plan.is_active !== false ? "is-active" : "is-inactive");
+        statusTag.textContent = plan.is_active !== false ? labels.statusActive : labels.statusInactive;
+        row.appendChild(statusTag);
+
+        const priceStrong = document.createElement("strong");
+        priceStrong.className = "owner-tariff-price";
+        priceStrong.textContent = summary.price;
+        row.appendChild(priceStrong);
+
+        const actions = document.createElement("div");
+        actions.className = "owner-tariff-actions";
+
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "owner-tariff-btn";
+        editBtn.title = labels.edit;
+        editBtn.appendChild(makeSvgIcon("edit"));
+        editBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          plan._is_open = true;
+          render();
+        });
+        actions.appendChild(editBtn);
+
+        const copyBtn = document.createElement("button");
+        copyBtn.type = "button";
+        copyBtn.className = "owner-tariff-btn";
+        copyBtn.title = labels.copy;
+        copyBtn.appendChild(makeSvgIcon("content_copy"));
+        copyBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (plans.length < MAX_PRICING_PLANS) {
+            const clone = JSON.parse(JSON.stringify(plan));
+            clone._is_open = true;
+            if (clone.title_az) clone.title_az += " (копия)";
+            plans.splice(index + 1, 0, clone);
+            sync();
+            render();
+          }
+        });
+        actions.appendChild(copyBtn);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "owner-tariff-btn owner-tariff-btn--danger";
+        deleteBtn.title = labels.delete;
+        deleteBtn.appendChild(makeSvgIcon("delete"));
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          confirmDeletePlan(index);
+        });
+        actions.appendChild(deleteBtn);
+
+        row.appendChild(actions);
+
+        row.addEventListener("click", () => {
+          plan._is_open = true;
+          render();
+        });
+
+      } else {
+        // Expanded state
+        row.classList.add("is-expanded");
+
+        const head = document.createElement("div");
+        head.className = "owner-tariff-head";
+
+        const drag = document.createElement("span");
+        drag.className = "owner-tariff-drag";
+        drag.appendChild(makeSvgIcon("drag_indicator"));
+        head.appendChild(drag);
+
+        const headTitle = document.createElement("strong");
+        headTitle.className = "owner-tariff-head-title";
+        headTitle.textContent = summary.title;
+        head.appendChild(headTitle);
+
+        const collapseBtn = document.createElement("button");
+        collapseBtn.type = "button";
+        collapseBtn.className = "owner-tariff-collapse-btn";
+        collapseBtn.appendChild(makeSvgIcon("expand_less"));
+        collapseBtn.appendChild(document.createTextNode(" " + labels.collapse));
+        collapseBtn.addEventListener("click", () => {
+          plan._is_open = false;
+          render();
+        });
+        head.appendChild(collapseBtn);
+        row.appendChild(head);
+
+        const body = document.createElement("div");
+        body.className = "owner-tariff-body";
+
+        // Format selector
+        const formatGroup = document.createElement("div");
+        formatGroup.className = "owner-tariff-control-group";
+        const formatLabel = document.createElement("span");
+        formatLabel.className = "owner-tariff-group-label";
+        formatLabel.textContent = labels.format;
+        formatGroup.appendChild(formatLabel);
+
+        const formatSegmented = document.createElement("div");
+        formatSegmented.className = "km-pf-segmented";
+        [
+          ["group", labels.group],
+          ["individual", labels.individual],
+          ["open_visit", labels.openVisit],
+        ].forEach(([fKey, fName]) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "km-pf-segmented__item" + (plan.lesson_format === fKey ? " is-active" : "");
+          btn.textContent = fName;
+          btn.addEventListener("click", () => {
+            plan.lesson_format = fKey;
+            sync();
             render();
           });
-          
-          toggleWrapper.appendChild(toggleBtn);
-          mainGrid.appendChild(toggleWrapper);
+          formatSegmented.appendChild(btn);
+        });
+        formatGroup.appendChild(formatSegmented);
+
+        // Payment type selector
+        const kindGroup = document.createElement("div");
+        kindGroup.className = "owner-tariff-control-group";
+        const kindLabel = document.createElement("span");
+        kindLabel.className = "owner-tariff-group-label";
+        kindLabel.textContent = labels.paymentType;
+        kindGroup.appendChild(kindLabel);
+
+        const kindSegmented = document.createElement("div");
+        kindSegmented.className = "km-pf-segmented";
+        [
+          ["lesson", labels.perLesson],
+          ["membership", labels.perMonth],
+          ["package", labels.package],
+          ["admission", labels.admission],
+          ["visit", labels.visit],
+          ["course", labels.course],
+        ].forEach(([kKey, kName]) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "km-pf-segmented__item" + (plan.editor_kind === kKey ? " is-active" : "");
+          btn.textContent = kName;
+          btn.addEventListener("click", () => {
+            plan.editor_kind = kKey;
+            normalizeKind(plan);
+            sync();
+            render();
+          });
+          kindSegmented.appendChild(btn);
+        });
+        kindGroup.appendChild(kindSegmented);
+
+        const controlRow = document.createElement("div");
+        controlRow.className = "owner-tariff-control-row";
+        controlRow.append(formatGroup, kindGroup);
+        body.appendChild(controlRow);
+
+        // Dynamic relevant core inputs row
+        const inputsRow = document.createElement("div");
+        inputsRow.className = "owner-tariff-inputs-row";
+
+        // Conditional numeric session / quantity field
+        if (plan.editor_kind === "membership") {
+          const sessField = document.createElement("label");
+          sessField.className = "owner-tariff-field owner-tariff-field--num";
+          sessField.innerHTML = "<span>" + labels.sessionsMonth + "</span>";
+          const sessInput = document.createElement("input");
+          sessInput.type = "number";
+          sessInput.min = "1";
+          sessInput.placeholder = "12";
+          sessInput.value = plan.sessions_per_month || "";
+          sessInput.addEventListener("input", () => {
+            plan.sessions_per_month = sessInput.value;
+            sync();
+            headTitle.textContent = tariffSummary(plan, index).title;
+          });
+          sessField.appendChild(sessInput);
+          inputsRow.appendChild(sessField);
+        } else if (plan.editor_kind === "package") {
+          const packField = document.createElement("label");
+          packField.className = "owner-tariff-field owner-tariff-field--num";
+          packField.innerHTML = "<span>" + labels.sessionsPackage + "</span>";
+          const packInput = document.createElement("input");
+          packInput.type = "number";
+          packInput.min = "1";
+          packInput.placeholder = "10";
+          packInput.value = plan.quantity || "";
+          packInput.addEventListener("input", () => {
+            plan.quantity = packInput.value;
+            sync();
+            headTitle.textContent = tariffSummary(plan, index).title;
+          });
+          packField.appendChild(packInput);
+          inputsRow.appendChild(packField);
+        } else if (plan.editor_kind === "course") {
+          const courseField = document.createElement("label");
+          courseField.className = "owner-tariff-field owner-tariff-field--num";
+          courseField.innerHTML = "<span>" + labels.sessionsCourse + "</span>";
+          const courseInput = document.createElement("input");
+          courseInput.type = "number";
+          courseInput.min = "1";
+          courseInput.placeholder = "24";
+          courseInput.value = plan.quantity || plan.sessions_per_month || "";
+          courseInput.addEventListener("input", () => {
+            plan.quantity = courseInput.value;
+            sync();
+            headTitle.textContent = tariffSummary(plan, index).title;
+          });
+          courseField.appendChild(courseInput);
+          inputsRow.appendChild(courseField);
         }
-      });
 
-      const footer = document.createElement("div");
-      footer.className = "owner-tariff-footer";
+        // Price input
+        const priceField = document.createElement("label");
+        priceField.className = "owner-tariff-field owner-tariff-field--price";
+        priceField.innerHTML = "<span>" + labels.price + "</span>";
+        const priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.min = "0";
+        priceInput.step = "0.01";
+        priceInput.placeholder = "120";
+        priceInput.value = plan.price || "";
+        priceInput.addEventListener("input", () => {
+          plan.price = priceInput.value;
+          sync();
+        });
+        priceField.appendChild(priceInput);
+        inputsRow.appendChild(priceField);
 
-      const active = document.createElement("label");
-      active.className = "owner-tariff-active";
-      active.innerHTML = '<input type="checkbox" class="field-check"> <span>' + labels.active + '</span>';
-      const checkbox = active.querySelector("input");
-      checkbox.checked = plan.is_active !== false;
-      checkbox.addEventListener("change", () => { plan.is_active = checkbox.checked; sync(); });
-      footer.appendChild(active);
+        // Title AZ input
+        const titleAzField = document.createElement("label");
+        titleAzField.className = "owner-tariff-field owner-tariff-field--title";
+        titleAzField.innerHTML = "<span>" + labels.titleAz + "</span>";
+        const titleAzInput = document.createElement("input");
+        titleAzInput.type = "text";
+        titleAzInput.placeholder = "Aylıq abunə (12 dərs)";
+        titleAzInput.value = plan.title_az || "";
+        titleAzInput.addEventListener("input", () => {
+          plan.title_az = titleAzInput.value;
+          sync();
+          headTitle.textContent = tariffSummary(plan, index).title;
+        });
+        titleAzField.appendChild(titleAzInput);
+        inputsRow.appendChild(titleAzField);
 
-      const actions = document.createElement("div");
-      actions.className = "owner-tariff-actions";
-      [[icons.up, labels.up, -1], [icons.down, labels.down, 1]].forEach((item) => {
-        const button = document.createElement("button");
-        button.type = "button"; 
-        button.className = "owner-tariff-move"; 
-        button.title = item[1]; 
-        button.innerHTML = item[0];
-        button.disabled = index + item[2] < 0 || index + item[2] >= plans.length;
-        button.addEventListener("click", () => { const target = index + item[2]; [plans[index], plans[target]] = [plans[target], plans[index]]; render(); sync(); });
-        actions.appendChild(button);
-      });
-      
-      const remove = document.createElement("button");
-      remove.type = "button"; 
-      remove.className = "owner-tariff-remove"; 
-      remove.title = labels.remove; 
-      remove.innerHTML = icons.trash;
-      remove.addEventListener("click", () => { plans.splice(index, 1); render(); sync(); });
-      actions.appendChild(remove);
-      
-      footer.appendChild(actions);
-      row.appendChild(footer);
+        body.appendChild(inputsRow);
+
+        // Short description / conditions (AZ) row
+        const condRow = document.createElement("div");
+        condRow.className = "owner-tariff-desc-row";
+        const condAzField = document.createElement("label");
+        condAzField.className = "owner-tariff-field";
+        condAzField.innerHTML = "<span>" + labels.conditionsAz + "</span>";
+        const condAzInput = document.createElement("input");
+        condAzInput.type = "text";
+        condAzInput.placeholder = "məsələn, Həftədə 3 dəfə, 45 dəqiqə, inventar daxildir";
+        condAzInput.value = plan.conditions_az || "";
+        condAzInput.addEventListener("input", () => {
+          plan.conditions_az = condAzInput.value;
+          sync();
+        });
+        condAzField.appendChild(condAzInput);
+        condRow.appendChild(condAzField);
+        body.appendChild(condRow);
+
+        // Translations block (RU & EN)
+        const transDetails = document.createElement("details");
+        transDetails.className = "owner-tariff-translations";
+        const hasTransData = plan.title_ru || plan.conditions_ru || plan.title_en || plan.conditions_en;
+        transDetails.open = plan._trans_open === true || !!hasTransData;
+        transDetails.innerHTML = `
+          <summary>
+            <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-language"></use></svg>
+            <span>${labels.translationsTitle}</span>
+          </summary>
+        `;
+        transDetails.addEventListener("toggle", () => {
+          plan._trans_open = transDetails.open;
+        });
+
+        const transGrid = document.createElement("div");
+        transGrid.className = "owner-tariff-trans-grid";
+
+        // Title RU
+        const titleRuField = document.createElement("label");
+        titleRuField.className = "owner-tariff-field";
+        titleRuField.innerHTML = "<span>" + labels.titleRu + "</span>";
+        const titleRuInput = document.createElement("input");
+        titleRuInput.type = "text";
+        titleRuInput.placeholder = "Абонемент на месяц (12 занятий)";
+        titleRuInput.value = plan.title_ru || "";
+        titleRuInput.addEventListener("input", () => { plan.title_ru = titleRuInput.value; sync(); headTitle.textContent = tariffSummary(plan, index).title; });
+        titleRuField.appendChild(titleRuInput);
+        transGrid.appendChild(titleRuField);
+
+        // Conditions RU
+        const condRuField = document.createElement("label");
+        condRuField.className = "owner-tariff-field";
+        condRuField.innerHTML = "<span>" + labels.conditionsRu + "</span>";
+        const condRuInput = document.createElement("input");
+        condRuInput.type = "text";
+        condRuInput.placeholder = "например, 3 раза в неделю по 45 мин";
+        condRuInput.value = plan.conditions_ru || "";
+        condRuInput.addEventListener("input", () => { plan.conditions_ru = condRuInput.value; sync(); });
+        condRuField.appendChild(condRuInput);
+        transGrid.appendChild(condRuField);
+
+        // Title EN
+        const titleEnField = document.createElement("label");
+        titleEnField.className = "owner-tariff-field";
+        titleEnField.innerHTML = "<span>" + labels.titleEn + "</span>";
+        const titleEnInput = document.createElement("input");
+        titleEnInput.type = "text";
+        titleEnInput.placeholder = "Monthly subscription (12 sessions)";
+        titleEnInput.value = plan.title_en || "";
+        titleEnInput.addEventListener("input", () => { plan.title_en = titleEnInput.value; sync(); headTitle.textContent = tariffSummary(plan, index).title; });
+        titleEnField.appendChild(titleEnInput);
+        transGrid.appendChild(titleEnField);
+
+        // Conditions EN
+        const condEnField = document.createElement("label");
+        condEnField.className = "owner-tariff-field";
+        condEnField.innerHTML = "<span>" + labels.conditionsEn + "</span>";
+        const condEnInput = document.createElement("input");
+        condEnInput.type = "text";
+        condEnInput.placeholder = "e.g., 3 times a week, 45 minutes";
+        condEnInput.value = plan.conditions_en || "";
+        condEnInput.addEventListener("input", () => { plan.conditions_en = condEnInput.value; sync(); });
+        condEnField.appendChild(condEnInput);
+        transGrid.appendChild(condEnField);
+
+        transDetails.appendChild(transGrid);
+        body.appendChild(transDetails);
+
+        // Advanced accordion
+        const advanced = document.createElement("details");
+        advanced.className = "owner-tariff-advanced";
+        advanced.open = plan._advanced_open === true;
+        advanced.innerHTML = `
+          <summary>
+            <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-tune"></use></svg>
+            <span>${labels.advanced}</span>
+            <small>${labels.advancedHint}</small>
+          </summary>
+        `;
+        advanced.addEventListener("toggle", () => {
+          plan._advanced_open = advanced.open;
+        });
+
+        const advGrid = document.createElement("div");
+        advGrid.className = "owner-tariff-advanced-grid";
+
+        // Price kind
+        const priceKindField = document.createElement("label");
+        priceKindField.className = "owner-tariff-field";
+        priceKindField.innerHTML = "<span>" + labels.priceKind + "</span>";
+        const priceKindSelect = document.createElement("select");
+        priceKindSelect.innerHTML = `
+          <option value="exact">${labels.exact}</option>
+          <option value="free">${labels.free}</option>
+          <option value="from">${labels.from}</option>
+          <option value="range">${labels.range}</option>
+          <option value="on_request">${labels.onRequest}</option>
+        `;
+        priceKindSelect.value = plan.price_kind || "exact";
+        priceKindSelect.addEventListener("change", () => {
+          plan.price_kind = priceKindSelect.value;
+          normalizeKind(plan);
+          sync();
+          render();
+        });
+        priceKindField.appendChild(priceKindSelect);
+        advGrid.appendChild(priceKindField);
+
+        // Price min / max if range
+        if (plan.price_kind === "range" || plan.price_kind === "from") {
+          const priceMinField = document.createElement("label");
+          priceMinField.className = "owner-tariff-field";
+          priceMinField.innerHTML = "<span>" + labels.priceMin + "</span>";
+          const priceMinInput = document.createElement("input");
+          priceMinInput.type = "number";
+          priceMinInput.min = "0";
+          priceMinInput.value = plan.price_min || "";
+          priceMinInput.addEventListener("input", () => { plan.price_min = priceMinInput.value; sync(); });
+          priceMinField.appendChild(priceMinInput);
+          advGrid.appendChild(priceMinField);
+        }
+        if (plan.price_kind === "range") {
+          const priceMaxField = document.createElement("label");
+          priceMaxField.className = "owner-tariff-field";
+          priceMaxField.innerHTML = "<span>" + labels.priceMax + "</span>";
+          const priceMaxInput = document.createElement("input");
+          priceMaxInput.type = "number";
+          priceMaxInput.min = "0";
+          priceMaxInput.value = plan.price_max || "";
+          priceMaxInput.addEventListener("input", () => { plan.price_max = priceMaxInput.value; sync(); });
+          priceMaxField.appendChild(priceMaxInput);
+          advGrid.appendChild(priceMaxField);
+        }
+
+        // Age limits
+        const ageFromField = document.createElement("label");
+        ageFromField.className = "owner-tariff-field";
+        ageFromField.innerHTML = "<span>" + labels.ageFrom + "</span>";
+        const ageFromInput = document.createElement("input");
+        ageFromInput.type = "number";
+        ageFromInput.min = "0";
+        ageFromInput.value = plan.age_from || "";
+        ageFromInput.addEventListener("input", () => { plan.age_from = ageFromInput.value; sync(); });
+        ageFromField.appendChild(ageFromInput);
+        advGrid.appendChild(ageFromField);
+
+        const ageToField = document.createElement("label");
+        ageToField.className = "owner-tariff-field";
+        ageToField.innerHTML = "<span>" + labels.ageTo + "</span>";
+        const ageToInput = document.createElement("input");
+        ageToInput.type = "number";
+        ageToInput.min = "0";
+        ageToInput.value = plan.age_to || "";
+        ageToInput.addEventListener("input", () => { plan.age_to = ageToInput.value; sync(); });
+        ageToField.appendChild(ageToInput);
+        advGrid.appendChild(ageToField);
+
+        // Source URL
+        const srcField = document.createElement("label");
+        srcField.className = "owner-tariff-field";
+        srcField.innerHTML = "<span>" + labels.sourceUrl + "</span>";
+        const srcInput = document.createElement("input");
+        srcInput.type = "url";
+        srcInput.placeholder = "https://...";
+        srcInput.value = plan.source_url || "";
+        srcInput.addEventListener("input", () => { plan.source_url = srcInput.value; sync(); });
+        srcField.appendChild(srcInput);
+        advGrid.appendChild(srcField);
+
+        advanced.appendChild(advGrid);
+        body.appendChild(advanced);
+
+        // Footer
+        const footer = document.createElement("div");
+        footer.className = "owner-tariff-footer";
+
+        const activeLabel = document.createElement("label");
+        activeLabel.className = "owner-tariff-active";
+        const activeCheck = document.createElement("input");
+        activeCheck.type = "checkbox";
+        activeCheck.checked = plan.is_active !== false;
+        activeCheck.addEventListener("change", () => {
+          plan.is_active = activeCheck.checked;
+          sync();
+        });
+        activeLabel.append(activeCheck, document.createTextNode(" " + labels.active));
+        footer.appendChild(activeLabel);
+
+        const footActions = document.createElement("div");
+        footActions.className = "owner-tariff-foot-actions";
+
+        // Show Move Up/Down buttons only if there are multiple plans
+        if (plans.length > 1) {
+          const upBtn = document.createElement("button");
+          upBtn.type = "button";
+          upBtn.className = "owner-tariff-foot-btn";
+          upBtn.title = labels.moveUp;
+          upBtn.disabled = index === 0;
+          upBtn.appendChild(makeSvgIcon("arrow_upward"));
+          upBtn.addEventListener("click", () => {
+            if (index > 0) {
+              const tmp = plans[index];
+              plans[index] = plans[index - 1];
+              plans[index - 1] = tmp;
+              sync();
+              render();
+            }
+          });
+          footActions.appendChild(upBtn);
+
+          const downBtn = document.createElement("button");
+          downBtn.type = "button";
+          downBtn.className = "owner-tariff-foot-btn";
+          downBtn.title = labels.moveDown;
+          downBtn.disabled = index === plans.length - 1;
+          downBtn.appendChild(makeSvgIcon("arrow_downward"));
+          downBtn.addEventListener("click", () => {
+            if (index < plans.length - 1) {
+              const tmp = plans[index];
+              plans[index] = plans[index + 1];
+              plans[index + 1] = tmp;
+              sync();
+              render();
+            }
+          });
+          footActions.appendChild(downBtn);
+        }
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "owner-tariff-foot-btn owner-tariff-foot-btn--delete";
+        delBtn.title = labels.delete;
+        delBtn.appendChild(makeSvgIcon("delete"));
+        delBtn.appendChild(document.createTextNode(" " + labels.delete));
+        delBtn.addEventListener("click", () => {
+          confirmDeletePlan(index);
+        });
+        footActions.appendChild(delBtn);
+
+        footer.appendChild(footActions);
+        body.appendChild(footer);
+
+        row.appendChild(body);
+      }
+
       list.appendChild(row);
     });
-    sync();
+
+    updateComputedPrice();
   }
 
   add.addEventListener("click", () => {
     if (plans.length < MAX_PRICING_PLANS) {
+      plans.forEach((p) => { p._is_open = false; });
       plans.push({
-        editor_kind: "",
+        editor_kind: "membership",
+        lesson_format: "group",
         title_az: "",
         title_ru: "",
         title_en: "",
-        lesson_format: "",
-        billing_mode: "one_time",
+        conditions_az: "",
+        conditions_ru: "",
+        conditions_en: "",
+        billing_mode: "recurring",
         price_kind: "exact",
         price: "",
         currency: "AZN",
-        is_active: true
+        is_active: true,
+        _is_open: true,
       });
+      sync();
       render();
-      const firstField = list.lastElementChild && list.lastElementChild.querySelector("[data-tariff-key]");
-      if (firstField) firstField.focus();
+      const last = list.lastElementChild;
+      if (last) {
+        last.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        const firstIn = last.querySelector("input");
+        if (firstIn) firstIn.focus();
+      }
     }
   });
 
-  // JSON import and other form helpers update the hidden field after this
-  // editor has already loaded. Rehydrate the editor instead of letting its
-  // stale in-memory copy overwrite the imported tariffs on the next action.
   const presetButtons = editor.querySelectorAll("[data-badge-preset-az], [data-badge-preset]");
   presetButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const azInput = document.getElementById("id_custom_price_badge_az");
-      const ruInput = document.getElementById("id_custom_price_badge_ru");
-      const enInput = document.getElementById("id_custom_price_badge_en");
-      if (azInput) azInput.value = button.dataset.badgePresetAz || "";
-      if (ruInput) ruInput.value = button.dataset.badgePresetRu || "";
-      if (enInput) enInput.value = button.dataset.badgePresetEn || "";
+      setBadgeInputs(
+        button.dataset.badgePresetAz || "",
+        button.dataset.badgePresetRu || "",
+        button.dataset.badgePresetEn || ""
+      );
+      applyPricePolicy(detectPricePolicy(), false);
     });
   });
 
@@ -547,5 +1305,7 @@
     plans = parsePlans(input.value);
     render();
   });
+
+  applyPricePolicy(currentPolicy, false);
   render();
 })();

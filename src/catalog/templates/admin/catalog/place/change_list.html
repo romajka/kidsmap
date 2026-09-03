@@ -8,13 +8,13 @@
 {% block admin_topbar_context %}
   <li class="nav-item km-place-topbar-crumbs" aria-label="{% translate 'Навигация' %}">
     <a href="{% url 'admin:app_list' app_label='catalog' %}" class="km-place-topbar-crumbs__link">{% translate 'Каталог' %}</a>
-    <span class="ms km-place-topbar-crumbs__separator" aria-hidden="true">chevron_right</span>
+    <svg class="km-i km-place-topbar-crumbs__separator" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_right"></use></svg>
     <span class="km-place-topbar-crumbs__current">{% translate 'Постоянные места' %}</span>
   </li>
 {% endblock %}
 
-{% block admin_topbar_menu_icon %}<span class="ms">menu</span>{% endblock %}
-{% block admin_topbar_account_icon %}<span class="ms" aria-hidden="true">account_circle</span>{% endblock %}
+{% block admin_topbar_menu_icon %}<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-menu"></use></svg>{% endblock %}
+{% block admin_topbar_account_icon %}<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-account_circle"></use></svg>{% endblock %}
 
 {% block extrahead %}
   {{ block.super }}
@@ -62,14 +62,14 @@
           {% else %}
             {% if km_place_quality_report_url %}
               <a href="{{ km_place_quality_report_url }}" class="km-btn-quality-report">
-                <span class="ms">assessment</span>
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-assessment"></use></svg>
                 <span>{% translate "Отчёт качества" %}</span>
               </a>
             {% endif %}
             {% if has_add_permission %}
               {% url cl.opts|admin_urlname:'add' as add_url %}
               <a href="{% add_preserved_filters add_url %}" class="km-btn-add-place">
-                <span class="ms">add</span>
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>
                 <span>{% translate "Добавить место" %}</span>
               </a>
             {% endif %}
@@ -80,7 +80,7 @@
       {% if home_recommendation_editor %}
         <details class="km-home-recs-accordion">
           <summary class="km-home-recs-accordion__summary">
-            <span class="ms km-accordion-arrow">expand_more</span>
+            <svg class="km-i km-accordion-arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
             <span class="km-accordion-title">{% translate "Рекомендуемые места на главной" %}</span>
             <span class="km-accordion-meta">4 из 4 слотов · {% translate "порядок сохраняется автоматически" %}</span>
             <span class="km-accordion-btn">{% translate "Настроить" %}</span>
@@ -106,7 +106,7 @@
       {% result_list cl %}
       {% if cl.result_count == 0 %}
         <div class="km-empty-state">
-          <span class="ms km-empty-state__icon">search_off</span>
+          <svg class="km-i km-empty-state__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search_off"></use></svg>
           <h3 class="km-empty-state__title">{% translate "Ничего не найдено" %}</h3>
           <p class="km-empty-state__desc">
             {% if cl.query %}
@@ -133,11 +133,11 @@
           <div class="km-redesign-pagination__controls">
             {% if cl.page_num > 1 %}
               <a href="{% paginator_page_url cl cl.page_num|add:'-1' %}" class="km-redesign-pagination__btn" title="{% translate 'Предыдущая страница' %}" aria-label="{% translate 'Предыдущая страница' %}">
-                <span class="ms">chevron_left</span>
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_left"></use></svg>
               </a>
             {% else %}
               <span class="km-redesign-pagination__btn is-disabled" aria-disabled="true">
-                <span class="ms">chevron_left</span>
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_left"></use></svg>
               </span>
             {% endif %}
 
@@ -145,11 +145,11 @@
 
             {% if cl.page_num < cl.paginator.num_pages %}
               <a href="{% paginator_page_url cl cl.page_num|add:'1' %}" class="km-redesign-pagination__btn" title="{% translate 'Следующая страница' %}" aria-label="{% translate 'Следующая страница' %}">
-                <span class="ms">chevron_right</span>
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_right"></use></svg>
               </a>
             {% else %}
               <span class="km-redesign-pagination__btn is-disabled" aria-disabled="true">
-                <span class="ms">chevron_right</span>
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_right"></use></svg>
               </span>
             {% endif %}
           </div>
@@ -170,44 +170,44 @@
         </button>
         <span class="km-bulk-floating-bar__divider"></span>
         <button type="button" class="km-bulk-btn km-bulk-btn--primary" data-bulk-submit="mark_published">
-          <span class="ms">campaign</span>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-campaign"></use></svg>
           <span>{% translate "Опубликовать" %}</span>
         </button>
         <button type="button" class="km-bulk-btn km-bulk-btn--outline" data-bulk-submit="refresh_coordinates">
-          <span class="ms">my_location</span>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-my_location"></use></svg>
           <span>{% translate "Обновить координаты" %}</span>
         </button>
         <details class="km-bulk-more-actions">
           <summary class="km-bulk-btn km-bulk-btn--outline">
             <span>{% translate "Ещё действия" %}</span>
-            <span class="ms">expand_less</span>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_less"></use></svg>
           </summary>
           <div class="km-bulk-more-dropdown">
             <button type="button" class="km-bulk-dropdown-item" data-bulk-submit="mark_inactive">
-              <span class="ms">visibility_off</span>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-visibility_off"></use></svg>
               <span>{% translate "Снять с публикации" %}</span>
             </button>
             <button type="button" class="km-bulk-dropdown-item" data-bulk-submit="mark_draft">
-              <span class="ms">history_edu</span>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-history_edu"></use></svg>
               <span>{% translate "Вернуть в черновик" %}</span>
             </button>
             <button type="button" class="km-bulk-dropdown-item" data-bulk-submit="mark_pending">
-              <span class="ms">hourglass_empty</span>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-hourglass_empty"></use></svg>
               <span>{% translate "Отправить на модерацию" %}</span>
             </button>
             <button type="button" class="km-bulk-dropdown-item" data-bulk-submit="add_to_home_recommendations">
-              <span class="ms">home</span>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-home"></use></svg>
               <span>{% translate "На главную" %}</span>
             </button>
             <div class="km-bulk-dropdown-divider"></div>
             <button type="button" class="km-bulk-dropdown-item km-bulk-dropdown-item--danger" data-bulk-submit="move_selected_to_deleted">
-              <span class="ms">delete</span>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>
               <span>{% translate "В удалённые" %}</span>
             </button>
           </div>
         </details>
         <button type="button" class="km-bulk-floating-bar__clear" data-bulk-action="clear-all">
-          <span class="ms">close</span>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
           <span>{% translate "Снять выбор" %}</span>
         </button>
       </div>
@@ -217,42 +217,19 @@
     <div class="km-readiness-popover" id="km-readiness-popover" hidden>
       <div class="km-readiness-popover__head">
         <span class="km-readiness-popover__title" id="km-pop-score-label">{% translate "Готовность" %} 0%</span>
-        <span class="km-readiness-popover__count" id="km-pop-items-count">0 из 5</span>
+        <span class="km-readiness-popover__count" id="km-pop-items-count">0 / 12</span>
       </div>
       <div class="km-readiness-popover__bar-wrap">
         <span class="km-readiness-popover__bar" id="km-pop-bar" style="width: 0%"></span>
       </div>
       <div class="km-readiness-popover__list" id="km-pop-list">
-        <a href="#" class="km-readiness-popover__item" data-item="cat" title="{% translate 'Перейти к названию и категории' %}">
-          <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span class="km-pop-text">{% translate "Название и категория" %}</span>
-          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
-        </a>
-        <a href="#" class="km-readiness-popover__item" data-item="desc" title="{% translate 'Перейти к описанию' %}">
-          <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span class="km-pop-text">{% translate "Описание (от 120 симв.)" %}</span>
-          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
-        </a>
-        <a href="#" class="km-readiness-popover__item" data-item="price" title="{% translate 'Перейти к ценам и тарифам' %}">
-          <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span class="km-pop-text">{% translate "Цена или тариф" %}</span>
-          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
-        </a>
-        <a href="#" class="km-readiness-popover__item" data-item="coords" title="{% translate 'Перейти к адресу и координатам' %}">
-          <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span class="km-pop-text">{% translate "Адрес и точка на карте" %}</span>
-          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
-        </a>
-        <a href="#" class="km-readiness-popover__item" data-item="photos" title="{% translate 'Перейти к фотографиям' %}">
-          <span class="ms km-pop-icon">radio_button_unchecked</span>
-          <span class="km-pop-text">{% translate "Главное фото" %}</span>
-          <span class="ms km-readiness-popover__item-arrow">arrow_forward</span>
-        </a>
+        {# Filled from the row's data-readiness payload: the same twelve items
+           catalog.services.place_readiness gives the edit form. #}
       </div>
       <div class="km-readiness-popover__footer">
         <a href="#" class="km-readiness-popover__link" id="km-pop-edit-link">
           <span>{% translate "Редактировать карточку" %}</span>
-          <span class="ms">arrow_forward</span>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-arrow_forward"></use></svg>
         </a>
       </div>
     </div>
@@ -260,34 +237,35 @@
     <!-- Меню действий строки ⋯ (1e) -->
     <div class="km-row-actions-dropdown" id="km-row-actions-dropdown" hidden>
       <button type="button" class="km-row-actions-item" data-row-action="toggle_pub" id="km-row-act-pub">
-        <span class="ms" id="km-row-act-pub-icon">visibility_off</span>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false" id="km-row-act-pub-icon"><use href="#kmi-visibility_off"></use></svg>
         <span id="km-row-act-pub-label">{% translate "Снять с публикации" %}</span>
       </button>
       <a href="#" class="km-row-actions-item" id="km-row-act-view-link" target="_blank" rel="noopener noreferrer">
-        <span class="ms">open_in_new</span>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-open_in_new"></use></svg>
         <span>{% translate "Посмотреть на сайте" %}</span>
       </a>
       <button type="button" class="km-row-actions-item" data-row-action="restore" id="km-row-act-restore" hidden>
-        <span class="ms">restore_from_trash</span>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-restore_from_trash"></use></svg>
         <span>{% translate "Восстановить" %}</span>
       </button>
       <div class="km-row-actions-divider" id="km-row-act-divider"></div>
       <button type="button" class="km-row-actions-item km-row-actions-item--danger" data-row-action="soft_delete" id="km-row-act-delete">
-        <span class="ms">delete</span>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>
         <span>{% translate "Удалить" %}</span>
       </button>
     </div>
 
     <!-- Тост оповещения с кнопкой «Отменить» (2d) -->
     <div class="km-toast" id="km-toast" hidden>
-      <span class="ms km-toast__icon">check_circle</span>
+      <svg class="km-i km-toast__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>
       <span class="km-toast__text" id="km-toast-text">{% translate "Готово" %}</span>
       <button type="button" class="km-toast__undo" id="km-toast-undo">{% translate "Отменить" %}</button>
     </div>
     <div id="km-changelist-i18n" hidden
       data-selected-label="{% translate 'Выбрано' %}"
       data-readiness-label="{% translate 'Готовность' %}"
-      data-items-label="{% translate 'из 5 пунктов' %}"
+      data-items-label="{% translate 'пунктов' %}"
+      data-all-done-label="{% translate 'Все обязательные пункты заполнены' %}"
       data-published-label="{% translate 'Опубликовано' %}"
       data-draft-label="{% translate 'Черновик' %}"
       data-publish-error="{% translate 'Нельзя опубликовать: заполните обязательные данные.' %}"

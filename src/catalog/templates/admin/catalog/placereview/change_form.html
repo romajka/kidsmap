@@ -3,8 +3,8 @@
 
 {% block extrahead %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}">
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}" defer></script>
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}">
+  <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}" defer></script>
 {% endblock %}
 
 {% block submit_buttons_top %}{% endblock %}
@@ -113,7 +113,7 @@
                     </span>
                   </div>
                 </div>
-                
+
                 {% if km_review_form_summary.flags %}
                 <div class="km-place-sidebar-flags" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
                   <strong class="km-admin-title" style="margin-bottom: 8px; display: block;">{% translate "Сигналы" %}</strong>

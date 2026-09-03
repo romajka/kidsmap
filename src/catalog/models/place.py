@@ -26,11 +26,13 @@ def _localized_free_label(lang: str | None = None) -> str:
 
 class Place(models.Model):
     SCHEDULE_MODE_REGULAR = "regular"
+    SCHEDULE_MODE_ALWAYS_OPEN = "always_open"
     SCHEDULE_MODE_BY_APPOINTMENT = "by_appointment"
     SCHEDULE_MODE_VARIABLE = "variable"
     SCHEDULE_MODE_EVENTS = "events"
     SCHEDULE_MODE_CHOICES = [
         (SCHEDULE_MODE_REGULAR, _("Регулярное по дням недели")),
+        (SCHEDULE_MODE_ALWAYS_OPEN, _("Круглосуточно / 24/7")),
         (SCHEDULE_MODE_BY_APPOINTMENT, _("По предварительной записи")),
         (SCHEDULE_MODE_VARIABLE, _("Расписание меняется")),
         (SCHEDULE_MODE_EVENTS, _("По мероприятиям")),

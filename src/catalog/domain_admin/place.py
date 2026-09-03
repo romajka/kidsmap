@@ -124,9 +124,18 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
     # These controls are rendered inside pricing_editor.html rather than by a
     # regular admin fieldset. Declare them explicitly so ModelAdmin.get_form()
     # does not drop them when it restricts the form to fieldset fields.
-    custom_price_badge_az = forms.CharField(required=False, max_length=120)
-    custom_price_badge_ru = forms.CharField(required=False, max_length=120)
-    custom_price_badge_en = forms.CharField(required=False, max_length=120)
+    custom_price_badge_az = forms.CharField(
+        label=_("Текст плашки (AZ)"), required=False, max_length=120,
+        widget=forms.TextInput(attrs={"placeholder": "Pulsuz · 120 ₼-dən"}),
+    )
+    custom_price_badge_ru = forms.CharField(
+        label=_("Текст плашки (RU)"), required=False, max_length=120,
+        widget=forms.TextInput(attrs={"placeholder": "Бесплатно · от 120 ₼"}),
+    )
+    custom_price_badge_en = forms.CharField(
+        label=_("Текст плашки (EN)"), required=False, max_length=120,
+        widget=forms.TextInput(attrs={"placeholder": "Free · from 120 ₼"}),
+    )
     pricing_plans = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={"data-tariff-input": ""}),
@@ -1221,11 +1230,11 @@ class EventAdmin(admin.ModelAdmin):
         from django.urls import reverse
         edit_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk])
         primary_action = render_primary_action(edit_url, _("Редактировать"))
-        
+
         menu_actions = []
         if obj.is_public:
             menu_actions.append((obj.get_absolute_url(), _("Открыть"), ""))
-            
+
         menu_html = render_action_menu(menu_actions)
         return render_row_actions_container(primary_action, menu_html)
 
@@ -1655,36 +1664,70 @@ class PlaceAdmin(admin.ModelAdmin):
     list_per_page = 15
     save_on_top = True
 
+    # The change form renders its fields by hand (see the templates under
+    # ``admin/catalog/place/form/``), so a section only carries its identity and
+    # its icon. Field placement lives in the templates, completion lives in
+    # ``catalog.services.place_readiness`` — never here.
     PLACE_FORM_PRIMARY_SECTIONS = (
         {
             "id": "basics",
             "step": "01",
             "title": _("Основное"),
-            "description": _("Сначала название и описание карточки, затем категория и подкатегория."),
-            "fieldset_indexes": (1, 0),
+            "description": _("Название, описание и рубрика карточки."),
+            "icon": "tune",
         },
         {
             "id": "pricing",
             "step": "02",
             "title": _("Цена и возраст"),
-            "description": _("Возрастные рамки, стоимость и длительность занятий."),
-            "fieldset_indexes": (2,),
+            "description": _("Возрастные рамки, тарифы и длительность занятий."),
+            "icon": "payments",
         },
         {
             "id": "location",
             "step": "03",
             "title": _("Локация"),
-            "description": _("Район, метро, адрес, координаты и контакты для связи."),
-            "fieldset_indexes": (3, 4),
+            "description": _("Адрес, точка на карте, контакты и расписание."),
+            "icon": "location_on",
         },
         {
             "id": "media",
             "step": "04",
             "title": _("Фото"),
-            "description": _("Добавьте главное изображение и дополнительные фотографии места."),
-            "fieldset_indexes": (5,),
+            "description": _("Главное изображение и галерея места."),
+            "icon": "imagesmode",
         },
     )
+
+    PLACE_FORM_VERIFICATION_SECTION = {
+        "id": "verification",
+        "step": "05",
+        "title": _("Проверка"),
+        "description": _("Итоговый вид карточки перед публикацией."),
+        "icon": "fact_check",
+    }
+
+    # Every field the redesigned template renders itself. Anything on the form
+    # that is neither here nor inside a secondary fieldset is emitted as a
+    # hidden carry-over input, so a field can never be silently blanked by a
+    # save just because the template forgot it.
+    PLACE_FORM_RENDERED_FIELDS = frozenset({
+        "name", "name_az", "name_ru", "name_en",
+        "description_az", "description_ru", "description_en",
+        "category", "subcategory",
+        "age_from", "age_to", "age_open_ended", "offers_adult_classes",
+        "lesson_duration_minutes", "pricing_plans",
+        "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
+        "region", "district", "metro", "address", "lat", "lng",
+        "phone1", "phone2", "phone3", "instagram", "website",
+        "schedule", "schedule_mode", "structured_schedule",
+        "schedule_note_az", "schedule_note_ru", "schedule_note_en",
+        "extra_conditions", "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
+        "additional_info", "additional_info_az", "additional_info_ru", "additional_info_en",
+        "photo",
+        "is_active", "is_verified", "is_home_recommended", "home_recommended_order",
+        "status", "rejection_reason", "owner",
+    })
 
     PLACE_FORM_SECONDARY_SECTIONS = (
         {
@@ -1728,7 +1771,7 @@ class PlaceAdmin(admin.ModelAdmin):
             _("Локация"),
             {
                 "fields": (
-                    ("district", "metro"),
+                    ("region", "district", "metro"),
                     "address",
                     ("lat", "lng"),
                     ("coordinates_status_display", "map_ready_status_display"),
@@ -1812,8 +1855,16 @@ class PlaceAdmin(admin.ModelAdmin):
                 None,
             )
             context["km_place_form_sections"] = self._build_place_form_sections(adminform)
+            context["km_place_verification_section"] = dict(self.PLACE_FORM_VERIFICATION_SECTION)
             context["km_place_secondary_sections"] = self._build_place_secondary_sections(adminform)
             context["km_place_inline_sections"] = self._build_place_inline_sections(inline_admin_formsets)
+            context["km_place_carryover_fields"] = self._build_place_carryover_fields(
+                adminform,
+                context["km_place_secondary_sections"],
+            )
+            context["km_place_required_fields"] = {
+                requirement.field for requirement in PLACE_READINESS_REQUIREMENTS
+            }
             context["km_place_form_summary"] = self._build_place_form_summary(
                 form=adminform.form,
                 obj=obj,
@@ -1822,6 +1873,23 @@ class PlaceAdmin(admin.ModelAdmin):
             context["km_place_form_errors"] = self._build_place_form_errors(
                 adminform.form,
                 inline_admin_formsets=inline_admin_formsets,
+            )
+            section_states = self._build_place_section_states(
+                context["km_place_form_summary"],
+                context["km_place_form_errors"],
+            )
+            context["km_place_form_summary"]["sections"] = section_states
+            for section in context["km_place_form_sections"]:
+                section["state"] = section_states.get(section["id"], {})
+            context["km_place_verification_section"]["state"] = section_states.get(
+                self.PLACE_FORM_VERIFICATION_SECTION["id"], {}
+            )
+            context["km_place_language_tabs"] = self._build_place_language_tabs(adminform.form)
+            context["km_place_condition_tabs"] = self._build_place_text_tabs(
+                adminform.form, "extra_conditions"
+            )
+            context["km_place_info_tabs"] = self._build_place_text_tabs(
+                adminform.form, "additional_info"
             )
             context["km_place_error_preservation_note"] = bool(context["km_place_form_errors"])
             context["km_place_file_reselect_note"] = bool(request.FILES and context["km_place_form_errors"])
@@ -1875,9 +1943,13 @@ class PlaceAdmin(admin.ModelAdmin):
             "metro": "#location",
             "address": "#location",
             "phone1": "#location",
-            "structured_schedule": "#admin-place-schedule",
             "photo": "#media",
         })
+        # Where a click should land, when that is not the field's own input.
+        target_by_field = {
+            "pricing_plans": "#pricing",
+            "structured_schedule": "#admin-place-schedule",
+        }
         errors = []
 
         for weekday, messages_for_day in getattr(form, "schedule_editor_errors", {}).items():
@@ -1887,7 +1959,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     "label": str(_("Расписание: %(day)s") % {"day": day_label}),
                     "message": str(message),
                     "target": f"#admin-place-schedule-row-{weekday}",
-                    "section": "#pricing",
+                    "section": "#location",
                 })
 
         for field_name, messages_for_field in form.errors.items():
@@ -1902,9 +1974,9 @@ class PlaceAdmin(admin.ModelAdmin):
                 field = form.fields.get(field_name)
                 label = str(field.label) if field is not None else field_name
                 section = section_by_field.get(field_name, "")
-                target = f"#id_{field_name}" if field_name in form.fields else (section or "#verification")
-                if field_name in {"pricing_plans", "structured_schedule"}:
-                    target = section or target
+                target = target_by_field.get(field_name)
+                if not target:
+                    target = f"#id_{field_name}" if field_name in form.fields else (section or "#verification")
             for message in messages_for_field:
                 errors.append({"label": label, "message": str(message), "target": target, "section": section})
 
@@ -1961,6 +2033,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     "code": subcategory.code or "",
                     "category": subcategory.category_id,
                     "label": str(subcategory.name_i18n()),
+                    "icon": subcategory.icon_file_url,
                 }
             )
 
@@ -1970,26 +2043,25 @@ class PlaceAdmin(admin.ModelAdmin):
         }
 
     def _build_place_form_sections(self, adminform):
-        fieldsets = self._fieldset_list(adminform)
-        sections = []
-        for section in self.PLACE_FORM_PRIMARY_SECTIONS:
-            section_fieldsets = [
-                fieldsets[index]
-                for index in section["fieldset_indexes"]
-                if index < len(fieldsets)
-            ]
-            if not section_fieldsets:
-                continue
-            sections.append(
-                {
-                    "id": section["id"],
-                    "step": section["step"],
-                    "title": section["title"],
-                    "description": section["description"],
-                    "fieldsets": section_fieldsets,
-                }
-            )
-        return sections
+        return [dict(section) for section in self.PLACE_FORM_PRIMARY_SECTIONS]
+
+    def _build_place_carryover_fields(self, adminform, secondary_sections):
+        """Bound fields the redesigned template does not render anywhere.
+
+        They are written into the form as hidden inputs so a save keeps their
+        stored value instead of clearing it.
+        """
+
+        form = adminform.form
+        rendered = set(self.PLACE_FORM_RENDERED_FIELDS)
+        for section in secondary_sections:
+            for fieldset in section["fieldsets"]:
+                for line in fieldset:
+                    for admin_field in line:
+                        name = getattr(getattr(admin_field, "field", None), "name", None)
+                        if name:
+                            rendered.add(name)
+        return [form[name] for name in form.fields if name not in rendered]
 
     def _build_place_secondary_sections(self, adminform):
         fieldsets = self._fieldset_list(adminform)
@@ -2206,6 +2278,108 @@ class PlaceAdmin(admin.ModelAdmin):
             ),
         }
 
+    PLACE_LANGUAGE_TABS = (
+        ("az", _("AZ · основной"), _("Название (AZ)"), _("Описание (AZ)"), False),
+        ("ru", _("RU"), _("Название (RU)"), _("Описание (RU)"), True),
+        ("en", _("EN"), _("Название (EN)"), _("Описание (EN)"), True),
+    )
+
+    def _build_place_language_tabs(self, form):
+        tabs = []
+        for code, label, name_label, description_label, optional in self.PLACE_LANGUAGE_TABS:
+            name_field = f"name_{code}"
+            description_field = f"description_{code}"
+            if name_field not in form.fields or description_field not in form.fields:
+                continue
+            tabs.append(
+                {
+                    "code": code,
+                    "label": label,
+                    "optional": optional,
+                    "name_label": name_label,
+                    "description_label": description_label,
+                    "name_field": form[name_field],
+                    "description_field": form[description_field],
+                }
+            )
+        return tabs
+
+    def _build_place_text_tabs(self, form, base_name):
+        """AZ/RU/EN variants of one text field, skipping the ones the form lacks."""
+
+        tabs = []
+        for code, label in (("az", "AZ"), ("ru", "RU"), ("en", "EN")):
+            field_name = f"{base_name}_{code}"
+            if field_name in form.fields:
+                tabs.append({"code": code, "label": label, "field": form[field_name]})
+        if not tabs and base_name in form.fields:
+            tabs.append({"code": "az", "label": "AZ", "field": form[base_name]})
+        return tabs
+
+    SECTION_STATE_ICONS = {
+        "done": "check_circle",
+        "partial": "radio_button_checked",
+        "error": "error",
+        "empty": "radio_button_unchecked",
+    }
+
+    def _build_place_section_states(self, summary, form_errors):
+        """Per-section status for the sticky navigation and the accordion badges.
+
+        Everything here is derived from the readiness checklist that already sits
+        in *summary* plus the form errors — the sections never count anything on
+        their own.
+        """
+
+        sections_with_errors = {
+            str(error.get("section") or "").lstrip("#")
+            for error in form_errors
+            if error.get("section")
+        }
+        counts: dict[str, dict] = {}
+        for item in summary["checklist_items"]:
+            bucket = counts.setdefault(item["section"], {"done": 0, "total": 0})
+            bucket["total"] += 1
+            if item["initial"]:
+                bucket["done"] += 1
+
+        states = {}
+        for section in list(self.PLACE_FORM_PRIMARY_SECTIONS) + [self.PLACE_FORM_VERIFICATION_SECTION]:
+            section_id = section["id"]
+            if section_id == self.PLACE_FORM_VERIFICATION_SECTION["id"]:
+                done, total = summary["completed"], summary["total"]
+            else:
+                bucket = counts.get(section_id, {"done": 0, "total": 0})
+                done, total = bucket["done"], bucket["total"]
+
+            if section_id in sections_with_errors:
+                state = "error"
+            elif total and done >= total:
+                state = "done"
+            elif done:
+                state = "partial"
+            else:
+                state = "empty"
+
+            if state == "error":
+                label = str(_("Есть ошибка"))
+            elif not total:
+                label = ""
+            elif done >= total:
+                label = str(_("%(done)s из %(total)s") % {"done": done, "total": total})
+            else:
+                label = str(_("%(done)s из %(total)s") % {"done": done, "total": total})
+
+            states[section_id] = {
+                "id": section_id,
+                "state": state,
+                "icon": self.SECTION_STATE_ICONS[state],
+                "done": done,
+                "total": total,
+                "label": label,
+            }
+        return states
+
     def _build_place_form_summary(self, *, form, obj=None, add=False):
         # Progress, the readiness badge and the "Проверка" list all read the
         # same twelve requirements as the publish gate.
@@ -2399,7 +2573,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        (_("Локация"), {"fields": (("district", "metro"), "address", ("lat", "lng"), ("coordinates_status_display", "map_ready_status_display"))}),
+        (_("Локация"), {"fields": (("region", "district", "metro"), "address", ("lat", "lng"), ("coordinates_status_display", "map_ready_status_display"))}),
         (
             _("Контакты"),
             {
@@ -2409,8 +2583,10 @@ class PlaceAdmin(admin.ModelAdmin):
                     "schedule",
                     "schedule_mode",
                     ("schedule_note_az", "schedule_note_ru", "schedule_note_en"),
-                    "extra_conditions",
-                    "additional_info",
+                    # The per-language fields are the ones the site renders; the
+                    # non-suffixed columns stay in the database as a fallback.
+                    ("extra_conditions_az", "extra_conditions_ru", "extra_conditions_en"),
+                    ("additional_info_az", "additional_info_ru", "additional_info_en"),
                 )
             },
         ),
@@ -2531,8 +2707,8 @@ class PlaceAdmin(admin.ModelAdmin):
 
         marks_inline = format_html(
             '<span class="km-place-marks-inline" aria-label="{}">'
-            '<span class="ms km-mark {}" title="{}">home</span>'
-            '<span class="ms km-mark {}" title="{}">{}</span>'
+            '<svg class="km-i km-mark {}" viewBox="0 0 960 960" aria-hidden="true"><title>{}</title><use href="#kmi-home"></use></svg>'
+            '<svg class="km-i km-mark {}" viewBox="0 0 960 960" aria-hidden="true"><title>{}</title><use href="#kmi-{}"></use></svg>'
             '</span>',
             _("Метки карточки"),
             "is-on" if obj.is_home_recommended else "is-off",
@@ -2592,27 +2768,39 @@ class PlaceAdmin(admin.ModelAdmin):
 
         state_key, state_icon, status_text, dot_class = self._state_visual(obj, score)
 
-        photos_count = getattr(obj, "photos_count", 0) or (1 if (obj.photo or obj.cover_photo or (obj.pk and obj.gallery.exists())) else 0)
-        has_coords = 1 if completed.get("coordinates") else 0
-        has_price = 1 if completed.get("price") else 0
-        has_desc = 1 if completed.get("description") else 0
-        has_cat = 1 if (completed.get("category") and completed.get("subcategory") and completed.get("name")) else 0
-
         name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_i18n", "")) or obj.name_az or obj.name_ru or obj.name_en or obj.name or f"Place #{obj.pk}"
+
+        # The popover lists exactly the twelve readiness items, with the same
+        # labels and the same actionable messages the form shows. Nothing here
+        # decides on its own what counts as done.
+        checklist = json.dumps(
+            [
+                {
+                    "code": item.code,
+                    "label": str(item.label),
+                    "done": bool(item.is_complete),
+                    "message": str(item.issue.message) if item.issue else "",
+                    "section": item.requirement.section,
+                    "anchor": item.requirement.anchor,
+                }
+                for item in readiness.items
+            ],
+            ensure_ascii=False,
+        )
 
         return format_html(
             '<div class="km-col-state km-col-state--{}" data-state="{}">'
             '<div class="km-col-state-top">'
             '<span class="km-state-dot {}"></span>'
-            '<span class="ms km-state-visibility" aria-hidden="true">{}</span>'
+            '<svg class="km-i km-state-visibility" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-{}"></use></svg>'
             '<span class="km-state-label">{}</span>'
             '</div>'
             '<div class="km-col-state-bottom">'
             '<span class="km-state-bar-wrap"><span class="km-state-bar {} km-state-bar--{}"></span></span>'
             '<button type="button" class="km-readiness-trigger" data-readiness-trigger '
             'data-place-id="{}" data-place-name="{}" data-score="{}" '
-            'data-has-coords="{}" data-has-price="{}" data-photos-count="{}" '
-            'data-has-desc="{}" data-has-cat="{}" data-edit-url="{}">{}%</button>'
+            'data-done="{}" data-total="{}" data-readiness="{}" '
+            'data-edit-url="{}">{}%</button>'
             '</div>'
             '</div>',
             state_key,
@@ -2625,11 +2813,9 @@ class PlaceAdmin(admin.ModelAdmin):
             obj.pk,
             name,
             score,
-            has_coords,
-            has_price,
-            photos_count,
-            has_desc,
-            has_cat,
+            readiness.completed_count,
+            readiness.required_count,
+            checklist,
             self._place_change_url(obj),
             score,
         )
@@ -2650,10 +2836,10 @@ class PlaceAdmin(admin.ModelAdmin):
 
         return format_html(
             '<div class="km-col-marks">'
-            '<span class="ms km-mark km-mark--home {}" title="{}">home</span>'
-            '<span class="ms km-mark km-mark--map {}" title="{}">{}</span>'
-            '<span class="km-mark-stat" title="{}"><span class="ms">chat_bubble</span><span>{}</span></span>'
-            '<span class="km-mark-stat" title="{}"><span class="ms">star</span><span>{}</span></span>'
+            '<svg class="km-i km-mark km-mark--home {}" viewBox="0 0 960 960" aria-hidden="true"><title>{}</title><use href="#kmi-home"></use></svg>'
+            '<svg class="km-i km-mark km-mark--map {}" viewBox="0 0 960 960" aria-hidden="true"><title>{}</title><use href="#kmi-{}"></use></svg>'
+            '<span class="km-mark-stat" title="{}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chat_bubble"></use></svg><span>{}</span></span>'
+            '<span class="km-mark-stat" title="{}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-star"></use></svg><span>{}</span></span>'
             '</div>',
             home_class,
             home_title,
@@ -2699,13 +2885,13 @@ class PlaceAdmin(admin.ModelAdmin):
 
         return format_html(
             '<div class="km-col-actions">'
-            '<a href="{}" class="km-action-icon-btn" title="{}"><span class="ms">edit</span></a>'
-            '<a href="{}" target="_blank" class="km-action-icon-btn" title="{}"><span class="ms">visibility</span></a>'
+            '<a href="{}" class="km-action-icon-btn" title="{}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit"></use></svg></a>'
+            '<a href="{}" target="_blank" class="km-action-icon-btn" title="{}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-visibility"></use></svg></a>'
             '<button type="button" class="km-action-icon-btn km-action-more-btn" data-more-actions-btn '
             'data-place-id="{}" data-place-name="{}" data-status="{}" data-is-active="{}" '
             'data-is-deleted="{}" data-has-coords="{}" data-is-home="{}" data-edit-url="{}" data-view-url="{}" '
             'data-toggle-publication-url="{}toggle-publication/" data-quick-action-url="{}quick-action/" title="{}">'
-            '<span class="ms">more_horiz</span>'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-more_horiz"></use></svg>'
             '</button>'
             '</div>',
             edit_url,
@@ -2921,7 +3107,7 @@ class PlaceAdmin(admin.ModelAdmin):
             meta_bits.append(str(_("Временное")))
         if obj.rejection_reason and obj.status == obj.STATUS_REJECTED:
             meta_bits.append(str(_("Есть причина отклонения")))
-            
+
         badges_html = mark_safe(" ".join(badges))
         return format_html(
             '<div class="km-admin-status-line">{}</div>{}',

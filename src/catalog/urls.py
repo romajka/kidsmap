@@ -35,6 +35,7 @@ from .views import (
     account_verify_email,
     account_login,
     account_logout,
+    UserPasswordResetView,
     owner_place_create,
     owner_place_delete,
     owner_place_draft,
@@ -93,14 +94,7 @@ urlpatterns = [
     path("auth/logout/", account_logout, name="account_logout"),
     path(
         "auth/password-reset/",
-        auth_views.PasswordResetView.as_view(
-            template_name="auth/password_reset_form.html",
-            email_template_name="auth/password_reset_email.txt",
-            html_email_template_name="auth/password_reset_email.html",
-            subject_template_name="auth/password_reset_subject.txt",
-            form_class=UserPasswordResetForm,
-            success_url=reverse_lazy("password_reset_done"),
-        ),
+        UserPasswordResetView.as_view(),
         name="password_reset",
     ),
     path(

@@ -439,16 +439,19 @@
     var lang = ((document.documentElement.lang || "ru").split("-")[0] || "ru").toLowerCase();
     var copy = {
       ru: {
+        always_open: "На сайте будет показано: «Круглосуточно / 24/7».",
         by_appointment: "На сайте будет показано: «По предварительной записи».",
         variable: "На сайте будет показано пояснение о переменном расписании.",
         events: "На сайте появятся три ближайших опубликованных мероприятия, связанных с этим местом.",
       },
       az: {
+        always_open: "Saytda «Günün 24 saatı / 24/7» göstəriləcək.",
         by_appointment: "Saytda «Əvvəlcədən qeydiyyatla» göstəriləcək.",
         variable: "Saytda dəyişən cədvəl haqqında izah göstəriləcək.",
         events: "Saytda bu məkanla əlaqəli üç yaxın dərc olunmuş tədbir göstəriləcək.",
       },
       en: {
+        always_open: "The site will show “Round the clock / 24/7”.",
         by_appointment: "The site will show “By appointment”.",
         variable: "The site will show an explanation for the variable schedule.",
         events: "The site will show the next three published events linked to this place.",
@@ -916,7 +919,7 @@
     var cancelText = lang === "az" ? "Ləğv et" : (lang === "en" ? "Cancel" : "Отмена");
     var applyText = lang === "az" ? "Tətbiq et" : (lang === "en" ? "Apply" : "Применить");
 
-    popover.innerHTML = 
+    popover.innerHTML =
       '<div class="km-schedule-editor__popover-head">' +
         '<strong>' + escapeHtml(getCopyTitle(state, sourceWeekday)) + '</strong>' +
         '<button type="button" class="km-schedule-editor__popover-close" data-popover-close>×</button>' +
@@ -982,7 +985,7 @@
       var editorRect = state.root.getBoundingClientRect();
       var topPos = rect.top - editorRect.top + button.offsetHeight;
       var rightPos = editorRect.right - rect.right;
-      
+
       popover.style.top = topPos + "px";
       popover.style.right = rightPos + "px";
     }
@@ -1051,7 +1054,7 @@
   function applyCopy(state, sourceWeekday, popover) {
     var sourceDay = dayByWeekday(state, sourceWeekday);
     if (!sourceDay) return;
-    
+
     var checked = Array.from(popover.querySelectorAll('input[type="checkbox"]:checked'));
     if (checked.length === 0) {
       closePopover();
@@ -1098,11 +1101,11 @@
     toast.textContent = message;
     toast.hidden = false;
     toast.classList.add("is-show");
-    
+
     if (toast._timeoutId) {
       clearTimeout(toast._timeoutId);
     }
-    
+
     toast._timeoutId = setTimeout(function () {
       toast.classList.remove("is-show");
       setTimeout(function () {

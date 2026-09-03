@@ -190,9 +190,13 @@
 
   function setToggleState(state, expanded) {
     state.mapPanel.hidden = !expanded;
-    var coordGrid = state.root.querySelector(".km-place-location__coord-grid");
+    var coordGrid = state.root.querySelector("[data-pf-coord-fields], .km-place-location__coord-grid");
     if (coordGrid) {
-      coordGrid.style.display = expanded ? "grid" : "none";
+      if (coordGrid.hasAttribute("data-pf-coord-fields")) {
+        coordGrid.hidden = !expanded;
+      } else {
+        coordGrid.style.display = expanded ? "grid" : "none";
+      }
     }
     if (state.toggleButton) {
       state.toggleButton.setAttribute("aria-expanded", expanded ? "true" : "false");

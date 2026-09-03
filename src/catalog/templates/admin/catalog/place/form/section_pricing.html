@@ -1,0 +1,55 @@
+{% load i18n %}
+{% with form=adminform.form %}
+  {% translate "от" as label_age_from %}
+  {% translate "до" as label_age_to %}
+  {% translate "лет" as suffix_years %}
+  {% translate "мин" as suffix_minutes %}
+
+  <div class="km-pf-group" data-pf-group="age">
+    <div class="km-pf-group__head">
+      <span class="km-pf-group__title">{% translate "Возраст детей" %}</span>
+      <span class="km-pf-group__note">{% translate "Верхнюю границу можно не указывать, если возраст не ограничен" %}</span>
+    </div>
+
+    <div class="km-pf-age" data-pf-age>
+      <div class="km-pf-age__range">
+        {% include "admin/catalog/place/form/_field.html" with field=form.age_from label=label_age_from suffix=suffix_years %}
+        <span class="km-pf-age__dash" aria-hidden="true">—</span>
+        {% include "admin/catalog/place/form/_field.html" with field=form.age_to label=label_age_to suffix=suffix_years %}
+      </div>
+
+      <div class="km-pf-age__flags">
+        <label class="km-pf-check" for="{{ form.age_open_ended.id_for_label }}">
+          {{ form.age_open_ended }}
+          <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
+          <span class="km-pf-check__copy">
+            <strong>{% translate "Нет максимального возраста" %}</strong>
+            <small>{% translate "Поле «до» отключается" %}</small>
+          </span>
+        </label>
+        <label class="km-pf-check" for="{{ form.offers_adult_classes.id_for_label }}">
+          {{ form.offers_adult_classes }}
+          <span class="km-pf-check__box" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg></span>
+          <span class="km-pf-check__copy">
+            <strong>{% translate "Есть программы для взрослых" %}</strong>
+            <small>{% translate "На готовность не влияет" %}</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="km-pf-age__duration">
+        {% include "admin/catalog/place/form/_field.html" with field=form.lesson_duration_minutes optional=True suffix=suffix_minutes %}
+      </div>
+    </div>
+  </div>
+
+  <div class="km-pf-divider" role="presentation"></div>
+
+  <div class="km-pf-group" data-pf-group="tariffs">
+    <div class="km-pf-group__head">
+      <span class="km-pf-group__title">{% translate "Тарифы" %}</span>
+      <span class="km-pf-group__note">{% translate "Показываются только поля выбранного типа оплаты" %}</span>
+    </div>
+    {% include "admin/catalog/place/pricing_editor.html" %}
+  </div>
+{% endwith %}

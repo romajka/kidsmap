@@ -1,0 +1,150 @@
+{% load i18n admin_urls %}
+{% with form=adminform.form summary=km_place_form_summary %}
+  <div class="km-pf-side__card">
+    <div class="km-pf-side__block km-pf-side__block--top">
+      <div class="km-pf-side__row">
+        <span class="km-pf-side__eyebrow">{% translate "Готовность" %}</span>
+        <span class="km-pf-side__counts">
+          <span data-progress-done>{{ summary.completed }}</span> / <span data-progress-total>{{ summary.total }}</span>
+        </span>
+      </div>
+      <div class="km-pf-side__progress">
+        <strong class="km-pf-side__pct" data-progress-pct>{{ summary.completion_pct }}%</strong>
+        <span class="km-pf-bar"><span class="km-pf-bar__fill" style="width: {{ summary.completion_pct }}%;" data-progress-bar></span></span>
+      </div>
+      <p class="km-pf-side__readiness" data-progress-readiness data-tone="{{ summary.readiness_tone }}">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use data-progress-readiness-icon href="#kmi-{% if summary.is_ready %}check_circle{% else %}radio_button_checked{% endif %}"></use></svg>
+        <span data-progress-readiness-text>{{ summary.readiness_label }}</span>
+      </p>
+
+      <button type="submit" name="_continue" class="km-pf-btn km-pf-btn--primary km-pf-btn--block">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-save"></use></svg>{% translate "Сохранить" %}
+      </button>
+
+      {% if summary.visibility.is_public %}
+        <button type="submit" name="_unpublish_place" class="km-pf-btn km-pf-btn--ghost km-pf-btn--block">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-visibility_off"></use></svg>{% translate "Снять с публикации" %}
+        </button>
+      {% else %}
+        <button
+          type="submit"
+          name="_publish_place"
+          class="km-pf-btn km-pf-btn--ghost km-pf-btn--block"
+          data-pf-publish
+          {% if not summary.is_ready %}disabled title="{% translate 'Сначала заполните все обязательные пункты' %}"{% endif %}
+        >
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-public"></use></svg>{% translate "Опубликовать" %}
+        </button>
+      {% endif %}
+
+      <button type="submit" name="_save_draft" class="km-pf-btn km-pf-btn--quiet km-pf-btn--block">
+        {% translate "Сохранить черновик" %}
+      </button>
+
+      <p class="km-pf-savestate" data-pf-savestate data-state="idle" role="status" aria-live="polite">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false" data-pf-savestate-icon><use href="#kmi-edit_note"></use></svg>
+        <span data-pf-savestate-text>{% translate "Изменения не сохранены" %}</span>
+      </p>
+    </div>
+
+    <div class="km-pf-side__block">
+      <span class="km-pf-side__eyebrow">{% translate "Статус карточки" %}</span>
+      <div class="km-pf-side__status">
+        <span class="km-pf-dot km-pf-dot--{{ summary.visibility.tone }}" aria-hidden="true"></span>
+        {{ form.status }}
+      </div>
+      {% for error in form.status.errors %}<p class="km-pf-field__error">{{ error }}</p>{% endfor %}
+      <p class="km-pf-side__hint">{{ summary.visibility.hint }}</p>
+
+      <div class="km-pf-side__conditional" data-place-rejection-row{% if form.status.value != form.instance.STATUS_REJECTED %} hidden{% endif %}>
+        {% include "admin/catalog/place/form/_field.html" with field=form.rejection_reason wide=True %}
+      </div>
+    </div>
+
+    <div class="km-pf-side__block" data-place-management>
+      <span class="km-pf-side__eyebrow">{% translate "Публикация" %}</span>
+      <label class="km-pf-switch" for="{{ form.is_active.id_for_label }}">
+        {{ form.is_active }}
+        <span class="km-pf-switch__track" aria-hidden="true"></span>
+        <span class="km-pf-switch__copy">
+          <strong>{% translate "Показывать на сайте" %}</strong>
+          <small>{% translate "Карточка доступна посетителям" %}</small>
+        </span>
+      </label>
+      <label class="km-pf-switch" for="{{ form.is_verified.id_for_label }}">
+        {{ form.is_verified }}
+        <span class="km-pf-switch__track" aria-hidden="true"></span>
+        <span class="km-pf-switch__copy">
+          <strong>{% translate "Проверено" %}</strong>
+          <small>{% translate "Данные подтверждены модератором" %}</small>
+        </span>
+      </label>
+      <label class="km-pf-switch" for="{{ form.is_home_recommended.id_for_label }}">
+        {{ form.is_home_recommended }}
+        <span class="km-pf-switch__track" aria-hidden="true"></span>
+        <span class="km-pf-switch__copy">
+          <strong>{% translate "На главной" %}</strong>
+          <small>{% translate "Добавить в блок рекомендаций" %}</small>
+        </span>
+      </label>
+      <div class="km-pf-side__conditional" data-place-recommendation-order{% if not form.is_home_recommended.value %} hidden{% endif %}>
+        {% include "admin/catalog/place/form/_field.html" with field=form.home_recommended_order wide=True %}
+      </div>
+    </div>
+
+    <details class="km-pf-side__more">
+      <summary>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-person"></use></svg>
+        <span class="km-pf-side__more-title">{% translate "Владелец" %}</span>
+        <span class="km-pf-side__more-value">{% if form.instance.owner_id %}{{ form.instance.owner }}{% else %}{% translate "не назначен" %}{% endif %}</span>
+        <svg class="km-i km-pf-side__more-chevron" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+      </summary>
+      <div class="km-pf-side__more-body">
+        {% include "admin/catalog/place/form/_field.html" with field=form.owner hide_label=True wide=True %}
+        <p class="km-pf-side__hint">{% translate "Назначьте пользователя, который сможет управлять карточкой" %}</p>
+      </div>
+    </details>
+
+    <details class="km-pf-side__more">
+      <summary>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-insights"></use></svg>
+        <span class="km-pf-side__more-title">{% translate "Показатели" %}</span>
+        <span class="km-pf-side__more-value">{{ original.likes_count|default:"0" }} · {{ original.rating_avg|default:"0"|floatformat:1 }} · {{ original.rating_count|default:"0" }}</span>
+        <svg class="km-i km-pf-side__more-chevron" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+      </summary>
+      <div class="km-pf-side__more-body">
+        <dl class="km-pf-stats">
+          <div><dt>{% translate "Лайки" %}</dt><dd>{{ original.likes_count|default:"0" }}</dd></div>
+          <div><dt>{% translate "Рейтинг" %}</dt><dd>{{ original.rating_avg|default:"0"|floatformat:1 }}</dd></div>
+          <div><dt>{% translate "Отзывы" %}</dt><dd>{{ original.rating_count|default:"0" }}</dd></div>
+        </dl>
+        {% for item in summary.meta_items %}
+          <p class="km-pf-side__meta"><span>{{ item.label }}</span><strong>{{ item.value }}</strong></p>
+        {% endfor %}
+      </div>
+    </details>
+
+    <div class="km-pf-side__block km-pf-side__block--service">
+      {% if not is_popup %}
+        <button type="submit" name="_refresh_coordinates_from_address" class="km-pf-linkbtn">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-my_location"></use></svg>{% translate "Сохранить и рассчитать координаты" %}
+        </button>
+      {% endif %}
+      {% if original %}
+        <button type="submit" formmethod="post" formaction="{% url opts|admin_urlname:'quality_check' original.pk %}" class="km-pf-linkbtn">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-assessment"></use></svg>{% translate "Отчёт по карточке" %}
+        </button>
+      {% endif %}
+      {% if km_place_public_link and km_place_public_link.is_public %}
+        <a class="km-pf-linkbtn" href="{{ km_place_public_link.url }}" target="_blank" rel="noopener noreferrer">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-open_in_new"></use></svg>{{ km_place_public_link.label }}
+        </a>
+      {% endif %}
+      {% if has_delete_permission and not is_popup and original %}
+        <a href="{% url opts|admin_urlname:'delete' original.pk|admin_urlquote %}" class="km-pf-linkbtn km-pf-linkbtn--danger deletelink">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>{% translate "Удалить место" %}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+{% endwith %}

@@ -40,29 +40,20 @@
   font-display: block;
 }
 
-/* Material Symbols Rounded Utility */
-.ms,
-.material-symbols-rounded {
-  font-family: 'Material Symbols Rounded' !important;
-  font-weight: 400 !important;
-  font-style: normal !important;
-  line-height: 1 !important;
+/* Icons are inline SVG from admin/catalog/includes/km_icon_sprite.html. The
+   Material Symbols build in static/fonts carries no ligature table, so an icon
+   written as its own name rendered as plain text. */
+.km-i {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
   display: inline-block;
   vertical-align: middle;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga' 1;
-  -moz-font-feature-settings: 'liga=1';
-  -moz-font-feature-settings: 'liga' 1;
-  font-feature-settings: 'liga' 1;
-  font-variant-ligatures: contextual;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  fill: currentColor;
 }
+
+.km-icon-sprite { display: none; }
+
 
 
 /* Animations */
@@ -545,7 +536,8 @@
 .km-home-recs-accordion__summary::-webkit-details-marker { display: none; }
 
 .km-accordion-arrow {
-  font-size: 19px;
+  width: 19px;
+  height: 19px;
   color: var(--km-captions);
   transition: transform .2s ease;
 }
@@ -1558,7 +1550,8 @@ details[open] .km-accordion-arrow {
   display: inline-grid;
   place-items: center;
   border-radius: 6px;
-  font-size: 18px !important;
+  width: 18px;
+  height: 18px;
   color: #5A655E;
   background: #F4F6F5;
 }
@@ -1702,7 +1695,8 @@ details[open] .km-accordion-arrow {
 }
 
 .km-mark {
-  font-size: 18px !important;
+  width: 18px;
+  height: 18px;
 }
 .km-mark.is-on {
   color: var(--km-text-2) !important;
@@ -1722,12 +1716,14 @@ details[open] .km-accordion-arrow {
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 11.5px;
+  width: 11.5px;
+  height: 11.5px;
   color: var(--km-captions);
   font-variant-numeric: tabular-nums;
 }
 .km-mark-stat .ms {
-  font-size: 15px !important;
+  width: 15px;
+  height: 15px;
   color: var(--km-muted-icon);
 }
 
@@ -1768,7 +1764,8 @@ details[open] .km-accordion-arrow {
   place-items: center;
   border: 1px solid var(--km-border-dark);
   border-radius: 6px;
-  font-size: 17px;
+  width: 17px;
+  height: 17px;
   color: var(--km-text-2);
   background: #fff;
   text-decoration: none;
@@ -1782,7 +1779,8 @@ details[open] .km-accordion-arrow {
   color: var(--km-text);
 }
 .km-action-icon-btn .ms {
-  font-size: 17px !important;
+  width: 17px;
+  height: 17px;
 }
 
 .km-is-busy .ms {
@@ -2000,7 +1998,7 @@ details[open] .km-accordion-arrow {
 /* 9. Readiness Popover (1d) */
 .km-readiness-popover {
   position: absolute;
-  width: 264px;
+  width: 300px;
   background: #fff;
   border: 1px solid var(--km-border-dark);
   border-radius: 8px;
@@ -2048,13 +2046,37 @@ details[open] .km-accordion-arrow {
 .km-readiness-popover__list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
   padding-top: 2px;
+  /* Twelve items do not fit on a short screen; keep the head, the bar and the
+     footer in place and scroll the list itself. */
+  max-height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.km-readiness-popover__list::-webkit-scrollbar { width: 6px; }
+.km-readiness-popover__list::-webkit-scrollbar-thumb {
+  background: var(--km-border-dark);
+  border-radius: 999px;
+}
+
+.km-pop-alldone {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  background: var(--km-accent-tint);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--km-accent);
 }
 
 .km-readiness-popover__item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: 12.5px;
   color: var(--km-text);
@@ -2074,16 +2096,37 @@ details[open] .km-accordion-arrow {
   color: var(--km-text);
 }
 .km-readiness-popover__item .km-pop-icon {
-  font-size: 16px !important;
+  width: 16px;
+  height: 16px;
   color: var(--km-warn);
   flex-shrink: 0;
+  margin-top: 1px;
 }
+
+.km-readiness-popover__item .km-pop-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+/* The actionable sentence, shown only for what is still missing. */
+.km-readiness-popover__item .km-pop-hint {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--km-captions);
+  font-weight: 400;
+}
+
+.km-readiness-popover__item:hover .km-pop-hint { color: var(--km-text-3); }
 .km-readiness-popover__item.is-done .km-pop-icon {
   color: var(--km-accent);
 }
 .km-readiness-popover__item-arrow {
   margin-left: auto;
-  font-size: 14px !important;
+  margin-top: 1px;
+  width: 14px;
+  height: 14px;
   color: var(--km-muted-icon);
   opacity: 0;
   transition: opacity .12s ease;

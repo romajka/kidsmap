@@ -1,0 +1,66 @@
+{% load i18n admin_urls %}
+{% with summary=km_place_form_summary %}
+  <header class="km-pf__header">
+    <div class="km-pf__header-main">
+      <span class="km-pf__eyebrow">
+        {% if add %}{% translate "Новая карточка" %}{% else %}{% translate "Редактирование карточки" %}{% endif %}
+      </span>
+      <div class="km-pf__titlerow">
+        <h1 class="km-pf__title">
+          {% if add %}{% translate "Новое место" %}{% else %}{{ original|default:summary.title }}{% endif %}
+        </h1>
+        <span class="km-pf-chip km-pf-chip--{{ summary.visibility.tone }}">
+          <span class="km-pf-dot km-pf-dot--{{ summary.visibility.tone }}" aria-hidden="true"></span>
+          {{ summary.visibility.label }}
+        </span>
+        <span class="km-pf-chip" data-pf-coords-chip data-tone="{% if adminform.form.instance.has_coordinates %}good{% else %}warn{% endif %}">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use data-pf-coords-chip-icon href="#kmi-{% if adminform.form.instance.has_coordinates %}place{% else %}location_off{% endif %}"></use></svg>
+          <span data-pf-coords-chip-text>{% if adminform.form.instance.has_coordinates %}{% translate "Координаты указаны" %}{% else %}{% translate "Нужны координаты" %}{% endif %}</span>
+        </span>
+      </div>
+
+      <div class="km-pf__progress">
+        <span class="km-pf-bar km-pf-bar--lg"><span class="km-pf-bar__fill" style="width: {{ summary.completion_pct }}%;" data-progress-bar></span></span>
+        <strong class="km-pf__progress-pct" data-progress-pct>{{ summary.completion_pct }}%</strong>
+      </div>
+      <p class="km-pf__progress-copy">
+        <span data-progress-done>{{ summary.completed }}</span> {% translate "из" %}
+        <span data-progress-total>{{ summary.total }}</span>
+        {% translate "обязательных пунктов заполнено." %}
+        {# A short summary only. The full list lives in the "Проверка" section. #}
+        <span data-pf-remaining>
+          {% if summary.missing %}
+            {% blocktranslate count counter=summary.missing|length trimmed %}
+              Остался {{ counter }} пункт — он перечислен в разделе «Проверка».
+            {% plural %}
+              Осталось пунктов: {{ counter }} — все перечислены в разделе «Проверка».
+            {% endblocktranslate %}
+          {% else %}
+            {% translate "Все обязательные пункты заполнены." %}
+          {% endif %}
+        </span>
+        <a class="km-pf-linkbtn" href="#verification" data-place-error-link data-place-error-section="#verification">{% translate "Показать" %}</a>
+      </p>
+    </div>
+
+    <div class="km-pf__header-aside">
+      <div class="km-pf__header-actions">
+        <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-place-json-import-open>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-upload_file"></use></svg>{% translate "Импорт из JSON" %}
+        </button>
+        <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-place-json-prompt-copy>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-content_copy"></use></svg>{% translate "Инструкция" %}
+        </button>
+        {% if original %}
+          <a class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm km-pf-btn--icon" href="{% url 'admin:catalog_place_export_json' original.pk %}" title="{% translate 'Экспорт JSON' %}" aria-label="{% translate 'Экспорт JSON' %}">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-file_download"></use></svg>
+          </a>
+        {% endif %}
+      </div>
+      <p class="km-pf__header-savestate" data-pf-savestate data-state="idle">
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false" data-pf-savestate-icon><use href="#kmi-edit_note"></use></svg>
+        <span data-pf-savestate-text>{% translate "Изменения не сохранены" %}</span>
+      </p>
+    </div>
+  </header>
+{% endwith %}

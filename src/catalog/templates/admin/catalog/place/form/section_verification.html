@@ -1,0 +1,85 @@
+{% load i18n %}
+{% with summary=km_place_form_summary %}
+  <div class="km-pf-verify">
+    <div class="km-pf-verify__preview">
+      <span class="km-pf-verify__preview-label">{% translate "Как карточка выглядит в каталоге" %}</span>
+      <article class="km-pf-card" data-pf-preview>
+        <div class="km-pf-card__media">
+          <img class="km-pf-card__img" data-pf-preview-img alt="" hidden>
+          <span class="km-pf-card__img-empty" data-pf-preview-img-empty>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-image"></use></svg>
+          </span>
+          <span class="km-pf-card__cat" data-pf-preview-category>{% translate "Категория не выбрана" %}</span>
+        </div>
+        <div class="km-pf-card__body">
+          <strong class="km-pf-card__title" data-pf-preview-title>{% translate "Название места" %}</strong>
+          <div class="km-pf-card__tags">
+            <span class="km-pf-card__tag" data-pf-preview-age>—</span>
+            <span class="km-pf-card__tag km-pf-card__tag--price" data-pf-preview-price>—</span>
+          </div>
+          <span class="km-pf-card__address" data-pf-preview-address>{% translate "Адрес не указан" %}</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="km-pf-verify__body">
+      <div class="km-pf-readiness" data-pf-readiness-box>
+        <div class="km-pf-readiness__head">
+          <span class="km-pf-readiness__label">{% translate "Готовность" %}</span>
+          <strong class="km-pf-readiness__pct" data-progress-pct>{{ summary.completion_pct }}%</strong>
+        </div>
+        <div class="km-pf-bar">
+          <span class="km-pf-bar__fill" style="width: {{ summary.completion_pct }}%;" data-progress-bar></span>
+        </div>
+        <span class="km-pf-readiness__counts">
+          <span data-progress-done>{{ summary.completed }}</span> / <span data-progress-total>{{ summary.total }}</span>
+          {% translate "обязательных пунктов" %}
+        </span>
+      </div>
+
+      <div class="km-pf-issues" data-pf-issues{% if not summary.missing %} hidden{% endif %}>
+        <span class="km-pf-group__title">{% translate "Что нужно заполнить" %}</span>
+        <div class="km-pf-issues__list" data-pf-issues-list>
+          {% for item in summary.missing %}
+            <a class="km-pf-issue" href="#{{ item.anchor }}" data-place-error-link data-place-error-section="#{{ item.section }}" data-pf-issue-code="{{ item.code }}">
+              <svg class="km-i km-pf-issue__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_unchecked"></use></svg>
+              <span class="km-pf-issue__copy">
+                <strong>{{ item.label }}</strong>
+                <span>{{ item.message }}</span>
+              </span>
+              <span class="km-pf-issue__go">{% translate "Перейти" %}<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-arrow_forward"></use></svg></span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="km-pf-ready" data-pf-ready-banner{% if not summary.is_ready %} hidden{% endif %}>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>
+        <span class="km-pf-ready__copy">
+          <strong>{% translate "Карточка готова" %}</strong>
+          <span>{% blocktranslate with total=summary.total %}{{ total }} из {{ total }} обязательных пунктов заполнено — можно публиковать.{% endblocktranslate %}</span>
+        </span>
+        {% if not summary.visibility.is_public %}
+          <button type="submit" name="_publish_place" class="km-pf-btn km-pf-btn--primary">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-public"></use></svg>{% translate "Опубликовать" %}
+          </button>
+        {% endif %}
+      </div>
+
+      {% if summary.advice %}
+        <div class="km-pf-advice">
+          <span class="km-pf-advice__title">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-lightbulb"></use></svg>{% translate "Рекомендации" %}
+          </span>
+          <span class="km-pf-advice__note">{% translate "На готовность и публикацию не влияют" %}</span>
+          {% for item in summary.advice %}
+            <a class="km-pf-advice__item" href="#{{ item.anchor }}" data-place-error-link data-place-error-section="#{{ item.section }}">
+              <strong>{{ item.label }}</strong>
+              <span>{{ item.message }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endwith %}

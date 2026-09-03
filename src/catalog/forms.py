@@ -90,14 +90,15 @@ class PlaceScheduleEditorFormMixin:
             self.fields["schedule_mode"].required = False
             lang = (get_language() or "ru").split("-")[0]
             mode_labels = {
-                "ru": ("По дням недели", "По предварительной записи", "Переменный график", "По мероприятиям"),
-                "az": ("Həftəlik cədvəl", "Əvvəlcədən qeydiyyatla", "Dəyişən cədvəl", "Tədbirlərə görə"),
-                "en": ("Weekly schedule", "By appointment", "Variable schedule", "By events"),
+                "ru": ("По дням недели", "Круглосуточно (24/7)", "По предварительной записи", "Переменный график", "По мероприятиям"),
+                "az": ("Həftəlik cədvəl", "Günün 24 saatı (24/7)", "Əvvəlcədən qeydiyyatla", "Dəyişən cədvəl", "Tədbirlərə görə"),
+                "en": ("Weekly schedule", "Round the clock (24/7)", "By appointment", "Variable schedule", "By events"),
             }
             labels = mode_labels.get(lang, mode_labels["ru"])
             self.fields["schedule_mode"].choices = tuple(zip(
                 (
                     Place.SCHEDULE_MODE_REGULAR,
+                    Place.SCHEDULE_MODE_ALWAYS_OPEN,
                     Place.SCHEDULE_MODE_BY_APPOINTMENT,
                     Place.SCHEDULE_MODE_VARIABLE,
                     Place.SCHEDULE_MODE_EVENTS,
@@ -807,7 +808,14 @@ class UserPasswordResetForm(PasswordResetForm):
     email = forms.CharField(
         label=_("Email или логин"),
         required=True,
-        widget=forms.TextInput(attrs={"class": "field", "autocomplete": "username"}),
+        widget=forms.TextInput(
+            attrs={
+                "class": "register-field-input",
+                "autocomplete": "username",
+                "inputmode": "email",
+                "placeholder": _("name@domain.com или логин"),
+            }
+        ),
         error_messages={
             "required": _("Укажите email или логин."),
         },
@@ -815,7 +823,13 @@ class UserPasswordResetForm(PasswordResetForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["email"].widget.attrs.update({"class": "field"})
+        self.fields["email"].widget.attrs.update(
+            {
+                "class": "register-field-input",
+                "autocomplete": "username",
+                "inputmode": "email",
+            }
+        )
 
     def clean_email(self):
         value = (self.cleaned_data.get("email") or "").strip()
@@ -841,8 +855,12 @@ class UserSetPasswordForm(SetPasswordForm):
         super().__init__(*args, **kwargs)
         self.fields["new_password1"].label = _("Новый пароль")
         self.fields["new_password2"].label = _("Повторите новый пароль")
-        self.fields["new_password1"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
-        self.fields["new_password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
+        self.fields["new_password1"].widget.attrs.update(
+            {"class": "register-field-input", "autocomplete": "new-password"}
+        )
+        self.fields["new_password2"].widget.attrs.update(
+            {"class": "register-field-input", "autocomplete": "new-password"}
+        )
 
 
 class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
@@ -1118,7 +1136,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 qs = Category.objects.filter(Q(is_active=True) | Q(code=instance.category_id))
             self.fields["category"].queryset = qs.order_by("order", "name_ru", "name")
             self.fields["category"].label_from_instance = lambda obj: obj.name_i18n(get_language())
-            
+
         if "subcategory" in self.fields:
             qs = Subcategory.active.all()
             if instance and getattr(instance, "subcategory_id", None):
@@ -1318,7 +1336,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         except ValidationError as exc:
             self.add_error("pricing_plans", exc)
             cleaned["pricing_plans"] = []
-        
+
         from catalog.services.locations import clean_location_fields
         cleaned = clean_location_fields(self, cleaned)
 
@@ -1341,7 +1359,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         if category and subcategory:
             if subcategory.category_id != category.pk:
                 self.add_error(
-                    "subcategory", 
+                    "subcategory",
                     _("Выбранная подкатегория не принадлежит к указанной категории.")
                 )
 
@@ -1982,7 +2000,7 @@ class OwnerSpecialistForm(forms.ModelForm):
             loc_place = cleaned.get("location_place")
             loc_address = cleaned.get("location_address")
             loc_region = cleaned.get("location_region")
-            
+
             if not loc_place and not loc_address:
                 msg = _("Для очного формата укажите детский центр KidsMap или собственный адрес.")
                 self.add_error("location_place", msg)

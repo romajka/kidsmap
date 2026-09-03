@@ -1,0 +1,28 @@
+{% load i18n %}
+{% comment %}
+  One form control with its label, hint and errors.
+
+  The required marker comes from ``km_place_required_fields``, which the admin
+  builds from ``catalog.services.place_readiness`` — the template never decides
+  on its own what is mandatory.
+
+  Params: field, label, hint, suffix, optional, wide, control_class.
+{% endcomment %}
+<div class="km-pf-field{% if wide %} km-pf-field--wide{% endif %}{% if field.errors %} is-error{% endif %}" data-pf-field="{{ field.name }}">
+  <label class="km-pf-field__label{% if hide_label %} km-pf-field__label--sr{% endif %}" for="{{ field.id_for_label }}">
+    <span class="km-pf-field__label-text">{% firstof label field.label %}</span>
+    {% if field.name in km_place_required_fields %}
+      <span class="km-pf-field__required" title="{% translate 'Обязательный пункт готовности' %}" aria-label="{% translate 'Обязательный пункт готовности' %}">*</span>
+    {% elif optional %}
+      <span class="km-pf-field__optional">{% translate "необязательно" %}</span>
+    {% endif %}
+  </label>
+  <div class="km-pf-field__control{% if control_class %} {{ control_class }}{% endif %}{% if suffix %} km-pf-field__control--suffixed{% endif %}">
+    {{ field }}
+    {% if suffix %}<span class="km-pf-field__suffix" aria-hidden="true">{{ suffix }}</span>{% endif %}
+  </div>
+  {% if hint %}<p class="km-pf-field__hint">{{ hint }}</p>{% endif %}
+  {% for error in field.errors %}
+    <p class="km-pf-field__error"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{{ error }}</p>
+  {% endfor %}
+</div>

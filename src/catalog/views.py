@@ -9,8 +9,9 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.core.cache import cache
 from django.db.models import Q
+from django.contrib.auth import views as auth_views
 from django.db.utils import OperationalError, ProgrammingError
-from django.http import HttpResponseGone, JsonResponse
+from django.http import HttpResponseGone, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -35,7 +36,7 @@ from .controllers.place_reviews_controller import PlaceReviewsController
 from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
-from .forms import OwnerEventForm, OwnerSpecialistForm
+from .forms import OwnerEventForm, OwnerSpecialistForm, UserPasswordResetForm
 from .legal_content import get_legal_page_content
 from .models import Category, Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, SiteSettings, Specialist
 from .models import FunnelEvent
@@ -326,7 +327,7 @@ def place_detail(request, pk, slug):
     context = place_controller.build_detail_context(request, place=place)
     context.update(ownership_controller.build_place_claim_context(request=request, place=place))
     context["public_pricing_plans"] = public_pricing_plans(place.pricing_plans, context.get("language"))
-    
+
     from catalog.services.pricing_plans import build_pricing_summary
     context["pricing_summary"] = build_pricing_summary(place, context.get("language"))
 
@@ -880,6 +881,7 @@ def _build_owner_taxonomy_picker_config(form):
                 "id": str(subcategory.pk),
                 "category": subcategory.category_id,
                 "label": str(subcategory.name_i18n()),
+                "icon": subcategory.icon_file_url,
             }
         )
 
@@ -1006,15 +1008,15 @@ def owner_event_create(request):
         form_action = (request.POST.get("form_action") or "").strip()
         draft_save_only = form_action == "save_draft"
         result = owner_events_controller.create_event(
-            request=request, 
-            data=request.POST, 
-            files=request.FILES, 
+            request=request,
+            data=request.POST,
+            files=request.FILES,
             draft_save_only=draft_save_only
         )
         if result.ok:
             messages.success(request, result.message)
             return redirect("owner_places_dashboard")
-        
+
         if result.form is None:
             messages.error(request, result.message)
             return redirect("owner_places_dashboard")
@@ -1048,20 +1050,20 @@ def owner_event_edit(request, pk):
         form_action = (request.POST.get("form_action") or "").strip()
         draft_save_only = form_action == "save_draft"
         result = owner_events_controller.edit_event(
-            request=request, 
-            pk=pk, 
-            data=request.POST, 
-            files=request.FILES, 
+            request=request,
+            pk=pk,
+            data=request.POST,
+            files=request.FILES,
             draft_save_only=draft_save_only
         )
         if result.ok:
             messages.success(request, result.message)
             return redirect("owner_places_dashboard")
-            
+
         if result.form is None:
             messages.error(request, result.message)
             return redirect("owner_places_dashboard")
-            
+
         form = result.form
         event = result.event
     else:
@@ -1069,7 +1071,7 @@ def owner_event_edit(request, pk):
         if event.status in {Event.STATUS_PENDING, Event.STATUS_PUBLISHED}:
             messages.error(request, _("Tədbir yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."))
             return redirect("owner_places_dashboard")
-            
+
         form = OwnerEventForm(instance=event, user=request.user)
 
     return render(
@@ -1094,7 +1096,7 @@ def owner_event_submit_review(request, pk):
     if result.ok:
         messages.success(request, result.message)
         return redirect("owner_places_dashboard")
-        
+
     messages.error(request, result.message)
     if result.event and result.event.status != Event.STATUS_PENDING:
         return redirect("owner_event_edit", pk=pk)
@@ -1734,6 +1736,66 @@ def account_logout(request):
     auth_logout(request)
     messages.info(request, _("Вы вышли из аккаунта."))
     return redirect(reverse("home"))
+
+
+class UserPasswordResetView(auth_views.PasswordResetView):
+    template_name = "auth/password_reset_form.html"
+    email_template_name = "auth/password_reset_email.txt"
+    html_email_template_name = "auth/password_reset_email.html"
+    subject_template_name = "auth/password_reset_subject.txt"
+    form_class = UserPasswordResetForm
+    success_url = reverse_lazy("password_reset_done")
+
+    def form_valid(self, form):
+        opts = {
+            "use_https": self.request.is_secure(),
+            "token_generator": self.token_generator,
+            "from_email": self.from_email,
+            "email_template_name": self.email_template_name,
+            "subject_template_name": self.subject_template_name,
+            "request": self.request,
+            "html_email_template_name": self.html_email_template_name,
+            "extra_email_context": self.extra_email_context,
+        }
+        form.save(**opts)
+        is_ajax = (
+            self.request.headers.get("x-requested-with") == "XMLHttpRequest"
+            or self.request.POST.get("is_ajax") == "1"
+            or "application/json" in self.request.headers.get("accept", "")
+        )
+        if is_ajax:
+            language = (getattr(self.request, "LANGUAGE_CODE", None) or "az").split("-")[0]
+            if language == "az":
+                msg = "Şifrənin bərpası üçün təlimat e-poçt ünvanınıza göndərildi."
+            elif language == "en":
+                msg = "Password reset instructions have been sent to your email."
+            else:
+                msg = "Письмо со ссылкой для смены пароля отправлено на ваш email."
+            return JsonResponse({"ok": True, "message": msg})
+        return HttpResponseRedirect(self.get_success_url())
+
+    def form_invalid(self, form):
+        is_ajax = (
+            self.request.headers.get("x-requested-with") == "XMLHttpRequest"
+            or self.request.POST.get("is_ajax") == "1"
+            or "application/json" in self.request.headers.get("accept", "")
+        )
+        if is_ajax:
+            error_list = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_list.append(str(error))
+            msg = error_list[0] if error_list else _("Проверьте введенные данные.")
+            return JsonResponse(
+                {
+                    "ok": False,
+                    "errors": form.errors.get_json_data(),
+                    "error_list": error_list,
+                    "message": msg,
+                },
+                status=400,
+            )
+        return super().form_invalid(form)
 
 
 def serve_specialist_document(request, document_id):

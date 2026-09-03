@@ -1,4 +1,6 @@
 {% load i18n static admin_list admin_urls jazzmin admin_dashboard_tags %}
+{# Icons on this panel are SVG references, so the sprite has to be present. #}
+{% include "admin/catalog/includes/km_icon_sprite.html" %}
 
 <section class="place-admin-dashboard__search-panel km-search-section" aria-labelledby="changelist-search-heading">
   <!-- Строка вкладок-фильтров по статусу (1a) -->
@@ -19,7 +21,7 @@
           <details class="km-status-tabs__more">
             <summary class="km-status-tab">
               <span>{% translate "Ещё" %}</span>
-              <span class="ms km-status-tabs__more-icon">expand_more</span>
+              <svg class="km-i km-status-tabs__more-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
             </summary>
             <div class="km-status-tabs__dropdown">
               {% for item in km_secondary_quick_filters %}
@@ -49,7 +51,7 @@
         data-suggestions-empty="{% translate 'Ничего не найдено' %}"
         {% endif %}
       >
-        <span class="ms km-search-icon" aria-hidden="true">search</span>
+        <svg class="km-i km-search-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>
         <input
           type="text"
           name="q"
@@ -74,7 +76,7 @@
 
       {% get_active_filter_chips cl as active_chips %}
       <button type="button" class="km-btn-filter{% if active_chips %} is-active{% endif %}" id="km-toggle-filters-btn" aria-expanded="false" aria-controls="km-filters-drawer">
-        <span class="ms" aria-hidden="true">filter_alt</span>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-filter_alt"></use></svg>
         <span>{% translate "Фильтры" %}</span>
         {% if active_chips %}
           <span class="km-btn-filter__badge">{{ active_chips|length }}</span>
@@ -90,11 +92,11 @@
       <div class="km-toolbar-right">
         <span class="km-sort-indicator">
           {% translate "Сортировка" %}: <strong>{% translate "Обновлено" %}</strong>
-          <span class="ms">arrow_downward</span>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-arrow_downward"></use></svg>
         </span>
         <details class="km-columns-details" id="km-columns-menu">
           <summary class="km-btn-columns">
-            <span class="ms">view_column</span>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-view_column"></use></svg>
             <span>{% translate "Колонки" %}</span>
           </summary>
           <div class="km-columns-dropdown">
@@ -141,7 +143,7 @@
           <span class="km-active-filter-chip__key">{% translate "Поиск" %}:</span>
           <strong class="km-active-filter-chip__val">«{{ cl.query }}»</strong>
           <a href="{{ km_search_remove_url|default:'?' }}" class="km-active-filter-chip__remove" title="{% translate 'Очистить поиск' %}">
-            <span class="ms">close</span>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
           </a>
         </span>
       {% endif %}
@@ -150,7 +152,7 @@
           <span class="km-active-filter-chip__key">{{ chip.title }}:</span>
           <strong class="km-active-filter-chip__val">{{ chip.label }}</strong>
           <a href="{{ chip.remove_url }}" class="km-active-filter-chip__remove" title="{% translate 'Снять этот фильтр' %}">
-            <span class="ms">close</span>
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
           </a>
         </span>
       {% endfor %}
@@ -174,7 +176,7 @@
                   <option value="{{ choice.query_string }}"{% if choice.selected %} selected{% endif %}>{{ choice.display }}</option>
                 {% endfor %}
               </select>
-              <span class="ms km-select-arrow">expand_more</span>
+              <svg class="km-i km-select-arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
             </div>
           </div>
         {% endif %}
@@ -190,7 +192,7 @@
             {% for choice in spec_choices %}
               {% if not forloop.first %}
                 <a href="{{ choice.query_string }}" class="km-filter-chip{% if choice.selected %} is-active{% endif %}">
-                  {% if choice.selected %}<span class="ms">check</span>{% endif %}
+                  {% if choice.selected %}<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg>{% endif %}
                   {{ choice.display }}
                 </a>
               {% endif %}

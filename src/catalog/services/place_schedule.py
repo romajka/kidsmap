@@ -34,30 +34,36 @@ SHORT_DAY_LABELS = {
 SCHEDULE_MODE_COPY = {
     "ru": {
         "regular": "Расписание",
+        "always_open": "Круглосуточно",
         "by_appointment": "По предварительной записи",
         "variable": "Переменное расписание",
         "events": "Ближайшие мероприятия",
         "variable_default": "Расписание меняется. Уточняйте актуальное время у организации.",
         "events_empty": "Ближайшие мероприятия пока не добавлены.",
         "regular_note": "Актуальное время лучше уточнить перед посещением.",
+        "always_open_note": "Открыто круглосуточно 24/7.",
     },
     "az": {
         "regular": "Cədvəl",
+        "always_open": "Günün 24 saatı",
         "by_appointment": "Əvvəlcədən qeydiyyatla",
         "variable": "Dəyişən cədvəl",
         "events": "Yaxın tədbirlər",
         "variable_default": "Cədvəl dəyişir. Aktual vaxtı təşkilatdan dəqiqləşdirin.",
         "events_empty": "Yaxın tədbirlər hələ əlavə edilməyib.",
         "regular_note": "Ziyarətdən əvvəl aktual vaxtı dəqiqləşdirmək məsləhətdir.",
+        "always_open_note": "24/7 açıqdır, fasiləsiz.",
     },
     "en": {
         "regular": "Schedule",
+        "always_open": "Round the clock / 24/7",
         "by_appointment": "By appointment",
         "variable": "Variable schedule",
         "events": "Upcoming events",
         "variable_default": "The schedule changes. Confirm the current time with the organization.",
         "events_empty": "No upcoming events have been added yet.",
         "regular_note": "Confirm the current time before visiting.",
+        "always_open_note": "Open 24/7, without breaks.",
     },
 }
 
@@ -511,6 +517,10 @@ def build_public_schedule_rows(place, language=None, *, event_limit=3) -> list[d
     mode = getattr(place, "schedule_mode", "regular") or "regular"
     copy = SCHEDULE_MODE_COPY[lang]
 
+    if mode == "always_open":
+        text = copy["always_open"]
+        return [{"days": "", "time": text, "lines": [text], "is_closed": False, "url": ""}]
+
     if mode == "by_appointment":
         text = copy["by_appointment"]
         return [{"days": "", "time": text, "lines": [text], "is_closed": False, "url": ""}]
@@ -610,6 +620,10 @@ def build_open_status(place, language=None) -> dict[str, object]:
     template can simply skip the marker instead of guessing.
     """
     mode = getattr(place, "schedule_mode", "regular") or "regular"
+    if mode == "always_open":
+        lang = _schedule_lang(language)
+        time_text = _localized_around_clock_label(lang)
+        return {"is_open": True, "label": OPEN_STATUS_COPY[lang]["open"], "time": time_text}
     if mode != "regular" or not getattr(place, "has_structured_schedule", False):
         return {}
 

@@ -1,0 +1,98 @@
+{% load i18n %}
+{% with form=adminform.form obj=adminform.form.instance %}
+  <div class="km-pf-media" data-place-media-section>
+    <div class="km-pf-group" data-pf-group="main-photo">
+      <div class="km-pf-group__head">
+        <span class="km-pf-group__title">{% translate "Главное фото" %}</span>
+        <span class="km-pf-mainphoto__state" data-main-photo-state>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_unchecked"></use></svg>
+          <span>{% translate "Нет главного фото" %}</span>
+        </span>
+      </div>
+
+      <div class="km-pf-mainphoto{% if obj.photo and obj.photo.name %} has-photo{% endif %}" data-main-photo-root>
+        <div class="km-pf-mainphoto__input" hidden>{{ form.photo }}</div>
+
+        <div class="km-pf-mainphoto__drop" data-main-photo-preview-wrap>
+          <div class="km-pf-mainphoto__placeholder"{% if obj.photo and obj.photo.name %} hidden{% endif %} data-main-photo-placeholder>
+            <svg class="km-i km-pf-mainphoto__placeholder-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add_photo_alternate"></use></svg>
+            <strong>{% translate "Главное фото" %}</strong>
+            <span>{% translate "Перетащите сюда или выберите файл" %}</span>
+          </div>
+          {% if obj.photo and obj.photo.name %}
+            <img
+              src="{{ obj.photo.url }}"
+              alt="{{ obj.name_i18n }}"
+              class="km-pf-mainphoto__img"
+              data-main-photo-preview
+              data-main-photo-initial-url="{{ obj.photo.url }}"
+              data-main-photo-initial-name="{{ obj.photo.name }}"
+              {% if obj.safe_photo_size %}data-main-photo-initial-size="{{ obj.safe_photo_size }}"{% endif %}
+            >
+          {% else %}
+            <img class="km-pf-mainphoto__img" alt="" hidden data-main-photo-preview>
+          {% endif %}
+        </div>
+
+        <div class="km-pf-mainphoto__aside">
+          <strong class="km-pf-mainphoto__lead">{% translate "Что увидят посетители" %}</strong>
+          <p class="km-pf-mainphoto__copy">
+            {% translate "Это изображение показывается в каталоге, на карте и первым на странице места. Кроп — квадратный, минимум 1200×1200 px." %}
+          </p>
+          <p class="km-pf-mainphoto__file">
+            <span data-main-photo-file-name hidden></span>
+            <span data-main-photo-file-size hidden></span>
+          </p>
+          <div class="km-pf-mainphoto__actions">
+            <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-main-photo-pick>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-upload"></use></svg>{% translate "Выбрать файл" %}
+            </button>
+            <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm km-pf-btn--danger" data-main-photo-clear>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>{% translate "Удалить" %}
+            </button>
+            {% if obj.pk and obj.get_absolute_url %}
+              <a class="km-pf-linkbtn" href="{{ obj.get_absolute_url }}" target="_blank" rel="noopener">{% translate "Посмотреть на сайте" %}</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% for error in form.photo.errors %}
+        <p class="km-pf-field__error"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{{ error }}</p>
+      {% endfor %}
+    </div>
+
+    <div class="km-pf-divider" role="presentation"></div>
+
+    <div class="km-pf-group" data-pf-group="gallery">
+      <div class="km-pf-group__head">
+        <span class="km-pf-group__title">{% translate "Дополнительные фотографии" %}</span>
+        <span class="km-pf-group__count">
+          <span data-gallery-count-label class="km-pf-visually-hidden">{% translate "Загружено" %}</span>
+          <strong data-gallery-count-value>0 / 10</strong>
+        </span>
+      </div>
+
+      <div class="km-pf-gallery-empty" data-gallery-empty-state hidden>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-photo_library"></use></svg>
+        <p>{% translate "Дополнительные фотографии не добавлены" %}</p>
+        <small data-gallery-count-empty>{% translate "Сейчас загружено 0 из 10 фото" %}</small>
+        <button type="button" class="km-pf-btn km-pf-btn--ghost km-pf-btn--sm" data-gallery-add-button-empty>
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>{% translate "Добавить фото" %}
+        </button>
+      </div>
+
+      <div class="km-filepond-gallery" data-filepond-gallery-panel hidden>
+        <input type="file" name="gallery_uploads" accept="image/*" multiple data-filepond-gallery-upload>
+        <p data-filepond-gallery-meta>{% translate "Новые фото добавятся в галерею после сохранения карточки." %}</p>
+      </div>
+
+      {% if gallery_inline %}
+        {% include "admin/catalog/place/placephoto_inline.html" with inline_admin_formset=gallery_inline %}
+      {% else %}
+        <p class="km-pf-note">{% translate "Пока нет дополнительных фотографий." %}</p>
+      {% endif %}
+
+      <p class="km-pf-note">{% translate "Перетащите миниатюру, чтобы изменить порядок. Первая идёт сразу после главного фото." %}</p>
+    </div>
+  </div>
+{% endwith %}

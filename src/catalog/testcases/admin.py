@@ -1297,9 +1297,9 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=permanent")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "km-place-form-page")
-        self.assertContains(response, "km-place-form-steps")
-        self.assertContains(response, "km-place-form-sidebar")
+        self.assertContains(response, "km-pf__shell")
+        self.assertContains(response, "km-pf-navitem")
+        self.assertContains(response, "km-pf__side")
         self.assertContains(response, "data-place-accordion-collapse-all")
         self.assertContains(response, "data-place-accordion-expand-all")
         self.assertContains(response, "data-place-section-toggle")
@@ -1308,9 +1308,9 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "Главное фото")
         self.assertContains(response, "Дополнительные фотографии")
         self.assertContains(response, "data-gallery-root")
-        self.assertContains(response, "Сводка карточки")
+        self.assertContains(response, "Готовность")
         self.assertContains(response, "Черновик")
-        self.assertContains(response, "Сначала название и описание карточки, затем категория и подкатегория.")
+        self.assertContains(response, "Название, описание и рубрика карточки.")
         self.assertContains(response, "Цена и возраст")
         self.assertContains(response, 'data-tariff-input=""', html=False)
         self.assertNotContains(response, "URL-слаг")
@@ -1320,7 +1320,6 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "data-rejected-status")
         self.assertContains(response, "Импорт из JSON")
         self.assertContains(response, "data-place-json-import-open")
-        self.assertContains(response, "Инструкция для ChatGPT")
         self.assertContains(response, "data-place-json-prompt-copy")
         self.assertContains(response, "Инструкция для создания JSON")
         self.assertContains(response, "data-place-json-prompt-input")
@@ -2472,14 +2471,14 @@ class UserAdminUXTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn("km_user_form_summary", response.context)
-        
+
         summary = response.context["km_user_form_summary"]
         self.assertEqual(summary["full_name"], "Test User")
         self.assertEqual(summary["email"], "test@example.com")
         self.assertTrue(summary["email_verified"])
         self.assertEqual(summary["phone"], "+994501234567")
         self.assertFalse(summary["owner_workflow"]["has_requests"])
-        
+
         content = response.content.decode("utf-8")
         self.assertIn("Email подтвержден", content)
         self.assertIn("Test User", content)
@@ -2709,16 +2708,16 @@ class TestAdminBulkActions(TestCase):
     @patch("catalog.domain_admin.place.place_quality_check")
     def test_place_make_published_action(self, mock_quality):
         mock_quality.return_value.is_ready = True
-        
+
         place1 = create_ready_place(name="Place 1", status=Place.STATUS_DRAFT)
         place2 = create_quality_place(name="Place 2", status=Place.STATUS_DRAFT)
-        
+
         url = reverse("admin:catalog_place_changelist")
         response = self.client.post(url, {
             "action": "mark_published",
             "_selected_action": [place1.pk, place2.pk]
         })
-        
+
         self.assertEqual(response.status_code, 302)
         place1.refresh_from_db()
         place2.refresh_from_db()
@@ -2727,13 +2726,13 @@ class TestAdminBulkActions(TestCase):
 
     def test_place_make_draft_action(self):
         place1 = create_quality_place(name="Place 1", status=Place.STATUS_PUBLISHED)
-        
+
         url = reverse("admin:catalog_place_changelist")
         response = self.client.post(url, {
             "action": "mark_draft",
             "_selected_action": [place1.pk]
         })
-        
+
         self.assertEqual(response.status_code, 302)
         place1.refresh_from_db()
         self.assertEqual(place1.status, Place.STATUS_DRAFT)
@@ -2742,35 +2741,35 @@ class TestAdminBulkActions(TestCase):
         place1 = create_quality_place(name="Place 1", status=Place.STATUS_PUBLISHED)
         place1.is_active = True
         place1.save()
-        
+
         url = reverse("admin:catalog_place_changelist")
         response = self.client.post(url, {
             "action": "mark_inactive",
             "_selected_action": [place1.pk]
         })
-        
+
         self.assertEqual(response.status_code, 302)
         place1.refresh_from_db()
         self.assertFalse(place1.is_active)
 
     def test_place_mark_pending_action(self):
         place1 = create_ready_place(name="Place 1", status=Place.STATUS_DRAFT)
-        
+
         url = reverse("admin:catalog_place_changelist")
         response = self.client.post(url, {
             "action": "mark_pending",
             "_selected_action": [place1.pk]
         })
-        
+
         self.assertEqual(response.status_code, 302)
         place1.refresh_from_db()
         self.assertEqual(place1.status, Place.STATUS_PENDING)
 
     def test_place_move_to_deleted_and_restore(self):
         place1 = create_quality_place(name="Place 1", status=Place.STATUS_PUBLISHED)
-        
+
         url = reverse("admin:catalog_place_changelist")
-        
+
         # Test soft delete (requires a confirmation POST, but wait, move_selected_to_deleted checks request.POST.get("post"))
         # If "post" is not in request, it returns a TemplateResponse.
         # So we must include "post": "yes"
@@ -2779,12 +2778,12 @@ class TestAdminBulkActions(TestCase):
             "_selected_action": [place1.pk],
             "post": "yes",
         })
-        
+
         self.assertEqual(response.status_code, 302)
         place1.refresh_from_db()
         self.assertTrue(place1.is_deleted)
         self.assertIsNotNone(place1.deleted_at)
-        
+
         # Test restore
         response = self.client.post(url, {
             "action": "restore_selected",
@@ -2800,9 +2799,9 @@ class TestAdminBulkActions(TestCase):
         place = create_quality_place(name="Review Place", status=Place.STATUS_PUBLISHED)
         review1 = PlaceReview.objects.create(place=place, status=PlaceReview.STATUS_PENDING, rating=5, text="Good", session_key="session1")
         review2 = PlaceReview.objects.create(place=place, status=PlaceReview.STATUS_PENDING, rating=1, text="Bad", session_key="session2")
-        
+
         url = reverse("admin:catalog_placereview_changelist")
-        
+
         # Approve review1
         response = self.client.post(url, {
             "action": "approve_selected",
@@ -2811,7 +2810,7 @@ class TestAdminBulkActions(TestCase):
         self.assertEqual(response.status_code, 302)
         review1.refresh_from_db()
         self.assertEqual(review1.status, PlaceReview.STATUS_APPROVED)
-        
+
         # Reject review2
         response = self.client.post(url, {
             "action": "reject_selected",
@@ -2825,9 +2824,9 @@ class TestAdminBulkActions(TestCase):
         place = create_quality_place(name="Event Place", status=Place.STATUS_PUBLISHED)
         event1 = Event.objects.create(name="Event 1", related_place=place, category="EDU", status=Event.STATUS_DRAFT)
         event2 = Event.objects.create(name="Event 2", related_place=place, category="EDU", status=Event.STATUS_PUBLISHED)
-        
+
         url = reverse("admin:catalog_event_changelist")
-        
+
         # Publish event1
         response = self.client.post(url, {
             "action": "mark_published",
@@ -2854,9 +2853,9 @@ class TestAdminBulkActions(TestCase):
         user = User.objects.create_user("applicant", "app@example.com", "pass")
         req1 = PlaceOwnershipRequest.objects.create(place=place1, applicant=user, status=PlaceOwnershipRequest.STATUS_PENDING)
         req2 = PlaceOwnershipRequest.objects.create(place=place2, applicant=user, status=PlaceOwnershipRequest.STATUS_PENDING)
-        
+
         url = reverse("admin:catalog_placeownershiprequest_changelist")
-        
+
         # Approve req1
         response = self.client.post(url, {
             "action": "approve_requests",
@@ -2879,7 +2878,7 @@ class TestAdminChangelistUI(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.admin_user = User.objects.create_superuser("admin_ui", "admin_ui@example.com", "pass")
-    
+
     def setUp(self):
         self.client.force_login(self.admin_user)
 
@@ -2891,7 +2890,7 @@ class TestAdminChangelistUI(TestCase):
             reverse("admin:catalog_placeownershiprequest_changelist"),
             reverse("admin:catalog_siteregistereduser_changelist"),
         ]
-        
+
         for url in urls:
             with self.subTest(url=url):
                 response = self.client.get(url)
@@ -2908,11 +2907,11 @@ class TestAdminChangelistUI(TestCase):
         place = create_quality_place(name="Review test place")
         user = User.objects.create_user("review_user", "review@example.com", "pass")
         PlaceReview.objects.create(place=place, user=user, text="Bad text", rating=1)
-        
+
         url = reverse("admin:catalog_placereview_changelist") + "?q=Bad&rating=1"
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        
+
         # Verify that the quick tab link contains the query parameters
         self.assertContains(response, "q=Bad")
         self.assertContains(response, "rating=1")
@@ -3464,7 +3463,7 @@ class TestReviewRatingSyncAndAdminBulkActions(TestCase):
         from catalog.models.review import PlaceReview
         review1 = PlaceReview.objects.create(place=self.place, rating=5, text="Great place!", status=PlaceReview.STATUS_PENDING, is_approved=False)
         review2 = PlaceReview.objects.create(place=self.place, rating=4, text="Good place!", status=PlaceReview.STATUS_PENDING, is_approved=False)
-        
+
         self.place.refresh_from_db()
         self.assertEqual(self.place.rating_count, 0)
         self.assertEqual(self.place.rating_avg, 0.0)

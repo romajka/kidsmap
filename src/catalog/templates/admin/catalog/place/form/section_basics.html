@@ -1,0 +1,55 @@
+{% load i18n %}
+{% with form=adminform.form %}
+  <div class="km-pf-group" data-pf-group="names">
+    <div class="km-pf-group__head">
+      <span class="km-pf-group__title">{% translate "Название и описание" %}</span>
+      <span class="km-pf-group__note">{% translate "Азербайджанский обязателен, остальные языки подставятся автоматически" %}</span>
+    </div>
+
+    <div class="km-pf-langtabs" data-pf-langtabs role="tablist" aria-label="{% translate 'Языки карточки' %}">
+      {% for lang in km_place_language_tabs %}
+        <button
+          type="button"
+          class="km-pf-langtabs__tab{% if forloop.first %} is-active{% endif %}"
+          data-pf-langtab="{{ lang.code }}"
+          role="tab"
+          id="km-pf-langtab-{{ lang.code }}"
+          aria-controls="km-pf-langpane-{{ lang.code }}"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+        >
+          <span class="km-pf-langtabs__label">{{ lang.label }}</span>
+          <svg class="km-i km-pf-langtabs__mark" viewBox="0 0 960 960" aria-hidden="true" focusable="false" data-pf-langmark hidden><use href="#kmi-check"></use></svg>
+        </button>
+      {% endfor %}
+    </div>
+
+    {% for lang in km_place_language_tabs %}
+      <div
+        class="km-pf-langpane{% if not forloop.first %} is-hidden{% endif %}"
+        id="km-pf-langpane-{{ lang.code }}"
+        data-pf-langpane="{{ lang.code }}"
+        role="tabpanel"
+        aria-labelledby="km-pf-langtab-{{ lang.code }}"
+        {% if not forloop.first %}hidden{% endif %}
+      >
+        {% include "admin/catalog/place/form/_field.html" with field=lang.name_field label=lang.name_label optional=lang.optional wide=True %}
+        {% include "admin/catalog/place/form/_field.html" with field=lang.description_field label=lang.description_label optional=lang.optional wide=True control_class="km-pf-field__control--counted" %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="km-pf-divider" role="presentation"></div>
+
+  <div class="km-pf-group" data-pf-group="taxonomy">
+    <div class="km-pf-group__head">
+      <span class="km-pf-group__title">{% translate "Рубрика карточки" %}</span>
+      <span class="km-pf-group__note">{% translate "Определяет, где посетители найдут это место" %}</span>
+    </div>
+    <div class="km-pf-grid km-pf-grid--2">
+      {% include "admin/catalog/place/form/_field.html" with field=form.category %}
+      {% include "admin/catalog/place/form/_field.html" with field=form.subcategory %}
+    </div>
+  </div>
+
+  <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.name }}</div>
+{% endwith %}

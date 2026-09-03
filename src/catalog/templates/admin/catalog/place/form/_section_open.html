@@ -1,0 +1,34 @@
+{% load i18n %}
+{% comment %}
+  Opening markup of a form section. Params: section, state (from
+  km_place_form_summary.sections), modifier.
+{% endcomment %}
+<section
+  id="{{ section.id }}"
+  class="km-pf-section{% if modifier %} km-pf-section--{{ modifier }}{% endif %} is-{{ state.state|default:'empty' }}"
+  data-place-section
+  data-place-accordion-section
+  data-pf-section="{{ section.id }}"
+>
+  <h2 class="km-pf-section__head">
+    <button
+      type="button"
+      class="km-pf-section__toggle"
+      data-place-section-toggle
+      aria-expanded="true"
+      aria-controls="{{ section.id }}-body"
+    >
+      <span class="km-pf-section__icon" aria-hidden="true"><svg class="km-i" viewBox="0 0 960 960" focusable="false"><use href="#kmi-{{ section.icon }}"></use></svg></span>
+      <span class="km-pf-section__copy">
+        <span class="km-pf-section__title">{{ section.title }}</span>
+        <span class="km-pf-section__desc">{{ section.description }}</span>
+      </span>
+      <span class="km-pf-section__badge" data-place-section-state>
+        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use data-place-section-state-icon href="#kmi-{{ state.icon|default:'radio_button_unchecked' }}"></use></svg>
+        <span data-place-section-state-text>{{ state.label }}</span>
+      </span>
+      <svg class="km-i km-pf-section__chevron" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+    </button>
+  </h2>
+  <div id="{{ section.id }}-body" class="km-pf-section__body">
+    <div class="km-pf-section__inner">

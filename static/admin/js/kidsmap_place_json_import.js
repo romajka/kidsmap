@@ -62,7 +62,7 @@
     var option = Array.prototype.find.call(select.options, function (item) {
       var val = normalize(item.value);
       var txt = normalize(item.textContent);
-      return val === targetKey 
+      return val === targetKey
         || val.replace(/^baku_/, "") === clean
         || txt === targetKey
         || txt === clean
@@ -378,96 +378,145 @@
         }
       }
 
-      var filled = 0;
-      var fields = {
-        name_az: ["name_az", "название_аз"],
-        name_ru: ["name_ru", "название", "name"],
-        name_en: ["name_en"],
-        description_az: ["description_az"],
-        description_ru: ["description_ru", "description", "описание"],
-        description_en: ["description_en"],
-        age_from: ["age_from", "возраст_от"],
-        age_to: ["age_to", "возраст_до"],
-        address: ["address", "адрес"],
-        metro: ["metro", "метро"],
-        phone1: ["phone1", "phone", "телефон"],
-        phone2: ["phone2", "additional_phone", "дополнительный_телефон"],
-        phone3: ["phone3", "other_phone", "ещё_один_телефон"],
-        instagram: ["instagram"],
-        website: ["website", "site", "сайт"],
-        lat: ["lat", "latitude", "широта"],
-        lng: ["lng", "longitude", "долгота"],
-        lesson_duration_minutes: ["lesson_duration_minutes", "длительность_минуты"],
-        lessons_per_week: ["lessons_per_week", "занятий_в_неделю"],
-        lessons_per_month: ["lessons_per_month", "занятий_в_месяц"],
-        schedule_mode: ["schedule_mode"],
-        schedule_note_az: ["schedule_note_az"],
-        schedule_note_ru: ["schedule_note_ru"],
-        schedule_note_en: ["schedule_note_en"],
-        temporary_start: ["temporary_start"],
-        temporary_end: ["temporary_end"],
-        extra_conditions: ["extra_conditions", "дополнительные_условия"],
-        additional_info: ["additional_info", "что_есть_на_месте", "дополнительная_информация"],
-        extra_conditions_az: ["extra_conditions_az"],
-        extra_conditions_ru: ["extra_conditions_ru"],
-        extra_conditions_en: ["extra_conditions_en"],
-        additional_info_az: ["additional_info_az"],
-        additional_info_ru: ["additional_info_ru"],
-        additional_info_en: ["additional_info_en"],
-        custom_price_badge_az: ["custom_price_badge_az", "плашка_цены_az", "надпись_цены_az"],
-        custom_price_badge_ru: ["custom_price_badge_ru", "custom_price_badge", "плашка_цены", "надпись_цены"],
-        custom_price_badge_en: ["custom_price_badge_en", "плашка_цены_en"],
-        pricing_plans: ["pricing_plans", "tariffs"]
-      };
-      Object.keys(fields).forEach(function (fieldName) {
-        if (setValue(fieldName, first(data, fields[fieldName]))) filled += 1;
-      });
+      function applyData() {
+        var filled = 0;
+        var fields = {
+          name_az: ["name_az", "название_аз"],
+          name_ru: ["name_ru", "название", "name"],
+          name_en: ["name_en"],
+          description_az: ["description_az"],
+          description_ru: ["description_ru", "description", "описание"],
+          description_en: ["description_en"],
+          age_from: ["age_from", "возраст_от"],
+          age_to: ["age_to", "возраст_до"],
+          address: ["address", "адрес"],
+          metro: ["metro", "метро"],
+          phone1: ["phone1", "phone", "телефон"],
+          phone2: ["phone2", "additional_phone", "дополнительный_телефон"],
+          phone3: ["phone3", "other_phone", "ещё_один_телефон"],
+          instagram: ["instagram"],
+          website: ["website", "site", "сайт"],
+          lat: ["lat", "latitude", "широта"],
+          lng: ["lng", "longitude", "долгота"],
+          lesson_duration_minutes: ["lesson_duration_minutes", "длительность_минуты"],
+          lessons_per_week: ["lessons_per_week", "занятий_в_неделю"],
+          lessons_per_month: ["lessons_per_month", "занятий_в_месяц"],
+          schedule_mode: ["schedule_mode"],
+          schedule_note_az: ["schedule_note_az"],
+          schedule_note_ru: ["schedule_note_ru"],
+          schedule_note_en: ["schedule_note_en"],
+          temporary_start: ["temporary_start"],
+          temporary_end: ["temporary_end"],
+          extra_conditions: ["extra_conditions", "дополнительные_условия"],
+          additional_info: ["additional_info", "что_есть_на_месте", "дополнительная_информация"],
+          extra_conditions_az: ["extra_conditions_az"],
+          extra_conditions_ru: ["extra_conditions_ru"],
+          extra_conditions_en: ["extra_conditions_en"],
+          additional_info_az: ["additional_info_az"],
+          additional_info_ru: ["additional_info_ru"],
+          additional_info_en: ["additional_info_en"],
+          custom_price_badge_az: ["custom_price_badge_az", "плашка_цены_az", "надпись_цены_az"],
+          custom_price_badge_ru: ["custom_price_badge_ru", "custom_price_badge", "плашка_цены", "надпись_цены"],
+          custom_price_badge_en: ["custom_price_badge_en", "плашка_цены_en"],
+          pricing_plans: ["pricing_plans", "tariffs"]
+        };
+        Object.keys(fields).forEach(function (fieldName) {
+          if (setValue(fieldName, first(data, fields[fieldName]))) filled += 1;
+        });
 
-      if (setStructuredSchedule(first(data, ["schedule_days", "structured_schedule", "расписание_по_дням"]))) filled += 1;
+        if (setStructuredSchedule(first(data, ["schedule_days", "structured_schedule", "расписание_по_дням"]))) filled += 1;
 
-      if (setCheckbox("is_temporary", first(data, ["is_temporary"]))) filled += 1;
-      if (setCheckbox("age_open_ended", first(data, ["age_open_ended"]))) filled += 1;
+        if (setCheckbox("is_temporary", first(data, ["is_temporary"]))) filled += 1;
+        if (setCheckbox("age_open_ended", first(data, ["age_open_ended"]))) filled += 1;
 
-      if (setSelectByValueOrLabel("region", first(data, ["region", "город", "регион"]))) filled += 1;
-      if (setDistrictSelect(first(data, ["district", "район"])) || setSelectByValueOrLabel("district", first(data, ["district", "район"]))) filled += 1;
-      if (setSelectByValueOrLabel("lesson_format", first(data, ["lesson_format", "формат_занятий"]))) filled += 1;
+        if (setSelectByValueOrLabel("region", first(data, ["region", "город", "регион"]))) filled += 1;
+        if (setDistrictSelect(first(data, ["district", "район"])) || setSelectByValueOrLabel("district", first(data, ["district", "район"]))) filled += 1;
+        if (setSelectByValueOrLabel("lesson_format", first(data, ["lesson_format", "формат_занятий"]))) filled += 1;
 
-      var adultClasses = first(data, ["offers_adult_classes", "занятия_для_взрослых"]);
-      var adultClassesInput = document.getElementById("id_offers_adult_classes");
-      if (adultClasses !== undefined && adultClassesInput) {
-        adultClassesInput.checked = adultClasses === true || adultClasses === 1 || adultClasses === "1" || normalize(adultClasses) === "true";
-        adultClassesInput.dispatchEvent(new Event("change", { bubbles: true }));
-        filled += 1;
-      }
-
-      var categoryValue = first(data, ["category", "категория"]);
-      var category = Array.prototype.find.call(taxonomy.categories || [], function (item) {
-        return normalize(item.code) === normalize(categoryValue) || normalize(item.label) === normalize(categoryValue);
-      });
-      if (category && setSelectByValueOrLabel("category", category.code)) filled += 1;
-
-      var subcategoryValue = first(data, ["subcategory", "подкатегория"]);
-      var subcategory = Array.prototype.find.call(taxonomy.subcategories || [], function (item) {
-        return normalize(item.code) === normalize(subcategoryValue) || normalize(item.label) === normalize(subcategoryValue);
-      });
-      if (subcategory) {
-        if (setSelectByValueOrLabel("subcategory", subcategory.id)) {
-          filled += 1;
-        } else if (setSelectByValueOrLabel("subcategory", subcategory.code)) {
+        var adultClasses = first(data, ["offers_adult_classes", "занятия_для_взрослых"]);
+        var adultClassesInput = document.getElementById("id_offers_adult_classes");
+        if (adultClasses !== undefined && adultClassesInput) {
+          adultClassesInput.checked = adultClasses === true || adultClasses === 1 || adultClasses === "1" || normalize(adultClasses) === "true";
+          adultClassesInput.dispatchEvent(new Event("change", { bubbles: true }));
           filled += 1;
         }
-      } else if (subcategoryValue && setSelectByValueOrLabel("subcategory", subcategoryValue)) {
-        filled += 1;
+
+        var categoryValue = first(data, ["category", "категория"]);
+        var category = Array.prototype.find.call(taxonomy.categories || [], function (item) {
+          return normalize(item.code) === normalize(categoryValue) || normalize(item.label) === normalize(categoryValue);
+        });
+        if (category && setSelectByValueOrLabel("category", category.code)) filled += 1;
+
+        var subcategoryValue = first(data, ["subcategory", "подкатегория"]);
+        var subcategory = Array.prototype.find.call(taxonomy.subcategories || [], function (item) {
+          return normalize(item.code) === normalize(subcategoryValue) || normalize(item.label) === normalize(subcategoryValue);
+        });
+        if (subcategory) {
+          if (setSelectByValueOrLabel("subcategory", subcategory.id)) {
+            filled += 1;
+          } else if (setSelectByValueOrLabel("subcategory", subcategory.code)) {
+            filled += 1;
+          }
+        } else if (subcategoryValue && setSelectByValueOrLabel("subcategory", subcategoryValue)) {
+          filled += 1;
+        }
+
+        if (!filled) {
+          showMessage("Поля не найдены. Используйте ключи из подсказки под полем JSON.", true);
+          return;
+        }
+        showEditorReview(data.editor_review);
+        showMessage("Заполнено полей: " + filled + ". Проверьте данные и сохраните карточку.", false);
+        dialog.close();
+        if (window.kmToast) {
+          window.kmToast.success("Данные импортированы", "Заполнено полей: " + filled);
+        }
+        window.setTimeout(function () { openButton.focus(); }, 0);
       }
 
-      if (!filled) {
-        showMessage("Поля не найдены. Используйте ключи из подсказки под полем JSON.", true);
-        return;
+      function hasExistingDataOrChanges() {
+        if (window.kmDirtyState && window.kmDirtyState.isDirty()) return true;
+        var nameAz = document.getElementById("id_name_az");
+        var nameRu = document.getElementById("id_name_ru");
+        var address = document.getElementById("id_address");
+        var tariffs = document.getElementById("id_pricing_plans");
+        var desc = document.getElementById("id_description_ru");
+        return Boolean(
+          (nameAz && nameAz.value.trim()) ||
+          (nameRu && nameRu.value.trim()) ||
+          (address && address.value.trim()) ||
+          (desc && desc.value.trim()) ||
+          (tariffs && tariffs.value && tariffs.value !== "[]")
+        );
       }
-      showEditorReview(data.editor_review);
-      showMessage("Заполнено полей: " + filled + ". Проверьте данные и сохраните карточку.", false);
-      dialog.close();
-      window.setTimeout(function () { openButton.focus(); }, 0);
+
+      if (hasExistingDataOrChanges() && window.kmModal) {
+        dialog.close();
+        window.kmModal.show({
+          icon: "warning",
+          iconTone: "warn",
+          title: "Импорт заменит данные формы",
+          message: "Часть уже введённой информации может быть перезаписана.",
+          actions: [
+            {
+              label: "Отмена",
+              tone: "quiet",
+              onClick: function () {
+                dialog.showModal();
+              }
+            },
+            {
+              label: "Продолжить импорт",
+              tone: "primary",
+              onClick: function () {
+                applyData();
+              }
+            }
+          ]
+        });
+      } else {
+        applyData();
+      }
     });
   }
 

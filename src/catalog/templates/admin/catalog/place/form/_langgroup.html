@@ -1,0 +1,34 @@
+{% load i18n %}
+{% comment %}
+  A small AZ / RU / EN tab group for one multilingual text field.
+  Params: group (unique key), tabs (list of {code, label, field}).
+{% endcomment %}
+{% if tabs %}
+  <div class="km-pf-langgroup" data-pf-langgroup="{{ group }}">
+    <div class="km-pf-langtabs km-pf-langtabs--sm" role="tablist" aria-label="{% translate 'Язык текста' %}">
+      {% for tab in tabs %}
+        <button
+          type="button"
+          class="km-pf-langtabs__tab{% if forloop.first %} is-active{% endif %}"
+          role="tab"
+          id="km-pf-{{ group }}-tab-{{ tab.code }}"
+          aria-controls="km-pf-{{ group }}-pane-{{ tab.code }}"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          data-pf-langtab="{{ tab.code }}"
+        >{{ tab.label }}</button>
+      {% endfor %}
+    </div>
+    {% for tab in tabs %}
+      <div
+        class="km-pf-langpane{% if not forloop.first %} is-hidden{% endif %}"
+        id="km-pf-{{ group }}-pane-{{ tab.code }}"
+        role="tabpanel"
+        aria-labelledby="km-pf-{{ group }}-tab-{{ tab.code }}"
+        data-pf-langpane="{{ tab.code }}"
+        {% if not forloop.first %}hidden{% endif %}
+      >
+        {% include "admin/catalog/place/form/_field.html" with field=tab.field label=tab.label hide_label=True wide=True %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

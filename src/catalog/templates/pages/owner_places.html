@@ -2,512 +2,657 @@
 {% load i18n static catalog_i18n %}
 {% get_current_language as CURRENT_LANGUAGE %}
 
-{% block title %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}{% endblock %}
-{% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap{% endblock %}
-{% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap{% endblock %}
+{% block title %}
+  {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
+{% endblock %}
+{% block title_plain %}
+  {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap
+{% endblock %}
+{% block title_plain_twitter %}
+  {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %} | KidsMap
+{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
-{% block content %}
-  <section class="panel owner-places owner-places-dashboard km-specialist-owner-page" data-owner-legacy-error="Kart tapılmadı">
-    {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
-    {% trans "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков." as delete_event_confirm_text %}
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}" />
+{% endblock %}
 
-    <header class="owner-dashboard-head">
-      <div>
-        <h1>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h1>
-        <p class="auth-subtitle">
-          {% if CURRENT_LANGUAGE == "az" %}
-            Məkan və tədbirlərinizi əlavə edin, moderasiya statusunu izləyin.
-          {% elif CURRENT_LANGUAGE == "en" %}
-            Add places and events, then track their publishing and moderation status.
-          {% else %}
-            Добавляйте места и мероприятия, следите за публикацией и модерацией.
-          {% endif %}
-        </p>
-      </div>
+{% block content %}
+<div class="account-page-wrapper" data-owner-legacy-error="Kart tapılmadı">
+  {% trans "Удалить карточку и скрыть ее с сайта? Карточка пропадет из вашего кабинета, но останется в удаленных у администратора." as delete_place_confirm_text %}
+  {% trans "Удалить мероприятие? Оно пропадет из вашего кабинета и публичных списков." as delete_event_confirm_text %}
+
+  <!-- Signed in notification banner -->
+  <div class="account-alert-banner">
+    <span class="material-symbols-rounded">check_circle</span>
+    <span>
+      {% if CURRENT_LANGUAGE == "az" %}
+        Hesabınıza daxil oldunuz.
+      {% elif CURRENT_LANGUAGE == "en" %}
+        You are signed in to your account.
+      {% else %}
+        Вы вошли в аккаунт.
+      {% endif %}
+    </span>
+  </div>
+
+  <!-- User Identity Header Card -->
+  <div class="account-user-card">
+    <div class="account-user-avatar">
+      {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+    </div>
+    <div class="account-user-info">
+      <h1 class="account-user-name">{{ request.user.get_full_name|default:request.user.username }}</h1>
+      <span class="account-user-email">{{ request.user.email|default:request.user.username }}</span>
+    </div>
+    <div class="account-user-meta">
+      <span class="material-symbols-rounded">event_available</span>
+      <span>
+        {% if CURRENT_LANGUAGE == "az" %}
+          Qeydiyyat: {{ request.user.date_joined|date:"d.m.Y" }}
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Joined: {{ request.user.date_joined|date:"d.m.Y" }}
+        {% else %}
+          С нами с {{ request.user.date_joined|date:"d.m.Y" }}
+        {% endif %}
+      </span>
+    </div>
+    <div class="account-user-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
       {% if can_create_more_places %}
-        <a class="btn owner-dashboard-add" href="{% url 'owner_place_create' %}?fresh=1">
-          <span aria-hidden="true">+</span>
-          {% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}
+        <a href="{% url 'owner_place_create' %}?fresh=1" class="account-btn-action">
+          <span class="material-symbols-rounded">add_circle</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}</span>
         </a>
       {% else %}
-        <span class="btn-secondary owner-dashboard-add owner-dashboard-add-disabled" data-owner-legacy-label="Limit dolub">
+        <span class="account-btn-sm account-btn-sm--muted" data-owner-legacy-label="Limit dolub">
           {% if CURRENT_LANGUAGE == "az" %}Limit dolub{% elif CURRENT_LANGUAGE == "en" %}Limit reached{% else %}Лимит заполнен{% endif %}
         </span>
       {% endif %}
-    </header>
-
-    <nav class="owner-listing-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Elan növləri{% elif CURRENT_LANGUAGE == 'en' %}Listing types{% else %}Типы объявлений{% endif %}">
-      <a class="owner-listing-tab is-active" href="#owner-places-list">{% if CURRENT_LANGUAGE == "az" %}Məkanlar{% elif CURRENT_LANGUAGE == "en" %}Places{% else %}Места{% endif %} <span>{{ owner_stats.total_places }}</span></a>
-      {% if is_events_section_enabled %}
-        <a class="owner-listing-tab" href="#owner-events-list">{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %} <span>{{ owner_event_stats.total }}</span></a>
-      {% endif %}
-      {% if is_specialists_section_enabled %}
-      <a class="owner-listing-tab" href="#owner-specialists-list">{% if CURRENT_LANGUAGE == "az" %}Mənim profillərim{% elif CURRENT_LANGUAGE == "en" %}My profiles{% else %}Мои профили{% endif %} <span>{{ owner_specialist_stats.total }}</span></a>
-      {% endif %}
-    </nav>
-
-    <nav class="owner-dashboard-tabs" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Məkanların idarə edilməsi{% elif CURRENT_LANGUAGE == 'en' %}Manage places{% else %}Управление местами{% endif %}">
-      <a class="owner-dashboard-tab is-active" href="{% url 'owner_places_dashboard' %}">
-        <span aria-hidden="true">⌖</span>
-        {% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}
+      <a href="{% url 'account_settings' %}" class="account-btn-sm account-btn-sm--secondary">
+        <span class="material-symbols-rounded">edit</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Profil{% elif CURRENT_LANGUAGE == "en" %}Profile{% else %}Профиль{% endif %}</span>
       </a>
-      {% if can_moderate_reviews %}
-        <a class="owner-dashboard-tab" href="{% url 'owner_reviews_dashboard' %}">
-          <span aria-hidden="true">□</span>
-          {% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}
-        </a>
-      {% else %}
-        <span class="owner-dashboard-tab is-disabled">
-          <span aria-hidden="true">□</span>
-          {% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}
-        </span>
-      {% endif %}
-    </nav>
+    </div>
+  </div>
 
-    <section class="owner-dashboard-banner">
-      <div class="owner-dashboard-banner__copy">
-        <span class="owner-dashboard-banner__icon" aria-hidden="true">i</span>
-        <div>
-          <h2>
+  <!-- Main 2-column Grid: Sidebar + Content -->
+  <div class="account-main-layout">
+
+    <!-- Sidebar Navigation -->
+    <aside class="account-nav-sidebar">
+      <a href="{% url 'account_dashboard' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">grid_view</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Ümumi baxış{% elif CURRENT_LANGUAGE == "en" %}Overview{% else %}Обзор{% endif %}</span>
+      </a>
+      <a href="{% url 'owner_places_dashboard' %}" class="account-nav-item is-active">
+        <span class="material-symbols-rounded">location_on</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</span>
+        {% if managed_places_count %}<span class="account-nav-count">{{ managed_places_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'owner_reviews_dashboard' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">star</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Rəylərim{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
+        {% if user_reviews_count %}<span class="account-nav-count">{{ user_reviews_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'account_favorites' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">favorite</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Seçilmişlər{% elif CURRENT_LANGUAGE == "en" %}Favorites{% else %}Избранное{% endif %}</span>
+        {% if favorites_count %}<span class="account-nav-count">{{ favorites_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'account_settings' %}" class="account-nav-item">
+        <span class="material-symbols-rounded">settings</span>
+        <span class="account-nav-text">{% if CURRENT_LANGUAGE == "az" %}Tənzimləmələr{% elif CURRENT_LANGUAGE == "en" %}Settings{% else %}Настройки{% endif %}</span>
+      </a>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <section class="account-main-content">
+
+      <!-- Section Title & Quick Action -->
+      <div class="account-section-head-with-action">
+        <div class="account-section-title-wrap">
+          <h1>{% if CURRENT_LANGUAGE == "az" %}Mənim məkanlarım{% elif CURRENT_LANGUAGE == "en" %}My places{% else %}Мои места{% endif %}</h1>
+          <p class="account-section-subtitle">
             {% if CURRENT_LANGUAGE == "az" %}
-              Yeni məkanlar əlavə edin və statusunu izləyin
+              Məkan və tədbirlərinizi idarə edin, moderasiya statusunu izləyin.
             {% elif CURRENT_LANGUAGE == "en" %}
-              Add new places and track their status
+              Manage your places and events, and track moderation status.
             {% else %}
-              Добавляйте новые места и отслеживайте их статус
-            {% endif %}
-          </h2>
-          <p>
-            {% if CURRENT_LANGUAGE == "az" %}
-              Məlumatları doldurun, məkanı moderasiyaya göndərin və yoxlamadan sonra kataloqda dərc olunsun.
-            {% elif CURRENT_LANGUAGE == "en" %}
-              Fill in the details, send the place for moderation, and it will appear in the catalog after review.
-            {% else %}
-              Заполните информацию, отправьте место на модерацию, и после проверки оно появится в каталоге.
+              Управляйте местами и мероприятиями, следите за публикацией и модерацией.
             {% endif %}
           </p>
+        </div>
+        <div>
+          {% if can_create_more_places %}
+            <a href="{% url 'owner_place_create' %}?fresh=1" class="account-btn-sm account-btn-sm--primary">
+              <span class="material-symbols-rounded">add</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
+            </a>
+          {% endif %}
         </div>
       </div>
-      <div class="owner-dashboard-banner__art" aria-hidden="true">
-        <span class="owner-dashboard-banner__leaf"></span>
-        <span class="owner-dashboard-banner__screen"></span>
-        <span class="owner-dashboard-banner__pin"></span>
-      </div>
-    </section>
 
-    <section class="owner-dashboard-actions" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Əsas əməliyyatlar{% elif CURRENT_LANGUAGE == 'en' %}Main actions{% else %}Основные действия{% endif %}">
-      <article class="owner-action-card owner-action-card--new">
-        <div class="owner-action-card__mark" aria-hidden="true">+</div>
-        <div>
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a new place{% else %}Добавить новое место{% endif %}</h2>
-          <p>
-            {% if CURRENT_LANGUAGE == "az" %}
-              Yeni məkan kartı yaradın və valideynlər üçün faydalı məlumat paylaşın.
-            {% elif CURRENT_LANGUAGE == "en" %}
-              Create a new place card and share useful information with parents.
-            {% else %}
-              Создайте новую карточку места и поделитесь полезной информацией с родителями.
-            {% endif %}
-          </p>
-        </div>
-        {% if can_create_more_places %}
-          <a class="btn owner-action-card__button" href="{% url 'owner_place_create' %}?fresh=1">
-            {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}
+      <!-- Sub-tabs (Places / Events / Specialists) -->
+      {% if is_events_section_enabled or is_specialists_section_enabled %}
+        <nav class="account-tabs-nav" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Bölmələr{% elif CURRENT_LANGUAGE == 'en' %}Sections{% else %}Разделы{% endif %}">
+          <a class="account-tab-pill is-active" href="#owner-places-list">
+            <span class="material-symbols-rounded">location_on</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Məkanlar{% elif CURRENT_LANGUAGE == "en" %}Places{% else %}Места{% endif %}</span>
+            <span class="account-nav-count">{{ owner_stats.total_places }}</span>
           </a>
-        {% else %}
-          <span class="btn-secondary owner-action-card__button owner-dashboard-add-disabled" data-owner-legacy-label="Limit dolub">
-            {% if CURRENT_LANGUAGE == "az" %}Limit dolub{% elif CURRENT_LANGUAGE == "en" %}Limit reached{% else %}Лимит заполнен{% endif %}
-          </span>
-        {% endif %}
-      </article>
-
-      {% if latest_editable_place %}
-        <article class="owner-action-card">
-          <div class="owner-action-card__mark" aria-hidden="true">▤</div>
-          <div>
-            <h2>{% if CURRENT_LANGUAGE == "az" %}Qaralamanı davam etdir{% elif CURRENT_LANGUAGE == "en" %}Continue draft{% else %}Продолжить черновик{% endif %}</h2>
-            <p>
-              {% if CURRENT_LANGUAGE == "az" %}
-                Tamamlanmamış məkan kartınız var.
-              {% elif CURRENT_LANGUAGE == "en" %}
-                You have an unfinished place card.
-              {% else %}
-                У вас есть незавершённая карточка места.
-              {% endif %}
-            </p>
-            <span class="owner-action-card__place">{{ latest_editable_place.name_i18n }}</span>
-          </div>
-          <a class="btn-secondary owner-action-card__button" href="{% url 'owner_place_edit' latest_editable_place.id %}" data-owner-legacy-label="Redaktəni davam et">
-            {% if CURRENT_LANGUAGE == "az" %}Redaktəyə davam et{% elif CURRENT_LANGUAGE == "en" %}Continue editing{% else %}Продолжить редактирование{% endif %}
-          </a>
-        </article>
+          {% if is_events_section_enabled %}
+            <a class="account-tab-pill" href="#owner-events-list">
+              <span class="material-symbols-rounded">event</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %}</span>
+              <span class="account-nav-count">{{ owner_event_stats.total }}</span>
+            </a>
+          {% endif %}
+          {% if is_specialists_section_enabled %}
+            <a class="account-tab-pill" href="#owner-specialists-list">
+              <span class="material-symbols-rounded">badge</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Specialists{% else %}Специалисты{% endif %}</span>
+              <span class="account-nav-count">{{ owner_specialist_stats.total }}</span>
+            </a>
+          {% endif %}
+        </nav>
       {% endif %}
 
-      {% if is_events_section_enabled %}
-      <article class="owner-action-card owner-action-card--event">
-        <div class="owner-action-card__mark" aria-hidden="true">◷</div>
-        <div>
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add an event{% else %}Добавить мероприятие{% endif %}</h2>
-          <p>
-            {% if CURRENT_LANGUAGE == "az" %}
-              Master-klas, açıq dərs və ya tarixə bağlı aktivliyi qısa formada əlavə edin.
-            {% elif CURRENT_LANGUAGE == "en" %}
-              Add a workshop, open lesson, or date-based activity with a shorter form.
-            {% else %}
-              Добавьте мастер-класс, открытый урок или событие с датой через короткую форму.
-            {% endif %}
-          </p>
-        </div>
-        <a class="btn-secondary owner-action-card__button" href="{% url 'owner_event_create' %}">
-          {% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}
-        </a>
-      </article>
-      {% endif %}
-
-      {% if is_specialists_section_enabled %}
-      <article class="owner-action-card owner-action-card--specialist">
-        <div class="owner-action-card__mark" aria-hidden="true"><i class="fas fa-user-tie"></i></div>
-        <div>
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}</h2>
-          <p>
-            {% if CURRENT_LANGUAGE == "az" %}
-              Uşaq psixoloqu, loqoped, pediatr, repetitor və ya məşqçi profilini əlavə edin.
-            {% elif CURRENT_LANGUAGE == "en" %}
-              Add a profile for a child psychologist, speech therapist, pediatrician, tutor, or coach.
-            {% else %}
-              Добавьте профиль детского психолога, логопеда, педиатра, репетитора или тренера.
-            {% endif %}
-          </p>
-        </div>
-        <a class="btn-secondary owner-action-card__button" href="{% url 'owner_specialist_create' %}">
-          {% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}
-        </a>
-      </article>
-      {% endif %}
-    </section>
-
-    {% if is_specialists_section_enabled %}
-    <section id="owner-specialists-list" class="owner-dashboard-section">
-      <div class="owner-dashboard-section__head">
-        <div>
-          <h2><i class="fas fa-user-tie" aria-hidden="true"></i> {% if CURRENT_LANGUAGE == "az" %}Mənim profillərim{% elif CURRENT_LANGUAGE == "en" %}My profiles{% else %}Мои профили{% endif %}</h2>
-          <p>{% if CURRENT_LANGUAGE == "az" %}Pedaqoq, mütəxəssis və repetitor profillərinizi idarə edin.{% elif CURRENT_LANGUAGE == "en" %}Manage educator, specialist, and tutor profiles.{% else %}Управляйте профилями педагогов, специалистов и репетиторов.{% endif %}</p>
-        </div>
-        <a class="btn" href="{% url 'owner_specialist_create' %}">
-          <i class="fas fa-plus" aria-hidden="true"></i>
-          {% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}
-        </a>
-      </div>
-      {% if owner_specialists %}
-        <div class="owner-dashboard-list owner-specialist-profile-list">
-          {% for specialist in owner_specialists %}
-            <article class="owner-dashboard-card owner-specialist-profile-card">
-              <div class="owner-specialist-profile-card__photo">
-                {% if specialist.photo %}
-                  <img src="{{ specialist.photo.url }}" alt="{{ specialist.name }}">
-                {% else %}
-                  <i class="fas fa-user-tie" aria-hidden="true"></i>
-                {% endif %}
-              </div>
-              <div class="owner-dashboard-card__main">
-                <h3>{{ specialist.name }}</h3>
-                <p>
-                  {% for spec in specialist.specializations.all %}
-                    {{ spec.name_i18n }}{% if not forloop.last %}, {% endif %}
-                  {% empty %}
-                    {% if CURRENT_LANGUAGE == "az" %}İstiqamət seçilməyib{% elif CURRENT_LANGUAGE == "en" %}No direction selected{% else %}Направление не выбрано{% endif %}
-                  {% endfor %}
-                </p>
-                <div class="owner-specialist-profile-card__meta">
-                  <span><i class="fas fa-laptop-house" aria-hidden="true"></i> {{ specialist.get_consultation_format_display }}</span>
-                  <span><i class="far fa-clock" aria-hidden="true"></i> {{ specialist.updated_at|date:"d.m.Y" }}</span>
-                </div>
-              </div>
-              <span class="owner-dashboard-status owner-dashboard-status--{{ specialist.status }}">{{ specialist.get_status_display }}</span>
-              <div class="owner-specialist-profile-card__actions">
-                <a class="btn-secondary owner-dashboard-card__action" href="{% url 'owner_specialist_edit' specialist.pk %}">
-                  <i class="fas fa-pen" aria-hidden="true"></i>
-                  {% if specialist.status == "draft" %}
-                    {% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}
-                  {% else %}
-                    {% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}
-                  {% endif %}
-                </a>
-                {% if specialist.status == "published" and specialist.is_active %}
-                  <a class="btn-secondary owner-dashboard-card__action" href="{{ specialist.get_absolute_url }}">
-                    <i class="fas fa-eye" aria-hidden="true"></i>
-                    {% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Просмотр{% endif %}
-                  </a>
-                {% endif %}
-              </div>
-            </article>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="owner-empty-state">
-          <i class="fas fa-user-plus" aria-hidden="true"></i>
-          <h3>{% if CURRENT_LANGUAGE == "az" %}Hələ profil yoxdur{% elif CURRENT_LANGUAGE == "en" %}No profiles yet{% else %}Профилей пока нет{% endif %}</h3>
-          <p>{% if CURRENT_LANGUAGE == "az" %}Pedaqoq, repetitor, psixoloq və ya məşqçi profilini əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}Add an educator, tutor, psychologist, or coach profile.{% else %}Добавьте профиль педагога, репетитора, психолога или тренера.{% endif %}</p>
-          <a class="btn" href="{% url 'owner_specialist_create' %}">
-            {% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}
-          </a>
-        </div>
-      {% endif %}
-    </section>
-    {% endif %}
-
-    {% if can_view_stats %}
-      <section class="owner-dashboard-stats" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Statistika{% elif CURRENT_LANGUAGE == 'en' %}Statistics{% else %}Статистика{% endif %}">
-        <article class="owner-stat-card">
-          <span class="owner-stat-card__icon" aria-hidden="true">⌖</span>
+      <!-- Statistics Metric Pills -->
+      <div class="account-metric-pills">
+        <div class="account-metric-pill">
+          <span class="material-symbols-rounded metric-icon-green">location_on</span>
           <strong>{{ owner_stats.total_places }}</strong>
           <span>{% if CURRENT_LANGUAGE == "az" %}Bütün məkanlar{% elif CURRENT_LANGUAGE == "en" %}Total places{% else %}Всего мест{% endif %}</span>
-        </article>
-        <article class="owner-stat-card">
-          <span class="owner-stat-card__icon" aria-hidden="true">↗</span>
+        </div>
+        <div class="account-metric-pill">
+          <span class="material-symbols-rounded metric-icon-green">check_circle</span>
           <strong>{{ owner_stats.published_places }}</strong>
           <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
-        </article>
-        <article class="owner-stat-card">
-          <span class="owner-stat-card__icon" aria-hidden="true">◷</span>
-          <strong>{{ owner_stats.draft_places }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts and moderation{% else %}Черновики и модерация{% endif %}</span>
-        </article>
-        <article class="owner-stat-card">
-          <span class="owner-stat-card__icon" aria-hidden="true">□</span>
-          <strong>{{ owner_stats.total_reviews }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
-        </article>
-        <article class="owner-stat-card">
-          <span class="owner-stat-card__icon" aria-hidden="true">♡</span>
-          <strong>{{ owner_stats.total_likes }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Bəyənmələr{% elif CURRENT_LANGUAGE == "en" %}Likes{% else %}Лайки{% endif %}</span>
-        </article>
-        <article class="owner-stat-card">
-          <span class="owner-stat-card__icon" aria-hidden="true">☆</span>
-          <strong>{{ owner_stats.avg_rating|floatformat:1 }}</strong>
-          <span>{% if CURRENT_LANGUAGE == "az" %}Orta reytinq{% elif CURRENT_LANGUAGE == "en" %}Average rating{% else %}Средний рейтинг{% endif %}</span>
-        </article>
-      </section>
-    {% endif %}
-
-    <div id="owner-places-list" class="owner-dashboard-columns">
-      <section class="owner-dashboard-section">
-        <div class="owner-dashboard-section__head">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</h2>
         </div>
+        <div class="account-metric-pill">
+          <span class="material-symbols-rounded metric-icon-gold">schedule</span>
+          <strong>{{ owner_stats.draft_places }}</strong>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Qaralama və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts & moderation{% else %}Черновики и модерация{% endif %}</span>
+        </div>
+        {% if can_view_stats %}
+          <div class="account-metric-pill">
+            <span class="material-symbols-rounded metric-icon-gold">star</span>
+            <strong>{{ owner_stats.total_reviews }}</strong>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Rəylər{% elif CURRENT_LANGUAGE == "en" %}Reviews{% else %}Отзывы{% endif %}</span>
+          </div>
+          <div class="account-metric-pill">
+            <span class="material-symbols-rounded metric-icon-red">favorite</span>
+            <strong>{{ owner_stats.total_likes }}</strong>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Bəyənmələr{% elif CURRENT_LANGUAGE == "en" %}Likes{% else %}Лайки{% endif %}</span>
+          </div>
+          <div class="account-metric-pill">
+            <span class="material-symbols-rounded metric-icon-gold">grade</span>
+            <strong>{{ owner_stats.avg_rating|floatformat:1 }}</strong>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Reytinq{% elif CURRENT_LANGUAGE == "en" %}Rating{% else %}Рейтинг{% endif %}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Actionable Draft Card (if available) -->
+      {% if latest_editable_place %}
+        <div class="account-continue-card">
+          <span class="material-symbols-rounded account-continue-icon">edit_note</span>
+          <div class="account-continue-info">
+            <div class="account-continue-header">
+              <span class="account-continue-title">{% if CURRENT_LANGUAGE == "az" %}Qaralamanı davam etdir{% elif CURRENT_LANGUAGE == "en" %}Continue draft{% else %}Продолжить черновик{% endif %}</span>
+              <span class="account-continue-placename">{{ latest_editable_place.name_i18n }}</span>
+            </div>
+            <span class="account-continue-hint">
+              {% if latest_editable_place.status == "rejected" %}
+                {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır: yoxlama qeydlərini nəzərdən keçirin{% elif CURRENT_LANGUAGE == "en" %}Action required: check moderation notes{% else %}Требуются исправления: проверьте замечания модератора{% endif %}
+              {% else %}
+                {% if CURRENT_LANGUAGE == "az" %}Tamamlanmamış məkan kartınızı yekunlaşdırıb moderasiyaya göndərin.{% elif CURRENT_LANGUAGE == "en" %}Finish your draft place card and submit for review.{% else %}Заполните оставшиеся данные и отправьте карточку на проверку.{% endif %}
+              {% endif %}
+            </span>
+          </div>
+          <a href="{% url 'owner_place_edit' latest_editable_place.id %}" class="account-btn-action" data-owner-legacy-label="Redaktəni davam et">
+            {% if CURRENT_LANGUAGE == "az" %}Redaktəyə davam et{% elif CURRENT_LANGUAGE == "en" %}Continue editing{% else %}Продолжить редактирование{% endif %}
+          </a>
+        </div>
+      {% endif %}
+
+      <!-- Section: Published Places -->
+      <div class="account-card-box" id="owner-places-list">
+        <div class="account-card-box__head">
+          <h2>
+            <span class="material-symbols-rounded" style="color: #0D8A52; font-size: 20px;">check_circle</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Dərc olunmuş məkanlar{% elif CURRENT_LANGUAGE == "en" %}Published places{% else %}Опубликованные места{% endif %}</span>
+            <span class="account-badge-counter">{{ published_places|length }}</span>
+          </h2>
+          {% if can_create_more_places %}
+            <a href="{% url 'owner_place_create' %}?fresh=1" class="account-link-all">
+              <span class="material-symbols-rounded">add</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add place{% else %}Добавить место{% endif %}</span>
+            </a>
+          {% endif %}
+        </div>
+
         {% if published_places %}
-          <div class="owner-dashboard-list">
+          <div class="account-places-list">
             {% for place in published_places %}
-              <article class="owner-place-card">
-                <div class="owner-place-card__top">
-                  <div>
-                    <h3><a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a></h3>
-                    <p>{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
+              <div class="account-owner-card">
+                <div class="account-owner-card__main">
+                  <div class="account-owner-card__title-row">
+                    <h3 class="account-owner-card__name">
+                      <a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a>
+                    </h3>
+                    <div class="account-owner-card__meta">
+                      <span>{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</span>
+                    </div>
                   </div>
-                  <span class="owner-status-badge owner-status-badge-approved">{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
+                  <div class="account-owner-card__badges">
+                    <span class="account-status-pill account-status-pill--published">
+                      {% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}
+                    </span>
+                  </div>
                 </div>
-                <div class="owner-place-card__metrics">
-                  <span>☆ {{ place.rating_avg|floatformat:1 }}</span>
-                  <span>{{ place.rating_count|review_count }}</span>
-                  <span>♡ {{ place.likes_count }}</span>
+
+                <div class="account-owner-card__metrics">
+                  <span class="account-owner-card__metric-item">
+                    <span class="material-symbols-rounded">star</span>
+                    <strong>{{ place.rating_avg|floatformat:1 }}</strong>
+                    <span style="color: #9CB6A7;">({{ place.rating_count|review_count }})</span>
+                  </span>
+                  <span class="account-owner-card__metric-item account-owner-card__metric-item--likes">
+                    <span class="material-symbols-rounded">favorite</span>
+                    <strong>{{ place.likes_count }}</strong>
+                  </span>
                 </div>
+
                 {% include "pages/includes/owner_place_location_status.html" with place=place %}
-                <div class="owner-place-card__actions">
-                  <a class="btn-secondary owner-place-btn" href="{{ place.get_absolute_url }}">{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</a>
+
+                <div class="account-owner-card__actions">
+                  <a class="account-btn-sm account-btn-sm--secondary" href="{{ place.get_absolute_url }}">
+                    <span class="material-symbols-rounded">visibility</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</span>
+                  </a>
                   {% if place.owner_can_edit %}
-                    <a class="btn-secondary owner-place-btn" href="{% url 'owner_place_edit' place.id %}">{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</a>
+                    <a class="account-btn-sm account-btn-sm--primary" href="{% url 'owner_place_edit' place.id %}">
+                      <span class="material-symbols-rounded">edit</span>
+                      <span>{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</span>
+                    </a>
                   {% endif %}
-                  <span class="btn-secondary owner-place-btn owner-place-btn-muted">{% if CURRENT_LANGUAGE == "az" %}Statistika{% elif CURRENT_LANGUAGE == "en" %}Statistics{% else %}Статистика{% endif %}</span>
                 </div>
-              </article>
+              </div>
             {% endfor %}
           </div>
         {% else %}
-          <div class="owner-dashboard-empty">
-            <div class="owner-dashboard-empty__icon" aria-hidden="true">⌖</div>
-            <strong>{% if CURRENT_LANGUAGE == "az" %}Hələ dərc olunmuş məkan yoxdur{% elif CURRENT_LANGUAGE == "en" %}No published places yet{% else %}Пока нет опубликованных мест{% endif %}</strong>
-            <p>{% if CURRENT_LANGUAGE == "az" %}İlk məkanınızı dərc edin və burada görünsün.{% elif CURRENT_LANGUAGE == "en" %}Publish your first place, and it will appear here.{% else %}Опубликуйте своё первое место, и оно появится здесь.{% endif %}</p>
+          <div class="account-empty-first-card">
+            <div class="empty-card-icon">
+              <span class="material-symbols-rounded">location_off</span>
+            </div>
+            <h3>{% if CURRENT_LANGUAGE == "az" %}Hələ dərc olunmuş məkan yoxdur{% elif CURRENT_LANGUAGE == "en" %}No published places yet{% else %}Пока нет опубликованных мест{% endif %}</h3>
+            <p>{% if CURRENT_LANGUAGE == "az" %}İlk məkanınızı əlavə edib yoxlamaya göndərin, təsdiqdən sonra burada görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Add your first place and submit for review. Once approved, it will appear here.{% else %}Добавьте своё первое место и отправьте на проверку. После одобрения оно появится здесь.{% endif %}</p>
             {% if can_create_more_places %}
-              <a class="btn owner-dashboard-empty__button" href="{% url 'owner_place_create' %}?fresh=1">{% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}</a>
+              <a class="account-btn-action" href="{% url 'owner_place_create' %}?fresh=1" style="margin-top: 6px;">
+                <span class="material-symbols-rounded">add_circle</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Elan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add listing{% else %}Добавить объявление{% endif %}</span>
+              </a>
             {% endif %}
           </div>
         {% endif %}
-      </section>
+      </div>
 
-      <section class="owner-dashboard-section">
-        <div class="owner-dashboard-section__head">
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Qaralamalar və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts and moderation{% else %}Черновики и модерация{% endif %}</h2>
+      <!-- Section: Drafts and Moderation -->
+      <div class="account-card-box">
+        <div class="account-card-box__head">
+          <h2>
+            <span class="material-symbols-rounded" style="color: #E8B531; font-size: 20px;">schedule</span>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Qaralamalar və moderasiya{% elif CURRENT_LANGUAGE == "en" %}Drafts & moderation{% else %}Черновики и модерация{% endif %}</span>
+            <span class="account-badge-counter">{{ draft_places|length }}</span>
+          </h2>
         </div>
+
         {% if draft_places %}
-          <div class="owner-dashboard-list">
+          <div class="account-places-list">
             {% for place in draft_places %}
-              <article class="owner-place-card">
-                <div class="owner-place-card__top">
-                  <div>
-                    <h3>{{ place.name_i18n }}</h3>
-                    <p>{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</p>
+              <div class="account-owner-card">
+                <div class="account-owner-card__main">
+                  <div class="account-owner-card__title-row">
+                    <h3 class="account-owner-card__name">{{ place.name_i18n }}</h3>
+                    <div class="account-owner-card__meta">
+                      <span>{{ place.get_category_display }}{% if place.district %} · {{ place.district }}{% endif %}</span>
+                    </div>
                   </div>
-                  <div class="owner-place-fact">
-                    <span class="owner-place-fact-label">{% if CURRENT_LANGUAGE == "az" %}Moderasiya{% elif CURRENT_LANGUAGE == "en" %}Moderation{% else %}Модерация{% endif %}</span>
+                  <div class="account-owner-card__badges">
                     {% if place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
-                      <span class="owner-status-badge owner-status-badge-pending">{% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}Under moderation{% else %}На модерации{% endif %}</span>
+                      <span class="account-status-pill account-status-pill--pending owner-status-badge-pending">
+                        {% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}
+                      </span>
                     {% elif place.latest_moderation_request.status == "APPROVED" %}
-                      <span class="owner-status-badge owner-status-badge-approved">{% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрено{% endif %}</span>
+                      <span class="account-status-pill account-status-pill--approved owner-status-badge-approved">
+                        {% if CURRENT_LANGUAGE == "az" %}Təsdiqlənib{% elif CURRENT_LANGUAGE == "en" %}Approved{% else %}Одобрено{% endif %}
+                      </span>
                     {% elif place.latest_moderation_request.status == "REJECTED" or place.status == place.STATUS_REJECTED %}
-                      <span class="owner-status-badge owner-status-badge-rejected">{% if CURRENT_LANGUAGE == "az" %}Rədd edildi{% elif CURRENT_LANGUAGE == "en" %}Rejected{% else %}Отклонено{% endif %}</span>
+                      <span class="account-status-pill account-status-pill--rejected owner-status-badge-rejected">
+                        {% if CURRENT_LANGUAGE == "az" %}Düzəliş lazımdır{% elif CURRENT_LANGUAGE == "en" %}Needs changes{% else %}Требуются исправления{% endif %}
+                      </span>
                     {% else %}
-                      <span class="owner-status-badge owner-status-badge-none">{% if CURRENT_LANGUAGE == "az" %}Qaralama{% elif CURRENT_LANGUAGE == "en" %}Draft{% else %}Черновик{% endif %}</span>
+                      <span class="account-status-pill account-status-pill--draft">
+                        {% if CURRENT_LANGUAGE == "az" %}Qaralama{% elif CURRENT_LANGUAGE == "en" %}Draft{% else %}Черновик{% endif %}
+                      </span>
                     {% endif %}
                   </div>
                 </div>
 
-                <div class="owner-place-card__metrics">
-                  <span>☆ {{ place.rating_avg|floatformat:1 }}</span>
-                  <span>{{ place.rating_count|review_count }}</span>
-                  <span>♡ {{ place.likes_count }}</span>
+                <div class="account-owner-card__metrics">
+                  <span class="account-owner-card__metric-item">
+                    <span class="material-symbols-rounded">star</span>
+                    <strong>{{ place.rating_avg|floatformat:1 }}</strong>
+                    <span style="color: #9CB6A7;">({{ place.rating_count|review_count }})</span>
+                  </span>
+                  <span class="account-owner-card__metric-item account-owner-card__metric-item--likes">
+                    <span class="material-symbols-rounded">favorite</span>
+                    <strong>{{ place.likes_count }}</strong>
+                  </span>
                 </div>
 
                 {% include "pages/includes/owner_place_location_status.html" with place=place %}
 
-                <div class="owner-place-checklist">
+                <!-- Readiness Checklist -->
+                <div class="account-owner-card__checklist">
                   {% if not place.lat or not place.lng %}
-                    <span>{% if CURRENT_LANGUAGE == "az" %}Koordinatlar lazımdır{% elif CURRENT_LANGUAGE == "en" %}Coordinates needed{% else %}Нужны координаты{% endif %}</span>
-                    <span>{% if CURRENT_LANGUAGE == "az" %}Xəritə üçün hazır deyil{% elif CURRENT_LANGUAGE == "en" %}Not ready for map{% else %}Не готово для карты{% endif %}</span>
+                    <span class="account-check-tag">
+                      <span class="material-symbols-rounded" style="font-size: 14px;">pin_drop</span>
+                      {% if CURRENT_LANGUAGE == "az" %}Koordinatlar lazımdır{% elif CURRENT_LANGUAGE == "en" %}Coordinates needed{% else %}Нужны координаты{% endif %}
+                    </span>
                   {% endif %}
                   {% if not place.photo %}
-                    <span>{% if CURRENT_LANGUAGE == "az" %}Şəkil lazımdır{% elif CURRENT_LANGUAGE == "en" %}Photo needed{% else %}Нужно фото{% endif %}</span>
+                    <span class="account-check-tag">
+                      <span class="material-symbols-rounded" style="font-size: 14px;">photo_camera</span>
+                      {% if CURRENT_LANGUAGE == "az" %}Şəkil lazımdır{% elif CURRENT_LANGUAGE == "en" %}Photo needed{% else %}Нужно фото{% endif %}
+                    </span>
                   {% endif %}
                   {% if not place.phone1 %}
-                    <span>{% if CURRENT_LANGUAGE == "az" %}Telefon lazımdır{% elif CURRENT_LANGUAGE == "en" %}Phone needed{% else %}Нужен телефон{% endif %}</span>
+                    <span class="account-check-tag">
+                      <span class="material-symbols-rounded" style="font-size: 14px;">call</span>
+                      {% if CURRENT_LANGUAGE == "az" %}Telefon lazımdır{% elif CURRENT_LANGUAGE == "en" %}Phone needed{% else %}Нужен телефон{% endif %}
+                    </span>
                   {% endif %}
                   {% if not place.category %}
-                    <span>{% if CURRENT_LANGUAGE == "az" %}Kateqoriya seçilməyib{% elif CURRENT_LANGUAGE == "en" %}Category missing{% else %}Категория не выбрана{% endif %}</span>
+                    <span class="account-check-tag">
+                      <span class="material-symbols-rounded" style="font-size: 14px;">category</span>
+                      {% if CURRENT_LANGUAGE == "az" %}Kateqoriya seçilməyib{% elif CURRENT_LANGUAGE == "en" %}Category missing{% else %}Категория не выбрана{% endif %}
+                    </span>
                   {% endif %}
                   {% if place.lat and place.lng and place.photo and place.phone1 and place.category %}
-                    <span class="is-ready">{% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar hazırdır{% elif CURRENT_LANGUAGE == "en" %}Required details are ready{% else %}Основные данные готовы{% endif %}</span>
+                    <span class="account-check-tag account-check-tag--ready">
+                      <span class="material-symbols-rounded" style="font-size: 14px;">check</span>
+                      {% if CURRENT_LANGUAGE == "az" %}Əsas məlumatlar hazırdır{% elif CURRENT_LANGUAGE == "en" %}Required details ready{% else %}Основные данные готовы{% endif %}
+                    </span>
                   {% endif %}
                 </div>
 
+                <!-- Rejection Notes -->
                 {% if place.latest_moderation_request.status == "REJECTED" and place.latest_moderation_request.moderation_note %}
-                  <p class="owner-place-card__note">
-                    {% if CURRENT_LANGUAGE == "az" %}Rədd səbəbi{% elif CURRENT_LANGUAGE == "en" %}Rejection reason{% else %}Причина отклонения{% endif %}: {{ place.latest_moderation_request.moderation_note }}
-                  </p>
+                  <div class="account-rejection-callout">
+                    <span class="material-symbols-rounded">error</span>
+                    <span><strong>{% if CURRENT_LANGUAGE == "az" %}Qeyd{% elif CURRENT_LANGUAGE == "en" %}Note{% else %}Замечание модератора{% endif %}:</strong> {{ place.latest_moderation_request.moderation_note }}</span>
+                  </div>
                 {% elif place.status == place.STATUS_REJECTED and place.rejection_reason %}
-                  <p class="owner-place-card__note">
-                    {% if CURRENT_LANGUAGE == "az" %}Rədd səbəbi{% elif CURRENT_LANGUAGE == "en" %}Rejection reason{% else %}Причина отклонения{% endif %}: {{ place.rejection_reason }}
-                  </p>
+                  <div class="account-rejection-callout">
+                    <span class="material-symbols-rounded">error</span>
+                    <span><strong>{% if CURRENT_LANGUAGE == "az" %}Qeyd{% elif CURRENT_LANGUAGE == "en" %}Note{% else %}Замечание модератора{% endif %}:</strong> {{ place.rejection_reason }}</span>
+                  </div>
                 {% endif %}
 
-                <div class="owner-place-card__actions">
+                <!-- Actions -->
+                <div class="account-owner-card__actions">
                   {% if place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
-                    <span class="owner-place-action-note owner-place-action-note-inline" data-publish-unavailable="1">{% if CURRENT_LANGUAGE == "az" %}Bu məkan hazırda admin moderasiyasındadır.{% elif CURRENT_LANGUAGE == "en" %}This place is currently under admin moderation.{% else %}Это место сейчас находится на модерации у администратора.{% endif %}</span>
+                    <span class="account-action-pending-note" data-publish-unavailable="1">
+                      <span class="material-symbols-rounded">hourglass_top</span>
+                      {% if CURRENT_LANGUAGE == "az" %}Məkan admin yoxlamasındadır.{% elif CURRENT_LANGUAGE == "en" %}This place is currently under admin moderation.{% else %}Место находится на модерации у администратора.{% endif %}
+                    </span>
                   {% else %}
                     {% if place.owner_can_edit %}
-                      <a class="btn-secondary owner-place-btn" href="{% url 'owner_place_edit' place.id %}">
-                        {% if place.status == place.STATUS_REJECTED %}
-                          {% if CURRENT_LANGUAGE == "az" %}Düzəlt{% elif CURRENT_LANGUAGE == "en" %}Fix{% else %}Исправить{% endif %}
-                        {% else %}
-                          {% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}
-                        {% endif %}
+                      <a class="account-btn-sm account-btn-sm--primary" href="{% url 'owner_place_edit' place.id %}">
+                        <span class="material-symbols-rounded">edit</span>
+                        <span>
+                          {% if place.status == place.STATUS_REJECTED %}
+                            {% if CURRENT_LANGUAGE == "az" %}Düzəlt{% elif CURRENT_LANGUAGE == "en" %}Fix{% else %}Исправить{% endif %}
+                          {% else %}
+                            {% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}
+                          {% endif %}
+                        </span>
                       </a>
                     {% endif %}
                     <form method="post" action="{% url 'owner_place_submit_review' place.id %}" data-loading-form>
                       {% csrf_token %}
-                      <button type="submit" class="btn owner-place-btn" data-loading-button>
-                        {% if place.status == place.STATUS_REJECTED %}
-                          {% if CURRENT_LANGUAGE == "az" %}Yenidən göndər{% elif CURRENT_LANGUAGE == "en" %}Resubmit{% else %}Отправить повторно{% endif %}
-                        {% else %}
-                          {% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for moderation{% else %}Отправить на модерацию{% endif %}
-                        {% endif %}
+                      <button type="submit" class="account-btn-sm account-btn-sm--secondary" data-loading-button>
+                        <span class="material-symbols-rounded">send</span>
+                        <span>
+                          {% if place.status == place.STATUS_REJECTED %}
+                            {% if CURRENT_LANGUAGE == "az" %}Yenidən göndər{% elif CURRENT_LANGUAGE == "en" %}Resubmit{% else %}Отправить повторно{% endif %}
+                          {% else %}
+                            {% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}
+                          {% endif %}
+                        </span>
                       </button>
                     </form>
                   {% endif %}
-                  {% if place.owner_can_edit %}
-                    <a class="btn-secondary owner-place-btn owner-place-btn-ghost" href="{% url 'owner_place_edit' place.id %}">{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</a>
+
+                  {% if place.owner_can_edit and place.latest_moderation_request.status != "PENDING" and place.status != place.STATUS_PENDING %}
+                    <form method="post" action="{% url 'owner_place_delete' place.id %}" onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');">
+                      {% csrf_token %}
+                      <button type="submit" class="account-btn-sm account-btn-sm--danger">
+                        <span class="material-symbols-rounded">delete</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Delete{% else %}Удалить{% endif %}</span>
+                      </button>
+                    </form>
                   {% endif %}
-                  <form method="post" action="{% url 'owner_place_delete' place.id %}" onsubmit="return confirm('{{ delete_place_confirm_text|escapejs }}');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-secondary btn-danger owner-place-btn owner-place-btn-danger">{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Delete{% else %}Удалить{% endif %}</button>
-                  </form>
                 </div>
-              </article>
+              </div>
             {% endfor %}
           </div>
         {% else %}
-          <div class="owner-dashboard-empty owner-dashboard-empty--compact">
-            <strong>{% if CURRENT_LANGUAGE == "az" %}Qaralama və moderasiya yoxdur{% elif CURRENT_LANGUAGE == "en" %}No drafts or moderation items{% else %}Нет черновиков и модерации{% endif %}</strong>
-            <p>{% if CURRENT_LANGUAGE == "az" %}Yarımçıq və yoxlamada olan məkanlar burada görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Unfinished and moderated places will appear here.{% else %}Незавершённые места и места на проверке появятся здесь.{% endif %}</p>
+          <div class="account-empty-first-card">
+            <div class="empty-card-icon" style="background: #FFF8E6; color: #926C05;">
+              <span class="material-symbols-rounded">done_all</span>
+            </div>
+            <h3>{% if CURRENT_LANGUAGE == "az" %}Qaralama və moderasiya yoxdur{% elif CURRENT_LANGUAGE == "en" %}No drafts or items in review{% else %}Нет черновиков и модерации{% endif %}</h3>
+            <p>{% if CURRENT_LANGUAGE == "az" %}Yarımçıq qalan və ya yoxlamada olan məkanlar burada görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Unfinished or in-review places will appear here.{% else %}Незавершённые места и карточки на проверке появятся здесь.{% endif %}</p>
           </div>
         {% endif %}
-      </section>
-    </div>
-
-    {% if is_events_section_enabled %}
-    <section id="owner-events-list" class="owner-dashboard-section owner-events-dashboard-section">
-      <div class="owner-dashboard-section__head">
-        <h2>{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %}</h2>
-        <a class="btn-secondary owner-place-btn" href="{% url 'owner_event_create' %}">{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}</a>
       </div>
-      {% if owner_events %}
-        <div class="owner-dashboard-list owner-events-list">
-          {% for event in owner_events %}
-            <article class="owner-place-card owner-event-card">
-              <div class="owner-place-card__top">
-                <div>
-                  <h3>{% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}<a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a>{% else %}{{ event.name_i18n }}{% endif %}</h3>
-                  <p>{{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address|truncatechars:44 }}{% endif %}</p>
+
+      <!-- Section: Events (if enabled) -->
+      {% if is_events_section_enabled %}
+        <div class="account-card-box" id="owner-events-list">
+          <div class="account-card-box__head">
+            <h2>
+              <span class="material-symbols-rounded" style="color: #3B82F6; font-size: 20px;">event</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Tədbirlər{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}Мероприятия{% endif %}</span>
+              <span class="account-badge-counter">{{ owner_events|length }}</span>
+            </h2>
+            <a href="{% url 'owner_event_create' %}" class="account-link-all">
+              <span class="material-symbols-rounded">add</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}</span>
+            </a>
+          </div>
+
+          {% if owner_events %}
+            <div class="account-places-list">
+              {% for event in owner_events %}
+                <div class="account-event-item">
+                  <div class="account-event-top">
+                    <div class="account-event-title-wrap">
+                      <h3 class="account-event-title">
+                        {% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}
+                          <a href="{{ event.get_absolute_url }}">{{ event.name_i18n }}</a>
+                        {% else %}
+                          {{ event.name_i18n }}
+                        {% endif %}
+                      </h3>
+                      <div class="account-event-meta">
+                        <span class="material-symbols-rounded" style="font-size: 16px;">calendar_today</span>
+                        <span>{{ event.start_datetime|date:"d.m.Y H:i" }}{% if event.address %} · {{ event.address|truncatechars:44 }}{% endif %}</span>
+                      </div>
+                    </div>
+                    <div>
+                      {% if event.effective_status == event.STATUS_EXPIRED %}
+                        <span class="account-status-pill account-status-pill--draft">{% if CURRENT_LANGUAGE == "az" %}Başa çatıb{% elif CURRENT_LANGUAGE == "en" %}Ended{% else %}Завершено{% endif %}</span>
+                      {% elif event.status == event.STATUS_PENDING %}
+                        <span class="account-status-pill account-status-pill--pending">{% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}In review{% else %}На модерации{% endif %}</span>
+                      {% elif event.status == event.STATUS_PUBLISHED %}
+                        <span class="account-status-pill account-status-pill--published">{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
+                      {% elif event.status == event.STATUS_REJECTED %}
+                        <span class="account-status-pill account-status-pill--rejected">{% if CURRENT_LANGUAGE == "az" %}Rədd edildi{% elif CURRENT_LANGUAGE == "en" %}Rejected{% else %}Отклонено{% endif %}</span>
+                      {% else %}
+                        <span class="account-status-pill account-status-pill--draft">{% if CURRENT_LANGUAGE == "az" %}Qaralama{% elif CURRENT_LANGUAGE == "en" %}Draft{% else %}Черновик{% endif %}</span>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  {% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}
+                    <div class="account-event-countdown-wrap">
+                      {% include "catalog/includes/event_countdown.html" with event=event language=CURRENT_LANGUAGE variant="compact" %}
+                    </div>
+                  {% endif %}
+
+                  {% if event.status == event.STATUS_REJECTED and event.rejection_reason %}
+                    <div class="account-rejection-callout">
+                      <span class="material-symbols-rounded">error</span>
+                      <span><strong>{% if CURRENT_LANGUAGE == "az" %}Qeyd{% elif CURRENT_LANGUAGE == "en" %}Note{% else %}Замечание{% endif %}:</strong> {{ event.rejection_reason }}</span>
+                    </div>
+                  {% endif %}
+
+                  <div class="account-owner-card__actions">
+                    {% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}
+                      <a class="account-btn-sm account-btn-sm--secondary" href="{{ event.get_absolute_url }}">
+                        <span class="material-symbols-rounded">visibility</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</span>
+                      </a>
+                    {% endif %}
+                    {% if event.status != event.STATUS_PENDING and event.status != event.STATUS_PUBLISHED %}
+                      <a class="account-btn-sm account-btn-sm--primary" href="{% url 'owner_event_edit' event.id %}">
+                        <span class="material-symbols-rounded">edit</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</span>
+                      </a>
+                      <form method="post" action="{% url 'owner_event_submit_review' event.id %}" data-loading-form>
+                        {% csrf_token %}
+                        <button type="submit" class="account-btn-sm account-btn-sm--secondary" data-loading-button>
+                          <span class="material-symbols-rounded">send</span>
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}</span>
+                        </button>
+                      </form>
+                    {% endif %}
+                    <form method="post" action="{% url 'owner_event_delete' event.id %}" onsubmit="return confirm('{{ delete_event_confirm_text|escapejs }}');">
+                      {% csrf_token %}
+                      <button type="submit" class="account-btn-sm account-btn-sm--danger">
+                        <span class="material-symbols-rounded">delete</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Delete{% else %}Удалить{% endif %}</span>
+                      </button>
+                    </form>
+                  </div>
                 </div>
-                {% if event.effective_status == event.STATUS_EXPIRED %}
-                  <span class="owner-status-badge owner-status-badge-none">{% if CURRENT_LANGUAGE == "az" %}Başa çatıb{% elif CURRENT_LANGUAGE == "en" %}Ended{% else %}Завершено{% endif %}</span>
-                {% elif event.status == event.STATUS_PENDING %}
-                  <span class="owner-status-badge owner-status-badge-pending">{% if CURRENT_LANGUAGE == "az" %}Moderasiyada{% elif CURRENT_LANGUAGE == "en" %}Under moderation{% else %}На модерации{% endif %}</span>
-                {% elif event.status == event.STATUS_PUBLISHED %}
-                  <span class="owner-status-badge owner-status-badge-approved">{% if CURRENT_LANGUAGE == "az" %}Dərc olunub{% elif CURRENT_LANGUAGE == "en" %}Published{% else %}Опубликовано{% endif %}</span>
-                {% elif event.status == event.STATUS_REJECTED %}
-                  <span class="owner-status-badge owner-status-badge-rejected">{% if CURRENT_LANGUAGE == "az" %}Rədd edildi{% elif CURRENT_LANGUAGE == "en" %}Rejected{% else %}Отклонено{% endif %}</span>
-                {% else %}
-                  <span class="owner-status-badge owner-status-badge-none">{% if CURRENT_LANGUAGE == "az" %}Qaralama{% elif CURRENT_LANGUAGE == "en" %}Draft{% else %}Черновик{% endif %}</span>
-                {% endif %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="account-empty-first-card">
+              <div class="empty-card-icon" style="background: #EFF6FF; color: #3B82F6;">
+                <span class="material-symbols-rounded">event_busy</span>
               </div>
-
-              {% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}
-                {% include "catalog/includes/event_countdown.html" with event=event language=CURRENT_LANGUAGE variant="compact" %}
-              {% elif event.effective_status == event.STATUS_EXPIRED %}
-                <p class="owner-place-card__note">{% if CURRENT_LANGUAGE == "az" %}Başa çatıb{% elif CURRENT_LANGUAGE == "en" %}Ended{% else %}Завершено{% endif %}</p>
-              {% endif %}
-
-              {% if event.status == event.STATUS_REJECTED and event.rejection_reason %}
-                <p class="owner-place-card__note">{% if CURRENT_LANGUAGE == "az" %}Rədd səbəbi{% elif CURRENT_LANGUAGE == "en" %}Rejection reason{% else %}Причина отклонения{% endif %}: {{ event.rejection_reason }}</p>
-              {% endif %}
-
-              <div class="owner-place-card__actions">
-                {% if event.status == event.STATUS_PUBLISHED and not event.has_ended %}
-                  <a class="btn-secondary owner-place-btn" href="{{ event.get_absolute_url }}">{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</a>
-                {% endif %}
-                {% if event.status != event.STATUS_PENDING and event.status != event.STATUS_PUBLISHED %}
-                  <a class="btn-secondary owner-place-btn" href="{% url 'owner_event_edit' event.id %}">{% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}</a>
-                  <form method="post" action="{% url 'owner_event_submit_review' event.id %}" data-loading-form>
-                    {% csrf_token %}
-                    <button type="submit" class="btn owner-place-btn" data-loading-button>{% if CURRENT_LANGUAGE == "az" %}Moderasiyaya göndər{% elif CURRENT_LANGUAGE == "en" %}Send for review{% else %}Отправить на модерацию{% endif %}</button>
-                  </form>
-                {% endif %}
-                <form method="post" action="{% url 'owner_event_delete' event.id %}" onsubmit="return confirm('{{ delete_event_confirm_text|escapejs }}');">
-                  {% csrf_token %}
-                  <button type="submit" class="btn-secondary btn-danger owner-place-btn owner-place-btn-danger">{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Delete{% else %}Удалить{% endif %}</button>
-                </form>
-              </div>
-            </article>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="owner-dashboard-empty owner-dashboard-empty--compact">
-          <strong>{% if CURRENT_LANGUAGE == "az" %}Hələ tədbir yoxdur{% elif CURRENT_LANGUAGE == "en" %}No events yet{% else %}Пока нет мероприятий{% endif %}</strong>
-          <p>{% if CURRENT_LANGUAGE == "az" %}Müvəqqəti tədbirlər burada görünəcək.{% elif CURRENT_LANGUAGE == "en" %}Temporary events will appear here.{% else %}Временные мероприятия появятся здесь.{% endif %}</p>
+              <h3>{% if CURRENT_LANGUAGE == "az" %}Hələ tədbir yoxdur{% elif CURRENT_LANGUAGE == "en" %}No events yet{% else %}Пока нет мероприятий{% endif %}</h3>
+              <p>{% if CURRENT_LANGUAGE == "az" %}Master-klas, açıq qapı günü və ya bayram tədbirləri əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}Add workshops, open days, or festive events.{% else %}Добавьте мастер-класс, день открытых дверей или праздник.{% endif %}</p>
+              <a class="account-btn-action" href="{% url 'owner_event_create' %}" style="margin-top: 6px;">
+                <span class="material-symbols-rounded">add</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Tədbir əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add event{% else %}Добавить мероприятие{% endif %}</span>
+              </a>
+            </div>
+          {% endif %}
         </div>
       {% endif %}
+
+      <!-- Section: Specialists (if enabled) -->
+      {% if is_specialists_section_enabled %}
+        <div class="account-card-box" id="owner-specialists-list">
+          <div class="account-card-box__head">
+            <h2>
+              <span class="material-symbols-rounded" style="color: #8B5CF6; font-size: 20px;">badge</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Mənim profillərim{% elif CURRENT_LANGUAGE == "en" %}My profiles{% else %}Мои профили специалистов{% endif %}</span>
+              <span class="account-badge-counter">{{ owner_specialists|length }}</span>
+            </h2>
+            <a href="{% url 'owner_specialist_create' %}" class="account-link-all">
+              <span class="material-symbols-rounded">add</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add profile{% else %}Добавить профиль{% endif %}</span>
+            </a>
+          </div>
+
+          {% if owner_specialists %}
+            <div class="account-places-list">
+              {% for specialist in owner_specialists %}
+                <div class="account-specialist-item">
+                  <div class="account-specialist-avatar">
+                    {% if specialist.photo %}
+                      <img src="{{ specialist.photo.url }}" alt="{{ specialist.name }}">
+                    {% else %}
+                      <span class="material-symbols-rounded">person</span>
+                    {% endif %}
+                  </div>
+                  <div class="account-specialist-info">
+                    <h3 class="account-specialist-name">{{ specialist.name }}</h3>
+                    <span class="account-specialist-specs">
+                      {% for spec in specialist.specializations.all %}
+                        {{ spec.name_i18n }}{% if not forloop.last %}, {% endif %}
+                      {% empty %}
+                        {% if CURRENT_LANGUAGE == "az" %}İstiqamət seçilməyib{% elif CURRENT_LANGUAGE == "en" %}No direction selected{% else %}Направление не выбрано{% endif %}
+                      {% endfor %}
+                    </span>
+                    <div class="account-specialist-meta">
+                      <span>{{ specialist.get_consultation_format_display }}</span>
+                      <span>·</span>
+                      <span>{{ specialist.updated_at|date:"d.m.Y" }}</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="account-status-pill account-status-pill--{{ specialist.status }}">
+                      {{ specialist.get_status_display }}
+                    </span>
+                    <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'owner_specialist_edit' specialist.pk %}">
+                      <span class="material-symbols-rounded">edit</span>
+                      <span>
+                        {% if specialist.status == "draft" %}
+                          {% if CURRENT_LANGUAGE == "az" %}Davam et{% elif CURRENT_LANGUAGE == "en" %}Continue{% else %}Продолжить{% endif %}
+                        {% else %}
+                          {% if CURRENT_LANGUAGE == "az" %}Redaktə et{% elif CURRENT_LANGUAGE == "en" %}Edit{% else %}Редактировать{% endif %}
+                        {% endif %}
+                      </span>
+                    </a>
+                    {% if specialist.status == "published" and specialist.is_active %}
+                      <a class="account-btn-sm account-btn-sm--secondary" href="{{ specialist.get_absolute_url }}">
+                        <span class="material-symbols-rounded">visibility</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Просмотр{% endif %}</span>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="account-empty-first-card">
+              <div class="empty-card-icon" style="background: #F5F3FF; color: #8B5CF6;">
+                <span class="material-symbols-rounded">person_add</span>
+              </div>
+              <h3>{% if CURRENT_LANGUAGE == "az" %}Hələ profil yoxdur{% elif CURRENT_LANGUAGE == "en" %}No profiles yet{% else %}Профилей пока нет{% endif %}</h3>
+              <p>{% if CURRENT_LANGUAGE == "az" %}Pedaqoq, repetitor, psixoloq və ya məşqçi profilini əlavə edin.{% elif CURRENT_LANGUAGE == "en" %}Add an educator, tutor, psychologist, or coach profile.{% else %}Добавьте профиль педагога, репетитора, психолога или тренера.{% endif %}</p>
+              <a class="account-btn-action" href="{% url 'owner_specialist_create' %}" style="margin-top: 6px;">
+                <span class="material-symbols-rounded">add</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Profil əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a profile{% else %}Добавить профиль{% endif %}</span>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
     </section>
-    {% endif %}
-  </section>
+  </div>
+</div>
 {% endblock %}

@@ -1,4 +1,26 @@
 (function () {
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  /* Icons are inline SVG from the shared sprite. The Material Symbols build in
+     static/fonts has no ligature table, so name-based icon text never rendered
+     as a glyph. */
+  function iconEl(name, className) {
+    var svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("class", className ? "km-i " + className : "km-i");
+    svg.setAttribute("viewBox", "0 0 960 960");
+    svg.setAttribute("aria-hidden", "true");
+    var use = document.createElementNS(SVG_NS, "use");
+    use.setAttribute("href", "#kmi-" + name);
+    svg.appendChild(use);
+    return svg;
+  }
+
+  function setIcon(node, name) {
+    if (!node) return;
+    var use = node.tagName && String(node.tagName).toLowerCase() === "use" ? node : node.querySelector("use");
+    if (use) use.setAttribute("href", "#kmi-" + name);
+  }
   'use strict';
 
   function ready(fn) {
@@ -229,59 +251,101 @@
 
         activePopoverTrigger = trigger;
         var score = parseInt(trigger.dataset.score || '0', 10);
-        var hasCoords = trigger.dataset.hasCoords === '1';
-        var hasPrice = trigger.dataset.hasPrice === '1';
-        var photosCount = parseInt(trigger.dataset.photosCount || '0', 10);
-        var hasPhoto = photosCount >= 1;
-        var hasDesc = trigger.dataset.hasDesc === '1';
-        var hasCat = trigger.dataset.hasCat === '1';
         var editUrl = trigger.dataset.editUrl || '#';
+        var total = parseInt(trigger.dataset.total || '0', 10);
+        var done = parseInt(trigger.dataset.done || '0', 10);
 
-        // Count items done
-        var doneCount = (hasCat ? 1 : 0) + (hasDesc ? 1 : 0) + (hasPrice ? 1 : 0) + (hasCoords ? 1 : 0) + (hasPhoto ? 1 : 0);
+        // The twelve items come straight from catalog.services.place_readiness
+        // via the row payload. The popover never decides completion itself, so
+        // it can never disagree with the edit form or the publish gate.
+        var items = [];
+        try {
+          items = JSON.parse(trigger.dataset.readiness || '[]');
+        } catch (err) {
+          items = [];
+        }
+        if (!Array.isArray(items)) items = [];
 
         var scoreLabel = document.getElementById('km-pop-score-label');
         if (scoreLabel) scoreLabel.textContent = (labels.readinessLabel || 'Готовность') + ' ' + score + '%';
 
         var itemsCount = document.getElementById('km-pop-items-count');
-        if (itemsCount) itemsCount.textContent = doneCount + ' ' + (labels.itemsLabel || 'из 5 пунктов');
+        if (itemsCount) {
+          itemsCount.textContent = done + ' / ' + total + ' ' + (labels.itemsLabel || 'пунктов');
+        }
 
         var popBar = document.getElementById('km-pop-bar');
         if (popBar) {
           popBar.style.width = score + '%';
-          popBar.style.background = score < 60 ? '#A98A3C' : '#136F38';
+          popBar.style.background = done >= total ? '#136F38' : (score < 60 ? '#A98A3C' : '#136F38');
         }
 
         var editLink = document.getElementById('km-pop-edit-link');
         if (editLink) editLink.href = editUrl;
 
-        // Update items
-        var itemsConfig = [
-          { key: 'cat', done: hasCat, label: hasCat ? 'Название и категория' : 'Заполните название и категорию', hash: '#basics' },
-          { key: 'desc', done: hasDesc, label: hasDesc ? 'Описание заполнено' : 'Описание: от 120 символов', hash: '#basics' },
-          { key: 'price', done: hasPrice, label: hasPrice ? 'Цена / тариф указан' : 'Цена: «от» или добавьте тариф', hash: '#pricing' },
-          { key: 'coords', done: hasCoords, label: hasCoords ? 'Адрес и точка на карте есть' : 'Укажите адрес и координаты', hash: '#location' },
-          { key: 'photos', done: hasPhoto, label: hasPhoto ? 'Главное фото загружено' : 'Загрузите главное фото', hash: '#media' }
-        ];
+        var list = document.getElementById('km-pop-list');
+        if (list) {
+          list.textContent = '';
+          // Missing items first: the popover exists to answer "what is left?".
+          items.slice().sort(function (a, b) {
+            return (a.done === b.done) ? 0 : (a.done ? 1 : -1);
+          }).forEach(function (item) {
+            var anchor = String(item.anchor || '');
+            var hash = anchor && anchor.charAt(0) !== '[' && anchor.charAt(0) !== '.'
+              ? '#' + anchor
+              : '#' + (item.section || '');
 
-        itemsConfig.forEach(function (cfg) {
-          var el = readinessPopover.querySelector('[data-item="' + cfg.key + '"]');
-          if (el) {
-            el.href = editUrl + cfg.hash;
-            el.classList.toggle('is-done', cfg.done);
-            var icon = el.querySelector('.km-pop-icon');
-            if (icon) icon.textContent = cfg.done ? 'check' : 'radio_button_unchecked';
-            var text = el.querySelector('.km-pop-text') || el.querySelector('span:nth-child(2)');
-            if (text) text.textContent = cfg.label;
+            var row = document.createElement('a');
+            row.className = 'km-readiness-popover__item' + (item.done ? ' is-done' : '');
+            row.href = editUrl + hash;
+            row.dataset.item = item.code;
+
+            var icon = iconEl(item.done ? 'check' : 'radio_button_unchecked', 'km-pop-icon');
+
+            var text = document.createElement('span');
+            text.className = 'km-pop-text';
+            text.textContent = item.label;
+            if (!item.done && item.message) {
+              var hint = document.createElement('small');
+              hint.className = 'km-pop-hint';
+              hint.textContent = item.message;
+              text.appendChild(hint);
+            }
+
+            var arrow = iconEl('arrow_forward', 'km-readiness-popover__item-arrow');
+
+            row.append(icon, text, arrow);
+            list.appendChild(row);
+          });
+
+          if (done >= total && total > 0) {
+            var allDone = document.createElement('p');
+            allDone.className = 'km-pop-alldone';
+            allDone.textContent = labels.allDoneLabel || 'Все обязательные пункты заполнены';
+            list.insertBefore(allDone, list.firstChild);
           }
-        });
+        }
 
-        // Position popover
-        var rect = trigger.getBoundingClientRect();
+        // Position it: measure first, then flip above the row when the full
+        // twelve-item list would run off the bottom of the viewport.
         readinessPopover.style.position = 'fixed';
-        readinessPopover.style.top = (rect.bottom + 8) + 'px';
-        readinessPopover.style.left = Math.max(16, rect.left - 100) + 'px';
+        readinessPopover.style.visibility = 'hidden';
         readinessPopover.hidden = false;
+
+        var rect = trigger.getBoundingClientRect();
+        var size = readinessPopover.getBoundingClientRect();
+        var margin = 12;
+        var top = rect.bottom + 8;
+        if (top + size.height > window.innerHeight - margin) {
+          var above = rect.top - size.height - 8;
+          top = above >= margin ? above : Math.max(margin, window.innerHeight - size.height - margin);
+        }
+        var left = rect.left - 100;
+        left = Math.min(Math.max(margin, left), window.innerWidth - size.width - margin);
+
+        readinessPopover.style.top = top + 'px';
+        readinessPopover.style.left = left + 'px';
+        readinessPopover.style.visibility = '';
         return;
       }
 
@@ -388,14 +452,14 @@
         if (pubBtn && pubIcon && pubLabel) {
           pubBtn.hidden = isDeleted;
           if (isPublished) {
-            pubIcon.textContent = 'visibility_off';
+            setIcon(pubIcon, "visibility_off");
             pubLabel.textContent = 'Снять с публикации';
             pubBtn.disabled = false;
             pubBtn.title = '';
             pubBtn.removeAttribute('aria-disabled');
           } else {
             var cannotPublish = !hasCoords;
-            pubIcon.textContent = 'campaign';
+            setIcon(pubIcon, "campaign");
             pubLabel.textContent = 'Опубликовать';
             pubBtn.disabled = cannotPublish;
             pubBtn.title = cannotPublish ? (labels.publishError || 'Нельзя опубликовать: заполните обязательные данные.') : '';
@@ -476,7 +540,7 @@
           trigger.setAttribute('aria-busy', 'true');
           trigger.classList.add('km-is-busy');
           if (triggerRow) triggerRow.classList.add('km-row--loading');
-          if (triggerIcon) triggerIcon.textContent = 'progress_activity';
+          if (triggerIcon) setIcon(triggerIcon, "progress_activity");
 
           if (typeof Swal !== 'undefined') {
             Swal.fire({

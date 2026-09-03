@@ -156,7 +156,7 @@
                 {{ form.remember_me }}
                 <span>{{ form.remember_me.label }}</span>
               </label>
-              <a class="login-forgot-link" href="{% url 'password_reset' %}">
+              <a class="login-forgot-link" href="{% url 'password_reset' %}" data-open-reset-modal>
                 {% if CURRENT_LANGUAGE == "az" %}Şifrəni unutmusunuz?{% elif CURRENT_LANGUAGE == "en" %}Forgot password?{% else %}Забыли пароль?{% endif %}
               </a>
             </div>
@@ -183,9 +183,97 @@
       </div>
     </div>
   </section>
+{% endblock %}
+
+{% block extra_body %}
+  <!-- Password Reset Modal (Root-level for full backdrop overlay) -->
+  <div class="km-modal-overlay" id="resetPasswordModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
+    <div class="km-modal-backdrop" data-modal-close tabindex="-1"></div>
+    <div class="km-modal-dialog">
+      <button type="button" class="km-modal-close" data-modal-close aria-label="{% if CURRENT_LANGUAGE == 'az' %}Bağla{% elif CURRENT_LANGUAGE == 'en' %}Close{% else %}Закрыть{% endif %}">
+        <svg viewBox="0 0 24 24" focusable="false"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L10.94 12l-5.72 5.72a.75.75 0 1 0 1.06 1.06L12 13.06l5.72 5.72a.75.75 0 1 0 1.06-1.06L13.06 12l5.72-5.72a.75.75 0 0 0-1.06-1.06L12 10.94 6.28 5.22Z"/></svg>
+      </button>
+
+      <!-- Form State -->
+      <div class="km-modal-content" id="resetModalFormState">
+        <div class="km-modal-header">
+          <div class="km-modal-icon-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.75A4.25 4.25 0 0 0 7.75 7v2H7.5A2.75 2.75 0 0 0 4.75 11.75v6.5A2.75 2.75 0 0 0 7.5 21h9a2.75 2.75 0 0 0 2.75-2.75v-6.5A2.75 2.75 0 0 0 16.5 9h-.25V7A4.25 4.25 0 0 0 12 2.75Zm-2.75 6.5V7a2.75 2.75 0 0 1 5.5 0v2.25h-5.5Zm-1.75 1.25h9c.69 0 1.25.56 1.25 1.25v6.5c0 .69-.56 1.25-1.25 1.25h-9c-.69 0-1.25-.56-1.25-1.25v-6.5c0-.69.56-1.25 1.25-1.25Z"/></svg>
+          </div>
+          <h3 id="resetModalTitle" class="km-modal-title">
+            {% if CURRENT_LANGUAGE == "az" %}Şifrənin bərpası{% elif CURRENT_LANGUAGE == "en" %}Password reset{% else %}Восстановление пароля{% endif %}
+          </h3>
+          <p class="km-modal-desc">
+            {% if CURRENT_LANGUAGE == "az" %}
+              Hesabınızın email və ya istifadəçi adını daxil edin. Şifrəni yeniləmək üçün keçid göndərəcəyik.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Enter your account email or username. We'll send you a link to reset your password.
+            {% else %}
+              Введите email или логин от аккаунта. Мы отправим письмо со ссылкой для смены пароля.
+            {% endif %}
+          </p>
+        </div>
+
+        <form id="resetPasswordAjaxForm" method="post" action="{% url 'password_reset' %}" class="auth-form km-modal-form" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="is_ajax" value="1" />
+
+          <div id="resetModalAlert" class="auth-errors km-modal-alert" style="display: none;" role="alert"></div>
+
+          <label class="register-field register-field-full" id="resetModalEmailField">
+            <span class="register-label">{% if CURRENT_LANGUAGE == "az" %}Email və ya istifadəçi adı{% elif CURRENT_LANGUAGE == "en" %}Email or username{% else %}Email или логин{% endif %}</span>
+            <span class="register-input-wrap">
+              <span class="register-input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false"><path d="M4.75 6.5A2.75 2.75 0 0 1 7.5 3.75h9A2.75 2.75 0 0 1 19.25 6.5v11A2.75 2.75 0 0 1 16.5 20.25h-9A2.75 2.75 0 0 1 4.75 17.5v-11Zm2.75-1.25c-.69 0-1.25.56-1.25 1.25v.461l5.55 4.131a.35.35 0 0 0 .42 0l5.53-4.13V6.5c0-.69-.56-1.25-1.25-1.25h-9Zm10.25 3.579-4.634 3.46a1.85 1.85 0 0 1-2.222-.002L6.25 8.827V17.5c0 .69.56 1.25 1.25 1.25h9c.69 0 1.25-.56 1.25-1.25V8.829Z"/></svg>
+              </span>
+              <input type="text" name="email" id="resetModalEmailInput" class="register-field-input" placeholder="{% if CURRENT_LANGUAGE == 'az' %}name@domain.com və ya login{% elif CURRENT_LANGUAGE == 'en' %}name@domain.com or username{% else %}name@domain.com или логин{% endif %}" required autocomplete="username" inputmode="email" />
+            </span>
+            <span class="auth-field-error" id="resetModalFieldError" style="display: none;"></span>
+          </label>
+
+          <button type="submit" class="btn register-submit-btn km-modal-submit-btn" id="resetModalSubmitBtn">
+            <span class="km-btn-text">{% if CURRENT_LANGUAGE == "az" %}Keçid göndər{% elif CURRENT_LANGUAGE == "en" %}Send reset link{% else %}Отправить ссылку{% endif %}</span>
+            <span class="km-btn-spinner" style="display: none;" aria-hidden="true"></span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Success State -->
+      <div class="km-modal-content km-modal-success-state" id="resetModalSuccessState" style="display: none;">
+        <div class="km-modal-success-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm-1.25 14.5-4.25-4.25 1.41-1.41 2.84 2.83 6.84-6.84 1.41 1.41-8.25 8.26Z"/></svg>
+        </div>
+        <h3 class="km-modal-title">
+          {% if CURRENT_LANGUAGE == "az" %}Məktub göndərildi!{% elif CURRENT_LANGUAGE == "en" %}Email sent!{% else %}Письмо отправлено!{% endif %}
+        </h3>
+        <p class="km-modal-desc km-modal-desc--success" id="resetModalSuccessMsg">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Şifrəni yeniləmək üçün keçid qeyd olunan e-poçt ünvanına göndərildi. Zəhmət olmasa poçtunuzu yoxlayın.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            We have sent a password reset link to your email. Please check your inbox.
+          {% else %}
+            Мы выслали ссылку для смены пароля на указанный email. Проверьте почту и перейдите по ссылке.
+          {% endif %}
+        </p>
+        <div class="km-modal-success-note">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Məktub bir neçə dəqiqə ərzində gəlməzsə, «Spam» qovluğunu yoxlayın. Telefon nömrəsinə kod və ya SMS göndərilmir.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            If you don't receive the email within a few minutes, please check your Spam folder. Codes are not sent via SMS.
+          {% else %}
+            Если письмо не пришло в течение пары минут, проверьте папку «Спам». Код или SMS на телефон не отправляются.
+          {% endif %}
+        </div>
+        <button type="button" class="btn register-submit-btn km-modal-success-btn" data-modal-close>
+          {% if CURRENT_LANGUAGE == "az" %}Aydındır{% elif CURRENT_LANGUAGE == "en" %}Got it{% else %}Понятно{% endif %}
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script>
     (function () {
+      // Password show/hide toggle
       document.querySelectorAll("[data-password-toggle]").forEach(function (button) {
         button.addEventListener("click", function () {
           var targetId = button.getAttribute("data-target-input-id");
@@ -198,6 +286,164 @@
           button.setAttribute("aria-pressed", nextType === "text" ? "true" : "false");
         });
       });
+
+      // Reset Password Modal Controller
+      var modal = document.getElementById("resetPasswordModal");
+      if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+      }
+
+      var openButtons = document.querySelectorAll("[data-open-reset-modal]");
+      var closeButtons = modal ? modal.querySelectorAll("[data-modal-close]") : [];
+      var formState = document.getElementById("resetModalFormState");
+      var successState = document.getElementById("resetModalSuccessState");
+      var ajaxForm = document.getElementById("resetPasswordAjaxForm");
+      var emailInput = document.getElementById("resetModalEmailInput");
+      var submitBtn = document.getElementById("resetModalSubmitBtn");
+      var btnText = submitBtn ? submitBtn.querySelector(".km-btn-text") : null;
+      var btnSpinner = submitBtn ? submitBtn.querySelector(".km-btn-spinner") : null;
+      var alertBox = document.getElementById("resetModalAlert");
+      var emailField = document.getElementById("resetModalEmailField");
+      var fieldError = document.getElementById("resetModalFieldError");
+      var loginUserInput = document.getElementById("id_username");
+
+      function openModal(e) {
+        if (e) e.preventDefault();
+        if (!modal) return;
+
+        // Pre-fill from login username field if populated
+        if (loginUserInput && loginUserInput.value.trim() && !emailInput.value.trim()) {
+          emailInput.value = loginUserInput.value.trim();
+        }
+
+        // Reset to form state
+        if (formState) formState.style.display = "block";
+        if (successState) successState.style.display = "none";
+        clearErrors();
+
+        modal.classList.add("is-active");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("modal-open");
+
+        setTimeout(function () {
+          if (emailInput) {
+            emailInput.focus();
+            if (emailInput.value) emailInput.select();
+          }
+        }, 80);
+      }
+
+      function closeModal() {
+        if (!modal) return;
+        modal.classList.remove("is-active");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("modal-open");
+      }
+
+      function clearErrors() {
+        if (alertBox) {
+          alertBox.style.display = "none";
+          alertBox.innerHTML = "";
+        }
+        if (emailField) emailField.classList.remove("has-error");
+        if (fieldError) {
+          fieldError.style.display = "none";
+          fieldError.textContent = "";
+        }
+      }
+
+      function showError(msg) {
+        if (alertBox) {
+          alertBox.innerHTML = "<p>" + (msg || "{% if CURRENT_LANGUAGE == 'az' %}Xəta baş verdi. Yenidən cəhd edin.{% elif CURRENT_LANGUAGE == 'en' %}An error occurred. Please try again.{% else %}Произошла ошибка. Попробуйте снова.{% endif %}") + "</p>";
+          alertBox.style.display = "block";
+        }
+        if (emailField) emailField.classList.add("has-error");
+      }
+
+      function setLoading(isLoading) {
+        if (!submitBtn) return;
+        submitBtn.disabled = isLoading;
+        if (btnText) btnText.style.display = isLoading ? "none" : "";
+        if (btnSpinner) btnSpinner.style.display = isLoading ? "inline-block" : "none";
+      }
+
+      openButtons.forEach(function (btn) {
+        btn.addEventListener("click", openModal);
+      });
+
+      closeButtons.forEach(function (btn) {
+        btn.addEventListener("click", closeModal);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && modal && modal.classList.contains("is-active")) {
+          closeModal();
+        }
+      });
+
+      if (ajaxForm) {
+        ajaxForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var val = emailInput ? emailInput.value.trim() : "";
+          if (!val) {
+            if (emailField) emailField.classList.add("has-error");
+            if (fieldError) {
+              fieldError.textContent = "{% if CURRENT_LANGUAGE == 'az' %}Email və ya istifadəçi adını daxil edin.{% elif CURRENT_LANGUAGE == 'en' %}Enter your email or username.{% else %}Укажите email или логин.{% endif %}";
+              fieldError.style.display = "block";
+            }
+            if (emailInput) emailInput.focus();
+            return;
+          }
+
+          clearErrors();
+          setLoading(true);
+
+          var formData = new FormData(ajaxForm);
+          var csrfToken = (ajaxForm.querySelector("input[name=csrfmiddlewaretoken]") || {}).value || "";
+
+          fetch(ajaxForm.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "Accept": "application/json",
+              "X-CSRFToken": csrfToken
+            }
+          })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              return { status: res.status, ok: res.ok, data: data };
+            }).catch(function () {
+              return { status: res.status, ok: res.ok, data: null };
+            });
+          })
+          .then(function (result) {
+            setLoading(false);
+            if (result.ok && result.data && result.data.ok) {
+              if (result.data.message) {
+                var msgEl = document.getElementById("resetModalSuccessMsg");
+                if (msgEl) msgEl.textContent = result.data.message;
+              }
+              if (formState) formState.style.display = "none";
+              if (successState) successState.style.display = "flex";
+            } else {
+              var errorMsg = "";
+              if (result.data && result.data.message) {
+                errorMsg = result.data.message;
+              } else if (result.data && result.data.error_list && result.data.error_list.length) {
+                errorMsg = result.data.error_list.join(", ");
+              } else {
+                errorMsg = "{% if CURRENT_LANGUAGE == 'az' %}Xəta baş verdi. Zəhmət olmasa daxil etdiyiniz məlumatı yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}An error occurred. Please check your entered details.{% else %}Произошла ошибка. Проверьте введенные данные и попробуйте снова.{% endif %}";
+              }
+              showError(errorMsg);
+            }
+          })
+          .catch(function (err) {
+            setLoading(false);
+            showError("{% if CURRENT_LANGUAGE == 'az' %}Şəbəkə xətası. İnternet bağlantısını yoxlayın.{% elif CURRENT_LANGUAGE == 'en' %}Network error. Please check your connection.{% else %}Ошибка сети. Проверьте соединение с интернетом.{% endif %}");
+          });
+        });
+      }
     })();
   </script>
 {% endblock %}

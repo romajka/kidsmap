@@ -55,6 +55,7 @@ class PlaceReadinessData:
     # catalog for old cards, but they no longer satisfy this requirement.
     has_priced_plan: bool = False
     has_legacy_price: bool = False
+    has_custom_price_badge: bool = False
     phone1: str = ""
     schedule_mode: str = "regular"
     schedule_has_structured: bool = False
@@ -234,7 +235,7 @@ def _check_age(data: PlaceReadinessData):
 
 
 def _check_price(data: PlaceReadinessData):
-    if data.has_priced_plan:
+    if data.has_priced_plan or data.has_custom_price_badge:
         return None
     if data.has_legacy_price:
         # The old scalar price still shows on the site, but the card cannot be
@@ -245,7 +246,7 @@ def _check_price(data: PlaceReadinessData):
         )
     return (
         "missing_price",
-        _("Добавьте хотя бы один заполненный тариф или тариф с ценой «Бесплатно»."),
+        _("Добавьте хотя бы один заполненный тариф или выберите вариант «Бесплатно» / «Бесплатный вход»."),
     )
 
 
@@ -535,6 +536,11 @@ def readiness_data_from_place(place) -> PlaceReadinessData:
         age_open_ended=bool(getattr(place, "age_open_ended", False)),
         has_priced_plan=_place_has_pricing_plan_price(place),
         has_legacy_price=_has_legacy_price(place),
+        has_custom_price_badge=bool(
+            (getattr(place, "custom_price_badge_az", "") or "").strip()
+            or (getattr(place, "custom_price_badge_ru", "") or "").strip()
+            or (getattr(place, "custom_price_badge_en", "") or "").strip()
+        ),
         phone1=getattr(place, "phone1", "") or "",
         schedule_mode=getattr(place, "schedule_mode", "regular") or "regular",
         schedule_has_structured=has_structured,
@@ -596,6 +602,9 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
     # Legacy scalar prices are not editable in this form. They are reported so
     # the editor is told to migrate them, never as a satisfied requirement.
     has_legacy_price = instance is not None and _has_legacy_price(instance)
+    has_custom_price_badge = bool(
+        text("custom_price_badge_az") or text("custom_price_badge_ru") or text("custom_price_badge_en")
+    )
 
     schedule_mode = cleaned.get("schedule_mode") or getattr(instance, "schedule_mode", "regular") or "regular"
     schedule_days = getattr(form, "cleaned_schedule_days", None)
@@ -628,6 +637,7 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
         age_open_ended=bool(_form_value(form, cleaned, "age_open_ended", instance)),
         has_priced_plan=has_priced_plan,
         has_legacy_price=has_legacy_price,
+        has_custom_price_badge=has_custom_price_badge,
         phone1=text("phone1"),
         schedule_mode=schedule_mode,
         schedule_has_structured=schedule_has_structured,

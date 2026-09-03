@@ -3,9 +3,9 @@
 
 {% block extrahead %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_user_access_form.css' %}">
-  <script src="{% static 'admin/js/kidsmap_place_form.js' %}" defer></script>
+  <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}" defer></script>
 {% endblock %}
 
 {% block submit_buttons_top %}{% endblock %}
@@ -176,13 +176,13 @@
                 {% else %}
                   <span class="km-badge km-badge--warn">{% translate "Email не подтвержден" %}</span>
                 {% endif %}
-                
+
                 {% if km_user_form_summary.is_superuser %}
                   <span class="km-badge km-badge--danger">{% translate "Суперадмин" %}</span>
                 {% elif km_user_form_summary.is_staff %}
                   <span class="km-badge km-badge--info">{% translate "Админ" %}</span>
                 {% endif %}
-                
+
                 {% if not km_user_form_summary.is_active %}
                   <span class="km-badge km-badge--neutral">{% translate "Неактивен" %}</span>
                 {% endif %}
@@ -268,14 +268,14 @@
                     </span>
                   </div>
                 </div>
-                
+
                 {% if km_user_form_summary.last_login %}
                 <div class="km-place-sidebar-flags" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
                   <strong class="km-admin-title" style="margin-bottom: 4px; display: block;">{% translate "Последний вход" %}</strong>
                   <span class="km-admin-meta">{{ km_user_form_summary.last_login|date:"d M Y, H:i" }}</span>
                 </div>
                 {% endif %}
-                
+
                 {% if km_user_form_summary.owner_workflow.has_requests %}
                 <div class="km-place-sidebar-flags" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
                   <strong class="km-admin-title" style="margin-bottom: 8px; display: block;">{% translate "Связанные заявки" %}</strong>
@@ -307,7 +307,7 @@
                     <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
                       <i class="fas fa-check-double"></i> {% translate "Сохранить и выйти" %}
                     </button>
-                    
+
                     {% if km_password_change_url %}
                       <a href="{{ km_password_change_url }}" class="km-btn--sidebar km-btn--info">
                         <i class="fas fa-key"></i> {% translate "Сменить пароль" %}
