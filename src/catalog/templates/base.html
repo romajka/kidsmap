@@ -34,8 +34,8 @@
     <meta name="twitter:title" content="{% block twitter_title %}{% block title_plain_twitter %}KidsMap{% endblock %}{% endblock %}" />
     <meta name="twitter:description" content="{% block twitter_description %}{% block meta_description_twitter %}{% trans 'Каталог детских кружков и секций по Азербайджану: спорт, творчество, музыка, образование.' %}{% endblock %}{% endblock %}" />
     {% block twitter_image %}<meta name="twitter:image" content="{% firstof public_base_url request.scheme|add:'://'|add:request.get_host %}{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />{% endblock %}
-    <link rel="icon" type="image/svg+xml" href="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />
-    <link rel="apple-touch-icon" href="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}" />
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/logo-mark.svg' %}" />
+    <link rel="apple-touch-icon" href="{% static 'img/logo-mark.svg' %}" />
     {% if google_analytics_enabled %}
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_measurement_id|urlencode }}"></script>
       <script>
@@ -105,8 +105,8 @@
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
     <div class="site-shell">
       <header class="topbar">
-        <a class="brand-wrap" href="{% url 'home' %}">
-          <span class="logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}');" aria-hidden="true"></span>
+        <a class="brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
+          <span class="logo-slot" style="--logo-url:url('{% static 'img/logo-mark.svg' %}');" aria-hidden="true"></span>
           <span class="brand">{{ brand_name }}</span>
         </a>
 
@@ -306,67 +306,93 @@
       {% if request.resolver_match.url_name != 'owner_place_create' and request.resolver_match.url_name != 'owner_place_edit' and request.resolver_match.url_name != 'owner_event_create' and request.resolver_match.url_name != 'owner_event_edit' %}
         <footer class="site-footer panel">
           <div class="footer-grid">
+            <!-- 1. Brand Column -->
             <section class="footer-brand-block">
-              <a class="footer-brand-link" href="{% url 'home' %}">
-                <span class="logo-slot footer-logo-slot" style="--logo-url:url('{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo.svg' %}{% endif %}');" aria-hidden="true"></span>
+              <a class="footer-brand-link" href="{% url 'home' %}" aria-label="{{ brand_name }}">
+                <span class="logo-slot footer-logo-slot" style="--logo-url:url('{% static 'img/logo-mark.svg' %}');" aria-hidden="true"></span>
                 <span class="footer-brand-name">{{ brand_name }}</span>
               </a>
               <p class="footer-brand-copy">{{ site_about_text }}</p>
-              <a class="footer-primary-link" href="{% url 'place_list' %}">{% trans "Открыть каталог" %}</a>
+              <div class="footer-brand-actions">
+                <a class="footer-primary-link" href="{% url 'place_list' %}">
+                  <span class="material-symbols-rounded">search</span>
+                  <span>{% trans "Открыть каталог" %}</span>
+                </a>
+              </div>
             </section>
 
+            <!-- 2. Catalog Navigation Column -->
             <section class="footer-links-block" data-footer-accordion>
               <h3 class="footer-accordion-trigger" role="button" aria-expanded="false" tabindex="0">
-                {% trans "Разделы" %}
+                <span>{% if CURRENT_LANGUAGE == "az" %}Kataloq{% elif CURRENT_LANGUAGE == "en" %}Catalog{% else %}Каталог{% endif %}</span>
                 <span class="footer-accordion-icon" aria-hidden="true"></span>
               </h3>
               <div class="footer-accordion-content">
-                <nav class="footer-nav-list" aria-label="{% trans 'Разделы сайта' %}">
-                  <a href="{% url 'home' %}">{% trans "Главная" %}</a>
-                  <a href="{% url 'place_list' %}">{% trans "Каталог" %}</a>
+                <nav class="footer-nav-list" aria-label="{% trans 'Каталог' %}">
+                  <a href="{% url 'place_list' %}">{% if CURRENT_LANGUAGE == "az" %}Bütün dərnəklər və məkanlar{% elif CURRENT_LANGUAGE == "en" %}All clubs & venues{% else %}Все кружки и заведения{% endif %}</a>
+                  <a href="{% url 'place_list' %}?category=SPRT">{% if CURRENT_LANGUAGE == "az" %}İdman bölmələri{% elif CURRENT_LANGUAGE == "en" %}Sports & martial arts{% else %}Спорт и единоборства{% endif %}</a>
+                  <a href="{% url 'place_list' %}?category=EDU">{% if CURRENT_LANGUAGE == "az" %}Təhsil və kurslar{% elif CURRENT_LANGUAGE == "en" %}Education & courses{% else %}Образование и курсы{% endif %}</a>
+                  <a href="{% url 'place_list' %}?category=ART">{% if CURRENT_LANGUAGE == "az" %}Yaradıcılıq və incəsənət{% elif CURRENT_LANGUAGE == "en" %}Arts & creativity{% else %}Творчество и музыка{% endif %}</a>
+                  <a href="{% url 'place_list' %}?category=FUN">{% if CURRENT_LANGUAGE == "az" %}Əyləncə və asudə vaxt{% elif CURRENT_LANGUAGE == "en" %}Entertainment & fun{% else %}Развлечения и досуг{% endif %}</a>
                   {% if is_specialists_section_enabled %}
-                    <a href="{% url 'specialist_list' %}">{% trans "Педагоги и специалисты" %}</a>
+                    <a href="{% url 'specialist_list' %}">{% if CURRENT_LANGUAGE == "az" %}Pedaqoqlar və mütəxəssislər{% elif CURRENT_LANGUAGE == "en" %}Educators & specialists{% else %}{% trans "Педагоги и специалисты" %}{% endif %}</a>
                   {% endif %}
                   {% if is_events_section_enabled %}
-                    <a href="{% url 'events_landing' %}">{% trans "Афиша" %}</a>
+                    <a href="{% url 'events_landing' %}">{% if CURRENT_LANGUAGE == "az" %}Afişa{% elif CURRENT_LANGUAGE == "en" %}Events{% else %}{% trans "Афиша" %}{% endif %}</a>
                   {% endif %}
-                  <a href="{% url 'add_place' %}">{% trans "Добавить место" %}</a>
-                  <a href="{% url 'about' %}">{% trans "О проекте" %}</a>
-                  <a href="{% url 'faq_page' %}">{% trans "FAQ" %}</a>
-                  <a href="{% url 'contacts' %}">{% trans "Контакты" %}</a>
                 </nav>
               </div>
             </section>
 
+            <!-- 3. Project / Service Column -->
             <section class="footer-links-block" data-footer-accordion>
               <h3 class="footer-accordion-trigger" role="button" aria-expanded="false" tabindex="0">
-                {% trans "Контакты" %}
+                <span>{% if CURRENT_LANGUAGE == "az" %}Məlumat{% elif CURRENT_LANGUAGE == "en" %}Information{% else %}Информация{% endif %}</span>
+                <span class="footer-accordion-icon" aria-hidden="true"></span>
+              </h3>
+              <div class="footer-accordion-content">
+                <nav class="footer-nav-list" aria-label="{% trans 'Информация' %}">
+                  <a href="{% url 'about' %}">{% if CURRENT_LANGUAGE == "az" %}Layihə haqqında{% elif CURRENT_LANGUAGE == "en" %}About KidsMap{% else %}{% trans "О проекте" %}{% endif %}</a>
+                  <a href="{% url 'add_place' %}">{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}{% trans "Добавить место" %}{% endif %}</a>
+                  <a href="{% url 'faq_page' %}">{% if CURRENT_LANGUAGE == "az" %}Tez-tez verilən suallar (FAQ){% elif CURRENT_LANGUAGE == "en" %}FAQ{% else %}Частые вопросы (FAQ){% endif %}</a>
+                  <a href="{% url 'contacts' %}">{% if CURRENT_LANGUAGE == "az" %}Əlaqə{% elif CURRENT_LANGUAGE == "en" %}Contacts{% else %}{% trans "Контакты" %}{% endif %}</a>
+                  <a href="{% url 'listing_rules' %}">{% if CURRENT_LANGUAGE == "az" %}Yerləşdirmə qaydaları{% elif CURRENT_LANGUAGE == "en" %}Listing rules{% else %}{% trans "Правила размещения" %}{% endif %}</a>
+                </nav>
+              </div>
+            </section>
+
+            <!-- 4. Contact & Socials Column -->
+            <section class="footer-links-block footer-contact-block" data-footer-accordion>
+              <h3 class="footer-accordion-trigger" role="button" aria-expanded="false" tabindex="0">
+                <span>{% if CURRENT_LANGUAGE == "az" %}Əlaqə və sosial şəbəkələr{% elif CURRENT_LANGUAGE == "en" %}Contact & Support{% else %}Связь с нами{% endif %}</span>
                 <span class="footer-accordion-icon" aria-hidden="true"></span>
               </h3>
               <div class="footer-accordion-content">
                 <div class="footer-contact-list">
                   {% if footer_phone %}
-                    <a class="icon-btn icon-phone" href="tel:{{ footer_phone|cut:' ' }}">{{ footer_phone }}</a>
+                    <a class="footer-contact-item" href="tel:{{ footer_phone|cut:' ' }}">
+                      <span class="footer-contact-icon material-symbols-rounded">call</span>
+                      <span class="footer-contact-val">{{ footer_phone }}</span>
+                    </a>
                   {% endif %}
                   {% if footer_email %}
-                    <a class="icon-btn icon-mail" href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+                    <a class="footer-contact-item" href="mailto:{{ footer_email }}">
+                      <span class="footer-contact-icon material-symbols-rounded">mail</span>
+                      <span class="footer-contact-val">{{ footer_email }}</span>
+                    </a>
                   {% endif %}
-                  {% if footer_whatsapp_url %}
-                    <a href="{{ footer_whatsapp_url }}" class="icon-btn icon-whatsapp-text" target="_blank" rel="noopener">WhatsApp</a>
-                  {% endif %}
+                  <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}" class="footer-whatsapp-btn" target="_blank" rel="noopener">
+                    <span class="footer-whatsapp-icon material-symbols-rounded">chat</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}WhatsApp ilə yazın{% elif CURRENT_LANGUAGE == "en" %}Message on WhatsApp{% else %}Написать в WhatsApp{% endif %}</span>
+                  </a>
                 </div>
-              </div>
-            </section>
 
-            <section class="footer-links-block" data-footer-accordion>
-              <h3 class="footer-accordion-trigger" role="button" aria-expanded="false" tabindex="0">
-                {% trans "Соцсети" %}
-                <span class="footer-accordion-icon" aria-hidden="true"></span>
-              </h3>
-              <div class="footer-accordion-content">
                 {% if footer_social_links %}
-                  <div class="footer-social-links">
-                    {% include "pages/includes/site_social_links.html" with link_class="footer-social-link" %}
+                  <div class="footer-social-wrapper">
+                    <span class="footer-social-heading">{% if CURRENT_LANGUAGE == "az" %}Bizi izləyin:{% elif CURRENT_LANGUAGE == "en" %}Follow us:{% else %}Мы в соцсетях:{% endif %}</span>
+                    <div class="footer-social-links">
+                      {% include "pages/includes/site_social_links.html" with link_class="footer-social-link" %}
+                    </div>
                   </div>
                 {% endif %}
               </div>
@@ -375,23 +401,45 @@
 
           <div class="footer-bottom-row">
             <div class="footer-bottom-left">
-              <p>© {% now "Y" %} KidsMap</p>
-              <div class="footer-legal-links">
-                <a href="{% url 'privacy' %}">{% trans "Политика конфиденциальности" %}</a>
-                <a href="{% url 'terms' %}">{% trans "Условия использования" %}</a>
-                <a href="{% url 'review_rules' %}">{% trans "Правила отзывов" %}</a>
-                <a href="{% url 'listing_rules' %}">{% trans "Правила размещения" %}</a>
+              <div class="footer-legal-line">
+                <p class="footer-copy-text">© {% now "Y" %} KidsMap</p>
+                <span class="footer-dot-sep">·</span>
+                <div class="footer-legal-links">
+                  <a href="{% url 'privacy' %}">{% trans "Политика конфиденциальности" %}</a>
+                  <span class="footer-dot-sep">·</span>
+                  <a href="{% url 'terms' %}">{% trans "Условия использования" %}</a>
+                  <span class="footer-dot-sep">·</span>
+                  <a href="{% url 'review_rules' %}">{% trans "Правила отзывов" %}</a>
+                  <span class="footer-dot-sep">·</span>
+                  <a href="{% url 'listing_rules' %}">{% trans "Правила размещения" %}</a>
+                </div>
               </div>
-              <p class="footer-disclaimer">
-                {% trans "Часть информации на сайте может быть получена из открытых источников и от третьих лиц. Перед записью или оплатой уточняйте данные у организации." %}
-              </p>
+              <div class="footer-disclaimer-card">
+                <span class="material-symbols-rounded footer-disclaimer-icon">info</span>
+                <p class="footer-disclaimer">
+                  {% trans "Часть информации на сайте может быть получена из открытых источников и от третьих лиц. Перед записью или оплатой уточняйте данные у организации." %}
+                </p>
+              </div>
             </div>
-            <a class="footer-bottom-link icon-only-link" href="#top">
-              <span class="visually-hidden">{% trans "Наверх" %}</span>
-            </a>
           </div>
         </footer>
       {% endif %}
+
+      <!-- Floating Sticky Back-to-Top Button with Scroll Progress -->
+      <button
+        type="button"
+        class="km-back-to-top"
+        data-back-to-top
+        aria-label="{% if CURRENT_LANGUAGE == 'az' %}Səhifənin yuxarısına qayıt{% elif CURRENT_LANGUAGE == 'en' %}Back to top{% else %}{% trans 'Наверх' %}{% endif %}"
+        title="{% if CURRENT_LANGUAGE == 'az' %}Yuxarı qayıt{% elif CURRENT_LANGUAGE == 'en' %}Back to top{% else %}{% trans 'Наверх' %}{% endif %}"
+      >
+        <svg class="km-back-to-top-progress" viewBox="0 0 48 48" aria-hidden="true">
+          <circle class="km-progress-track" cx="24" cy="24" r="21" fill="none" stroke-width="3"></circle>
+          <circle class="km-progress-bar" cx="24" cy="24" r="21" fill="none" stroke-width="3" stroke-dasharray="131.95" stroke-dashoffset="131.95"></circle>
+        </svg>
+        <span class="km-back-to-top-icon material-symbols-rounded" aria-hidden="true">arrow_upward</span>
+        <span class="km-back-to-top-tooltip">{% if CURRENT_LANGUAGE == 'az' %}Yuxarı{% elif CURRENT_LANGUAGE == 'en' %}Top{% else %}Наверх{% endif %}</span>
+      </button>
     </div>
     <script>
       (function () {
@@ -918,6 +966,52 @@
               }
             });
           });
+        })();
+
+        // Floating Back-to-Top button with scroll progress
+        (function () {
+          const btn = document.querySelector("[data-back-to-top]");
+          if (!btn) return;
+
+          const progressBar = btn.querySelector(".km-progress-bar");
+          const totalLength = 131.95;
+          let ticking = false;
+
+          function updateScroll() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            
+            if (scrollTop > 220) {
+              btn.classList.add("is-visible");
+            } else {
+              btn.classList.remove("is-visible");
+            }
+
+            if (progressBar && docHeight > 0) {
+              const progress = Math.min(1, Math.max(0, scrollTop / docHeight));
+              const offset = totalLength - (progress * totalLength);
+              progressBar.style.strokeDashoffset = offset;
+            }
+            
+            ticking = false;
+          }
+
+          window.addEventListener("scroll", function () {
+            if (!ticking) {
+              window.requestAnimationFrame(updateScroll);
+              ticking = true;
+            }
+          }, { passive: true });
+
+          btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth"
+            });
+          });
+
+          updateScroll();
         })();
 
       })();

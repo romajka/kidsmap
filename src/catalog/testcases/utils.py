@@ -75,7 +75,25 @@ class StubGeocodingRepository:
         self.queries.append(query)
         return self.point
 
-def create_quality_place(**overrides):
+def ensure_quality_subcategory(category_or_code="EDU"):
+    """A published card needs a subcategory of its own category."""
+
+    category_code = getattr(category_or_code, "code", category_or_code) or "EDU"
+    category, _created = Category.objects.get_or_create(
+        code=category_code,
+        defaults={"name": f"Category {category_code}"},
+    )
+    subcategory, _created = Subcategory.objects.get_or_create(
+        code=f"{category_code.lower()}-quality-tests",
+        defaults={"category": category, "name": f"Subcategory {category_code}"},
+    )
+    if subcategory.category_id != category.pk:
+        subcategory.category = category
+        subcategory.save(update_fields=["category"])
+    return subcategory
+
+
+def create_quality_place(*, with_pricing_plan=False, with_schedule_days=False, with_subcategory=False, **overrides):
     long_description = (
         "Uşaqlar üçün diqqətlə hazırlanmış dərslər, yaşa uyğun qruplar, "
         "müntəzəm cədvəl və valideynlərlə açıq əlaqə təqdim edən mərkəz."
@@ -100,7 +118,43 @@ def create_quality_place(**overrides):
         "status": Place.STATUS_PUBLISHED,
     }
     defaults.update(overrides)
-    return Place.objects.create(**defaults)
+    if with_subcategory and "subcategory" not in defaults and "subcategory_id" not in defaults:
+        defaults["subcategory"] = ensure_quality_subcategory(defaults.get("category") or "EDU")
+    place = Place.objects.create(**defaults)
+
+    # This card keeps the legacy shape most stored cards have: a scalar price
+    # and a free-text schedule. Readiness no longer accepts either, so tests
+    # about publication use ``create_ready_place`` instead of changing what the
+    # public pages of every other test render.
+    if with_pricing_plan:
+        from catalog.models import PricingPlan
+
+        PricingPlan.objects.create(
+            place=place,
+            product_type="lesson",
+            charge_role="primary",
+            price_kind="exact",
+            price=80,
+            is_active=True,
+        )
+    if with_schedule_days:
+        from catalog.services.place_schedule import parse_schedule_payload, sync_place_schedule
+
+        sync_place_schedule(place, parse_schedule_payload(build_structured_schedule_payload()))
+    return place
+
+def create_ready_place(**overrides):
+    """A card that satisfies all twelve publication requirements.
+
+    Callers switch a single ingredient off (``with_pricing_plan=False``) to
+    test the requirement that depends on it.
+    """
+
+    overrides.setdefault("with_pricing_plan", True)
+    overrides.setdefault("with_schedule_days", True)
+    overrides.setdefault("with_subcategory", True)
+    return create_quality_place(**overrides)
+
 
 def build_structured_schedule_payload():
     return dump_schedule_payload(

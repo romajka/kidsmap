@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <title>Код подтверждения email — KidsMap</title>
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 0;
+      min-width: 100%;
+      background-color: #f0f7f3;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    table {
+      border-collapse: collapse;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+    td {
+      padding: 0;
+    }
+    img {
+      border: 0;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic;
+    }
+    a {
+      text-decoration: none;
+    }
+    @media only screen and (max-width: 600px) {
+      .email-container {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .email-card {
+        padding: 24px 18px !important;
+        border-radius: 12px !important;
+      }
+      .email-code {
+        font-size: 28px !important;
+        letter-spacing: 6px !important;
+      }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f0f7f3; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f0f7f3" style="table-layout: fixed;">
+    <tr>
+      <td align="center" style="padding: 28px 12px 36px;">
+        <!-- Container (max-width: 560px) -->
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="560" class="email-container" style="max-width: 560px; width: 100%;">
+          
+          <!-- Header with Logo -->
+          <tr>
+            <td align="center" style="padding-bottom: 24px;">
+              <a href="https://kidsmap.az" target="_blank" style="display: inline-block; text-decoration: none;">
+                <img src="https://kidsmap.az/static/img/logo.png" alt="KidsMap" width="160" height="42" style="display: block; width: 160px; max-width: 160px; height: auto; border: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: 24px; font-weight: 800; color: #136f38;" />
+              </a>
+            </td>
+          </tr>
+
+          <!-- Main Card -->
+          <tr>
+            <td>
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="email-card" style="background-color: #ffffff; border: 1px solid #cbe7d8; border-radius: 16px; padding: 36px 32px; box-shadow: 0 4px 16px rgba(13, 73, 36, 0.04);">
+                <tr>
+                  <td>
+                    
+                    <!-- Title -->
+                    <h1 style="margin: 0 0 16px; font-size: 22px; font-weight: 800; color: #12211f; line-height: 1.3; text-align: center; letter-spacing: -0.01em;">
+                      Подтверждение email
+                    </h1>
+
+                    <!-- Message text -->
+                    <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #374743; text-align: center;">
+                      Здравствуйте! Используйте этот одноразовый код для подтверждения вашего email-адреса и активации аккаунта на KidsMap:
+                    </p>
+
+                    <!-- Prominent Code Box -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0;">
+                      <tr>
+                        <td align="center" style="background-color: #f4fbf6; border: 2px dashed #136f38; border-radius: 12px; padding: 18px 24px; text-align: center;">
+                          <div style="font-size: 11.5px; font-weight: 700; color: #136f38; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px;">
+                            Ваш код подтверждения
+                          </div>
+                          <div class="email-code" style="font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Courier New', monospace; font-size: 34px; font-weight: 900; letter-spacing: 8px; color: #136f38; line-height: 1.1;">
+                            {{ code }}
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Expiration Notice -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 0 0 24px;">
+                      <tr>
+                        <td style="background-color: #f9fbf9; border-left: 3px solid #136f38; border-radius: 4px 8px 8px 4px; padding: 12px 14px; font-size: 13.5px; color: #4c5b58; line-height: 1.5;">
+                          ⏱ Код действителен в течение <strong>{{ minutes }} минут</strong>.
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Security Notice -->
+                    <p style="margin: 0; font-size: 13px; line-height: 1.55; color: #7d8b88; border-top: 1px solid #eef4f0; padding-top: 18px;">
+                      Если вы не регистрировались на сайте KidsMap, просто проигнорируйте это письмо — ваш аккаунт не будет создан, а данные останутся в безопасности.
+                    </p>
+
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding-top: 24px;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" style="font-size: 12.5px; line-height: 1.6; color: #7d8b88; text-align: center;">
+                    <p style="margin: 0 0 6px; font-weight: 700; color: #4c5b58;">
+                      KidsMap — каталог детских секций и кружков в Азербайджане
+                    </p>
+                    <p style="margin: 0 0 8px;">
+                      <a href="https://kidsmap.az" target="_blank" style="color: #136f38; text-decoration: none; font-weight: 600;">kidsmap.az</a>
+                      &nbsp;&nbsp;•&nbsp;&nbsp;
+                      <a href="mailto:info@kidsmap.az" style="color: #136f38; text-decoration: none; font-weight: 600;">info@kidsmap.az</a>
+                    </p>
+                    <p style="margin: 0; font-size: 11.5px; color: #9daaa6;">
+                      © 2026 KidsMap. Все права защищены.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

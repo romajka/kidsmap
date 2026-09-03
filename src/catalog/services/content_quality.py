@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from django.db.models import Exists, OuterRef, Q, QuerySet, TextField, Value
 from django.db.models.functions import Concat, Length, Lower, Replace
+from django.db.models.lookups import Contains
 from django.utils.translation import gettext_lazy as _
 
 
@@ -17,7 +18,19 @@ REVIEW_STATUS_APPROVED = "approved"
 PLACE_QUALITY_ERROR_LABELS = {
     "missing_name": _("Название: заполните название на азербайджанском."),
     "missing_category": _("Категория: выберите основную категорию."),
+    "missing_subcategory": _("Подкатегория: выберите подкатегорию выбранной категории."),
+    "subcategory_mismatch": _("Подкатегория: выбранная подкатегория относится к другой категории."),
+    "missing_region": _("Город / регион: выберите город или регион, а для Баку — район."),
+    "missing_description": _("Описание: добавьте описание на азербайджанском."),
     "description_too_short": _("Описание: напишите не менее 120 символов."),
+    "invalid_coordinates": _("Точка на карте: координаты вне допустимого диапазона."),
+    "missing_age_to": _("Возраст: укажите возраст «до» или включите «Без верхней границы возраста»."),
+    "invalid_age_range": _("Возраст: «до» не может быть меньше «от»."),
+    "missing_phone": _("Телефон: укажите номер телефона."),
+    "legacy_price_not_migrated": _("Цена: перенесите старую цену в тарифы или добавьте тариф «Бесплатно»."),
+    "legacy_schedule_not_migrated": _("Расписание: перенесите старый текст расписания в редактор дней."),
+    "description_length": _("Описание: рекомендуем не менее 120 символов."),
+    "cover_photo_as_main": _("Фото: как главное используется резервное фото."),
     "test_content": _("Данные: удалите тестовый текст вроде «test», «lorem» или «123456»."),
     "missing_contact": _("Контакты: укажите телефон, сайт или Instagram."),
     "missing_address": _("Адрес: укажите улицу, дом или понятный ориентир."),
@@ -63,6 +76,7 @@ PLACE_JUNK_FIELDS = (
     "schedule",
     "address",
 )
+REVIEW_JUNK_FIELDS = ("text", "author_name")
 
 
 def contains_test_content(value: str | None) -> bool:
@@ -87,6 +101,22 @@ def _normalized_junk_expression(field_name: str):
     for separator in TEST_TOKEN_SEPARATORS:
         expression = Replace(expression, Value(separator), Value(" "), output_field=TextField())
     return Concat(Value(" "), expression, Value(" "), output_field=TextField())
+
+
+def normalized_junk_q(field_path: str) -> Q:
+    """Junk-token predicate for a field that cannot carry an annotation.
+
+    ``place_junk_q`` reuses ``km_junk_*`` annotations, but an aggregate filter
+    such as ``Count("reviews", filter=...)`` has no queryset to annotate. Wrap
+    the same normalized expression in a lookup so both call sites apply one
+    rule.
+    """
+
+    expression = _normalized_junk_expression(field_path)
+    predicate = Q()
+    for token in TEST_CONTENT_TOKENS:
+        predicate |= Q(Contains(expression, Value(f" {token} ")))
+    return predicate
 
 
 def place_junk_q() -> Q:
@@ -161,7 +191,15 @@ def _has_price_q() -> Q:
     )
 
 
-def _has_description_q(min_length: int = 120) -> Q:
+def _has_description_q(min_length: int = 1) -> Q:
+    """A public card needs a description, not a long one.
+
+    Length is a readiness recommendation (see ``place_readiness``), never a
+    visibility rule: a card that passes readiness and is published must be
+    reachable in the catalog. Time-based limits (an expired temporary event)
+    stay separate reasons below.
+    """
+
     return Q(description_ru_len__gte=min_length) | Q(description_az_len__gte=min_length) | Q(description_en_len__gte=min_length)
 
 
@@ -245,8 +283,8 @@ def place_catalog_visibility_reasons(place) -> tuple[str, ...]:
 
     if not (place.schedule > "" or place.schedule_days.exists()):
         errors.append("missing_schedule")
-    if not any(len(getattr(place, field) or "") >= 120 for field in ("description_ru", "description_az", "description_en")):
-        errors.append("description_too_short")
+    if not any((getattr(place, field) or "").strip() for field in ("description_ru", "description_az", "description_en")):
+        errors.append("missing_description")
 
     if any(contains_test_content(getattr(place, field)) for field in PLACE_JUNK_FIELDS):
         errors.append("test_content")
@@ -286,12 +324,13 @@ def public_review_filter(prefix: str = "") -> Q:
             field("rating__lte"): 5,
         }
     )
-    # PostgreSQL and SQLite disagree on the regular-expression meaning of
-    # ``\b``. Use Django's portable case-insensitive containment lookup so a
-    # review that was rejected as test content cannot reappear after a DB move.
+    # Match whole tokens only, exactly like ``contains_test_content`` and the
+    # catalog filter. A plain ``icontains`` used to hide honest reviews that
+    # merely contained "contest", "latest" or "тестирование" while moderation
+    # considered them clean.
     junk_q = Q()
-    for token in ("aaa", "test", "lorem", "ipsum", "123456", "qwerty", "asdf", "йцукен"):
-        junk_q |= Q(**{field("text__icontains"): token}) | Q(**{field("author_name__icontains"): token})
+    for junk_field in REVIEW_JUNK_FIELDS:
+        junk_q |= normalized_junk_q(field(junk_field))
     return valid_q & ~junk_q
 
 
@@ -323,78 +362,19 @@ class QualityCheck:
 
 
 def place_quality_check(place) -> QualityCheck:
-    errors: list[str] = []
-    score = 0
+    """Publication readiness of a stored card.
 
-    if (place.name_i18n("az") or place.name or "").strip():
-        score += 10
-    else:
-        errors.append("missing_name")
+    The rules themselves live in ``catalog.services.place_readiness``: this is
+    a thin adapter that keeps the older ``QualityCheck`` shape working for the
+    admin badges, the owner flow and the SEO audit. ``score`` is the share of
+    the twelve required items that are filled, so it can never claim 100 while
+    an issue still blocks publication.
+    """
 
-    if place.category:
-        score += 10
-    else:
-        errors.append("missing_category")
+    from catalog.services.place_readiness import evaluate_place_readiness
 
-    descriptions = [place.description_ru, place.description_az, place.description_en]
-    longest_description = max((len((item or "").strip()) for item in descriptions), default=0)
-    if longest_description >= 120:
-        score += 20
-    else:
-        errors.append("description_too_short")
-
-    if any(contains_test_content(getattr(place, field)) for field in PLACE_JUNK_FIELDS):
-        errors.append("test_content")
-
-    if place.phone1 or place.instagram or place.website:
-        score += 15
-    else:
-        errors.append("missing_contact")
-
-    if place.address:
-        score += 10
-    else:
-        errors.append("missing_address")
-
-    if place.lat is not None and place.lng is not None:
-        score += 10
-    else:
-        errors.append("missing_coordinates")
-
-    if place.age_from is not None or place.age_to is not None:
-        score += 10
-    else:
-        errors.append("missing_age")
-
-    has_legacy_price = any(
-        value is not None
-        for value in (
-            place.price_from,
-            place.price_to,
-            place.price_per_lesson,
-            place.price_per_month,
-            place.price_per_8_lessons,
-        )
-    )
-    has_pricing_plan = _place_has_pricing_plan_price(place)
-    has_is_free = bool(getattr(place, "is_free", False) or getattr(place, "is_price_free", False))
-    if has_legacy_price or has_pricing_plan or has_is_free:
-        score += 10
-    else:
-        errors.append("missing_price")
-
-    if getattr(place, "has_schedule_content", False):
-        score += 10
-    else:
-        errors.append("missing_schedule")
-
-    has_gallery_photo = bool(getattr(place, "pk", None) and place.gallery.exists())
-    if place.photo or place.cover_photo or has_gallery_photo:
-        score += 5
-    else:
-        errors.append("missing_photo")
-
-    return QualityCheck(score=min(score, 100), errors=tuple(errors))
+    readiness = evaluate_place_readiness(place)
+    return QualityCheck(score=readiness.percentage, errors=readiness.quality_codes)
 
 
 def review_quality_check(review) -> QualityCheck:

@@ -11,6 +11,7 @@ from django.core import mail
 from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
+from django.db.models import Count
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
@@ -53,6 +54,7 @@ from catalog.services.content_quality import (
     place_quality_check,
     place_catalog_visibility_reasons,
     public_place_queryset,
+    public_review_filter,
     public_review_queryset,
     review_quality_check,
 )
@@ -339,7 +341,8 @@ class ContentModerationPublicVisibilityTests(TestCase):
                 "price_from": None, "price_to": None, "price_per_lesson": None,
                 "price_per_month": None, "price_per_8_lessons": None,
             }),
-            ("description_too_short", {"description_az": "Коротко"}),
+            # Length is a recommendation; only an empty description hides a card.
+            ("missing_description", {"description_az": "", "description_ru": "", "description_en": ""}),
             ("missing_schedule", {"schedule": ""}),
             ("test_content", {"name": "test club"}),
         )
@@ -456,6 +459,80 @@ class ContentModerationPublicVisibilityTests(TestCase):
         )
 
         self.assertEqual(list(public_review_queryset(PlaceReview.objects.all())), [approved])
+
+    def test_review_junk_tokens_are_whole_tokens_not_substrings(self):
+        place = create_quality_place()
+        honest_texts = (
+            "Latest contest for children was very well organised here.",
+            "Мы прошли тестирование и остались довольны занятиями в этом клубе.",
+        )
+
+        for text in honest_texts:
+            with self.subTest(text=text):
+                review = PlaceReview.objects.create(
+                    place=place,
+                    rating=5,
+                    text=text,
+                    status=PlaceReview.STATUS_APPROVED,
+                    is_approved=True,
+                )
+
+                self.assertFalse(contains_test_content(text))
+                self.assertNotIn("test_content", review_quality_check(review).errors)
+                self.assertTrue(public_review_queryset(PlaceReview.objects.filter(pk=review.pk)).exists())
+
+    def test_review_junk_filter_matches_moderation_check_for_both_fields(self):
+        place = create_quality_place()
+        cases = (
+            ("text", "test aaa lorem"),
+            ("author_name", "Qwerty"),
+        )
+
+        for field, value in cases:
+            with self.subTest(field=field):
+                fields = {
+                    "text": "Bu dərnək barədə real və faydalı təcrübə paylaşılır.",
+                    field: value,
+                }
+                review = PlaceReview.objects.create(
+                    place=place,
+                    rating=5,
+                    status=PlaceReview.STATUS_APPROVED,
+                    is_approved=True,
+                    **fields,
+                )
+
+                self.assertIn("test_content", review_quality_check(review).errors)
+                self.assertFalse(public_review_queryset(PlaceReview.objects.filter(pk=review.pk)).exists())
+
+    def test_review_aggregate_filter_agrees_with_public_review_queryset(self):
+        place = create_quality_place()
+        PlaceReview.objects.create(
+            place=place,
+            rating=5,
+            text="Latest contest for children was very well organised here.",
+            status=PlaceReview.STATUS_APPROVED,
+            is_approved=True,
+        )
+        PlaceReview.objects.create(
+            place=place,
+            rating=4,
+            text="test aaa lorem",
+            status=PlaceReview.STATUS_APPROVED,
+            is_approved=True,
+        )
+
+        annotated = (
+            Place.objects.filter(pk=place.pk)
+            .annotate(visible_review_count=Count("reviews", filter=public_review_filter("reviews__"), distinct=True))
+            .first()
+        )
+
+        self.assertEqual(
+            annotated.visible_review_count,
+            public_review_queryset(place.reviews.all()).count(),
+        )
+        self.assertEqual(annotated.visible_review_count, 1)
 
     def test_diagnose_place_visibility_command_is_read_only(self):
         place = create_quality_place(phone1="+994501234567")

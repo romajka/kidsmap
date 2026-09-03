@@ -14,7 +14,7 @@ from .services.public_urls import build_public_absolute_uri, filtered_query_stri
 from .services.auth_redirects import build_header_login_url
 
 DEFAULT_FOOTER_PHONE = "+994 50 540 66 39"
-DEFAULT_FOOTER_EMAIL = "kidsmap.az@gmail.com"
+DEFAULT_FOOTER_EMAIL = "info@kidsmap.az"
 LOCAL_ANALYTICS_HOSTS = {"localhost", "127.0.0.1", "testserver"}
 DEFAULT_FOOTER_INSTAGRAM_URL = "https://www.instagram.com/kidsmap.az/"
 DEFAULT_FOOTER_TELEGRAM_URL = "https://t.me/KidsMap_az"

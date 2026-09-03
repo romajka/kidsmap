@@ -18,17 +18,18 @@
   color: #f8fafc !important;
 }
 
-.km-admin-sidebar .brand-link .brand-image {
+.km-admin-sidebar .brand-link .brand-image,
+.km-admin-sidebar .brand-link .km-admin-brand-logo {
   margin: 0 !important;
-  max-height: 30px;
-  width: 30px;
+  width: 112px;
+  max-height: 48px;
+  height: 48px;
   object-fit: contain;
+  object-position: left center;
 }
 
 .km-admin-sidebar .brand-link .brand-text {
-  font-size: 24px;
-  font-weight: 700 !important;
-  letter-spacing: -0.02em;
+  display: none;
 }
 
 .km-admin-sidebar .sidebar {

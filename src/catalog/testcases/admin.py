@@ -16,6 +16,7 @@ from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.datastructures import MultiValueDict
+from django.utils.html import escape
 from django.utils import timezone
 from django.utils.translation import gettext as translate, override
 from catalog.controllers.place_controller import PlaceController
@@ -59,6 +60,7 @@ from catalog.services.content_quality import (
     public_review_queryset,
     review_quality_check,
 )
+from catalog.services.place_readiness import evaluate_place_readiness
 from catalog.services.place_schedule import dump_schedule_payload
 from catalog.testcases.auth_access import TestAccountsAndReviewAccess
 from catalog.testcases.auth_flow import (
@@ -1555,7 +1557,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(published_place.status, Place.STATUS_DRAFT)
 
     def test_place_admin_can_publish_ready_place_from_change_form(self):
-        ready_place = create_quality_place(
+        ready_place = create_ready_place(
             name="Ready Admin Place",
             name_ru="Готовое место",
             status=Place.STATUS_DRAFT,
@@ -1625,32 +1627,40 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertNotEqual(place_quality_error_labels(("unknown_internal_code",))[0], "unknown_internal_code")
 
     def test_failed_publish_keeps_published_card_active_and_shows_all_issues(self):
+        # Readiness is computed from the card itself, so the gaps are real ones
+        # rather than a patched quality result.
         self.place = create_quality_place(
             name="Already published place",
             name_ru="Уже опубликованная карточка",
             status=Place.STATUS_PUBLISHED,
             is_active=True,
-        )
-        quality = QualityCheck(
-            score=0,
-            errors=("missing_coordinates", "missing_price", "missing_photo"),
+            lat=None,
+            lng=None,
+            photo="",
+            price_from=None,
+            price_to=None,
         )
         payload = self._admin_place_change_payload(_publish_place="1")
 
-        with patch("catalog.domain_admin.place.place_quality_check", return_value=quality):
-            response = self.client.post(
-                reverse("admin:catalog_place_change", args=[self.place.id]),
-                data=payload,
-                follow=True,
-            )
+        response = self.client.post(
+            reverse("admin:catalog_place_change", args=[self.place.id]),
+            data=payload,
+            follow=True,
+        )
 
         self.assertEqual(response.status_code, 200)
         self.place.refresh_from_db()
         self.assertEqual(self.place.status, Place.STATUS_PUBLISHED)
         self.assertTrue(self.place.is_active)
         self.assertContains(response, "Карточка осталась опубликованной")
-        for label in place_quality_error_labels(quality.errors):
-            self.assertContains(response, label)
+
+        readiness = evaluate_place_readiness(self.place)
+        codes = {issue.quality_code for issue in readiness.issues}
+        self.assertTrue({"missing_coordinates", "missing_price", "missing_photo"} <= codes, codes)
+        blocking = [issue.message for issue in readiness.issues if issue.blocking]
+        self.assertTrue(blocking)
+        for message in blocking:
+            self.assertContains(response, escape(message))
 
     def test_place_admin_change_form_keeps_gallery_reviews_and_audit_sections(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
@@ -2700,7 +2710,7 @@ class TestAdminBulkActions(TestCase):
     def test_place_make_published_action(self, mock_quality):
         mock_quality.return_value.is_ready = True
         
-        place1 = create_quality_place(name="Place 1", status=Place.STATUS_DRAFT)
+        place1 = create_ready_place(name="Place 1", status=Place.STATUS_DRAFT)
         place2 = create_quality_place(name="Place 2", status=Place.STATUS_DRAFT)
         
         url = reverse("admin:catalog_place_changelist")
@@ -2744,7 +2754,7 @@ class TestAdminBulkActions(TestCase):
         self.assertFalse(place1.is_active)
 
     def test_place_mark_pending_action(self):
-        place1 = create_quality_place(name="Place 1", status=Place.STATUS_DRAFT)
+        place1 = create_ready_place(name="Place 1", status=Place.STATUS_DRAFT)
         
         url = reverse("admin:catalog_place_changelist")
         response = self.client.post(url, {

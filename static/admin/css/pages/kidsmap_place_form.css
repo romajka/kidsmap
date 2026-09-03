@@ -4190,14 +4190,48 @@ div[class*="related-modal"]:has(iframe[name*="category"]) .modal-header {
 
 .km-verification-checklist-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 10px;
+}
+
+.km-verification-readiness {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--km-place-text-muted, #6b7280);
+}
+
+.km-verification-readiness__pct {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--km-place-text, #1f2937);
+}
+
+/* The reason has to fit next to the field name: the point of the block is that
+   the editor never has to guess which value blocks publication. */
+.km-checklist-link__label {
+  display: block;
+  font-weight: 700;
+}
+
+.km-checklist-link__message {
+  display: block;
+  margin-top: 2px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 1.35;
+  opacity: 0.85;
 }
 
 .km-checklist-link {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
+  text-align: left;
   padding: 8px 12px;
   background-color: #fffbeb;
   border: 1px solid #fef3c7;
@@ -4217,6 +4251,45 @@ div[class*="related-modal"]:has(iframe[name*="category"]) .modal-header {
 
 .km-checklist-link i {
   font-size: 12px;
+}
+
+.km-verification-advice {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--km-place-border, #e5e7eb);
+}
+
+.km-verification-advice__title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--km-place-text-muted, #6b7280);
+}
+
+/* Advice must not read like a blocker: no warning colour, no arrow. */
+.km-advice-link {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--km-place-text-muted, #6b7280) !important;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.km-advice-link:hover {
+  background-color: var(--km-place-surface-soft, #f9fafb);
+}
+
+.km-advice-link__label {
+  display: block;
+  font-weight: 700;
+}
+
+.km-advice-link__message {
+  display: block;
+  line-height: 1.35;
 }
 
 .km-verification-all-filled {

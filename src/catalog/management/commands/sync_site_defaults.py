@@ -5,9 +5,9 @@ from catalog.models import SiteSettings
 
 SITE_DEFAULTS = {
     "brand_name": "KidsMap",
-    "contacts_text_ru": "Свяжитесь с нами по почте: kidsmap.az@gmail.com",
-    "contacts_text_en": "Contact us by email: kidsmap.az@gmail.com",
-    "contacts_text_az": "Bizimlə e-poçt vasitəsilə əlaqə saxlayın: kidsmap.az@gmail.com",
+    "contacts_text_ru": "Свяжитесь с нами по почте: info@kidsmap.az",
+    "contacts_text_en": "Contact us by email: info@kidsmap.az",
+    "contacts_text_az": "Bizimlə e-poçt vasitəsilə əlaqə saxlayın: info@kidsmap.az",
     "about_text_ru": "KidsMap — каталог детских кружков и секций по Азербайджану.",
     "about_text_en": "KidsMap is a catalog of kids clubs and courses across Azerbaijan.",
     "about_text_az": "KidsMap Azərbaycanda uşaqlar üçün dərnək və kurs kataloqudur.",
@@ -30,7 +30,7 @@ SITE_DEFAULTS = {
     "empty_results_text_en": "Nothing found.",
     "empty_results_text_az": "Heç nə tapılmadı.",
     "footer_phone": "+994 50 540 66 39",
-    "footer_email": "kidsmap.az@gmail.com",
+    "footer_email": "info@kidsmap.az",
     "footer_instagram": "https://www.instagram.com/kidsmap.az/",
     "footer_telegram": "https://t.me/KidsMap_az",
     "footer_youtube": "https://www.youtube.com/@KidsMap_az",

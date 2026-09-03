@@ -861,9 +861,9 @@
           <span class="material-symbols-rounded">call</span>
           +994 55 497 97 23
         </a>
-        <a href="mailto:info@kidsmap.az" class="faq-contact-link">
+        <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}" class="faq-contact-link">
           <span class="material-symbols-rounded">mail</span>
-          info@kidsmap.az
+          {{ footer_email|default:'info@kidsmap.az' }}
         </a>
         <div class="faq-contact-hours">{% if request.LANGUAGE_CODE == 'az' %}B.e.–C. 10:00–18:00{% elif request.LANGUAGE_CODE == 'en' %}Mon–Fri 10:00–18:00{% else %}Пн–Пт 10:00–18:00{% endif %}</div>
       </div>

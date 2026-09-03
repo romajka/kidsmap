@@ -1,88 +1,164 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block title_plain %}{{ page_title }}{% endblock %}
 {% block title_plain_twitter %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 
-{% block content %}
-  <section class="panel content-page legal-page">
-    <nav class="legal-page__breadcrumb" aria-label="{% trans 'Навигация по сайту' %}">
-      <a href="{% url 'home' %}">{% trans "Главная" %}</a>
-      <span aria-hidden="true">›</span>
-      <span aria-current="page">{{ legal_title }}</span>
-    </nav>
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/pages/legal.css' %}" />
+{% endblock %}
 
-    <header class="legal-page__hero">
-      <p class="legal-page__eyebrow">{{ hero_label|default:"KidsMap" }}</p>
-      <h1>{{ legal_title }}</h1>
+{% block content %}
+<div class="legal-page-wrapper">
+
+  <!-- 1. Breadcrumbs -->
+  <nav class="legal-crumbs" aria-label="{{ breadcrumb_aria_label|default:'Навигация' }}">
+    <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+    <span class="sep material-symbols-rounded">chevron_right</span>
+    <span class="cur">{{ legal_title }}</span>
+  </nav>
+
+  <!-- 2. Hero Header -->
+  <header class="legal-hero-card">
+    <div class="legal-hero-orb1" aria-hidden="true"></div>
+    <div class="legal-hero-orb2" aria-hidden="true"></div>
+
+    <div class="legal-hero-content">
+      <div class="faq-hero-badge">
+        <span class="faq-hero-ping-dot"><span></span></span>
+        <span>{{ hero_label|default:"KidsMap" }}</span>
+      </div>
+
+      <h1 class="legal-hero-title">{{ legal_title }}</h1>
+
       {% if is_privacy_document %}
-        <div class="legal-page__dates" aria-label="{{ dates_aria_label }}">
-          <div class="legal-page__date-chip">
-            <span>{{ effective_label }}</span>
-            <strong>{{ effective_date }}</strong>
+        <p class="legal-hero-summary">{{ summary }}</p>
+
+        <div class="legal-hero-dates" aria-label="{{ dates_aria_label }}">
+          <div class="legal-date-chip">
+            <span class="material-symbols-rounded">verified</span>
+            <div class="legal-date-info">
+              <span class="legal-date-lbl">{{ effective_label }}</span>
+              <strong class="legal-date-val">{{ effective_date }}</strong>
+            </div>
           </div>
-          <div class="legal-page__date-chip">
-            <span>{{ updated_label }}</span>
-            <strong>{{ updated_date }}</strong>
+          <div class="legal-date-chip">
+            <span class="material-symbols-rounded">history</span>
+            <div class="legal-date-info">
+              <span class="legal-date-lbl">{{ updated_label }}</span>
+              <strong class="legal-date-val">{{ updated_date }}</strong>
+            </div>
           </div>
         </div>
-        <p class="legal-page__summary">{{ summary }}</p>
       {% endif %}
-    </header>
+    </div>
+  </header>
 
-    {% if is_privacy_document %}
-      <div class="legal-page__layout">
-        <aside class="legal-toc" aria-labelledby="legal-toc-title">
-          <div class="legal-toc__card">
-            <h2 id="legal-toc-title">{{ toc_title }}</h2>
-            <ol class="legal-toc__list">
+  {% if is_privacy_document %}
+    <!-- 3. Main Two-Column Layout (Sticky TOC + Document Content) -->
+    <div class="legal-main-grid">
+
+      <!-- Sidebar: Sticky Desktop TOC & Mobile Accordion TOC -->
+      <aside class="legal-sidebar" aria-label="{{ toc_title }}">
+
+        <!-- Mobile Collapsible Details -->
+        <details class="legal-toc-mobile-accordion">
+          <summary class="legal-toc-mobile-summary">
+            <span class="material-symbols-rounded">toc</span>
+            <span class="legal-toc-mobile-title">{{ toc_title }} ({{ toc_items|length }})</span>
+            <span class="material-symbols-rounded chevron">expand_more</span>
+          </summary>
+          <div class="legal-toc-mobile-body">
+            <ol class="legal-toc-list">
               {% for item in toc_items %}
-                <li><a href="#{{ item.id }}">{{ item.title }}</a></li>
+                <li>
+                  <a class="legal-toc-link js-toc-link" href="#{{ item.id }}">
+                    <span class="legal-toc-dot"></span>
+                    <span>{{ item.title }}</span>
+                  </a>
+                </li>
               {% endfor %}
             </ol>
           </div>
-        </aside>
+        </details>
 
-        <div class="legal-document">
-          <section class="legal-contact-card" aria-label="{{ contact_title }}">
-            <div>
-              <p class="legal-contact-card__label">{{ contact_title }}</p>
-              <p>{{ contact_body }}</p>
+        <!-- Desktop Sticky TOC Card -->
+        <div class="legal-toc-card">
+          <div class="legal-toc-head">
+            <span class="material-symbols-rounded">menu_book</span>
+            <span>{{ toc_title }}</span>
+            <span class="legal-toc-count">{{ toc_items|length }}</span>
+          </div>
+          <div class="legal-toc-scroll-wrap">
+            <ol class="legal-toc-list">
+              {% for item in toc_items %}
+                <li>
+                  <a class="legal-toc-link js-toc-link" href="#{{ item.id }}" data-target="{{ item.id }}">
+                    <span class="legal-toc-dot"></span>
+                    <span>{{ item.title }}</span>
+                  </a>
+                </li>
+              {% endfor %}
+            </ol>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Document Stream -->
+      <main class="legal-document-content">
+        {% for item in sections %}
+          <article
+            id="{{ item.id }}"
+            class="legal-doc-section {% if item.id == 'children' %}highlight-safety{% elif item.id == 'rights' or item.id == 'account-deletion' %}highlight-rights{% endif %}"
+          >
+            <div class="legal-section-header">
+              <h2 class="legal-section-title">{{ item.title }}</h2>
+              {% if item.id == 'children' %}
+                <span class="legal-section-badge safety">
+                  <span class="material-symbols-rounded">child_care</span>
+                  {% if CURRENT_LANGUAGE == "az" %}Təhlükəsizlik qaydası{% elif CURRENT_LANGUAGE == "en" %}Child Safety{% else %}Защита детей{% endif %}
+                </span>
+              {% elif item.id == 'account-deletion' or item.id == 'rights' %}
+                <span class="legal-section-badge rights">
+                  <span class="material-symbols-rounded">shield</span>
+                  {% if CURRENT_LANGUAGE == "az" %}İstifadəçi hüququ{% elif CURRENT_LANGUAGE == "en" %}User Rights{% else %}Права пользователя{% endif %}
+                </span>
+              {% endif %}
             </div>
-            <a class="legal-contact-card__email" href="mailto:{{ contact_email }}">{{ contact_email }}</a>
-          </section>
 
-          {% for item in sections %}
-            <article id="{{ item.id }}" class="legal-document__section">
-              <h2>{{ item.title }}</h2>
-
+            <div class="legal-section-body">
               {% for block in item.content %}
                 {% if block.type == "paragraph" %}
                   <p>{{ block.text }}</p>
                 {% elif block.type == "bullets" %}
-                  <ul>
+                  <ul class="legal-bullets-list">
                     {% for bullet in block.items %}
                       <li>{{ bullet }}</li>
                     {% endfor %}
                   </ul>
                 {% elif block.type == "email" %}
-                  <div class="legal-inline-contact">
-                    <p>{{ block.label }}</p>
+                  <div class="legal-inline-email-box">
+                    <span class="material-symbols-rounded">mark_email_read</span>
+                    <span>{{ block.label }}</span>
                     <a href="mailto:{{ block.email }}">{{ block.email }}</a>
                   </div>
                 {% endif %}
               {% endfor %}
 
               {% for child in item.children %}
-                <section id="{{ child.id }}" class="legal-document__subsection">
-                  <h3>{{ child.title }}</h3>
+                <section id="{{ child.id }}" class="legal-doc-subsection">
+                  <h3 class="legal-subsection-title">{{ child.title }}</h3>
                   {% for block in child.content %}
                     {% if block.type == "paragraph" %}
                       <p>{{ block.text }}</p>
                     {% elif block.type == "bullets" %}
-                      <ul>
+                      <ul class="legal-bullets-list">
                         {% for bullet in block.items %}
                           <li>{{ bullet }}</li>
                         {% endfor %}
@@ -91,24 +167,104 @@
                   {% endfor %}
                 </section>
               {% endfor %}
-            </article>
-          {% endfor %}
-
-          <section class="legal-contact-card legal-contact-card--footer" aria-label="{{ contact_title }}">
-            <div>
-              <p class="legal-contact-card__label">{{ contact_title }}</p>
-              <p>{{ contact_body }}</p>
             </div>
-            <a class="legal-contact-card__email" href="mailto:{{ contact_email }}">{{ contact_email }}</a>
-          </section>
-        </div>
-      </div>
-    {% else %}
-      <div class="legal-page__body">
-        {% for item in legal_sections %}
-          <p>{{ item }}</p>
+          </article>
         {% endfor %}
-      </div>
-    {% endif %}
-  </section>
+
+        <!-- Unified Single Prominent Privacy Contact Card at the Bottom -->
+        <section class="legal-contact-card" aria-label="{{ contact_title }}">
+          <div class="legal-contact-card__info">
+            <div class="legal-contact-card__icon">
+              <span class="material-symbols-rounded">shield_person</span>
+            </div>
+            <div>
+              <h3 class="legal-contact-card__title">{{ contact_title }}</h3>
+              <p class="legal-contact-card__text">{{ contact_body }}</p>
+            </div>
+          </div>
+          <div class="legal-contact-card__action">
+            <a class="faq-btn faq-btn--primary" href="mailto:{{ contact_email }}">
+              <span class="material-symbols-rounded">mail</span>
+              <span>{{ contact_email }}</span>
+            </a>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+  {% else %}
+    <!-- Fallback Simple Legal Layout (e.g. for simple policy stubs) -->
+    <div class="legal-simple-body">
+      {% for item in legal_sections %}
+        <p>{{ item }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- Scroll Spy & TOC Interaction Script -->
+<script>
+  (function() {
+    var tocLinks = document.querySelectorAll('.js-toc-link');
+    var sections = document.querySelectorAll('.legal-doc-section');
+    var mobileDetails = document.querySelector('.legal-toc-mobile-accordion');
+
+    // Smooth scroll and auto-close mobile details upon click
+    tocLinks.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        var href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          var targetId = href.substring(1);
+          var targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            e.preventDefault();
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.pushState(null, null, href);
+            if (mobileDetails && mobileDetails.hasAttribute('open')) {
+              mobileDetails.removeAttribute('open');
+            }
+          }
+        }
+      });
+    });
+
+    // IntersectionObserver for active TOC link highlighting
+    if ('IntersectionObserver' in window && sections.length > 0) {
+      var observerOptions = {
+        root: null,
+        rootMargin: '-80px 0px -60% 0px',
+        threshold: 0
+      };
+
+      var activeId = null;
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            activeId = entry.target.id;
+            updateActiveLink(activeId);
+          }
+        });
+      }, observerOptions);
+
+      sections.forEach(function(sec) {
+        observer.observe(sec);
+      });
+
+      function updateActiveLink(id) {
+        if (!id) return;
+        tocLinks.forEach(function(link) {
+          var href = link.getAttribute('href');
+          if (href === '#' + id) {
+            link.classList.add('is-active');
+          } else {
+            link.classList.remove('is-active');
+          }
+        });
+      }
+    }
+  })();
+</script>
 {% endblock %}

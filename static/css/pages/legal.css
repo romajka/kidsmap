@@ -1,0 +1,698 @@
+/* ── KidsMap Legal & Privacy Policy Modern Light Stylesheet ── */
+
+.legal-page-wrapper {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 16px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  font-family: Nunito, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #12211f;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Keyframe Animations Matching FAQ & About ── */
+@keyframes faqIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes faqRise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes faqOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-24px, 18px) scale(1.12); } }
+@keyframes faqOrb2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(20px, -16px) scale(1.08); } }
+@keyframes faqPing { 0% { transform: scale(.5); opacity: .6; } 100% { transform: scale(2.4); opacity: 0; } }
+
+/* ── Breadcrumbs ── */
+.legal-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #7d8b88;
+}
+
+.legal-crumbs a {
+  color: #7d8b88;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+.legal-crumbs a:hover {
+  color: #136f38;
+}
+
+.legal-crumbs .sep {
+  font-size: 16px;
+  color: #a4b3af;
+}
+
+.legal-crumbs .cur {
+  color: #12211f;
+  font-weight: 700;
+}
+
+/* ── Standard Button Tokens ── */
+.faq-btn {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .25s ease;
+  white-space: nowrap;
+}
+
+.faq-btn--primary {
+  background: #136f38;
+  color: #ffffff !important;
+  border: 1px solid #136f38;
+  box-shadow: 0 4px 14px rgba(19,111,56,.2);
+}
+
+.faq-btn--primary:hover {
+  background: #0d4924;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(13,73,36,.5);
+}
+
+.faq-btn--outline {
+  border: 1px solid #cbe7d8;
+  background: #ffffff;
+  color: #12211f !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,.03);
+}
+
+.faq-btn--outline:hover {
+  border-color: #136f38;
+  color: #136f38 !important;
+  background: #f2f9f5;
+  transform: translateY(-2px);
+}
+
+.faq-hero-badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #e2f4ea;
+  border: 1px solid #cbe7d8;
+  color: #0d4924;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.faq-hero-ping-dot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #136f38;
+  display: inline-block;
+}
+
+.faq-hero-ping-dot span {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #136f38;
+  animation: faqPing 1.8s ease-out infinite;
+}
+
+/* ── Hero Header Card ── */
+.legal-hero-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background: linear-gradient(140deg, #f2f9f5 0%, #e7f5ec 100%);
+  border: 1px solid #cbe7d8;
+  padding: clamp(28px, 4vw, 42px) clamp(20px, 4vw, 44px);
+  box-shadow: 0 10px 30px rgba(13, 73, 36, 0.04);
+  animation: faqRise .6s cubic-bezier(.2,.8,.3,1) both;
+}
+
+.legal-hero-orb1 {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  right: -50px;
+  top: -120px;
+  background: radial-gradient(circle, rgba(19,111,56,.12), rgba(19,111,56,0) 70%);
+  animation: faqOrb 9s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.legal-hero-orb2 {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  left: 45%;
+  bottom: -150px;
+  background: radial-gradient(circle, rgba(19,111,56,.08), rgba(19,111,56,0) 70%);
+  animation: faqOrb2 11s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.legal-hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 880px;
+}
+
+.legal-hero-title {
+  margin: 0;
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: #12211f;
+}
+
+.legal-hero-summary {
+  margin: 0;
+  font-size: clamp(15.5px, 1.3vw, 17.5px);
+  font-weight: 650;
+  line-height: 1.6;
+  color: #4c5b58;
+  max-width: 76ch;
+}
+
+.legal-hero-dates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.legal-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #cbe7d8;
+  box-shadow: 0 2px 6px rgba(23, 51, 42, 0.03);
+  backdrop-filter: blur(4px);
+}
+
+.legal-date-chip .material-symbols-rounded {
+  font-size: 20px;
+  color: #136f38;
+}
+
+.legal-date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.legal-date-lbl {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #729182;
+}
+
+.legal-date-val {
+  font-size: 13.5px;
+  font-weight: 850;
+  color: #12211f;
+}
+
+/* ── 3. Main Grid Layout (Sticky Sidebar + Document) ── */
+.legal-main-grid {
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+/* ── Sidebar & Table of Contents ── */
+.legal-sidebar {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.legal-toc-mobile-accordion {
+  display: none;
+}
+
+.legal-toc-card {
+  background: #ffffff;
+  border: 1.5px solid #dfeae6;
+  border-radius: 22px;
+  padding: 18px 16px;
+  box-shadow: 0 4px 18px rgba(23, 51, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: calc(100vh - 48px);
+}
+
+.legal-toc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  font-weight: 850;
+  color: #12211f;
+  padding: 2px 8px 8px;
+  border-bottom: 1px solid #eef3f1;
+}
+
+.legal-toc-head .material-symbols-rounded {
+  font-size: 19px;
+  color: #136f38;
+}
+
+.legal-toc-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 800;
+  color: #136f38;
+  background: #e2f4ea;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.legal-toc-scroll-wrap {
+  overflow-y: auto;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+}
+
+/* Custom subtle scrollbar */
+.legal-toc-scroll-wrap::-webkit-scrollbar {
+  width: 5px;
+}
+.legal-toc-scroll-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.legal-toc-scroll-wrap::-webkit-scrollbar-thumb {
+  background: #cbe7d8;
+  border-radius: 999px;
+}
+
+.legal-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.legal-toc-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #4c5b58;
+  text-decoration: none;
+  line-height: 1.35;
+  transition: all .2s ease;
+}
+
+.legal-toc-link:hover {
+  background: #f2f9f5;
+  color: #136f38;
+}
+
+.legal-toc-link.is-active {
+  background: #eaf6ef;
+  color: #136f38;
+  font-weight: 850;
+  box-shadow: inset 3px 0 0 #136f38;
+}
+
+.legal-toc-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c2d3cf;
+  flex-shrink: 0;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.legal-toc-link:hover .legal-toc-dot,
+.legal-toc-link.is-active .legal-toc-dot {
+  background: #136f38;
+  transform: scale(1.3);
+}
+
+/* ── Main Document Stream ── */
+.legal-document-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.legal-doc-section {
+  background: #ffffff;
+  border: 1.5px solid #dfeae6;
+  border-radius: 22px;
+  padding: clamp(20px, 3vw, 32px);
+  box-shadow: 0 4px 18px rgba(23, 51, 42, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-margin-top: 32px;
+  animation: faqIn .5s cubic-bezier(.2,.8,.3,1) both;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.legal-doc-section:hover {
+  border-color: #cbe7d8;
+  box-shadow: 0 8px 24px -6px rgba(19, 111, 56, 0.06);
+}
+
+/* Special Highlight Card Variants */
+.legal-doc-section.highlight-safety {
+  border-color: #ffd8a8;
+  background: linear-gradient(180deg, #fffdfa 0%, #ffffff 100%);
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.04);
+}
+
+.legal-doc-section.highlight-safety:hover {
+  border-color: #f59f00;
+}
+
+.legal-doc-section.highlight-rights {
+  border-color: #cbe7d8;
+  background: linear-gradient(180deg, #fbfdfc 0%, #ffffff 100%);
+}
+
+.legal-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+}
+
+.legal-section-title {
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 25px);
+  font-weight: 900;
+  letter-spacing: -0.022em;
+  color: #12211f;
+  line-height: 1.25;
+}
+
+.legal-section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+.legal-section-badge.safety {
+  background: #FFF4E6;
+  color: #D9480F;
+  border: 1px solid #FFE8CC;
+}
+
+.legal-section-badge.rights {
+  background: #EBFBEE;
+  color: #2B8A3E;
+  border: 1px solid #D3F9D8;
+}
+
+.legal-section-badge .material-symbols-rounded {
+  font-size: 15px;
+}
+
+.legal-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #3f504d;
+  font-size: 15.5px;
+  line-height: 1.7;
+}
+
+.legal-section-body p {
+  margin: 0;
+}
+
+.legal-bullets-list {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legal-bullets-list li {
+  line-height: 1.6;
+}
+
+/* Subsections */
+.legal-doc-subsection {
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px dashed #e2ede8;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.legal-subsection-title {
+  margin: 0;
+  font-size: 17.5px;
+  font-weight: 850;
+  color: #12211f;
+  letter-spacing: -.01em;
+}
+
+/* Inline Email Note Box */
+.legal-inline-email-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: #f2f9f5;
+  border: 1px solid #cbe7d8;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #17422b;
+  flex-wrap: wrap;
+}
+
+.legal-inline-email-box .material-symbols-rounded {
+  font-size: 20px;
+  color: #136f38;
+}
+
+.legal-inline-email-box a {
+  color: #136f38;
+  font-weight: 850;
+  text-decoration: underline;
+}
+
+/* ── Unified Single Bottom Privacy Contact Card ── */
+.legal-contact-card {
+  border-radius: 24px;
+  background: linear-gradient(140deg, #f2f9f5 0%, #e7f5ec 100%);
+  border: 1.5px solid #cbe7d8;
+  padding: clamp(24px, 3.5vw, 36px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  box-shadow: 0 8px 26px rgba(13, 73, 36, 0.04);
+  margin-top: 12px;
+}
+
+.legal-contact-card__info {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.legal-contact-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #e2f4ea;
+  border: 1px solid #cbe7d8;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  color: #136f38;
+  flex-shrink: 0;
+}
+
+.legal-contact-card__title {
+  margin: 0 0 4px;
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 900;
+  color: #12211f;
+  letter-spacing: -.02em;
+}
+
+.legal-contact-card__text {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 650;
+  color: #4c5b58;
+  line-height: 1.5;
+  max-width: 58ch;
+}
+
+.legal-contact-card__action {
+  flex-shrink: 0;
+}
+
+/* ── Fallback Simple Body Layout ── */
+.legal-simple-body {
+  background: #ffffff;
+  border: 1.5px solid #dfeae6;
+  border-radius: 22px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #3f504d;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ── Responsive Media Queries ── */
+@media (max-width: 1024px) {
+  .legal-main-grid {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .legal-contact-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .legal-contact-card__action {
+    width: 100%;
+  }
+
+  .legal-contact-card__action .faq-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 860px) {
+  .legal-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .legal-sidebar {
+    position: static;
+  }
+
+  .legal-toc-card {
+    display: none;
+  }
+
+  .legal-toc-mobile-accordion {
+    display: block;
+    background: #ffffff;
+    border: 1.5px solid #dfeae6;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(23, 51, 42, 0.03);
+  }
+
+  .legal-toc-mobile-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 18px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    font-size: 15px;
+    font-weight: 850;
+    color: #12211f;
+  }
+
+  .legal-toc-mobile-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .legal-toc-mobile-summary .material-symbols-rounded {
+    font-size: 20px;
+    color: #136f38;
+  }
+
+  .legal-toc-mobile-summary .chevron {
+    margin-left: auto;
+    color: #64748b;
+    transition: transform .3s ease;
+  }
+
+  .legal-toc-mobile-accordion[open] .legal-toc-mobile-summary .chevron {
+    transform: rotate(180deg);
+  }
+
+  .legal-toc-mobile-body {
+    padding: 10px 14px 18px;
+    border-top: 1px solid #eef3f1;
+    max-height: 380px;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .legal-page-wrapper {
+    padding: 12px 14px 60px;
+    gap: 20px;
+  }
+
+  .legal-hero-card {
+    padding: 22px 16px;
+    border-radius: 20px;
+  }
+
+  .legal-hero-dates {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .legal-date-chip {
+    width: 100%;
+  }
+
+  .legal-contact-card__info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from django.db import transaction
 from django.db.models import Q
@@ -21,6 +21,7 @@ from catalog.repositories.django_repositories import (
 )
 from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
 from catalog.services.content_quality import QualityCheck, place_quality_check, place_quality_error_labels
+from catalog.services.place_readiness import evaluate_readiness, readiness_data_from_form
 from catalog.services.pricing_plans import pricing_audit_summary
 from catalog.services.owner_place_use_cases import (
     OwnerAccessResult,
@@ -126,17 +127,28 @@ class OwnerPlacesController:
 
     @classmethod
     def _add_quality_errors_to_form(cls, form, quality: QualityCheck) -> None:
+        # Codes come from catalog.services.place_readiness; keep every one of
+        # them pointed at the field the owner has to fix.
         fields = {
             "missing_name": "name_az",
             "missing_category": "category",
+            "missing_subcategory": "subcategory",
+            "subcategory_mismatch": "subcategory",
+            "missing_region": "region",
+            "missing_description": "description_az",
             "description_too_short": "description_az",
             "missing_contact": "phone1",
+            "missing_phone": "phone1",
             "missing_address": "address",
             "missing_coordinates": "lat",
+            "invalid_coordinates": "lat",
             "missing_age": "age_from",
+            "missing_age_to": "age_to",
+            "invalid_age_range": "age_to",
             "missing_price": "price_from",
             "missing_schedule": "schedule_mode",
             "missing_photo": "photo",
+            "test_content": "name_az",
         }
         for code in quality.errors:
             field_name = fields.get(code)
@@ -442,7 +454,19 @@ class OwnerPlacesController:
         if not draft_save_only and not manual_coordinates_selected:
             coordinate_changes, geocoding_result = self._resolve_coordinates_before_create(place=place)
         if not draft_save_only:
-            quality = place_quality_check(place)
+            # The card is not saved yet, so its schedule rows and tariffs live
+            # in the submitted form, not in the database. Reading the bare
+            # instance here would report a filled schedule as missing. The
+            # coordinates come from ``place``: geocoding filled them in after
+            # the form was cleaned.
+            readiness = evaluate_readiness(
+                replace(
+                    readiness_data_from_form(result.form, place),
+                    lat=place.lat,
+                    lng=place.lng,
+                )
+            )
+            quality = QualityCheck(score=readiness.percentage, errors=readiness.quality_codes)
             if not quality.is_ready:
                 self._add_quality_errors_to_form(result.form, quality)
                 return OwnerPlaceActionResult(

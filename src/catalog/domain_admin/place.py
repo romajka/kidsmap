@@ -48,6 +48,13 @@ from catalog.services.content_quality import (
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.options import sort_translated_values
 from catalog.services.image_uploads import normalize_uploaded_image
+from catalog.services.place_readiness import (
+    PLACE_READINESS_REQUIREMENTS,
+    evaluate_form_readiness,
+    evaluate_place_readiness,
+    format_readiness_issues,
+    publication_blocked_message,
+)
 from catalog.services.pricing_plans import normalize_pricing_plans, pricing_audit_summary
 from catalog.services.place_schedule import FULL_DAY_LABELS, build_schedule_summary, serialize_place_schedule
 from catalog.services.place_card_validation import validate_place_card
@@ -232,50 +239,35 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             status = getattr(self.instance, "status", "")
         # Use getattr to safely access STATUS_PUBLISHED from instance or just string
         status_published = getattr(self.instance, "STATUS_PUBLISHED", "published")
+        # One readiness verdict for the whole product: the same service drives
+        # the progress bar, the "Проверка" block and this gate, so the form can
+        # never show 100% while the save is refused. Compute it before any
+        # ``add_error`` call: an error drops its field from ``cleaned_data``,
+        # and a later re-read would fall back to the stored value and show a
+        # missing item as filled.
+        readiness = evaluate_form_readiness(self, self.instance)
+        self.place_readiness = readiness
+        # A card that is already live keeps its place on the site while its
+        # legacy data is migrated: refusing the save would freeze every stored
+        # card at once. ``self.instance`` still holds the stored values here —
+        # ``construct_instance`` runs later, in ``_post_clean``.
+        self.place_readiness_compatibility = False
+        was_published = (
+            bool(getattr(self.instance, "pk", None))
+            and getattr(self.instance, "status", "") == status_published
+            and bool(getattr(self.instance, "is_active", False))
+        )
         if (is_active or status == status_published) and not skips_publish_validation:
-            checklist = [
-                ("name", _("Название")),
-                ("category", _("Категория")),
-                ("description_az", _("Описание (AZ)")),
-                ("age_from", _("Возраст от")),
-                ("age_to", _("Возраст до")),
-                ("region", _("Город / регион")),
-                ("address", _("Адрес")),
-                ("lat", _("Точка на карте")),
-                ("lng", _("Точка на карте")),
-                ("phone1", _("Телефон")),
-                ("photo", _("Главное фото")),
-                ("price", _("Цена или тариф")),
-            ]
-            if cleaned.get("region") == "baku":
-                checklist.append(("district", _("Район Баку")))
-            if cleaned.get("age_open_ended"):
-                checklist = [item for item in checklist if item[0] != "age_to"]
-            missing = []
-            for field_name, label in checklist:
-                if field_name == "price":
-                    has_price = bool(
-                        cleaned.get("price_from") is not None and cleaned.get("price_from") != ""
-                        or cleaned.get("price_to") is not None and cleaned.get("price_to") != ""
-                        or cleaned.get("price_per_month") is not None and cleaned.get("price_per_month") != ""
-                        or cleaned.get("price_per_lesson") is not None and cleaned.get("price_per_lesson") != ""
-                        or cleaned.get("is_free")
-                        or (self.instance and _place_has_pricing_plan_price(self.instance))
-                        or bool(cleaned.get("pricing_plans"))
-                    )
-                    if not has_price:
-                        missing.append(str(label))
-                    continue
-                val = cleaned.get(field_name)
-                if not val and val != 0:
-                    if self.instance and self.instance.pk:
-                        val = getattr(self.instance, field_name, None)
-                        if hasattr(val, "name") and not val.name:
-                            val = None
-                if not val and val != 0:
-                    missing.append(str(label))
-            if missing:
-                self.add_error(None, _("Нельзя опубликовать карточку. Обязательны для заполнения: {}").format(", ".join(missing)))
+            if not readiness.is_ready:
+                if was_published:
+                    # Compatibility never applies to a new card, a draft or a
+                    # card that was taken off the site: those need a full 12/12.
+                    self.place_readiness_compatibility = True
+                else:
+                    self.add_error(None, publication_blocked_message(readiness))
+                    for issue in readiness.issues:
+                        if issue.field in self.fields:
+                            self.add_error(issue.field, issue.message)
 
         # Verification is a separate promise to visitors: never trust the
         # checkbox alone. Run the same server-side validator used by the
@@ -1857,7 +1849,13 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def _build_place_form_errors(self, form, *, inline_admin_formsets=()):
         """Return actionable errors with anchors to the matching form section."""
+        # Seed from the readiness requirements so a required field never ends up
+        # without a section, then keep the extra fields this panel also covers.
         section_by_field = {
+            requirement.field: f"#{requirement.section}"
+            for requirement in PLACE_READINESS_REQUIREMENTS
+        }
+        section_by_field.update({
             "category": "#basics",
             "subcategory": "#basics",
             "name": "#basics",
@@ -1879,7 +1877,7 @@ class PlaceAdmin(admin.ModelAdmin):
             "phone1": "#location",
             "structured_schedule": "#admin-place-schedule",
             "photo": "#media",
-        }
+        })
         errors = []
 
         for weekday, messages_for_day in getattr(form, "schedule_editor_errors", {}).items():
@@ -2209,77 +2207,58 @@ class PlaceAdmin(admin.ModelAdmin):
         }
 
     def _build_place_form_summary(self, *, form, obj=None, add=False):
-        region_val = form.data.get(form.add_prefix("region")) if form.is_bound else form.initial.get("region", getattr(obj, "region", ""))
-        is_baku = (region_val or "").strip() == "baku"
-
-        checklist = [
-            ("name", _("Название")),
-            ("category", _("Категория")),
-            ("description_az", _("Описание (AZ)")),
-            ("age_from", _("Возраст от")),
-            ("age_to", _("Возраст до")),
-            ("region", _("Регион / Город")),
+        # Progress, the readiness badge and the "Проверка" list all read the
+        # same twelve requirements as the publish gate.
+        instance = obj if obj is not None else getattr(form, "instance", None)
+        # A bound form already decided this in ``clean()``; reuse that verdict so
+        # the rendered page cannot disagree with the save that just happened.
+        readiness = getattr(form, "place_readiness", None) or evaluate_form_readiness(form, instance)
+        # The main photo can be satisfied by a stored cover photo the browser
+        # cannot inspect. Tell the live checklist, or it would contradict the
+        # server and show a green card as incomplete. Legacy scalar prices are
+        # deliberately absent here: they no longer satisfy the price item.
+        server_only = {
+            "photo": bool(instance is not None and getattr(instance, "cover_photo", None)),
+        }
+        checklist_items = [
+            {
+                "code": item.code,
+                "label": item.label,
+                "section": item.requirement.section,
+                "field": item.requirement.field,
+                "anchor": item.requirement.anchor,
+                "check": item.requirement.client_check,
+                "initial": item.is_complete,
+                "message": item.issue.message if item.issue else "",
+                "fallback": bool(server_only.get(item.code)) and item.is_complete,
+            }
+            for item in readiness.items
         ]
-        if is_baku:
-            checklist.append(("district", _("Район Баку")))
-        checklist.extend([
-            ("address", _("Адрес")),
-            ("phone1", _("Телефон")),
-            ("photo", _("Главное фото")),
-            ("price", _("Цена или тарифы")),
-        ])
-
-        completed = 0
-        missing = []
-        missing_fields = set()
-        for field_name, label in checklist:
-            if field_name == "price":
-                has_price = (
-                    bool(form.data.get(form.add_prefix("price_from")))
-                    or bool(form.initial.get("price_from"))
-                    or (getattr(obj, "price_from", None) is not None)
-                    or bool(form.data.get(form.add_prefix("price_to")))
-                    or bool(form.initial.get("price_to"))
-                    or (getattr(obj, "price_to", None) is not None)
-                    or bool(form.data.get(form.add_prefix("price_per_month")))
-                    or bool(form.initial.get("price_per_month"))
-                    or (getattr(obj, "price_per_month", None) is not None)
-                    or bool(form.data.get(form.add_prefix("price_per_lesson")))
-                    or bool(form.initial.get("price_per_lesson"))
-                    or (getattr(obj, "price_per_lesson", None) is not None)
-                    or bool(form.data.get(form.add_prefix("is_free")))
-                    or bool(form.initial.get("is_free"))
-                    or bool(getattr(obj, "is_free", False))
-                    or bool(getattr(obj, "is_price_free", False))
-                    or (obj is not None and _place_has_pricing_plan_price(obj))
-                    or bool(form.data.get("pricing_plans"))
-                    or bool(form.data.get("pricing_plans_payload") and form.data.get("pricing_plans_payload") != "[]")
-                )
-                if has_price:
-                    completed += 1
-                else:
-                    missing.append({
-                        "label": str(label),
-                        "field_id": "id_price_from"
-                    })
-                    missing_fields.add(field_name)
-                continue
-
-            is_open_ended_age = field_name == "age_to" and self._field_has_value(
-                form, "age_open_ended", obj=obj
-            )
-            if is_open_ended_age or self._field_has_value(form, field_name, obj=obj):
-                completed += 1
-            else:
-                field_id = "id_name_az" if field_name == "name" else f"id_{field_name}"
-                missing.append({
-                    "label": str(label),
-                    "field_id": field_id
-                })
-                missing_fields.add(field_name)
-
-        total = len(checklist)
-        completion_pct = round(completed / total * 100) if total else 0
+        missing = [
+            {
+                "code": issue.code,
+                "label": issue.label,
+                "message": issue.message,
+                "section": issue.section,
+                "field": issue.field,
+                "anchor": issue.anchor,
+            }
+            for issue in readiness.issues
+        ]
+        advice = [
+            {
+                "code": issue.code,
+                "label": issue.label,
+                "message": issue.message,
+                "section": issue.section,
+                "field": issue.field,
+                "anchor": issue.anchor,
+            }
+            for issue in readiness.advice
+        ]
+        completed = readiness.completed_count
+        total = readiness.required_count
+        completion_pct = readiness.percentage
 
         title = str(_("Новое место"))
         state_badges = []
@@ -2364,20 +2343,10 @@ class PlaceAdmin(admin.ModelAdmin):
             "total": total,
             "error_count": error_count,
             "visibility": visibility,
-            "checklist_items": [
-                {
-                    "field_name": field_name,
-                    "input_id": (
-                        "id_name_az" if field_name == "name"
-                        else "id_price_from" if field_name == "price"
-                        else f"id_{field_name}"
-                    ),
-                    "label": str(label),
-                    "initial": field_name not in missing_fields,
-                }
-                for field_name, label in checklist
-            ],
-            "missing": missing[:5],
+            "checklist_items": checklist_items,
+            "missing": missing,
+            "advice": advice,
+            "is_ready": readiness.is_ready,
             "readiness_label": str(_("Готово к публикации")) if not missing else str(_("Нужна доработка")),
             "readiness_tone": "good" if not missing else "warn",
             "state_badges": state_badges,
@@ -2614,17 +2583,20 @@ class PlaceAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("Состояние"))
     def col_state(self, obj):
-        quality = place_quality_check(obj)
-        score = int(quality.score or 0)
+        # The row badge, its popover and the publish button must not argue:
+        # every flag below is one of the twelve readiness items.
+        readiness = evaluate_place_readiness(obj)
+        score = readiness.percentage
+        completed = {item.code: item.is_complete for item in readiness.items}
         bar_color_class = "km-bar--warn" if score < 60 else "km-bar--good"
 
         state_key, state_icon, status_text, dot_class = self._state_visual(obj, score)
 
         photos_count = getattr(obj, "photos_count", 0) or (1 if (obj.photo or obj.cover_photo or (obj.pk and obj.gallery.exists())) else 0)
-        has_coords = 1 if (obj.has_coordinates and bool(obj.address)) else 0
-        has_price = 1 if (getattr(obj, "price_from", None) is not None or getattr(obj, "price_to", None) is not None or _place_has_pricing_plan_price(obj) or getattr(obj, "is_free", False)) else 0
-        has_desc = 1 if any(len((getattr(obj, f) or "").strip()) >= 120 for f in ("description_az", "description_ru", "description_en")) else 0
-        has_cat = 1 if (obj.category_id and bool((obj.name_i18n("az") if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_az", "")) or obj.name)) else 0
+        has_coords = 1 if completed.get("coordinates") else 0
+        has_price = 1 if completed.get("price") else 0
+        has_desc = 1 if completed.get("description") else 0
+        has_cat = 1 if (completed.get("category") and completed.get("subcategory") and completed.get("name")) else 0
 
         name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else getattr(obj, "name_i18n", "")) or obj.name_az or obj.name_ru or obj.name_en or obj.name or f"Place #{obj.pk}"
 
@@ -3530,21 +3502,25 @@ class PlaceAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(self._place_change_url(obj))
 
     def _handle_publish_submit(self, request, obj: Place):
-        quality = place_quality_check(obj)
-        if not quality.is_ready:
+        readiness = evaluate_place_readiness(obj)
+        if not readiness.is_ready:
             was_published = bool(getattr(request, "_km_place_was_published_before_publish", False))
             obj.status = Place.STATUS_PUBLISHED if was_published else Place.STATUS_DRAFT
             obj.is_active = was_published
             obj.save(update_fields=["status", "is_active", "updated_at"])
             message = (
-                _("Карточка осталась опубликованной. Исправьте замечания: %(reasons)s.")
+                _("Карточка осталась опубликованной. Заполнено %(done)s из %(total)s обязательных пунктов. Исправьте: %(reasons)s.")
                 if was_published
-                else _("Карточка сохранена как черновик и не опубликована: %(reasons)s.")
+                else _("Карточка сохранена как черновик и не опубликована. Заполнено %(done)s из %(total)s обязательных пунктов. Необходимо заполнить: %(reasons)s.")
             )
             self.message_user(
                 request,
                 message
-                % {"reasons": format_place_quality_errors(quality.errors)},
+                % {
+                    "done": readiness.completed_count,
+                    "total": readiness.required_count,
+                    "reasons": format_readiness_issues(readiness),
+                },
                 level=messages.WARNING,
             )
             return HttpResponseRedirect(self._place_change_url(obj))
@@ -3954,9 +3930,13 @@ class PlaceAdmin(admin.ModelAdmin):
                 })
             self.message_user(request, msg, messages.SUCCESS)
         else:
-            quality = place_quality_check(place)
-            if not quality.is_ready:
-                err_text = _("Нельзя опубликовать: %(reasons)s.") % {"reasons": format_place_quality_errors(quality.errors)}
+            readiness = evaluate_place_readiness(place)
+            if not readiness.is_ready:
+                err_text = _("Нельзя опубликовать. Заполнено %(done)s из %(total)s обязательных пунктов. Исправьте: %(reasons)s.") % {
+                    "done": readiness.completed_count,
+                    "total": readiness.required_count,
+                    "reasons": format_readiness_issues(readiness),
+                }
                 if is_ajax:
                     return JsonResponse({
                         "ok": False,
@@ -4605,6 +4585,21 @@ class PlaceAdmin(admin.ModelAdmin):
             obj.created_by = request.user
 
         super().save_model(request, obj, form, change)
+        if getattr(form, "place_readiness_compatibility", False):
+            readiness = form.place_readiness
+            self.message_user(
+                request,
+                _(
+                    "Изменения сохранены, карточка осталась опубликованной. "
+                    "Заполнено %(done)s из %(total)s обязательных пунктов, до повторной публикации нужно исправить: %(reasons)s."
+                )
+                % {
+                    "done": readiness.completed_count,
+                    "total": readiness.required_count,
+                    "reasons": format_readiness_issues(readiness),
+                },
+                level=messages.WARNING,
+            )
         for issue in getattr(form, "card_validation_warnings", []):
             self.message_user(request, issue.message, level=messages.WARNING)
         new_pricing_value = pricing_audit_summary(obj)

@@ -757,6 +757,46 @@ def legacy_owner_section_redirect(request, subpath: str = ""):
 
 def legal_page(request, page_slug):
     language = request.LANGUAGE_CODE if request.LANGUAGE_CODE in {"az", "ru", "en"} else "az"
+    if page_slug == "review-rules":
+        titles = {
+            "az": "Rəy qaydaları | KidsMap",
+            "ru": "Правила отзывов | KidsMap",
+            "en": "Review Rules | KidsMap",
+        }
+        descriptions = {
+            "az": "KidsMap platformasında rəylərin yerləşdirilməsi, moderasiyası və icma qaydaları.",
+            "ru": "Правила публикации и модерации отзывов на платформе KidsMap. Рекомендации для родителей и секций.",
+            "en": "Review guidelines, moderation policy and community rules on KidsMap platform.",
+        }
+        return render(
+            request,
+            "pages/review_rules.html",
+            {
+                "page_title": titles.get(language, titles["az"]),
+                "meta_description": descriptions.get(language, descriptions["az"]),
+                "page_slug": page_slug,
+            },
+        )
+    if page_slug == "listing-rules":
+        titles = {
+            "az": "Yerləşdirmə qaydaları | KidsMap",
+            "ru": "Правила размещения мест | KidsMap",
+            "en": "Listing Rules | KidsMap",
+        }
+        descriptions = {
+            "az": "KidsMap platformasında dərnək və məkanların yerləşdirilməsi, 12 vacib tələb və moderasiya qaydaları.",
+            "ru": "Правила добавления и модерации карточек детских кружков и секций на платформе KidsMap. 12 обязательных критериев готовности.",
+            "en": "Guidelines for listing kids clubs and places on KidsMap. 12 readiness criteria and moderation workflow.",
+        }
+        return render(
+            request,
+            "pages/listing_rules.html",
+            {
+                "page_title": titles.get(language, titles["az"]),
+                "meta_description": descriptions.get(language, descriptions["az"]),
+                "page_slug": page_slug,
+            },
+        )
     context = get_legal_page_content(page_slug=page_slug, language=language)
     return render(request, "pages/legal.html", context)
 

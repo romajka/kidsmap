@@ -1,0 +1,713 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block title_plain %}{{ page_title }}{% endblock %}
+{% block title_plain_twitter %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/pages/review_rules.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="rules-page-wrapper">
+
+  <!-- 1. Breadcrumbs -->
+  <nav class="rules-crumbs" aria-label="{% trans 'Навигация' %}">
+    <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+    <span class="sep material-symbols-rounded">chevron_right</span>
+    <span class="cur">
+      {% if CURRENT_LANGUAGE == "az" %}
+        Rəy qaydaları
+      {% elif CURRENT_LANGUAGE == "en" %}
+        Review Rules
+      {% else %}
+        Правила отзывов
+      {% endif %}
+    </span>
+  </nav>
+
+  <!-- 2. Hero Header Card -->
+  <section class="rules-hero">
+    <div class="rules-hero-orb1" aria-hidden="true"></div>
+    <div class="rules-hero-orb2" aria-hidden="true"></div>
+
+    <div class="rules-hero-content">
+      <div class="faq-hero-badge">
+        <span class="faq-hero-ping-dot"><span></span></span>
+        <span>
+          {% if CURRENT_LANGUAGE == "az" %}
+            İcma və Rəy Qaydaları
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Community & Review Rules
+          {% else %}
+            Правила сообщества и отзывов
+          {% endif %}
+        </span>
+      </div>
+
+      <h1 class="rules-hero-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Rəy qaydaları
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Review Rules
+        {% else %}
+          Правила отзывов
+        {% endif %}
+      </h1>
+
+      <p class="rules-hero-lead">
+        {% if CURRENT_LANGUAGE == "az" %}
+          KidsMap-də rəylər valideynlərə uşaq dərnəkləri, bölmələri və kursları haqqında real və obyektiv təsəvvür əldə etməyə kömək edir. Aşağıda icmamızın etibarlı, faydalı və təhlükəsiz qalması üçün əsas qaydalar toplanıb.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Reviews on KidsMap help parents get a genuine and objective view of kids clubs, sports, and educational activities. Below are the core guidelines that keep our community authentic, constructive, and safe.
+        {% else %}
+          Отзывы на KidsMap помогают родителям получать реальное и объективное представление о детских кружках, секциях и развивающих занятиях. Ниже собраны ключевые правила, которые делают отзывы честными и полезными для всех.
+        {% endif %}
+      </p>
+
+      <div class="rules-hero-chips">
+        <div class="rules-hero-chip">
+          <span class="material-symbols-rounded">verified</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Obyektiv və şəxsi təcrübə
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Genuine personal experience
+            {% else %}
+              Реальный личный опыт
+            {% endif %}
+          </span>
+        </div>
+        <div class="rules-hero-chip">
+          <span class="material-symbols-rounded">shield</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Daimi moderasiya
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Continuous moderation
+            {% else %}
+              Постоянная модерация
+            {% endif %}
+          </span>
+        </div>
+        <div class="rules-hero-chip">
+          <span class="material-symbols-rounded">sentiment_satisfied</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Mədəni və faydalı icma
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Respectful community
+            {% else %}
+              Взаимное уважение
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Two-Column Fast Comparison: Good vs Not Allowed -->
+  <section class="rules-section">
+    <div class="rules-section-header">
+      <span class="rules-section-tag">
+        <span class="material-symbols-rounded">checklist</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Qısa icmal{% elif CURRENT_LANGUAGE == "en" %}Quick Overview{% else %}Краткий обзор{% endif %}</span>
+      </span>
+      <h2 class="rules-section-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Əsas prinsiplər bir baxışda
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Core Principles at a Glance
+        {% else %}
+          Главные принципы в двух словах
+        {% endif %}
+      </h2>
+      <p class="rules-section-sub">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Hansı rəylərin dəstəkləndiyini və hansı məzmunun qadağan olunduğunu dərhal öyrənin.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Quickly understand what makes a great review and what is strictly prohibited.
+        {% else %}
+          Быстрое сравнение того, какие отзывы приветствуются, а какие не допускаются к публикации.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="faq-rules-grid">
+      <!-- Allowed Card -->
+      <div class="faq-rule-box--allow">
+        <div class="faq-rule-title" style="color: #0d8a52;">
+          <span class="material-symbols-rounded" style="font-size: 24px; color: #136f38;">check_circle</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Faydalı və yaxşı rəy
+            {% elif CURRENT_LANGUAGE == "en" %}
+              What makes a good review
+            {% else %}
+              Каким должен быть хороший отзыв
+            {% endif %}
+          </span>
+        </div>
+        <div class="faq-rule-item">
+          <span class="material-symbols-rounded" style="color: #136f38; font-size: 19px; flex-shrink: 0;">task_alt</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Şəxsi təcrübə:</strong> siz və ya uşağınız həqiqətən bu məkanda məşğələlərdə iştirak etmisiniz.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Personal experience:</strong> you or your child actually attended classes or visited the place.
+            {% else %}
+              <strong>Личный опыт:</strong> вы или ваш ребёнок действительно посещали занятия в этом месте.
+            {% endif %}
+          </span>
+        </div>
+        <div class="faq-rule-item">
+          <span class="material-symbols-rounded" style="color: #136f38; font-size: 19px; flex-shrink: 0;">task_alt</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Konkret detallar:</strong> müəllimlər, şərait, dərslərin gedişatı, təmizlik və uşağın təəssüratları.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Specific details:</strong> instructors, facilities, class pace, cleanliness, and child's progress.
+            {% else %}
+              <strong>Конкретика и детали:</strong> педагоги, обстановка, чистота, подход к детям и результаты занятий.
+            {% endif %}
+          </span>
+        </div>
+        <div class="faq-rule-item">
+          <span class="material-symbols-rounded" style="color: #136f38; font-size: 19px; flex-shrink: 0;">task_alt</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Mədəni və konstruktiv ton:</strong> həm müsbət, həm də çatışmayan cəhətlərin təmkinli təsviri.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Constructive tone:</strong> respectful and balanced description of both pros and cons.
+            {% else %}
+              <strong>Конструктивный тон:</strong> вежливое и взвешенное описание как плюсов, так и зон роста.
+            {% endif %}
+          </span>
+        </div>
+        <div class="faq-rule-item">
+          <span class="material-symbols-rounded" style="color: #136f38; font-size: 19px; flex-shrink: 0;">task_alt</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Aktuallıq:</strong> son 1–2 ildə baş tutmuş təcrübə digər valideynlər üçün ən faydalısıdır.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Relevance:</strong> recent experience (last 1–2 years) is most helpful to other families.
+            {% else %}
+              <strong>Актуальность:</strong> недавний опыт (за последние 1–2 года) наиболее полезен другим семьям.
+            {% endif %}
+          </span>
+        </div>
+      </div>
+
+      <!-- Deny Card -->
+      <div class="faq-rule-box--deny">
+        <div class="faq-rule-title" style="color: #c94a4a;">
+          <span class="material-symbols-rounded" style="font-size: 24px; color: #c94a4a;">cancel</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Qəti qadağandır
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Strictly prohibited
+            {% else %}
+              Что запрещено публиковать
+            {% endif %}
+          </span>
+        </div>
+        <div class="faq-rule-item">
+          <span class="material-symbols-rounded" style="color: #c94a4a; font-size: 19px; flex-shrink: 0;">block</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Təhqir və aqressiya:</strong> nalayiq sözlər, şəxsi hücumlar, qərəz və hədə-qorxu məzmunu.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Abuse and profanity:</strong> insults, aggressive language, harassment, or personal attacks.
+            {% else %}
+              <strong>Оскорбления и агрессия:</strong> грубость, угрозы, нецензурная лексика и переход на личности.
+            {% endif %}
+          </span>
+        </div>
+        <div class="faq-rule-item">
+          <span class="material-symbols-rounded" style="color: #c94a4a; font-size: 19px; flex-shrink: 0;">block</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Spam və reklam:</strong> kənar sayt linkləri, telefon nömrələri, kommersiya elanları.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Spam & advertising:</strong> third-party URLs, phone numbers, self-promotion, or affiliate links.
+            {% else %}
+              <strong>Спам и реклама:</strong> сторонние ссылки, промокоды, реклама других услуг и навязчивый пиар.
+            {% endif %}
+          </span>
+        </div>
+        <div class="faq-rule-item">
+          <span class="material-symbols-rounded" style="color: #c94a4a; font-size: 19px; flex-shrink: 0;">block</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Süni reytinq və saxtakarlıq:</strong> rəqibləri qaralama və ya öz məkanını süni tərifləmə.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Rating manipulation:</strong> fake reviews, paid reviews, or attacks on competitors.
+            {% else %}
+              <strong>Накрутка рейтинга:</strong> заказные, фейковые отзывы или намеренное занижение рейтинга конкурентов.
+            {% endif %}
+          </span>
+        </div>
+        <div class="faq-rule-item">
+          <span class="material-symbols-rounded" style="color: #c94a4a; font-size: 19px; flex-shrink: 0;">block</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Fərdi məlumatlar:</strong> digər şəxslərin şəxsi telefonları, soyadları, pasport məlumatları.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Personal data:</strong> publishing others' private phone numbers, home addresses, or credentials.
+            {% else %}
+              <strong>Персональные данные:</strong> публикация чужих личных телефонов, адресов и частной переписки.
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Detailed Prohibitions Grid -->
+  <section class="rules-section">
+    <div class="rules-section-header">
+      <span class="rules-section-tag">
+        <span class="material-symbols-rounded">gavel</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Məhdudiyyətlər{% elif CURRENT_LANGUAGE == "en" %}Detailed Standards{% else %}Подробные правила{% endif %}</span>
+      </span>
+      <h2 class="rules-section-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Məzmun tələbləri və qadağalar
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Content Guidelines & Prohibitions
+        {% else %}
+          Требования к содержанию и ограничения
+        {% endif %}
+      </h2>
+      <p class="rules-section-sub">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Hər bir rəy bu tələblərə uyğunluq baxımından moderasiyadan keçir.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Every review is moderated according to these standards.
+        {% else %}
+          Каждый отзыв проверяется модерацией на соответствие следующим правилам.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="rules-cards-grid">
+
+      <!-- Card 1 -->
+      <article class="rules-card">
+        <div class="rules-card-icon red">
+          <span class="material-symbols-rounded">sentiment_very_dissatisfied</span>
+        </div>
+        <div class="rules-card-body">
+          <h3>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Təhqir, hədə və aqressiv məzmun
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Harassment, Threats & Profanity
+            {% else %}
+              Оскорбления, угрозы и агрессия
+            {% endif %}
+          </h3>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Platformada söyüş, təhqiramiz ləqəblər, hədə-qorxu, diskriminasiya və şəxsi ləyaqəti alçaldan ifadələr qadağandır. Hətta mənfi təcrübə barədə yazarkən belə, fikirlərinizi mədəni və təmkinli şəkildə ifadə etməlisiniz.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Profanity, name-calling, threats, hate speech, or discriminatory remarks are not tolerated. Even when describing a negative experience, please maintain a respectful and calm tone.
+            {% else %}
+              На платформе запрещены нецензурные выражения, угрозы, дискриминация и унижение достоинства. Даже при негативном опыте формулируйте свои впечатления вежливо и корректно.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="rules-card">
+        <div class="rules-card-icon amber">
+          <span class="material-symbols-rounded">campaign</span>
+        </div>
+        <div class="rules-card-body">
+          <h3>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Spam, reklam və kənar linklər
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Spam, Ads & External Links
+            {% else %}
+              Спам, реклама и сторонние ссылки
+            {% endif %}
+          </h3>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Rəylər bölməsi kommersiya elanları, digər xidmətlərin təşviqi, promo-kodlar və ya üçüncü tərəf veb-saytlarına keçidlər yerləşdirmək üçün deyil. Bu cür mətnlər avtomatik olaraq silinir.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Reviews are not a place for advertising, affiliate links, discount codes, or promotional material for unrelated businesses. Such content is automatically removed.
+            {% else %}
+              Раздел отзывов не предназначен для коммерческих объявлений, промокодов, ссылок на внешние сайты и рекламы сторонних услуг. Подобные сообщения удаляются.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="rules-card">
+        <div class="rules-card-icon blue">
+          <span class="material-symbols-rounded">error_outline</span>
+        </div>
+        <div class="rules-card-body">
+          <h3>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Yalan və ya çaşdırıcı məlumatlar
+            {% elif CURRENT_LANGUAGE == "en" %}
+              False or Misleading Information
+            {% else %}
+              Ложная или вводящая в заблуждение информация
+            {% endif %}
+          </h3>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məkanın fəaliyyəti, qiymətləri, müəllimləri və ya xidmətləri haqqında qəsdən uydurulmuş, şişirdilmiş və ya yoxlanılmamış şayiələrin yayılması yolverilməzdir. Rəy yalnız faktiki təcrübənizə söykənməlidir.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Do not publish deliberately false statements, unverified rumors, or exaggerated claims about a venue's staff or pricing. Write solely based on real facts.
+            {% else %}
+              Недопустимо распространять заведомо ложные сведения, слухи и непроверенную информацию о ценах, персонале или услугах центра. Опирайтесь только на факты.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Card 4 -->
+      <article class="rules-card">
+        <div class="rules-card-icon purple">
+          <span class="material-symbols-rounded">lock_person</span>
+        </div>
+        <div class="rules-card-body">
+          <h3>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Başqalarının fərdi məlumatları
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Private Personal Information
+            {% else %}
+              Персональные данные других людей
+            {% endif %}
+          </h3>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Müəllimlərin və ya digər ziyarətçilərin şəxsi telefon nömrələri, ev ünvanları, şəxsi sosial şəbəkə profilləri və ya gizli sənədlərinin mətndə dərc olunması qəti qadağandır.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Never publish private phone numbers, home addresses, private chat transcripts, or personal social media handles of teachers, parents, or staff.
+            {% else %}
+              Запрещено публиковать личные телефонные номера педагогов и родителей, их домашние адреса, конфиденциальные документы и приватную переписку.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Card 5 -->
+      <article class="rules-card">
+        <div class="rules-card-icon teal">
+          <span class="material-symbols-rounded">trending_up</span>
+        </div>
+        <div class="rules-card-body">
+          <h3>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Reytinq manipulyasiyası və süni rəylər
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Rating Manipulation & Fake Reviews
+            {% else %}
+              Манипуляции рейтингом и накрутка
+            {% endif %}
+          </h3>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Reytinqi süni şəkildə artırmaq üçün sifarişli təriflər yazmaq, bir neçə saxta hesabdan rəy göndərmək və ya rəqiblərin reytinqini qəsdən salmaq məqsədilə koordinasiya olunmuş hücumlar qadağandır.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Posting coordinated reviews, using multiple accounts to boost scores, or submitting paid negative reviews against competitors is strictly forbidden.
+            {% else %}
+              Заказные положительные отзывы, использование множества аккаунтов для накрутки или атака на карточки конкурентов строго отслеживаются и блокируются.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Card 6 -->
+      <article class="rules-card">
+        <div class="rules-card-icon green">
+          <span class="material-symbols-rounded">storefront</span>
+        </div>
+        <div class="rules-card-body">
+          <h3>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məkan sahibləri və əməkdaşların rəyləri
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Reviews by Owners & Employees
+            {% else %}
+              Отзывы владельцев и сотрудников
+            {% endif %}
+          </h3>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məkan sahibləri, rəhbərlər və müəllimlər öz kartlarına müştəri qismində qiymət verə bilməzlər. Rəylərlə əlaqə qurmaq üçün rəsmi nümayəndənin cavab vermə mexanizmindən istifadə olunmalıdır.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Venue owners, managers, and teachers may not post customer reviews on their own places. To communicate with parents, please use the official representative response tool.
+            {% else %}
+              Владельцы, руководители и педагоги секций не могут оставлять отзывы к своим заведениям под видом клиентов. Для диалога предусмотрен инструмент официального ответа.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- 5. Replies & Official Representation Section -->
+  <section class="rules-section">
+    <div class="rules-section-header">
+      <span class="rules-section-tag">
+        <span class="material-symbols-rounded">forum</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Dialoq və cavablar{% elif CURRENT_LANGUAGE == "en" %}Replies & Dialogue{% else %}Ответы и диалог{% endif %}</span>
+      </span>
+      <h2 class="rules-section-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Rəylərə cavablar və Rəsmi nümayəndə statusu
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Replies & Official Representative Status
+        {% else %}
+          Ответы на отзывы и официальный статус представителя
+        {% endif %}
+      </h2>
+      <p class="rules-section-sub">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Valideynlər və məkan sahibləri arasında sağlam ünsiyyət mühitini təmin edirik.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          We foster a transparent and constructive dialogue between families and activity centers.
+        {% else %}
+          Мы поддерживаем открытый и уважительный диалог между родителями и детскими центрами.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="rules-dialogue-grid">
+      <!-- User Replies -->
+      <div class="rules-dialogue-box">
+        <div class="rules-dialogue-head">
+          <div class="rules-dialogue-icon blue">
+            <span class="material-symbols-rounded">chat_bubble</span>
+          </div>
+          <div>
+            <h3>
+              {% if CURRENT_LANGUAGE == "az" %}
+                İstifadəçi cavabları
+              {% elif CURRENT_LANGUAGE == "en" %}
+                User Replies
+              {% else %}
+                Ответы пользователей
+              {% endif %}
+            </h3>
+            <span>{% if CURRENT_LANGUAGE == "az" %}Valideynlər arası təcrübə mübadiləsi{% elif CURRENT_LANGUAGE == "en" %}Parent-to-parent exchange{% else %}Обмен опытом между родителями{% endif %}</span>
+          </div>
+        </div>
+        <p>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Valideynlər rəy altında suallar verə, əlavə təəssüratlarını bölüşə və ya müzakirə apara bilərlər. Bütün cavablar da əsas rəy qaydalarına və mədəni ünsiyyət tələblərinə tabedir.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Parents can ask follow-up questions or share supplementary experiences under reviews. All replies are subject to the same community guidelines and respect rules.
+          {% else %}
+            Родители могут вежливо уточнять детали, задавать вопросы автору отзыва или делиться дополнениями. Все ответы также проходят проверку на соблюдение правил сообщества.
+          {% endif %}
+        </p>
+      </div>
+
+      <!-- Official Owner Response with Verified Badge -->
+      <div class="rules-dialogue-box verified">
+        <div class="rules-dialogue-head">
+          <div class="rules-dialogue-icon green">
+            <span class="material-symbols-rounded">verified_user</span>
+          </div>
+          <div>
+            <div class="rules-verified-badge">
+              <span class="material-symbols-rounded">verified</span>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Rəsmi nümayəndənin cavabı{% elif CURRENT_LANGUAGE == "en" %}Official Representative Response{% else %}Официальный ответ представителя{% endif %}</span>
+            </div>
+            <h3 style="margin-top: 4px;">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Məkan sahibinin rəsmi cavabı
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Venue Owner Response
+              {% else %}
+                Ответ руководства секции
+              {% endif %}
+            </h3>
+          </div>
+        </div>
+        <p>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Kartın təsdiqlənmiş sahibləri rəylərə rəsmi nümayəndə kimi cavab yaza bilərlər. Bu cür cavablar xüsusi yaşıl nişanla fərqlənir ki, valideynlər cavabın birbaşa rəhbərlik tərəfindən verildiyini dərhal görsünlər.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Verified venue owners can reply to reviews on behalf of their organization. Such responses carry a dedicated official badge, ensuring clear visibility and accountability.
+          {% else %}
+            Подтверждённые владельцы карточек могут отвечать на отзывы от имени заведения. Такие комментарии маркируются специальным бейджем, гарантируя подлинность ответа руководства.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. How Moderation Works & Reporting -->
+  <section class="rules-section">
+    <div class="rules-section-header">
+      <span class="rules-section-tag">
+        <span class="material-symbols-rounded">security</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Moderasiya prosesi{% elif CURRENT_LANGUAGE == "en" %}Moderation Policy{% else %}Процесс модерации{% endif %}</span>
+      </span>
+      <h2 class="rules-section-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Moderasiya necə işləyir və şikayətlər
+        {% elif CURRENT_LANGUAGE == "en" %}
+          How Moderation & Reporting Work
+        {% else %}
+          Как работает модерация и рассмотрение жалоб
+        {% endif %}
+      </h2>
+      <p class="rules-section-sub">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Rəylərin dürüstlüyünü və keyfiyyətini təmin etmək üçün görülən tədbirlər.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Our workflow for verifying content and resolving community reports.
+        {% else %}
+          Как мы обеспечиваем честность, проверяем спорные отзывы и обрабатываем обращения.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="rules-moderation-grid">
+      <!-- Step 1 -->
+      <div class="rules-mod-card">
+        <div class="rules-mod-num">01</div>
+        <h4>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Avtomatik və manual yoxlama
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Automated & Manual Review
+          {% else %}
+            Автоматическая и ручная проверка
+          {% endif %}
+        </h4>
+        <p>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Rəylər sistemin avtomatik filtrlərindən və moderatorların yoxlamasından keçir. Şübhəli və ya qaydaları pozan mətnlər dərhal saxlanılır.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Submissions are screened by automated safety filters and our moderation team. Suspicious or violating texts are halted.
+          {% else %}
+            Отзывы проходят проверку через спам-фильтры и ручную модерацию. Подозрительные тексты временно задерживаются до выяснения деталей.
+          {% endif %}
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="rules-mod-card">
+        <div class="rules-mod-num">02</div>
+        <h4>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Rəyin gizlədilməsi və ya silinməsi
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Hiding or Removing Content
+          {% else %}
+            Скрытие или удаление отзыва
+          {% endif %}
+        </h4>
+        <p>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Əgər rəy təhqir, spam, yalan məlumat və ya fərdi məlumatlar ehtiva edərsə, KidsMap onu bildirişsiz gizlətmək və ya silmək hüququnu özündə saxlayır.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            KidsMap reserves the right to hide or delete any review that violates guidelines, contains harassment, spam, or false information.
+          {% else %}
+            Если отзыв нарушает правила, содержит оскорбления, спам или чужие персональные данные, KidsMap вправе скрыть или удалить публикацию.
+          {% endif %}
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="rules-mod-card">
+        <div class="rules-mod-num">03</div>
+        <h4>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Rəyə şikayət etmək imkanı
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Reporting Violations
+          {% else %}
+            Возможность пожаловаться на отзыв
+          {% endif %}
+        </h4>
+        <p>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Əgər hər hansı rəyin qaydaları pozduğunu görürsünüzsə, bizə <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> və ya <a href="{% url 'contacts' %}">əlaqə bölməsi</a> vasitəsilə məkanın linkini və səbəbi bildirə bilərsiniz.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            If you notice a review that breaches community standards, contact us via <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> or our <a href="{% url 'contacts' %}">Contact Page</a> with the link and reason.
+          {% else %}
+            Если вы заметили отзыв, нарушающий правила, напишите нам на <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> или через <a href="{% url 'contacts' %}">страницу контактов</a> с ссылкой на карточку.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Disclaimer Notice Box -->
+  <section class="rules-disclaimer-card">
+    <div class="rules-disclaimer-icon">
+      <span class="material-symbols-rounded">info</span>
+    </div>
+    <div class="rules-disclaimer-text">
+      <h4>
+        {% if CURRENT_LANGUAGE == "az" %}
+          Məsuliyyətin məhdudlaşdırılması
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Disclaimer & Community Opinions
+        {% else %}
+          Мнение пользователей и ответственность
+        {% endif %}
+      </h4>
+      <p>
+        {% if CURRENT_LANGUAGE == "az" %}
+          KidsMap platformasında dərc olunan rəylər və şərhlər yalnız onların müəlliflərinin şəxsi subyektiv təcrübəsini və fikirlərini əks etdirir. Bu fikirlər mütləq şəkildə KidsMap administrasiyasının rəsmi mövqeyini ifadə etmir.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Reviews and comments published on KidsMap reflect solely the subjective opinions and experiences of their authors and do not necessarily represent the views of the KidsMap administration.
+        {% else %}
+          Отзывы и комментарии, опубликованные на платформе KidsMap, отражают исключительно личный опыт и субъективное мнение их авторов и могут не совпадать с позицией администрации KidsMap.
+        {% endif %}
+      </p>
+    </div>
+  </section>
+
+  <!-- 8. Last Updated Meta Strip -->
+  <footer class="rules-footer-meta">
+    <div class="rules-date-badge">
+      <span class="material-symbols-rounded">event_note</span>
+      <span>
+        {% if CURRENT_LANGUAGE == "az" %}
+          Son yenilənmə tarixi: <strong>03 sentyabr 2026</strong>
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Last updated: <strong>September 03, 2026</strong>
+        {% else %}
+          Дата последнего обновления: <strong>03 сентября 2026</strong>
+        {% endif %}
+      </span>
+    </div>
+    <div class="rules-footer-actions">
+      <a class="faq-btn faq-btn--outline" href="{% url 'faq_page' %}">
+        <span class="material-symbols-rounded">help_outline</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}FAQ bölməsi{% elif CURRENT_LANGUAGE == "en" %}FAQ Center{% else %}Раздел FAQ{% endif %}</span>
+      </a>
+      <a class="faq-btn faq-btn--primary" href="{% url 'place_list' %}">
+        <span class="material-symbols-rounded">explore</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Kataloqa keç{% elif CURRENT_LANGUAGE == "en" %}Explore Catalog{% else %}В каталог кружков{% endif %}</span>
+      </a>
+    </div>
+  </footer>
+
+</div>
+{% endblock %}

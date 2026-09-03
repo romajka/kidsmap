@@ -1,86 +1,803 @@
 {% extends "base.html" %}
 {% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block title_plain %}{{ page_title }}{% endblock %}
 {% block title_plain_twitter %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+
 {% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/pages/contacts.css' %}" />
 {% endblock %}
 
 {% block content %}
-  <section class="panel contacts-hero">
-    <h1>{% trans "Контакты" %}</h1>
-    <p class="contacts-hero-lead">{% trans "Выберите удобный способ связи: звонок, email или WhatsApp." %}</p>
-  </section>
+<div class="contacts-page-wrapper">
 
-  <section class="panel info-grid-panel contacts-grid-panel">
-    <div class="contacts-layout">
-      <article class="info-card contacts-primary-card">
-        <div class="contacts-section-head">
-          <h2>{% trans "Связаться с нами" %}</h2>
-          <p>
-            {% if request.LANGUAGE_CODE == "az" %}
-              Kataloq, məkan yerləşdirmə və əks əlaqə ilə bağlı suallar üçün.
+  <!-- 1. Hero Section -->
+  <section class="contacts-hero-card">
+    <div class="contacts-hero-orb1" aria-hidden="true"></div>
+    <div class="contacts-hero-orb2" aria-hidden="true"></div>
+
+    <div class="contacts-hero-inner">
+      <div class="contacts-hero-badge">
+        <span class="contacts-live-dot" aria-hidden="true"><span></span></span>
+        <span class="material-symbols-rounded">support_agent</span>
+        <span>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Onlayn dəstək & Məlumat mərkəzi
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Online Support & Info Center
+          {% else %}
+            Онлайн-поддержка & Инфо-центр
+          {% endif %}
+        </span>
+      </div>
+
+      <h1 class="contacts-hero-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Bizimlə əlaqə
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Contact Us
+        {% else %}
+          Контакты и связь
+        {% endif %}
+      </h1>
+
+      <p class="contacts-hero-lead">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Sizin üçün uyğun əlaqə üsulunu seçin: zəng, email və ya WhatsApp.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Choose the most convenient way to reach us: phone, email or WhatsApp.
+        {% else %}
+          Выберите удобный способ связи: прямой звонок, email или быстрое сообщение в WhatsApp.
+        {% endif %}
+      </p>
+
+      <div class="contacts-hero-highlights">
+        <div class="contacts-hero-chip">
+          <span class="material-symbols-rounded">schedule</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Cavab müddəti: <strong>15–30 dəqiqə</strong>
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Response time: <strong>15–30 mins</strong>
             {% else %}
-              {% trans "Для вопросов по каталогу, размещению кружков и обратной связи." %}
+              Время ответа: <strong>15–30 минут</strong>
             {% endif %}
-          </p>
+          </span>
         </div>
-
-        <div class="contacts-primary-actions">
-          {% if footer_phone %}
-            <a class="contacts-primary-action icon-btn icon-phone" href="tel:{{ footer_phone|cut:' ' }}">
-              <span class="contacts-action-copy">
-                <span class="contacts-action-label">{% trans "Позвонить" %}</span>
-                <strong class="contacts-action-value">{{ footer_phone }}</strong>
-              </span>
-            </a>
-          {% endif %}
-          {% if footer_email %}
-            <a class="contacts-primary-action icon-btn icon-mail" href="mailto:{{ footer_email }}">
-              <span class="contacts-action-copy">
-                <span class="contacts-action-label">{% trans "Написать на email" %}</span>
-                <strong class="contacts-action-value">{{ footer_email }}</strong>
-              </span>
-            </a>
-          {% endif %}
-          {% if footer_whatsapp_url %}
-            <a class="contacts-primary-action icon-btn icon-whatsapp" href="{{ footer_whatsapp_url }}" target="_blank" rel="noopener">
-              <span class="contacts-action-copy">
-                <span class="contacts-action-label">{% trans "Открыть WhatsApp" %}</span>
-                <strong class="contacts-action-value">WhatsApp</strong>
-              </span>
-            </a>
-          {% endif %}
+        <div class="contacts-hero-chip">
+          <span class="material-symbols-rounded">location_on</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Bakı, Azərbaycan</strong> (Bütün regionlar)
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Baku, Azerbaijan</strong> (All regions)
+            {% else %}
+              <strong>Баку, Азербайджан</strong> (Все регионы)
+            {% endif %}
+          </span>
         </div>
-      </article>
-
-      <div class="contacts-secondary-stack">
-        <article class="info-card contacts-social-card">
-          <div class="contacts-section-head">
-            <h2>{% trans "Соцсети" %}</h2>
-            <p>{% trans "Следите за обновлениями KidsMap в привычных каналах." %}</p>
-          </div>
-
-          <div class="info-links contacts-social-links">
-            {% include "pages/includes/site_social_links.html" with link_class="info-link-item" link_extra_class="contacts-social-link" %}
-          </div>
-        </article>
-
-        <article class="info-card contacts-links-card">
-          <div class="contacts-section-head">
-            <h2>{% trans "Полезные ссылки" %}</h2>
-            <p>{% trans "Быстрые переходы по основным разделам сайта." %}</p>
-          </div>
-
-          <div class="info-links contacts-utility-links">
-            <a class="info-link-item contacts-utility-link icon-btn icon-details" href="{% url 'about' %}">{% trans "О проекте" %}</a>
-            <a class="info-link-item contacts-utility-link icon-btn icon-search" href="{% url 'place_list' %}">{% if request.LANGUAGE_CODE == "az" %}Məkanlar kataloqu{% else %}{% trans "Каталог кружков" %}{% endif %}</a>
-          </div>
-        </article>
+        <div class="contacts-hero-chip">
+          <span class="material-symbols-rounded">headset_mic</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              İş vaxtı: <strong>Hər gün 09:00 – 20:00</strong>
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Hours: <strong>Daily 09:00 – 20:00</strong>
+            {% else %}
+              Режим: <strong>Ежедневно 09:00 – 20:00</strong>
+            {% endif %}
+          </span>
+        </div>
       </div>
     </div>
   </section>
+
+  <!-- 2. Main Two-Column Cards Grid -->
+  <div class="contacts-main-grid">
+
+    <!-- Column 1: Direct Contact Channels & Owner Box -->
+    <div class="contacts-primary-column">
+      <div class="contacts-card contacts-direct-card">
+        <div class="contacts-card-head">
+          <div class="contacts-card-head-icon green">
+            <span class="material-symbols-rounded">contact_phone</span>
+          </div>
+          <div>
+            <h2 class="contacts-card-title">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Birbaşa əlaqə vasitələri
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Direct Contact Channels
+              {% else %}
+                Прямые каналы связи
+              {% endif %}
+            </h2>
+            <p class="contacts-card-sub">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Kataloq, məkan yerləşdirmə və suallarınız üçün operativ əlaqə.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                For directory questions, place listings, and quick feedback.
+              {% else %}
+                По вопросам каталога, размещения кружков и оперативной связи.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="contacts-action-list">
+
+          <!-- Phone Block -->
+          {% if footer_phone %}
+            <div class="contacts-channel-item phone-channel">
+              <div class="contacts-channel-icon-wrap phone">
+                <span class="material-symbols-rounded">call</span>
+              </div>
+              <div class="contacts-channel-info">
+                <span class="contacts-channel-label">
+                  {% if CURRENT_LANGUAGE == "az" %}Telefon zəngi{% elif CURRENT_LANGUAGE == "en" %}Phone Call{% else %}Телефонная линия{% endif %}
+                </span>
+                <a class="contacts-channel-value" href="tel:{{ footer_phone|cut:' ' }}" title="{% trans 'Позвонить' %}">
+                  {{ footer_phone }}
+                </a>
+                <span class="contacts-channel-note">
+                  {% if CURRENT_LANGUAGE == "az" %}Bazar ertəsi — Bazar, 09:00 — 20:00{% elif CURRENT_LANGUAGE == "en" %}Mon — Sun, 09:00 — 20:00{% else %}Пн — Вс, 09:00 — 20:00{% endif %}
+                </span>
+              </div>
+              <div class="contacts-channel-actions">
+                <a class="contacts-action-btn primary call-btn" href="tel:{{ footer_phone|cut:' ' }}">
+                  <span class="material-symbols-rounded">phone_in_talk</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Zəng et{% elif CURRENT_LANGUAGE == "en" %}Call{% else %}Позвонить{% endif %}</span>
+                </a>
+                <button
+                  type="button"
+                  class="contacts-action-btn secondary copy-btn"
+                  data-copy="{{ footer_phone }}"
+                  aria-label="{% trans 'Копировать номер' %}"
+                  title="{% if CURRENT_LANGUAGE == 'az' %}Nömrəni kopyala{% elif CURRENT_LANGUAGE == 'en' %}Copy number{% else %}Скопировать номер{% endif %}"
+                >
+                  <span class="material-symbols-rounded">content_copy</span>
+                  <span class="btn-copy-text">{% if CURRENT_LANGUAGE == "az" %}Kopyala{% elif CURRENT_LANGUAGE == "en" %}Copy{% else %}Копия{% endif %}</span>
+                </button>
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Email Block -->
+          {% if footer_email %}
+            <div class="contacts-channel-item email-channel">
+              <div class="contacts-channel-icon-wrap email">
+                <span class="material-symbols-rounded">mail</span>
+              </div>
+              <div class="contacts-channel-info">
+                <span class="contacts-channel-label">
+                  {% if CURRENT_LANGUAGE == "az" %}Elektron poçt ünvanı{% elif CURRENT_LANGUAGE == "en" %}Email Address{% else %}Электронная почта{% endif %}
+                </span>
+                <a class="contacts-channel-value" href="mailto:{{ footer_email }}" title="{% trans 'Написать на email' %}">
+                  {{ footer_email }}
+                </a>
+                <span class="contacts-channel-note">
+                  {% if CURRENT_LANGUAGE == "az" %}Rəsmi sorğular və tərəfdaşlıq təklifləri üçün{% elif CURRENT_LANGUAGE == "en" %}For official inquiries and partnerships{% else %}Для официальных писем и партнёрских предложений{% endif %}
+                </span>
+              </div>
+              <div class="contacts-channel-actions">
+                <a class="contacts-action-btn primary email-btn" href="mailto:{{ footer_email }}">
+                  <span class="material-symbols-rounded">outgoing_mail</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Məktub yaz{% elif CURRENT_LANGUAGE == "en" %}Send Email{% else %}Написать{% endif %}</span>
+                </a>
+                <button
+                  type="button"
+                  class="contacts-action-btn secondary copy-btn"
+                  data-copy="{{ footer_email }}"
+                  aria-label="{% trans 'Копировать email' %}"
+                  title="{% if CURRENT_LANGUAGE == 'az' %}Email kopyala{% elif CURRENT_LANGUAGE == 'en' %}Copy email{% else %}Скопировать email{% endif %}"
+                >
+                  <span class="material-symbols-rounded">content_copy</span>
+                  <span class="btn-copy-text">{% if CURRENT_LANGUAGE == "az" %}Kopyala{% elif CURRENT_LANGUAGE == "en" %}Copy{% else %}Копия{% endif %}</span>
+                </button>
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- WhatsApp Block -->
+          {% if footer_whatsapp_url or footer_phone %}
+            <div class="contacts-channel-item whatsapp-channel">
+              <div class="contacts-channel-icon-wrap whatsapp">
+                <svg class="brand-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                  <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c.02 4.54-3.68 8.23-8.23 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.12-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.66.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.12.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.12-.23-.19-.48-.31z"/>
+                </svg>
+              </div>
+              <div class="contacts-channel-info">
+                <span class="contacts-channel-label">
+                  {% if CURRENT_LANGUAGE == "az" %}WhatsApp Dəstək{% elif CURRENT_LANGUAGE == "en" %}WhatsApp Support{% else %}Поддержка WhatsApp{% endif %}
+                </span>
+                <span class="contacts-channel-value highlight-green">
+                  {% if CURRENT_LANGUAGE == "az" %}Dərhal mesaj yazın{% elif CURRENT_LANGUAGE == "en" %}Instant Chat Available{% else %}Мгновенный чат онлайн{% endif %}
+                </span>
+                <span class="contacts-channel-note">
+                  {% if CURRENT_LANGUAGE == "az" %}Sualınızı yazın, menecerimiz tez bir zamanda cavablandıracaq{% elif CURRENT_LANGUAGE == "en" %}Send a message, our team will reply promptly{% else %}Напишите вопрос, менеджер ответит в течение нескольких минут{% endif %}
+                </span>
+              </div>
+              <div class="contacts-channel-actions">
+                <a
+                  class="contacts-action-btn primary whatsapp-btn"
+                  href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <span class="material-symbols-rounded">chat</span>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Çata başla{% elif CURRENT_LANGUAGE == "en" %}Chat now{% else %}Открыть чат{% endif %}</span>
+                </a>
+              </div>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- Clean Light Owner Box (No heavy dark background) -->
+      <div class="contacts-owner-card">
+        <div class="contacts-owner-head">
+          <div class="contacts-owner-icon">
+            <span class="material-symbols-rounded">storefront</span>
+          </div>
+          <div class="contacts-owner-title-wrap">
+            <span class="contacts-owner-badge">
+              {% if CURRENT_LANGUAGE == "az" %}Məkan sahiblərinə{% elif CURRENT_LANGUAGE == "en" %}Place Owners{% else %}Владельцам мест{% endif %}
+            </span>
+            <h3 class="contacts-owner-title">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Məkan və ya kurs sahibisiniz?
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Are you a club or activity center owner?
+              {% else %}
+                Вы владелец детского центра или секции?
+              {% endif %}
+            </h3>
+          </div>
+        </div>
+        <p class="contacts-owner-desc">
+          {% if CURRENT_LANGUAGE == "az" %}
+            Dərnəyinizi KidsMap kataloquna pulsuz əlavə edin və minlərlə valideynə birbaşa çıxış əldə edin.
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Add your venue to KidsMap for free and connect directly with thousands of families in Azerbaijan.
+          {% else %}
+            Разместите ваш кружок в каталоге KidsMap бесплатно и получайте прямые заявки от родителей.
+          {% endif %}
+        </p>
+        <div class="contacts-owner-actions">
+          <a class="faq-btn faq-btn--primary" href="{% url 'owner_place_create' %}">
+            <span class="material-symbols-rounded">add_business</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}List Your Venue{% else %}Добавить свой кружок{% endif %}
+            </span>
+          </a>
+          <a class="faq-btn faq-btn--outline" href="{% url 'about' %}">
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}Şərtlər haqqında{% elif CURRENT_LANGUAGE == "en" %}Learn More{% else %}Подробнее{% endif %}
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Social Networks & Useful Portals -->
+    <div class="contacts-secondary-column">
+
+      <!-- Social Media Card -->
+      <div class="contacts-card contacts-social-card">
+        <div class="contacts-card-head">
+          <div class="contacts-card-head-icon blue">
+            <span class="material-symbols-rounded">public</span>
+          </div>
+          <div>
+            <h2 class="contacts-card-title">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Sosial şəbəkələrimiz
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Social Networks
+              {% else %}
+                Мы в соцсетях
+              {% endif %}
+            </h2>
+            <p class="contacts-card-sub">
+              {% if CURRENT_LANGUAGE == "az" %}
+                KidsMap yeniliklərini öyrəşdiyiniz kanallardan izləyin.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Follow updates, video guides, and announcements on our official channels.
+              {% else %}
+                Следите за обновлениями, видеообзорами и анонсами в наших каналах.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="contacts-social-grid">
+
+          <!-- Instagram -->
+          <a
+            class="contacts-social-item instagram"
+            href="{% if footer_instagram_url %}{{ footer_instagram_url }}{% else %}https://instagram.com/kidsmap.az{% endif %}"
+            target="_blank"
+            rel="noopener"
+          >
+            <div class="contacts-social-icon-box instagram">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </div>
+            <div class="contacts-social-text">
+              <strong class="contacts-social-name">Instagram</strong>
+              <span class="contacts-social-sub">
+                {% if CURRENT_LANGUAGE == "az" %}Fotolar və hekayələr{% elif CURRENT_LANGUAGE == "en" %}Photos & Stories{% else %}Фото, видео и сторис{% endif %}
+              </span>
+            </div>
+            <span class="material-symbols-rounded contacts-social-arrow">arrow_outward</span>
+          </a>
+
+          <!-- Telegram -->
+          <a
+            class="contacts-social-item telegram"
+            href="https://t.me/kidsmap_az"
+            target="_blank"
+            rel="noopener"
+          >
+            <div class="contacts-social-icon-box telegram">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.34-.69.34l.2-3.08 5.61-5.07c.244-.218-.054-.338-.376-.123l-6.93 4.364-2.99-.933c-.65-.203-.66-.65.136-.96l11.68-4.503c.543-.197 1.02.127.86.993z"/>
+              </svg>
+            </div>
+            <div class="contacts-social-text">
+              <strong class="contacts-social-name">Telegram</strong>
+              <span class="contacts-social-sub">
+                {% if CURRENT_LANGUAGE == "az" %}Rəsmi xəbər kanalı{% elif CURRENT_LANGUAGE == "en" %}Official news channel{% else %}Новости и анонсы{% endif %}
+              </span>
+            </div>
+            <span class="material-symbols-rounded contacts-social-arrow">arrow_outward</span>
+          </a>
+
+          <!-- YouTube -->
+          <a
+            class="contacts-social-item youtube"
+            href="https://youtube.com/@kidsmap"
+            target="_blank"
+            rel="noopener"
+          >
+            <div class="contacts-social-icon-box youtube">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </div>
+            <div class="contacts-social-text">
+              <strong class="contacts-social-name">YouTube</strong>
+              <span class="contacts-social-sub">
+                {% if CURRENT_LANGUAGE == "az" %}Video bələdçilər{% elif CURRENT_LANGUAGE == "en" %}Video Guides{% else %}Видеообзоры кружков{% endif %}
+              </span>
+            </div>
+            <span class="material-symbols-rounded contacts-social-arrow">arrow_outward</span>
+          </a>
+
+          <!-- TikTok -->
+          <a
+            class="contacts-social-item tiktok"
+            href="https://tiktok.com/@kidsmap"
+            target="_blank"
+            rel="noopener"
+          >
+            <div class="contacts-social-icon-box tiktok">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.97v7.54c0 1.93-.54 3.86-1.65 5.4-1.39 1.93-3.66 3.12-6.07 3.12-2.02 0-4-.79-5.46-2.22C1.98 20.45 1.2 18.5 1.2 16.5c0-2.4 1.22-4.66 3.24-5.94 1.53-.98 3.39-1.38 5.19-1.15v4.18c-.85-.24-1.78-.17-2.58.21-.8.37-1.43 1.05-1.72 1.89-.3.84-.21 1.78.23 2.54.44.77 1.2 1.28 2.08 1.42.88.14 1.79-.1 2.47-.67.68-.57 1.07-1.41 1.07-2.3V.02h1.34z"/>
+              </svg>
+            </div>
+            <div class="contacts-social-text">
+              <strong class="contacts-social-name">TikTok</strong>
+              <span class="contacts-social-sub">
+                {% if CURRENT_LANGUAGE == "az" %}Qısa faydalı videolar{% elif CURRENT_LANGUAGE == "en" %}Short Reels & Tips{% else %}Полезные видеосоветы{% endif %}
+              </span>
+            </div>
+            <span class="material-symbols-rounded contacts-social-arrow">arrow_outward</span>
+          </a>
+
+          <!-- Facebook -->
+          <a
+            class="contacts-social-item facebook"
+            href="https://facebook.com/kidsmap"
+            target="_blank"
+            rel="noopener"
+          >
+            <div class="contacts-social-icon-box facebook">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </div>
+            <div class="contacts-social-text">
+              <strong class="contacts-social-name">Facebook</strong>
+              <span class="contacts-social-sub">
+                {% if CURRENT_LANGUAGE == "az" %}Rəsmi səhifə və icma{% elif CURRENT_LANGUAGE == "en" %}Community page{% else %}Официальное сообщество{% endif %}
+              </span>
+            </div>
+            <span class="material-symbols-rounded contacts-social-arrow">arrow_outward</span>
+          </a>
+
+          <!-- LinkedIn -->
+          <a
+            class="contacts-social-item linkedin"
+            href="https://linkedin.com/company/kidsmap"
+            target="_blank"
+            rel="noopener"
+          >
+            <div class="contacts-social-icon-box linkedin">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+            </div>
+            <div class="contacts-social-text">
+              <strong class="contacts-social-name">LinkedIn</strong>
+              <span class="contacts-social-sub">
+                {% if CURRENT_LANGUAGE == "az" %}Biznes və tərəfdaşlıq{% elif CURRENT_LANGUAGE == "en" %}Business & B2B{% else %}Партнёрство и карьера{% endif %}
+              </span>
+            </div>
+            <span class="material-symbols-rounded contacts-social-arrow">arrow_outward</span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Quick Portals Card -->
+      <div class="contacts-card contacts-portals-card">
+        <div class="contacts-card-head">
+          <div class="contacts-card-head-icon gold">
+            <span class="material-symbols-rounded">explore</span>
+          </div>
+          <div>
+            <h2 class="contacts-card-title">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Faydalı keçidlər
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Helpful Navigation
+              {% else %}
+                Полезные разделы
+              {% endif %}
+            </h2>
+            <p class="contacts-card-sub">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Saytın əsas bölmələrinə sürətli keçidlər.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Quick links to key platform features.
+              {% else %}
+                Быстрые переходы по ключевым разделам сайта.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="contacts-portals-list">
+          <a class="contacts-portal-link" href="{% url 'place_list' %}">
+            <div class="portal-link-icon-wrap green">
+              <span class="material-symbols-rounded">travel_explore</span>
+            </div>
+            <div class="portal-link-text">
+              <strong>{% if CURRENT_LANGUAGE == "az" %}Məkanlar kataloqu{% elif CURRENT_LANGUAGE == "en" %}Places Catalog{% else %}Каталог кружков и секций{% endif %}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Filtrlər və interaktiv xəritə ilə axtarış{% elif CURRENT_LANGUAGE == "en" %}Search with smart filters and map{% else %}Умный поиск по фильтрам и карте{% endif %}</span>
+            </div>
+            <span class="material-symbols-rounded portal-arrow">chevron_right</span>
+          </a>
+
+          <a class="contacts-portal-link" href="{% url 'about' %}">
+            <div class="portal-link-icon-wrap teal">
+              <span class="material-symbols-rounded">info</span>
+            </div>
+            <div class="portal-link-text">
+              <strong>{% if CURRENT_LANGUAGE == "az" %}Layihə haqqında{% elif CURRENT_LANGUAGE == "en" %}About KidsMap{% else %}О проекте KidsMap{% endif %}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Missiyamız, imkanlar və platforma bələdçisi{% elif CURRENT_LANGUAGE == "en" %}Our mission, features, and guide{% else %}Миссия, возможности и путеводитель{% endif %}</span>
+            </div>
+            <span class="material-symbols-rounded portal-arrow">chevron_right</span>
+          </a>
+
+          <a class="contacts-portal-link" href="{% url 'site_reviews' %}">
+            <div class="portal-link-icon-wrap purple">
+              <span class="material-symbols-rounded">reviews</span>
+            </div>
+            <div class="portal-link-text">
+              <strong>{% if CURRENT_LANGUAGE == "az" %}İstifadəçi rəyləri{% elif CURRENT_LANGUAGE == "en" %}Platform Reviews{% else %}Отзывы о сервисе{% endif %}</strong>
+              <span>{% if CURRENT_LANGUAGE == "az" %}Valideynlərin KidsMap haqqında fikirləri{% elif CURRENT_LANGUAGE == "en" %}Real feedback from families{% else %}Реальные отзывы родителей о проекте{% endif %}</span>
+            </div>
+            <span class="material-symbols-rounded portal-arrow">chevron_right</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. Exact FAQ Block Adapted from FAQ Page (Light & Animated) -->
+  <section class="contacts-faq-section">
+    <div class="contacts-faq-header">
+      <span class="faq-hero-badge">
+        <span class="faq-hero-ping-dot"><span></span></span>
+        {% if CURRENT_LANGUAGE == "az" %}Tez-tez verilən suallar{% elif CURRENT_LANGUAGE == "en" %}FAQ{% else %}Частые вопросы{% endif %}
+      </span>
+      <h2 class="contacts-faq-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Sualınıza dərhal cavab tapın
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Find Answers Instantly
+        {% else %}
+          Ответы на популярные вопросы
+        {% endif %}
+      </h2>
+      <p class="contacts-faq-sub">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Dəstək xidmətinə yazmazdan əvvəl ən çox verilən sualların cavabları ilə tanış olun.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Before reaching out, check out the answers to the most common questions below.
+        {% else %}
+          Перед обращением в поддержку вы можете ознакомиться с ответами на самые частые вопросы.
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="contacts-faq-list">
+
+      <!-- FAQ 1 -->
+      <details class="faq-accordion-item" open>
+        <summary class="faq-accordion-btn">
+          <span class="faq-acc-icon material-symbols-rounded">add_circle</span>
+          <span class="faq-acc-title">
+            {% if CURRENT_LANGUAGE == "az" %}
+              KidsMap-də dərnək və ya kurs yerləşdirmək ödənişlidir?
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Is it free to list a kids club or course on KidsMap?
+            {% else %}
+              Размещение кружка или секции на KidsMap платное?
+            {% endif %}
+          </span>
+          <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+        </summary>
+        <div class="faq-acc-body-wrap">
+          <div class="faq-acc-body-inner">
+            <p>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Xeyr, əsas dərnək kartının yaradılması, fotoşəkillərin, təsvirin, iş qrafikinin və əlaqə nömrələrinin kataloqda yerləşdirilməsi <strong>tamamilə pulsuzdur</strong>. Qeydiyyatdan keçib dərhal məkanınızı əlavə edə bilərsiniz.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                No, creating a basic place listing with photos, descriptions, schedules, and contact details is <strong>completely free</strong>. You can register and publish your club anytime.
+              {% else %}
+                Нет, создание базовой карточки с фотографиями, описанием, расписанием и контактами в каталоге <strong>абсолютно бесплатно</strong>. Вы можете зарегистрироваться и добавить кружок в любое время.
+              {% endif %}
+            </p>
+            <div class="faq-acc-actions">
+              <a href="{% url 'owner_place_create' %}" class="faq-acc-cta-link">
+                {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add venue{% else %}Добавить кружок{% endif %} ➔
+              </a>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- FAQ 2 -->
+      <details class="faq-accordion-item">
+        <summary class="faq-accordion-btn">
+          <span class="faq-acc-icon material-symbols-rounded">manage_accounts</span>
+          <span class="faq-acc-title">
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məkan sahibləri öz kartlarını necə idarə edə bilər?
+            {% elif CURRENT_LANGUAGE == "en" %}
+              How do club owners manage their place listings?
+            {% else %}
+              Как владельцы кружков могут управлять своими карточками?
+            {% endif %}
+          </span>
+          <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+        </summary>
+        <div class="faq-acc-body-wrap">
+          <div class="faq-acc-body-inner">
+            <p>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Saytda şəxsi kabinetinizə daxil olaraq yeni dərnək əlavə edə və ya kataloqda mövcud olan kart üçün idarəetmə sorğusu göndərə bilərsiniz. Təsdiqdən sonra məlumatları, qiymətləri və fotoları istədiyiniz zaman redaktə etmək mümkündür.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Log in to your account cabinet to add new places or submit an ownership request for an existing listing. Once verified, you can update details, prices, schedules, and photos anytime.
+              {% else %}
+                Войдите в личный кабинет на сайте, чтобы добавить новое заведение или подать заявку на владение уже существующей карточкой. После подтверждения вы сможете редактировать информацию, цены и фото в любое время.
+              {% endif %}
+            </p>
+            <div class="faq-acc-actions">
+              <a href="{% url 'about' %}" class="faq-acc-cta-link">
+                {% if CURRENT_LANGUAGE == "az" %}Bələdçini oxu{% elif CURRENT_LANGUAGE == "en" %}Read guide{% else %}Читать инструкцию{% endif %} ➔
+              </a>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- FAQ 3 -->
+      <details class="faq-accordion-item">
+        <summary class="faq-accordion-btn">
+          <span class="faq-acc-icon material-symbols-rounded">verified_user</span>
+          <span class="faq-acc-title">
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məlumatlar və rəylər necə yoxlanılır?
+            {% elif CURRENT_LANGUAGE == "en" %}
+              How are listings and user reviews moderated?
+            {% else %}
+              Как проверяются карточки заведений и отзывы?
+            {% endif %}
+          </span>
+          <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+        </summary>
+        <div class="faq-acc-body-wrap">
+          <div class="faq-acc-body-inner">
+            <p>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Bütün əlavə edilən məkanlar və istifadəçi rəyləri moderatorlarımız tərəfindən diqqətlə yoxlanılır. Biz məlumatların dəqiqliyini və dürüstlüyünü təmin edərək valideynlərə yalnız etibarlı seçimlər təqdim edirik.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                All submitted places and user reviews are carefully vetted by our moderation team to ensure data accuracy, authenticity, and high community trust.
+              {% else %}
+                Все добавленные места и отзывы пользователей проходят модерацию. Мы следим за актуальностью и достоверностью информации, чтобы родители получали надёжные данные.
+              {% endif %}
+            </p>
+            <div class="faq-acc-actions">
+              <a href="{% url 'place_list' %}" class="faq-acc-cta-link">
+                {% if CURRENT_LANGUAGE == "az" %}Kataloqda bax{% elif CURRENT_LANGUAGE == "en" %}Explore places{% else %}Смотреть каталог{% endif %} ➔
+              </a>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- FAQ 4 -->
+      <details class="faq-accordion-item">
+        <summary class="faq-accordion-btn">
+          <span class="faq-acc-icon material-symbols-rounded">edit_note</span>
+          <span class="faq-acc-title">
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məlumatlarda səhv aşkar etdikdə nə etməliyəm?
+            {% elif CURRENT_LANGUAGE == "en" %}
+              What if I notice incorrect information in a listing?
+            {% else %}
+              Что делать, если в информации найдена неточность?
+            {% endif %}
+          </span>
+          <span class="faq-acc-chevron material-symbols-rounded">expand_more</span>
+        </summary>
+        <div class="faq-acc-body-wrap">
+          <div class="faq-acc-body-inner">
+            <p>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Bizə birbaşa <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> və ya <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}" target="_blank" rel="noopener">WhatsApp</a> vasitəsilə məkanın linkini və düzəlişi göndərə bilərsiniz. Komandamız məlumatı dərhal dəqiqləşdirib yeniləyəcəkdir.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Reach out via <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> or <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}" target="_blank" rel="noopener">WhatsApp</a> with the listing URL and correction. We will review and update it promptly.
+              {% else %}
+                Напишите нам на <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}">email</a> или в <a href="{% if footer_whatsapp_url %}{{ footer_whatsapp_url }}{% else %}https://wa.me/994505406639{% endif %}" target="_blank" rel="noopener">WhatsApp</a> со ссылкой на карточку и нужными правками. Мы оперативно всё проверим и обновим.
+              {% endif %}
+            </p>
+            <div class="faq-acc-actions">
+              <a href="mailto:{{ footer_email|default:'info@kidsmap.az' }}" class="faq-acc-cta-link">
+                {% if CURRENT_LANGUAGE == "az" %}Bizə yazın{% elif CURRENT_LANGUAGE == "en" %}Write to us{% else %}Написать нам{% endif %} ➔
+              </a>
+            </div>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <!-- 4. Clean Light Bottom CTA Banner (Matching FAQ & About hero styling) -->
+  <section class="contacts-cta-banner">
+    <div class="contacts-cta-orb1" aria-hidden="true"></div>
+    <div class="contacts-cta-orb2" aria-hidden="true"></div>
+
+    <div class="contacts-cta-content">
+      <span class="faq-hero-badge">
+        <span class="material-symbols-rounded" style="font-size: 15px; color: #136f38;">auto_awesome</span>
+        {% if CURRENT_LANGUAGE == "az" %}KidsMap Kataloqu{% elif CURRENT_LANGUAGE == "en" %}KidsMap Directory{% else %}Каталог KidsMap{% endif %}
+      </span>
+      <h2 class="contacts-cta-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Uşağınız üçün ən yaxşı məşğələni seçməyə hazırsınız?
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Ready to find the ideal kids club or activity?
+        {% else %}
+          Готовы выбрать лучшие занятия для вашего ребёнка?
+        {% endif %}
+      </h2>
+      <p class="contacts-cta-desc">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Yüzlərlə idman секциясы, incəsənət, musiqi, xarici dil və inkişaf dərnəkləri Bakı və regionlar üzrə KidsMap-də.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Hundreds of sports sections, arts, music, languages, and developmental centers across Baku on KidsMap.
+        {% else %}
+          Сотни спортивных секций, творческих студий, музыки, языков и развивающих центров в Баку на KidsMap.
+        {% endif %}
+      </p>
+    </div>
+    <div class="contacts-cta-actions">
+      <a class="faq-btn faq-btn--primary" href="{% url 'place_list' %}">
+        <span class="material-symbols-rounded">explore</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Kataloqu aç{% elif CURRENT_LANGUAGE == "en" %}Explore Catalog{% else %}Открыть каталог{% endif %}</span>
+      </a>
+      <a class="faq-btn faq-btn--outline" href="{% url 'owner_place_create' %}">
+        <span class="material-symbols-rounded">add_circle</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add Your Venue{% else %}Добавить свой кружок{% endif %}</span>
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<!-- Copy Toast & Interaction Script -->
+<div id="contactsCopyToast" class="contacts-copy-toast" role="status" aria-live="polite">
+  <span class="material-symbols-rounded">check_circle</span>
+  <span class="toast-message">
+    {% if CURRENT_LANGUAGE == "az" %}
+      Məlumat kopyalandı!
+    {% elif CURRENT_LANGUAGE == "en" %}
+      Copied to clipboard!
+    {% else %}
+      Скопировано в буфер!
+    {% endif %}
+  </span>
+</div>
+
+<script>
+  (function() {
+    var toast = document.getElementById('contactsCopyToast');
+    var toastTimer = null;
+
+    function showToast() {
+      if (!toast) return;
+      toast.classList.add('is-visible');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() {
+        toast.classList.remove('is-visible');
+      }, 2400);
+    }
+
+    var copyButtons = document.querySelectorAll('.copy-btn');
+    copyButtons.forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var textToCopy = btn.getAttribute('data-copy');
+        if (!textToCopy) return;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(textToCopy).then(function() {
+            var icon = btn.querySelector('.material-symbols-rounded');
+            var origIcon = icon ? icon.textContent : 'content_copy';
+            if (icon) icon.textContent = 'check';
+            btn.classList.add('copied');
+            showToast();
+            setTimeout(function() {
+              if (icon) icon.textContent = origIcon;
+              btn.classList.remove('copied');
+            }, 1800);
+          }).catch(function() {
+            fallbackCopy(textToCopy);
+          });
+        } else {
+          fallbackCopy(textToCopy);
+        }
+      });
+    });
+
+    function fallbackCopy(text) {
+      var textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast();
+      } catch (err) {}
+      document.body.removeChild(textarea);
+    }
+  })();
+</script>
 {% endblock %}

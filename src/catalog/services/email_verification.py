@@ -8,6 +8,7 @@ from math import ceil
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -48,15 +49,30 @@ def _generate_code() -> str:
 def _send_code(email: str, code: str, ttl_minutes: int) -> None:
     subject = _("Код подтверждения email для KidsMap")
     message = _(
+        "Здравствуйте!\n\n"
         "Ваш код подтверждения: %(code)s\n"
-        "Код действует %(minutes)s минут.\n"
-        "Если вы не запрашивали регистрацию, просто проигнорируйте это письмо."
+        "Код действует %(minutes)s минут.\n\n"
+        "Если вы не запрашивали регистрацию на KidsMap, просто проигнорируйте это письмо — ваш аккаунт не будет создан.\n\n"
+        "KidsMap\n"
+        "https://kidsmap.az\n"
+        "info@kidsmap.az"
     ) % {"code": code, "minutes": ttl_minutes}
+    html_message = render_to_string(
+        "auth/email_verification_email.html",
+        {
+            "code": code,
+            "minutes": ttl_minutes,
+            "email": email,
+            "site_url": "https://kidsmap.az",
+            "contact_email": "info@kidsmap.az",
+        },
+    )
     send_mail(
         subject=subject,
         message=message,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[email],
+        html_message=html_message,
         fail_silently=False,
     )
 

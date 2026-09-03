@@ -153,8 +153,8 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", False)
 EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "20"))
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@localhost")
-SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "KidsMap <info@kidsmap.az>")
+SERVER_EMAIL = os.getenv("SERVER_EMAIL", "info@kidsmap.az")
 EMAIL_OTP_TTL_MINUTES = int(os.getenv("EMAIL_OTP_TTL_MINUTES", "10"))
 EMAIL_OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv("EMAIL_OTP_RESEND_COOLDOWN_SECONDS", "60"))
 EMAIL_OTP_MAX_ATTEMPTS = int(os.getenv("EMAIL_OTP_MAX_ATTEMPTS", "5"))
@@ -180,7 +180,7 @@ JAZZMIN_SETTINGS = {
     "site_logo": "img/logo.svg",
     "login_logo": "img/logo.svg",
     "login_logo_dark": "img/logo.svg",
-    "site_logo_classes": "img-circle",
+    "site_logo_classes": "km-admin-brand-logo",
     "site_icon": None,
     "welcome_sign": "Панель управления KidsMap",
     "copyright": "KidsMap",

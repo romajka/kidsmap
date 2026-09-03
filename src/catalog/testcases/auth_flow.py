@@ -254,7 +254,10 @@ class TestAuthValidationAndNextSecurity(TestCase):
         self.assertFalse(self.client.session.get_expire_at_browser_close())
 
 
-@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    DEFAULT_FROM_EMAIL="KidsMap <info@kidsmap.az>",
+)
 class TestPasswordResetIdentifierSupport(TestCase):
     def test_password_reset_accepts_username_and_sends_email(self):
         User.objects.create_user(
@@ -272,8 +275,23 @@ class TestPasswordResetIdentifierSupport(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers["Location"], reverse("password_reset_done"))
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].to, ["reset-user@example.com"])
-        self.assertIn("Логин аккаунта: reset_user.", mail.outbox[0].body)
+        sent_email = mail.outbox[0]
+        self.assertEqual(sent_email.to, ["reset-user@example.com"])
+        self.assertEqual(sent_email.from_email, "KidsMap <info@kidsmap.az>")
+        self.assertIn("Логин аккаунта: reset_user.", sent_email.body)
+        self.assertIn("https://kidsmap.az", sent_email.body)
+        self.assertIn("info@kidsmap.az", sent_email.body)
+
+        # Verify multipart HTML alternative is attached
+        self.assertEqual(len(sent_email.alternatives), 1)
+        html_content, mime_type = sent_email.alternatives[0]
+        self.assertEqual(mime_type, "text/html")
+        self.assertIn("Восстановление пароля", html_content)
+        self.assertIn("reset-user@example.com", html_content)
+        self.assertIn("https://kidsmap.az/static/img/logo.png", html_content)
+        self.assertIn("https://kidsmap.az", html_content)
+        self.assertIn("info@kidsmap.az", html_content)
+        self.assertIn("auth/reset/", html_content)
 
 
 @override_settings(
@@ -311,6 +329,39 @@ class TestEmailVerificationFlow(TestCase):
             )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Email не подтвержден")
+
+    @override_settings(DEFAULT_FROM_EMAIL="KidsMap <info@kidsmap.az>")
+    def test_registration_code_uses_official_sender(self):
+        self._register(username="official_sender", email="official-sender@example.com")
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].from_email, "KidsMap <info@kidsmap.az>")
+
+    @override_settings(DEFAULT_FROM_EMAIL="KidsMap <info@kidsmap.az>")
+    def test_registration_code_sends_multipart_email_with_html_template(self):
+        self._register(username="html_code_user", email="html-code@example.com", code="789012")
+
+        self.assertEqual(len(mail.outbox), 1)
+        sent_email = mail.outbox[0]
+        self.assertEqual(sent_email.from_email, "KidsMap <info@kidsmap.az>")
+        self.assertEqual(sent_email.to, ["html-code@example.com"])
+
+        # Plain-text checks
+        self.assertIn("789012", sent_email.body)
+        self.assertIn("10 минут", sent_email.body)
+        self.assertIn("https://kidsmap.az", sent_email.body)
+        self.assertIn("info@kidsmap.az", sent_email.body)
+
+        # HTML alternative checks
+        self.assertEqual(len(sent_email.alternatives), 1)
+        html_content, mime_type = sent_email.alternatives[0]
+        self.assertEqual(mime_type, "text/html")
+        self.assertIn("Подтверждение email", html_content)
+        self.assertIn("789012", html_content)
+        self.assertIn("10 минут", html_content)
+        self.assertIn("https://kidsmap.az/static/img/logo.png", html_content)
+        self.assertIn("https://kidsmap.az", html_content)
+        self.assertIn("info@kidsmap.az", html_content)
 
     def test_verify_email_activates_user_and_logs_in(self):
         register_response, user = self._register(username="verify_user", email="verify@example.com", code="123456")

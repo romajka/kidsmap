@@ -104,31 +104,10 @@
   color: #0b7345 !important;
 }
 
-/* The footer disclaimer is dark text laid directly over the illustration.
-   A soft plate restores legibility without hiding the artwork. */
-.footer-disclaimer {
-  position: relative;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.74);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  color: rgba(24, 34, 28, 0.92);
-}
-
-
 /* 4. TAP TARGETS ───────────────────────────────────────────────────────────
    Measured at 390px: like 36x36, slider arrows 38x38, back 36x36, lang 38x40.
    The hit area is grown with a pseudo-element so nothing shifts visually. */
 @media (pointer: coarse) {
-  .like-btn,
-  .km-back-button,
-  .home-hero-slider-arrow,
-  .place-gallery__nav,
-  .menu-trigger {
-    position: relative;
-  }
-
   .like-btn::after,
   .km-back-button::after,
   .home-hero-slider-arrow::after,

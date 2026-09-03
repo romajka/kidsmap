@@ -343,7 +343,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
     def test_owner_can_resubmit_published_place_for_moderation(self):
-        self.manager_place = create_quality_place(
+        self.manager_place = create_ready_place(
             owner=self.manager_user,
             name="Manager Place",
             name_ru="Кружок менеджера",
@@ -789,7 +789,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(self.editor_place.is_active)
 
     def test_legacy_owner_profile_cannot_publish_draft_without_staff_permission(self):
-        self.manager_place = create_quality_place(
+        self.manager_place = create_ready_place(
             owner=self.manager_user,
             name="Manager Place",
             name_ru="Кружок менеджера",
@@ -826,7 +826,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
     def test_staff_with_change_place_permission_can_publish_after_approval(self):
         from django.contrib.auth.models import Permission
 
-        self.manager_place = create_quality_place(
+        self.manager_place = create_ready_place(
             owner=self.manager_user,
             name="Staff Publish Place",
             name_ru="Карточка для служебной публикации",
@@ -1024,7 +1024,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 ),
                 "description_en": "",
                 "category": "EDU",
-                "subcategory": "Робототехника",
+                "subcategory": "Английский язык",
                 "age_from": "7",
                 "age_to": "12",
                 "price_from": "100",
@@ -1045,6 +1045,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "instagram": "",
                 "website": "",
                 "schedule": "Пн-Сб",
+                "structured_schedule": build_structured_schedule_payload(),
                 "is_temporary": "",
                 "temporary_start": "",
                 "temporary_end": "",
@@ -1166,7 +1167,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 ),
                 "description_en": "",
                 "category": "EDU",
-                "subcategory": "Робототехника",
+                "subcategory": "Английский язык",
                 "age_from": "7",
                 "age_to": "12",
                 "price_from": "100",
@@ -1185,6 +1186,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "instagram": "",
                 "website": "",
                 "schedule": "Пн-Сб",
+                "structured_schedule": build_structured_schedule_payload(),
                 "is_temporary": "",
                 "temporary_start": "",
                 "temporary_end": "",
@@ -1235,6 +1237,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "address": "Tapılmayan ünvan 5",
                 "phone1": "+994501112233",
                 "schedule": "Пн-Сб",
+                "structured_schedule": build_structured_schedule_payload(),
                 "photo": self._image_upload("missing-coordinates.png"),
             },
         )
@@ -1260,7 +1263,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 ),
                 "description_en": "",
                 "category": "EDU",
-                "subcategory": "Рисование",
+                "subcategory": "Английский язык",
                 "age_from": "6",
                 "age_to": "10",
                 "price_from": "80",
@@ -1281,6 +1284,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "instagram": "",
                 "website": "",
                 "schedule": "Вт/Чт",
+                "structured_schedule": build_structured_schedule_payload(),
                 "is_temporary": "",
                 "temporary_start": "",
                 "temporary_end": "",
@@ -1441,7 +1445,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "description_az": "",
                 "description_en": "",
                 "category": "EDU",
-                "subcategory": "Робототехника",
+                "subcategory": "Английский язык",
                 "age_from": "7",
                 "age_to": "12",
                 "price_from": "100",
@@ -1453,6 +1457,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "instagram": "",
                 "website": "",
                 "schedule": "Пн-Сб",
+                "structured_schedule": build_structured_schedule_payload(),
                 "is_temporary": "",
                 "temporary_start": "",
                 "temporary_end": "",
@@ -1477,7 +1482,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "description_az": "Tesvir var",
                 "description_en": "",
                 "category": "EDU",
-                "subcategory": "Робототехника",
+                "subcategory": "Английский язык",
                 "age_from": "7",
                 "age_to": "12",
                 "price_from": "100",
@@ -1489,6 +1494,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "instagram": "",
                 "website": "",
                 "schedule": "Пн-Сб",
+                "structured_schedule": build_structured_schedule_payload(),
                 "is_temporary": "",
                 "temporary_start": "",
                 "temporary_end": "",
@@ -1555,7 +1561,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "description_az": "Tesvir var",
                 "description_en": "",
                 "category": "EDU",
-                "subcategory": "Робототехника",
+                "subcategory": "Английский язык",
                 "age_from": "7",
                 "age_to": "12",
                 "price_from": "100",
@@ -1567,6 +1573,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "instagram": "",
                 "website": "",
                 "schedule": "Пн-Сб",
+                "structured_schedule": build_structured_schedule_payload(),
                 "is_temporary": "",
                 "temporary_start": "",
                 "temporary_end": "",
@@ -1591,7 +1598,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "description_az": "Tesvir var",
                 "description_en": "",
                 "category": "EDU",
-                "subcategory": "Робототехника",
+                "subcategory": "Английский язык",
                 "age_from": "7",
                 "age_to": "12",
                 "price_from": "100",
@@ -1603,6 +1610,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "instagram": "",
                 "website": "",
                 "schedule": "Пн-Сб",
+                "structured_schedule": build_structured_schedule_payload(),
                 "is_temporary": "",
                 "temporary_start": "",
                 "temporary_end": "",
@@ -1626,7 +1634,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "description_az": "Tesvir var",
                 "description_en": "",
                 "category": "EDU",
-                "subcategory": "Робототехника",
+                "subcategory": "Английский язык",
                 "age_from": "7",
                 "age_to": "12",
                 "price_from": "100",
@@ -1638,6 +1646,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "instagram": "",
                 "website": "",
                 "schedule": "Пн-Сб",
+                "structured_schedule": build_structured_schedule_payload(),
                 "is_temporary": "",
                 "temporary_start": "",
                 "temporary_end": "",

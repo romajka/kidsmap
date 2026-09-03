@@ -26,7 +26,7 @@ sitemaps = {
 
 urlpatterns = [
     path("api/v1/places/<slug:slug>/pricing/", place_pricing_api, name="place_pricing_api"),
-    path("favicon.ico", RedirectView.as_view(url="/static/img/logo.svg", permanent=False)),
+    path("favicon.ico", RedirectView.as_view(url="/static/img/logo-mark.svg", permanent=False)),
     path("i18n/", include("django.conf.urls.i18n")),  # set_language endpoint
     path("sitemap.xml", public_sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
     path("sitemap.xsl", sitemap_xsl, name="sitemap_xsl"),

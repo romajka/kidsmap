@@ -676,216 +676,6 @@
   });
 
   ready(function () {
-    var form = document.querySelector("[data-km-admin-form]") || document.getElementById("place_form");
-    var configNode =
-      document.getElementById("km-admin-progress-config") ||
-      document.getElementById("km-place-progress-config");
-    if (!form || !configNode) {
-      return;
-    }
-
-    var checklistItems = [];
-    try {
-      checklistItems = JSON.parse(configNode.textContent || "[]");
-    } catch (error) {
-      checklistItems = [];
-    }
-    if (!checklistItems.length) {
-      return;
-    }
-
-    var pctNodes = Array.prototype.slice.call(
-      document.querySelectorAll("[data-progress-pct]")
-    );
-    var doneNodes = Array.prototype.slice.call(
-      document.querySelectorAll("[data-progress-done]")
-    );
-    var totalNodes = Array.prototype.slice.call(
-      document.querySelectorAll("[data-progress-total]")
-    );
-    var ringNode = document.querySelector("[data-progress-ring]");
-    var barNode = document.querySelector("[data-progress-bar]");
-    var readinessNode = document.querySelector("[data-progress-readiness]");
-    var missingListNode = document.querySelector("[data-progress-missing-list]");
-    var emptyNode = document.querySelector("[data-progress-empty]");
-
-    function hasFieldValue(item) {
-      var input = document.getElementById(item.input_id);
-      if (!input) {
-        return !!item.initial;
-      }
-
-      // An open-ended age range intentionally has no upper bound. Treat the
-      // empty, disabled age_to field as complete while the checkbox is active.
-      if (item.input_id === "id_age_to") {
-        var ageOpenEndedInput = document.getElementById("id_age_open_ended");
-        if (ageOpenEndedInput && ageOpenEndedInput.checked) {
-          return true;
-        }
-      }
-
-      if (item.input_id === "id_price_from" || item.field_name === "price") {
-        var priceFrom = document.getElementById("id_price_from");
-        var priceTo = document.getElementById("id_price_to");
-        var priceMonth = document.getElementById("id_price_per_month");
-        var priceLesson = document.getElementById("id_price_per_lesson");
-        var isFree = document.getElementById("id_is_free");
-        var payloadInput = document.getElementById("id_pricing_plans_payload");
-        var tariffRows = document.querySelectorAll("#km-pricing-plans-table tbody tr");
-
-        if (isFree && isFree.checked) {
-          return true;
-        }
-        if (priceFrom && (priceFrom.value || "").trim()) {
-          return true;
-        }
-        if (priceTo && (priceTo.value || "").trim()) {
-          return true;
-        }
-        if (priceMonth && (priceMonth.value || "").trim()) {
-          return true;
-        }
-        if (priceLesson && (priceLesson.value || "").trim()) {
-          return true;
-        }
-        if (tariffRows && tariffRows.length > 0) {
-          return true;
-        }
-        if (payloadInput && (payloadInput.value || "").trim() && payloadInput.value !== "[]") {
-          return true;
-        }
-        return !!item.initial;
-      }
-
-      if (input.type === "file") {
-        var clearCheckbox = document.getElementById(item.input_id + "-clear");
-        var hasSelectedFile = !!(input.files && input.files.length);
-        if (clearCheckbox && clearCheckbox.checked) {
-          return hasSelectedFile;
-        }
-        return hasSelectedFile || !!item.initial;
-      }
-
-      if (input.type === "checkbox" || input.type === "radio") {
-        return !!input.checked;
-      }
-
-      if (input.tagName === "SELECT") {
-        return !!(input.value || "").trim();
-      }
-
-      return !!(input.value || "").trim();
-    }
-
-    function setReadinessTone(tone) {
-      if (!readinessNode) {
-        return;
-      }
-      readinessNode.classList.remove("km-place-sidebar-badge--good");
-      readinessNode.classList.remove("km-place-sidebar-badge--warn");
-      readinessNode.classList.remove("km-place-sidebar-badge--muted");
-      readinessNode.classList.add("km-place-sidebar-badge--" + tone);
-    }
-
-    function renderMissingItems(missing) {
-      if (!missingListNode || !emptyNode) {
-        return;
-      }
-
-      missingListNode.innerHTML = "";
-      missing.slice(0, 5).forEach(function (item) {
-        var itemNode = document.createElement("li");
-        var linkNode = document.createElement("a");
-        linkNode.href = "#" + item.input_id;
-        linkNode.textContent = item.label;
-        linkNode.className = "km-place-sidebar-missing-link";
-        itemNode.appendChild(linkNode);
-        missingListNode.appendChild(itemNode);
-      });
-
-      var hasMissing = missing.length > 0;
-      missingListNode.hidden = !hasMissing;
-      emptyNode.hidden = hasMissing;
-      if (!hasMissing) {
-        emptyNode.textContent = form.dataset.progressEmptyText || "";
-      }
-    }
-
-    function updateProgress() {
-      var completed = 0;
-      var missing = [];
-      var total = checklistItems.length;
-
-      checklistItems.forEach(function (item) {
-        var input = document.getElementById(item.input_id);
-        var fieldGroup = input ? input.closest('.form-group, .fieldBox') : null;
-        
-        if (hasFieldValue(item)) {
-          completed += 1;
-          if (fieldGroup) fieldGroup.classList.remove('km-field-missing-highlight');
-          return;
-        }
-        missing.push(item);
-        if (fieldGroup) fieldGroup.classList.add('km-field-missing-highlight');
-      });
-
-      var pct = total ? Math.round((completed / total) * 100) : 0;
-      pctNodes.forEach(function (node) {
-        node.textContent = pct + "%";
-      });
-      doneNodes.forEach(function (node) {
-        node.textContent = String(completed);
-      });
-      totalNodes.forEach(function (node) {
-        node.textContent = String(total);
-      });
-
-      if (ringNode) {
-        ringNode.style.setProperty("--km-place-progress", String(pct));
-      }
-      if (barNode) {
-        barNode.style.width = pct + "%";
-      }
-
-      var publishBtn = document.getElementById("km-publish-btn");
-      if (publishBtn) {
-        if (missing.length === 0) {
-          publishBtn.removeAttribute("disabled");
-        } else {
-          publishBtn.setAttribute("disabled", "disabled");
-        }
-      }
-
-      var publishMobileBtn = document.getElementById("km-publish-mobile-btn");
-      if (publishMobileBtn) {
-        if (missing.length === 0) {
-          publishMobileBtn.removeAttribute("disabled");
-        } else {
-          publishMobileBtn.setAttribute("disabled", "disabled");
-        }
-      }
-
-      if (readinessNode) {
-        var isComplete = missing.length === 0;
-        readinessNode.textContent = isComplete
-          ? form.dataset.progressCompleteLabel || ""
-          : form.dataset.progressIncompleteLabel || "";
-        setReadinessTone(
-          isComplete
-            ? form.dataset.progressCompleteTone || "good"
-            : form.dataset.progressIncompleteTone || "warn"
-        );
-      }
-
-      renderMissingItems(missing);
-    }
-
-    form.addEventListener("input", updateProgress);
-    form.addEventListener("change", updateProgress);
-    updateProgress();
-  });
-
-  ready(function () {
     var phoneInputs = Array.prototype.slice.call(
       document.querySelectorAll('input[data-km-az-phone="1"]')
     );
@@ -2200,106 +1990,165 @@
     var nameFields = ["id_name_ru", "id_name_az", "id_name_en", "id_name"];
     var categorySelect = form.querySelector('select[name="category"]');
 
-    var CHECKLIST_CONFIG = [
-      {
-        field: "name",
-        label: "Название",
-        getTargetInput: function() {
-          return document.getElementById("id_name_ru") || document.getElementById("id_name_az") || document.getElementById("id_name_en") || document.getElementById("id_name");
-        },
-        isFilled: function() {
-          for (var i = 0; i < nameFields.length; i++) {
-            var el = document.getElementById(nameFields[i]);
-            if (el && el.value.trim()) return true;
-          }
-          return false;
-        }
+    // The twelve requirements come from the server (catalog.services.place_readiness).
+    // Only the "is it filled right now?" mirror lives here, so the live progress
+    // and the publish gate cannot drift apart.
+    function inputValue(id) {
+      var el = document.getElementById(id);
+      return el ? String(el.value || "").trim() : "";
+    }
+
+    function parseJsonInput(selector) {
+      var el = document.querySelector(selector);
+      if (!el) return null;
+      try {
+        return JSON.parse(el.value || "null");
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function hasMainPhoto() {
+      var mainInput = document.getElementById("id_photo");
+      var mainPreview = document.querySelector("[data-main-photo-preview]");
+      var mainClearCheckbox = document.getElementById("id_photo-clear");
+      return !!(
+        (mainInput && mainInput.files && mainInput.files.length) ||
+        (mainPreview && mainPreview.getAttribute("data-main-photo-initial-url") && !(mainClearCheckbox && mainClearCheckbox.checked))
+      );
+    }
+
+    function planHasPublicPrice(plan) {
+      if (!plan || typeof plan !== "object") return false;
+      if (plan.is_active === false) return false;
+      if ((plan.charge_role || "primary") !== "primary") return false;
+      var kind = plan.price_kind || "exact";
+      if (kind === "exact" || kind === "free") {
+        return plan.price !== null && plan.price !== undefined && plan.price !== "";
+      }
+      if (kind === "from") {
+        return plan.price_min !== null && plan.price_min !== undefined && plan.price_min !== "";
+      }
+      if (kind === "range") {
+        return (
+          plan.price_min !== null && plan.price_min !== undefined && plan.price_min !== "" &&
+          plan.price_max !== null && plan.price_max !== undefined && plan.price_max !== ""
+        );
+      }
+      return false;
+    }
+
+    function scheduleIsMeaningful() {
+      // The legacy free-text schedule no longer counts: weekly mode needs at
+      // least one open day with a valid interval in the editor.
+      var days = parseJsonInput("[data-km-schedule-editor-input]");
+      if (!Array.isArray(days)) return false;
+      return days.some(function (day) {
+        if (!day || typeof day !== "object") return false;
+        if (day.is_24_hours) return true;
+        return !day.is_closed && Array.isArray(day.intervals) && day.intervals.length > 0;
+      });
+    }
+
+    var CHECKS = {
+      name: function () {
+        return !!inputValue("id_name_az");
       },
-      {
-        field: "category",
-        label: "Категория",
-        getTargetInput: function() {
-          return document.querySelector('select[name="category"]');
-        },
-        isFilled: function() {
-          var el = document.querySelector('select[name="category"]');
-          return !!(el && el.value);
-        }
+      description: function () {
+        // Length is advice, not a gate: publication only needs a real text.
+        return !!inputValue("id_description_az");
       },
-      {
-        field: "description_az",
-        label: "Описание (AZ)",
-        getTargetInput: function() {
-          return document.getElementById("id_description_az");
-        },
-        isFilled: function() {
-          var el = document.getElementById("id_description_az");
-          return !!(el && el.value.trim());
-        }
+      category: function () {
+        var el = document.querySelector('select[name="category"]');
+        return !!(el && el.value);
       },
-      {
-        field: "age_from",
-        label: "Возраст от",
-        getTargetInput: function() {
-          return document.getElementById("id_age_from");
-        },
-        isFilled: function() {
-          var el = document.getElementById("id_age_from");
-          return !!(el && el.value.trim());
-        }
+      subcategory: function () {
+        var el = document.querySelector('select[name="subcategory"]');
+        return !!(el && el.value);
       },
-      {
-        field: "age_to",
-        label: "Возраст до",
-        getTargetInput: function() {
-          return document.getElementById("id_age_to");
-        },
-        isFilled: function() {
-          var el = document.getElementById("id_age_to");
-          var openEnded = document.getElementById("id_age_open_ended");
-          return !!(openEnded && openEnded.checked) || !!(el && el.value.trim());
+      region: function () {
+        var region = document.getElementById("id_region");
+        var district = document.getElementById("id_district");
+        var regionValue = region ? String(region.value || "").trim() : "";
+        if (!regionValue) return false;
+        if (regionValue === "baku") {
+          return !!(district && String(district.value || "").trim());
         }
+        return true;
       },
-      {
-        field: "address",
-        label: "Адрес",
-        getTargetInput: function() {
-          return document.getElementById("id_address");
-        },
-        isFilled: function() {
-          var el = document.getElementById("id_address");
-          return !!(el && el.value.trim());
+      address: function () {
+        return !!inputValue("id_address");
+      },
+      coordinates: function () {
+        var lat = parseFloat(inputValue("id_lat"));
+        var lng = parseFloat(inputValue("id_lng"));
+        if (isNaN(lat) || isNaN(lng)) return false;
+        return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+      },
+      age: function () {
+        var fromRaw = inputValue("id_age_from");
+        if (!fromRaw) return false;
+        var openEnded = document.getElementById("id_age_open_ended");
+        var toRaw = inputValue("id_age_to");
+        if (!toRaw) {
+          return !!(openEnded && openEnded.checked);
         }
+        return parseInt(toRaw, 10) >= parseInt(fromRaw, 10);
       },
-      {
-        field: "phone1",
-        label: "Телефон",
-        getTargetInput: function() {
-          return document.getElementById("id_phone1");
-        },
-        isFilled: function() {
-          var el = document.getElementById("id_phone1");
-          return !!(el && el.value.trim());
-        }
+      price: function () {
+        var plans = parseJsonInput("[data-tariff-input]");
+        if (!Array.isArray(plans)) return false;
+        return plans.some(planHasPublicPrice);
       },
-      {
-        field: "photo",
-        label: "Главное фото",
-        getTargetInput: function() {
-          return document.getElementById("id_photo");
-        },
-        isFilled: function() {
-          var mainInput = document.getElementById("id_photo");
-          var mainPreview = document.querySelector("[data-main-photo-preview]");
-          var mainClearCheckbox = document.getElementById("id_photo-clear");
-          var hasPhoto = !!(
-            (mainInput && mainInput.files && mainInput.files.length) || 
-            (mainPreview && mainPreview.getAttribute("data-main-photo-initial-url") && !(mainClearCheckbox && mainClearCheckbox.checked))
-          );
-          return hasPhoto;
+      phone: function () {
+        return !!inputValue("id_phone1");
+      },
+      schedule: function () {
+        var mode = document.getElementById("id_schedule_mode");
+        var modeValue = mode ? String(mode.value || "regular") : "regular";
+        if (modeValue !== "regular") return true;
+        return scheduleIsMeaningful();
+      },
+      photo: function () {
+        return hasMainPhoto();
+      }
+    };
+
+    var CHECKLIST_CONFIG = (function () {
+      var configNode = document.getElementById("km-place-progress-config");
+      var items = [];
+      if (configNode) {
+        try {
+          items = JSON.parse(configNode.textContent || "[]");
+        } catch (error) {
+          items = [];
         }
       }
-    ];
+      return items.map(function (item) {
+        var evaluator = CHECKS[item.check];
+        return {
+          field: item.code,
+          label: item.label,
+          message: item.message || "",
+          anchor: item.anchor || "",
+          section: item.section || "",
+          // Some requirements are satisfied by stored data the browser cannot
+          // see (a legacy price, an uploaded cover photo). The server tells us.
+          fallback: !!item.fallback,
+          isFilled: function () {
+            if (this.fallback) return true;
+            return evaluator ? !!evaluator() : !!item.initial;
+          },
+          getTargetInput: function () {
+            if (!item.anchor) return null;
+            if (item.anchor.charAt(0) === "[" || item.anchor.charAt(0) === ".") {
+              return document.querySelector(item.anchor);
+            }
+            return document.getElementById(item.anchor);
+          }
+        };
+      });
+    })();
 
     function updateMockupTitle() {
       var titleEl = document.getElementById("km-preview-title");
@@ -2496,132 +2345,181 @@
       }
     }
 
-    function updateVerificationChecklist() {
+    function focusReadinessTarget(item) {
+      var targetInput = item.getTargetInput();
+      var targetScroll = null;
+
+      if (item.field === "photo") {
+        targetScroll = document.querySelector("[data-main-photo-root]");
+      }
+      if (!targetScroll && targetInput) {
+        targetScroll = targetInput.closest(".form-row") || targetInput;
+      }
+      if (!targetScroll && item.section) {
+        targetScroll = document.getElementById(item.section);
+      }
+      if (!targetScroll) return;
+
+      // Open the section first: scrolling into a collapsed block shows nothing.
+      var section = targetScroll.closest("[data-place-accordion-section]");
+      if (section) {
+        var toggle = section.querySelector("[data-place-section-toggle]");
+        if (toggle && toggle.getAttribute("aria-expanded") === "false") {
+          toggle.click();
+        }
+      }
+      var fieldset = targetScroll.closest("fieldset.collapse");
+      if (fieldset && fieldset.classList.contains("collapsed")) {
+        var toggleLink = fieldset.querySelector("a.collapse-toggle");
+        if (toggleLink) {
+          toggleLink.click();
+        } else {
+          fieldset.classList.remove("collapsed");
+        }
+      }
+
+      targetScroll.scrollIntoView({ behavior: "smooth", block: "center" });
+      targetScroll.classList.add("km-highlight-flash");
+      setTimeout(function () {
+        targetScroll.classList.remove("km-highlight-flash");
+      }, 2500);
+
+      if (targetInput && typeof targetInput.focus === "function") {
+        setTimeout(function () {
+          try {
+            targetInput.focus();
+          } catch (err) {}
+          if (targetInput.classList && targetInput.classList.contains("select2-hidden-accessible")) {
+            try {
+              window.$(targetInput).select2("open");
+            } catch (err) {}
+          }
+        }, 400);
+      }
+    }
+
+    function buildReadinessLink(item) {
+      var link = document.createElement("a");
+      link.href = "#";
+      link.className = "km-checklist-link";
+
+      var labelNode = document.createElement("span");
+      labelNode.className = "km-checklist-link__label";
+      labelNode.textContent = item.label;
+      link.appendChild(labelNode);
+
+      if (item.message) {
+        var messageNode = document.createElement("span");
+        messageNode.className = "km-checklist-link__message";
+        messageNode.textContent = item.message;
+        link.appendChild(messageNode);
+      }
+
+      var icon = document.createElement("i");
+      icon.className = "fas fa-arrow-right";
+      icon.setAttribute("aria-hidden", "true");
+      link.appendChild(icon);
+
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        focusReadinessTarget(item);
+      });
+      return link;
+    }
+
+    function updateVerificationChecklist(missing) {
       var checklistContainer = document.getElementById("km-verification-checklist");
       var allFilledContainer = document.getElementById("km-verification-all-filled");
       if (!checklistContainer || !allFilledContainer) return;
-      
+
       checklistContainer.innerHTML = "";
-      var missingCount = 0;
-      
-      CHECKLIST_CONFIG.forEach(function(item) {
-        var filled = item.isFilled();
-        if (!filled) {
-          missingCount++;
-          var link = document.createElement("a");
-          link.href = "#";
-          link.className = "km-checklist-link";
-          link.innerHTML = "<span>" + item.label + "</span> <i class=\"fas fa-arrow-right\"></i>";
-          link.addEventListener("click", function(e) {
-            e.preventDefault();
-            var targetInput = item.getTargetInput();
-            var targetScroll = null;
+      missing.forEach(function (item) {
+        checklistContainer.appendChild(buildReadinessLink(item));
+      });
+      allFilledContainer.style.display = missing.length === 0 ? "" : "none";
+    }
 
-            if (item.field === "photo") {
-              targetScroll = document.querySelector("[data-main-photo-root]");
-            }
+    function updateSidebarMissing(missing) {
+      var missingListNode = document.querySelector("[data-progress-missing-list]");
+      var emptyNode = document.querySelector("[data-progress-empty]");
+      if (!missingListNode || !emptyNode) return;
 
-            if (!targetScroll && targetInput) {
-              targetScroll = targetInput.closest(".form-row") || targetInput;
-            }
-
-            if (targetScroll) {
-              var fieldset = targetScroll.closest("fieldset.collapse");
-              if (fieldset && fieldset.classList.contains("collapsed")) {
-                var toggleLink = fieldset.querySelector("a.collapse-toggle");
-                if (toggleLink) {
-                  toggleLink.click();
-                } else {
-                  fieldset.classList.remove("collapsed");
-                }
-              }
-
-              targetScroll.scrollIntoView({ behavior: "smooth", block: "center" });
-              
-              targetScroll.classList.add("km-highlight-flash");
-              setTimeout(function() {
-                targetScroll.classList.remove("km-highlight-flash");
-              }, 2500);
-
-              if (targetInput) {
-                setTimeout(function() {
-                  try {
-                    targetInput.focus();
-                  } catch(err) {}
-                  if (targetInput.classList.contains("select2-hidden-accessible")) {
-                    try {
-                      window.$(targetInput).select2("open");
-                    } catch(err) {}
-                  }
-                }, 400);
-              }
-            }
-          });
-
-          checklistContainer.appendChild(link);
-        }
+      missingListNode.innerHTML = "";
+      missing.forEach(function (item) {
+        var itemNode = document.createElement("li");
+        var linkNode = document.createElement("a");
+        linkNode.href = "#";
+        linkNode.className = "km-place-sidebar-missing-link";
+        linkNode.textContent = item.label;
+        linkNode.title = item.message || "";
+        linkNode.addEventListener("click", function (e) {
+          e.preventDefault();
+          focusReadinessTarget(item);
+        });
+        itemNode.appendChild(linkNode);
+        missingListNode.appendChild(itemNode);
       });
 
-      if (missingCount === 0) {
-        allFilledContainer.style.display = "";
-      } else {
-        allFilledContainer.style.display = "none";
+      var hasMissing = missing.length > 0;
+      missingListNode.hidden = !hasMissing;
+      emptyNode.hidden = hasMissing;
+      if (!hasMissing) {
+        emptyNode.textContent = form.dataset.progressEmptyText || "";
       }
     }
 
     function updateRealtimeProgress() {
       var total = CHECKLIST_CONFIG.length;
-      var completed = 0;
-      CHECKLIST_CONFIG.forEach(function(item) {
-        if (item.isFilled()) completed++;
+      var missing = [];
+      CHECKLIST_CONFIG.forEach(function (item) {
+        if (!item.isFilled()) missing.push(item);
       });
-      
-      var pct = Math.round((completed / total) * 100);
-      
-      var pctNodes = document.querySelectorAll("[data-progress-pct]");
-      var doneNodes = document.querySelectorAll("[data-progress-done]");
-      var totalNodes = document.querySelectorAll("[data-progress-total]");
-      var barFillNodes = document.querySelectorAll("[data-progress-bar]");
-      
-      pctNodes.forEach(function(node) {
+      var completed = total - missing.length;
+      // 100% is reserved for a card the server would actually publish.
+      var pct = total ? Math.round((completed / total) * 100) : 0;
+
+      document.querySelectorAll("[data-progress-pct]").forEach(function (node) {
         node.textContent = pct + "%";
       });
-      doneNodes.forEach(function(node) {
+      document.querySelectorAll("[data-progress-done]").forEach(function (node) {
         node.textContent = completed;
       });
-      totalNodes.forEach(function(node) {
+      document.querySelectorAll("[data-progress-total]").forEach(function (node) {
         node.textContent = total;
       });
-      barFillNodes.forEach(function(node) {
+      document.querySelectorAll("[data-progress-bar]").forEach(function (node) {
         node.style.width = pct + "%";
       });
-      
+      var ringNode = document.querySelector("[data-progress-ring]");
+      if (ringNode) {
+        ringNode.style.setProperty("--km-place-progress", String(pct));
+      }
+
+      var isComplete = missing.length === 0;
       var readinessBadge = document.querySelector("[data-progress-readiness]");
       if (readinessBadge) {
         var readyLabel = form.dataset.progressReadyLabel || "Готово к публикации";
         var incompleteLabel = form.dataset.progressIncompleteLabel || "Нужна доработка";
         var readyTone = form.dataset.progressReadyTone || "good";
         var incompleteTone = form.dataset.progressIncompleteTone || "warn";
-        
-        if (completed === total) {
-          readinessBadge.textContent = readyLabel;
-          readinessBadge.className = "km-badge-compact km-badge-compact--" + readyTone;
-        } else {
-          readinessBadge.textContent = incompleteLabel;
-          readinessBadge.className = "km-badge-compact km-badge-compact--" + incompleteTone;
-        }
+        readinessBadge.textContent = isComplete ? readyLabel : incompleteLabel;
+        readinessBadge.className =
+          "km-badge-compact km-badge-compact--" + (isComplete ? readyTone : incompleteTone);
       }
-      
-      var publishMobileBtn = document.getElementById("km-publish-mobile-btn");
-      if (publishMobileBtn) {
-        if (completed === total) {
-          publishMobileBtn.removeAttribute("disabled");
-        } else {
-          publishMobileBtn.setAttribute("disabled", "disabled");
-        }
-      }
-    }
 
+      ["km-publish-btn", "km-publish-mobile-btn"].forEach(function (id) {
+        var button = document.getElementById(id);
+        if (!button) return;
+        if (isComplete) {
+          button.removeAttribute("disabled");
+        } else {
+          button.setAttribute("disabled", "disabled");
+        }
+      });
+
+      updateVerificationChecklist(missing);
+      updateSidebarMissing(missing);
+    }
     function updateAllVerificationAndMockupStates() {
       updateMockupTitle();
       updateMockupCategory();
@@ -2631,7 +2529,7 @@
       updateMockupBadges();
       updateMockupPhoto();
       updateVerificationCoordinates();
-      updateVerificationChecklist();
+      // updateRealtimeProgress() renders the checklist from the same pass.
       updateRealtimeProgress();
     }
 

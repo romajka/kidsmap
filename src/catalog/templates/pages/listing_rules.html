@@ -1,0 +1,1016 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block title_plain %}{{ page_title }}{% endblock %}
+{% block title_plain_twitter %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/pages/listing_rules.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="listing-rules-wrapper">
+
+  <!-- 1. Breadcrumbs -->
+  <nav class="rules-crumbs" aria-label="{% trans 'Навигация' %}">
+    <a href="{% url 'home' %}">{% trans "Главная" %}</a>
+    <span class="sep material-symbols-rounded">chevron_right</span>
+    <span class="cur">
+      {% if CURRENT_LANGUAGE == "az" %}
+        Yerləşdirmə qaydaları
+      {% elif CURRENT_LANGUAGE == "en" %}
+        Listing Rules
+      {% else %}
+        Правила размещения
+      {% endif %}
+    </span>
+  </nav>
+
+  <!-- 2. Hero Header Card -->
+  <header class="rules-hero-card">
+    <div class="rules-hero-orb1" aria-hidden="true"></div>
+    <div class="rules-hero-orb2" aria-hidden="true"></div>
+
+    <div class="rules-hero-content">
+      <div class="rules-hero-badge">
+        <span class="rules-hero-ping-dot"><span></span></span>
+        <span>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Kataloq qaydaları
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Catalog Guidelines
+          {% else %}
+            Правила каталога
+          {% endif %}
+        </span>
+      </div>
+
+      <h1 class="rules-hero-title">
+        {% if CURRENT_LANGUAGE == "az" %}
+          Məkan və dərnəklərin yerləşdirilməsi qaydaları
+        {% elif CURRENT_LANGUAGE == "en" %}
+          Place & Activity Listing Rules
+        {% else %}
+          Правила размещения мест и кружков
+        {% endif %}
+      </h1>
+
+      <p class="rules-hero-summary">
+        {% if CURRENT_LANGUAGE == "az" %}
+          KidsMap uşaq dərnəkləri, idman bölmələri və inkişaf mərkəzləri haqqında dəqiq və faydalı məlumat təqdim edir. Bütün əlavə edilən kartlar keyfiyyət standartlarına uyğun yoxlanılır və təsdiq edildikdən sonra dərc olunur.
+        {% elif CURRENT_LANGUAGE == "en" %}
+          KidsMap is committed to keeping our catalog accurate, useful, and family-friendly. Learn how to add a place, what requirements apply to listings, and how moderation works.
+        {% else %}
+          KidsMap стремится поддерживать каталог точным, полезным и безопасным для родителей. Узнайте, как добавить место, какие требования предъявляются к карточкам и как проходит модерация.
+        {% endif %}
+      </p>
+
+      <!-- 3 Quick Value Chips -->
+      <div class="rules-hero-chips">
+        <div class="rules-hero-chip">
+          <div class="rules-hero-chip__icon">
+            <span class="material-symbols-rounded">person_add</span>
+          </div>
+          <div class="rules-hero-chip__text">
+            <span class="rules-hero-chip__title">
+              {% if CURRENT_LANGUAGE == "az" %}Vahid hesab{% elif CURRENT_LANGUAGE == "en" %}Unified Account{% else %}Единый аккаунт{% endif %}
+            </span>
+            <span class="rules-hero-chip__desc">
+              {% if CURRENT_LANGUAGE == "az" %}İstənilən qeydiyyatdan keçmiş istifadəçi məkan əlavə edə bilər{% elif CURRENT_LANGUAGE == "en" %}Any registered user can submit a place{% else %}Добавить место может любой зарегистрированный пользователь{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <div class="rules-hero-chip">
+          <div class="rules-hero-chip__icon">
+            <span class="material-symbols-rounded">fact_check</span>
+          </div>
+          <div class="rules-hero-chip__text">
+            <span class="rules-hero-chip__title">
+              {% if CURRENT_LANGUAGE == "az" %}12 vacib tələb{% elif CURRENT_LANGUAGE == "en" %}12 Readiness Criteria{% else %}12 критериев готовности{% endif %}
+            </span>
+            <span class="rules-hero-chip__desc">
+              {% if CURRENT_LANGUAGE == "az" %}Kartın tam doluluğu və dəqiqliyi yoxlanılır{% elif CURRENT_LANGUAGE == "en" %}Complete data verified before going live{% else %}Обязательный чек-лист полноты перед публикацией{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <div class="rules-hero-chip">
+          <div class="rules-hero-chip__icon">
+            <span class="material-symbols-rounded">verified_user</span>
+          </div>
+          <div class="rules-hero-chip__text">
+            <span class="rules-hero-chip__title">
+              {% if CURRENT_LANGUAGE == "az" %}Moderasiya yoxlaması{% elif CURRENT_LANGUAGE == "en" %}Quality Moderation{% else %}Проверка модератором{% endif %}
+            </span>
+            <span class="rules-hero-chip__desc">
+              {% if CURRENT_LANGUAGE == "az" %}Təkrar və yalan məlumatların qarşısı alınır{% elif CURRENT_LANGUAGE == "en" %}Duplicates and spam are prevented{% else %}Защита от дублей, спама и некорректных цен{% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. Quick 2-Column Comparison (Allowed vs Prohibited) -->
+  <section class="rules-compare-grid" aria-label="{% trans 'Краткое сравнение' %}">
+    <div class="rules-compare-card allowed">
+      <div class="rules-compare-head">
+        <span class="rules-compare-icon">
+          <span class="material-symbols-rounded">check_circle</span>
+        </span>
+        <span>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Nələr yerləşdirilə bilər
+          {% elif CURRENT_LANGUAGE == "en" %}
+            What is welcomed
+          {% else %}
+            Что разрешено и приветствуется
+          {% endif %}
+        </span>
+      </div>
+      <ul class="rules-compare-list">
+        <li>
+          <span class="material-symbols-rounded">check</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Uşaq dərnəkləri, idman bölmələri, inkişaf və yaradıcılıq mərkəzləri;
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Kids clubs, sports sections, creative studios and educational centers;
+            {% else %}
+              Реальные детские кружки, секции, студии и центры развития;
+            {% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="material-symbols-rounded">check</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Dəqiq ünvan, iş qrafiki və işlək əlaqə nömrəsi;
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Accurate address, schedule, and active contact phone;
+            {% else %}
+              Точный физический адрес, понятное расписание и рабочий телефон;
+            {% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="material-symbols-rounded">check</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Aydın qiymətlər və tariflər (o cümlədən pulsuz məşğələlər və abunələr);
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Clear pricing and tariffs (including free classes and memberships);
+            {% else %}
+              Понятные тарифы и стоимость (включая бесплатные занятия и абонементы);
+            {% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="material-symbols-rounded">check</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Məkanın və ya məşğələlərin real keyfiyyətli fotoşəkilləri;
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Real, high-quality photos of facilities and activities;
+            {% else %}
+              Реальные качественные фотографии помещений и процесса занятий;
+            {% endif %}
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="rules-compare-card prohibited">
+      <div class="rules-compare-head">
+        <span class="rules-compare-icon">
+          <span class="material-symbols-rounded">block</span>
+        </span>
+        <span>
+          {% if CURRENT_LANGUAGE == "az" %}
+            Qəti qadağandır
+          {% elif CURRENT_LANGUAGE == "en" %}
+            Strictly prohibited
+          {% else %}
+            Что категорически запрещено
+          {% endif %}
+        </span>
+      </div>
+      <ul class="rules-compare-list">
+        <li>
+          <span class="material-symbols-rounded">close</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Kataloqda artıq mövcud olan məkanların təkrarlarını yaratmaq;
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Creating duplicate listings for an existing place;
+            {% else %}
+              Создание дубликатов уже существующих в каталоге заведений;
+            {% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="material-symbols-rounded">close</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Test mətnləri («test», «lorem ipsum») və natamam qaralamaları göndərmək;
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Submitting test content ("test", "lorem ipsum") or placeholder cards;
+            {% else %}
+              Тестовые карточки и бессмысленный текст («test», «lorem» и т.п.);
+            {% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="material-symbols-rounded">close</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Uşaq mövzusuna aid olmayan xidmətlər və kənar reklamlar;
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Non-family services, third-party ads, or irrelevant spam;
+            {% else %}
+              Услуги недетской тематики, спам и посторонняя реклама;
+            {% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="material-symbols-rounded">close</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Müəllif hüququ olmayan və ya uşaqların gizli fərdi məlumatlarını əks etdirən fotolar.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Unauthorized photos or sensitive personal data of children.
+            {% else %}
+              Чужие фотографии без авторских прав или конфиденциальные данные детей.
+            {% endif %}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. Main Two-Column Layout (Sticky TOC + Detailed Sections Stream) -->
+  <div class="rules-main-grid">
+
+    <!-- Sidebar: Sticky Desktop TOC & Mobile Accordion TOC -->
+    <aside class="rules-sidebar" aria-label="{% trans 'Содержание правил' %}">
+
+      <!-- Mobile Collapsible TOC -->
+      <details class="rules-toc-mobile-accordion">
+        <summary class="rules-toc-mobile-summary">
+          <span class="material-symbols-rounded">toc</span>
+          <span>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Bütün bölmələr (14)
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Table of Contents (14)
+            {% else %}
+              Все разделы правил (14)
+            {% endif %}
+          </span>
+          <span class="material-symbols-rounded chevron">expand_more</span>
+        </summary>
+        <div class="rules-toc-mobile-body">
+          <ol class="rules-toc-list">
+            <li><a class="rules-toc-link js-toc-link" href="#section-who"><span class="rules-toc-dot"></span><span>1. {% if CURRENT_LANGUAGE == "az" %}Kim əlavə edə bilər{% elif CURRENT_LANGUAGE == "en" %}Who can add a place{% else %}Кто может добавить место{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-categories"><span class="rules-toc-dot"></span><span>2. {% if CURRENT_LANGUAGE == "az" %}Qəbul edilən kateqoriyalar{% elif CURRENT_LANGUAGE == "en" %}Allowed categories{% else %}Допустимые категории{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-prohibited"><span class="rules-toc-dot"></span><span>3. {% if CURRENT_LANGUAGE == "az" %}Qadağan olunmuş məzmun{% elif CURRENT_LANGUAGE == "en" %}Prohibited content{% else %}Запрещённый контент{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-requirements"><span class="rules-toc-dot"></span><span>4. {% if CURRENT_LANGUAGE == "az" %}12 vacib tələb{% elif CURRENT_LANGUAGE == "en" %}12 Readiness Criteria{% else %}12 обязательных критериев{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-pricing"><span class="rules-toc-dot"></span><span>5. {% if CURRENT_LANGUAGE == "az" %}Qiymət və tariflər{% elif CURRENT_LANGUAGE == "en" %}Pricing & Tariffs{% else %}Тарифы и цены{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-age-schedule"><span class="rules-toc-dot"></span><span>6. {% if CURRENT_LANGUAGE == "az" %}Yaş və qrafik{% elif CURRENT_LANGUAGE == "en" %}Age & Schedule{% else %}Возраст и расписание{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-location"><span class="rules-toc-dot"></span><span>7. {% if CURRENT_LANGUAGE == "az" %}Ünvan və xəritə{% elif CURRENT_LANGUAGE == "en" %}Address & Map{% else %}Адрес и точка на карте{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-contacts"><span class="rules-toc-dot"></span><span>8. {% if CURRENT_LANGUAGE == "az" %}Əlaqə vasitələri{% elif CURRENT_LANGUAGE == "en" %}Contacts & Links{% else %}Контакты и ссылки{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-photos"><span class="rules-toc-dot"></span><span>9. {% if CURRENT_LANGUAGE == "az" %}Fotoşəkillər{% elif CURRENT_LANGUAGE == "en" %}Photo Guidelines{% else %}Требования к фото{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-duplicates"><span class="rules-toc-dot"></span><span>10. {% if CURRENT_LANGUAGE == "az" %}Təkrar kartlar{% elif CURRENT_LANGUAGE == "en" %}Duplicate Policy{% else %}Обработка дубликатов{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-moderation"><span class="rules-toc-dot"></span><span>11. {% if CURRENT_LANGUAGE == "az" %}Moderasiya qaydası{% elif CURRENT_LANGUAGE == "en" %}Moderation & Publishing{% else %}Модерация и публикация{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-editing"><span class="rules-toc-dot"></span><span>12. {% if CURRENT_LANGUAGE == "az" %}Kartın idarə edilməsi{% elif CURRENT_LANGUAGE == "en" %}Editing & Management{% else %}Редактирование карточки{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-reporting"><span class="rules-toc-dot"></span><span>13. {% if CURRENT_LANGUAGE == "az" %}Xətaların bildirilməsi{% elif CURRENT_LANGUAGE == "en" %}Reporting Errors{% else %}Сообщение об ошибке{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-freshness"><span class="rules-toc-dot"></span><span>14. {% if CURRENT_LANGUAGE == "az" %}Məlumatın aktuallığı{% elif CURRENT_LANGUAGE == "en" %}Data Freshness{% else %}Предупреждение об актуальности{% endif %}</span></a></li>
+          </ol>
+        </div>
+      </details>
+
+      <!-- Desktop Sticky TOC Card -->
+      <div class="rules-toc-card">
+        <div class="rules-toc-head">
+          <span class="material-symbols-rounded">menu_book</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Mündəricat{% elif CURRENT_LANGUAGE == "en" %}Contents{% else %}Содержание{% endif %}</span>
+          <span class="rules-toc-count">14</span>
+        </div>
+        <div class="rules-toc-scroll-wrap">
+          <ol class="rules-toc-list">
+            <li><a class="rules-toc-link js-toc-link" href="#section-who"><span class="rules-toc-dot"></span><span>1. {% if CURRENT_LANGUAGE == "az" %}Kim əlavə edə bilər{% elif CURRENT_LANGUAGE == "en" %}Who can add a place{% else %}Кто может добавить место{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-categories"><span class="rules-toc-dot"></span><span>2. {% if CURRENT_LANGUAGE == "az" %}Qəbul edilən kateqoriyalar{% elif CURRENT_LANGUAGE == "en" %}Allowed categories{% else %}Допустимые категории{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-prohibited"><span class="rules-toc-dot"></span><span>3. {% if CURRENT_LANGUAGE == "az" %}Qadağan olunmuş məzmun{% elif CURRENT_LANGUAGE == "en" %}Prohibited content{% else %}Запрещённый контент{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-requirements"><span class="rules-toc-dot"></span><span>4. {% if CURRENT_LANGUAGE == "az" %}12 vacib tələb{% elif CURRENT_LANGUAGE == "en" %}12 Readiness Criteria{% else %}12 обязательных критериев{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-pricing"><span class="rules-toc-dot"></span><span>5. {% if CURRENT_LANGUAGE == "az" %}Qiymət və tariflər{% elif CURRENT_LANGUAGE == "en" %}Pricing & Tariffs{% else %}Тарифы и цены{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-age-schedule"><span class="rules-toc-dot"></span><span>6. {% if CURRENT_LANGUAGE == "az" %}Yaş və qrafik{% elif CURRENT_LANGUAGE == "en" %}Age & Schedule{% else %}Возраст и расписание{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-location"><span class="rules-toc-dot"></span><span>7. {% if CURRENT_LANGUAGE == "az" %}Ünvan və xəritə{% elif CURRENT_LANGUAGE == "en" %}Address & Map{% else %}Адрес и точка на карте{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-contacts"><span class="rules-toc-dot"></span><span>8. {% if CURRENT_LANGUAGE == "az" %}Əlaqə vasitələri{% elif CURRENT_LANGUAGE == "en" %}Contacts & Links{% else %}Контакты и ссылки{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-photos"><span class="rules-toc-dot"></span><span>9. {% if CURRENT_LANGUAGE == "az" %}Fotoşəkillər{% elif CURRENT_LANGUAGE == "en" %}Photo Guidelines{% else %}Требования к фото{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-duplicates"><span class="rules-toc-dot"></span><span>10. {% if CURRENT_LANGUAGE == "az" %}Təkrar kartlar{% elif CURRENT_LANGUAGE == "en" %}Duplicate Policy{% else %}Обработка дубликатов{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-moderation"><span class="rules-toc-dot"></span><span>11. {% if CURRENT_LANGUAGE == "az" %}Moderasiya qaydası{% elif CURRENT_LANGUAGE == "en" %}Moderation & Publishing{% else %}Модерация и публикация{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-editing"><span class="rules-toc-dot"></span><span>12. {% if CURRENT_LANGUAGE == "az" %}Kartın idarə edilməsi{% elif CURRENT_LANGUAGE == "en" %}Editing & Management{% else %}Редактирование карточки{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-reporting"><span class="rules-toc-dot"></span><span>13. {% if CURRENT_LANGUAGE == "az" %}Xətaların bildirilməsi{% elif CURRENT_LANGUAGE == "en" %}Reporting Errors{% else %}Сообщение об ошибке{% endif %}</span></a></li>
+            <li><a class="rules-toc-link js-toc-link" href="#section-freshness"><span class="rules-toc-dot"></span><span>14. {% if CURRENT_LANGUAGE == "az" %}Məlumatın aktuallığı{% elif CURRENT_LANGUAGE == "en" %}Data Freshness{% else %}Предупреждение об актуальности{% endif %}</span></a></li>
+          </ol>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Stream -->
+    <main class="rules-document-stream">
+
+      <!-- Section 1: Who can add a place -->
+      <article id="section-who" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">1</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Kim məkan əlavə edə bilər
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Who Can Add a Place
+              {% else %}
+                Кто может добавить место
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              KidsMap platformasında vahid istifadəçi modeli tətbiq olunur. Saytda ayrıca «biznes-hesab» və ya «sahibkar statusu» yoxdur. Qeydiyyatdan keçmiş istənilən istifadəçi uşaq dərnəyi, idman bölməsi və ya tədris mərkəzini əlavə etmək üçün müraciət göndərə bilər.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              KidsMap uses a single unified user account model. There is no separate "business account" or "owner role" required. Any registered user can submit a place listing for consideration.
+            {% else %}
+              В KidsMap действует единая модель учётной записи. В каталоге нет разделения на «обычных пользователей» и «бизнес-аккаунты». Любой зарегистрированный пользователь может подать заявку на добавление детского кружка, секции или развивающего центра.
+            {% endif %}
+          </p>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Kartı yaradan və ya təşkilat adından idarəetmə müraciəti təsdiqlənmiş istifadəçi həmin konkret kartın məlumatlarını yeniləmək və redaktorlar komandasını idarə etmək hüququ əldə edir.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              The user who creates a listing or verifies management rights via an ownership request receives place-scoped access to update information and manage editing permissions for that specific venue.
+            {% else %}
+              Пользователь, создавший карточку или подтвердивший связь с организацией через заявку на управление, получает права на редактирование информации и управление доступом к этой конкретной карточке.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Section 2: Allowed categories -->
+      <article id="section-categories" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">2</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Qəbul edilən kateqoriyalar və mövzular
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Allowed Categories & Venues
+              {% else %}
+                Допустимые тематики и категории
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              KidsMap kataloqu uşaqlar, yeniyetmələr və ailəvi istirahət üçün nəzərdə tutulmuş təşkilat və xidmətləri qəbul edir:
+            {% elif CURRENT_LANGUAGE == "en" %}
+              KidsMap accepts venues and activities geared towards children, teenagers, and families:
+            {% else %}
+              KidsMap принимает заведения и активности, предназначенные для детей, подростков и семейного досуга:
+            {% endif %}
+          </p>
+          <ul class="rules-bullets-list">
+            <li><strong>{% if CURRENT_LANGUAGE == "az" %}İdman bölmələri:{% elif CURRENT_LANGUAGE == "en" %}Sports sections:{% else %}Спортивные секции:{% endif %}</strong> {% if CURRENT_LANGUAGE == "az" %}futbol, üzgüçülük, gimnastika, döyüş növləri, tennis, şahmat və digər idman növləri;{% elif CURRENT_LANGUAGE == "en" %}football, swimming, gymnastics, martial arts, tennis, chess, and more;{% else %}футбол, плавание, гимнастика, единоборства, теннис, шахматы и другие виды спорта;{% endif %}</li>
+            <li><strong>{% if CURRENT_LANGUAGE == "az" %}Təhsil və inkişaf:{% elif CURRENT_LANGUAGE == "en" %}Education & development:{% else %}Образование и развитие:{% endif %}</strong> {% if CURRENT_LANGUAGE == "az" %}xarici dillər, məktəbəqədər hazırlıq, IT və proqramlaşdırma, robototexnika, repetitorlar;{% elif CURRENT_LANGUAGE == "en" %}languages, preschool prep, IT & coding, robotics, tutoring;{% else %}иностранные языки, дошкольная подготовка, IT и программирование, робототехника;{% endif %}</li>
+            <li><strong>{% if CURRENT_LANGUAGE == "az" %}Yaradıcılıq və incəsənət:{% elif CURRENT_LANGUAGE == "en" %}Arts & creativity:{% else %}Творчество и искусство:{% endif %}</strong> {% if CURRENT_LANGUAGE == "az" %}rəsm, heykəltaraşlıq, rəqs studiyaları, vokal və musiqi məktəbləri, teatr;{% elif CURRENT_LANGUAGE == "en" %}drawing, painting, dance studios, music schools, vocal, theater;{% else %}рисование, лепка, танцевальные студии, музыкальные школы, вокал, театр;{% endif %}</li>
+            <li><strong>{% if CURRENT_LANGUAGE == "az" %}Əyləncə və asudə vaxt:{% elif CURRENT_LANGUAGE == "en" %}Leisure & fun:{% else %}Развлечения и досуг:{% endif %}</strong> {% if CURRENT_LANGUAGE == "az" %}uşaq əyləncə mərkəzləri, oyun meydançaları, zooparklar, su istirahəti, muzeylər və düşərgələr.{% elif CURRENT_LANGUAGE == "en" %}kids entertainment centers, playgrounds, zoos, waterparks, museums, and camps.{% else %}детские развлекательные центры, игровые площадки, зоопарки, аквапарки, музеи и детские лагеря.{% endif %}</li>
+          </ul>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Yalnız böyüklər üçün nəzərdə tutulmuş və ya uşaq istiqaməti olmayan yerlər kataloqa qəbul edilmir.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Places catering exclusively to adults (18+) or lacking child-focused offerings are not accepted.
+            {% else %}
+              Места, предназначенные исключительно для взрослой аудитории (18+) или не имеющие детских направлений, в каталог не принимаются.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Section 3: Prohibited content -->
+      <article id="section-prohibited" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">3</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Qadağan olunmuş məzmun və hərəkətlər
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Prohibited Content & Actions
+              {% else %}
+                Запрещённый контент и нарушения
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <ul class="rules-bullets-list">
+            <li>{% if CURRENT_LANGUAGE == "az" %}Mövcud olmayan, uydurma və ya fəaliyyətini dayandırmış müəssisələr;{% elif CURRENT_LANGUAGE == "en" %}Fictitious, nonexistent, or permanently closed venues;{% else %}Несуществующие, вымышленные или закрывшиеся заведения;{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Test mətnləri, təsadüfi hərflər və ya şablon doldurmalar;{% elif CURRENT_LANGUAGE == "en" %}Test content, random strings, or incomplete placeholder submissions;{% else %}Тестовые карточки и бессмысленный текст («test», «lorem ipsum» и т.п.);{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Spam, gizli SEO linkləri və ya kənar kommersiya məhsullarının reklamı;{% elif CURRENT_LANGUAGE == "en" %}Spam, deceptive keyword stuffing, or advertising unrelated commercial products;{% else %}Спам, скрытая поисковая накрутка или реклама сторонних несвязанных товаров/услуг;{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Təhqiramiz, ayrı-seçkilik yaradan və ya qanunvericiliyi pozan materiallar;{% elif CURRENT_LANGUAGE == "en" %}Abusive, discriminatory, defamatory, or unlawful content;{% else %}Оскорбительные, дискриминационные или противоправные высказывания;{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Uşaqların fərdi təhlükəsizliyini təhlükəyə atan məlumatlar (ev ünvanları, fərdi əlaqə nömrələri).{% elif CURRENT_LANGUAGE == "en" %}Private data endangering children (home addresses, private phone numbers).{% else %}Конфиденциальные персональные данные детей (домашние адреса, личные телефоны).{% endif %}</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- Section 4: 12 Core Readiness Requirements -->
+      <article id="section-requirements" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">4</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Dərc üçün 12 vacib tələb
+              {% elif CURRENT_LANGUAGE == "en" %}
+                12 Core Readiness Requirements
+              {% else %}
+                12 обязательных критериев готовности карточки
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Kartın kataloqda dərc olunması üçün sistem tərəfindən 12 əsas tələb yoxlanılır. Bütün bəndlər düzgün doldurulmadıqda kart avtomatik olaraq tamamlanmamış sayılır:
+            {% elif CURRENT_LANGUAGE == "en" %}
+              To be approved and visible in the public catalog, a listing must satisfy 12 readiness requirements verified by our system:
+            {% else %}
+              Чтобы карточка была одобрена и появилась в поиске каталога, она должна удовлетворять 12 обязательным критериям готовности:
+            {% endif %}
+          </p>
+
+          <div class="rules-criteria-grid">
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">badge</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">1. {% if CURRENT_LANGUAGE == "az" %}Ad (AZ){% elif CURRENT_LANGUAGE == "en" %}Name (AZ){% else %}Название (AZ){% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}Rəsmi aydın ad{% elif CURRENT_LANGUAGE == "en" %}Clear official venue name{% else %}Понятное официальное наименование{% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">description</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">2. {% if CURRENT_LANGUAGE == "az" %}Təsvir (AZ){% elif CURRENT_LANGUAGE == "en" %}Description (AZ){% else %}Описание (AZ){% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}Məzmunlu mətn (120+ simvol tövsiyə olunur){% elif CURRENT_LANGUAGE == "en" %}Meaningful details (120+ chars recommended){% else %}Содержательный текст (рекомендуется от 120 знаков){% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">category</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">3. {% if CURRENT_LANGUAGE == "az" %}Kateqoriya{% elif CURRENT_LANGUAGE == "en" %}Category{% else %}Категория{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}KidsMap əsas kateqoriyası{% elif CURRENT_LANGUAGE == "en" %}Primary KidsMap category{% else %}Основная категория каталога{% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">account_tree</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">4. {% if CURRENT_LANGUAGE == "az" %}Alt kateqoriya{% elif CURRENT_LANGUAGE == "en" %}Subcategory{% else %}Подкатегория{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}Seçilmiş sahəyə uyğun alt növ{% elif CURRENT_LANGUAGE == "en" %}Matching subcategory{% else %}Точная специализация секции{% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">location_city</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">5. {% if CURRENT_LANGUAGE == "az" %}Şəhər / Rayon{% elif CURRENT_LANGUAGE == "en" %}City / District{% else %}Город / Регион{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}Bakı rayonu və ya şəhər{% elif CURRENT_LANGUAGE == "en" %}Baku district or region{% else %}Район Баку или регион страны{% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">home_pin</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">6. {% if CURRENT_LANGUAGE == "az" %}Dəqiq ünvan{% elif CURRENT_LANGUAGE == "en" %}Street Address{% else %}Адрес{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}Küçə, bina və ya oriyentir{% elif CURRENT_LANGUAGE == "en" %}Street and building number{% else %}Улица, номер дома или ориентир{% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">pin_drop</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">7. {% if CURRENT_LANGUAGE == "az" %}Xəritə nöqtəsi{% elif CURRENT_LANGUAGE == "en" %}Map Coordinates{% else %}Точка на карте{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}Naviqasiya üçün dəqiq koordinatlar{% elif CURRENT_LANGUAGE == "en" %}Exact latitude & longitude{% else %}Географические координаты (lat, lng){% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">child_care</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">8. {% if CURRENT_LANGUAGE == "az" %}Yaş həddi{% elif CURRENT_LANGUAGE == "en" %}Age Range{% else %}Возрастной диапазон{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}«... yaşdan» və ya «Yuxarı hədsiz»{% elif CURRENT_LANGUAGE == "en" %}Age "from" & "to" or open-ended{% else %}Возраст «от» и «до» (или «Без верхней границы»){% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">payments</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">9. {% if CURRENT_LANGUAGE == "az" %}Qiymət / Tariflər{% elif CURRENT_LANGUAGE == "en" %}Tariff / Pricing{% else %}Тарифы и цены{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}Ən azı 1 doldurulmuş tarif və ya «Pulsuz»{% elif CURRENT_LANGUAGE == "en" %}At least one valid tariff or "Free"{% else %}Хотя бы 1 заполненный тариф или «Бесплатно»{% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">call</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">10. {% if CURRENT_LANGUAGE == "az" %}Telefon nömrəsi{% elif CURRENT_LANGUAGE == "en" %}Phone Number{% else %}Контактный телефон{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}İşlək əsas əlaqə telefonu{% elif CURRENT_LANGUAGE == "en" %}Active primary phone number{% else %}Действующий номер для звонков{% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">schedule</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">11. {% if CURRENT_LANGUAGE == "az" %}İş qrafiki{% elif CURRENT_LANGUAGE == "en" %}Schedule{% else %}Расписание{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}İş günləri və saatları və ya qeydiyyat rejimi{% elif CURRENT_LANGUAGE == "en" %}Weekly hours or appointment mode{% else %}Дни и часы занятий или режим по записи{% endif %}</span>
+              </div>
+            </div>
+
+            <div class="rules-criterion-card">
+              <div class="rules-criterion-icon"><span class="material-symbols-rounded">image</span></div>
+              <div class="rules-criterion-text">
+                <span class="rules-criterion-title">12. {% if CURRENT_LANGUAGE == "az" %}Əsas fotoşəkil{% elif CURRENT_LANGUAGE == "en" %}Main Photo{% else %}Главное фото{% endif %}</span>
+                <span class="rules-criterion-desc">{% if CURRENT_LANGUAGE == "az" %}Məkanın real keyfiyyətli şəkli{% elif CURRENT_LANGUAGE == "en" %}Quality real photo of the venue{% else %}Реальное фото помещения или занятий{% endif %}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Section 5: Tariffs and Pricing -->
+      <article id="section-pricing" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">5</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Qiymətlər və tarif sistemi
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Pricing Plans & Tariffs
+              {% else %}
+                Тарифы, цены и форматы оплаты
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              KidsMap müasir tarif sistemini dəstəkləyir. Təşkilat kartında aşağıdakı qiymət formatlarından biri və ya bir neçəsi göstərilə bilər:
+            {% elif CURRENT_LANGUAGE == "en" %}
+              KidsMap uses a flexible pricing plan system supporting multiple fee structures:
+            {% else %}
+              KidsMap использует современную систему тарифов, позволяющую точно указать условия оплаты занятий:
+            {% endif %}
+          </p>
+
+          <div class="rules-tariffs-grid">
+            <div class="rules-tariff-box">
+              <div class="rules-tariff-box__head"><span class="material-symbols-rounded">price_check</span> {% if CURRENT_LANGUAGE == "az" %}Dəqiq qiymət{% elif CURRENT_LANGUAGE == "en" %}Exact Price{% else %}Фиксированная цена{% endif %}</div>
+              <p class="rules-tariff-box__desc">{% if CURRENT_LANGUAGE == "az" %}Tək dərs, aylıq abunə və ya kurs üçün konkret məbləğ (məsələn: 80 AZN/ay).{% elif CURRENT_LANGUAGE == "en" %}Specific price for a lesson, monthly membership, or course (e.g., 80 AZN/mo).{% else %}Точная стоимость за разовое занятие, месяц или курс (например: 80 AZN в месяц).{% endif %}</p>
+            </div>
+
+            <div class="rules-tariff-box">
+              <div class="rules-tariff-box__head"><span class="material-symbols-rounded">trending_up</span> {% if CURRENT_LANGUAGE == "az" %}«...-dan başlayan» qiymət{% elif CURRENT_LANGUAGE == "en" %}Price "From"{% else %}Цена «от»{% endif %}</div>
+              <p class="rules-tariff-box__desc">{% if CURRENT_LANGUAGE == "az" %}Fərqli proqramlar üçün minimal baza qiyməti göstərmək lazım olduqda.{% elif CURRENT_LANGUAGE == "en" %}Base minimum starting rate when multiple programs exist.{% else %}Минимальная базовая ставка при наличии нескольких программ.{% endif %}</p>
+            </div>
+
+            <div class="rules-tariff-box">
+              <div class="rules-tariff-box__head"><span class="material-symbols-rounded">unfold_more</span> {% if CURRENT_LANGUAGE == "az" %}Qiymət aralığı{% elif CURRENT_LANGUAGE == "en" %}Price Range{% else %}Диапазон «от — до»{% endif %}</div>
+              <p class="rules-tariff-box__desc">{% if CURRENT_LANGUAGE == "az" %}Qiymətin qrupun sayından və ya intensivliyindən asılı olduğu hallar (məsələn: 50 – 120 AZN).{% elif CURRENT_LANGUAGE == "en" %}When tuition varies by intensity or group size (e.g., 50 – 120 AZN).{% else %}Вилка стоимости в зависимости от формата и интенсивности (например: 50 – 120 AZN).{% endif %}</p>
+            </div>
+
+            <div class="rules-tariff-box">
+              <div class="rules-tariff-box__head"><span class="material-symbols-rounded">volunteer_activism</span> {% if CURRENT_LANGUAGE == "az" %}Pulsuz fəaliyyətlər{% elif CURRENT_LANGUAGE == "en" %}Free Activities{% else %}Бесплатные занятия{% endif %}</div>
+              <p class="rules-tariff-box__desc">{% if CURRENT_LANGUAGE == "az" %}Dövlət dərnəkləri, sınaq dərsləri və ya açıq məşğələlər üçün (0 AZN).{% elif CURRENT_LANGUAGE == "en" %}Public clubs, trial classes, or community activities (0 AZN).{% else %}Государственные секции, пробные занятия или открытые клубы (0 AZN).{% endif %}</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Section 6: Age and Schedule -->
+      <article id="section-age-schedule" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">6</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Yaş həddi və iş qrafiki
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Age Limits & Schedule
+              {% else %}
+                Возрастные ограничения и расписание
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Yaş:</strong> Qrupların qəbul etdiyi real uşaq yaşını göstərin (məsələn: 4 – 12 yaş). Əgər dərnək yuxarı yaş məhdudiyyəti qoymursa, «Yuxarı hədsiz» seçimi aktivləşdirilir.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Age:</strong> Specify the actual participant age boundaries (e.g., 4 to 12 years). If the activity welcomes all ages above a minimum, enable "Open-ended upper age".
+            {% else %}
+              <strong>Возраст:</strong> Указывайте реальные возрастные границы набора (например: 4 – 12 лет). Если секция принимает детей от определённого возраста без верхней границы, включается параметр «Без верхней границы возраста».
+            {% endif %}
+          </p>
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              <strong>Cədvəl:</strong> Həftəlik rejimdə iş günləri və saatlar daxil edilir. Fərdi tədris mərkəzləri üçün «İlkin yazı ilə / By appointment» rejimi seçilə bilər.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              <strong>Schedule:</strong> For regular classes, configure days of the week and operating hours. For appointment-based studios, select "By appointment".
+            {% else %}
+              <strong>Расписание:</strong> Для регулярных занятий отмечаются рабочие дни недели и часы. Для индивидуальных студий предусмотрен специальный режим «По предварительной записи».
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Section 7: Location and Coordinates -->
+      <article id="section-location" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">7</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Ünvan, oriyentir və xəritə nöqtəsi
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Address & Map Placement
+              {% else %}
+                Адрес, ориентиры и точка на карте
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Ünvan valideynlərin məkanı asanlıqla tapa bilməsi üçün küçə, bina və varsa yaxınlıqdakı metro stansiyasını əks etdirməlidir. Xəritədəki nöqtə birbaşa binanın girişinə qoyulmalıdır.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              The address must reflect the physical location clearly, including street, building number, landmarks, and nearby metro station. The map pin should point accurately to the building entrance.
+            {% else %}
+              Адрес должен содержать понятные улицу, номер дома, ориентиры и ближайшую станцию метро. Точка на карте должна быть установлена непосредственно у входа в здание, чтобы родители могли построить удобный маршрут.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Section 8: Contacts -->
+      <article id="section-contacts" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">8</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Əlaqə məlumatları və sosial şəbəkələr
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Contacts & Social Links
+              {% else %}
+                Контакты и ссылки
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Əsas telefon nömrəsi mütləq daxil edilməlidir və valideynlərin zənglərinə cavab verməlidir. Əlavə olaraq rəsmi Instagram, veb-sayt və WhatsApp linklərini əlavə etmək tövsiyə olunur.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              A valid primary phone number is mandatory. In addition, you can provide official Instagram profiles, websites, WhatsApp numbers, and secondary phones.
+            {% else %}
+              Основной номер телефона обязателен для связи с родителями. Дополнительно можно указать официальный профиль Instagram, ссылку на сайт, номер WhatsApp и резервные телефоны.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Section 9: Photos -->
+      <article id="section-photos" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">9</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Fotoşəkillərə qoyulan tələblər
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Photo & Image Guidelines
+              {% else %}
+                Требования к фотографиям
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <ul class="rules-bullets-list">
+            <li>{% if CURRENT_LANGUAGE == "az" %}Əsas fotoşəkil aydın olmalı, məkanın real zalını, sinifini və ya fasadını göstərməlidir;{% elif CURRENT_LANGUAGE == "en" %}The main photo must be sharp and clearly show real facilities, classrooms, or activities;{% else %}Главное фото должно быть чётким и показывать реальный интерьер, зал или фасад заведения;{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Kənar saytların loqoları və ya su nişanları (watermark) olan şəkillər qəbul edilmir;{% elif CURRENT_LANGUAGE == "en" %}Photos with third-party watermarks or stock placeholders are not allowed;{% else %}Запрещены фотографии с водяными знаками сторонних сайтов и чужие стоковые картинки;{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Uşaqların fotoşəkilləri yalnız valideynlərin qanuni razılığı olduqda yerləşdirilə bilər;{% elif CURRENT_LANGUAGE == "en" %}Photos depicting children must only be uploaded with lawful parental consent;{% else %}Фотографии с участием детей могут размещаться только при наличии согласия родителей;{% endif %}</li>
+            <li>{% if CURRENT_LANGUAGE == "az" %}Şikayət daxil olduqda mübahisəli foto dərhal gizlədilir və ya silinir.{% elif CURRENT_LANGUAGE == "en" %}Upon copyright or privacy inquiry, disputed photos are promptly removed.{% else %}При поступлении обоснованной жалобы спорное фото немедленно скрывается или удаляется.{% endif %}</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- Section 10: Duplicates -->
+      <article id="section-duplicates" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">10</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Təkrarlanan kartların qarşısının alınması
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Duplicate Listing Policy
+              {% else %}
+                Обработка дубликатов
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Eyni filial və ya məkan üçün bir neçə kartın yaradılmasına icazə verilmir. KidsMap ünvan, telefon və koordinat üzrə avtomatik təkrar axtarışı aparır. Məkan artıq kataloqda varsa, yeni kart yaratmaq əvəzinə mövcud kartın idarə edilməsi üçün müraciət göndərilməlidir.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Creating multiple listings for the same branch is not permitted. KidsMap cross-references phone numbers, addresses, and coordinates. If a venue already exists, you should request management access instead of submitting a duplicate.
+            {% else %}
+              Создание нескольких одинаковых карточек для одного филиала заведения не допускается. KidsMap проверяет совпадение номеров, адресов и координат. Если карточка уже создана, повторная заявка отклоняется, а пользователю предлагается запросить права управления существующим местом.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Section 11: Moderation and Publication Flow -->
+      <article id="section-moderation" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">11</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Moderasiya və dərc olunma prosesi
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Moderation & Publishing Workflow
+              {% else %}
+                Порядок модерации и публикации
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Kartın əlavə edilməsi onun dərhal kataloqda görünməsi demək deyil. Bütün kartlar yoxlanışdan keçir:
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Submitting a place does not mean automatic publication. Each listing goes through review:
+            {% else %}
+              Создание карточки не означает её моментальную автоматическую публикацию. Каждое место проходит проверку модератором:
+            {% endif %}
+          </p>
+
+          <div class="rules-flow-steps">
+            <div class="rules-flow-step">
+              <span class="rules-flow-step__badge">1</span>
+              <span class="rules-flow-step__title">{% if CURRENT_LANGUAGE == "az" %}Məlumatların daxil edilməsi{% elif CURRENT_LANGUAGE == "en" %}Data Submission{% else %}Заполнение данных{% endif %}</span>
+              <p class="rules-flow-step__desc">{% if CURRENT_LANGUAGE == "az" %}İstifadəçi 12 vacib tələbi dolduraraq kartı göndərir.{% elif CURRENT_LANGUAGE == "en" %}User completes all mandatory fields and submits the card.{% else %}Пользователь заполняет 12 обязательных критериев карточки.{% endif %}</p>
+            </div>
+
+            <div class="rules-flow-step">
+              <span class="rules-flow-step__badge">2</span>
+              <span class="rules-flow-step__title">{% if CURRENT_LANGUAGE == "az" %}Moderator yoxlaması{% elif CURRENT_LANGUAGE == "en" %}Moderator Review{% else %}Проверка модератором{% endif %}</span>
+              <p class="rules-flow-step__desc">{% if CURRENT_LANGUAGE == "az" %}Dəqiqlik, kateqoriya uyğunluğu və təkrar olmaması yoxlanılır (24–48 saat).{% elif CURRENT_LANGUAGE == "en" %}Data accuracy, categories, and duplicate checks are completed (24–48h).{% else %}Проверка корректности, категорий, контактов и отсутствия дублей.{% endif %}</p>
+            </div>
+
+            <div class="rules-flow-step">
+              <span class="rules-flow-step__badge">3</span>
+              <span class="rules-flow-step__title">{% if CURRENT_LANGUAGE == "az" %}Kataloqda dərc{% elif CURRENT_LANGUAGE == "en" %}Live Publication{% else %}Публикация в каталоге{% endif %}</span>
+              <p class="rules-flow-step__desc">{% if CURRENT_LANGUAGE == "az" %}Təsdiq olunmuş kart dərhal axtarışda və xəritədə valideynlərə açılır.{% elif CURRENT_LANGUAGE == "en" %}Approved card goes live and becomes discoverable on search & maps.{% else %}Карточка появляется в поиске и на интерактивной карте города.{% endif %}</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Section 12: Editing and Place Management -->
+      <article id="section-editing" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">12</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Məlumatların yenilənməsi və idarəetmə
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Editing & Place Management
+              {% else %}
+                Редактирование и управление карточкой
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              İdarəetmə hüququna malik istifadəçilər şəxsi kabinet vasitəsilə istənilən vaxt qiymətləri, cədvəli, telefonları, yeni fotoları yeniləyə və ya rəylərə cavab verə bilərlər. Dəqiqliyi təmin etmək üçün dəyişikliklər qeydə alınır.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              Authorized place managers can update tariffs, schedules, contacts, photos, and reply to reviews at any time through their dashboard. Changes are tracked to ensure reliability.
+            {% else %}
+              Пользователи с подтверждёнными правами управления могут в любой момент обновлять цены, расписание, контакты, добавлять свежие фото и отвечать на отзывы в личном кабинете. Все изменения сохраняются в истории аудита.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Section 13: Reporting Errors -->
+      <article id="section-reporting" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">13</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Xətaların və dəyişikliklərin bildirilməsi
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Reporting Outdated Information
+              {% else %}
+                Сообщение об ошибке или изменениях
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <p>
+            {% if CURRENT_LANGUAGE == "az" %}
+              Əgər məkanda qiymət, cədvəl və ya ünvan dəyişibsə, yaxud müəssisə fəaliyyətini dayandırıbsa, valideynlər və ziyarətçilər <a href="{% url 'contacts' %}">əlaqə səhifəsi</a> və ya birbaşa <a href="mailto:info@kidsmap.az">info@kidsmap.az</a> vasitəsilə məkanın linkini göndərərək məlumat verə bilərlər.
+            {% elif CURRENT_LANGUAGE == "en" %}
+              If a venue has moved, updated its fees, changed phone numbers, or closed down, users can notify our team via our <a href="{% url 'contacts' %}">Contact Page</a> or by emailing <a href="mailto:info@kidsmap.az">info@kidsmap.az</a> with the listing URL.
+            {% else %}
+              Если заведение переехало, изменило цены, контакты или прекратило работу, любой посетитель может сообщить об этом через <a href="{% url 'contacts' %}">страницу контактов</a> или по почте <a href="mailto:info@kidsmap.az">info@kidsmap.az</a> с ссылкой на карточку.
+            {% endif %}
+          </p>
+        </div>
+      </article>
+
+      <!-- Section 14: Data Freshness Disclaimer -->
+      <article id="section-freshness" class="rules-section-card">
+        <div class="rules-section-header">
+          <h2 class="rules-section-title">
+            <span class="rules-section-num">14</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Məlumatın aktuallığı barədə xəbərdarlıq
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Information Accuracy Disclaimer
+              {% else %}
+                Предупреждение об актуальности данных
+              {% endif %}
+            </span>
+          </h2>
+        </div>
+        <div class="rules-section-body">
+          <div class="rules-callout-box warning">
+            <span class="material-symbols-rounded">info</span>
+            <div>
+              {% if CURRENT_LANGUAGE == "az" %}
+                Dərnəklərin qiymətləri, qəbul şərtləri və dərslərin saatları təşkilatlar tərəfindən müəyyən edilir və vaxtaşırı dəyişə bilər. Dərsə yazılmazdan və ya ödəniş etməzdən əvvəl vacib detalları kartda qeyd olunmuş birbaşa əlaqə vasitələri ilə təşkilatdan dəqiqləşdirməyiniz tövsiyə olunur.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Tuition fees, schedules, and enrollment conditions are determined by the organizations and may change over time. Parents are encouraged to verify critical details directly with the venue management prior to attending or paying.
+              {% else %}
+                Стоимость занятий, расписание и условия наборов формируются организациями и могут меняться со временем. Перед записью, визитом или оплатой рекомендуется уточнять важные детали по прямым контактам заведения.
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 5. Bottom Action Card (CTA) -->
+      <section class="rules-cta-card" aria-label="{% trans 'Действия' %}">
+        <div class="rules-cta-card__info">
+          <div class="rules-cta-card__icon">
+            <span class="material-symbols-rounded">add_business</span>
+          </div>
+          <div>
+            <h3 class="rules-cta-card__title">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Öz dərnəyinizi kataloqa əlavə edin
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Add Your Activity to KidsMap
+              {% else %}
+                Добавьте свой кружок в каталог
+              {% endif %}
+            </h3>
+            <p class="rules-cta-card__text">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Məkanınızı KidsMap-də yerləşdirin və minlərlə valideynə dərnəklərinizi tapmağa kömək edin.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Submit your place listing to reach thousands of parents searching for kids activities in Baku.
+              {% else %}
+                Разместите заведение на KidsMap и помогите тысячам родителей найти ваши занятия в Баку.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+        <div class="rules-cta-card__actions">
+          <a class="faq-btn faq-btn--primary" href="{% url 'add_place' %}">
+            <span class="material-symbols-rounded">add_circle</span>
+            <span>
+              {% if CURRENT_LANGUAGE == "az" %}Məkan əlavə et{% elif CURRENT_LANGUAGE == "en" %}Add a place{% else %}Добавить место{% endif %}
+            </span>
+          </a>
+          <a class="faq-btn faq-btn--outline" href="mailto:info@kidsmap.az">
+            <span class="material-symbols-rounded">mail</span>
+            <span>info@kidsmap.az</span>
+          </a>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+</div>
+
+<!-- Scroll Spy & TOC Interaction Script -->
+<script>
+  (function() {
+    var tocLinks = document.querySelectorAll('.js-toc-link');
+    var sections = document.querySelectorAll('.rules-section-card');
+    var mobileDetails = document.querySelector('.rules-toc-mobile-accordion');
+
+    // Smooth scroll and auto-close mobile details upon click
+    tocLinks.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        var href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          var targetId = href.substring(1);
+          var targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            e.preventDefault();
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.pushState(null, null, href);
+            if (mobileDetails && mobileDetails.hasAttribute('open')) {
+              mobileDetails.removeAttribute('open');
+            }
+          }
+        }
+      });
+    });
+
+    // IntersectionObserver for active TOC link highlighting
+    if ('IntersectionObserver' in window && sections.length > 0) {
+      var observerOptions = {
+        root: null,
+        rootMargin: '-80px 0px -60% 0px',
+        threshold: 0
+      };
+
+      var activeId = null;
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            activeId = entry.target.id;
+            updateActiveLink(activeId);
+          }
+        });
+      }, observerOptions);
+
+      sections.forEach(function(sec) {
+        observer.observe(sec);
+      });
+
+      function updateActiveLink(id) {
+        if (!id) return;
+        tocLinks.forEach(function(link) {
+          var href = link.getAttribute('href');
+          if (href === '#' + id) {
+            link.classList.add('is-active');
+          } else {
+            link.classList.remove('is-active');
+          }
+        });
+      }
+    }
+  })();
+</script>
+{% endblock %}

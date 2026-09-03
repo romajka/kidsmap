@@ -163,6 +163,8 @@ class TestPublicPagesSmoke(TestCase):
             "/privacy/": "Məxfilik siyasəti",
             "/ru/terms/": "Условия использования",
             "/en/review-rules/": "Review Rules",
+            "/listing-rules/": "Yerləşdirmə qaydaları",
+            "/ru/listing-rules/": "Правила размещения",
         }
         for path, text in checks.items():
             with self.subTest(path=path):
@@ -317,9 +319,9 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertContains(response, f'<link rel="canonical" href="{canonical}" />', html=False)
                 for code, url in alternates.items():
                     self.assertContains(response, f'<link rel="alternate" hreflang="{code}" href="{url}" />', html=False)
-                self.assertNotContains(response, "[kidsmap.az@gmail.com]")
+                self.assertNotContains(response, "[info@kidsmap.az]")
                 self.assertNotContains(response, "[]")
-                self.assertNotContains(response, "kidsmap.az@gmail.com")
+                self.assertNotContains(response, "info@kidsmap.az")
                 self.assertNotContains(response, "VÖEN")
 
                 page_sections = response.context["sections"]
@@ -382,9 +384,9 @@ class TestPublicPagesSmoke(TestCase):
                 self.assertContains(response, f'<link rel="canonical" href="{canonical}" />', html=False)
                 for code, url in alternates.items():
                     self.assertContains(response, f'<link rel="alternate" hreflang="{code}" href="{url}" />', html=False)
-                self.assertNotContains(response, "[kidsmap.az@gmail.com]")
+                self.assertNotContains(response, "[info@kidsmap.az]")
                 self.assertNotContains(response, "[]")
-                self.assertNotContains(response, "kidsmap.az@gmail.com")
+                self.assertNotContains(response, "info@kidsmap.az")
 
                 page_sections = response.context["sections"]
                 anchor_ids = [item["id"] for item in page_sections]
@@ -396,6 +398,22 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "может быть получена из открытых источников")
         self.assertContains(response, "не гарантирует полноту, актуальность и безошибочность")
+
+    def test_listing_rules_is_full_document_in_all_languages(self):
+        checks = (
+            ("/listing-rules/", "Məkan və dərnəklərin yerləşdirilməsi qaydaları", "12 vacib tələb", "Pulsuz fəaliyyətlər"),
+            ("/ru/listing-rules/", "Правила размещения мест и кружков", "12 обязательных критериев", "Бесплатные занятия"),
+            ("/en/listing-rules/", "Place & Activity Listing Rules", "12 Core Readiness Requirements", "Free Activities"),
+        )
+        for path, title, criteria_text, free_text in checks:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, "pages/listing_rules.html")
+                self.assertContains(response, title)
+                self.assertContains(response, criteria_text)
+                self.assertContains(response, free_text)
+                self.assertContains(response, "info@kidsmap.az")
 
     def test_ru_footer_privacy_link_points_to_ru_privacy(self):
         response = self.client.get("/ru/contacts/")
@@ -1717,12 +1735,14 @@ class TestPublicFilterCounts(TestCase):
             deleted_at=timezone.now(),
         )
         create_quality_place(
-            name="Low Quality Counted",
-            name_ru="Некачественное счетное место",
+            name="No Description Counted",
+            name_ru="Счетное место без описания",
             category="COUNTED",
             district="Пустой район",
             metro="Пустое метро",
-            description_az="Qisa tesvir",
+            description_az="",
+            description_ru="",
+            description_en="",
         )
 
     def test_catalog_filters_hide_zero_options_and_show_public_counts(self):

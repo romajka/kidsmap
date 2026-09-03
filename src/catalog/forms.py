@@ -1295,7 +1295,13 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         )
         queryset = Subcategory.objects.filter(is_active=True).filter(lookup)
         if category_id:
-            queryset = queryset.filter(category_id=category_id)
+            # ``Place.category`` is keyed by code, ``Subcategory.category`` by pk.
+            # Filtering the numeric FK with a code matched nothing, so a name sent
+            # by an owner was silently dropped instead of resolving.
+            if category_id.isdigit():
+                queryset = queryset.filter(category_id=category_id)
+            else:
+                queryset = queryset.filter(category__code=category_id)
         subcategory = queryset.order_by("order", "id").first()
 
         mutable_data = self.data.copy()
@@ -1459,6 +1465,11 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
             for field_name in self.fields:
                 self.fields[field_name].required = field_name == "address"
         else:
+            # TECHNICAL DEBT: this is a second list of required fields. It is a
+            # subset of the twelve in ``catalog.services.place_readiness`` (the
+            # owner publish gate already runs the readiness check), so it cannot
+            # contradict it today. It must be derived from the readiness
+            # requirements when the owner form is reworked, or it will drift.
             for field_name in (
                 "name_az",
                 "description_az",
