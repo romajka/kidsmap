@@ -2880,7 +2880,8 @@ main {
 .km-back-to-top {
   position: fixed;
   right: 28px;
-  bottom: 28px;
+  /* Tawk's launcher occupies the lower-right corner. */
+  bottom: 104px;
   z-index: 100;
   width: 48px;
   height: 48px;
@@ -3011,7 +3012,7 @@ body.modal-open .km-back-to-top {
 @media (max-width: 820px) {
   .km-back-to-top {
     right: 14px;
-    bottom: calc(18px + env(safe-area-inset-bottom));
+    bottom: calc(94px + env(safe-area-inset-bottom));
     width: 42px;
     height: 42px;
     box-shadow: 0 4px 16px rgba(13, 73, 36, 0.18);

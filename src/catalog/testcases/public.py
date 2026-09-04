@@ -65,6 +65,22 @@ User = get_user_model()
 from catalog.testcases.utils import *
 
 class TestPublicPagesSmoke(TestCase):
+    def test_back_to_top_reserves_space_for_chat_launcher(self):
+        """The fixed scroll control must stay above Tawk's bottom-right launcher."""
+        css = (settings.BASE_DIR / "static/css/site.css").read_text()
+
+        base_rule = re.search(r"\.km-back-to-top\s*\{(?P<rules>.*?)\n\}", css, re.DOTALL)
+        mobile_rule = re.search(
+            r"@media \(max-width: 820px\)\s*\{\s*\.km-back-to-top\s*\{(?P<rules>.*?)\n  \}",
+            css,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(base_rule)
+        self.assertIsNotNone(mobile_rule)
+        self.assertIn("bottom: 104px;", base_rule.group("rules"))
+        self.assertIn("bottom: calc(94px + env(safe-area-inset-bottom));", mobile_rule.group("rules"))
+
     def test_home_page_opens_with_i18n_redirect(self):
         response = self.client.get("/")
 
