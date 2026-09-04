@@ -53,6 +53,7 @@ class PlaceReadinessData:
     # Only tariffs (including a "free" one) count as a price. The legacy
     # ``price_*`` columns are kept separately: they still drive the public
     # catalog for old cards, but they no longer satisfy this requirement.
+    price_mode: str = "tariffs"
     has_priced_plan: bool = False
     has_legacy_price: bool = False
     has_custom_price_badge: bool = False
@@ -76,6 +77,7 @@ class ReadinessRequirement:
     check: Callable[[PlaceReadinessData], tuple[str, str] | None]
     # Mirrored by the browser so live progress uses the same rule.
     client_check: str = ""
+    client_config: dict = dataclass_field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -234,8 +236,23 @@ def _check_age(data: PlaceReadinessData):
     return None
 
 
+PRICE_MODES_WITHOUT_TARIFFS = (
+    "free",
+    "free_entry_paid_services",
+    "events",
+)
+SCHEDULE_MODES_WITHOUT_DAYS = (
+    "always_open",
+    "by_appointment",
+    "variable",
+    "events",
+)
+
+
 def _check_price(data: PlaceReadinessData):
-    if data.has_priced_plan or data.has_custom_price_badge:
+    if data.price_mode in PRICE_MODES_WITHOUT_TARIFFS:
+        return None
+    if data.has_priced_plan:
         return None
     if data.has_legacy_price:
         # The old scalar price still shows on the site, but the card cannot be
@@ -246,7 +263,7 @@ def _check_price(data: PlaceReadinessData):
         )
     return (
         "missing_price",
-        _("Добавьте хотя бы один заполненный тариф или выберите вариант «Бесплатно» / «Бесплатный вход»."),
+        _("Добавьте хотя бы один активный тариф или выберите подходящий режим цены (бесплатно / вход бесплатный / по мероприятиям)."),
     )
 
 
@@ -371,6 +388,7 @@ PLACE_READINESS_REQUIREMENTS: tuple[ReadinessRequirement, ...] = (
         anchor="[data-tariff-editor]",
         check=_check_price,
         client_check="price",
+        client_config={"exempt_modes": list(PRICE_MODES_WITHOUT_TARIFFS)},
     ),
     ReadinessRequirement(
         code="phone",
@@ -389,6 +407,7 @@ PLACE_READINESS_REQUIREMENTS: tuple[ReadinessRequirement, ...] = (
         anchor="admin-place-schedule",
         check=_check_schedule,
         client_check="schedule",
+        client_config={"exempt_modes": list(SCHEDULE_MODES_WITHOUT_DAYS)},
     ),
     ReadinessRequirement(
         code="photo",
@@ -534,13 +553,9 @@ def readiness_data_from_place(place) -> PlaceReadinessData:
         age_from=getattr(place, "age_from", None),
         age_to=getattr(place, "age_to", None),
         age_open_ended=bool(getattr(place, "age_open_ended", False)),
+        price_mode=getattr(place, "price_mode", "tariffs") or "tariffs",
         has_priced_plan=_place_has_pricing_plan_price(place),
         has_legacy_price=_has_legacy_price(place),
-        has_custom_price_badge=bool(
-            (getattr(place, "custom_price_badge_az", "") or "").strip()
-            or (getattr(place, "custom_price_badge_ru", "") or "").strip()
-            or (getattr(place, "custom_price_badge_en", "") or "").strip()
-        ),
         phone1=getattr(place, "phone1", "") or "",
         schedule_mode=getattr(place, "schedule_mode", "regular") or "regular",
         schedule_has_structured=has_structured,
@@ -598,14 +613,11 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
         plans = getattr(instance, "pricing_plans", None) or []
     from catalog.services.content_quality import _mapping_has_public_price
 
+    price_mode = cleaned.get("price_mode") or getattr(instance, "price_mode", "tariffs") or "tariffs"
     has_priced_plan = any(_mapping_has_public_price(plan) for plan in plans)
     # Legacy scalar prices are not editable in this form. They are reported so
     # the editor is told to migrate them, never as a satisfied requirement.
     has_legacy_price = instance is not None and _has_legacy_price(instance)
-    has_custom_price_badge = bool(
-        text("custom_price_badge_az") or text("custom_price_badge_ru") or text("custom_price_badge_en")
-    )
-
     schedule_mode = cleaned.get("schedule_mode") or getattr(instance, "schedule_mode", "regular") or "regular"
     schedule_days = getattr(form, "cleaned_schedule_days", None)
     if schedule_days is None:
@@ -635,9 +647,9 @@ def readiness_data_from_form(form, instance=None) -> PlaceReadinessData:
         age_from=_coerce_int(_form_value(form, cleaned, "age_from", instance)),
         age_to=_coerce_int(_form_value(form, cleaned, "age_to", instance)),
         age_open_ended=bool(_form_value(form, cleaned, "age_open_ended", instance)),
+        price_mode=price_mode,
         has_priced_plan=has_priced_plan,
         has_legacy_price=has_legacy_price,
-        has_custom_price_badge=has_custom_price_badge,
         phone1=text("phone1"),
         schedule_mode=schedule_mode,
         schedule_has_structured=schedule_has_structured,

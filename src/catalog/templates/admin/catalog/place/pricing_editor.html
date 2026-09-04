@@ -36,7 +36,7 @@
         <button type="button" class="km-pf-segmented__item is-active" data-price-policy="tariffs">
           {% translate "Есть тарифы" %}
         </button>
-        <button type="button" class="km-pf-segmented__item" data-price-policy="free_admission_with_paid">
+        <button type="button" class="km-pf-segmented__item" data-price-policy="free_entry_paid_services">
           {% translate "Бесплатный вход + платные услуги" %}
         </button>
         <button type="button" class="km-pf-segmented__item" data-price-policy="events">
@@ -94,6 +94,6 @@
       </div>
     </details>
 
-    <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.pricing_plans }}</div>
+    <div class="km-pf-hidden-fields" aria-hidden="true">{{ form.pricing_plans }}{{ form.price_mode }}</div>
   </div>
 {% endwith %}

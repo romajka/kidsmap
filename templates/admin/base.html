@@ -81,151 +81,155 @@
     class="hold-transition{% if not jazzmin_settings.show_sidebar %} no-sidebar{% else %} sidebar-mini{% endif %} {% sidebar_status request %} {% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %} {{ jazzmin_ui.body_classes }} {% if jazzmin_ui.dark_mode_theme %}theme-dark{% endif %}"
     data-admin-utc-offset="{% now 'Z' %}">
 
+    {% include "admin/catalog/includes/km_icon_sprite.html" %}
+
     <div class="wrapper">
 
         {% if not is_popup %}
-        <nav class="main-header navbar navbar-expand {{ jazzmin_ui.navbar_classes }}" id="jazzy-navbar">
-            <ul class="navbar-nav">
-                {% if jazzmin_settings.show_sidebar %}
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button">{% block admin_topbar_menu_icon %}<i class="fas fa-bars"></i>{% endblock %}</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a href="{% url 'admin:index' %}" class="brand-link" title="{{ jazzmin_settings.site_header }}">
-                        <img src="{% static jazzmin_settings.site_logo %}" alt="{{ jazzmin_settings.site_header }} Logo"
-                            class="{{ jazzmin_settings.site_logo_classes }} brand-image"
-                            style="opacity: .8; margin: 0 0 0 5px;">
-                    </a>
-                </li>
+        <nav class="main-header navbar navbar-expand km-admin-header" id="jazzy-navbar">
+            <div class="km-admin-header__inner">
+                <div class="km-admin-header__left">
+                    {% if jazzmin_settings.show_sidebar %}
+                    <button type="button" class="km-admin-header__toggle" data-widget="pushmenu" aria-label="{% trans 'Навигация' %}">
+                        {% block admin_topbar_menu_icon %}
+                            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-menu"></use></svg>
+                        {% endblock %}
+                    </button>
+                    {% endif %}
+
+                    <nav class="km-admin-header__crumbs" aria-label="{% translate 'Хлебные крошки' %}">
+                        {% block admin_topbar_context %}
+                            {% block breadcrumbs %}
+                                <ol class="breadcrumb km-admin-crumbs" aria-label="{% translate 'Навигация' %}">
+                                    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Главная' %}</a></li>
+                                    {% if opts.app_config.verbose_name %}
+                                        <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+                                    {% elif cl.opts.app_config.verbose_name %}
+                                        <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=cl.opts.app_label %}">{{ cl.opts.app_config.verbose_name }}</a></li>
+                                    {% endif %}
+                                    {% if title %}
+                                        <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+                                    {% elif cl.opts.verbose_name_plural %}
+                                        <li class="breadcrumb-item active" aria-current="page">{{ cl.opts.verbose_name_plural|capfirst }}</li>
+                                    {% endif %}
+                                </ol>
+                            {% endblock breadcrumbs %}
+                        {% endblock admin_topbar_context %}
+                    </nav>
+                </div>
+
+                {% if jazzmin_settings.search_model %}
+                <div class="km-admin-header__center">
+                    {% for search_model in jazzmin_settings.search_models_parsed %}
+                    {% if forloop.first %}
+                    <form action="{{ search_model.search_url }}" method="GET" class="km-admin-header__search-form">
+                        <div class="km-admin-header__search-wrap">
+                            <svg class="km-i km-admin-header__search-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>
+                            <input class="km-admin-header__search-input" name="q" type="search"
+                                placeholder="{% trans 'Поиск' %} {{ search_model.search_name }}..."
+                                aria-label="{% trans 'Поиск' %} {{ search_model.search_name }}...">
+                        </div>
+                    </form>
+                    {% endif %}
+                    {% endfor %}
+                </div>
                 {% endif %}
 
-                {% block admin_topbar_context %}{% endblock %}
-
-                {% get_top_menu user request.current_app|default:'admin' as top_menu %}
-                {% for link in top_menu %}
-                <li class="nav-item d-none d-sm-inline-block{% if link.children %} dropdown{% endif %}">
-                    {% if link.children %}
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
-                        {{ link.name }}
+                <div class="km-admin-header__right">
+                    {% if ownership_pending_count %}
+                    <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}" class="km-admin-pending-pill km-admin-pending-pill--ownership" title="{% trans 'Заявки на рассмотрении' %}" aria-label="{% blocktranslate with count=ownership_pending_count %}Заявки на рассмотрении: {{ count }}{% endblocktranslate %}">
+                        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-pending"></use></svg>
+                        <span>{% blocktranslate with count=ownership_pending_count %}На рассмотрении: {{ count }}{% endblocktranslate %}</span>
                     </a>
-                    <div class="dropdown-menu">
-                        {% for child in link.children %}
-                        <a class="dropdown-item" href="{{ child.url }}" {% if link.new_window %}target="_blank"{% endif %}>{{ child.name }}</a>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <a href="{{ link.url }}" class="nav-link" {% if link.new_window %}target="_blank"{% endif %}>{{ link.name }}</a>
                     {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
 
-            {% if jazzmin_settings.search_model %}
-            {% for search_model in jazzmin_settings.search_models_parsed %}
-            <form action="{{ search_model.search_url }}" method="GET" class="form-inline ml-3">
-                <div class="input-group input-group-sm">
-                    <input class="form-control form-control-navbar" name="q" type="search"
-                        placeholder="{% trans 'Search' %} {{ search_model.search_name }}..."
-                        aria-label="{% trans 'Search' %} {{ search_model.search_name }}...">
-                    <div class="input-group-append">
-                        <button class="btn btn-navbar" type="submit">
-                            <i class="fas fa-search"></i>
+                    {% if review_pending_count %}
+                    <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}" class="km-admin-pending-pill km-admin-pending-pill--reviews" title="{% trans 'Отзывы на проверке' %}" aria-label="{% blocktranslate with count=review_pending_count %}Отзывы на проверке: {{ count }}{% endblocktranslate %}">
+                        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-star"></use></svg>
+                        <span>{% blocktranslate with count=review_pending_count %}Отзывы: {{ count }}{% endblocktranslate %}</span>
+                    </a>
+                    {% endif %}
+
+                    <a href="/" target="_blank" rel="noopener noreferrer" class="km-admin-header__btn km-admin-header__btn--site" title="{% trans 'Перейти на сайт' %}" aria-label="{% trans 'Перейти на сайт' %}">
+                        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-open_in_new"></use></svg>
+                        <span class="km-admin-header__btn-label">{% trans "Перейти на сайт" %}</span>
+                    </a>
+
+                    {% if admin_language_switch_items %}
+                    <div class="km-admin-header__dropdown dropdown">
+                        <button type="button" class="km-admin-header__btn km-admin-header__lang-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{% trans 'Выбрать язык' %}">
+                            <svg class="km-i km-admin-header__icon-globe" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-language"></use></svg>
+                            <span class="km-topbar-language-code">{{ LANGUAGE_CODE|upper }}</span>
+                            <svg class="km-i km-admin-header__chevron" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
                         </button>
+                        <div class="dropdown-menu dropdown-menu-right km-admin-header__dropdown-menu" id="jazzy-languagemenu">
+                            {% for item in admin_language_switch_items %}
+                            <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="language" value="{{ item.code }}" />
+                                <input type="hidden" name="next" value="{{ item.url }}" />
+                                <button type="submit"
+                                    class="dropdown-item{% if item.active %} active{% endif %}"
+                                    lang="{{ item.code }}">
+                                    {{ item.code|upper }}
+                                </button>
+                            </form>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="km-admin-header__dropdown km-admin-header__user-dropdown dropdown">
+                        <button type="button" class="km-admin-header__avatar-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ request.user }}">
+                            {% block admin_topbar_account_icon %}
+                                {% if request.user.profile.avatar %}
+                                    <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user }}" class="km-admin-header__avatar-img">
+                                {% else %}
+                                    <svg class="km-i km-admin-header__avatar-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-account_circle"></use></svg>
+                                {% endif %}
+                            {% endblock %}
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right km-admin-header__dropdown-menu km-admin-header__user-menu" id="jazzy-usermenu">
+                            <div class="km-admin-header__user-header">
+                                <span class="km-admin-header__user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                                {% if kidsmap_admin_role_label %}
+                                    <span class="km-admin-header__user-role">{{ kidsmap_admin_role_label }}</span>
+                                {% elif request.user.email %}
+                                    <span class="km-admin-header__user-role">{{ request.user.email }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'admin:password_change' %}" class="dropdown-item">
+                                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-edit"></use></svg>
+                                <span>{% trans 'Сменить пароль' %}</span>
+                            </a>
+                            {% if perms|can_view_self %}
+                            <a href="{% jazzy_admin_url request.user request.current_app|default:'admin' %}" class="dropdown-item">
+                                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-person"></use></svg>
+                                <span>{% trans 'Профиль' %}</span>
+                            </a>
+                            {% endif %}
+                            {% get_user_menu user request.current_app|default:'admin' as user_menu %}
+                            {% for link in user_menu %}
+                            <a href="{{ link.url }}" class="dropdown-item" {% if link.new_window %}target="_blank"{% endif %}>
+                                <i class="{{ link.icon }} mr-2"></i>
+                                <span>{% trans link.name %}</span>
+                            </a>
+                            {% endfor %}
+                            <div class="dropdown-divider"></div>
+                            <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item km-admin-header__logout-btn">
+                                    <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-arrow_forward"></use></svg>
+                                    <span>{% translate 'Выйти' %}</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </form>
-            {% endfor %}
-            {% endif %}
-
-            <ul class="navbar-nav ml-auto">
-                {% if ownership_pending_count %}
-                <li class="nav-item d-none d-md-flex align-items-center">
-                    <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}" class="km-admin-pending-pill">
-                        {% blocktranslate with count=ownership_pending_count %}На рассмотрении: {{ count }}{% endblocktranslate %}
-                    </a>
-                </li>
-                {% endif %}
-
-                {% if review_pending_count %}
-                <li class="nav-item d-none d-md-flex align-items-center">
-                    <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}"
-                        class="km-admin-pending-pill km-admin-pending-pill--reviews">
-                        {% blocktranslate with count=review_pending_count %}Отзывы на проверке: {{ count }}{% endblocktranslate %}
-                    </a>
-                </li>
-                {% endif %}
-
-                {% if jazzmin_settings.show_ui_builder %}
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                        <i class="fas fa-th-large"></i>
-                    </a>
-                </li>
-                {% endif %}
-                {% if 'django.contrib.admindocs'|app_is_installed %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'django-admindocs-docroot' %}" role="button">
-                        <i class="fas fa-book"></i>
-                    </a>
-                </li>
-                {% endif %}
-
-                {% if admin_language_switch_items %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link btn" data-toggle="dropdown" href="#" title="Choose language">
-                        <i class="fas fa-globe" aria-hidden="true"></i>
-                        <span class="km-topbar-language-code">{{ LANGUAGE_CODE|upper }}</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left" id="jazzy-languagemenu">
-                        {% for item in admin_language_switch_items %}
-                        <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch-form">
-                            {% csrf_token %}
-                            <input type="hidden" name="language" value="{{ item.code }}" />
-                            <input type="hidden" name="next" value="{{ item.url }}" />
-                            <button type="submit"
-                                class="dropdown-item{% if item.active %} active{% endif %}"
-                                lang="{{ item.code }}">
-                                {{ item.code|upper }}
-                            </button>
-                        </form>
-                        {% endfor %}
-                    </div>
-                </li>
-                {% endif %}
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link btn" data-toggle="dropdown" href="#" title="{{ request.user }}">
-                        {% block admin_topbar_account_icon %}<i class="far fa-user" aria-hidden="true"></i>{% endblock %}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-left" id="jazzy-usermenu">
-                        <span class="dropdown-header">{% trans 'Account' %}</span>
-                        <div class="dropdown-divider"></div>
-                        <a href="{% url 'admin:password_change' %}" class="dropdown-item">
-                            <i class="fas fa-key mr-2"></i> {% trans 'Change password' %}
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="dropdown-item"><i class="fas fa-users mr-2"></i> {% translate 'Log out' %}</button>
-                        </form>
-                        {% get_user_menu user request.current_app|default:'admin' as user_menu %}
-                        {% for link in user_menu %}
-                        <div class="dropdown-divider"></div>
-                        <a href="{{ link.url }}" class="dropdown-item" {% if link.new_window %}target="_blank"{% endif %}>
-                            <i class="{{ link.icon }} mr-2"></i> {% trans link.name %}
-                        </a>
-                        {% endfor %}
-                        <div class="dropdown-divider"></div>
-                        {% if perms|can_view_self %}
-                        <a href="{% jazzy_admin_url request.user request.current_app|default:'admin' %}"
-                            class="dropdown-item dropdown-footer">{% trans 'See Profile' %}</a>
-                        {% endif %}
-                    </div>
-                </li>
-            </ul>
+            </div>
         </nav>
+        {% endif %}
 
         {% block sidebar %}
         {% if jazzmin_settings.show_sidebar %}
@@ -342,22 +346,16 @@
         </aside>
         {% endif %}
         {% endblock %}
-        {% endif %}
 
         <div class="content-wrapper" {% if is_popup %}style="margin-left:0px; padding-top: 20px;" {% endif %}>
             {% block page_content %}
             {% if not is_popup %}
-            <div class="content border-bottom mb-2">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-12 col-md-auto d-flex flex-grow-1 align-items-center">
-                            <h1 class="h4 m-0 pr-3 mr-3 border-right">{% block content_title %}{% endblock %}</h1>
-                            {% block breadcrumbs %}{% endblock %}
-                        </div>
-                        {% block page_actions %}{% endblock %}
-                    </div>
-                </div>
+            {% block page_content_header %}
+            <div class="km-page-content-header">
+                {% block content_title %}{% endblock %}
+                {% block page_actions %}{% endblock %}
             </div>
+            {% endblock %}
             {% endif %}
 
             <div class="content">

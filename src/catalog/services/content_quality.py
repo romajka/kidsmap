@@ -182,12 +182,24 @@ def _place_has_pricing_plan_price(place) -> bool:
 
 
 def _has_price_q() -> Q:
+    from catalog.models import Place
+
     return (
         Q(price_from__isnull=False)
         | Q(price_to__isnull=False)
         | Q(price_per_lesson__isnull=False)
         | Q(price_per_month__isnull=False)
         | Q(price_per_8_lessons__isnull=False)
+        | Q(
+            price_mode__in=[
+                Place.PRICE_MODE_FREE,
+                Place.PRICE_MODE_FREE_ENTRY,
+                Place.PRICE_MODE_EVENTS,
+            ]
+        )
+        | Q(custom_price_badge_az__gt="")
+        | Q(custom_price_badge_ru__gt="")
+        | Q(custom_price_badge_en__gt="")
     )
 
 
@@ -216,6 +228,8 @@ def _has_pricing_plan_q() -> Exists:
 def public_place_queryset(queryset: QuerySet) -> QuerySet:
     """Return only places safe enough for public catalog/detail/sitemap usage."""
 
+    from catalog.models import Place
+
     qs = queryset.annotate(
         description_ru_len=Length("description_ru"),
         description_az_len=Length("description_az"),
@@ -228,12 +242,22 @@ def public_place_queryset(queryset: QuerySet) -> QuerySet:
         status=PLACE_STATUS_PUBLISHED,
     )
     qs = qs.exclude(category="").exclude(address="")
-    qs = qs.filter(Q(schedule__gt="") | Q(schedule_days__isnull=False)).distinct()
+    qs = qs.filter(
+        Q(schedule__gt="")
+        | Q(schedule_days__isnull=False)
+        | Q(
+            schedule_mode__in=[
+                Place.SCHEDULE_MODE_ALWAYS_OPEN,
+                Place.SCHEDULE_MODE_BY_APPOINTMENT,
+                Place.SCHEDULE_MODE_VARIABLE,
+                Place.SCHEDULE_MODE_EVENTS,
+            ]
+        )
+    ).distinct()
     qs = qs.filter(Q(phone1__gt="") | Q(instagram__gt="") | Q(website__gt=""))
     qs = qs.filter(Q(age_from__isnull=False) | Q(age_to__isnull=False))
-    # Legacy scalar price fields and relational tariffs are both public price
-    # sources. A place must not disappear merely because its price lives only
-    # in pricing_plan_records.
+    # Legacy scalar price fields, relational tariffs and structured price modes
+    # (free, free entry, events) are all public price sources.
     qs = qs.filter(_has_price_q() | _has_pricing_plan_q())
     qs = qs.filter(_has_description_q())
 
@@ -255,6 +279,8 @@ def place_catalog_visibility_reasons(place) -> tuple[str, ...]:
     about catalog visibility, not moderation status: the admin needs to explain
     why an otherwise published, active card is absent from the site.
     """
+
+    from catalog.models import Place
 
     errors: list[str] = []
     if getattr(place, "category_id", None) in (None, ""):
@@ -278,10 +304,28 @@ def place_catalog_visibility_reasons(place) -> tuple[str, ...]:
     )
     has_pricing_plan = _place_has_pricing_plan_price(place)
     has_is_free = bool(getattr(place, "is_free", False) or getattr(place, "is_price_free", False))
-    if not has_legacy_price and not has_pricing_plan and not has_is_free:
+    price_mode = getattr(place, "price_mode", Place.PRICE_MODE_TARIFFS) or Place.PRICE_MODE_TARIFFS
+    has_structured_price = price_mode in (
+        Place.PRICE_MODE_FREE,
+        Place.PRICE_MODE_FREE_ENTRY,
+        Place.PRICE_MODE_EVENTS,
+    )
+    has_custom_badge = bool(
+        (getattr(place, "custom_price_badge_az", "") or "").strip()
+        or (getattr(place, "custom_price_badge_ru", "") or "").strip()
+        or (getattr(place, "custom_price_badge_en", "") or "").strip()
+    )
+    if (
+        not has_legacy_price
+        and not has_pricing_plan
+        and not has_is_free
+        and not has_structured_price
+        and not has_custom_badge
+    ):
         errors.append("missing_price")
 
-    if not (place.schedule > "" or place.schedule_days.exists()):
+    schedule_mode = getattr(place, "schedule_mode", Place.SCHEDULE_MODE_REGULAR) or Place.SCHEDULE_MODE_REGULAR
+    if schedule_mode == Place.SCHEDULE_MODE_REGULAR and not (place.schedule > "" or place.schedule_days.exists()):
         errors.append("missing_schedule")
     if not any((getattr(place, field) or "").strip() for field in ("description_ru", "description_az", "description_en")):
         errors.append("missing_description")

@@ -83,14 +83,32 @@ class PlaceReadinessRulesTests(TestCase):
                 # "Always open", "By events", "By appointment", "Variable" satisfy schedule readiness.
                 self.assertTrue(evaluate_place_readiness(place).is_ready)
 
-    def test_custom_price_badge_satisfies_price_requirement_without_tariffs(self):
+    def test_custom_price_badge_does_not_satisfy_price_requirement_in_tariffs_mode(self):
         for badge_text in ("Бесплатно", "Вход бесплатный", "Цена зависит от мероприятия"):
             with self.subTest(badge=badge_text):
                 place = create_ready_place(
                     with_pricing_plan=False,
                     price_from=None,
                     price_to=None,
+                    price_mode=Place.PRICE_MODE_TARIFFS,
                     custom_price_badge_ru=badge_text,
+                )
+                readiness = evaluate_place_readiness(place)
+                self.assertFalse(readiness.is_ready)
+                self.assertIn("price", [issue.code for issue in readiness.issues])
+
+    def test_non_tariff_price_modes_satisfy_price_requirement_without_tariffs(self):
+        for mode in (
+            Place.PRICE_MODE_FREE,
+            Place.PRICE_MODE_FREE_ENTRY,
+            Place.PRICE_MODE_EVENTS,
+        ):
+            with self.subTest(mode=mode):
+                place = create_ready_place(
+                    with_pricing_plan=False,
+                    price_from=None,
+                    price_to=None,
+                    price_mode=mode,
                 )
                 readiness = evaluate_place_readiness(place)
                 self.assertTrue(readiness.is_ready)

@@ -54,298 +54,10 @@
   }
 
   /* ==========================================================================
-     Unified Modal Component
+     Unified Modal & Toast References (kidsmap_notifications.js)
      ========================================================================== */
-  var kmModal = (function () {
-    var activeModal = null;
-    var lastFocusedElement = null;
-
-    function close() {
-      if (!activeModal) return;
-      var current = activeModal;
-      activeModal = null;
-      var backdrop = current.backdrop;
-      backdrop.classList.remove("is-visible");
-      document.removeEventListener("keydown", handleKeydown, true);
-      window.setTimeout(function () {
-        if (backdrop.parentNode) {
-          backdrop.parentNode.removeChild(backdrop);
-        }
-        if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
-          lastFocusedElement.focus();
-        }
-      }, 180);
-      if (current.onClose) {
-        current.onClose();
-      }
-    }
-
-    function handleKeydown(e) {
-      if (!activeModal) return;
-      if (e.key === "Escape" || e.keyCode === 27) {
-        if (activeModal.closeOnEscape !== false) {
-          e.preventDefault();
-          e.stopPropagation();
-          close();
-        }
-        return;
-      }
-      if (e.key === "Tab" || e.keyCode === 9) {
-        var focusables = activeModal.dialog.querySelectorAll("button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])");
-        if (!focusables.length) {
-          e.preventDefault();
-          return;
-        }
-        var first = focusables[0];
-        var last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    }
-
-    function show(options) {
-      if (activeModal) {
-        close();
-      }
-      lastFocusedElement = document.activeElement;
-
-      var backdrop = document.createElement("div");
-      backdrop.className = "km-pf-modal-backdrop";
-      backdrop.setAttribute("role", "presentation");
-
-      var dialog = document.createElement("div");
-      dialog.className = "km-pf-modal";
-      dialog.setAttribute("role", "dialog");
-      dialog.setAttribute("aria-modal", "true");
-      dialog.tabIndex = -1;
-
-      var header = document.createElement("div");
-      header.className = "km-pf-modal__header";
-
-      var iconWrap = document.createElement("span");
-      var tone = options.iconTone || "warn";
-      iconWrap.className = "km-pf-modal__icon km-pf-modal__icon--" + tone;
-      iconWrap.appendChild(iconEl(options.icon || "warning"));
-      header.appendChild(iconWrap);
-
-      var titles = document.createElement("div");
-      titles.className = "km-pf-modal__titles";
-
-      var title = document.createElement("h3");
-      title.className = "km-pf-modal__title";
-      title.textContent = options.title || "";
-      titles.appendChild(title);
-
-      if (options.message) {
-        var desc = document.createElement("p");
-        desc.className = "km-pf-modal__desc";
-        if (typeof options.message === "string") {
-          desc.textContent = options.message;
-        } else if (options.message instanceof Node) {
-          desc.appendChild(options.message);
-        }
-        titles.appendChild(desc);
-      }
-      header.appendChild(titles);
-      dialog.appendChild(header);
-
-      var actionsWrap = document.createElement("div");
-      actionsWrap.className = "km-pf-modal__actions";
-
-      var actions = options.actions || [{ label: "OK", tone: "primary", onClick: close }];
-      actions.forEach(function (act) {
-        var btn = document.createElement("button");
-        btn.type = "button";
-        var btnClass = "km-pf-btn";
-        if (act.tone === "primary") btnClass += " km-pf-btn--primary";
-        else if (act.tone === "danger-filled") btnClass += " km-pf-btn--danger-filled";
-        else if (act.tone === "danger") btnClass += " km-pf-btn--danger";
-        else if (act.tone === "ghost") btnClass += " km-pf-btn--ghost";
-        else btnClass += " km-pf-btn--quiet";
-        btn.className = btnClass;
-        btn.textContent = act.label;
-        btn.addEventListener("click", function (e) {
-          if (act.onClick) {
-            var result = act.onClick({ close: close });
-            if (result !== false) {
-              close();
-            }
-          } else {
-            close();
-          }
-        });
-        actionsWrap.appendChild(btn);
-      });
-      dialog.appendChild(actionsWrap);
-
-      backdrop.appendChild(dialog);
-      if (options.closeOnBackdrop !== false) {
-        backdrop.addEventListener("click", function (e) {
-          if (e.target === backdrop) {
-            close();
-          }
-        });
-      }
-
-      document.body.appendChild(backdrop);
-      activeModal = {
-        backdrop: backdrop,
-        dialog: dialog,
-        closeOnEscape: options.closeOnEscape,
-        onClose: options.onClose,
-      };
-
-      document.addEventListener("keydown", handleKeydown, true);
-
-      window.requestAnimationFrame(function () {
-        backdrop.classList.add("is-visible");
-        var primaryBtn = actionsWrap.querySelector(".km-pf-btn--primary, .km-pf-btn--danger-filled") || actionsWrap.querySelector("button");
-        if (primaryBtn) primaryBtn.focus();
-      });
-
-      return { close: close };
-    }
-
-    return {
-      show: show,
-      close: close,
-    };
-  })();
-  window.kmModal = kmModal;
-
-  /* ==========================================================================
-     Unified Toast Notification System
-     ========================================================================== */
-  var kmToast = (function () {
-    var container = null;
-    var MAX_TOASTS = 3;
-
-    function getContainer() {
-      if (!container || !container.parentNode) {
-        container = document.createElement("div");
-        container.className = "km-toast-container";
-        container.setAttribute("aria-live", "polite");
-        document.body.appendChild(container);
-      }
-      return container;
-    }
-
-    function dismissToast(toast) {
-      if (!toast || toast.classList.contains("is-leaving")) return;
-      if (toast._timer) window.clearTimeout(toast._timer);
-      toast.classList.remove("is-visible");
-      toast.classList.add("is-leaving");
-      window.setTimeout(function () {
-        if (toast.parentNode) {
-          toast.parentNode.removeChild(toast);
-        }
-      }, 220);
-    }
-
-    function show(options) {
-      var cont = getContainer();
-
-      while (cont.children.length >= MAX_TOASTS) {
-        dismissToast(cont.children[0]);
-      }
-
-      var type = options.type || "info";
-      var icons = {
-        success: "check_circle",
-        error: "error",
-        warning: "warning",
-        info: "info"
-      };
-
-      var toast = document.createElement("div");
-      toast.className = "km-toast km-toast--" + type;
-      toast.setAttribute("role", type === "error" ? "alert" : "status");
-
-      var iconWrap = document.createElement("span");
-      iconWrap.className = "km-toast__icon";
-      iconWrap.appendChild(iconEl(icons[type] || "info"));
-      toast.appendChild(iconWrap);
-
-      var body = document.createElement("div");
-      body.className = "km-toast__body";
-
-      var title = document.createElement("div");
-      title.className = "km-toast__title";
-      title.textContent = options.title || "";
-      body.appendChild(title);
-
-      if (options.message) {
-        var msg = document.createElement("div");
-        msg.className = "km-toast__message";
-        msg.textContent = options.message;
-        body.appendChild(msg);
-      }
-      toast.appendChild(body);
-
-      if (options.action && options.action.label) {
-        var actBtn = document.createElement("button");
-        actBtn.type = "button";
-        actBtn.className = "km-toast__action";
-        actBtn.textContent = options.action.label;
-        actBtn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          if (options.action.onClick) options.action.onClick();
-          dismissToast(toast);
-        });
-        toast.appendChild(actBtn);
-      }
-
-      var closeBtn = document.createElement("button");
-      closeBtn.type = "button";
-      closeBtn.className = "km-toast__close";
-      closeBtn.setAttribute("aria-label", "Закрыть");
-      closeBtn.appendChild(iconEl("close"));
-      closeBtn.addEventListener("click", function () {
-        dismissToast(toast);
-      });
-      toast.appendChild(closeBtn);
-
-      cont.appendChild(toast);
-
-      window.requestAnimationFrame(function () {
-        toast.classList.add("is-visible");
-      });
-
-      var duration = options.duration !== undefined
-        ? options.duration
-        : (type === "error" || type === "warning" ? 6500 : 3500);
-
-      if (duration > 0) {
-        toast._timer = window.setTimeout(function () {
-          dismissToast(toast);
-        }, duration);
-      }
-
-      return toast;
-    }
-
-    return {
-      show: show,
-      success: function (title, message, action) {
-        return show({ type: "success", title: title, message: message, action: action });
-      },
-      error: function (title, message, action) {
-        return show({ type: "error", title: title, message: message, action: action, duration: 7000 });
-      },
-      warning: function (title, message, action) {
-        return show({ type: "warning", title: title, message: message, action: action, duration: 6000 });
-      },
-      info: function (title, message, action) {
-        return show({ type: "info", title: title, message: message, action: action });
-      }
-    };
-  })();
-  window.kmToast = kmToast;
+  var kmModal = window.kmModal;
+  var kmToast = window.kmToast;
 
   var REDUCED_MOTION = window.matchMedia
     ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -427,6 +139,8 @@
     /* Sticky navigation ---------------------------------------------------- */
 
     var navItems = qsa("[data-pf-nav-for]", root);
+    var isManualNavClick = false;
+    var manualNavTimer = null;
 
     navItems.forEach(function (item) {
       on(item, "click", function (event) {
@@ -434,20 +148,73 @@
         var section = document.getElementById(id);
         if (!section) return;
         event.preventDefault();
+
+        // 1. Immediately highlight clicked item with zero delay
+        isManualNavClick = true;
+        clearTimeout(manualNavTimer);
+        navItems.forEach(function (navItem) {
+          var isCur = navItem.dataset.pfNavFor === id;
+          navItem.classList.toggle("is-current", isCur);
+          navItem.setAttribute("aria-current", isCur ? "step" : "false");
+        });
+
+        // 2. Ensure section is expanded and scroll into view
         setExpanded(section, true);
         scrollTo(section);
+
+        // 3. Unlock scrollspy once smooth scroll completes
+        manualNavTimer = setTimeout(function () {
+          isManualNavClick = false;
+          markCurrentSection();
+        }, 850);
       });
     });
 
     function markCurrentSection() {
-      var navHeight = 84;
+      if (isManualNavClick) return;
+
+      // When scrolled to the very bottom, activate the last section
+      var atBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 60);
+      if (atBottom && sections.length > 0) {
+        var lastSection = sections[sections.length - 1];
+        navItems.forEach(function (item) {
+          var isCur = item.dataset.pfNavFor === lastSection.id;
+          item.classList.toggle("is-current", isCur);
+          item.setAttribute("aria-current", isCur ? "step" : "false");
+        });
+        return;
+      }
+
+      // Check if user is actively interacting with an input inside a section
+      var activeSec = (document.activeElement && typeof document.activeElement.closest === "function")
+        ? document.activeElement.closest("[data-place-accordion-section]")
+        : null;
+
       var current = null;
-      sections.forEach(function (section) {
-        var box = section.getBoundingClientRect();
-        if (box.top - navHeight <= 8) current = section;
-      });
+      if (activeSec && sections.indexOf(activeSec) !== -1) {
+        current = activeSec;
+      } else {
+        var nav = qs("[data-pf-nav]", root);
+        var navBottom = nav ? nav.getBoundingClientRect().bottom : 70;
+        // Viewport checkpoint: ~30-35% down the window, below the sticky nav
+        var checkpoint = Math.max(navBottom + 40, Math.min(window.innerHeight * 0.35, 260));
+
+        sections.forEach(function (section) {
+          var box = section.getBoundingClientRect();
+          if (box.top <= checkpoint && box.bottom > navBottom + 10) {
+            current = section;
+          }
+        });
+      }
+
+      if (!current && sections.length > 0) {
+        current = sections[0];
+      }
+
       navItems.forEach(function (item) {
-        item.classList.toggle("is-current", !!current && item.dataset.pfNavFor === current.id);
+        var isCur = !!current && item.dataset.pfNavFor === current.id;
+        item.classList.toggle("is-current", isCur);
+        item.setAttribute("aria-current", isCur ? "step" : "false");
       });
     }
 
@@ -460,6 +227,9 @@
         scrollTicking = false;
       });
     }, { passive: true });
+    root.addEventListener("focusin", function () {
+      markCurrentSection();
+    });
     markCurrentSection();
 
     function scrollTo(node) {
@@ -1042,15 +812,11 @@
         if (!toRaw) return !!(openEnded && openEnded.checked);
         return parseInt(toRaw, 10) >= parseInt(fromRaw, 10);
       },
-      price: function () {
-        var azInput = document.getElementById("id_custom_price_badge_az");
-        var ruInput = document.getElementById("id_custom_price_badge_ru");
-        var enInput = document.getElementById("id_custom_price_badge_en");
-        if (
-          (azInput && azInput.value.trim()) ||
-          (ruInput && ruInput.value.trim()) ||
-          (enInput && enInput.value.trim())
-        ) {
+      price: function (config) {
+        var modeInput = document.getElementById("id_price_mode");
+        var mode = modeInput ? String(modeInput.value || "tariffs").trim() : "tariffs";
+        var exemptModes = (config && config.exempt_modes) || [];
+        if (exemptModes.indexOf(mode) !== -1) {
           return true;
         }
         var plans = parseJsonInput("[data-tariff-input]");
@@ -1058,10 +824,13 @@
         return plans.some(planHasPublicPrice);
       },
       phone: function () { return !!inputValue("id_phone1"); },
-      schedule: function () {
+      schedule: function (config) {
         var mode = document.getElementById("id_schedule_mode");
         var value = mode ? String(mode.value || "regular") : "regular";
-        if (value !== "regular") return true;
+        var exemptModes = (config && config.exempt_modes) || [];
+        if (exemptModes.indexOf(value) !== -1) {
+          return true;
+        }
         return scheduleIsMeaningful();
       },
       photo: function () { return hasMainPhoto(); }
@@ -1081,13 +850,14 @@
           message: item.message || "",
           anchor: item.anchor || "",
           section: item.section || "",
+          config: item.config || {},
           // Some requirements are satisfied by stored data the browser cannot
           // see (an uploaded cover photo). The server tells us so.
           fallback: !!item.fallback,
           initial: !!item.initial,
           isFilled: function () {
             if (this.fallback) return true;
-            return evaluator ? !!evaluator() : this.initial;
+            return evaluator ? !!evaluator(this.config) : this.initial;
           }
         };
       });
@@ -1827,76 +1597,64 @@
       e.preventDefault();
       e.stopPropagation();
 
-      kmModal.show({
-        icon: "warning",
-        iconTone: "warn",
+      kmModal.unsavedChanges({
         title: "Есть несохранённые изменения",
         message: "Вы изменили карточку, но ещё не сохранили изменения.",
-        actions: [
-          {
-            label: "Остаться",
-            tone: "quiet"
-          },
-          {
-            label: "Сохранить и выйти",
-            tone: "primary",
-            onClick: function () {
-              submitting = true;
-              setSaveState("saving", labels.labelSaving || "Сохранение…");
-              kmToast.info("Сохранение…");
+        stayText: "Остаться",
+        saveText: "Сохранить и выйти",
+        discardText: "Выйти без сохранения",
+        onStay: function () {},
+        onSaveAndExit: function () {
+          submitting = true;
+          setSaveState("saving", labels.labelSaving || "Сохранение…");
+          kmToast.info("Сохранение…");
 
-              var formData = new FormData(form);
-              if (!formData.has("_continue")) {
-                formData.append("_continue", "1");
-              }
+          var formData = new FormData(form);
+          if (!formData.has("_continue")) {
+            formData.append("_continue", "1");
+          }
 
-              fetch(form.action || window.location.href, {
-                method: "POST",
-                body: formData,
-                headers: { "X-Requested-With": "XMLHttpRequest" }
-              }).then(function (res) {
-                if (res.ok && res.redirected) {
-                  bypassNavigationPrompt = true;
-                  window.location.href = targetUrl;
-                } else if (res.ok) {
-                  return res.text().then(function (html) {
-                    if (html.indexOf("km-pf-field is-error") !== -1 || html.indexOf("km-pf-alert--danger") !== -1 || html.indexOf("errorlist") !== -1) {
-                      submitting = false;
-                      isDirty = true;
-                      setSaveState("error", "Есть ошибка");
-                      kmToast.error("Не удалось сохранить карточку", "Исправьте отмеченные поля и попробуйте снова.", {
-                        label: "Показать ошибки",
-                        onClick: function () {
-                          var summary = qs("[data-place-error-summary]");
-                          if (summary) summary.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }
-                      });
-                    } else {
-                      bypassNavigationPrompt = true;
-                      window.location.href = targetUrl;
+          fetch(form.action || window.location.href, {
+            method: "POST",
+            body: formData,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+          }).then(function (res) {
+            if (res.ok && res.redirected) {
+              bypassNavigationPrompt = true;
+              window.location.href = targetUrl;
+            } else if (res.ok) {
+              return res.text().then(function (html) {
+                if (html.indexOf("km-pf-field is-error") !== -1 || html.indexOf("km-pf-alert--danger") !== -1 || html.indexOf("errorlist") !== -1) {
+                  submitting = false;
+                  isDirty = true;
+                  setSaveState("error", "Есть ошибка");
+                  kmToast.error("Не удалось сохранить карточку", "Исправьте отмеченные поля и попробуйте снова.", {
+                    label: "Показать ошибки",
+                    onClick: function () {
+                      var summary = qs("[data-place-error-summary]");
+                      if (summary) summary.scrollIntoView({ behavior: "smooth", block: "start" });
                     }
                   });
                 } else {
-                  throw new Error("Save failed");
+                  bypassNavigationPrompt = true;
+                  window.location.href = targetUrl;
                 }
-              }).catch(function () {
-                submitting = false;
-                isDirty = true;
-                setSaveState("error", "Ошибка сохранения");
-                kmToast.error("Не удалось сохранить карточку", "Проверьте соединение и попробуйте снова.");
               });
+            } else {
+              throw new Error("Save failed");
             }
-          },
-          {
-            label: "Выйти без сохранения",
-            tone: "danger-filled",
-            onClick: function () {
-              bypassNavigationPrompt = true;
-              isDirty = false;
-              window.location.href = targetUrl;
-            }
-          }
-        ]
+          }).catch(function () {
+            submitting = false;
+            isDirty = true;
+            setSaveState("error", "Ошибка сохранения");
+            kmToast.error("Не удалось сохранить карточку", "Проверьте соединение и попробуйте снова.");
+          });
+        },
+        onExitWithoutSaving: function () {
+          bypassNavigationPrompt = true;
+          isDirty = false;
+          window.location.href = targetUrl;
+        }
       });
     }, true);
 
@@ -1915,11 +1673,11 @@
         if (status.isReady) {
           kmModal.show({
             icon: "public",
-            iconTone: "good",
+            iconTone: "success",
             title: "Опубликовать карточку?",
             message: "Карточка станет доступна пользователям сайта.",
             actions: [
-              { label: "Отмена", tone: "quiet" },
+              { label: "Отмена", tone: "secondary" },
               {
                 label: "Опубликовать",
                 tone: "primary",
@@ -1940,7 +1698,7 @@
           var missingCount = status.missing.length || (status.total - status.done);
           kmModal.show({
             icon: "warning",
-            iconTone: "warn",
+            iconTone: "warning",
             title: "Карточка пока не готова",
             message: "Заполнено " + status.done + " из " + status.total + " обязательных пунктов.",
             actions: [
@@ -1955,7 +1713,7 @@
                   }
                 }
               },
-              { label: "Закрыть", tone: "quiet" }
+              { label: "Закрыть", tone: "secondary" }
             ]
           });
         }
@@ -1971,14 +1729,15 @@
 
         kmModal.show({
           icon: "visibility_off",
-          iconTone: "warn",
+          iconTone: "warning",
+          isAlertDialog: true,
           title: "Снять карточку с публикации?",
-          message: "Она перестанет отображаться пользователям сайта.",
+          message: "Она перестанет отображаться на сайте и перейдёт в черновики.",
           actions: [
-            { label: "Отмена", tone: "quiet" },
+            { label: "Отмена", tone: "secondary" },
             {
               label: "Снять с публикации",
-              tone: "danger-filled",
+              tone: "danger",
               onClick: function () {
                 btn.dataset.confirmed = "1";
                 submitting = true;

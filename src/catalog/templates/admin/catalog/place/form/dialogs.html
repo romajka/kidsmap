@@ -13,8 +13,8 @@
     <button type="button" class="km-pf-iconbtn" data-place-json-import-close aria-label="{% translate 'Закрыть' %}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg></button>
   </div>
   <p class="km-pf-dialog__hint">{% translate "Вставьте ответ ChatGPT целиком: JSON и примечание. Заполнятся только данные из JSON, а перед сохранением всё можно изменить вручную." %}</p>
-  <textarea data-place-json-import-input rows="15" spellcheck="false" placeholder='{"name_az":"...", "category":"WATERPARK", "address":"...", "phone":"+994..."}'></textarea>
-  <p class="km-pf-dialog__note">{% translate "Поддерживаются: name, name_az, name_ru, name_en, description, category, subcategory, возраст, адрес, контакты, pricing_plans или tariffs (до 12 тарифов), расписание и координаты." %}</p>
+  <textarea data-place-json-import-input rows="15" spellcheck="false" placeholder='{"name_az":"...", "category":"water-leisure", "address":"...", "phone1":"+994..."}'></textarea>
+  <p class="km-pf-dialog__note">{% translate "Поддерживаются: name_az/ru/en, description_az/ru/en, category, subcategory, возраст, регион, район, адрес, телефоны (phone1..phone3), тарифы (до 12), price_mode, расписание и координаты. Главное фото загружается вручную." %}</p>
   <p class="km-pf-dialog__message" data-place-json-import-message role="status" aria-live="polite"></p>
   <div class="km-pf-dialog__actions">
     <button type="button" class="km-pf-btn km-pf-btn--quiet" data-place-json-import-close>{% translate "Отмена" %}</button>

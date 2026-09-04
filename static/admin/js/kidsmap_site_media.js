@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Helper: Upload gallery image files (placement-based)
 function uploadGalleryFiles(files, grid, placement, uploadUrl, csrfToken) {
     const addBtn = grid.querySelector(".km-gallery-add");
-    
+
     Array.from(files).forEach(file => {
         // Create skeleton card loader
         const loader = document.createElement("div");
@@ -169,7 +169,11 @@ function uploadGalleryFiles(files, grid, placement, uploadUrl, csrfToken) {
         })
         .catch(err => {
             loader.remove();
-            alert(`Не удалось загрузить файл "${file.name}": ${err.message}`);
+            if (window.kmToast) {
+                window.kmToast.error(`Не удалось загрузить файл «${file.name}»: ${err.message}`);
+            } else {
+                alert(`Не удалось загрузить файл "${file.name}": ${err.message}`);
+            }
         });
     });
 }
@@ -231,7 +235,11 @@ function uploadSingleFile(file, row, field, uploadUrl, csrfToken) {
         // Revert on error
         previewContainer.innerHTML = origPreview;
         statusContainer.innerHTML = origStatus;
-        alert(`Не удалось загрузить файл "${file.name}": ${err.message}`);
+        if (window.kmToast) {
+            window.kmToast.error(`Не удалось загрузить файл «${file.name}»: ${err.message}`);
+        } else {
+            alert(`Не удалось загрузить файл "${file.name}": ${err.message}`);
+        }
     })
     .finally(() => {
         if (uploadBtn) uploadBtn.disabled = false;
@@ -256,43 +264,63 @@ function ensureDeleteButton(row) {
 
 function deleteSingleFile(row, field, deleteUrl, csrfToken) {
     if (!deleteUrl) return;
-    if (!window.confirm("Удалить загруженное изображение?")) return;
 
-    const deleteBtn = row.querySelector(".km-media-delete-btn");
-    if (deleteBtn) {
-        deleteBtn.disabled = true;
-        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Удаление...';
-    }
-
-    const formData = new FormData();
-    formData.append("field", field);
-
-    fetch(deleteUrl, {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": csrfToken
-        },
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(err.error || `Ошибка сервера (${response.status})`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (!data.success) {
-            throw new Error(data.error || "Неизвестная ошибка");
-        }
-        window.location.reload();
-    })
-    .catch(err => {
-        alert(`Не удалось удалить изображение: ${err.message}`);
+    var doDelete = function() {
+        const deleteBtn = row.querySelector(".km-media-delete-btn");
         if (deleteBtn) {
-            deleteBtn.disabled = false;
-            deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> Удалить';
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Удаление...';
         }
-    });
+
+        const formData = new FormData();
+        formData.append("field", field);
+
+        fetch(deleteUrl, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || `Ошибка сервера (${response.status})`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || "Неизвестная ошибка");
+            }
+            window.location.reload();
+        })
+        .catch(err => {
+            if (window.kmToast) {
+                window.kmToast.error(`Не удалось удалить изображение: ${err.message}`);
+            } else {
+                alert(`Не удалось удалить изображение: ${err.message}`);
+            }
+            if (deleteBtn) {
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = '<i class="far fa-trash-alt"></i> Удалить';
+            }
+        });
+    };
+
+    if (window.kmModal) {
+        window.kmModal.confirm({
+            title: 'Удалить изображение?',
+            message: 'Загруженное изображение будет удалено без возможности восстановления.',
+            iconTone: 'danger',
+            confirmText: 'Удалить',
+            cancelText: 'Отмена',
+            isAlertDialog: true
+        }).then(function(confirmed) {
+            if (confirmed) doDelete();
+        });
+    } else if (window.confirm("Удалить загруженное изображение?")) {
+        doDelete();
+    }
 }

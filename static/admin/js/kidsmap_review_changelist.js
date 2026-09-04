@@ -87,7 +87,26 @@
 
       if (actionButton.dataset.confirm) {
         var message = actionButton.dataset.confirm.replace("{count}", String(count));
-        if (!window.confirm(message)) {
+        if (window.kmModal) {
+          window.kmModal.confirm({
+            title: 'Подтвердите действие',
+            message: message,
+            iconTone: 'warning',
+            confirmText: 'Применить',
+            cancelText: 'Отмена',
+            isAlertDialog: true
+          }).then(function (confirmed) {
+            if (!confirmed) return;
+            setActionValue(actionButton.dataset.action);
+            ensureIndexField();
+            if (typeof form.requestSubmit === "function") {
+              form.requestSubmit();
+            } else {
+              form.submit();
+            }
+          });
+          return;
+        } else if (!window.confirm(message)) {
           return;
         }
       }

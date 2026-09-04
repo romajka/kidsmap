@@ -1,0 +1,989 @@
+/* ==========================================================================
+   KidsMap Admin - Unified Notifications, Modals, Toasts & Alerts Design System
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Modal Dialog System
+   -------------------------------------------------------------------------- */
+
+body.km-modal-open {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+.km-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10600;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+}
+
+.km-modal-backdrop.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.km-modal {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16), 0 4px 12px rgba(15, 23, 42, 0.06);
+  width: min(480px, 94vw);
+  max-width: 480px;
+  max-height: calc(100vh - 40px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transform: scale(0.96) translateY(8px);
+  opacity: 0;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  font-family: var(--km-admin-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  box-sizing: border-box;
+  outline: none;
+  overflow-y: auto;
+}
+
+.km-modal-backdrop.is-visible .km-modal {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.km-modal--sm {
+  max-width: 400px;
+}
+
+.km-modal--lg {
+  max-width: 600px;
+}
+
+/* Modal Header & Content */
+.km-modal__header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.km-modal__icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.km-modal__icon .km-i,
+.km-modal__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* 5 State Themes for Modal Icons */
+.km-modal__icon--success {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.km-modal__icon--warning {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.km-modal__icon--error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.km-modal__icon--info {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.km-modal__icon--danger {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fca5a5;
+}
+
+.km-modal__titles {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.km-modal__title {
+  margin: 0 0 6px 0 !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  line-height: 1.35 !important;
+}
+
+.km-modal__desc {
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  color: #475569 !important;
+  line-height: 1.5 !important;
+}
+
+.km-modal__body {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #334155;
+}
+
+/* Modal Actions Layout */
+.km-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* Modal Buttons */
+.km-btn-modal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  text-decoration: none !important;
+  white-space: nowrap;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.km-btn-modal:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+.km-btn-modal--primary {
+  background: #009A4E;
+  color: #ffffff !important;
+  border-color: #009A4E;
+}
+
+.km-btn-modal--primary:hover {
+  background: #008F46;
+  border-color: #008F46;
+  box-shadow: 0 2px 8px rgba(0, 154, 78, 0.25);
+}
+
+.km-btn-modal--secondary {
+  background: #f8fafc;
+  color: #1e293b !important;
+  border-color: #cbd5e1;
+}
+
+.km-btn-modal--secondary:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.km-btn-modal--quiet {
+  background: transparent;
+  color: #64748b !important;
+  border-color: transparent;
+}
+
+.km-btn-modal--quiet:hover {
+  background: #f1f5f9;
+  color: #0f172a !important;
+}
+
+.km-btn-modal--warning {
+  background: #d97706;
+  color: #ffffff !important;
+}
+
+.km-btn-modal--warning:hover {
+  background: #b45309;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+}
+
+.km-btn-modal--danger {
+  background: #ef4444;
+  color: #ffffff !important;
+  border-color: #ef4444;
+}
+
+.km-btn-modal--danger:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+}
+
+.km-btn-modal--danger-quiet {
+  background: transparent;
+  color: #ef4444 !important;
+  border-color: transparent;
+}
+
+.km-btn-modal--danger-quiet:hover {
+  background: #fef2f2;
+  color: #b91c1c !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. Unsaved Changes Modal Specialized Layout
+   -------------------------------------------------------------------------- */
+
+.km-modal--unsaved {
+  max-width: 500px;
+}
+
+.km-unsaved-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.km-unsaved-actions__main {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.km-unsaved-actions__divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 2px 0;
+  width: 100%;
+}
+
+.km-unsaved-actions__danger-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   3. Toast Notification System
+   -------------------------------------------------------------------------- */
+
+.km-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  z-index: 10700;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: min(420px, calc(100vw - 32px));
+}
+
+.km-toast {
+  pointer-events: auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.05);
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-family: var(--km-admin-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  transform: translateX(28px);
+  opacity: 0;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  box-sizing: border-box;
+}
+
+.km-toast.is-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.km-toast.is-leaving {
+  transform: translateX(40px);
+  opacity: 0;
+}
+
+.km-toast__icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.km-toast__icon .km-i,
+.km-toast__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Toast States */
+.km-toast--success {
+  border-left: 4px solid #10b981;
+}
+.km-toast--success .km-toast__icon {
+  color: #10b981;
+}
+
+.km-toast--warning {
+  border-left: 4px solid #f59e0b;
+}
+.km-toast--warning .km-toast__icon {
+  color: #f59e0b;
+}
+
+.km-toast--error {
+  border-left: 4px solid #ef4444;
+}
+.km-toast--error .km-toast__icon {
+  color: #ef4444;
+}
+
+.km-toast--info {
+  border-left: 4px solid #0ea5e9;
+}
+.km-toast--info .km-toast__icon {
+  color: #0ea5e9;
+}
+
+.km-toast--danger {
+  border-left: 4px solid #ef4444;
+}
+.km-toast--danger .km-toast__icon {
+  color: #ef4444;
+}
+
+.km-toast__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.km-toast__title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.km-toast__message {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.45;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+.km-toast__action {
+  margin-left: 4px;
+  align-self: center;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.km-toast__action:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.km-toast__close {
+  margin-left: 2px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.km-toast__close:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.km-toast__close .km-i,
+.km-toast__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   4. Inline Alerts (.km-alert and Django messages)
+   -------------------------------------------------------------------------- */
+
+.km-alert {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.km-alert__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.km-alert__icon .km-i,
+.km-alert__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.km-alert__content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.km-alert__title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.km-alert__text {
+  margin: 0;
+}
+
+.km-alert__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+}
+
+.km-alert__close:hover {
+  opacity: 1;
+}
+
+/* 5 State Themes for Inline Alerts */
+.km-alert--success,
+.alert.alert-success {
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+  border-color: #a7f3d0 !important;
+}
+
+.km-alert--warning,
+.alert.alert-warning {
+  background: #fffbeb !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+
+.km-alert--error,
+.km-alert--danger,
+.alert.alert-danger {
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+  border-color: #fecaca !important;
+}
+
+.km-alert--info,
+.alert.alert-info {
+  background: #f0f9ff !important;
+  color: #075985 !important;
+  border-color: #bae6fd !important;
+}
+
+/* Overrides for Django AdminLTE/Bootstrap message alerts */
+.content .alert {
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.content .alert .icon {
+  margin-right: 0;
+  font-size: 18px;
+}
+
+.content .alert .close {
+  position: static;
+  margin-left: auto;
+  opacity: 0.5;
+  padding: 0 4px;
+  font-size: 20px;
+  color: inherit;
+}
+
+.content .alert .close:hover {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   5. Standalone Confirm Card (.km-confirm-card)
+   Used in place_delete_confirmation, place_restore_confirmation, etc.
+   -------------------------------------------------------------------------- */
+
+.delete-confirmation #content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 20px;
+}
+
+.km-confirm-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eef2f5;
+  max-width: 550px;
+  width: 100%;
+  padding: 40px;
+  text-align: center;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.km-confirm-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px auto;
+  font-size: 32px;
+}
+
+.km-confirm-icon-wrap--danger {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.km-confirm-icon-wrap--warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.km-confirm-icon-wrap--success {
+  background: #f0fdf4;
+  color: #10b981;
+}
+
+.km-confirm-icon-wrap--info {
+  background: #f0f9ff;
+  color: #0ea5e9;
+}
+
+.km-confirm-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 16px 0 !important;
+  line-height: 1.3;
+}
+
+.km-confirm-text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0 0 24px 0 !important;
+}
+
+.km-confirm-list-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  color: #334155;
+  margin: 0 0 8px 0;
+}
+
+.km-confirm-list {
+  text-align: left;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 0 0 24px 0;
+  border: 1px solid #f1f5f9;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.km-confirm-list ul {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 0 !important;
+}
+
+.km-confirm-list li {
+  font-size: 14px;
+  color: #475569;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  word-break: break-word;
+}
+
+.km-confirm-list li:last-child {
+  border-bottom: none;
+}
+
+.km-confirm-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.km-btn-confirm {
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none !important;
+}
+
+.km-btn-confirm--danger {
+  background: #ef4444;
+  color: #ffffff !important;
+}
+
+.km-btn-confirm--danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.km-btn-confirm--success {
+  background: #10b981;
+  color: #ffffff !important;
+}
+
+.km-btn-confirm--success:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.km-btn-confirm--secondary,
+.km-btn-confirm--cancel {
+  background: #f1f5f9;
+  color: #475569 !important;
+}
+
+.km-btn-confirm--secondary:hover,
+.km-btn-confirm--cancel:hover {
+  background: #e2e8f0;
+  color: #1e293b !important;
+  transform: translateY(-1px);
+}
+
+.km-btn-confirm--warning {
+  background: #d97706;
+  color: #ffffff !important;
+}
+
+.km-btn-confirm--warning:hover {
+  background: #b45309;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+}
+
+/* Quote block used in moderation confirm pages */
+.km-confirm-quote {
+  font-style: italic;
+  background: #f8fafc;
+  border-left: 4px solid #d97706;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #475569;
+  text-align: left;
+  margin: 0 0 30px 0;
+}
+
+/* --------------------------------------------------------------------------
+   6. Dark Mode Adjustments
+   -------------------------------------------------------------------------- */
+
+.dark-mode .km-modal,
+body.theme-dark .km-modal {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+}
+
+.dark-mode .km-modal__title,
+body.theme-dark .km-modal__title {
+  color: #f8fafc !important;
+}
+
+.dark-mode .km-modal__desc,
+body.theme-dark .km-modal__desc {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .km-modal__body,
+body.theme-dark .km-modal__body {
+  color: #cbd5e1;
+}
+
+.dark-mode .km-unsaved-actions__divider,
+body.theme-dark .km-unsaved-actions__divider {
+  background: #334155;
+}
+
+.dark-mode .km-btn-modal--secondary,
+body.theme-dark .km-btn-modal--secondary {
+  background: #334155;
+  color: #f8fafc !important;
+  border-color: #475569;
+}
+
+.dark-mode .km-btn-modal--secondary:hover,
+body.theme-dark .km-btn-modal--secondary:hover {
+  background: #475569;
+}
+
+.dark-mode .km-btn-modal--quiet,
+body.theme-dark .km-btn-modal--quiet {
+  color: #94a3b8 !important;
+}
+
+.dark-mode .km-btn-modal--quiet:hover,
+body.theme-dark .km-btn-modal--quiet:hover {
+  background: #334155;
+  color: #f8fafc !important;
+}
+
+.dark-mode .km-toast,
+body.theme-dark .km-toast {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.dark-mode .km-toast__title,
+body.theme-dark .km-toast__title {
+  color: #f8fafc;
+}
+
+.dark-mode .km-toast__message,
+body.theme-dark .km-toast__message {
+  color: #94a3b8;
+}
+
+.dark-mode .km-toast__action,
+body.theme-dark .km-toast__action {
+  background: #334155;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+.dark-mode .km-toast__action:hover,
+body.theme-dark .km-toast__action:hover {
+  background: #475569;
+}
+
+.dark-mode .km-confirm-card,
+body.theme-dark .km-confirm-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .km-confirm-title,
+body.theme-dark .km-confirm-title {
+  color: #f8fafc;
+}
+
+.dark-mode .km-confirm-text,
+body.theme-dark .km-confirm-text {
+  color: #94a3b8;
+}
+
+.dark-mode .km-btn-confirm--secondary,
+.dark-mode .km-btn-confirm--cancel,
+body.theme-dark .km-btn-confirm--secondary,
+body.theme-dark .km-btn-confirm--cancel {
+  background: #334155;
+  color: #f8fafc !important;
+}
+
+.dark-mode .km-btn-confirm--secondary:hover,
+.dark-mode .km-btn-confirm--cancel:hover,
+body.theme-dark .km-btn-confirm--secondary:hover,
+body.theme-dark .km-btn-confirm--cancel:hover {
+  background: #475569;
+}
+
+.dark-mode .km-confirm-quote,
+body.theme-dark .km-confirm-quote {
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+.dark-mode .km-confirm-list,
+body.theme-dark .km-confirm-list {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+
+.dark-mode .km-confirm-list-title,
+body.theme-dark .km-confirm-list-title {
+  color: #cbd5e1;
+}
+
+.dark-mode .km-confirm-list li,
+body.theme-dark .km-confirm-list li {
+  color: #94a3b8;
+  border-color: #1e293b;
+}
+
+/* --------------------------------------------------------------------------
+   7. Responsive & Mobile Viewport
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .km-modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .km-modal {
+    width: 100vw;
+    max-width: 100vw;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    transform: translateY(100%);
+    max-height: 85vh;
+  }
+
+  .km-modal-backdrop.is-visible .km-modal {
+    transform: translateY(0);
+  }
+
+  .km-unsaved-actions__main {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+
+  .km-unsaved-actions__main .km-btn-modal {
+    width: 100%;
+  }
+
+  .km-unsaved-actions__danger-row {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .km-unsaved-actions__danger-row .km-btn-modal {
+    width: 100%;
+  }
+
+  .km-modal__actions {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+
+  .km-modal__actions .km-btn-modal {
+    width: 100%;
+  }
+
+  .km-toast-container {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    max-width: none;
+  }
+
+  .km-toast {
+    padding: 10px 14px;
+  }
+
+  .km-confirm-card {
+    padding: 24px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-modal-backdrop,
+  .km-modal,
+  .km-toast {
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+}

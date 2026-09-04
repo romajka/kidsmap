@@ -8,6 +8,7 @@
     data-editor-id="{{ editor_id }}"
     data-open-label="{% if CURRENT_LANGUAGE == 'az' %}Açıqdır{% elif CURRENT_LANGUAGE == 'en' %}Open{% else %}{% trans 'Открыто' %}{% endif %}"
     data-closed-label="{% if CURRENT_LANGUAGE == 'az' %}Bağlıdır{% elif CURRENT_LANGUAGE == 'en' %}Closed{% else %}{% trans 'Закрыто' %}{% endif %}"
+    data-day-off-label="{% if CURRENT_LANGUAGE == 'az' %}İstirahət günü{% elif CURRENT_LANGUAGE == 'en' %}Day off{% else %}{% trans 'Выходной' %}{% endif %}"
     data-all-day-label="{% if CURRENT_LANGUAGE == 'az' %}24 saat açıqdır{% elif CURRENT_LANGUAGE == 'en' %}Open 24 hours{% else %}{% trans 'Открыто 24 часа' %}{% endif %}"
     data-add-interval-label="{% if CURRENT_LANGUAGE == 'az' %}+ Interval{% elif CURRENT_LANGUAGE == 'en' %}+ Interval{% else %}{% trans '+ Интервал' %}{% endif %}"
     data-remove-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}"
@@ -86,17 +87,24 @@
       {% if CURRENT_LANGUAGE == "az" %}İş saatlarını qeyd etmək üçün günü aktivləşdirin. Bir günə bir neçə interval əlavə etmək olar.{% elif CURRENT_LANGUAGE == "en" %}Enable a day to set its hours. You can add several intervals to one day.{% else %}Включите нужные дни и укажите часы. На один день можно добавить несколько интервалов.{% endif %}
     </p>
     <div class="km-schedule-editor__presets">
+      <span class="km-schedule-editor__presets-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        {% if CURRENT_LANGUAGE == 'az' %}Şablonlar:{% elif CURRENT_LANGUAGE == 'en' %}Presets:{% else %}{% trans "Шаблоны:" %}{% endif %}
+      </span>
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="all-days">{% if CURRENT_LANGUAGE == "az" %}Hər gün 09:00–21:00{% elif CURRENT_LANGUAGE == "en" %}Every day 09:00–21:00{% else %}{% trans "Каждый день 09:00–21:00" %}{% endif %}</button>
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekdays">{% if CURRENT_LANGUAGE == "az" %}Bazar ertəsi–Cümə 09:00–18:00{% elif CURRENT_LANGUAGE == "en" %}Monday–Friday 09:00–18:00{% else %}{% trans "Понедельник–Пятница 09:00–18:00" %}{% endif %}</button>
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="weekday-weekend">{% if CURRENT_LANGUAGE == "az" %}Bazar ertəsi–Cümə / Şənbə–Bazar{% elif CURRENT_LANGUAGE == "en" %}Monday–Friday / Weekends{% else %}{% trans "Понедельник–Пятница / Выходные" %}{% endif %}</button>
       <button type="button" class="km-schedule-editor__preset" data-km-schedule-preset="always-open">{% if CURRENT_LANGUAGE == "az" %}24 saat{% elif CURRENT_LANGUAGE == "en" %}24 hours{% else %}{% trans 'Круглосуточно' %}{% endif %}</button>
-      <button type="button" class="km-schedule-editor__preset km-schedule-editor__preset--ghost" data-km-schedule-preset="clear">{% if CURRENT_LANGUAGE == "az" %}Hamısını təmizlə{% elif CURRENT_LANGUAGE == "en" %}Clear all{% else %}{% trans 'Очистить всё' %}{% endif %}</button>
+      <button type="button" class="km-schedule-editor__preset km-schedule-editor__preset--ghost km-schedule-editor__preset--clear" data-km-schedule-preset="clear" title="{% if CURRENT_LANGUAGE == 'az' %}Bütün qrafiki təmizlə{% elif CURRENT_LANGUAGE == 'en' %}Clear all schedule{% else %}{% trans 'Очистить всё расписание' %}{% endif %}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Təmizlə{% elif CURRENT_LANGUAGE == "en" %}Clear{% else %}{% trans 'Очистить всё' %}{% endif %}</span>
+      </button>
     </div>
 
     <div class="km-schedule-editor__table" role="group" aria-label="{% trans 'Редактор расписания по дням недели' %}">
       <div class="km-schedule-editor__header" aria-hidden="true">
         <span>{% if CURRENT_LANGUAGE == "az" %}Həftə günü{% elif CURRENT_LANGUAGE == "en" %}Day{% else %}{% trans "День недели" %}{% endif %}</span>
-        <span>{% if CURRENT_LANGUAGE == "az" %}Açıqdır{% elif CURRENT_LANGUAGE == "en" %}Open{% else %}{% trans "Открыто" %}{% endif %}</span>
+        <span>{% if CURRENT_LANGUAGE == "az" %}Açıqdır / 24 saat{% elif CURRENT_LANGUAGE == "en" %}Open / 24h{% else %}{% trans "Открыто / 24 ч" %}{% endif %}</span>
         <span>{% if CURRENT_LANGUAGE == "az" %}İş intervalları{% elif CURRENT_LANGUAGE == "en" %}Working intervals{% else %}{% trans "Интервалы работы" %}{% endif %}</span>
         <span>{% if CURRENT_LANGUAGE == "az" %}Əməliyyatlar{% elif CURRENT_LANGUAGE == "en" %}Actions{% else %}{% trans "Действия" %}{% endif %}</span>
       </div>
@@ -125,7 +133,7 @@
                   {% endif %}
                 </span>
               </label>
-              <label class="km-schedule-editor__checkbox{% if day.is_closed %} is-disabled{% endif %}">
+              <label class="km-schedule-editor__checkbox{% if day.is_closed %} is-disabled{% endif %}" title="{% if CURRENT_LANGUAGE == 'az' %}24 saat açıqdır{% elif CURRENT_LANGUAGE == 'en' %}Open 24 hours{% else %}{% trans 'Круглосуточно' %}{% endif %}">
                 <input type="checkbox" data-km-schedule-24="{{ day.weekday }}"{% if day.is_24_hours %} checked{% endif %}{% if day.is_closed %} disabled{% endif %}>
                 <span class="km-schedule-editor__checkbox-box" aria-hidden="true"></span>
                 <span>{% if CURRENT_LANGUAGE == 'az' %}24 saat{% elif CURRENT_LANGUAGE == 'en' %}24 hours{% else %}{% trans '24 часа' %}{% endif %}</span>
@@ -133,7 +141,7 @@
             </div>
             <div class="km-schedule-editor__work">
               {% if day.is_closed %}
-                <span class="km-schedule-editor__state-copy">{% if CURRENT_LANGUAGE == 'az' %}Bağlıdır{% elif CURRENT_LANGUAGE == 'en' %}Closed{% else %}{% trans "Закрыто" %}{% endif %}</span>
+                <span class="km-schedule-editor__state-copy km-schedule-editor__state-copy--closed">— {% if CURRENT_LANGUAGE == 'az' %}İstirahət günü{% elif CURRENT_LANGUAGE == 'en' %}Day off{% else %}{% trans "Выходной" %}{% endif %} —</span>
               {% elif day.is_24_hours %}
                 <span class="km-schedule-editor__state-copy km-schedule-editor__state-copy--active">
                   {% if CURRENT_LANGUAGE == 'az' %}24 saat açıqdır{% elif CURRENT_LANGUAGE == 'en' %}Open 24 hours{% else %}{% trans "Открыто 24 часа" %}{% endif %}
@@ -143,38 +151,50 @@
                   {% if day.intervals %}
                     {% for interval in day.intervals %}
                       <div class="km-schedule-editor__interval" data-km-schedule-interval data-weekday="{{ day.weekday }}" data-index="{{ forloop.counter0 }}">
+                        <span class="km-schedule-editor__interval-clock" title="{% if CURRENT_LANGUAGE == 'az' %}Vaxtı seçin{% elif CURRENT_LANGUAGE == 'en' %}Select time{% else %}Выбрать время{% endif %}" aria-hidden="true">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </span>
                         <div class="km-schedule-editor__time-wrapper">
                           <input type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="09:00" class="km-schedule-editor__time" data-km-schedule-start value="{{ interval.start }}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Başlama vaxtı{% elif CURRENT_LANGUAGE == 'en' %}Start time{% else %}Время начала{% endif %}">
-                          <button type="button" class="km-schedule-editor__picker-btn" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Vaxtı seçin{% elif CURRENT_LANGUAGE == 'en' %}Select time{% else %}Выбрать время{% endif %}">🕒</button>
                         </div>
-                        <span class="km-schedule-editor__dash">—</span>
+                        <span class="km-schedule-editor__dash" aria-hidden="true">—</span>
                         <div class="km-schedule-editor__time-wrapper">
                           <input type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="18:00" class="km-schedule-editor__time" data-km-schedule-end value="{{ interval.end }}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Bitmə vaxtı{% elif CURRENT_LANGUAGE == 'en' %}End time{% else %}Время окончания{% endif %}">
-                          <button type="button" class="km-schedule-editor__picker-btn" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Vaxtı seçin{% elif CURRENT_LANGUAGE == 'en' %}Select time{% else %}Выбрать время{% endif %}">🕒</button>
                         </div>
-                        <button type="button" class="km-schedule-editor__icon-btn" data-km-schedule-remove-interval="{{ day.weekday }}" data-index="{{ forloop.counter0 }}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}"{% if day.intervals|length <= 1 %} style="display:none;"{% endif %}>×</button>
+                        <button type="button" class="km-schedule-editor__icon-btn" data-km-schedule-remove-interval="{{ day.weekday }}" data-index="{{ forloop.counter0 }}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}" title="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}"{% if day.intervals|length <= 1 %} style="display:none;"{% endif %}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
                       </div>
                     {% endfor %}
                   {% else %}
                     <div class="km-schedule-editor__interval" data-km-schedule-interval data-weekday="{{ day.weekday }}" data-index="0">
+                      <span class="km-schedule-editor__interval-clock" title="{% if CURRENT_LANGUAGE == 'az' %}Vaxtı seçin{% elif CURRENT_LANGUAGE == 'en' %}Select time{% else %}Выбрать время{% endif %}" aria-hidden="true">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      </span>
                       <div class="km-schedule-editor__time-wrapper">
                         <input type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="09:00" class="km-schedule-editor__time" data-km-schedule-start value="" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Başlama vaxtı{% elif CURRENT_LANGUAGE == 'en' %}Start time{% else %}Время начала{% endif %}">
-                        <button type="button" class="km-schedule-editor__picker-btn" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Vaxtı seçin{% elif CURRENT_LANGUAGE == 'en' %}Select time{% else %}Выбрать время{% endif %}">🕒</button>
                       </div>
-                      <span class="km-schedule-editor__dash">—</span>
+                      <span class="km-schedule-editor__dash" aria-hidden="true">—</span>
                       <div class="km-schedule-editor__time-wrapper">
                         <input type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="18:00" class="km-schedule-editor__time" data-km-schedule-end value="" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Bitmə vaxtı{% elif CURRENT_LANGUAGE == 'en' %}End time{% else %}Время окончания{% endif %}">
-                        <button type="button" class="km-schedule-editor__picker-btn" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Vaxtı seçin{% elif CURRENT_LANGUAGE == 'en' %}Select time{% else %}Выбрать время{% endif %}">🕒</button>
                       </div>
-                      <button type="button" class="km-schedule-editor__icon-btn" data-km-schedule-remove-interval="{{ day.weekday }}" data-index="0" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}" style="display:none;">×</button>
+                      <button type="button" class="km-schedule-editor__icon-btn" data-km-schedule-remove-interval="{{ day.weekday }}" data-index="0" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}" title="{% if CURRENT_LANGUAGE == 'az' %}Sil{% elif CURRENT_LANGUAGE == 'en' %}Remove{% else %}{% trans 'Удалить' %}{% endif %}" style="display:none;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      </button>
                     </div>
                   {% endif %}
                 </div>
               {% endif %}
             </div>
             <div class="km-schedule-editor__copy">
-              <button type="button" class="km-schedule-editor__small-action" data-km-schedule-add-interval="{{ day.weekday }}"{% if day.is_closed or day.is_24_hours %} disabled{% endif %}>{% if CURRENT_LANGUAGE == 'az' %}+ Interval{% elif CURRENT_LANGUAGE == 'en' %}+ Interval{% else %}{% trans '+ Интервал' %}{% endif %}</button>
-              <button type="button" class="km-schedule-editor__icon-action" data-km-schedule-copy-day="{{ day.weekday }}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Digər günlərə kopyala{% elif CURRENT_LANGUAGE == 'en' %}Copy to other days{% else %}{% trans 'Скопировать на другие дни' %}{% endif %}" title="{% if CURRENT_LANGUAGE == 'az' %}Digər günlərə kopyala{% elif CURRENT_LANGUAGE == 'en' %}Copy to other days{% else %}{% trans 'Скопировать на другие дни' %}{% endif %}">⧉</button>
+              <button type="button" class="km-schedule-editor__small-action" data-km-schedule-add-interval="{{ day.weekday }}"{% if day.is_closed or day.is_24_hours %} disabled{% endif %} title="{% if CURRENT_LANGUAGE == 'az' %}İnterval əlavə et{% elif CURRENT_LANGUAGE == 'en' %}Add interval{% else %}{% trans 'Добавить интервал' %}{% endif %}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>{% if CURRENT_LANGUAGE == 'az' %}İnterval{% elif CURRENT_LANGUAGE == 'en' %}Interval{% else %}{% trans 'Интервал' %}{% endif %}</span>
+              </button>
+              <button type="button" class="km-schedule-editor__icon-action" data-km-schedule-copy-day="{{ day.weekday }}" aria-label="{% if CURRENT_LANGUAGE == 'az' %}Digər günlərə kopyala{% elif CURRENT_LANGUAGE == 'en' %}Copy to other days{% else %}{% trans 'Скопировать на другие дни' %}{% endif %}" title="{% if CURRENT_LANGUAGE == 'az' %}Digər günlərə kopyala{% elif CURRENT_LANGUAGE == 'en' %}Copy to other days{% else %}{% trans 'Скопировать на другие дни' %}{% endif %}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>{% if CURRENT_LANGUAGE == 'az' %}Kopyala{% elif CURRENT_LANGUAGE == 'en' %}Copy{% else %}{% trans 'Копировать' %}{% endif %}</span>
+              </button>
             </div>
             {% if day.errors %}
               <div class="km-schedule-editor__row-errors">

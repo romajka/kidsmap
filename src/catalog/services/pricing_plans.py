@@ -461,12 +461,36 @@ def format_price_amount(value) -> str:
 def build_public_price_summary(place, language="ru"):
     lang = (language or get_language() or "ru").split("-")[0]
     labels = {
-        "ru": {"free": "Бесплатно", "from": "От {value} ₼", "unknown": "Цена уточняется"},
-        "az": {"free": "Pulsuz", "from": "{value} ₼-dən", "unknown": "Qiymət dəqiqləşdirilir"},
-        "en": {"free": "Free", "from": "From {value} ₼", "unknown": "Price on request"},
+        "ru": {
+            "free": "Бесплатно",
+            "free_entry": "Вход бесплатный",
+            "events": "Цена зависит от мероприятия",
+            "from": "От {value} ₼",
+            "unknown": "Цена уточняется",
+        },
+        "az": {
+            "free": "Pulsuz",
+            "free_entry": "Giriş pulsuzdur",
+            "events": "Qiymət tədbirdən asılıdır",
+            "from": "{value} ₼-dən",
+            "unknown": "Qiymət dəqiqləşdirilir",
+        },
+        "en": {
+            "free": "Free",
+            "free_entry": "Free admission",
+            "events": "Price depends on event",
+            "from": "From {value} ₼",
+            "unknown": "Price on request",
+        },
     }.get(lang, None)
     if labels is None:
-        lang, labels = "ru", {"free": "Бесплатно", "from": "От {value} ₼", "unknown": "Цена уточняется"}
+        lang, labels = "ru", {
+            "free": "Бесплатно",
+            "free_entry": "Вход бесплатный",
+            "events": "Цена зависит от мероприятия",
+            "from": "От {value} ₼",
+            "unknown": "Цена уточняется",
+        }
     custom = (
         getattr(place, f"custom_price_badge_{lang}", "")
         or getattr(place, "custom_price_badge_ru", "")
@@ -475,6 +499,14 @@ def build_public_price_summary(place, language="ru"):
     custom = (custom or "").strip()
     if custom:
         return {"kind": "custom", "min_price": None, "max_price": None, "currency": "AZN", "label": custom, "source": "custom_override"}
+
+    price_mode = getattr(place, "price_mode", "tariffs") or "tariffs"
+    if price_mode == "free":
+        return {"kind": "free", "min_price": Decimal("0"), "max_price": Decimal("0"), "currency": "AZN", "label": labels["free"], "source": "price_mode"}
+    if price_mode == "free_entry_paid_services":
+        return {"kind": "free_entry", "min_price": Decimal("0"), "max_price": None, "currency": "AZN", "label": labels["free_entry"], "source": "price_mode"}
+    if price_mode == "events":
+        return {"kind": "events", "min_price": None, "max_price": None, "currency": "AZN", "label": labels["events"], "source": "price_mode"}
     active_primary = []
     if getattr(place, "pk", None):
         active_primary = [
@@ -661,7 +693,7 @@ def format_price_range(minimum, maximum, lang, currency=DEFAULT_CURRENCY):
 
 def get_starting_price(place, public_plans, lang):
     canonical = build_public_price_summary(place, lang)
-    if canonical["source"] in {"pricing_plans", "legacy_fallback"}:
+    if canonical["source"] in {"pricing_plans", "legacy_fallback", "price_mode"}:
         payment_type = None
         if canonical["source"] == "pricing_plans" and canonical["min_price"] is not None:
             matching = [

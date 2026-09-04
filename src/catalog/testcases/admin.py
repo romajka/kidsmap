@@ -3514,3 +3514,344 @@ class TestReviewRatingSyncAndAdminBulkActions(TestCase):
         self.place.refresh_from_db()
         self.assertEqual(self.place.rating_count, 1)
         self.assertEqual(self.place.rating_avg, 5.0)
+
+
+class TestAdminHeaderAndMarksUI(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.superuser = User.objects.create_superuser("admin_header_test", "admin_h@example.com", "pass123")
+        Category.objects.get_or_create(
+            code="EDU",
+            defaults={"name": "Education", "name_ru": "Образование"},
+        )
+        cls.place = Place.objects.create(
+            name="Test Header Place",
+            name_az="Test Header Place AZ",
+            name_ru="Тестовое место для хедера",
+            category="EDU",
+            rating_avg=4.8,
+            rating_count=12,
+            is_home_recommended=True,
+            lat=40.4093,
+            lng=49.8671,
+        )
+        cls.place_no_rating = Place.objects.create(
+            name="No Rating Place",
+            name_az="No Rating Place AZ",
+            name_ru="Место без рейтинга",
+            category="EDU",
+            rating_avg=0,
+            rating_count=0,
+            is_home_recommended=False,
+            lat=None,
+            lng=None,
+        )
+
+    def setUp(self):
+        self.client.force_login(self.superuser)
+
+    def test_place_col_marks_structure_and_classes(self):
+        from catalog.domain_admin.place import PlaceAdmin
+        from catalog.models.place import Place
+        from django.contrib.admin.sites import AdminSite
+
+        admin_instance = PlaceAdmin(Place, AdminSite())
+
+        # Test place with rating and coordinates
+        html_with_rating = admin_instance.col_marks(self.place)
+        self.assertIn("km-col-marks", html_with_rating)
+        self.assertIn("km-marks-flags", html_with_rating)
+        self.assertIn("km-marks-metrics", html_with_rating)
+        self.assertIn("km-mark--home", html_with_rating)
+        self.assertIn("km-mark--map", html_with_rating)
+        self.assertIn("km-mark-stat--reviews", html_with_rating)
+        self.assertIn("km-mark-stat--rating", html_with_rating)
+        self.assertIn("has-rating", html_with_rating)
+        self.assertIn("4.8", html_with_rating)
+        self.assertIn("12", html_with_rating)
+
+        # Test place without rating and coordinates
+        html_no_rating = admin_instance.col_marks(self.place_no_rating)
+        self.assertIn("no-rating", html_no_rating)
+        self.assertIn("—", html_no_rating)
+        self.assertIn("location_off", html_no_rating)
+
+    def test_unified_admin_header_rendered_across_pages(self):
+        urls = [
+            reverse("admin:index"),
+            reverse("admin:catalog_place_changelist"),
+            reverse("admin:catalog_event_changelist"),
+            reverse("admin:catalog_place_change", args=[self.place.pk]),
+        ]
+
+        for url in urls:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+
+                # Header container exists
+                self.assertContains(response, "km-admin-header")
+
+                # "Перейти на сайт" button exists with target blank
+                self.assertContains(response, "km-admin-header__btn--site")
+                self.assertContains(response, 'href="/"')
+                self.assertContains(response, 'target="_blank"')
+                self.assertContains(response, "Перейти на сайт")
+
+                # Navigation / breadcrumbs container exists
+                self.assertContains(response, "km-admin-header__crumbs")
+
+                # User dropdown exists
+                self.assertContains(response, "km-admin-header__user-dropdown")
+                self.assertContains(response, "jazzy-usermenu")
+
+    def test_admin_header_stylesheet_is_loaded_globally(self):
+        global_css = (
+            settings.BASE_DIR / "static" / "admin" / "css" / "kidsmap_admin.css"
+        ).read_text(encoding="utf-8")
+        self.assertIn("kidsmap_admin_header.css", global_css)
+
+
+class TestSiteRegisteredUserAdminUI(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.superuser = User.objects.create_superuser("admin_users_test", "admin_u@example.com", "pass123")
+        cls.active_user = User.objects.create_user(
+            username="active_site_user",
+            email="active@example.com",
+            first_name="Leyla",
+            last_name="Aliyeva",
+            is_active=True,
+        )
+        UserProfile.objects.create(
+            user=cls.active_user,
+            phone="+994509998877",
+            gender="F",
+        )
+        UserEmailVerification.objects.create(
+            user=cls.active_user,
+            email="active@example.com",
+            is_verified=True,
+        )
+
+        cls.inactive_user = User.objects.create_user(
+            username="inactive_site_user",
+            email="inactive@example.com",
+            first_name="Farid",
+            last_name="Mammadov",
+            is_active=False,
+        )
+        UserProfile.objects.create(
+            user=cls.inactive_user,
+            phone="",
+            gender="M",
+        )
+
+    def setUp(self):
+        self.client.force_login(self.superuser)
+
+    def test_users_changelist_elements_and_assets(self):
+        url = reverse("admin:catalog_siteregistereduser_changelist")
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        # Dashboard layout containers
+        self.assertContains(resp, "km-u-dashboard")
+        self.assertContains(resp, "km-u-header")
+        self.assertContains(resp, "Пользователи сайта")
+        self.assertContains(resp, "Управление зарегистрированными пользователями KidsMap")
+
+        # Tabs
+        self.assertContains(resp, "km-u-tabs")
+        self.assertContains(resp, "Все пользователи")
+        self.assertContains(resp, "Активные")
+        self.assertContains(resp, "Неактивные")
+
+        # Toolbar & search
+        self.assertContains(resp, "km-u-toolbar")
+        self.assertContains(resp, "changelist-search")
+        self.assertContains(resp, "km-u-search-box")
+        self.assertContains(resp, "km-users-filter-toggle")
+        self.assertContains(resp, "km-users-sort-dropdown")
+        self.assertContains(resp, "km-users-cols-dropdown")
+
+        # Mass actions bar
+        self.assertContains(resp, "km-users-bulk-bar")
+
+        # Filter drawer & confirmation modal
+        self.assertContains(resp, "km-users-filter-drawer")
+        self.assertContains(resp, "km-users-confirm-modal")
+
+        # Static assets
+        self.assertContains(resp, "kidsmap_users.css")
+        self.assertContains(resp, "kidsmap_users.js")
+
+    def test_user_cells_formatting(self):
+        url = reverse("admin:catalog_siteregistereduser_changelist")
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        # Profile cells
+        self.assertContains(resp, "Leyla Aliyeva")
+        self.assertContains(resp, "active@example.com")
+        self.assertContains(resp, "@active_site_user")
+        self.assertContains(resp, "Farid Mammadov")
+        self.assertContains(resp, "inactive@example.com")
+
+        # Status chips
+        self.assertContains(resp, "km-u-status--active")
+        self.assertContains(resp, "km-u-status--inactive")
+
+        # Phone
+        self.assertContains(resp, "+994509998877")
+
+    def test_user_quick_toggle_active_api(self):
+        user = self.inactive_user
+        toggle_url = reverse("admin:catalog_siteregistereduser_toggle_active", args=[user.pk])
+
+        # Ajax request to toggle
+        resp = self.client.get(toggle_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data["success"])
+        self.assertTrue(data["is_active"])
+
+        user.refresh_from_db()
+        self.assertTrue(user.is_active)
+
+        # Toggle back
+        resp2 = self.client.get(toggle_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(resp2.status_code, 200)
+        data2 = resp2.json()
+        self.assertTrue(data2["success"])
+        self.assertFalse(data2["is_active"])
+
+        user.refresh_from_db()
+        self.assertFalse(user.is_active)
+
+    def test_bulk_actions_activate_and_deactivate(self):
+        changelist_url = reverse("admin:catalog_siteregistereduser_changelist")
+
+        # Bulk activate
+        resp_act = self.client.post(changelist_url, {
+            "action": "activate_users",
+            "_selected_action": [self.inactive_user.pk],
+        })
+        self.assertIn(resp_act.status_code, (200, 302))
+        self.inactive_user.refresh_from_db()
+        self.assertTrue(self.inactive_user.is_active)
+
+        # Bulk deactivate
+        resp_deact = self.client.post(changelist_url, {
+            "action": "deactivate_users",
+            "_selected_action": [self.inactive_user.pk],
+        })
+        self.assertIn(resp_deact.status_code, (200, 302))
+        self.inactive_user.refresh_from_db()
+        self.assertFalse(self.inactive_user.is_active)
+
+    def test_search_empty_state(self):
+        url = reverse("admin:catalog_siteregistereduser_changelist") + "?q=nonexistent_query_12345"
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Ничего не найдено")
+        self.assertContains(resp, "Попробуйте изменить поисковый запрос или сбросить фильтры")
+
+
+class TestKidsMapAdminDashboard(TestCase):
+    """
+    Tests for the redesigned KidsMap modern executive SaaS dashboard.
+    Verifies KPIs, workspace domain hubs, quick actions, moderation states, and recent activity.
+    """
+
+    def setUp(self):
+        self.superuser = get_user_model().objects.create_superuser(
+            username="dash_admin",
+            email="dash_admin@kidsmap.test",
+            password="adminpassword123",
+        )
+        self.client.force_login(self.superuser)
+
+    def test_dashboard_renders_successfully(self):
+        resp = self.client.get(reverse("admin:index"))
+        self.assertEqual(resp.status_code, 200)
+
+        # Header and main container
+        self.assertContains(resp, "Панель управления KidsMap")
+        self.assertContains(resp, "km-dash-container")
+
+        # KPI section
+        self.assertContains(resp, "Метрики каталога")
+        self.assertContains(resp, "Постоянных мест")
+        self.assertContains(resp, "Опубликовано мест")
+        self.assertContains(resp, "Мероприятий")
+        self.assertContains(resp, "Специалистов")
+        self.assertContains(resp, "Пользователей")
+
+        # Quick Actions
+        self.assertContains(resp, "Создать объявление")
+        self.assertContains(resp, "Добавить мероприятие")
+        self.assertContains(resp, "Добавить специалиста")
+        self.assertContains(resp, "Перейти на сайт")
+
+        # 4 Domain Workspace Hubs
+        self.assertContains(resp, "Рабочие области каталога")
+        self.assertContains(resp, "Каталог и контент")
+        self.assertContains(resp, "Модерация и заявки")
+        self.assertContains(resp, "Пользователи и доступ")
+        self.assertContains(resp, "SEO, аудит и система")
+
+    def test_dashboard_zero_moderation_state(self):
+        resp = self.client.get(reverse("admin:index"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Всё проверено — нет объектов, ожидающих модерации")
+        self.assertContains(resp, "Все объекты проверены")
+
+    def test_dashboard_pending_moderation_state(self):
+        category = Category.objects.create(name="Тест Категория")
+        place = Place.objects.create(
+            name="Новый кружок на модерации",
+            category=category,
+            status=Place.STATUS_PENDING,
+        )
+        review = PlaceReview.objects.create(
+            place=place,
+            author_name="Мария Иванова",
+            rating=5,
+            text="Прекрасное место для развития детей!",
+            status=PlaceReview.STATUS_PENDING,
+        )
+
+        resp = self.client.get(reverse("admin:index"))
+        self.assertEqual(resp.status_code, 200)
+
+        # Attention alert
+        self.assertContains(resp, "Требует внимания")
+        self.assertContains(resp, "km-dash-pending-card")
+
+        # Review alert preview
+        self.assertContains(resp, "Отзывы ждут решения")
+        self.assertContains(resp, "Мария Иванова")
+        self.assertContains(resp, "Прекрасное место")
+        self.assertContains(resp, reverse("admin:catalog_placereview_change", args=[review.pk]))
+
+    def test_dashboard_recent_admin_actions(self):
+        from django.contrib.admin.models import LogEntry, ADDITION
+        from django.contrib.contenttypes.models import ContentType
+
+        category = Category.objects.create(name="Спорт Категория")
+        ct = ContentType.objects.get_for_model(Category)
+        LogEntry.objects.create(
+            user=self.superuser,
+            content_type=ct,
+            object_id=str(category.pk),
+            object_repr="Спорт Категория",
+            action_flag=ADDITION,
+            change_message="Создан тестовый объект",
+        )
+
+        resp = self.client.get(reverse("admin:index"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Журнал последних действий")
+        self.assertContains(resp, "Спорт Категория")
+        self.assertContains(resp, "Создание")

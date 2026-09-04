@@ -250,13 +250,8 @@
         cards = previousCards;
         render();
         showStatus(error.message || "Не удалось сохранить изменения.", "error");
-        if (typeof Swal !== "undefined") {
-          Swal.fire({
-            title: "Не удалось сохранить",
-            text: error.message || "Обновите страницу и попробуйте ещё раз.",
-            icon: "error",
-            confirmButtonColor: "#059669",
-          });
+        if (window.kmToast) {
+          window.kmToast.error(error.message || "Обновите страницу и попробуйте ещё раз.");
         }
       } finally {
         setBusy(false);

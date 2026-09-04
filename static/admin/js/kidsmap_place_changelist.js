@@ -542,18 +542,9 @@
           if (triggerRow) triggerRow.classList.add('km-row--loading');
           if (triggerIcon) setIcon(triggerIcon, "progress_activity");
 
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              title: unpublish ? 'Снятие с публикации...' : 'Публикация карточки...',
-              html: (unpublish ? 'Снимаем карточку' : 'Проверяем и публикуем карточку') + ' <strong>«' + escapeHtml(placeName) + '»</strong>...',
-              allowOutsideClick: false,
-              allowEscapeKey: false,
-              showConfirmButton: false,
-              didOpen: function () {
-                Swal.showLoading();
-              }
-            });
-          }
+          var _loadingToast = window.kmToast
+            ? window.kmToast.info(unpublish ? 'Снятие с публикации...' : 'Публикация карточки...', { duration: 0 })
+            : null;
 
           fetch(togglePubUrl, {
             method: 'POST',
@@ -565,43 +556,31 @@
           })
             .then(function (res) { return res.json(); })
             .then(function (data) {
+              if (_loadingToast && window.kmToast) window.kmToast.dismiss(_loadingToast);
               if (data.ok) {
                 updatePublicationRow(trigger, data);
-                if (typeof Swal !== 'undefined') {
-                  Swal.fire({
-                    icon: 'success',
-                    title: unpublish ? 'Снято с публикации' : 'Успешно опубликовано!',
-                    html: 'Карточка <strong>«' + escapeHtml(placeName) + '»</strong> ' + (unpublish ? 'переведена в черновики.' : 'теперь опубликована и видна на сайте.'),
-                    timer: 2000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                  });
+                if (window.kmToast) {
+                  if (unpublish) {
+                    window.kmToast.warning('«' + placeName + '» переведена в черновики.');
+                  } else {
+                    window.kmToast.success('«' + placeName + '» опубликована и видна на сайте.');
+                  }
                 } else {
                   showToast(data.message);
                 }
               } else {
                 trigger.classList.add('km-action-shake');
-                if (typeof Swal !== 'undefined') {
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Не удалось опубликовать',
-                    text: data.message || labels.publishError || 'Нельзя опубликовать: заполните обязательные данные.',
-                    confirmButtonColor: '#136F38',
-                    confirmButtonText: 'Понятно'
-                  });
+                if (window.kmToast) {
+                  window.kmToast.error(data.message || labels.publishError || 'Нельзя опубликовать: заполните обязательные данные.');
                 } else {
                   showToast(data.message || labels.publishError || 'Нельзя опубликовать: заполните обязательные данные.');
                 }
               }
             })
             .catch(function () {
-              if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Ошибка соединения',
-                  text: labels.toastError || 'Не удалось связаться с сервером.',
-                  confirmButtonColor: '#136F38'
-                });
+              if (_loadingToast && window.kmToast) window.kmToast.dismiss(_loadingToast);
+              if (window.kmToast) {
+                window.kmToast.error(labels.toastError || 'Не удалось связаться с сервером.');
               } else {
                 showToast(labels.toastError || 'Ошибка выполнения действия');
               }
@@ -619,17 +598,9 @@
           var body = new URLSearchParams();
           body.append('action', act);
 
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              title: 'Выполняется...',
-              allowOutsideClick: false,
-              allowEscapeKey: false,
-              showConfirmButton: false,
-              didOpen: function () {
-                Swal.showLoading();
-              }
-            });
-          }
+          var _quickToast = window.kmToast
+            ? window.kmToast.info('Выполняется...', { duration: 0 })
+            : null;
 
           fetch(quickActionUrl, {
             method: 'POST',
@@ -642,30 +613,22 @@
           })
             .then(function (res) { return res.json(); })
             .then(function (data) {
+              if (_quickToast && window.kmToast) window.kmToast.dismiss(_quickToast);
               if (data.ok) {
-                if (typeof Swal !== 'undefined') {
-                  Swal.fire({
-                    icon: 'success',
-                    title: data.message || 'Готово',
-                    timer: 1400,
-                    showConfirmButton: false
-                  });
+                if (window.kmToast) {
+                  window.kmToast.success(data.message || 'Готово');
                 }
                 setTimeout(function () { window.location.reload(); }, 1200);
               } else {
-                if (typeof Swal !== 'undefined') {
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Ошибка',
-                    text: data.message || 'Действие недоступно',
-                    confirmButtonColor: '#136F38'
-                  });
+                if (window.kmToast) {
+                  window.kmToast.error(data.message || 'Действие недоступно');
                 } else {
                   showToast(data.message || 'Действие недоступно');
                 }
               }
             })
             .catch(function () {
+              if (_quickToast && window.kmToast) window.kmToast.dismiss(_quickToast);
               window.location.reload();
             });
         }
@@ -673,20 +636,16 @@
         if (action === 'toggle_pub') {
           if (isPublished) {
             // Confirmation modal before unpublishing
-            if (typeof Swal !== 'undefined') {
-              Swal.fire({
+            if (window.kmModal) {
+              window.kmModal.confirm({
                 title: 'Снять с публикации?',
-                html: 'Карточка <strong>«' + escapeHtml(placeName) + '»</strong> перестанет отображаться на сайте и перейдёт в черновики.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#DC3838',
-                cancelButtonColor: '#7C867F',
-                confirmButtonText: 'Да, снять',
-                cancelButtonText: 'Отмена',
-                reverseButtons: true,
-                focusCancel: true
-              }).then(function (result) {
-                if (result.isConfirmed) {
+                message: 'Карточка «' + placeName + '» перестанет отображаться на сайте и перейдёт в черновики.',
+                iconTone: 'warning',
+                confirmText: 'Да, снять',
+                cancelText: 'Отмена',
+                isAlertDialog: true
+              }).then(function (confirmed) {
+                if (confirmed) {
                   executeTogglePublication(true);
                 }
               });
@@ -701,25 +660,23 @@
         }
 
         if (action === 'soft_delete') {
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
+          if (window.kmModal) {
+            window.kmModal.confirm({
               title: 'Переместить в удалённые?',
-              html: 'Карточка <strong>«' + escapeHtml(placeName) + '»</strong> будет скрыта и перемещена в раздел «В удалённых».',
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonColor: '#DC3838',
-              cancelButtonColor: '#7C867F',
-              confirmButtonText: 'Да, удалить',
-              cancelButtonText: 'Отмена',
-              reverseButtons: true,
-              focusCancel: true
-            }).then(function (result) {
-              if (result.isConfirmed) {
+              message: 'Карточка «' + placeName + '» будет скрыта и перемещена в раздел «В удалённых».',
+              iconTone: 'danger',
+              confirmText: 'Да, удалить',
+              cancelText: 'Отмена',
+              isAlertDialog: true
+            }).then(function (confirmed) {
+              if (confirmed) {
                 executeQuickAction('soft_delete');
               }
             });
-            return;
+          } else {
+            executeQuickAction('soft_delete');
           }
+          return;
         }
 
         // Other quick actions (e.g. restore)

@@ -1654,7 +1654,11 @@
 
       var allowedToAdd = 10 - activeCount;
       if (allowedToAdd <= 0) {
-        alert("Максимальное количество фотографий — 10.");
+        if (window.kmToast) {
+          window.kmToast.warning("Лимит фотографий", "Максимальное количество фотографий — 10.");
+        } else {
+          alert("Максимальное количество фотографий — 10.");
+        }
         return;
       }
 
@@ -1677,7 +1681,11 @@
       });
 
       if (list.length > allowedToAdd) {
-        alert("Превышен лимит в 10 фотографий. Добавлено только " + allowedToAdd + " шт.");
+        if (window.kmToast) {
+          window.kmToast.warning("Превышен лимит", "Добавлено только " + allowedToAdd + " из " + list.length + " фото (максимум 10).");
+        } else {
+          alert("Превышен лимит в 10 фотографий. Добавлено только " + allowedToAdd + " шт.");
+        }
       }
 
       renumberVisibleCards();
@@ -1963,7 +1971,7 @@
       }
     });
 
-    // Intercept deletelink clicks to show SweetAlert2 before navigating to delete confirmation page
+    // Intercept deletelink clicks to show unified confirm before navigating to delete confirmation page
     document.addEventListener("click", function (event) {
       var deleteLink = event.target.closest(".deletelink");
       if (!deleteLink) {
@@ -1972,20 +1980,15 @@
       event.preventDefault();
       var href = deleteLink.getAttribute("href");
 
-      if (typeof Swal !== "undefined") {
-        Swal.fire({
-          title: "Переместить в удаленные?",
-          text: "Вы будете перенаправлены на страницу подтверждения удаления.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#ef4444",
-          cancelButtonColor: "#475569",
-          confirmButtonText: "Да, продолжить",
-          cancelButtonText: "Отмена",
-          background: document.body.classList.contains("dark-mode") ? "#1e293b" : "#ffffff",
-          color: document.body.classList.contains("dark-mode") ? "#f8fafc" : "#0f172a",
-        }).then(function (result) {
-          if (result.isConfirmed) {
+      if (window.kmModal && typeof window.kmModal.confirm === "function") {
+        window.kmModal.confirm({
+          title: "Перейти к удалению?",
+          message: "Вы будете перенаправлены на страницу подтверждения удаления.",
+          confirmText: "Да, продолжить",
+          cancelText: "Отмена",
+          tone: "danger"
+        }).then(function (confirmed) {
+          if (confirmed) {
             window.location.href = href;
           }
         });
@@ -2109,7 +2112,13 @@
         }
         return parseInt(toRaw, 10) >= parseInt(fromRaw, 10);
       },
-      price: function () {
+      price: function (config) {
+        var modeInput = document.getElementById("id_price_mode");
+        var mode = modeInput ? String(modeInput.value || "tariffs").trim() : "tariffs";
+        var exemptModes = (config && config.exempt_modes) || [];
+        if (exemptModes.indexOf(mode) !== -1) {
+          return true;
+        }
         var plans = parseJsonInput("[data-tariff-input]");
         if (!Array.isArray(plans)) return false;
         return plans.some(planHasPublicPrice);
@@ -2117,10 +2126,13 @@
       phone: function () {
         return !!inputValue("id_phone1");
       },
-      schedule: function () {
+      schedule: function (config) {
         var mode = document.getElementById("id_schedule_mode");
         var modeValue = mode ? String(mode.value || "regular") : "regular";
-        if (modeValue !== "regular") return true;
+        var exemptModes = (config && config.exempt_modes) || [];
+        if (exemptModes.indexOf(modeValue) !== -1) {
+          return true;
+        }
         return scheduleIsMeaningful();
       },
       photo: function () {
@@ -2146,12 +2158,13 @@
           message: item.message || "",
           anchor: item.anchor || "",
           section: item.section || "",
+          config: item.config || {},
           // Some requirements are satisfied by stored data the browser cannot
           // see (a legacy price, an uploaded cover photo). The server tells us.
           fallback: !!item.fallback,
           isFilled: function () {
             if (this.fallback) return true;
-            return evaluator ? !!evaluator() : !!item.initial;
+            return evaluator ? !!evaluator(this.config) : !!item.initial;
           },
           getTargetInput: function () {
             if (!item.anchor) return null;
@@ -2641,23 +2654,17 @@
 
       if (isFormDirty()) {
         event.preventDefault();
-        if (typeof Swal !== "undefined") {
-          Swal.fire({
-            title: "Несохраненные изменения",
-            text: "У вас есть несохраненные изменения. Сохранить их перед выходом?",
-            icon: "warning",
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: "Сохранить и выйти",
-            denyButtonText: "Выйти без сохранения",
-            cancelButtonText: "Остаться и продолжить",
-            confirmButtonColor: "#10b981",
-            denyButtonColor: "#ef4444",
-            cancelButtonColor: "#64748b",
-            background: document.body.classList.contains("dark-mode") ? "#1e293b" : "#ffffff",
-            color: document.body.classList.contains("dark-mode") ? "#f8fafc" : "#0f172a",
-          }).then(function(result) {
-            if (result.isConfirmed) {
+        event.stopPropagation();
+
+        if (window.kmModal && typeof window.kmModal.unsavedChanges === "function") {
+          window.kmModal.unsavedChanges({
+            title: "Есть несохранённые изменения",
+            message: "Вы внесли изменения в форму, но ещё не сохранили их.",
+            stayText: "Остаться",
+            saveText: "Сохранить и выйти",
+            discardText: "Выйти без сохранения",
+            onStay: function () {},
+            onSaveAndExit: function () {
               var saveInput = document.createElement("input");
               saveInput.type = "hidden";
               saveInput.name = "_save";
@@ -2665,13 +2672,14 @@
               form.appendChild(saveInput);
               formSubmitted = true;
               form.submit();
-            } else if (result.isDenied) {
+            },
+            onExitWithoutSaving: function () {
               formSubmitted = true;
               window.location.href = href;
             }
           });
         } else {
-          if (confirm("У вас есть несохраненные изменения. Выйти без сохранения?")) {
+          if (confirm("У вас есть несохранённые изменения. Выйти без сохранения?")) {
             formSubmitted = true;
             window.location.href = href;
           }

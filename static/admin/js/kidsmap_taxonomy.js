@@ -101,10 +101,27 @@ document.addEventListener("DOMContentLoaded", function () {
   deleteLinks.forEach(function (link) {
     link.addEventListener("click", function (e) {
       e.preventDefault();
-      const confirmed = confirm("Вы уверены, что хотите удалить этот объект? Это действие нельзя отменить.");
-      if (confirmed && deleteForm) {
-        deleteForm.action = link.href;
-        deleteForm.submit();
+      var href = link.href;
+      if (window.kmModal) {
+        window.kmModal.confirm({
+          title: 'Удалить объект?',
+          message: 'Это действие нельзя отменить.',
+          iconTone: 'danger',
+          confirmText: 'Удалить',
+          cancelText: 'Отмена',
+          isAlertDialog: true
+        }).then(function (confirmed) {
+          if (confirmed && deleteForm) {
+            deleteForm.action = href;
+            deleteForm.submit();
+          }
+        });
+      } else {
+        var confirmed = confirm("Вы уверены, что хотите удалить этот объект? Это действие нельзя отменить.");
+        if (confirmed && deleteForm) {
+          deleteForm.action = href;
+          deleteForm.submit();
+        }
       }
     });
   });
@@ -141,11 +158,19 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data.status === "success") {
           window.location.reload();
         } else {
-          alert("Ошибка при изменении статуса: " + (data.error || "Неизвестная ошибка"));
+          if (window.kmToast) {
+            window.kmToast.error("Ошибка при изменении статуса: " + (data.error || "Неизвестная ошибка"));
+          } else {
+            alert("Ошибка при изменении статуса: " + (data.error || "Неизвестная ошибка"));
+          }
         }
       })
       .catch(err => {
-        alert("Ошибка сети при запросе.");
+        if (window.kmToast) {
+          window.kmToast.error("Ошибка сети при запросе.");
+        } else {
+          alert("Ошибка сети при запросе.");
+        }
         console.error(err);
       });
     });

@@ -593,7 +593,11 @@
 
       var allowedToAdd = 10 - activeCount;
       if (allowedToAdd <= 0) {
-        alert("Максимальное количество фотографий — 10.");
+        if (window.kmToast) {
+          window.kmToast.warning("Максимальное количество фотографий — 10.");
+        } else {
+          alert("Максимальное количество фотографий — 10.");
+        }
         return;
       }
 
@@ -616,7 +620,11 @@
       });
 
       if (list.length > allowedToAdd) {
-        alert("Превышен лимит в 10 фотографий. Добавлено только " + allowedToAdd + " шт.");
+        if (window.kmToast) {
+          window.kmToast.warning("Превышен лимит в 10 фотографий. Добавлено только " + allowedToAdd + " шт.");
+        } else {
+          alert("Превышен лимит в 10 фотографий. Добавлено только " + allowedToAdd + " шт.");
+        }
       }
 
       renumberVisibleCards();

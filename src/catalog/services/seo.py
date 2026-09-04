@@ -129,7 +129,10 @@ def _catalog_title_base(*, selected: dict, is_new_page: bool) -> str:
     category = _normalize_text(selected.get("category"))
     district = _normalize_text(selected.get("district"))
     metro = _normalize_text(selected.get("metro"))
-    district_label = str(_(district)) if district else ""
+    district_label = ""
+    if district:
+        from catalog.services.locations import get_location_translation
+        district_label = get_location_translation(district)
     metro_label = str(_(metro)) if metro else ""
 
     if query:
@@ -162,7 +165,8 @@ def _catalog_filter_summary(selected: dict, *, is_new_page: bool) -> list[str]:
     if category:
         summary.append(_("Категория: %(category)s") % {"category": _catalog_category_label(category)})
     if district:
-        summary.append(_("Регион / район: %(district)s") % {"district": str(_(district))})
+        from catalog.services.locations import get_location_translation
+        summary.append(_("Регион / район: %(district)s") % {"district": get_location_translation(district)})
     if metro:
         summary.append(_("Метро: %(metro)s") % {"metro": str(_(metro))})
     if age_from and age_to:
@@ -375,6 +379,18 @@ def build_place_seo_payload(place, request, language_code):
                 "name": place.name_i18n(lang),
             }
 
+        address_payload = {
+            "@type": "PostalAddress",
+            "addressCountry": "AZ",
+        }
+        if place.address:
+            address_payload["streetAddress"] = place.address
+        if place.district:
+            from catalog.services.locations import get_location_translation
+            address_payload["addressLocality"] = get_location_translation(place.district, lang)
+        else:
+            address_payload["addressLocality"] = "Azerbaijan"
+
         schema = {
             "@context": "https://schema.org",
             "@type": "LocalBusiness",
@@ -382,16 +398,57 @@ def build_place_seo_payload(place, request, language_code):
             "description": description,
             "url": _absolute_uri(request, place.get_absolute_url()),
             "image": first_image_url,
-            "telephone": place.phone1 or "",
-            "address": {
-                "@type": "PostalAddress",
-                "streetAddress": place.address or "",
-                "addressLocality": get_location_translation(place.district, lang) if place.district else "Azerbaijan",
-                "addressCountry": "AZ",
-            },
+            "address": address_payload,
             "areaServed": {"@type": "Country", "name": "Azerbaijan"},
             "additionalType": str(category_label),
         }
+        if place.phone1:
+            schema["telephone"] = place.phone1
+
+        SCHEMA_WEEKDAY_MAP = {
+            "mon": "https://schema.org/Monday",
+            "tue": "https://schema.org/Tuesday",
+            "wed": "https://schema.org/Wednesday",
+            "thu": "https://schema.org/Thursday",
+            "fri": "https://schema.org/Friday",
+            "sat": "https://schema.org/Saturday",
+            "sun": "https://schema.org/Sunday",
+        }
+        schedule_mode = getattr(place, "schedule_mode", Place.SCHEDULE_MODE_REGULAR) or Place.SCHEDULE_MODE_REGULAR
+        if schedule_mode == Place.SCHEDULE_MODE_ALWAYS_OPEN:
+            schema["openingHoursSpecification"] = [
+                {
+                    "@type": "OpeningHoursSpecification",
+                    "dayOfWeek": list(SCHEMA_WEEKDAY_MAP.values()),
+                    "opens": "00:00",
+                    "closes": "23:59",
+                }
+            ]
+        elif schedule_mode == Place.SCHEDULE_MODE_REGULAR:
+            opening_hours = []
+            for day in place.schedule_days.prefetch_related("intervals").all():
+                if day.is_closed:
+                    continue
+                day_schema = SCHEMA_WEEKDAY_MAP.get(day.weekday)
+                if not day_schema:
+                    continue
+                if day.is_24_hours:
+                    opening_hours.append({
+                        "@type": "OpeningHoursSpecification",
+                        "dayOfWeek": [day_schema],
+                        "opens": "00:00",
+                        "closes": "23:59",
+                    })
+                else:
+                    for interval in day.intervals.all():
+                        opening_hours.append({
+                            "@type": "OpeningHoursSpecification",
+                            "dayOfWeek": [day_schema],
+                            "opens": interval.start_time.strftime("%H:%M"),
+                            "closes": interval.end_time.strftime("%H:%M"),
+                        })
+            if opening_hours:
+                schema["openingHoursSpecification"] = opening_hours
 
         same_as = [place.website_url(), place.instagram_url()]
         same_as = [item for item in same_as if item]
@@ -409,17 +466,40 @@ def build_place_seo_payload(place, request, language_code):
 
         offers = []
         for plan in place.pricing_plan_records.filter(is_active=True, charge_role="primary").order_by("sort_order", "id"):
-            if plan.price_kind not in {"exact", "free", "range"}:
+            if plan.price_kind not in {"exact", "free", "range", "from"}:
                 continue
             offer = {"@type": "Offer", "name": plan.title_i18n(lang), "priceCurrency": plan.currency}
             if plan.price_kind in {"exact", "free"}:
                 offer["price"] = format(plan.price, ".2f")
+            elif plan.price_kind == "from":
+                val = plan.price_min if plan.price_min is not None else plan.price
+                if val is not None:
+                    offer["price"] = format(val, ".2f")
+                    offer["priceSpecification"] = {
+                        "@type": "PriceSpecification",
+                        "minPrice": format(val, ".2f"),
+                        "priceCurrency": plan.currency,
+                    }
             elif plan.price_min is not None and plan.price_max is not None:
                 offer["priceSpecification"] = {
-                    "@type": "PriceSpecification", "minPrice": format(plan.price_min, ".2f"),
-                    "maxPrice": format(plan.price_max, ".2f"), "priceCurrency": plan.currency,
+                    "@type": "PriceSpecification",
+                    "minPrice": format(plan.price_min, ".2f"),
+                    "maxPrice": format(plan.price_max, ".2f"),
+                    "priceCurrency": plan.currency,
                 }
             offers.append(offer)
+
+        if not offers:
+            price_mode = getattr(place, "price_mode", Place.PRICE_MODE_TARIFFS) or Place.PRICE_MODE_TARIFFS
+            if price_mode == Place.PRICE_MODE_FREE:
+                free_label = {"az": "Pulsuz", "ru": "Бесплатно", "en": "Free"}.get(lang, "Бесплатно")
+                offers.append({
+                    "@type": "Offer",
+                    "name": free_label,
+                    "price": "0.00",
+                    "priceCurrency": "AZN",
+                })
+
         if offers:
             schema["offers"] = offers if len(offers) > 1 else offers[0]
 

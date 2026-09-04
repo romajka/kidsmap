@@ -37,6 +37,16 @@ class Place(models.Model):
         (SCHEDULE_MODE_VARIABLE, _("Расписание меняется")),
         (SCHEDULE_MODE_EVENTS, _("По мероприятиям")),
     ]
+    PRICE_MODE_TARIFFS = "tariffs"
+    PRICE_MODE_FREE = "free"
+    PRICE_MODE_FREE_ENTRY = "free_entry_paid_services"
+    PRICE_MODE_EVENTS = "events"
+    PRICE_MODE_CHOICES = [
+        (PRICE_MODE_TARIFFS, _("Есть тарифы")),
+        (PRICE_MODE_FREE, _("Бесплатно")),
+        (PRICE_MODE_FREE_ENTRY, _("Бесплатный вход + платные услуги")),
+        (PRICE_MODE_EVENTS, _("Цена зависит от мероприятия")),
+    ]
     LESSON_FORMAT_GROUP = "group"
     LESSON_FORMAT_INDIVIDUAL = "individual"
     LESSON_FORMAT_CHOICES = [
@@ -136,6 +146,13 @@ class Place(models.Model):
     lat = models.FloatField(_("Широта"), null=True, blank=True)
     lng = models.FloatField(_("Долгота"), null=True, blank=True)
 
+    price_mode = models.CharField(
+        _("Режим цены"),
+        max_length=32,
+        choices=PRICE_MODE_CHOICES,
+        default=PRICE_MODE_TARIFFS,
+        db_index=True,
+    )
     price_from = models.DecimalField(_("Цена от"), max_digits=10, decimal_places=2, null=True, blank=True)
     price_to = models.DecimalField(_("Цена до"), max_digits=10, decimal_places=2, null=True, blank=True)
     price_per_lesson = models.DecimalField(_("Цена за 1 урок"), max_digits=10, decimal_places=2, null=True, blank=True)

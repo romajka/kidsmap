@@ -27,17 +27,17 @@ FONT = ROOT / "static" / "fonts" / "MaterialSymbolsRounded.woff2"
 TARGET = ROOT / "src" / "catalog" / "templates" / "admin" / "catalog" / "includes" / "km_icon_sprite.html"
 
 ICONS = [
-    "account_circle", "add", "add_photo_alternate", "arrow_back", "arrow_downward", "arrow_forward",
-    "assessment", "auto_awesome", "block", "campaign", "chat_bubble", "check",
+    "account_circle", "add", "add_photo_alternate", "admin_panel_settings", "analytics", "arrow_back", "arrow_downward", "arrow_forward",
+    "assessment", "assignment", "auto_awesome", "block", "calendar_today", "call", "campaign", "category", "chat_bubble", "check",
     "check_circle", "chevron_left", "chevron_right", "close", "cloud_done", "content_copy",
-    "delete", "drag_indicator", "edit", "edit_note", "error", "expand_less",
-    "expand_more", "fact_check", "file_download", "filter_alt", "history_edu", "home",
+    "dashboard", "delete", "drag_indicator", "edit", "edit_note", "error", "event", "expand_less",
+    "expand_more", "fact_check", "file_download", "filter_alt", "folder", "group", "groups", "history", "history_edu", "home",
     "hourglass_empty", "hourglass_top", "image", "imagesmode", "info", "insights",
-    "language", "lightbulb", "link_off", "location_off", "location_on", "map",
-    "menu", "more_horiz", "my_location", "open_in_new", "payments", "pending",
-    "person", "person_outline", "photo_camera", "photo_library", "place", "progress_activity",
-    "public", "radio_button_checked", "radio_button_unchecked", "remove", "restore_from_trash", "save",
-    "search", "search_off", "sell", "star", "tune", "unfold_more",
+    "key", "language", "lightbulb", "link_off", "list", "location_off", "location_on", "logout", "map",
+    "menu", "more_horiz", "more_vert", "my_location", "open_in_new", "payments", "pending",
+    "person", "person_add", "person_outline", "photo_camera", "photo_library", "place", "progress_activity",
+    "public", "radio_button_checked", "radio_button_unchecked", "rate_review", "remove", "restore_from_trash", "save",
+    "schedule", "search", "search_off", "sell", "settings", "shield", "star", "tune", "unfold_more",
     "upload", "upload_file", "verified_user", "view_column", "visibility", "visibility_off",
     "warning",
 ]

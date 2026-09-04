@@ -4,66 +4,431 @@
 {% block content_title %}{% endblock %}
 {% block page_actions %}{% endblock %}
 
-{% block extrahead %}
-  {{ block.super }}
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}">
-  <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}" defer></script>
+{% block breadcrumbs %}
+  <ol class="breadcrumb km-admin-crumbs" aria-label="{% translate 'Навигация' %}">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Главная' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label='catalog' %}">{% translate 'Каталог' %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% translate 'Пользователи сайта' %}</li>
+  </ol>
 {% endblock %}
 
-{% block bodyclass %}{{ block.super }} km-custom-changelist{% endblock %}
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/kidsmap_notifications.css' %}?v=1">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_users.css' %}?v=1">
+  <script src="{% static 'admin/js/kidsmap_notifications.js' %}?v=1" defer></script>
+  <script src="{% static 'admin/js/kidsmap_users.js' %}?v=1" defer></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} km-users-page km-admin-root{% endblock %}
+
+{% block filters %}{% endblock %}
 
 {% block search %}
-  <div class="place-admin-dashboard">
-    <section class="place-admin-dashboard__header">
-      <div class="place-admin-dashboard__title-block">
-        <h1 class="place-admin-dashboard__title">{{ title|default:_("Пользователи сайта") }}</h1>
-        {% if subtitle %}
-        <p class="place-admin-dashboard__subtitle">
-          {{ subtitle }}
-        </p>
-        {% endif %}
-      </div>
-    </section>
+  {% include "admin/catalog/includes/km_icon_sprite.html" %}
 
-    {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
+  <div class="km-u-dashboard">
+    <!-- Header: Title, Subtitle, Add User Button -->
+    <header class="km-u-header">
+      <div class="km-u-header__title-box">
+        <h1 class="km-u-header__title">{{ title|default:_("Пользователи сайта") }}</h1>
+        <p class="km-u-header__subtitle">{{ subtitle|default:_("Управление зарегистрированными пользователями KidsMap") }}</p>
+      </div>
+      {% if can_add_user and add_user_url %}
+        <div class="km-u-header__actions">
+          <a href="{{ add_user_url }}" class="km-u-btn km-u-btn--primary">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>
+            <span>{% translate "Новый пользователь" %}</span>
+          </a>
+        </div>
+      {% endif %}
+    </header>
+
+    <!-- Quick Tabs: Segmented Navigation -->
+    {% if km_primary_quick_filters %}
+      <nav class="km-u-tabs" aria-label="{% translate 'Фильтр по статусу' %}">
+        <div class="km-u-tabs__track">
+          {% for tab in km_primary_quick_filters %}
+            <a
+              href="{{ tab.url }}"
+              class="km-u-tab{% if tab.active %} is-active{% endif %}"
+              {% if tab.active %}aria-current="page"{% endif %}
+            >
+              <span class="km-u-tab__label">{{ tab.label }}</span>
+              <span class="km-u-tab__count">{{ tab.count }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </nav>
+    {% endif %}
+
+    <!-- Toolbar: Search, Filters button, Sort dropdown, Columns dropdown -->
+    <div class="km-u-toolbar">
+      <form id="changelist-search" method="get" role="search" class="km-u-search-form">
+        <div class="km-u-search-box">
+          <svg class="km-i km-u-search-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>
+          <input
+            type="text"
+            name="q"
+            value="{{ cl.query }}"
+            id="searchbar"
+            class="km-u-search-input"
+            placeholder="{% translate 'Поиск по имени, email, телефону...' %}"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="{% translate 'Поиск пользователей' %}"
+          >
+          {% if cl.query %}
+            <a href="?{% for k, v in request.GET.items %}{% if k != 'q' %}{{ k }}={{ v }}&amp;{% endif %}{% endfor %}" class="km-u-search-clear" title="{% translate 'Очистить поиск' %}" aria-label="{% translate 'Очистить поиск' %}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
+            </a>
+          {% endif %}
+        </div>
+
+        <button
+          type="button"
+          class="km-u-btn-tool km-u-btn-tool--filter{% if applied_filters %} is-active{% endif %}"
+          id="km-users-filter-toggle"
+          aria-expanded="false"
+          aria-controls="km-users-filter-drawer"
+        >
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-filter_alt"></use></svg>
+          <span>{% translate "Фильтры" %}</span>
+          {% if applied_filters %}
+            <span class="km-u-badge-count">{{ applied_filters|length }}</span>
+          {% endif %}
+        </button>
+
+        {% if has_applied_filters %}
+          <a href="{{ reset_all_filters_url|default:'?' }}" class="km-u-btn-reset" title="{% translate 'Сбросить все применённые фильтры' %}">
+            {% translate "Сбросить" %}
+          </a>
+        {% endif %}
+
+        <!-- Right Tools: Sort & Columns -->
+        <div class="km-u-toolbar__right">
+          <!-- Sort Dropdown -->
+          <details class="km-u-dropdown" id="km-users-sort-dropdown">
+            <summary class="km-u-btn-tool" aria-haspopup="true">
+              <span class="km-u-tool-text">
+                <span class="km-u-tool-label">{% translate "Сортировка" %}:</span>
+                <strong class="km-u-tool-val">{{ active_sort.label }}</strong>
+              </span>
+              <svg class="km-i km-u-tool-chevron" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+            </summary>
+            <div class="km-u-dropdown__menu km-u-dropdown__menu--right">
+              {% for sort in sort_choices %}
+                <a href="{{ sort.url }}" class="km-u-dropdown__item{% if sort.active %} is-active{% endif %}">
+                  <span>{{ sort.label }}</span>
+                  {% if sort.active %}
+                    <svg class="km-i km-u-check-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg>
+                  {% endif %}
+                </a>
+              {% endfor %}
+            </div>
+          </details>
+
+          <!-- Columns Toggle Dropdown -->
+          <details class="km-u-dropdown" id="km-users-cols-dropdown">
+            <summary class="km-u-btn-tool" aria-haspopup="true">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-view_column"></use></svg>
+              <span>{% translate "Колонки" %}</span>
+              <svg class="km-i km-u-tool-chevron" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+            </summary>
+            <div class="km-u-dropdown__menu km-u-dropdown__menu--right km-u-cols-menu">
+              <div class="km-u-cols-menu__header">{% translate "Отображение колонок" %}</div>
+              <label class="km-u-col-option">
+                <input type="checkbox" data-col="user_profile_card" checked disabled>
+                <span>{% translate "Пользователь" %}</span>
+              </label>
+              <label class="km-u-col-option">
+                <input type="checkbox" data-col="user_phone" checked>
+                <span>{% translate "Телефон" %}</span>
+              </label>
+              <label class="km-u-col-option">
+                <input type="checkbox" data-col="user_gender" checked>
+                <span>{% translate "Пол" %}</span>
+              </label>
+              <label class="km-u-col-option">
+                <input type="checkbox" data-col="user_status" checked>
+                <span>{% translate "Статус" %}</span>
+              </label>
+              <label class="km-u-col-option">
+                <input type="checkbox" data-col="user_date_joined" checked>
+                <span>{% translate "Регистрация" %}</span>
+              </label>
+              <label class="km-u-col-option">
+                <input type="checkbox" data-col="user_last_login" checked>
+                <span>{% translate "Последний вход" %}</span>
+              </label>
+              <label class="km-u-col-option">
+                <input type="checkbox" data-col="user_activity" checked>
+                <span>{% translate "Активность" %}</span>
+              </label>
+            </div>
+          </details>
+        </div>
+
+        <!-- Preserve other GET parameters in search form -->
+        {% for k, v in request.GET.items %}
+          {% if k != 'q' %}
+            <input type="hidden" name="{{ k }}" value="{{ v }}">
+          {% endif %}
+        {% endfor %}
+      </form>
+    </div>
+
+    <!-- Active Filter Chips Bar -->
+    {% if has_applied_filters %}
+      <div class="km-u-chips-bar" aria-label="{% translate 'Применённые фильтры' %}">
+        <span class="km-u-chips-bar__title">{% translate "Применённые фильтры" %}:</span>
+        <div class="km-u-chips-bar__list">
+          {% for chip in applied_filters %}
+            <span class="km-u-chip">
+              <span class="km-u-chip__label">{{ chip.label }}</span>
+              <a href="{{ chip.clear_url }}" class="km-u-chip__remove" title="{% translate 'Удалить этот фильтр' %}" aria-label="{% translate 'Удалить фильтр' %}">
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
+              </a>
+            </span>
+          {% endfor %}
+          <a href="{{ reset_all_filters_url|default:'?' }}" class="km-u-chips-bar__clear-all">{% translate "Сбросить все" %}</a>
+        </div>
+      </div>
+    {% endif %}
   </div>
 {% endblock %}
 
 {% block result_list %}
-  <div class="place-admin-dashboard">
-    <section
-      class="place-admin-dashboard__bulk-bar km-place-bulk-bar"
-      data-empty-label="{% translate 'Выберите пользователей, чтобы массовые действия стали доступны.' %}"
-      data-selected-label="{% translate 'Массовые действия доступны' %}"
-    >
-      <div class="place-admin-dashboard__bulk-summary">
-        <span class="place-admin-dashboard__bulk-count-label">{% translate "Выбрано:" %}</span>
-        <strong class="place-admin-dashboard__bulk-count">0</strong>
-        <span class="place-admin-dashboard__bulk-text">{% translate "Выберите пользователей, чтобы массовые действия стали доступны." %}</span>
-        <div class="place-admin-dashboard__bulk-selection">
-          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="page">{% translate "Выбрать все на странице" %}</button>
-          <button type="button" class="place-admin-dashboard__selection-btn" data-bulk-select="clear">{% translate "Снять выделение" %}</button>
-        </div>
-      </div>
-      <div class="place-admin-dashboard__bulk-controls">
-        <div class="place-admin-dashboard__bulk-actions" role="group" aria-label="{% translate 'Массовые действия' %}">
-          {% for item in cl.model_admin.get_actions|default:'' %}
-            <!-- Native actions will be handled below -->
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-
-    {% if action_form and actions_on_top and cl.show_admin_actions %}
-      <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
-    {% endif %}
-
-    <div class="place-admin-dashboard__table-wrap">
-      {% result_list cl %}
+  <div class="km-u-results-wrap">
+    <!-- Hidden native Django action form inputs -->
+    <div class="km-u-native-actions-proxy" hidden>
+      {% if action_form and actions_on_top and cl.show_admin_actions %}
+        {% admin_actions %}
+      {% endif %}
     </div>
 
-    {% if action_form and actions_on_bottom and cl.show_admin_actions %}
-      <div class="place-admin-dashboard__native-actions km-place-native-actions" aria-hidden="true">{% admin_actions %}</div>
+    <!-- Empty States or Result Table -->
+    {% if cl.result_count == 0 %}
+      <div class="km-u-empty-card">
+        {% if has_applied_filters or cl.query %}
+          <div class="km-u-empty-state">
+            <div class="km-u-empty-state__icon-box">
+              <svg class="km-i km-u-empty-state__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search_off"></use></svg>
+            </div>
+            <h2 class="km-u-empty-state__title">{% translate "Ничего не найдено" %}</h2>
+            <p class="km-u-empty-state__desc">{% translate "Попробуйте изменить поисковый запрос или сбросить фильтры." %}</p>
+            <div class="km-u-empty-state__actions">
+              <a href="{{ reset_all_filters_url|default:'?' }}" class="km-u-btn km-u-btn--secondary">
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
+                <span>{% translate "Сбросить фильтры" %}</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <div class="km-u-empty-state">
+            <div class="km-u-empty-state__icon-box">
+              <svg class="km-i km-u-empty-state__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-person_outline"></use></svg>
+            </div>
+            <h2 class="km-u-empty-state__title">{% translate "Пользователи не найдены" %}</h2>
+            <p class="km-u-empty-state__desc">{% translate "В базе данных пока нет зарегистрированных пользователей сайта." %}</p>
+            {% if can_add_user and add_user_url %}
+              <div class="km-u-empty-state__actions">
+                <a href="{{ add_user_url }}" class="km-u-btn km-u-btn--primary">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>
+                  <span>{% translate "Добавить пользователя" %}</span>
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="km-u-table-card">
+        <div class="km-u-table-responsive">
+          {% result_list cl %}
+        </div>
+      </div>
     {% endif %}
+
+    <!-- Sticky / Floating Mass Action Bar (Appears when 1+ users selected) -->
+    <aside class="km-u-bulk-bar" id="km-users-bulk-bar" role="toolbar" aria-label="{% translate 'Массовые действия' %}" aria-hidden="true">
+      <div class="km-u-bulk-bar__inner">
+        <div class="km-u-bulk-bar__summary">
+          <span class="km-u-bulk-bar__check-icon">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check"></use></svg>
+          </span>
+          <span class="km-u-bulk-bar__text">
+            {% translate "Выбрано:" %} <strong id="km-users-bulk-count">0</strong>
+          </span>
+        </div>
+
+        <div class="km-u-bulk-bar__actions">
+          <button type="button" class="km-u-bulk-action-btn km-u-bulk-action-btn--activate" data-bulk-action="activate_users">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>
+            <span>{% translate "Активировать" %}</span>
+          </button>
+
+          <button type="button" class="km-u-bulk-action-btn km-u-bulk-action-btn--deactivate" data-bulk-action="deactivate_users">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-block"></use></svg>
+            <span>{% translate "Деактивировать" %}</span>
+          </button>
+
+          <!-- More Dropdown in Bulk Bar -->
+          <details class="km-u-dropdown km-u-bulk-dropdown" id="km-users-bulk-more">
+            <summary class="km-u-bulk-action-btn km-u-bulk-action-btn--more">
+              <span>{% translate "Другое" %}</span>
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+            </summary>
+            <div class="km-u-dropdown__menu km-u-dropdown__menu--up">
+              <button type="button" class="km-u-dropdown__item km-u-dropdown__item--danger" data-bulk-action="delete_selected">
+                <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-delete"></use></svg>
+                <span>{% translate "Удалить выбранных" %}</span>
+              </button>
+            </div>
+          </details>
+
+          <div class="km-u-bulk-bar__divider"></div>
+
+          <button type="button" class="km-u-bulk-bar__clear-btn" id="km-users-bulk-clear">
+            {% translate "Снять выделение" %}
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Slide-out Filters Drawer -->
+    <div class="km-u-drawer-backdrop" id="km-users-drawer-backdrop" hidden></div>
+    <aside class="km-u-drawer" id="km-users-filter-drawer" aria-labelledby="km-users-drawer-title" aria-hidden="true">
+      <div class="km-u-drawer__header">
+        <div class="km-u-drawer__title-box">
+          <svg class="km-i km-u-drawer__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-filter_alt"></use></svg>
+          <h2 class="km-u-drawer__title" id="km-users-drawer-title">{% translate "Фильтры пользователей" %}</h2>
+        </div>
+        <button type="button" class="km-u-drawer__close-btn" id="km-users-drawer-close" aria-label="{% translate 'Закрыть панель фильтров' %}">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
+        </button>
+      </div>
+
+      <form method="get" class="km-u-drawer__form" id="km-users-drawer-form">
+        {% if cl.query %}
+          <input type="hidden" name="q" value="{{ cl.query }}">
+        {% endif %}
+        {% if current_order %}
+          <input type="hidden" name="o" value="{{ current_order }}">
+        {% endif %}
+
+        <div class="km-u-drawer__body">
+          <!-- Filter Group: Phone -->
+          <fieldset class="km-u-filter-group">
+            <legend class="km-u-filter-group__legend">{% translate "Телефон" %}</legend>
+            <div class="km-u-filter-group__options">
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_phone" value="" {% if not current_phone_filter %}checked{% endif %}>
+                <span>{% translate "Все" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_phone" value="yes" {% if current_phone_filter == 'yes' %}checked{% endif %}>
+                <span>{% translate "С телефоном" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_phone" value="no" {% if current_phone_filter == 'no' %}checked{% endif %}>
+                <span>{% translate "Без телефона" %}</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Filter Group: Places -->
+          <fieldset class="km-u-filter-group">
+            <legend class="km-u-filter-group__legend">{% translate "Связанные места" %}</legend>
+            <div class="km-u-filter-group__options">
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_places" value="" {% if not current_places_filter %}checked{% endif %}>
+                <span>{% translate "Все" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_places" value="yes" {% if current_places_filter == 'yes' %}checked{% endif %}>
+                <span>{% translate "Есть места" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_places" value="no" {% if current_places_filter == 'no' %}checked{% endif %}>
+                <span>{% translate "Нет мест" %}</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Filter Group: Last Login -->
+          <fieldset class="km-u-filter-group">
+            <legend class="km-u-filter-group__legend">{% translate "Последний вход" %}</legend>
+            <div class="km-u-filter-group__options">
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_login" value="" {% if not current_login_filter %}checked{% endif %}>
+                <span>{% translate "Все" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_login" value="yes" {% if current_login_filter == 'yes' %}checked{% endif %}>
+                <span>{% translate "Входил на сайт" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="has_login" value="never" {% if current_login_filter == 'never' %}checked{% endif %}>
+                <span>{% translate "Никогда не входил" %}</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Filter Group: Gender -->
+          <fieldset class="km-u-filter-group">
+            <legend class="km-u-filter-group__legend">{% translate "Пол" %}</legend>
+            <div class="km-u-filter-group__options">
+              <label class="km-u-radio-option">
+                <input type="radio" name="profile__gender__exact" value="" {% if not current_gender_filter %}checked{% endif %}>
+                <span>{% translate "Все" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="profile__gender__exact" value="M" {% if current_gender_filter == 'M' %}checked{% endif %}>
+                <span>{% translate "Мужской" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="profile__gender__exact" value="F" {% if current_gender_filter == 'F' %}checked{% endif %}>
+                <span>{% translate "Женский" %}</span>
+              </label>
+              <label class="km-u-radio-option">
+                <input type="radio" name="profile__gender__exact" value="U" {% if current_gender_filter == 'U' %}checked{% endif %}>
+                <span>{% translate "Не указан" %}</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="km-u-drawer__footer">
+          <button type="submit" class="km-u-btn km-u-btn--primary km-u-btn--full">
+            {% translate "Применить фильтры" %}
+          </button>
+          <a href="{{ reset_all_filters_url|default:'?' }}" class="km-u-btn km-u-btn--secondary km-u-btn--full">
+            {% translate "Сбросить все" %}
+          </a>
+        </div>
+      </form>
+    </aside>
+
+    <!-- Confirmation Modal Dialog -->
+    <div class="km-u-modal-backdrop" id="km-users-confirm-modal" hidden>
+      <div class="km-u-modal" role="dialog" aria-modal="true" aria-labelledby="km-users-modal-title" aria-describedby="km-users-modal-desc">
+        <div class="km-u-modal__icon-box km-u-modal__icon-box--warn" id="km-users-modal-icon-box">
+          <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-warning"></use></svg>
+        </div>
+        <div class="km-u-modal__content">
+          <h3 class="km-u-modal__title" id="km-users-modal-title">{% translate "Подтверждение действия" %}</h3>
+          <p class="km-u-modal__desc" id="km-users-modal-desc">{% translate "Вы уверены, что хотите выполнить это действие?" %}</p>
+        </div>
+        <div class="km-u-modal__actions">
+          <button type="button" class="km-u-btn km-u-btn--secondary" id="km-users-modal-cancel">
+            {% translate "Отмена" %}
+          </button>
+          <button type="button" class="km-u-btn km-u-btn--danger" id="km-users-modal-confirm">
+            {% translate "Подтвердить" %}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}

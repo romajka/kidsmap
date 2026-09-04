@@ -5,7 +5,6 @@
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_place_form.css' %}?v=60">
   <link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=26">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_form.js' %}?v=60" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_media.js' %}?v=51" defer></script>
   <script src="{% static 'admin/js/kidsmap_place_duplicates.js' %}?v=1" defer></script>
@@ -22,12 +21,13 @@
   <script src="{% static 'js/kidsmap_dependent_subcategory.js' %}" defer></script>
 {% endblock %}
 
+{% block content_title %}{% endblock %}
 {% block submit_buttons_top %}{% endblock %}
 {% block submit_buttons_bottom %}{% endblock %}
 
 {% block breadcrumbs %}
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans "Home" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate "Главная" %}</a></li>
     <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
     <li class="breadcrumb-item">
       <a href="{{ km_admin_back_url }}" aria-label="{% trans 'Вернуться на предыдущий шаг' %}">
@@ -94,10 +94,10 @@
 
         <div class="km-pf__legend" aria-hidden="true">
           <span class="km-pf__legend-title">{% translate "Значки разделов" %}</span>
-          <span class="km-pf__legend-item is-done"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>{% translate "заполнено" %}</span>
-          <span class="km-pf__legend-item is-partial"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_checked"></use></svg>{% translate "заполнено частично" %}</span>
-          <span class="km-pf__legend-item is-error"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{% translate "есть ошибка" %}</span>
-          <span class="km-pf__legend-item is-empty"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_unchecked"></use></svg>{% translate "не заполнено" %}</span>
+          <span class="km-pf__legend-item is-done"><svg class="km-i" aria-hidden="true" focusable="false"><use href="#kmi-check_circle"></use></svg>{% translate "заполнено" %}</span>
+          <span class="km-pf__legend-item is-partial"><svg class="km-i" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_checked"></use></svg>{% translate "заполнено частично" %}</span>
+          <span class="km-pf__legend-item is-error"><svg class="km-i" aria-hidden="true" focusable="false"><use href="#kmi-error"></use></svg>{% translate "есть ошибка" %}</span>
+          <span class="km-pf__legend-item is-empty"><svg class="km-i" aria-hidden="true" focusable="false"><use href="#kmi-radio_button_unchecked"></use></svg>{% translate "не заполнено" %}</span>
         </div>
 
         <section class="km-pf-alert km-pf-alert--warn" data-place-duplicate-alert hidden aria-live="polite"></section>

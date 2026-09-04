@@ -586,7 +586,8 @@
 
   function renderIntervalsHtml(state, day) {
     if (day.is_closed) {
-      return '<span class="km-schedule-editor__state-copy">' + escapeHtml(state.root.dataset.closedLabel || "") + "</span>";
+      var dayOff = state.root.dataset.dayOffLabel || state.root.dataset.closedLabel || "Выходной";
+      return '<span class="km-schedule-editor__state-copy km-schedule-editor__state-copy--closed">— ' + escapeHtml(dayOff) + " —</span>";
     }
     if (day.is_24_hours) {
       return '<span class="km-schedule-editor__state-copy km-schedule-editor__state-copy--active">' + escapeHtml(state.root.dataset.allDayLabel || "") + "</span>";
@@ -600,20 +601,24 @@
           var lang = ((document.documentElement.lang || "ru").split("-")[0] || "ru").toLowerCase();
           var startAria = lang === "az" ? "Başlama vaxtı" : (lang === "en" ? "Start time" : "Время начала");
           var endAria = lang === "az" ? "Bitmə vaxtı" : (lang === "en" ? "End time" : "Время окончания");
-          var pickerAria = lang === "az" ? "Vaxtı seçin" : (lang === "en" ? "Select time" : "Выбрать время");
+          var clockTitle = lang === "az" ? "Vaxtı seçin" : (lang === "en" ? "Select time" : "Выбрать время");
+          var removeLabel = escapeHtml(state.root.dataset.removeLabel || (lang === "az" ? "Sil" : (lang === "en" ? "Remove" : "Удалить")));
 
           return (
             '<div class="km-schedule-editor__interval" data-km-schedule-interval data-weekday="' + day.weekday + '" data-index="' + index + '">' +
+              '<span class="km-schedule-editor__interval-clock" title="' + clockTitle + '" aria-hidden="true">' +
+                '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' +
+              '</span>' +
               '<div class="km-schedule-editor__time-wrapper">' +
                 '<input type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="09:00" class="km-schedule-editor__time" data-km-schedule-start value="' + escapeHtml(interval.start) + '" aria-label="' + startAria + '">' +
-                '<button type="button" class="km-schedule-editor__picker-btn" aria-label="' + pickerAria + '">🕒</button>' +
               '</div>' +
-              '<span class="km-schedule-editor__dash">—</span>' +
+              '<span class="km-schedule-editor__dash" aria-hidden="true">—</span>' +
               '<div class="km-schedule-editor__time-wrapper">' +
                 '<input type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="18:00" class="km-schedule-editor__time" data-km-schedule-end value="' + escapeHtml(interval.end) + '" aria-label="' + endAria + '">' +
-                '<button type="button" class="km-schedule-editor__picker-btn" aria-label="' + pickerAria + '">🕒</button>' +
               '</div>' +
-              '<button type="button" class="km-schedule-editor__icon-btn" data-km-schedule-remove-interval="' + day.weekday + '" data-index="' + index + '" aria-label="' + escapeHtml(state.root.dataset.removeLabel || "") + '"' + hideRemove + '>×</button>' +
+              '<button type="button" class="km-schedule-editor__icon-btn" data-km-schedule-remove-interval="' + day.weekday + '" data-index="' + index + '" aria-label="' + removeLabel + '" title="' + removeLabel + '"' + hideRemove + '>' +
+                '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+              '</button>' +
             "</div>"
           );
         }).join("") +
@@ -739,20 +744,22 @@
     });
 
     state.root.addEventListener("click", function (event) {
-      var target = event.target.closest("[data-km-schedule-preset], [data-km-schedule-add-interval], [data-km-schedule-remove-interval], [data-km-schedule-copy-day], [data-km-schedule-copy-weekdays], [data-km-schedule-open-copy-picker], [data-km-schedule-close-copy], [data-km-schedule-apply-copy], .km-schedule-editor__picker-btn");
+      var target = event.target.closest("[data-km-schedule-preset], [data-km-schedule-add-interval], [data-km-schedule-remove-interval], [data-km-schedule-copy-day], [data-km-schedule-copy-weekdays], [data-km-schedule-open-copy-picker], [data-km-schedule-close-copy], [data-km-schedule-apply-copy], .km-schedule-editor__interval-clock, [data-km-schedule-start], [data-km-schedule-end]");
       if (!target) return;
 
-      if (target.closest(".km-schedule-editor__picker-btn")) {
-        var pickerBtn = target.closest(".km-schedule-editor__picker-btn");
+      if (target.closest(".km-schedule-editor__interval-clock")) {
         event.preventDefault();
         event.stopPropagation();
-        var wrapper = pickerBtn.closest(".km-schedule-editor__time-wrapper");
-        if (wrapper) {
-          var input = wrapper.querySelector("input");
-          if (input) {
-            openTimeDropdown(pickerBtn, input, state);
-          }
+        var interval = target.closest("[data-km-schedule-interval]");
+        var startInput = interval ? interval.querySelector("[data-km-schedule-start]") : null;
+        if (startInput) {
+          openTimeDropdown(startInput, startInput, state);
         }
+        return;
+      }
+
+      if (target.hasAttribute("data-km-schedule-start") || target.hasAttribute("data-km-schedule-end")) {
+        openTimeDropdown(target, target, state);
         return;
       }
 

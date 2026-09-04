@@ -6,6 +6,16 @@
   <link rel="stylesheet" href="{% static 'admin/css/kidsmap_admin.css' %}" />
 {% endblock %}
 
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'admin/js/kidsmap_notifications.js' %}"></script>
+{% endblock %}
+
+{% block extrajs %}
+  {{ block.super }}
+  {% include "admin/catalog/includes/km_icon_sprite.html" %}
+{% endblock %}
+
 {% block branding %}
   <h1 id="site-name"><a href="{% url 'admin:index' %}">KidsMap Admin</a></h1>
 {% endblock %}

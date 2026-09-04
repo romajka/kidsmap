@@ -3,18 +3,14 @@
 
 {% block content_title %}{% endblock %}
 {% block page_actions %}{% endblock %}
-{% block breadcrumbs %}{% endblock %}
 
-{% block admin_topbar_context %}
-  <li class="nav-item km-place-topbar-crumbs" aria-label="{% translate 'Навигация' %}">
-    <a href="{% url 'admin:app_list' app_label='catalog' %}" class="km-place-topbar-crumbs__link">{% translate 'Каталог' %}</a>
-    <svg class="km-i km-place-topbar-crumbs__separator" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-chevron_right"></use></svg>
-    <span class="km-place-topbar-crumbs__current">{% translate 'Постоянные места' %}</span>
-  </li>
+{% block breadcrumbs %}
+  <ol class="breadcrumb km-admin-crumbs" aria-label="{% translate 'Навигация' %}">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Главная' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label='catalog' %}">{% translate 'Каталог' %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% translate 'Постоянные места' %}</li>
+  </ol>
 {% endblock %}
-
-{% block admin_topbar_menu_icon %}<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-menu"></use></svg>{% endblock %}
-{% block admin_topbar_account_icon %}<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-account_circle"></use></svg>{% endblock %}
 
 {% block extrahead %}
   {{ block.super }}
@@ -23,7 +19,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=115">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=2">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=35" defer></script>
   <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=2" defer></script>
 {% endblock %}

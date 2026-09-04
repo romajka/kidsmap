@@ -1,327 +1,447 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static jazzmin admin_dashboard_tags %}
-{% get_jazzmin_ui_tweaks as jazzmin_ui %}
 
 {% block bodyclass %}{{ block.super }} dashboard{% endblock %}
 
-{% block content_title %} {% trans 'Dashboard' %} {% endblock %}
+{% block content_title %}{% endblock %}
 
 {% block breadcrumbs %}
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
-        <li class="breadcrumb-item">{% trans 'Dashboard' %}</li>
+    <ol class="breadcrumb km-admin-crumbs" aria-label="{% translate 'Навигация' %}">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Главная' %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{% translate 'Панель управления' %}</li>
     </ol>
 {% endblock %}
 
-
 {% block content %}
+    {% include "admin/catalog/includes/km_icon_sprite.html" %}
     {% get_dashboard_stats as stats %}
     {% get_side_menu using="app_list" as dashboard_list %}
-    {% if dashboard_list %}
-        {% widthratio dashboard_list|length 2 1 as middle %}
-    {% endif %}
+    {% get_dashboard_workspace_hubs dashboard_list stats=stats as hubs %}
+    {% get_recent_admin_actions limit=8 as recent_actions %}
 
-    <div class="col-12 mb-4 km-dashboard">
-        <!-- ROW 1: ACTION CENTER (Highest Priority) -->
-        <h4 class="km-dashboard__section-title">
-            {% if stats.pending.total > 0 %}
-                <i class="fas fa-exclamation-triangle text-warning mr-2" style="font-size: 1.1em; transform: translateY(1px);"></i> 
-                Требует внимания
-            {% else %}
-                <i class="fas fa-check-circle text-success mr-2" style="font-size: 1.1em; transform: translateY(1px);"></i> 
-                Модерация
-            {% endif %}
-        </h4>
-        
+    <div class="km-dash-container">
+        <!-- 1. DASHBOARD HEADER & ATTENTION / MODERATION CENTER -->
+        <header class="km-dash-header">
+            <div class="km-dash-header__welcome">
+                <h1 class="km-dash-header__title">{% translate "Панель управления KidsMap" %}</h1>
+                <p class="km-dash-header__subtitle">{% translate "Оперативный статус каталога, модерация заявок и быстрый доступ к разделам" %}</p>
+            </div>
+            <div class="km-dash-header__status">
+                {% if stats.pending.total > 0 %}
+                    <a href="{% url 'admin:catalog_moderation_moderationplace_changelist' %}" class="km-dash-pill km-dash-pill--warning">
+                        <span class="km-dash-pill__dot"></span>
+                        <span>{% translate "Требуют внимания" %}: <strong>{{ stats.pending.total }}</strong></span>
+                    </a>
+                {% else %}
+                    <div class="km-dash-pill km-dash-pill--success">
+                        <span class="km-dash-pill__dot"></span>
+                        <span>{% translate "Все объекты проверены" %}</span>
+                    </div>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- ATTENTION BLOCK -->
         {% if stats.pending.total == 0 %}
-            <div class="km-attention-panel" style="background-color: var(--km-bg-accent); border: 1px solid var(--km-good); padding: 24px; border-radius: 8px; text-align: center;">
-                <i class="fas fa-check-circle" style="color: var(--km-good); font-size: 2em; margin-bottom: 8px;"></i>
-                <h5 style="margin: 0; color: var(--km-text-primary);">Всё проверено!</h5>
-                <p style="margin: 4px 0 0; color: var(--km-text-secondary);">Нет объектов, ожидающих модерации.</p>
-            </div>
-        {% else %}
-            <div class="km-stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 32px;">
-                {% if stats.pending.places > 0 %}
-                <a href="{% url 'admin:catalog_moderation_moderationplace_changelist' %}" class="km-stat-card km-stat-card--warn" aria-label="Места на проверке">
-                    <div class="km-stat-info">
-                        <span class="km-stat-value">{{ stats.pending.places }}</span>
-                        <p class="km-stat-label">Места на проверке</p>
-                    </div>
-                    <div class="km-stat-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                </a>
-                {% endif %}
-                
-                {% if stats.pending.events > 0 %}
-                <a href="{% url 'admin:catalog_moderation_moderationevent_changelist' %}" class="km-stat-card km-stat-card--warn" aria-label="Мероприятия на проверке">
-                    <div class="km-stat-info">
-                        <span class="km-stat-value">{{ stats.pending.events }}</span>
-                        <p class="km-stat-label">Мероприятия на проверке</p>
-                    </div>
-                    <div class="km-stat-icon">
-                        <i class="fas fa-hourglass-half"></i>
-                    </div>
-                </a>
-                {% endif %}
-
-                {% if stats.pending.specialists > 0 %}
-                <a href="{% url 'admin:catalog_moderation_moderationspecialist_changelist' %}" class="km-stat-card km-stat-card--warn" aria-label="Специалисты на проверке">
-                    <div class="km-stat-info">
-                        <span class="km-stat-value">{{ stats.pending.specialists }}</span>
-                        <p class="km-stat-label">Специалисты на проверке</p>
-                    </div>
-                    <div class="km-stat-icon">
-                        <i class="fas fa-user-clock"></i>
-                    </div>
-                </a>
-                {% endif %}
-
-                {% if stats.pending.reviews > 0 %}
-                <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}" class="km-stat-card km-stat-card--warn" aria-label="Отзывы на проверке">
-                    <div class="km-stat-info">
-                        <span class="km-stat-value">{{ stats.pending.reviews }}</span>
-                        <p class="km-stat-label">Отзывы на проверке</p>
-                    </div>
-                    <div class="km-stat-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                </a>
-                {% endif %}
-
-                {% if stats.pending.requests > 0 %}
-                <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}?status__exact=PENDING" class="km-stat-card km-stat-card--danger" aria-label="Заявки владельцев">
-                    <div class="km-stat-info">
-                        <span class="km-stat-value">{{ stats.pending.requests }}</span>
-                        <p class="km-stat-label">Заявки владельцев</p>
-                    </div>
-                    <div class="km-stat-icon">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                </a>
-                {% endif %}
-            </div>
-
-            {% if stats.pending_reviews %}
-            <section class="km-dashboard-review-alerts" aria-label="Последние отзывы на проверке">
-                <div class="km-dashboard-review-alerts__head">
-                    <div>
-                        <h5>Отзывы ждут решения</h5>
-                        <p>Проверьте текст, рейтинг, автора и место. До одобрения отзывы скрыты на сайте.</p>
-                    </div>
-                    <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}" class="km-dashboard-review-alerts__link">
-                        Открыть все
-                    </a>
+            <section class="km-dash-empty-moderation" aria-label="{% translate 'Статус модерации' %}">
+                <div class="km-dash-empty-moderation__icon-wrap">
+                    <svg class="km-i km-dash-empty-moderation__icon" aria-hidden="true"><use href="#kmi-check_circle"></use></svg>
                 </div>
-                <div class="km-dashboard-review-alerts__list">
-                    {% for review in stats.pending_reviews %}
-                    <a href="{% url 'admin:catalog_placereview_change' review.id %}" class="km-dashboard-review-item">
-                        <span class="km-dashboard-review-item__rating">★ {{ review.rating }}</span>
-                        <span class="km-dashboard-review-item__body">
-                            <strong>{{ review.place }}</strong>
-                            <span>{{ review.author }}{% if review.text %} · {{ review.text|truncatechars:96 }}{% else %} · Только оценка{% endif %}</span>
-                        </span>
-                        <span class="km-dashboard-review-item__action">Проверить</span>
-                    </a>
-                    {% endfor %}
+                <div class="km-dash-empty-moderation__text">
+                    <h2 class="km-dash-empty-moderation__heading">{% translate "Всё проверено — нет объектов, ожидающих модерации" %}</h2>
+                    <p class="km-dash-empty-moderation__sub">{% translate "Все новые кружки, мероприятия, специалисты, отзывы и заявки владельцев обработаны." %}</p>
                 </div>
             </section>
-            {% endif %}
+        {% else %}
+            <section class="km-dash-attention" aria-label="{% translate 'Объекты на модерации' %}">
+                <div class="km-dash-attention__header">
+                    <div class="km-dash-attention__title-group">
+                        <span class="km-dash-attention__badge-icon">
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-warning"></use></svg>
+                        </span>
+                        <div>
+                            <h2 class="km-dash-attention__title">{% translate "Требует внимания" %}</h2>
+                            <p class="km-dash-attention__desc">{% translate "Материалы ожидают проверки перед отображением в каталоге" %}</p>
+                        </div>
+                    </div>
+                    <span class="km-dash-attention__total-tag">{{ stats.pending.total }} {% translate "на проверке" %}</span>
+                </div>
+
+                <div class="km-dash-attention__grid">
+                    {% if stats.pending.places > 0 %}
+                    <a href="{% url 'admin:catalog_moderation_moderationplace_changelist' %}" class="km-dash-pending-card">
+                        <div class="km-dash-pending-card__icon km-dash-pending-card__icon--warn">
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-schedule"></use></svg>
+                        </div>
+                        <div class="km-dash-pending-card__info">
+                            <span class="km-dash-pending-card__count">{{ stats.pending.places }}</span>
+                            <span class="km-dash-pending-card__label">{% translate "Места на проверке" %}</span>
+                        </div>
+                        <svg class="km-i km-dash-pending-card__arrow" aria-hidden="true"><use href="#kmi-arrow_forward"></use></svg>
+                    </a>
+                    {% endif %}
+
+                    {% if stats.pending.events > 0 %}
+                    <a href="{% url 'admin:catalog_moderation_moderationevent_changelist' %}" class="km-dash-pending-card">
+                        <div class="km-dash-pending-card__icon km-dash-pending-card__icon--warn">
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-event"></use></svg>
+                        </div>
+                        <div class="km-dash-pending-card__info">
+                            <span class="km-dash-pending-card__count">{{ stats.pending.events }}</span>
+                            <span class="km-dash-pending-card__label">{% translate "Мероприятия на проверке" %}</span>
+                        </div>
+                        <svg class="km-i km-dash-pending-card__arrow" aria-hidden="true"><use href="#kmi-arrow_forward"></use></svg>
+                    </a>
+                    {% endif %}
+
+                    {% if stats.pending.specialists > 0 %}
+                    <a href="{% url 'admin:catalog_moderation_moderationspecialist_changelist' %}" class="km-dash-pending-card">
+                        <div class="km-dash-pending-card__icon km-dash-pending-card__icon--warn">
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-person"></use></svg>
+                        </div>
+                        <div class="km-dash-pending-card__info">
+                            <span class="km-dash-pending-card__count">{{ stats.pending.specialists }}</span>
+                            <span class="km-dash-pending-card__label">{% translate "Специалисты на проверке" %}</span>
+                        </div>
+                        <svg class="km-i km-dash-pending-card__arrow" aria-hidden="true"><use href="#kmi-arrow_forward"></use></svg>
+                    </a>
+                    {% endif %}
+
+                    {% if stats.pending.reviews > 0 %}
+                    <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}" class="km-dash-pending-card">
+                        <div class="km-dash-pending-card__icon km-dash-pending-card__icon--warn">
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-rate_review"></use></svg>
+                        </div>
+                        <div class="km-dash-pending-card__info">
+                            <span class="km-dash-pending-card__count">{{ stats.pending.reviews }}</span>
+                            <span class="km-dash-pending-card__label">{% translate "Отзывы на проверке" %}</span>
+                        </div>
+                        <svg class="km-i km-dash-pending-card__arrow" aria-hidden="true"><use href="#kmi-arrow_forward"></use></svg>
+                    </a>
+                    {% endif %}
+
+                    {% if stats.pending.requests > 0 %}
+                    <a href="{% url 'admin:catalog_placeownershiprequest_changelist' %}?status__exact=PENDING" class="km-dash-pending-card km-dash-pending-card--danger">
+                        <div class="km-dash-pending-card__icon km-dash-pending-card__icon--danger">
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-shield"></use></svg>
+                        </div>
+                        <div class="km-dash-pending-card__info">
+                            <span class="km-dash-pending-card__count">{{ stats.pending.requests }}</span>
+                            <span class="km-dash-pending-card__label">{% translate "Заявки владельцев" %}</span>
+                        </div>
+                        <svg class="km-i km-dash-pending-card__arrow" aria-hidden="true"><use href="#kmi-arrow_forward"></use></svg>
+                    </a>
+                    {% endif %}
+                </div>
+
+                {% if stats.pending_reviews %}
+                <div class="km-dash-review-preview">
+                    <div class="km-dash-review-preview__head">
+                        <div>
+                            <h3 class="km-dash-review-preview__title">{% translate "Отзывы ждут решения" %}</h3>
+                            <p class="km-dash-review-preview__desc">{% translate "Проверьте автора, текст и оценку. До одобрения отзывы скрыты на сайте." %}</p>
+                        </div>
+                        <a href="{% url 'admin:catalog_moderation_moderationreview_changelist' %}" class="km-dash-review-preview__all">
+                            {% translate "Все отзывы на проверке" %}
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-chevron_right"></use></svg>
+                        </a>
+                    </div>
+                    <div class="km-dash-review-preview__list">
+                        {% for review in stats.pending_reviews %}
+                        <a href="{% url 'admin:catalog_placereview_change' review.id %}" class="km-dash-review-item">
+                            <span class="km-dash-review-item__badge">
+                                <svg class="km-i" aria-hidden="true"><use href="#kmi-star"></use></svg>
+                                {{ review.rating }}
+                            </span>
+                            <span class="km-dash-review-item__content">
+                                <strong class="km-dash-review-item__target">{{ review.place }}</strong>
+                                <span class="km-dash-review-item__meta">
+                                    <span class="km-dash-review-item__author">{{ review.author }}</span>
+                                    {% if review.text %}
+                                    <span class="km-dash-review-item__snippet">— {{ review.text|truncatechars:90 }}</span>
+                                    {% else %}
+                                    <span class="km-dash-review-item__snippet km-dash-review-item__snippet--muted">— {% translate "Оценка без комментария" %}</span>
+                                    {% endif %}
+                                </span>
+                            </span>
+                            <span class="km-dash-review-item__btn">
+                                {% translate "Проверить" %}
+                                <svg class="km-i" aria-hidden="true"><use href="#kmi-arrow_forward"></use></svg>
+                            </span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </section>
         {% endif %}
 
-        <!-- ROW 2: GENERAL KPIs (Informational) -->
-        <h4 class="km-dashboard__section-title mt-4 pt-4" style="border-top: 1px solid var(--km-border);">Статистика проекта</h4>
-        <div class="km-stat-grid">
-
-            <a href="{% url 'admin:catalog_place_changelist' %}?is_temporary__exact=0" class="km-stat-card km-stat-card--neutral" aria-label="Открыть список постоянных мест">
-                <div class="km-stat-info">
-                    <span class="km-stat-value">{{ stats.kpi.total_places|default:"0" }}</span>
-                    <p class="km-stat-label">Постоянных мест</p>
-                </div>
-                <div class="km-stat-icon">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-            </a>
-
-            <a href="{% url 'admin:catalog_place_changelist' %}?is_temporary__exact=0&amp;status__exact=published" class="km-stat-card km-stat-card--good" aria-label="Открыть опубликованные места">
-                <div class="km-stat-info">
-                    <span class="km-stat-value">{{ stats.kpi.places_published|default:"0" }}</span>
-                    <p class="km-stat-label">Опубликовано мест</p>
-                </div>
-                <div class="km-stat-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-            </a>
-            
-            <a href="{% url 'admin:catalog_event_changelist' %}" class="km-stat-card km-stat-card--neutral" aria-label="Временные мероприятия">
-                <div class="km-stat-info">
-                    <span class="km-stat-value">{{ stats.kpi.total_events|default:"0" }}</span>
-                    <p class="km-stat-label">Временных мероприятий</p>
-                </div>
-                <div class="km-stat-icon">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-            </a>
-
-            <a href="{% url 'admin:catalog_specialist_changelist' %}" class="km-stat-card km-stat-card--neutral" aria-label="Все специалисты">
-                <div class="km-stat-info">
-                    <span class="km-stat-value">{{ stats.kpi.total_specialists|default:"0" }}</span>
-                    <p class="km-stat-label">Всего специалистов</p>
-                </div>
-                <div class="km-stat-icon">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-            </a>
-
-            <a href="{% url 'admin:catalog_event_changelist' %}?status__exact=published" class="km-stat-card km-stat-card--info" aria-label="Активные мероприятия">
-                <div class="km-stat-info">
-                    <span class="km-stat-value">{{ stats.kpi.events_active|default:"0" }}</span>
-                    <p class="km-stat-label">Активные мероприятия</p>
-                </div>
-                <div class="km-stat-icon">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-            </a>
-
-            <a href="{% url 'admin:catalog_siteregistereduser_changelist' %}" class="km-stat-card km-stat-card--neutral" aria-label="Пользователи сайта">
-                <div class="km-stat-info">
-                    <span class="km-stat-value">{{ stats.kpi.total_users|default:"0" }}</span>
-                    <p class="km-stat-label">Всего пользователей</p>
-                </div>
-                <div class="km-stat-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-            </a>
-
-        </div>
-        
-        <!-- ROW 3: QUICK ACTIONS -->
-        <div class="km-dashboard-actions" aria-label="Быстрые действия">
-            <a href="{% url 'admin_add_choice' %}" class="km-dashboard-action km-dashboard-action--primary">
-                <i class="fas fa-plus-circle" aria-hidden="true"></i>
-                <span>Создать объявление</span>
-            </a>
-            <a href="{% url 'admin:catalog_event_add' %}" class="km-dashboard-action">
-                <i class="fas fa-calendar-plus" aria-hidden="true"></i>
-                <span>Добавить мероприятие</span>
-            </a>
-            <a href="{% url 'admin:catalog_specialist_add' %}" class="km-dashboard-action">
-                <i class="fas fa-user-md" aria-hidden="true"></i>
-                <span>Добавить специалиста</span>
-            </a>
-            {% if request.user.is_superuser %}
-            <a href="{% url 'admin:catalog_staffaccessuser_add' %}" class="km-dashboard-action km-dashboard-action--access">
-                <i class="fas fa-user-shield" aria-hidden="true"></i>
-                <span>Добавить админа</span>
-            </a>
-            <a href="{% url 'admin:catalog_staffaccessuser_changelist' %}" class="km-dashboard-action">
-                <i class="fas fa-users-cog" aria-hidden="true"></i>
-                <span>Сотрудники</span>
-            </a>
-            {% endif %}
-            <a href="/" target="_blank" class="km-dashboard-action">
-                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                <span>Сайт</span>
-            </a>
-        </div>
-
-        {% if request.user.is_superuser %}
-        <section class="km-admin-access-strip" aria-label="Управление доступом">
-            <div class="km-admin-access-strip__copy">
-                <strong>Админы и роли</strong>
-                <span>Создавайте сотрудников без прав суперадмина и выдавайте доступ точечно.</span>
+        <!-- 2. KEY METRICS (KPIs) -->
+        <section class="km-dash-section" aria-label="{% translate 'Основные показатели' %}">
+            <div class="km-dash-section__header">
+                <h2 class="km-dash-section__title">{% translate "Метрики каталога" %}</h2>
+                <span class="km-dash-section__meta">{% translate "Кликните на карточку для перехода к отфильтрованному списку" %}</span>
             </div>
-            <div class="km-admin-access-strip__actions">
-                <a href="{% url 'admin:catalog_staffaccessuser_add' %}">
-                    <i class="fas fa-plus" aria-hidden="true"></i>
-                    Создать сотрудника
+
+            <div class="km-dash-kpi-grid">
+                <!-- Permanent Places -->
+                <a href="{% url 'admin:catalog_place_changelist' %}?is_temporary__exact=0" class="km-dash-kpi-card" aria-label="{% translate 'Постоянных мест' %}: {{ stats.kpi.total_places }}">
+                    <div class="km-dash-kpi-card__main">
+                        <span class="km-dash-kpi-card__value">{{ stats.kpi.total_places|default:"0" }}</span>
+                        <span class="km-dash-kpi-card__label">{% translate "Постоянных мест" %}</span>
+                        <span class="km-dash-kpi-card__hint">{% translate "в базе данных" %}</span>
+                    </div>
+                    <div class="km-dash-kpi-card__icon km-dash-kpi-card__icon--neutral">
+                        <svg class="km-i" aria-hidden="true"><use href="#kmi-place"></use></svg>
+                    </div>
                 </a>
-                <a href="{% url 'admin:catalog_staffaccessuser_changelist' %}">
-                    <i class="fas fa-list" aria-hidden="true"></i>
-                    Все сотрудники
+
+                <!-- Published Places -->
+                <a href="{% url 'admin:catalog_place_changelist' %}?is_temporary__exact=0&amp;status__exact=published" class="km-dash-kpi-card km-dash-kpi-card--success" aria-label="{% translate 'Опубликовано мест' %}: {{ stats.kpi.places_published }}">
+                    <div class="km-dash-kpi-card__main">
+                        <span class="km-dash-kpi-card__value km-dash-kpi-card__value--success">{{ stats.kpi.places_published|default:"0" }}</span>
+                        <span class="km-dash-kpi-card__label">{% translate "Опубликовано мест" %}</span>
+                        <span class="km-dash-kpi-card__hint">{% translate "активны в поиске" %}</span>
+                    </div>
+                    <div class="km-dash-kpi-card__icon km-dash-kpi-card__icon--success">
+                        <svg class="km-i" aria-hidden="true"><use href="#kmi-check_circle"></use></svg>
+                    </div>
+                </a>
+
+                <!-- Events -->
+                <a href="{% url 'admin:catalog_event_changelist' %}" class="km-dash-kpi-card" aria-label="{% translate 'Мероприятий' %}: {{ stats.kpi.total_events }}">
+                    <div class="km-dash-kpi-card__main">
+                        <span class="km-dash-kpi-card__value">{{ stats.kpi.total_events|default:"0" }}</span>
+                        <span class="km-dash-kpi-card__label">{% translate "Мероприятий" %}</span>
+                        <span class="km-dash-kpi-card__hint">{% translate "всего создано" %}</span>
+                    </div>
+                    <div class="km-dash-kpi-card__icon km-dash-kpi-card__icon--neutral">
+                        <svg class="km-i" aria-hidden="true"><use href="#kmi-event"></use></svg>
+                    </div>
+                </a>
+
+                <!-- Active Events -->
+                <a href="{% url 'admin:catalog_event_changelist' %}?status__exact=published" class="km-dash-kpi-card km-dash-kpi-card--info" aria-label="{% translate 'Активных мероприятий' %}: {{ stats.kpi.events_active }}">
+                    <div class="km-dash-kpi-card__main">
+                        <span class="km-dash-kpi-card__value km-dash-kpi-card__value--info">{{ stats.kpi.events_active|default:"0" }}</span>
+                        <span class="km-dash-kpi-card__label">{% translate "Активные события" %}</span>
+                        <span class="km-dash-kpi-card__hint">{% translate "опубликованы" %}</span>
+                    </div>
+                    <div class="km-dash-kpi-card__icon km-dash-kpi-card__icon--info">
+                        <svg class="km-i" aria-hidden="true"><use href="#kmi-schedule"></use></svg>
+                    </div>
+                </a>
+
+                <!-- Specialists -->
+                <a href="{% url 'admin:catalog_specialist_changelist' %}" class="km-dash-kpi-card" aria-label="{% translate 'Специалистов' %}: {{ stats.kpi.total_specialists }}">
+                    <div class="km-dash-kpi-card__main">
+                        <span class="km-dash-kpi-card__value">{{ stats.kpi.total_specialists|default:"0" }}</span>
+                        <span class="km-dash-kpi-card__label">{% translate "Специалистов" %}</span>
+                        <span class="km-dash-kpi-card__hint">{% translate "профилей в базе" %}</span>
+                    </div>
+                    <div class="km-dash-kpi-card__icon km-dash-kpi-card__icon--neutral">
+                        <svg class="km-i" aria-hidden="true"><use href="#kmi-person"></use></svg>
+                    </div>
+                </a>
+
+                <!-- Site Users -->
+                <a href="{% url 'admin:catalog_siteregistereduser_changelist' %}" class="km-dash-kpi-card" aria-label="{% translate 'Пользователей сайта' %}: {{ stats.kpi.total_users }}">
+                    <div class="km-dash-kpi-card__main">
+                        <span class="km-dash-kpi-card__value">{{ stats.kpi.total_users|default:"0" }}</span>
+                        <span class="km-dash-kpi-card__label">{% translate "Пользователей" %}</span>
+                        <span class="km-dash-kpi-card__hint">{% translate "зарегистрировано" %}</span>
+                    </div>
+                    <div class="km-dash-kpi-card__icon km-dash-kpi-card__icon--neutral">
+                        <svg class="km-i" aria-hidden="true"><use href="#kmi-group"></use></svg>
+                    </div>
                 </a>
             </div>
         </section>
-        {% endif %}
-    </div>
 
-    <div class="col-12">
-        <div class="km-app-grid">
-            {% for app in dashboard_list %}
-            <div class="km-app-card">
-                <div class="km-app-card__header">
-                    <i class="fas fa-layer-group km-app-card__icon"></i>
-                    <span class="km-app-card__title">{{ app.name }}</span>
+        <!-- 3. QUICK ACTIONS -->
+        <section class="km-dash-section" aria-label="{% translate 'Быстрые действия' %}">
+            <div class="km-dash-section__header">
+                <h2 class="km-dash-section__title">{% translate "Быстрые действия" %}</h2>
+            </div>
+            <div class="km-dash-actions-bar">
+                <a href="{% url 'admin_add_choice' %}" class="km-dash-action-btn km-dash-action-btn--primary">
+                    <svg class="km-i" aria-hidden="true"><use href="#kmi-add"></use></svg>
+                    <span>{% translate "Создать объявление" %}</span>
+                </a>
+                <a href="{% url 'admin:catalog_event_add' %}" class="km-dash-action-btn">
+                    <svg class="km-i" aria-hidden="true"><use href="#kmi-event"></use></svg>
+                    <span>{% translate "Добавить мероприятие" %}</span>
+                </a>
+                <a href="{% url 'admin:catalog_specialist_add' %}" class="km-dash-action-btn">
+                    <svg class="km-i" aria-hidden="true"><use href="#kmi-person"></use></svg>
+                    <span>{% translate "Добавить специалиста" %}</span>
+                </a>
+                <a href="{% url 'admin:catalog_siteregistereduser_changelist' %}" class="km-dash-action-btn">
+                    <svg class="km-i" aria-hidden="true"><use href="#kmi-group"></use></svg>
+                    <span>{% translate "Пользователи сайта" %}</span>
+                </a>
+                {% if request.user.is_superuser %}
+                <a href="{% url 'admin:catalog_staffaccessuser_add' %}" class="km-dash-action-btn km-dash-action-btn--access">
+                    <svg class="km-i" aria-hidden="true"><use href="#kmi-admin_panel_settings"></use></svg>
+                    <span>{% translate "+ Сотрудник" %}</span>
+                </a>
+                <a href="{% url 'admin:catalog_staffaccessuser_changelist' %}" class="km-dash-action-btn">
+                    <svg class="km-i" aria-hidden="true"><use href="#kmi-groups"></use></svg>
+                    <span>{% translate "Сотрудники" %}</span>
+                </a>
+                {% endif %}
+                <a href="/" target="_blank" rel="noopener noreferrer" class="km-dash-action-btn km-dash-action-btn--ghost">
+                    <svg class="km-i" aria-hidden="true"><use href="#kmi-open_in_new"></use></svg>
+                    <span>{% translate "Перейти на сайт" %}</span>
+                </a>
+            </div>
+
+            {% if request.user.is_superuser %}
+            <div class="km-dash-access-banner">
+                <div class="km-dash-access-banner__icon">
+                    <svg class="km-i" aria-hidden="true"><use href="#kmi-shield"></use></svg>
                 </div>
-                <div class="km-app-card__body">
-                    {% for model in app.models %}
-                    <div class="km-app-model">
-                        <div class="km-app-model__name-wrap">
-                            {% if model.url %}
-                            <a href="{{ model.url }}" class="km-app-model__name">{{ model.name }}</a>
+                <div class="km-dash-access-banner__text">
+                    <strong>{% translate "Управление ролями и персоналом" %}</strong>
+                    <span>{% translate "Создавайте учетные записи сотрудников и выдавайте права точечно без суперадмина." %}</span>
+                </div>
+                <div class="km-dash-access-banner__links">
+                    <a href="{% url 'admin:catalog_staffaccessuser_add' %}" class="km-dash-access-link">
+                        <svg class="km-i" aria-hidden="true"><use href="#kmi-add"></use></svg>
+                        {% translate "Создать сотрудника" %}
+                    </a>
+                    <a href="{% url 'admin:catalog_staffaccessuser_changelist' %}" class="km-dash-access-link km-dash-access-link--secondary">
+                        <svg class="km-i" aria-hidden="true"><use href="#kmi-list"></use></svg>
+                        {% translate "Все сотрудники" %}
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- 4. WORKSPACE HUBS -->
+        <section class="km-dash-section" aria-label="{% translate 'Рабочие области' %}">
+            <div class="km-dash-section__header">
+                <div>
+                    <h2 class="km-dash-section__title">{% translate "Рабочие области каталога" %}</h2>
+                    <p class="km-dash-section__meta">{% translate "Структурированные разделы для управления контентом, модерацией и настройками" %}</p>
+                </div>
+            </div>
+
+            <div class="km-dash-hubs-grid">
+                {% for hub in hubs %}
+                <article class="km-dash-hub-card km-dash-hub-card--{{ hub.id }}">
+                    <header class="km-dash-hub-card__header">
+                        <div class="km-dash-hub-card__title-wrap">
+                            <span class="km-dash-hub-card__icon">
+                                <svg class="km-i" aria-hidden="true"><use href="#kmi-{{ hub.icon }}"></use></svg>
+                            </span>
+                            <div>
+                                <h3 class="km-dash-hub-card__title">{{ hub.title }}</h3>
+                                <p class="km-dash-hub-card__desc">{{ hub.description }}</p>
+                            </div>
+                        </div>
+                        <span class="km-dash-hub-card__badge">{{ hub.items_count }}</span>
+                    </header>
+
+                    <div class="km-dash-hub-card__list">
+                        {% for item in hub.items %}
+                        <div class="km-dash-hub-item">
+                            <div class="km-dash-hub-item__info">
+                                <span class="km-dash-hub-item__icon">
+                                    <svg class="km-i" aria-hidden="true"><use href="#kmi-{{ item.icon }}"></use></svg>
+                                </span>
+                                {% if item.url %}
+                                <a href="{{ item.url }}" class="km-dash-hub-item__name">{{ item.display_name }}</a>
+                                {% else %}
+                                <span class="km-dash-hub-item__name km-dash-hub-item__name--disabled">{{ item.display_name }}</span>
+                                {% endif %}
+
+                                {% if item.has_pending %}
+                                <span class="km-dash-hub-item__count km-dash-hub-item__count--warn" title="{% translate 'Ожидают модерации' %}">{{ item.count }}</span>
+                                {% elif item.count is not None and item.count > 0 %}
+                                <span class="km-dash-hub-item__count" title="{% translate 'Всего' %}">{{ item.count }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="km-dash-hub-item__actions">
+                                {% if item.add_url %}
+                                <a href="{{ item.add_url }}" class="km-dash-item-btn km-dash-item-btn--add" title="{% translate 'Добавить' %}" aria-label="{% translate 'Добавить' %}: {{ item.display_name }}">
+                                    <svg class="km-i" aria-hidden="true"><use href="#kmi-add"></use></svg>
+                                    <span>{% translate "Добавить" %}</span>
+                                </a>
+                                {% endif %}
+                                {% if item.url %}
+                                <a href="{{ item.url }}" class="km-dash-item-btn km-dash-item-btn--list" title="{% translate 'Перейти к списку' %}" aria-label="{% translate 'Список' %}: {{ item.display_name }}">
+                                    <svg class="km-i" aria-hidden="true"><use href="#kmi-list"></use></svg>
+                                    <span>{% if item.view_only %}{% translate "Просмотр" %}{% else %}{% translate "Список" %}{% endif %}</span>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- 5. RECENT ACTIVITY FEED -->
+        <section class="km-dash-section" aria-label="{% translate 'Последние действия' %}">
+            <div class="km-dash-section__header">
+                <div>
+                    <h2 class="km-dash-section__title">{% translate "Журнал последних действий" %}</h2>
+                    <p class="km-dash-section__meta">{% translate "История последних изменений в каталоге и системе" %}</p>
+                </div>
+            </div>
+
+            <div class="km-dash-history-card">
+                {% if recent_actions %}
+                <div class="km-dash-timeline">
+                    {% for action in recent_actions %}
+                    <div class="km-dash-timeline-item">
+                        <div class="km-dash-timeline-item__badge km-dash-timeline-item__badge--{{ action.action_flag }}" title="{{ action.action_label }}">
+                            {% if action.action_flag == 'add' %}
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-add"></use></svg>
+                            {% elif action.action_flag == 'delete' %}
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-delete"></use></svg>
                             {% else %}
-                            <span class="km-app-model__name text-muted">{{ model.name }}</span>
+                            <svg class="km-i" aria-hidden="true"><use href="#kmi-edit"></use></svg>
                             {% endif %}
                         </div>
-                        <div class="km-app-model__actions">
-                            {% if model.add_url %}
-                            <a href="{{ model.add_url }}" class="km-app-model__btn km-app-model__btn--add">
-                                <i class="fas fa-plus" style="font-size:10px;"></i> Добавить
-                            </a>
-                            {% endif %}
-                            {% if model.url %}
-                            <a href="{{ model.url }}" class="km-app-model__btn km-app-model__btn--list">
-                                <i class="fas fa-list" style="font-size:10px;"></i> {% if model.view_only %}Смотреть{% else %}Список{% endif %}
-                            </a>
-                            {% endif %}
+
+                        <div class="km-dash-timeline-item__content">
+                            <div class="km-dash-timeline-item__target-row">
+                                {% if action.url %}
+                                <a href="{{ action.url }}" class="km-dash-timeline-item__target">{{ action.object_repr }}</a>
+                                {% else %}
+                                <span class="km-dash-timeline-item__target">{{ action.object_repr }}</span>
+                                {% endif %}
+                                <span class="km-dash-timeline-item__model">{{ action.model_name }}</span>
+                            </div>
+                            <div class="km-dash-timeline-item__meta">
+                                <span class="km-dash-timeline-item__user">
+                                    <svg class="km-i" aria-hidden="true"><use href="#kmi-person"></use></svg>
+                                    {{ action.user }}
+                                </span>
+                                <span class="km-dash-timeline-item__dot">·</span>
+                                <span class="km-dash-timeline-item__time">{{ action.action_time|timesince }} {% translate "назад" %}</span>
+                            </div>
+                        </div>
+
+                        <div class="km-dash-timeline-item__tag km-dash-timeline-item__tag--{{ action.action_flag }}">
+                            {{ action.action_label }}
                         </div>
                     </div>
                     {% endfor %}
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="col-12">
-        <div class="km-history-panel">
-            <div class="km-history-panel__header">
-                <i class="fas fa-history km-app-card__icon"></i>
-                <span class="km-history-panel__title">Последние действия</span>
-            </div>
-            <div class="km-history-panel__content">
-                {% load log %}
-                {% get_admin_log 8 as admin_log for_user user %}
-                {% if not admin_log %}
-                    <p class="text-muted" style="font-size:13px; margin:8px 0;">Нет последних действий</p>
                 {% else %}
-                    {% for entry in admin_log %}
-                    <div class="km-history-item">
-                        <div class="km-history-item__icon {% if entry.is_addition %}km-history-item__icon--add{% elif entry.is_deletion %}km-history-item__icon--delete{% else %}km-history-item__icon--change{% endif %}">
-                            {% if entry.is_change %}
-                                <i class="fas fa-pen" style="font-size:11px;"></i>
-                            {% elif entry.is_deletion %}
-                                <i class="fas fa-trash" style="font-size:11px;"></i>
-                            {% elif entry.is_addition %}
-                                <i class="fas fa-plus" style="font-size:11px;"></i>
-                            {% endif %}
-                        </div>
-                        <div class="km-history-item__info">
-                            {% if entry.is_deletion or not entry.get_admin_url %}
-                                <span class="km-history-item__name">{{ entry.object_repr }}</span>
-                            {% else %}
-                                <a href="{{ entry.get_admin_url }}" class="km-history-item__name">{{ entry.object_repr }}</a>
-                            {% endif %}
-                            {% if entry.model %}
-                            <span class="km-history-item__model">{{ entry.model }}</span>
-                            {% endif %}
-                        </div>
-                        <span class="km-history-item__time">{{ entry.action_time|timesince }}</span>
-                    </div>
-                    {% endfor %}
+                <div class="km-dash-empty-history">
+                    <svg class="km-i km-dash-empty-history__icon" aria-hidden="true"><use href="#kmi-history"></use></svg>
+                    <p class="km-dash-empty-history__text">{% translate "Нет последних действий в журнале" %}</p>
+                </div>
                 {% endif %}
             </div>
-        </div>
+        </section>
     </div>
-
 {% endblock %}

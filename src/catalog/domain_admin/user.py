@@ -11,8 +11,10 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.sites import NotRegistered
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.dateformat import format as date_format
 
 from catalog.models import (
     UserProfile,
@@ -343,11 +345,66 @@ class HiddenBaseUserAdmin(_HiddenFromAdminIndexMixin, _BaseKidsMapUserAdmin):
     filter_horizontal = ("user_permissions",)
 
 
+class UserPhoneFilter(admin.SimpleListFilter):
+    title = _("Телефон")
+    parameter_name = "has_phone"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", _("С телефоном")),
+            ("no", _("Без телефона")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(profile__phone__gt="")
+        if self.value() == "no":
+            return queryset.filter(Q(profile__isnull=True) | Q(profile__phone=""))
+        return queryset
+
+
+class UserPlacesFilter(admin.SimpleListFilter):
+    title = _("Связанные места")
+    parameter_name = "has_places"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", _("Есть места")),
+            ("no", _("Нет мест")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(managed_places__isnull=False).distinct()
+        if self.value() == "no":
+            return queryset.filter(managed_places__isnull=True)
+        return queryset
+
+
+class UserLastLoginFilter(admin.SimpleListFilter):
+    title = _("Последний вход")
+    parameter_name = "has_login"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("yes", _("Входил на сайт")),
+            ("never", _("Не входил")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.filter(last_login__isnull=False)
+        if self.value() == "never":
+            return queryset.filter(last_login__isnull=True)
+        return queryset
+
+
 @admin.register(SiteRegisteredUser)
 class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
     change_list_template = "admin/catalog/siteregistereduser/change_list.html"
     km_primary_filters = ("is_active", "date_joined")
-    list_per_page = 15
+    list_per_page = 20
+    actions = ["activate_users", "deactivate_users"]
     fieldsets = (
         (_("Аккаунт"), {"fields": ("username", "email", "first_name", "last_name", "is_active", "password_summary")}),
         (_("Важные даты"), {"classes": ("collapse",), "fields": ("last_login", "date_joined")}),
@@ -362,52 +419,435 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
         ),
     )
     readonly_fields = ("password_summary", "last_login", "date_joined")
-    list_display = ("identity_summary", "site_phone", "site_gender", "is_active", "date_joined", "last_login", "row_actions")
-    list_filter = ("is_active", "date_joined", "last_login", "profile__gender")
+    list_display = (
+        "user_profile_card",
+        "user_phone",
+        "user_gender",
+        "user_status",
+        "user_date_joined",
+        "user_last_login",
+        "user_activity",
+        "user_actions",
+    )
+    list_filter = (
+        "is_active",
+        UserPhoneFilter,
+        UserPlacesFilter,
+        UserLastLoginFilter,
+        "profile__gender",
+        "date_joined",
+    )
 
     def get_queryset(self, request):
-        return super().get_queryset(request).filter(is_staff=False, is_superuser=False)
+        return (
+            super()
+            .get_queryset(request)
+            .filter(is_staff=False, is_superuser=False)
+            .select_related("profile", "email_verification")
+            .annotate(
+                managed_places_count=Count("managed_places", distinct=True),
+                ownership_requests_count=Count("ownership_requests", distinct=True),
+                reviews_count=Count("place_reviews", distinct=True),
+            )
+        )
+
+    def get_urls(self):
+        from django.urls import path
+        custom_urls = [
+            path(
+                "<id>/toggle-active/",
+                self.admin_site.admin_view(self.user_toggle_active),
+                name=f"{self.model._meta.app_label}_{self.model._meta.model_name}_toggle_active",
+            ),
+        ]
+        return custom_urls + super().get_urls()
+
+    def user_toggle_active(self, request, id):
+        if not self.has_change_permission(request):
+            raise PermissionDenied
+        user = self.get_object(request, id)
+        if not user:
+            messages.error(request, _("Пользователь не найден."))
+            return redirect("admin:catalog_siteregistereduser_changelist")
+        user.is_active = not user.is_active
+        user.save(update_fields=["is_active"])
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest" or request.GET.get("format") == "json":
+            return JsonResponse({
+                "success": True,
+                "is_active": user.is_active,
+                "status_label": str(_("Активен")) if user.is_active else str(_("Неактивен")),
+                "message": str(_("Пользователь активирован.")) if user.is_active else str(_("Пользователь деактивирован.")),
+            })
+
+        msg = _("Пользователь %(name)s успешно активирован.") if user.is_active else _("Пользователь %(name)s успешно деактивирован.")
+        self.message_user(request, msg % {"name": user.get_full_name() or user.username}, messages.SUCCESS)
+
+        referer = request.META.get("HTTP_REFERER")
+        return redirect(referer or "admin:catalog_siteregistereduser_changelist")
+
+    @admin.action(description=_("Активировать выбранных пользователей"))
+    def activate_users(self, request, queryset):
+        count = queryset.update(is_active=True)
+        self.message_user(
+            request,
+            _("Успешно активировано пользователей: %(count)d.") % {"count": count},
+            messages.SUCCESS,
+        )
+
+    @admin.action(description=_("Деактивировать выбранных пользователей"))
+    def deactivate_users(self, request, queryset):
+        count = queryset.update(is_active=False)
+        self.message_user(
+            request,
+            _("Успешно деактивировано пользователей: %(count)d.") % {"count": count},
+            messages.WARNING,
+        )
+
+    @admin.display(description=_("Пользователь"), ordering="first_name")
+    def user_profile_card(self, obj):
+        profile = getattr(obj, "profile", None)
+        email_verification = getattr(obj, "email_verification", None)
+
+        full_name = " ".join(part for part in (obj.first_name, obj.last_name) if part).strip()
+        change_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk])
+
+        if profile and profile.avatar:
+            avatar_html = format_html(
+                '<a href="{}" class="km-u-avatar km-u-avatar--img" tabindex="-1">'
+                '<img src="{}" alt="{}">'
+                '</a>',
+                change_url,
+                profile.avatar.url,
+                obj.username,
+            )
+        else:
+            initial = (full_name or obj.username or "?")[:1].upper()
+            color_num = (ord(initial) % 6) + 1
+            avatar_html = format_html(
+                '<a href="{}" class="km-u-avatar km-u-avatar--initials km-u-avatar--c{}" tabindex="-1">'
+                '<span>{}</span>'
+                '</a>',
+                change_url,
+                color_num,
+                initial,
+            )
+
+        if full_name:
+            primary_text = full_name
+            secondary_text = obj.email or ""
+            tertiary_text = f"@{obj.username}"
+        elif obj.email:
+            primary_text = obj.email.split("@")[0]
+            secondary_text = obj.email
+            tertiary_text = f"@{obj.username}" if obj.username != obj.email else ""
+        else:
+            primary_text = obj.username
+            secondary_text = ""
+            tertiary_text = ""
+
+        verified_badge = ""
+        if obj.email and email_verification and email_verification.is_verified:
+            verified_badge = format_html(
+                '<span class="km-u-verified" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check_circle"></use></svg>'
+                '</span>',
+                _("Email подтверждён"),
+            )
+
+        email_row = ""
+        if secondary_text:
+            email_row = format_html(
+                '<span class="km-u-meta km-u-meta--email"><span>{}</span>{}</span>',
+                secondary_text,
+                verified_badge,
+            )
+
+        username_row = ""
+        if tertiary_text:
+            username_row = format_html(
+                '<span class="km-u-meta km-u-meta--username">{}</span>',
+                tertiary_text,
+            )
+
+        return format_html(
+            '<div class="km-u-cell-profile">'
+            '{}'
+            '<div class="km-u-profile-info">'
+            '<a href="{}" class="km-u-name">{}</a>'
+            '{}'
+            '{}'
+            '</div>'
+            '</div>',
+            avatar_html,
+            change_url,
+            primary_text,
+            email_row,
+            username_row,
+        )
+
+    # Aliases for backward compatibility
+    identity_summary = user_profile_card
+
+    @admin.display(description=_("Телефон"), ordering="profile__phone")
+    def user_phone(self, obj):
+        profile = getattr(obj, "profile", None)
+        phone = profile.phone.strip() if (profile and profile.phone) else ""
+        if not phone:
+            return mark_safe('<span class="km-u-empty">—</span>')
+        return format_html(
+            '<a href="tel:{}" class="km-u-phone">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-call"></use></svg>'
+            '<span>{}</span>'
+            '</a>',
+            phone,
+            phone,
+        )
+
+    site_phone = user_phone
+
+    @admin.display(description=_("Пол"), ordering="profile__gender")
+    def user_gender(self, obj):
+        profile = getattr(obj, "profile", None)
+        if not profile or profile.gender not in ("M", "F"):
+            return mark_safe('<span class="km-u-empty">—</span>')
+        gender_cls = "km-u-gender--m" if profile.gender == "M" else "km-u-gender--f"
+        return format_html(
+            '<span class="km-u-gender {}">{}</span>',
+            gender_cls,
+            profile.get_gender_display(),
+        )
+
+    site_gender = user_gender
+
+    @admin.display(description=_("Статус"), ordering="is_active")
+    def user_status(self, obj):
+        if obj.is_active:
+            return format_html(
+                '<span class="km-u-status km-u-status--active">'
+                '<span class="km-u-status-dot" aria-hidden="true"></span>'
+                '<span>{}</span>'
+                '</span>',
+                _("Активен"),
+            )
+        return format_html(
+            '<span class="km-u-status km-u-status--inactive">'
+            '<span class="km-u-status-dot" aria-hidden="true"></span>'
+            '<span>{}</span>'
+            '</span>',
+            _("Неактивен"),
+        )
+
+    @admin.display(description=_("Регистрация"), ordering="date_joined")
+    def user_date_joined(self, obj):
+        if not obj.date_joined:
+            return mark_safe('<span class="km-u-empty">—</span>')
+        d_str = date_format(obj.date_joined, "d.m.Y")
+        t_str = date_format(obj.date_joined, "H:i")
+        return format_html(
+            '<div class="km-u-datetime">'
+            '<span class="km-u-date">{}</span>'
+            '<span class="km-u-time">{}</span>'
+            '</div>',
+            d_str,
+            t_str,
+        )
+
+    @admin.display(description=_("Последний вход"), ordering="last_login")
+    def user_last_login(self, obj):
+        if not obj.last_login:
+            return format_html('<span class="km-u-never">{}</span>', _("Не входил"))
+        d_str = date_format(obj.last_login, "d.m.Y")
+        t_str = date_format(obj.last_login, "H:i")
+        return format_html(
+            '<div class="km-u-datetime">'
+            '<span class="km-u-date">{}</span>'
+            '<span class="km-u-time">{}</span>'
+            '</div>',
+            d_str,
+            t_str,
+        )
+
+    @admin.display(description=_("Активность"), ordering="managed_places_count")
+    def user_activity(self, obj):
+        places_cnt = getattr(obj, "managed_places_count", 0)
+        reqs_cnt = getattr(obj, "ownership_requests_count", 0)
+        revs_cnt = getattr(obj, "reviews_count", 0)
+
+        pills = []
+        if places_cnt:
+            url = f"{reverse('admin:catalog_place_changelist')}?owner__id__exact={obj.pk}"
+            pills.append(format_html(
+                '<a href="{}" class="km-u-act-pill km-u-act-pill--place" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-place"></use></svg>'
+                '<span>{}</span>'
+                '</a>',
+                url,
+                _("Управление карточками мест"),
+                _("%(count)d мест") % {"count": places_cnt},
+            ))
+        if reqs_cnt:
+            url = f"{reverse('admin:catalog_placeownershiprequest_changelist')}?applicant__id__exact={obj.pk}"
+            pills.append(format_html(
+                '<a href="{}" class="km-u-act-pill km-u-act-pill--request" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-assignment"></use></svg>'
+                '<span>{}</span>'
+                '</a>',
+                url,
+                _("Заявки на владение"),
+                _("%(count)d заяв.") % {"count": reqs_cnt},
+            ))
+        if revs_cnt:
+            url = f"{reverse('admin:catalog_placereview_changelist')}?user__id__exact={obj.pk}"
+            pills.append(format_html(
+                '<a href="{}" class="km-u-act-pill km-u-act-pill--review" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chat_bubble"></use></svg>'
+                '<span>{}</span>'
+                '</a>',
+                url,
+                _("Отзывы на сайте"),
+                _("%(count)d отз.") % {"count": revs_cnt},
+            ))
+
+        if pills:
+            return format_html('<div class="km-u-activity-list">{}</div>', mark_safe("".join(pills)))
+        return mark_safe('<span class="km-u-empty">—</span>')
 
     @admin.display(description="")
-    def row_actions(self, obj):
+    def user_actions(self, obj):
         change_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk])
-        primary_action = render_primary_action(change_url, _("Редактировать"))
-        
         password_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_password_change", args=[obj.pk])
         delete_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_delete", args=[obj.pk])
-        
-        menu_actions = [
-            (password_url, _("Сменить пароль"), ""),
-            (delete_url, _("Удалить"), "km-admin-action-menu__link--danger"),
-        ]
-        menu_html = render_action_menu(menu_actions)
-        return render_row_actions_container(primary_action, menu_html)
+        toggle_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_toggle_active", args=[obj.pk])
+
+        places_cnt = getattr(obj, "managed_places_count", 0)
+        reqs_cnt = getattr(obj, "ownership_requests_count", 0)
+        revs_cnt = getattr(obj, "reviews_count", 0)
+
+        places_item = ""
+        if places_cnt:
+            places_url = f"{reverse('admin:catalog_place_changelist')}?owner__id__exact={obj.pk}"
+            places_item = format_html(
+                '<a href="{}" class="km-u-dropdown-item">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-place"></use></svg>'
+                '<span>{} ({})</span>'
+                '</a>',
+                places_url,
+                _("Связанные места"),
+                places_cnt,
+            )
+
+        reqs_item = ""
+        if reqs_cnt:
+            reqs_url = f"{reverse('admin:catalog_placeownershiprequest_changelist')}?applicant__id__exact={obj.pk}"
+            reqs_item = format_html(
+                '<a href="{}" class="km-u-dropdown-item">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-assignment"></use></svg>'
+                '<span>{} ({})</span>'
+                '</a>',
+                reqs_url,
+                _("Заявки на владение"),
+                reqs_cnt,
+            )
+
+        revs_item = ""
+        if revs_cnt:
+            revs_url = f"{reverse('admin:catalog_placereview_changelist')}?user__id__exact={obj.pk}"
+            revs_item = format_html(
+                '<a href="{}" class="km-u-dropdown-item">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chat_bubble"></use></svg>'
+                '<span>{} ({})</span>'
+                '</a>',
+                revs_url,
+                _("Отзывы"),
+                revs_cnt,
+            )
+
+        toggle_icon = "kmi-block" if obj.is_active else "kmi-check_circle"
+        toggle_label = _("Деактивировать") if obj.is_active else _("Активировать")
+        toggle_class = "km-u-dropdown-item js-km-toggle-active is-deactivate" if obj.is_active else "km-u-dropdown-item js-km-toggle-active is-activate"
+
+        return format_html(
+            '<div class="km-u-actions-wrap">'
+            '<a href="{}" class="km-u-action-btn km-u-action-btn--edit" title="{}" aria-label="{}">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit"></use></svg>'
+            '</a>'
+            '<details class="km-u-dropdown-wrap">'
+            '<summary class="km-u-action-btn km-u-action-btn--more" title="{}" aria-label="{}">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-more_vert"></use></svg>'
+            '</summary>'
+            '<div class="km-u-dropdown-menu">'
+            '<a href="{}" class="km-u-dropdown-item">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-person"></use></svg>'
+            '<span>{}</span>'
+            '</a>'
+            '<a href="{}" class="km-u-dropdown-item">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-key"></use></svg>'
+            '<span>{}</span>'
+            '</a>'
+            '<a href="{}" class="{}" data-user-id="{}" data-user-name="{}" data-active="{}">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#{}"></use></svg>'
+            '<span>{}</span>'
+            '</a>'
+            '{}{}{}'
+            '<div class="km-u-dropdown-divider"></div>'
+            '<a href="{}" class="km-u-dropdown-item km-u-dropdown-item--danger">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-delete"></use></svg>'
+            '<span>{}</span>'
+            '</a>'
+            '</div>'
+            '</details>'
+            '</div>',
+            change_url,
+            _("Редактировать"),
+            _("Редактировать"),
+            _("Действия"),
+            _("Действия"),
+            change_url,
+            _("Открыть профиль"),
+            password_url,
+            _("Сменить пароль"),
+            toggle_url,
+            toggle_class,
+            obj.pk,
+            obj.get_full_name() or obj.username,
+            "1" if obj.is_active else "0",
+            toggle_icon,
+            toggle_label,
+            places_item,
+            reqs_item,
+            revs_item,
+            delete_url,
+            _("Удалить"),
+        )
+
+    row_actions = user_actions
 
     def _build_user_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
         return build_admin_query_string(request, clear=clear, **updates)
 
     def _user_quick_filters(self, request):
-        # Registered accounts are a single category: managing a listing is a
-        # relation to that listing, not a kind of account. So these tabs split
-        # on account activity, which is the one distinction that still exists.
         current = request.GET.get("is_active__exact")
         keys = ("is_active__exact",)
         base = SiteRegisteredUser.objects.filter(is_staff=False, is_superuser=False)
 
         return (
             {
+                "id": "all",
                 "label": _("Все пользователи"),
                 "url": self._build_user_changelist_query_string(request, clear=keys),
                 "active": current not in {"0", "1"},
                 "count": base.count(),
             },
             {
+                "id": "active",
                 "label": _("Активные"),
                 "url": self._build_user_changelist_query_string(request, clear=keys, is_active__exact="1"),
                 "active": current == "1",
                 "count": base.filter(is_active=True).count(),
             },
             {
+                "id": "inactive",
                 "label": _("Неактивные"),
                 "url": self._build_user_changelist_query_string(request, clear=keys, is_active__exact="0"),
                 "active": current == "0",
@@ -416,14 +856,80 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
         )
 
     def changelist_view(self, request, extra_context=None):
-        extra_context = {
+        can_add = self.has_add_permission(request)
+        add_url = reverse(f"admin:{self.model._meta.app_label}_{self.model._meta.model_name}_add") if can_add else ""
+
+        applied_filters = []
+        if request.GET.get("q"):
+            q_val = request.GET.get("q")
+            applied_filters.append({
+                "name": "q",
+                "label": _("Поиск: «%(q)s»") % {"q": q_val},
+                "clear_url": self._build_user_changelist_query_string(request, clear=("q",)),
+            })
+        if request.GET.get("has_phone"):
+            p_val = request.GET.get("has_phone")
+            lbl = _("С телефоном") if p_val == "yes" else _("Без телефона")
+            applied_filters.append({
+                "name": "has_phone",
+                "label": lbl,
+                "clear_url": self._build_user_changelist_query_string(request, clear=("has_phone",)),
+            })
+        if request.GET.get("has_places"):
+            pl_val = request.GET.get("has_places")
+            lbl = _("Есть места") if pl_val == "yes" else _("Нет мест")
+            applied_filters.append({
+                "name": "has_places",
+                "label": lbl,
+                "clear_url": self._build_user_changelist_query_string(request, clear=("has_places",)),
+            })
+        if request.GET.get("has_login"):
+            l_val = request.GET.get("has_login")
+            lbl = _("Входил на сайт") if l_val == "yes" else _("Не входил")
+            applied_filters.append({
+                "name": "has_login",
+                "label": lbl,
+                "clear_url": self._build_user_changelist_query_string(request, clear=("has_login",)),
+            })
+        if request.GET.get("profile__gender__exact"):
+            g_val = request.GET.get("profile__gender__exact")
+            g_map = {"M": _("Мужской"), "F": _("Женский"), "U": _("Пол не указан")}
+            applied_filters.append({
+                "name": "profile__gender__exact",
+                "label": g_map.get(g_val, g_val),
+                "clear_url": self._build_user_changelist_query_string(request, clear=("profile__gender__exact",)),
+            })
+
+        curr_o = request.GET.get("o", "-5")
+        sort_choices = [
+            {"val": "-5", "label": _("Последний вход (новые)"), "url": self._build_user_changelist_query_string(request, o="-5"), "active": curr_o == "-5"},
+            {"val": "5", "label": _("Последний вход (старые)"), "url": self._build_user_changelist_query_string(request, o="5"), "active": curr_o == "5"},
+            {"val": "-4", "label": _("Регистрация (новые)"), "url": self._build_user_changelist_query_string(request, o="-4"), "active": curr_o in ("-4", "")},
+            {"val": "4", "label": _("Регистрация (старые)"), "url": self._build_user_changelist_query_string(request, o="4"), "active": curr_o == "4"},
+            {"val": "0", "label": _("Имя (А-Я)"), "url": self._build_user_changelist_query_string(request, o="0"), "active": curr_o == "0"},
+            {"val": "-0", "label": _("Имя (Я-А)"), "url": self._build_user_changelist_query_string(request, o="-0"), "active": curr_o == "-0"},
+        ]
+        active_sort = next((s for s in sort_choices if s["active"]), sort_choices[0])
+
+        extra = {
             "km_primary_quick_filters": self._user_quick_filters(request),
             "km_secondary_quick_filters": [],
             "title": _("Пользователи сайта"),
-            "subtitle": _("Управление зарегистрированными пользователями сайта."),
+            "subtitle": _("Управление зарегистрированными пользователями KidsMap"),
+            "can_add_user": can_add,
+            "add_user_url": add_url,
+            "applied_filters": applied_filters,
+            "has_applied_filters": bool(applied_filters),
+            "reset_all_filters_url": self._build_user_changelist_query_string(request, clear=("q", "has_phone", "has_places", "has_login", "profile__gender__exact", "is_active__exact")),
+            "sort_choices": sort_choices,
+            "active_sort": active_sort,
+            "current_phone_filter": request.GET.get("has_phone", ""),
+            "current_places_filter": request.GET.get("has_places", ""),
+            "current_login_filter": request.GET.get("has_login", ""),
+            "current_gender_filter": request.GET.get("profile__gender__exact", ""),
             **(extra_context or {}),
         }
-        return super().changelist_view(request, extra_context=extra_context)
+        return super().changelist_view(request, extra_context=extra)
 
 
 class StaffAccessRoleFilter(admin.SimpleListFilter):

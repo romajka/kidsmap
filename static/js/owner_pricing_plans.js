@@ -18,6 +18,7 @@
   const azBadgeInput = document.getElementById("id_custom_price_badge_az");
   const ruBadgeInput = document.getElementById("id_custom_price_badge_ru");
   const enBadgeInput = document.getElementById("id_custom_price_badge_en");
+  const priceModeInput = document.getElementById("id_price_mode");
   const canVerify = editor.dataset.canVerify === "1";
   if (!input || !list || !add) return;
 
@@ -420,6 +421,14 @@
   }
 
   function detectPricePolicy() {
+    if (priceModeInput && priceModeInput.value) {
+      const mode = priceModeInput.value.trim();
+      if (mode === "free") return "free";
+      if (mode === "free_entry_paid_services" || mode === "free_admission_with_paid") return "free_entry_paid_services";
+      if (mode === "events") return "events";
+      if (mode === "tariffs") return "tariffs";
+    }
+
     const az = (azBadgeInput ? azBadgeInput.value : "").trim();
     const ru = (ruBadgeInput ? ruBadgeInput.value : "").trim();
     const en = (enBadgeInput ? enBadgeInput.value : "").trim();
@@ -428,7 +437,7 @@
       return "free";
     }
     if (ru === "Вход бесплатный" || az === "Giriş pulsuzdur" || en === "Free admission") {
-      return "free_admission_with_paid";
+      return "free_entry_paid_services";
     }
     if (ru === "Цена зависит от мероприятия" || az === "Qiymət tədbirdən asılıdır" || en === "Price depends on event") {
       return "events";
@@ -448,50 +457,38 @@
   }
 
   function applyPricePolicy(policy, userTriggered) {
+    if (policy === "free_admission_with_paid") {
+      policy = "free_entry_paid_services";
+    }
     currentPolicy = policy;
+    if (priceModeInput && priceModeInput.value !== policy) {
+      priceModeInput.value = policy;
+      priceModeInput.dispatchEvent(new Event("input", { bubbles: true }));
+      priceModeInput.dispatchEvent(new Event("change", { bubbles: true }));
+    }
     policyButtons.forEach((btn) => {
-      btn.classList.toggle("is-active", btn.dataset.pricePolicy === policy);
+      const btnPolicy = btn.dataset.pricePolicy === "free_admission_with_paid" ? "free_entry_paid_services" : btn.dataset.pricePolicy;
+      btn.classList.toggle("is-active", btnPolicy === policy);
     });
 
     if (policy === "free") {
-      if (userTriggered) {
-        setBadgeInputs("Pulsuz", "Бесплатно", "Free");
-      }
       if (policyHint) policyHint.textContent = labels.hintFree;
       if (list) list.hidden = true;
       if (emptyState) emptyState.hidden = true;
       if (foot) foot.hidden = true;
-    } else if (policy === "free_admission_with_paid") {
-      if (userTriggered) {
-        setBadgeInputs("Giriş pulsuzdur", "Вход бесплатный", "Free admission");
-      }
+    } else if (policy === "free_entry_paid_services") {
       if (policyHint) policyHint.textContent = labels.hintFreeWithPaid;
       if (list) list.hidden = false;
       if (emptyDesc) emptyDesc.textContent = labels.emptyFreeWithPaidDesc;
       if (emptyState) emptyState.hidden = plans.length > 0;
       if (foot) foot.hidden = false;
     } else if (policy === "events") {
-      if (userTriggered) {
-        setBadgeInputs("Qiymət tədbirdən asılıdır", "Цена зависит от мероприятия", "Price depends on event");
-      }
       if (policyHint) policyHint.textContent = labels.hintEvents;
       if (list) list.hidden = true;
       if (emptyState) emptyState.hidden = true;
       if (foot) foot.hidden = true;
     } else {
       // Tariffs
-      if (userTriggered) {
-        const ru = (ruBadgeInput ? ruBadgeInput.value : "").trim();
-        const az = (azBadgeInput ? azBadgeInput.value : "").trim();
-        const en = (enBadgeInput ? enBadgeInput.value : "").trim();
-        if (
-          ru === "Бесплатно" || az === "Pulsuz" || en === "Free" ||
-          ru === "Вход бесплатный" || az === "Giriş pulsuzdur" || en === "Free admission" ||
-          ru === "Цена зависит от мероприятия" || az === "Qiymət tədbirdən asılıdır" || en === "Price depends on event"
-        ) {
-          setBadgeInputs("", "", "");
-        }
-      }
       if (policyHint) policyHint.textContent = labels.hintTariffs;
       if (list) list.hidden = false;
       if (emptyDesc) emptyDesc.textContent = labels.emptyDefaultDesc;
@@ -557,7 +554,8 @@
 
   policyButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const targetPolicy = btn.dataset.pricePolicy;
+      const rawPolicy = btn.dataset.pricePolicy;
+      const targetPolicy = rawPolicy === "free_admission_with_paid" ? "free_entry_paid_services" : rawPolicy;
       if (targetPolicy === currentPolicy) return;
 
       if ((targetPolicy === "free" || targetPolicy === "events") && plans.length > 0) {
@@ -606,6 +604,16 @@
     });
   });
 
+  if (priceModeInput) {
+    priceModeInput.addEventListener("change", () => {
+      const val = priceModeInput.value.trim();
+      const target = val === "free_admission_with_paid" ? "free_entry_paid_services" : val;
+      if (target && target !== currentPolicy) {
+        applyPricePolicy(target, false);
+      }
+    });
+  }
+
   function updateComputedPrice() {
     if (!computedBadge) return;
 
@@ -615,7 +623,7 @@
       return;
     }
 
-    if (currentPolicy === "free_admission_with_paid") {
+    if (currentPolicy === "free_entry_paid_services" || currentPolicy === "free_admission_with_paid") {
       computedBadge.textContent = labels.freeAdmission;
       syncPreviewPrice(labels.freeAdmission);
       return;

@@ -140,6 +140,11 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         required=False,
         widget=forms.HiddenInput(attrs={"data-tariff-input": ""}),
     )
+    price_mode = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"id": "id_price_mode"}),
+        initial=Place.PRICE_MODE_TARIFFS,
+    )
 
     region = forms.ChoiceField(
         label=_("Город / регион"),
@@ -197,6 +202,12 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "lesson_duration_minutes": _("Длительность урока (мин)"),
             "offers_adult_classes": _("Также есть занятия для взрослых"),
         }
+
+    def clean_price_mode(self):
+        val = (self.cleaned_data.get("price_mode") or "").strip()
+        if val not in dict(Place.PRICE_MODE_CHOICES):
+            val = Place.PRICE_MODE_TARIFFS
+        return val
 
     def clean(self):
         cleaned = super().clean()
@@ -1561,6 +1572,7 @@ class PlaceAdmin(admin.ModelAdmin):
         "schedule_note_az",
         "schedule_note_ru",
         "schedule_note_en",
+        "price_mode",
         "lesson_duration_minutes",
         "is_temporary",
         "temporary_start",
@@ -1763,6 +1775,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "fields": (
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
+                    "price_mode",
                     "pricing_plans",
                 )
             },
@@ -2037,9 +2050,35 @@ class PlaceAdmin(admin.ModelAdmin):
                 }
             )
 
+        from catalog.services.locations import AZERBAIJAN_REGIONS_MAP, BAKU_DISTRICTS_MAP
+        from catalog.models.pricing_plan import PricingPlan
+
+        regions = [
+            {"code": code, "name_ru": data["ru"], "name_az": data["az"], "name_en": data.get("en", "")}
+            for code, data in AZERBAIJAN_REGIONS_MAP.items()
+        ]
+        districts = [
+            {"code": code, "name_ru": data["ru"], "name_az": data["az"], "name_en": data.get("en", "")}
+            for code, data in BAKU_DISTRICTS_MAP.items()
+        ]
+        price_modes = [{"code": code, "label": str(label)} for code, label in Place.PRICE_MODE_CHOICES]
+        schedule_modes = [{"code": code, "label": str(label)} for code, label in Place.SCHEDULE_MODE_CHOICES]
+        product_types = [{"code": code, "label": str(label)} for code, label in PricingPlan.PRODUCT_CHOICES]
+        price_kinds = [{"code": code, "label": str(label)} for code, label in PricingPlan.PRICE_KIND_CHOICES]
+        lesson_formats = [{"code": code, "label": str(label)} for code, label in PricingPlan.LESSON_FORMAT_CHOICES]
+        billing_modes = [{"code": code, "label": str(label)} for code, label in PricingPlan.BILLING_MODE_CHOICES]
+
         return {
             "categories": categories,
             "subcategories": subcategories,
+            "regions": regions,
+            "districts": districts,
+            "price_modes": price_modes,
+            "schedule_modes": schedule_modes,
+            "product_types": product_types,
+            "price_kinds": price_kinds,
+            "lesson_formats": lesson_formats,
+            "billing_modes": billing_modes,
         }
 
     def _build_place_form_sections(self, adminform):
@@ -2402,6 +2441,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "field": item.requirement.field,
                 "anchor": item.requirement.anchor,
                 "check": item.requirement.client_check,
+                "config": item.requirement.client_config,
                 "initial": item.is_complete,
                 "message": item.issue.message if item.issue else "",
                 "fallback": bool(server_only.get(item.code)) and item.is_complete,
@@ -2569,6 +2609,7 @@ class PlaceAdmin(admin.ModelAdmin):
                 "fields": (
                 ("age_from", "age_to", "age_open_ended", "lesson_duration_minutes"),
                     "offers_adult_classes",
+                    "price_mode",
                     "pricing_plans",
                 )
             },
@@ -2705,17 +2746,26 @@ class PlaceAdmin(admin.ModelAdmin):
         if not preview:
             preview = mark_safe('<span class="km-col-thumb km-col-thumb--pattern" aria-hidden="true"></span>')
 
+        home_on = bool(obj.is_home_recommended)
+        home_title = _("На главной") if home_on else _("Не на главной")
+        home_class = "is-on" if home_on else "is-off"
+
+        map_on = bool(obj.has_coordinates)
+        map_title = _("Точка на карте есть") if map_on else _("Нет координат")
+        map_class = "is-on" if map_on else "is-off"
+        map_icon = "place" if map_on else "location_off"
+
         marks_inline = format_html(
             '<span class="km-place-marks-inline" aria-label="{}">'
-            '<svg class="km-i km-mark {}" viewBox="0 0 960 960" aria-hidden="true"><title>{}</title><use href="#kmi-home"></use></svg>'
-            '<svg class="km-i km-mark {}" viewBox="0 0 960 960" aria-hidden="true"><title>{}</title><use href="#kmi-{}"></use></svg>'
+            '<span class="km-mark-wrap {}" title="{}"><svg class="km-i km-mark km-mark--home" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-home"></use></svg></span>'
+            '<span class="km-mark-wrap {}" title="{}"><svg class="km-i km-mark km-mark--map" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-{}"></use></svg></span>'
             '</span>',
             _("Метки карточки"),
-            "is-on" if obj.is_home_recommended else "is-off",
-            _("На главной") if obj.is_home_recommended else _("Не на главной"),
-            "is-on" if obj.has_coordinates else "is-off",
-            _("Точка на карте есть") if obj.has_coordinates else _("Нет координат"),
-            "place" if obj.has_coordinates else "location_off",
+            home_class,
+            home_title,
+            map_class,
+            map_title,
+            map_icon,
         )
         return format_html(
             '<div class="km-col-place">'
@@ -2831,24 +2881,41 @@ class PlaceAdmin(admin.ModelAdmin):
         map_class = "is-on" if map_on else "is-off"
         map_icon = "place" if map_on else "location_off"
 
-        rating_val = f"{float(obj.rating_avg or 0):.1f}" if obj.rating_avg else "—"
+        has_rating = bool(obj.rating_avg)
+        rating_val = f"{float(obj.rating_avg or 0):.1f}" if has_rating else "—"
+        rating_class = "has-rating" if has_rating else "no-rating"
         reviews_count = int(obj.rating_count or 0)
+        reviews_title = _("Отзывов: %(count)d") % {"count": reviews_count}
+        rating_title = _("Рейтинг: %(rating)s") % {"rating": rating_val}
 
         return format_html(
             '<div class="km-col-marks">'
-            '<svg class="km-i km-mark km-mark--home {}" viewBox="0 0 960 960" aria-hidden="true"><title>{}</title><use href="#kmi-home"></use></svg>'
-            '<svg class="km-i km-mark km-mark--map {}" viewBox="0 0 960 960" aria-hidden="true"><title>{}</title><use href="#kmi-{}"></use></svg>'
-            '<span class="km-mark-stat" title="{}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chat_bubble"></use></svg><span>{}</span></span>'
-            '<span class="km-mark-stat" title="{}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-star"></use></svg><span>{}</span></span>'
+            '<div class="km-marks-flags">'
+            '<span class="km-mark-wrap {}" title="{}"><svg class="km-i km-mark km-mark--home" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-home"></use></svg></span>'
+            '<span class="km-mark-wrap {}" title="{}"><svg class="km-i km-mark km-mark--map" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-{}"></use></svg></span>'
+            '</div>'
+            '<div class="km-marks-metrics">'
+            '<span class="km-mark-stat km-mark-stat--reviews" title="{}" aria-label="{}">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chat_bubble"></use></svg>'
+            '<span class="km-mark-stat__val">{}</span>'
+            '</span>'
+            '<span class="km-mark-stat km-mark-stat--rating {}" title="{}" aria-label="{}">'
+            '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-star"></use></svg>'
+            '<span class="km-mark-stat__val">{}</span>'
+            '</span>'
+            '</div>'
             '</div>',
             home_class,
             home_title,
             map_class,
             map_title,
             map_icon,
-            _("Отзывы"),
+            reviews_title,
+            reviews_title,
             reviews_count,
-            _("Рейтинг"),
+            rating_class,
+            rating_title,
+            rating_title,
             rating_val,
         )
 
@@ -3906,16 +3973,30 @@ class PlaceAdmin(admin.ModelAdmin):
             "name_az": obj.name_az, "name_ru": obj.name_ru, "name_en": obj.name_en,
             "description_az": obj.description_az, "description_ru": obj.description_ru, "description_en": obj.description_en,
             "category": obj.category_id, "subcategory": obj.subcategory_id,
-            "age_from": obj.age_from, "age_to": obj.age_to, "address": obj.address,
-            "district": obj.district, "metro": obj.metro, "phone1": obj.phone1,
+            "age_from": obj.age_from, "age_to": obj.age_to, "age_open_ended": obj.age_open_ended,
+            "offers_adult_classes": obj.offers_adult_classes,
+            "address": obj.address, "district": obj.district, "metro": obj.metro,
+            "lat": obj.lat, "lng": obj.lng,
+            "phone1": obj.phone1, "phone2": obj.phone2, "phone3": obj.phone3,
             "instagram": obj.instagram, "website": obj.website,
             "schedule_mode": obj.schedule_mode,
             "schedule_note_az": obj.schedule_note_az,
             "schedule_note_ru": obj.schedule_note_ru,
             "schedule_note_en": obj.schedule_note_en,
+            "lesson_duration_minutes": obj.lesson_duration_minutes,
+            "is_temporary": obj.is_temporary,
+            "temporary_start": obj.temporary_start.isoformat() if obj.temporary_start else None,
+            "temporary_end": obj.temporary_end.isoformat() if obj.temporary_end else None,
+            "price_mode": obj.price_mode,
             "custom_price_badge_az": obj.custom_price_badge_az,
             "custom_price_badge_ru": obj.custom_price_badge_ru,
             "custom_price_badge_en": obj.custom_price_badge_en,
+            "extra_conditions_az": obj.extra_conditions_az,
+            "extra_conditions_ru": obj.extra_conditions_ru,
+            "extra_conditions_en": obj.extra_conditions_en,
+            "additional_info_az": obj.additional_info_az,
+            "additional_info_ru": obj.additional_info_ru,
+            "additional_info_en": obj.additional_info_en,
             "pricing_plans": serialize_pricing_plans(obj.pricing_plan_records.all()),
         }
         response = HttpResponse(json.dumps(payload, ensure_ascii=False, indent=2, default=str), content_type="application/json")

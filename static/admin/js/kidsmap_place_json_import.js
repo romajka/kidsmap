@@ -38,7 +38,6 @@
   function setDistrictSelect(value) {
     if (value === undefined || value === null || value === "") return false;
     var select = document.getElementById("id_district");
-    if (!select) return false;
     var raw = normalize(value);
     var clean = raw.replace(/^baku_/, "").replace(/район|rayonu|rayon/g, "").trim();
 
@@ -57,14 +56,18 @@
       "pirallahi": "baku_pirallahi", "пираллахи": "baku_pirallahi", "пираллахинский": "baku_pirallahi", "pirallahı": "baku_pirallahi"
     };
 
-    var targetKey = districtAliasMap[clean] || districtAliasMap[raw] || raw;
+    var targetKey = districtAliasMap[clean] || districtAliasMap[raw] || (raw.indexOf("baku_") === 0 ? raw : null);
+    if (targetKey && targetKey.indexOf("baku_") === 0) {
+      setSelectByValueOrLabel("region", "baku");
+    }
 
+    if (!select) return false;
     var option = Array.prototype.find.call(select.options, function (item) {
       var val = normalize(item.value);
       var txt = normalize(item.textContent);
-      return val === targetKey
+      return val === (targetKey || raw)
         || val.replace(/^baku_/, "") === clean
-        || txt === targetKey
+        || txt === (targetKey || raw)
         || txt === clean
         || (clean.length >= 4 && txt.indexOf(clean) !== -1);
     });
@@ -172,6 +175,25 @@
     var subcategories = (taxonomy.subcategories || []).map(function (item) {
       return item.code + " — " + item.label + " (категория: " + item.category + ")";
     }).join("\n");
+    var regions = (taxonomy.regions || []).map(function (item) {
+      return item.code + " — " + item.name_ru + " / " + item.name_az;
+    }).join("\n");
+    var districts = (taxonomy.districts || []).map(function (item) {
+      return item.code + " — " + item.name_ru + " / " + item.name_az;
+    }).join("\n");
+    var priceModes = (taxonomy.price_modes || []).map(function (item) {
+      return item.code + " (" + item.label + ")";
+    }).join(", ");
+    var scheduleModes = (taxonomy.schedule_modes || []).map(function (item) {
+      return item.code + " (" + item.label + ")";
+    }).join(", ");
+    var productTypes = (taxonomy.product_types || []).map(function (item) {
+      return item.code + " (" + item.label + ")";
+    }).join(", ");
+    var priceKinds = (taxonomy.price_kinds || []).map(function (item) {
+      return item.code + " (" + item.label + ")";
+    }).join(", ");
+
     var example = {
       name_az: "",
       name_ru: "",
@@ -181,8 +203,8 @@
       description_en: "",
       category: "",
       subcategory: "",
-      age_from: 0,
-      age_to: 18,
+      age_from: null,
+      age_to: null,
       age_open_ended: false,
       offers_adult_classes: false,
       region: "",
@@ -198,15 +220,7 @@
       schedule_note_az: "",
       schedule_note_ru: "",
       schedule_note_en: "",
-      schedule_days: [
-        { weekday: "mon", is_closed: false, is_24_hours: false, intervals: [{ start: "09:00", end: "18:00" }] },
-        { weekday: "tue", is_closed: false, is_24_hours: false, intervals: [{ start: "09:00", end: "18:00" }] },
-        { weekday: "wed", is_closed: false, is_24_hours: false, intervals: [{ start: "09:00", end: "18:00" }] },
-        { weekday: "thu", is_closed: false, is_24_hours: false, intervals: [{ start: "09:00", end: "18:00" }] },
-        { weekday: "fri", is_closed: false, is_24_hours: false, intervals: [{ start: "09:00", end: "18:00" }] },
-        { weekday: "sat", is_closed: true, is_24_hours: false, intervals: [] },
-        { weekday: "sun", is_closed: true, is_24_hours: false, intervals: [] }
-      ],
+      schedule_days: [],
       lat: null,
       lng: null,
       lesson_duration_minutes: null,
@@ -216,23 +230,8 @@
       is_temporary: false,
       temporary_start: null,
       temporary_end: null,
-      pricing_plans: [{
-        product_type: "membership",
-        lesson_format: "group",
-        billing_mode: "recurring",
-        billing_interval: "month",
-        billing_interval_count: 1,
-        price_kind: "exact",
-        price: 120,
-        currency: "AZN",
-        title_az: "",
-        title_ru: "",
-        title_en: "",
-        is_active: true,
-        sort_order: 0
-      }],
-      extra_conditions: "",
-      additional_info: "",
+      price_mode: "tariffs",
+      pricing_plans: [],
       extra_conditions_az: "",
       extra_conditions_ru: "",
       extra_conditions_en: "",
@@ -253,22 +252,49 @@
         sources: []
       }
     };
+
     return [
       "Подготовь ПОЛНУЮ карточку детского места для KidsMap в Азербайджане по материалам ниже.",
-      "Сначала изучи все переданные ссылки, сайт, соцсети, Google Maps, прайс и текст. Если доступен поиск, используй только официальные страницы места, его соцсети, Google Maps и надёжные площадки.",
-      "НЕ ВЫДУМЫВАЙ факты: адрес, телефон, возраст, расписание, цены, координаты, метро, услуги и ссылки. Неизвестное значение оставляй null, пустой строкой или []. Все ключи из структуры обязательны — не удаляй их.",
-      "Если источники расходятся, не выбирай наугад: внеси подтверждённый свежий вариант и опиши конфликт в editor_review. Координаты указывай только если они есть в источнике; иначе оставь null и добавь задачу в editor_review.map_task.",
-      "SEO: description_az, description_ru и description_en — 2–4 конкретных предложения, минимум 120 символов. Пиши для родителей: направления, возраст, формат, район и проверенные особенности. Без «лучший», «номер один» и рекламного мусора. Переводы, созданные тобой, перечисли в editor_review.generated_translations.",
-      "Расписание: заполняй schedule_days только когда часы работы известны. Для полного недельного графика дай ровно 7 дней в порядке mon,tue,wed,thu,fri,sat,sun. Если занятия по записи — schedule_mode='by_appointment'; если график меняется — 'variable' и заполни schedule_note_* подтверждённым текстом.",
-      "Тарифы: каждый подтверждённый вариант цены — отдельный объект pricing_plans, максимум 12. Не объединяй пробный урок, разовое занятие, абонемент и индивидуальные занятия. Используй product_type из: admission, visit, lesson, membership, course, camp, event, excursion, tour, rental, addon, registration_fee, deposit. price_kind: exact (price), free (price: 0), from (price_min), range (price_min и price_max), on_request. on_request допустим только если источник прямо говорит «по запросу»; если цены просто не найдены — pricing_plans: [] и missing_fields: ['prices'].",
-      "category и subcategory выбирай строго из списка ниже. Подкатегория должна принадлежать категории. Если подходящей нет — оставь поля пустыми и объясни это в editor_review.",
-      "Верни РОВНО один валидный JSON-объект в блоке ```json. После него не пиши текст. editor_review — служебный блок для редактора и не публикуется на сайте.",
+      "1. СТРОГОЕ ПРАВИЛО ДОСТОВЕРНОСТИ:",
+      "Все ключи из структуры JSON ДОЛЖНЫ присутствовать в ответе, но заполняй значения ТОЛЬКО если они подтверждены источниками. Если значение неизвестно или не найдено, используй null, пустую строку \"\" или пустой массив [].",
+      "КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО выдумывать возраст (например, 0–18), цены, график (например, 09:00–18:00), координаты, адрес или контакты только ради того, чтобы заполнить поле.",
+      "2. ПРИОРИТЕТ ИСТОЧНИКОВ:",
+      "Сначала изучи официальный сайт, соцсети (Instagram, Facebook), Google Maps / 2GIS и официальные прайс-листы. Если источники расходятся — выбери самый свежий и достоверный вариант, а расхождение обязательно опиши в editor_review.conflicts.",
+      "3. ОПИСАНИЯ И SEO:",
+      "description_az — ОБЯЗАТЕЛЬНО. description_ru и description_en — заполни при наличии информации или качественном переводе. Пиши информативно и фактологично для родителей: направления, форматы, район, возраст, оснащение. Не используй рекламные штампы («лучший», «№1», «ведущий»), не спамь ключевыми словами. Нет строгого минимума в 120 символов, если фактов мало: 2 честных конкретных предложения лучше, чем выдуманная «вода». Свои переводы укажи в editor_review.generated_translations.",
+      "4. РЕЖИМ ЦЕНЫ (price_mode) И ТАРИФЫ (pricing_plans):",
+      "price_mode может быть: " + (priceModes || "tariffs, free, free_entry_paid_services, events") + ".",
+      "- 'free': место полностью бесплатно для посещения (парки, открытые площадки). pricing_plans: [].",
+      "- 'free_entry_paid_services': бесплатный вход на территорию, но внутри есть платные услуги/аттракционы. Добавь тарифы в pricing_plans, если они известны.",
+      "- 'events': цена зависит от мероприятий/сеансов (театры, концертные залы). pricing_plans: [].",
+      "- 'tariffs': обычные платные занятия, абонементы, билеты. Каждый подтверждённый тариф — отдельный объект pricing_plans (максимум 12). Допустимые product_type: " + (productTypes || "admission, visit, lesson, membership, course, camp, event, excursion, tour, rental, addon, registration_fee, deposit") + ". Рекомендуемые price_kind: exact (точная цена), from (цена от), range (диапазон цен), free (бесплатное пробное). НЕ используй on_request без явного документального основания в источнике (если цены не указаны, оставь pricing_plans: [] и укажи 'prices' в missing_fields).",
+      "5. РАСПИСАНИЕ (schedule_mode) И ДНИ (schedule_days):",
+      "schedule_mode может быть: " + (scheduleModes || "regular, always_open, by_appointment, variable, events") + ".",
+      "- 'regular': регулярное по дням недели. Заполняй schedule_days ТОЛЬКО если часы работы точно известны (ровно 7 дней: mon..sun с intervals: [{ start: 'HH:MM', end: 'HH:MM' }]). Если часы неизвестны — schedule_days: [].",
+      "- 'always_open': круглосуточно (24/7). schedule_days: [].",
+      "- 'by_appointment': по предварительной записи. schedule_days: [].",
+      "- 'variable': расписание меняется (укажи подтверждённые детали в schedule_note_*). schedule_days: [].",
+      "- 'events': по расписанию мероприятий. schedule_days: [].",
+      "6. ЛОКАЦИЯ И РАЙОН:",
+      "- Для Баку: region='baku', district='baku_*' (строго код из списка районов Баку ниже).",
+      "- Для других регионов: region='<код_региона>', district='<код_региона>'.",
+      "- Координаты (lat, lng): заполняй ТОЛЬКО если они точно известны из Google Maps / источника. Иначе оставь null и добавь задачу в editor_review.map_task.",
+      "7. КОНТАКТЫ:",
+      "Основной телефон — в phone1, дополнительные — в phone2, phone3. В международном формате (+994...).",
+      "8. ФОТОГРАФИИ:",
+      "JSON НЕ МОЖЕТ загружать файлы фотографий на сайт. Главное фото карточки редактор загружает вручную. Все найденные качественные прямые ссылки на фото места внеси в массив editor_review.media_to_upload.",
+      "9. ФОРМАТ ВЫВОДА:",
+      "Верни РОВНО один валидный JSON-объект в блоке ```json. Не пиши текст до или после блока.",
       "Полная структура JSON:",
       JSON.stringify(example, null, 2),
       "Доступные категории:",
       categories || "Нет доступных категорий.",
       "Доступные подкатегории:",
-      subcategories || "Нет доступных подкатегорий."
+      subcategories || "Нет доступных подкатегорий.",
+      "Районы Баку (для district при region='baku'):",
+      districts || "baku_binagadi, baku_garadagh, baku_khatai, baku_khazar, baku_narimanov, baku_nasimi, baku_nizami, baku_pirallahi, baku_sabail, baku_sabunchu, baku_surakhani, baku_yasamal",
+      "Другие регионы Азербайджана (для region и district):",
+      regions || "absheron, sumgait, ganja, mingachevir, etc."
     ].join("\n\n");
   }
 
@@ -380,6 +406,33 @@
 
       function applyData() {
         var filled = 0;
+
+        // 1. Phones array alias support
+        var rawPhones = data.phones || data.телефоны;
+        if (Array.isArray(rawPhones) && rawPhones.length) {
+          if (!data.phone1 && rawPhones[0]) data.phone1 = rawPhones[0];
+          if (!data.phone2 && rawPhones[1]) data.phone2 = rawPhones[1];
+          if (!data.phone3 && rawPhones[2]) data.phone3 = rawPhones[2];
+        }
+
+        // 2. Backward compatibility for legacy extra_conditions and additional_info
+        if (data.extra_conditions && !data.extra_conditions_ru) {
+          data.extra_conditions_ru = data.extra_conditions;
+        }
+        if (data.additional_info && !data.additional_info_ru) {
+          data.additional_info_ru = data.additional_info;
+        }
+
+        // 3. Normalize price_mode
+        var priceModeValue = first(data, ["price_mode", "режим_цены"]);
+        if (priceModeValue) {
+          var normMode = normalize(priceModeValue);
+          if (normMode === "free_admission_with_paid" || normMode === "free_entry") {
+            normMode = "free_entry_paid_services";
+          }
+          data.price_mode = normMode;
+        }
+
         var fields = {
           name_az: ["name_az", "название_аз"],
           name_ru: ["name_ru", "название", "name"],
@@ -407,6 +460,7 @@
           schedule_note_en: ["schedule_note_en"],
           temporary_start: ["temporary_start"],
           temporary_end: ["temporary_end"],
+          price_mode: ["price_mode"],
           extra_conditions: ["extra_conditions", "дополнительные_условия"],
           additional_info: ["additional_info", "что_есть_на_месте", "дополнительная_информация"],
           extra_conditions_az: ["extra_conditions_az"],
@@ -424,13 +478,33 @@
           if (setValue(fieldName, first(data, fields[fieldName]))) filled += 1;
         });
 
+        // Trigger segmented button click if price_mode was set
+        if (data.price_mode) {
+          var policyBtn = document.querySelector('[data-price-policy="' + data.price_mode + '"]')
+            || (data.price_mode === "free_entry_paid_services" ? document.querySelector('[data-price-policy="free_admission_with_paid"]') : null);
+          if (policyBtn) {
+            policyBtn.click();
+          }
+        }
+
         if (setStructuredSchedule(first(data, ["schedule_days", "structured_schedule", "расписание_по_дням"]))) filled += 1;
 
         if (setCheckbox("is_temporary", first(data, ["is_temporary"]))) filled += 1;
         if (setCheckbox("age_open_ended", first(data, ["age_open_ended"]))) filled += 1;
 
-        if (setSelectByValueOrLabel("region", first(data, ["region", "город", "регион"]))) filled += 1;
-        if (setDistrictSelect(first(data, ["district", "район"])) || setSelectByValueOrLabel("district", first(data, ["district", "район"]))) filled += 1;
+        var districtVal = first(data, ["district", "район"]);
+        var regionVal = first(data, ["region", "город", "регион"]);
+        if (setDistrictSelect(districtVal)) {
+          filled += 1;
+        } else if (districtVal && setSelectByValueOrLabel("district", districtVal)) {
+          filled += 1;
+        }
+        if (setSelectByValueOrLabel("region", regionVal)) {
+          filled += 1;
+        } else if (districtVal && !regionVal && !String(districtVal).startsWith("baku_")) {
+          if (setSelectByValueOrLabel("region", districtVal)) filled += 1;
+        }
+
         if (setSelectByValueOrLabel("lesson_format", first(data, ["lesson_format", "формат_занятий"]))) filled += 1;
 
         var adultClasses = first(data, ["offers_adult_classes", "занятия_для_взрослых"]);
@@ -465,11 +539,51 @@
           showMessage("Поля не найдены. Используйте ключи из подсказки под полем JSON.", true);
           return;
         }
+
+        // Check for unsupported / unknown keys
+        var KNOWN_KEYS = [
+          "name", "name_az", "name_ru", "name_en", "название", "название_аз",
+          "description", "description_az", "description_ru", "description_en", "описание",
+          "category", "категория", "subcategory", "подкатегория",
+          "age_from", "возраст_от", "age_to", "возраст_до", "age_open_ended",
+          "offers_adult_classes", "занятия_для_взрослых",
+          "region", "город", "регион", "district", "район", "metro", "метро", "address", "адрес",
+          "phone", "телефон", "phone1", "phone2", "phone3", "phones", "телефоны", "additional_phone", "other_phone",
+          "instagram", "website", "site", "сайт",
+          "schedule_mode", "schedule_days", "structured_schedule", "расписание_по_дням",
+          "schedule_note_az", "schedule_note_ru", "schedule_note_en",
+          "lat", "latitude", "широта", "lng", "longitude", "долгота",
+          "lesson_duration_minutes", "длительность_минуты",
+          "lesson_format", "формат_занятий", "lessons_per_week", "lessons_per_month",
+          "is_temporary", "temporary_start", "temporary_end",
+          "price_mode", "режим_цены", "pricing_plans", "tariffs",
+          "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
+          "custom_price_badge", "плашка_цены", "надпись_цены",
+          "extra_conditions", "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
+          "additional_info", "additional_info_az", "additional_info_ru", "additional_info_en",
+          "editor_review"
+        ];
+        var unknownKeys = Object.keys(data).filter(function (key) {
+          return KNOWN_KEYS.indexOf(key) === -1;
+        });
+        if (unknownKeys.length) {
+          console.warn("[KidsMap Import] Неизвестные ключи в JSON:", unknownKeys);
+        }
+
         showEditorReview(data.editor_review);
-        showMessage("Заполнено полей: " + filled + ". Проверьте данные и сохраните карточку.", false);
+
+        var toastDesc = "Заполнено полей: " + filled + ". Главное фото загрузите вручную.";
+        if (data.editor_review && Array.isArray(data.editor_review.media_to_upload) && data.editor_review.media_to_upload.length) {
+          toastDesc += " В editor_review найдено ссылок на медиа: " + data.editor_review.media_to_upload.length + ".";
+        }
+        if (unknownKeys.length) {
+          toastDesc += " Пропущены неизвестные ключи: " + unknownKeys.slice(0, 3).join(", ") + ".";
+        }
+
+        showMessage(toastDesc, false);
         dialog.close();
         if (window.kmToast) {
-          window.kmToast.success("Данные импортированы", "Заполнено полей: " + filled);
+          window.kmToast.success("Данные импортированы", toastDesc);
         }
         window.setTimeout(function () { openButton.focus(); }, 0);
       }

@@ -225,12 +225,20 @@ document.addEventListener("DOMContentLoaded", function() {
                     iconInput.value = data.path;
                     iconInput.dispatchEvent(new Event("input"));
                 } else {
-                    alert(data.error || "Не удалось загрузить файл.");
+                    if (window.kmToast) {
+                        window.kmToast.error(data.error || "Не удалось загрузить файл.");
+                    } else {
+                        alert(data.error || "Не удалось загрузить файл.");
+                    }
                     updateIconPreview();
                 }
             })
             .catch(error => {
-                alert("Ошибка: " + error.message);
+                if (window.kmToast) {
+                    window.kmToast.error("Ошибка: " + error.message);
+                } else {
+                    alert("Ошибка: " + error.message);
+                }
                 updateIconPreview();
             });
         }
