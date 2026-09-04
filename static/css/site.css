@@ -2921,16 +2921,6 @@ main {
   transform: translateY(0) scale(1);
 }
 
-.km-back-to-top:hover {
-  background: #136f38;
-  border-color: #136f38;
-  color: #ffffff;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 12px 28px rgba(13, 73, 36, 0.28);
-}
-
 .km-back-to-top:active {
   transform: translateY(-1px) scale(0.96);
 }
@@ -2955,19 +2945,11 @@ main {
   transition: stroke-dashoffset 0.1s linear, stroke 0.2s ease;
 }
 
-.km-back-to-top:hover .km-progress-bar {
-  stroke: rgba(255, 255, 255, 0.7);
-}
-
 .km-back-to-top-icon {
   font-size: 24px;
   position: relative;
   z-index: 2;
   transition: transform 0.2s ease;
-}
-
-.km-back-to-top:hover .km-back-to-top-icon {
-  transform: translateY(-2px);
 }
 
 .km-back-to-top-tooltip {
@@ -2998,9 +2980,29 @@ main {
   border-left-color: #12211f;
 }
 
-.km-back-to-top:hover .km-back-to-top-tooltip {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
+@media (hover: hover) and (pointer: fine) {
+  .km-back-to-top:hover {
+    background: #136f38;
+    border-color: #136f38;
+    color: #ffffff;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 12px 28px rgba(13, 73, 36, 0.28);
+  }
+
+  .km-back-to-top:hover .km-progress-bar {
+    stroke: rgba(255, 255, 255, 0.7);
+  }
+
+  .km-back-to-top:hover .km-back-to-top-icon {
+    transform: translateY(-2px);
+  }
+
+  .km-back-to-top:hover .km-back-to-top-tooltip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
 }
 
 /* Hide back-to-top when drawers or full modals are active */

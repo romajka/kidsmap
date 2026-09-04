@@ -81,6 +81,21 @@ class TestPublicPagesSmoke(TestCase):
         self.assertIn("bottom: 104px;", base_rule.group("rules"))
         self.assertIn("bottom: calc(94px + env(safe-area-inset-bottom));", mobile_rule.group("rules"))
 
+    def test_back_to_top_hover_effect_is_limited_to_pointer_devices(self):
+        """A tap must not leave the scroll control in its desktop hover state."""
+        css = (settings.BASE_DIR / "static/css/site.css").read_text()
+
+        self.assertIn("@media (hover: hover) and (pointer: fine)", css)
+        hover_block = re.search(
+            r"@media \(hover: hover\) and \(pointer: fine\)\s*\{(?P<rules>.*?)\n\}",
+            css,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(hover_block)
+        self.assertIn(".km-back-to-top:hover", hover_block.group("rules"))
+        self.assertIn("opacity: 1 !important;", hover_block.group("rules"))
+
     def test_home_page_opens_with_i18n_redirect(self):
         response = self.client.get("/")
 
