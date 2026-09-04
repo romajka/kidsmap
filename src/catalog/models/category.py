@@ -270,6 +270,14 @@ class Subcategory(models.Model):
         icon_name = (self.icon or "").strip()
         if not icon_name:
             return ""
+
+        # A legacy value can be an icon name (for example, "horse-riding"),
+        # not a static file.  ManifestStaticFilesStorage raises for those
+        # values, which must not make an admin form unavailable.
+        ext = os.path.splitext(icon_name)[1].lower()
+        if ext not in {".svg", ".png", ".jpg", ".jpeg", ".webp"}:
+            return ""
+
         if icon_name.startswith(("http://", "https://", "/")):
             return icon_name
         return static(icon_name)

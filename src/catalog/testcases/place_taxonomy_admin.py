@@ -50,6 +50,33 @@ class PlaceAdminTaxonomyPickerTests(TestCase):
                 "code": "taxux-subcategory",
                 "category": "TAXUX",
                 "label": "Подкатегория UX",
+                "icon": "",
             },
             config["subcategories"],
         )
+
+    def test_place_add_form_ignores_legacy_subcategory_icon_names(self):
+        category = Category.objects.create(
+            code="RIDING",
+            name="Riding",
+            name_ru="Верховая езда",
+            order=2,
+        )
+        Subcategory.objects.create(
+            category=category,
+            code="horse-riding",
+            name="Horse riding",
+            name_ru="Конный спорт",
+            icon="horse-riding",
+            order=1,
+        )
+
+        response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=permanent")
+
+        self.assertEqual(response.status_code, 200)
+        subcategory = next(
+            item
+            for item in response.context["km_place_taxonomy_picker"]["subcategories"]
+            if item["code"] == "horse-riding"
+        )
+        self.assertEqual(subcategory["icon"], "")
