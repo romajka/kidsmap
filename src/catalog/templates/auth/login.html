@@ -6,6 +6,7 @@
 {% block title_plain %}{% if CURRENT_LANGUAGE == "az" %}Daxil ol | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Sign in | KidsMap{% else %}Вход | KidsMap{% endif %}{% endblock %}
 {% block title_plain_twitter %}{% if CURRENT_LANGUAGE == "az" %}Daxil ol | KidsMap{% elif CURRENT_LANGUAGE == "en" %}Sign in | KidsMap{% else %}Вход | KidsMap{% endif %}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/components/google_auth.css' %}" />{% endblock %}
 
 {% block content %}
   <section class="register-shell">
@@ -111,6 +112,7 @@
           </p>
         </div>
 
+        {% include "auth/includes/google_button.html" %}
         <form method="post" class="auth-form register-form register-form--login" data-loading-form novalidate>
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ next_url }}" />

@@ -1,0 +1,16 @@
+<div class="pw-field" data-pw-field="{{ field.name }}">
+  <label for="{{ field.id_for_label }}"><span data-pw-label>{{ field.label }}</span> <span data-pw-required="{{ field.name }}" class="pw-field-badge" hidden></span></label>
+  {{ field }}
+  {% if field.name == 'category' %}
+  <div class="pw-category-choices" role="group" aria-label="{{ field.label }}" hidden>
+    {% for category in form.fields.category.queryset %}
+    <button type="button" data-pw-category="{{ category.pk }}" aria-pressed="false" style="--category-bg:{{ category.resolved_color_bg }};--category-color:{{ category.resolved_color_text }}">
+      <b class="pw-category-art" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=category.code icon_file_url=category.icon_file_url icon_is_svg=category.icon_is_svg %}</b><span>{{ category.name_i18n }}</span>
+    </button>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if field.help_text %}<small class="pw-help">{{ field.help_text }}</small>{% endif %}
+  {% for error in field.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}
+  <span class="pw-client-error" aria-live="polite"></span>
+</div>

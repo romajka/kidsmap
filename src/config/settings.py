@@ -64,6 +64,21 @@ TESTING = _env_bool("DJANGO_TESTING", False)
 PRODUCTION_SECURITY_DEFAULTS = not DEBUG and not TESTING
 SERVE_MEDIA_FILES = _env_bool("SERVE_MEDIA_FILES", True)
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
+GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "").strip()
+SOCIALACCOUNT_ADAPTER = "catalog.google_auth.KidsMapSocialAccountAdapter"
+SOCIALACCOUNT_STORE_TOKENS = False
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = False  # Linking follows KidsMap's policy.
+SOCIALACCOUNT_LOGIN_ON_GET = False
+SOCIALACCOUNT_REQUESTS_TIMEOUT = 10
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {"client_id": GOOGLE_OAUTH_CLIENT_ID, "secret": GOOGLE_OAUTH_CLIENT_SECRET, "key": ""},
+        "SCOPE": ["openid", "email", "profile"],
+        "AUTH_PARAMS": {"access_type": "online", "prompt": "select_account"},
+        "OAUTH_PKCE_ENABLED": True,
+    },
+}
 GOOGLE_MAPS_MAP_ID = (os.getenv("GOOGLE_MAPS_MAP_ID", "") or "").strip()
 GOOGLE_ANALYTICS_MEASUREMENT_ID = (os.getenv("GOOGLE_ANALYTICS_MEASUREMENT_ID", "") or "").strip()
 GOOGLE_ANALYTICS_PROPERTY_ID = (os.getenv("GOOGLE_ANALYTICS_PROPERTY_ID", "544432721") or "").strip()
@@ -115,6 +130,8 @@ extra_hosts = _env_list("DJANGO_ALLOWED_HOSTS")
 ALLOWED_HOSTS.extend(extra_hosts)
 
 CSRF_TRUSTED_ORIGINS = _env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
+PHONE_REVEAL_TRUSTED_PROXIES = _env_list("PHONE_REVEAL_TRUSTED_PROXIES")
+PHONE_REVEAL_RATE_LIMIT = int(os.getenv("PHONE_REVEAL_RATE_LIMIT", "30"))
 if not CSRF_TRUSTED_ORIGINS and not DEBUG:
     auto_trusted_hosts = {
         host
@@ -169,6 +186,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "catalog",
     "catalog.proxy_apps.catalog_moderation.apps.CatalogModerationConfig",
 ]
@@ -293,6 +314,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 if HAS_WHITENOISE:

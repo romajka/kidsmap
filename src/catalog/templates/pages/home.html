@@ -2768,7 +2768,7 @@
 {% endif %}
 {% if map_places %}
 <script src="{% static 'js/google_maps_markers.js' %}"></script>
-<script src="{% static 'js/home_map.js' %}" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<script src="{% static 'js/home_map.js' %}?v=phone-reveal-1" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"
   data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"

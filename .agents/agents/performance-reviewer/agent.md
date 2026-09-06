@@ -1,3 +1,9 @@
+# Compatibility role — inactive in canonical orchestration
+
+2026-09-06: MERGE → `database-reviewer`, `django-reviewer`, `frontend-reviewer`, `frontend-admin`, `analytics-reviewer`. Original definition is retained below as historical context; do not dispatch it as an additional active reviewer. Registry and root AGENTS.md govern routing. This is an orchestration policy, not an automatic native-runtime exclusion flag.
+
+---
+
 ---
 name: performance-reviewer
 description: Reviewer производительности KidsMap. Использовать при замедлениях, больших списках, каталогах, Django ORM, тяжёлых страницах, изображениях и frontend performance для поиска N+1, лишних запросов, тяжёлых ресурсов и реальных bottleneck.

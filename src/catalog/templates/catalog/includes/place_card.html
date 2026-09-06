@@ -140,12 +140,7 @@
           {% trans "Перейти" %}
         </a>
         {% if place.phone1 %}
-        <a class="card-contact-toggle" href="tel:{{ place.phone1 }}" data-track-event="cta_call"
-          data-track-place-id="{{ place.id }}" data-track-source="card"
-          title="{% trans 'Позвонить' %}"
-          aria-label="{% trans 'Позвонить' %}">
-          <span class="card-contact-toggle-icon" aria-hidden="true"></span>
-        </a>
+        {% include "catalog/includes/phone_reveal.html" with phone_class="card-contact-toggle" phone_index=0 %}
         {% endif %}
       </div>
     </div>

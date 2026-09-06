@@ -402,8 +402,6 @@ def build_place_seo_payload(place, request, language_code):
             "areaServed": {"@type": "Country", "name": "Azerbaijan"},
             "additionalType": str(category_label),
         }
-        if place.phone1:
-            schema["telephone"] = place.phone1
 
         SCHEMA_WEEKDAY_MAP = {
             "mon": "https://schema.org/Monday",

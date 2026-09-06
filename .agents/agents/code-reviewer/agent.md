@@ -1,3 +1,9 @@
+# Compatibility role — inactive in canonical orchestration
+
+2026-09-06: MERGE → `kidsmap-orchestrator`. Original definition is retained below as historical context; do not dispatch it as an additional active reviewer. Registry and root AGENTS.md govern routing. This is an orchestration policy, not an automatic native-runtime exclusion flag.
+
+---
+
 ---
 name: code-reviewer
 description: Независимый строгий reviewer проекта KidsMap. Использовать после исправлений багов, рефакторинга и существенных изменений Python, Django, JavaScript, шаблонов, API, permissions и бизнес-логики для поиска регрессий и архитектурных ошибок.

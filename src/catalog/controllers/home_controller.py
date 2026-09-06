@@ -78,7 +78,7 @@ class HomeController:
                 "age_to": place.age_to,
                 "image_url": place.public_image_url,
                 "price": str(place.card_price_badge),
-                "phone": place.phone1 or "",
+                "has_phone": bool(place.phone_numbers),
                 "address": place.address_i18n(language_code) or "",
                 "schedule": place.schedule_summary or "",
                 "search_text": " ".join(

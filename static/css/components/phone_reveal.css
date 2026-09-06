@@ -1,0 +1,14 @@
+.km-phone-control{font:inherit;cursor:pointer;text-decoration:none;min-height:44px;white-space:normal;overflow-wrap:anywhere;transition:transform .16s ease,box-shadow .2s ease,background-color .2s ease;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.km-phone-control:active{transform:scale(.96)}
+@media(hover:hover){.km-phone-control:hover{box-shadow:0 3px 12px rgb(19 111 56 / .13)}}
+.km-phone-control:focus-visible{outline:3px solid #136f38;outline-offset:3px}
+.km-phone-control:disabled{cursor:wait;opacity:.8}
+.km-phone-control[aria-busy="true"]::after{content:"";display:inline-block;width:12px;height:12px;margin-inline-start:8px;border:2px solid currentColor;border-inline-end-color:transparent;border-radius:50%;vertical-align:middle;animation:km-phone-spin .7s linear infinite}
+.km-phone-control--revealed{font-variant-numeric:tabular-nums;animation:km-phone-reveal .3s ease-out}
+.km-phone-error{display:block;flex-basis:100%;max-width:32ch;margin:6px 0;color:var(--text-muted,#52635b);font-size:12px;line-height:1.45}
+@keyframes km-phone-spin{to{transform:rotate(360deg)}}
+@keyframes km-phone-reveal{from{opacity:.45;transform:translateY(3px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.km-phone-control{transition:none}.km-phone-control:active{transform:none}.km-phone-control--revealed,.km-phone-control[aria-busy="true"]::after{animation:none}}
+.detail-contacts__secondary-link.km-phone-control,.home-map-popup-phone-link.km-phone-control{border:0;background:transparent;text-align:left;padding:8px 0;color:var(--brand-turf,#136f38)}
+.detail-contacts__row.km-phone-control{width:100%;text-align:left}
+.card.place-card .card-contact-toggle.km-phone-control,.page-place_list .card-contact-toggle.km-phone-control{width:auto;max-width:100%;height:auto;min-height:44px;padding:8px 12px;font-size:12px;flex-shrink:1}

@@ -1,3 +1,4 @@
+import re
 from urllib.parse import urlencode, urlsplit
 
 from django.urls import Resolver404, resolve, reverse
@@ -9,6 +10,8 @@ from .public_urls import filtered_query_string
 AUTH_URL_NAMES = frozenset(
     {
         "account_login",
+        "google_login",
+        "google_callback",
         "account_logout",
         "account_register",
         "account_verify_email",
@@ -22,7 +25,12 @@ AUTH_URL_NAMES = frozenset(
 
 def _is_auth_url(url: str) -> bool:
     try:
-        return resolve(urlsplit(url).path).url_name in AUTH_URL_NAMES
+        path = urlsplit(url).path
+        # resolve() only recognizes the active i18n prefix. Reject auth loops
+        # in every supported language, including the legacy /az/ prefix.
+        if re.match(r"^/(?:ru/|az/|en/)?auth(?:/|$)", path):
+            return True
+        return resolve(path).url_name in AUTH_URL_NAMES
     except (Resolver404, ValueError):
         return False
 

@@ -134,7 +134,8 @@ def _pricing_plan_price_q(*, prefix: str = "") -> Q:
 
     field = lambda name: f"{prefix}{name}"
     return Q(**{field("is_active"): True, field("charge_role"): "primary"}) & (
-        Q(**{field("price_kind__in"): ("exact", "free"), field("price__isnull"): False})
+        Q(**{field("price_kind"): "on_request"})
+        | Q(**{field("price_kind__in"): ("exact", "free"), field("price__isnull"): False})
         | Q(**{field("price_kind"): "from", field("price_min__isnull"): False})
         | Q(**{field("price_kind"): "range", field("price_min__isnull"): False, field("price_max__isnull"): False})
     )
@@ -144,6 +145,8 @@ def _plan_has_public_price(plan) -> bool:
     if not getattr(plan, "is_active", False) or getattr(plan, "charge_role", "primary") != "primary":
         return False
     kind = getattr(plan, "price_kind", "exact")
+    if kind == "on_request":
+        return True
     if kind in {"exact", "free"}:
         return getattr(plan, "price", None) is not None
     if kind == "from":
@@ -157,6 +160,8 @@ def _mapping_has_public_price(plan: dict) -> bool:
     if not isinstance(plan, dict) or not plan.get("is_active", True) or plan.get("charge_role", "primary") != "primary":
         return False
     kind = plan.get("price_kind", "exact")
+    if kind == "on_request":
+        return True
     if kind in {"exact", "free"}:
         return plan.get("price") not in (None, "")
     if kind == "from":
@@ -169,6 +174,9 @@ def _mapping_has_public_price(plan: dict) -> bool:
 def _place_has_pricing_plan_price(place) -> bool:
     """Use prefetched tariff rows when available; support unsaved legacy forms."""
 
+    pending = getattr(place, "_pending_pricing_plans", None)
+    if pending is not None:
+        return any(_mapping_has_public_price(plan) for plan in pending)
     relation = getattr(place, "pricing_plan_records", None)
     cached_records = getattr(place, "_prefetched_objects_cache", {}).get("pricing_plan_records")
     if cached_records is not None:

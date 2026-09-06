@@ -15,11 +15,15 @@ try:
 except ImportError:  # pragma: no cover - reported clearly when HEIC is uploaded
     register_heif_opener = None
 else:
-    register_heif_opener()
+    register_heif_opener(thumbnails=False)
 
 
 MAX_IMAGE_SOURCE_BYTES = 15 * 1024 * 1024
-MAX_STANDARD_IMAGE_SOURCE_BYTES = 2 * 1024 * 1024
+MAX_STANDARD_IMAGE_SOURCE_BYTES = MAX_IMAGE_SOURCE_BYTES
+MAX_IMAGE_SOURCE_PIXELS = 50_000_000
+MAX_IMAGE_SOURCE_DIMENSION = 12000
+MAX_IMAGE_BATCH_BYTES = 22 * 1024 * 1024
+MAX_GALLERY_IMAGES = 10
 MAX_IMAGE_OUTPUT_BYTES = 2 * 1024 * 1024
 MAX_IMAGE_DIMENSION = 2400
 SUPPORTED_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP", "HEIF"}
@@ -33,6 +37,15 @@ MIME_IMAGE_FORMATS = {
     "image/heif": "HEIF",
 }
 logger = logging.getLogger(__name__)
+
+
+def image_upload_config():
+    return {
+        'sourceBytes': MAX_IMAGE_SOURCE_BYTES, 'outputBytes': MAX_IMAGE_OUTPUT_BYTES,
+        'batchBytes': MAX_IMAGE_BATCH_BYTES, 'maxPixels': MAX_IMAGE_SOURCE_PIXELS,
+        'maxDimension': MAX_IMAGE_SOURCE_DIMENSION, 'maxGallery': MAX_GALLERY_IMAGES,
+        'heif': register_heif_opener is not None,
+    }
 
 
 def _safe_output_name(original_name: str) -> str:
@@ -52,8 +65,7 @@ def _flatten_to_rgb(image: Image.Image) -> Image.Image:
 
 
 def _encode_webp(image: Image.Image) -> bytes:
-    working = image.copy()
-    working.thumbnail((MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION), Image.Resampling.LANCZOS)
+    working = image
 
     for _resize_attempt in range(4):
         for quality in (86, 80, 74, 68, 60):
@@ -94,7 +106,7 @@ def _normalize_uploaded_image(uploaded_file) -> ContentFile:
     source_limit = MAX_IMAGE_SOURCE_BYTES if is_heif else MAX_STANDARD_IMAGE_SOURCE_BYTES
     if source_size > source_limit:
         raise ValidationError(
-            _("Файл «%(name)s» слишком большой. Обычные изображения — до 2 МБ, HEIC/HEIF — до 15 МБ.")
+            _("Файл «%(name)s» слишком большой. Максимальный размер фотографии — 15 МБ.")
             % {"name": original_name}
         )
     if is_heif and register_heif_opener is None:
@@ -104,8 +116,9 @@ def _normalize_uploaded_image(uploaded_file) -> ContentFile:
 
     try:
         uploaded_file.seek(0)
-        source = uploaded_file.read()
-        with Image.open(BytesIO(source)) as probe:
+        with Image.open(uploaded_file) as probe:
+            if probe.width * probe.height > MAX_IMAGE_SOURCE_PIXELS or max(probe.size) > MAX_IMAGE_SOURCE_DIMENSION:
+                raise ValidationError(_("Фотография «%(name)s»: максимум 50 Мп и 12000 пикселей по стороне.") % {"name": original_name})
             detected_format = (probe.format or "").upper()
             probe.verify()
         if detected_format not in SUPPORTED_IMAGE_FORMATS:
@@ -121,8 +134,11 @@ def _normalize_uploaded_image(uploaded_file) -> ContentFile:
                 % {"name": original_name, "mime": declared_mime, "format": detected_format}
             )
 
-        with Image.open(BytesIO(source)) as decoded:
-            decoded.load()
+        uploaded_file.seek(0)
+        with Image.open(uploaded_file) as decoded:
+            # thumbnail uses decoder reduction for JPEG before allocating the
+            # full raster. Orient/convert only the reduced image.
+            decoded.thumbnail((MAX_IMAGE_DIMENSION, MAX_IMAGE_DIMENSION), Image.Resampling.LANCZOS)
             logger.info(
                 "Image decoded: name=%s mime=%s format=%s width=%s height=%s mode=%s exif_orientation=%s",
                 original_name,
@@ -133,11 +149,16 @@ def _normalize_uploaded_image(uploaded_file) -> ContentFile:
                 decoded.mode,
                 decoded.getexif().get(274, 1),
             )
-            oriented = ImageOps.exif_transpose(decoded)
-            normalized = _flatten_to_rgb(oriented)
+            ImageOps.exif_transpose(decoded, in_place=True)
+            normalized = _flatten_to_rgb(decoded)
             if normalized.width < 1 or normalized.height < 1:
                 raise ValidationError(_("Фотография «%(name)s» имеет некорректный размер.") % {"name": original_name})
-            output_bytes = _encode_webp(normalized)
+            try:
+                normalized.info.clear()
+                output_bytes = _encode_webp(normalized)
+            finally:
+                if normalized is not decoded:
+                    normalized.close()
     except ValidationError:
         raise
     except (Image.DecompressionBombError, Image.DecompressionBombWarning):

@@ -231,11 +231,6 @@
     return "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(place.lat + "," + place.lng);
   }
 
-  function getPhoneHref(place) {
-    const rawPhone = String(place.phone || "").trim();
-    if (!rawPhone) return "";
-    return "tel:" + rawPhone.replace(/\s+/g, "");
-  }
 
   function renderActionButton(options) {
     const classes = ["catalog-map-card-action", options.kind ? "is-" + options.kind : ""];
@@ -279,7 +274,6 @@
     const rating = formatRating(place, labels.noRatingLabel);
     const address = getAddressText(place, labels.noAddressLabel);
     const routeUrl = getRouteUrl(place);
-    const phoneHref = getPhoneHref(place);
     const image = place.image_url
       ? '<img class="catalog-map-card-image" src="' +
         escapeHtml(place.image_url) +
@@ -304,16 +298,7 @@
       targetBlank: true,
       disabled: !routeUrl,
     });
-    const phoneButton = renderActionButton({
-      href: phoneHref,
-      label: isMobile ? labels.callLabel : "",
-      ariaLabel: labels.callLabel,
-      kind: isMobile ? "secondary" : "icon",
-      iconOnly: !isMobile,
-      disabled: !phoneHref,
-      icon:
-        '<svg class="catalog-map-card-action-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.6 10.8c1.8 3.53 3.08 4.82 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.32.57 3.58.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.49c.55 0 1 .45 1 1 0 1.26.2 2.46.57 3.58.12.35.03.75-.24 1.02l-2.22 2.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    });
+    const phoneButton = place.has_phone ? window.kidsMapPhoneButton(place.id, "catalog-map-card-action is-secondary") : "";
 
     return (
       '<div class="catalog-map-card-shell">' +

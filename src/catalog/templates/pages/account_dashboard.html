@@ -22,20 +22,6 @@
 
 {% block content %}
 <div class="account-page-wrapper">
-  
-  <!-- Signed in notification banner -->
-  <div class="account-alert-banner">
-    <span class="material-symbols-rounded">check_circle</span>
-    <span>
-      {% if CURRENT_LANGUAGE == "az" %}
-        Hesabınıza daxil oldunuz.
-      {% elif CURRENT_LANGUAGE == "en" %}
-        You are signed in to your account.
-      {% else %}
-        Вы вошли в аккаунт.
-      {% endif %}
-    </span>
-  </div>
 
   <!-- User Identity Header Card -->
   <div class="account-user-card">

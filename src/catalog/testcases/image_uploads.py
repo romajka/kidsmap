@@ -111,14 +111,14 @@ class TestOwnerImageNormalization(TestCase):
             self.assertEqual(image.mode, "RGB")
             self.assertEqual(image.size, (64, 48))
 
-    def test_non_heic_source_larger_than_two_mb_is_rejected(self):
+    def test_source_larger_than_fifteen_mb_is_rejected(self):
         upload = SimpleUploadedFile(
             "huge.png",
-            b"x" * (2 * 1024 * 1024 + 1),
+            b"x" * (15 * 1024 * 1024 + 1),
             content_type="image/png",
         )
 
-        with self.assertRaisesMessage(ValidationError, "Обычные изображения — до 2 МБ"):
+        with self.assertRaisesMessage(ValidationError, "Максимальный размер фотографии — 15 МБ"):
             normalize_uploaded_image(upload)
 
 
@@ -335,5 +335,5 @@ class TestOwnerImagePersistenceFailures(TestCase):
         self.assertContains(response, gallery_photo.image.url)
         self.assertContains(
             response,
-            reverse("owner_place_gallery_photo_delete", args=[place.id, gallery_photo.id]),
+            f'name="delete_gallery_ids" value="{gallery_photo.id}"',
         )

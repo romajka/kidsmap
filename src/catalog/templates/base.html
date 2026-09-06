@@ -98,11 +98,14 @@
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
   </head>
   <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     data-analytics-page-type="{{ analytics_page_type }}"
     data-page-language="{{ current_lang_code }}">
     <div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>
+    <div hidden data-phone-config data-phone-endpoint="{% url 'place_phone_reveal' 0 %}">{% csrf_token %}</div>
+    <script src="{% static 'js/place_phone_reveal.js' %}?v=2"></script>
     <div class="site-shell">
       <header class="topbar">
         <a class="brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
@@ -294,7 +297,10 @@
       {% if messages and request.resolver_match and request.resolver_match.url_name != 'home' and request.resolver_match.url_name != 'place_detail' %}
         <section class="flash-stack" aria-live="polite">
           {% for message in messages %}
-            <p class="flash-message {% if message.tags %}flash-{{ message.tags }}{% else %}flash-info{% endif %}">{{ message }}</p>
+            <p class="flash-message {% if message.tags %}flash-{{ message.tags }}{% else %}flash-info{% endif %}" role="status">
+              {% if 'success' in message.tags %}<span class="material-symbols-rounded flash-message__icon" aria-hidden="true">check_circle</span>{% endif %}
+              <span>{{ message }}</span>
+            </p>
           {% endfor %}
         </section>
       {% endif %}

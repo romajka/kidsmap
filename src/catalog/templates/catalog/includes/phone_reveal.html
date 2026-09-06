@@ -1,0 +1,4 @@
+{% load i18n %}
+<button type="button" class="{{ phone_class }} km-phone-control" data-phone-reveal="{{ place.pk }}" data-phone-index="{{ phone_index|default:0 }}"{% if whatsapp %} data-phone-whatsapp="1"{% endif %}>
+  {% if whatsapp %}WhatsApp{% else %}{% get_current_language as phone_language %}{% if phone_language == 'ru' %}Показать номер{% elif phone_language == 'en' %}Show number{% else %}Nömrəni göstər{% endif %}{% endif %}
+</button>

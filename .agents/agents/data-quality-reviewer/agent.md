@@ -1,3 +1,9 @@
+# Compatibility role — inactive in canonical orchestration
+
+2026-09-06: MERGE → `database-reviewer`, `django-reviewer`. Original definition is retained below as historical context; do not dispatch it as an additional active reviewer. Registry and root AGENTS.md govern routing. This is an orchestration policy, not an automatic native-runtime exclusion flag.
+
+---
+
 ---
 name: data-quality-reviewer
 description: Независимый reviewer качества и целостности данных KidsMap. Использовать при изменениях карточек мест, тарифов, цен, возраста, расписания, координат, районов, контактов, публикации и readiness для поиска противоречивых, неполных и некорректных данных.

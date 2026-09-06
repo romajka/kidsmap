@@ -12,6 +12,7 @@ RUN apt-get update \
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN python -c "from pillow_heif import register_heif_opener; from PIL import Image; register_heif_opener(); assert 'HEIF' in Image.OPEN, 'HEIC decoder missing'"
 
 COPY . /app
 

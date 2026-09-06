@@ -7,6 +7,7 @@ from django.views.generic.base import RedirectView
 
 from catalog.sitemaps import StaticViewSitemap, PlaceSitemap, SeoLandingSitemap, SpecialistSitemap
 from catalog.views import admin_add_choice, place_pricing_api
+from catalog.google_auth import google_login, google_callback
 from config.views import (
     healthz,
     indexnow_key_file,
@@ -25,6 +26,8 @@ sitemaps = {
 }
 
 urlpatterns = [
+    path("auth/google/", google_login, name="google_login"),
+    path("auth/google/callback/", google_callback, name="google_callback"),
     path("api/v1/places/<slug:slug>/pricing/", place_pricing_api, name="place_pricing_api"),
     path("favicon.ico", RedirectView.as_view(url="/static/img/logo-mark.svg", permanent=False)),
     path("i18n/", include("django.conf.urls.i18n")),  # set_language endpoint

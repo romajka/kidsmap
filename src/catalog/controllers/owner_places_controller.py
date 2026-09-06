@@ -526,6 +526,8 @@ class OwnerPlacesController:
         gallery_images = result.form.cleaned_data.get("gallery_images") or []
         try:
             self.owner_place_repository.add_gallery_images(place=place, image_files=gallery_images)
+            from catalog.services.photo_gallery import apply_gallery_order
+            apply_gallery_order(place, result.form)
         except OSError as exc:
             logger.exception(
                 "Gallery persistence failed while creating place: user_id=%s files=%s reason=%s",
@@ -677,9 +679,15 @@ class OwnerPlacesController:
             photo_storage = Place._meta.get_field("photo").storage
             transaction.on_commit(lambda: photo_storage.delete(old_photo_name))
         result.form.save_schedule(place)
+        for gallery_photo in place.gallery.filter(pk__in=result.form.cleaned_data.get("delete_gallery_ids") or []):
+            image_name, image_storage = gallery_photo.image.name, gallery_photo.image.storage
+            gallery_photo.delete()
+            transaction.on_commit(lambda name=image_name, storage=image_storage: storage.delete(name))
         gallery_images = result.form.cleaned_data.get("gallery_images") or []
         try:
             self.owner_place_repository.add_gallery_images(place=place, image_files=gallery_images)
+            from catalog.services.photo_gallery import apply_gallery_order
+            apply_gallery_order(place, result.form)
         except OSError as exc:
             logger.exception(
                 "Gallery persistence failed while editing place: place_id=%s files=%s reason=%s",
@@ -707,7 +715,7 @@ class OwnerPlacesController:
         location_changed = place_location_fields_changed(previous_values=old_snapshot, place=place)
         manual_coordinates_changed = self._coordinates_changed(previous_values=old_snapshot, place=place)
         should_refresh_coordinates = not draft_save_only and (
-            force_coordinate_refresh or (location_changed and not manual_coordinates_changed)
+            force_coordinate_refresh or (location_changed and not self._has_manual_coordinates(place))
         )
 
         if should_refresh_coordinates:
@@ -751,7 +759,12 @@ class OwnerPlacesController:
                 form=result.form,
             )
         if submit_for_moderation:
-            return self.submit_for_moderation(request=request, place_id=place.pk)
+            submitted = self.submit_for_moderation(request=request, place_id=place.pk)
+            if not submitted.ok:
+                transaction.set_rollback(True)
+                submitted.form = result.form
+                result.form.add_error(None, submitted.message)
+            return submitted
         if coordinate_changes:
             self.place_audit_repository.create_entries(
                 place=place,

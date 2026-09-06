@@ -785,7 +785,7 @@
                 {% endif %}
                 <div class="card-cta-row">
                   {% if place.phone1 %}
-                    <a class="cta-btn cta-call icon-btn icon-phone" href="tel:{{ place.phone1 }}" data-track-event="cta_call" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">{% if language == "az" %}Zəng et{% elif language == "en" %}Call{% else %}{% trans "Позвонить" %}{% endif %}</a>
+                    {% include "catalog/includes/phone_reveal.html" with phone_class="cta-btn cta-call icon-btn icon-phone" phone_index=0 %}
                   {% endif %}
                   {% if place.instagram %}
                     <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">Instagram</a>
@@ -937,7 +937,7 @@
 
   {% if not is_new_page %}
     <script src="{% static 'js/google_maps_markers.js' %}"></script>
-    <script src="{% static 'js/catalog_map.js' %}"></script>
+    <script src="{% static 'js/catalog_map.js' %}?v=phone-reveal-1"></script>
     {% if google_maps_api_key %}
       <script
         src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitCatalogResultsMap"

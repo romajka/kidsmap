@@ -1,0 +1,31 @@
+{% load i18n %}
+{{ form.photo_upload_config|json_script:'pw-photo-config' }}
+<div data-photo-editor data-prepare-url="{% url 'owner_photo_prepare' %}" data-save-url="{% if place %}{% url 'owner_photo_edit_save' place.pk %}{% else %}{% url 'owner_photo_create_save' %}{% endif %}">
+  <div class="pw-field" data-pw-field="photo">
+    <label for="id_photo"><span data-pw-label>{{ form.photo.label }}</span><span data-pw-required="photo" class="pw-field-badge" hidden></span></label>
+    <div data-photo-zone="main"><input type="file" name="photo" id="id_photo" accept="image/jpeg,image/png,image/webp,.heic,.heif,.hif" aria-describedby="photo-help photo-errors"></div>
+    <p id="photo-help" class="pw-help">{{ form.photo.help_text }}</p>
+    <div id="photo-errors" data-photo-errors="main" aria-live="polite"></div>
+    {% for error in form.photo.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}
+    <span class="pw-client-error" aria-live="polite"></span>
+    <div class="pw-photo-items pw-photo-items--main" data-photo-items="main">
+      {% if place.photo %}<div data-photo-saved="main" data-photo-name="{{ place.photo.name }}" data-photo-url="{{ place.photo.url }}" data-photo-preview="{% url 'owner_photo_thumbnail' place.pk 0 %}"><img src="{% url 'owner_photo_thumbnail' place.pk 0 %}" alt="{{ form.photo.label }}" width="160" height="120" loading="lazy"></div>{% endif %}
+    </div>
+    <label data-photo-fallback-clear><input type="checkbox" name="photo-clear" id="photo-clear_id"> {{ ui.remove }}</label>
+  </div>
+  <div class="pw-field" data-pw-field="gallery_images">
+    <label for="id_gallery_images"><span data-pw-label>{{ form.gallery_images.label }}</span><span data-photo-count role="status"></span></label>
+    <div data-photo-zone="gallery"><input type="file" name="gallery_images" id="id_gallery_images" multiple accept="image/jpeg,image/png,image/webp,.heic,.heif,.hif" aria-describedby="gallery-photo-help gallery-photo-errors"></div>
+    <p id="gallery-photo-help" class="pw-help" data-photo-gallery-help>{{ ui.photos_hint }}</p>
+    <div id="gallery-photo-errors" data-photo-errors="gallery" aria-live="polite"></div>
+    {% for error in form.gallery_images.errors %}<p class="pw-error" role="alert">{{ error }}</p>{% endfor %}
+    <span class="pw-client-error" aria-live="polite"></span>
+    <div class="pw-photo-items" data-photo-items="gallery">{% for picture in place.gallery.all %}
+      <div data-photo-saved="{{ picture.pk }}" data-photo-name="{{ picture.image.name }}" data-photo-url="{{ picture.image.url }}" data-photo-preview="{% url 'owner_photo_thumbnail' place.pk picture.pk %}"><img src="{% url 'owner_photo_thumbnail' place.pk picture.pk %}" alt="" width="160" height="120" loading="lazy"></div>
+    {% endfor %}</div>
+    <div data-photo-fallback-delete>{% for picture in place.gallery.all %}<label><input type="checkbox" name="delete_gallery_ids" value="{{ picture.pk }}"{% if picture.pk|stringformat:'s' in form.delete_gallery_ids.value %} checked{% endif %}> {{ ui.remove }} {{ forloop.counter }}</label>{% endfor %}</div>
+    {% for error in form.delete_gallery_ids.errors %}<p class="pw-error">{{ error }}</p>{% endfor %}
+  </div>
+  {{ form.gallery_order }}
+  <p class="pw-photo-save-status" data-photo-save-status role="status" aria-live="polite"></p>
+</div>

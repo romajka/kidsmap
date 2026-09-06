@@ -2,6 +2,8 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, re_path, reverse_lazy
 
 from .forms import UserPasswordResetForm, UserSetPasswordForm
+from .phone_views import reveal_place_phones
+from .photo_views import prepare_owner_photo, save_owner_photos, owner_photo_thumbnail
 from .views import (
     home,
     events_landing,
@@ -68,6 +70,11 @@ from .views import (
 )
 
 urlpatterns = [
+    path("account/photos/prepare/", prepare_owner_photo, name="owner_photo_prepare"),
+    path("account/places/<int:pk>/photo-thumbnail/<int:photo_id>/", owner_photo_thumbnail, name="owner_photo_thumbnail"),
+    path("account/places/save-photos/", save_owner_photos, name="owner_photo_create_save"),
+    path("account/places/<int:pk>/save-photos/", save_owner_photos, name="owner_photo_edit_save"),
+    path("api/places/<int:pk>/phones/", reveal_place_phones, name="place_phone_reveal"),
     path("", home, name="home"),
     path("events/", events_landing, name="events_landing"),
     path("catalog/", place_list, name="place_list"),

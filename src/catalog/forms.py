@@ -31,7 +31,7 @@ from catalog.services.place_schedule import (
 )
 from catalog.services.options import sort_translated_values
 from catalog.services.pricing_plans import normalize_pricing_plans
-from catalog.services.image_uploads import normalize_uploaded_image
+from catalog.services.image_uploads import normalize_uploaded_image, MAX_GALLERY_IMAGES
 from catalog.services.place_access import PLACE_ROLE_CHOICES, PLACE_ROLE_EDITOR
 
 try:
@@ -46,7 +46,7 @@ except ImportError:  # pragma: no cover - dependency should be installed in norm
 User = get_user_model()
 _NAME_CONNECTORS = {" ", "-", "'"}
 _PHONE_RE = re.compile(r"^\+?[0-9()\-\s]{7,25}$")
-_OWNER_GALLERY_MAX_FILES = 10
+_OWNER_GALLERY_MAX_FILES = MAX_GALLERY_IMAGES
 
 
 class LocalizedModelChoiceField(forms.ModelChoiceField):
@@ -805,6 +805,24 @@ class UserPasswordChangeForm(PasswordChangeForm):
 
 
 class UserPasswordResetForm(PasswordResetForm):
+    def get_users(self, email):
+        # Keep Django's normal eligibility rules; allow a Google-only account to
+        # establish a password only for its currently verified local email.
+        from allauth.socialaccount.models import SocialAccount
+
+        standard_users = list(super().get_users(email))
+        yield from standard_users
+        seen = {user.pk for user in standard_users}
+        candidates = User.objects.filter(
+            is_active=True, email__iexact=email,
+            email_verification__is_verified=True,
+            email_verification__email__iexact=email,
+            pk__in=SocialAccount.objects.filter(provider="google").values("user_id"),
+        ).exclude(pk__in=seen)
+        for user in candidates:
+            if not user.has_usable_password():
+                yield user
+
     email = forms.CharField(
         label=_("Email или логин"),
         required=True,
@@ -863,14 +881,20 @@ class UserSetPasswordForm(SetPasswordForm):
         )
 
 
+class PlainMultipleImageInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
 class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+    delete_gallery_ids = forms.MultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple())
+    gallery_order = forms.JSONField(required=False, widget=forms.HiddenInput())
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput())
     gallery_images = MultipleFileField(
         label=_("Дополнительные фото (до 10)"),
         required=False,
         help_text=_("До 10 фото. HEIC/HEIF автоматически конвертируются на сервере."),
     )
-    lesson_format = forms.ChoiceField(required=False, choices=Place.LESSON_FORMAT_CHOICES, widget=forms.Select(attrs={"class": "field"}))
+    lesson_format = forms.ChoiceField(required=False, choices=(("", "—"), *Place.LESSON_FORMAT_CHOICES), widget=forms.Select(attrs={"class": "field"}))
     offers_adult_classes = forms.TypedChoiceField(
         label=_("Кто может заниматься?"),
         choices=(("0", _("Только дети")), ("1", _("Дети и взрослые"))),
@@ -925,6 +949,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "subcategory",
             "age_from",
             "age_to",
+            "age_open_ended",
             "offers_adult_classes",
             "region",
             "district",
@@ -933,6 +958,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "lat",
             "lng",
             "phone1",
+            "phone2",
+            "phone3",
             "instagram",
             "website",
             "schedule",
@@ -947,6 +974,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             "pricing_plans",
             "extra_conditions",
             "additional_info",
+            "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
+            "additional_info_az", "additional_info_ru", "additional_info_en",
             "is_temporary",
             "temporary_start",
             "temporary_end",
@@ -1081,7 +1110,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 mutable_data["district"] = normalized_district
                 district_value = normalized_district
 
-            if not region_value and (district_value.startswith("baku_") or metro_value):
+            if "region" not in mutable_data and (district_value.startswith("baku_") or metro_value):
                 mutable_data["region"] = "baku"
 
             kwargs["data"] = mutable_data
@@ -1102,6 +1131,19 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 if missing_lng:
                     mutable_data["lng"] = "" if instance.lng is None else str(instance.lng)
                 kwargs["data"] = mutable_data
+        if instance is not None and getattr(instance, "pk", None) and kwargs.get("data") is not None:
+            payload = kwargs["data"].copy()
+            if "region" not in payload:
+                payload["region"] = "baku" if instance.district.startswith("baku_") else instance.district
+            for name in self.Meta.fields:
+                if name not in payload and name not in ("photo", "region", "pricing_plans"):
+                    value = getattr(instance, name, "")
+                    if name == "district" and not str(value).startswith("baku_"):
+                        value = ""
+                    payload[name] = "" if value is None else ("1" if value is True else "" if value is False else value.pk if hasattr(value, "pk") else str(value))
+            if "pricing_plans" not in payload:
+                payload["pricing_plans"] = json.dumps(instance.pricing_plans, ensure_ascii=False)
+            kwargs["data"] = payload
         super().__init__(*args, **kwargs)
 
         if not self.is_bound:
@@ -1112,20 +1154,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             current_plans = getattr(instance, "pricing_plans", None) if instance is not None else None
             if not self.is_bound and current_plans:
                 self.initial["pricing_plans"] = json.dumps(current_plans, ensure_ascii=False)
-
-        if self.submit_for_moderation:
-            for field_name in (
-                "name_az",
-                "description_az",
-                "category",
-                "age_from",
-                "age_to",
-                "address",
-                "phone1",
-                "photo",
-            ):
-                if field_name in self.fields:
-                    self.fields[field_name].required = True
 
         from catalog.services.locations import init_location_fields
         init_location_fields(self, instance)
@@ -1207,7 +1235,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         if phone_value:
             self.initial["phone1"] = _format_azerbaijan_phone_for_input(phone_value)
         self.fields["address"].help_text = _("Улица, дом, ориентир.")
-        self.fields["name_az"].help_text = _("Обязательно для публикации.")
+        self.fields["name_az"].help_text = _("Укажите название на азербайджанском.")
         self.fields["name_ru"].help_text = _("Можно добавить позже.")
         self.fields["name_en"].help_text = _("Можно добавить позже.")
         self.fields["description_az"].help_text = _("Обязательно для публикации.")
@@ -1244,6 +1272,35 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 }
             )
         self._init_schedule_editor()
+        self.fields["schedule"].widget = forms.Textarea(attrs={"rows": 3})
+        self.fields["delete_gallery_ids"].choices = [(str(photo.pk), photo.image.name) for photo in instance.gallery.all()] if instance and instance.pk else []
+        self.photo_gallery_ids = [int(pk) for pk, _ in self.fields["delete_gallery_ids"].choices]
+        from catalog.services.image_uploads import image_upload_config
+        self.photo_upload_config = image_upload_config()
+        if self.submit_for_moderation and not self.draft_save_only and not self.coordinate_refresh_only:
+            for field_name in ("name_az", "description_az", "category", "subcategory", "address", "phone1", "photo"):
+                self.fields[field_name].required = True
+            open_age = self.data.get("age_open_ended") if self.is_bound else self.initial.get("age_open_ended")
+            self.fields["age_from"].required = not bool(open_age)
+            self.fields["age_to"].required = not bool(open_age)
+        from catalog.services.permanent_place_rules import copy as wizard_text
+        self.fields["photo"].widget = forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp,.heic,.heif,.hif"})
+        self.fields["gallery_images"].widget = PlainMultipleImageInput(attrs={"accept": "image/jpeg,image/png,image/webp,.heic,.heif,.hif"})
+        photo_help = wizard_text("JPG, PNG, WEBP, HEIC/HEIF — до 15 МБ, 50 Мп и 12000 пикселей по стороне. После обработки — до 2 МБ на фото, до 22 МБ вместе с главным фото.", "JPG, PNG, WEBP, HEIC/HEIF — 15 MB, 50 MP və hər tərəf 12000 pikselədək. Hazır şəkil 2 MB, bütün şəkillər 22 MB-dək.", "JPG, PNG, WEBP, HEIC/HEIF: up to 15 MB, 50 MP and 12000 px per side. Prepared photos: 2 MB each, 22 MB total.")
+        self.fields["photo"].help_text = self.fields["gallery_images"].help_text = photo_help
+        self.fields["description_az"].help_text = wizard_text("Обязательно. Не менее 120 символов хотя бы в одном описании.", "Məcburidir. Ən azı bir təsvir 120 simvoldan az olmamalıdır.", "Required. At least one description must contain 120 characters.")
+        self.fields["lat"].label = wizard_text("Широта", "Enlik", "Latitude")
+        self.fields["lng"].label = wizard_text("Долгота", "Uzunluq", "Longitude")
+        self.fields["lesson_format"].label = wizard_text("Формат занятий", "Məşğələ formatı", "Lesson format")
+        self.fields["name_az"].help_text = wizard_text("Название хотя бы на одном языке.", "Ən azı bir dildə ad daxil edin.", "A name in at least one language.")
+        from catalog.services.permanent_place_rules import client_rules
+        self.publication_rules = client_rules(self)
+        for name in ("lat", "lng"):
+            self.fields[name].widget = forms.NumberInput(attrs={"step": "any", "data-map-coordinate": name})
+        for name in ("extra_conditions_az", "extra_conditions_ru", "extra_conditions_en", "additional_info_az", "additional_info_ru", "additional_info_en"):
+            self.fields[name].widget = forms.Textarea(attrs={"rows": 3})
+        from catalog.services.permanent_place_wizard import localize_fields
+        localize_fields(self)
 
     def _configure_location_choices(self):
         from catalog.services.locations import configure_location_choices
@@ -1277,7 +1334,7 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             empty_label=_("Выберите метро"),
             include_current=allow_current_metro,
         )
-        self.fields["metro"].help_text = _("Если район не выбран, укажите ближайшую станцию метро.")
+        self.fields["metro"].help_text = _("Необязательно: ближайшая станция метро.")
         self.fields["metro"].error_messages.update({"invalid_choice": _("Выберите станцию метро из списка.")})
 
     @staticmethod
@@ -1332,7 +1389,8 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
         try:
             cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]")
-            self.instance.pricing_plans = cleaned["pricing_plans"]
+            if cleaned["pricing_plans"] or not self.instance.pk or self.instance.pricing_plan_records.exists():
+                self.instance.pricing_plans = cleaned["pricing_plans"]
         except ValidationError as exc:
             self.add_error("pricing_plans", exc)
             cleaned["pricing_plans"] = []
@@ -1366,17 +1424,10 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         if self.geocoding_check_only:
             return cleaned
 
-        if (
-            not self.draft_save_only
-            and not self.coordinate_refresh_only
-            and self.submit_for_moderation
-            and not (lat is not None and lng is not None)
-            and not cleaned.get("is_temporary")
-            and not (cleaned.get("schedule") or "").strip()
-            and cleaned.get("schedule_mode", Place.SCHEDULE_MODE_REGULAR) == Place.SCHEDULE_MODE_REGULAR
-            and not is_meaningful_schedule(self.cleaned_schedule_days)
-        ):
-            self.add_error("structured_schedule", _("Укажите, когда место работает."))
+        if cleaned.get("age_open_ended"):
+            cleaned["age_to"] = None
+            cleaned["age_from"] = cleaned.get("age_from") if cleaned.get("age_from") is not None else 0
+        self.instance.name = next((cleaned.get(key).strip() for key in ("name_az", "name_ru", "name_en") if cleaned.get(key)), self.instance.name or "Новое место")
 
         age_from = cleaned.get("age_from")
         age_to = cleaned.get("age_to")
@@ -1414,25 +1465,29 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                     _("Дата окончания раньше даты начала. Укажите окончание позже начала."),
                 )
 
-        if self.submit_for_moderation:
-            district = (cleaned.get("district") or "").strip()
-            metro = (cleaned.get("metro") or "").strip()
-            if not district and not metro:
-                message = _("Укажите локацию: выберите район или станцию метро.")
-                self.add_error("district", message)
-                self.add_error("metro", message)
+        if self.submit_for_moderation and not self.draft_save_only and not self.coordinate_refresh_only:
+            from catalog.services.permanent_place_rules import publication_errors
+            for field, message in publication_errors(cleaned, instance=self.instance, schedule_days=self.cleaned_schedule_days).items():
+                self.add_error(field, message)
 
+        from catalog.services.image_uploads import MAX_IMAGE_BATCH_BYTES
+        raw_gallery = cleaned.get("gallery_images") or []
+        total_bytes = sum(file.size for file in raw_gallery) + getattr(self.files.get("photo"), "size", 0)
+        if total_bytes > MAX_IMAGE_BATCH_BYTES:
+            self.add_error("gallery_images", _("Общий размер фотографий не должен превышать 22 МБ."))
+            return cleaned
         photo = cleaned.get("photo")
-        if photo:
+        if photo and self.files.get("photo"):
             try:
                 cleaned["photo"] = _validate_uploaded_image(photo)
             except ValidationError as exc:
                 self.add_error("photo", exc)
 
-        gallery_images = self.files.getlist("gallery_images")
+        gallery_images = cleaned.get("gallery_images") or []
         existing_gallery_count = (
             self.instance.gallery.count() if self.instance and self.instance.pk else 0
         )
+        existing_gallery_count -= len(cleaned.get("delete_gallery_ids") or [])
         available_slots = max(_OWNER_GALLERY_MAX_FILES - existing_gallery_count, 0)
         if len(gallery_images) > available_slots:
             self.add_error(
@@ -1447,6 +1502,12 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             except ValidationError as exc:
                 self.add_error("gallery_images", exc)
         cleaned["gallery_images"] = normalized_gallery_images
+        from catalog.services.photo_gallery import validate_gallery_order
+        try:
+            validate_gallery_order(cleaned.get("gallery_order"), self.photo_gallery_ids, cleaned.get("delete_gallery_ids") or [], len(normalized_gallery_images))
+        except ValidationError as exc:
+            self.add_error("gallery_images", exc)
+
 
         return cleaned
 
@@ -1455,6 +1516,23 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         if not value:
             return ""
         return _validate_azerbaijan_phone(value, required=False)
+
+
+    def clean_phone2(self):
+        return _validate_azerbaijan_phone(self.cleaned_data.get("phone2") or "", required=False)
+
+    def clean_phone3(self):
+        return _validate_azerbaijan_phone(self.cleaned_data.get("phone3") or "", required=False)
+
+    @property
+    def wizard_steps(self):
+        from catalog.services.permanent_place_wizard import build_steps
+        return build_steps(self)
+
+    @property
+    def wizard_copy(self):
+        from catalog.services.permanent_place_wizard import ui_copy
+        return ui_copy()
 
 
 class OwnerPlaceCreateForm(OwnerPlaceEditForm):
@@ -1474,9 +1552,6 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("submit_for_moderation", not kwargs.get("draft_save_only", False))
         super().__init__(*args, **kwargs)
-        self.fields["gallery_images"].help_text = _(
-            "До 10 фото. Большие изображения автоматически уменьшатся перед загрузкой."
-        )
         if self.draft_save_only:
             return
         if self.geocoding_check_only:
@@ -1499,17 +1574,14 @@ class OwnerPlaceCreateForm(OwnerPlaceEditForm):
                 "photo",
             ):
                 self.fields[field_name].required = True
+            if self.data.get("age_open_ended"):
+                self.fields["age_from"].required = False
+                self.fields["age_to"].required = False
 
     def clean(self):
         cleaned = super().clean()
         if self.geocoding_check_only:
             return cleaned
-
-        if not self.draft_save_only and not (cleaned.get("name_az") or "").strip():
-            self.add_error("name_az", _("Укажите основное название на азербайджанском языке."))
-
-        if not self.draft_save_only and not (cleaned.get("description_az") or "").strip():
-            self.add_error("description_az", _("Укажите основное описание на азербайджанском языке."))
 
         return cleaned
 

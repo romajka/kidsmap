@@ -306,6 +306,14 @@
 
     bindLocateButton(shared, setPoint);
     bindOsmSearch(shared, { setPoint: setPoint, map: map });
+    if (root.hasAttribute("data-permanent-map")) {
+      [shared.latInput, shared.lngInput].forEach(function (input) {
+        input.addEventListener("change", function () {
+          const lat = parseCoordinate(shared.latInput.value), lng = parseCoordinate(shared.lngInput.value);
+          if (lat !== null && lng !== null && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) setPoint(lat, lng);
+        });
+      });
+    }
 
     if (shared.clearBtn) {
       shared.clearBtn.addEventListener("click", function () {
@@ -414,6 +422,14 @@
 
     bindLocateButton(shared, setPoint);
     bindGoogleSearch(shared, { setPoint: setPoint, map: map });
+    if (root.hasAttribute("data-permanent-map")) {
+      [shared.latInput, shared.lngInput].forEach(function (input) {
+        input.addEventListener("change", function () {
+          const lat = parseCoordinate(shared.latInput.value), lng = parseCoordinate(shared.lngInput.value);
+          if (lat !== null && lng !== null && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) setPoint(lat, lng);
+        });
+      });
+    }
 
     if (shared.clearBtn) {
       shared.clearBtn.addEventListener("click", function () {
@@ -442,6 +458,16 @@
 
     if (provider === "google") {
       initGoogleMapPicker(root);
+      if (root.hasAttribute("data-permanent-map") && root.dataset.mapInitialized !== "1") {
+        setTimeout(function () {
+          if (root.dataset.mapInitialized !== "1") initLeafletMapPicker(root);
+        }, 5000);
+      }
+      return;
+    }
+
+    if (provider === "leaflet" && window.L) {
+      initLeafletMapPicker(root);
       return;
     }
 

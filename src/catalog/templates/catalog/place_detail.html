@@ -254,41 +254,12 @@
 
           <div class="detail-decision__cta">
             {% if place.phone1 %}
-              <a
-                class="detail-cta detail-cta--primary"
-                href="tel:{{ place.phone1 }}"
-                data-track-event="cta_call"
-                data-track-place-id="{{ place.id }}"
-                data-track-source="place-detail-hero"
-                title="{% trans 'Позвонить' %}"
-                aria-label="{% trans 'Позвонить' %}"
-              >
-                <span class="detail-cta__icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span class="detail-cta__label">{% trans "Позвонить" %}</span>
-                <span class="detail-cta__value">{{ place.phone1 }}</span>
-              </a>
+              {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}
             {% endif %}
 
             <div class="detail-decision__cta-row">
               {% if place.phone1 %}
-                <a
-                  class="detail-cta detail-cta--soft"
-                  href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}"
-                  target="_blank"
-                  rel="noopener"
-                  data-track-event="cta_whatsapp"
-                  data-track-place-id="{{ place.id }}"
-                  data-track-source="place-detail-hero"
-                  title="WhatsApp"
-                  aria-label="WhatsApp"
-                >
-                  <span class="detail-cta__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M5 19l1.05-3.3A7.2 7.2 0 1 1 8.8 18L5 19Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-                  </span>
-                  <span class="detail-cta__label">WhatsApp</span>
-                </a>
+                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}
               {% endif %}
               {% if map_open_url %}
                 <a
@@ -708,27 +679,12 @@
             <h2 class="detail-card__title detail-card__title--sm">{% trans "Контакты" %}</h2>
             <div class="detail-contacts">
               {% if place.phone_numbers %}
-                {% with primary_phone=place.phone_numbers|first %}
-                <a class="detail-contacts__row detail-contacts__row--primary" href="tel:{{ primary_phone }}">
-                  <span class="detail-contacts__icon detail-contacts__icon--phone" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </span>
-                  <span class="detail-contacts__body">
-                    <span class="detail-label">{% trans "Основной телефон" %}</span>
-                    <strong>{{ primary_phone }}</strong>
-                  </span>
-                </a>
-                {% endwith %}
+                {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__row detail-contacts__row--primary" phone_index=0 %}
                 {% if place.phone_numbers|length > 1 %}
                   <div class="detail-contacts__secondary" aria-label="{% trans 'Дополнительные номера' %}">
                     <span class="detail-contacts__secondary-label">{% trans "Дополнительные номера" %}</span>
                     {% for phone in place.phone_numbers|slice:"1:" %}
-                      <a class="detail-contacts__secondary-link" href="tel:{{ phone }}">
-                        <span class="detail-contacts__secondary-icon" aria-hidden="true">
-                          <svg viewBox="0 0 24 24" fill="none"><path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </span>
-                        <strong>{{ phone }}</strong>
-                      </a>
+                      {% include "catalog/includes/phone_reveal.html" with phone_class="detail-contacts__secondary-link" phone_index=forloop.counter %}
                     {% endfor %}
                   </div>
                 {% endif %}
@@ -837,34 +793,8 @@
 
     {% if place.phone1 %}
       <div class="detail-mobile-bar" aria-label="{% trans 'Быстрая связь' %}">
-        <a
-          class="detail-cta detail-cta--primary"
-          href="tel:{{ place.phone1 }}"
-          data-track-event="cta_call"
-          data-track-place-id="{{ place.id }}"
-          data-track-source="place-detail-mobile-sticky"
-          aria-label="{% trans 'Позвонить' %}"
-        >
-          <span class="detail-cta__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M7.2 5.25h2.06c.34 0 .65.2.79.51l1.02 2.31a.9.9 0 0 1-.16.96l-1.11 1.29a12.7 12.7 0 0 0 3.88 3.88l1.29-1.11a.9.9 0 0 1 .96-.16l2.31 1.02c.31.14.51.45.51.79v2.06a1.2 1.2 0 0 1-1.2 1.2h-.75C10.2 19 5 13.8 5 7.2v-.75a1.2 1.2 0 0 1 1.2-1.2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-          <span class="detail-cta__label">{% trans "Позвонить" %}</span>
-        </a>
-        <a
-          class="detail-cta detail-cta--soft"
-          href="https://wa.me/{{ place.phone1|cut:' '|cut:'+' }}"
-          target="_blank"
-          rel="noopener"
-          data-track-event="cta_whatsapp"
-          data-track-place-id="{{ place.id }}"
-          data-track-source="place-detail-mobile-sticky"
-          aria-label="WhatsApp"
-        >
-          <span class="detail-cta__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><path d="M5 19l1.05-3.3A7.2 7.2 0 1 1 8.8 18L5 19Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-          </span>
-          <span class="detail-cta__label">WhatsApp</span>
-        </a>
+        {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--primary" phone_index=0 %}
+        {% include "catalog/includes/phone_reveal.html" with phone_class="detail-cta detail-cta--soft" phone_index=0 whatsapp=True %}
       </div>
     {% endif %}
 

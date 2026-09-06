@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{{ form.wizard_copy.title }} | KidsMap{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/components/kidsmap_schedule_editor.css' %}?v=25">
+<link rel="stylesheet" href="{% static 'css/pages/permanent_place_wizard.css' %}?v=6">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+{% block content %}
+{% with ui=form.wizard_copy %}
+<div class="pw" data-permanent-place-root>
+  <header class="pw-header"><a href="{% url 'owner_places_dashboard' %}">← {{ ui.places }}</a><p class="pw-eyebrow">KidsMap · {{ ui.title }}</p><h1>{% if place %}{{ place.name_i18n }}{% else %}{{ ui.title }}{% endif %}</h1><p>{{ ui.intro }}</p></header>
+  {{ form.publication_rules|json_script:"pw-rules" }}
+  {{ ui|json_script:"pw-copy" }}
+  <form method="post" enctype="multipart/form-data" class="pw-form" data-permanent-place-form data-pw-bound="{{ form.is_bound|yesno:'1,0' }}" data-draft-key="{% if place %}place-edit-{{ request.user.pk }}-{{ place.pk }}{% else %}{{ draft_client_key }}{% endif %}" novalidate>
+    {% csrf_token %}<input type="hidden" name="draft_client_key" value="{{ draft_client_key }}"><input type="hidden" name="is_temporary" value=""><input type="hidden" name="age_open_ended" value="{{ form.age_open_ended.value|yesno:'1,' }}">
+    <aside class="pw-sidebar"><p class="pw-nav-title">{{ ui.progress }}</p><nav aria-label="{{ ui.title }}">{% for step in form.wizard_steps %}<button type="button" data-pw-go="{{ step.number }}"><span class="pw-nav-icon" aria-hidden="true">{% include "pages/includes/permanent_place_icon.html" with number=step.number %}</span><span class="pw-nav-label"><small>{{ ui.step }} {{ step.number|stringformat:'02d' }}</small>{{ step.title }}</span><i data-pw-step-status="{{ step.number }}" aria-hidden="true"></i></button>{% endfor %}</nav><p class="pw-sidebar-note">{{ ui.saved_later }}</p></aside>
+    <div class="pw-workspace">
+      <div class="pw-progress"><div><span data-pw-progress-label>{{ ui.step }} 1 {{ ui.of }} 7</span><span data-pw-progress-title></span></div><div class="pw-progress-track" role="progressbar" aria-label="{{ ui.progress }}" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1"><span data-pw-progress-bar></span></div></div>
+      <p class="pw-draft-status" data-pw-draft-status role="status"></p>
+      {% if form.non_field_errors %}<div class="pw-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="pw-error-summary" data-pw-errors role="alert" hidden></div>
+      {% for step in form.wizard_steps %}
+      <section class="pw-step" data-pw-step="{{ step.number }}" aria-labelledby="pw-heading-{{ step.number }}">
+        <header class="pw-step-head"><span class="pw-step-icon" aria-hidden="true">{% include "pages/includes/permanent_place_icon.html" with number=step.number %}</span><div><span class="pw-eyebrow">{{ step.number|stringformat:'02d' }} / 07</span><h2 id="pw-heading-{{ step.number }}" tabindex="-1">{{ step.title }}</h2><p>{{ step.hint }}</p></div></header>
+        {% if step.number != 7 %}<div class="pw-requirements" data-pw-requirements="{{ step.number }}"><div class="pw-requirements-head"><strong>{{ ui.required }}</strong><span data-pw-requirements-count></span></div><div data-pw-requirements-list></div><p>{{ ui.draft_hint }}</p></div>{% endif %}
+        {% if step.number == 2 %}<div class="pw-choices" role="group" aria-label="{{ step.title }}"><button type="button" data-pw-age="range"><b>↔</b>{{ ui.range }}</button><button type="button" data-pw-age="open"><b>3+</b>{{ ui.open_age }}</button><button type="button" data-pw-age="all"><b>∞</b>{{ ui.all_ages }}</button></div>{% endif %}
+        {% if step.number == 6 %}{% include "pages/includes/permanent_place_photos.html" %}{% else %}<div class="pw-fields">{% for field in step.fields %}{% include "pages/includes/permanent_place_field.html" %}{% endfor %}</div>{% endif %}
+        {% if step.optional and step.number != 5 %}<details class="pw-details"{% for field in step.optional %}{% if field.errors %} open{% endif %}{% endfor %}><summary>{% if step.number == 1 %}{{ ui.translations }}{% else %}{{ ui.optional }}{% endif %}</summary><div class="pw-fields">{% for field in step.optional %}{% include "pages/includes/permanent_place_field.html" %}{% endfor %}</div></details>{% endif %}
+        {% if step.number == 3 %}
+        <div class="pw-pricing" data-tariff-editor data-can-verify="0"><p>{{ ui.plans_hint }}</p><p class="pw-help">{{ ui.change_mode }}</p>
+          <div data-pw-field="pricing_plans"><input type="hidden" name="pricing_plans" data-tariff-input value="{{ form.pricing_plans.value|default:'[]' }}">{% for error in form.pricing_plans.errors %}<p class="pw-error">{{ error }}</p>{% endfor %}<span class="pw-client-error"></span></div>
+          <div data-tariff-list></div><button type="button" class="pw-add" data-tariff-add>＋ {{ ui.add_plan }}</button>
+        </div>
+        {% endif %}
+        {% if step.number == 4 %}
+          <p>{{ ui.map_hint }}</p>
+          <div class="pw-map-changed" data-pw-map-changed hidden>{{ ui.map_changed }} <button type="button" data-pw-confirm-point>{{ ui.map_confirm }}</button></div>
+          {% include "pages/includes/permanent_place_map.html" %}
+        {% endif %}
+        {% if step.number == 5 %}<div data-pw-field="structured_schedule">{% include "includes/place_schedule_editor.html" with editor_id="pw-schedule" variant="owner" %}<span class="pw-client-error"></span></div>{% endif %}
+        {% if step.number == 5 and step.optional %}<details class="pw-details"{% for field in step.optional %}{% if field.errors %} open{% endif %}{% endfor %}><summary>{{ ui.optional }}</summary><div class="pw-fields">{% for field in step.optional %}{% include "pages/includes/permanent_place_field.html" %}{% endfor %}</div></details>{% endif %}
+        {% if step.number == 7 %}
+          <article class="pw-preview"><div class="pw-preview-image" data-pw-preview-image></div><div class="pw-preview-body"><p data-pw-preview-category></p><h3 data-pw-preview-name>{{ ui.preview }}</h3><p data-pw-preview-age></p><strong data-pw-preview-price></strong><p data-pw-preview-address></p></div></article>
+          <h3>{{ ui.check }}</h3><div data-pw-review class="pw-review"></div><p data-pw-readiness role="status"></p>
+        {% endif %}
+      </section>
+      {% endfor %}
+      <footer class="pw-actions"><button type="button" data-pw-prev>{{ ui.back }}</button><button type="submit" name="form_action" value="save_draft" formnovalidate>{{ ui.draft }}</button><button type="button" data-pw-next class="pw-primary">{{ ui.next }} →</button><button type="submit" name="form_action" value="save_and_publish" class="pw-primary" data-pw-submit>{{ ui.submit }}</button></footer>
+    </div>
+  </form>
+  {% if place %}<form method="post" action="{% url 'owner_place_delete' place.pk %}" class="pw-delete" data-pw-delete>{% csrf_token %}<button type="submit">{{ ui.deletion }}</button></form>{% endif %}
+</div>
+{% endwith %}
+{% endblock %}
+{% block extra_body %}
+<script src="{% static 'js/permanent_place_photos.js' %}?v=2"></script>
+<script src="{% static 'js/permanent_place_wizard.js' %}?v=6"></script>
+<script src="{% static 'js/kidsmap_schedule_editor.js' %}?v=25"></script>
+<script src="{% static 'js/permanent_place_pricing.js' %}?v=13"></script>
+<script src="{% static 'js/kidsmap_dependent_subcategory.js' %}"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/owner_place_map_picker.js' %}?v=3"></script>
+{% if google_maps_api_key %}<script async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&libraries=places&callback=kidsMapInitOwnerMapPickers"></script>{% endif %}
+{% endblock %}

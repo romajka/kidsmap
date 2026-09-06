@@ -340,6 +340,13 @@ class Place(models.Model):
     def clean(self):
         super().clean()
         errors = {}
+        import math
+        if (self.lat is None) != (self.lng is None):
+            errors["lat"] = _("Укажите обе координаты.")
+        for field, limit in (("lat", 90), ("lng", 180)):
+            value = getattr(self, field)
+            if value is not None and (not math.isfinite(value) or not -limit <= value <= limit):
+                errors[field] = _("Координата вне допустимого диапазона.")
         if self.age_from is not None and self.age_to is not None and self.age_from > self.age_to:
             errors["age_to"] = _("Возраст «до» не может быть меньше возраста «от».")
         if self.offers_adult_classes and (self.age_from is None or (self.age_to is None and not self.age_open_ended)):

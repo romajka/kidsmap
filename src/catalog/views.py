@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.db.models import Q
 from django.contrib.auth import views as auth_views
-from django.db.utils import OperationalError, ProgrammingError
+from django.db.utils import IntegrityError, OperationalError, ProgrammingError
 from django.http import HttpResponseGone, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -1596,9 +1596,14 @@ class AccountProfileView(LoginRequiredMixin, View):
         if form_action == "profile":
             profile_form = auth_controller.build_profile_edit_form(user=request.user, data=request.POST)
             if profile_form.is_valid():
-                profile = auth_controller.update_user_profile_from_form(user=request.user, form=profile_form)
-                messages.success(request, _("Профиль обновлен."))
-                return redirect(current_route)
+                try:
+                    profile = auth_controller.update_user_profile_from_form(user=request.user, form=profile_form)
+                except IntegrityError:
+                    request.user.refresh_from_db()
+                    profile_form.add_error("email", _("Пользователь с таким email уже зарегистрирован. Укажите другой email."))
+                else:
+                    messages.success(request, _("Профиль обновлен."))
+                    return redirect(current_route)
             messages.error(request, _("Проверьте данные профиля и исправьте ошибки."))
         elif form_action == "password":
             password_form = auth_controller.build_password_change_form(user=request.user, data=request.POST)
@@ -1643,7 +1648,15 @@ def account_register(request):
     language = (request.LANGUAGE_CODE or "az").split("-")[0]
     form = auth_controller.build_registration_form(data=request.POST or None)
     if request.method == "POST" and form.is_valid():
-        user = auth_controller.register_user_from_form(form=form)
+        try:
+            user = auth_controller.register_user_from_form(form=form)
+        except IntegrityError:
+            form.add_error("email", _("Пользователь с таким email уже зарегистрирован. Войдите в аккаунт или используйте другой email."))
+            return render(request, "auth/register.html", {
+                "form": form,
+                "next_url": _resolve_safe_next_url(request, reverse("account_profile")),
+                "auth_intent": auth_intent,
+            })
         verification = auth_controller.send_registration_verification_code(
             user=user,
             email=form.cleaned_data["email"],

@@ -954,34 +954,9 @@ def build_pricing_summary(place, lang="ru"):
             unit = LOCALIZED_STRINGS[lang].get(plan.get("payment_type"), "")
             plan_price_str = f"{price_display} {currency}" + (f" / {unit}" if unit else "")
 
+        # Keep the response key for consumers, without embedding a recipient.
+        # Public phone numbers are fetched by the contact reveal endpoint.
         whatsapp_url = ""
-        if place.phone1:
-            clean_phone = place.phone1.replace(" ", "").replace("+", "")
-            clean_phone = "".join(c for c in clean_phone if c.isdigit())
-            if clean_phone.startswith("0") and not clean_phone.startswith("994"):
-                clean_phone = "994" + clean_phone[1:]
-
-            title_str = plan.get("title") or ""
-            place_name = (
-                (place.name_az or place.name or "").strip()
-                if lang == "az"
-                else (
-                    (place.name_en or place.name or "").strip()
-                    if lang == "en"
-                    else (place.name_ru or place.name or "").strip()
-                )
-            )
-
-            if lang == "az":
-                msg = f"Salam! «{place_name}» üzrə «{title_str}» tarifi ilə maraqlanıram. Zəhmət olmasa, ətraflı məlumat verə bilərsiniz?"
-            elif lang == "en":
-                msg = f"Hello! I am interested in the '{title_str}' plan at '{place_name}'. Could you please provide more details?"
-            else:
-                msg = f"Здравствуйте! Меня интересует тариф «{title_str}» в «{place_name}». Подскажите, пожалуйста, подробнее."
-
-            import urllib.parse
-            whatsapp_url = f"https://wa.me/{clean_phone}?text={urllib.parse.quote(msg)}"
-
         group_keys = {
             "admission": "admission", "visit": "visits", "lesson": "lessons",
             "membership": "memberships", "course": "courses", "camp": "camps",

@@ -33,7 +33,7 @@
       <div class="place-more-section">
         <span class="place-more-label">{% trans "Способы связи" %}</span>
         <div class="place-more-links">
-          {% for phone in place.phone_numbers %}<a href="tel:{{ phone }}">{{ phone }}</a>{% endfor %}
+          {% for phone in place.phone_numbers %}{% include "catalog/includes/phone_reveal.html" with phone_class="" phone_index=forloop.counter0 %}{% endfor %}
           {% if place.instagram %}
             <a href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
           {% endif %}

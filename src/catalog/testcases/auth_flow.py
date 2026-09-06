@@ -278,8 +278,9 @@ class TestPasswordResetIdentifierSupport(TestCase):
         sent_email = mail.outbox[0]
         self.assertEqual(sent_email.to, ["reset-user@example.com"])
         self.assertEqual(sent_email.from_email, "KidsMap <info@kidsmap.az>")
-        self.assertIn("Логин аккаунта: reset_user.", sent_email.body)
-        self.assertIn("https://kidsmap.az", sent_email.body)
+        self.assertIn("reset_user", sent_email.body)
+        self.assertIn("reset-user@example.com", sent_email.body)
+        self.assertIn("auth/reset/", sent_email.body)
         self.assertIn("info@kidsmap.az", sent_email.body)
 
         # Verify multipart HTML alternative is attached
@@ -288,7 +289,6 @@ class TestPasswordResetIdentifierSupport(TestCase):
         self.assertEqual(mime_type, "text/html")
         self.assertIn("Восстановление пароля", html_content)
         self.assertIn("reset-user@example.com", html_content)
-        self.assertIn("https://kidsmap.az/static/img/logo.png", html_content)
         self.assertIn("https://kidsmap.az", html_content)
         self.assertIn("info@kidsmap.az", html_content)
         self.assertIn("auth/reset/", html_content)

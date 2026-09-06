@@ -774,7 +774,7 @@ class PlaceController:
                     "metro": str(_(place.metro)) if place.metro else "",
                     "rating": float(place.rating_avg) if place.rating_avg is not None else None,
                     "reviews_count": int(place.rating_count or 0),
-                    "phone": place.phone1 or "",
+                    "has_phone": bool(place.phone_numbers),
                     "schedule": place.schedule_summary or "",
                 }
             )

@@ -1,153 +1,35 @@
-# KidsMap Agent Orchestration
+# KidsMap orchestration
 
-Используй специализированных subagents как независимых проверяющих, когда задача соответствует их области.
+Canonical [registry](../registry.json), shared [audit contract](audit-contract.md). Старое правило автоматически исправлять findings заменено: в AUDIT исправлений нет; APPROVED IMPLEMENT ограничен согласованным scope. [Предыдущая редакция](history/agent-orchestration-before-20260906.md) сохранена как non-operative history.
 
-## code-reviewer
+## Routing matrix
 
-Вызывать после существенных изменений кода, особенно если:
-- изменено несколько файлов;
-- был рефакторинг;
-- исправлялся сложный баг;
-- изменялась бизнес-логика;
-- менялись Python/JavaScript/template зависимости.
+|Type|Lead|Support по impact|Order|required verification|
+|---|---|---|---|---|
+|FEATURE|django-reviewer|DB/security/UI/SEO|domain→DB/security→QA→browser приUI|инварианты,migrations,permissions,negative/regression|
+|BUG|владелец failing domain|integration-reviewer,security при trust boundary|reproduce/classify baseline→root cause→plan→approved fix→QA|exact trigger и regression|
+|UI REDESIGN admin|frontend-admin|django для forms/actions,browser-qa|contracts→UI plan→approved UI→rendered|round-trip,keyboard/mobile/modals|
+|UI REDESIGN public|frontend-reviewer|SEO/analytics/security|domain→UI→QA→browser|AZ/RU/EN,375/768/1024/1440,next/canonical/events|
+|DB MIGRATION|database-reviewer|django/security/QA/release|usage audit→manual_review/plan→isolated dry-run→backup/approval→apply/verify|idempotency,constraints,checkpoint/rollback|
+|SEO|seo-reviewer|django/frontend/security|visibility→metadata/schema→isolated QA→browser head|canonical/hreflang/robots/sitemap/JSON-LD|
+|SECURITY|security-reviewer|domain owner,DB/release,QA|trace boundary→safe proof→plan→approved fix→negativeQA|input/output/storage/permissions,no prod attack|
+|PERFORMANCE|измеряемого слоя owner|DB дляORM;UI дляassets;analytics дляGA;QA baseline|measure→hypothesis→plan→approved change→remeasure|representative evidence,no premature indexes|
+|RELEASE|release-reviewer|DB/security/QA/orchestrator|revision→checks/backup/recovery→explicit approval→deploy→verify|image/schema/static/media/health,actual rollback|
 
-Основная задача:
-независимо проверить git diff, регрессии, архитектуру и корректность реализации.
+## Concrete handoffs
 
-Не вызывать для тривиального изменения текста или одного очевидного CSS-отступа.
+- Public pricing: django-reviewer→database-reviewer приdata impact→frontend-reviewer→seo-reviewer→integration-reviewer→browser-qa.
+- Migration/legacy cleanup: database-reviewer lead owns transition audit/dry-run/manual_review; django confirms semantics. No second generic cleanup role.
+- Auth/OAuth/upload: django→security→QA→browser; production activation separately release-reviewer.
+- Analytics: analytics-reviewer→django/frontend-admin→QA; external latency hypotheses require measurement.
 
-## django-reviewer
+## Dispatcher and cross-review
 
-Вызывать, если изменялись:
-- Django models;
-- migrations;
-- forms;
-- validation;
-- views;
-- services;
-- ORM;
-- admin;
-- permissions;
-- backend business logic.
+1. Name mode, exact snapshot, scope, output and existing authorization.
+2. Read actual active definitions; at most3parallel specialists, disjoint writable reports. Never10agents editing app.
+3. Pass definition, task/evidence, prohibitions and expected output. Discovery workers are not formal first role runs.
+4. Collect executed/not-tested evidence. Invoke kidsmap-orchestrator after individual audits.
+5. Merge one cause into one master ID; preserve role IDs/evidence, qualify false positives/severity and dependencies.
+6. AUDIT stops at recommendations/user decisions. APPROVED IMPLEMENT changes only approved scope then runs required checks.
 
-Особенно обязательно при изменениях данных, тарифов, возраста, расписания, прав пользователей и публикации карточек.
-
-## frontend-reviewer
-
-Вызывать после существенных визуальных изменений:
-- templates;
-- CSS;
-- UI components;
-- карточки;
-- расписание;
-- фильтры;
-- формы;
-- профиль;
-- responsive layout.
-
-Он должен независимо оценить:
-- hierarchy;
-- spacing;
-- alignment;
-- typography;
-- consistency;
-- mobile;
-- accessibility;
-- соответствие KidsMap UI.
-
-## browser-qa
-
-Вызывать, когда результат можно и нужно проверить в реальном браузере.
-
-Особенно после:
-- frontend изменений;
-- исправления пользовательского бага;
-- изменения формы;
-- изменения JS;
-- фильтров;
-- карточек;
-- расписания;
-- авторизации;
-- пользовательских сценариев.
-
-Использовать Playwright и/или Chrome DevTools, когда они доступны.
-
-Проверять фактическое поведение, а не только исходный код.
-
-## security-reviewer
-
-Вызывать при изменениях:
-- authentication;
-- authorization;
-- permissions;
-- object ownership;
-- user-generated content;
-- uploads;
-- API;
-- admin actions;
-- sensitive data;
-- внешних URL;
-- CSRF/XSS-sensitive кода.
-
-Не вызывать для каждой CSS-правки.
-
-# Обязательная логика после реализации
-
-Для существенной задачи:
-
-1. Основной агент реализует изменение.
-2. Вызывает релевантного reviewer/subagent.
-3. Reviewer должен анализировать результат независимо.
-4. Если найдены P0/P1/P2 или Critical/High/Medium проблемы:
-   - основной агент исправляет их;
-   - выполняет повторную проверку.
-5. Не завершать задачу только потому, что код изменён.
-6. Перед утверждением "готово" получить фактическое подтверждение соответствующими тестами или проверкой.
-
-# Выбор нескольких агентов
-
-Разрешено использовать несколько агентов для одной задачи.
-
-Примеры:
-
-Изменение Django формы + UI:
-django-reviewer
-→ frontend-reviewer
-→ browser-qa
-
-Изменение permissions:
-django-reviewer
-→ security-reviewer
-→ code-reviewer
-
-Большой frontend redesign:
-frontend-reviewer
-→ browser-qa
-
-Сложный backend refactor:
-django-reviewer
-→ code-reviewer
-
-Полная функция с frontend + backend:
-django-reviewer
-→ frontend-reviewer
-→ browser-qa
-→ code-reviewer
-
-# Не создавать лишнюю бюрократию
-
-Не вызывать всех агентов для каждой мелкой задачи.
-
-Количество reviewer должно соответствовать реальному риску изменения.
-
-Простая правка:
-может не требовать subagent.
-
-Средняя задача:
-обычно 1 reviewer.
-
-Существенная задача:
-обычно 1–3 reviewer.
-
-Security/data/permissions изменения:
-соответствующий специализированный reviewer обязателен.
+Inactive compatibility roles: code-reviewer→orchestrator; data-quality→database/backend; localization→UI/SEO/browser; performance→layer owners. Original content remains. Do not dispatch all11for a trivial task.

@@ -1,3 +1,9 @@
+# Compatibility role — inactive in canonical orchestration
+
+2026-09-06: MERGE → `frontend-reviewer`, `frontend-admin`, `seo-reviewer`, `browser-qa`. Original definition is retained below as historical context; do not dispatch it as an additional active reviewer. Registry and root AGENTS.md govern routing. This is an orchestration policy, not an automatic native-runtime exclusion flag.
+
+---
+
 ---
 name: localization-reviewer
 description: Reviewer локализации KidsMap для AZ/RU/EN. Использовать после UI, template и content изменений для поиска hardcoded строк, отсутствующих переводов, неправильных fallback и layout-проблем из-за длины текста.

@@ -314,7 +314,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         return SimpleUploadedFile(name, image_bytes.getvalue(), content_type="image/png")
 
     def _oversized_image_upload(self, name: str) -> SimpleUploadedFile:
-        return SimpleUploadedFile(name, b"x" * (2 * 1024 * 1024 + 1), content_type="image/png")
+        return SimpleUploadedFile(name, b"x" * (15 * 1024 * 1024 + 1), content_type="image/png")
 
     def test_owner_manager_can_open_places_dashboard(self):
         self.manager_place.status = Place.STATUS_DRAFT
@@ -392,19 +392,14 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         response = self.client.get(reverse("owner_place_edit", args=[self.editor_place.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "owner-file-uploader-current-preview")
-        self.assertContains(response, "owner-file-uploader-clear")
-        self.assertContains(response, "data-owner-wizard")
-        self.assertContains(response, "data-owner-completion")
-        self.assertContains(response, "data-owner-wizard-shell")
-        self.assertContains(response, "data-owner-leave-guard")
-        self.assertContains(response, "Saxla və çıx")
-        self.assertContains(response, 'data-owner-step="4"', html=False)
-        self.assertContains(response, "owner-wizard-progressbar")
-        self.assertContains(response, "data-owner-validation-notice")
-        self.assertContains(response, "owner_place_wizard.js")
-        self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
-        self.assertNotContains(response, "Фото для шапки")
+        self.assertContains(response, self.editor_place.photo.url)
+        self.assertContains(response, "data-permanent-place-form")
+        self.assertContains(response, 'data-pw-step="6"')
+        self.assertContains(response, 'data-pw-step="7"')
+        self.assertContains(response, 'name="photo-clear"')
+        self.assertContains(response, "permanent_place_wizard.js")
+        self.assertNotContains(response, 'name="cover_photo"')
+
 
     def test_owner_edit_page_rehydrates_saved_pricing_plans(self):
         self.editor_place.pricing_plans = [
@@ -426,8 +421,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Индивидуальный")
         self.assertContains(response, "&quot;price&quot;: &quot;40.00&quot;", html=False)
-        self.assertContains(response, "owner_place_wizard.js")
-        self.assertContains(response, "?v=11")
+        self.assertContains(response, "permanent_place_wizard.js")
+        self.assertContains(response, "data-tariff-input")
 
     def test_owner_edit_shows_pricing_validation_error_and_keeps_saved_plans(self):
         existing_plans = [
@@ -580,7 +575,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Открыть страницу кружка")
-        self.assertContains(response, "owner-place-actions-note")
+        self.assertContains(response, "pw-sidebar")
 
     def test_owner_dashboard_draft_card_name_is_not_public_link(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
@@ -596,17 +591,17 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "data-owner-map-picker")
-        self.assertContains(response, "owner-form-intro-title")
+        self.assertContains(response, "pw-step-head")
         self.assertContains(response, "AZ")
         self.assertContains(response, 'name="lat"', html=False)
         self.assertContains(response, 'name="lng"', html=False)
-        self.assertContains(response, "data-owner-wizard-shell")
+        self.assertContains(response, "data-permanent-place-form")
         self.assertContains(response, "data-map-search-input")
         self.assertContains(response, "data-map-search")
-        self.assertContains(response, "data-owner-validation-notice")
+        self.assertContains(response, "data-pw-errors")
         self.assertContains(response, "owner_place_map_picker.js")
-        self.assertContains(response, "owner_place_wizard.js")
-        self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertContains(response, "permanent_place_wizard.js")
+        self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
         self.assertNotContains(response, '<footer class="site-footer panel">', html=False)
         self.assertNotContains(response, "Фото для шапки")
 
@@ -686,7 +681,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertTrue(key_one.startswith("owner-place-create-"))
         self.assertTrue(key_two.startswith("owner-place-create-"))
         self.assertNotEqual(key_one, key_two)
-        self.assertContains(response_one, f'data-owner-draft-key="{key_one}"', html=False)
+        self.assertContains(response_one, f'data-draft-key="{key_one}"', html=False)
         self.assertContains(response_one, f'name="draft_client_key" value="{key_one}"', html=False)
 
     def test_owner_place_create_invalid_post_preserves_browser_draft_key(self):
@@ -704,7 +699,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["draft_client_key"], draft_key)
-        self.assertContains(response, f'data-owner-draft-key="{draft_key}"', html=False)
+        self.assertContains(response, f'data-draft-key="{draft_key}"', html=False)
 
     def test_owner_can_save_and_exit_create_draft_before_category_is_selected(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
@@ -743,7 +738,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "kidsMapInitOwnerMapPickers")
         self.assertContains(response, 'data-map-provider="google"', html=False)
         self.assertContains(response, "data-map-search-input")
-        self.assertNotContains(response, "leaflet@1.9.4/dist/leaflet.css")
+        self.assertContains(response, "leaflet@1.9.4/dist/leaflet.css")
 
     def test_owner_editor_can_edit_but_cannot_publish(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
@@ -1044,6 +1039,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
                 "district": "Yasamal",
                 "metro": "",
                 "address": "Улица 1",
+                "lat": "40.4", "lng": "49.8",
                 "phone1": "+994501112233",
                 "instagram": "",
                 "website": "",
@@ -1078,16 +1074,16 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         ownership_request = PlaceOwnershipRequest.objects.get(place=place, applicant=self.manager_user)
         self.assertEqual(ownership_request.status, PlaceOwnershipRequest.STATUS_PENDING)
 
-    def test_owner_create_page_shows_disabled_publish_action_and_available_draft_save(self):
+    def test_owner_create_page_has_review_and_draft_actions(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
 
         response = self.client.get(reverse("owner_place_create"), {"type": "permanent"})
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'data-owner-publish-button', html=False)
+        self.assertContains(response, 'data-pw-submit', html=False)
         self.assertContains(response, 'value="save_and_publish"', html=False)
         self.assertContains(response, 'value="save_draft"', html=False)
-        self.assertContains(response, 'data-owner-publish-hint', html=False)
+        self.assertContains(response, 'data-pw-readiness', html=False)
 
     def test_owner_edit_publish_action_revalidates_required_fields_on_server(self):
         self.editor_place.status = Place.STATUS_DRAFT
@@ -1101,7 +1097,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("name_az", response.context["form"].errors)
+        self.assertIn("description_az", response.context["form"].errors)
         self.assertIn("phone1", response.context["form"].errors)
         self.editor_place.refresh_from_db()
         self.assertEqual(self.editor_place.status, Place.STATUS_DRAFT)
@@ -1153,7 +1149,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
-    def test_owner_manager_create_place_populates_coordinates_automatically(self, geocode_mock):
+    def test_owner_create_requires_selected_coordinates_before_saving(self, geocode_mock):
         geocode_mock.return_value = GeocodingPoint(lat=40.401, lng=49.801, formatted_address="Baku")
 
         self.client.login(username="owner_manager", password="StrongPass123!!")
@@ -1200,18 +1196,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        place = Place.objects.get(owner=self.manager_user, name_ru="Карточка с геокодированием")
-        self.assertEqual(place.lat, 40.401)
-        self.assertEqual(place.lng, 49.801)
-        geocode_mock.assert_called_once()
-        self.assertIn("Улица 5", geocode_mock.call_args.kwargs["query"])
-        self.assertTrue(
-            PlaceChangeAudit.objects.filter(
-                place=place,
-                source=PlaceChangeAudit.SOURCE_SYSTEM,
-                field_name="lat",
-            ).exists()
-        )
+        self.assertIn("lat", response.context["form"].errors)
+        self.assertFalse(Place.objects.filter(owner=self.manager_user, name_ru="Карточка с геокодированием").exists())
+        geocode_mock.assert_not_called()
+
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
@@ -1359,7 +1347,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("gallery_images", form.errors)
 
-    def test_owner_place_create_rejects_main_photo_larger_than_two_mb(self):
+    def test_owner_place_create_rejects_main_photo_larger_than_fifteen_mb(self):
         form = OwnerPlaceCreateForm(
             data={
                 "name_ru": "Большое фото",
@@ -1391,18 +1379,21 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn("photo", form.errors)
-        self.assertIn("2 МБ", form.errors["photo"][0])
+        self.assertIn("15 МБ", form.errors["photo"][0])
 
     def test_owner_place_create_requires_structured_schedule_for_permanent_place(self):
+        from catalog.testcases.utils import ensure_quality_subcategory
         base_data = {
             "name_ru": "",
             "name_az": "Is qrafiki teleb olunur",
             "name_en": "",
             "description_ru": "",
-            "description_az": "Daimi mekan ucun is qrafiki mutleq secilmelidir.",
+            "description_az": "Daimi mekan ucun is qrafiki mutleq secilmelidir. " * 4,
+            "lat": "40.4", "lng": "49.8",
+            "pricing_plans": json.dumps([{"product_type":"lesson", "price_kind":"on_request"}]),
             "description_en": "",
             "category": "EDU",
-            "subcategory": "",
+            "subcategory": str(ensure_quality_subcategory("EDU").pk),
             "age_from": "6",
             "age_to": "12",
             "price_from": "10",
@@ -1473,7 +1464,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertIn("description_az", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без описания").exists())
 
-    def test_owner_place_create_requires_district_or_metro(self):
+    def test_owner_place_create_requires_region(self):
         self.client.login(username="owner_manager", password="StrongPass123!!")
         response = self.client.post(
             reverse("owner_place_create"),
@@ -1507,8 +1498,8 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("district", response.context["form"].errors)
-        self.assertIn("metro", response.context["form"].errors)
+        self.assertIn("region", response.context["form"].errors)
+        self.assertNotIn("metro", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без локации").exists())
 
     def test_owner_event_create_requires_start_and_end(self):
@@ -1660,6 +1651,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("name_az", response.context["form"].errors)
+        self.assertIn("description_az", response.context["form"].errors)
         self.assertFalse(Place.objects.filter(name_ru="Карточка без AZ названия").exists())
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
@@ -1749,7 +1741,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
-    def test_owner_edit_refreshes_coordinates_when_location_changes(self, geocode_mock):
+    def test_owner_edit_preserves_selected_coordinates_when_location_changes(self, geocode_mock):
         self.manager_place.address = "Старый адрес"
         self.manager_place.district = "Ясамал"
         self.manager_place.metro = "Иншаатчылар"
@@ -1790,17 +1782,10 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.manager_place.refresh_from_db()
-        self.assertEqual(self.manager_place.lat, 40.55)
-        self.assertEqual(self.manager_place.lng, 49.55)
-        geocode_mock.assert_called_once()
-        self.assertIn("Новый адрес 10", geocode_mock.call_args.kwargs["query"])
-        self.assertTrue(
-            PlaceChangeAudit.objects.filter(
-                place=self.manager_place,
-                source=PlaceChangeAudit.SOURCE_SYSTEM,
-                field_name="lng",
-            ).exists()
-        )
+        self.assertEqual(self.manager_place.lat, 40.11)
+        self.assertEqual(self.manager_place.lng, 49.11)
+        geocode_mock.assert_not_called()
+
 
     @override_settings(GOOGLE_MAPS_API_KEY="test-key")
     @patch("catalog.repositories.geocoding_repositories.GoogleMapsGeocodingRepository.geocode")
