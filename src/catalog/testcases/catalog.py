@@ -196,11 +196,15 @@ class PostgreSqlUniquenessTests(TestCase):
             with transaction.atomic():
                 PlaceLike.objects.create(place=self.place, user=self.user)
 
-    def test_review_constraints_enforce_single_authenticated_author(self):
-        PlaceReview.objects.create(place=self.place, user=self.user, rating=5, text="First")
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                PlaceReview.objects.create(place=self.place, user=self.user, rating=4, text="Second")
+    def test_place_reviews_keep_history_while_site_review_remains_unique(self):
+        # Repeat place reviews are separate history rows; the submission service
+        # enforces the cooldown (covered by PlaceReviewCooldownTests).
+        first = PlaceReview.objects.create(place=self.place, user=self.user, rating=5, text="First")
+        second = PlaceReview.objects.create(place=self.place, user=self.user, rating=4, text="Second")
+        self.assertNotEqual(first.pk, second.pk)
+        first.refresh_from_db()
+        self.assertEqual((first.rating, first.text), (5, "First"))
+        self.assertEqual(PlaceReview.objects.filter(place=self.place, user=self.user).count(), 2)
 
         SiteReview.objects.create(user=self.user, rating=5, text="Site first")
         with self.assertRaises(IntegrityError):

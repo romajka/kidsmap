@@ -1421,17 +1421,21 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(served["Cache-Control"], "public, max-age=3600")
         self.assertEqual(served["X-Content-Type-Options"], "nosniff")
 
-    def test_header_uses_icon_only_account_language_and_search_controls(self):
+    def test_header_exposes_account_and_all_language_controls(self):
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "user-entry-link")
-        self.assertContains(response, "img/ui/login.svg")
+        self.assertContains(response, 'id="km-site-header"')
+        self.assertContains(response, "km-login-btn")
         self.assertContains(response, "lang-flag-icon")
         self.assertContains(response, "img/flags/ru.png")
         self.assertContains(response, "img/flags/az.png")
         self.assertContains(response, "img/flags/en.png")
-        self.assertContains(response, "lang-trigger-icononly")
+        self.assertContains(response, "km-lang-btn")
+        for language in ("az", "ru", "en"):
+            self.assertContains(response, f'hreflang="{language}"')
+        self.assertContains(response, 'aria-expanded="false"')
 
 class TestCatalogContentSettingsWiring(TestCase):
     def test_default_metro_station_list_contains_all_open_baku_metro_stations(self):
