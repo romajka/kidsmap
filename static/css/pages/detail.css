@@ -824,6 +824,10 @@
 
 .detail-plans__row:hover { background: var(--tint-mist-050); }
 
+.detail-plans__row--hidden[hidden] {
+  display: none;
+}
+
 .detail-plans__body {
   display: flex;
   flex-direction: column;
