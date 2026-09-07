@@ -22802,8 +22802,7 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 .mobile-catalog-controls,
 .mobile-hero-caption,
 .mobile-results-summary,
-.mobile-category-options,
-.mobile-age-presets {
+.mobile-category-options {
   display: none;
 }
 
@@ -24565,42 +24564,6 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
     display: none;
   }
 
-  .mobile-age-presets {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    margin-top: 8px;
-    border: 1px solid #cfe6d8;
-    border-radius: 14px;
-    overflow: hidden;
-    background: #f8fcf9;
-  }
-
-  .mobile-age-option {
-    min-height: 40px;
-    border: 0;
-    border-right: 1px solid #d8ecdf;
-    background: transparent;
-    color: #155333;
-    font: inherit;
-    font-size: 12px;
-    font-weight: 850;
-  }
-
-  .mobile-age-option:last-child {
-    border-right: 0;
-  }
-
-  .mobile-age-option.is-active {
-    background: #dff4e6;
-    color: #0d6b35;
-    box-shadow: inset 0 0 0 1px rgba(19, 111, 56, 0.28);
-  }
-
-  .page-place_list .catalog-layout .filters-catalog .filter-age-range .range-filter-inputs,
-  .page-place_list .catalog-layout .filters-catalog .filter-age-range .range-filter-track {
-    display: none;
-  }
-
   .page-place_list [data-filters-drawer]>.actions {
     position: sticky;
     bottom: calc(-74px - env(safe-area-inset-bottom));
@@ -24879,10 +24842,6 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 @media (max-width: 380px) {
   .mobile-category-options {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .mobile-age-presets {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -25422,44 +25381,6 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
     min-height: 44px;
     border-radius: 14px;
     font-weight: 760;
-  }
-
-  .page-place_list .catalog-layout .filters-catalog .mobile-age-presets {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-top: 8px;
-    border: 1px solid #cfe6d8;
-    border-radius: 14px;
-    overflow: hidden;
-    background: #f8fcf9;
-  }
-
-  .page-place_list .catalog-layout .filters-catalog .mobile-age-option {
-    min-height: 38px;
-    border: 0;
-    border-right: 1px solid #d8ecdf;
-    border-bottom: 1px solid #d8ecdf;
-    background: transparent;
-    color: #155333;
-    font: inherit;
-    font-size: 12px;
-    font-weight: 850;
-    cursor: pointer;
-  }
-
-  .page-place_list .catalog-layout .filters-catalog .mobile-age-option:nth-child(3n),
-  .page-place_list .catalog-layout .filters-catalog .mobile-age-option:last-child {
-    border-right: 0;
-  }
-
-  .page-place_list .catalog-layout .filters-catalog .mobile-age-option:nth-last-child(-n + 3) {
-    border-bottom: 0;
-  }
-
-  .page-place_list .catalog-layout .filters-catalog .mobile-age-option.is-active {
-    background: #dff4e6;
-    color: #0d6b35;
-    box-shadow: inset 0 0 0 1px rgba(19, 111, 56, 0.24);
   }
 
   .page-place_list .catalog-layout .filters-catalog .range-filter-head {
@@ -31552,23 +31473,24 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
 }
 
 .card.place-card .card-contact-toggle {
-  width: 38px !important;
   height: 38px !important;
   border-radius: 10px !important;
-  border: 1px solid #cbd5e1 !important;
-  background: #f8fafc !important;
-  color: #334155 !important;
-  display: flex !important;
+  border: 1.5px solid #bdd8c5 !important;
+  background: #f3fbf6 !important;
+  color: #136f38 !important;
+  display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   cursor: pointer !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
   transition: all 0.2s ease !important;
 }
 
 .card.place-card .card-contact-toggle:hover {
-  background: #f1f5f9 !important;
-  border-color: #94a3b8 !important;
-  color: #0f172a !important;
+  background: #e2f3e8 !important;
+  border-color: #4cbc6f !important;
+  color: #0e562b !important;
   transform: scale(1.04) !important;
 }
 
@@ -32063,4 +31985,35 @@ fieldset.auth-role-group:has(.auth-field-error)>.auth-role-option>div>label {
     font-size: 20px !important;
     letter-spacing: -0.035em;
   }
+}
+
+/* Shared feedback and completed forms must respect their hidden state. */
+.flash-message[hidden],
+form[data-review-submission][hidden],
+[data-review-composer][hidden] {
+  display: none !important;
+}
+
+.flash-message [data-review-title]:not([hidden]) {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.flash-message [data-review-message] {
+  font-weight: 400;
+}
+
+.review-cooldown {
+  margin: 12px 0;
+  gap: 14px;
+  align-items: center;
+}
+.review-cooldown__body { flex: 1; min-width: 0; }
+.review-cooldown__body p { margin: 4px 0 8px; font-weight: 400; line-height: 1.5; }
+.review-cooldown__body progress { display: block; width: 100%; height: 5px; accent-color: var(--brand-spruce); }
+.review-cooldown__time { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 480px) {
+  .review-cooldown { flex-wrap: wrap; }
+  .review-cooldown__body { flex-basis: calc(100% - 40px); }
+  .review-cooldown__time { margin-left: 38px; }
 }

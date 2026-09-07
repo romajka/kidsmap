@@ -846,6 +846,8 @@ class PlaceController:
         place.is_liked = place.id in liked_ids
         self.tracking_service.track_place_open_event(request=request, place=place)
         seo_payload = build_place_seo_payload(place, request, request.LANGUAGE_CODE)
+        from catalog.services.place_review_submission import get_place_review_cooldown
+        review_cooldown = get_place_review_cooldown(user=request.user, place=place)
         review_sort = normalize_review_sort(request.GET.get("review_sort"))
         place_reviews_qs = apply_review_sorting(public_review_queryset(place.reviews.all()), review_sort)
         place_reviews = mark_place_review_reactions(place_reviews_qs, request)
@@ -867,6 +869,7 @@ class PlaceController:
             "place_reviews": place_reviews,
             "reviews_count": len(place_reviews),
             "review_histogram": self._build_review_histogram(place_reviews),
+            "review_cooldown": review_cooldown,
             "review_prompt_chips": self._review_prompt_chips(request.LANGUAGE_CODE),
             "review_sort": review_sort,
             "review_sort_choices": REVIEW_SORT_CHOICES,

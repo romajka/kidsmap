@@ -3,7 +3,7 @@
   <div class="km-pf-group" data-pf-group="names">
     <div class="km-pf-group__head">
       <span class="km-pf-group__title">{% translate "Название и описание" %}</span>
-      <span class="km-pf-group__note">{% translate "Азербайджанский обязателен, остальные языки подставятся автоматически" %}</span>
+      <span class="km-pf-group__note">{% if volunteer_editor %}{{ editor_copy.translations }}{% else %}{% translate "Азербайджанский обязателен, остальные языки подставятся автоматически" %}{% endif %}</span>
     </div>
 
     <div class="km-pf-langtabs" data-pf-langtabs role="tablist" aria-label="{% translate 'Языки карточки' %}">

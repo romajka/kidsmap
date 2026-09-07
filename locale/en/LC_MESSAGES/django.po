@@ -1182,10 +1182,9 @@ msgstr "User"
 #: src/catalog/domain_admin/__init__.py:262
 #: src/catalog/domain_admin/user.py:433 src/catalog/domain_models/user.py:183
 #: src/catalog/models/user.py:192
-#, fuzzy
 #| msgid "Участники команды"
 msgid "Сотрудники админки"
-msgstr "Team members"
+msgstr "Admin staff"
 
 #: src/catalog/domain_admin/__init__.py:268
 #, fuzzy
@@ -2377,10 +2376,9 @@ msgstr "Names and descriptions (i18n)"
 #: src/catalog/domain_models/place.py:503 src/catalog/models/place.py:32
 #: src/catalog/models/place.py:537
 #: src/catalog/templates/admin/catalog/event/change_form.html:273
-#, fuzzy
 #| msgid "Черновики"
 msgid "Черновик"
-msgstr "Drafts"
+msgstr "Draft"
 
 #: src/catalog/domain_admin/place.py:727
 #, fuzzy
@@ -2545,10 +2543,9 @@ msgstr "The card is already deleted."
 #: src/catalog/domain_models/place.py:116
 #: src/catalog/domain_models/place.py:555 src/catalog/models/place.py:116
 #: src/catalog/models/place.py:589
-#, fuzzy
 #| msgid "Добавлено"
 msgid "Удалено"
-msgstr "Added"
+msgstr "Deleted"
 
 #: src/catalog/domain_admin/place.py:967
 #, fuzzy
@@ -2758,10 +2755,9 @@ msgstr "Age and price"
 
 #: src/catalog/domain_admin/place.py:1435
 #: src/catalog/domain_admin/place.py:1929
-#, fuzzy
 #| msgid "Фото галереи"
 msgid "Фотографии"
-msgstr "Gallery photo"
+msgstr "Photos"
 
 #: src/catalog/domain_admin/place.py:1586
 #, fuzzy
@@ -2794,10 +2790,9 @@ msgid "Карточка видна на сайте при текущих пра�
 msgstr "Checking coordinates does not create the place or send it for moderation."
 
 #: src/catalog/domain_admin/place.py:1652
-#, fuzzy
 #| msgid "для публикации"
 msgid "Снято с публикации"
-msgstr "for publishing"
+msgstr "Unpublished"
 
 #: src/catalog/domain_admin/place.py:1654
 #, fuzzy
@@ -4230,12 +4225,12 @@ msgstr "Account"
 
 #: src/catalog/domain_admin/user.py:270 src/catalog/domain_admin/user.py:365
 msgid "Права доступа"
-msgstr ""
+msgstr "Access rights"
 
 #: src/catalog/domain_admin/user.py:271 src/catalog/domain_admin/user.py:295
 #: src/catalog/domain_admin/user.py:366
 msgid "Важные даты"
-msgstr ""
+msgstr "Important dates"
 
 #: src/catalog/domain_admin/user.py:342
 #, fuzzy
@@ -4476,7 +4471,6 @@ msgstr "Comment"
 #: src/catalog/models/owner.py:376 src/catalog/models/site.py:290
 #: src/catalog/models/site.py:362 src/catalog/models/site.py:434
 #: src/catalog/models/user.py:209
-#, fuzzy
 #| msgid "Создан"
 msgid "Создано"
 msgstr "Created"
@@ -6518,7 +6512,7 @@ msgstr ""
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:49
 #: src/catalog/templates/admin/catalog/user/change_form.html:88
 msgid "Форма содержит ошибки"
-msgstr ""
+msgstr "The form contains errors"
 
 #: src/catalog/templates/admin/catalog/category/change_form.html:71
 msgid ""
@@ -6585,10 +6579,9 @@ msgstr "Save and update coordinates"
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:118
 #: src/catalog/templates/admin/catalog/user/change_form.html:193
 #: src/templates/admin/submit_line.html:31
-#, fuzzy
 #| msgid "Сохранить профиль"
 msgid "Сохранить и продолжить"
-msgstr "Save profile"
+msgstr "Save and continue"
 
 #: src/catalog/templates/admin/catalog/category/change_list.html:18
 #, fuzzy
@@ -7091,10 +7084,9 @@ msgstr "Save and update coordinates"
 #: src/catalog/templates/admin/catalog/placereview/change_form.html:159
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:121
 #: src/catalog/templates/admin/catalog/user/change_form.html:196
-#, fuzzy
 #| msgid "Сохранить профиль"
 msgid "Сохранить и выйти"
-msgstr "Save profile"
+msgstr "Save and close"
 
 #: src/catalog/templates/admin/catalog/place/change_form.html:537
 #, fuzzy
@@ -7665,10 +7657,9 @@ msgid "Email не подтвержден"
 msgstr "Email is already verified."
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:58
-#, fuzzy
 #| msgid "Активно"
 msgid "Неактивен"
-msgstr "Active"
+msgstr "Inactive"
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:160
 #, fuzzy
@@ -7683,16 +7674,14 @@ msgid "Профиль неактивен"
 msgstr "Profile updated."
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:162
-#, fuzzy
 #| msgid "Зарегистрироваться"
 msgid "Зарегистрирован:"
-msgstr "Sign up"
+msgstr "Joined:"
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:169
-#, fuzzy
 #| msgid "Последние отзывы"
 msgid "Последний вход"
-msgstr "Latest reviews"
+msgstr "Last login"
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:176
 #, fuzzy
@@ -7701,10 +7690,9 @@ msgid "Связанные заявки"
 msgstr "Rejected requests"
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:209
-#, fuzzy
 #| msgid "Профиль пользователя"
 msgid "Удалить пользователя"
-msgstr "User profile"
+msgstr "Delete user"
 
 #: src/catalog/templates/admin/catalog/user/submit_line_compact.html:5
 msgid "Save"
@@ -7972,7 +7960,7 @@ msgstr "Pagination"
 #: src/catalog/templates/pages/site_reviews.html:122
 #: src/catalog/templates/pages/site_reviews.html:124
 msgid "Назад"
-msgstr "Back"
+msgstr "Previous"
 
 #: src/catalog/templates/catalog/events_landing.html:151
 #: src/catalog/templates/catalog/events_landing.html:153
@@ -9006,7 +8994,7 @@ msgstr "Search by name or address"
 
 #: src/catalog/templates/pages/includes/owner_place_map_picker.html:40
 msgid "Найти"
-msgstr "Find"
+msgstr "Search"
 
 #: src/catalog/templates/pages/includes/owner_place_map_picker.html:42
 msgid "Моя геопозиция"
@@ -9051,10 +9039,9 @@ msgstr "First complete the required minimum."
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:288
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:352
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:439
-#, fuzzy
 #| msgid "Сохранить профиль"
 msgid "Сохранить черновик"
-msgstr "Save profile"
+msgstr "Save draft"
 
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:164
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:237
@@ -11556,3 +11543,690 @@ msgstr "Personal cabinet"
 #: src/catalog/templates/pages/legal.html
 msgid "Навигация по сайту"
 msgstr "Site navigation"
+
+#: review submission confirmation
+msgid "Спасибо! Отзыв отправлен на модерацию"
+msgstr "Thank you! Your review was submitted for moderation."
+
+#: review submission confirmation
+msgid "Мы получили ваш отзыв. Он появится на сайте после проверки модератором."
+msgstr "We received your review. It will appear on the site after it has been reviewed."
+
+#: review submission confirmation
+msgid "Не удалось получить подтверждение отправки. Проверьте соединение и попробуйте ещё раз — повторная отправка обновит ваш отзыв."
+msgstr "We could not confirm submission. Check your connection and try again — submitting again will update your review."
+
+#: review submission confirmation
+msgid "Не удалось отправить отзыв. Текст сохранён в форме. Попробуйте ещё раз позже."
+msgstr "Your review could not be submitted. Your text is still in the form. Please try again later."
+
+#: review submission confirmation
+msgid "Отправляем отзыв…"
+msgstr "Submitting your review…"
+
+#: review composer validation
+msgid "Выберите оценку звёздами, чтобы отправить отзыв."
+msgstr "Choose a star rating to submit your review."
+
+#: review composer validation
+msgid "Сократите отзыв до 1000 символов."
+msgstr "Shorten your review to 1000 characters."
+
+#: review composer validation
+msgid "Отзыв будет опубликован под именем из вашего аккаунта."
+msgstr "Your review will be published under your account name."
+
+#: review composer minimum length
+msgid "Напишите минимум 3 символа"
+msgstr "Write at least 3 characters"
+
+#: review rating warning
+msgid "Чтобы отправить отзыв, выберите оценку от 1 до 5 звёзд."
+msgstr "To submit your review, choose a rating from 1 to 5 stars."
+
+#: place review cooldown
+msgid "Вы уже отправили отзыв об этом месте. Новый отзыв можно отправить после окончания таймера."
+msgstr "You recently submitted a review of this place. You can submit another when the countdown ends."
+
+#: place review cooldown
+msgid "Следующий отзыв об этом месте"
+msgstr "Your next review of this place"
+
+#: place review cooldown
+msgid "Вы сможете оставить ещё один отзыв, когда закончится таймер."
+msgstr "You can submit another review when the countdown ends."
+
+#: place review cooldown
+msgid "Ожидание следующего отзыва"
+msgstr "Waiting period for your next review"
+
+#: place review cooldown
+msgid "До следующего отзыва"
+msgstr "Time until your next review"
+
+#: place review cooldown
+msgid "Новый отзыв можно оставить после окончания таймера · публикация после модерации"
+msgstr "You can write another review when the countdown ends · published after moderation"
+
+#: place review cooldown
+msgid "Не удалось получить подтверждение отправки. Проверьте соединение и попробуйте ещё раз. Текст остаётся в форме."
+msgstr "We could not confirm submission. Check your connection and try again. Your text is still in the form."
+
+#: catalog volunteer admin
+msgid "Волонтёр"
+msgstr "Volunteer"
+
+#: catalog volunteer admin
+msgid "Волонтёры"
+msgstr "Volunteers"
+
+#: catalog volunteer admin
+msgid "Волонтёр — только свои места, публикация после проверки"
+msgstr "Volunteer — own places only, publication after review"
+
+#: catalog volunteer admin
+msgid "Администратор изменил карточку. Начните заново с текущей версии, чтобы не затереть его правки."
+msgstr "The administrator changed this place. Start again from the current version to preserve their edits."
+
+#: catalog volunteer admin
+msgid "Администратор изменил карточку. Начните правки заново с текущей версии."
+msgstr "The administrator changed this place. Start your edits again from the current version."
+
+#: catalog volunteer admin
+msgid "Адрес и контакты"
+msgstr "Address and contacts"
+
+#: catalog volunteer admin
+msgid "Без новых правок"
+msgstr "No new edits"
+
+#: catalog volunteer admin
+msgid "В предложенных изменениях есть ошибки: %(errors)s"
+msgstr "The proposed changes contain errors: %(errors)s"
+
+#: catalog volunteer admin
+msgctxt "volunteer admin"
+msgid "Вернуть на доработку"
+msgstr "Return for correction"
+
+#: catalog volunteer admin
+msgid "Возвращено на доработку."
+msgstr "Returned for correction."
+
+#: catalog volunteer admin
+msgid "Все изменения проверены."
+msgstr "All changes have been reviewed."
+
+#: catalog volunteer admin
+msgid "Далее"
+msgstr "Next"
+
+#: catalog volunteer admin
+msgid "Данные уже изменились. Обновите страницу перед сохранением."
+msgstr "The data has changed. Refresh the page before saving."
+
+#: catalog volunteer admin
+msgid "Добавляйте места и отправляйте их на проверку. Публикацию подтверждает администратор."
+msgstr "Add places and submit them for review. The administrator approves publication."
+
+#: catalog volunteer admin
+msgid "Есть опубликованная версия"
+msgstr "A published version is available"
+
+#: catalog volunteer admin
+msgid "Загружена текущая версия. Предыдущий черновик заменён."
+msgstr "The current version was loaded and replaced your previous draft."
+
+#: catalog volunteer admin
+msgid "Заменить мой черновик текущей версией"
+msgstr "Replace my draft with the current version"
+
+#: catalog volunteer admin
+msgid "Изменения волонтёра"
+msgstr "Volunteer changes"
+
+#: catalog volunteer admin
+msgid "Изменения волонтёров"
+msgstr "Volunteer changes"
+
+#: catalog volunteer admin
+msgid "Изменения опубликованы."
+msgstr "Changes published."
+
+#: catalog volunteer admin
+msgid "Карточка изменилась после отправки. Верните её волонтёру на доработку."
+msgstr "The place changed after submission. Return the proposal to the volunteer for correction."
+
+#: catalog volunteer admin
+msgid "Карточка изменилась после отправки. Верните правки волонтёру на доработку."
+msgstr "The place changed after submission. Return the edits to the volunteer for correction."
+
+#: catalog volunteer admin
+msgid "Карточка изменилась. Обновите страницу."
+msgstr "The place has changed. Refresh the page."
+
+#: catalog volunteer admin
+msgid "Комментарий волонтёру (обязателен при возврате)"
+msgstr "Comment for the volunteer (required when returning)"
+
+#: catalog volunteer admin
+msgid "Место удалено или передано другому владельцу. Одобрение недоступно."
+msgstr "The place was deleted or transferred to another owner. Approval is unavailable."
+
+#: catalog volunteer admin
+msgid "Нужны исправления"
+msgstr "Corrections needed"
+
+#: catalog volunteer admin
+msgid "Обновите страницу."
+msgstr "Refresh the page."
+
+#: catalog volunteer admin
+msgctxt "volunteer admin"
+msgid "Одобрить и опубликовать"
+msgstr "Approve and publish"
+
+#: catalog volunteer admin
+msgid "Отправлено на проверку. На сайте пока остаётся прежняя версия."
+msgstr "Submitted for review. The previous version remains on the site."
+
+#: catalog volunteer admin
+msgid "Переводы (необязательно)"
+msgstr "Translations (optional)"
+
+#: catalog volunteer admin
+msgid "Перед публикацией нужно заполнить:"
+msgstr "Complete these before publication:"
+
+#: catalog volunteer admin
+msgid "Подкатегория должна относиться к выбранной категории."
+msgstr "The subcategory must belong to the selected category."
+
+#: catalog volunteer admin
+msgid "Предложенное фото"
+msgstr "Proposed photo"
+
+#: catalog volunteer admin
+msgid "Предложено"
+msgstr "Proposed"
+
+#: catalog volunteer admin
+msgid "Проверка изменений"
+msgstr "Review changes"
+
+#: catalog volunteer admin
+msgid "Проверьте отмеченные поля."
+msgstr "Check the highlighted fields."
+
+#: catalog volunteer admin
+msgid "Проверьте предложенные изменения перед публикацией."
+msgstr "Review the proposed changes before publication."
+
+#: catalog volunteer admin
+msgid "Редактировать место"
+msgstr "Edit place"
+
+#: catalog volunteer admin
+msgid "Сейчас"
+msgstr "Current"
+
+#: catalog volunteer admin
+msgid "Содержимое не изменено. Запрошена публикация."
+msgstr "Content is unchanged. Publication has been requested."
+
+#: catalog volunteer admin
+msgid "Сохраните черновик или отправьте изменения на проверку. До одобрения посетители видят прежнюю опубликованную версию."
+msgstr "Save a draft or submit changes for review. Visitors see the previous published version until approval."
+
+#: catalog volunteer admin
+msgid "Страницы"
+msgstr "Pages"
+
+#: catalog volunteer admin
+msgid "Тарифы"
+msgstr "Prices"
+
+#: catalog volunteer admin
+msgid "У вас пока нет мест. Начните с кнопки «Добавить место»."
+msgstr "You have no places yet. Start with “Add place”."
+
+#: catalog volunteer admin
+msgid "Укажите название места."
+msgstr "Enter the place name."
+
+#: catalog volunteer admin
+msgid "Укажите, что нужно исправить."
+msgstr "Describe what needs correcting."
+
+#: catalog volunteer admin
+msgid "Часы работы"
+msgstr "Opening hours"
+
+#: catalog volunteer admin
+msgid "Черновик сохранён. Изменения ещё не опубликованы."
+msgstr "Draft saved. Changes have not been published yet."
+
+#: catalog volunteer admin
+msgid "Эти изменения уже рассмотрены или ещё не отправлены."
+msgstr "These changes have already been reviewed or have not been submitted yet."
+
+#: catalog volunteer admin
+msgid "Используйте раздел «Мои места» в админке."
+msgstr "Use “My places” in the admin workspace."
+
+
+#: catalog volunteer admin
+msgid "Отправить на проверку"
+msgstr "Submit for review"
+
+
+#: catalog volunteer admin
+msgctxt "volunteer admin"
+msgid "На проверке"
+msgstr "Under review"
+
+
+#: staff profile
+msgid "Всего создано"
+msgstr "Total created"
+
+
+#: staff profile
+msgid "Черновики мест"
+msgstr "Place drafts"
+
+
+#: staff profile
+msgid "Места на модерации"
+msgstr "Places awaiting moderation"
+
+
+#: staff profile
+msgid "Отклонённые места"
+msgstr "Rejected places"
+
+
+#: staff profile
+msgid "Удалённые места"
+msgstr "Deleted places"
+
+
+#: staff profile
+msgid "Черновики правок"
+msgstr "Edit drafts"
+
+
+#: staff profile
+msgid "Правки на проверке"
+msgstr "Edits awaiting review"
+
+
+#: staff profile
+msgid "Правки на доработке"
+msgstr "Edits needing changes"
+
+
+#: staff profile
+msgid "Профиль сотрудника"
+msgstr "Staff profile"
+
+
+#: staff profile
+msgid "Места и статистика"
+msgstr "Places and statistics"
+
+
+#: staff profile
+msgid "Данные сотрудника"
+msgstr "Staff details"
+
+
+#: staff profile
+msgid "Считаются места, созданные сотрудником, включая удалённые. Правки считаются отдельно: у опубликованного места могут быть изменения на проверке."
+msgstr "Counts include all places created by this employee, including deleted places. Edits are counted separately: a published place can have changes awaiting review."
+
+
+#: staff profile
+msgid "Поиск места"
+msgstr "Search places"
+
+
+#: staff profile
+msgid "Статус места"
+msgstr "Place status"
+
+
+#: staff profile
+msgid "Правки"
+msgstr "Edits"
+
+
+#: staff profile
+msgid "Страницы мест"
+msgstr "Place pages"
+
+
+#: staff profile
+msgid "Группа KidsMap Volunteers ограничивает сотрудника своими местами. Полный доступ определяется статусом суперпользователя."
+msgstr "The KidsMap Volunteers group restricts staff to their own places. Superuser status grants full access."
+
+
+#: staff profile
+msgid "Создаёт и редактирует свои места. Публикация после проверки."
+msgstr "Creates and edits their own places. Publication requires review."
+
+
+#: staff profile
+msgid "Места не найдены."
+msgstr "No places found."
+
+
+#: staff profile
+msgid "Активен"
+msgstr "Active"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Кабинет волонтёра"
+msgstr "Volunteer workspace"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Мои места"
+msgstr "My places"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Добавляйте места, редактируйте данные и отправляйте карточки на проверку."
+msgstr "Add places, edit their details and submit them for review."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Добавить место"
+msgstr "Add a place"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Добавить первое место"
+msgstr "Add your first place"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "У вас пока нет добавленных мест"
+msgstr "You have not added any places yet"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Добавьте первое место — после проверки администратор сможет опубликовать его в KidsMap."
+msgstr "Add your first place. An administrator can publish it on KidsMap after review."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Все мои места"
+msgstr "All my places"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Черновик"
+msgstr "Draft"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "На модерации"
+msgstr "Awaiting review"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Нужна доработка"
+msgstr "Changes needed"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Опубликовано"
+msgstr "Published"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Снято с публикации"
+msgstr "Unpublished"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Карточка ещё не отправлена на проверку."
+msgstr "This place has not been submitted for review yet."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Карточка отправлена администратору и ожидает проверки."
+msgstr "This place has been submitted to the administrator and is awaiting review."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Исправьте замечания администратора и отправьте карточку повторно."
+msgstr "Address the administrator’s comments and submit the place again."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Карточка опубликована на KidsMap."
+msgstr "This place is published on KidsMap."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Карточка сейчас не показывается на сайте."
+msgstr "This place is currently hidden from the site."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Продолжить заполнение"
+msgstr "Continue editing"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Посмотреть"
+msgstr "View"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Исправить"
+msgstr "Make changes"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Редактировать"
+msgstr "Edit"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Статистика моих мест"
+msgstr "My place statistics"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Мои карточки"
+msgstr "My place cards"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Фильтр по статусу"
+msgstr "Filter by status"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Поиск по моим местам"
+msgstr "Search my places"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Название места"
+msgstr "Place name"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Найти"
+msgstr "Search"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Ничего не найдено"
+msgstr "No results found"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Попробуйте другое название или сбросьте фильтры."
+msgstr "Try another name or clear the filters."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Сбросить фильтры"
+msgstr "Clear filters"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Страницы мест"
+msgstr "Place pages"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Назад"
+msgstr "Back"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Далее"
+msgstr "Next"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Замечание администратора"
+msgstr "Administrator’s feedback"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "На сайте остаётся прежняя опубликованная версия."
+msgstr "The previous published version remains on the site."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Готовность"
+msgstr "Readiness"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Готовность карточки"
+msgstr "Place readiness"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Обновлено"
+msgstr "Updated"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Что осталось заполнить"
+msgstr "What is still missing"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Посмотреть на сайте"
+msgstr "View on site"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Просмотр карточки"
+msgstr "Place preview"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Описание"
+msgstr "Description"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Возраст"
+msgstr "Age"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Телефон"
+msgstr "Phone"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Расписание"
+msgstr "Schedule"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Новые изменения также проходят модерацию. До одобрения посетители видят прежнюю версию."
+msgstr "New changes also require review. Visitors see the previous version until approval."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Если изменить карточку на проверке, сохраните её и отправьте на модерацию повторно."
+msgstr "If you edit a place awaiting review, save it and submit it again."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "До одобрения новых правок на сайте остаётся прежняя опубликованная версия."
+msgstr "The previous published version stays on the site until the new edits are approved."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Готовность сохранённой версии"
+msgstr "Saved version readiness"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Администратор изменил карточку. Начните заново с текущей версии, чтобы не затереть его правки."
+msgstr "The administrator changed this place. Start from the current version to preserve those changes."

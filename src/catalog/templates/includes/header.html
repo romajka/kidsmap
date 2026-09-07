@@ -1,0 +1,475 @@
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+<!-- KidsMap Unified Modern Header -->
+<header class="km-header topbar" role="banner" id="km-site-header">
+  <div class="km-header-inner">
+    <!-- Brand / Logo Lockup -->
+    <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
+      <span class="km-brand-logo-frame">
+        <img
+          class="km-brand-logo"
+          src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo-mark.svg' %}{% endif %}"
+          alt=""
+          width="38"
+          height="44"
+          loading="eager"
+        />
+      </span>
+      <span class="km-brand-title brand">{{ brand_name }}</span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="km-nav-desktop nav" aria-label="{% trans 'Основная навигация' %}">
+      <a
+        href="{% url 'home' %}"
+        class="km-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+        {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}
+      >
+        <span>{% trans "Главная" %}</span>
+      </a>
+
+      <a
+        href="{% url 'place_list' %}"
+        class="km-nav-item {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
+        {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
+      >
+        <span>{% trans "Каталог" %}</span>
+      </a>
+
+      {% if is_specialists_section_enabled %}
+        <a
+          href="{% url 'specialist_list' %}"
+          class="km-nav-item {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}active{% endif %}"
+          {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}aria-current="page"{% endif %}
+        >
+          <span>{% trans "Педагоги и специалисты" %}</span>
+        </a>
+      {% endif %}
+
+      {% if is_events_section_enabled %}
+        <a
+          href="{% url 'events_landing' %}"
+          class="km-nav-item {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
+          {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
+        >
+          <span>{% trans "Афиша" %}</span>
+        </a>
+      {% endif %}
+
+      <!-- Dropdown: "О нас" -->
+      <div class="km-dropdown-wrapper" data-dropdown>
+        <button
+          type="button"
+          class="km-nav-item km-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'contacts' or request.resolver_match.url_name == 'faq_page' %}active{% endif %}"
+          aria-haspopup="true"
+          aria-expanded="false"
+          data-dropdown-trigger
+        >
+          <span>{% trans "О нас" %}</span>
+          <span class="km-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+        </button>
+        <div class="km-dropdown-menu" role="menu" data-dropdown-menu>
+          <a
+            href="{% url 'about' %}"
+            class="km-dropdown-item {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+            role="menuitem"
+          >
+            <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">info</span>
+            <div class="km-dropdown-text">
+              <span class="km-dropdown-label">{% trans "О проекте" %}</span>
+            </div>
+          </a>
+          <a
+            href="{% url 'faq_page' %}"
+            class="km-dropdown-item {% if request.resolver_match.url_name == 'faq_page' %}active{% endif %}"
+            role="menuitem"
+          >
+            <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">help</span>
+            <div class="km-dropdown-text">
+              <span class="km-dropdown-label">FAQ</span>
+            </div>
+          </a>
+          <a
+            href="{% url 'contacts' %}"
+            class="km-dropdown-item {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
+            role="menuitem"
+          >
+            <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">mail</span>
+            <div class="km-dropdown-text">
+              <span class="km-dropdown-label">{% trans "Контакты" %}</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Header Actions (Right side) -->
+    <div class="km-header-actions topbar-right">
+
+      <!-- User Profile / Auth -->
+      <div class="km-auth-wrap auth-switch" aria-label="{% trans 'Аккаунт' %}">
+        {% if request.user.is_authenticated %}
+          <div class="km-dropdown-wrapper" data-dropdown>
+            <button
+              type="button"
+              class="km-user-btn"
+              id="account-menu-trigger"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-label="{% trans 'Профиль' %}: {{ request.user.get_short_name|default:request.user.username }}"
+              data-dropdown-trigger
+            >
+              <span class="km-user-avatar">
+                <span class="material-symbols-rounded" aria-hidden="true">person</span>
+              </span>
+              <span class="km-user-name">{{ request.user.get_short_name|default:request.user.username|truncatechars:12 }}</span>
+              <span class="km-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+            </button>
+            <div class="km-dropdown-menu km-dropdown-menu--right km-dropdown-user" role="menu" data-dropdown-menu>
+              <div class="km-user-card-brief">
+                <div class="km-user-card-avatar">
+                  <span class="material-symbols-rounded">person</span>
+                </div>
+                <div class="km-user-card-info">
+                  <span class="km-user-card-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+                  {% if request.user.email %}
+                    <span class="km-user-card-email">{{ request.user.email }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="km-dropdown-divider"></div>
+              <a
+                class="km-dropdown-item {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}active{% endif %}"
+                href="{% url 'account_profile' %}"
+                role="menuitem"
+              >
+                <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">space_dashboard</span>
+                <span>{% trans "Личный кабинет" %}</span>
+              </a>
+              <a
+                class="km-dropdown-item {% if request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
+                href="{% url 'owner_places_dashboard' %}"
+                role="menuitem"
+              >
+                <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">storefront</span>
+                <span>{% trans "Мои места" %}</span>
+              </a>
+              <a
+                class="km-dropdown-item km-dropdown-add-place {% if request.resolver_match.url_name == 'add_place' %}active{% endif %}"
+                href="{% url 'add_place' %}"
+                role="menuitem"
+              >
+                <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">add_circle</span>
+                <span>+ {% trans "Добавить место" %}</span>
+              </a>
+              <div class="km-dropdown-divider"></div>
+              <form method="post" action="{% url 'account_logout' %}" class="km-logout-form">
+                {% csrf_token %}
+                <button type="submit" class="km-dropdown-item km-dropdown-logout" role="menuitem">
+                  <span class="km-dropdown-icon material-symbols-rounded" aria-hidden="true">logout</span>
+                  <span>{% trans "Выйти" %}</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        {% else %}
+          <a
+            class="km-login-btn user-entry-link user-entry-logged-out"
+            href="{{ header_account_login_url }}"
+            data-preserve-current-hash
+            aria-label="{% trans 'Войти или зарегистрироваться' %}"
+            title="{% trans 'Войти или зарегистрироваться' %}"
+          >
+            <span class="km-login-icon material-symbols-rounded" aria-hidden="true">login</span>
+            <span class="km-login-text">{% trans "Войти" %}</span>
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Language Selector Dropdown -->
+      <div class="km-dropdown-wrapper km-lang-wrapper lang-switch" data-dropdown aria-label="{% trans 'Язык' %}">
+        <button
+          type="button"
+          class="km-lang-btn menu-trigger lang-current"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-label="{% trans 'Выбор языка' %}"
+          data-dropdown-trigger
+        >
+          <span class="km-lang-flag">
+            <img
+              class="lang-flag-icon"
+              src="{% if CURRENT_LANGUAGE == 'ru' %}{% static 'img/flags/ru.png' %}{% elif CURRENT_LANGUAGE == 'az' %}{% static 'img/flags/az.png' %}{% else %}{% static 'img/flags/en.png' %}{% endif %}"
+              alt=""
+              width="20"
+              height="20"
+            />
+          </span>
+          <span class="km-lang-code">{% if CURRENT_LANGUAGE == 'ru' %}RU{% elif CURRENT_LANGUAGE == 'az' %}AZ{% else %}EN{% endif %}</span>
+          <span class="km-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
+        </button>
+        <div class="km-dropdown-menu km-dropdown-menu--right km-dropdown-lang" role="menu" data-dropdown-menu>
+          <a
+            class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}"
+            href="{{ alternate_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            hreflang="az"
+            role="menuitem"
+          >
+            <img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" width="20" height="20" />
+            <span class="km-lang-opt-code">AZ</span>
+            {% if CURRENT_LANGUAGE == 'az' %}<span class="km-lang-check material-symbols-rounded" aria-hidden="true">check</span>{% endif %}
+          </a>
+          <a
+            class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}"
+            href="{{ alternate_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            hreflang="ru"
+            role="menuitem"
+          >
+            <img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" width="20" height="20" />
+            <span class="km-lang-opt-code">RU</span>
+            {% if CURRENT_LANGUAGE == 'ru' %}<span class="km-lang-check material-symbols-rounded" aria-hidden="true">check</span>{% endif %}
+          </a>
+          <a
+            class="km-dropdown-item km-lang-option {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}"
+            href="{{ alternate_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            hreflang="en"
+            role="menuitem"
+          >
+            <img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" width="20" height="20" />
+            <span class="km-lang-opt-code">EN</span>
+            {% if CURRENT_LANGUAGE == 'en' %}<span class="km-lang-check material-symbols-rounded" aria-hidden="true">check</span>{% endif %}
+          </a>
+        </div>
+      </div>
+
+      <!-- Mobile Burger Button -->
+      <button
+        type="button"
+        class="km-burger-trigger"
+        id="km-burger-open"
+        aria-label="{% trans 'Меню' %}"
+        aria-expanded="false"
+        aria-controls="km-mobile-drawer"
+      >
+        <span class="km-burger-icon" aria-hidden="true">
+          <span class="km-burger-bar"></span>
+          <span class="km-burger-bar"></span>
+          <span class="km-burger-bar"></span>
+        </span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Slide-over Drawer -->
+<div class="km-drawer-wrapper" id="km-mobile-drawer" aria-hidden="true">
+  <!-- Backdrop Overlay -->
+  <div class="km-drawer-backdrop" id="km-drawer-backdrop"></div>
+
+  <!-- Drawer Sliding Container -->
+  <aside class="km-drawer-sheet" role="dialog" aria-modal="true" aria-label="{% trans 'Навигационное меню' %}">
+    <!-- Drawer Header -->
+    <div class="km-drawer-header">
+      <a class="km-brand brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
+        <span class="km-brand-logo-frame">
+          <img
+            class="km-brand-logo"
+            src="{% if site_settings.logo %}{{ site_settings.logo.url }}{% else %}{% static 'img/logo-mark.svg' %}{% endif %}"
+            alt=""
+            width="34"
+            height="38"
+            loading="eager"
+          />
+        </span>
+        <span class="km-brand-title brand">{{ brand_name }}</span>
+      </a>
+
+      <button
+        type="button"
+        class="km-drawer-close"
+        id="km-burger-close"
+        aria-label="{% trans 'Закрыть меню' %}"
+      >
+        <span class="material-symbols-rounded" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <!-- Drawer Body Content -->
+    <div class="km-drawer-body">
+      <!-- User Profile Card in Mobile Menu -->
+      <div class="km-drawer-user-box">
+        {% if request.user.is_authenticated %}
+          <div class="km-drawer-user-card">
+            <div class="km-drawer-user-avatar">
+              <span class="material-symbols-rounded">person</span>
+            </div>
+            <div class="km-drawer-user-meta">
+              <span class="km-drawer-user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
+              {% if request.user.email %}
+                <span class="km-drawer-user-email">{{ request.user.email }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="km-drawer-user-actions">
+            <a href="{% url 'account_profile' %}" class="km-drawer-user-link">
+              <span class="material-symbols-rounded">space_dashboard</span>
+              <span>{% trans "Личный кабинет" %}</span>
+            </a>
+            <a href="{% url 'owner_places_dashboard' %}" class="km-drawer-user-link">
+              <span class="material-symbols-rounded">storefront</span>
+              <span>{% trans "Мои места" %}</span>
+            </a>
+            <form method="post" action="{% url 'account_logout' %}" class="km-drawer-logout-form">
+              {% csrf_token %}
+              <button type="submit" class="km-drawer-user-link km-drawer-logout-btn">
+                <span class="material-symbols-rounded">logout</span>
+                <span>{% trans "Выйти" %}</span>
+              </button>
+            </form>
+          </div>
+        {% else %}
+          <div class="km-drawer-guest-card">
+            <div class="km-drawer-guest-text">
+              <strong>{% trans "Личный кабинет" %}</strong>
+              <p>{% trans "Войдите для сохранения избранного и управления местами" %}</p>
+            </div>
+            <a
+              href="{{ header_account_login_url }}"
+              class="km-drawer-login-cta"
+              data-preserve-current-hash
+            >
+              <span class="material-symbols-rounded">login</span>
+              <span>{% trans "Войти или зарегистрироваться" %}</span>
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Add Place Highlight CTA -->
+      <div class="km-drawer-cta-wrap">
+        <a href="{% url 'add_place' %}" class="km-drawer-add-place">
+          <span class="km-drawer-add-icon material-symbols-rounded">add_circle</span>
+          <div class="km-drawer-add-text">
+            <strong>{% trans "Добавить место" %}</strong>
+            <span>{% trans "Бесплатное размещение для организаторов" %}</span>
+          </div>
+          <span class="material-symbols-rounded km-drawer-arrow">chevron_right</span>
+        </a>
+      </div>
+
+      <!-- Mobile Navigation Links -->
+      <nav class="km-drawer-nav" aria-label="{% trans 'Навигация в меню' %}">
+        <span class="km-drawer-section-title">{% trans "Разделы" %}</span>
+        <ul class="km-drawer-list">
+          <li>
+            <a
+              href="{% url 'home' %}"
+              class="km-drawer-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+            >
+              <span class="km-drawer-item-icon material-symbols-rounded">home</span>
+              <span class="km-drawer-item-title">{% trans "Главная" %}</span>
+              {% if request.resolver_match.url_name == 'home' %}<span class="km-drawer-active-dot"></span>{% endif %}
+            </a>
+          </li>
+          <li>
+            <a
+              href="{% url 'place_list' %}"
+              class="km-drawer-link {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
+            >
+              <span class="km-drawer-item-icon material-symbols-rounded">explore</span>
+              <span class="km-drawer-item-title">{% trans "Каталог" %}</span>
+              {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}<span class="km-drawer-active-dot"></span>{% endif %}
+            </a>
+          </li>
+          {% if is_events_section_enabled %}
+            <li>
+              <a
+                href="{% url 'events_landing' %}"
+                class="km-drawer-link {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
+              >
+                <span class="km-drawer-item-icon material-symbols-rounded">confirmation_number</span>
+                <span class="km-drawer-item-title">{% trans "Афиша" %}</span>
+                {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}<span class="km-drawer-active-dot"></span>{% endif %}
+              </a>
+            </li>
+          {% endif %}
+          {% if is_specialists_section_enabled %}
+            <li>
+              <a
+                href="{% url 'specialist_list' %}"
+                class="km-drawer-link {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}active{% endif %}"
+              >
+                <span class="km-drawer-item-icon material-symbols-rounded">psychology</span>
+                <span class="km-drawer-item-title">{% trans "Педагоги и специалисты" %}</span>
+                {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}<span class="km-drawer-active-dot"></span>{% endif %}
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+
+        <span class="km-drawer-section-title">{% trans "О нас" %}</span>
+        <ul class="km-drawer-list">
+          <li>
+            <a
+              href="{% url 'about' %}"
+              class="km-drawer-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+            >
+              <span class="km-drawer-item-icon material-symbols-rounded">info</span>
+              <span class="km-drawer-item-title">{% trans "О проекте" %}</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{% url 'faq_page' %}"
+              class="km-drawer-link {% if request.resolver_match.url_name == 'faq_page' %}active{% endif %}"
+            >
+              <span class="km-drawer-item-icon material-symbols-rounded">quiz</span>
+              <span class="km-drawer-item-title">FAQ</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href="{% url 'contacts' %}"
+              class="km-drawer-link {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
+            >
+              <span class="km-drawer-item-icon material-symbols-rounded">contact_support</span>
+              <span class="km-drawer-item-title">{% trans "Контакты" %}</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Drawer Language Switcher (Segmented Bar) -->
+      <div class="km-drawer-lang-section">
+        <span class="km-drawer-section-title">{% trans "Язык сайта" %}</span>
+        <div class="km-drawer-lang-pills">
+          <a
+            class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}"
+            href="{{ alternate_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            hreflang="az"
+          >
+            <img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" width="18" height="18" />
+            <span>AZ</span>
+          </a>
+          <a
+            class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}"
+            href="{{ alternate_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            hreflang="ru"
+          >
+            <img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" width="18" height="18" />
+            <span>RU</span>
+          </a>
+          <a
+            class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}"
+            href="{{ alternate_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
+            hreflang="en"
+          >
+            <img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" width="18" height="18" />
+            <span>EN</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>

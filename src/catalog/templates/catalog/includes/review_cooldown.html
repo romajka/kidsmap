@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="flash-message flash-info review-cooldown" data-review-cooldown
+     data-next-allowed-at="{{ review_cooldown.next_allowed_at }}"
+     data-server-now="{{ review_cooldown.server_now }}"
+     data-duration-seconds="{{ review_cooldown.duration_seconds }}"
+     {% if not review_cooldown.active %}hidden{% endif %}>
+  <svg class="flash-message__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+  <div class="review-cooldown__body">
+    <strong>{% trans "Следующий отзыв об этом месте" %}</strong>
+    <p>{% trans "Вы сможете оставить ещё один отзыв, когда закончится таймер." %}</p>
+    <progress data-review-cooldown-progress max="{{ review_cooldown.duration_seconds }}" value="{{ review_cooldown.retry_after }}" aria-label="{% trans 'Ожидание следующего отзыва' %}"></progress>
+  </div>
+  <time class="review-cooldown__time" data-review-countdown role="timer" aria-live="off" aria-label="{% trans 'До следующего отзыва' %}">{{ review_cooldown.display|default:"00:00" }}</time>
+</div>

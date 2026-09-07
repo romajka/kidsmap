@@ -1,0 +1,5 @@
+{% load i18n %}
+{% if card %}<section class="kv-notice kv-notice--{{ card.state }}"><strong>{{ card.status }}</strong><p>{{ card.explanation }}</p>{% if card.note %}<p>{{ card.note }}</p>{% endif %}{% if card.public %}<p>{% translate "До одобрения новых правок на сайте остаётся прежняя опубликованная версия." context "volunteer dashboard" %}</p>{% endif %}
+<p>{% translate "Готовность сохранённой версии" context "volunteer dashboard" %}: {{ card.readiness.completed_count }}/{{ card.readiness.required_count }} · {{ card.readiness.percentage }}%</p>
+{% if card.readiness.issues %}<ul>{% for issue in card.readiness_issues %}<li><a href="#field={{ issue.field }}">{{ issue.label }}</a> — {{ issue.message }}</li>{% endfor %}</ul>{% endif %}</section>{% endif %}
+{% if conflict %}<div class="alert alert-warning">{% translate "Администратор изменил карточку. Начните заново с текущей версии, чтобы не затереть его правки." context "volunteer dashboard" %}</div>{% endif %}

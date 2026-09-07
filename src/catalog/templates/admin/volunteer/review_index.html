@@ -1,0 +1,6 @@
+{% extends "admin/volunteer/base.html" %}
+{% load i18n %}
+{% block workspace %}<h1>{{ title }}</h1><p>{% translate "Проверьте предложенные изменения перед публикацией." %}</p>
+<ul class="km-volunteer-list">{% for revision in page %}<li><a href="{% url 'admin:volunteer_review' revision.place_id %}">{{ revision }}</a><span>{{ revision.author.username }} · {{ revision.updated_at }}</span></li>{% empty %}<li>{% translate "Все изменения проверены." %}</li>{% endfor %}</ul>
+{% include "admin/volunteer/pagination.html" %}
+{% endblock %}

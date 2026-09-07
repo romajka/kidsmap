@@ -1,0 +1,14 @@
+{% load i18n %}
+<article class="kv-card kv-card--{{ card.state }}" aria-labelledby="kv-place-{{ card.place.pk }}">
+  <a href="{{ card.detail_url }}" class="kv-card__photo" tabindex="-1" aria-hidden="true">{% if card.photo_url %}<img src="{{ card.photo_url }}" alt="" loading="lazy" width="192" height="160">{% else %}{% include 'admin/volunteer/icon.html' with icon='photo' %}{% endif %}</a>
+  <div class="kv-card__content"><div class="kv-card__top"><p class="kv-category">{{ card.candidate.category.name_i18n }}{% if card.candidate.subcategory %} · {{ card.candidate.subcategory.name_i18n }}{% endif %}</p><span class="kv-status kv-status--{{ card.state }}">{{ card.status }}</span></div>
+    <h2 id="kv-place-{{ card.place.pk }}"><a href="{{ card.detail_url }}">{{ card.name }}</a></h2>
+    <p class="kv-address">{% include 'admin/volunteer/icon.html' %}{{ card.candidate.address|default:card.candidate.district|default:'—' }}</p>
+    <p class="kv-explanation">{{ card.explanation }}</p>
+    {% if card.note %}<blockquote class="kv-review-note"><strong>{% translate "Замечание администратора" context "volunteer dashboard" %}</strong><p>{{ card.note|truncatechars:240 }}</p></blockquote>{% endif %}
+    {% if card.public and card.proposed %}<p class="kv-live-note">{% include 'admin/volunteer/icon.html' with icon='check' %}{% translate "На сайте остаётся прежняя опубликованная версия." context "volunteer dashboard" %}</p>{% endif %}
+    <div class="kv-card__bottom"><div class="kv-readiness"><div><span>{% translate "Готовность" context "volunteer dashboard" %}: <strong>{{ card.readiness.completed_count }}/{{ card.readiness.required_count }}</strong></span><span>{{ card.readiness.percentage }}%</span></div><progress value="{{ card.readiness.completed_count }}" max="{{ card.readiness.required_count }}" aria-label="{% translate 'Готовность карточки' context "volunteer dashboard" %}"></progress></div><small>{% translate "Обновлено" context "volunteer dashboard" %} {{ card.updated_at|date:'d.m.Y, H:i' }}</small></div>
+    {% if card.readiness.issues %}<details class="kv-missing"><summary>{% translate "Что осталось заполнить" context "volunteer dashboard" %}</summary><ul>{% for issue in card.readiness_issues %}<li><a href="{{ card.edit_url }}#field={{ issue.field }}">{{ issue.label }}</a></li>{% endfor %}</ul></details>{% endif %}
+    <div class="kv-card__actions"><a href="{{ card.action_url }}" class="kv-button{% if card.state == 'rejected' %} kv-button--warning{% endif %}">{{ card.action }}{% include 'admin/volunteer/icon.html' with icon='arrow' %}</a>{% if card.public_url %}<a href="{{ card.public_url }}">{% translate "Посмотреть на сайте" context "volunteer dashboard" %}</a>{% endif %}</div>
+  </div>
+</article>

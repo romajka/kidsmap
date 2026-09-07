@@ -72,6 +72,9 @@ def toggle_place_like(place, request):
 
 def create_or_update_review(place, request, *, rating, review_text, author_name, is_anonymous, contains_profanity=False):
     defaults = {
+        "status": PlaceReview.STATUS_PENDING,
+        "is_approved": False,
+        "rejection_reason": "",
         "author_name": author_name,
         "is_anonymous": is_anonymous,
         "rating": rating,

@@ -138,7 +138,7 @@
 
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" data-filter-focus="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
-          <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="age" data-filter-focus="age" aria-expanded="false" aria-controls="quick-menu-age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
+          <button type="button" class="mobile-quick-filter{% if selected.age_from or selected.age_to %}{% if selected.age_from != '0' or selected.age_to != '18' %} is-active{% endif %}{% endif %}" data-filters-open data-filter-focus="age">{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.min_rating %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="min_rating" data-filter-focus="min_rating" aria-expanded="false" aria-controls="quick-menu-min_rating">{% if language == "az" %}Reytinq{% elif language == "en" %}Rating{% else %}Рейтинг{% endif %}</button>
           <button type="button" class="mobile-quick-filter{% if selected.price_from or selected.price_to %}{% if selected.price_from != '0' or selected.price_to != '500' %} is-active{% endif %}{% endif %}" data-quick-filter-toggle data-quick-menu-target="price" data-filter-focus="price" aria-expanded="false" aria-controls="quick-menu-price">{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}Цена{% endif %}</button>
         </div>
@@ -156,22 +156,6 @@
               {% endfor %}
             </div>
             <button type="button" class="mobile-quick-menu-more" data-filters-open data-filter-focus="district">{% if language == "az" %}Bütün rayonlar{% elif language == "en" %}All districts{% else %}Все районы{% endif %}</button>
-          </section>
-
-          <section class="mobile-quick-menu" id="quick-menu-age" data-quick-menu="age" hidden>
-            <div class="mobile-quick-menu-head">
-              <strong>{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}Возраст{% endif %}</strong>
-              <button type="button" class="mobile-quick-menu-close" data-quick-menu-close aria-label="{% if language == 'az' %}Bağla{% elif language == 'en' %}Close{% else %}Закрыть{% endif %}">×</button>
-            </div>
-            <div class="mobile-quick-menu-options">
-              <button type="button" class="mobile-quick-option{% if not selected.age_from and not selected.age_to or selected.age_from == '0' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="0" data-age-to="18">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}Все{% endif %}</button>
-              <button type="button" class="mobile-quick-option{% if selected.age_from == '0' and selected.age_to == '3' %} is-active{% endif %}" data-age-from="0" data-age-to="3">0–3</button>
-              <button type="button" class="mobile-quick-option{% if selected.age_from == '3' and selected.age_to == '6' %} is-active{% endif %}" data-age-from="3" data-age-to="6">3–6</button>
-              <button type="button" class="mobile-quick-option{% if selected.age_from == '6' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="6" data-age-to="18">6+</button>
-              <button type="button" class="mobile-quick-option{% if selected.age_from == '10' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="10" data-age-to="18">10+</button>
-              <button type="button" class="mobile-quick-option{% if selected.age_from == '14' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="14" data-age-to="18">14+</button>
-            </div>
-            <button type="button" class="mobile-quick-menu-more" data-filters-open data-filter-focus="age">{% if language == "az" %}Tam yaş filtri{% elif language == "en" %}Full age filter{% else %}Полный фильтр возраста{% endif %}</button>
           </section>
 
           <section class="mobile-quick-menu" id="quick-menu-min_rating" data-quick-menu="min_rating" hidden>
@@ -436,27 +420,11 @@
             <span>{% if language == "az" %}Yaş{% elif language == "en" %}Age{% else %}{% trans "Возраст" %}{% endif %}</span>
             <strong class="range-filter-current" data-range-caption></strong>
           </div>
-          <div class="mobile-age-presets" aria-label="{% if language == 'az' %}Yaş{% elif language == 'en' %}Age{% else %}{% trans 'Возраст' %}{% endif %}">
-            <button type="button" class="mobile-age-option{% if not selected.age_from and not selected.age_to or selected.age_from == '0' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="0" data-age-to="18">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '0' and selected.age_to == '3' %} is-active{% endif %}" data-age-from="0" data-age-to="3">0–3</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '3' and selected.age_to == '6' %} is-active{% endif %}" data-age-from="3" data-age-to="6">3–6</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '6' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="6" data-age-to="18">6+</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '10' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="10" data-age-to="18">10+</button>
-            <button type="button" class="mobile-age-option{% if selected.age_from == '14' and selected.age_to == '18' %} is-active{% endif %}" data-age-from="14" data-age-to="18">14+</button>
-          </div>
-          <div class="range-filter-inputs">
-            <label class="range-filter-mini">
-              <span>{% if language == "az" %}dan{% elif language == "en" %}from{% else %}{% trans "от" %}{% endif %}</span>
-              <input class="field" type="number" min="0" max="18" name="age_from" value="{{ selected.age_from|default:'0' }}" data-range-from-input />
-            </label>
-            <label class="range-filter-mini">
-              <span>{% if language == "az" %}dək{% elif language == "en" %}to{% else %}{% trans "до" %}{% endif %}</span>
-              <input class="field" type="number" min="0" max="18" name="age_to" value="{{ selected.age_to|default:'18' }}" data-range-to-input />
-            </label>
-          </div>
+          <input type="hidden" name="age_from" value="{{ selected.age_from|default:'0' }}" data-range-from-input />
+          <input type="hidden" name="age_to" value="{{ selected.age_to|default:'18' }}" data-range-to-input />
           <div class="range-filter-track">
-            <input class="range-slider range-slider-from" type="range" min="0" max="18" value="{{ selected.age_from|default:'0' }}" data-range-from-range />
-            <input class="range-slider range-slider-to" type="range" min="0" max="18" value="{{ selected.age_to|default:'18' }}" data-range-to-range />
+            <input class="range-slider range-slider-from" type="range" min="0" max="18" aria-label="{% if language == 'az' %}Minimum yaş{% elif language == 'en' %}Minimum age{% else %}Минимальный возраст{% endif %}" value="{{ selected.age_from|default:'0' }}" data-range-from-range />
+            <input class="range-slider range-slider-to" type="range" min="0" max="18" aria-label="{% if language == 'az' %}Maksimum yaş{% elif language == 'en' %}Maximum age{% else %}Максимальный возраст{% endif %}" value="{{ selected.age_to|default:'18' }}" data-range-to-range />
           </div>
         </div>
       {% endif %}
@@ -1560,37 +1528,6 @@
 
       bindSelectTargetButtons(document);
       window.kidsMapBindSelectTargets = bindSelectTargetButtons;
-
-      document.querySelectorAll("[data-age-from][data-age-to]").forEach(function (button) {
-        button.addEventListener("click", function () {
-          const container = button.closest("[data-range]") || document.querySelector(".filter-age-range[data-range]");
-          if (!container) return;
-          const fromInput = container.querySelector("[data-range-from-input]");
-          const toInput = container.querySelector("[data-range-to-input]");
-          const fromRange = container.querySelector("[data-range-from-range]");
-          const toRange = container.querySelector("[data-range-to-range]");
-          if (!fromInput || !toInput || !fromRange || !toRange) return;
-
-          fromInput.value = button.dataset.ageFrom || "0";
-          toInput.value = button.dataset.ageTo || "18";
-          fromRange.value = fromInput.value;
-          toRange.value = toInput.value;
-          fromInput.dispatchEvent(new Event("input", { bubbles: true }));
-          toInput.dispatchEvent(new Event("input", { bubbles: true }));
-
-          container.querySelectorAll("[data-age-from][data-age-to]").forEach(function (item) {
-            item.classList.toggle("is-active", item === button);
-          });
-          if (button.closest("[data-quick-menu]")) {
-            if (window.kidsMapCloseQuickMenus) {
-              window.kidsMapCloseQuickMenus();
-            }
-            if (window.kidsMapSubmitMobileFilters) {
-              window.kidsMapSubmitMobileFilters();
-            }
-          }
-        });
-      });
 
       document.querySelectorAll("[data-price-from][data-price-to]").forEach(function (button) {
         button.addEventListener("click", function () {

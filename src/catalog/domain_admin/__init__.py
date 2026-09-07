@@ -24,6 +24,7 @@ from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepos
 from catalog.services.content_quality import place_quality_check, review_quality_check
 from catalog.services.geocoding import PlaceGeocodingService
 from catalog.services.features import is_events_section_enabled, is_specialists_section_enabled
+from catalog.services.staff_roles import is_volunteer
 
 # Clarify similar names in admin navigation.
 SiteReview._meta.verbose_name = _("Отзыв о сайте")
@@ -55,7 +56,7 @@ def _get_sidebar_metrics(request) -> dict[str, int]:
         "specialist_reviews_pending": 0,
         "ownership_pending": 0,
     }
-    if not request.user.is_authenticated or not request.user.is_staff:
+    if not request.user.is_authenticated or not request.user.is_staff or is_volunteer(request.user):
         request._kidsmap_sidebar_metrics = empty_metrics
         return empty_metrics
 
@@ -161,6 +162,8 @@ def _build_admin_language_switch_items(request, current_language: str):
 
 
 def _kidsmap_get_app_list(self, request, app_label=None):
+    if is_volunteer(request.user):
+        return []
     app_list = _original_get_app_list(request, app_label)
     sidebar_metrics = _get_sidebar_metrics(request)
     ownership_pending_count = sidebar_metrics["ownership_pending"]
@@ -572,6 +575,21 @@ def _kidsmap_each_context(self, request):
     context["admin_language_switch_items"] = _build_admin_language_switch_items(request, current_language)
     context["kidsmap_sidebar_sections"] = _build_sidebar_sections(request, metrics=sidebar_metrics)
     context["kidsmap_admin_role_label"] = _admin_role_label(request.user)
+    context["kidsmap_is_volunteer"] = is_volunteer(request.user)
+    if is_volunteer(request.user):
+        context["kidsmap_admin_role_label"] = str(_("Волонтёр"))
+        context["kidsmap_sidebar_sections"] = [{
+            "key": "volunteer", "label": str(_("Мои места")), "icon": "fas fa-map-marker-alt", "active": True,
+            "items": [
+                {"label": str(_("Мои места")), "url": reverse("admin:volunteer_index"), "icon": "fas fa-map-marker-alt", "active": getattr(request.resolver_match, "url_name", "") in {"volunteer_index", "volunteer_detail"}},
+                {"label": str(_("Добавить место")), "url": reverse("admin:volunteer_add"), "icon": "fas fa-plus", "active": getattr(request.resolver_match, "url_name", "") == "volunteer_add"},
+            ],
+        }]
+    elif request.user.is_authenticated and request.user.is_superuser:
+        context["kidsmap_sidebar_sections"].append({
+            "key": "volunteer_review", "label": str(_("Волонтёры")), "icon": "fas fa-check", "active": False,
+            "items": [{"label": str(_("Изменения волонтёров")), "url": reverse("admin:volunteer_review_index"), "icon": "fas fa-check", "active": request.path.startswith(reverse("admin:volunteer_review_index"))}],
+        })
     return context
 
 
@@ -586,3 +604,4 @@ from .category import *
 from .place import *
 from .specialist import *
 from .seo import *
+from . import volunteer

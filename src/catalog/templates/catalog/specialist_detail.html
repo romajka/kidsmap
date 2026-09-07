@@ -168,6 +168,7 @@
 
       <!-- Reviews Section -->
       <section class="km-detail-section" id="reviews">
+            {% include "catalog/includes/review_submission_notice.html" %}
         <h2>
           <i class="far fa-comments" aria-hidden="true"></i>
           {% if language == "az" %}Rəylər{% elif language == "en" %}Reviews{% else %}Отзывы{% endif %}
@@ -198,12 +199,12 @@
         </div>
 
         <!-- Submission Form (authenticated only) -->
-        <div class="km-review-form-card">
+        <div class="km-review-form-card" data-review-composer>
           <h3>
             {% if language == "az" %}Rəy yazın{% elif language == "en" %}Write a Review{% else %}Оставить отзыв{% endif %}
           </h3>
 
-          <form action="{% url 'add_specialist_review' specialist.pk %}" method="post">
+          <form action="{% url 'add_specialist_review' specialist.pk %}" method="post" data-review-submission data-loading-form>
             {% csrf_token %}
             
             <div class="km-filter-group km-review-rating-field">

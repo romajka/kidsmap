@@ -33,6 +33,7 @@
       <select name="role" aria-label="{% translate 'Роль' %}">
         <option value="">{% translate "Все роли" %}</option>
         <option value="superadmin"{% if request.GET.role == 'superadmin' %} selected{% endif %}>{% translate "Суперадмины" %}</option>
+        <option value="volunteer"{% if request.GET.role == 'volunteer' %} selected{% endif %}>{% translate "Волонтёры" %}</option>
         <option value="admin"{% if request.GET.role == 'admin' %} selected{% endif %}>{% translate "Админы" %}</option>
       </select>
     </div>
@@ -78,6 +79,8 @@
             <td data-label="{% translate 'Роль' %}">
               {% if staff_user.is_superuser %}
                 <span class="km-staff-role km-staff-role--super">{% translate "Суперадмин" %}</span>
+              {% elif staff_user.km_is_volunteer %}
+                <span class="km-staff-role">{% translate "Волонтёр" %}</span>
               {% else %}
                 <span class="km-staff-role km-staff-role--admin">{% translate "Админ" %}</span>
               {% endif %}

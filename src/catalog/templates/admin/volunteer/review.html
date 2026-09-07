@@ -1,0 +1,17 @@
+{% extends "admin/volunteer/base.html" %}
+{% load i18n %}
+{% block workspace %}
+<a href="{% url 'admin:volunteer_review_index' %}">← {% translate "Изменения волонтёров" %}</a>
+<h1>{{ revision }}</h1><p>{{ revision.author.username }} · {{ revision.get_status_display }}</p>
+{% if error %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endif %}
+{% if conflict %}<div class="alert alert-warning">{% translate "Карточка изменилась после отправки. Верните правки волонтёру на доработку." %}</div>{% endif %}
+{% if validation_errors %}<div class="alert alert-warning">{{ validation_errors }}</div>{% endif %}
+{% if readiness and not readiness.is_ready %}<div class="alert alert-warning"><strong>{% translate "Перед публикацией нужно заполнить:" %}</strong><ul>{% for issue in readiness.issues %}<li>{{ issue.message }}</li>{% endfor %}</ul></div>{% endif %}
+<div class="km-volunteer-comparison"><table><thead><tr><th scope="col">{% translate "Поле" %}</th><th scope="col">{% translate "Сейчас" %}</th><th scope="col">{% translate "Предложено" %}</th></tr></thead><tbody>
+{% for row in rows %}<tr><th scope="row">{{ row.label }}</th>{% if row.image %}<td>{% if row.before %}<img src="{{ row.before }}" alt="{% translate 'Текущее фото' %}">{% endif %}</td><td>{% if row.after %}<img src="{{ row.after }}" alt="{% translate 'Предложенное фото' %}">{% endif %}</td>{% else %}<td>{{ row.before|linebreaksbr }}</td><td>{{ row.after|linebreaksbr }}</td>{% endif %}</tr>{% empty %}<tr><td colspan="3">{% translate "Содержимое не изменено. Запрошена публикация." %}</td></tr>{% endfor %}
+</tbody></table></div>
+{% if revision.status == 'pending' %}<form method="post">{% csrf_token %}<input type="hidden" name="version" value="{{ revision.version }}">
+<label for="review-note">{% translate "Комментарий волонтёру (обязателен при возврате)" %}</label><textarea id="review-note" name="note" rows="3"></textarea>
+<div class="km-volunteer-actions"><button class="btn btn-outline-secondary" name="action" value="reject" type="submit">{% translate "Вернуть на доработку" context "volunteer admin" %}</button>
+{% if readiness.is_ready and not conflict %}<button class="btn btn-success" name="action" value="approve" type="submit">{% translate "Одобрить и опубликовать" context "volunteer admin" %}</button>{% endif %}</div></form>{% endif %}
+{% endblock %}

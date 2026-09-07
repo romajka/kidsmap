@@ -1,0 +1,77 @@
+.km-staff-profile-page #content-main.km-staff-profile {width:100%;max-width:1180px;min-width:0;margin:0 auto;float:none;color:var(--km-admin-text,#183049)}
+.km-staff-profile-page #content > .row {display:block}
+.km-staff-profile-page #content > .row > .col-12 {max-width:100%;flex:0 0 100%}
+.km-staff-profile {font-size:14px;line-height:1.5}
+.km-staff-profile * {box-sizing:border-box}
+.km-staff-profile h1 {font-size:28px;margin:8px 0;font-weight:700;overflow-wrap:anywhere}
+.km-staff-profile h2 {font-size:20px;margin:28px 0 16px;font-weight:700}
+.km-staff-profile h3,.km-staff-profile summary {font-size:16px;font-weight:700;margin:0 0 16px}
+.km-staff-profile a {color:var(--km-admin-success-text,#136f38);text-decoration:underline;text-underline-offset:3px}
+.km-staff-profile__header {display:flex;justify-content:space-between;gap:24px;align-items:center}
+.km-staff-profile__header p {margin:0}
+.km-staff-profile__dates {display:grid;gap:6px;color:var(--km-admin-text-muted,#52657a);font-size:13px}
+.km-staff-profile__tabs {display:flex;gap:24px;border-bottom:1px solid var(--km-admin-border,#d5e3df);margin-top:20px}
+.km-staff-profile__tabs a {padding:12px 0;font-weight:600}
+.km-staff-profile__stats {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.km-staff-profile__stats a {display:grid;gap:4px;background:var(--km-admin-surface,#fff);border:1px solid var(--km-admin-border,#d5e3df);border-radius:10px;padding:14px;text-decoration:none;color:inherit}
+.km-staff-profile__stats a[aria-current] {border-color:var(--km-admin-success-text,#136f38);background:var(--km-admin-success-bg,#edf7ef)}
+.km-staff-profile__stats strong {font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.km-staff-profile__stats span {font-size:13px}
+.km-staff-profile__help {color:var(--km-admin-text-muted,#52657a);font-size:13px;margin:8px 0 16px;white-space:normal;overflow-wrap:anywhere}
+.km-staff-profile__filters {display:flex;align-items:end;gap:12px;margin:20px 0 14px;flex-wrap:wrap}
+.km-staff-profile__filters label {display:grid;gap:6px;margin:0;flex:1;min-width:180px}
+.km-staff-profile input:not([type=checkbox]):not([type=radio]),.km-staff-profile select,.km-staff-profile textarea {width:100%;max-width:100%;min-width:0;min-height:42px;border:1px solid var(--km-admin-border,#d5e3df);border-radius:6px;background:var(--km-admin-surface,#fff);padding:9px 12px;color:inherit;font:inherit}
+.km-staff-profile select[multiple] {min-height:170px}
+.km-staff-profile input[type=checkbox] {width:20px;height:20px;display:block;accent-color:var(--km-admin-success-text,#136f38)}
+.km-staff-profile button {min-height:44px;padding:10px 18px;border:1px solid var(--km-admin-success-text,#136f38);border-radius:7px;background:var(--km-admin-success-text,#136f38);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.km-staff-profile__table-wrap {border:1px solid var(--km-admin-border,#d5e3df);border-radius:10px;background:var(--km-admin-surface,#fff);overflow:hidden}
+.km-staff-profile table {width:100%;border-collapse:collapse;table-layout:fixed}
+.km-staff-profile th,.km-staff-profile td {text-align:left;padding:14px 16px;border-bottom:1px solid var(--km-admin-border,#d5e3df);overflow-wrap:anywhere}
+.km-staff-profile th {font-size:12px;background:var(--km-admin-bg,#f5f8f7);font-weight:600}
+.km-staff-profile th:first-child {width:40%}
+.km-staff-profile td small {display:block;color:var(--km-admin-text-muted,#52657a)}
+.km-staff-profile tr:last-child td {border-bottom:0}
+.km-staff-profile__pagination {display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.km-staff-profile__section {background:var(--km-admin-surface,#fff);border:1px solid var(--km-admin-border,#d5e3df);border-radius:10px;padding:22px;margin-bottom:16px;min-width:0}
+.km-staff-profile summary {cursor:pointer;margin:0;min-height:28px}
+.km-staff-profile details[open] summary {margin-bottom:16px}
+.km-staff-profile__fields {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px}
+.km-staff-profile__field {min-width:0;overflow-wrap:anywhere}
+.km-staff-profile__field label,.km-staff-profile__label {display:block;font-weight:600;margin:0 0 6px}
+.km-staff-profile__field--wide {grid-column:1/-1}
+.km-staff-profile__field .related-widget-wrapper {float:none;width:100%}
+.km-staff-profile__field .related-widget-wrapper-link {display:none}
+.km-staff-profile__actions {display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:8px 0 28px}
+.km-staff-profile button.km-staff-profile__secondary {background:var(--km-admin-surface,#fff);color:var(--km-admin-success-text,#136f38)}
+.km-staff-profile a.km-staff-profile__danger,.km-staff-profile .errorlist,.km-staff-profile__errors {color:var(--km-admin-danger,#ac2525)}
+.km-staff-profile__errors {padding:16px;border:1px solid currentColor;margin-bottom:16px;border-radius:8px}
+.km-staff-profile :focus-visible {outline:3px solid var(--km-admin-success-text,#136f38);outline-offset:3px}
+.km-staff-profile [id] {scroll-margin-top:70px}
+@media(max-width:1024px) {.km-staff-profile__stats {grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px) {
+ .km-staff-profile__header {display:block}.km-staff-profile__dates {margin-top:12px}
+ .km-staff-profile__stats {grid-template-columns:repeat(2,minmax(0,1fr))}
+ .km-staff-profile__fields {grid-template-columns:minmax(0,1fr)}
+ .km-staff-profile__section {padding:16px}.km-staff-profile__tabs {gap:16px}
+ .km-staff-profile__filters {display:grid;grid-template-columns:minmax(0,1fr)}
+ .km-staff-profile table,.km-staff-profile tbody,.km-staff-profile tr,.km-staff-profile td {display:block;width:100%}
+ .km-staff-profile thead {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ .km-staff-profile td {border:0;padding:6px 14px}.km-staff-profile tr {padding:10px 0;border-bottom:1px solid var(--km-admin-border,#d5e3df)}
+ .km-staff-profile td:before {content:attr(data-label);display:block;font-size:12px;color:var(--km-admin-text-muted,#52657a)}
+ .km-staff-profile__actions {display:grid;grid-template-columns:minmax(0,1fr)}
+ .km-staff-profile__actions a {padding:10px 0}
+}
+/* Jazzmin measures Select2 before responsive resizing; keep it inside its field. */
+.km-staff-profile .select2-container {width:100% !important;max-width:100%;min-width:0}
+.km-staff-profile .select2-selection,.km-staff-profile .select2-selection__rendered {max-width:100%;white-space:normal}
+.km-staff-profile .select2-selection__choice {max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.km-staff-profile .select2-search__field {max-width:100%}
+.km-staff-profile select.select2-hidden-accessible {width:1px !important;height:1px !important;min-height:0 !important;max-width:1px !important;padding:0 !important;border:0 !important;overflow:hidden !important;clip:rect(0,0,0,0) !important;clip-path:inset(50%) !important}
+#content-main.km-staff-profile a {color:var(--km-admin-success-text) !important}
+#content-main.km-staff-profile .km-staff-profile__stats a {color:var(--km-admin-text) !important}
+#content-main.km-staff-profile a.km-staff-profile__danger {color:var(--km-admin-danger-text) !important}
+/* Anchor Jazzmin's absolute hidden inputs to their field, not the viewport. */
+.km-staff-profile__field,.km-staff-profile__field .related-widget-wrapper {position:relative}
+/* The shared success alert uses flex with anonymous text items that cannot shrink. */
+.km-staff-profile-page #content .alert {display:block;white-space:normal;overflow-wrap:anywhere;padding-right:40px}
+.km-staff-profile-page #content .alert a {white-space:normal;overflow-wrap:anywhere}

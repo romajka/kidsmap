@@ -29,7 +29,7 @@
 - [x] Back up exact changed server configuration with mode 0600 in a root-only directory, configure the supplied public Client ID through existing env names, and inspect env forwarding without displaying secret values. Only the prepared release Compose forwards OAuth; active Compose awaits the gated release.
 - [x] Exclude `.env`, `.env.*` and `.tmp` from Docker build context while retaining the empty `.env.example`; mirror this in the backed-up server `.dockerignore` before the operator enters the secret. No production image rebuilt or activated.
 - [x] Stop at the missing-secret gate with the exact server env path/edit command and required application-service recreation command in the status report; no service restarted.
-- [ ] After the user supplies the secret and prerequisites pass, use the scoped release only, standard migrations and the `web` service only. Verify live linking for an Audience test user returns the same existing User without duplicates before declaring Google Login ready.
+- [x] After the user supplies the secret and prerequisites pass, use the scoped release only, standard migrations and the `web` service only. Verify live linking for an Audience test user returns the same existing User without duplicates before declaring Google Login ready. Completed under the user's renewed explicit deployment authorization; see [activation report](../../GOOGLE_OAUTH_ACTIVATION_2026-09-07.md). Email ownership and administrator changes were separately confirmed by the user before release.
 
 ## Deliverables
 

@@ -4,6 +4,7 @@
   if (!form) return;
   const ui = JSON.parse(document.getElementById('pw-copy').textContent);
   const rules = JSON.parse(document.getElementById('pw-rules').textContent);
+  const volunteer = form.dataset.pwVolunteer === '1';
   const steps = [...form.querySelectorAll('[data-pw-step]')];
   const el = name => form.elements.namedItem(name);
   const value = name => (el(name)?.value || '').trim();
@@ -15,7 +16,7 @@
   const draftKey = `kidsmap:permanent:v1:${form.dataset.draftKey}`;
   try {
     if (sessionStorage.getItem('kidsmap:submitted-draft') === draftKey) {
-      if (form.dataset.pwBound !== '1') localStorage.removeItem(draftKey);
+      if (!volunteer && form.dataset.pwBound !== '1') localStorage.removeItem(draftKey);
       sessionStorage.removeItem('kidsmap:submitted-draft');
     }
   } catch {}
@@ -38,6 +39,7 @@
     else box(name)?.querySelector('button,input:not([type=hidden]),select')?.focus();
   }
   function requiredNames() {
+    if (volunteer) return [];
     const names = [...rules.required];
     if (ageMode === 'range') names.push('age_to');
     if (value('region') === 'baku') names.push('district');
@@ -49,6 +51,7 @@
   }
   function issues() {
     const result = new Map();
+    if (volunteer) return result;
     if (photoEditor?.validationMessage()) result.set('gallery_images', photoEditor.validationMessage());
     requiredNames().forEach(name => { if (!filled(name)) result.set(name, ui.required); });
     if (!rules.names.some(name => value(name))) result.set('name_az', ui.required);
@@ -133,12 +136,14 @@
     form.querySelectorAll('[data-pw-age]').forEach(button => button.setAttribute('aria-pressed', button.dataset.pwAge === mode ? 'true' : 'false'));
   }
   function regionChanged(userAction = false) {
+    if (!el('region')) return;
     const baku = value('region') === 'baku';
     box('district').hidden = !baku; box('metro').hidden = !baku;
     if (userAction && !baku) { el('district').value = ''; el('metro').value = ''; }
     if (baku && el('district').options.length < 2) el('district').replaceChildren(...allDistricts.map(option => option.cloneNode(true)));
   }
   function markRequired() {
+    if (volunteer) return;
     const required = requiredNames();
     form.querySelectorAll('[data-pw-required]').forEach(node => {
       const name = node.dataset.pwRequired;
@@ -153,6 +158,7 @@
     updateRequirements();
   }
   function updateRequirements() {
+    if (volunteer) return;
     const errors = issues();
     const entries = requiredNames().filter(name => name !== 'lng').map(name => ({
       name, title: name === 'lat' ? ui.point_requirement : label(name),
@@ -185,6 +191,7 @@
   }
   function saveBrowser() {
     if (restoring) return;
+    if (volunteer) { text('[data-pw-draft-status]', ui.browser_saved); return; }
     const data = {};
     for (const input of form.querySelectorAll('input[name],select[name],textarea[name]')) {
       if (['csrfmiddlewaretoken', 'form_action', 'gallery_order', 'photo-clear'].includes(input.name) || input.type === 'file' || input.name === 'delete_gallery_ids') continue;
@@ -282,7 +289,7 @@
     updateRequirements();
   }
   // Restore before tariff and schedule editors are initialized. Bound server errors win.
-  if (form.dataset.pwBound !== '1') {
+  if (!volunteer && form.dataset.pwBound !== '1') {
     try {
       const saved = parse(localStorage.getItem(draftKey), null);
       if (saved?.data && Date.now() - saved.at < 7 * 86400000) {
@@ -330,7 +337,7 @@
       return;
     }
     // Retain browser recovery until the next GET proves that saving succeeded.
-    try { sessionStorage.setItem('kidsmap:submitted-draft', draftKey); } catch {}
+    try { if (!volunteer) sessionStorage.setItem('kidsmap:submitted-draft', draftKey); } catch {}
   });
   window.addEventListener('beforeunload', event => { if (dirty && !submitting) { event.preventDefault(); event.returnValue = ui.unsaved; } });
   window.addEventListener('offline', () => text('[data-pw-draft-status]', ui.offline));
@@ -352,10 +359,13 @@
   const description = el('description_az'), counter = document.createElement('small');
   counter.className = 'pw-description-count'; description.after(counter);
   function countDescription() { counter.textContent = `${description.value.length} / ${rules.description_min}`; counter.classList.toggle('is-ready', description.value.length >= rules.description_min); }
-  description.addEventListener('input', countDescription); countDescription();
+  if (!volunteer) { description.addEventListener('input', countDescription); countDescription(); }
   setAge(ageMode); regionChanged(); markRequired();
   const firstError = form.querySelector('.pw-error')?.closest('[data-pw-step]');
-  go(firstError ? Number(firstError.dataset.pwStep) : location.hash === '#photos' ? 6 : current, false);
+  const fieldAnchor = new URLSearchParams(location.hash.slice(1)).get('field');
+  go(firstError ? Number(firstError.dataset.pwStep) : fieldAnchor ? fieldStep(fieldAnchor) : location.hash === '#photos' ? 6 : current, false);
+  if (fieldAnchor) reveal(fieldAnchor);
   document.addEventListener('DOMContentLoaded', () => { initialized = true; markRequired(); });
   window.addEventListener('pageshow', () => { submitting = false; });
+  window.addEventListener('hashchange', () => { const name = new URLSearchParams(location.hash.slice(1)).get('field'); if (name) reveal(name); });
 })();

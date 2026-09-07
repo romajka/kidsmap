@@ -1,0 +1,61 @@
+{% load i18n %}
+{% with ui=form.wizard_copy ready=editor_readiness %}
+<div class="km-pf kv-admin-editor">
+<form method="post" enctype="multipart/form-data" class="km-pf__form" data-volunteer-admin-form data-dirty-label="{{ editor_copy.dirty }}" novalidate>
+{% csrf_token %}{{ form.revision_version }}{{ form.base_token }}{{ form.price_mode }}
+<div class="km-pf__shell">
+  <header class="km-pf__header">
+    <div class="km-pf__header-main">
+      <a class="km-pf__eyebrow" href="{% url 'admin:volunteer_index' %}">{{ ui.places }}</a>
+      <div class="km-pf__titlerow"><h1 class="km-pf__title">{% if card %}{{ card.name }}{% else %}{% translate "Новое место" %}{% endif %}</h1><span class="km-pf-chip">{% if card %}{{ card.status }}{% else %}{% translate "Черновик" context "volunteer dashboard" %}{% endif %}</span></div>
+      <div class="km-pf__progress"><span class="km-pf-bar km-pf-bar--lg"><span class="km-pf-bar__fill" style="width:{{ ready.percentage }}%"></span></span><strong>{{ ready.percentage }}%</strong></div>
+      <p class="km-pf__progress-copy">{{ ready.completed_count }} / {{ ready.required_count }} · {{ editor_copy.update_hint }} <a href="#verification" class="km-pf-linkbtn" data-editor-target="verification">{% translate "Показать" %}</a></p>
+    </div>
+    <div class="km-pf__header-aside"><button type="button" class="km-pf-btn km-pf-btn--ghost" data-guide-open aria-haspopup="dialog" aria-controls="volunteer-guide"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-info"></use></svg>{{ editor_copy.instruction }}</button><p class="km-pf__header-savestate" data-editor-save-state role="status">{{ editor_copy.initial }}</p></div>
+  </header>
+  <nav class="km-pf__nav" aria-label="{% translate 'Разделы карточки' %}">{% for section in volunteer_sections %}{% include "admin/catalog/place/form/_navitem.html" %}{% endfor %}</nav>
+  {% if conflict %}<div class="km-pf-alert km-pf-alert--warn">{% translate "Администратор изменил карточку. Начните заново с текущей версии, чтобы не затереть его правки." context "volunteer dashboard" %}</div>{% endif %}
+  {% if card.note %}<div class="km-pf-alert km-pf-alert--warn"><div><strong>{% translate "Замечание администратора" context "volunteer dashboard" %}</strong><p>{{ card.note }}</p></div></div>{% endif %}
+  {% if form.errors %}<div class="km-pf-alert km-pf-alert--danger" role="alert" tabindex="-1" data-editor-errors><div>{{ form.non_field_errors }}<ul>{% for field in form %}{% for error in field.errors %}<li><a href="#field={{ field.name }}">{{ field.label }}: {{ error }}</a></li>{% endfor %}{% endfor %}</ul><p>{{ editor_copy.steps.3 }}</p></div></div>{% endif %}
+  <div class="km-pf__layout">
+    <div class="km-pf__main">
+      <div class="km-pf__accordion-actions"><span class="km-pf__accordion-title">{% translate "Разделы карточки" %}</span><button type="button" class="km-pf-btn km-pf-btn--quiet km-pf-btn--sm" data-editor-collapse>{% translate "Свернуть всё" %}</button><button type="button" class="km-pf-btn km-pf-btn--quiet km-pf-btn--sm" data-editor-expand>{% translate "Раскрыть всё" %}</button></div>
+      {% for section in volunteer_sections %}
+        {% include "admin/catalog/place/form/_section_open.html" with state=section.state %}
+        {% if section.id == 'basics' %}
+          {% include "admin/catalog/place/form/section_basics.html" %}
+        {% elif section.id == 'verification' %}
+          <p>{{ ui.intro }}</p>
+          <p>{{ editor_copy.update_hint }}</p>
+          <div class="km-pf-issues__list">{% for issue in editor_issues %}<a class="km-pf-issue" href="#field={{ issue.field }}"><span class="km-pf-issue__copy"><strong>{{ issue.label }}</strong><span>{{ issue.message }}</span></span><span class="km-pf-issue__go">{% translate "Исправить" %}</span></a>{% empty %}<p class="km-pf-ready">{{ ui.fields_ready }} · {{ ui.pending }}</p>{% endfor %}</div>
+          {% if card %}<a class="km-pf-btn km-pf-btn--ghost" href="{{ card.detail_url }}">{% translate "Посмотреть" context "volunteer dashboard" %}</a>{% endif %}
+        {% else %}
+          <div class="km-pf-grid km-pf-grid--2">{% for field in section.fields %}{% include "admin/catalog/place/form/_field.html" with hint=field.help_text %}{% endfor %}</div>
+          {% if section.id == 'pricing' %}
+            <div class="km-pf-divider"></div><div class="kv-admin-tariffs" data-tariff-editor data-can-verify="0"><p>{{ ui.plans_hint }}</p>{{ form.pricing_plans }}{{ form.pricing_plans.errors }}<div data-tariff-list></div><button type="button" class="km-pf-btn km-pf-btn--ghost" data-tariff-add>{{ ui.add_plan }}</button></div>
+          {% elif section.id == 'location' %}
+            <div class="km-pf-divider"></div>{% include "pages/includes/permanent_place_map.html" %}
+            <div class="km-pf-divider"></div><div data-pf-field="structured_schedule">{% include "includes/place_schedule_editor.html" with form=form variant="admin" editor_id="volunteer-schedule" %}</div>
+          {% elif section.id == 'media' %}
+            <div class="kv-admin-photos">{% if card.photo_url %}<img src="{{ card.photo_url }}" alt="{{ card.name }}" data-editor-photo-preview>{% else %}<img alt="{{ ui.photo_choose }}" data-editor-photo-preview hidden>{% endif %}</div>
+          {% endif %}
+        {% endif %}
+        {% if section.optional %}<details class="km-pf-disclosure"><summary class="km-pf-disclosure__summary">{{ ui.optional }}</summary><div class="km-pf-disclosure__body km-pf-grid km-pf-grid--2">{% for field in section.optional %}{% include "admin/catalog/place/form/_field.html" %}{% endfor %}</div></details>{% endif %}
+        {% include "admin/catalog/place/form/_section_close.html" %}
+      {% endfor %}
+    </div>
+    <aside class="km-pf__side">
+      <div class="km-pf-side__card"><div class="km-pf-side__block km-pf-side__block--top">
+        <div class="km-pf-side__row"><span class="km-pf-side__eyebrow">{% translate "Готовность" %}</span><span>{{ ready.completed_count }} / {{ ready.required_count }}</span></div>
+        <div class="km-pf-side__progress"><strong class="km-pf-side__pct">{{ ready.percentage }}%</strong><span class="km-pf-bar"><span class="km-pf-bar__fill" style="width:{{ ready.percentage }}%"></span></span></div>
+        <p>{{ editor_copy.update_hint }}</p>
+        <button type="submit" name="action" value="draft" class="km-pf-btn km-pf-btn--primary km-pf-btn--block" {% if conflict %}disabled{% endif %}>{{ ui.draft }}</button>
+        <button type="submit" name="action" value="submit" class="km-pf-btn km-pf-btn--ghost km-pf-btn--block" {% if conflict %}disabled{% endif %}>{{ ui.submit }}</button>
+      </div><div class="km-pf-side__block"><strong>{% if card %}{{ card.status }}{% else %}{% translate "Черновик" context "volunteer dashboard" %}{% endif %}</strong><p>{{ ui.intro }}</p>{% if card.public %}<p>{% translate "До одобрения новых правок на сайте остаётся прежняя опубликованная версия." context "volunteer dashboard" %}</p><a href="{{ card.public_url }}">{% translate "Посмотреть на сайте" context "volunteer dashboard" %}</a>{% endif %}</div></div>
+    </aside>
+  </div>
+</div>
+<dialog class="km-pf-dialog" id="volunteer-guide" data-volunteer-guide aria-labelledby="volunteer-guide-title"><div class="km-pf-dialog__head"><h2 id="volunteer-guide-title">{{ editor_copy.instruction_title }}</h2><button type="button" class="km-pf-btn km-pf-btn--quiet" data-guide-close>{% translate "Закрыть" %}</button></div><ol class="kv-admin-guide">{% for text in editor_copy.steps %}<li>{{ text }}</li>{% endfor %}</ol></dialog>
+</form>
+</div>
+{% endwith %}

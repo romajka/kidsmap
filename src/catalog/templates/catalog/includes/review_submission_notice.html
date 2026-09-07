@@ -1,0 +1,19 @@
+{% load i18n %}
+<div data-review-feedback
+     data-rating-required="{% trans 'Чтобы отправить отзыв, выберите оценку от 1 до 5 звёзд.' %}"
+     data-network-error="{% trans 'Не удалось получить подтверждение отправки. Проверьте соединение и попробуйте ещё раз. Текст остаётся в форме.' %}"
+     data-server-error="{% trans 'Не удалось отправить отзыв. Текст сохранён в форме. Попробуйте ещё раз позже.' %}"
+     data-sending="{% trans 'Отправляем отзыв…' %}">
+  {% for message in messages %}
+    {% if 'review-submission' in message.tags %}
+      <div class="flash-message {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}flash-success{% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}flash-warning{% else %}flash-error{% endif %}" data-review-notice tabindex="-1" role="status">
+        <svg class="flash-message__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}m7 12 3 3 7-7{% else %}M12 7v6m0 3v1{% endif %}"/></svg>
+        <div>{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}<strong data-review-title>{% trans 'Спасибо! Отзыв отправлен на модерацию' %}</strong>{% endif %}<span data-review-message>{{ message }}</span></div>
+      </div>
+    {% endif %}
+  {% endfor %}
+  <div class="flash-message" data-review-live hidden tabindex="-1" role="status" aria-live="polite" aria-atomic="true">
+    <svg class="flash-message__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path data-review-icon d=""/></svg>
+    <div><strong data-review-title hidden></strong><span data-review-message></span></div>
+  </div>
+</div>

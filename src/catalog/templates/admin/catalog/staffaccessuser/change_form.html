@@ -1,0 +1,56 @@
+{% extends "admin/change_form.html" %}
+{% load i18n static admin_urls %}
+{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}">{% endblock %}
+{% block bodyclass %}{{ block.super }} km-staff-profile-page{% endblock %}
+{% block content_title %}{% endblock %}
+{% block content %}
+<div id="content-main" class="km-staff-profile">
+  <header class="km-staff-profile__header">
+    <div><a href="{% url opts|admin_urlname:'changelist' %}">{% translate "Сотрудники админки" %}</a><h1>{{ km_user_form_summary.full_name }}</h1><p>@{{ original.username }} · {{ staff_role_label }} · {% if original.is_active %}{% translate "Активен" %}{% else %}{% translate "Неактивен" %}{% endif %}</p></div>
+    <div class="km-staff-profile__dates"><span>{% translate "Последний вход" %}: {{ original.last_login|date:"d.m.Y H:i"|default:"—" }}</span><span>{% translate "Зарегистрирован:" %} {{ original.date_joined|date:"d.m.Y" }}</span></div>
+  </header>
+  <nav class="km-staff-profile__tabs" aria-label="{% translate 'Профиль сотрудника' %}"><a href="#staff-activity">{% translate "Места и статистика" %}</a><a href="#staff-account">{% translate "Данные сотрудника" %}</a></nav>
+  <section id="staff-activity" aria-labelledby="staff-activity-title">
+    <h2 id="staff-activity-title">{% translate "Места и статистика" %}</h2>
+    <div class="km-staff-profile__stats">
+      {% for item in staff_stat_items %}<a href="?place_state={{ item.key }}#staff-activity"{% if staff_place_state == item.key %} aria-current="true"{% endif %}><strong>{{ item.count }}</strong><span>{{ item.label }}</span></a>{% endfor %}
+    </div>
+    <p class="km-staff-profile__help">{% translate "Считаются места, созданные сотрудником, включая удалённые. Правки считаются отдельно: у опубликованного места могут быть изменения на проверке." %}</p>
+    <form method="get" class="km-staff-profile__filters" action="#staff-activity">
+      <label>{% translate "Поиск места" %}<input type="search" name="place_q" value="{{ staff_place_query }}"></label>
+      <label>{% translate "Статус" %}<select name="place_state">{% for item in staff_stat_items %}<option value="{{ item.key }}"{% if staff_place_state == item.key %} selected{% endif %}>{{ item.label }}</option>{% endfor %}</select></label>
+      <button type="submit">{% translate "Найти" %}</button>
+    </form>
+    <div class="km-staff-profile__table-wrap"><table>
+      <thead><tr><th scope="col">{% translate "Место" %}</th><th scope="col">{% translate "Статус места" %}</th><th scope="col">{% translate "Правки" %}</th><th scope="col">{% translate "Создано" %}</th></tr></thead>
+      <tbody>{% for place in staff_places %}<tr>
+        <td data-label="{% translate 'Место' %}">{% if place.staff_change_url %}<a href="{{ place.staff_change_url }}">{{ place }}</a>{% else %}{{ place }}{% endif %}<small>#{{ place.pk }}</small></td>
+        <td data-label="{% translate 'Статус места' %}">{% if place.deleted_at %}{% translate "Удалено" %}{% elif place.status == 'published' and not place.is_active %}{% translate "Снято с публикации" %}{% else %}{{ place.get_status_display }}{% endif %}</td>
+        <td data-label="{% translate 'Правки' %}">{% if place.staff_review_url %}<a href="{{ place.staff_review_url }}">{{ place.staff_revision.get_status_display }} →</a>{% elif place.staff_revision %}{{ place.staff_revision.get_status_display }}{% else %}—{% endif %}</td>
+        <td data-label="{% translate 'Создано' %}">{{ place.created_at|date:"d.m.Y" }}</td>
+      </tr>{% empty %}<tr><td colspan="4">{% translate "Места не найдены." %}</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% if staff_places.has_other_pages %}<nav class="km-staff-profile__pagination" aria-label="{% translate 'Страницы мест' %}">{% if staff_places.has_previous %}<a href="?place_state={{ staff_place_state }}&amp;place_q={{ staff_place_query|urlencode }}&amp;place_page={{ staff_places.previous_page_number }}#staff-activity">← {% translate "Назад" %}</a>{% endif %}<span>{{ staff_places.number }} / {{ staff_places.paginator.num_pages }}</span>{% if staff_places.has_next %}<a href="?place_state={{ staff_place_state }}&amp;place_q={{ staff_place_query|urlencode }}&amp;place_page={{ staff_places.next_page_number }}#staff-activity">{% translate "Далее" %} →</a>{% endif %}</nav>{% endif %}
+  </section>
+  <form method="post" enctype="multipart/form-data" id="{{ opts.model_name }}_form" novalidate>
+    {% csrf_token %}
+    <h2 id="staff-account">{% translate "Данные сотрудника" %}</h2>
+    {% if errors %}<div role="alert" class="km-staff-profile__errors">{% translate "Форма содержит ошибки" %}{{ adminform.form.non_field_errors }}{{ errors }}</div>{% endif %}
+    {% for fieldset in adminform %}
+      {% if forloop.counter == 2 %}<details class="km-staff-profile__section"><summary>{{ fieldset.name }}</summary><p>{% translate "Группа KidsMap Volunteers ограничивает сотрудника своими местами. Полный доступ определяется статусом суперпользователя." %}</p>{% else %}<section class="km-staff-profile__section"><h3>{{ fieldset.name }}</h3>{% endif %}
+      <div class="km-staff-profile__fields">
+        {% for line in fieldset %}{% for field in line %}<div class="km-staff-profile__field{% if field.field.name == 'user_permissions' or field.field.name == 'groups' %} km-staff-profile__field--wide{% endif %}">
+          {% if field.is_readonly %}<span class="km-staff-profile__label">{{ field.field.label }}</span><div>{{ field.contents }}</div>{% else %}{{ field.label_tag }}{{ field.field }}{{ field.errors }}{% if field.field.help_text %}<p id="{{ field.field.auto_id }}_helptext" class="km-staff-profile__help">{{ field.field.help_text|safe }}</p>{% endif %}{% endif %}
+        </div>{% endfor %}{% endfor %}
+      </div>
+      {% if forloop.counter == 2 %}</details>{% else %}</section>{% endif %}
+    {% endfor %}
+    {% for inline in inline_admin_formsets %}
+      <section class="km-staff-profile__section"><h3>{{ inline.opts.verbose_name }}</h3>{{ inline.formset.management_form }}{{ inline.formset.non_form_errors }}
+        {% for child in inline.formset.forms %}{{ child.non_field_errors }}{% for hidden in child.hidden_fields %}{{ hidden }}{% endfor %}<div class="km-staff-profile__fields">{% for field in child.visible_fields %}<div class="km-staff-profile__field">{{ field.label_tag }}{{ field }}{{ field.errors }}{% if field.help_text %}<p class="km-staff-profile__help" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</p>{% endif %}</div>{% endfor %}</div>{% endfor %}
+      </section>
+    {% endfor %}
+    <footer class="km-staff-profile__actions">{% if has_change_permission %}<button name="_continue" type="submit">{% translate "Сохранить и продолжить" %}</button><button name="_save" type="submit" class="km-staff-profile__secondary">{% translate "Сохранить и выйти" %}</button>{% if km_password_change_url %}<a href="{{ km_password_change_url }}">{% translate "Сменить пароль" %}</a>{% endif %}{% endif %}{% if has_delete_permission %}<a class="km-staff-profile__danger" href="{% url opts|admin_urlname:'delete' original.pk %}">{% translate "Удалить пользователя" %}</a>{% endif %}</footer>
+  </form>
+</div>
+{% endblock %}

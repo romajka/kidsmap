@@ -1,4 +1,24 @@
 {% load i18n %}
-<button type="button" class="{{ phone_class }} km-phone-control" data-phone-reveal="{{ place.pk }}" data-phone-index="{{ phone_index|default:0 }}"{% if whatsapp %} data-phone-whatsapp="1"{% endif %}>
-  {% if whatsapp %}WhatsApp{% else %}{% get_current_language as phone_language %}{% if phone_language == 'ru' %}Показать номер{% elif phone_language == 'en' %}Show number{% else %}Nömrəni göstər{% endif %}{% endif %}
+{% get_current_language as phone_language %}
+<button type="button"
+  class="{{ phone_class }} km-phone-control{% if compact or 'card-contact-toggle' in phone_class %} km-phone-control--card{% endif %}"
+  data-phone-reveal="{{ place.pk }}"
+  data-phone-index="{{ phone_index|default:0 }}"
+  {% if compact or 'card-contact-toggle' in phone_class %}data-phone-card="1"{% endif %}
+  {% if whatsapp %} data-phone-whatsapp="1"{% endif %}
+  aria-label="{% if whatsapp %}WhatsApp{% elif compact or 'card-contact-toggle' in phone_class %}{% if phone_language == 'ru' %}Позвонить{% elif phone_language == 'en' %}Call{% else %}Zəng et{% endif %}{% elif phone_language == 'ru' %}Показать номер{% elif phone_language == 'en' %}Show number{% else %}Nömrəni göstər{% endif %}"
+  title="{% if whatsapp %}WhatsApp{% elif compact or 'card-contact-toggle' in phone_class %}{% if phone_language == 'ru' %}Позвонить{% elif phone_language == 'en' %}Call{% else %}Zəng et{% endif %}{% elif phone_language == 'ru' %}Показать номер{% elif phone_language == 'en' %}Show number{% else %}Nömrəni göstər{% endif %}">
+  {% if whatsapp %}
+    <span class="km-phone-icon km-phone-icon--whatsapp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.275-.1-.476-.15-.677.15-.201.3-.777.979-.953 1.18-.175.2-.351.225-.652.075-.301-.15-1.272-.469-2.424-1.496-.895-.798-1.5-1.784-1.675-2.085-.175-.3-.019-.462.132-.612.136-.135.301-.35.451-.526.151-.176.201-.301.301-.501.101-.2.051-.376-.025-.526-.075-.15-.677-1.632-.927-2.235-.244-.588-.492-.508-.677-.518-.175-.008-.376-.01-.577-.01-.201 0-.526.075-.802.376-.276.301-1.053 1.028-1.053 2.507 0 1.479 1.078 2.908 1.229 3.109.15.2 2.122 3.24 5.141 4.544.718.31 1.279.495 1.716.634.721.229 1.377.197 1.896.12.578-.087 1.78-.727 2.031-1.429.251-.702.251-1.304.176-1.43-.076-.125-.276-.201-.577-.351zM12.004 21.996a9.94 9.94 0 0 1-5.074-1.39l-.364-.216-3.77.989 1.006-3.676-.237-.377a9.947 9.947 0 0 1-1.528-5.328c0-5.518 4.488-10.007 10.007-10.007 2.673 0 5.187 1.042 7.078 2.934 1.89 1.89 2.932 4.404 2.93 7.077-.002 5.52-4.49 10.004-10.048 10.004zm7.042-17.08A9.907 9.907 0 0 0 12.004.004C5.39.004.01 5.385.008 12c-.001 2.112.551 4.174 1.599 5.992L0 24l6.177-1.62a11.936 11.936 0 0 0 5.823 1.503h.005c6.612 0 11.993-5.381 11.995-11.997 0-3.205-1.248-6.218-3.514-8.484z"/></svg></span>
+    <span class="km-phone-label">WhatsApp</span>
+  {% else %}
+    <span class="km-phone-icon km-phone-icon--phone" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span class="km-phone-label">
+      {% if compact or 'card-contact-toggle' in phone_class %}
+        {% if phone_language == 'ru' %}Позвонить{% elif phone_language == 'en' %}Call{% else %}Zəng et{% endif %}
+      {% else %}
+        {% if phone_language == 'ru' %}Показать номер{% elif phone_language == 'en' %}Show number{% else %}Nömrəni göstər{% endif %}
+      {% endif %}
+    </span>
+  {% endif %}
 </button>

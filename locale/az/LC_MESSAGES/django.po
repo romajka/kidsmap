@@ -1182,10 +1182,9 @@ msgstr "Sayt istifadəçiləri"
 #: src/catalog/domain_admin/__init__.py:262
 #: src/catalog/domain_admin/user.py:433 src/catalog/domain_models/user.py:183
 #: src/catalog/models/user.py:192
-#, fuzzy
 #| msgid "Участники команды"
 msgid "Сотрудники админки"
-msgstr "Admin panel işçiləri"
+msgstr "İdarəetmə əməkdaşları"
 
 #: src/catalog/domain_admin/__init__.py:268
 #, fuzzy
@@ -2387,10 +2386,9 @@ msgstr "Adlar və təsvirlər (i18n)"
 #: src/catalog/domain_models/place.py:503 src/catalog/models/place.py:32
 #: src/catalog/models/place.py:537
 #: src/catalog/templates/admin/catalog/event/change_form.html:273
-#, fuzzy
 #| msgid "Черновики"
 msgid "Черновик"
-msgstr "Qaralamalar"
+msgstr "Qaralama"
 
 #: src/catalog/domain_admin/place.py:727
 #, fuzzy
@@ -2557,10 +2555,9 @@ msgstr "Kart artıq silinib."
 #: src/catalog/domain_models/place.py:116
 #: src/catalog/domain_models/place.py:555 src/catalog/models/place.py:116
 #: src/catalog/models/place.py:589
-#, fuzzy
 #| msgid "Добавлено"
 msgid "Удалено"
-msgstr "Əlavə olunub"
+msgstr "Silinib"
 
 #: src/catalog/domain_admin/place.py:967
 #, fuzzy
@@ -2772,10 +2769,9 @@ msgstr "Yaş və qiymət"
 
 #: src/catalog/domain_admin/place.py:1435
 #: src/catalog/domain_admin/place.py:1929
-#, fuzzy
 #| msgid "Фото галереи"
 msgid "Фотографии"
-msgstr "Qalereya şəkli"
+msgstr "Fotolar"
 
 #: src/catalog/domain_admin/place.py:1586
 #, fuzzy
@@ -2808,10 +2804,9 @@ msgid "Карточка видна на сайте при текущих пра�
 msgstr "Sahib kabinetində dərnək kartının redaktəsi."
 
 #: src/catalog/domain_admin/place.py:1652
-#, fuzzy
 #| msgid "для публикации"
 msgid "Снято с публикации"
-msgstr "dərc üçün"
+msgstr "Yayımdan çıxarılıb"
 
 #: src/catalog/domain_admin/place.py:1654
 #, fuzzy
@@ -4244,12 +4239,12 @@ msgstr "Hesab"
 
 #: src/catalog/domain_admin/user.py:270 src/catalog/domain_admin/user.py:365
 msgid "Права доступа"
-msgstr ""
+msgstr "Giriş hüquqları"
 
 #: src/catalog/domain_admin/user.py:271 src/catalog/domain_admin/user.py:295
 #: src/catalog/domain_admin/user.py:366
 msgid "Важные даты"
-msgstr ""
+msgstr "Vacib tarixlər"
 
 #: src/catalog/domain_admin/user.py:342
 #, fuzzy
@@ -4488,7 +4483,6 @@ msgstr "Şərh"
 #: src/catalog/models/owner.py:376 src/catalog/models/site.py:290
 #: src/catalog/models/site.py:362 src/catalog/models/site.py:434
 #: src/catalog/models/user.py:209
-#, fuzzy
 #| msgid "Создан"
 msgid "Создано"
 msgstr "Yaradılıb"
@@ -6530,7 +6524,7 @@ msgstr ""
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:49
 #: src/catalog/templates/admin/catalog/user/change_form.html:88
 msgid "Форма содержит ошибки"
-msgstr ""
+msgstr "Formada xətalar var"
 
 #: src/catalog/templates/admin/catalog/category/change_form.html:71
 msgid ""
@@ -6597,10 +6591,9 @@ msgstr "Saxla və koordinatlari yenilə"
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:118
 #: src/catalog/templates/admin/catalog/user/change_form.html:193
 #: src/templates/admin/submit_line.html:31
-#, fuzzy
 #| msgid "Сохранить изменения"
 msgid "Сохранить и продолжить"
-msgstr "Dəyişiklikləri saxla"
+msgstr "Yadda saxla və davam et"
 
 #: src/catalog/templates/admin/catalog/category/change_list.html:18
 msgid "Управление основными категориями и их подкатегориями"
@@ -7103,10 +7096,9 @@ msgstr "Saxla və koordinatlari yenilə"
 #: src/catalog/templates/admin/catalog/placereview/change_form.html:159
 #: src/catalog/templates/admin/catalog/shared_settings_change_form.html:121
 #: src/catalog/templates/admin/catalog/user/change_form.html:196
-#, fuzzy
 #| msgid "Сохранить новый пароль"
 msgid "Сохранить и выйти"
-msgstr "Yeni şifrəni saxla"
+msgstr "Yadda saxla və çıx"
 
 #: src/catalog/templates/admin/catalog/place/change_form.html:537
 #, fuzzy
@@ -7679,10 +7671,9 @@ msgid "Email не подтвержден"
 msgstr "Email artıq təsdiqlənib."
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:58
-#, fuzzy
 #| msgid "Активно"
 msgid "Неактивен"
-msgstr "Aktivdir"
+msgstr "Qeyri-aktiv"
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:160
 #, fuzzy
@@ -7697,16 +7688,14 @@ msgid "Профиль неактивен"
 msgstr "Profil yeniləndi."
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:162
-#, fuzzy
 #| msgid "Зарегистрироваться"
 msgid "Зарегистрирован:"
-msgstr "Qeydiyyatdan keç"
+msgstr "Qeydiyyat tarixi:"
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:169
-#, fuzzy
 #| msgid "Последние отзывы"
 msgid "Последний вход"
-msgstr "Son rəylər"
+msgstr "Son giriş"
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:176
 #, fuzzy
@@ -7715,10 +7704,9 @@ msgid "Связанные заявки"
 msgstr "Rədd edilmiş müraciətlər"
 
 #: src/catalog/templates/admin/catalog/user/change_form.html:209
-#, fuzzy
 #| msgid "Профиль пользователя"
 msgid "Удалить пользователя"
-msgstr "İstifadəçi profili"
+msgstr "İstifadəçini sil"
 
 #: src/catalog/templates/admin/catalog/user/submit_line_compact.html:5
 msgid "Save"
@@ -7986,7 +7974,7 @@ msgstr "Səhifələmə"
 #: src/catalog/templates/pages/site_reviews.html:122
 #: src/catalog/templates/pages/site_reviews.html:124
 msgid "Назад"
-msgstr "Geri"
+msgstr "Əvvəlki"
 
 #: src/catalog/templates/catalog/events_landing.html:151
 #: src/catalog/templates/catalog/events_landing.html:153
@@ -9020,7 +9008,7 @@ msgstr "Ad və ya ünvanla axtarış"
 
 #: src/catalog/templates/pages/includes/owner_place_map_picker.html:40
 msgid "Найти"
-msgstr "Tap"
+msgstr "Axtar"
 
 #: src/catalog/templates/pages/includes/owner_place_map_picker.html:42
 msgid "Моя геопозиция"
@@ -9065,10 +9053,9 @@ msgstr "Əvvəlcə vacib minimumu tamamlayın."
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:288
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:352
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:439
-#, fuzzy
 #| msgid "Сохранить профиль"
 msgid "Сохранить черновик"
-msgstr "Profili saxla"
+msgstr "Qaralamanı yadda saxla"
 
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:164
 #: src/catalog/templates/pages/includes/owner_place_wizard.html:237
@@ -11611,3 +11598,690 @@ msgstr "Şəxsi kabinet"
 #: src/catalog/templates/pages/legal.html
 msgid "Навигация по сайту"
 msgstr "Sayt naviqasiyası"
+
+#: review submission confirmation
+msgid "Спасибо! Отзыв отправлен на модерацию"
+msgstr "Təşəkkür edirik! Rəyiniz yoxlanışa göndərildi"
+
+#: review submission confirmation
+msgid "Мы получили ваш отзыв. Он появится на сайте после проверки модератором."
+msgstr "Rəyinizi aldıq. Moderator yoxladıqdan sonra saytda dərc olunacaq."
+
+#: review submission confirmation
+msgid "Не удалось получить подтверждение отправки. Проверьте соединение и попробуйте ещё раз — повторная отправка обновит ваш отзыв."
+msgstr "Rəyin göndərildiyini təsdiqləyə bilmədik. İnternet bağlantınızı yoxlayıb yenidən cəhd edin. Təkrar göndərsəniz, mövcud rəyiniz yenilənəcək."
+
+#: review submission confirmation
+msgid "Не удалось отправить отзыв. Текст сохранён в форме. Попробуйте ещё раз позже."
+msgstr "Rəyi göndərmək mümkün olmadı. Yazdığınız mətn formadadır. Bir qədər sonra yenidən cəhd edin."
+
+#: review submission confirmation
+msgid "Отправляем отзыв…"
+msgstr "Rəyiniz göndərilir…"
+
+#: review composer validation
+msgid "Выберите оценку звёздами, чтобы отправить отзыв."
+msgstr "Rəyi göndərmək üçün ulduzlarla qiymət verin."
+
+#: review composer validation
+msgid "Сократите отзыв до 1000 символов."
+msgstr "Rəyinizi 1000 simvola qədər qısaldın."
+
+#: review composer validation
+msgid "Отзыв будет опубликован под именем из вашего аккаунта."
+msgstr "Rəyiniz hesabınızdakı adla dərc olunacaq."
+
+#: review composer minimum length
+msgid "Напишите минимум 3 символа"
+msgstr "Ən azı 3 simvol yazın"
+
+#: review rating warning
+msgid "Чтобы отправить отзыв, выберите оценку от 1 до 5 звёзд."
+msgstr "Rəyi göndərmək üçün 1-dən 5-ə qədər ulduz seçərək qiymət verin."
+
+#: place review cooldown
+msgid "Вы уже отправили отзыв об этом месте. Новый отзыв можно отправить после окончания таймера."
+msgstr "Bu məkan haqqında artıq rəy göndərmisiniz. Geri sayım bitdikdən sonra yeni rəy göndərə bilərsiniz."
+
+#: place review cooldown
+msgid "Следующий отзыв об этом месте"
+msgstr "Bu məkan haqqında növbəti rəy"
+
+#: place review cooldown
+msgid "Вы сможете оставить ещё один отзыв, когда закончится таймер."
+msgstr "Geri sayım bitdikdə daha bir rəy göndərə bilərsiniz."
+
+#: place review cooldown
+msgid "Ожидание следующего отзыва"
+msgstr "Növbəti rəy üçün gözləmə müddəti"
+
+#: place review cooldown
+msgid "До следующего отзыва"
+msgstr "Növbəti rəyə qalan vaxt"
+
+#: place review cooldown
+msgid "Новый отзыв можно оставить после окончания таймера · публикация после модерации"
+msgstr "Geri sayım bitdikdə yeni rəy yaza bilərsiniz · yoxlanışdan sonra dərc olunur"
+
+#: place review cooldown
+msgid "Не удалось получить подтверждение отправки. Проверьте соединение и попробуйте ещё раз. Текст остаётся в форме."
+msgstr "Göndərişi təsdiqləmək mümkün olmadı. Bağlantınızı yoxlayıb yenidən cəhd edin. Mətn formadadır."
+
+#: catalog volunteer admin
+msgid "Волонтёр"
+msgstr "Könüllü"
+
+#: catalog volunteer admin
+msgid "Волонтёры"
+msgstr "Könüllülər"
+
+#: catalog volunteer admin
+msgid "Волонтёр — только свои места, публикация после проверки"
+msgstr "Könüllü — yalnız öz məkanları, yoxlamadan sonra dərc"
+
+#: catalog volunteer admin
+msgid "Администратор изменил карточку. Начните заново с текущей версии, чтобы не затереть его правки."
+msgstr "Administrator məkanı dəyişib. Onun düzəlişlərini silməmək üçün cari versiyadan yenidən başlayın."
+
+#: catalog volunteer admin
+msgid "Администратор изменил карточку. Начните правки заново с текущей версии."
+msgstr "Administrator məkanı dəyişib. Düzəlişlərə cari versiyadan yenidən başlayın."
+
+#: catalog volunteer admin
+msgid "Адрес и контакты"
+msgstr "Ünvan və əlaqə"
+
+#: catalog volunteer admin
+msgid "Без новых правок"
+msgstr "Yeni düzəliş yoxdur"
+
+#: catalog volunteer admin
+msgid "В предложенных изменениях есть ошибки: %(errors)s"
+msgstr "Təklif olunan dəyişikliklərdə səhvlər var: %(errors)s"
+
+#: catalog volunteer admin
+msgctxt "volunteer admin"
+msgid "Вернуть на доработку"
+msgstr "Düzəliş üçün geri göndər"
+
+#: catalog volunteer admin
+msgid "Возвращено на доработку."
+msgstr "Düzəliş üçün geri göndərildi."
+
+#: catalog volunteer admin
+msgid "Все изменения проверены."
+msgstr "Bütün dəyişikliklər yoxlanılıb."
+
+#: catalog volunteer admin
+msgid "Далее"
+msgstr "Növbəti"
+
+#: catalog volunteer admin
+msgid "Данные уже изменились. Обновите страницу перед сохранением."
+msgstr "Məlumatlar artıq dəyişib. Yadda saxlamazdan əvvəl səhifəni yeniləyin."
+
+#: catalog volunteer admin
+msgid "Добавляйте места и отправляйте их на проверку. Публикацию подтверждает администратор."
+msgstr "Məkan əlavə edib yoxlamaya göndərin. Dərc edilməni administrator təsdiqləyir."
+
+#: catalog volunteer admin
+msgid "Есть опубликованная версия"
+msgstr "Dərc olunmuş versiya var"
+
+#: catalog volunteer admin
+msgid "Загружена текущая версия. Предыдущий черновик заменён."
+msgstr "Cari versiya yükləndi. Əvvəlki qaralama əvəz edildi."
+
+#: catalog volunteer admin
+msgid "Заменить мой черновик текущей версией"
+msgstr "Qaralamamı cari versiya ilə əvəz et"
+
+#: catalog volunteer admin
+msgid "Изменения волонтёра"
+msgstr "Könüllünün dəyişiklikləri"
+
+#: catalog volunteer admin
+msgid "Изменения волонтёров"
+msgstr "Könüllülərin dəyişiklikləri"
+
+#: catalog volunteer admin
+msgid "Изменения опубликованы."
+msgstr "Dəyişikliklər dərc edildi."
+
+#: catalog volunteer admin
+msgid "Карточка изменилась после отправки. Верните её волонтёру на доработку."
+msgstr "Göndərildikdən sonra məkan dəyişib. Düzəliş üçün könüllüyə geri göndərin."
+
+#: catalog volunteer admin
+msgid "Карточка изменилась после отправки. Верните правки волонтёру на доработку."
+msgstr "Göndərildikdən sonra məkan dəyişib. Düzəlişləri könüllüyə geri göndərin."
+
+#: catalog volunteer admin
+msgid "Карточка изменилась. Обновите страницу."
+msgstr "Məkan dəyişib. Səhifəni yeniləyin."
+
+#: catalog volunteer admin
+msgid "Комментарий волонтёру (обязателен при возврате)"
+msgstr "Könüllüyə şərh (geri göndərərkən vacibdir)"
+
+#: catalog volunteer admin
+msgid "Место удалено или передано другому владельцу. Одобрение недоступно."
+msgstr "Məkan silinib və ya başqa sahibə verilib. Təsdiqləmək mümkün deyil."
+
+#: catalog volunteer admin
+msgid "Нужны исправления"
+msgstr "Düzəliş lazımdır"
+
+#: catalog volunteer admin
+msgid "Обновите страницу."
+msgstr "Səhifəni yeniləyin."
+
+#: catalog volunteer admin
+msgctxt "volunteer admin"
+msgid "Одобрить и опубликовать"
+msgstr "Təsdiqlə və dərc et"
+
+#: catalog volunteer admin
+msgid "Отправлено на проверку. На сайте пока остаётся прежняя версия."
+msgstr "Yoxlamaya göndərildi. Saytda hələ əvvəlki versiya göstərilir."
+
+#: catalog volunteer admin
+msgid "Переводы (необязательно)"
+msgstr "Tərcümələr (istəyə görə)"
+
+#: catalog volunteer admin
+msgid "Перед публикацией нужно заполнить:"
+msgstr "Dərc etməzdən əvvəl doldurun:"
+
+#: catalog volunteer admin
+msgid "Подкатегория должна относиться к выбранной категории."
+msgstr "Alt kateqoriya seçilmiş kateqoriyaya aid olmalıdır."
+
+#: catalog volunteer admin
+msgid "Предложенное фото"
+msgstr "Təklif olunan foto"
+
+#: catalog volunteer admin
+msgid "Предложено"
+msgstr "Təklif olunan"
+
+#: catalog volunteer admin
+msgid "Проверка изменений"
+msgstr "Dəyişikliklərin yoxlanılması"
+
+#: catalog volunteer admin
+msgid "Проверьте отмеченные поля."
+msgstr "İşarələnmiş sahələri yoxlayın."
+
+#: catalog volunteer admin
+msgid "Проверьте предложенные изменения перед публикацией."
+msgstr "Dərc etməzdən əvvəl təklif olunan dəyişiklikləri yoxlayın."
+
+#: catalog volunteer admin
+msgid "Редактировать место"
+msgstr "Məkanı redaktə et"
+
+#: catalog volunteer admin
+msgid "Сейчас"
+msgstr "Hazırda"
+
+#: catalog volunteer admin
+msgid "Содержимое не изменено. Запрошена публикация."
+msgstr "Məzmun dəyişməyib. Dərc üçün sorğu göndərilib."
+
+#: catalog volunteer admin
+msgid "Сохраните черновик или отправьте изменения на проверку. До одобрения посетители видят прежнюю опубликованную версию."
+msgstr "Qaralamanı yadda saxlayın və ya dəyişiklikləri yoxlamaya göndərin. Təsdiqlənənədək ziyarətçilər əvvəlki dərc olunmuş versiyanı görürlər."
+
+#: catalog volunteer admin
+msgid "Страницы"
+msgstr "Səhifələr"
+
+#: catalog volunteer admin
+msgid "Тарифы"
+msgstr "Tariflər"
+
+#: catalog volunteer admin
+msgid "У вас пока нет мест. Начните с кнопки «Добавить место»."
+msgstr "Hələ məkanınız yoxdur. «Məkan əlavə et» düyməsindən başlayın."
+
+#: catalog volunteer admin
+msgid "Укажите название места."
+msgstr "Məkanın adını yazın."
+
+#: catalog volunteer admin
+msgid "Укажите, что нужно исправить."
+msgstr "Nəyin düzəldilməli olduğunu yazın."
+
+#: catalog volunteer admin
+msgid "Часы работы"
+msgstr "İş saatları"
+
+#: catalog volunteer admin
+msgid "Черновик сохранён. Изменения ещё не опубликованы."
+msgstr "Qaralama yadda saxlanıldı. Dəyişikliklər hələ dərc edilməyib."
+
+#: catalog volunteer admin
+msgid "Эти изменения уже рассмотрены или ещё не отправлены."
+msgstr "Bu dəyişikliklər artıq yoxlanılıb və ya hələ göndərilməyib."
+
+#: catalog volunteer admin
+msgid "Используйте раздел «Мои места» в админке."
+msgstr "İdarəetmə panelində «Məkanlarım» bölməsindən istifadə edin."
+
+
+#: catalog volunteer admin
+msgid "Отправить на проверку"
+msgstr "Yoxlamaya göndər"
+
+
+#: catalog volunteer admin
+msgctxt "volunteer admin"
+msgid "На проверке"
+msgstr "Yoxlamadadır"
+
+
+#: staff profile
+msgid "Всего создано"
+msgstr "Ümumi yaradılan"
+
+
+#: staff profile
+msgid "Черновики мест"
+msgstr "Məkan qaralamaları"
+
+
+#: staff profile
+msgid "Места на модерации"
+msgstr "Moderasiya gözləyən məkanlar"
+
+
+#: staff profile
+msgid "Отклонённые места"
+msgstr "Rədd edilmiş məkanlar"
+
+
+#: staff profile
+msgid "Удалённые места"
+msgstr "Silinmiş məkanlar"
+
+
+#: staff profile
+msgid "Черновики правок"
+msgstr "Düzəliş qaralamaları"
+
+
+#: staff profile
+msgid "Правки на проверке"
+msgstr "Yoxlama gözləyən düzəlişlər"
+
+
+#: staff profile
+msgid "Правки на доработке"
+msgstr "Dəyişiklik tələb olunan düzəlişlər"
+
+
+#: staff profile
+msgid "Профиль сотрудника"
+msgstr "Əməkdaş profili"
+
+
+#: staff profile
+msgid "Места и статистика"
+msgstr "Məkanlar və statistika"
+
+
+#: staff profile
+msgid "Данные сотрудника"
+msgstr "Əməkdaş məlumatları"
+
+
+#: staff profile
+msgid "Считаются места, созданные сотрудником, включая удалённые. Правки считаются отдельно: у опубликованного места могут быть изменения на проверке."
+msgstr "Əməkdaşın yaratdığı bütün məkanlar, silinənlər də daxil olmaqla, sayılır. Düzəlişlər ayrıca hesablanır: yayımlanmış məkanın yoxlama gözləyən dəyişiklikləri ola bilər."
+
+
+#: staff profile
+msgid "Поиск места"
+msgstr "Məkan axtarışı"
+
+
+#: staff profile
+msgid "Статус места"
+msgstr "Məkanın statusu"
+
+
+#: staff profile
+msgid "Правки"
+msgstr "Düzəlişlər"
+
+
+#: staff profile
+msgid "Страницы мест"
+msgstr "Məkan səhifələri"
+
+
+#: staff profile
+msgid "Группа KidsMap Volunteers ограничивает сотрудника своими местами. Полный доступ определяется статусом суперпользователя."
+msgstr "KidsMap Volunteers qrupu əməkdaşın girişini öz məkanları ilə məhdudlaşdırır. Superistifadəçi statusu tam giriş verir."
+
+
+#: staff profile
+msgid "Создаёт и редактирует свои места. Публикация после проверки."
+msgstr "Öz məkanlarını yaradır və redaktə edir. Yayımlamaq üçün yoxlama tələb olunur."
+
+
+#: staff profile
+msgid "Места не найдены."
+msgstr "Məkan tapılmadı."
+
+
+#: staff profile
+msgid "Активен"
+msgstr "Aktiv"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Кабинет волонтёра"
+msgstr "Könüllü kabineti"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Мои места"
+msgstr "Məkanlarım"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Добавляйте места, редактируйте данные и отправляйте карточки на проверку."
+msgstr "Məkanlar əlavə edin, məlumatları redaktə edin və kartları yoxlamaya göndərin."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Добавить место"
+msgstr "Məkan əlavə et"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Добавить первое место"
+msgstr "İlk məkanı əlavə et"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "У вас пока нет добавленных мест"
+msgstr "Hələ məkan əlavə etməmisiniz"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Добавьте первое место — после проверки администратор сможет опубликовать его в KidsMap."
+msgstr "İlk məkanınızı əlavə edin. Yoxlamadan sonra administrator onu KidsMap-da yayımlaya bilər."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Все мои места"
+msgstr "Bütün məkanlarım"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Черновик"
+msgstr "Qaralama"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "На модерации"
+msgstr "Moderasiya gözləyir"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Нужна доработка"
+msgstr "Düzəliş lazımdır"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Опубликовано"
+msgstr "Yayımlanıb"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Снято с публикации"
+msgstr "Yayımdan çıxarılıb"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Карточка ещё не отправлена на проверку."
+msgstr "Kart hələ yoxlamaya göndərilməyib."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Карточка отправлена администратору и ожидает проверки."
+msgstr "Kart administratora göndərilib və yoxlama gözləyir."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Исправьте замечания администратора и отправьте карточку повторно."
+msgstr "Administratorun qeydlərinə uyğun düzəliş edin və kartı yenidən göndərin."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Карточка опубликована на KidsMap."
+msgstr "Kart KidsMap-da yayımlanıb."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Карточка сейчас не показывается на сайте."
+msgstr "Kart hazırda saytda göstərilmir."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Продолжить заполнение"
+msgstr "Doldurmağa davam et"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Посмотреть"
+msgstr "Bax"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Исправить"
+msgstr "Düzəliş et"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Редактировать"
+msgstr "Redaktə et"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Статистика моих мест"
+msgstr "Məkanlarımın statistikası"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Мои карточки"
+msgstr "Kartlarım"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Фильтр по статусу"
+msgstr "Statusa görə filtr"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Поиск по моим местам"
+msgstr "Məkanlarımda axtarış"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Название места"
+msgstr "Məkanın adı"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Найти"
+msgstr "Axtar"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Ничего не найдено"
+msgstr "Heç nə tapılmadı"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Попробуйте другое название или сбросьте фильтры."
+msgstr "Başqa adla axtarın və ya filtrləri sıfırlayın."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Сбросить фильтры"
+msgstr "Filtrləri sıfırla"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Страницы мест"
+msgstr "Məkan səhifələri"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Назад"
+msgstr "Geri"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Далее"
+msgstr "Növbəti"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Замечание администратора"
+msgstr "Administratorun qeydi"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "На сайте остаётся прежняя опубликованная версия."
+msgstr "Saytda əvvəlki yayımlanmış versiya qalır."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Готовность"
+msgstr "Hazırlıq"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Готовность карточки"
+msgstr "Kartın hazırlığı"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Обновлено"
+msgstr "Yenilənib"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Что осталось заполнить"
+msgstr "Doldurulmalı məlumatlar"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Посмотреть на сайте"
+msgstr "Saytda bax"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Просмотр карточки"
+msgstr "Karta baxış"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Описание"
+msgstr "Təsvir"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Возраст"
+msgstr "Yaş"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Телефон"
+msgstr "Telefon"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Расписание"
+msgstr "Cədvəl"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Новые изменения также проходят модерацию. До одобрения посетители видят прежнюю версию."
+msgstr "Yeni dəyişikliklər də yoxlanılır. Təsdiqə qədər ziyarətçilər əvvəlki versiyanı görürlər."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Если изменить карточку на проверке, сохраните её и отправьте на модерацию повторно."
+msgstr "Yoxlamadakı kartı dəyişsəniz, yadda saxlayıb yenidən moderasiyaya göndərin."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "До одобрения новых правок на сайте остаётся прежняя опубликованная версия."
+msgstr "Yeni düzəlişlər təsdiqlənənədək saytda əvvəlki yayımlanmış versiya qalır."
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Готовность сохранённой версии"
+msgstr "Saxlanmış versiyanın hazırlığı"
+
+
+#: volunteer dashboard
+msgctxt "volunteer dashboard"
+msgid "Администратор изменил карточку. Начните заново с текущей версии, чтобы не затереть его правки."
+msgstr "Administrator kartı dəyişib. Onun düzəlişlərini itirməmək üçün cari versiyadan başlayın."

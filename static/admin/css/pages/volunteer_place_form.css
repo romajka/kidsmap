@@ -1,0 +1,72 @@
+/* Reuse the admin place design, scoped to the restricted volunteer editor. */
+.kv-admin-editor [hidden] { display:none !important; }
+.kv-admin-editor .km-pf__main, .kv-admin-editor .km-pf__side { min-width:0; }
+.kv-admin-editor .km-pf__side { align-self:start; }
+.kv-admin-editor .km-pf-side__block p { margin:0; color:var(--pf-text-3); font-size:13px; line-height:1.6; }
+.kv-admin-editor .km-pf-section { scroll-margin-top:90px; }
+.kv-admin-editor .km-pf-field input[type=checkbox] { width:20px; height:20px; appearance:auto; accent-color:var(--pf-accent); }
+.kv-admin-editor .km-pf-field input[type=file] { max-width:100%; padding:12px; }
+.kv-admin-editor .km-pf-field textarea { min-height:110px; resize:vertical; }
+.kv-admin-editor [data-pf-langpane] textarea { min-height:230px; }
+.kv-admin-editor .kv-admin-photos img { width:240px; max-width:100%; height:160px; object-fit:cover; border-radius:var(--pf-radius-sm); margin-top:16px; }
+.kv-admin-editor .kv-admin-guide { margin:0; padding:0 20px 20px 44px; }
+.kv-admin-editor .kv-admin-guide li { margin:16px 0; padding-left:8px; line-height:1.65; }
+.kv-admin-editor .km-pf-dialog { max-width:min(680px,calc(100vw - 32px)); max-height:85dvh; overflow:auto; }
+.kv-admin-editor .km-pf-dialog::backdrop { background:rgb(15 23 42 / .45); }
+.kv-admin-editor :focus-visible { outline:2px solid var(--pf-accent); outline-offset:3px; }
+.kv-admin-editor .owner-map-picker { min-width:0; }
+.kv-admin-editor .owner-map-picker-canvas { height:300px; }
+.kv-admin-editor .pw-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.kv-admin-editor .pw-details { margin:14px 0; }
+.kv-admin-editor .pw-field input { width:100%; }
+.kv-admin-editor .owner-map-picker-actions, .kv-admin-editor .owner-map-picker-search { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+.kv-admin-editor .owner-map-picker-search input { min-width:0; flex:1; }
+.kv-admin-editor .owner-map-picker button { border:1px solid var(--pf-border); border-radius:var(--pf-radius-xs); background:var(--pf-surface); padding:8px 12px; color:var(--pf-text); }
+.kv-admin-editor .kv-admin-tariffs { min-width:0; }
+@media(max-width:767px) {
+  .kv-admin-editor .km-pf__nav { grid-template-columns:repeat(2,minmax(0,1fr)); overflow:visible; }
+  .kv-admin-editor .km-pf__layout { display:flex; flex-direction:column; }
+  .kv-admin-editor .km-pf__side { display:block; position:static; width:100%; }
+  .kv-admin-editor .km-pf-grid--2, .kv-admin-editor .pw-fields { grid-template-columns:1fr; }
+  .kv-admin-editor .km-pf__header-aside { align-items:flex-start; }
+  .kv-admin-editor .km-pf__accordion-actions { flex-wrap:wrap; }
+  .kv-admin-editor .km-pf-navitem { min-width:0; }
+}
+@media(prefers-reduced-motion:reduce) { .kv-admin-editor * { scroll-behavior:auto !important; transition:none !important; } }
+.kv-admin-editor .km-pf-section__body { grid-template-columns:minmax(0,1fr); }
+.kv-admin-editor .km-pf-section__inner { min-width:0; }
+@media(max-width:1100px) {
+  .kv-admin-editor .km-pf__nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; position:static; }
+  .kv-admin-editor .km-pf-navitem { min-width:0; height:auto; min-height:52px; }
+  .kv-admin-editor .km-pf-navitem__title { white-space:normal; }
+  .kv-admin-editor .km-schedule-editor__header { display:none !important; }
+  .kv-admin-editor .km-schedule-editor__row { min-width:0 !important; grid-template-columns:minmax(0,1fr) !important; gap:10px !important; }
+  .kv-admin-editor .km-schedule-editor__day,.kv-admin-editor .km-schedule-editor__status { min-width:0 !important; }
+}
+@media(max-width:767px) {
+  .kv-admin-editor .km-pf__nav { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .kv-admin-editor .km-pf-section__inner { padding:16px !important; }
+  .kv-admin-editor .km-pf-group__head { flex-wrap:wrap; }
+  .kv-admin-editor .km-pf-group__note { text-align:left; }
+}
+.kv-admin-editor .kv-admin-tariffs svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.6; flex:none; vertical-align:middle; }
+.kv-admin-editor .owner-tariff-card-head { display:flex; gap:12px; align-items:center; padding-bottom:16px; }
+.kv-admin-editor .owner-tariff-card-copy { display:flex; flex-direction:column; gap:4px; flex:1; min-width:0; }
+.kv-admin-editor .owner-tariff-card-copy small { color:var(--pf-text-3); }
+.kv-admin-editor .owner-tariff-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.kv-admin-editor .owner-tariff-field { min-width:0; display:flex; flex-direction:column; gap:6px; }
+.kv-admin-editor .owner-tariff-field--hidden { display:none; }
+.kv-admin-editor .owner-tariff-field--title_az { grid-column:1/-1; }
+.kv-admin-editor .owner-tariff-advanced { margin:16px 0; }
+.kv-admin-editor .owner-tariff-advanced summary { display:flex; flex-wrap:wrap; gap:8px; padding:12px 0; cursor:pointer; }
+.kv-admin-editor .owner-tariff-advanced summary small { color:var(--pf-text-3); }
+.kv-admin-editor .owner-tariff-actions { display:flex; gap:8px; }
+.kv-admin-editor .owner-tariff-actions button { width:40px; height:40px; border:1px solid var(--pf-border); border-radius:var(--pf-radius-xs); background:var(--pf-surface); }
+.kv-admin-editor .owner-tariff-footer { display:flex; justify-content:space-between; gap:12px; align-items:center; margin-top:16px; }
+.kv-admin-editor .owner-tariff-translation-toggle button { display:inline-flex; align-items:center; gap:6px; border:0; background:transparent; color:var(--pf-accent); padding:8px 0; }
+@media(max-width:767px) { .kv-admin-editor .owner-tariff-grid { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:767px) {
+  .kv-admin-editor .km-pf-navitem { display:grid; grid-template-columns:22px minmax(0,1fr); gap:8px; padding:8px; }
+  .kv-admin-editor .km-pf-navitem__state { display:none; }
+  .kv-admin-editor .km-pf-navitem__title { min-width:0; white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere; }
+}

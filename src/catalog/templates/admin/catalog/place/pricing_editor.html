@@ -3,7 +3,7 @@
   <div
     class="km-pf-tariffs"
     data-tariff-editor
-    data-can-verify="1"
+    data-can-verify="{% if volunteer_editor %}0{% else %}1{% endif %}"
     data-format-label="{% translate 'Формат' %}"
     data-group-label="{% translate 'Групповые' %}"
     data-individual-label="{% translate 'Индивидуальные' %}"

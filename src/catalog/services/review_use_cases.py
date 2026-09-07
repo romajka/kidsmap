@@ -14,6 +14,7 @@ class ReviewSubmissionResult:
     ok: bool
     created: bool
     message: str
+    cooldown: dict | None = None
 
 
 @dataclass(slots=True)
@@ -108,25 +109,32 @@ def submit_place_review(*, request, place, require_auth: bool) -> ReviewSubmissi
 
     moderated = moderate_review_content(author_name=payload.author_name, text=payload.text)
 
-    review_obj, created = create_or_update_review(
-        place,
-        request,
-        rating=payload.rating,
-        review_text=moderated.text,
-        author_name=moderated.author_name,
-        is_anonymous=payload.is_anonymous,
-        contains_profanity=moderated.contains_profanity,
-    )
-    review_obj.status = PlaceReview.STATUS_PENDING
-    review_obj.is_approved = False
-    review_obj.rejection_reason = ""
-    review_obj.save(update_fields=["status", "is_approved", "rejection_reason", "updated_at"])
+    cooldown = None
+    if request.user.is_authenticated:
+        from catalog.services.place_review_submission import create_pending_place_review
+        review_obj, cooldown = create_pending_place_review(
+            user=request.user, place=place, rating=payload.rating, text=moderated.text,
+            author_name=moderated.author_name, contains_profanity=moderated.contains_profanity,
+        )
+        if review_obj is None:
+            return ReviewSubmissionResult(
+                ok=False, created=False,
+                message=_("Вы уже отправили отзыв об этом месте. Новый отзыв можно отправить после окончания таймера."),
+                cooldown=cooldown,
+            )
+        created = True
+    else:
+        review_obj, created = create_or_update_review(
+            place, request, rating=payload.rating, review_text=moderated.text,
+            author_name=moderated.author_name, is_anonymous=payload.is_anonymous,
+            contains_profanity=moderated.contains_profanity,
+        )
 
-    message = _("Ваш отзыв отправлен на модерацию и будет опубликован после проверки.")
+    message = _("Мы получили ваш отзыв. Он появится на сайте после проверки модератором.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 
-    return ReviewSubmissionResult(ok=True, created=created, message=message)
+    return ReviewSubmissionResult(ok=True, created=created, message=message, cooldown=cooldown)
 
 
 def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult:
@@ -172,7 +180,7 @@ def submit_site_review(*, request, require_auth: bool) -> ReviewSubmissionResult
             defaults=defaults,
         )
 
-    message = _("Ваш отзыв отправлен на модерацию и будет опубликован после проверки.")
+    message = _("Мы получили ваш отзыв. Он появится на сайте после проверки модератором.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 

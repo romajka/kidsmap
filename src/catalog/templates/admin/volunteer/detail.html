@@ -1,0 +1,13 @@
+{% extends "admin/volunteer/base.html" %}
+{% load i18n %}
+{% block workspace %}
+<div class="kv-dashboard">
+<a class="kv-back" href="{% url 'admin:volunteer_index' %}">← {% translate "Мои места" context "volunteer dashboard" %}</a>
+<header class="kv-header"><div><p class="kv-eyebrow">{% translate "Просмотр карточки" context "volunteer dashboard" %}</p><h1>{{ card.name }}</h1></div><a href="{{ card.edit_url }}" class="kv-button kv-button--primary">{% translate "Редактировать" context "volunteer dashboard" %}</a></header>
+{% include 'admin/volunteer/place_card.html' %}
+<section class="kv-detail"><h2>{% translate "Описание" context "volunteer dashboard" %}</h2><p>{{ card.description|linebreaksbr|default:'—' }}</p><dl><dt>{% translate "Возраст" context "volunteer dashboard" %}</dt><dd>{% if card.candidate.age_from != None %}{{ card.candidate.age_from }}{% if card.candidate.age_open_ended %}+{% elif card.candidate.age_to != None %}–{{ card.candidate.age_to }}{% endif %}{% else %}—{% endif %}</dd><dt>{% translate "Телефон" context "volunteer dashboard" %}</dt><dd>{{ card.candidate.phone1|default:'—' }}</dd><dt>{% translate "Расписание" context "volunteer dashboard" %}</dt><dd>{{ card.schedule|linebreaksbr|default:'—' }}</dd></dl>
+{% if card.note %}<blockquote class="kv-review-note"><strong>{% translate "Замечание администратора" context "volunteer dashboard" %}</strong><p>{{ card.note|linebreaksbr }}</p></blockquote>{% endif %}
+{% if card.public %}<p>{% translate "Новые изменения также проходят модерацию. До одобрения посетители видят прежнюю версию." context "volunteer dashboard" %}</p>{% endif %}
+{% if card.state == 'pending' %}<p>{% translate "Если изменить карточку на проверке, сохраните её и отправьте на модерацию повторно." context "volunteer dashboard" %}</p>{% endif %}
+</section></div>
+{% endblock %}

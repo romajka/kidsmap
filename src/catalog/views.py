@@ -383,6 +383,24 @@ def toggle_place_like(request, pk):
     return redirect(result.place.get_absolute_url())
 
 
+def _review_submission_response(request, *, ok, message, redirect_url, cooldown=None):
+    limited = not ok and cooldown and cooldown["active"]
+    if _is_ajax_request(request):
+        response = JsonResponse({
+            "ok": ok,
+            "message": message,
+            "title": _("Спасибо! Отзыв отправлен на модерацию") if ok else "",
+            "cooldown": cooldown,
+            "code": "review_cooldown" if limited else "",
+        }, status=200 if ok else (429 if limited else 400))
+        if limited:
+            response["Retry-After"] = str(cooldown["retry_after"])
+        return response
+    notify = messages.success if ok else (messages.warning if limited else messages.error)
+    notify(request, message, extra_tags="review-submission")
+    return redirect(redirect_url)
+
+
 @require_POST
 def add_place_review(request, pk):
     place = place_controller.get_active_place_with_gallery(pk=pk)
@@ -410,10 +428,10 @@ def add_place_review(request, pk):
                 "review_scope": "place",
             },
         )
-        messages.success(request, result.message)
-    else:
-        messages.error(request, result.message)
-    return redirect(f"{place.get_absolute_url()}#reviews")
+    return _review_submission_response(
+        request, ok=result.ok, message=result.message, redirect_url=f"{place.get_absolute_url()}#reviews",
+        cooldown=result.cooldown,
+    )
 
 
 @require_POST
@@ -439,10 +457,9 @@ def add_site_review(request):
                 "review_scope": "site",
             },
         )
-        messages.success(request, result.message)
-    else:
-        messages.error(request, result.message)
-    return redirect(f"{reverse('site_reviews')}#site-reviews")
+    return _review_submission_response(
+        request, ok=result.ok, message=result.message, redirect_url=f"{reverse('site_reviews')}#site-reviews",
+    )
 
 
 def site_reviews(request):
@@ -2142,33 +2159,32 @@ def add_specialist_review(request, pk):
     specialist = get_object_or_404(Specialist, pk=pk, status=Specialist.STATUS_PUBLISHED, is_active=True)
 
     if not request.user.is_authenticated:
-        query = urlencode({"next": f"{specialist.get_absolute_url()}#reviews"})
-        return redirect(f"{reverse('account_login')}?{query}")
+        return _engagement_login_required_response(request, f"{specialist.get_absolute_url()}#reviews")
 
     rating_raw = (request.POST.get("rating") or "").strip()
     review_text = (request.POST.get("text") or "").strip()
 
     if not rating_raw:
-        messages.error(request, _("Выберите оценку от 1 до 5, чтобы отправить отзыв."))
-        return redirect(f"{specialist.get_absolute_url()}#reviews")
+        return _review_submission_response(request, ok=False, message=_("Выберите оценку от 1 до 5, чтобы отправить отзыв."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
 
     try:
         rating = int(rating_raw)
     except (TypeError, ValueError):
-        messages.error(request, _("Оценка должна быть числом от 1 до 5."))
-        return redirect(f"{specialist.get_absolute_url()}#reviews")
+        return _review_submission_response(request, ok=False, message=_("Оценка должна быть числом от 1 до 5."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
 
     if rating < 1 or rating > 5:
-        messages.error(request, _("Оценка вне диапазона. Укажите значение от 1 до 5."))
-        return redirect(f"{specialist.get_absolute_url()}#reviews")
+        return _review_submission_response(request, ok=False, message=_("Оценка вне диапазона. Укажите значение от 1 до 5."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
 
     if not review_text:
-        messages.error(request, _("Добавьте текст отзыва, чтобы другим пользователям было полезно ваше мнение."))
-        return redirect(f"{specialist.get_absolute_url()}#reviews")
+        return _review_submission_response(request, ok=False, message=_("Добавьте текст отзыва, чтобы другим пользователям было полезно ваше мнение."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
 
     if len(review_text) > 5000:
-        messages.error(request, _("Текст отзыва слишком длинный. Сократите его до 5000 символов."))
-        return redirect(f"{specialist.get_absolute_url()}#reviews")
+        return _review_submission_response(request, ok=False, message=_("Текст отзыва слишком длинный. Сократите его до 5000 символов."),
+                                           redirect_url=f"{specialist.get_absolute_url()}#reviews")
 
     author_name = ""
     if request.user.is_authenticated:
@@ -2202,12 +2218,12 @@ def add_specialist_review(request, pk):
         defaults=defaults
     )
 
-    message = _("Ваш отзыв отправлен на модерацию и будет опубликован после проверки.")
+    message = _("Мы получили ваш отзыв. Он появится на сайте после проверки модератором.")
     if moderated.contains_profanity:
         message = f"{message} {_('Нецензурные слова были автоматически скрыты.')}"
 
-    messages.success(request, message)
-    return redirect(f"{specialist.get_absolute_url()}#reviews")
+    return _review_submission_response(request, ok=True, message=message,
+                                       redirect_url=f"{specialist.get_absolute_url()}#reviews")
 
 
 def owner_specialist_create(request):

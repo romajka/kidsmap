@@ -479,6 +479,8 @@
           </section>
 
           <section id="reviews" class="detail-card detail-reviews">
+            {% include "catalog/includes/review_submission_notice.html" %}
+            {% include "catalog/includes/review_cooldown.html" %}
             <div class="detail-card__head">
               <h2 class="detail-card__title">{% trans "Отзывы" %}</h2>
               <span class="detail-card__aside">
@@ -546,32 +548,32 @@
               </p>
             {% endif %}
 
-            <div class="detail-compose" id="review-form">
+            <div class="detail-compose" id="review-form" data-review-composer {% if review_cooldown.active %}hidden{% endif %}>
               {% if request.user.is_authenticated %}
                 <div class="detail-compose__head">
                   <h3 class="detail-compose__title">{% trans "Оставить отзыв" %}</h3>
-                  <span class="detail-compose__hint">{% trans "Один отзыв на место · публикуется после модерации" %}</span>
+                  <span class="detail-compose__hint">{% trans "Новый отзыв можно оставить после окончания таймера · публикация после модерации" %}</span>
                 </div>
 
-                <form method="post" action="{% url 'add_place_review' place.id %}" class="detail-compose__form" data-loading-form data-review-form>
+                <form method="post" action="{% url 'add_place_review' place.id %}" class="detail-compose__form" data-loading-form data-review-form data-review-submission>
                   {% csrf_token %}
 
                   <div class="detail-stars" data-review-stars
-                    data-hint-empty="{% trans 'Поставьте оценку одним касанием' %}"
+                    data-hint-empty="{% trans 'Выберите оценку звёздами, чтобы отправить отзыв.' %}"
                     data-hint-1="{% trans 'Очень плохо' %}"
                     data-hint-2="{% trans 'Плохо' %}"
                     data-hint-3="{% trans 'Нормально' %}"
                     data-hint-4="{% trans 'Хорошо' %}"
                     data-hint-5="{% trans 'Отлично!' %}"
                   >
-                    <div class="detail-stars__row" role="radiogroup" aria-label="{% trans 'Ваша оценка' %}">
+                    <div class="detail-stars__row" role="radiogroup" aria-required="true" aria-describedby="review-rating-hint" aria-label="{% trans 'Ваша оценка' %}">
                       {% for value in "12345" %}
                         <button type="button" class="detail-stars__btn" data-value="{{ value }}" role="radio" aria-checked="false" aria-label="{% blocktrans with number=value %}{{ number }} из 5 звёзд{% endblocktrans %}">
                           <span aria-hidden="true">★</span>
                         </button>
                       {% endfor %}
                     </div>
-                    <span class="detail-stars__hint" data-review-star-hint>{% trans "Поставьте оценку одним касанием" %}</span>
+                    <span class="detail-stars__hint" id="review-rating-hint" data-review-star-hint>{% trans "Выберите оценку звёздами, чтобы отправить отзыв." %}</span>
                     <input type="hidden" name="rating" value="" data-review-rating-input required />
                   </div>
 
@@ -592,29 +594,28 @@
                       maxlength="1000"
                       required
                       data-review-text
-                      data-min-length="20"
+                      aria-label="{% trans 'Текст отзыва' %}"
+                      aria-describedby="review-submit-hint"
+                      data-min-length="3"
                       placeholder="{% trans 'Что понравилось? Что оказалось полезным для детей? Чего не хватило?' %}"
                     ></textarea>
                     <div class="detail-compose__meter">
-                      <span class="detail-compose__meter-hint" data-review-length-hint
-                        data-need-text="{% trans 'Напишите минимум 20 символов' %}"
+                      <span class="detail-compose__meter-hint" id="review-submit-hint" data-review-length-hint role="status" aria-live="polite"
+                        data-need-text="{% trans 'Напишите минимум 3 символа' %}"
                         data-more-text="{% trans 'Осталось символов:' %}"
+                        data-need-rating="{% trans 'Выберите оценку звёздами, чтобы отправить отзыв.' %}"
+                        data-too-long="{% trans 'Сократите отзыв до 1000 символов.' %}"
+                        data-sending="{% trans 'Отправляем отзыв…' %}"
                         data-ready-text="{% trans 'Можно отправлять — готово' %}"
-                      >{% trans "Напишите минимум 20 символов" %}</span>
+                      >{% trans "Напишите минимум 3 символа" %}</span>
                       <span class="detail-compose__meter-count" data-review-counter>0 / 1000</span>
                     </div>
                   </div>
 
                   <div class="detail-compose__actions">
-                    <label class="detail-checkbox">
-                      <input type="checkbox" name="is_anonymous" value="1" />
-                      <span class="detail-checkbox__box" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                      </span>
-                      <span class="detail-checkbox__label">{% trans "Не показывать моё имя" %}</span>
-                    </label>
+                    <span class="detail-compose__hint">{% trans "Отзыв будет опубликован под именем из вашего аккаунта." %}</span>
 
-                    <button type="submit" class="detail-cta detail-cta--primary detail-compose__submit" data-loading-button data-review-submit disabled>
+                    <button type="submit" class="detail-cta detail-cta--primary detail-compose__submit" data-loading-button data-review-submit aria-describedby="review-submit-hint" disabled>
                       <span class="detail-cta__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none"><path d="m5 12 14-7-4.5 14-2.5-5-7-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
                       </span>
@@ -759,7 +760,7 @@
                 aria-label="{% trans 'Поделиться в WhatsApp' %}"
               >
                 <span class="detail-cta__icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none"><path d="M5 19l1.05-3.3A7.2 7.2 0 1 1 8.8 18L5 19Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.301-.15-1.78-.878-2.056-.979-.275-.1-.476-.15-.677.15-.201.3-.777.979-.953 1.18-.175.2-.351.225-.652.075-.301-.15-1.272-.469-2.424-1.496-.895-.798-1.5-1.784-1.675-2.085-.175-.3-.019-.462.132-.612.136-.135.301-.35.451-.526.151-.176.201-.301.301-.501.101-.2.051-.376-.025-.526-.075-.15-.677-1.632-.927-2.235-.244-.588-.492-.508-.677-.518-.175-.008-.376-.01-.577-.01-.201 0-.526.075-.802.376-.276.301-1.053 1.028-1.053 2.507 0 1.479 1.078 2.908 1.229 3.109.15.2 2.122 3.24 5.141 4.544.718.31 1.279.495 1.716.634.721.229 1.377.197 1.896.12.578-.087 1.78-.727 2.031-1.429.251-.702.251-1.304.176-1.43-.076-.125-.276-.201-.577-.351zM12.004 21.996a9.94 9.94 0 0 1-5.074-1.39l-.364-.216-3.77.989 1.006-3.676-.237-.377a9.947 9.947 0 0 1-1.528-5.328c0-5.518 4.488-10.007 10.007-10.007 2.673 0 5.187 1.042 7.078 2.934 1.89 1.89 2.932 4.404 2.93 7.077-.002 5.52-4.49 10.004-10.048 10.004zm7.042-17.08A9.907 9.907 0 0 0 12.004.004C5.39.004.01 5.385.008 12c-.001 2.112.551 4.174 1.599 5.992L0 24l6.177-1.62a11.936 11.936 0 0 0 5.823 1.503h.005c6.612 0 11.993-5.381 11.995-11.997 0-3.205-1.248-6.218-3.514-8.484z"/></svg>
                 </span>
               </a>
             </div>
@@ -833,7 +834,7 @@
         const counter = form.querySelector("[data-review-counter]");
         const lengthHint = form.querySelector("[data-review-length-hint]");
         const submit = form.querySelector("[data-review-submit]");
-        const minLength = parseInt((textarea && textarea.getAttribute("data-min-length")) || "20", 10);
+        const minLength = parseInt((textarea && textarea.getAttribute("data-min-length")) || "3", 10);
         const maxLength = parseInt((textarea && textarea.getAttribute("maxlength")) || "1000", 10);
 
         function paintStars(value) {
@@ -853,24 +854,34 @@
         function refresh() {
           const value = parseInt(ratingInput.value || "0", 10);
           const length = textarea ? textarea.value.trim().length : 0;
+          const hasRating = value >= 1 && value <= 5;
+          const isSending = form.getAttribute("aria-busy") === "true";
+          const ready = hasRating && length >= minLength && length <= maxLength && !isSending;
           if (counter) counter.textContent = length + " / " + maxLength;
           if (lengthHint) {
-            if (length === 0) {
+            if (isSending) {
+              lengthHint.textContent = lengthHint.getAttribute("data-sending");
+            } else if (length === 0) {
               lengthHint.textContent = lengthHint.getAttribute("data-need-text");
             } else if (length < minLength) {
               lengthHint.textContent = lengthHint.getAttribute("data-more-text") + " " + (minLength - length);
+            } else if (length > maxLength) {
+              lengthHint.textContent = lengthHint.getAttribute("data-too-long");
+            } else if (!hasRating) {
+              lengthHint.textContent = lengthHint.getAttribute("data-need-rating");
             } else {
               lengthHint.textContent = lengthHint.getAttribute("data-ready-text");
             }
-            lengthHint.classList.toggle("is-ready", length >= minLength);
+            lengthHint.classList.toggle("is-ready", ready);
           }
-          if (submit) submit.disabled = !(value > 0 && length >= minLength);
+          if (submit) submit.disabled = isSending || length < minLength || length > maxLength;
         }
 
         starButtons.forEach(function (button, index) {
           const value = index + 1;
           button.addEventListener("click", function () {
             ratingInput.value = String(value);
+            ratingInput.dispatchEvent(new Event("change", { bubbles: true }));
             paintStars(value);
             refresh();
           });
@@ -882,6 +893,7 @@
             event.preventDefault();
             starButtons[next - 1].focus();
             ratingInput.value = String(next);
+            ratingInput.dispatchEvent(new Event("change", { bubbles: true }));
             paintStars(next);
             refresh();
           });
@@ -892,14 +904,22 @@
             if (!textarea) return;
             const phrase = chip.getAttribute("data-review-chip") || "";
             const current = textarea.value.trim();
-            textarea.value = current ? current + " " + phrase : phrase;
+            textarea.value = (current ? current + " " + phrase : phrase).slice(0, maxLength);
             textarea.focus();
             refresh();
           });
         });
 
         if (textarea) textarea.addEventListener("input", refresh);
-        paintStars(0);
+        form.addEventListener("review:state-change", refresh);
+        form.addEventListener("reset", function () {
+          window.setTimeout(function () { paintStars(parseInt(ratingInput.value || "0", 10)); refresh(); }, 0);
+        });
+        window.addEventListener("pageshow", function () {
+          paintStars(parseInt(ratingInput.value || "0", 10));
+          refresh();
+        });
+        paintStars(parseInt(ratingInput.value || "0", 10));
         refresh();
       }
 

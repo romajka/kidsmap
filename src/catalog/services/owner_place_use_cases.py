@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from catalog.models import Place
+from catalog.services.staff_roles import is_volunteer
 from catalog.services.place_access import (
     PlacePermissionScope,
     direct_place_permissions,
@@ -23,12 +24,14 @@ OwnerPermissionScope = PlacePermissionScope
 
 
 def ensure_owner_permission(*, user) -> OwnerAccessResult:
-    """Authentication gate only.
+    """Authentication gate; restricted volunteers use their review workspace.
 
     What a user may do is decided per place by `has_place_permission`. Nothing
     here may consult UserProfile: a public profile role must never widen or
     narrow access to a place.
     """
+    if is_volunteer(user):
+        return OwnerAccessResult(ok=False, message=_("Используйте раздел «Мои места» в админке."))
     if not user.is_authenticated:
         return OwnerAccessResult(ok=False, message=_("Для доступа войдите в аккаунт и повторите действие."))
     return OwnerAccessResult(ok=True, message="")
@@ -36,7 +39,7 @@ def ensure_owner_permission(*, user) -> OwnerAccessResult:
 
 def resolve_owner_permission_scopes(*, user, team_repository) -> list[OwnerPermissionScope]:
     """Return permissions scoped to individual places, never to a user role."""
-    if not user.is_authenticated:
+    if not user.is_authenticated or is_volunteer(user):
         return []
 
     scopes: dict[int, OwnerPermissionScope] = {}

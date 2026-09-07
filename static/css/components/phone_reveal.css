@@ -1,14 +1,589 @@
-.km-phone-control{font:inherit;cursor:pointer;text-decoration:none;min-height:44px;white-space:normal;overflow-wrap:anywhere;transition:transform .16s ease,box-shadow .2s ease,background-color .2s ease;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.km-phone-control:active{transform:scale(.96)}
-@media(hover:hover){.km-phone-control:hover{box-shadow:0 3px 12px rgb(19 111 56 / .13)}}
-.km-phone-control:focus-visible{outline:3px solid #136f38;outline-offset:3px}
-.km-phone-control:disabled{cursor:wait;opacity:.8}
-.km-phone-control[aria-busy="true"]::after{content:"";display:inline-block;width:12px;height:12px;margin-inline-start:8px;border:2px solid currentColor;border-inline-end-color:transparent;border-radius:50%;vertical-align:middle;animation:km-phone-spin .7s linear infinite}
-.km-phone-control--revealed{font-variant-numeric:tabular-nums;animation:km-phone-reveal .3s ease-out}
-.km-phone-error{display:block;flex-basis:100%;max-width:32ch;margin:6px 0;color:var(--text-muted,#52635b);font-size:12px;line-height:1.45}
-@keyframes km-phone-spin{to{transform:rotate(360deg)}}
-@keyframes km-phone-reveal{from{opacity:.45;transform:translateY(3px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(prefers-reduced-motion:reduce){.km-phone-control{transition:none}.km-phone-control:active{transform:none}.km-phone-control--revealed,.km-phone-control[aria-busy="true"]::after{animation:none}}
-.detail-contacts__secondary-link.km-phone-control,.home-map-popup-phone-link.km-phone-control{border:0;background:transparent;text-align:left;padding:8px 0;color:var(--brand-turf,#136f38)}
-.detail-contacts__row.km-phone-control{width:100%;text-align:left}
-.card.place-card .card-contact-toggle.km-phone-control,.page-place_list .card-contact-toggle.km-phone-control{width:auto;max-width:100%;height:auto;min-height:44px;padding:8px 12px;font-size:12px;flex-shrink:1}
+/* KidsMap Phone Reveal Component */
+.km-phone-control {
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  min-height: 44px;
+  white-space: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  overflow-wrap: anywhere;
+  transition: transform .16s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.km-phone-control:active {
+  transform: scale(.97);
+}
+
+@media (hover: hover) {
+  .km-phone-control:hover {
+    box-shadow: 0 6px 18px rgba(19, 111, 56, .22);
+  }
+}
+
+.km-phone-control:focus-visible {
+  outline: 3px solid #136f38;
+  outline-offset: 2px;
+}
+
+.km-phone-control:disabled {
+  cursor: wait;
+  opacity: .85;
+}
+
+/* Icon & Label within button */
+.km-phone-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.km-phone-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.km-phone-icon--spinning {
+  animation: km-phone-spin .75s linear infinite;
+}
+
+.km-phone-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Loading busy state */
+.km-phone-control[aria-busy="true"] {
+  pointer-events: none;
+}
+
+/* Error message */
+.km-phone-error {
+  display: block;
+  flex-basis: 100%;
+  max-width: 32ch;
+  margin: 6px 0;
+  color: var(--text-muted, #52635b);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* Revealed Group (Dual Pill: Call + Copy) */
+.km-phone-group {
+  position: relative;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: space-between !important;
+  padding: 0 !important;
+  text-align: left;
+  animation: km-phone-reveal .32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  overflow: visible !important;
+}
+
+.km-phone-call-btn {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  color: inherit;
+  text-decoration: none !important;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  border-radius: 14px 0 0 14px;
+  transition: background .18s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.km-phone-call-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.km-phone-call-btn:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.km-phone-call-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+  border-radius: 14px 0 0 14px;
+}
+
+.km-phone-call-btn .km-phone-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+.km-phone-call-btn .km-phone-number {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Copy Action Button */
+.km-phone-copy-btn {
+  flex: 0 0 48px;
+  width: 48px;
+  min-height: 100%;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 14px 14px 0;
+  transition: background .18s ease, color .18s ease, transform .16s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.km-phone-copy-btn:hover {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.km-phone-copy-btn:active {
+  transform: scale(.95);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.km-phone-copy-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+  border-radius: 0 14px 14px 0;
+}
+
+.km-phone-copy-icon {
+  width: 19px;
+  height: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.km-phone-copy-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.km-phone-copy-icon .km-icon-check {
+  display: none;
+}
+
+.km-phone-copy-icon .km-icon-copy {
+  display: block;
+}
+
+/* Copied Feedback State */
+.km-phone-copy-btn.is-copied {
+  background: #0f8b41 !important;
+  color: #fff !important;
+}
+
+.km-phone-copy-btn.is-copied .km-icon-copy {
+  display: none;
+}
+
+.km-phone-copy-btn.is-copied .km-icon-check {
+  display: block;
+  animation: km-check-pop .25s ease-out;
+}
+
+/* Tooltip Badge */
+.km-phone-copy-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 50%;
+  transform: translateX(50%) translateY(4px);
+  background: #0c2b18;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .28);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 30;
+}
+
+.km-phone-copy-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #0c2b18;
+}
+
+.km-phone-copy-btn.is-copied .km-phone-copy-tooltip {
+  opacity: 1;
+  transform: translateX(50%) translateY(0);
+}
+
+/* WhatsApp Revealed Link */
+.km-phone-control--revealed.km-phone-whatsapp-revealed {
+  animation: km-phone-reveal .32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Contacts Card Context */
+.detail-contacts__row.km-phone-control {
+  width: 100%;
+  text-align: left;
+}
+
+.detail-contacts__row.km-phone-group--contacts {
+  border: 1px solid var(--tint-turf-200);
+  background: linear-gradient(135deg, #f5fbf6, #fff);
+  box-shadow: 0 8px 20px -20px rgba(12, 83, 43, .75);
+  color: var(--detail-ink);
+}
+
+.km-phone-group--contacts .km-phone-call-btn {
+  padding: 10px 12px;
+  gap: 12px;
+  justify-content: flex-start;
+  border-radius: 12px 0 0 12px;
+}
+
+.km-phone-group--contacts .km-phone-call-btn:hover {
+  background: var(--tint-turf-100);
+}
+
+.km-phone-group--contacts .km-phone-call-btn .detail-contacts__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.km-phone-group--contacts .km-phone-copy-btn {
+  background: transparent;
+  color: var(--brand-turf);
+  border-left: 1px solid var(--tint-turf-200);
+  border-radius: 0 12px 12px 0;
+}
+
+.km-phone-group--contacts .km-phone-copy-btn:hover {
+  background: var(--tint-turf-100);
+}
+
+.km-phone-group--contacts .km-phone-copy-btn.is-copied {
+  background: var(--brand-turf) !important;
+  color: #fff !important;
+}
+
+/* Secondary links in contacts card */
+.detail-contacts__secondary-link.km-phone-control,
+.home-map-popup-phone-link.km-phone-control {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 8px 0;
+  color: var(--brand-turf, #136f38);
+}
+
+.km-phone-group--secondary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px;
+  padding: 4px 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.km-phone-group--secondary .km-phone-call-btn {
+  padding: 0;
+  border-radius: 0;
+  color: var(--brand-turf);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: underline !important;
+}
+
+.km-phone-group--secondary .km-phone-call-btn:hover {
+  background: transparent;
+  color: var(--brand-spruce);
+}
+
+.km-phone-group--secondary .km-phone-copy-btn {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  flex: 0 0 28px;
+  border: 0;
+  background: transparent;
+  border-radius: 6px;
+  color: var(--brand-turf);
+}
+
+.km-phone-group--secondary .km-phone-copy-btn:hover {
+  background: var(--tint-turf-100);
+}
+
+/* Place Card in Catalog: Phone Action CTA */
+.card.place-card {
+  container-type: inline-size;
+  container-name: place-card;
+}
+
+.card.place-card .card-bottom-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 38px !important;
+  width: 100% !important;
+}
+
+.card.place-card .card-go-btn {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.card.place-card .card-contact-toggle,
+.card-contact-toggle.km-phone-control--card {
+  flex: 0 0 38px !important;
+  width: 38px !important;
+  min-width: 38px !important;
+  max-width: 38px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 10px !important;
+  border: 1.5px solid #bdd8c5 !important;
+  background: #f3fbf6 !important;
+  color: #136f38 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  transition: background .18s ease, border-color .18s ease, transform .16s ease, box-shadow .18s ease !important;
+}
+
+.card.place-card .card-contact-toggle:hover,
+.card-contact-toggle.km-phone-control--card:hover {
+  background: #e2f3e8 !important;
+  border-color: #4cbc6f !important;
+  color: #0e562b !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(19, 111, 56, .16) !important;
+}
+
+.card.place-card .card-contact-toggle:active,
+.card-contact-toggle.km-phone-control--card:active {
+  transform: translateY(0) scale(0.96) !important;
+}
+
+.card.place-card .card-contact-toggle .km-phone-icon,
+.card-contact-toggle.km-phone-control--card .km-phone-icon {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* On standard compact cards: hide text label completely so text NEVER wraps */
+.card.place-card .card-contact-toggle .km-phone-label,
+.card-contact-toggle.km-phone-control--card .km-phone-label {
+  display: none !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+}
+
+/* When the card container has enough width (>= 350px): show Zəng et text alongside phone icon */
+@container place-card (min-width: 350px) {
+  .card.place-card .card-contact-toggle,
+  .card-contact-toggle.km-phone-control--card {
+    width: auto !important;
+    min-width: auto !important;
+    max-width: none !important;
+    flex: 0 0 auto !important;
+    padding: 0 12px !important;
+    gap: 6px !important;
+  }
+  .card.place-card .card-contact-toggle .km-phone-label,
+  .card-contact-toggle.km-phone-control--card .km-phone-label {
+    display: inline !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    line-height: 1 !important;
+  }
+}
+
+/* Mobile Sticky Bar Adjustments */
+.detail-mobile-bar .detail-cta--soft {
+  flex: 0 0 auto !important;
+  min-width: 112px;
+  padding: 0 14px;
+}
+
+.detail-mobile-bar .km-phone-group {
+  flex: 1 1 auto !important;
+  min-width: 0;
+  min-height: 50px;
+}
+
+.detail-mobile-bar .km-phone-group .km-phone-call-btn {
+  padding: 0 8px 0 10px;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: -0.015em;
+}
+
+.detail-mobile-bar .km-phone-group .km-phone-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+.detail-mobile-bar .km-phone-group .km-phone-copy-btn {
+  width: 38px;
+  flex: 0 0 38px;
+  padding: 0;
+}
+
+.detail-mobile-bar .km-phone-group .km-phone-copy-tooltip {
+  right: 2px;
+  transform: translateY(4px);
+}
+
+.detail-mobile-bar .km-phone-group .km-phone-copy-btn.is-copied .km-phone-copy-tooltip {
+  transform: translateY(0);
+}
+
+@media (max-width: 360px) {
+  .detail-mobile-bar .detail-cta--soft {
+    min-width: 96px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .detail-mobile-bar .km-phone-group {
+    min-height: 46px;
+  }
+
+  .detail-mobile-bar .km-phone-group .km-phone-call-btn {
+    font-size: 11px;
+    padding: 0 6px 0 8px;
+    gap: 4px;
+  }
+
+  .detail-mobile-bar .km-phone-group .km-phone-icon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+  }
+
+  .detail-mobile-bar .km-phone-group .km-phone-copy-btn {
+    width: 34px;
+    flex: 0 0 34px;
+  }
+
+  .detail-mobile-bar .km-phone-group .km-phone-copy-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 330px) {
+  .detail-mobile-bar .detail-cta--soft {
+    min-width: 86px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .detail-mobile-bar .km-phone-group .km-phone-call-btn {
+    font-size: 10.5px;
+    padding: 0 4px 0 6px;
+    gap: 3px;
+  }
+
+  .detail-mobile-bar .km-phone-group .km-phone-copy-btn {
+    width: 30px;
+    flex: 0 0 30px;
+  }
+}
+
+/* Animations */
+@keyframes km-phone-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes km-phone-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes km-check-pop {
+  0% { transform: scale(.7); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-phone-control,
+  .km-phone-group,
+  .km-phone-call-btn,
+  .km-phone-copy-btn {
+    transition: none !important;
+  }
+  .km-phone-control:active,
+  .km-phone-copy-btn:active {
+    transform: none !important;
+  }
+  .km-phone-group,
+  .km-phone-icon--spinning,
+  .km-phone-copy-btn.is-copied .km-icon-check {
+    animation: none !important;
+  }
+}

@@ -99,6 +99,8 @@
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=1">
+    <script src="{% static 'js/header.js' %}?v=1" defer></script>
   </head>
   <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
     data-analytics-page-type="{{ analytics_page_type }}"
@@ -107,200 +109,17 @@
     <div hidden data-phone-config data-phone-endpoint="{% url 'place_phone_reveal' 0 %}">{% csrf_token %}</div>
     <script src="{% static 'js/place_phone_reveal.js' %}?v=2"></script>
     <div class="site-shell">
-      <header class="topbar">
-        <a class="brand-wrap" href="{% url 'home' %}" aria-label="{{ brand_name }}">
-          <span class="logo-slot" style="--logo-url:url('{% static 'img/logo-mark.svg' %}');" aria-hidden="true"></span>
-          <span class="brand">{{ brand_name }}</span>
-        </a>
-
-        <details class="mobile-nav-menu header-menu">
-          <summary class="menu-trigger mobile-menu-trigger" aria-label="{% trans 'Меню' %}">
-            <span class="mobile-menu-trigger-icon" aria-hidden="true">☰</span>
-            <span class="mobile-menu-trigger-label">{% trans "Меню" %}</span>
-          </summary>
-          <div class="menu-dropdown mobile-nav-dropdown">
-            <a
-              href="{% url 'home' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}
-            >{% trans "Главная" %}</a>
-            <a
-              href="{% url 'place_list' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
-            >{% trans "Каталог" %}</a>
-            {% if is_specialists_section_enabled %}
-              <a
-                href="{% url 'specialist_list' %}"
-                class="mobile-nav-link {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}active{% endif %}"
-                {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}aria-current="page"{% endif %}
-              >{% trans "Педагоги и специалисты" %}</a>
-            {% endif %}
-            {% if is_events_section_enabled %}
-            <a
-              href="{% url 'events_landing' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
-            >{% trans "Афиша" %}</a>
-            {% endif %}
-            <a
-              href="{% url 'add_place' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'add_place' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'add_place' %}aria-current="page"{% endif %}
-            >{% trans "Добавить место" %}</a>
-            <a
-              href="{% url 'about' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}
-            >{% trans "О проекте" %}</a>
-            <a
-              href="{% url 'faq_page' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'faq_page' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'faq_page' %}aria-current="page"{% endif %}
-            >FAQ</a>
-            <a
-              href="{% url 'contacts' %}"
-              class="mobile-nav-link {% if request.resolver_match.url_name == 'contacts' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'contacts' %}aria-current="page"{% endif %}
-            >{% trans "Контакты" %}</a>
-          </div>
-        </details>
-
-        <nav class="nav">
-          <a
-            href="{% url 'home' %}"
-            class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}
-          >{% trans "Главная" %}</a>
-          <a
-            href="{% url 'place_list' %}"
-            class="{% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'place_list' or request.resolver_match.url_name == 'place_detail' or request.resolver_match.url_name == 'place_detail_legacy' or request.resolver_match.url_name == 'seo_landing' %}aria-current="page"{% endif %}
-          >{% trans "Каталог" %}</a>
-          {% if is_specialists_section_enabled %}
-            <a
-              href="{% url 'specialist_list' %}"
-              class="{% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}active{% endif %}"
-              {% if request.resolver_match.url_name == 'specialist_list' or request.resolver_match.url_name == 'specialist_detail' %}aria-current="page"{% endif %}
-            >{% trans "Педагоги и специалисты" %}</a>
-          {% endif %}
-          {% if is_events_section_enabled %}
-          <a
-            href="{% url 'events_landing' %}"
-            class="{% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'events_landing' or request.resolver_match.url_name == 'event_detail' %}aria-current="page"{% endif %}
-          >{% trans "Афиша" %}</a>
-          {% endif %}
-          <a
-            href="{% url 'add_place' %}"
-            class="{% if request.resolver_match.url_name == 'add_place' %}active{% endif %}"
-            {% if request.resolver_match.url_name == 'add_place' %}aria-current="page"{% endif %}
-          >{% trans "Добавить место" %}</a>
-          <details class="header-menu nav-dropdown-menu">
-            <summary class="nav-dropdown-trigger {% if request.resolver_match.url_name == 'about' or request.resolver_match.url_name == 'contacts' or request.resolver_match.url_name == 'faq_page' %}active{% endif %}">
-              {% trans "О нас" %}
-              <span class="lang-arrow" aria-hidden="true"></span>
-            </summary>
-            <div class="nav-dropdown">
-              <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">
-                {% trans "О проекте" %}
-              </a>
-              <a href="{% url 'faq_page' %}" class="{% if request.resolver_match.url_name == 'faq_page' %}active{% endif %}">
-                FAQ
-              </a>
-              <a href="{% url 'contacts' %}" class="{% if request.resolver_match.url_name == 'contacts' %}active{% endif %}">
-                {% trans "Контакты" %}
-              </a>
-            </div>
-          </details>
-        </nav>
-
-        <div class="topbar-right">
-          <div class="auth-switch" aria-label="{% trans 'Аккаунт' %}">
-            {% if request.user.is_authenticated %}
-              <details class="account-menu header-menu" id="account-menu-details">
-                <summary class="menu-trigger auth-current auth-trigger-icononly" id="account-menu-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="account-menu-dropdown" aria-label="{% trans 'Аккаунт' %}">
-                  <img class="user-entry-icon" src="{% static 'img/ui/user.png' %}" alt="" aria-hidden="true" />
-                  <span class="visually-hidden">{% trans "Профиль" %}</span>
-                  <span class="lang-arrow" aria-hidden="true"></span>
-                </summary>
-                <div class="auth-dropdown menu-dropdown" id="account-menu-dropdown" role="menu">
-                  <a
-                    class="auth-pill auth-pill-dashboard {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}active{% endif %}"
-                    href="{% url 'account_profile' %}"
-                    {% if request.resolver_match.url_name == 'account_dashboard' or request.resolver_match.url_name == 'account_profile' or request.resolver_match.url_name == 'account_favorites' or request.resolver_match.url_name == 'account_settings' %}aria-current="page"{% endif %}
-                  >{% trans "Личный кабинет" %}</a>
-                  <a
-                    class="auth-pill auth-pill-places {% if request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}active{% endif %}"
-                    href="{% url 'owner_places_dashboard' %}"
-                    {% if request.resolver_match.url_name == 'owner_places_dashboard' or request.resolver_match.url_name == 'owner_place_create' or request.resolver_match.url_name == 'owner_place_edit' or request.resolver_match.url_name == 'owner_event_create' or request.resolver_match.url_name == 'owner_event_edit' or request.resolver_match.url_name == 'owner_reviews_dashboard' or request.resolver_match.url_name == 'owner_team_dashboard' %}aria-current="page"{% endif %}
-                  >
-                    {% trans "Мои места" %}
-                  </a>
-                  <form method="post" action="{% url 'account_logout' %}" class="auth-logout-form">
-                    {% csrf_token %}
-                    <button type="submit" class="auth-pill auth-logout auth-pill-logout">{% trans "Выйти" %}</button>
-                  </form>
-                </div>
-              </details>
-            {% else %}
-              <a
-                class="user-entry-link user-entry-logged-out"
-                href="{{ header_account_login_url }}"
-                data-preserve-current-hash
-                aria-label="{% trans 'Войти или зарегистрироваться' %}"
-                title="{% trans 'Войти или зарегистрироваться' %}"
-              >
-                <img class="user-entry-login-img" src="{% static 'img/ui/login.svg' %}" alt="" aria-hidden="true" />
-                <span class="user-entry-label">{% trans "Войти" %}</span>
-              </a>
-            {% endif %}
-          </div>
-
-          <div class="lang-switch" aria-label="{% trans 'Язык' %}">
-            <details class="lang-menu header-menu">
-              <summary class="menu-trigger lang-current lang-trigger-icononly" aria-label="{% trans 'Язык' %}">
-                <span class="lang-flag" aria-hidden="true">
-                  <img
-                    class="lang-flag-icon"
-                    src="{% if CURRENT_LANGUAGE == 'ru' %}{% static 'img/flags/ru.png' %}{% elif CURRENT_LANGUAGE == 'az' %}{% static 'img/flags/az.png' %}{% else %}{% static 'img/flags/en.png' %}{% endif %}"
-                    alt=""
-                    width="20"
-                    height="20"
-                  />
-                </span>
-                <span class="lang-current-code" aria-hidden="true">{% if CURRENT_LANGUAGE == 'ru' %}RU{% elif CURRENT_LANGUAGE == 'az' %}AZ{% else %}EN{% endif %}</span>
-                <span class="visually-hidden">
-                  {% if CURRENT_LANGUAGE == "ru" %}{% trans "Русский" %}{% elif CURRENT_LANGUAGE == "az" %}{% trans "Азербайджанский" %}{% else %}{% trans "Английский" %}{% endif %}
-                </span>
-                <span class="lang-arrow" aria-hidden="true"></span>
-              </summary>
-              <div class="lang-dropdown menu-dropdown">
-                <a class="lang-pill {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}" href="{{ alternate_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="ru">
-                  <img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" aria-hidden="true" width="20" height="20" />
-                  <span class="lang-pill-label">{% trans "Русский" %}</span>
-                </a>
-                <a class="lang-pill {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}" href="{{ alternate_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="az">
-                  <img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" aria-hidden="true" width="20" height="20" />
-                  <span class="lang-pill-label">{% trans "Азербайджанский" %}</span>
-                </a>
-                <a class="lang-pill {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}" href="{{ alternate_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}" hreflang="en">
-                  <img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" aria-hidden="true" width="20" height="20" />
-                  <span class="lang-pill-label">{% trans "Английский" %}</span>
-                </a>
-              </div>
-            </details>
-          </div>
-        </div>
-      </header>
+      {% include "includes/header.html" %}
 
       {% if messages and request.resolver_match and request.resolver_match.url_name != 'home' and request.resolver_match.url_name != 'place_detail' %}
         <section class="flash-stack" aria-live="polite">
           {% for message in messages %}
+            {% if 'review-submission' not in message.tags %}
             <p class="flash-message {% if message.tags %}flash-{{ message.tags }}{% else %}flash-info{% endif %}" role="status">
               {% if 'success' in message.tags %}<span class="material-symbols-rounded flash-message__icon" aria-hidden="true">check_circle</span>{% endif %}
               <span>{{ message }}</span>
             </p>
+            {% endif %}
           {% endfor %}
         </section>
       {% endif %}
@@ -501,6 +320,10 @@
           }, 10);
           window.setTimeout(removeToast, config.duration || 4200);
         }
+
+        window.addEventListener("kidsmap:notification", function (event) {
+          showToast(event.detail.message, event.detail);
+        });
 
         function handleAuthRequiredPayload(payload) {
           if (!payload || !payload.auth_required) return false;
@@ -1024,6 +847,7 @@
     </script>
     <script src="{% static 'js/ai_referral_tracking.js' %}"></script>
     <script src="{% static 'js/motion.js' %}" defer></script>
+    <script src="{% static 'js/review_submission.js' %}" defer></script>
     {% if analytics_events %}
       {{ analytics_events|json_script:"kidsmap-analytics-events" }}
     {% endif %}
@@ -1084,6 +908,7 @@
         });
       })();
     </script>
+    {% comment "Chat temporarily disabled at owner's request; retain embed for possible reactivation." %}
     {% if CURRENT_LANGUAGE == "az" %}
       {# Azerbaijani Tawk.to widget. Add the RU and EN widget IDs here once created. #}
       <script>
@@ -1099,6 +924,7 @@
         })();
       </script>
     {% endif %}
+    {% endcomment %}
     {% block extra_body %}{% endblock %}
   </body>
 </html>

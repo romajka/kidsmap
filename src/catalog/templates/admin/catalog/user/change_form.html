@@ -100,9 +100,11 @@
                 {{ choice.tag }}
                 <span class="km-user-access-role__visual">
                   <span class="km-user-access-role__icon">
-                    {% if forloop.counter == 1 %}
+                    {% if choice.data.value == "volunteer" %}
+                      <i class="fas fa-user-edit" aria-hidden="true"></i>
+                    {% elif choice.data.value == "moderator" %}
                       <i class="fas fa-shield-alt" aria-hidden="true"></i>
-                    {% elif forloop.counter == 2 %}
+                    {% elif choice.data.value == "content_manager" %}
                       <i class="fas fa-pen-nib" aria-hidden="true"></i>
                     {% else %}
                       <i class="fas fa-crown" aria-hidden="true"></i>
@@ -111,9 +113,11 @@
                   <span>
                     <strong>{{ choice.choice_label }}</strong>
                     <small>
-                      {% if forloop.counter == 1 %}
+                      {% if choice.data.value == "volunteer" %}
+                        {% translate "Создаёт и редактирует свои места. Публикация после проверки." %}
+                      {% elif choice.data.value == "moderator" %}
                         {% translate "Проверяет отзывы и заявки." %}
-                      {% elif forloop.counter == 2 %}
+                      {% elif choice.data.value == "content_manager" %}
                         {% translate "Редактирует места, события и контент." %}
                       {% else %}
                         {% translate "Полный доступ ко всем разделам." %}

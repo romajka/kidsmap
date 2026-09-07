@@ -52,12 +52,7 @@ class PlaceReview(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
-        constraints = [
-            models.UniqueConstraint(
-                fields=("place", "user"),
-                name="unique_place_review_per_user",
-            ),
-        ]
+        indexes = [models.Index(fields=["place", "user", "-created_at"], name="review_place_user_latest")]
         verbose_name = _("Отзыв по кружку")
         verbose_name_plural = _("Отзывы по кружкам")
 
@@ -102,6 +97,17 @@ class PlaceReview(models.Model):
     @property
     def text_i18n(self) -> str:
         return self.text or ""
+
+
+class PlaceReviewCooldown(models.Model):
+    """Submission limit independent of review visibility or deletion."""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    next_allowed_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["place", "user"], name="unique_place_review_cooldown")]
 
 
 def sync_place_rating_stats(place_ids):

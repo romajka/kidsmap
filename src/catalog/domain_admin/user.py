@@ -24,14 +24,18 @@ from catalog.models import (
     PlaceOwnershipRequestAudit,
 )
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
+from catalog.services.staff_roles import VOLUNTEER_GROUP, is_volunteer
+from catalog.services.staff_activity import staff_activity_context
 
 User = get_user_model()
 
 ADMIN_ROLE_SUPERADMIN = "superadmin"
 ADMIN_ROLE_MODERATOR = "moderator"
 ADMIN_ROLE_CONTENT_MANAGER = "content_manager"
+ADMIN_ROLE_VOLUNTEER = "volunteer"
 
 ADMIN_ROLE_CHOICES = (
+    (ADMIN_ROLE_VOLUNTEER, _("Волонтёр — только свои места, публикация после проверки")),
     (ADMIN_ROLE_MODERATOR, _("Модератор")),
     (ADMIN_ROLE_CONTENT_MANAGER, _("Контент-менеджер")),
     (ADMIN_ROLE_SUPERADMIN, _("Суперадмин")),
@@ -940,25 +944,29 @@ class StaffAccessRoleFilter(admin.SimpleListFilter):
         return (
             (ADMIN_ROLE_SUPERADMIN, _("Суперадмины")),
             ("admin", _("Админы")),
+            (ADMIN_ROLE_VOLUNTEER, _("Волонтёры")),
         )
 
     def queryset(self, request, queryset):
         if self.value() == ADMIN_ROLE_SUPERADMIN:
             return queryset.filter(is_superuser=True)
         if self.value() == "admin":
-            return queryset.filter(is_staff=True, is_superuser=False)
+            return queryset.filter(is_staff=True, is_superuser=False).exclude(groups__name=VOLUNTEER_GROUP)
+        if self.value() == ADMIN_ROLE_VOLUNTEER:
+            return queryset.filter(is_superuser=False, groups__name=VOLUNTEER_GROUP)
         return queryset
 
 
 @admin.register(StaffAccessUser)
 class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
     add_form_template = "admin/catalog/user/change_form.html"
+    change_form_template = "admin/catalog/staffaccessuser/change_form.html"
     add_form = StaffAccessUserCreationForm
     change_list_template = "admin/catalog/staffaccessuser/change_list.html"
     list_per_page = 15
     fieldsets = (
         (_("Аккаунт"), {"fields": ("username", "email", "first_name", "last_name", "password_summary")}),
-        (_("Права доступа"), {"fields": ("is_active", "is_staff", "is_superuser", "user_permissions")}),
+        (_("Права доступа"), {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
         (_("Важные даты"), {"classes": ("collapse",), "fields": ("last_login", "date_joined")}),
     )
     add_fieldsets = (
@@ -973,23 +981,41 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
     readonly_fields = ("password_summary", "last_login", "date_joined")
     list_display = ("identity_summary", "email", "staff_role", "places_count", "activity_status", "last_login", "row_actions")
     list_filter = (StaffAccessRoleFilter,)
-    filter_horizontal = ("user_permissions",)
+    filter_horizontal = ()
     actions = None
 
     def get_queryset(self, request):
-        queryset = super().get_queryset(request).filter(Q(is_staff=True) | Q(is_superuser=True))
+        queryset = super().get_queryset(request).filter(Q(is_staff=True) | Q(is_superuser=True)).prefetch_related("groups")
         return queryset.annotate(
             places_count=Count(
-                "managed_places",
-                filter=Q(managed_places__deleted_at__isnull=True),
+                "created_places",
                 distinct=True,
             )
         )
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        if not request.user.is_superuser:
+            return (*fields, "is_active", "is_staff", "is_superuser", "groups", "user_permissions")
+        return fields
+
+    def has_change_permission(self, request, obj=None):
+        if obj and obj.is_superuser and not request.user.is_superuser:
+            return False
+        return super().has_change_permission(request, obj)
+
+    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        if obj and obj.pk:
+            context.update(staff_activity_context(request, obj, self.admin_site))
+            context["staff_role_label"] = self.staff_role(obj)
+        return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
     @admin.display(description=_("Роль"))
     def staff_role(self, obj):
         if obj.is_superuser:
             return format_html('<span class="km-staff-role km-staff-role--super">{}</span>', _("Суперадмин"))
+        if is_volunteer(obj):
+            return _("Волонтёр")
         return format_html('<span class="km-staff-role km-staff-role--admin">{}</span>', _("Админ"))
 
     @admin.display(description=_("Добавленные места"), ordering="places_count")
@@ -1045,8 +1071,9 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
 
     def save_model(self, request, obj, form, change):
         selected_role = form.cleaned_data.get("admin_role") if not change else ""
-        obj.is_staff = True
-        obj.is_active = True
+        if not change:
+            obj.is_staff = True
+            obj.is_active = True
         if not change and selected_role:
             obj.is_superuser = selected_role == ADMIN_ROLE_SUPERADMIN
         super().save_model(request, obj, form, change)
@@ -1056,6 +1083,11 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
         if change:
             return
         selected_role = form.cleaned_data.get("admin_role") or ADMIN_ROLE_MODERATOR
+        if selected_role == ADMIN_ROLE_VOLUNTEER:
+            group, _created = Group.objects.get_or_create(name=VOLUNTEER_GROUP)
+            form.instance.groups.add(group)
+            form.instance.user_permissions.clear()
+            return
         if selected_role == ADMIN_ROLE_SUPERADMIN:
             form.instance.user_permissions.clear()
             return
@@ -1071,6 +1103,7 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
             return response
         superadmin_count = StaffAccessUser.objects.filter(is_superuser=True).count()
         for staff_user in response.context_data["cl"].result_list:
+            staff_user.km_is_volunteer = is_volunteer(staff_user)
             staff_user.km_can_delete = bool(
                 request.user.is_superuser
                 and staff_user.pk != request.user.pk

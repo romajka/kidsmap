@@ -1,0 +1,18 @@
+{% extends "admin/volunteer/base.html" %}
+{% load i18n %}
+{% block workspace %}
+<div class="kv-dashboard">
+  <header class="kv-header"><div><p class="kv-eyebrow">KidsMap · {% translate "Кабинет волонтёра" context "volunteer dashboard" %}</p><h1>{% translate "Мои места" context "volunteer dashboard" %}</h1><p>{% translate "Добавляйте места, редактируйте данные и отправляйте карточки на проверку." context "volunteer dashboard" %}</p></div><a class="kv-button kv-button--primary" href="{% url 'admin:volunteer_add' %}">{% include 'admin/volunteer/icon.html' with icon='plus' %}{% translate "Добавить место" context "volunteer dashboard" %}</a></header>
+  {% if is_empty %}
+    <section class="kv-empty"><span class="kv-empty__icon">{% include 'admin/volunteer/icon.html' %}</span><h2>{% translate "У вас пока нет добавленных мест" context "volunteer dashboard" %}</h2><p>{% translate "Добавьте первое место — после проверки администратор сможет опубликовать его в KidsMap." context "volunteer dashboard" %}</p><a href="{% url 'admin:volunteer_add' %}" class="kv-button kv-button--primary">{% include 'admin/volunteer/icon.html' with icon='plus' %}{% translate "Добавить первое место" context "volunteer dashboard" %}</a></section>
+  {% else %}
+  <nav class="kv-stats" aria-label="{% translate 'Статистика моих мест' context "volunteer dashboard" %}">{% for filter in filters %}<a href="?status={{ filter.key }}&amp;q={{ query|urlencode }}"{% if selected_status == filter.key %} aria-current="true"{% endif %}><strong>{{ filter.count }}</strong><span>{{ filter.label }}</span></a>{% endfor %}</nav>
+  <section class="kv-results" aria-label="{% translate 'Мои карточки' context "volunteer dashboard" %}">
+    <div class="kv-toolbar"><nav class="kv-tabs" aria-label="{% translate 'Фильтр по статусу' context "volunteer dashboard" %}">{% for filter in filters %}<a href="?status={{ filter.key }}&amp;q={{ query|urlencode }}"{% if selected_status == filter.key %} aria-current="page"{% endif %}>{{ filter.label }}</a>{% endfor %}</nav>
+    <form method="get" class="kv-search"><input type="hidden" name="status" value="{{ selected_status }}"><label for="kv-search">{% translate "Поиск по моим местам" context "volunteer dashboard" %}</label><div><input id="kv-search" type="search" name="q" value="{{ query }}" placeholder="{% translate 'Название места' context "volunteer dashboard" %}" maxlength="200"><button type="submit" aria-label="{% translate 'Найти' context "volunteer dashboard" %}">{% include 'admin/volunteer/icon.html' with icon='search' %}</button></div></form></div>
+    <div class="kv-cards">{% for card in cards %}{% include 'admin/volunteer/place_card.html' %}{% empty %}<div class="kv-empty kv-empty--search"><h2>{% translate "Ничего не найдено" context "volunteer dashboard" %}</h2><p>{% translate "Попробуйте другое название или сбросьте фильтры." context "volunteer dashboard" %}</p><a href="{% url 'admin:volunteer_index' %}" class="kv-button">{% translate "Сбросить фильтры" context "volunteer dashboard" %}</a></div>{% endfor %}</div>
+    {% if page.has_other_pages %}<nav class="kv-pagination" aria-label="{% translate 'Страницы мест' context "volunteer dashboard" %}">{% if page.has_previous %}<a class="kv-button" href="?status={{ selected_status }}&amp;q={{ query|urlencode }}&amp;page={{ page.previous_page_number }}">{% translate "Назад" context "volunteer dashboard" %}</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="kv-button" href="?status={{ selected_status }}&amp;q={{ query|urlencode }}&amp;page={{ page.next_page_number }}">{% translate "Далее" context "volunteer dashboard" %}</a>{% endif %}</nav>{% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

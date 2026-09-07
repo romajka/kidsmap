@@ -118,7 +118,7 @@
                     </nav>
                 </div>
 
-                {% if jazzmin_settings.search_model %}
+                {% if jazzmin_settings.search_model and not kidsmap_is_volunteer %}
                 <div class="km-admin-header__center">
                     {% for search_model in jazzmin_settings.search_models_parsed %}
                     {% if forloop.first %}
@@ -203,12 +203,13 @@
                                 <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-edit"></use></svg>
                                 <span>{% trans 'Сменить пароль' %}</span>
                             </a>
-                            {% if perms|can_view_self %}
+                            {% if not kidsmap_is_volunteer and perms|can_view_self %}
                             <a href="{% jazzy_admin_url request.user request.current_app|default:'admin' %}" class="dropdown-item">
                                 <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-person"></use></svg>
                                 <span>{% trans 'Профиль' %}</span>
                             </a>
                             {% endif %}
+                            {% if not kidsmap_is_volunteer %}
                             {% get_user_menu user request.current_app|default:'admin' as user_menu %}
                             {% for link in user_menu %}
                             <a href="{{ link.url }}" class="dropdown-item" {% if link.new_window %}target="_blank"{% endif %}>
@@ -216,6 +217,7 @@
                                 <span>{% trans link.name %}</span>
                             </a>
                             {% endfor %}
+                            {% endif %}
                             <div class="dropdown-divider"></div>
                             <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
                                 {% csrf_token %}
@@ -256,11 +258,11 @@
                             {% endif %}
                         </div>
                         <div class="km-admin-sidebar__user-copy">
-                            {% if perms|can_view_self %}
+                            {% if not kidsmap_is_volunteer and perms|can_view_self %}
                             <a href="{% jazzy_admin_url request.user request.current_app|default:'admin' %}"
                                 class="km-admin-sidebar__user-name">{{ request.user }}</a>
                             {% else %}
-                            <span class="km-admin-sidebar__user-name">{{ request.user }}</span>
+                            <span class="km-admin-sidebar__user-name">{{ request.user.get_full_name|default:request.user.username }}</span>
                             {% endif %}
                             <span class="km-admin-sidebar__user-role">{{ kidsmap_admin_role_label }}</span>
                         </div>

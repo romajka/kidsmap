@@ -1,0 +1,6 @@
+{% load i18n %}
+{% if page.has_other_pages %}<nav aria-label="{% translate 'Страницы' %}" class="km-volunteer-actions">
+{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% translate "Назад" %}</a>{% endif %}
+<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>
+{% if page.has_next %}<a href="?page={{ page.next_page_number }}">{% translate "Далее" %}</a>{% endif %}
+</nav>{% endif %}

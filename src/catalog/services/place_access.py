@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from django.utils.translation import gettext_lazy as _
+from catalog.services.staff_roles import is_volunteer
 
 
 PLACE_ROLE_MANAGER = "MANAGER"
@@ -68,6 +69,8 @@ def is_direct_place_manager(*, user, place) -> bool:
 
 
 def direct_place_permissions(*, user, place) -> set[str]:
+    if is_volunteer(user):
+        return set()
     if not is_direct_place_manager(user=user, place=place):
         return set()
     # These permissions belong to this one listing only. They do not turn the
@@ -76,6 +79,8 @@ def direct_place_permissions(*, user, place) -> set[str]:
 
 
 def staff_has_place_permission(*, user, permission_code: str) -> bool:
+    if is_volunteer(user):
+        return False
     if not getattr(user, "is_authenticated", False):
         return False
     if getattr(user, "is_superuser", False):
@@ -86,6 +91,8 @@ def staff_has_place_permission(*, user, permission_code: str) -> bool:
 
 
 def has_place_permission(*, user, place, permission_code: str) -> bool:
+    if is_volunteer(user):
+        return False
     if staff_has_place_permission(user=user, permission_code=permission_code):
         return True
     if permission_code in direct_place_permissions(user=user, place=place):

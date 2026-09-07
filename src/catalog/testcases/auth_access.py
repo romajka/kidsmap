@@ -71,6 +71,7 @@ class TestAccountsAndReviewAccess(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(SiteReview.objects.count(), 0)
 
+    @override("ru")
     def test_authenticated_user_can_submit_place_review(self):
         user = User.objects.create_user(username="member", email="member@example.com", password="StrongPass123!!")
         UserProfile.objects.create(user=user)
@@ -88,10 +89,12 @@ class TestAccountsAndReviewAccess(TestCase):
         self.assertEqual(review.author_name, "member")
         self.assertEqual(review.status, PlaceReview.STATUS_PENDING)
         self.assertFalse(review.is_approved)
-        self.assertContains(response, "Ваш отзыв отправлен на модерацию")
+        self.assertContains(response, "Спасибо! Отзыв отправлен на модерацию")
+        self.assertContains(response, "Мы получили ваш отзыв. Он появится на сайте после проверки модератором.")
         self.assertContains(response, '"name": "review_submit"')
         self.assertContains(response, '"review_scope": "place"')
 
+    @override("ru")
     def test_authenticated_user_sees_site_review_moderation_confirmation(self):
         user = User.objects.create_user(username="site_member", email="site_member@example.com", password="StrongPass123!!")
         UserProfile.objects.create(user=user)
@@ -106,7 +109,8 @@ class TestAccountsAndReviewAccess(TestCase):
         review = SiteReview.objects.get(user=user)
         self.assertEqual(review.status, SiteReview.STATUS_PENDING)
         self.assertFalse(review.is_approved)
-        self.assertContains(response, "Ваш отзыв отправлен на модерацию")
+        self.assertContains(response, "Спасибо! Отзыв отправлен на модерацию")
+        self.assertContains(response, "Мы получили ваш отзыв. Он появится на сайте после проверки модератором.")
 
     def test_registration_page_shows_required_fields_note_in_current_language(self):
         with override("az"):

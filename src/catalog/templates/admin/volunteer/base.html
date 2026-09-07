@@ -1,0 +1,7 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/volunteer.css' %}">{% endblock %}
+{% block bodyclass %}{{ block.super }} km-volunteer-page{% endblock %}
+{% block content %}<main class="km-volunteer">
+  {% block workspace %}{% endblock %}
+</main>{% endblock %}
