@@ -21,8 +21,13 @@ from catalog.repositories.django_repositories import (
 )
 from catalog.services.geocoding import PlaceGeocodingResult, PlaceGeocodingService, place_location_fields_changed
 from catalog.services.content_quality import QualityCheck, place_quality_check, place_quality_error_labels
-from catalog.services.place_readiness import evaluate_readiness, readiness_data_from_form
+from catalog.services.place_readiness import (
+    evaluate_place_readiness,
+    evaluate_readiness,
+    readiness_data_from_form,
+)
 from catalog.services.pricing_plans import pricing_audit_summary
+from catalog.services.permanent_place_rules import copy as tr_copy
 from catalog.services.owner_place_use_cases import (
     OwnerAccessResult,
     build_owner_places_stats,
@@ -226,6 +231,174 @@ class OwnerPlacesController:
         return changes
 
     @staticmethod
+    def _calculate_place_completion(place: Place) -> dict:
+        try:
+            readiness = evaluate_place_readiness(place)
+        except Exception as exc:
+            logger.warning("Failed to evaluate readiness for place %s: %s", getattr(place, "pk", None), exc)
+            return {
+                "percent": 0,
+                "is_ready": False,
+                "is_complete": False,
+                "tier": "low",
+                "total_steps": 6,
+                "completed_steps": 0,
+                "remaining_steps": 6,
+                "steps": [],
+                "missing": [],
+                "next_hint_ru": "",
+                "next_hint_az": "",
+                "next_hint_en": "",
+                "steps_summary_ru": "",
+                "steps_summary_az": "",
+                "steps_summary_en": "",
+            }
+
+        items_by_code = {item.code: item for item in readiness.items}
+
+        step_definitions = (
+            {
+                "number": 1,
+                "title_ru": "О месте",
+                "title_az": "Məkan haqqında",
+                "title_en": "About the place",
+                "req_codes": ("name", "description", "category", "subcategory"),
+            },
+            {
+                "number": 2,
+                "title_ru": "Возраст детей",
+                "title_az": "Yaş aralığı",
+                "title_en": "Age range",
+                "req_codes": ("age",),
+            },
+            {
+                "number": 3,
+                "title_ru": "Тарифы и цены",
+                "title_az": "Tariflər",
+                "title_en": "Pricing",
+                "req_codes": ("price",),
+            },
+            {
+                "number": 4,
+                "title_ru": "Адрес и карта",
+                "title_az": "Ünvan və xəritə",
+                "title_en": "Address and map",
+                "req_codes": ("region", "address", "coordinates"),
+            },
+            {
+                "number": 5,
+                "title_ru": "Контакты и расписание",
+                "title_az": "Əlaqə və cədvəl",
+                "title_en": "Contact and schedule",
+                "req_codes": ("phone", "schedule"),
+            },
+            {
+                "number": 6,
+                "title_ru": "Главное фото",
+                "title_az": "Əsas şəkil",
+                "title_en": "Main photo",
+                "req_codes": ("photo",),
+            },
+        )
+
+        steps = []
+        missing_step_titles_ru = []
+        missing_step_titles_az = []
+        missing_step_titles_en = []
+        first_missing_hint_ru = ""
+        first_missing_hint_az = ""
+        first_missing_hint_en = ""
+
+        for s_def in step_definitions:
+            s_items = [items_by_code[c] for c in s_def["req_codes"] if c in items_by_code]
+            s_issues = [it.issue for it in s_items if not it.is_complete and it.issue]
+            is_step_complete = len(s_issues) == 0
+
+            step_data = {
+                "number": s_def["number"],
+                "title_ru": s_def["title_ru"],
+                "title_az": s_def["title_az"],
+                "title_en": s_def["title_en"],
+                "is_complete": is_step_complete,
+                "total_reqs": len(s_items),
+                "completed_reqs": sum(1 for it in s_items if it.is_complete),
+                "issues": [
+                    {
+                        "code": iss.code,
+                        "label": str(iss.label),
+                        "message": str(iss.message),
+                    }
+                    for iss in s_issues
+                ],
+            }
+            steps.append(step_data)
+
+            if not is_step_complete:
+                missing_step_titles_ru.append(s_def["title_ru"])
+                missing_step_titles_az.append(s_def["title_az"])
+                missing_step_titles_en.append(s_def["title_en"])
+                if not first_missing_hint_ru and s_issues:
+                    first_missing_hint_ru = f"Шаг {s_def['number']}: {s_issues[0].message}"
+                    first_missing_hint_az = f"Addım {s_def['number']}: {s_issues[0].message}"
+                    first_missing_hint_en = f"Step {s_def['number']}: {s_issues[0].message}"
+
+        total_steps = len(steps)
+        completed_steps = sum(1 for s in steps if s["is_complete"])
+        remaining_steps = total_steps - completed_steps
+        percent = readiness.percentage
+
+        if percent >= 80:
+            tier = "high"
+        elif percent >= 50:
+            tier = "medium"
+        else:
+            tier = "low"
+
+        if readiness.is_ready:
+            next_hint_ru = "✓ Все обязательные шаги выполнены"
+            next_hint_az = "✓ Bütün məcburi addımlar tamamlandı"
+            next_hint_en = "✓ All required steps completed"
+            steps_summary_ru = "Все 6 обязательных шагов выполнены"
+            steps_summary_az = "Bütün 6 məcburi addım tamamlandı"
+            steps_summary_en = "All 6 required steps completed"
+        else:
+            next_hint_ru = first_missing_hint_ru or f"Осталось заполнить: {missing_step_titles_ru[0]}"
+            next_hint_az = first_missing_hint_az or f"Doldurulmalıdır: {missing_step_titles_az[0]}"
+            next_hint_en = first_missing_hint_en or f"Remaining to fill: {missing_step_titles_en[0]}"
+
+            if remaining_steps == 1:
+                rem_ru = "остался 1 шаг"
+                rem_en = "1 step left"
+            elif remaining_steps in (2, 3, 4):
+                rem_ru = f"осталось {remaining_steps} шага"
+                rem_en = f"{remaining_steps} steps left"
+            else:
+                rem_ru = f"осталось {remaining_steps} шагов"
+                rem_en = f"{remaining_steps} steps left"
+
+            steps_summary_ru = f"{completed_steps} из {total_steps} шагов выполнено · {rem_ru}"
+            steps_summary_az = f"{total_steps} addımdan {completed_steps}-i tamamlandı · {remaining_steps} qalıb"
+            steps_summary_en = f"{completed_steps} of {total_steps} steps completed · {rem_en}"
+
+        return {
+            "percent": percent,
+            "is_ready": readiness.is_ready,
+            "is_complete": readiness.is_ready,
+            "tier": tier,
+            "total_steps": total_steps,
+            "completed_steps": completed_steps,
+            "remaining_steps": remaining_steps,
+            "steps": steps,
+            "missing": [it.code for it in readiness.items if not it.is_complete],
+            "next_hint_ru": next_hint_ru,
+            "next_hint_az": next_hint_az,
+            "next_hint_en": next_hint_en,
+            "steps_summary_ru": steps_summary_ru,
+            "steps_summary_az": steps_summary_az,
+            "steps_summary_en": steps_summary_en,
+        }
+
+    @staticmethod
     def _is_user_editable_place(place: Place) -> bool:
         return not place.is_deleted
 
@@ -268,6 +441,7 @@ class OwnerPlacesController:
             place.owner_can_edit = self._is_user_editable_place(place) and self._has_permission(
                 user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT
             )
+            place.completion = self._calculate_place_completion(place)
         published_places = [place for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active]
         draft_places = [place for place in managed_places if place.status != Place.STATUS_PUBLISHED or not place.is_active]
         editable_draft_places = [place for place in draft_places if place.owner_can_edit]
@@ -338,7 +512,11 @@ class OwnerPlacesController:
         if not self._is_user_editable_place(place):
             return OwnerPlaceActionResult(
                 ok=False,
-                message=_("Məkan yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər."),
+                message=tr_copy(
+                    ru="Место можно редактировать только в статусе черновика или после отклонения.",
+                    az="Məkan yalnız qaralama və ya rədd edildikdən sonra redaktə oluna bilər.",
+                    en="Place can only be edited in draft or rejected status.",
+                ),
                 place=place,
             )
 
@@ -369,7 +547,11 @@ class OwnerPlacesController:
         if not has_capacity:
             return OwnerPlaceActionResult(
                 ok=False,
-                message=_("Hazırda maksimum 10 məkan limiti aktivdir. Yeni məkan əlavə etmək üçün mövcud kartlardan birini silin."),
+                message=tr_copy(
+                    ru="В настоящее время действует лимит максимум 10 мест. Чтобы добавить новое место, удалите одну из существующих карточек.",
+                    az="Hazırda maksimum 10 məkan limiti aktivdir. Yeni məkan əlavə etmək üçün mövcud kartlardan birini silin.",
+                    en="Currently, a maximum limit of 10 places is active. To add a new place, delete one of the existing cards.",
+                ),
             )
 
         form = OwnerPlaceCreateForm(
@@ -590,7 +772,11 @@ class OwnerPlacesController:
         return OwnerPlaceActionResult(
             ok=True,
             message=(
-                _("Qaralama saxlanıldı. Məkanı sonra profilinizdə davam etdirə bilərsiniz.")
+                tr_copy(
+                    ru="Черновик сохранён. Вы можете продолжить редактирование места позже в профиле.",
+                    az="Qaralama saxlanıldı. Məkanı sonra profilinizdə davam etdirə bilərsiniz.",
+                    en="Draft saved. You can continue editing the place later in your profile.",
+                )
                 if draft_save_only
                 else self._build_create_success_message(
                     manual_coordinates_selected=manual_coordinates_selected,
@@ -775,7 +961,11 @@ class OwnerPlacesController:
         return OwnerPlaceActionResult(
             ok=True,
             message=(
-                _("Qaralama saxlanıldı. Dəyişiklikləri sonra davam etdirə bilərsiniz.")
+                tr_copy(
+                    ru="Черновик сохранён. Вы можете продолжить внесение изменений позже.",
+                    az="Qaralama saxlanıldı. Dəyişiklikləri sonra davam etdirə bilərsiniz.",
+                    en="Draft saved. You can continue making changes later.",
+                )
                 if draft_save_only
                 else self._build_manual_refresh_message(geocoding_result=geocoding_result)
                 if force_coordinate_refresh
@@ -906,7 +1096,11 @@ class OwnerPlacesController:
         )
         return OwnerPlaceActionResult(
             ok=True,
-            message=_("Məkan moderasiyaya göndərildi."),
+            message=tr_copy(
+                ru="Место отправлено на модерацию.",
+                az="Məkan moderasiyaya göndərildi.",
+                en="Place submitted for review.",
+            ),
             place=place,
             ownership_request=ownership_request,
         )

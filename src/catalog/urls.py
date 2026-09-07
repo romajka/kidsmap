@@ -67,6 +67,7 @@ from .views import (
     add_specialist_review,
     owner_specialist_create,
     owner_specialist_edit,
+    catalog_search_suggestions,
 )
 
 urlpatterns = [
@@ -75,6 +76,7 @@ urlpatterns = [
     path("account/places/save-photos/", save_owner_photos, name="owner_photo_create_save"),
     path("account/places/<int:pk>/save-photos/", save_owner_photos, name="owner_photo_edit_save"),
     path("api/places/<int:pk>/phones/", reveal_place_phones, name="place_phone_reveal"),
+    path("api/catalog/suggestions/", catalog_search_suggestions, name="catalog_search_suggestions"),
     path("", home, name="home"),
     path("events/", events_landing, name="events_landing"),
     path("catalog/", place_list, name="place_list"),

@@ -53,7 +53,11 @@
       subcategorySelect.disabled = !selectedCategoryValue || visibleOptions === 0;
       subcategorySelect.value = hasValidSelection ? currentValue : "";
       syncSelect2(subcategorySelect);
+      try {
+        subcategorySelect.dispatchEvent(new CustomEvent("km:subcategory-rebuilt", { bubbles: true }));
+      } catch (e) {}
     }
+
 
     categorySelect.addEventListener("change", rebuildSubcategories);
     if (window.$ && window.$.fn && typeof window.$.fn.select2 !== "undefined") {

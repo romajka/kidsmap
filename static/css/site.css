@@ -1398,6 +1398,35 @@ body::before {
   line-height: 1;
 }
 
+.flash-message__text {
+  flex: 1;
+}
+
+.flash-message__close {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 6px;
+  color: inherit;
+  opacity: 0.55;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  line-height: 1;
+}
+
+.flash-message__close:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.flash-message__close .material-symbols-rounded {
+  font-size: 16px;
+}
+
 .flash-success {
   border-color: #b9dfc6;
   background: #f1faf3;

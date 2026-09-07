@@ -32,6 +32,7 @@ class AccountController:
             if place is None or not place.is_active or place.id in seen_place_ids:
                 continue
             seen_place_ids.add(place.id)
+            place.is_liked = True
             favorite_places.append(place)
 
         return {

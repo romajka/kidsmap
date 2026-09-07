@@ -20,7 +20,7 @@
     </a>
 
     <!-- Desktop Navigation -->
-    <nav class="km-nav-desktop nav" aria-label="{% trans 'Основная навигация' %}">
+    <nav class="km-nav-desktop" aria-label="{% trans 'Основная навигация' %}">
       <a
         href="{% url 'home' %}"
         class="km-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"

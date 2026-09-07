@@ -35,6 +35,7 @@
     while (parent && parent !== form) { if (parent.tagName === 'DETAILS') parent.open = true; parent = parent.parentElement; }
     const target = el(name);
     if (name === 'category') form.querySelector('[data-pw-category]')?.focus();
+    else if (name === 'subcategory') form.querySelector('.pw-subcategory-trigger')?.focus();
     else if (target?.type !== 'hidden' && target?.focus) target.focus();
     else box(name)?.querySelector('button,input:not([type=hidden]),select')?.focus();
   }
@@ -356,16 +357,313 @@
   function syncCategory() { categoryChoices.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.pwCategory === category.value))); }
   category.classList.add('pw-native-category'); category.tabIndex = -1;
   category.addEventListener('change', syncCategory); syncCategory();
+
+  // Custom enhanced dropdown for subcategory
+  const subcategory = el('subcategory');
+  if (subcategory) {
+    const picker = document.createElement('div');
+    picker.className = 'pw-subcategory-picker';
+
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'pw-subcategory-trigger';
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+
+    const triggerContent = document.createElement('div');
+    triggerContent.className = 'pw-subcategory-trigger__content';
+
+    const triggerIcon = document.createElement('span');
+    triggerIcon.className = 'pw-subcategory-trigger__icon';
+    triggerIcon.setAttribute('aria-hidden', 'true');
+    triggerIcon.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>';
+
+    const triggerText = document.createElement('span');
+    triggerText.className = 'pw-subcategory-trigger__label';
+
+    triggerContent.append(triggerIcon, triggerText);
+
+    const triggerRight = document.createElement('div');
+    triggerRight.className = 'pw-subcategory-trigger__right';
+
+    const triggerBadge = document.createElement('span');
+    triggerBadge.className = 'pw-subcategory-trigger__badge';
+
+    const clearBtn = document.createElement('span');
+    clearBtn.className = 'pw-subcategory-trigger__clear';
+    clearBtn.setAttribute('title', ui.clear_selection || 'Очистить');
+    clearBtn.setAttribute('aria-label', ui.clear_selection || 'Очистить');
+    clearBtn.setAttribute('role', 'button');
+    clearBtn.innerHTML = '✕';
+    clearBtn.hidden = true;
+
+    const chevron = document.createElement('span');
+    chevron.className = 'pw-subcategory-trigger__chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    chevron.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+
+    triggerRight.append(triggerBadge, clearBtn, chevron);
+    trigger.append(triggerContent, triggerRight);
+
+    const menu = document.createElement('div');
+    menu.className = 'pw-subcategory-menu';
+    menu.setAttribute('role', 'listbox');
+    menu.hidden = true;
+
+    const searchWrap = document.createElement('div');
+    searchWrap.className = 'pw-subcategory-search';
+    searchWrap.innerHTML =
+      '<span class="pw-subcategory-search__icon" aria-hidden="true">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>' +
+      '</span>' +
+      '<input type="text" class="pw-subcategory-search__input" placeholder="' + (ui.search_subcategory || 'Поиск подкатегории...') + '" autocomplete="off" />' +
+      '<button type="button" class="pw-subcategory-search__clear" hidden aria-label="Clear">✕</button>';
+
+    const searchInput = searchWrap.querySelector('.pw-subcategory-search__input');
+    const searchClear = searchWrap.querySelector('.pw-subcategory-search__clear');
+
+    const list = document.createElement('div');
+    list.className = 'pw-subcategory-list';
+
+    const emptyMsg = document.createElement('div');
+    emptyMsg.className = 'pw-subcategory-empty';
+    emptyMsg.textContent = ui.empty || 'Ничего не найдено';
+    emptyMsg.hidden = true;
+
+    menu.append(searchWrap, list, emptyMsg);
+    picker.append(trigger, menu);
+
+    subcategory.classList.add('pw-native-subcategory');
+    subcategory.tabIndex = -1;
+    subcategory.after(picker);
+
+    function getValidOptions() {
+      return [...subcategory.options].filter(o => o.value !== '');
+    }
+
+    function renderTrigger() {
+      const selectedCat = category.value;
+      const validOptions = getValidOptions();
+      const currentVal = subcategory.value;
+
+      if (!selectedCat) {
+        trigger.disabled = true;
+        trigger.classList.add('is-disabled');
+        triggerText.textContent = ui.select_category_first || 'Сначала выберите категорию';
+        triggerBadge.hidden = true;
+        clearBtn.hidden = true;
+        picker.classList.remove('has-value');
+        closeMenu();
+        return;
+      }
+
+      if (!validOptions.length) {
+        trigger.disabled = true;
+        trigger.classList.add('is-disabled');
+        triggerText.textContent = ui.no_subcategories || 'Для этой категории нет подкатегорий';
+        triggerBadge.hidden = true;
+        clearBtn.hidden = true;
+        picker.classList.remove('has-value');
+        closeMenu();
+        return;
+      }
+
+      trigger.disabled = false;
+      trigger.classList.remove('is-disabled');
+
+      const selectedOption = validOptions.find(o => o.value === currentVal);
+      if (selectedOption) {
+        triggerText.textContent = selectedOption.text;
+        picker.classList.add('has-value');
+        triggerBadge.hidden = true;
+        clearBtn.hidden = false;
+      } else {
+        triggerText.textContent = ui.select_subcategory || 'Выберите подкатегорию';
+        picker.classList.remove('has-value');
+        triggerBadge.textContent = `${validOptions.length} ${ui.options_count || ''}`.trim();
+        triggerBadge.hidden = false;
+        clearBtn.hidden = true;
+      }
+    }
+
+    function renderOptions(query = '') {
+      const validOptions = getValidOptions();
+      searchWrap.hidden = validOptions.length < 5;
+
+      const q = query.trim().toLowerCase();
+      const filtered = validOptions.filter(o => !q || o.text.toLowerCase().includes(q));
+
+      list.innerHTML = '';
+      if (!filtered.length) {
+        emptyMsg.hidden = false;
+        return;
+      }
+      emptyMsg.hidden = true;
+
+      filtered.forEach(option => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'pw-subcategory-item';
+        item.dataset.value = option.value;
+        const isSelected = option.value === subcategory.value;
+        if (isSelected) item.classList.add('is-selected');
+        item.setAttribute('role', 'option');
+        item.setAttribute('aria-selected', String(isSelected));
+
+        const itemLeft = document.createElement('span');
+        itemLeft.className = 'pw-subcategory-item__left';
+
+        const dot = document.createElement('span');
+        dot.className = 'pw-subcategory-item__dot';
+        dot.setAttribute('aria-hidden', 'true');
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'pw-subcategory-item__label';
+        labelSpan.textContent = option.text;
+
+        itemLeft.append(dot, labelSpan);
+        item.append(itemLeft);
+
+        if (isSelected) {
+          const check = document.createElement('span');
+          check.className = 'pw-subcategory-item__check';
+          check.setAttribute('aria-hidden', 'true');
+          check.innerHTML = '✓';
+          item.append(check);
+        }
+
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          subcategory.value = option.value;
+          subcategory.dispatchEvent(new Event('change', { bubbles: true }));
+          closeMenu();
+          trigger.focus();
+        });
+
+        list.append(item);
+      });
+    }
+
+    function openMenu() {
+      if (trigger.disabled) return;
+      menu.hidden = false;
+      picker.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+      renderOptions('');
+      if (!searchWrap.hidden) {
+        searchInput.value = '';
+        searchClear.hidden = true;
+        setTimeout(() => searchInput.focus(), 50);
+      }
+    }
+
+    function closeMenu() {
+      menu.hidden = true;
+      picker.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    function toggleMenu() {
+      if (menu.hidden) openMenu();
+      else closeMenu();
+    }
+
+    trigger.addEventListener('click', toggleMenu);
+
+    clearBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      subcategory.value = '';
+      subcategory.dispatchEvent(new Event('change', { bubbles: true }));
+      renderTrigger();
+      closeMenu();
+      trigger.focus();
+    });
+
+    searchInput.addEventListener('input', () => {
+      searchClear.hidden = !searchInput.value;
+      renderOptions(searchInput.value);
+    });
+
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      searchClear.hidden = true;
+      renderOptions('');
+      searchInput.focus();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!picker.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
+    picker.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+        trigger.focus();
+      }
+    });
+
+    category.addEventListener('change', () => {
+      window.setTimeout(() => {
+        renderTrigger();
+        if (!menu.hidden) renderOptions();
+      }, 0);
+    });
+
+    subcategory.addEventListener('change', () => {
+      renderTrigger();
+      if (!menu.hidden) renderOptions();
+    });
+
+    subcategory.addEventListener('km:subcategory-rebuilt', () => {
+      renderTrigger();
+      if (!menu.hidden) renderOptions();
+    });
+
+    try {
+      const observer = new MutationObserver(() => {
+        renderTrigger();
+        if (!menu.hidden) renderOptions();
+      });
+      observer.observe(subcategory, { childList: true });
+    } catch (e) {}
+
+    renderTrigger();
+  }
+
   const description = el('description_az'), counter = document.createElement('small');
   counter.className = 'pw-description-count'; description.after(counter);
   function countDescription() { counter.textContent = `${description.value.length} / ${rules.description_min}`; counter.classList.toggle('is-ready', description.value.length >= rules.description_min); }
   if (!volunteer) { description.addEventListener('input', countDescription); countDescription(); }
   setAge(ageMode); regionChanged(); markRequired();
+  function targetStepFromHash() {
+    const raw = (location.hash || '').replace(/^#/, '');
+    if (!raw) return null;
+    if (raw === 'photos') return 6;
+    const params = new URLSearchParams(raw);
+    const stepVal = params.get('step');
+    if (stepVal) {
+      const num = Number(stepVal);
+      if (num >= 1 && num <= 7) return num;
+    }
+    const fieldAnchor = params.get('field');
+    if (fieldAnchor) return fieldStep(fieldAnchor);
+    return null;
+  }
+
   const firstError = form.querySelector('.pw-error')?.closest('[data-pw-step]');
-  const fieldAnchor = new URLSearchParams(location.hash.slice(1)).get('field');
-  go(firstError ? Number(firstError.dataset.pwStep) : fieldAnchor ? fieldStep(fieldAnchor) : location.hash === '#photos' ? 6 : current, false);
-  if (fieldAnchor) reveal(fieldAnchor);
+  const hashStep = targetStepFromHash();
+  go(firstError ? Number(firstError.dataset.pwStep) : hashStep || current, false);
+  const initialField = new URLSearchParams((location.hash || '').replace(/^#/, '')).get('field');
+  if (initialField) reveal(initialField);
   document.addEventListener('DOMContentLoaded', () => { initialized = true; markRequired(); });
   window.addEventListener('pageshow', () => { submitting = false; });
-  window.addEventListener('hashchange', () => { const name = new URLSearchParams(location.hash.slice(1)).get('field'); if (name) reveal(name); });
+  window.addEventListener('hashchange', () => {
+    const hs = targetStepFromHash();
+    if (hs) go(hs, false);
+    const name = new URLSearchParams((location.hash || '').replace(/^#/, '')).get('field');
+    if (name) reveal(name);
+  });
 })();

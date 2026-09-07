@@ -99,7 +99,7 @@
     {% endcomment %}
     <link rel="stylesheet" href="{% static 'css/motion.css' %}" />
     <link rel="stylesheet" href="{% static 'css/components/phone_reveal.css' %}?v=2">
-    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/components/header.css' %}?v=2">
     <script src="{% static 'js/header.js' %}?v=1" defer></script>
   </head>
   <body id="top" class="{% if request.resolver_match %}page-{{ request.resolver_match.url_name }}{% endif %}"
@@ -117,7 +117,10 @@
             {% if 'review-submission' not in message.tags %}
             <p class="flash-message {% if message.tags %}flash-{{ message.tags }}{% else %}flash-info{% endif %}" role="status">
               {% if 'success' in message.tags %}<span class="material-symbols-rounded flash-message__icon" aria-hidden="true">check_circle</span>{% endif %}
-              <span>{{ message }}</span>
+              <span class="flash-message__text">{{ message }}</span>
+              <button type="button" class="flash-message__close" aria-label="{% trans 'Закрыть' %}" onclick="this.closest('.flash-message').remove()">
+                <span class="material-symbols-rounded" aria-hidden="true">close</span>
+              </button>
             </p>
             {% endif %}
           {% endfor %}

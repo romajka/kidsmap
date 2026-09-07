@@ -11,12 +11,14 @@
 {% endblock %}
 
 {% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/catalog_places.css' %}?v=20260907_12" />
 {% endblock %}
 
 {% block content %}
   {% include "catalog/includes/breadcrumbs.html" with items=catalog_breadcrumb_items %}
-  <section class="hero">
+  <section class="hero catalog-faq-hero">
+    <div class="faq-hero-orb1" aria-hidden="true"></div>
+    <div class="faq-hero-orb2" aria-hidden="true"></div>
     <picture class="catalog-hero-picture">
       {% if site_settings.catalog_hero_image %}
         <img
@@ -51,47 +53,93 @@
         <h1>{{ catalog_heading }}</h1>
         <p>{{ catalog_intro }}</p>
       {% else %}
+        <div class="faq-hero-badge">
+          <span class="faq-hero-badge-dot" aria-hidden="true"></span>
+          <span>{% if language == "az" %}UŞAQ DƏRNƏKLƏRİ VƏ BÖLMƏLƏRİ{% elif language == "en" %}KIDS CLUBS & ACTIVITIES{% else %}КАТАЛОГ КРУЖКОВ И СЕКЦИЙ{% endif %}</span>
+        </div>
         <h1>{{ catalog_heading }}</h1>
-        <p>{{ catalog_intro }}</p>
+        <p class="hero-intro-text">{% if language == "az" %}Uşağınız üçün ən yaxşı dərnək və bölmələri asanlıqla tapın{% elif language == "en" %}Find the best clubs and activities for your child{% else %}Подберите лучшие кружки и секции для развития вашего ребёнка{% endif %}</p>
       {% endif %}
       {% if not is_new_page %}
-        <form method="get" class="catalog-hero-search">
-          <span class="catalog-hero-search__icon" aria-hidden="true"></span>
-          <label class="visually-hidden" for="catalog-hero-search-input">
-            {% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}Поиск{% endif %}
-          </label>
-          <input
-            id="catalog-hero-search-input"
-            type="search"
-            name="q"
-            value="{{ selected.q }}"
-            data-search-input
-            placeholder="{% if language == 'az' %}Dərnək və ya açar söz axtarın...{% elif language == 'en' %}Search for a club or keyword...{% else %}Искать кружок или ключевое слово...{% endif %}"
-          />
-          <button
-            class="catalog-search-clear"
-            type="button"
-            data-search-clear
-            data-search-target="catalog-hero-search-input"
-            aria-label="{% if language == 'az' %}Axtarışı təmizlə{% elif language == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
-            {% if not selected.q %}hidden{% endif %}
-          ></button>
-          {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
-          {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
-          {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
-          {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
-          {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
-          {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
-          {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
-          {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
-          <button type="submit">{% if language == "az" %}Axtar{% elif language == "en" %}Search{% else %}Найти{% endif %}</button>
-        </form>
+        <div class="catalog-hero-search-wrap">
+          <form method="get" class="catalog-hero-search" id="catalog-hero-search-form" action="{% url 'place_list' %}" autocomplete="off">
+            <span class="catalog-hero-search__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </span>
+            <label class="visually-hidden" for="catalog-hero-search-input">
+              {% if language == "az" %}Axtarış{% elif language == "en" %}Search{% else %}Поиск{% endif %}
+            </label>
+            <input
+              id="catalog-hero-search-input"
+              type="search"
+              name="q"
+              value="{{ selected.q }}"
+              data-search-input
+              autocomplete="off"
+              placeholder="{% if language == 'az' %}Dərnək, kurs və ya açar söz... məsələn robototexnika{% elif language == 'en' %}Search for a club or keyword... e.g., robotics{% else %}Искать кружок или ключевое слово... например робототехника{% endif %}"
+            />
+            <button
+              class="catalog-search-clear"
+              type="button"
+              data-search-clear
+              data-search-target="catalog-hero-search-input"
+              aria-label="{% if language == 'az' %}Axtarışı təmizlə{% elif language == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
+              {% if not selected.q %}hidden{% endif %}
+            >×</button>
+            {% if selected.category %}<input type="hidden" name="category" value="{{ selected.category }}" />{% endif %}
+            {% if selected.district %}<input type="hidden" name="district" value="{{ selected.district }}" />{% endif %}
+            {% if selected.age_from %}<input type="hidden" name="age_from" value="{{ selected.age_from }}" />{% endif %}
+            {% if selected.age_to %}<input type="hidden" name="age_to" value="{{ selected.age_to }}" />{% endif %}
+            {% if selected.price_from %}<input type="hidden" name="price_from" value="{{ selected.price_from }}" />{% endif %}
+            {% if selected.price_to %}<input type="hidden" name="price_to" value="{{ selected.price_to }}" />{% endif %}
+            {% if selected.min_rating %}<input type="hidden" name="min_rating" value="{{ selected.min_rating }}" />{% endif %}
+            {% if selected.sort %}<input type="hidden" name="sort" value="{{ selected.sort }}" />{% endif %}
+            <button type="submit" class="hero-search-submit">
+              <span>{% if language == "az" %}Axtar{% elif language == "en" %}Search{% else %}Найти{% endif %}</span>
+            </button>
+          </form>
+          <div id="catalog-search-dropdown" class="catalog-search-dropdown" hidden></div>
+        </div>
+        <div class="catalog-hero-tags" aria-label="{% if language == 'az' %}Populyar axtarışlar{% elif language == 'en' %}Popular searches{% else %}Популярные запросы{% endif %}">
+          <span class="catalog-hero-tags-label">{% if language == "az" %}Məsələn:{% elif language == "en" %}E.g.:{% else %}Часто ищут:{% endif %}</span>
+          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}Şahmat{% elif language == 'en' %}Chess{% else %}Шахматы{% endif %}">♟️ {% if language == 'az' %}Şahmat{% elif language == 'en' %}Chess{% else %}Шахматы{% endif %}</button>
+          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}Robototexnika{% elif language == 'en' %}Robotics{% else %}Робототехника{% endif %}">🤖 {% if language == 'az' %}Robototexnika{% elif language == 'en' %}Robotics{% else %}Робототехника{% endif %}</button>
+          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}Üzgüçülük{% elif language == 'en' %}Swimming{% else %}Плавание{% endif %}">🏊 {% if language == 'az' %}Üzgüçülük{% elif language == 'en' %}Swimming{% else %}Плавание{% endif %}</button>
+          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}İngilis dili{% elif language == 'en' %}English{% else %}Английский{% endif %}">🇬🇧 {% if language == 'az' %}İngilis dili{% elif language == 'en' %}English{% else %}Английский{% endif %}</button>
+          <button type="button" class="catalog-hero-tag-btn" data-search-preset="{% if language == 'az' %}Rəsm{% elif language == 'en' %}Art{% else %}Рисование{% endif %}">🎨 {% if language == 'az' %}Rəsm{% elif language == 'en' %}Art{% else %}Рисование{% endif %}</button>
+        </div>
       {% endif %}
     </div>
+
     {% if not is_new_page %}
-      <div class="mobile-hero-caption">
-        <h1>{% if language == "az" %}Uşağınız üçün uyğun məkan tapın{% elif language == "en" %}Find the right place for your child{% else %}Найдите подходящее место для ребёнка{% endif %}</h1>
-        <p>{% if language == "az" %}Kursları və məşğələləri yaş və rayona görə rahat seçin.{% elif language == "en" %}Choose classes by age and district with ease.{% else %}Выбирайте курсы и занятия по возрасту и району.{% endif %}</p>
+      <div class="catalog-hero-stats" aria-label="{% if language == 'az' %}Kataloq statistikası{% elif language == 'en' %}Catalog statistics{% else %}Статистика каталога{% endif %}">
+        <div class="faq-hero-stat">
+          <div class="faq-hero-stat-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          </div>
+          <div>
+            <div class="faq-hero-stat-val">65+ {% if language == "az" %}məkan{% elif language == "en" %}places{% else %}мест{% endif %}</div>
+            <div class="faq-hero-stat-label">{% if language == "az" %}xəritədə və kataloqda{% elif language == "en" %}on map & catalog{% else %}на карте и в каталоге{% endif %}</div>
+          </div>
+        </div>
+        <div class="faq-hero-stat">
+          <div class="faq-hero-stat-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </div>
+          <div>
+            <div class="faq-hero-stat-val">17 {% if language == "az" %}kateqoriya{% elif language == "en" %}categories{% else %}категорий{% endif %}</div>
+            <div class="faq-hero-stat-label">{% if language == "az" %}idmandan elmə qədər{% elif language == "en" %}sports to robotics{% else %}от спорта до науки{% endif %}</div>
+          </div>
+        </div>
+        <div class="faq-hero-stat">
+          <div class="faq-hero-stat-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div>
+            <div class="faq-hero-stat-val">100% {% if language == "az" %}dəqiq{% elif language == "en" %}verified{% else %}проверено{% endif %}</div>
+            <div class="faq-hero-stat-label">{% if language == "az" %}aktual əlaqə və qiymətlər{% elif language == "en" %}verified contacts & prices{% else %}контакты и актуальные цены{% endif %}</div>
+          </div>
+        </div>
       </div>
     {% endif %}
   </section>
@@ -135,6 +183,7 @@
             {% endif %}
           </button>
         </form>
+        <div id="catalog-mobile-search-dropdown" class="catalog-search-dropdown" hidden></div>
 
         <div class="mobile-quick-filters" aria-label="{% if language == 'az' %}Sürətli filtrlər{% elif language == 'en' %}Quick filters{% else %}Быстрые фильтры{% endif %}">
           <button type="button" class="mobile-quick-filter{% if selected.district %} is-active{% endif %}" data-quick-filter-toggle data-quick-menu-target="district" data-filter-focus="district" aria-expanded="false" aria-controls="quick-menu-district">{% if language == "az" %}Rayon{% elif language == "en" %}District{% else %}Район{% endif %}</button>
@@ -229,6 +278,7 @@
       class="filters {% if is_new_page %}filters-new{% else %}filters-catalog{% endif %}"
       {% if not is_new_page %}data-filters-drawer aria-hidden="false"{% endif %}
     >
+      <input type="hidden" name="q" id="filters-form-q" value="{{ selected.q }}" />
       {% if not is_new_page %}
         <div class="mobile-filters-head">
           <span class="mobile-filters-handle" aria-hidden="true"></span>
@@ -427,69 +477,60 @@
             <input class="range-slider range-slider-to" type="range" min="0" max="18" aria-label="{% if language == 'az' %}Maksimum yaş{% elif language == 'en' %}Maximum age{% else %}Максимальный возраст{% endif %}" value="{{ selected.age_to|default:'18' }}" data-range-to-range />
           </div>
         </div>
-      {% endif %}
 
-      {% if not is_new_page %}
-        <details class="catalog-advanced-filters"{% if selected.min_rating or selected.price_from or selected.price_to %} open{% endif %}>
-          <summary>
-            <span class="catalog-advanced-summary-copy">
-              <strong>{% if language == "az" %}Əlavə filtrlər{% elif language == "en" %}More filters{% else %}Еще фильтры{% endif %}</strong>
-              <small>{% if language == "az" %}Qiymət və reytinq üzrə dəqiqləşdirin{% elif language == "en" %}Refine by price and rating{% else %}Уточните по цене и рейтингу{% endif %}</small>
-            </span>
-            <span class="catalog-advanced-summary-toggle" aria-hidden="true">
-              <span class="catalog-advanced-summary-toggle-open">{% if language == "az" %}Aç{% elif language == "en" %}Open{% else %}Открыть{% endif %}</span>
-              <span class="catalog-advanced-summary-toggle-close">{% if language == "az" %}Bağla{% elif language == "en" %}Hide{% else %}Скрыть{% endif %}</span>
-              <span class="catalog-advanced-summary-toggle-icon">
-                <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </span>
-          </summary>
-
-        <div class="range-filter filter-price-range" data-range data-min="0" data-max="500" data-unit="AZN" data-mobile-filter-section="price">
-          <div class="range-filter-head">
-            <span>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}{% trans "Цена" %}{% endif %}</span>
-            <strong class="range-filter-current" data-range-caption></strong>
-          </div>
-          <div class="range-filter-inputs">
-            <label class="range-filter-mini">
-              <span>{% if language == "az" %}dan{% elif language == "en" %}from{% else %}{% trans "от" %}{% endif %}</span>
-              <input class="field" type="number" min="0" max="500" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
-            </label>
-            <label class="range-filter-mini">
-              <span>{% if language == "az" %}dək{% elif language == "en" %}to{% else %}{% trans "до" %}{% endif %}</span>
-              <input class="field" type="number" min="0" max="500" name="price_to" value="{{ selected.price_to|default:'500' }}" data-range-to-input />
-            </label>
-          </div>
-          <div class="range-filter-track">
-            <input class="range-slider range-slider-from" type="range" min="0" max="500" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
-            <input class="range-slider range-slider-to" type="range" min="0" max="500" value="{{ selected.price_to|default:'500' }}" data-range-to-range />
+        <div class="filter-item filter-price-section">
+          <div class="range-filter filter-price-range" data-range data-min="0" data-max="500" data-unit="AZN" data-mobile-filter-section="price">
+            <div class="range-filter-head">
+              <span>{% if language == "az" %}Qiymət{% elif language == "en" %}Price{% else %}{% trans "Цена" %}{% endif %}</span>
+              <strong class="range-filter-current" data-range-caption></strong>
+            </div>
+            <div class="price-preset-chips" aria-label="{% if language == 'az' %}Qiymət aralığı{% elif language == 'en' %}Price range{% else %}Диапазон цен{% endif %}">
+              <button type="button" class="price-preset-chip{% if selected.price_from == '0' and selected.price_to == '50' %} is-active{% endif %}" data-price-preset-from="0" data-price-preset-to="50">0–50 ₼</button>
+              <button type="button" class="price-preset-chip{% if selected.price_from == '50' and selected.price_to == '100' %} is-active{% endif %}" data-price-preset-from="50" data-price-preset-to="100">50–100 ₼</button>
+              <button type="button" class="price-preset-chip{% if selected.price_from == '100' and selected.price_to == '200' %} is-active{% endif %}" data-price-preset-from="100" data-price-preset-to="200">100–200 ₼</button>
+              <button type="button" class="price-preset-chip{% if selected.price_from == '200' and selected.price_to == '500' %} is-active{% endif %}" data-price-preset-from="200" data-price-preset-to="500">200+ ₼</button>
+            </div>
+            <div class="range-filter-inputs">
+              <label class="range-filter-mini">
+                <span>{% if language == "az" %}dan{% elif language == "en" %}from{% else %}{% trans "от" %}{% endif %}</span>
+                <input class="field" type="number" min="0" max="500" name="price_from" value="{{ selected.price_from|default:'0' }}" data-range-from-input />
+              </label>
+              <label class="range-filter-mini">
+                <span>{% if language == "az" %}dək{% elif language == "en" %}to{% else %}{% trans "до" %}{% endif %}</span>
+                <input class="field" type="number" min="0" max="500" name="price_to" value="{{ selected.price_to|default:'500' }}" data-range-to-input />
+              </label>
+            </div>
+            <div class="range-filter-track">
+              <input class="range-slider range-slider-from" type="range" min="0" max="500" value="{{ selected.price_from|default:'0' }}" data-range-from-range />
+              <input class="range-slider range-slider-to" type="range" min="0" max="500" value="{{ selected.price_to|default:'500' }}" data-range-to-range />
+            </div>
           </div>
         </div>
-      {% endif %}
 
-      <label class="filter-item filter-rating" data-mobile-filter-section="min_rating">
-        {% if language == "az" %}Reytinq ən azı{% elif language == "en" %}Minimum rating{% else %}{% trans "Рейтинг не ниже" %}{% endif %}
-        <div class="rating-filter-pills" aria-label="{% if language == 'az' %}Reytinq ən azı{% elif language == 'en' %}Minimum rating{% else %}{% trans 'Рейтинг не ниже' %}{% endif %}">
-          <button type="button" class="rating-filter-pill{% if not selected.min_rating %} is-active{% endif %}" data-select-target="min_rating" data-select-value="">
-            <span class="rating-filter-pill-label">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
-          </button>
-          <button type="button" class="rating-filter-pill{% if selected.min_rating == '4.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4.5">
-            <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-            <span class="rating-filter-pill-label">4.5+</span>
-          </button>
-          <button type="button" class="rating-filter-pill{% if selected.min_rating == '4' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4">
-            <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-            <span class="rating-filter-pill-label">4.0+</span>
-          </button>
-          <button type="button" class="rating-filter-pill{% if selected.min_rating == '3.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="3.5">
-            <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-            <span class="rating-filter-pill-label">3.5+</span>
-          </button>
+        <div class="filter-item filter-rating" data-mobile-filter-section="min_rating">
+          <div class="filter-rating-head">
+            <span>{% if language == "az" %}Reytinq ən azı{% elif language == "en" %}Minimum rating{% else %}{% trans "Рейтинг не ниже" %}{% endif %}</span>
+          </div>
+          <div class="rating-filter-pills" aria-label="{% if language == 'az' %}Reytinq ən azı{% elif language == 'en' %}Minimum rating{% else %}{% trans 'Рейтинг не ниже' %}{% endif %}">
+            <button type="button" class="rating-filter-pill{% if not selected.min_rating %} is-active{% endif %}" data-select-target="min_rating" data-select-value="">
+              <span class="rating-filter-pill-label">{% if language == "az" %}Hamısı{% elif language == "en" %}All{% else %}{% trans "Все" %}{% endif %}</span>
+            </button>
+            <button type="button" class="rating-filter-pill{% if selected.min_rating == '4.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4.5">
+              <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              <span class="rating-filter-pill-label">4.5+</span>
+            </button>
+            <button type="button" class="rating-filter-pill{% if selected.min_rating == '4' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="4">
+              <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              <span class="rating-filter-pill-label">4.0+</span>
+            </button>
+            <button type="button" class="rating-filter-pill{% if selected.min_rating == '3.5' %} is-active{% endif %}" data-select-target="min_rating" data-select-value="3.5">
+              <svg class="rating-star-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              <span class="rating-filter-pill-label">3.5+</span>
+            </button>
+          </div>
+          <input class="filter-select" type="hidden" name="min_rating" value="{{ selected.min_rating }}" />
         </div>
-        <input class="filter-select" type="hidden" name="min_rating" value="{{ selected.min_rating }}" />
-      </label>
+      {% endif %}
 
       {% if is_new_page %}
         <label class="filter-item filter-days">
@@ -516,9 +557,6 @@
             <option value="1" {% if selected.verified == "1" %}selected{% endif %}>{% trans "Да" %}</option>
           </select>
         </label>
-      {% else %}
-        </details>
-
       {% endif %}
 
       <div class="actions">
@@ -534,23 +572,6 @@
   {% if not is_new_page %}
     <div class="catalog-content-column">
   {% endif %}
-
-
-  <div class="top-search-wrapper">
-    <div class="top-search-label">
-      <label class="visually-hidden" for="catalog-top-search">{% if language == "az" %}Ada görə axtarış{% elif language == "en" %}Search by name{% else %}{% trans "Поиск по названию" %}{% endif %}</label>
-      <span class="top-search-icon" aria-hidden="true"></span>
-      <input id="catalog-top-search" class="field top-search-field" type="search" name="q" value="{{ selected.q }}" form="filters-form" data-search-input placeholder="{% if language == 'az' %}Krujok və ya açar söz axtarın... məsələn robototexnika{% elif language == 'en' %}Search for a club or keyword... e.g., robotics{% else %}{% trans 'Искать кружок или ключевое слово... например робототехника' %}{% endif %}" />
-      <button
-        class="catalog-search-clear"
-        type="button"
-        data-search-clear
-        data-search-target="catalog-top-search"
-        aria-label="{% if language == 'az' %}Axtarışı təmizlə{% elif language == 'en' %}Clear search{% else %}Очистить поиск{% endif %}"
-        {% if not selected.q %}hidden{% endif %}
-      ></button>
-    </div>
-  </div>
 
   <div class="catalog-top-stack">
     {% if active_filter_chips %}
@@ -568,23 +589,10 @@
     {% endif %}
 
     <div class="results-toolbar">
-      <div class="mobile-results-summary">
-        <span class="mobile-results-icon" aria-hidden="true"></span>
-        <strong>{{ results_count_label }}</strong>
-      </div>
-      <p class="results-count">
-        {{ results_count_label }}
-      </p>
-      <div class="results-toolbar-actions">
-        <label class="results-toolbar-sort">
-          <span class="results-toolbar-sort-label">{% if language == "az" %}Sıralama{% elif language == "en" %}Sort{% else %}{% trans "Сортировка" %}{% endif %}</span>
-          <select class="filter-select results-toolbar-sort-select" name="sort" form="filters-form" data-sort-submit>
-            <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</option>
-            <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}</option>
-            <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}</option>
-            <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə populyar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}</option>
-          </select>
-        </label>
+      <div class="results-toolbar-top-row">
+        <p class="results-count">
+          {{ results_count_label }}
+        </p>
         <button
           type="button"
           class="link-btn icon-btn icon-map results-map-toggle"
@@ -597,6 +605,33 @@
           <span class="results-map-toggle-label">{% if language == "az" %}Xəritə{% elif language == "en" %}Map{% else %}{% trans "Карта" %}{% endif %}</span>
           <span class="results-map-count">{{ catalog_map_places_count }}</span>
         </button>
+      </div>
+      <div class="results-toolbar-actions">
+        <button
+          type="button"
+          class="btn mobile-search-filter"
+          data-filters-open
+          aria-controls="filters-form"
+          aria-expanded="false"
+          aria-label="{% if language == 'az' %}Filtrlər{% elif language == 'en' %}Filters{% else %}Фильтры{% endif %}"
+        >
+          <span class="mobile-search-filter__icon" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          </span>
+          <span class="mobile-search-filter__label">{% if language == "az" %}Filtrlər{% elif language == "en" %}Filters{% else %}Фильтры{% endif %}</span>
+          {% if active_filter_chips %}
+            <span class="mobile-search-filter__count">{{ active_filter_chips|length }}</span>
+          {% endif %}
+        </button>
+        <label class="results-toolbar-sort">
+          <span class="results-toolbar-sort-label">{% if language == "az" %}Sıralama{% elif language == "en" %}Sort{% else %}{% trans "Сортировка" %}{% endif %}</span>
+          <select class="filter-select results-toolbar-sort-select" name="sort" form="filters-form" data-sort-submit>
+            <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</option>
+            <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}</option>
+            <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}</option>
+            <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə populyar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}</option>
+          </select>
+        </label>
       </div>
     </div>
   </div>
@@ -825,7 +860,16 @@
       {% if site_settings.empty_results_image %}
         <img class="empty-custom-image" src="{{ site_settings.empty_results_image.url }}" alt="{% if language == 'az' %}Hələ uyğun məkan tapılmadı{% else %}{% trans 'Ничего не найдено.' %}{% endif %}" loading="lazy" decoding="async" />
       {% else %}
-        <div class="empty-illustration" aria-hidden="true"></div>
+        <div class="empty-illustration" aria-hidden="true">
+          <div class="empty-icon-glow"></div>
+          <div class="empty-icon-bubble">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="7.5"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+              <path d="M11 7.5a3.5 3.5 0 0 0-3.5 3.5" opacity="0.65" stroke-width="1.5"></path>
+            </svg>
+          </div>
+        </div>
       {% endif %}
       {% if language == "az" %}
         <h2>0 məkan tapıldı</h2>
@@ -839,42 +883,58 @@
       {% endif %}
       <div class="empty-actions">
         <a class="btn catalog-empty-reset" href="{% if is_new_page %}{% url 'place_new' %}{% else %}{% url 'place_list' %}{% endif %}">
-          {% if language == "az" %}Filtrləri sıfırla{% elif language == "en" %}Reset filters{% else %}{% trans "Сбросить всё" %}{% endif %}
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span>{% if language == "az" %}Filtrləri sıfırla{% elif language == "en" %}Reset filters{% else %}{% trans "Сбросить всё" %}{% endif %}</span>
         </a>
         <a class="link-btn catalog-empty-back" href="{% url 'place_list' %}">
-          {% if language == "az" %}Əsas kataloqa qayıt{% elif language == "en" %}Back to catalog{% else %}Вернуться в каталог{% endif %}
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg>
+          <span>{% if language == "az" %}Əsas kataloqa qayıt{% elif language == "en" %}Back to catalog{% else %}Вернуться в каталог{% endif %}</span>
         </a>
       </div>
     </section>
   {% endif %}
 
   {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="pagination" aria-label="{% trans 'Пагинация' %}">
-      {% if page_obj.has_previous %}
-        <a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}">‹ {% trans "Назад" %}</a>
-      {% else %}
-        <span class="page-nav disabled">‹ {% trans "Назад" %}</span>
-      {% endif %}
+    <nav class="catalog-pagination-wrap" aria-label="{% trans 'Пагинация' %}">
+      <div class="catalog-pagination-bar">
+        {% if page_obj.has_previous %}
+          <a class="catalog-pag-btn catalog-pag-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="{% if language == 'az' %}Əvvəlki səhifə{% elif language == 'en' %}Previous page{% else %}Предыдущая страница{% endif %}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span class="catalog-pag-nav-text">{% if language == 'az' %}Geri{% elif language == 'en' %}Back{% else %}Назад{% endif %}</span>
+          </a>
+        {% else %}
+          <span class="catalog-pag-btn catalog-pag-nav is-disabled" aria-disabled="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <span class="catalog-pag-nav-text">{% if language == 'az' %}Geri{% elif language == 'en' %}Back{% else %}Назад{% endif %}</span>
+          </span>
+        {% endif %}
 
-      <div class="page-list">
-        {% for num in page_obj.paginator.page_range %}
-          {% if num == page_obj.number %}
-            <span class="page-item active">{{ num }}</span>
-          {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-            <a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
-          {% elif num == 1 or num == page_obj.paginator.num_pages %}
-            <a class="page-item" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
-          {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
-            <span class="page-dots">…</span>
-          {% endif %}
-        {% endfor %}
+        <div class="catalog-pag-numbers">
+          {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+              <span class="catalog-pag-num is-active" aria-current="page">{{ num }}</span>
+            {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+              <a class="catalog-pag-num" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+              <a class="catalog-pag-num" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ num }}">{{ num }}</a>
+            {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+              <span class="catalog-pag-dots" aria-hidden="true">…</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        {% if page_obj.has_next %}
+          <a class="catalog-pag-btn catalog-pag-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="{% if language == 'az' %}Növbəti səhifə{% elif language == 'en' %}Next page{% else %}Следующая страница{% endif %}">
+            <span class="catalog-pag-nav-text">{% if language == 'az' %}İrəli{% elif language == 'en' %}Next{% else %}Вперед{% endif %}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+        {% else %}
+          <span class="catalog-pag-btn catalog-pag-nav is-disabled" aria-disabled="true">
+            <span class="catalog-pag-nav-text">{% if language == 'az' %}İrəli{% elif language == 'en' %}Next{% else %}Вперед{% endif %}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </span>
+        {% endif %}
       </div>
-
-      {% if page_obj.has_next %}
-        <a class="page-nav" href="?{% if query_without_page %}{{ query_without_page }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Вперед" %} ›</a>
-      {% else %}
-        <span class="page-nav disabled">{% trans "Вперед" %} ›</span>
-      {% endif %}
     </nav>
   {% endif %}
 
@@ -884,22 +944,164 @@
     </div>
   {% endif %}
 
-  <section class="panel">
-    <h2>{% trans "Часто ищут" %}</h2>
-    <div class="home-grid2">
-      <a class="link-btn" href="{% url 'place_list' %}">{% trans "Кружки в Азербайджане для детей" %}</a>
-      {% if 'EDU' in active_category_codes %}
-      <a class="link-btn" href="{% url 'place_list' %}?category=EDU">{% trans "Курсы для детей в Азербайджане" %}</a>
-      {% endif %}
-      {% if 'SPRT' in active_category_codes %}
-      <a class="link-btn" href="{% url 'place_list' %}?category=SPRT">{% trans "Спортивные секции в Азербайджане" %}</a>
-      {% endif %}
-      {% if 'ART' in active_category_codes %}
-      <a class="link-btn" href="{% url 'place_list' %}?category=ART">{% trans "Творческие кружки в Азербайджане" %}</a>
-      {% endif %}
-      {% if 'TECH' in active_category_codes %}
-      <a class="link-btn" href="{% url 'place_list' %}?category=TECH&q=program">{% trans "Программирование для детей в Азербайджане" %}</a>
-      {% endif %}
+  <section class="catalog-seo-queries-section" aria-labelledby="catalog-seo-title">
+    <div class="catalog-seo-header">
+      <div class="catalog-seo-badge">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><polygon points="11 8 12.5 11 15.5 11 13 13 14 16 11 14 8 16 9 13 6.5 11 9.5 11 11 8"></polygon></svg>
+        <span>{% if language == 'az' %}Populyar axtarışlar{% elif language == 'en' %}Popular Searches{% else %}Популярные запросы{% endif %}</span>
+      </div>
+      <h2 id="catalog-seo-title" class="catalog-seo-title">
+        {% if language == 'az' %}Tez-tez axtarılanlar{% elif language == 'en' %}Popular Searches{% else %}{% trans "Часто ищут" %}{% endif %}
+      </h2>
+      <p class="catalog-seo-subtitle">
+        {% if language == 'az' %}
+          Uşaqlar üçün dərnəklər, idman bölmələri və rayonlar üzrə inkişaf kursları
+        {% elif language == 'en' %}
+          Find children's clubs, sports activities, and development courses by direction and district
+        {% else %}
+          Подборка детских кружков, спортивных секций и развивающих курсов по направлениям и районам
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="catalog-seo-grid">
+      <!-- Блок 1: Основные направления -->
+      <div class="catalog-seo-column">
+        <h3 class="catalog-seo-column-title">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          <span>{% if language == 'az' %}Əsas istiqamətlər{% elif language == 'en' %}Main Categories{% else %}Основные направления{% endif %}</span>
+        </h3>
+        <ul class="catalog-seo-links-list">
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='sportivnye-sekcii-v-baku' %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda uşaqlar üçün idman bölmələri{% elif language == 'en' %}Sports clubs in Baku{% else %}Спортивные секции в Баку{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='kursy-dlya-detey-v-baku' %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda uşaqlar üçün kurslar{% elif language == 'en' %}Courses for children in Baku{% else %}Детские развивающие курсы в Баку{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='tvorcheskie-kruzhki-v-baku' %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda yaradıcılıq dərnəkləri{% elif language == 'en' %}Creative clubs in Baku{% else %}Творческие кружки в Баку{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='programmirovanie-dlya-detey-baku' %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Uşaqlar üçün proqramlaşdırma{% elif language == 'en' %}Coding for children{% else %}Программирование для детей{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='dzudo-dlya-detey-v-baku' %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda uşaqlar üçün cüdo{% elif language == 'en' %}Judo for children in Baku{% else %}Дзюдо и единоборства в Баку{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='kruzhki-v-baku' %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Bakıda bütün uşaq dərnəkləri{% elif language == 'en' %}All kids' clubs in Baku{% else %}Все кружки для детей в Баку{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Блок 2: Популярные занятия и навыки -->
+      <div class="catalog-seo-column">
+        <h3 class="catalog-seo-column-title">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>{% if language == 'az' %}Populyar məşğələlər{% elif language == 'en' %}Popular Subjects{% else %}Популярные занятия{% endif %}</span>
+        </h3>
+        <ul class="catalog-seo-links-list">
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=EDU&q={% if language == 'az' %}ingilis{% elif language == 'en' %}english{% else %}английский{% endif %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Uşaqlar üçün ingilis dili{% elif language == 'en' %}English for kids{% else %}Английский язык для детей{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=SPRT&q={% if language == 'az' %}üzgüçülük{% elif language == 'en' %}swimming{% else %}плавание{% endif %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Uşaqlar üçün üzgüçülük{% elif language == 'en' %}Swimming for kids{% else %}Плавание для детей{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=TECH&q={% if language == 'az' %}robototexnika{% elif language == 'en' %}robotics{% else %}робототехника{% endif %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Robototexnika və STEM{% elif language == 'en' %}Robotics and STEM{% else %}Робототехника и STEM{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?q={% if language == 'az' %}şahmat{% elif language == 'en' %}chess{% else %}шахматы{% endif %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Uşaqlar üçün şahmat məktəbləri{% elif language == 'en' %}Chess clubs for kids{% else %}Шахматы для детей{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=EDU&q={% if language == 'az' %}mental{% elif language == 'en' %}mental+arithmetic{% else %}ментальная+арифметика{% endif %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Mental hesab dərsləri{% elif language == 'en' %}Mental arithmetic{% else %}Ментальная арифметика{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?category=ART&q={% if language == 'az' %}rəsm{% elif language == 'en' %}drawing{% else %}рисование{% endif %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Rəsm və boyakarlıq dərnəkləri{% elif language == 'en' %}Art and drawing classes{% else %}Рисование и живопись{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Блок 3: По районам и округам -->
+      <div class="catalog-seo-column">
+        <h3 class="catalog-seo-column-title">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span>{% if language == 'az' %}Rayonlar üzrə dərnəklər{% elif language == 'en' %}By District{% else %}Кружки по районам{% endif %}</span>
+        </h3>
+        <ul class="catalog-seo-links-list">
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_yasamal">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Yasamal rayonunda dərnəklər{% elif language == 'en' %}Clubs in Yasamal district{% else %}Кружки в Ясамальском районе{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_narimanov">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Nərimanov rayonunda dərnəklər{% elif language == 'en' %}Clubs in Narimanov district{% else %}Кружки в Наримановском районе{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_nasimi">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Nəsimi rayonunda dərnəklər{% elif language == 'en' %}Clubs in Nasimi district{% else %}Кружки в Насиминском районе{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_sabail">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Səbail rayonunda dərnəklər{% elif language == 'en' %}Clubs in Sabail district{% else %}Кружки в Сабаильском районе{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'place_list' %}?district=baku_khatai">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Xətai rayonunda dərnəklər{% elif language == 'en' %}Clubs in Khatai district{% else %}Кружки в Хатаинском районе{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+          <li>
+            <a class="catalog-seo-link-item" href="{% url 'seo_landing' seo_slug='kruzhki-v-absheron-azerbaydzhan' %}">
+              <span class="catalog-seo-link-text">{% if language == 'az' %}Abşeron regionunda dərnəklər{% elif language == 'en' %}Clubs in Absheron region{% else %}Кружки в регионе Абшерон{% endif %}</span>
+              <svg class="catalog-seo-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </section>
 
@@ -2231,5 +2433,371 @@
         });
       });
     })();
+
+      /* ── Search Autocomplete with Rich Mini-Cards ── */
+      (function () {
+        const currentLang = document.documentElement.lang || 'az';
+        const suggestionsCache = new Map();
+
+        const labels = {
+          az: {
+            categories: "Kateqoriyalar",
+            places: "Dərnəklər və bölmələr",
+            showAll: "«{query}» üzrə bütün nəticələrə bax",
+            emptyTitle: "Nəticə tapılmadı",
+            emptyDesc: "Açar sözü dəyişərək yenidən yoxlayın (məs: robototexnika, rəsm)",
+          },
+          en: {
+            categories: "Categories",
+            places: "Clubs & Activities",
+            showAll: "See all results for “{query}”",
+            emptyTitle: "No matches found",
+            emptyDesc: "Try searching with another keyword (e.g. robotics, chess)",
+          },
+          ru: {
+            categories: "Категории",
+            places: "Кружки и секции",
+            showAll: "Показать все результаты для «{query}»",
+            emptyTitle: "Ничего не найдено",
+            emptyDesc: "Попробуйте изменить запрос (например: робототехника, шахматы)",
+          }
+        }[currentLang] || {
+          categories: "Категории",
+          places: "Кружки и секции",
+          showAll: "Показать все результаты для «{query}»",
+          emptyTitle: "Ничего не найдено",
+          emptyDesc: "Попробуйте изменить запрос (например: робототехника, шахматы)",
+        };
+
+        function escapeHtml(str) {
+          if (!str) return '';
+          return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+        }
+
+        function highlightMatch(text, query) {
+          if (!text) return '';
+          if (!query) return escapeHtml(text);
+          const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp('(' + escaped + ')', 'gi');
+          return escapeHtml(text).replace(regex, '<mark class="search-highlight">$1</mark>');
+        }
+
+        function setupAutocomplete(inputEl, dropdownEl, formEl) {
+          if (!inputEl || !dropdownEl) return;
+
+          let debounceTimer = null;
+          let activeIndex = -1;
+          let itemsList = [];
+
+          function closeDropdown() {
+            dropdownEl.hidden = true;
+            dropdownEl.innerHTML = "";
+            activeIndex = -1;
+            itemsList = [];
+          }
+
+          function renderDropdown(data, query) {
+            dropdownEl.innerHTML = "";
+            itemsList = [];
+            const hasCategories = data.categories && data.categories.length > 0;
+            const hasPlaces = data.places && data.places.length > 0;
+
+            if (!hasCategories && !hasPlaces) {
+              dropdownEl.innerHTML = `
+                <div class="search-dropdown-empty">
+                  <div class="search-dropdown-empty-icon">🔍</div>
+                  <div class="search-dropdown-empty-title">${labels.emptyTitle}</div>
+                  <div class="search-dropdown-empty-desc">${labels.emptyDesc}</div>
+                </div>
+              `;
+              dropdownEl.hidden = false;
+              return;
+            }
+
+            if (hasCategories) {
+              const catSection = document.createElement("div");
+              catSection.className = "search-dropdown-section search-dropdown-cats-section";
+              catSection.innerHTML = `
+                <div class="search-dropdown-section-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                  <span>${labels.categories}</span>
+                </div>
+              `;
+              const catChips = document.createElement("div");
+              catChips.className = "search-dropdown-category-chips";
+              data.categories.forEach(function (cat) {
+                const catLink = document.createElement("a");
+                catLink.className = "search-dropdown-cat-chip";
+                catLink.href = cat.url;
+                catLink.innerHTML = `<span>${escapeHtml(cat.name)}</span> <span aria-hidden="true">→</span>`;
+                catLink.addEventListener("click", function (e) {
+                  e.preventDefault();
+                  const catSelect = document.querySelector('select[name="category"]');
+                  if (catSelect) {
+                    catSelect.value = cat.code;
+                    catSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                  } else {
+                    window.location.href = cat.url;
+                  }
+                  closeDropdown();
+                });
+                catChips.appendChild(catLink);
+              });
+              catSection.appendChild(catChips);
+              dropdownEl.appendChild(catSection);
+            }
+
+            if (hasPlaces) {
+              const placeSection = document.createElement("div");
+              placeSection.className = "search-dropdown-section";
+              placeSection.innerHTML = `
+                <div class="search-dropdown-section-title">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>${labels.places}</span>
+                </div>
+              `;
+              const cardsList = document.createElement("div");
+              cardsList.className = "search-dropdown-cards-list";
+
+              data.places.forEach(function (place) {
+                const card = document.createElement("a");
+                card.className = "search-card-item";
+                card.href = place.url;
+
+                const thumbSrc = place.image || '/static/img/banners/listing-placeholder.webp';
+                const ratingHtml = place.rating
+                  ? `<span class="search-card-rating">★ ${place.rating}</span>`
+                  : '';
+                const ageHtml = place.age
+                  ? `<span class="search-card-age">${escapeHtml(place.age)}</span>`
+                  : '';
+                const catHtml = place.category
+                  ? `<span class="search-card-badge-cat">${escapeHtml(place.category)}</span>`
+                  : '';
+                const locHtml = place.district
+                  ? `<span class="search-card-loc"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${escapeHtml(place.district)}</span>`
+                  : '';
+                const priceHtml = place.price
+                  ? `<span class="search-card-price">${escapeHtml(place.price)}</span>`
+                  : '';
+
+                card.innerHTML = `
+                  <img class="search-card-thumb" src="${escapeHtml(thumbSrc)}" alt="" loading="lazy" onerror="this.src='/static/img/banners/listing-placeholder.webp'" />
+                  <div class="search-card-body">
+                    <div class="search-card-title">${highlightMatch(place.name, query)}</div>
+                    <div class="search-card-meta-primary">
+                      ${catHtml}
+                      ${locHtml}
+                    </div>
+                    ${(ratingHtml || ageHtml) ? `<div class="search-card-meta-secondary">${ratingHtml}${ageHtml}</div>` : ''}
+                  </div>
+                  <div class="search-card-aside">
+                    ${priceHtml}
+                    <span class="search-card-arrow" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </span>
+                  </div>
+                `;
+
+                cardsList.appendChild(card);
+                itemsList.push(card);
+              });
+
+              placeSection.appendChild(cardsList);
+              dropdownEl.appendChild(placeSection);
+            }
+
+            // Footer / Show all button
+            const footer = document.createElement("div");
+            footer.className = "search-dropdown-footer";
+            footer.innerHTML = `
+              <button type="button" class="search-dropdown-all-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <span>${labels.showAll.replace('{query}', escapeHtml(query))}</span>
+                <span class="search-dropdown-all-arrow" aria-hidden="true">→</span>
+              </button>
+            `;
+            footer.querySelector("button").addEventListener("click", function () {
+              if (formEl) {
+                formEl.submit();
+              }
+            });
+            dropdownEl.appendChild(footer);
+
+            dropdownEl.hidden = false;
+          }
+
+          function fetchSuggestions(query) {
+            const cacheKey = `${currentLang}:${query.toLowerCase()}`;
+            if (suggestionsCache.has(cacheKey)) {
+              renderDropdown(suggestionsCache.get(cacheKey), query);
+              return;
+            }
+
+            fetch(`/api/catalog/suggestions/?q=${encodeURIComponent(query)}&lang=${encodeURIComponent(currentLang)}`)
+              .then(function (res) {
+                if (!res.ok) throw new Error('Network error');
+                return res.json();
+              })
+              .then(function (data) {
+                suggestionsCache.set(cacheKey, data);
+                if (inputEl.value.trim() === query) {
+                  renderDropdown(data, query);
+                }
+              })
+              .catch(function () {
+                closeDropdown();
+              });
+          }
+
+          inputEl.addEventListener("input", function () {
+            clearTimeout(debounceTimer);
+            const q = inputEl.value.trim();
+            if (!q) {
+              closeDropdown();
+              return;
+            }
+            debounceTimer = setTimeout(function () {
+              fetchSuggestions(q);
+            }, 120);
+          });
+
+          inputEl.addEventListener("focus", function () {
+            const q = inputEl.value.trim();
+            if (q) {
+              fetchSuggestions(q);
+            }
+          });
+
+          inputEl.addEventListener("keydown", function (e) {
+            if (dropdownEl.hidden || !itemsList.length) return;
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              activeIndex = Math.min(activeIndex + 1, itemsList.length - 1);
+              itemsList.forEach((el, idx) => el.classList.toggle("is-selected", idx === activeIndex));
+              if (itemsList[activeIndex]) itemsList[activeIndex].scrollIntoView({ block: "nearest" });
+            } else if (e.key === "ArrowUp") {
+              e.preventDefault();
+              activeIndex = Math.max(activeIndex - 1, 0);
+              itemsList.forEach((el, idx) => el.classList.toggle("is-selected", idx === activeIndex));
+              if (itemsList[activeIndex]) itemsList[activeIndex].scrollIntoView({ block: "nearest" });
+            } else if (e.key === "Enter" && activeIndex >= 0 && itemsList[activeIndex]) {
+              e.preventDefault();
+              itemsList[activeIndex].click();
+            } else if (e.key === "Escape") {
+              closeDropdown();
+            }
+          });
+
+          document.addEventListener("click", function (e) {
+            if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) {
+              closeDropdown();
+            }
+          });
+        }
+
+        const heroInput = document.getElementById("catalog-hero-search-input");
+        const heroDropdown = document.getElementById("catalog-search-dropdown");
+        const heroForm = document.getElementById("catalog-hero-search-form");
+        setupAutocomplete(heroInput, heroDropdown, heroForm);
+
+        const mobileInput = document.getElementById("catalog-mobile-search");
+        const mobileDropdown = document.getElementById("catalog-mobile-search-dropdown");
+        const mobileForm = document.querySelector(".mobile-catalog-search");
+        setupAutocomplete(mobileInput, mobileDropdown, mobileForm);
+
+        document.querySelectorAll("[data-search-preset]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            if (heroInput) {
+              heroInput.value = btn.dataset.searchPreset;
+              heroInput.dispatchEvent(new Event("input", { bubbles: true }));
+              if (heroForm) {
+                if (window.matchMedia("(max-width: 760px)").matches) {
+                  heroForm.submit();
+                } else {
+                  const filtersQ = document.getElementById("filters-form-q");
+                  if (filtersQ) filtersQ.value = heroInput.value;
+                  heroForm.requestSubmit ? heroForm.requestSubmit() : heroForm.submit();
+                }
+              }
+            }
+          });
+        });
+      })();
+
+      /* ── Age & Price Presets Handler ── */
+      (function () {
+        function syncAgePresets() {
+          const fromInput = document.querySelector('.filter-age-range [data-range-from-input]');
+          const toInput = document.querySelector('.filter-age-range [data-range-to-input]');
+          if (!fromInput || !toInput) return;
+
+          const currentFrom = fromInput.value;
+          const currentTo = toInput.value;
+
+          document.querySelectorAll('.age-preset-chip').forEach(function (chip) {
+            const pFrom = chip.dataset.agePresetFrom;
+            const pTo = chip.dataset.agePresetTo;
+            const isMatch = (currentFrom === pFrom && currentTo === pTo) ||
+                            (!currentFrom && !currentTo && pFrom === '0' && pTo === '18') ||
+                            (currentFrom === '0' && currentTo === '18' && pFrom === '0' && pTo === '18');
+            chip.classList.toggle('is-active', isMatch);
+          });
+        }
+
+        document.addEventListener('click', function (e) {
+          const ageChip = e.target.closest('.age-preset-chip');
+          if (ageChip) {
+            const fromInput = document.querySelector('.filter-age-range [data-range-from-input]');
+            const toInput = document.querySelector('.filter-age-range [data-range-to-input]');
+            const fromRange = document.querySelector('.filter-age-range [data-range-from-range]');
+            const toRange = document.querySelector('.filter-age-range [data-range-to-range]');
+            if (!fromInput || !toInput || !fromRange || !toRange) return;
+
+            const pFrom = ageChip.dataset.agePresetFrom || '0';
+            const pTo = ageChip.dataset.agePresetTo || '18';
+
+            fromInput.value = pFrom;
+            toInput.value = pTo;
+            fromRange.value = pFrom;
+            toRange.value = pTo;
+            fromInput.dispatchEvent(new Event('input', { bubbles: true }));
+            toInput.dispatchEvent(new Event('input', { bubbles: true }));
+            toInput.dispatchEvent(new Event('change', { bubbles: true }));
+            syncAgePresets();
+            return;
+          }
+
+          const priceChip = e.target.closest('.price-preset-chip');
+          if (priceChip) {
+            const fromInput = document.querySelector('.filter-price-range [data-range-from-input]');
+            const toInput = document.querySelector('.filter-price-range [data-range-to-input]');
+            const fromRange = document.querySelector('.filter-price-range [data-range-from-range]');
+            const toRange = document.querySelector('.filter-price-range [data-range-to-range]');
+            if (!fromInput || !toInput || !fromRange || !toRange) return;
+
+            const pFrom = priceChip.dataset.pricePresetFrom || '0';
+            const pTo = priceChip.dataset.pricePresetTo || '500';
+
+            fromInput.value = pFrom;
+            toInput.value = pTo;
+            fromRange.value = pFrom;
+            toRange.value = pTo;
+            fromInput.dispatchEvent(new Event('input', { bubbles: true }));
+            toInput.dispatchEvent(new Event('input', { bubbles: true }));
+            toInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+            document.querySelectorAll('.price-preset-chip').forEach(function (c) {
+              c.classList.toggle('is-active', c === priceChip);
+            });
+            return;
+          }
+        });
+      })();
   </script>
 {% endblock %}

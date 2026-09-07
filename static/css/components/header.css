@@ -133,41 +133,81 @@
   padding: 0;
 }
 
+.km-nav-desktop a::after,
+.km-nav-item::after {
+  display: none !important;
+  content: none !important;
+}
+
 .km-nav-item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 14px;
+  gap: 5px;
+  padding: 7px 15px;
   border-radius: 12px;
   font-size: 14.5px;
   font-weight: 600;
-  color: #374151;
-  text-decoration: none;
+  color: #475569;
+  text-decoration: none !important;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
+  outline: none;
+  box-shadow: none !important;
   cursor: pointer;
-  transition: all 0.18s ease-out;
-  line-height: 1.2;
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  line-height: 1.25;
   position: relative;
   font-family: inherit;
+  user-select: none;
 }
 
 .km-nav-item:hover {
-  color: var(--km-brand-spruce);
-  background: rgba(16, 185, 129, 0.08);
+  color: #0f172a;
+  background: #f1f5f9;
+  border-color: transparent;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .km-nav-item.active {
-  color: #0d6b35;
-  background: var(--km-brand-emerald-light);
-  font-weight: 700;
-  box-shadow: inset 0 0 0 1px rgba(13, 107, 53, 0.14);
+  color: #0d4924 !important;
+  background: #eaf6ee !important;
+  border-color: #cbe7d8 !important;
+  font-weight: 750 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.km-nav-item.active:hover {
+  background: #e2f2e7 !important;
+  border-color: #b7dfc8 !important;
+  color: #08361a !important;
 }
 
 .km-chevron {
   font-size: 18px !important;
   line-height: 1;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #64748b;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
+}
+
+.km-nav-item:hover .km-chevron {
+  color: #0f172a;
+}
+
+.km-nav-item.active .km-chevron {
+  color: #0d4924;
+}
+
+.km-dropdown-wrapper.is-open .km-dropdown-trigger {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.km-dropdown-wrapper.is-open .km-dropdown-trigger.active {
+  background: #eaf6ee !important;
+  border-color: #cbe7d8 !important;
+  color: #0d4924 !important;
 }
 
 /* ── Action Button: "Добавить место" (Delicate Soft-Pill) ── */

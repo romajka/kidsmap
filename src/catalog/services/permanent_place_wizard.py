@@ -113,7 +113,14 @@ def ui_copy():
         delete_confirm=t('Удалить карточку места?', 'Məkan kartı silinsin?', 'Delete this place?'),
         field_error=t('Исправьте поле', 'Sahəni düzəldin', 'Correct this field'),
         change_mode=t('При смене типа цены или оплаты несовместимые суммы и периоды очищаются.', 'Qiymət və ya ödəniş növü dəyişəndə uyğun olmayan məbləğ və dövrlər təmizlənir.', 'Changing the price or billing type clears incompatible amounts and periods.'),
+        select_subcategory=t('Выберите подкатегорию', 'Alt kateqoriya seçin', 'Select subcategory'),
+        select_category_first=t('Сначала выберите категорию', 'Əvvəlcə kateqoriyanı seçin', 'Select a category first'),
+        no_subcategories=t('Для этой категории нет подкатегорий', 'Bu kateqoriya üçün alt kateqoriya yoxdur', 'No subcategories for this category'),
+        search_subcategory=t('Поиск подкатегории...', 'Alt kateqoriya axtarışı...', 'Search subcategories...'),
+        options_count=t('вариантов', 'variant', 'options'),
+        clear_selection=t('Очистить выбор', 'Seçimi təmizlə', 'Clear selection'),
     )
+
 
 
 def build_steps(form):

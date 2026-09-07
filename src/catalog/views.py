@@ -68,6 +68,61 @@ def place_pricing_api(request, slug):
         "summary": summary,
         "pricing_plans": serialize_pricing_plans(plans, language),
     })
+
+
+def catalog_search_suggestions(request):
+    query = (request.GET.get("q") or "").strip()
+    if not query:
+        return JsonResponse({"categories": [], "places": []})
+
+    language = (request.GET.get("lang") or getattr(request, "LANGUAGE_CODE", "az") or "az").split("-")[0]
+    if language not in {"az", "ru", "en"}:
+        language = "az"
+
+    matching_categories = []
+    from catalog.models import Category
+    q_lower = query.lower()
+    for cat in Category.active.all():
+        name = cat.name_i18n(language)
+        alt_names = [getattr(cat, f"name_{l}", "") for l in ("ru", "az", "en")]
+        if q_lower in name.lower() or any(q_lower in (a or "").lower() for a in alt_names):
+            matching_categories.append({
+                "code": cat.code,
+                "name": name,
+                "url": f"/catalog/?category={cat.code}",
+            })
+            if len(matching_categories) >= 4:
+                break
+
+    from catalog.services.filtering import PlaceListFilters
+    filters = PlaceListFilters(query=query)
+    base_qs = place_controller.place_repository.filtered_active_queryset()
+    places_qs = filters.apply(base_qs).select_related("category", "subcategory")[:6]
+
+    age_suffix = " yaş" if language == "az" else (" yrs" if language == "en" else " лет")
+
+    places_data = []
+    for place in places_qs:
+        age_str = f"{place.age_display}{age_suffix}" if place.age_display else ""
+        category_title = place.category.name_i18n(language) if place.category else (place.get_category_display() or "")
+        places_data.append({
+            "id": place.id,
+            "name": place.name_i18n(language),
+            "url": place.get_absolute_url(),
+            "category": category_title,
+            "district": place.district_i18n(language) or place.metro_i18n(language) or "",
+            "image": place.public_image_url or "",
+            "rating": round(float(place.rating_avg or 0), 1) if place.rating_count else None,
+            "price": place.card_price_badge or "",
+            "age": age_str,
+        })
+
+    return JsonResponse({
+        "query": query,
+        "categories": matching_categories,
+        "places": places_data,
+    })
+
 from .services.reactions import ensure_session_key
 from .services.owner_specialist_use_cases import save_owner_specialist_profile
 from .services.tracking import build_google_analytics_event, queue_google_analytics_event, track_event as track_funnel_event

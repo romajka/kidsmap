@@ -1,0 +1,112 @@
+{% load i18n %}
+<!-- Completion & Publication Readiness -->
+<div class="account-card-progress account-card-progress--{{ place.completion.tier }}" title="{{ place.completion.percent }}%">
+  <div class="account-card-progress__header">
+    <div class="account-card-progress__title-wrap">
+      <span class="account-card-progress__percent">{{ place.completion.percent }}%</span>
+      {% if place.completion.is_ready %}
+        <span class="account-card-readiness-pill account-card-readiness-pill--ready">
+          <span class="material-symbols-rounded">check_circle</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Dərc üçün hazırdır{% elif CURRENT_LANGUAGE == "en" %}Ready to publish{% else %}Готово к публикации{% endif %}</span>
+        </span>
+      {% else %}
+        <span class="account-card-readiness-pill account-card-readiness-pill--pending">
+          <span class="material-symbols-rounded">pending</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Doldurulmalıdır{% elif CURRENT_LANGUAGE == "en" %}Needs completion{% else %}Требуются данные{% endif %}</span>
+        </span>
+      {% endif %}
+    </div>
+    <span class="account-card-progress__steps-badge">
+      <span class="material-symbols-rounded">checklist</span>
+      <span>{{ place.completion.completed_steps }}/{{ place.completion.total_steps }}</span>
+    </span>
+  </div>
+
+  <div class="account-card-progress__track">
+    <div class="account-card-progress__fill" style="width: {{ place.completion.percent }}%;"></div>
+  </div>
+
+  <div class="account-card-progress__subline">
+    <span class="account-card-progress__summary-text">
+      {% if CURRENT_LANGUAGE == "az" %}
+        {{ place.completion.steps_summary_az }}
+      {% elif CURRENT_LANGUAGE == "en" %}
+        {{ place.completion.steps_summary_en }}
+      {% else %}
+        {{ place.completion.steps_summary_ru }}
+      {% endif %}
+    </span>
+  </div>
+</div>
+
+<!-- Expandable Step Checklist -->
+<details class="account-card-steps" id="steps-details-{{ place.id }}">
+  <summary class="account-card-steps__summary">
+    <div class="account-card-steps__summary-left">
+      <span class="material-symbols-rounded account-card-steps__summary-icon">fact_check</span>
+      <span>{% if CURRENT_LANGUAGE == "az" %}Məcburi addımlar və tələblər{% elif CURRENT_LANGUAGE == "en" %}Required steps checklist{% else %}Обязательные шаги и требования{% endif %}</span>
+    </div>
+    <div class="account-card-steps__summary-right">
+      {% if not place.completion.is_ready %}
+        <span class="account-card-steps__remaining-tag">
+          {% if CURRENT_LANGUAGE == "az" %}{{ place.completion.remaining_steps }} qalıb{% elif CURRENT_LANGUAGE == "en" %}{{ place.completion.remaining_steps }} left{% else %}осталось {{ place.completion.remaining_steps }}{% endif %}
+        </span>
+      {% else %}
+        <span class="account-card-steps__all-done-tag">
+          <span class="material-symbols-rounded">check</span>
+          <span>{% if CURRENT_LANGUAGE == "az" %}Hamısı hazırdır{% elif CURRENT_LANGUAGE == "en" %}All done{% else %}Все готовы{% endif %}</span>
+        </span>
+      {% endif %}
+      <span class="material-symbols-rounded account-card-steps__chevron">expand_more</span>
+    </div>
+  </summary>
+
+  <div class="account-card-steps__content">
+    <ul class="account-card-steps__list">
+      {% for step in place.completion.steps %}
+        <li class="account-card-step-item {% if step.is_complete %}account-card-step-item--done{% else %}account-card-step-item--missing{% endif %}">
+          <div class="account-card-step-item__header">
+            <div class="account-card-step-item__title-wrap">
+              {% if step.is_complete %}
+                <span class="material-symbols-rounded account-card-step-item__icon account-card-step-item__icon--done">check_circle</span>
+              {% else %}
+                <span class="material-symbols-rounded account-card-step-item__icon account-card-step-item__icon--missing">radio_button_unchecked</span>
+              {% endif %}
+              <span class="account-card-step-item__name">
+                {% if CURRENT_LANGUAGE == "az" %}Addım {{ step.number }}: {{ step.title_az }}{% elif CURRENT_LANGUAGE == "en" %}Step {{ step.number }}: {{ step.title_en }}{% else %}Шаг {{ step.number }}: {{ step.title_ru }}{% endif %}
+              </span>
+            </div>
+            <div class="account-card-step-item__status">
+              {% if step.is_complete %}
+                <span class="account-card-step-item__badge account-card-step-item__badge--done">
+                  {% if CURRENT_LANGUAGE == "az" %}Hazırdır{% elif CURRENT_LANGUAGE == "en" %}Complete{% else %}Заполнено{% endif %}
+                </span>
+              {% else %}
+                {% if place.owner_can_edit %}
+                  <a href="{% url 'owner_place_edit' place.id %}#step={{ step.number }}" class="account-card-step-item__edit-link" title="{% if CURRENT_LANGUAGE == 'az' %}Addımı doldur{% elif CURRENT_LANGUAGE == 'en' %}Complete step{% else %}Заполнить шаг{% endif %}">
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Doldur{% elif CURRENT_LANGUAGE == "en" %}Fill in{% else %}Заполнить{% endif %}</span>
+                    <span class="material-symbols-rounded">arrow_forward</span>
+                  </a>
+                {% else %}
+                  <span class="account-card-step-item__badge account-card-step-item__badge--missing">
+                    {% if CURRENT_LANGUAGE == "az" %}Çatışmır{% elif CURRENT_LANGUAGE == "en" %}Missing{% else %}Не заполнено{% endif %}
+                  </span>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+          {% if not step.is_complete and step.issues %}
+            <ul class="account-card-step-item__issues">
+              {% for issue in step.issues %}
+                <li class="account-card-step-item__issue">
+                  <span class="account-card-step-item__issue-bullet">•</span>
+                  <span>{{ issue.message }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</details>

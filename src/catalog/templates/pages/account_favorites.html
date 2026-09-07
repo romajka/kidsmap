@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=2" />
 {% endblock %}
 
 {% block content %}
@@ -113,42 +113,7 @@
         {% if favorite_places %}
           <div class="account-favs-grid">
             {% for place in favorite_places %}
-              <div class="account-fav-card">
-                <div class="account-fav-card__media">
-                  <a href="{{ place.get_absolute_url }}" class="account-fav-card__imglink">
-                    {% if place.photo %}
-                      <img src="{{ place.photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" />
-                    {% elif place.cover_photo %}
-                      <img src="{{ place.cover_photo.url }}" alt="{{ place.name_i18n }}" loading="lazy" />
-                    {% else %}
-                      <div class="account-fav-card__placeholder">
-                        <span class="material-symbols-rounded">favorite</span>
-                      </div>
-                    {% endif %}
-                  </a>
-                  <form method="post" action="{% url 'toggle_place_like' place.id %}" class="account-fav-remove-form">
-                    {% csrf_token %}
-                    <button type="submit" class="account-fav-remove-btn" title="{% if CURRENT_LANGUAGE == 'az' %}Seçilmişlərdən sil{% elif CURRENT_LANGUAGE == 'en' %}Remove from favorites{% else %}Удалить из избранного{% endif %}">
-                      <span class="material-symbols-rounded">favorite</span>
-                    </button>
-                  </form>
-                </div>
-                <div class="account-fav-card__body">
-                  <strong class="account-fav-card__title">
-                    <a href="{{ place.get_absolute_url }}">{{ place.name_i18n }}</a>
-                  </strong>
-                  <span class="account-fav-card__meta">
-                    {{ place.get_category_display }}{% if place.district %} · {{ place.get_district_display }}{% endif %}
-                  </span>
-                  {% if place.rating_avg or place.rating %}
-                    <span class="account-fav-card__rating">
-                      <span class="material-symbols-rounded">star</span>
-                      <strong>{{ place.rating_avg|default:place.rating|floatformat:1 }}</strong>
-                      {% if place.rating_count %}<span class="account-fav-card__reviewscount">({{ place.rating_count|review_count }})</span>{% endif %}
-                    </span>
-                  {% endif %}
-                </div>
-              </div>
+              {% include "catalog/includes/place_card.html" with place=place %}
             {% endfor %}
           </div>
         {% else %}
