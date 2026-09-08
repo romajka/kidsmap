@@ -4,7 +4,7 @@ from io import BytesIO
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection, connections
@@ -281,6 +281,15 @@ class VolunteerAccessTests(TestCase):
         for name in ('schedule_mode', 'schedule_note_az', 'schedule_note_ru', 'schedule_note_en', 'custom_price_badge_az'):
             with self.subTest(name=name):
                 self.assertEqual(html.count(f'id="id_{name}"'), 1)
+
+    @override_settings(GOOGLE_MAPS_API_KEY="test-google-maps-key")
+    def test_volunteer_editor_uses_google_maps_without_leaflet_fallback(self):
+        response = self.client.get('/admin/volunteer/add/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "maps.googleapis.com/maps/api/js")
+        self.assertContains(response, 'data-map-provider="google"', html=False)
+        self.assertNotContains(response, "unpkg.com/leaflet")
 
     def test_workspace_submit_button_uses_selected_language_without_fallback(self):
         for lang, prefix, label in (('az', '', 'Yoxlamaya göndər'), ('en', '/en', 'Submit for review'), ('ru', '/ru', 'Отправить на проверку')):

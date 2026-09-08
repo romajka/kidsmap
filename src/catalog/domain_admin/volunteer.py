@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.conf import settings
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import FileResponse, Http404
 from django.views.decorators.cache import never_cache
@@ -98,6 +99,7 @@ def edit(request, place_id=None):
     return render(request, "edit", title=_("Редактировать место") if place_id else _("Добавить место"),
                   form=form, adminform={"form": form}, sections=form.sections(), place=place,
                   revision=revision, conflict=conflict, volunteer_editor=True, km_place_taxonomy_picker=build_place_taxonomy_config(form), **editor_context(form),
+                  google_maps_api_key=settings.GOOGLE_MAPS_API_KEY,
                   card=display_card(workspace_places(request.user).get(pk=place.pk)) if place.pk else None)
 
 
