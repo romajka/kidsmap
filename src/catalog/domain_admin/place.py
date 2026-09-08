@@ -34,6 +34,7 @@ from catalog.models import (
     Category,
     Subcategory,
     CatalogContentSettings,
+    SiteSettings,
 )
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from catalog.services.content_quality import (
@@ -65,6 +66,8 @@ from .ui_utils import render_primary_action, render_action_menu, render_row_acti
 ADMIN_DATETIME_LOCAL_FORMAT = "%Y-%m-%dT%H:%M"
 DRAFT_PLACEHOLDER_NAME = "Черновик без названия"
 logger = logging.getLogger(__name__)
+HOME_RECOMMENDATIONS_MIN_ITEMS = 1
+HOME_RECOMMENDATIONS_MAX_ITEMS = 24
 
 def _normalized_phone(value) -> str:
     return "".join(re.findall(r"\d", value or ""))
@@ -231,7 +234,11 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         self.draft_save_only = is_save_draft
         try:
             cleaned["pricing_plans"] = normalize_pricing_plans(cleaned.get("pricing_plans") or "[]", allow_verified=True)
-            self.instance.pricing_plans = cleaned["pricing_plans"]
+            # A legacy scalar-only card has nothing to replace. Scheduling an
+            # empty replacement would erase its prices on an unrelated edit.
+            # Actual tariff edits/removals still synchronize the projections.
+            if cleaned["pricing_plans"] or not self.instance.pk or self.instance.pricing_plan_records.exists():
+                self.instance.pricing_plans = cleaned["pricing_plans"]
         except ValidationError as exc:
             self.add_error("pricing_plans", exc)
             cleaned["pricing_plans"] = []
@@ -2012,74 +2019,8 @@ class PlaceAdmin(admin.ModelAdmin):
         return errors
 
     def _build_taxonomy_picker_config(self, form):
-        category_field = form.fields.get("category")
-        subcategory_field = form.fields.get("subcategory")
-        if category_field is None or subcategory_field is None:
-            return {"categories": [], "subcategories": []}
-
-        categories = []
-        category_queryset = category_field.queryset.order_by("order", "name_ru", "name")
-        subcategory_counts = {
-            item["category_id"]: item["total"]
-            for item in Subcategory.objects.filter(category__in=category_queryset)
-            .values("category_id")
-            .annotate(total=Count("pk"))
-        }
-        for category in category_queryset:
-            categories.append(
-                {
-                    "code": category.pk,
-                    "label": str(category.name_i18n()),
-                    "icon": category.icon_file_url,
-                    "icon_class": category.icon_name if category.icon_is_font_class else "",
-                    "color_bg": category.resolved_color_bg,
-                    "color_text": category.resolved_color_text,
-                    "subcategory_count": int(subcategory_counts.get(category.pk, 0) or 0),
-                }
-            )
-
-        subcategories = []
-        for subcategory in subcategory_field.queryset.order_by("category__order", "order", "name_ru", "name"):
-            subcategories.append(
-                {
-                    "id": str(subcategory.pk),
-                    "code": subcategory.code or "",
-                    "category": subcategory.category_id,
-                    "label": str(subcategory.name_i18n()),
-                    "icon": subcategory.icon_file_url,
-                }
-            )
-
-        from catalog.services.locations import AZERBAIJAN_REGIONS_MAP, BAKU_DISTRICTS_MAP
-        from catalog.models.pricing_plan import PricingPlan
-
-        regions = [
-            {"code": code, "name_ru": data["ru"], "name_az": data["az"], "name_en": data.get("en", "")}
-            for code, data in AZERBAIJAN_REGIONS_MAP.items()
-        ]
-        districts = [
-            {"code": code, "name_ru": data["ru"], "name_az": data["az"], "name_en": data.get("en", "")}
-            for code, data in BAKU_DISTRICTS_MAP.items()
-        ]
-        price_modes = [{"code": code, "label": str(label)} for code, label in Place.PRICE_MODE_CHOICES]
-        schedule_modes = [{"code": code, "label": str(label)} for code, label in Place.SCHEDULE_MODE_CHOICES]
-        product_types = [{"code": code, "label": str(label)} for code, label in PricingPlan.PRODUCT_CHOICES]
-        price_kinds = [{"code": code, "label": str(label)} for code, label in PricingPlan.PRICE_KIND_CHOICES]
-        lesson_formats = [{"code": code, "label": str(label)} for code, label in PricingPlan.LESSON_FORMAT_CHOICES]
-        billing_modes = [{"code": code, "label": str(label)} for code, label in PricingPlan.BILLING_MODE_CHOICES]
-
-        return {
-            "categories": categories,
-            "subcategories": subcategories,
-            "regions": regions,
-            "districts": districts,
-            "price_modes": price_modes,
-            "schedule_modes": schedule_modes,
-            "product_types": product_types,
-            "price_kinds": price_kinds,
-            "lesson_formats": lesson_formats,
-            "billing_modes": billing_modes,
-        }
+        from catalog.services.place_taxonomy_config import build_place_taxonomy_config
+        return build_place_taxonomy_config(form)
 
     def _build_place_form_sections(self, adminform):
         return [dict(section) for section in self.PLACE_FORM_PRIMARY_SECTIONS]
@@ -4053,7 +3994,15 @@ class PlaceAdmin(admin.ModelAdmin):
     def _home_recommendation_queryset(self):
         return public_place_queryset(
             Place.objects.select_related("category", "subcategory")
-        )
+        ).filter(is_temporary=False)
+
+    @staticmethod
+    def _home_recommendations_limit(value) -> int:
+        try:
+            limit = int(value)
+        except (TypeError, ValueError):
+            return 4
+        return limit if HOME_RECOMMENDATIONS_MIN_ITEMS <= limit <= HOME_RECOMMENDATIONS_MAX_ITEMS else 4
 
     def _serialize_home_recommendation(self, place, *, language_code=None):
         image_url = ""
@@ -4117,6 +4066,17 @@ class PlaceAdmin(admin.ModelAdmin):
         if not isinstance(raw_ids, list):
             return JsonResponse({"ok": False, "error": str(_("Передайте список мест."))}, status=400)
 
+        site_settings = SiteSettings.get_solo()
+        raw_limit = payload.get("limit", site_settings.home_recommendations_limit)
+        if isinstance(raw_limit, bool):
+            return JsonResponse({"ok": False, "error": str(_("Укажите количество мест от 1 до 24."))}, status=400)
+        try:
+            limit = int(raw_limit)
+        except (TypeError, ValueError):
+            return JsonResponse({"ok": False, "error": str(_("Укажите количество мест от 1 до 24."))}, status=400)
+        if not HOME_RECOMMENDATIONS_MIN_ITEMS <= limit <= HOME_RECOMMENDATIONS_MAX_ITEMS:
+            return JsonResponse({"ok": False, "error": str(_("Количество мест должно быть от 1 до 24."))}, status=400)
+
         try:
             place_ids = [int(value) for value in raw_ids]
         except (TypeError, ValueError):
@@ -4124,8 +4084,11 @@ class PlaceAdmin(admin.ModelAdmin):
 
         if len(place_ids) != len(set(place_ids)):
             return JsonResponse({"ok": False, "error": str(_("Одно место нельзя добавить дважды."))}, status=400)
-        if len(place_ids) > 4:
-            return JsonResponse({"ok": False, "error": str(_("На главной можно показать максимум четыре места."))}, status=400)
+        if len(place_ids) > limit:
+            return JsonResponse(
+                {"ok": False, "error": str(_("Сначала уберите лишние места из карусели."))},
+                status=400,
+            )
 
         available_places = {
             place.pk: place
@@ -4139,6 +4102,9 @@ class PlaceAdmin(admin.ModelAdmin):
 
         now = timezone.now()
         with transaction.atomic():
+            site_settings = SiteSettings.objects.select_for_update().get(pk=site_settings.pk)
+            site_settings.home_recommendations_limit = limit
+            site_settings.save(update_fields=["home_recommendations_limit", "updated_at"])
             Place.objects.filter(is_home_recommended=True).exclude(pk__in=place_ids).update(
                 is_home_recommended=False,
                 updated_at=now,
@@ -4154,6 +4120,7 @@ class PlaceAdmin(admin.ModelAdmin):
         return JsonResponse(
             {
                 "ok": True,
+                "max_items": limit,
                 "results": [
                     self._serialize_home_recommendation(
                         available_places[place_id],
@@ -4394,11 +4361,17 @@ class PlaceAdmin(admin.ModelAdmin):
                         )
                         for place in self._home_recommendation_queryset()
                         .filter(is_home_recommended=True)
-                        .order_by("home_recommended_order", "-updated_at")[:4]
+                        .order_by("home_recommended_order", "-updated_at")[
+                            : self._home_recommendations_limit(
+                                SiteSettings.get_solo().home_recommendations_limit
+                            )
+                        ]
                     ],
                     "save_url": reverse("admin:catalog_place_home_recommendations_save"),
                     "candidates_url": reverse("admin:catalog_place_home_recommendation_candidates"),
-                    "max_items": 4,
+                    "max_items": self._home_recommendations_limit(
+                        SiteSettings.get_solo().home_recommendations_limit
+                    ),
                 }
                 if not is_trash and self.has_change_permission(request)
                 else None

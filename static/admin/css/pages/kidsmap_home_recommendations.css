@@ -72,6 +72,51 @@
   white-space: nowrap;
 }
 
+.km-home-recs__limit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  color: #436052;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.km-home-recs__limit input {
+  width: 64px;
+  min-height: 38px;
+  padding: 0 8px;
+  border: 1px solid #d8e9df;
+  border-radius: 10px;
+  background: #fff;
+  color: #17231d;
+  font: inherit;
+  text-align: center;
+}
+
+.km-home-recs__limit input:focus-visible {
+  outline: 3px solid rgba(5, 150, 105, 0.28);
+  outline-offset: 2px;
+  border-color: #07955a;
+}
+
+.km-home-recs__limit-help {
+  margin: -8px 0 0;
+  color: #64746b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.km-home-recs__intro {
+  margin: -8px 0 0;
+  color: #345448;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+
 .km-home-recs__add,
 .km-home-recs__slot-empty {
   border: 1px solid #07955a;

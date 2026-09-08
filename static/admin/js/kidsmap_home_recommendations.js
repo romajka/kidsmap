@@ -16,6 +16,8 @@
     var counter = root.querySelector("[data-home-recs-counter]");
     var status = root.querySelector("[data-home-recs-status]");
     var fallback = root.querySelector("[data-home-recs-fallback]");
+    var limitInput = root.querySelector("[data-home-recs-limit]");
+    var summary = document.querySelector("[data-home-recs-summary]");
     var openButton = root.querySelector("[data-home-recs-open]");
     var dialog = root.querySelector("[data-home-recs-dialog]");
     var closeButton = root.querySelector("[data-home-recs-close]");
@@ -47,6 +49,7 @@
       root.classList.toggle("is-saving", busy);
       root.setAttribute("aria-busy", busy ? "true" : "false");
       if (openButton) openButton.disabled = busy || cards.length >= maxItems;
+      if (limitInput) limitInput.disabled = busy;
     }
 
     function showStatus(message, tone) {
@@ -224,12 +227,13 @@
         slots.appendChild(createEmptySlot(index));
       }
       counter.textContent = String(cards.length) + " из " + String(maxItems);
+      if (summary) summary.textContent = String(cards.length) + " из " + String(maxItems) + " · порядок сохраняется автоматически";
       fallback.hidden = cards.length > 0;
       openButton.disabled = isSaving || cards.length >= maxItems;
       root.classList.toggle("is-full", cards.length >= maxItems);
     }
 
-    async function save(previousCards, successMessage) {
+    async function save(previousCards, successMessage, previousMaxItems) {
       setBusy(true);
       try {
         var response = await fetch(saveUrl, {
@@ -239,15 +243,17 @@
             "Content-Type": "application/json",
             "X-CSRFToken": csrfInput ? csrfInput.value : "",
           },
-          body: JSON.stringify({ place_ids: selectedIds() }),
+          body: JSON.stringify({ place_ids: selectedIds(), limit: maxItems }),
         });
         var payload = await response.json();
         if (!response.ok || !payload.ok) {
           throw new Error(payload.error || "Не удалось сохранить изменения.");
         }
+        if (Number.isInteger(payload.max_items)) maxItems = payload.max_items;
         showStatus(successMessage || "Изменения сохранены", "success");
       } catch (error) {
         cards = previousCards;
+        if (Number.isInteger(previousMaxItems)) maxItems = previousMaxItems;
         render();
         showStatus(error.message || "Не удалось сохранить изменения.", "error");
         if (window.kmToast) {
@@ -258,6 +264,28 @@
         render();
       }
     }
+
+    if (limitInput) {
+      limitInput.addEventListener("change", function () {
+        if (isSaving) return;
+        var previousMaxItems = maxItems;
+        var nextMaxItems = Number(limitInput.value);
+        if (!Number.isInteger(nextMaxItems) || nextMaxItems < 1 || nextMaxItems > 24) {
+          limitInput.value = String(previousMaxItems);
+          showStatus("Укажите количество мест от 1 до 24.", "error");
+          return;
+        }
+        if (nextMaxItems < cards.length) {
+          limitInput.value = String(previousMaxItems);
+          showStatus("Сначала уберите лишние места из карусели.", "error");
+          return;
+        }
+        maxItems = nextMaxItems;
+        render();
+        save(cards.slice(), "Количество карточек сохранено", previousMaxItems);
+      });
+    }
+
 
     function renderCandidates(results) {
       candidatesNode.innerHTML = "";

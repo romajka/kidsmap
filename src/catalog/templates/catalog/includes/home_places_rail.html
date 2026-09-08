@@ -1,0 +1,114 @@
+{% load i18n %}
+{% if home_rail_places %}
+<section class="home-places-rail" data-places-rail aria-labelledby="home-rail-title">
+  <div class="home-rail-heading">
+    <div>
+      <span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}YENİ KƏŞFLƏR{% elif request.LANGUAGE_CODE == 'en' %}SOMETHING TO DISCOVER{% else %}ЕСТЬ ЧТО ОТКРЫТЬ{% endif %}</span>
+      <h2 id="home-rail-title">{% if request.LANGUAGE_CODE == 'az' %}Növbəti sevimli məkanınız{% elif request.LANGUAGE_CODE == 'en' %}Their next favourite place{% else %}Ваше следующее любимое место{% endif %}</h2>
+    </div>
+    <div class="home-rail-controls">
+      <a class="home-rail-catalog-link" href="{% url 'place_list' %}">
+        <span>{% trans 'Открыть весь каталог' %}</span>
+        <span class="home-btn-icon" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="7" y1="17" x2="17" y2="7"></line>
+            <polyline points="7 7 17 7 17 17"></polyline>
+          </svg>
+        </span>
+      </a>
+      <div class="home-rail-nav-group" aria-label="{% trans 'Навигация по карточкам' %}">
+        <button type="button" class="home-rail-nav-btn home-rail-nav-prev" data-rail-prev aria-label="{% trans 'Предыдущее место' %}" title="{% trans 'Предыдущее место' %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button type="button" class="home-rail-nav-btn home-rail-nav-next" data-rail-next aria-label="{% trans 'Следующее место' %}" title="{% trans 'Следующее место' %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+      <button type="button" class="home-rail-toggle" data-rail-toggle hidden aria-controls="home-rail-viewport"
+        data-pause-label="{% if request.LANGUAGE_CODE == 'az' %}Dayandır{% elif request.LANGUAGE_CODE == 'en' %}Pause{% else %}Пауза{% endif %}"
+        data-resume-label="{% if request.LANGUAGE_CODE == 'az' %}Davam et{% elif request.LANGUAGE_CODE == 'en' %}Resume{% else %}Продолжить{% endif %}">
+        <span class="home-rail-toggle-badge" aria-hidden="true">
+          <span data-rail-toggle-icon>Ⅱ</span>
+        </span>
+        <span data-rail-toggle-label>{% if request.LANGUAGE_CODE == 'az' %}Dayandır{% elif request.LANGUAGE_CODE == 'en' %}Pause{% else %}Пауза{% endif %}</span>
+      </button>
+    </div>
+  </div>
+  <div class="home-rail-viewport" id="home-rail-viewport" data-rail-viewport tabindex="0" role="region" aria-labelledby="home-rail-title">
+    <ul class="home-rail-track" data-rail-track>
+      {% for place in home_rail_places %}
+      <li class="home-rail-item" data-rail-original>
+        {% include "catalog/includes/place_card.html" with place=place %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="home-rail-progress" data-rail-progress aria-hidden="true">
+    <div class="home-rail-progress-track">
+      <div class="home-rail-progress-thumb" data-rail-progress-thumb>
+        <span class="home-rail-thumb-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Infinite Benefits Marquee -->
+  <div class="home-benefits-marquee" data-benefits-marquee aria-label="{% trans 'Преимущества KidsMap' %}">
+    <div class="home-benefits-track" data-benefits-track>
+      <ul class="home-benefits-list" data-benefits-list>
+        <li class="home-benefit-item">
+          <span class="home-benefit-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span class="home-benefit-text">{% if request.LANGUAGE_CODE == 'az' %}Yoxlanılmış və aktiv məkanlar{% elif request.LANGUAGE_CODE == 'en' %}Verified and active places{% else %}Проверенные и активные места{% endif %}</span>
+        </li>
+        <li class="home-benefit-item">
+          <span class="home-benefit-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span class="home-benefit-text">{% if request.LANGUAGE_CODE == 'az' %}Yaş, rayon və qiymət filtrləri{% elif request.LANGUAGE_CODE == 'en' %}Filters by age, district and price{% else %}Фильтры по возрасту, району и цене{% endif %}</span>
+        </li>
+        <li class="home-benefit-item">
+          <span class="home-benefit-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span class="home-benefit-text">{% if request.LANGUAGE_CODE == 'az' %}Zəng və WhatsApp-a birbaşa keçid{% elif request.LANGUAGE_CODE == 'en' %}Quick connect via phone and WhatsApp{% else %}Быстрый переход к телефону и WhatsApp{% endif %}</span>
+        </li>
+        <li class="home-benefit-item">
+          <span class="home-benefit-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span class="home-benefit-text">{% if request.LANGUAGE_CODE == 'az' %}Telefonda və kompüterdə rahat{% elif request.LANGUAGE_CODE == 'en' %}Convenient on mobile and desktop{% else %}Удобно на телефоне и компьютере{% endif %}</span>
+        </li>
+        <li class="home-benefit-item">
+          <span class="home-benefit-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span class="home-benefit-text">{% if request.LANGUAGE_CODE == 'az' %}İdman, təhsil, yaradıcılıq və əyləncə{% elif request.LANGUAGE_CODE == 'en' %}Sports, education, arts and recreation{% else %}Спорт, образование, творчество и развлечения{% endif %}</span>
+        </li>
+        <li class="home-benefit-item">
+          <span class="home-benefit-icon" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <span class="home-benefit-text">{% if request.LANGUAGE_CODE == 'az' %}Yeni məkanlar müntəzəm əlavə olunur{% elif request.LANGUAGE_CODE == 'en' %}New places added regularly{% else %}Новые места регулярно добавляются{% endif %}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+{% endif %}

@@ -1,5 +1,7 @@
 # Legacy: классификация без удаления
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 Срез2026-09-06. LOCAL `main`/`df6fef3` + dirty/untracked; PRODUCTION clean `86a0b8c`, `readiness-legacy-migration`, catalog0100. Строки кода ниже — LOCAL. Новые production агрегаты: [E3](../../docs/agent-audits/PRODUCTION_READ_ONLY.md) подтверждает266Place со scalar prices без relational plans,2с nonempty legacy JSON,3с text schedule;0temporary Place/Event/team rows. Пометки UNKNOWN в отдельных строках означают отсутствие полного semantic/retirement доказательства, а не отсутствие этого aggregate audit. Отсутствие примеров в локальной БД не доказывает отсутствие использования.
 
 ## Значения статуса

@@ -1,6 +1,7 @@
 import re
 import uuid
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Avg, Count, Q
 from django.db.models.signals import post_delete, post_save
@@ -162,6 +163,12 @@ class SiteSettings(models.Model):
         blank=True,
         null=True,
         help_text=_("Рекомендуется JPG/WebP 800x900 px (пропорция ~8:9, вертикальная), до 800 KB."),
+    )
+    home_recommendations_limit = models.PositiveSmallIntegerField(
+        _("Количество мест в карусели главной"),
+        default=4,
+        validators=[MinValueValidator(1), MaxValueValidator(24)],
+        help_text=_("От 1 до 24. Сначала уберите лишние места из карусели, затем уменьшайте число."),
     )
     home_categories_image = models.FileField(
         _("Фон блока категорий"),

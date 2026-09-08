@@ -749,6 +749,24 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context["popular_places"]), 4)
 
+    def test_home_rail_uses_the_catalog_place_card(self):
+        place = create_quality_place(
+            name="Rail card place",
+            name_ru="Карточка ленты",
+            category="EDU",
+            is_home_recommended=True,
+            phone1="+994501112233",
+            photo=SimpleUploadedFile("rail-card.jpg", b"rail-card-image", content_type="image/jpeg"),
+        )
+
+        response = self.client.get("/ru/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="home-places-rail"', html=False)
+        self.assertContains(response, f'data-place-id="{place.pk}"', html=False)
+        self.assertContains(response, 'class="card place-card"', html=False)
+        self.assertContains(response, "card-go-btn", html=False)
+
     def test_home_place_card_phone_button_calls_first_number_directly(self):
         place = create_quality_place(
             name="Callable Home Place",

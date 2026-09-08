@@ -9,7 +9,7 @@ from catalog.services.pricing_plans import normalize_pricing_plans, replace_plac
 
 
 class Command(BaseCommand):
-    help = "Migrate legacy Place pricing data to relational PricingPlan rows"
+    help = "Migrate legacy prices only for places without relational tariffs; existing tariffs are skipped"
 
     def add_arguments(self, parser):
         mode = parser.add_mutually_exclusive_group(required=True)
@@ -21,45 +21,54 @@ class Command(BaseCommand):
         report = {"processed": 0, "created": 0, "skipped": 0, "conflicts": 0, "ambiguous": []}
         for place in Place.objects.order_by("pk").iterator(chunk_size=100):
             report["processed"] += 1
-            payload = []
-            if place.pricing_plans_legacy:
+            with transaction.atomic():
+                if options["apply"]:
+                    # Read conversion inputs and check eligibility under the same
+                    # Place lock, also serializing concurrent command instances.
+                    place = Place.objects.select_for_update().get(pk=place.pk)
+                # Scalars are projections once relational tariffs exist. Never
+                # reconstruct those tariffs from a lossy legacy representation,
+                # including inactive rows or places with leftover legacy JSON.
+                if place.pricing_plan_records.exists():
+                    report["skipped"] += 1
+                    continue
+                payload = []
+                if place.pricing_plans_legacy:
+                    try:
+                        payload.extend(normalize_pricing_plans(place.pricing_plans_legacy))
+                    except Exception as exc:
+                        report["conflicts"] += 1
+                        report["ambiguous"].append({"place_id": place.pk, "reason": str(exc)})
+
+                legacy = [
+                    (place.price_per_lesson, {"product_type": "lesson", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "lesson", "title_ru": "Одно занятие"}),
+                    (place.price_per_month, {"product_type": "membership", "billing_mode": "recurring", "billing_interval": "month", "billing_interval_count": 1, "title_ru": "Месячный абонемент"}),
+                    (place.price_per_8_lessons, {"product_type": "lesson", "billing_mode": "one_time", "quantity": 8, "quantity_unit": "lesson", "title_ru": "Пакет из 8 занятий"}),
+                ]
+                fingerprints = {(item.get("product_type"), item.get("billing_mode"), item.get("billing_interval"), item.get("quantity"), item.get("quantity_unit")) for item in payload}
+                for amount, base in legacy:
+                    fingerprint = (base.get("product_type"), base.get("billing_mode"), base.get("billing_interval"), base.get("quantity"), base.get("quantity_unit"))
+                    if amount is None or fingerprint in fingerprints:
+                        continue
+                    payload.append({**base, "price_kind": "free" if amount == 0 else "exact", "price": str(amount), "currency": "AZN", "charge_role": "primary", "is_active": True})
+                    fingerprints.add(fingerprint)
+
+                if not payload:
+                    report["skipped"] += 1
+                    if place.price_from is not None or place.price_to is not None:
+                        report["ambiguous"].append({"place_id": place.pk, "reason": "only price_from/price_to"})
+                    continue
                 try:
-                    payload.extend(normalize_pricing_plans(place.pricing_plans_legacy))
+                    normalized = normalize_pricing_plans(payload)
                 except Exception as exc:
                     report["conflicts"] += 1
                     report["ambiguous"].append({"place_id": place.pk, "reason": str(exc)})
-
-            legacy = [
-                (place.price_per_lesson, {"product_type": "lesson", "billing_mode": "one_time", "quantity": 1, "quantity_unit": "lesson", "title_ru": "Одно занятие"}),
-                (place.price_per_month, {"product_type": "membership", "billing_mode": "recurring", "billing_interval": "month", "billing_interval_count": 1, "title_ru": "Месячный абонемент"}),
-                (place.price_per_8_lessons, {"product_type": "lesson", "billing_mode": "one_time", "quantity": 8, "quantity_unit": "lesson", "title_ru": "Пакет из 8 занятий"}),
-            ]
-            fingerprints = {(item.get("product_type"), item.get("billing_mode"), item.get("billing_interval"), item.get("quantity"), item.get("quantity_unit")) for item in payload}
-            for amount, base in legacy:
-                fingerprint = (base.get("product_type"), base.get("billing_mode"), base.get("billing_interval"), base.get("quantity"), base.get("quantity_unit"))
-                if amount is None or fingerprint in fingerprints:
                     continue
-                payload.append({**base, "price_kind": "free" if amount == 0 else "exact", "price": str(amount), "currency": "AZN", "charge_role": "primary", "is_active": True})
-                fingerprints.add(fingerprint)
-
-            if not payload:
-                report["skipped"] += 1
-                if place.price_from is not None or place.price_to is not None:
-                    report["ambiguous"].append({"place_id": place.pk, "reason": "only price_from/price_to"})
-                continue
-            try:
-                normalized = normalize_pricing_plans(payload)
-            except Exception as exc:
-                report["conflicts"] += 1
-                report["ambiguous"].append({"place_id": place.pk, "reason": str(exc)})
-                continue
-            existing = place.pricing_plan_records.count()
-            if options["apply"]:
-                with transaction.atomic():
+                if options["apply"]:
                     saved = replace_place_pricing_plans(place, normalized, allow_verified=True)
-                report["created"] += max(0, len(saved) - existing)
-            else:
-                report["created"] += max(0, len(normalized) - existing)
+                    report["created"] += len(saved)
+                else:
+                    report["created"] += len(normalized)
 
         output = json.dumps(report, ensure_ascii=False, indent=2, default=str)
         self.stdout.write(output)

@@ -1,18 +1,27 @@
 # Source of truth map
 
-Срез: 2026-09-06. **LOCAL** `main`, `df6fef3` + dirty/untracked; **PRODUCTION** clean `86a0b8c`, ветка `readiness-legacy-migration`, catalog0100 по read-only проверке оркестратора. Это разные версии. Строки ниже указывают LOCAL; при сдвиге строк искать указанный символ. Production агрегаты и точное соответствие отдельных файлов — в deployment/database audit, иначе **UNKNOWN**.
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md), [pricing](pricing.md), [schedule](schedule.md), [permissions](permissions.md). Ниже карта LOCAL source; line numbers служат навигацией, искать актуальный символ. Проверенные изменения перечислены в current snapshot; остальные домены сохраняют карту discovery, а не новое runtime доказательство.
+
+Срез LOCAL HEAD: `d75b34f4db5d4ba484cf8392ff3ae0c9939031e2`, исходное дерево clean. WORKTREE этой задачи содержит только agent-system изменения. Текущий PRODUCTION **UNKNOWN**; данные September6 в старых audit reports не обновлялись и не доказывают сегодняшний deployment/schema.
 
 Порядок доказательств для AS-IS: исполняемый код конкретной версии + миграции + read-only DB schema/data aggregates + наблюдаемое public/admin поведение. Документация и Codebase Memory помогают найти реализацию, но не заменяют её. TO-BE/PLANNED не становятся AS-IS от наличия файла плана.
 
 | Domain | Основной источник | Смежные источники / граница |
 |---|---|---|
+| Price modes | `src/catalog/models/place.py:Place.PRICE_MODE_CHOICES`; `services/place_readiness.py` | Forms/admin/import, pricing summary; owner helper divergence — [pricing](pricing.md). |
+| PricingPlan validation | `src/catalog/models/pricing_plan.py:PricingPlan.clean/save`; `services/pricing_plans.py:normalize_pricing_plans` | Constraints, replacement/serialization, signals, admin and owner/volunteer payloads. |
+| Volunteer permissions | `services/staff_roles.py`, `volunteer_middleware.py`, `services/volunteer_places.py:own_places` under src/catalog | `domain_admin/volunteer.py`, `volunteer_forms.py`, `models/volunteer.py`; direct routes/service/revision checks, [permissions](permissions.md). |
+| Admin roles | `src/catalog/domain_admin/user.py:ADMIN_ROLE_CHOICES`, `StaffAccessUserAdmin.save_related` | Django groups/model permissions; volunteer-specific denials in place_access; UI is not ACL. |
+| Contacts | `src/catalog/models/place.py` phone/contact fields and phone_numbers; `src/catalog/phone_views.py:reveal_place_phones` | Phone reveal template/JS, map payload and SEO privacy; POST/CSRF/rate-limit, published_place_queryset differs from strict public visibility. |
+| Google OAuth | `src/catalog/google_auth.py:google_login/google_callback/_resolve_google_user/KidsMapSocialAccountAdapter` | allauth in settings; test_google_auth; committed LOCAL implementation, external/deployed state UNKNOWN. |
+| JSON import | `static/admin/js/kidsmap_place_json_import.js:parsePlaceJson/applyData`; `domain_admin/place.py:validate_pricing_import_view` | Admin form/save and export_place_json_view; import_places command is CSV. |
 | Django apps/settings | `src/config/settings.py:180` INSTALLED_APPS, `:305` MIDDLEWARE | `config/settings.py:3` — wrapper; `src/catalog/apps.py` выполняет signals/Jazzmin patch. |
 | Routes / API | `src/config/urls.py:34`, `src/catalog/urls.py:82` urlpatterns | API Django views, не предполагать DRF: `views.py:47` pricing; LOCAL `phone_views.py:20`, `photo_views.py:74`. |
 | Architecture layers | `src/catalog/interfaces/repositories.py`, `repositories/django_repositories.py` | Controllers + services; `views.py`, models и domain_admin также содержат ORM/правила. |
 | Place model | `src/catalog/models/place.py:27` Place | FK Category.code, owner, created_by, scalar/JSON compatibility, relations; не только docs matrix. |
 | Publication readiness | `src/catalog/services/place_readiness.py:466/:568/:680` | `content_quality.py:416` adapter, admin `domain_admin/place.py:268`. |
 | Admin publication / existing-live compatibility | `src/catalog/domain_admin/place.py:269` | Новая/повторная публикация требует readiness; ordinary save live legacy имеет исключение. |
-| Owner submission | `src/catalog/controllers/owner_places_controller.py:432/:605/:852` | LOCAL `forms.py:1469` → untracked permanent_place_rules.py; рассинхронизация с readiness. |
+| Owner submission | `src/catalog/controllers/owner_places_controller.py:432/:605/:852` | `forms.py:1469` → permanent_place_rules.py; рассинхронизация с readiness подтверждена в committed LOCAL source. |
 | Draft semantics | `src/catalog/forms.py:888/:1538` OwnerPlace forms | Controller defaults/statuses; освобождение required не отменяет типы/отношения/файлы. |
 | Public visibility | `src/catalog/services/content_quality.py:236` public_place_queryset | `:355` published_place_queryset мягче; repository55/59 использует public queryset. |
 | Verified badge | `src/catalog/services/place_card_validation.py:87` validate_place_card | Отдельный контракт от публикации, public SQL и completeness UI. |
@@ -53,7 +62,7 @@
 ## Источники, требующие критического чтения
 
 - `AI_HANDOFF.md`: история проекта и навигация; global owner-role текст и старый local path устарели.
-- `docs/PERMANENT_PLACE_FIELD_MATRIX.md`: untracked документ со спорными ручными выводами. Текущий код содержит `price_mode`, `place_readiness.py`, пять schedule modes; 120 символов не блокируют canonical readiness.
+- `docs/PERMANENT_PLACE_FIELD_MATRIX.md`: документ со спорными ручными выводами. Код содержит `price_mode`, `place_readiness.py`, пять schedule modes; 120 символов не блокируют canonical readiness.
 - `docs/FULL_READINESS_SYNC_REPORT.md` и implementation reports — заявления о проделанной работе, которые надо сверять с dirty diff; LOCAL owner path уже показывает иной gate.
-- Новые Google/photo/phone/wizard файлы — LOCAL AS-IS рабочего дерева, но не автоматически committed или production AS-IS.
+- Google/photo/phone/wizard файлы присутствуют в текущем committed LOCAL HEAD. Production AS-IS этим не доказан.
 - Для неподтверждённого server DB usage писать UNKNOWN. Не переносить приватные строки, credentials, dumps или logs в knowledge.

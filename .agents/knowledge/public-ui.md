@@ -1,10 +1,14 @@
 # Public UI KidsMap
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 Срез: 2026-09-06. Источник AS-IS — текущий локальный код, включая dirty/untracked изменения.
 Production имеет отдельный baseline `86a0b8c`; наличие файла локально не доказывает его деплой.
 Сопоставление окружений: [deployment.md](deployment.md). Общие контракты: [source-of-truth.md](source-of-truth.md).
 
 ## Архитектура и владельцы
+
+Уточнение validation D, 2026-09-08: shared `catalog/includes/place_card.html` подключён в home, place_list и account_favorites. Home popup/catalog map card/detail/volunteer card — другие разметки. В shared card сейчас нет schedule row; card_price_badge_value содержит полную backend строку, currency пустая. Проверять актуальные include consumers; текущий index может покрывать static, не предполагать исключение без check_index_coverage.
 
 - Public UI — Django server-rendered templates и vanilla JavaScript/CSS. SPA/build pipeline в обследованном checkout не обнаружен.
 - Общий shell: `src/catalog/templates/base.html`; основные страницы — `catalog/` и `pages/` под этой же папкой.
@@ -70,7 +74,7 @@ Production имеет отдельный baseline `86a0b8c`; наличие фа
 | P2 | Browser/JS scripts не включены в `.github/workflows/deploy.yml` | Высокая, source |
 | P3 | `site.css` около662KB, base.html около59KB; глобальные styles/inline JS усложняют изоляцию | Высокая для размера; runtime impact не измерен |
 
-Минимальная browser matrix: 375/768/1024/1440px, AZ/RU/EN; каталог, карточка, auth и затронутые owner flows.
+Минимальная browser matrix: 390/768/1024/1280/1440px, AZ/RU/EN; каталог, карточка, auth и затронутые owner flows.
 Проверять Console, Network/static404, overflow, focus, map empty/error, filter reset, back/forward.
 Существуют `scripts/test_footer_overflow.sh`, `scripts/test_mobile_navigation.sh`, но требуют внешнего Playwright wrapper.
 Source review не заменяет browser QA. Для production — GET/просмотр; не сохранять формы, не отправлять отзывы/CTA tracking специально.

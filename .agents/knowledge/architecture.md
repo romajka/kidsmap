@@ -1,5 +1,7 @@
 # KidsMap: карта фактической архитектуры
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 Срез: 2026-09-06. Источник AS-IS — код и read-only наблюдения; документация проверяется по ним. Карта подготовлена **до** консолидации ролей. Навигация: [source-of-truth](source-of-truth.md), [database](database.md), [deployment](deployment.md), [testing](testing.md).
 
 ## Три разных состояния

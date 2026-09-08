@@ -11,6 +11,7 @@
 {% endif %}
 {% endblock %}
 {% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -28,21 +29,41 @@
 
   <div class="home-hero-grid">
     <div class="home-hero-copy">
+      <div class="home-redesign-eyebrow"><span aria-hidden="true"></span>{% if request.LANGUAGE_CODE == 'az' %}Uşaqlıq kəşflərlə doludur{% elif request.LANGUAGE_CODE == 'en' %}A childhood full of discovery{% else %}Детство, полное открытий{% endif %}</div>
       <h1>{{ hero_title }}</h1>
       <p>{{ hero_subtitle }}</p>
+      <div class="home-redesign-actions">
+        <a class="home-redesign-primary" href="{% if map_places %}#home-map-section{% else %}{% url 'place_list' %}{% endif %}">
+          <span>{% if request.LANGUAGE_CODE == 'az' %}Uyğun yer tap{% elif request.LANGUAGE_CODE == 'en' %}Find your next discovery{% else %}Найти своё место{% endif %}</span>
+          <span class="home-btn-icon" aria-hidden="true">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </span>
+        </a>
+        <a class="home-redesign-secondary" href="{% url 'place_list' %}">
+          <span>{% trans "Открыть весь каталог" %}</span>
+          <span class="home-btn-icon" aria-hidden="true">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </a>
+      </div>
 
       <div class="home-hero-stats" aria-label="{% trans 'Преимущества KidsMap' %}">
         <a class="home-hero-stat km-stat-card km-stat-places km-stat-link"
           href="{% if map_places %}#home-map-section{% else %}{% url 'place_list' %}{% endif %}">
           <div class="km-stat-icon-wrapper">
-            <svg class="km-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="18" r="3" class="pulse-ring ring-1" />
-              <circle cx="12" cy="18" r="6" class="pulse-ring ring-2" />
-              <circle cx="12" cy="18" r="1.5" class="radar-core" fill="#10b981" stroke="#10b981" />
-              <circle cx="12" cy="18" r="4" class="radar-pulse" stroke="#10b981" stroke-width="1.5" />
-              <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z" class="bobbing-pin" />
-              <circle cx="12" cy="9" r="2.5" class="pin-hole" fill="currentColor" />
+            <svg class="km-stat-svg km-stat-svg--places" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <ellipse cx="16" cy="27" rx="6" ry="2" class="km-pin-ground-shadow" fill="rgba(19, 111, 56, 0.2)" />
+              <circle cx="16" cy="27" r="5" class="km-pin-pulse-wave" stroke="currentColor" stroke-width="1.5" />
+              <g class="km-pin-group">
+                <path d="M16 3C11.03 3 7 7.03 7 12C7 18.25 16 27 16 27C16 27 25 18.25 25 12C25 7.03 20.97 3 16 3Z" class="km-pin-body" fill="currentColor" fill-opacity="0.16" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                <circle cx="16" cy="12" r="3.2" class="km-pin-dot" fill="currentColor" />
+              </g>
             </svg>
           </div>
           <div class="km-stat-details">
@@ -52,14 +73,13 @@
         </a>
         <a class="home-hero-stat km-stat-card km-stat-reviews km-stat-link" href="{% url 'place_reviews' %}">
           <div class="km-stat-icon-wrapper">
-            <svg class="km-stat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                class="bubble-chat" />
-              <polygon points="12 9 13.5 12 16.5 12 14 14.2 15 17.5 12 15.5 9 17.5 10 14.2 7.5 12 10.5 12"
-                class="shimmer-star" fill="currentColor" />
-              <path d="M18 5h.01M6 18h.01" stroke-width="3" class="sparkle-dot" />
+            <svg class="km-stat-svg km-stat-svg--reviews" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g class="km-bubble-group">
+                <path d="M26 15C26 20.52 21.52 25 16 25C14.07 25 12.27 24.45 10.74 23.5L5 25.5L7.2 20.1C5.83 18.62 5 16.68 5 14.5C5 8.98 9.92 4.5 16 4.5C21.52 4.5 26 8.98 26 14.5V15Z" class="km-bubble-body" fill="currentColor" fill-opacity="0.16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M16 8.5L17.85 12.25L22 12.85L19 15.77L19.7 19.9L16 17.95L12.3 19.9L13 15.77L10 12.85L14.15 12.25L16 8.5Z" class="km-bubble-star" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+              </g>
+              <path d="M25 5.5L25.8 7.2L27.5 8L25.8 8.8L25 10.5L24.2 8.8L22.5 8L24.2 7.2L25 5.5Z" class="km-sparkle km-sparkle-1" fill="currentColor" />
+              <circle cx="28.5" cy="13.5" r="1.2" class="km-sparkle km-sparkle-2" fill="currentColor" />
             </svg>
           </div>
           <div class="km-stat-details">
@@ -296,6 +316,26 @@
   </div>
 </section>
 
+{% include "catalog/includes/home_places_rail.html" %}
+
+{% if home_categories %}
+<section class="home-discover" aria-labelledby="home-discover-title">
+  <div class="home-discover-head">
+    <div><span class="home-redesign-kicker">{% if request.LANGUAGE_CODE == 'az' %}MARAQLARDAN BAŞLAYIN{% elif request.LANGUAGE_CODE == 'en' %}FOLLOW THEIR CURIOSITY{% else %}НАЧНИТЕ С ИНТЕРЕСОВ{% endif %}</span>
+    <h2 id="home-discover-title">{% if request.LANGUAGE_CODE == 'az' %}Uşağınız nəyi sevir?{% elif request.LANGUAGE_CODE == 'en' %}What do they love doing?{% else %}Чем увлечён ваш ребёнок?{% endif %}</h2></div>
+    <a class="home-redesign-secondary" href="{% url 'place_list' %}">{% trans "Все категории" %}<span aria-hidden="true">↗</span></a>
+  </div>
+  <div class="home-discover-grid">
+    {% for item in home_categories %}
+    <a class="home-discover-category" href="{% url 'place_list' %}?category={{ item.value|urlencode }}">
+      <span class="home-discover-icon" style="background-color: {{ item.color_bg|default:'#F3F4F6' }}; color: {{ item.color_text|default:'#6B7280' }};" aria-hidden="true">{% include "catalog/includes/category_visual_icon.html" with code=item.value icon_file_url=item.icon_file_url icon_is_svg=item.icon_is_svg icon_is_font=item.icon_is_font icon_name=item.icon_name %}</span>
+      <span>{{ item.label }}</span><span class="home-discover-arrow" aria-hidden="true">↗</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 {% if map_places %}
 <section class="panel home-map-panel" id="home-map-section">
   <div class="home-map-head">
@@ -328,22 +368,7 @@
 </section>
 {% endif %}
 
-{% if popular_places %}
-<section class="panel home-recommended">
-  <h2>{% trans "Рекомендуемые места и занятия" %}</h2>
-  <div class="grid">
-    {% for place in popular_places %}
-    {% include "catalog/includes/place_card.html" with place=place %}
-    {% endfor %}
-  </div>
-  <div class="home-recommended-proof" aria-label="{% trans 'Почему нам доверяют' %}">
-    <span>{% trans "Проверенные и активные места" %}</span>
-    <span>{% trans "Фильтры по возрасту, региону и цене" %}</span>
-    <span>{% trans "Быстрый переход к звонку и Instagram" %}</span>
-    <span>{% trans "Удобно на телефоне и компьютере" %}</span>
-  </div>
-</section>
-{% endif %}
+
 
 <section class="home-steps panel home-steps-lite animate-on-scroll" id="how-it-works"
   aria-label="{% trans 'Как это работает' %}">
@@ -2763,6 +2788,7 @@
 {% endblock %}
 
 {% block extra_body %}
+{% if home_rail_places %}<script src="{% static 'js/home_places_rail.js' %}" defer></script>{% endif %}
 {% if hero_gallery_slides|length > 1 %}
 <script src="{% static 'js/home_hero_slider.js' %}"></script>
 {% endif %}

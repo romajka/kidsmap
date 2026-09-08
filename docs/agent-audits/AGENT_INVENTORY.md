@@ -1,5 +1,15 @@
 # KidsMap agent inventory and disposition
 
+## Revalidation — 2026-09-08
+
+Starting HEAD `d75b34f4db5d4ba484cf8392ff3ae0c9939031e2`, clean. Existing system already has 15 canonical definitions (11 active, four retained) and seven historical package copies. The September 6 table below records the original consolidation; `UPDATE` there means **UPGRADE**, not an additional disposition class.
+
+This run: **UPGRADE all 11 active definitions** (MISSION/OPERATING RULES, graph-first discovery, current source boundaries, approved implementation workflow, compact handoff and verification). **KEEP** the 11 active IDs, four inactive pointers, seven historical copies and useful shared knowledge. **MERGE retained** code-reviewer→orchestrator, data-quality→database/backend, localization→UI/SEO/browser, performance→layer owners. No further REPLACE or REMOVE. QA keeps the previously replaced integration-reviewer scope.
+
+Native integration now uses `.codex/agents/<id>.toml`, each pointing to the existing canonical Markdown. Installed CLI reports 0.132.0. Standalone format verified using official documentation and Context7 source references; see current-snapshot. The former zero-byte `.codex` file was **moved**, preserved at `.agents/rules/history/codex-empty-placeholder-before-20260908`; no useful agent content deleted. Runtime loading and role behavior are distinct verification checks.
+
+Codebase Memory is connected in this session, repository indexed with persistence=false. Previous “unavailable”, “no root AGENTS” and “empty .codex” statements below describe historical discovery only. Current production was not accessed. Four task reports and final scoring live in [TEAM_VALIDATION](TEAM_VALIDATION.md).
+
 Discovery date: 2026-09-06. Scope: repository definitions, orchestration, skills and tool configuration. Baseline: 13 canonical definitions in `.agents/agents/`, plus seven byte-identical package copies in `kidsmap_extra_agents/.agents/agents/`. No files are deleted. This inventory records the design decision; the active roster is the orchestrator's routing contract.
 
 ## Discovery and runtime truth

@@ -18,9 +18,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=115">
-  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_home_recommendations.css' %}?v=3">
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=35" defer></script>
-  <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=2" defer></script>
+  <script src="{% static 'admin/js/kidsmap_home_recommendations.js' %}?v=3" defer></script>
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} km-custom-changelist{% if km_is_trash_changelist %} km-place-trash-changelist{% endif %}{% endblock %}
@@ -77,7 +77,7 @@
           <summary class="km-home-recs-accordion__summary">
             <svg class="km-i km-accordion-arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
             <span class="km-accordion-title">{% translate "Рекомендуемые места на главной" %}</span>
-            <span class="km-accordion-meta">4 из 4 слотов · {% translate "порядок сохраняется автоматически" %}</span>
+            <span class="km-accordion-meta" data-home-recs-summary>{{ home_recommendation_editor.cards|length }} из {{ home_recommendation_editor.max_items }} · {% translate "порядок сохраняется автоматически" %}</span>
             <span class="km-accordion-btn">{% translate "Настроить" %}</span>
           </summary>
           <div class="km-home-recs-accordion__body">

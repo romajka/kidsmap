@@ -1,5 +1,7 @@
 # Analytics KidsMap
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 Срез: 2026-09-06. Значимый существующий слой; analytics-reviewer сохраняется как отдельный специалист.
 Local dirty snapshot и production `86a0b8c` различаются: [deployment.md](deployment.md).
 Source events и фактическая доставка GA4 — разные уровни доказательств.

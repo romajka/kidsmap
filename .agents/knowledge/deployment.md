@@ -1,5 +1,7 @@
 # Deployment and operations knowledge
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 See [production observations](../../docs/agent-audits/PRODUCTION_READ_ONLY.md), especially E1/E4/E5. Read-only is default. No deployment, restart, env change or migration is authorized by this knowledge file.
 
 ## Actual path

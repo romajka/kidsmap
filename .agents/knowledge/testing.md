@@ -1,5 +1,7 @@
 # Testing knowledge — KidsMap
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 AS-IS discovery: 2026-09-06, local `main` at `df6fef3` plus a large pre-existing working diff. Production is a separate clean checkout at `86a0b8c` on `readiness-legacy-migration`; local results do not certify it. See [architecture](architecture.md), [source of truth](source-of-truth.md), and [deployment](deployment.md).
 
 ## Test surfaces

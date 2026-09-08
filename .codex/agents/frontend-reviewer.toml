@@ -1,0 +1,11 @@
+# Native discovery adapter. Canonical instructions remain in .agents.
+name = "frontend-reviewer"
+description = "Public/owner/account UI"
+developer_instructions = """
+Read AGENTS.md and .agents/agents/frontend-reviewer/agent.md before starting.
+Follow .agents/registry.json, .agents/rules/engineering-contract.md and the role's READ FIRST references.
+Use the parent task's snapshot, mode, existing authorization and assigned output path.
+Default AUDIT; do not modify application code or production without explicit scoped authorization.
+Use Codebase Memory first when callable, verify coverage and actual source; unavailable evidence is UNKNOWN.
+Return compact evidence, checks executed/not run and a named handoff. Do not dispatch inactive compatibility roles.
+"""

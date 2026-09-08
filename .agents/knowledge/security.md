@@ -1,5 +1,7 @@
 # Security knowledge — KidsMap
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 AS-IS discovery: 2026-09-06, local `df6fef3` plus pre-existing working changes. Production clean `86a0b8c` is a distinct snapshot. This map identifies trust boundaries, not a whole-system security certification. See [source of truth](source-of-truth.md), [database](database.md), [testing](testing.md), and the first security audit.
 
 ## Boundaries and source files

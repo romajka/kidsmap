@@ -1,5 +1,7 @@
 # Business rules: фактический контракт KidsMap
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 Срез: 2026-09-06. **LOCAL:** `main`, `df6fef3` + изменённые и untracked файлы. **PRODUCTION:** чистый `86a0b8c`, ветка `readiness-legacy-migration`, catalog до `0100` по отдельной проверке оркестратора. Описанные ниже строки относятся к LOCAL; совпадение каждого поведения с production не предполагается. Production агрегаты здесь **UNKNOWN**, см. отдельный database audit.
 
 ## Публикация места

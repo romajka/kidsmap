@@ -41,7 +41,13 @@ class HomeController:
         site_settings = self.settings_repository.get_site_settings()
 
         popular_places = list(self.place_repository.top_popular(limit=4))
-        mark_liked_flags(popular_places, liked_ids)
+        home_rail_places = list(
+            self.place_repository.top_popular(limit=site_settings.home_recommendations_limit)
+        )
+        mark_liked_flags(
+            list({place.pk: place for place in [*popular_places, *home_rail_places]}.values()),
+            liked_ids,
+        )
         upcoming_events = []
         if is_events_section_enabled():
             upcoming_events = list(
@@ -132,6 +138,7 @@ class HomeController:
             "home_featured_schema_json": seo_payload["home_featured_schema_json"],
             "seo_pages": content_settings.seo_pages(language_code),
             "popular_places": popular_places,
+            "home_rail_places": home_rail_places,
             "upcoming_events": upcoming_events,
             "map_places": map_places,
             "total_place_reviews_count": total_place_reviews_count,

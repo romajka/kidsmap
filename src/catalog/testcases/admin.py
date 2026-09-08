@@ -364,6 +364,8 @@ class TestAdminHomeRecommendations(TestCase):
         self.assertContains(response, "kidsmap_home_recommendations.js", html=False)
         self.assertContains(response, "Рекомендуемые места")
         self.assertContains(response, "Рекомендуемое место 1")
+        self.assertContains(response, "data-home-recs-limit", html=False)
+        self.assertContains(response, 'value="4"', html=False)
         self.assertContains(
             response,
             f'data-save-url="{reverse("admin:catalog_place_home_recommendations_save")}"',
@@ -388,6 +390,26 @@ class TestAdminHomeRecommendations(TestCase):
         self.assertEqual(self.places[2].home_recommended_order, 10)
         self.assertTrue(self.places[0].is_home_recommended)
         self.assertEqual(self.places[0].home_recommended_order, 20)
+
+    def test_admin_can_expand_carousel_and_home_uses_that_limit(self):
+        response = self.client.post(
+            reverse("admin:catalog_place_home_recommendations_save"),
+            data=json.dumps(
+                {
+                    "place_ids": [place.pk for place in self.places],
+                    "limit": 5,
+                }
+            ),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["max_items"], 5)
+        home = self.client.get("/ru/")
+        self.assertEqual(
+            [place.pk for place in home.context["home_rail_places"]],
+            [place.pk for place in self.places],
+        )
 
     def test_admin_rejects_more_than_four_home_recommendations(self):
         response = self.client.post(
@@ -417,6 +439,22 @@ class TestAdminHomeRecommendations(TestCase):
         result_ids = {item["id"] for item in response.json()["results"]}
         self.assertEqual(result_ids, {place.pk for place in self.places})
         self.assertNotIn(hidden_place.pk, result_ids)
+
+    def test_admin_cannot_add_temporary_place_to_home_carousel(self):
+        temporary_place = create_quality_place(
+            name="Temporary carousel place",
+            name_ru="Временное место для карусели",
+            is_temporary=True,
+        )
+
+        response = self.client.post(
+            reverse("admin:catalog_place_home_recommendations_save"),
+            data=json.dumps({"place_ids": [temporary_place.pk], "limit": 1}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(Place.objects.filter(is_home_recommended=True).exists())
 
 
 class TestAzerbaijanPhoneFormatting(TestCase):

@@ -13,6 +13,15 @@ from catalog.services.public_urls import build_public_absolute_uri
 DEFAULT_ROBOTS_CONTENT = "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
 
 
+def _serialize_json_ld(value) -> str:
+    """Serialize JSON for a raw-text HTML script element without changing data."""
+    return json.dumps(value, ensure_ascii=False).translate({
+        ord("<"): "\\u003C",
+        ord(">"): "\\u003E",
+        ord("&"): "\\u0026",
+    })
+
+
 def _normalize_text(value: str) -> str:
     return " ".join(str(value or "").split())
 
@@ -72,7 +81,7 @@ def _absolute_uri(request, url: str) -> str:
 
 
 def _build_breadcrumb_schema(items: list[dict]) -> str:
-    return json.dumps(
+    return _serialize_json_ld(
         {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
@@ -86,7 +95,6 @@ def _build_breadcrumb_schema(items: list[dict]) -> str:
                 for idx, item in enumerate(items, start=1)
             ],
         },
-        ensure_ascii=False,
     )
 
 
@@ -107,7 +115,7 @@ def _build_item_list_schema(*, name: str, item_urls: list[dict], total_count: in
     }
     if total_count is not None:
         payload["numberOfItems"] = int(total_count)
-    return json.dumps(payload, ensure_ascii=False)
+    return _serialize_json_ld(payload)
 
 
 def _catalog_category_label(category_code: str) -> str:
@@ -218,8 +226,8 @@ def build_sitewide_schema_payload(*, request, site_name: str, logo_url: str = ""
     }
 
     return {
-        "organization_schema_json": json.dumps(organization, ensure_ascii=False),
-        "website_schema_json": json.dumps(website, ensure_ascii=False),
+        "organization_schema_json": _serialize_json_ld(organization),
+        "website_schema_json": _serialize_json_ld(website),
     }
 
 
@@ -534,7 +542,7 @@ def build_place_seo_payload(place, request, language_code):
             "title": title,
             "description": description,
             "first_image_url": first_image_url,
-            "schema_json": json.dumps(schema, ensure_ascii=False),
+            "schema_json": _serialize_json_ld(schema),
             "breadcrumb_schema_json": breadcrumb_schema_json,
             "breadcrumb_items": breadcrumb_items,
             "map_embed_url": map_embed_url,
@@ -592,5 +600,5 @@ def build_seo_landing_schema_payload(request, page):
     return {
         "breadcrumb_schema_json": breadcrumb_schema,
         "breadcrumb_items": breadcrumb_items,
-        "faq_schema_json": json.dumps(faq_schema, ensure_ascii=False),
+        "faq_schema_json": _serialize_json_ld(faq_schema),
     }

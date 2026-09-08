@@ -14,13 +14,19 @@
     <button type="button" class="km-home-recs__collapse" data-home-recs-collapse aria-label="{% translate 'Свернуть' %}">
       <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_less"></use></svg>
     </button>
-    <strong class="km-home-recs__title">{% translate "Рекомендуемые места на главной" %}</strong>
+    <strong class="km-home-recs__title">{% translate "Карусель мест на главной" %}</strong>
     <span class="km-home-recs__counter" data-home-recs-counter aria-live="polite"></span>
+    <label class="km-home-recs__limit">
+      <span>{% translate "Карточек в карусели" %}</span>
+      <input type="number" data-home-recs-limit min="1" max="24" value="{{ home_recommendation_editor.max_items }}" inputmode="numeric" aria-describedby="km-home-recs-limit-help">
+    </label>
     <button type="button" class="km-home-recs__add" data-home-recs-open>
       <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>
-      <span>{% translate "Заменить слот" %}</span>
+      <span>{% translate "Добавить место" %}</span>
     </button>
   </header>
+  <p class="km-home-recs__intro">{% translate "Это карусель на главной: родители увидят карточки слева направо в этом порядке." %}</p>
+  <p class="km-home-recs__limit-help" id="km-home-recs-limit-help">{% translate "Выберите количество, добавьте места и расставьте их перетаскиванием или стрелками. Чтобы уменьшить количество, сначала уберите лишние места." %}</p>
 
   <div class="km-home-recs__status" data-home-recs-status role="status" aria-live="polite"></div>
   <div class="km-home-recs__slots" data-home-recs-slots></div>
@@ -34,7 +40,7 @@
     <div class="km-home-recs__dialog-head">
       <div>
         <p class="km-home-recs__eyebrow">{% translate "Выбор карточки" %}</p>
-        <h3 id="km-home-recs-dialog-title">{% translate "Добавить в рекомендации" %}</h3>
+        <h3 id="km-home-recs-dialog-title">{% translate "Добавить место в карусель" %}</h3>
       </div>
       <button type="button" class="km-home-recs__dialog-close" data-home-recs-close aria-label="{% translate 'Закрыть' %}">×</button>
     </div>
@@ -47,7 +53,7 @@
         autocomplete="off"
       >
     </label>
-    <p class="km-home-recs__dialog-help">{% translate "Можно выбирать только опубликованные места, готовые для показа на сайте." %}</p>
+    <p class="km-home-recs__dialog-help">{% translate "Можно выбрать только опубликованные постоянные места, готовые для показа на сайте." %}</p>
     <div class="km-home-recs__candidates" data-home-recs-candidates></div>
   </dialog>
 </section>

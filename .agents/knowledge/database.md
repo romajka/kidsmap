@@ -1,5 +1,7 @@
 # PostgreSQL and migration knowledge
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 AS-IS:2026-09-06. [Production evidence](../../docs/agent-audits/PRODUCTION_READ_ONLY.md) E2/E3 is authoritative for the inspected server; model/migration files explain semantics. LOCAL SQLite/test fixtures do not establish production usage.
 
 ## Schema and source

@@ -11,7 +11,7 @@
       <div class="km-pf__progress"><span class="km-pf-bar km-pf-bar--lg"><span class="km-pf-bar__fill" style="width:{{ ready.percentage }}%"></span></span><strong>{{ ready.percentage }}%</strong></div>
       <p class="km-pf__progress-copy">{{ ready.completed_count }} / {{ ready.required_count }} · {{ editor_copy.update_hint }} <a href="#verification" class="km-pf-linkbtn" data-editor-target="verification">{% translate "Показать" %}</a></p>
     </div>
-    <div class="km-pf__header-aside"><button type="button" class="km-pf-btn km-pf-btn--ghost" data-guide-open aria-haspopup="dialog" aria-controls="volunteer-guide"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-info"></use></svg>{{ editor_copy.instruction }}</button><p class="km-pf__header-savestate" data-editor-save-state role="status">{{ editor_copy.initial }}</p></div>
+    <div class="km-pf__header-aside"><button type="button" class="km-pf-btn km-pf-btn--ghost" data-place-json-prompt-copy aria-haspopup="dialog" aria-controls="km-json-prompt"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-content_copy"></use></svg>ChatGPT · JSON</button><button type="button" class="km-pf-btn km-pf-btn--ghost" data-guide-open aria-haspopup="dialog" aria-controls="volunteer-guide"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-info"></use></svg>{{ editor_copy.instruction }}</button><p class="km-pf__header-savestate" data-editor-save-state role="status">{{ editor_copy.initial }}</p></div>
   </header>
   <nav class="km-pf__nav" aria-label="{% translate 'Разделы карточки' %}">{% for section in volunteer_sections %}{% include "admin/catalog/place/form/_navitem.html" %}{% endfor %}</nav>
   {% if conflict %}<div class="km-pf-alert km-pf-alert--warn">{% translate "Администратор изменил карточку. Начните заново с текущей версии, чтобы не затереть его правки." context "volunteer dashboard" %}</div>{% endif %}
@@ -57,5 +57,6 @@
 </div>
 <dialog class="km-pf-dialog" id="volunteer-guide" data-volunteer-guide aria-labelledby="volunteer-guide-title"><div class="km-pf-dialog__head"><h2 id="volunteer-guide-title">{{ editor_copy.instruction_title }}</h2><button type="button" class="km-pf-btn km-pf-btn--quiet" data-guide-close>{% translate "Закрыть" %}</button></div><ol class="kv-admin-guide">{% for text in editor_copy.steps %}<li>{{ text }}</li>{% endfor %}</ol></dialog>
 </form>
+{% include "admin/catalog/place/form/json_prompt_dialog.html" %}
 </div>
 {% endwith %}

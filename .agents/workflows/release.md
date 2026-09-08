@@ -7,3 +7,7 @@ Exact reviewed revision/diff → tests/schema preflight → recoverable backup/k
 Verification: Audit authorization never permits release. deploy-server/backup/release commands are not read-only; inspect them instead. Existing Google release remains paused.
 
 Output: scoped evidence/plan, exact tested snapshot and handoff. First audit returns findings only; stop for MASTER_AUDIT decision, never auto-fix.
+
+Support: database-reviewer → security-reviewer → integration-reviewer; browser-qa для smoke; orchestrator для итогового handoff.
+
+Use [engineering contract](../rules/engineering-contract.md) for graph-first discovery, exact snapshot and compact handoff. Existing authorization persists; approval is required only when the concrete scope is not already authorized.

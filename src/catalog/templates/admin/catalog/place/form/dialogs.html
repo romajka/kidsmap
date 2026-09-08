@@ -24,22 +24,4 @@
   </div>
 </dialog>
 
-<dialog class="km-pf-dialog" data-place-json-prompt-dialog aria-labelledby="km-json-prompt-title">
-  <div class="km-pf-dialog__head">
-    <div>
-      <span class="km-pf-dialog__eyebrow">ChatGPT</span>
-      <h2 id="km-json-prompt-title">{% translate "Инструкция для создания JSON" %}</h2>
-    </div>
-    <button type="button" class="km-pf-iconbtn" data-place-json-prompt-close aria-label="{% translate 'Закрыть' %}"><svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg></button>
-  </div>
-  <p class="km-pf-dialog__hint">{% translate "Проверьте и отредактируйте текст под свою задачу. Затем скопируйте его и отправьте в ChatGPT вместе с данными о месте." %}</p>
-  <textarea data-place-json-prompt-input rows="20" spellcheck="false"></textarea>
-  <p class="km-pf-dialog__message" data-place-json-prompt-message role="status" aria-live="polite"></p>
-  <div class="km-pf-dialog__actions">
-    <button type="button" class="km-pf-btn km-pf-btn--quiet" data-place-json-prompt-reset>{% translate "Вернуть шаблон" %}</button>
-    <button type="button" class="km-pf-btn km-pf-btn--quiet" data-place-json-prompt-close>{% translate "Закрыть" %}</button>
-    <button type="button" class="km-pf-btn km-pf-btn--primary" data-place-json-prompt-copy-text>
-      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-content_copy"></use></svg>{% translate "Скопировать" %}
-    </button>
-  </div>
-</dialog>
+{% include "admin/catalog/place/form/json_prompt_dialog.html" %}

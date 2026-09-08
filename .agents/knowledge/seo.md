@@ -1,5 +1,7 @@
 # SEO KidsMap
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 Срез: 2026-09-06, источник AS-IS — source files. Local dirty и production `86a0b8c` не одна версия.
 Связанные карты: [source-of-truth.md](source-of-truth.md), [public-ui.md](public-ui.md), [security.md](security.md).
 

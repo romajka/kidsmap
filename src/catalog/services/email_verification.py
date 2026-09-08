@@ -145,8 +145,10 @@ def verify_registration_code(
         return EmailVerificationResult(ok=False, message=_("Заявка на подтверждение не найдена."))
 
     user = record.user
-    if record.is_verified and user.is_active:
-        return EmailVerificationResult(ok=True, message=_("Email уже подтвержден."), user=user)
+    if record.is_verified:
+        # Verification records are consumed registration challenges, not login
+        # credentials (including records created by the Google sign-in bridge).
+        return EmailVerificationResult(ok=False, message=_("Email уже подтвержден."))
 
     now = timezone.now()
     if record.expires_at is None or now > record.expires_at:

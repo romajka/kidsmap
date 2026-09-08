@@ -21,6 +21,7 @@ from catalog.volunteer_forms import CONTENT_FIELDS
 from catalog.services.permanent_place_rules import copy as t
 from catalog.services.volunteer_dashboard import dashboard_context, workspace_places, display_card
 from catalog.services.volunteer_editor import editor_context
+from catalog.services.place_taxonomy_config import build_place_taxonomy_config
 
 
 def render(request, template, **context):
@@ -96,7 +97,7 @@ def edit(request, place_id=None):
     conflict = bool(revision and revision.status != "approved" and revision.base_snapshot != live_snapshot(place))
     return render(request, "edit", title=_("Редактировать место") if place_id else _("Добавить место"),
                   form=form, adminform={"form": form}, sections=form.sections(), place=place,
-                  revision=revision, conflict=conflict, volunteer_editor=True, **editor_context(form),
+                  revision=revision, conflict=conflict, volunteer_editor=True, km_place_taxonomy_picker=build_place_taxonomy_config(form), **editor_context(form),
                   card=display_card(workspace_places(request.user).get(pk=place.pk)) if place.pk else None)
 
 

@@ -2,73 +2,84 @@
   "schema_version": 1,
   "canonical_root": ".agents",
   "default_mode": "audit",
-  "automatic_native_registration": false,
+  "automatic_native_registration": true,
   "active": [
     {
       "id": "kidsmap-orchestrator",
       "definition": ".agents/agents/kidsmap-orchestrator/agent.md",
       "report": "docs/agent-audits/orchestrator.md",
-      "purpose": "Оркестрация и независимая сверка"
+      "purpose": "Оркестрация и независимая сверка",
+      "native_definition": ".codex/agents/kidsmap-orchestrator.toml"
     },
     {
       "id": "django-reviewer",
       "definition": ".agents/agents/django-reviewer/agent.md",
       "report": "docs/agent-audits/backend.md",
-      "purpose": "Django backend и бизнес-контракты"
+      "purpose": "Django backend и бизнес-контракты",
+      "native_definition": ".codex/agents/django-reviewer.toml"
     },
     {
       "id": "database-reviewer",
       "definition": ".agents/agents/database-reviewer/agent.md",
       "report": "docs/agent-audits/database.md",
-      "purpose": "PostgreSQL, целостность и миграции legacy"
+      "purpose": "PostgreSQL, целостность и миграции legacy",
+      "native_definition": ".codex/agents/database-reviewer.toml"
     },
     {
       "id": "frontend-admin",
       "definition": ".agents/agents/frontend-admin/agent.md",
       "report": "docs/agent-audits/frontend-admin.md",
-      "purpose": "Admin UI и доступность"
+      "purpose": "Admin UI и доступность",
+      "native_definition": ".codex/agents/frontend-admin.toml"
     },
     {
       "id": "frontend-reviewer",
       "definition": ".agents/agents/frontend-reviewer/agent.md",
       "report": "docs/agent-audits/frontend-public.md",
-      "purpose": "Public/owner/account UI"
+      "purpose": "Public/owner/account UI",
+      "native_definition": ".codex/agents/frontend-reviewer.toml"
     },
     {
       "id": "seo-reviewer",
       "definition": ".agents/agents/seo-reviewer/agent.md",
       "report": "docs/agent-audits/seo.md",
-      "purpose": "SEO и поисковая индексируемость"
+      "purpose": "SEO и поисковая индексируемость",
+      "native_definition": ".codex/agents/seo-reviewer.toml"
     },
     {
       "id": "security-reviewer",
       "definition": ".agents/agents/security-reviewer/agent.md",
       "report": "docs/agent-audits/security.md",
-      "purpose": "Security и границы доверия"
+      "purpose": "Security и границы доверия",
+      "native_definition": ".codex/agents/security-reviewer.toml"
     },
     {
       "id": "integration-reviewer",
       "definition": ".agents/agents/integration-reviewer/agent.md",
       "report": "docs/agent-audits/qa.md",
-      "purpose": "QA automation и регрессии"
+      "purpose": "QA automation и регрессии",
+      "native_definition": ".codex/agents/integration-reviewer.toml"
     },
     {
       "id": "browser-qa",
       "definition": ".agents/agents/browser-qa/agent.md",
       "report": "docs/agent-audits/browser.md",
-      "purpose": "Rendered browser QA"
+      "purpose": "Rendered browser QA",
+      "native_definition": ".codex/agents/browser-qa.toml"
     },
     {
       "id": "release-reviewer",
       "definition": ".agents/agents/release-reviewer/agent.md",
       "report": "docs/agent-audits/devops.md",
-      "purpose": "DevOps, release и recovery"
+      "purpose": "DevOps, release и recovery",
+      "native_definition": ".codex/agents/release-reviewer.toml"
     },
     {
       "id": "analytics-reviewer",
       "definition": ".agents/agents/analytics-reviewer/agent.md",
       "report": "docs/agent-audits/analytics.md",
-      "purpose": "Analytics и измерение продукта"
+      "purpose": "Analytics и измерение продукта",
+      "native_definition": ".codex/agents/analytics-reviewer.toml"
     }
   ],
   "inactive_retained": [
@@ -106,5 +117,8 @@
     }
   ],
   "noncanonical_retained_root": "kidsmap_extra_agents/.agents/agents",
-  "max_parallel_specialists": 3
+  "max_parallel_specialists": 3,
+  "native_root": ".codex/agents",
+  "native_discovery": "standalone_toml_requires_new_local_session",
+  "shared_contract": ".agents/rules/engineering-contract.md"
 }

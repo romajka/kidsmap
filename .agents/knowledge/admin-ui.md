@@ -1,5 +1,7 @@
 # Admin UI KidsMap
 
+> Актуализация 2026-09-08: [current snapshot](current-snapshot.md) уточняет LOCAL HEAD, volunteer workspace, MCP и native agents. Текст ниже — датированный срез 2026-09-06; production факты и untracked/dirty пометки не описывают сегодняшнее состояние. Перед использованием перепроверить source.
+
 Срез: 2026-09-06; AS-IS устанавливается по коду, не по design handoff или плану.
 Production baseline `86a0b8c` и локальное dirty дерево рассматриваются отдельно: [deployment.md](deployment.md).
 Общие контракты: [architecture.md](architecture.md), [source-of-truth.md](source-of-truth.md).

@@ -9,22 +9,34 @@
     jsIntegrity: "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",
   };
   const CATEGORY_SVGS = {
-    CAMP: '<path d="m3 21 8.5-16.5a1 1 0 0 1 1 0L21 21"></path><path d="m8 12 4 8"></path><path d="m16 12-4 8"></path>',
+    CAMP: '<path d="M19 21 10 4 1 21"></path><path d="M1 21h22"></path><path d="m14 21-4-8-4 8"></path>',
+    camp: '<path d="M19 21 10 4 1 21"></path><path d="M1 21h22"></path><path d="m14 21-4-8-4 8"></path>',
     SPRT: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7c0 6 4 9 6 9s6-3 6-9V2Z"></path>',
+    sprt: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7c0 6 4 9 6 9s6-3 6-9V2Z"></path>',
     MUS: '<path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle>',
+    mus: '<path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle>',
     TECH: '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>',
+    tech: '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>',
     EDU: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>',
+    edu: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>',
     ART: '<circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>',
+    art: '<circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>',
     FUN: '<rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><circle cx="15" cy="13" r="1"></circle><circle cx="18" cy="11" r="1"></circle>',
+    fun: '<rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><circle cx="15" cy="13" r="1"></circle><circle cx="18" cy="11" r="1"></circle>',
     'early-development': '<path d="M12 22V12"></path><path d="M12 12C12 12 10 6 5 6C5 6 4 10 12 12Z"></path><path d="M12 16C12 16 15 10 19 10C19 10 20 14 12 16Z"></path>',
+    DANCE: '<circle cx="12" cy="4" r="2" /><path d="M6 10c2-3 4-4 6-4s4 1 6 4" /><path d="M12 8c-3 4-5 7-6 11h12c-1-4-3-7-6-11z" /><path d="M10 19v3" /><path d="M14 19v3" />',
     dance: '<circle cx="12" cy="4" r="2" /><path d="M6 10c2-3 4-4 6-4s4 1 6 4" /><path d="M12 8c-3 4-5 7-6 11h12c-1-4-3-7-6-11z" /><path d="M10 19v3" /><path d="M14 19v3" />',
-    'intellect-skills': '<path d="M20 7H17.8486C17.3511 7 17 6.49751 17 6C17 4.34315 15.6569 3 14 3C12.3431 3 11 4.34315 11 6C11 6.49751 10.6488 7 10.1513 7H8C7.44771 7 7 7.44772 7 8V10.1513C7 10.6488 6.49751 11 6 11C4.34315 11 3 12.3431 3 14C3 15.6569 4.34315 17 6 17C6.49751 17 7 17.3511 7 17.8486V20C7 20.5523 7.44771 21 8 21L20 21C20.5523 21 21 20.5523 21 20V17.8486C21 17.3511 20.4975 17 20 17C18.3431 17 18.3431 11 20 11C20.4975 11 21 10.6488 21 10.1513L21 8C21 7.44772 20.5523 7 20 7Z"/>',
-    'parks-playgrounds': '<path d="M10 22v-6.5M18 22v-5M10 15.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /><path d="M18 17a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z" />',
+    'intellect-skills': '<path d="M20 7H17.8486C17.3511 7 17 6.49751 17 6C17 4.34315 15.6569 3 14 3C12.3431 3 11 4.34315 11 6C11 6.49751 10.6488 7 10.1513 7H8C7.44771 7 7 7.44772 7 8V10.1513C7 10.6488 6.49751 11 6 11C4.34315 11 3 12.3431 3 14C3 15.6569 4.34315 17 6 17C6.49751 17 7 17.3511 7 17.8486V20C7 20.5523 7.44771 21 8 21L20 21C20.5523 21 21 20.5523 21 20V17.8486C21 17.3511 20.4975 17 20 17C18.3431 17 17 15.6569 17 14C17 12.3431 18.3431 11 20 11C20.4975 11 21 10.6488 21 10.1513L21 8C21 7.44772 20.5523 7 20 7Z"/>',
+    'parks-playgrounds': '<path d="M10 22v-6.5M18 22v-5M10 15.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /><path d="M18 17a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z" />,',
     PARK: '<path d="M10 22v-6.5M18 22v-5M10 15.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /><path d="M18 17a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z" />',
+    park: '<path d="M10 22v-6.5M18 22v-5M10 15.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9Z" /><path d="M18 17a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z" />',
     BEACH: '<path d="M4 11c1.8-3.7 5.1-6 8-6s6.2 2.3 8 6" /><path d="M12 5v14" /><path d="M8 11c.8-2.3 2.2-4.2 4-6 1.8 1.8 3.2 3.7 4 6" /><path d="M4 18c1.4-1 2.8-.5 4 0s2.6 1 4 0 2.8-1 4 0 2.6 1 4 0" />',
+    beach: '<path d="M4 11c1.8-3.7 5.1-6 8-6s6.2 2.3 8 6" /><path d="M12 5v14" /><path d="M8 11c.8-2.3 2.2-4.2 4-6 1.8 1.8 3.2 3.7 4 6" /><path d="M4 18c1.4-1 2.8-.5 4 0s2.6 1 4 0 2.8-1 4 0 2.6 1 4 0" />',
     'water-leisure': '<path d="M4 17V3h3"></path><path d="M4 7h3M4 11h3M4 15h3"></path><path d="M7 3c1.5 0 3 .5 4 2l4 6c1 1.5 2.5 2.5 4.5 2.5h2.5"></path><path d="M2 20c1.5-1 3.5-1 5 0s3.5 1 5 0s3.5-1 5 0s3.5 1 5 0"></path>',
     WATERPARK: '<path d="M4 17V3h3"></path><path d="M4 7h3M4 11h3M4 15h3"></path><path d="M7 3c1.5 0 3 .5 4 2l4 6c1 1.5 2.5 2.5 4.5 2.5h2.5"></path><path d="M2 20c1.5-1 3.5-1 5 0s3.5 1 5 0s3.5-1 5 0s3.5 1 5 0"></path>',
+    waterpark: '<path d="M4 17V3h3"></path><path d="M4 7h3M4 11h3M4 15h3"></path><path d="M7 3c1.5 0 3 .5 4 2l4 6c1 1.5 2.5 2.5 4.5 2.5h2.5"></path><path d="M2 20c1.5-1 3.5-1 5 0s3.5 1 5 0s3.5-1 5 0s3.5 1 5 0"></path>',
     ZOO: '<path d="M12 12.5c-3 0-5.5 1.8-5.5 4 0 1.8 2 3.5 5.5 3.5s5.5-1.7 5.5-3.5c0-2.2-2.5-4-5.5-4Z"></path><circle cx="6.5" cy="10" r="1.8"></circle><circle cx="10" cy="6.5" r="1.8"></circle><circle cx="14" cy="6.5" r="1.8"></circle><circle cx="17.5" cy="10" r="1.8"></circle>',
+    zoo: '<path d="M12 12.5c-3 0-5.5 1.8-5.5 4 0 1.8 2 3.5 5.5 3.5s5.5-1.7 5.5-3.5c0-2.2-2.5-4-5.5-4Z"></path><circle cx="6.5" cy="10" r="1.8"></circle><circle cx="10" cy="6.5" r="1.8"></circle><circle cx="14" cy="6.5" r="1.8"></circle><circle cx="17.5" cy="10" r="1.8"></circle>',
     'museums-culture': '<path d="m3 9 9-5 9 5" /><path d="M5 10h14M4 20h16M6.5 10v7M10.2 10v7M13.8 10v7M17.5 10v7" /><path d="M3 22h18" />',
     'theater-stage': '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" x2="12" y1="19" y2="22" />',
     'development-support': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />',
@@ -44,7 +56,8 @@
       return '<image href="' + iconDataUrl + '" x="11" y="10" width="16" height="16" />';
     }
     const categoryCode = place && place.category_code;
-    const iconSvgContent = CATEGORY_SVGS[categoryCode] || '<rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect>';
+    const normalizedCode = String(categoryCode || '').toLowerCase();
+    const iconSvgContent = CATEGORY_SVGS[categoryCode] || CATEGORY_SVGS[normalizedCode] || '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>';
     return (
       '<g transform="translate(11, 10) scale(0.667)">' +
       '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="' + colorText + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +

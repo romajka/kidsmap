@@ -1,5 +1,7 @@
 # KidsMap orchestration
 
+Current rules: [engineering contract](engineering-contract.md), [snapshot](../knowledge/current-snapshot.md). Native adapters live in `.codex/agents`; registry remains the single roster. Reuse current user authorization. Bounded impact tasks use compact handoff; full audits use nine sections. UI matrix is 390/768/1024/1280/1440, serious redesign adds 320/360; older widths below are historical minimums, superseded here.
+
 Canonical [registry](../registry.json), shared [audit contract](audit-contract.md). Старое правило автоматически исправлять findings заменено: в AUDIT исправлений нет; APPROVED IMPLEMENT ограничен согласованным scope. [Предыдущая редакция](history/agent-orchestration-before-20260906.md) сохранена как non-operative history.
 
 ## Routing matrix
@@ -9,7 +11,7 @@ Canonical [registry](../registry.json), shared [audit contract](audit-contract.m
 |FEATURE|django-reviewer|DB/security/UI/SEO|domain→DB/security→QA→browser приUI|инварианты,migrations,permissions,negative/regression|
 |BUG|владелец failing domain|integration-reviewer,security при trust boundary|reproduce/classify baseline→root cause→plan→approved fix→QA|exact trigger и regression|
 |UI REDESIGN admin|frontend-admin|django для forms/actions,browser-qa|contracts→UI plan→approved UI→rendered|round-trip,keyboard/mobile/modals|
-|UI REDESIGN public|frontend-reviewer|SEO/analytics/security|domain→UI→QA→browser|AZ/RU/EN,375/768/1024/1440,next/canonical/events|
+|UI REDESIGN public|frontend-reviewer|SEO/analytics/security|domain→UI→QA→browser|AZ/RU/EN,390/768/1024/1280/1440,next/canonical/events|
 |DB MIGRATION|database-reviewer|django/security/QA/release|usage audit→manual_review/plan→isolated dry-run→backup/approval→apply/verify|idempotency,constraints,checkpoint/rollback|
 |SEO|seo-reviewer|django/frontend/security|visibility→metadata/schema→isolated QA→browser head|canonical/hreflang/robots/sitemap/JSON-LD|
 |SECURITY|security-reviewer|domain owner,DB/release,QA|trace boundary→safe proof→plan→approved fix→negativeQA|input/output/storage/permissions,no prod attack|
