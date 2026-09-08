@@ -33,12 +33,15 @@ async (page) => {
   check(await rail.locator('[data-rail-copy]').count()===0, 'Reduced motion must remove visual copies');
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.setViewportSize({width:390,height:900}); await page.waitForTimeout(100);
-  const mobile=await position(); await page.waitForTimeout(250);
-  check(Math.abs(await position()-mobile)<1, 'Mobile must not autoplay');
-  check(await toggle.isHidden(), 'Mobile does not need an autoplay toggle');
-  await viewport.evaluate(e=>{e.scrollLeft=150;}); await page.waitForTimeout(300);
-  check(await position()>20, 'Native manual scrolling must work');
-  check(await rail.locator('[data-rail-copy]').count()===0, 'Mobile must show only original places');
+  const mobile=await position(); await page.waitForTimeout(400);
+  check(await position()>mobile+2, 'Mobile rail must move automatically');
+  check(await toggle.isVisible(), 'Mobile must expose a pause control');
+  const start=await position();
+  await viewport.dispatchEvent('pointerdown', {pointerId:11, pointerType:'touch', clientX:280, clientY:260, button:0});
+  await viewport.dispatchEvent('pointermove', {pointerId:11, pointerType:'touch', clientX:120, clientY:260});
+  await viewport.dispatchEvent('pointerup', {pointerId:11, pointerType:'touch', clientX:120, clientY:260});
+  check(Math.abs((await position())-start)>40, 'Touch swipe must move the mobile rail');
+  check(await rail.locator('[data-rail-copy]').count()>0, 'Mobile needs visual copies for continuous autoplay');
   check(await page.locator('.home-recommended').count()===0, 'Do not duplicate recommendations below');
-  return {passed:true,checks:11};
+  return {passed:true,checks:12};
 }

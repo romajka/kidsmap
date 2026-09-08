@@ -1,4 +1,4 @@
-/* Progressive enhancement: native scrolling is the fallback and mobile mode. */
+/* Progressive enhancement: native scrolling remains available on every device. */
 (() => {
   'use strict';
   document.querySelectorAll('[data-places-rail]').forEach((rail) => {
@@ -9,7 +9,6 @@
     const nextBtn = rail.querySelector('[data-rail-next]');
     const progressThumb = rail.querySelector('[data-rail-progress-thumb]');
     const originals = Array.from(track.children);
-    const desktop = window.matchMedia('(min-width: 768px) and (hover: hover) and (pointer: fine)');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     let paused = false;
     let hovered = false;
@@ -32,7 +31,7 @@
     let velocity = 0;
 
     function canMove() {
-      return automatic && !paused && !hovered && !isDragging && !inertiaFrame && visible && !document.hidden && !viewport.contains(document.activeElement);
+      return automatic && !paused && !hovered && !isPointerDown && !isDragging && !inertiaFrame && visible && !document.hidden && !viewport.contains(document.activeElement);
     }
 
     function updateProgress() {
@@ -79,7 +78,7 @@
 
     function rebuild() {
       track.querySelectorAll('[data-rail-copy]').forEach((copy) => copy.remove());
-      automatic = desktop.matches && !reduced.matches && originals.length > 1;
+      automatic = !reduced.matches && originals.length > 1;
       rail.classList.toggle('is-automatic', automatic);
       if (toggle) toggle.hidden = !automatic;
       const navGroup = rail.querySelector('.home-rail-nav-group');
@@ -200,7 +199,8 @@
     });
 
     viewport.addEventListener('pointerdown', (event) => {
-      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      if (!['mouse', 'touch', 'pen'].includes(event.pointerType)) return;
       if (event.target.closest('.card-go-btn, .like-btn, .like-form, .card-contact-toggle, [data-rail-toggle], [data-rail-prev], [data-rail-next]')) {
         return;
       }
@@ -217,6 +217,7 @@
       lastMoveX = event.clientX;
       lastMoveTime = performance.now();
       velocity = 0;
+      sync();
       try {
         viewport.setPointerCapture(event.pointerId);
       } catch (_) {}
@@ -244,6 +245,7 @@
       }
 
       if (isDragging) {
+        if (event.pointerType !== 'mouse') event.preventDefault();
         let nextScroll = startScrollLeft - dx;
         if (period > 0) {
           while (nextScroll < 0) {
@@ -312,6 +314,8 @@
         } else {
           sync();
         }
+      } else {
+        sync();
       }
     };
 
@@ -350,7 +354,6 @@
     rail.addEventListener('focusin', sync);
     rail.addEventListener('focusout', () => queueMicrotask(sync));
     document.addEventListener('visibilitychange', sync);
-    desktop.addEventListener('change', rebuild);
     reduced.addEventListener('change', rebuild);
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; sync(); }).observe(rail);
@@ -514,5 +517,3 @@
 
   initBenefitsMarquee();
 })();
-
-
