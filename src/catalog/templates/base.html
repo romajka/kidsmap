@@ -93,6 +93,9 @@
     {% endif %}
     {% block structured_data %}{% endblock %}
     {% block extra_head %}{% endblock %}
+    {% if living_map_enabled %}
+      <link rel="stylesheet" href="{% static 'css/pages/living_map_background.css' %}" />
+    {% endif %}
     {% comment %}
       motion.css is the last layer on purpose: page-level CSS injected through
       extra_head (e.g. catalog_places.css) would otherwise outrank it.
@@ -928,6 +931,11 @@
       </script>
     {% endif %}
     {% endcomment %}
+    {% if living_map_enabled %}
+      <canvas class="living-map-background" data-living-map aria-hidden="true"></canvas>
+      <script src="{% static 'js/living_map_scene.js' %}" defer></script>
+      <script src="{% static 'js/living_map_background.js' %}" defer></script>
+    {% endif %}
     {% block extra_body %}{% endblock %}
   </body>
 </html>

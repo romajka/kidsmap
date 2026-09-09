@@ -1,0 +1,19 @@
+/* Body already isolates the page; content is layer 0 and header layer 30.
+   A viewport-sized backing store avoids a page-height GPU allocation. */
+body > .living-map-background {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  contain: strict;
+  transform: translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .living-map-background {
+    animation: none;
+    transition: none;
+  }
+}

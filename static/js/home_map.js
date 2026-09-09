@@ -442,7 +442,25 @@
 
   function renderMapUnavailable(mapEl, mapNoteEl) {
     if (!mapEl) return;
-    mapEl.innerHTML = '<div class="home-map-empty"><p>' + escapeHtml(SCRIPT_CONFIG.unavailableLabel) + "</p></div>";
+    const catalogUrl = mapEl.dataset.catalogUrl || "/catalog/";
+    const catalogLabel = mapEl.dataset.catalogLabel || "Открыть каталог";
+    const msg = escapeHtml(SCRIPT_CONFIG.unavailableLabel);
+    mapEl.innerHTML =
+      '<div class="home-map-empty">' +
+        '<div class="home-map-empty-inner">' +
+          '<div class="home-map-empty-icon" aria-hidden="true">' +
+            '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>' +
+              '<circle cx="12" cy="10" r="3"></circle>' +
+            '</svg>' +
+          '</div>' +
+          '<p class="home-map-empty-title">' + msg + '</p>' +
+          '<a class="home-map-empty-action" href="' + escapeHtml(catalogUrl) + '">' +
+            '<span>' + escapeHtml(catalogLabel) + '</span>' +
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>' +
+          '</a>' +
+        '</div>' +
+      '</div>';
     setMapNote(mapNoteEl, "", true);
   }
 

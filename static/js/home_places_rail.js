@@ -8,6 +8,7 @@
     const prevBtn = rail.querySelector('[data-rail-prev]');
     const nextBtn = rail.querySelector('[data-rail-next]');
     const progressThumb = rail.querySelector('[data-rail-progress-thumb]');
+    const progressLoopThumb = rail.querySelector('[data-rail-progress-thumb-loop]');
     const originals = Array.from(track.children);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     let paused = false;
@@ -17,6 +18,8 @@
     let isDragging = false;
     let isPointerDown = false;
     let hasMoved = false;
+    let userInteracting = false;
+    let resumeTimeout = null;
     let startX = 0;
     let startScrollLeft = 0;
     let activePointerId = null;
@@ -31,23 +34,67 @@
     let velocity = 0;
 
     function canMove() {
-      return automatic && !paused && !hovered && !isPointerDown && !isDragging && !inertiaFrame && visible && !document.hidden && !viewport.contains(document.activeElement);
+      const isKeyboardFocused = document.activeElement &&
+        viewport.contains(document.activeElement) &&
+        (typeof document.activeElement.matches === 'function' ? document.activeElement.matches(':focus-visible') : false);
+
+      return automatic &&
+        !paused &&
+        !userInteracting &&
+        !hovered &&
+        !isPointerDown &&
+        !isDragging &&
+        !inertiaFrame &&
+        visible &&
+        !document.hidden &&
+        !isKeyboardFocused;
+    }
+
+    function scheduleAutoResume(delay = 1800) {
+      if (resumeTimeout) clearTimeout(resumeTimeout);
+      if (paused || !automatic) return;
+      resumeTimeout = setTimeout(() => {
+        userInteracting = false;
+        hovered = false;
+        sync();
+      }, delay);
     }
 
     function updateProgress() {
       if (!progressThumb) return;
       const trackEl = progressThumb.parentElement;
-      const trackWidth = trackEl ? trackEl.clientWidth : 260;
-      const thumbWidth = progressThumb.clientWidth || (trackWidth * 0.28);
-      const travel = trackWidth - thumbWidth;
+      const trackWidth = trackEl ? trackEl.clientWidth : 280;
+      const thumbWidth = progressThumb.clientWidth || (trackWidth * 0.25);
+
       if (period > 0) {
+        // Continuous, infinitely cycling progress without sharp snaps
         const normScroll = ((viewport.scrollLeft % period) + period) % period;
         const ratio = normScroll / period;
-        progressThumb.style.transform = `translateX(${ratio * travel}px)`;
+        const pos = ratio * trackWidth;
+
+        progressThumb.style.transform = `translate3d(${pos.toFixed(2)}px, 0, 0)`;
+
+        if (progressLoopThumb) {
+          if (pos + thumbWidth > trackWidth) {
+            // Primary thumb is exiting right edge; loop thumb simultaneously enters from left edge
+            const loopPos = pos - trackWidth;
+            progressLoopThumb.style.display = '';
+            progressLoopThumb.style.transform = `translate3d(${loopPos.toFixed(2)}px, 0, 0)`;
+          } else if (pos < 0) {
+            // Scrolling backwards; loop thumb enters from right edge
+            const loopPos = pos + trackWidth;
+            progressLoopThumb.style.display = '';
+            progressLoopThumb.style.transform = `translate3d(${loopPos.toFixed(2)}px, 0, 0)`;
+          } else {
+            progressLoopThumb.style.display = 'none';
+          }
+        }
       } else {
         const max = viewport.scrollWidth - viewport.clientWidth;
+        const travel = Math.max(0, trackWidth - thumbWidth);
         const ratio = max > 0 ? Math.min(1, Math.max(0, viewport.scrollLeft / max)) : 0;
-        progressThumb.style.transform = `translateX(${ratio * travel}px)`;
+        progressThumb.style.transform = `translate3d(${(ratio * travel).toFixed(2)}px, 0, 0)`;
+        if (progressLoopThumb) progressLoopThumb.style.display = 'none';
       }
     }
 
@@ -109,6 +156,13 @@
     if (toggle) {
       toggle.addEventListener('click', () => {
         paused = !paused;
+        if (paused) {
+          if (resumeTimeout) clearTimeout(resumeTimeout);
+          userInteracting = false;
+        } else {
+          hovered = false;
+          userInteracting = false;
+        }
         toggle.blur();
         sync();
       });
@@ -123,6 +177,8 @@
         cancelAnimationFrame(frame);
         frame = 0;
       }
+      userInteracting = true;
+      if (resumeTimeout) clearTimeout(resumeTimeout);
       const start = viewport.scrollLeft;
       const startTime = performance.now();
       const duration = 380;
@@ -137,11 +193,14 @@
           curr = curr % period;
         }
         viewport.scrollLeft = curr;
+        offset = period ? ((viewport.scrollLeft % period) + period) % period : viewport.scrollLeft;
         updateProgress();
         if (progress < 1) {
           requestAnimationFrame(step);
         } else {
+          userInteracting = false;
           sync();
+          scheduleAutoResume(1800);
         }
       }
       requestAnimationFrame(step);
@@ -177,20 +236,27 @@
     viewport.addEventListener('pointerenter', (event) => {
       if (event.pointerType === 'mouse') {
         hovered = true;
-        sync();
+        scheduleAutoResume(2500);
       }
     });
 
     viewport.addEventListener('pointerleave', () => {
       hovered = false;
+      userInteracting = false;
+      if (resumeTimeout) clearTimeout(resumeTimeout);
       sync();
     });
 
     viewport.addEventListener('wheel', () => {
-      if (automatic) {
-        paused = true;
-        sync();
+      if (!automatic || paused) return;
+      userInteracting = true;
+      if (frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
       }
+      offset = period ? ((viewport.scrollLeft % period) + period) % period : viewport.scrollLeft;
+      updateProgress();
+      scheduleAutoResume(1800);
     }, { passive: true });
 
     // Prevent browser native image/link ghost drag so grabbing cards works reliably
@@ -208,7 +274,9 @@
         cancelAnimationFrame(inertiaFrame);
         inertiaFrame = 0;
       }
+      if (resumeTimeout) clearTimeout(resumeTimeout);
       isPointerDown = true;
+      userInteracting = true;
       isDragging = false;
       hasMoved = false;
       startX = event.clientX;
@@ -224,7 +292,13 @@
     });
 
     viewport.addEventListener('pointermove', (event) => {
-      if (!isPointerDown) return;
+      if (!isPointerDown) {
+        if (event.pointerType === 'mouse') {
+          hovered = true;
+          scheduleAutoResume(2500);
+        }
+        return;
+      }
       const dx = event.clientX - startX;
       const now = performance.now();
       const dt = now - lastMoveTime;
@@ -290,9 +364,11 @@
         if (Math.abs(velocity) > 0.4) {
           let v = velocity;
           function runInertia() {
-            if (isPointerDown || hovered || paused) {
+            if (isPointerDown || paused) {
               inertiaFrame = 0;
+              userInteracting = false;
               sync();
+              scheduleAutoResume(1800);
               return;
             }
             v *= 0.94;
@@ -302,20 +378,27 @@
               nextScroll = nextScroll % period;
             }
             viewport.scrollLeft = nextScroll;
+            offset = period ? ((viewport.scrollLeft % period) + period) % period : viewport.scrollLeft;
             updateProgress();
             if (Math.abs(v) > 0.1) {
               inertiaFrame = requestAnimationFrame(runInertia);
             } else {
               inertiaFrame = 0;
+              userInteracting = false;
               sync();
+              scheduleAutoResume(1800);
             }
           }
           inertiaFrame = requestAnimationFrame(runInertia);
         } else {
+          userInteracting = false;
           sync();
+          scheduleAutoResume(1800);
         }
       } else {
+        userInteracting = false;
         sync();
+        scheduleAutoResume(1800);
       }
     };
 
@@ -349,7 +432,13 @@
       }
     }, true);
 
-    viewport.addEventListener('scroll', updateProgress, { passive: true });
+    viewport.addEventListener('scroll', () => {
+      offset = period ? ((viewport.scrollLeft % period) + period) % period : viewport.scrollLeft;
+      updateProgress();
+      if (!isDragging && !inertiaFrame && !paused && automatic) {
+        scheduleAutoResume(1800);
+      }
+    }, { passive: true });
 
     rail.addEventListener('focusin', sync);
     rail.addEventListener('focusout', () => queueMicrotask(sync));

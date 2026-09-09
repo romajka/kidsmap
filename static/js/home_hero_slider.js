@@ -2,7 +2,7 @@
   const DRAG_THRESHOLD_MIN = 18;
   const DRAG_THRESHOLD_RATIO = 0.06;
   const SWIPE_VELOCITY_THRESHOLD = 0.35;
-  const TRACK_TRANSITION = "transform 280ms cubic-bezier(0.22, 1, 0.36, 1)";
+  const TRACK_TRANSITION = "transform 420ms cubic-bezier(0.25, 1, 0.35, 1)";
 
   function mountHeroSlider(slider) {
     const viewport = slider.querySelector("[data-home-hero-slider-viewport]");
@@ -23,6 +23,8 @@
     let dragVelocityX = 0;
     let isDragging = false;
     let activePointerId = null;
+    let autoPlayTimer = null;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     function clampIndex(index) {
       if (index < 0) return slides.length - 1;
@@ -55,6 +57,23 @@
       goToSlide(currentIndex, false);
     }
 
+    function startAutoPlay() {
+      if (reducedMotion.matches || slides.length < 2) return;
+      stopAutoPlay();
+      autoPlayTimer = setInterval(function () {
+        if (!isDragging && !slider.matches(":hover")) {
+          goToSlide(currentIndex + 1, true);
+        }
+      }, 5000);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayTimer) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+      }
+    }
+
     function finishDrag() {
       if (!isDragging) return;
 
@@ -73,17 +92,20 @@
       activePointerId = null;
       viewport.classList.remove("is-dragging");
       goToSlide(nextIndex, true);
+      startAutoPlay();
     }
 
     if (prevButton) {
       prevButton.addEventListener("click", function () {
         goToSlide(currentIndex - 1, true);
+        startAutoPlay();
       });
     }
 
     if (nextButton) {
       nextButton.addEventListener("click", function () {
         goToSlide(currentIndex + 1, true);
+        startAutoPlay();
       });
     }
 
@@ -91,13 +113,22 @@
       dot.addEventListener("click", function () {
         const nextIndex = Number(dot.dataset.slideIndex || 0);
         goToSlide(nextIndex, true);
+        startAutoPlay();
       });
+    });
+
+    slider.addEventListener("mouseenter", stopAutoPlay);
+    slider.addEventListener("mouseleave", startAutoPlay);
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) stopAutoPlay();
+      else startAutoPlay();
     });
 
     viewport.addEventListener("pointerdown", function (event) {
       if (event.button !== undefined && event.button !== 0) return;
 
       isDragging = true;
+      stopAutoPlay();
       dragStartX = event.clientX;
       dragLastX = event.clientX;
       dragLastTime = event.timeStamp || Date.now();
@@ -134,6 +165,7 @@
     window.addEventListener("resize", recalculateWidth, { passive: true });
 
     recalculateWidth();
+    startAutoPlay();
   }
 
   document.querySelectorAll("[data-home-hero-slider]").forEach(mountHeroSlider);
