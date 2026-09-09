@@ -1,5 +1,5 @@
 async page => {
-  const context = await page.context().browser().newContext({viewport:{width:1440,height:1000},hasTouch:true,reducedMotion:'no-preference'});
+  const context = await page.context().browser().newContext({viewport:{width:1440,height:1000},reducedMotion:'no-preference'});
   const check = (ok, message) => { if (!ok) throw new Error(message); };
   try {
     const tab = await context.newPage();
@@ -26,9 +26,6 @@ async page => {
     for (let i = 0; i < 10; i++) await tab.mouse.click(25,280);
     check(await tab.evaluate(() => __advanceMap()) === 8, 'Click effects must be bounded to four ripples');
     check(await tab.evaluate(() => __advanceMap(25)) === 0, 'Ripples must expire');
-    await tab.touchscreen.tap(25,280);
-    check(await tab.evaluate(() => __advanceMap()) === 2, 'Touch tap must respond');
-    await tab.evaluate(() => __advanceMap(25));
     await tab.emulateMedia({reducedMotion:'reduce'});
     // The media query change event resets the scene asynchronously.
     await tab.waitForTimeout(200);
@@ -37,6 +34,6 @@ async page => {
     const before = await tab.locator('[data-living-map]').evaluate(e => e.toDataURL());
     await tab.evaluate(() => __advanceMap(10));
     check(before === await tab.locator('[data-living-map]').evaluate(e => e.toDataURL()), 'Reduced scene changes over time');
-    return {passed:true,checks:6};
+    return {passed:true,checks:5};
   } finally { await context.close(); }
 }

@@ -10,6 +10,7 @@
 
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const mouse = matchMedia('(hover: hover) and (pointer: fine)');
+  const desktop = matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
   const zones = [
     ['.home-hero', 1], ['.home-hero-search-panel', .55],
     ['.home-hero-stats', .3], ['.home-places-rail', .35],
@@ -53,8 +54,6 @@
     // On a struggling renderer, tiny idle drift needs very few repaints.
     // Keep the local pointer response quicker while the user is exploring.
     const fps = state.quality < 1 ? (pointer.active ? 30 : 12) : 60;
-    if (state.width < 768) return {dots: 32, pins: 3, fps: Math.min(30, fps)};
-    if (state.width < 1024) return {dots: 64, pins: 5, fps};
     return {dots: 96, pins: 8, fps};
   }
 
@@ -257,12 +256,12 @@
   }
 
   function schedule() {
-    if (!state.frame && !state.stopped && !document.hidden) state.frame = requestAnimationFrame(frame);
+    if (desktop.matches && !state.frame && !state.stopped && !document.hidden) state.frame = requestAnimationFrame(frame);
   }
 
   function frame(now) {
     state.frame = 0;
-    if (state.stopped || document.hidden) return;
+    if (!desktop.matches || state.stopped || document.hidden) return;
     const elapsed = state.last ? now - state.last : 17;
     const needsLayout = state.layoutDirty;
     if (needsLayout) measure();
@@ -297,6 +296,16 @@
     for (const dot of state.dots) { dot.dx = 0; dot.dy = 0; dot.influence = 0; }
     schedule();
   }
+  function updateAvailability() {
+    resetMotion();
+    state.layoutDirty = true;
+    if (!desktop.matches) {
+      // Release a previously allocated desktop bitmap as well as geometry.
+      canvas.width = 1; canvas.height = 1;
+      state.dots = []; state.routes = []; state.scenes = [];
+      state.zones = []; state.masks = [];
+    }
+  }
   function destroy() {
     state.stopped = true;
     stop();
@@ -305,11 +314,11 @@
   }
 
   listen(window, 'pointermove', event => {
-    if (!mouse.matches || motion.matches || event.pointerType !== 'mouse') return;
+    if (!desktop.matches || !mouse.matches || motion.matches || event.pointerType !== 'mouse') return;
     pointer.x = event.clientX; pointer.y = event.clientY; pointer.active = true;
   }, {passive: true});
   listen(window, 'pointerdown', event => {
-    if (motion.matches || event.button !== 0 || event.isPrimary === false) return;
+    if (!desktop.matches || motion.matches || event.button !== 0 || event.isPrimary === false) return;
     if (event.target.closest('a, button, input, select, textarea, summary, form, [role="button"], [role="dialog"], .leaflet-container, .gm-style')) return;
     state.ripples.push({x: event.clientX, y: event.clientY + state.scroll, start: state.time});
     if (state.ripples.length > 4) state.ripples.shift();
@@ -322,6 +331,7 @@
   listen(document, 'visibilitychange', () => { stop(); if (!document.hidden) invalidate(); });
   listen(motion, 'change', resetMotion);
   listen(mouse, 'change', resetMotion);
+  listen(desktop, 'change', updateAvailability);
   listen(window, 'pagehide', event => { if (event.persisted) stop(); else destroy(); });
   listen(window, 'pageshow', invalidate);
   // Existing reveal transitions and FAQ expansion can move exclusion areas.
@@ -330,5 +340,5 @@
   const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(invalidate) : null;
   observer?.observe(document.querySelector('.site-shell') || document.body);
   document.fonts?.ready.then(() => { if (!state.stopped) invalidate(); });
-  schedule();
+  updateAvailability();
 })();

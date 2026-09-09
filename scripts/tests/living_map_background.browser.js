@@ -20,12 +20,13 @@ async (page) => {
   check(reduced === await pixels(), 'Reduced motion must ignore pointer motion');
   await page.setViewportSize({width:390,height:844});
   await page.waitForTimeout(100);
-  check(await canvas.evaluate(e => e.width <= 780 && e.height <= 1688), 'Canvas backing store must be bounded on mobile');
+  check(await canvas.evaluate(e => e.width === 1 && e.height === 1 && getComputedStyle(e).display === 'none'), 'Mobile decoration must be disabled and its bitmap released');
   check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Background must not cause horizontal overflow');
   await page.locator('#faq').scrollIntoViewIfNeeded();
   await page.waitForTimeout(100);
-  check(reduced !== await pixels(), 'Static background must follow document scroll and resize');
+  check(await canvas.evaluate(e => e.width === 1 && e.height === 1), 'Scroll must not reactivate mobile decoration');
   await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.setViewportSize({width:1440,height:1000});
   // Observe the active journey in the hero: the FAQ deliberately has long
   // quiet intervals between arrivals, so two nearby frames can match there.
   await page.locator('.home-hero').scrollIntoViewIfNeeded();

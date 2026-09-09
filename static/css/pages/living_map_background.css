@@ -1,6 +1,7 @@
 /* Body already isolates the page; content is layer 0 and header layer 30.
    A viewport-sized backing store avoids a page-height GPU allocation. */
 body > .living-map-background {
+  display: none;
   position: fixed;
   inset: 0;
   width: 100%;
@@ -9,6 +10,14 @@ body > .living-map-background {
   pointer-events: none;
   contain: strict;
   transform: translateZ(0);
+}
+
+/* The map needs desktop gutters and a precise pointer. Keep phone/tablet
+   backgrounds clear, including touch devices in landscape orientation. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  body > .living-map-background {
+    display: block;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -15,7 +15,8 @@ async page => {
     }
    });
   });
-  for(const width of [390,1440,1920,2560]){
+  // Narrow/touch layouts are covered by living_map_mobile.browser.js.
+  for(const width of [1024,1440,1920,2560]){
    await tab.setViewportSize({width,height:1080});
    await tab.goto('http://127.0.0.1:8773/ru/about/');
    await tab.locator('.site-footer').scrollIntoViewIfNeeded();

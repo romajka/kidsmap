@@ -45,7 +45,8 @@ async page => {
       await tab.setViewportSize({width,height:900});
       for (const path of ['catalog/', 'about/', 'faq/', 'privacy/', 'place/15-brush-and-clay-atelier/']) {
         await tab.goto(base + '/ru/' + path);
-        await tab.waitForFunction(() => window.__verticalRoutes?.length === 2);
+        if (width >= 1024) await tab.waitForFunction(() => window.__verticalRoutes?.length === 2);
+        else check(await tab.locator('[data-living-map]').evaluate(e => getComputedStyle(e).display === 'none'), 'Narrow page shows decoration');
         await tab.locator('.site-footer').scrollIntoViewIfNeeded();
         await tab.waitForTimeout(100);
         const overflow = await tab.evaluate(() => {
@@ -58,7 +59,7 @@ async page => {
         });
         check(overflow.withCanvas <= Math.max(overflow.width, overflow.withoutCanvas), `Canvas adds overflow: ${width} ${path}`);
         if (overflow.withoutCanvas > width) existingOverflow.push({width,path,...overflow});
-        check(await tab.evaluate(() => __verticalRoutes.every(r => r.points.every(p => p.x >= 0 && p.x <= innerWidth))), 'Trail outside viewport');
+        if (width >= 1024) check(await tab.evaluate(() => __verticalRoutes.every(r => r.points.every(p => p.x >= 0 && p.x <= innerWidth))), 'Trail outside viewport');
       }
     }
     await tab.goto(base + '/ru/auth/login/');

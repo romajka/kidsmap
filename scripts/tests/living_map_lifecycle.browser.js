@@ -23,7 +23,7 @@ async page => {
  const touch=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true,reducedMotion:'reduce'});
  const mobile=await touch.newPage();await mobile.goto(base);await mobile.waitForTimeout(400);
  const canvas=mobile.locator('[data-living-map]');
- check(await canvas.evaluate(e=>e.width<=innerWidth*2&&e.height<=innerHeight*2),'DPR cap failed');
+ check(await canvas.evaluate(e=>e.width===1&&e.height===1&&getComputedStyle(e).display==='none'),'Touch decoration must remain disabled');
  const before=await canvas.evaluate(e=>e.toDataURL());
  await mobile.touchscreen.tap(5,150);await mobile.waitForTimeout(150);
  check(before===await canvas.evaluate(e=>e.toDataURL()),'Touch/reduced motion changes decorative background');

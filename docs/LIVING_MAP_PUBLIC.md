@@ -1,5 +1,7 @@
 # Living Map on public pages
 
+Current mobile policy: the decorative Canvas is disabled below 1024px and on devices without a fine hover pointer (including landscape touch tablets). See the mobile correction below; earlier verification records describe the previous treatment.
+
 September 9, 2026. The user approved the hero and requested the same living background throughout the public site, reacting to the mouse and clicks, with vertical animation continuing into the footer. This extends `LIVING_MAP_JOURNEYS.md`.
 
 ## Result
@@ -55,3 +57,9 @@ Desktop top/middle/footer, mobile about/catalog and the preserved home hero were
 Follow-up user feedback identified an angular footer entry in wide gutters. The original turn compressed its entire horizontal displacement into 100 vertical pixels, sampled every 24px; moving trail strokes also cut across the curve. Replaced that turn with a densely sampled cubic curve whose entry tangent matches the side street and whose exit is horizontal. Turn height now scales with gutter width. The moving light and its tail follow cumulative path distance, keeping speed even through the bend.
 
 Two regression tests failed before the correction; all nine scene tests now pass. `living_map_footer.browser.js` passes at 390/1440/1920/2560px: both footer endpoints, continuous tangent, active motion, static reduced motion, no overflow or runtime errors. The rendered 1920px footer was visually inspected in `output/playwright/living-map/footer-smooth-1920.png`; that screenshot supersedes the older video/GIF for the footer turn.
+
+## Mobile correction
+
+The user reported clipped background pins and allowed removing the decoration on mobile. Chosen treatment: retain the existing page background, hero slideshow and rail, and disable only Living Map on narrow or touch layouts. CSS and JS use the same eligibility rule: at least 1024px, hover available, fine primary pointer. Ineligible layouts hide the Canvas, release its bitmap to 1×1, clear scene geometry and ripples, and schedule no animation frames. Scroll/tap cannot restart it. Resizing back to eligible desktop restarts the existing animation without reloading.
+
+`living_map_mobile.browser.js` covers 15 narrow-page combinations (360/390/430/768/1023 × home/catalog/about), no background frames before or after interaction, bitmap release, mobile navigation, desktop resize/resumption and a landscape touch tablet at 1180px. It failed against the previous implementation because the background remained visible. Existing mobile/touch expectations in background, public, footer, click and fallback tests now follow this explicit changed requirement.
