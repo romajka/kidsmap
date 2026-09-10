@@ -1,3 +1,4 @@
+import json
 from django.contrib import admin, messages
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
@@ -8,7 +9,9 @@ from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.formats import date_format
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 
 from catalog.models import (
     OwnerTeamMembership,
@@ -18,6 +21,7 @@ from catalog.models import (
     PlaceOwnershipRequestAudit,
     Place
 )
+from catalog.services.place_readiness import evaluate_place_readiness
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
 from .user import _HiddenFromAdminIndexMixin
 
@@ -416,14 +420,12 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     km_primary_filters = ("status", "created_at", "moderated_at")
     list_per_page = 15
     list_display = (
-        "id",
-        "place",
-        "applicant",
-        "status_badge",
-        "created_at",
-        "moderated_at_display",
-        "moderated_by_display",
-        "row_actions",
+        "col_place",
+        "col_applicant",
+        "col_state",
+        "col_created",
+        "col_decision",
+        "col_actions",
     )
     list_filter = ("status", "created_at", "moderated_at")
     search_fields = (
@@ -486,7 +488,18 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     )
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("place", "applicant", "moderated_by").prefetch_related("place__gallery")
+        return (
+            super()
+            .get_queryset(request)
+            .select_related(
+                "place",
+                "applicant",
+                "moderated_by",
+                "place__category",
+                "place__subcategory",
+            )
+            .prefetch_related("place__gallery")
+        )
 
     def get_deleted_objects(self, objs, request):
         deleted_objects, model_count, perms_needed, protected = super().get_deleted_objects(objs, request)
@@ -531,7 +544,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     def _build_request_form_summary(self, obj) -> dict:
         if not obj or not obj.pk:
             return {}
-        
+
         palette = {
             PlaceOwnershipRequest.STATUS_PENDING: "warn",
             PlaceOwnershipRequest.STATUS_APPROVED: "good",
@@ -666,11 +679,257 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             ),
         )
 
+    @admin.display(description=_("Кружок"), ordering="place__name")
+    def col_place(self, obj):
+        place = obj.place
+        name = (place.name_i18n() if callable(getattr(place, "name_i18n", None)) else (getattr(place, "name_i18n", "") or place.name_az or place.name_ru or place.name_en or place.name)) or f"Place #{place.pk}"
+        cat_label = place.category.name_i18n() if place.category and callable(getattr(place.category, "name_i18n", None)) else (place.category.name if place.category else place.get_category_display())
+        meta_parts = [f"ID {place.pk}"]
+        if cat_label:
+            meta_parts.append(str(cat_label))
+        if getattr(place, "district", None):
+            meta_parts.append(str(place.district))
+        meta = " · ".join(meta_parts)
+
+        preview = ""
+        image_url = getattr(place, "public_image_url", "")
+        if image_url:
+            try:
+                preview = format_html(
+                    '<img src="{}" alt="" class="km-col-thumb" loading="lazy" onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'block\';">'
+                    '<span class="km-col-thumb km-col-thumb--pattern" style="display:none;" aria-hidden="true"></span>',
+                    image_url,
+                )
+            except Exception:
+                preview = ""
+        if not preview:
+            preview = mark_safe('<span class="km-col-thumb km-col-thumb--pattern" aria-hidden="true"></span>')
+
+        change_url = reverse("admin:catalog_placeownershiprequest_change", args=[obj.pk])
+
+        return format_html(
+            '<div class="km-col-place">'
+            '{}'
+            '<div class="km-col-place-info">'
+            '<a href="{}" class="km-col-place-name" title="{}">{}</a>'
+            '<span class="km-col-place-meta">{}</span>'
+            '</div>'
+            '</div>',
+            preview,
+            change_url,
+            name,
+            name,
+            meta,
+        )
+
+    @admin.display(description=_("Заявитель"), ordering="applicant__username")
+    def col_applicant(self, obj):
+        applicant = obj.applicant
+        full_name = applicant.get_full_name().strip() if applicant else ""
+        username = applicant.username if applicant else "—"
+        display_name = full_name or username
+        email = applicant.email if applicant else ""
+
+        initials = (full_name[:2] if full_name else username[:2]).upper()
+
+        note_html = ""
+        if obj.note:
+            note_text = obj.note.strip()
+            note_short = (note_text[:45] + "…") if len(note_text) > 45 else note_text
+            note_html = format_html(
+                '<div class="km-applicant-note" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-chat_bubble"></use></svg>'
+                '<span>{}</span>'
+                '</div>',
+                note_text,
+                note_short,
+            )
+
+        meta_contact = email or (f"@{username}" if full_name else "")
+
+        return format_html(
+            '<div class="km-col-applicant">'
+            '<div class="km-applicant-avatar" aria-hidden="true">{}</div>'
+            '<div class="km-applicant-info">'
+            '<span class="km-applicant-name">{}</span>'
+            '<span class="km-applicant-meta">{}</span>'
+            '{}'
+            '</div>'
+            '</div>',
+            initials,
+            display_name,
+            meta_contact,
+            note_html,
+        )
+
+    @admin.display(description=_("Состояние"), ordering="status")
+    def col_state(self, obj):
+        place = obj.place
+        readiness = evaluate_place_readiness(place)
+        score = readiness.percentage
+        bar_color_class = "km-bar--warn" if score < 60 else "km-bar--good"
+
+        if obj.status == PlaceOwnershipRequest.STATUS_PENDING:
+            dot_class = "km-dot--pending"
+            state_icon = "hourglass_empty"
+            state_key = "pending"
+        elif obj.status == PlaceOwnershipRequest.STATUS_APPROVED:
+            dot_class = "km-dot--published"
+            state_icon = "check_circle"
+            state_key = "published"
+        else:
+            dot_class = "km-dot--rejected"
+            state_icon = "cancel"
+            state_key = "rejected"
+
+        status_text = obj.get_status_display()
+        place_name = (place.name_i18n() if callable(getattr(place, "name_i18n", None)) else getattr(place, "name_i18n", "")) or place.name_az or place.name_ru or place.name_en or place.name or f"Place #{place.pk}"
+
+        checklist = json.dumps(
+            [
+                {
+                    "code": item.code,
+                    "label": str(item.label),
+                    "done": bool(item.is_complete),
+                    "message": str(item.issue.message) if item.issue else "",
+                    "section": item.requirement.section,
+                    "anchor": item.requirement.anchor,
+                }
+                for item in readiness.items
+            ],
+            ensure_ascii=False,
+        )
+
+        place_edit_url = reverse("admin:catalog_place_change", args=[place.pk])
+
+        return format_html(
+            '<div class="km-col-state km-col-state--{}" data-state="{}">'
+            '<div class="km-col-state-top">'
+            '<span class="km-state-dot {}"></span>'
+            '<svg class="km-i km-state-visibility" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-{}"></use></svg>'
+            '<span class="km-state-label">{}</span>'
+            '</div>'
+            '<div class="km-col-state-bottom">'
+            '<span class="km-state-bar-wrap"><span class="km-state-bar {} km-state-bar--{}"></span></span>'
+            '<button type="button" class="km-readiness-trigger" data-readiness-trigger '
+            'data-place-id="{}" data-place-name="{}" data-score="{}" '
+            'data-done="{}" data-total="{}" data-readiness="{}" '
+            'data-edit-url="{}">{}%</button>'
+            '</div>'
+            '</div>',
+            state_key,
+            state_key,
+            dot_class,
+            state_icon,
+            status_text,
+            bar_color_class,
+            score,
+            place.pk,
+            place_name,
+            score,
+            readiness.completed_count,
+            readiness.required_count,
+            checklist,
+            place_edit_url,
+            score,
+        )
+
+    @admin.display(description=_("Подана"), ordering="created_at")
+    def col_created(self, obj):
+        if not obj.created_at:
+            return "—"
+        dt = timezone.localtime(obj.created_at)
+        dt_str = dt.strftime("%d.%m.%Y %H:%M")
+        return format_html(
+            '<div class="km-col-updated">'
+            '<span class="km-col-upd-time">{}</span>'
+            '</div>',
+            dt_str,
+        )
+
+    @admin.display(description=_("Решение"), ordering="moderated_at")
+    def col_decision(self, obj):
+        if obj.is_pending:
+            return format_html(
+                '<div class="km-col-updated">'
+                '<span class="km-col-upd-author" style="color:var(--km-warn,#D97706);font-weight:600;">{}</span>'
+                '</div>',
+                _("Ожидает решения"),
+            )
+
+        dt_str = timezone.localtime(obj.moderated_at).strftime("%d.%m.%Y %H:%M") if obj.moderated_at else "—"
+        by_str = (obj.moderated_by.get_full_name() or obj.moderated_by.username) if obj.moderated_by else "—"
+        note_str = f" · {obj.moderation_note}" if obj.moderation_note else ""
+
+        return format_html(
+            '<div class="km-col-updated">'
+            '<span class="km-col-upd-time">{}</span>'
+            '<span class="km-col-upd-author" title="{}">{}</span>'
+            '</div>',
+            dt_str,
+            f"{by_str}{note_str}",
+            by_str,
+        )
+
+    @admin.display(description=_("Действия"))
+    def col_actions(self, obj):
+        change_url = reverse("admin:catalog_placeownershiprequest_change", args=[obj.pk])
+        place = obj.place
+        place_view_url = place.get_absolute_url() if hasattr(place, "get_absolute_url") else f"/places/{place.pk}/"
+        changelist_url = reverse("admin:catalog_placeownershiprequest_changelist")
+
+        actions = []
+        if obj.is_pending:
+            approve_url = reverse("admin:catalog_placeownershiprequest_approve", args=[obj.pk]) + f"?next={changelist_url}"
+            reject_url = reverse("admin:catalog_placeownershiprequest_reject", args=[obj.pk]) + f"?next={changelist_url}"
+            actions.append(
+                format_html(
+                    '<a href="{}" class="km-action-icon-btn km-action-icon-btn--approve" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>'
+                    '</a>',
+                    approve_url,
+                    _("Принять"),
+                )
+            )
+            actions.append(
+                format_html(
+                    '<a href="{}" class="km-action-icon-btn km-action-icon-btn--reject" title="{}">'
+                    '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-close"></use></svg>'
+                    '</a>',
+                    reject_url,
+                    _("Отклонить"),
+                )
+            )
+
+        actions.append(
+            format_html(
+                '<a href="{}" class="km-action-icon-btn" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-edit"></use></svg>'
+                '</a>',
+                change_url,
+                _("Открыть заявку"),
+            )
+        )
+        actions.append(
+            format_html(
+                '<a href="{}" target="_blank" class="km-action-icon-btn" title="{}">'
+                '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-open_in_new"></use></svg>'
+                '</a>',
+                place_view_url,
+                _("Посмотреть кружок на сайте"),
+            )
+        )
+
+        return format_html(
+            '<div class="km-col-actions">{}</div>',
+            mark_safe("".join(actions)),
+        )
+
     @admin.display(description=_("Действия"))
     def row_actions(self, obj):
         if not obj or not obj.pk:
             return "-"
-            
+
         change_url = reverse(f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk])
         primary_action = render_primary_action(change_url, _("Открыть"))
 
@@ -682,7 +941,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             menu_actions.append((reject_url, _("Отклонить"), "km-admin-action-menu__link--danger"))
         else:
             menu_actions.append((None, _("Заявка уже обработана"), "km-admin-action-menu__hint"))
-        
+
         menu_html = render_action_menu(menu_actions)
 
         return render_row_actions_container(primary_action, menu_html)
@@ -702,14 +961,14 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
     def _request_quick_filters(self, request):
         current_status = request.GET.get("status__exact")
         keys = ("status__exact",)
-        
+
         counts = {
             "all": PlaceOwnershipRequest.objects.count(),
             "pending": PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_PENDING).count(),
             "approved": PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_APPROVED).count(),
             "rejected": PlaceOwnershipRequest.objects.filter(status=PlaceOwnershipRequest.STATUS_REJECTED).count(),
         }
-        
+
         return (
             {"label": _("Все заявки"), "url": self._build_request_changelist_query_string(request, clear=keys), "active": not current_status, "count": counts["all"]},
             {"label": _("Ожидают решения"), "url": self._build_request_changelist_query_string(request, clear=keys, status__exact=PlaceOwnershipRequest.STATUS_PENDING), "active": current_status == PlaceOwnershipRequest.STATUS_PENDING, "count": counts["pending"]},
@@ -731,7 +990,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
                 _("Ожидают проверки заявок на владение: %(count)s") % {"count": pending_count},
                 level=messages.WARNING,
             )
-            
+
         extra_context = {
             "km_primary_quick_filters": self._request_quick_filters(request),
             "km_secondary_quick_filters": [],
@@ -754,16 +1013,24 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             self.message_user(request, _("Заявка не найдена."), level=messages.ERROR)
             return redirect(reverse("admin:catalog_placeownershiprequest_changelist"))
 
+        # The same view is registered for the moderation proxy; use the
+        # concrete ownership permission consistently across both routes.
+        permission_admin = self.admin_site._registry.get(self.model._meta.concrete_model, self)
+        if not permission_admin.has_change_permission(request, item):
+            raise PermissionDenied
+
         if request.method != "POST":
             action_label = _("Принять") if new_status == PlaceOwnershipRequest.STATUS_APPROVED else _("Отклонить")
+            next_param = request.GET.get("next") or ""
+            back_url = next_param if (next_param and url_has_allowed_host_and_scheme(next_param, allowed_hosts={request.get_host()})) else reverse("admin:catalog_placeownershiprequest_change", args=[item.pk])
             context = {
                 **self.admin_site.each_context(request),
                 "opts": self.model._meta,
                 "title": _("Подтверждение модерации"),
                 "request_item": item,
                 "action_label": action_label,
-                "action_url": request.path,
-                "back_url": reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]),
+                "action_url": request.get_full_path(),
+                "back_url": back_url,
             }
             return TemplateResponse(
                 request,
@@ -777,6 +1044,9 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
                 _("Заявка уже обработана."),
                 level=messages.WARNING,
             )
+            next_url = request.POST.get("next") or request.GET.get("next")
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+                return redirect(next_url)
             return redirect(reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]))
 
         note = _("Одобрено через админку") if new_status == PlaceOwnershipRequest.STATUS_APPROVED else _("Отклонено через админку")
@@ -790,6 +1060,9 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
             _("Заявка успешно обработана."),
             level=messages.SUCCESS,
         )
+        next_url = request.POST.get("next") or request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+            return redirect(next_url)
         return redirect(reverse("admin:catalog_placeownershiprequest_change", args=[item.pk]))
 
     def approve_request_view(self, request, request_id: int):

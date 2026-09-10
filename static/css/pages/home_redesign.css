@@ -23,7 +23,12 @@ body.page-home .home-hero-grid {
   align-items: center;
   gap: clamp(28px, 5vw, 72px);
 }
-body.page-home .home-hero-copy { min-width: 0; max-width: none; }
+body.page-home .home-hero-copy {
+  min-width: 0;
+  max-width: none;
+  background: transparent !important;
+  box-shadow: none !important;
+}
 body.page-home .home-redesign-eyebrow {
   display: inline-flex; align-items: center; gap: 9px;
   padding: 8px 13px; border: 1px solid #d7e7d7;
@@ -35,6 +40,62 @@ body.page-home .home-redesign-eyebrow {
   0% { transform: scale(0.92); box-shadow: 0 0 0 0 rgba(19, 111, 56, 0.45); }
   70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(19, 111, 56, 0); }
   100% { transform: scale(0.92); box-shadow: 0 0 0 0 rgba(19, 111, 56, 0); }
+}
+
+/* ─── Mobile floating dots (shown only when canvas is off) ─── */
+@keyframes km-fd-a {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: .55; }
+  40%       { transform: translate(10px, -16px) scale(1.15); opacity: .75; }
+  75%       { transform: translate(-6px, 8px) scale(0.9); opacity: .4; }
+}
+@keyframes km-fd-b {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: .4; }
+  30%       { transform: translate(-14px, -10px) scale(1.1); opacity: .6; }
+  65%       { transform: translate(8px, 14px) scale(0.88); opacity: .3; }
+}
+@keyframes km-fd-c {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: .5; }
+  50%       { transform: translate(6px, -20px) scale(1.2); opacity: .7; }
+}
+@keyframes km-fd-d {
+  0%, 100% { transform: translate(0, 0); opacity: .35; }
+  35%       { transform: translate(-10px, 12px); opacity: .55; }
+  70%       { transform: translate(12px, -8px); opacity: .25; }
+}
+
+.home-hero-float-dots {
+  /* Only visible on mobile/tablet when canvas is disabled */
+  display: none;
+  position: absolute; inset: 0;
+  height: 100%;
+  pointer-events: none; overflow: hidden; z-index: 0;
+}
+/* Each span is a dot — position, size, color, animation vary */
+.home-hero-float-dots span {
+  position: absolute; border-radius: 50%;
+  background: var(--home-green);
+}
+.home-hero-float-dots span:nth-child(1)  { width:6px;  height:6px;  left:7%;   top:22%; opacity:.5; animation: km-fd-a 7.2s ease-in-out infinite; }
+.home-hero-float-dots span:nth-child(2)  { width:4px;  height:4px;  left:14%;  top:58%; opacity:.4; animation: km-fd-b 9.1s ease-in-out infinite 1.3s; }
+.home-hero-float-dots span:nth-child(3)  { width:8px;  height:8px;  left:28%;  top:34%; opacity:.35; animation: km-fd-c 8.4s ease-in-out infinite 0.7s; }
+.home-hero-float-dots span:nth-child(4)  { width:5px;  height:5px;  left:42%;  top:72%; opacity:.4; animation: km-fd-d 10.5s ease-in-out infinite 2.1s; }
+.home-hero-float-dots span:nth-child(5)  { width:3px;  height:3px;  left:55%;  top:18%; opacity:.5; animation: km-fd-a 6.8s ease-in-out infinite 3.4s; }
+.home-hero-float-dots span:nth-child(6)  { width:6px;  height:6px;  left:67%;  top:45%; opacity:.35; animation: km-fd-b 11.2s ease-in-out infinite 0.5s; background: var(--brand-celadon, #5ba08a); }
+.home-hero-float-dots span:nth-child(7)  { width:4px;  height:4px;  left:78%;  top:65%; opacity:.45; animation: km-fd-c 8.9s ease-in-out infinite 1.8s; }
+.home-hero-float-dots span:nth-child(8)  { width:7px;  height:7px;  left:88%;  top:30%; opacity:.3; animation: km-fd-d 9.7s ease-in-out infinite 4.0s; background: var(--brand-celadon, #5ba08a); }
+.home-hero-float-dots span:nth-child(9)  { width:3px;  height:3px;  left:22%;  top:85%; opacity:.5; animation: km-fd-a 7.5s ease-in-out infinite 2.6s; }
+.home-hero-float-dots span:nth-child(10) { width:5px;  height:5px;  left:93%;  top:78%; opacity:.4; animation: km-fd-b 10.1s ease-in-out infinite 0.9s; }
+
+/* Show only when canvas media-query does NOT match (mobile/tablet/touch) */
+@media (max-width: 1023px) {
+  .home-hero-float-dots { display: block; }
+}
+@media (hover: none), (pointer: coarse) {
+  .home-hero-float-dots { display: block; }
+}
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-float-dots { display: none !important; }
 }
 .home-redesign-eyebrow > span {
   width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none;

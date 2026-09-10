@@ -96,19 +96,6 @@
       '</svg>';
   }
 
-  function expandGoogleCluster(event, cluster, map) {
-    if (!cluster || !cluster.bounds || !map) return;
-
-    const currentZoom = map.getZoom() || 11;
-    map.fitBounds(cluster.bounds, { top: 48, right: 48, bottom: 48, left: 48 });
-    google.maps.event.addListenerOnce(map, "idle", function () {
-      const zoomAfterFit = map.getZoom() || currentZoom;
-      if (zoomAfterFit <= currentZoom && currentZoom < 18) {
-        map.setZoom(Math.min(18, currentZoom + 2));
-      }
-    });
-  }
-
   function escapeHtml(value) {
     return String(value || "").replace(/[&<>"']/g, function (char) {
       return {
@@ -469,6 +456,7 @@
   function closeActiveCard(state, restoreMarkerFocus) {
     if (!state) return;
     const marker = state.activeMarker;
+    if (state.motion) state.motion.select(null);
     state.activePlace = null;
     state.activeMarker = null;
     if (state.desktopCardEl) {
@@ -523,6 +511,8 @@
     if (!state || !place || !marker) return;
 
     ensureMapChrome(state);
+    if (state.motion) { state.motion.cancel(); state.motion.select(marker); }
+    if (state.choice) state.choice.close(false);
     state.activePlace = place;
     state.activeMarker = marker;
 
@@ -542,11 +532,19 @@
       state.mobileSheetEl.innerHTML = renderMapCard(place, labels, true);
       state.mobileSheetEl.hidden = false;
       state.mobileSheetEl.classList.add("is-open");
+      if (state.googleMap) {
+        state.mobileSheetEl.querySelector('[data-map-card-close]')?.focus({preventScroll: true});
+        const projection = state.googleMap.getProjection();
+        if (projection) {
+          const point = projection.fromLatLngToPoint(marker.getPosition());
+          const sheetHeight = state.mobileSheetEl.getBoundingClientRect().height;
+          const targetY = Math.max(64, (state.mapEl.clientHeight - sheetHeight - 28) / 2);
+          point.y += (state.mapEl.clientHeight / 2 - targetY) / Math.pow(2, state.googleMap.getZoom());
+          state.motion.moveTo({center: projection.fromPointToLatLng(point).toJSON(), zoom: state.googleMap.getZoom()});
+        }
+      }
       window.requestAnimationFrame(function () {
-        if (state.googleMap) {
-          state.googleMap.panTo(marker.getPosition());
-          state.googleMap.panBy(0, 140);
-        } else if (state.leafletMap) {
+        if (state.leafletMap) {
           state.leafletMap.panTo(marker.getLatLng(), { animate: true });
         }
       });
@@ -559,6 +557,51 @@
     state.desktopCardEl.innerHTML = renderMapCard(place, labels, false);
     state.desktopCardEl.hidden = false;
     positionDesktopCard(state);
+    if (state.googleMap) state.desktopCardEl.querySelector('[data-map-card-close]')?.focus({preventScroll: true});
+  }
+
+  function createCatalogGoogleMarker(state, place) {
+      const position = {lat: place.lat, lng: place.lng};
+      const marker = window.kidsMapCreateGoogleMarker({
+        position: position,
+        title: place.name || "",
+        icon: buildMarkerIcon(place),
+        publicVisual: true, ownerMap: state.googleMap,
+        mapId: state.mapId,
+      });
+
+      marker.__kidsMapPlace = place;
+      if (place.url) {
+        state.markersByUrl[place.url] = marker;
+      }
+
+      marker.addListener("click", function () {
+        const peers = Array.from(state.googleItems.values(), item => item.marker).filter(item => item.getPosition().lat() === place.lat && item.getPosition().lng() === place.lng);
+        if (peers.length > 1) { closeActiveCard(state); state.motion.cancel(); state.choice.show(peers, marker); }
+        else openActiveCard(state, place, marker);
+      });
+
+      marker.addListener("mouseover", function () {
+        if (!place.url) return;
+        const cardLink = document.querySelector('a[href="' + place.url + '"]');
+        if (!cardLink) return;
+        const card = cardLink.closest(".card");
+        if (!card) return;
+        card.style.transform = "translateY(-4px)";
+        card.style.boxShadow = "0 16px 32px rgba(34, 61, 73, 0.12)";
+      });
+
+      marker.addListener("mouseout", function () {
+        if (!place.url) return;
+        const cardLink = document.querySelector('a[href="' + place.url + '"]');
+        if (!cardLink) return;
+        const card = cardLink.closest(".card");
+        if (!card) return;
+        card.style.transform = "";
+        card.style.boxShadow = "";
+      });
+
+      return marker;
   }
 
   function initCatalogGoogleMap() {
@@ -597,9 +640,17 @@
       fullscreenControl: false,
       gestureHandling: "cooperative",
       clickableIcons: false,
+      cameraControl: false,
+      zoomControl: true,
+      zoomControlOptions: {position: google.maps.ControlPosition.RIGHT_TOP},
+      tilt: 0, heading: 0,
     };
     if (state.mapId) mapOptions.mapId = state.mapId;
     state.googleMap = new google.maps.Map(state.mapEl, mapOptions);
+    state.motion = window.KidsMapGoogleMotion.create(state.googleMap);
+    state.choice = window.KidsMapGoogleMotion.chooser(state.mapEl, (place, marker) => openActiveCard(state, place, marker));
+    state.googleMap.addListener('zoom_changed', () => { closeActiveCard(state); state.choice.close(false); });
+    const previousClusterKeys = new Set();
 
     state.bounds = new google.maps.LatLngBounds();
     ensureMapChrome(state);
@@ -613,64 +664,12 @@
     state.projectionHelper.setMap(state.googleMap);
 
     const activeMarkers = [];
-    // Track coordinate pairs to detect duplicates and jitter them slightly
-    const coordCount = {};
+    state.googleItems = new Map();
     state.places.forEach(function (place) {
-      const key = place.lat + ',' + place.lng;
-      coordCount[key] = (coordCount[key] || 0) + 1;
-    });
-    const coordIndex = {};
-    state.places.forEach(function (place) {
-      const key = place.lat + ',' + place.lng;
-      const total = coordCount[key];
-      const idx = coordIndex[key] = (coordIndex[key] || 0);
-      coordIndex[key]++;
-      // If multiple places share exact coordinates, spiral them slightly apart
-      var jitterLat = 0, jitterLng = 0;
-      if (total > 1 && idx > 0) {
-        var angle = (idx / total) * 2 * Math.PI;
-        var radius = 0.00012 * Math.ceil(idx / 6);
-        jitterLat = radius * Math.cos(angle);
-        jitterLng = radius * Math.sin(angle) * 1.5;
-      }
-      const position = { lat: place.lat + jitterLat, lng: place.lng + jitterLng };
-      const marker = window.kidsMapCreateGoogleMarker({
-        position: position,
-        title: place.name || "",
-        icon: buildMarkerIcon(place),
-        mapId: state.mapId,
-      });
-
-      if (place.url) {
-        state.markersByUrl[place.url] = marker;
-      }
-
-      marker.addListener("click", function () {
-        openActiveCard(state, place, marker);
-      });
-
-      marker.addListener("mouseover", function () {
-        if (!place.url) return;
-        const cardLink = document.querySelector('a[href="' + place.url + '"]');
-        if (!cardLink) return;
-        const card = cardLink.closest(".card");
-        if (!card) return;
-        card.style.transform = "translateY(-4px)";
-        card.style.boxShadow = "0 16px 32px rgba(34, 61, 73, 0.12)";
-      });
-
-      marker.addListener("mouseout", function () {
-        if (!place.url) return;
-        const cardLink = document.querySelector('a[href="' + place.url + '"]');
-        if (!cardLink) return;
-        const card = cardLink.closest(".card");
-        if (!card) return;
-        card.style.transform = "";
-        card.style.boxShadow = "";
-      });
-
+      const marker = createCatalogGoogleMarker(state, place);
+      state.googleItems.set(place.url || String(place.id), {marker, signature: JSON.stringify(place)});
       activeMarkers.push(marker);
-      state.bounds.extend(position);
+      state.bounds.extend(marker.getPosition());
     });
 
     if (window.markerClusterer && window.markerClusterer.MarkerClusterer && !window.markerClusterer.dummy) {
@@ -686,8 +685,13 @@
             const count = cluster.count;
             const position = cluster.position;
             const svg = buildGoogleClusterSvg(count);
+            const key = cluster.markers.map(m => m.__kidsMapPlace?.id || m.__kidsMapPlace?.url).sort().join('|');
+            const skipEntrance = previousClusterKeys.has(key);
+            previousClusterKeys.add(key);
             return window.kidsMapCreateGoogleMarker({
               position: position,
+              title: window.KidsMapGoogleMotion.clusterTitle(count),
+              publicVisual: true, ownerMap: state.googleMap, skipEntrance: skipEntrance,
               icon: {
                 url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
                 scaledSize: new google.maps.Size(54, 54),
@@ -698,7 +702,10 @@
             });
           }
         },
-        onClusterClick: expandGoogleCluster,
+        onClusterClick: function (event, cluster) {
+          closeActiveCard(state); state.choice.close(false);
+          state.motion.expand(cluster, markers => state.choice.show(markers, cluster.marker));
+        },
       });
     } else {
       activeMarkers.forEach(function (marker) {
@@ -706,9 +713,41 @@
       });
     }
 
+    const updateMembership = state.markerCluster
+      ? window.KidsMapGoogleMotion.membership(state.markerCluster, activeMarkers) : null;
+    state.syncGooglePlaces = function () {
+      const next = new Map();
+      state.markersByUrl = {};
+      state.bounds = new google.maps.LatLngBounds();
+      state.places.forEach(place => {
+        const key = place.url || String(place.id), signature = JSON.stringify(place);
+        let item = state.googleItems.get(key);
+        if (!item || item.signature !== signature) item = {marker: createCatalogGoogleMarker(state, place), signature};
+        next.set(key, item);
+        if (place.url) state.markersByUrl[place.url] = item.marker;
+        state.bounds.extend(item.marker.getPosition());
+      });
+      const markers = Array.from(next.values(), item => item.marker);
+      if (state.activeMarker && !markers.includes(state.activeMarker)) closeActiveCard(state);
+      if (updateMembership) updateMembership(markers);
+      else {
+        state.googleItems.forEach(item => { if (!markers.includes(item.marker)) item.marker.setMap(null); });
+        markers.forEach(marker => { if (!marker.getMap()) marker.setMap(state.googleMap); });
+      }
+      state.googleItems = next;
+      let status = state.mapEl.querySelector('[data-map-empty-status]');
+      if (!status) {
+        status = document.createElement('div'); status.dataset.mapEmptyStatus = '';
+        status.className = 'kidsmap-map-empty-status'; status.setAttribute('role', 'status');
+        state.mapEl.append(status);
+      }
+      status.hidden = markers.length > 0; status.textContent = markers.length ? '' : state.emptyMessage;
+    };
+
     state.activeListeners.push(
       state.googleMap.addListener("click", function () {
         closeActiveCard(state);
+        state.choice.close(false);
       })
     );
     state.activeListeners.push(
@@ -716,26 +755,6 @@
         positionDesktopCard(state);
       })
     );
-
-    document.querySelectorAll(".card").forEach(function (card) {
-      card.addEventListener("mouseenter", function () {
-        const link = card.querySelector("a");
-        if (link && link.getAttribute("href") && state.markersByUrl[link.getAttribute("href")]) {
-          const marker = state.markersByUrl[link.getAttribute("href")];
-          marker.setAnimation(google.maps.Animation.BOUNCE);
-          window.setTimeout(function () {
-            marker.setAnimation(null);
-          }, 700);
-        }
-      });
-
-      card.addEventListener("mouseleave", function () {
-        const link = card.querySelector("a");
-        if (link && link.getAttribute("href") && state.markersByUrl[link.getAttribute("href")]) {
-          state.markersByUrl[link.getAttribute("href")].setAnimation(null);
-        }
-      });
-    });
 
     state.mapEl.addEventListener("click", function (event) {
       if (event.target.closest("[data-map-card-close]")) {
@@ -950,7 +969,6 @@
     initCatalogGoogleMap();
     if (state.googleMap) {
       google.maps.event.trigger(state.googleMap, "resize");
-      fitCatalogMapBounds(state);
       positionDesktopCard(state);
     }
   }
@@ -970,6 +988,8 @@
       return;
     }
 
+    if (state.motion) state.motion.cancel();
+    if (state.choice) state.choice.close(false);
     closeActiveCard(state);
   }
 
@@ -989,6 +1009,12 @@
 
     if (!catalogMapDocumentListenersBound) {
       catalogMapDocumentListenersBound = true;
+      ['mouseover', 'mouseout'].forEach((name, index) => document.addEventListener(name, event => {
+        const card = event.target.closest('.card');
+        if (!card || card.contains(event.relatedTarget)) return;
+        const link = card.querySelector('a');
+        catalogMapState?.markersByUrl[link?.getAttribute('href')]?.setHighlighted?.(index === 0);
+      }));
       document.addEventListener("keydown", function (event) {
         if (event.key !== "Escape") return;
         const currentState = ensureCatalogMapState();
@@ -1023,12 +1049,34 @@
     ensureCatalogMapInitialized();
   };
 
+  window.kidsMapCancelCatalogMapTransition = function () {
+    if (catalogMapState?.motion) catalogMapState.motion.cancel();
+    if (catalogMapState?.choice) catalogMapState.choice.close(false);
+  };
+
   window.kidsMapRefreshCatalogResultsMap = function () {
+    const state = catalogMapState;
+    if (state && state.panel === document.querySelector('[data-catalog-map-panel]')) {
+      window.kidsMapCancelCatalogMapTransition();
+      state.places = parsePlaces().filter(hasValidCoordinates);
+      const openBtn = document.querySelector('[data-catalog-map-open]');
+      if (openBtn && state.openBtn !== openBtn) {
+        state.openBtn = openBtn;
+        openBtn.addEventListener('click', () => setCatalogMapOpen(state.panel.hidden));
+      }
+      if (state.googleMap) {
+        state.syncGooglePlaces();
+        google.maps.event.trigger(state.googleMap, 'resize');
+      } else if (!state.panel.hidden) {
+        state.initialized = false;
+        ensureCatalogMapInitialized();
+      }
+      return;
+    }
     catalogMapState = null;
     initCatalogMapUi();
-    const state = ensureCatalogMapState();
-    if (!state || state.panel.hidden) return;
-    ensureCatalogMapInitialized();
+    const nextState = ensureCatalogMapState();
+    if (nextState && !nextState.panel.hidden) ensureCatalogMapInitialized();
   };
 
   initCatalogMapUi();

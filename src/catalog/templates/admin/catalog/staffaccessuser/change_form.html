@@ -1,6 +1,6 @@
 {% extends "admin/change_form.html" %}
 {% load i18n static admin_urls %}
-{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}">{% endblock %}
+{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}?v=3">{% endblock %}
 {% block bodyclass %}{{ block.super }} km-staff-profile-page{% endblock %}
 {% block content_title %}{% endblock %}
 {% block content %}
@@ -50,7 +50,7 @@
         {% for child in inline.formset.forms %}{{ child.non_field_errors }}{% for hidden in child.hidden_fields %}{{ hidden }}{% endfor %}<div class="km-staff-profile__fields">{% for field in child.visible_fields %}<div class="km-staff-profile__field">{{ field.label_tag }}{{ field }}{{ field.errors }}{% if field.help_text %}<p class="km-staff-profile__help" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</p>{% endif %}</div>{% endfor %}</div>{% endfor %}
       </section>
     {% endfor %}
-    <footer class="km-staff-profile__actions">{% if has_change_permission %}<button name="_continue" type="submit">{% translate "Сохранить и продолжить" %}</button><button name="_save" type="submit" class="km-staff-profile__secondary">{% translate "Сохранить и выйти" %}</button>{% if km_password_change_url %}<a href="{{ km_password_change_url }}">{% translate "Сменить пароль" %}</a>{% endif %}{% endif %}{% if has_delete_permission %}<a class="km-staff-profile__danger" href="{% url opts|admin_urlname:'delete' original.pk %}">{% translate "Удалить пользователя" %}</a>{% endif %}</footer>
+    <footer class="km-staff-profile__actions">{% if has_change_permission %}<button name="_continue" type="submit"><i class="fas fa-save" aria-hidden="true"></i> {% translate "Сохранить и продолжить" %}</button><button name="_save" type="submit" class="km-staff-profile__secondary"><i class="fas fa-check" aria-hidden="true"></i> {% translate "Сохранить и выйти" %}</button>{% if km_password_change_url %}<a class="km-staff-profile__btn--info" href="{{ km_password_change_url }}"><i class="fas fa-key" aria-hidden="true"></i> {% translate "Сменить пароль" %}</a>{% endif %}{% endif %}{% if has_delete_permission %}<a class="km-staff-profile__danger" href="{% url opts|admin_urlname:'delete' original.pk %}"><i class="fas fa-trash-alt" aria-hidden="true"></i> {% translate "Удалить пользователя" %}</a>{% endif %}</footer>
   </form>
 </div>
 {% endblock %}

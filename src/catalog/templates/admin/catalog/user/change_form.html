@@ -5,11 +5,23 @@
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_user_access_form.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_user_profile.css' %}">
   <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}" defer></script>
 {% endblock %}
 
+{% block content_title %}{% endblock %}
 {% block submit_buttons_top %}{% endblock %}
 {% block submit_buttons_bottom %}{% endblock %}
+
+{% block breadcrumbs %}
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate "Главная" %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">
+      {% if add %}{% blocktrans with name=opts.verbose_name %}Добавить {{ name }}{% endblocktrans %}{% else %}{{ original|truncatewords:"12" }}{% endif %}
+    </li>
+  </ol>
+{% endblock %}
 
 {% block content %}
   {% if add and opts.model_name == "staffaccessuser" %}
@@ -148,7 +160,7 @@
     </form>
   </div>
   {% else %}
-  <div id="content-main" class="km-place-form-page">
+  <div id="content-main" class="km-user-profile-page km-place-form-page">
     <form
       {% if has_file_field %}enctype="multipart/form-data"{% endif %}
       {% if form_url %}action="{{ form_url }}"{% endif %}
@@ -160,56 +172,65 @@
       {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
       {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
 
-      <div class="km-place-form-shell">
-        <header class="km-place-form-hero">
-          <div class="km-place-form-hero__copy">
-            <p class="km-place-form-hero__eyebrow">
+      <div class="km-user-profile-shell km-place-form-shell">
+        <header class="km-user-hero km-place-form-hero">
+          <div class="km-user-hero__copy">
+            <p class="km-user-hero__eyebrow">
               {% if add %}{% translate "Новый пользователь" %}{% else %}{% translate "Профиль пользователя" %}{% endif %}
             </p>
-            <h1 class="km-place-form-hero__title">
+            <h1 class="km-user-hero__title">
               {% if add %}
                 {% translate "Добавить пользователя" %}
               {% else %}
                 {{ km_user_form_summary.full_name }}
               {% endif %}
             </h1>
-            <p class="km-place-form-hero__subtitle" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+            <div class="km-user-hero__meta">
               {% if not add %}
-                {% if km_user_form_summary.email_verified %}
-                  <span class="km-badge km-badge--good">{% translate "Email подтвержден" %}</span>
-                {% else %}
-                  <span class="km-badge km-badge--warn">{% translate "Email не подтвержден" %}</span>
-                {% endif %}
-
                 {% if km_user_form_summary.is_superuser %}
-                  <span class="km-badge km-badge--danger">{% translate "Суперадмин" %}</span>
+                  <span class="km-badge km-badge--danger"><i class="fas fa-crown" aria-hidden="true"></i> {% translate "Суперадмин" %}</span>
+                {% elif km_user_form_summary.is_volunteer %}
+                  <span class="km-badge km-badge--warn"><i class="fas fa-user-edit" aria-hidden="true"></i> {% translate "Волонтёр" %}</span>
                 {% elif km_user_form_summary.is_staff %}
-                  <span class="km-badge km-badge--info">{% translate "Админ" %}</span>
+                  <span class="km-badge km-badge--info"><i class="fas fa-shield-alt" aria-hidden="true"></i> {% translate "Админ" %}</span>
+                {% else %}
+                  <span class="km-badge km-badge--neutral"><i class="fas fa-user" aria-hidden="true"></i> {% translate "Пользователь" %}</span>
                 {% endif %}
 
-                {% if not km_user_form_summary.is_active %}
-                  <span class="km-badge km-badge--neutral">{% translate "Неактивен" %}</span>
+                {% if km_user_form_summary.email_verified %}
+                  <span class="km-badge km-badge--good"><i class="fas fa-check-circle" aria-hidden="true"></i> {% translate "Email подтвержден" %}</span>
+                {% else %}
+                  <span class="km-badge km-badge--warn"><i class="fas fa-clock" aria-hidden="true"></i> {% translate "Email не подтвержден" %}</span>
+                {% endif %}
+
+                {% if km_user_form_summary.is_active %}
+                  <span class="km-badge km-badge--good"><i class="fas fa-check" aria-hidden="true"></i> {% translate "Активен" %}</span>
+                {% else %}
+                  <span class="km-badge km-badge--neutral"><i class="fas fa-ban" aria-hidden="true"></i> {% translate "Неактивен" %}</span>
                 {% endif %}
               {% endif %}
-            </p>
+            </div>
           </div>
           {% if not add %}
-          <div class="km-place-form-hero__metrics" style="display: flex; gap: 16px; align-items: center; justify-content: flex-end; padding-right: 24px;">
-            <div class="km-user-form-avatar" aria-hidden="true">
+          <div class="km-user-hero__metrics">
+            <div class="km-user-avatar" aria-hidden="true">
               {% if km_user_form_summary.avatar_url %}
                 <img src="{{ km_user_form_summary.avatar_url }}" alt="">
               {% else %}
                 {{ km_user_form_summary.avatar_initial|default:"?" }}
               {% endif %}
             </div>
-            <div style="text-align: right;">
-              <span class="km-admin-meta">{% translate "Email" %}</span><br>
-              <strong style="font-size: 16px; line-height: 1.4;">{{ km_user_form_summary.email|default:"-" }}</strong>
+            <div class="km-user-metric-box">
+              <span class="km-user-metric-label">{% translate "Логин / Email" %}</span>
+              <span class="km-user-metric-val">@{{ original.username }}</span>
+              {% if km_user_form_summary.email %}
+                <span class="km-user-metric-label" style="margin-top:2px;">{{ km_user_form_summary.email }}</span>
+              {% endif %}
             </div>
             {% if km_user_form_summary.phone %}
-            <div style="text-align: right; border-left: 1px solid var(--km-border); padding-left: 16px;">
-              <span class="km-admin-meta">{% translate "Телефон" %}</span><br>
-              <strong style="font-size: 16px; line-height: 1.4;">{{ km_user_form_summary.phone }}</strong>
+            <div class="km-user-metric-box km-user-metric-box--bordered">
+              <span class="km-user-metric-label">{% translate "Телефон" %}</span>
+              <span class="km-user-metric-val">{{ km_user_form_summary.phone }}</span>
             </div>
             {% endif %}
           </div>
@@ -230,17 +251,28 @@
           </div>
         {% endif %}
 
-        <div class="km-place-form-layout">
-          <main class="km-place-form-main">
+        <div class="km-user-layout km-place-form-layout">
+          <main class="km-user-main km-place-form-main">
             {% block field_sets %}
               {% for fieldset in adminform %}
-                <section class="km-place-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
+                <section class="km-user-section km-place-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
                   {% if fieldset.name %}
-                    <header class="km-place-section__head">
+                    <header class="km-user-section__head km-place-section__head">
                       <div>
-                        <h2 class="km-place-section__title">{{ fieldset.name }}</h2>
+                        <h2 class="km-user-section__title km-place-section__title">
+                          {% if "аккаунт" in fieldset.name|lower or "account" in fieldset.name|lower %}
+                            <i class="fas fa-id-card" aria-hidden="true"></i>
+                          {% elif "права" in fieldset.name|lower or "permission" in fieldset.name|lower %}
+                            <i class="fas fa-user-shield" aria-hidden="true"></i>
+                          {% elif "даты" in fieldset.name|lower or "date" in fieldset.name|lower %}
+                            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                          {% else %}
+                            <i class="fas fa-folder-open" aria-hidden="true"></i>
+                          {% endif %}
+                          {{ fieldset.name }}
+                        </h2>
                         {% if fieldset.description %}
-                          <p class="km-place-section__description">{{ fieldset.description|safe }}</p>
+                          <p class="km-user-section__desc km-place-section__description">{{ fieldset.description|safe }}</p>
                         {% endif %}
                       </div>
                     </header>
@@ -259,37 +291,37 @@
             {% endblock %}
           </main>
 
-          <aside class="km-place-form-sidebar">
+          <aside class="km-user-sidebar km-place-form-sidebar">
             <div class="km-place-sidebar-sticky">
               {% if not add %}
-              <div class="km-place-sidebar-card km-place-sidebar-card--summary">
-                <div class="km-place-sidebar-status">
-                  <span class="km-place-sidebar-status__indicator km-place-sidebar-status__indicator--{% if km_user_form_summary.is_active %}good{% else %}neutral{% endif %}"></span>
-                  <div class="km-place-sidebar-status__text">
+              <div class="km-user-sidebar-card km-place-sidebar-card--summary">
+                <div class="km-user-status-banner">
+                  <span class="km-user-status-dot km-user-status-dot--{% if km_user_form_summary.is_active %}active{% else %}inactive{% endif %}"></span>
+                  <div class="km-user-status-text">
                     <strong>{% if km_user_form_summary.is_active %}{% translate "Активный профиль" %}{% else %}{% translate "Профиль неактивен" %}{% endif %}</strong>
-                    <span class="km-admin-meta">
+                    <span>
                       {% translate "Зарегистрирован:" %} {{ km_user_form_summary.date_joined|date:"d M Y" }}
                     </span>
                   </div>
                 </div>
 
                 {% if km_user_form_summary.last_login %}
-                <div class="km-place-sidebar-flags" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
-                  <strong class="km-admin-title" style="margin-bottom: 4px; display: block;">{% translate "Последний вход" %}</strong>
-                  <span class="km-admin-meta">{{ km_user_form_summary.last_login|date:"d M Y, H:i" }}</span>
+                <div class="km-user-sidebar-info-row">
+                  <span class="km-user-sidebar-info-label">{% translate "Последний вход" %}</span>
+                  <span class="km-user-sidebar-info-val">{{ km_user_form_summary.last_login|date:"d M Y, H:i" }}</span>
                 </div>
                 {% endif %}
 
                 {% if km_user_form_summary.owner_workflow.has_requests %}
-                <div class="km-place-sidebar-flags" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
-                  <strong class="km-admin-title" style="margin-bottom: 8px; display: block;">{% translate "Связанные заявки" %}</strong>
+                <div class="km-user-sidebar-info-row">
+                  <span class="km-user-sidebar-info-label">{% translate "Связанные заявки" %}</span>
                   {% if km_user_form_summary.owner_workflow.pending_requests_count > 0 %}
-                    <a href="{{ km_user_form_summary.owner_workflow.changelist_url }}" style="display:flex; align-items:center; gap:8px; color:var(--km-warn); font-weight:600; text-decoration:none;">
-                      <i class="fas fa-clock"></i> {{ km_user_form_summary.owner_workflow.pending_requests_count }} на модерации
+                    <a href="{{ km_user_form_summary.owner_workflow.changelist_url }}" style="display:flex; align-items:center; gap:8px; color:var(--km-u-warn-text); font-weight:700; text-decoration:none; margin-top:4px;">
+                      <i class="fas fa-clock" aria-hidden="true"></i> {{ km_user_form_summary.owner_workflow.pending_requests_count }} на модерации
                     </a>
                   {% else %}
-                    <a href="{{ km_user_form_summary.owner_workflow.changelist_url }}" style="display:flex; align-items:center; gap:8px; color:var(--km-text-secondary); text-decoration:none;">
-                      <i class="fas fa-list"></i> Посмотреть историю заявок
+                    <a href="{{ km_user_form_summary.owner_workflow.changelist_url }}" style="display:flex; align-items:center; gap:8px; color:var(--km-u-text-muted); text-decoration:none; margin-top:4px; font-weight:600;">
+                      <i class="fas fa-list" aria-hidden="true"></i> {% translate "История заявок" %}
                     </a>
                   {% endif %}
                 </div>
@@ -297,35 +329,26 @@
               </div>
               {% endif %}
 
-              <div class="km-place-sidebar-card km-place-sidebar-card--actions" style="margin-top: 12px;">
-                <div class="km-place-sidebar-action-buttons">
-                  <!-- Группа 1: Основное действие -->
-                  <div class="km-sidebar-action-group km-sidebar-action-group--primary">
-                    <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
-                      <i class="fas fa-save"></i> {% translate "Сохранить и продолжить" %}
-                    </button>
-                  </div>
+              <div class="km-user-sidebar-card km-place-sidebar-card--actions" style="margin-top: 14px;">
+                <div class="km-user-actions-group km-place-sidebar-action-buttons">
+                  <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
+                    <i class="fas fa-save" aria-hidden="true"></i> {% translate "Сохранить и продолжить" %}
+                  </button>
 
-                  <!-- Группа 2: Вторичные действия -->
-                  <div class="km-sidebar-action-group km-sidebar-action-group--secondary">
-                    <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
-                      <i class="fas fa-check-double"></i> {% translate "Сохранить и выйти" %}
-                    </button>
+                  <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
+                    <i class="fas fa-check" aria-hidden="true"></i> {% translate "Сохранить и выйти" %}
+                  </button>
 
-                    {% if km_password_change_url %}
-                      <a href="{{ km_password_change_url }}" class="km-btn--sidebar km-btn--info">
-                        <i class="fas fa-key"></i> {% translate "Сменить пароль" %}
-                      </a>
-                    {% endif %}
-                  </div>
+                  {% if km_password_change_url %}
+                    <a href="{{ km_password_change_url }}" class="km-btn--sidebar km-btn--info">
+                      <i class="fas fa-key" aria-hidden="true"></i> {% translate "Сменить пароль" %}
+                    </a>
+                  {% endif %}
 
-                  <!-- Группа 3: Опасные действия -->
                   {% if has_delete_permission and not add %}
-                    <div class="km-sidebar-action-group km-sidebar-action-group--danger">
-                      <a href="delete/" class="km-btn--sidebar km-btn--danger-delete deletelink">
-                        <i class="fas fa-trash-alt"></i> {% translate "Удалить пользователя" %}
-                      </a>
-                    </div>
+                    <a href="delete/" class="km-btn--sidebar km-btn--danger-delete deletelink">
+                      <i class="fas fa-trash-alt" aria-hidden="true"></i> {% translate "Удалить пользователя" %}
+                    </a>
                   {% endif %}
                 </div>
               </div>

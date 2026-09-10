@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 def render_primary_action(url: str, label: str) -> str:
     """Renders the primary 'Edit' button with SVG icon for admin row actions."""
     return format_html(
-        '<a class="km-admin-action km-admin-action--primary" href="{}"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>{}</a>',
+        '<a class="km-admin-action km-admin-action--primary btn" href="{}"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>{}</a>',
         url,
         label,
     )
@@ -13,9 +13,9 @@ def render_primary_action(url: str, label: str) -> str:
 def render_inline_action(url: str, label: str, tone: str = "secondary", icon: str = "") -> str:
     icon_html = ""
     if icon:
-        icon_html = format_html('<i class="{}" aria-hidden="true"></i>', icon)
+        icon_html = format_html('<i class="{}" aria-hidden="true" style="margin-right: 4px;"></i>', icon)
     return format_html(
-        '<a class="km-admin-action km-admin-action--{}" href="{}">{}{}</a>',
+        '<a class="km-admin-action km-admin-action--{} btn" href="{}">{}{}</a>',
         tone,
         url,
         icon_html,

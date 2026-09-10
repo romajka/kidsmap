@@ -210,6 +210,13 @@
 
         var submitBtn = e.target.closest('[data-bulk-submit]');
         if (submitBtn) {
+          if (submitBtn.dataset.confirm) {
+            var count = form.querySelectorAll('tbody input.action-select:checked').length;
+            var confirmMsg = submitBtn.dataset.confirm.replace('{count}', count);
+            if (!window.confirm(confirmMsg)) {
+              return;
+            }
+          }
           var actionName = submitBtn.dataset.bulkSubmit;
           var actionSelect = form.querySelector('select[name="action"]');
           if (actionSelect) {

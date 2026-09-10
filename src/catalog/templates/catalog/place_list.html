@@ -1106,8 +1106,10 @@
   </section>
 
   {% if not is_new_page %}
-    <script src="{% static 'js/google_maps_markers.js' %}"></script>
-    <script src="{% static 'js/catalog_map.js' %}?v=phone-reveal-1"></script>
+    <link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
+    <script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
+    <script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
+    <script src="{% static 'js/catalog_map.js' %}?v=20260910_motion1"></script>
     {% if google_maps_api_key %}
       <script
         src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key|urlencode }}&loading=async&libraries=marker&callback=kidsMapInitCatalogResultsMap"
@@ -1770,6 +1772,7 @@
       const isListMode = document.body.classList.contains("results-list-mode") || (resultsGrid && resultsGrid.classList.contains("results-list-mode"));
       const mobileMedia = window.matchMedia("(max-width: 760px)");
       let activeRequest = null;
+      let requestSequence = 0;
 
       function buildFormUrl(form) {
         const formData = new FormData(form);
@@ -1852,6 +1855,17 @@
           return;
         }
 
+        // Keep the Google canvas and its camera/markers alive across AJAX.
+        const currentMapPanel = currentMainColumn.querySelector('[data-catalog-map-panel]');
+        const nextMapPanel = nextMainColumn.querySelector('[data-catalog-map-panel]');
+        if (currentMapPanel && nextMapPanel) {
+          ['.catalog-map-meta', '#catalog-map-data'].forEach(selector => {
+            const current = currentMapPanel.querySelector(selector);
+            const next = nextMapPanel.querySelector(selector);
+            if (current && next) current.replaceWith(next);
+          });
+          nextMapPanel.replaceWith(currentMapPanel);
+        }
         currentTopStack.replaceWith(nextTopStack);
         currentMainColumn.replaceWith(nextMainColumn);
 
@@ -1914,27 +1928,31 @@
         if (activeRequest) {
           activeRequest.abort();
         }
-        activeRequest = new AbortController();
+        const requestId = ++requestSequence;
+        const controller = new AbortController();
+        activeRequest = controller;
+        if (window.kidsMapCancelCatalogMapTransition) window.kidsMapCancelCatalogMapTransition();
         showResultsLoading();
 
         fetch(url.href, {
           headers: { "X-Requested-With": "XMLHttpRequest" },
-          signal: activeRequest.signal,
+          signal: controller.signal,
         })
           .then(function (response) {
             if (!response.ok) throw new Error("Filter request failed");
             return response.text();
           })
           .then(function (html) {
+            if (requestId !== requestSequence || controller.signal.aborted) return;
             const nextDocument = new DOMParser().parseFromString(html, "text/html");
             replaceCatalogFragment(nextDocument, scrollTop, url);
           })
           .catch(function (error) {
-            if (error.name === "AbortError") return;
+            if (error.name === "AbortError" || requestId !== requestSequence) return;
             window.location.href = url.href;
           })
           .finally(function () {
-            activeRequest = null;
+            if (requestId === requestSequence) activeRequest = null;
           });
 
         return true;

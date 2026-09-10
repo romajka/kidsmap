@@ -1,0 +1,365 @@
+/* KidsMap Regions and Districts Admin Styling */
+
+.km-regions-changelist {
+  background-color: #f8fafc;
+}
+
+.km-regions-changelist .place-admin-dashboard__table-wrap {
+  overflow-x: auto;
+}
+
+.km-regions-changelist #result_list {
+  width: 100%;
+  min-width: 1000px;
+}
+
+.km-regions-changelist .km-table-container thead th:last-child,
+.km-regions-changelist .km-table-container tbody td:last-child,
+.km-regions-changelist #result_list thead th:last-child,
+.km-regions-changelist #result_list tbody td:last-child,
+.km-regions-changelist #result_list th.column-actions_cell,
+.km-regions-changelist #result_list td.field-actions_cell {
+  width: 190px !important;
+  min-width: 190px !important;
+  overflow: visible !important;
+  text-align: right !important;
+  padding-right: 20px !important;
+}
+
+.km-regions-changelist #result_list thead th:nth-child(2),
+.km-regions-changelist #result_list tbody td:nth-child(2),
+.km-regions-changelist #result_list th.column-region_title,
+.km-regions-changelist #result_list td.field-region_title {
+  width: 180px !important;
+  min-width: 180px !important;
+  white-space: nowrap !important;
+}
+
+.km-regions-changelist #result_list thead th:nth-child(3),
+.km-regions-changelist #result_list tbody td:nth-child(3),
+.km-regions-changelist #result_list th.column-localization_summary,
+.km-regions-changelist #result_list td.field-localization_summary {
+  width: 190px !important;
+  min-width: 190px !important;
+}
+
+/* Region Title and Code */
+.km-region-title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.km-region-code-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.km-lang-row {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #334155;
+  margin-bottom: 2px;
+}
+
+.km-lang-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 16px;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-right: 6px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.km-lang-pill--en {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* Actions Cell in Region Changelist */
+.km-admin-actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.km-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+}
+
+.km-action-btn--primary {
+  background: #ecfdf5;
+  color: #059669 !important;
+  border: 1px solid #a7f3d0;
+}
+
+.km-action-btn--primary:hover {
+  background: #059669;
+  color: #ffffff !important;
+  box-shadow: 0 2px 5px rgba(5, 150, 105, 0.25);
+  transform: translateY(-1px);
+}
+
+.km-action-btn--secondary {
+  background: #f8fafc;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0;
+}
+
+.km-action-btn--secondary:hover {
+  background: #f1f5f9;
+  color: #0f172a !important;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   Region Change Form Styling
+========================================= */
+
+.km-place-form-page .km-place-form-shell {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px 24px 48px;
+}
+
+.km-place-form-page .km-place-form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Region Hero Card in Change Form */
+.km-region-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.km-region-hero__content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.km-region-hero__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+}
+
+.km-region-hero__title {
+  margin: 0 0 6px 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.km-region-hero__subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.km-region-hero__stats {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.km-region-stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+  min-width: 90px;
+}
+
+.km-region-stat-pill:hover {
+  border-color: #10b981;
+  background: #f0fdf4;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+}
+
+.km-region-stat-pill__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.km-region-stat-pill__val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.km-region-stat-pill__val--green {
+  color: #059669;
+}
+
+.km-region-stat-pill__val--blue {
+  color: #0284c7;
+}
+
+.km-region-stat-pill__val--amber {
+  color: #d97706;
+}
+
+/* District Inline Card Polish */
+.km-district-inline-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow-x: auto;
+  background: #ffffff;
+  margin-top: 10px;
+}
+
+.km-district-inline-card .inline-group {
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.km-district-inline-card table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.km-district-inline-card th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.km-district-inline-card td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.km-district-inline-card td.field-key {
+  width: 140px;
+  min-width: 120px;
+}
+
+.km-district-inline-card td.field-name_ru,
+.km-district-inline-card td.field-name_az,
+.km-district-inline-card td.field-name_en {
+  min-width: 150px;
+}
+
+.km-district-inline-card input[type="text"] {
+  width: 100%;
+  height: 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.km-district-inline-card input[type="text"]:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  outline: none;
+}
+
+.km-district-inline-card tr.add-row td {
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.km-district-inline-card tr.add-row a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #059669;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.km-district-inline-card tr.add-row a:hover {
+  color: #047857;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .km-place-form-page .km-place-form-layout {
+    grid-template-columns: 1fr;
+  }
+  .km-region-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .km-region-hero__stats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

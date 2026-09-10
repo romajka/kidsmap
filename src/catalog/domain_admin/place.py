@@ -1447,18 +1447,21 @@ class EventAdmin(admin.ModelAdmin):
                 "name": "mark_published",
                 "label": _("Опубликовать"),
                 "tone": "good",
+                "icon": "fas fa-bullhorn",
                 "description": _("Опубликовать выбранные мероприятия."),
             },
             {
                 "name": "mark_draft",
                 "label": _("В черновик"),
                 "tone": "muted",
+                "icon": "far fa-file-alt",
                 "description": _("Снять выбранные мероприятия с публикации и вернуть в черновики."),
             },
             {
                 "name": "mark_pending",
                 "label": _("На модерацию"),
                 "tone": "warn",
+                "icon": "fas fa-hourglass-half",
                 "description": _("Отправить выбранные мероприятия на модерацию."),
             },
         ]
@@ -1544,6 +1547,10 @@ class EventAdmin(admin.ModelAdmin):
             "km_primary_quick_filters": quick_filters,
             "km_secondary_quick_filters": [],
             "event_bulk_actions": self._event_bulk_actions(),
+            "km_search_label": _("Поиск мероприятий"),
+            "km_search_placeholder": _("Название, адрес, телефон, организатор..."),
+            "km_changelist_reset_url": "?",
+            "km_disable_search_suggestions": True,
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)

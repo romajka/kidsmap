@@ -18,19 +18,26 @@
     ['.home-steps', .35], ['.home-owner-banner', .45],
     ['.home-faq-panel', .15], ['.site-footer', .25],
   ];
-  const protectedSelector = [
-    '.topbar', '.home-hero-copy', '.home-hero-visual',
+  // On the home page animations flow freely behind all text/cards;
+  // only solid structural panels get cleared. Other pages keep the broad
+  // exclusion list so dots never render behind dense article content.
+  const protectedSelector = isHome ? [
+    '.topbar', '.home-map-panel', '.home-owner-banner',
+    '.footer-grid', '.footer-bottom', '.home-faq-item',
+    '[data-rail-viewport]',
+  ].join(',') : [
+    '.topbar',
     '[data-rail-viewport]', '.home-map-panel', '.home-owner-banner',
     '.footer-grid', '.footer-bottom', 'main h1', 'main h2', 'main h3',
     'main p', 'main form', 'main a', 'main button', 'main summary',
     'main img', '.home-faq-item',
-    ...(!isHome ? ['main li', 'main table', 'main blockquote', 'main iframe',
-      'main video', 'main input', 'main textarea', 'main select',
-      '.place-gallery', '.detail-card', '.detail-decision', '.place-card',
-      '.specialist-card', '.event-card', '.faq-item', '.leaflet-container',
-      'main [class*="-card"]', 'main .panel', '.about-stat-box', '.catalog-hero',
-      '.about-steps-wrapper',
-      '.gm-style', '[data-map]', '[role="dialog"]', '[role="listbox"]'] : []),
+    'main li', 'main table', 'main blockquote', 'main iframe',
+    'main video', 'main input', 'main textarea', 'main select',
+    '.place-gallery', '.detail-card', '.detail-decision', '.place-card',
+    '.specialist-card', '.event-card', '.faq-item', '.leaflet-container',
+    'main [class*="-card"]', 'main .panel', '.about-stat-box', '.catalog-hero',
+    '.about-steps-wrapper',
+    '.gm-style', '[data-map]', '[role="dialog"]', '[role="listbox"]',
   ].join(',');
   const pointer = {x: 0, y: 0, active: false, xShift: 0, yShift: 0};
   const state = {
@@ -67,14 +74,15 @@
     state.dots = Array.from({length: count + config.pins}, (_, i) => {
       const pin = i >= count;
       const side = random();
+      const inHero = !pin && i < count * .3;
       return {
         // More places around the hero, then a quiet, continuous trail below it.
         x: (side < .6 ? (i % 2 ? .93 : .07) + (random() - .5) * .12 : random()) * state.width,
-        y: !pin && i < count * .3 ? 100 + random() * Math.max(100, heroBottom - 100) : random() * state.pageHeight,
+        y: inHero ? 100 + random() * Math.max(100, heroBottom - 100) : random() * state.pageHeight,
         depth: .25 + random() * .75, phase: random() * Math.PI * 2,
-        radius: pin ? 5 + random() * 2 : 1.2 + random() * 1.4,
+        radius: pin ? 5 + random() * 2 : (inHero ? 2.2 + random() * 2.2 : 1.2 + random() * 1.4),
         color: i % 29 === 0 && !pin ? colors[3] : colors[i % 3],
-        pin, dx: 0, dy: 0, influence: 0,
+        pin, heroBoost: inHero, dx: 0, dy: 0, influence: 0,
       };
     });
     state.routes = Array.from({length: 6}, (_, i) => ({
@@ -112,7 +120,9 @@
     const masks = [...document.querySelectorAll(protectedSelector)]
       .filter(element => element.getClientRects().length)
       .filter(element => {
-        const viewport = element.closest('.home-hero-visual, [data-rail-viewport], .place-gallery');
+        if (element.closest('.home-hero-copy')) return false;
+        if (element.matches('.home-hero-visual') || element.closest('.home-hero-visual')) return false;
+        const viewport = element.closest('[data-rail-viewport], .place-gallery');
         return !viewport || viewport === element;
       })
       .map(element => bounds(element, 12));
@@ -200,7 +210,8 @@
       dot.influence += (influence - dot.influence) * easing;
       const px = x + dot.dx, py = y + dot.dy;
       const radius = dot.radius * (1 + dot.influence * .18);
-      const opacity = intensityAt(dot.y) * (.2 + dot.depth * .12) * (1 + dot.influence * .5);
+      const baseOpacity = dot.heroBoost ? (.38 + dot.depth * .25) : (.2 + dot.depth * .12);
+      const opacity = intensityAt(dot.y) * baseOpacity * (1 + dot.influence * .5);
       ctx.fillStyle = dot.color;
       ctx.strokeStyle = dot.color;
       if (dot.pin || dot.influence > .05) {
@@ -319,7 +330,7 @@
   }, {passive: true});
   listen(window, 'pointerdown', event => {
     if (!desktop.matches || motion.matches || event.button !== 0 || event.isPrimary === false) return;
-    if (event.target.closest('a, button, input, select, textarea, summary, form, [role="button"], [role="dialog"], .leaflet-container, .gm-style')) return;
+    if (event.target?.closest?.('a, button, input, select, textarea, summary, form, [role="button"], [role="dialog"], .leaflet-container, .gm-style')) return;
     state.ripples.push({x: event.clientX, y: event.clientY + state.scroll, start: state.time});
     if (state.ripples.length > 4) state.ripples.shift();
     schedule();

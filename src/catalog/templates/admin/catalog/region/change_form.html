@@ -1,0 +1,207 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block content_title %}{% endblock %}
+{% block page_actions %}{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_admin_form_shell.css' %}">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_regions.css' %}?v=1">
+  <script src="{% static 'admin/js/kidsmap_admin_form_shell.js' %}" defer></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <ol class="breadcrumb km-admin-crumbs" aria-label="{% translate 'Навигация' %}">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Главная' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label='catalog' %}">{% translate 'Каталог' %}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'admin:catalog_region_changelist' %}">{% translate 'Регионы и города' %}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% if add %}{% translate "Новый регион" %}{% else %}{{ original.name_ru }}{% endif %}</li>
+  </ol>
+{% endblock %}
+
+{% block submit_buttons_top %}{% endblock %}
+{% block submit_buttons_bottom %}{% endblock %}
+
+{% block content %}
+  <div id="content-main" class="km-place-form-page">
+    <form
+      {% if has_file_field %}enctype="multipart/form-data"{% endif %}
+      {% if form_url %}action="{{ form_url }}"{% endif %}
+      method="post"
+      id="{{ opts.model_name }}_form"
+      novalidate
+    >
+      {% csrf_token %}
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
+
+      <div class="km-place-form-shell">
+        <!-- Region Hero Card -->
+        <header class="km-region-hero">
+          <div class="km-region-hero__content">
+            <div class="km-region-hero__icon">
+              <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div>
+              <h1 class="km-region-hero__title">
+                {% if add %}
+                  {% translate "Добавление региона / города" %}
+                {% else %}
+                  {{ original.name_ru }}
+                  <span class="km-region-code-badge">{{ original.key }}</span>
+                {% endif %}
+              </h1>
+              <p class="km-region-hero__subtitle">
+                {% if add %}
+                  {% translate "Укажите системный ключ и названия региона на трёх языках." %}
+                {% else %}
+                  {% blocktranslate trimmed with az=original.name_az en=original.name_en %}
+                    Азербайджанский: {{ az }} · Английский: {{ en }}
+                  {% endblocktranslate %}
+                {% endif %}
+              </p>
+            </div>
+          </div>
+
+          {% if not add and km_region_summary %}
+            <div class="km-region-hero__stats">
+              <a href="{{ km_region_summary.districts_url }}" class="km-region-stat-pill" title="{% translate 'Открыть список районов' %}">
+                <span class="km-region-stat-pill__label">{% translate "Районов" %}</span>
+                <span class="km-region-stat-pill__val km-region-stat-pill__val--blue">{{ km_region_summary.districts_count }}</span>
+              </a>
+              <a href="{{ km_region_summary.places_url }}" class="km-region-stat-pill" title="{% translate 'Открыть места в каталоге' %}">
+                <span class="km-region-stat-pill__label">{% translate "Мест" %}</span>
+                <span class="km-region-stat-pill__val km-region-stat-pill__val--green">{{ km_region_summary.places_count }}</span>
+              </a>
+              <a href="{{ km_region_summary.events_url }}" class="km-region-stat-pill" title="{% translate 'Открыть события' %}">
+                <span class="km-region-stat-pill__label">{% translate "Событий" %}</span>
+                <span class="km-region-stat-pill__val km-region-stat-pill__val--amber">{{ km_region_summary.events_count }}</span>
+              </a>
+            </div>
+          {% endif %}
+        </header>
+
+        {% if errors %}
+          <div class="km-place-form-alert km-place-form-alert--danger">
+            <strong>{% translate "Форма содержит ошибки" %}.</strong>
+            <span>{% translate "Пожалуйста, исправьте указанные ошибки и сохраните форму повторно." %}</span>
+            {{ adminform.form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="km-place-form-layout">
+          <!-- Main Content: Fieldsets & District Inline -->
+          <main class="km-place-form-main">
+            {% block field_sets %}
+              {% for fieldset in adminform %}
+                <section class="km-place-section" id="fieldset-{{ forloop.counter0 }}">
+                  <header class="km-place-section__head">
+                    <div>
+                      <h2 class="km-place-section__title">
+                        {% if fieldset.name %}{{ fieldset.name }}{% else %}{% translate "Основные данные региона" %}{% endif %}
+                      </h2>
+                      <p class="km-place-section__description">
+                        {% translate "Уникальный идентификатор и названия региона для отображения на сайте." %}
+                      </p>
+                    </div>
+                  </header>
+                  <div class="km-place-section__body">
+                    {% include "admin/includes/fieldset.html" %}
+                  </div>
+                </section>
+              {% endfor %}
+            {% endblock %}
+
+          </main>
+
+          <!-- Sidebar: Summary & Actions -->
+          <aside class="km-place-form-sidebar">
+            <div class="km-place-sidebar-sticky">
+              {% if not add and km_region_summary %}
+                <div class="km-place-sidebar-card km-place-sidebar-card--summary">
+                  <div class="km-place-sidebar-status">
+                    <span class="km-place-sidebar-status__indicator km-place-sidebar-status__indicator--good"></span>
+                    <div class="km-place-sidebar-status__text">
+                      <strong>{{ original.name_ru }}</strong>
+                      <span class="km-admin-meta">ID: <code>{{ original.key }}</code></span>
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--km-border);">
+                    <strong class="km-admin-title" style="margin-bottom: 8px; display: block;">{% translate "Связанные объекты" %}</strong>
+                    <div class="km-admin-stack" style="gap: 6px;">
+                      <a href="{{ km_region_summary.places_url }}" class="km-action-btn km-action-btn--secondary" style="justify-content: space-between;">
+                        <span><i class="fas fa-map-marker-alt text-success"></i> {% translate "Места в каталоге" %}</span>
+                        <strong>{{ km_region_summary.places_count }}</strong>
+                      </a>
+                      <a href="{{ km_region_summary.events_url }}" class="km-action-btn km-action-btn--secondary" style="justify-content: space-between;">
+                        <span><i class="fas fa-calendar-alt text-warning"></i> {% translate "События" %}</span>
+                        <strong>{{ km_region_summary.events_count }}</strong>
+                      </a>
+                      <a href="{{ km_region_summary.districts_url }}" class="km-action-btn km-action-btn--secondary" style="justify-content: space-between;">
+                        <span><i class="fas fa-layer-group text-info"></i> {% translate "Районы региона" %}</span>
+                        <strong>{{ km_region_summary.districts_count }}</strong>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+
+              <div class="km-place-sidebar-card km-place-sidebar-card--actions" style="margin-top: 12px;">
+                <div class="km-place-sidebar-action-buttons">
+                  <div class="km-sidebar-action-group km-sidebar-action-group--primary">
+                    <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
+                      <i class="fas fa-save"></i> {% translate "Сохранить и продолжить" %}
+                    </button>
+                  </div>
+
+                  <div class="km-sidebar-action-group km-sidebar-action-group--secondary">
+                    <button type="submit" name="_save" class="km-btn--sidebar km-btn--secondary-save">
+                      <i class="fas fa-check-double"></i> {% translate "Сохранить и выйти" %}
+                    </button>
+                  </div>
+
+                  {% if has_delete_permission and not add %}
+                    <div class="km-sidebar-action-group km-sidebar-action-group--danger">
+                      <a href="{% url 'admin:catalog_region_delete' original.key %}" class="km-btn--sidebar km-btn--danger-delete deletelink">
+                        <i class="fas fa-trash-alt"></i> {% translate "Удалить регион" %}
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Full-width District Inline -->
+        {% block inline_field_sets %}
+          {% for inline_admin_formset in inline_admin_formsets %}
+            <section class="km-place-section km-district-fullwidth-section" id="inline-{{ inline_admin_formset.formset.prefix }}">
+              <header class="km-place-section__head">
+                <div>
+                  <h2 class="km-place-section__title">
+                    <i class="fas fa-layer-group text-primary" style="margin-right: 8px;"></i>
+                    {{ inline_admin_formset.opts.verbose_name_plural|capfirst }}
+                  </h2>
+                  <p class="km-place-section__description">
+                    {% translate "Районы, входящие в этот регион. Вы можете редактировать их или добавлять новые прямо здесь." %}
+                  </p>
+                </div>
+              </header>
+              <div class="km-place-section__body km-place-section__body--inline">
+                <div class="km-district-inline-card">
+                  {% include inline_admin_formset.opts.template %}
+                </div>
+              </div>
+            </section>
+          {% endfor %}
+        {% endblock %}
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -1,3 +1,4 @@
+import re
 from django.contrib import admin, messages
 from django import forms
 from django.contrib.auth import get_user_model
@@ -315,6 +316,7 @@ class _BaseKidsMapUserAdmin(UserAdmin):
                 "is_active": obj.is_active,
                 "is_staff": obj.is_staff,
                 "is_superuser": obj.is_superuser,
+                "is_volunteer": is_volunteer(obj),
                 "last_login": obj.last_login,
                 "date_joined": obj.date_joined,
                 "owner_workflow": owner_workflow,
@@ -599,12 +601,13 @@ class SiteRegisteredUserAdmin(_BaseKidsMapUserAdmin):
         phone = profile.phone.strip() if (profile and profile.phone) else ""
         if not phone:
             return mark_safe('<span class="km-u-empty">—</span>')
+        clean_phone = re.sub(r"[^\d+]", "", phone)
         return format_html(
             '<a href="tel:{}" class="km-u-phone">'
             '<svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-call"></use></svg>'
             '<span>{}</span>'
             '</a>',
-            phone,
+            clean_phone,
             phone,
         )
 

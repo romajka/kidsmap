@@ -2472,6 +2472,33 @@ class OwnershipRequestAdminModerationTests(TestCase):
         self.request_obj.refresh_from_db()
         self.assertEqual(self.request_obj.status, PlaceOwnershipRequest.STATUS_REJECTED)
 
+    def test_staff_without_moderation_permission_cannot_process_request(self):
+        staff = User.objects.create_user("limited_staff", is_staff=True)
+        self.client.force_login(staff)
+        original_owner = self.place.owner_id
+        for action in ("approve", "reject"):
+            url = reverse(f"admin:catalog_placeownershiprequest_{action}", args=[self.request_obj.pk])
+            for method in (self.client.get, self.client.post):
+                with self.subTest(action=action, method=method.__name__):
+                    self.assertEqual(method(url).status_code, 403)
+                    self.request_obj.refresh_from_db()
+                    self.place.refresh_from_db()
+                    self.assertEqual(self.request_obj.status, PlaceOwnershipRequest.STATUS_PENDING)
+                    self.assertEqual(self.place.owner_id, original_owner)
+
+    def test_staff_with_moderation_permission_can_approve_request(self):
+        from django.contrib.auth.models import Permission
+
+        staff = User.objects.create_user("moderator_staff", is_staff=True)
+        staff.user_permissions.add(Permission.objects.get(
+            content_type__app_label="catalog", codename="change_placeownershiprequest",
+        ))
+        self.client.force_login(staff)
+        url = reverse("admin:catalog_placeownershiprequest_approve", args=[self.request_obj.pk])
+        self.assertEqual(self.client.post(url).status_code, 302)
+        self.request_obj.refresh_from_db()
+        self.assertEqual(self.request_obj.status, PlaceOwnershipRequest.STATUS_APPROVED)
+
     def test_change_form_injects_km_request_form_summary(self):
         url = reverse("admin:catalog_placeownershiprequest_change", args=[self.request_obj.pk])
         response = self.client.get(url)
@@ -2480,6 +2507,14 @@ class OwnershipRequestAdminModerationTests(TestCase):
         summary = response.context["km_request_form_summary"]
         self.assertTrue(summary["is_pending"])
         self.assertEqual(summary["applicant"], "app@example.com")
+
+    def test_changelist_view_renders_redesigned_template(self):
+        url = reverse("admin:catalog_placeownershiprequest_changelist")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "km-table-container")
+        self.assertContains(response, "km-bulk-floating-bar")
+        self.assertContains(response, "km-admin-crumbs")
 
 class UserAdminUXTests(TestCase):
     def setUp(self):

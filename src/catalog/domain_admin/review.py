@@ -9,7 +9,7 @@ from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from catalog.models import PlaceReview, SiteReview
 from catalog.services.content_quality import review_quality_check
@@ -461,27 +461,74 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         encoded = params.urlencode()
         return f"?{encoded}" if encoded else ""
 
-    def _review_quick_filters(self, request):
+    def _review_counts(self):
+        counts = PlaceReview.objects.aggregate(
+            total=Count("pk"),
+            published=Count("pk", filter=Q(is_approved=True, contains_profanity=False)),
+            hidden=Count("pk", filter=Q(is_approved=False)),
+            suspicious=Count("pk", filter=Q(contains_profanity=True) | Q(is_approved=False, dislikes_count__gt=0)),
+            only_rating=Count("pk", filter=Q(text__isnull=True) | Q(text__exact="")),
+            low_rating=Count("pk", filter=Q(rating__lte=2)),
+        )
+        return {key: int(value or 0) for key, value in counts.items()}
+
+    def _review_dashboard_stats(self, request, *, counts):
+        return (
+            {
+                "label": _("Всего отзывов"),
+                "count": counts["total"],
+                "url": "?",
+                "tone": "info",
+            },
+            {
+                "label": _("Опубликованы"),
+                "count": counts["published"],
+                "url": "?review_status=published",
+                "tone": "good",
+            },
+            {
+                "label": _("Скрытые"),
+                "count": counts["hidden"],
+                "url": "?review_status=hidden",
+                "tone": "muted",
+            },
+            {
+                "label": _("Требуют проверки"),
+                "count": counts["suspicious"],
+                "url": "?review_status=suspicious",
+                "tone": "warn",
+            },
+            {
+                "label": _("Низкая оценка"),
+                "count": counts["low_rating"],
+                "url": "?risk_signal=low_rating",
+                "tone": "danger",
+            },
+        )
+
+    def _review_quick_filters(self, request, counts=None):
+        if counts is None:
+            counts = self._review_counts()
         keys = ("review_status", "risk_signal", "text_presence", "rating__exact")
         current_status = request.GET.get("review_status")
         current_risk = request.GET.get("risk_signal")
         current_text = request.GET.get("text_presence")
         current_rating = request.GET.get("rating__exact")
         return (
-            {"label": _("Все отзывы"), "url": self._build_review_changelist_query_string(request, clear=keys), "active": not any((current_status, current_risk, current_text, current_rating))},
-            {"label": _("Опубликованы"), "url": self._build_review_changelist_query_string(request, clear=keys, review_status="published"), "active": current_status == "published"},
-            {"label": _("Скрытые"), "url": self._build_review_changelist_query_string(request, clear=keys, review_status="hidden"), "active": current_status == "hidden"},
-            {"label": _("Требуют проверки"), "url": self._build_review_changelist_query_string(request, clear=keys, review_status="suspicious"), "active": current_status == "suspicious"},
-            {"label": _("Только оценка"), "url": self._build_review_changelist_query_string(request, clear=keys, text_presence="only_rating"), "active": current_text == "only_rating"},
-            {"label": _("Низкая оценка"), "url": self._build_review_changelist_query_string(request, clear=keys, risk_signal="low_rating"), "active": current_risk == "low_rating"},
+            {"key": "all", "label": _("Все отзывы"), "count": counts["total"], "url": self._build_review_changelist_query_string(request, clear=keys), "active": not any((current_status, current_risk, current_text, current_rating))},
+            {"key": "published", "label": _("Опубликованы"), "count": counts["published"], "url": self._build_review_changelist_query_string(request, clear=keys, review_status="published"), "active": current_status == "published"},
+            {"key": "hidden", "label": _("Скрытые"), "count": counts["hidden"], "url": self._build_review_changelist_query_string(request, clear=keys, review_status="hidden"), "active": current_status == "hidden"},
+            {"key": "suspicious", "label": _("Требуют проверки"), "count": counts["suspicious"], "url": self._build_review_changelist_query_string(request, clear=keys, review_status="suspicious"), "active": current_status == "suspicious"},
+            {"key": "only_rating", "label": _("Только оценка"), "count": counts["only_rating"], "url": self._build_review_changelist_query_string(request, clear=keys, text_presence="only_rating"), "active": current_text == "only_rating"},
+            {"key": "low_rating", "label": _("Низкая оценка"), "count": counts["low_rating"], "url": self._build_review_changelist_query_string(request, clear=keys, risk_signal="low_rating"), "active": current_risk == "low_rating"},
         )
 
     def _review_bulk_actions(self):
         return (
-            {"name": "approve_selected", "label": _("Опубликовать"), "tone": "good", "description": _("Сделать выбранные отзывы видимыми на сайте.")},
-            {"name": "hide_selected", "label": _("Скрыть"), "tone": "muted", "confirm": _("Вы собираетесь скрыть {count} выбранных отзывов.\n\nОтзывы останутся в базе и их можно будет снова опубликовать.\n\nПродолжить?"), "description": _("Скрыть отзывы с сайта без удаления.")},
-            {"name": "reject_selected", "label": _("Отклонить"), "tone": "warn", "confirm": _("Вы собираетесь отклонить {count} выбранных отзывов.\n\nОтзывы останутся в базе как скрытые, их можно будет позже опубликовать вручную.\n\nПродолжить?"), "description": _("Скрыть отзывы как отклонённые после модерации.")},
-            {"name": "delete_selected", "label": _("Удалить"), "tone": "danger", "confirm": _("Вы собираетесь удалить {count} выбранных отзывов.\n\nЭто действие удалит отзывы из базы после стандартного экрана подтверждения Django admin.\n\nПродолжить?"), "description": _("Полное удаление отзывов из базы.")},
+            {"name": "approve_selected", "label": _("Опубликовать"), "tone": "good", "icon": "fas fa-check", "description": _("Сделать выбранные отзывы видимыми на сайте.")},
+            {"name": "hide_selected", "label": _("Скрыть"), "tone": "muted", "icon": "fas fa-eye-slash", "confirm": _("Вы собираетесь скрыть {count} выбранных отзывов.\n\nОтзывы останутся в базе и их можно будет снова опубликовать.\n\nПродолжить?"), "description": _("Скрыть отзывы с сайта без удаления.")},
+            {"name": "reject_selected", "label": _("Отклонить"), "tone": "warn", "icon": "fas fa-times-circle", "confirm": _("Вы собираетесь отклонить {count} выбранных отзывов.\n\nОтзывы останутся в базе как скрытые, их можно будет позже опубликовать вручную.\n\nПродолжить?"), "description": _("Скрыть отзывы как отклонённые после модерации.")},
+            {"name": "delete_selected", "label": _("Удалить"), "tone": "danger", "icon": "fas fa-trash-alt", "confirm": _("Вы собираетесь удалить {count} выбранных отзывов.\n\nЭто действие удалит отзывы из базы после стандартного экрана подтверждения Django admin.\n\nПродолжить?"), "description": _("Полное удаление отзывов из базы.")},
         )
 
     def get_urls(self):
@@ -500,10 +547,17 @@ class PlaceReviewAdmin(admin.ModelAdmin):
         )
 
     def changelist_view(self, request, extra_context=None):
+        counts = self._review_counts()
+        quick_filters = self._review_quick_filters(request, counts=counts)
         extra_context = {
-            "km_primary_quick_filters": self._review_quick_filters(request),
-            "km_secondary_quick_filters": [],
+            "review_dashboard_stats": self._review_dashboard_stats(request, counts=counts),
+            "km_primary_quick_filters": quick_filters[:4],
+            "km_secondary_quick_filters": quick_filters[4:],
             "review_bulk_actions": self._review_bulk_actions(),
+            "km_search_label": _("Поиск по отзывам"),
+            "km_search_placeholder": _("Текст отзыва, имя автора..."),
+            "km_changelist_reset_url": "?",
+            "km_disable_search_suggestions": True,
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)

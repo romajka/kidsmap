@@ -1,0 +1,94 @@
+
+/* Public Google Maps: only the inner visual moves, never Google's anchor. */
+.kidsmap-marker-button {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: visible;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.kidsmap-marker-visual {
+  display: block;
+  transform-origin: 50% 85%;
+  filter: drop-shadow(0 2px 3px rgba(19, 65, 38, .22));
+  transition: transform 180ms ease-out, filter 180ms ease-out;
+  animation: kidsmap-marker-enter 190ms ease-out;
+}
+.kidsmap-marker-visual--stable { animation: none; }
+.kidsmap-marker-button:hover .kidsmap-marker-visual,
+.kidsmap-marker-button:focus-visible .kidsmap-marker-visual,
+.kidsmap-marker-button.is-highlighted .kidsmap-marker-visual { transform: scale(1.07); }
+.kidsmap-marker-button:focus-visible { outline: 3px solid var(--brand-spruce, #087443); outline-offset: 3px; border-radius: 50%; }
+.kidsmap-marker-button:active .kidsmap-marker-visual { transform: scale(.96); }
+.kidsmap-marker-button.is-selected .kidsmap-marker-visual {
+  transform: scale(1.14);
+  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 4px var(--brand-spruce, #087443)) drop-shadow(0 4px 4px rgba(19, 65, 38, .3));
+}
+@keyframes kidsmap-marker-enter {
+  from { opacity: 0; transform: scale(.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+.kidsmap-map-chooser {
+  position: absolute;
+  z-index: 2000001;
+  top: 12px;
+  left: 12px;
+  width: min(320px, calc(100% - 68px));
+  max-height: calc(100% - 80px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--surface, #fff);
+  color: var(--text, #203c2d);
+  border: 1px solid var(--line, #dce7dc);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(19, 65, 38, .18);
+  font-size: 14px; line-height: 1.4;
+}
+.kidsmap-map-chooser__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 8px 8px 16px; }
+.kidsmap-map-chooser button { border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; min-height: 44px; }
+.kidsmap-map-chooser__header button { min-width: 44px; font-size: 24px; }
+.kidsmap-map-chooser ul { list-style: none; margin: 0; padding: 0 8px 8px; }
+.kidsmap-map-chooser li button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 8px; border-radius: 10px; }
+.kidsmap-map-chooser li button:hover { background: var(--brand-mist, #edf6ea); }
+.kidsmap-map-chooser button:focus-visible { outline: 2px solid var(--brand-spruce, #087443); outline-offset: -2px; }
+.kidsmap-map-chooser img { width: 28px; height: 36px; flex: none; }
+.kidsmap-map-chooser span { overflow-wrap: anywhere; }
+#home-map .gm-style-iw-c { max-width: calc(100% - 24px); }
+#home-map .gm-style-iw-d { max-height: min(410px, 55vh) !important; overflow-y: auto !important; }
+@media (max-width: 767px) {
+  [data-catalog-map] .catalog-map-mobile-sheet { max-height: min(70%, calc(100% - 120px), 360px); overflow-y: auto; bottom: 28px; }
+
+}
+@media (prefers-reduced-motion: reduce) {
+  .kidsmap-marker-visual,
+  .kidsmap-marker-button:hover .kidsmap-marker-visual,
+  .kidsmap-marker-button:focus-visible .kidsmap-marker-visual,
+  .kidsmap-marker-button:active .kidsmap-marker-visual { animation: none; transition: none; transform: none; }
+  .catalog-map-mobile-sheet { transition: none !important; }
+}
+/* A Google canvas has an intrinsic width; do not let it enlarge the grid track. */
+[data-catalog-map-panel] { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+[data-catalog-map-panel] > *,
+[data-catalog-map-panel] .catalog-map-copy { min-width: 0; }
+[data-catalog-map] { min-width: 0; max-width: 100%; }
+@media (max-width: 767px) {
+  [data-catalog-map] .catalog-map-card-main { grid-template-columns: 72px minmax(0, 1fr); }
+  [data-catalog-map] .catalog-map-card-media,
+  [data-catalog-map] .catalog-map-card-image { width: 72px; }
+  [data-catalog-map] .catalog-map-card-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-catalog-map] .catalog-map-card-actions > :last-child:nth-child(3) { grid-column: 1 / -1; }
+}
+.page-place_list .catalog-layout .catalog-main-column { grid-template-columns: minmax(0, 1fr); }
+.kidsmap-map-empty-status {
+  position: absolute; z-index: 6; left: 12px; right: 58px; bottom: 28px;
+  padding: 12px; border-radius: 12px; background: white;
+  color: var(--text, #203c2d); box-shadow: 0 3px 12px rgba(19,65,38,.14);
+  pointer-events: none;
+}

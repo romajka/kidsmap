@@ -1698,12 +1698,12 @@ details[open] .km-accordion-arrow {
 .km-action-icon-btn {
   width: 30px;
   height: 30px;
+  min-width: 30px;
+  min-height: 30px;
   display: grid;
   place-items: center;
   border: 1px solid var(--km-border-dark);
   border-radius: 6px;
-  width: 17px;
-  height: 17px;
   color: var(--km-text-2);
   background: #fff;
   text-decoration: none;
@@ -1716,9 +1716,93 @@ details[open] .km-accordion-arrow {
   background: #F4F6F5;
   color: var(--km-text);
 }
+.km-action-icon-btn .km-i,
 .km-action-icon-btn .ms {
   width: 17px;
   height: 17px;
+}
+.km-action-icon-btn--approve {
+  color: var(--km-accent, #00875a);
+}
+.km-action-icon-btn--approve:hover {
+  background: #E8F5E9;
+  border-color: #81C784;
+  color: #2E7D32;
+}
+.km-action-icon-btn--reject {
+  color: var(--km-danger, #ef4444);
+}
+.km-action-icon-btn--reject:hover {
+  background: #FFEBEE;
+  border-color: #E57373;
+  color: #C62828;
+}
+
+/* Col: Applicant */
+.km-col-applicant {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.km-applicant-avatar {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 999px;
+  background: #F1F5F9;
+  border: 1px solid var(--km-border-dark, #CBD5E1);
+  color: var(--km-text, #334155);
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.km-applicant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+.km-applicant-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--km-text, #1E293B);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.km-applicant-meta {
+  font-size: 11.5px;
+  color: var(--km-captions, #64748B);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.km-applicant-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+  font-size: 11px;
+  line-height: 1.2;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.km-applicant-note .km-i {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 
 .km-is-busy .ms {
@@ -2353,4 +2437,891 @@ details[open] .km-accordion-arrow {
   .km-table-container thead th.column-col_actions,
   .km-table-container thead th:last-child { width: 76px !important; }
   .km-col-actions > :nth-child(2) { display: none; }
+}
+
+/* 15. Place Ownership Requests Table Layout */
+.app-catalog.model-placeownershiprequest .km-table-container thead th:nth-child(1),
+.app-catalog.model-placeownershiprequest .km-table-container tbody td:nth-child(1) {
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+}
+
+.app-catalog.model-placeownershiprequest .km-table-container thead th:nth-child(2),
+.app-catalog.model-placeownershiprequest .km-table-container tbody td.field-col_place {
+  width: 24% !important;
+  min-width: 190px !important;
+}
+
+.app-catalog.model-placeownershiprequest .km-table-container thead th:nth-child(3),
+.app-catalog.model-placeownershiprequest .km-table-container tbody td.field-col_applicant {
+  width: 20% !important;
+  min-width: 170px !important;
+}
+
+.app-catalog.model-placeownershiprequest .km-table-container thead th:nth-child(4),
+.app-catalog.model-placeownershiprequest .km-table-container tbody td.field-col_state {
+  width: 16% !important;
+  min-width: 140px !important;
+}
+
+.app-catalog.model-placeownershiprequest .km-table-container thead th:nth-child(5),
+.app-catalog.model-placeownershiprequest .km-table-container tbody td.field-col_created {
+  width: 11% !important;
+  min-width: 100px !important;
+}
+
+.app-catalog.model-placeownershiprequest .km-table-container thead th:nth-child(6),
+.app-catalog.model-placeownershiprequest .km-table-container tbody td.field-col_decision {
+  width: 14% !important;
+  min-width: 135px !important;
+}
+
+.app-catalog.model-placeownershiprequest .field-col_decision .km-col-upd-author {
+  white-space: normal;
+  line-height: 1.3;
+}
+
+.app-catalog.model-placeownershiprequest .km-table-container thead th:nth-child(7),
+.app-catalog.model-placeownershiprequest .km-table-container thead th:last-child,
+.app-catalog.model-placeownershiprequest .km-table-container tbody td.field-col_actions,
+.app-catalog.model-placeownershiprequest .km-table-container tbody td:last-child {
+  width: 15% !important;
+  min-width: 168px !important;
+  text-align: right !important;
+  padding-right: 14px !important;
+}
+
+.app-catalog.model-placeownershiprequest .km-table-container tbody td.field-col_actions .km-col-actions {
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.app-catalog.model-placeownershiprequest .km-col-actions > * {
+  display: grid !important;
+}
+
+/* Alert banner polish in redesigned changelist */
+.km-custom-changelist .alert {
+  border-radius: 10px !important;
+  font-family: var(--km-font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border: 1px solid transparent !important;
+  margin: 0 0 20px 0 !important;
+  padding: 12px 18px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+.km-custom-changelist .alert-warning {
+  background: #FFFBEB !important;
+  border-color: #FDE68A !important;
+  color: #B45309 !important;
+}
+.km-custom-changelist .alert-success {
+  background: #F0FDF4 !important;
+  border-color: #BBF7D0 !important;
+  color: #166534 !important;
+}
+
+/* ==========================================================================
+   26. Dashboard Stat Cards (Specialists / Events)
+   ========================================================================== */
+.place-admin-dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 20px 0;
+}
+
+@media (max-width: 1200px) {
+  .place-admin-dashboard__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .place-admin-dashboard__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.place-admin-dashboard__stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--km-border, #E6EAE7);
+  border-radius: 8px;
+  padding: 14px 16px;
+  text-decoration: none !important;
+  color: inherit !important;
+  box-shadow: 0 1px 3px rgba(16, 22, 19, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.place-admin-dashboard__stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: #D1D5DB;
+  border-radius: 8px 0 0 8px;
+  transition: background-color 0.15s ease;
+}
+
+.place-admin-dashboard__stat-card--good::before {
+  background: var(--km-accent, #136F38);
+}
+
+.place-admin-dashboard__stat-card--warn::before {
+  background: #F59E0B;
+}
+
+.place-admin-dashboard__stat-card--info::before {
+  background: #0284C7;
+}
+
+.place-admin-dashboard__stat-card--muted::before {
+  background: #94A3B8;
+}
+
+.place-admin-dashboard__stat-card:hover {
+  border-color: var(--km-accent, #136F38);
+  box-shadow: 0 4px 12px rgba(19, 111, 56, 0.08);
+  transform: translateY(-1px);
+}
+
+.place-admin-dashboard__stat-card:hover::before {
+  background: var(--km-accent, #136F38);
+}
+
+.place-admin-dashboard__stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.place-admin-dashboard__stat-label {
+  font-family: var(--km-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--km-text-muted, #5E6D62);
+  line-height: 1.2;
+}
+
+.place-admin-dashboard__stat-value {
+  font-family: var(--km-font-sans);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--km-text, #16211A);
+  line-height: 1;
+}
+
+.place-admin-dashboard__stat-card--good .place-admin-dashboard__stat-value {
+  color: var(--km-accent, #136F38);
+}
+
+.place-admin-dashboard__stat-card--warn .place-admin-dashboard__stat-value {
+  color: #D97706;
+}
+
+.place-admin-dashboard__stat-card--info .place-admin-dashboard__stat-value {
+  color: #0284C7;
+}
+
+.place-admin-dashboard__stat-card--muted .place-admin-dashboard__stat-value {
+  color: #64748B;
+}
+
+/* ==========================================================================
+   27. Specialist Changelist Table Polish
+   ========================================================================== */
+.km-specialist-changelist .km-table-container {
+  overflow-x: auto !important;
+}
+
+.km-specialist-changelist .km-table-container table {
+  table-layout: auto !important;
+  min-width: 1080px !important;
+  width: 100% !important;
+}
+
+.km-specialist-changelist .km-table-container thead th {
+  padding: 10px 14px !important;
+  font-family: var(--km-font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  color: #5E6D62 !important;
+  background: #FBFCFB !important;
+  border-bottom: 1px solid #E6EAE7 !important;
+  white-space: nowrap !important;
+}
+
+.km-specialist-changelist .km-table-container thead th.column-profile_column { width: 250px !important; }
+.km-specialist-changelist .km-table-container thead th.column-directions_column { width: 210px !important; }
+.km-specialist-changelist .km-table-container thead th.column-owner { width: 130px !important; }
+.km-specialist-changelist .km-table-container thead th.column-format_badge { width: 120px !important; }
+.km-specialist-changelist .km-table-container thead th.column-status_badge { width: 125px !important; }
+.km-specialist-changelist .km-table-container thead th.column-verification_badge { width: 110px !important; }
+.km-specialist-changelist .km-table-container thead th.column-documents_count { width: 90px !important; }
+.km-specialist-changelist .km-table-container thead th.column-rating_column { width: 95px !important; }
+.km-specialist-changelist .km-table-container thead th.column-updated_at { width: 130px !important; }
+
+.km-specialist-changelist .km-table-container tbody td {
+  padding: 12px 14px !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid #F0F2F1 !important;
+  font-family: var(--km-font-sans) !important;
+  font-size: 13px !important;
+  color: #16211A !important;
+}
+
+.km-specialist-changelist .km-admin-spec-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 220px;
+}
+
+.km-specialist-changelist .km-admin-spec-photo {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex: 0 0 38px;
+  border: 1px solid #E6EAE7;
+  background: #F4F6F4;
+}
+
+.km-specialist-changelist .km-admin-spec-photo--empty {
+  display: inline-grid;
+  place-items: center;
+  color: var(--km-accent, #136F38);
+  background: #EBF7EE;
+  font-size: 16px;
+}
+
+.km-specialist-changelist .km-admin-spec-profile strong {
+  display: block;
+  font-family: var(--km-font-sans);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #16211A;
+  line-height: 1.3;
+}
+
+.km-specialist-changelist .km-admin-spec-profile small {
+  display: block;
+  font-family: var(--km-font-sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #5E6D62;
+  margin-top: 1px;
+}
+
+.km-specialist-changelist .km-admin-spec-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 210px;
+}
+
+.km-specialist-changelist .km-admin-spec-tags span {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #F4F6F4;
+  border: 1px solid #E6EAE7;
+  color: #2C3831;
+  font-family: var(--km-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.km-specialist-changelist .km-admin-spec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: #F4F6F4;
+  color: #2C3831;
+  font-family: var(--km-font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.km-specialist-changelist .km-admin-spec-badge i {
+  color: var(--km-accent, #136F38);
+  font-size: 12px;
+}
+
+.km-specialist-changelist .km-admin-spec-badge .fa-star {
+  color: #EAB308;
+}
+
+.km-specialist-changelist .km-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--km-font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.km-specialist-changelist .km-status-published {
+  background: #EBF7EE;
+  color: #136F38;
+}
+
+.km-specialist-changelist .km-status-published::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #35C46F;
+}
+
+.km-specialist-changelist .km-status-pending {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.km-specialist-changelist .km-status-pending::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #F59E0B;
+}
+
+.km-specialist-changelist .km-status-draft {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.km-specialist-changelist .km-status-draft::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94A3B8;
+}
+
+.km-specialist-changelist .km-status-verified {
+  background: #EBF7EE;
+  color: #136F38;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: var(--km-font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.km-specialist-changelist .km-status-verified i {
+  color: #35C46F;
+  font-size: 12px;
+}
+
+.km-specialist-changelist .km-admin-muted {
+  color: #94A3B8;
+  font-size: 12px;
+}
+
+/* ==========================================================================
+   28. Events Changelist Polish
+   ========================================================================== */
+.km-event-changelist .km-table-container {
+  overflow-x: auto !important;
+}
+
+.km-event-changelist .km-table-container table {
+  table-layout: auto !important;
+  min-width: 1100px !important;
+  width: 100% !important;
+}
+
+.km-event-changelist .km-table-container thead th {
+  padding: 10px 14px !important;
+  font-family: var(--km-font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  color: #5E6D62 !important;
+  background: #FBFCFB !important;
+  border-bottom: 1px solid #E6EAE7 !important;
+  white-space: nowrap !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(1),
+.km-event-changelist .km-table-container td.action-checkbox {
+  width: 44px !important;
+  max-width: 44px !important;
+  text-align: center !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(2),
+.km-event-changelist .km-table-container th.field-display_name {
+  min-width: 240px !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(3),
+.km-event-changelist .km-table-container td.field-category {
+  min-width: 140px !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(4),
+.km-event-changelist .km-table-container td.field-start_datetime {
+  min-width: 170px !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(5),
+.km-event-changelist .km-table-container td.field-end_datetime {
+  min-width: 170px !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(6),
+.km-event-changelist .km-table-container td.field-owner {
+  min-width: 130px !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(7),
+.km-event-changelist .km-table-container td.field-lifecycle_status_display {
+  min-width: 150px !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(8),
+.km-event-changelist .km-table-container td.field-updated_at {
+  min-width: 130px !important;
+}
+
+.km-event-changelist .km-table-container thead th:nth-child(9),
+.km-event-changelist .km-table-container td.field-row_actions {
+  min-width: 120px !important;
+  text-align: right !important;
+}
+
+.km-event-changelist .km-table-container tbody td,
+.km-event-changelist .km-table-container tbody th {
+  padding: 12px 14px !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid #F0F2F1 !important;
+  font-family: var(--km-font-sans) !important;
+  font-size: 13px !important;
+  color: #16211A !important;
+}
+
+/* ==========================================================================
+   29. Reviews Changelist Polish
+   ========================================================================== */
+.km-review-changelist .km-table-container {
+  overflow-x: auto !important;
+}
+
+.km-review-changelist .km-table-container table {
+  table-layout: auto !important;
+  min-width: 1150px !important;
+  width: 100% !important;
+}
+
+.km-review-changelist .km-table-container thead th {
+  padding: 10px 14px !important;
+  font-family: var(--km-font-sans) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+  color: #5E6D62 !important;
+  background: #FBFCFB !important;
+  border-bottom: 1px solid #E6EAE7 !important;
+  white-space: nowrap !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(1),
+.km-review-changelist .km-table-container td.action-checkbox {
+  width: 44px !important;
+  max-width: 44px !important;
+  text-align: center !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(2),
+.km-review-changelist .km-table-container th.field-review_summary {
+  width: 320px !important;
+  min-width: 260px !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(3),
+.km-review-changelist .km-table-container td.field-author_summary {
+  width: 180px !important;
+  min-width: 160px !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(4),
+.km-review-changelist .km-table-container td.field-rating_summary {
+  width: 140px !important;
+  min-width: 130px !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(5),
+.km-review-changelist .km-table-container td.field-moderation_status_summary {
+  width: 150px !important;
+  min-width: 140px !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(6),
+.km-review-changelist .km-table-container td.field-risk_flags_summary {
+  width: 140px !important;
+  min-width: 130px !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(7),
+.km-review-changelist .km-table-container td.field-engagement_summary {
+  width: 110px !important;
+  min-width: 100px !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(8),
+.km-review-changelist .km-table-container td.field-created_at_display {
+  width: 140px !important;
+  min-width: 130px !important;
+}
+
+.km-review-changelist .km-table-container thead th:nth-child(9),
+.km-review-changelist .km-table-container td.field-row_actions {
+  width: 130px !important;
+  min-width: 120px !important;
+  text-align: right !important;
+}
+
+.km-review-changelist .km-table-container tbody td,
+.km-review-changelist .km-table-container tbody th {
+  padding: 12px 14px !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid #F0F2F1 !important;
+  font-family: var(--km-font-sans) !important;
+  font-size: 13px !important;
+  color: #16211A !important;
+  font-weight: normal !important;
+}
+
+.km-review-changelist .km-review-place-link {
+  font-family: var(--km-font-sans);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #16211A;
+  text-decoration: none;
+  line-height: 1.3;
+}
+
+.km-review-changelist .km-review-place-link:hover {
+  color: var(--km-accent, #136F38);
+  text-decoration: underline;
+}
+
+.km-review-changelist .km-admin-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.km-review-changelist .km-admin-title {
+  font-family: var(--km-font-sans);
+  font-weight: 700;
+  font-size: 13px;
+  color: #16211A;
+}
+
+.km-review-changelist .km-admin-meta {
+  font-family: var(--km-font-sans);
+  font-size: 12px;
+  color: #5E6D62;
+  line-height: 1.35;
+}
+
+.km-review-changelist .km-admin-meta-link {
+  font-size: 11.5px;
+  color: var(--km-accent, #136F38);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.km-review-changelist .km-admin-meta-link:hover {
+  text-decoration: underline;
+}
+
+.km-review-changelist .km-review-rating {
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.km-review-changelist .km-review-rating--good {
+  color: #136F38;
+}
+
+.km-review-changelist .km-review-rating--warn {
+  color: #EAB308;
+}
+
+.km-review-changelist .km-review-rating--info {
+  color: #0284C7;
+}
+
+.km-review-changelist .km-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--km-font-sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.km-review-changelist .km-admin-badge--good {
+  background: #EBF7EE;
+  color: #136F38;
+}
+
+.km-review-changelist .km-admin-badge--warn {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.km-review-changelist .km-admin-badge--muted {
+  background: #F1F5F9;
+  color: #64748B;
+}
+
+.km-review-changelist .km-admin-badge--info {
+  background: #E0F2FE;
+  color: #0369A1;
+}
+
+.km-review-changelist .km-admin-badge--danger {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* ==========================================================================
+   30. Global Unified Row Action Buttons (.km-admin-action)
+   ========================================================================== */
+.km-place-row-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  flex-wrap: nowrap !important;
+}
+
+.km-admin-action,
+a.km-admin-action,
+.btn.km-admin-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 4px 10px !important;
+  min-height: 28px !important;
+  border-radius: 999px !important;
+  font-family: var(--km-font-sans, 'Manrope', -apple-system, sans-serif) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease !important;
+}
+
+.km-admin-action:hover,
+a.km-admin-action:hover,
+.btn.km-admin-action:hover {
+  text-decoration: none !important;
+  transform: translateY(-1px);
+}
+
+/* Primary: Открыть / Редактировать */
+.km-admin-action--primary,
+a.km-admin-action--primary,
+.btn.km-admin-action--primary {
+  background: var(--km-accent, #136F38) !important;
+  color: #FFFFFF !important;
+  border-color: var(--km-accent, #136F38) !important;
+}
+.km-admin-action--primary:hover,
+a.km-admin-action--primary:hover,
+.btn.km-admin-action--primary:hover {
+  background: #0E582C !important;
+  color: #FFFFFF !important;
+  border-color: #0E582C !important;
+}
+.km-admin-action--primary svg {
+  stroke: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+
+/* Good: Одобрить / Опубликовать */
+.km-admin-action--good,
+a.km-admin-action--good,
+.btn.km-admin-action--good {
+  background: #E8F5E9 !important;
+  color: #1B5E20 !important;
+  border-color: #C8E6C9 !important;
+}
+.km-admin-action--good:hover,
+a.km-admin-action--good:hover,
+.btn.km-admin-action--good:hover {
+  background: #C8E6C9 !important;
+  color: #1B5E20 !important;
+  border-color: #A5D6A7 !important;
+}
+.km-admin-action--good i {
+  color: #1B5E20 !important;
+}
+
+/* Warn: Отклонить */
+.km-admin-action--warn,
+a.km-admin-action--warn,
+.btn.km-admin-action--warn {
+  background: #FFF8E1 !important;
+  color: #B78103 !important;
+  border-color: #FFE082 !important;
+}
+.km-admin-action--warn:hover,
+a.km-admin-action--warn:hover,
+.btn.km-admin-action--warn:hover {
+  background: #FFE082 !important;
+  color: #78350F !important;
+  border-color: #FCD34D !important;
+}
+.km-admin-action--warn i {
+  color: #B78103 !important;
+}
+
+/* Danger: Удалить */
+.km-admin-action--danger,
+a.km-admin-action--danger,
+.btn.km-admin-action--danger {
+  background: #FEE2E2 !important;
+  color: #991B1B !important;
+  border-color: #FECACA !important;
+}
+.km-admin-action--danger:hover,
+a.km-admin-action--danger:hover,
+.btn.km-admin-action--danger:hover {
+  background: #FECACA !important;
+  color: #7F1D1D !important;
+  border-color: #FCA5A5 !important;
+}
+
+/* Secondary / Muted: Скрыть */
+.km-admin-action--secondary,
+.km-admin-action--muted,
+a.km-admin-action--secondary,
+a.km-admin-action--muted,
+.btn.km-admin-action--secondary,
+.btn.km-admin-action--muted {
+  background: #F3F4F6 !important;
+  color: #4B5563 !important;
+  border-color: #E5E7EB !important;
+}
+.km-admin-action--secondary:hover,
+.km-admin-action--muted:hover,
+a.km-admin-action--secondary:hover,
+a.km-admin-action--muted:hover,
+.btn.km-admin-action--secondary:hover,
+.btn.km-admin-action--muted:hover {
+  background: #E5E7EB !important;
+  color: #1F2937 !important;
+  border-color: #D1D5DB !important;
+}
+
+/* Three-dot dropdown menu */
+.km-admin-action-menu {
+  position: relative !important;
+  display: inline-block !important;
+}
+.km-admin-action-menu__toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  border: 1px solid #E5E7EB !important;
+  background: #FFFFFF !important;
+  color: #6B7280 !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  list-style: none !important;
+  transition: all 0.15s ease !important;
+}
+.km-admin-action-menu__toggle::-webkit-details-marker {
+  display: none !important;
+}
+.km-admin-action-menu__toggle:hover {
+  background: #F9FAFB !important;
+  color: #1F2937 !important;
+  border-color: #D1D5DB !important;
+}
+.km-admin-action-menu__panel {
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 4px) !important;
+  z-index: 1050 !important;
+  min-width: 140px !important;
+  padding: 4px 0 !important;
+  background: #FFFFFF !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+.km-admin-action-menu__link {
+  display: block !important;
+  padding: 6px 14px !important;
+  font-size: 12.5px !important;
+  color: #374151 !important;
+  text-decoration: none !important;
+  transition: background 0.1s ease !important;
+}
+.km-admin-action-menu__link:hover {
+  background: #F3F4F6 !important;
+  text-decoration: none !important;
+}
+.km-admin-action-menu__link--good { color: #166534 !important; }
+.km-admin-action-menu__link--warn { color: #B45309 !important; }
+.km-admin-action-menu__link--danger { color: #DC2626 !important; }
+
+/* Wide region/staff tables scroll horizontally inside their own surface. */
+@media (max-width: 768px) {
+  .km-regions-changelist .km-table-container,
+  .km-staff-workspace .km-table-container {
+    overflow-x: auto !important;
+  }
 }

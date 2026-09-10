@@ -8,7 +8,7 @@
   <ol class="breadcrumb km-admin-crumbs" aria-label="{% translate 'Навигация' %}">
     <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Главная' %}</a></li>
     <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label='catalog' %}">{% translate 'Каталог' %}</a></li>
-    <li class="breadcrumb-item active" aria-current="page">{% translate 'Отзывы' %}</li>
+    <li class="breadcrumb-item active" aria-current="page">{% translate 'Регионы и города' %}</li>
   </ol>
 {% endblock %}
 
@@ -18,27 +18,41 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_changelist.css' %}?v=120">
+  <link rel="stylesheet" href="{% static 'admin/css/pages/kidsmap_regions.css' %}?v=4">
   <script src="{% static 'admin/js/kidsmap_place_changelist.js' %}?v=35" defer></script>
 {% endblock %}
 
-{% block bodyclass %}{{ block.super }} km-custom-changelist km-review-changelist{% endblock %}
+{% block bodyclass %}{{ block.super }} km-custom-changelist km-regions-changelist km-admin-root{% endblock %}
 
 {% block search %}
+  {% include "admin/catalog/includes/km_icon_sprite.html" %}
+
   <div class="col-12 p-0">
     <div class="place-admin-dashboard km-admin-root">
+      <!-- Header: Title, Subtitle, Add Region Button -->
       <section class="place-admin-dashboard__header">
         <div class="place-admin-dashboard__title-block">
-          <h1 class="place-admin-dashboard__title">{% translate "Отзывы" %}</h1>
+          <h1 class="place-admin-dashboard__title">{% translate "Регионы и города" %}</h1>
           <p class="place-admin-dashboard__subtitle">
-            {% blocktranslate trimmed %}
-              Модерация отзывов по кружкам. Скрытие безопасно: отзыв остаётся в базе и его можно снова опубликовать.
+            {% blocktranslate trimmed with total=cl.result_count %}
+              Справочник городов и районов Азербайджана с привязкой мест, событий и специалистов — {{ total }} записей
             {% endblocktranslate %}
           </p>
         </div>
+        {% if has_add_permission %}
+          <div class="place-admin-dashboard__header-actions">
+            {% url cl.opts|admin_urlname:'add' as add_url %}
+            <a href="{% add_preserved_filters add_url %}" class="km-btn-add-place">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>
+              <span>{% translate "Добавить регион" %}</span>
+            </a>
+          </div>
+        {% endif %}
       </section>
 
-      <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика отзывов' %}">
-        {% for item in review_dashboard_stats %}
+      <!-- KPI Stat Cards -->
+      <section class="place-admin-dashboard__stats" aria-label="{% translate 'Статистика регионов' %}">
+        {% for item in region_dashboard_stats %}
           <a href="{{ item.url|default:'?' }}" class="place-admin-dashboard__stat-card place-admin-dashboard__stat-card--{{ item.tone }}">
             <div class="place-admin-dashboard__stat-content">
               <span class="place-admin-dashboard__stat-label">{{ item.label }}</span>
@@ -48,7 +62,65 @@
         {% endfor %}
       </section>
 
-      {% include "admin/catalog/includes/km_changelist_search_panel.html" %}
+      <!-- Search Panel & Quick Tabs -->
+      <section class="place-admin-dashboard__search-panel km-search-section" aria-labelledby="changelist-search-heading">
+        <!-- Quick Filter Tabs -->
+        {% if km_primary_quick_filters %}
+          <div class="km-status-tabs-row place-admin-dashboard__row-tabs">
+            <div class="km-status-tabs" aria-label="{% translate 'Фильтр по объектам' %}">
+              {% for tab in km_primary_quick_filters %}
+                <a
+                  href="{{ tab.url }}"
+                  class="km-status-tab{% if tab.active %} is-active{% endif %}"
+                  {% if tab.active %}aria-current="page"{% endif %}
+                >
+                  <span>{{ tab.label }}</span>
+                  <span class="km-status-tab__count">{{ tab.count }}</span>
+                </a>
+              {% endfor %}
+            </div>
+            <span class="km-status-tabs__hint">{% translate "Вкладки — быстрый отбор по наполненности объектов" %}</span>
+          </div>
+        {% endif %}
+
+        <!-- Unified Search Toolbar -->
+        <div class="km-toolbar place-admin-dashboard__row-search--unified">
+          <form id="changelist-search" method="get" role="search" class="km-search-form">
+            <div class="km-search-box">
+              <svg class="km-i km-search-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search"></use></svg>
+              <input
+                type="text"
+                name="q"
+                value="{{ cl.query }}"
+                id="searchbar"
+                class="km-search-input"
+                aria-label="{% translate 'Поиск' %}"
+                placeholder="{{ km_search_placeholder|default:_('Поиск по названию RU/AZ/EN или коду региона...') }}"
+                autocomplete="off"
+                spellcheck="false"
+              >
+              {% if cl.query %}
+                <a href="?{% for k, v in request.GET.items %}{% if k != 'q' %}{{ k }}={{ v }}&amp;{% endif %}{% endfor %}" class="km-active-filter-chip__remove" title="{% translate 'Очистить поиск' %}" aria-label="{% translate 'Очистить поиск' %}">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-close"></use></svg>
+                </a>
+              {% endif %}
+            </div>
+
+            {% if cl.query or request.GET.content_status %}
+              <a href="{{ km_changelist_reset_url|default:'?' }}" class="km-btn-reset">
+                {% translate "Сбросить" %}
+              </a>
+            {% endif %}
+
+            <!-- Preserve other GET parameters -->
+            {% for key, value in request.GET.items %}
+              {% if key != 'q' and key != 'p' %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+              {% endif %}
+            {% endfor %}
+          </form>
+        </div>
+      </section>
     </div>
   </div>
 {% endblock %}
@@ -65,12 +137,12 @@
         {% if cl.result_count == 0 %}
           <div class="km-empty-state">
             <svg class="km-i km-empty-state__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-search_off"></use></svg>
-            <h3 class="km-empty-state__title">{% translate "Ничего не найдено" %}</h3>
+            <h3 class="km-empty-state__title">{% translate "Регионы не найдены" %}</h3>
             <p class="km-empty-state__desc">
               {% if cl.query %}
-                {% blocktranslate with q=cl.query %}По запросу «{{ q }}» отзывов не найдено. Сбросьте фильтры или измените запрос.{% endblocktranslate %}
+                {% blocktranslate with q=cl.query %}По запросу «{{ q }}» регионов не найдено. Проверьте правильность написания или сбросьте фильтры.{% endblocktranslate %}
               {% else %}
-                {% translate "По выбранным фильтрам отзывов нет. Сбросьте фильтры для просмотра всех записей." %}
+                {% translate "По выбранным критериям регионов не найдено. Сбросьте фильтры для просмотра полного списка." %}
               {% endif %}
             </p>
             <div class="km-empty-state__actions">
@@ -123,7 +195,7 @@
             {% translate "Все на странице" %} ({{ cl.result_list|length }})
           </button>
           <span class="km-bulk-floating-bar__divider"></span>
-          {% for item in review_bulk_actions %}
+          {% for item in region_bulk_actions %}
             <button
               type="button"
               class="km-bulk-btn {% if item.tone == 'good' %}km-bulk-btn--primary{% elif item.tone == 'danger' %}km-bulk-btn--danger{% else %}km-bulk-btn--outline{% endif %}"

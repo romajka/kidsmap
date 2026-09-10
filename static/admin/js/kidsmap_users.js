@@ -68,9 +68,11 @@
 
       if (count > 0) {
         bulkBar.classList.add('is-visible');
+        bulkBar.hidden = false;
         bulkBar.setAttribute('aria-hidden', 'false');
       } else {
         bulkBar.classList.remove('is-visible');
+        bulkBar.hidden = true;
         bulkBar.setAttribute('aria-hidden', 'true');
       }
 
@@ -94,6 +96,20 @@
         setTimeout(updateBulkState, 10);
       }
     });
+
+    // Select all on page
+    var selectAllBtn = document.getElementById('km-users-select-all-btn');
+    if (selectAllBtn) {
+      selectAllBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var all = getAllCheckboxes();
+        for (var i = 0; i < all.length; i++) {
+          all[i].checked = true;
+        }
+        if (masterCheckbox) masterCheckbox.checked = true;
+        updateBulkState();
+      });
+    }
 
     // Clear selection
     if (clearBtn) {

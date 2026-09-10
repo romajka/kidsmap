@@ -11,7 +11,7 @@
 {% endif %}
 {% endblock %}
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20260909_7" />
+<link rel="stylesheet" href="{% static 'css/pages/home_redesign.css' %}?v=20260910_1" />
 {% endblock %}
 
 {% block content %}
@@ -20,6 +20,11 @@
     <div class="glow-blob blob-1"></div>
     <div class="glow-blob blob-2"></div>
     <div class="glow-blob blob-3"></div>
+  </div>
+  {# CSS-only animated dots — visible on mobile/tablet where canvas is off #}
+  <div class="home-hero-float-dots" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
   </div>
 
   {% if hero_show_decor %}
@@ -2637,8 +2642,10 @@
 <script src="{% static 'js/home_hero_slider.js' %}?v=20260909_playful1"></script>
 {% endif %}
 {% if map_places %}
-<script src="{% static 'js/google_maps_markers.js' %}"></script>
-<script src="{% static 'js/home_map.js' %}?v=20260909_map1" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
+<link rel="stylesheet" href="{% static 'css/components/google_maps.css' %}?v=20260910" />
+<script src="{% static 'js/google_maps_motion.js' %}?v=20260910"></script>
+<script src="{% static 'js/google_maps_markers.js' %}?v=20260910"></script>
+<script src="{% static 'js/home_map.js' %}?v=20260910_motion1" data-home-map-google-key="{{ google_maps_api_key|default:''|escape }}"
   data-home-map-google-map-id="{{ google_maps_map_id|default:''|escape }}"
   data-home-map-language="{{ request.LANGUAGE_CODE|escape }}"
   data-home-map-unavailable-label="{% trans 'Карта временно недоступна.' %}"

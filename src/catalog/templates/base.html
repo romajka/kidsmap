@@ -933,8 +933,8 @@
     {% endcomment %}
     {% if living_map_enabled %}
       <canvas class="living-map-background" data-living-map aria-hidden="true"></canvas>
-      <script src="{% static 'js/living_map_scene.js' %}" defer></script>
-      <script src="{% static 'js/living_map_background.js' %}" defer></script>
+      <script src="{% static 'js/living_map_scene.js' %}?v=5" defer></script>
+      <script src="{% static 'js/living_map_background.js' %}?v=5" defer></script>
     {% endif %}
     {% block extra_body %}{% endblock %}
   </body>

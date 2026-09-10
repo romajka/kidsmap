@@ -408,23 +408,6 @@
       '</svg>';
   }
 
-  function expandGoogleCluster(event, cluster, map) {
-    if (!cluster || !cluster.bounds || !map) return;
-
-    const currentZoom = map.getZoom() || DEFAULT_ZOOM;
-    map.fitBounds(cluster.bounds, { top: 48, right: 48, bottom: 48, left: 48 });
-
-    google.maps.event.addListenerOnce(map, "idle", function () {
-      const zoomAfterFit = map.getZoom() || currentZoom;
-      // A cluster with very close points can have nearly identical bounds. In
-      // that case fitBounds does not visibly advance, so force the next useful
-      // zoom level until individual markers are revealed.
-      if (zoomAfterFit <= currentZoom && currentZoom < 18) {
-        map.setZoom(Math.min(18, currentZoom + 2));
-      }
-    });
-  }
-
   function renderFallback(mapEl, mapNoteEl) {
     if (!mapEl) return;
 
@@ -653,32 +636,42 @@
       streetViewControl: false,
       fullscreenControl: false,
       gestureHandling: "cooperative",
+      cameraControl: false,
+      zoomControl: true,
+      zoomControlOptions: {position: google.maps.ControlPosition.RIGHT_TOP},
+      tilt: 0, heading: 0,
     };
     if (SCRIPT_CONFIG.googleMapsMapId) mapOptions.mapId = SCRIPT_CONFIG.googleMapsMapId;
     const map = new google.maps.Map(mapEl, mapOptions);
     const infoWindow = new google.maps.InfoWindow();
 
-    // ── Interaction tracking ────────────────────────────────────────────────
-    let userInteracted = false;
-    let isProgrammatic = false;
+    const motion = window.KidsMapGoogleMotion.create(map);
+    const choice = window.KidsMapGoogleMotion.chooser(mapEl, openPlace);
+    let selectedMarker = null;
     let syncPending = false;
-
-    map.addListener("dragstart", function () {
-      userInteracted = true;
-    });
-    map.addListener("zoom_changed", function () {
-      if (!isProgrammatic) {
-        userInteracted = true;
+    function closePlace() {
+      infoWindow.close();
+      motion.select(null);
+      selectedMarker = null;
+    }
+    function openPlace(place, marker) {
+      motion.cancel();
+      choice.close(false);
+      selectedMarker = marker;
+      motion.select(marker);
+      infoWindow.setOptions({maxWidth: Math.min(320, mapEl.clientWidth - 48), disableAutoPan: window.KidsMapGoogleMotion.reduced()});
+      infoWindow.setContent(renderPopupContent(place, detailsLabel, ageLabels));
+      infoWindow.open({anchor: marker, map: map, shouldFocus: true});
+    }
+    infoWindow.addListener('closeclick', () => { const marker = selectedMarker; motion.select(null); selectedMarker = null; marker?.getElement?.().focus(); });
+    map.addListener('click', () => { closePlace(); choice.close(false); });
+    map.addListener('zoom_changed', () => { closePlace(); choice.close(false); });
+    mapEl.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && selectedMarker) {
+        const marker = selectedMarker; closePlace(); marker.getElement?.().focus();
       }
     });
-
-    function programmaticUpdate(action) {
-      isProgrammatic = true;
-      action();
-      window.setTimeout(function () {
-        isProgrammatic = false;
-      }, 100);
-    }
+    const previousClusterKeys = new Set();
 
     // ── Cluster Group ────────────────────────────────────────────────────────
     let markerCluster = null;
@@ -697,8 +690,13 @@
             const count = cluster.count;
             const position = cluster.position;
             const svg = buildGoogleClusterSvg(count);
+            const key = cluster.markers.map(m => m.__kidsMapPlace?.id || m.__kidsMapPlace?.url).sort().join('|');
+            const skipEntrance = previousClusterKeys.has(key);
+            previousClusterKeys.add(key);
             return window.kidsMapCreateGoogleMarker({
               position: position,
+              title: window.KidsMapGoogleMotion.clusterTitle(count),
+              publicVisual: true, ownerMap: map, skipEntrance: skipEntrance,
               icon: {
                 url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
                 scaledSize: new google.maps.Size(54, 54),
@@ -709,53 +707,32 @@
             });
           }
         },
-        onClusterClick: expandGoogleCluster,
+        onClusterClick: function (event, cluster) {
+          closePlace(); choice.close(false);
+          motion.expand(cluster, markers => choice.show(markers, cluster.marker));
+        },
       });
     }
 
     // ── Build markers ───────────────────────────────────────────────────────
     const markerItems = [];
 
-    // Pre-count duplicate coordinates to jitter overlapping markers
-    const coordCount = {};
-    const coordIndex = {};
     places.forEach(function (place) {
       if (!hasValidCoordinates(place)) return;
-      const key = place.lat + ',' + place.lng;
-      coordCount[key] = (coordCount[key] || 0) + 1;
-    });
-
-    places.forEach(function (place) {
-      if (!hasValidCoordinates(place)) return;
-
-      const key = place.lat + ',' + place.lng;
-      const total = coordCount[key];
-      const idx = coordIndex[key] = (coordIndex[key] || 0);
-      coordIndex[key]++;
-      var jitterLat = 0, jitterLng = 0;
-      if (total > 1 && idx > 0) {
-        var angle = (idx / total) * 2 * Math.PI;
-        // ~13 m base separation: enough to make overlapping places clickable
-        // after a cluster opens, while keeping the pin on the same venue.
-        var radius = 0.00012 * Math.ceil(idx / 6);
-        jitterLat = radius * Math.cos(angle);
-        jitterLng = radius * Math.sin(angle) * 1.5;
-      }
-
-      const position = { lat: place.lat + jitterLat, lng: place.lng + jitterLng };
+      const position = {lat: place.lat, lng: place.lng};
       const marker = window.kidsMapCreateGoogleMarker({
         position: position,
         title: place.name || "",
         icon: buildGoogleMarkerIcon(place),
+        publicVisual: true, ownerMap: map,
         mapId: SCRIPT_CONFIG.googleMapsMapId,
       });
 
+      marker.__kidsMapPlace = place;
       marker.addListener("click", function () {
-        infoWindow.setContent(renderPopupContent(place, detailsLabel, ageLabels));
-        infoWindow.open({
-          anchor: marker,
-          map: map,
-        });
+        const peers = markerItems.filter(item => visibleMarkers.has(item.marker) && item.position.lat === place.lat && item.position.lng === place.lng).map(item => item.marker);
+        if (peers.length > 1) { closePlace(); motion.cancel(); choice.show(peers, marker); }
+        else openPlace(place, marker);
       });
 
       markerItems.push({
@@ -775,93 +752,29 @@
       }, 0);
     }
 
+    const updateMembership = markerCluster ? window.KidsMapGoogleMotion.membership(markerCluster) : null;
+    let visibleMarkers = new Set();
     function _doSync() {
       const filters = getFilterState();
-      const visibleItems = [];
-      const bounds = new google.maps.LatLngBounds();
-
-      infoWindow.close();
-
-      if (markerCluster) {
-        markerCluster.clearMarkers();
+      const activeMarkers = markerItems.filter(item => placeMatchesFilters(item.place, filters)).map(item => item.marker);
+      const next = new Set(activeMarkers);
+      if (selectedMarker && !next.has(selectedMarker)) closePlace();
+      if (updateMembership) updateMembership(activeMarkers);
+      else {
+        visibleMarkers.forEach(marker => { if (!next.has(marker)) marker.setMap(null); });
+        next.forEach(marker => { if (!visibleMarkers.has(marker)) marker.setMap(map); });
       }
-
-      const activeMarkers = [];
-      markerItems.forEach(function (item) {
-        if (!hasValidCoordinates(item.place)) return;
-        if (placeMatchesFilters(item.place, filters)) {
-          visibleItems.push(item);
-          bounds.extend(item.position);
-          if (markerCluster) {
-            activeMarkers.push(item.marker);
-          } else {
-            item.marker.setMap(map);
-          }
-        } else {
-          if (!markerCluster) {
-            item.marker.setMap(null);
-          }
-        }
-      });
-
-      if (markerCluster && activeMarkers.length) {
-        markerCluster.addMarkers(activeMarkers);
-      }
-
-      // No results
-      if (!visibleItems.length) {
-        userInteracted = false;
-        programmaticUpdate(function () {
-          map.setCenter(DEFAULT_CENTER);
-          map.setZoom(DEFAULT_ZOOM);
-        });
-        setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", false);
-        return;
-      }
-
-      setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || "", true);
-
-      // Don't override zoom after user has manually navigated
-      if (userInteracted) return;
-
-      // No active filters → show default Baku overview
-      if (!hasActiveFilters(filters)) {
-        programmaticUpdate(function () {
-          map.setCenter(DEFAULT_CENTER);
-          map.setZoom(DEFAULT_ZOOM);
-        });
-        return;
-      }
-
-      // Single filtered result
-      if (visibleItems.length === 1) {
-        programmaticUpdate(function () {
-          map.setCenter(visibleItems[0].position);
-          map.setZoom(15);
-        });
-        return;
-      }
-
-      // Multiple filtered results → fitBounds
-      const maxZoom = allInBaku(visibleItems) ? 13 : 14;
-      window.setTimeout(function () {
-        if (userInteracted) return;
-        programmaticUpdate(function () {
-          map.setOptions({ maxZoom: maxZoom });
-          map.fitBounds(bounds, { top: 48, right: 48, bottom: 48, left: 48 });
-          google.maps.event.addListenerOnce(map, "idle", function () {
-            map.setOptions({ maxZoom: null });
-          });
-        });
-      }, 80);
+      visibleMarkers = next;
+      setMapNote(mapNoteEl, mapEl.dataset.emptyLabel || '', activeMarkers.length > 0);
     }
-
-    // Filter change: reset userInteracted so bounds recalculate for new results
     function syncVisibleMarkersFromFilter() {
-      userInteracted = false;
+      motion.cancel();
+      choice.close(false);
       syncVisibleMarkers();
     }
 
+    const filterForm = document.querySelector('[data-home-map-filter-form]');
+    if (filterForm) filterForm.addEventListener('input', () => { motion.cancel(); choice.close(false); });
     bindFilterListeners(syncVisibleMarkersFromFilter);
     syncVisibleMarkers();
 
@@ -1157,7 +1070,8 @@
       const clusterJsHref = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
 
       window.kidsMapHomeMapGoogleLoaded = function () {
-        loadScript(clusterJsHref)
+        const clusterReady = window.markerClusterer ? Promise.resolve() : loadScript(clusterJsHref);
+        clusterReady
           .then(function () {
             tryMount();
           })
@@ -1173,6 +1087,10 @@
         encodeURIComponent(SCRIPT_CONFIG.language) +
         "&region=AZ&callback=kidsMapHomeMapGoogleLoaded";
 
+      if (window.google && window.google.maps && window.google.maps.Map) {
+        window.kidsMapHomeMapGoogleLoaded();
+        return Promise.resolve();
+      }
       return loadScript(src);
     }
 
