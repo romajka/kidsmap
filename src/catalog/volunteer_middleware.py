@@ -28,6 +28,7 @@ class VolunteerAccessMiddleware(MiddlewareMixin):
                 return redirect("admin:volunteer_index")
             if name not in {
                 "volunteer_index", "volunteer_add", "volunteer_edit", "volunteer_detail", "volunteer_photo",
+                "catalog_place_pricing_import_validate",
                 "login", "logout", "password_change", "password_change_done",
             }:
                 raise PermissionDenied

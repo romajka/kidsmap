@@ -115,8 +115,10 @@ class VolunteerDashboardTests(TestCase):
         names = re.findall(r'name="([^"]+)"', response.content.decode())
         for name in (*CONTENT_FIELDS, 'pricing_plans', 'structured_schedule', 'revision_version', 'base_token'):
             self.assertEqual(names.count(name), 1, name)
-        for forbidden in ('name="_publish_place"', 'name="status"', 'data-duplicate-candidates-url', 'data-place-json-import-dialog'):
+        for forbidden in ('name="_publish_place"', 'name="status"', 'data-duplicate-candidates-url'):
             self.assertNotContains(response, forbidden)
+        self.assertContains(response, 'data-place-json-import-open')
+        self.assertContains(response, 'data-place-json-import-dialog')
 
     def test_photo_route_is_private_and_checks_ownership_before_storage(self):
         from django.core.files.base import ContentFile

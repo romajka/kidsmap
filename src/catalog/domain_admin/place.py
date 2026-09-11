@@ -4001,7 +4001,8 @@ class PlaceAdmin(admin.ModelAdmin):
             if payload.get("price_from") is not None or payload.get("price_to") is not None:
                 warnings.append(str(_("price_from/price_to не создают тариф: неизвестен продаваемый продукт.")))
         try:
-            plans = normalize_pricing_plans(raw_plans, allow_verified=request.user.is_staff)
+            from catalog.services.staff_roles import is_volunteer
+            plans = normalize_pricing_plans(raw_plans, allow_verified=request.user.is_staff and not is_volunteer(request.user))
         except ValidationError as exc:
             return JsonResponse({"ok": False, "error": exc.messages[0]}, status=400)
         return JsonResponse({"ok": True, "pricing_plans": plans, "warnings": warnings})

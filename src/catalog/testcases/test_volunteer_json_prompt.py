@@ -29,8 +29,31 @@ class VolunteerJsonPromptTests(TestCase):
                 taxonomy = json.loads(config.group(1))
                 self.assertTrue(taxonomy["regions"])
                 self.assertTrue(taxonomy["price_modes"])
-                self.assertNotContains(response, "data-place-json-import-dialog")
-                self.assertNotContains(response, "data-pricing-validate-url")
+                self.assertContains(response, "data-place-json-import-open")
+                self.assertContains(response, "data-place-json-import-dialog")
+                self.assertContains(response, "data-pricing-validate-url")
+
+    def test_pricing_import_validate_allowed_for_volunteer_without_verified_privileges(self):
+        url = reverse("admin:catalog_place_pricing_import_validate")
+        payload = {
+            "tariffs": [
+                {
+                    "title_ru": "Групповой урок",
+                    "price": 25,
+                    "product_type": "lesson",
+                    "verified_at": "2026-09-01T12:00:00Z",
+                }
+            ]
+        }
+        response = self.client.post(url, data=json.dumps(payload), content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])
+        self.assertEqual(len(data["pricing_plans"]), 1)
+        plan = data["pricing_plans"][0]
+        self.assertEqual(plan["title_ru"], "Групповой урок")
+        self.assertEqual(plan["price"], "25.00")
+        self.assertNotIn("verified_at", plan)
 
     def test_instruction_does_not_grant_other_place_access(self):
         place = Place.objects.create(name="Other draft", category="EDU", status="draft", is_active=False)
