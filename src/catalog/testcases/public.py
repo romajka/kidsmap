@@ -2039,7 +2039,7 @@ class TestCatalogEnhancements(TestCase):
             rating_count=12,
         )
         expectations = {
-            "az": ("Seçilmişlərə əlavə et", "Filtrləri aç", "Nəticələri xəritədə göstər", "Reytinq 4,8 / 5"),
+            "az": ("Seçilmişlərə əlavə et", "Filtrləri aç", "Nəticələri xəritədə göstər", "Reytinq: 5 baldan 4,8"),
             "ru": ("Добавить в избранное", "Открыть фильтры", "Показать результаты на карте", "Рейтинг 4,8 из 5"),
             "en": ("Add to favorites", "Open filters", "Show results on map", "Rating 4.8 out of 5"),
         }
@@ -2508,7 +2508,7 @@ class TestCatalogEnhancements(TestCase):
                     "metro": translate(matching_place.metro),
                     "rating": 0.0,
                     "reviews_count": 0,
-                    "phone": "+994501112233",
+                    "has_phone": True,
                     "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
                 }
             ],
@@ -2563,7 +2563,7 @@ class TestCatalogEnhancements(TestCase):
                     "metro": "Низами",
                     "rating": 4.6,
                     "reviews_count": 128,
-                    "phone": "+994501234567",
+                    "has_phone": True,
                     "schedule": "Bazar ertəsi, çərşənbə və cümə 15:00-17:00",
                 }
             ],
