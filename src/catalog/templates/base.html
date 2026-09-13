@@ -721,6 +721,13 @@
 
           function send(payload) {
             if (!payload || !payload.event_type) return;
+            const legacyAliases = {
+              place_open: "place_view",
+              cta_call: "phone_click",
+              cta_whatsapp: "whatsapp_click",
+              cta_instagram: "social_click",
+            };
+            payload.event_type = legacyAliases[payload.event_type] || payload.event_type;
             let analyticsParams;
             if (payload.event_type === "ai_referral_visit") {
               analyticsParams = {

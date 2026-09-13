@@ -13,6 +13,301 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Account deletion is intentionally separated from ordinary profile actions. */
+.account-danger-zone {
+  border: 1px solid #f2c8c5;
+  background: #fffafa;
+}
+
+.account-danger-zone__eyebrow {
+  margin: 0 0 6px;
+  color: #a8322d;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.account-danger-zone__body {
+  padding: 18px 20px 20px;
+}
+
+.account-danger-zone__body .account-form-actions {
+  margin-top: 18px;
+}
+
+.account-danger-zone__copy,
+.account-danger-zone__notice {
+  max-width: 720px;
+  color: #553c3a;
+  line-height: 1.65;
+}
+
+.account-danger-zone__notice,
+.account-deletion-unavailable {
+  padding: 14px 16px;
+  border: 1px solid #ead9aa;
+  border-radius: 12px;
+  background: #fff9e8;
+  color: #594614;
+}
+
+.account-btn-danger,
+.account-deletion-secondary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.account-btn-danger .material-symbols-rounded,
+.account-deletion-secondary .material-symbols-rounded {
+  font-size: 20px;
+}
+
+.account-btn-danger {
+  border: 1px solid #a8322d;
+  background: #a8322d;
+  color: #fff;
+}
+
+.account-btn-danger:hover,
+.account-btn-danger:focus-visible {
+  background: #842520;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(132, 37, 32, 0.18);
+  transform: translateY(-1px);
+}
+
+.account-btn-danger.is-disabled {
+  border-color: #a98e8b;
+  background: #a98e8b;
+  cursor: not-allowed;
+}
+
+.account-deletion-page {
+  width: min(100% - 32px, 820px);
+  margin: 48px auto 72px;
+}
+
+.account-deletion-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  color: #315544;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.account-deletion-back:hover {
+  color: #0d8a52;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.account-deletion-card {
+  position: relative;
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid #e7dedb;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 44px rgba(48, 34, 30, 0.08);
+}
+
+.account-deletion-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  margin: 0 0 18px;
+  place-items: center;
+  border: 1px solid #f1cbc7;
+  border-radius: 15px;
+  background: #fff2f1;
+  color: #a8322d;
+  font-size: 27px;
+}
+
+.account-deletion-icon--safe {
+  border-color: #bfe3cc;
+  background: #edf8f1;
+  color: #0d8a52;
+}
+
+.account-deletion-card h1 {
+  margin: 0 0 18px;
+  color: #2f2927;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.12;
+}
+
+.account-deletion-card > p {
+  color: #5b514e;
+  line-height: 1.65;
+}
+
+.account-deletion-facts {
+  display: grid;
+  gap: 12px;
+  margin: 28px 0;
+}
+
+.account-deletion-facts > div {
+  position: relative;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #f8f5f2;
+  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+  border: 1px solid transparent;
+}
+
+.account-deletion-facts > div:hover {
+  border-color: #e4d7d1;
+  background: #fbf8f6;
+  transform: translateY(-1px);
+}
+
+.account-deletion-facts dt {
+  margin-bottom: 5px;
+  color: #37302e;
+  font-weight: 800;
+}
+
+.account-deletion-facts dd {
+  margin: 0;
+  color: #625754;
+  line-height: 1.55;
+}
+
+.account-deletion-policy {
+  font-size: 0.86rem;
+}
+
+.account-deletion-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.account-deletion-form label {
+  margin-top: 10px;
+  color: #322b29;
+  font-weight: 800;
+}
+
+.account-deletion-form small {
+  color: #706662;
+  line-height: 1.45;
+}
+
+.account-deletion-form .field {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #cfc5c1;
+  border-radius: 11px;
+  padding: 10px 12px;
+}
+
+.account-deletion-form .field[aria-invalid="true"] {
+  border-color: #b3261e;
+}
+
+.account-deletion-phrase {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f4efec;
+  text-align: center;
+}
+
+.account-deletion-phrase code {
+  color: #6e211d;
+  font-size: clamp(0.95rem, 3vw, 1.18rem);
+  font-weight: 850;
+  letter-spacing: 0.04em;
+}
+
+.account-deletion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 26px;
+}
+
+.account-deletion-secondary {
+  border: 1px solid #c8bfbb;
+  background: #fff;
+  color: #403936;
+}
+
+.account-deletion-secondary:hover,
+.account-deletion-secondary:focus-visible {
+  border-color: #9f928c;
+  background: #f8f5f2;
+  color: #2f2927;
+}
+
+.account-deletion-page :focus-visible {
+  outline: 3px solid rgba(13, 138, 82, 0.28);
+  outline-offset: 3px;
+}
+
+.account-deletion-errors {
+  margin: 6px 0;
+  color: #9b2721;
+  font-weight: 650;
+}
+
+.account-deletion-errors ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+@media (max-width: 560px) {
+  .account-deletion-page {
+    width: min(100% - 20px, 820px);
+    margin-top: 24px;
+  }
+
+  .account-deletion-card {
+    padding: 24px;
+    border-radius: 16px;
+  }
+
+  .account-deletion-icon {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 14px;
+    border-radius: 13px;
+    font-size: 24px;
+  }
+
+  .account-deletion-actions > * {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-btn-danger,
+  .account-deletion-secondary,
+  .account-deletion-facts > div {
+    transition: none;
+  }
+
+  .account-btn-danger:hover,
+  .account-deletion-facts > div:hover {
+    transform: none;
+  }
+}
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
@@ -2034,4 +2329,227 @@
 
 .account-event-countdown-wrap {
   margin-top: 2px;
+}
+.owner-analytics {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.owner-analytics__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  margin-bottom: 24px;
+  color: #315f56;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.owner-analytics__back .material-symbols-rounded {
+  font-size: 20px;
+  transition: transform 160ms ease;
+}
+
+.owner-analytics__back:hover .material-symbols-rounded {
+  transform: translateX(-3px);
+}
+
+.owner-analytics__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.owner-analytics__header h1 {
+  margin: 4px 0 0;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+}
+
+.owner-analytics__eyebrow {
+  margin: 0;
+  color: #5b8078;
+  font-size: .86rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.owner-analytics__period {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 9px 13px;
+  border: 1px solid #d4e8df;
+  border-radius: 999px;
+  background: #f2faf5;
+  color: #315f56;
+  font-size: .9rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.owner-analytics__period .material-symbols-rounded {
+  color: #0d8a52;
+  font-size: 19px;
+}
+
+.owner-analytics__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.owner-analytics__grid article,
+.owner-analytics__notice {
+  border: 1px solid #dce7e3;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(22, 63, 55, .045);
+}
+
+.owner-analytics__grid article {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 156px;
+  padding: 18px;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.owner-analytics__grid article:hover {
+  border-color: #bcd9cc;
+  box-shadow: 0 12px 28px rgba(22, 63, 55, .09);
+  transform: translateY(-2px);
+}
+
+.owner-analytics__metric-icon {
+  display: grid !important;
+  width: 38px;
+  height: 38px;
+  min-height: 0 !important;
+  place-items: center;
+  border-radius: 12px;
+  background: #eaf7ef;
+  color: #0d8a52 !important;
+  font-size: 21px;
+}
+
+.owner-analytics__grid article > div > span {
+  display: block;
+  min-height: 2.8em;
+  color: #527068;
+  line-height: 1.35;
+}
+
+.owner-analytics__grid strong {
+  display: block;
+  margin-top: 10px;
+  color: #163f37;
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.owner-analytics__grid small {
+  display: block;
+  margin-top: 4px;
+  color: #527068;
+  font-size: .76rem;
+}
+
+.owner-analytics__notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 22px;
+  color: #315f56;
+}
+
+.owner-analytics__notice .material-symbols-rounded {
+  color: #0d8a52;
+}
+
+.owner-analytics__meta {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 20px;
+  color: #647b75;
+}
+
+.owner-analytics__meta .material-symbols-rounded {
+  color: #0d8a52;
+  font-size: 19px;
+}
+
+.owner-analytics :focus-visible {
+  outline: 3px solid rgba(13, 138, 82, .28);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+@media (max-width: 1120px) {
+  .owner-analytics__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .owner-analytics {
+    padding: 24px 16px 48px;
+  }
+
+  .owner-analytics__header {
+    align-items: start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .owner-analytics__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .owner-analytics__grid article {
+    display: flex;
+    min-height: 148px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .owner-analytics__metric--favorites {
+    grid-column: 1 / -1;
+  }
+
+  .owner-analytics__metric--favorites > div {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .owner-analytics__metric--favorites > div > span {
+    min-height: 0;
+  }
+
+  .owner-analytics__metric--favorites strong {
+    margin: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .owner-analytics__back .material-symbols-rounded,
+  .owner-analytics__grid article {
+    transition: none;
+  }
+
+  .owner-analytics__back:hover .material-symbols-rounded,
+  .owner-analytics__grid article:hover {
+    transform: none;
+  }
 }

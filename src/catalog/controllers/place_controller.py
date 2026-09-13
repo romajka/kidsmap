@@ -32,6 +32,7 @@ from catalog.services.review_sorting import (
 from catalog.services.seo import build_catalog_seo_payload, build_place_seo_payload
 from catalog.services.tracking import TrackingService
 from catalog.services.features import is_events_section_enabled
+from catalog.services.rating_ranking import rating_sort_is_available
 
 
 def _public_request_language(request: HttpRequest) -> str:
@@ -73,6 +74,7 @@ class PlaceController:
         stats_qs = None
         map_places = []
         showing_events = filters.event_type == "temporary" and not force_new_only
+        rating_sort_available = False
 
         if showing_events:
             qs = self._filtered_event_queryset()
@@ -84,6 +86,13 @@ class PlaceController:
             map_places = self._serialize_map_places(
                 self.place_repository.map_ready_queryset(qs),
                 language_code=language_code,
+            )
+
+        if not force_new_only and not showing_events:
+            rating_sort_available = (
+                filters.rating_sort_available
+                if filters.rating_sort_available is not None
+                else rating_sort_is_available()
             )
 
         paginator = Paginator(qs, 12)
@@ -161,6 +170,7 @@ class PlaceController:
             "catalog_breadcrumb_items": seo_payload["catalog_breadcrumb_items"],
             "catalog_item_list_schema_json": seo_payload["catalog_item_list_schema_json"],
             "selected": selected,
+            "rating_sort_available": rating_sort_available,
             "categories": public_filter_options.categories,
             "active_category_codes": {item["value"] for item in public_filter_options.categories},
             "subcategory_options": public_filter_options.subcategories,
@@ -876,7 +886,7 @@ class PlaceController:
             "catalog_return_url": reverse("place_list"),
             "analytics_events": [
                 {
-                    "name": FunnelEvent.EVENT_PLACE_OPEN,
+                    "name": FunnelEvent.EVENT_PLACE_VIEW,
                     "params": {
                         "page_type": "place_detail",
                         "place_id": place.id,

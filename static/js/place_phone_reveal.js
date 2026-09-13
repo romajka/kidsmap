@@ -135,7 +135,7 @@
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.setAttribute('aria-label', 'WhatsApp');
-        link.dataset.trackEvent = 'cta_whatsapp';
+        link.dataset.trackEvent = 'whatsapp_click';
         link.dataset.trackPlaceId = id;
         link.dataset.trackSource = 'phone-reveal';
         link.innerHTML = `
@@ -160,7 +160,7 @@
         link.href = phone.href;
         link.setAttribute('aria-label', copy.call + ': ' + formatted);
         link.setAttribute('title', copy.call + ': ' + formatted);
-        link.dataset.trackEvent = 'cta_call';
+        link.dataset.trackEvent = 'phone_click';
         link.dataset.trackPlaceId = id;
         link.dataset.trackSource = 'card-cta-call';
         link.innerHTML = `
@@ -176,7 +176,7 @@
         const wrap = document.createElement('div');
         wrap.className = button.className + ' km-phone-group km-phone-group--secondary km-phone-group--revealed';
         wrap.innerHTML = `
-          <a class="km-phone-call-btn" href="${phone.href}" aria-label="${copy.call}: ${formatted}" data-track-event="cta_call" data-track-place-id="${id}" data-track-source="phone-reveal">
+          <a class="km-phone-call-btn" href="${phone.href}" aria-label="${copy.call}: ${formatted}" data-track-event="phone_click" data-track-place-id="${id}" data-track-source="phone-reveal">
             <span class="km-phone-number">${formatted}</span>
           </a>
           <button type="button" class="km-phone-copy-btn" aria-label="${copy.copy}: ${formatted}" title="${copy.copy}" data-copy="${phone.number}">
@@ -193,7 +193,7 @@
         const wrap = document.createElement('div');
         wrap.className = button.className + ' km-phone-group km-phone-group--contacts km-phone-group--revealed';
         wrap.innerHTML = `
-          <a class="km-phone-call-btn" href="${phone.href}" aria-label="${copy.call}: ${formatted}" data-track-event="cta_call" data-track-place-id="${id}" data-track-source="phone-reveal">
+          <a class="km-phone-call-btn" href="${phone.href}" aria-label="${copy.call}: ${formatted}" data-track-event="phone_click" data-track-place-id="${id}" data-track-source="phone-reveal">
             <span class="detail-contacts__icon detail-contacts__icon--phone km-phone-icon" aria-hidden="true">
               ${phoneSvg}
             </span>
@@ -216,7 +216,7 @@
       const wrap = document.createElement('div');
       wrap.className = button.className + ' km-phone-group km-phone-group--revealed';
       wrap.innerHTML = `
-        <a class="km-phone-call-btn" href="${phone.href}" aria-label="${copy.call}: ${formatted}" data-track-event="cta_call" data-track-place-id="${id}" data-track-source="phone-reveal">
+        <a class="km-phone-call-btn" href="${phone.href}" aria-label="${copy.call}: ${formatted}" data-track-event="phone_click" data-track-place-id="${id}" data-track-source="phone-reveal">
           <span class="km-phone-icon km-phone-icon--phone" aria-hidden="true">${phoneSvg}</span>
           <span class="km-phone-number">${formatted}</span>
         </a>

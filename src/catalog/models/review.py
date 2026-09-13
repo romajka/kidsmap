@@ -30,7 +30,7 @@ class PlaceReview(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="reviews", verbose_name=_("Место"))
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="place_reviews",
         verbose_name=_("Пользователь"),
         null=True,
@@ -198,7 +198,7 @@ class SiteReview(models.Model):
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="site_reviews",
         verbose_name=_("Пользователь"),
         null=True,

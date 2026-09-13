@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, replace
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
 from django.utils.translation import gettext as _
@@ -440,6 +441,9 @@ class OwnerPlacesController:
             place.latest_moderation_request = latest_request
             place.owner_can_edit = self._is_user_editable_place(place) and self._has_permission(
                 user=request.user, place=place, permission_code=PLACE_PERMISSION_EDIT
+            )
+            place.owner_can_view_stats = bool(getattr(settings, "OWNER_ANALYTICS_ENABLED", False)) and self._has_permission(
+                user=request.user, place=place, permission_code=PLACE_PERMISSION_VIEW_STATS
             )
             place.completion = self._calculate_place_completion(place)
         published_places = [place for place in managed_places if place.status == Place.STATUS_PUBLISHED and place.is_active]

@@ -804,6 +804,85 @@ class UserPasswordChangeForm(PasswordChangeForm):
         self.fields["new_password2"].widget.attrs.update({"class": "field", "autocomplete": "new-password"})
 
 
+class AccountDeletionRequestForm(forms.Form):
+    form_action = forms.CharField(widget=forms.HiddenInput, initial="request")
+
+    def clean_form_action(self):
+        if self.cleaned_data.get("form_action") != "request":
+            raise ValidationError(_("Неизвестное действие."))
+        return "request"
+
+
+class AccountDeletionConfirmForm(forms.Form):
+    form_action = forms.CharField(widget=forms.HiddenInput, initial="confirm")
+    confirmation_code = forms.CharField(
+        label=_("Код из письма"),
+        min_length=6,
+        max_length=6,
+        widget=forms.TextInput(
+            attrs={
+                "class": "field",
+                "autocomplete": "one-time-code",
+                "inputmode": "numeric",
+                "pattern": r"\d{6}",
+                "aria-describedby": "confirmation-code-help",
+            }
+        ),
+    )
+    typed_confirmation = forms.CharField(
+        label=_("Фраза подтверждения"),
+        max_length=80,
+        widget=forms.TextInput(
+            attrs={
+                "class": "field",
+                "autocomplete": "off",
+                "aria-describedby": "typed-confirmation-help",
+            }
+        ),
+    )
+
+    def clean_form_action(self):
+        if self.cleaned_data.get("form_action") != "confirm":
+            raise ValidationError(_("Неизвестное действие."))
+        return "confirm"
+
+    def clean_confirmation_code(self):
+        value = (self.cleaned_data.get("confirmation_code") or "").strip()
+        if not value.isdigit():
+            raise ValidationError(_("Код должен состоять из шести цифр."))
+        return value
+
+
+class AccountDeletionCancelForm(forms.Form):
+    form_action = forms.ChoiceField(
+        choices=(("send_code", "send_code"), ("cancel", "cancel")),
+        widget=forms.HiddenInput,
+    )
+    confirmation_code = forms.CharField(
+        label=_("Код отмены из письма"),
+        min_length=6,
+        max_length=6,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "field",
+                "autocomplete": "one-time-code",
+                "inputmode": "numeric",
+                "pattern": r"\d{6}",
+                "aria-describedby": "cancellation-code-help",
+            }
+        ),
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("form_action") == "cancel":
+            code = (cleaned.get("confirmation_code") or "").strip()
+            if len(code) != 6 or not code.isdigit():
+                self.add_error("confirmation_code", _("Введите шестизначный код отмены."))
+        return cleaned
+
+
 class UserPasswordResetForm(PasswordResetForm):
     def get_users(self, email):
         # Keep Django's normal eligibility rules; allow a Google-only account to
@@ -817,8 +896,10 @@ class UserPasswordResetForm(PasswordResetForm):
             is_active=True, email__iexact=email,
             email_verification__is_verified=True,
             email_verification__email__iexact=email,
-            pk__in=SocialAccount.objects.filter(provider="google").values("user_id"),
-        ).exclude(pk__in=seen)
+        ).filter(
+            Q(pk__in=SocialAccount.objects.filter(provider="google").values("user_id"))
+            | Q(account_deletion_requests__status="CANCELED")
+        ).exclude(pk__in=seen).distinct()
         for user in candidates:
             if not user.has_usable_password():
                 yield user

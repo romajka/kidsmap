@@ -9,6 +9,7 @@ from catalog.models import Place, Subcategory
 from catalog.services.image_uploads import normalize_uploaded_image
 from catalog.services.pricing_plans import normalize_pricing_plans
 from catalog.services.place_schedule import validate_schedule_payload, dump_schedule_payload, WEEKDAY_ORDER
+from catalog.services.locations import clean_location_fields, configure_location_choices, init_location_fields
 
 
 # Everything else (owner, creator, publication, verification, SEO, ratings,
@@ -30,9 +31,22 @@ CONTENT_FIELDS = (
 
 
 class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
+    require_location_region = False
     revision_version = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
     base_token = forms.CharField(widget=forms.HiddenInput)
     pricing_plans = forms.CharField(required=False, widget=forms.HiddenInput(attrs={"data-tariff-input": ""}))
+    region = forms.ChoiceField(
+        label=_("Город / регион"),
+        required=False,
+        choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-region": ""}),
+    )
+    district = forms.ChoiceField(
+        label=_("Район города"),
+        required=False,
+        choices=(),
+        widget=forms.Select(attrs={"class": "field", "data-km-location-district": ""}),
+    )
 
     class Meta:
         model = Place
@@ -40,6 +54,7 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.draft_save_only = bool(self.data and self.data.get("action") == "draft")
         self.invalid_schedule = False
         if self.is_bound and self.data.get("structured_schedule"):
             # The shared editor initializer expects normalized day objects.
@@ -73,6 +88,8 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 field.widget.attrs["rows"] = 3
         if not self.is_bound:
             self.initial["pricing_plans"] = json.dumps(self.instance.pricing_plans, ensure_ascii=False)
+        init_location_fields(self, self.instance)
+        configure_location_choices(self)
         self.fields["subcategory"].widget = SubcategorySelect()
         self.fields["subcategory"].queryset = Subcategory.objects.select_related("category").all()
 
@@ -81,6 +98,13 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         category, subcategory = cleaned.get("category"), cleaned.get("subcategory")
         if subcategory and category and subcategory.category_id != category.pk:
             self.add_error("subcategory", _("Подкатегория должна относиться к выбранной категории."))
+        cleaned = clean_location_fields(self, cleaned)
+        if (
+            cleaned.get("region") == "baku"
+            and not cleaned.get("district")
+            and (getattr(self.instance, "district", "") or "").strip() == "baku"
+        ):
+            cleaned["district"] = "baku"
         if self.invalid_schedule:
             self.add_error("structured_schedule", _("Проверьте расписание работы."))
         if not any((cleaned.get(f"name_{lang}") or "").strip() for lang in ("az", "ru", "en")):
@@ -153,7 +177,7 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
             (_("Основное"), ("name_az", "category", "subcategory", "description_az"), False),
             (_("Переводы (необязательно)"), ("name_ru", "name_en", "description_ru", "description_en"), True),
             (_("Возраст"), CONTENT_FIELDS[8:12], False),
-            (_("Адрес и контакты"), CONTENT_FIELDS[12:22], False),
+            (_("Адрес и контакты"), ("region",) + CONTENT_FIELDS[12:22], False),
             (_("Фотографии"), ("photo", "cover_photo"), False),
             (_("Дополнительно"), CONTENT_FIELDS[30:40], True),
         )

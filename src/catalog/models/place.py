@@ -916,19 +916,12 @@ class PlaceLike(models.Model):
         on_delete=models.CASCADE,
         related_name="place_likes",
         verbose_name=_("Пользователь"),
-        null=True,
-        blank=True,
     )
     session_key = models.CharField(_("Сессия"), max_length=64, blank=True, default="", db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=("place", "session_key"),
-                condition=models.Q(user__isnull=True) & ~models.Q(session_key=""),
-                name="unique_place_like_per_session",
-            ),
             models.UniqueConstraint(
                 fields=("place", "user"),
                 name="unique_place_like_per_user",

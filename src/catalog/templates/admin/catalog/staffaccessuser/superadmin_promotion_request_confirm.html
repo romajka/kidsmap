@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}?v=6">{% endblock %}
+{% block content %}
+<main id="content-main" class="km-staff-promotion-page">
+  <header class="km-staff-promotion-header">
+    <a class="km-staff-promotion-back" href="{% url 'admin:catalog_staffaccessuser_superadmin_request_list' %}"><span aria-hidden="true">←</span><span>{% translate "Запросы Superadmin" %}</span></a>
+    <div class="km-staff-promotion-title-row">
+      <span class="km-staff-promotion-title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.2 3.4 9.9 8 11 4.6-1.1 8-5.8 8-11V5l-8-3Zm0 2.2 6 2.3V11c0 4.1-2.5 7.8-6 8.9C8.5 18.8 6 15.1 6 11V6.5l6-2.3Zm-1 4.3v3H8v2h3v3h2v-3h3v-2h-3v-3h-2Z"/></svg>
+      </span>
+      <div><p class="km-staff-promotion-eyebrow">{% translate "Второе подтверждение" %}</p><h1>{% translate "Проверка повышения до Superadmin" %}</h1></div>
+    </div>
+  </header>
+
+  <section class="km-staff-promotion-warning" aria-label="{% translate 'Защита назначения Superadmin' %}">
+    <span class="km-staff-promotion-warning__icon" aria-hidden="true">!</span>
+    <div><strong>{% translate "Максимальные права ещё не выданы" %}</strong><p>{% translate "Проверьте личность кандидата и основание запроса. Ваше решение будет сохранено в журнале аудита." %}</p></div>
+  </section>
+
+  <section class="km-staff-promotion-summary" aria-labelledby="promotion-summary-title">
+    <div class="km-staff-promotion-section-head"><h2 id="promotion-summary-title">{% translate "Запрос" %} #{{ promotion_request.pk }}</h2><span class="km-staff-promotion-status km-staff-promotion-status--pending"><span aria-hidden="true"></span>{{ promotion_request.get_status_display }}</span></div>
+    <dl>
+      <dt>{% translate "Кандидат" %}</dt><dd><strong>{{ promotion_request.target }}</strong></dd>
+      <dt>{% translate "Инициатор" %}</dt><dd>{{ promotion_request.initiated_by|default:"—" }}</dd>
+      <dt>{% translate "Создан" %}</dt><dd><time datetime="{{ promotion_request.created_at|date:'c' }}">{{ promotion_request.created_at|date:"d.m.Y H:i" }}</time></dd>
+    </dl>
+  </section>
+
+  {% if can_decide %}
+    <form method="post" class="km-staff-promotion-decision">
+      {% csrf_token %}
+      <div class="km-staff-promotion-decision__head"><h2>{% translate "Решение" %}</h2><p>{% translate "Причина обязательна только при отклонении запроса." %}</p></div>
+      <label for="id_rejection_note">{% translate "Причина отклонения (необязательно)" %}</label>
+      <textarea id="id_rejection_note" name="rejection_note" rows="3" placeholder="{% translate 'Кратко укажите причину, если отклоняете запрос' %}"></textarea>
+      <div class="km-staff-promotion-decision__actions">
+        <button type="submit" name="decision" value="approve" class="km-staff-promotion-approve"><span aria-hidden="true">✓</span><span>{% translate "Подтвердить" %}</span></button>
+        <button type="submit" name="decision" value="reject" class="km-staff-promotion-reject"><span aria-hidden="true">×</span><span>{% translate "Отклонить" %}</span></button>
+      </div>
+    </form>
+  {% elif promotion_request.status == 'PENDING' %}
+    <p role="alert" class="km-staff-role-workflow__notice">{% translate "Инициатор не может подтвердить собственный запрос. Решение должен принять другой действующий суперадмин." %}</p>
+  {% endif %}
+
+  <section class="km-staff-promotion-history" aria-labelledby="promotion-history-title">
+    <h2 id="promotion-history-title">{% translate "История запроса" %}</h2>
+    <ol>
+      {% for entry in audit_entries %}<li><span aria-hidden="true"></span><div><time datetime="{{ entry.created_at|date:'c' }}">{{ entry.created_at|date:"d.m.Y H:i" }}</time><strong>{{ entry.get_action_display }}</strong><small>{{ entry.actor_display }}</small></div></li>{% empty %}<li class="km-staff-promotion-history__empty">{% translate "История пуста." %}</li>{% endfor %}
+    </ol>
+  </section>
+</main>
+{% endblock %}

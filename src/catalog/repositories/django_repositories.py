@@ -239,7 +239,7 @@ class DjangoAccountRepository(IAccountRepository):
         return (
             FunnelEvent.objects.filter(
                 user=user,
-                event_type=FunnelEvent.EVENT_PLACE_OPEN,
+                event_type__in=(FunnelEvent.EVENT_PLACE_OPEN, FunnelEvent.EVENT_PLACE_VIEW),
                 place__isnull=False,
                 place__is_active=True,
             )

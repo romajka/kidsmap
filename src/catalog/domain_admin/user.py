@@ -5,16 +5,16 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import AdminUserCreationForm
 from django.contrib.auth.models import Group
-from django.contrib.auth.models import Permission
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.sites import NotRegistered
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count, Q
-from django.http import JsonResponse
+from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
 from django.utils.dateformat import format as date_format
 
 from catalog.models import (
@@ -23,72 +23,25 @@ from catalog.models import (
     StaffAccessUser,
     UserEmailVerification,
     PlaceOwnershipRequestAudit,
+    StaffRoleAudit,
+    SuperadminPromotionRequest,
 )
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
-from catalog.services.staff_roles import VOLUNTEER_GROUP, is_volunteer
+from catalog.services.staff_roles import (
+    ADMIN_ROLE_CHOICES,
+    ADMIN_ROLE_CONTENT_MANAGER,
+    ADMIN_ROLE_LABELS,
+    ADMIN_ROLE_MODERATOR,
+    ADMIN_ROLE_STAFF,
+    ADMIN_ROLE_SUPERADMIN,
+    ADMIN_ROLE_VOLUNTEER,
+    VOLUNTEER_GROUP,
+    current_staff_role,
+    is_volunteer,
+)
 from catalog.services.staff_activity import staff_activity_context
 
 User = get_user_model()
-
-ADMIN_ROLE_SUPERADMIN = "superadmin"
-ADMIN_ROLE_MODERATOR = "moderator"
-ADMIN_ROLE_CONTENT_MANAGER = "content_manager"
-ADMIN_ROLE_VOLUNTEER = "volunteer"
-
-ADMIN_ROLE_CHOICES = (
-    (ADMIN_ROLE_VOLUNTEER, _("Волонтёр — только свои места, публикация после проверки")),
-    (ADMIN_ROLE_MODERATOR, _("Модератор")),
-    (ADMIN_ROLE_CONTENT_MANAGER, _("Контент-менеджер")),
-    (ADMIN_ROLE_SUPERADMIN, _("Суперадмин")),
-)
-
-ADMIN_ROLE_PERMISSION_PRESETS = {
-    ADMIN_ROLE_MODERATOR: {
-        "view_place",
-        "view_event",
-        "view_placereview",
-        "change_placereview",
-        "view_sitereview",
-        "change_sitereview",
-        "view_placeownershiprequest",
-        "change_placeownershiprequest",
-    },
-    ADMIN_ROLE_CONTENT_MANAGER: {
-        "view_place",
-        "add_place",
-        "change_place",
-        "view_event",
-        "add_event",
-        "change_event",
-        "view_category",
-        "add_category",
-        "change_category",
-        "view_subcategory",
-        "add_subcategory",
-        "change_subcategory",
-        "view_placephoto",
-        "add_placephoto",
-        "change_placephoto",
-        "delete_placephoto",
-        "view_sitegalleryimage",
-        "add_sitegalleryimage",
-        "change_sitegalleryimage",
-        "delete_sitegalleryimage",
-        "view_sitesettings",
-        "change_sitesettings",
-        "view_sitebrandingsettings",
-        "change_sitebrandingsettings",
-        "view_siteaboutsettings",
-        "change_siteaboutsettings",
-        "view_sitecontactssettings",
-        "change_sitecontactssettings",
-        "view_sitefootersettings",
-        "change_sitefootersettings",
-        "view_siteemptystatesettings",
-        "change_siteemptystatesettings",
-    },
-}
-
 
 class StaffAccessUserCreationForm(AdminUserCreationForm):
     admin_role = forms.ChoiceField(
@@ -96,6 +49,17 @@ class StaffAccessUserCreationForm(AdminUserCreationForm):
         choices=ADMIN_ROLE_CHOICES,
         initial=ADMIN_ROLE_MODERATOR,
         widget=forms.RadioSelect,
+    )
+
+
+class StaffRoleChangeForm(forms.Form):
+    admin_role = forms.ChoiceField(
+        label=_("Роль"),
+        choices=ADMIN_ROLE_CHOICES,
+    )
+    is_active = forms.BooleanField(
+        label=_("Активный сотрудник"),
+        required=False,
     )
 
 try:
@@ -946,17 +910,35 @@ class StaffAccessRoleFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return (
             (ADMIN_ROLE_SUPERADMIN, _("Суперадмины")),
-            ("admin", _("Админы")),
             (ADMIN_ROLE_VOLUNTEER, _("Волонтёры")),
+            (ADMIN_ROLE_MODERATOR, _("Модераторы")),
+            (ADMIN_ROLE_CONTENT_MANAGER, _("Контент-менеджеры")),
+            (ADMIN_ROLE_STAFF, _("Другие сотрудники")),
         )
 
     def queryset(self, request, queryset):
         if self.value() == ADMIN_ROLE_SUPERADMIN:
             return queryset.filter(is_superuser=True)
-        if self.value() == "admin":
-            return queryset.filter(is_staff=True, is_superuser=False).exclude(groups__name=VOLUNTEER_GROUP)
         if self.value() == ADMIN_ROLE_VOLUNTEER:
             return queryset.filter(is_superuser=False, groups__name=VOLUNTEER_GROUP)
+        if self.value() == ADMIN_ROLE_MODERATOR:
+            return queryset.filter(
+                is_superuser=False,
+                user_permissions__content_type__app_label="catalog",
+                user_permissions__codename="change_placereview",
+            ).exclude(groups__name=VOLUNTEER_GROUP).distinct()
+        if self.value() == ADMIN_ROLE_CONTENT_MANAGER:
+            return queryset.filter(
+                is_superuser=False,
+                user_permissions__content_type__app_label="catalog",
+                user_permissions__codename="change_place",
+            ).exclude(groups__name=VOLUNTEER_GROUP).distinct()
+        if self.value() == ADMIN_ROLE_STAFF:
+            return queryset.filter(is_superuser=False).exclude(
+                groups__name=VOLUNTEER_GROUP,
+            ).exclude(
+                user_permissions__codename__in=("change_placereview", "change_place"),
+            ).distinct()
         return queryset
 
 
@@ -969,7 +951,6 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
     list_per_page = 15
     fieldsets = (
         (_("Аккаунт"), {"fields": ("username", "email", "first_name", "last_name", "password_summary")}),
-        (_("Права доступа"), {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
         (_("Важные даты"), {"classes": ("collapse",), "fields": ("last_login", "date_joined")}),
     )
     add_fieldsets = (
@@ -996,12 +977,6 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
             )
         )
 
-    def get_readonly_fields(self, request, obj=None):
-        fields = super().get_readonly_fields(request, obj)
-        if not request.user.is_superuser:
-            return (*fields, "is_active", "is_staff", "is_superuser", "groups", "user_permissions")
-        return fields
-
     def has_change_permission(self, request, obj=None):
         if obj and obj.is_superuser and not request.user.is_superuser:
             return False
@@ -1011,15 +986,46 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
         if obj and obj.pk:
             context.update(staff_activity_context(request, obj, self.admin_site))
             context["staff_role_label"] = self.staff_role(obj)
+            context["staff_role_code"] = current_staff_role(obj)
+            context["staff_role_form"] = StaffRoleChangeForm(initial={
+                "admin_role": current_staff_role(obj),
+                "is_active": obj.is_active,
+            })
+            context["can_manage_staff_roles"] = bool(
+                request.user.is_active and request.user.is_superuser
+            )
+            context["staff_role_change_url"] = reverse(
+                "admin:catalog_staffaccessuser_role_change",
+                args=[obj.pk],
+            )
+            context["staff_superadmin_request_url"] = reverse(
+                "admin:catalog_staffaccessuser_request_superadmin",
+                args=[obj.pk],
+            )
+            context["pending_superadmin_request"] = SuperadminPromotionRequest.objects.filter(
+                target=obj,
+                status=SuperadminPromotionRequest.Status.PENDING,
+            ).select_related("initiated_by").first()
+            context["staff_role_history"] = StaffRoleAudit.objects.filter(target=obj).select_related(
+                "actor",
+                "promotion_request",
+            )[:25]
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
 
     @admin.display(description=_("Роль"))
     def staff_role(self, obj):
-        if obj.is_superuser:
-            return format_html('<span class="km-staff-role km-staff-role--super">{}</span>', _("Суперадмин"))
-        if is_volunteer(obj):
-            return _("Волонтёр")
-        return format_html('<span class="km-staff-role km-staff-role--admin">{}</span>', _("Админ"))
+        role = current_staff_role(obj)
+        tone = {
+            ADMIN_ROLE_SUPERADMIN: "super",
+            ADMIN_ROLE_VOLUNTEER: "volunteer",
+            ADMIN_ROLE_MODERATOR: "moderator",
+            ADMIN_ROLE_CONTENT_MANAGER: "content",
+        }.get(role, "admin")
+        return format_html(
+            '<span class="km-staff-role km-staff-role--{}">{}</span>',
+            tone,
+            ADMIN_ROLE_LABELS[role],
+        )
 
     @admin.display(description=_("Добавленные места"), ordering="places_count")
     def places_count(self, obj):
@@ -1041,7 +1047,14 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
     def _is_protected_from_deletion(self, *, request, obj) -> bool:
         if obj.pk == request.user.pk:
             return True
-        return obj.is_superuser and not StaffAccessUser.objects.filter(is_superuser=True).exclude(pk=obj.pk).exists()
+        return bool(
+            obj.is_superuser
+            and obj.is_active
+            and not StaffAccessUser.objects.filter(
+                is_superuser=True,
+                is_active=True,
+            ).exclude(pk=obj.pk).exists()
+        )
 
     def has_delete_permission(self, request, obj=None):
         if not request.user.is_superuser:
@@ -1066,6 +1079,12 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
             return redirect(f"admin:{self.opts.app_label}_{self.opts.model_name}_changelist")
         return super().delete_view(request, object_id, extra_context=extra_context)
 
+    def delete_model(self, request, obj):
+        from catalog.services.staff_role_workflow import ensure_staff_deletion_allowed
+
+        ensure_staff_deletion_allowed(actor=request.user, target_id=obj.pk)
+        return super().delete_model(request, obj)
+
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
         initial.setdefault("is_active", True)
@@ -1077,36 +1096,175 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
         if not change:
             obj.is_staff = True
             obj.is_active = True
-        if not change and selected_role:
-            obj.is_superuser = selected_role == ADMIN_ROLE_SUPERADMIN
+            obj.is_superuser = False
         super().save_model(request, obj, form, change)
 
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
         if change:
             return
+        from catalog.services.staff_role_workflow import assign_staff_role
+
         selected_role = form.cleaned_data.get("admin_role") or ADMIN_ROLE_MODERATOR
-        if selected_role == ADMIN_ROLE_VOLUNTEER:
-            group, _created = Group.objects.get_or_create(name=VOLUNTEER_GROUP)
-            form.instance.groups.add(group)
-            form.instance.user_permissions.clear()
-            return
-        if selected_role == ADMIN_ROLE_SUPERADMIN:
-            form.instance.user_permissions.clear()
-            return
-        permissions = Permission.objects.filter(
-            content_type__app_label="catalog",
-            codename__in=ADMIN_ROLE_PERMISSION_PRESETS.get(selected_role, set()),
+        assign_staff_role(
+            actor=request.user,
+            target_id=form.instance.pk,
+            role=selected_role,
         )
-        form.instance.user_permissions.set(permissions)
+
+    def get_urls(self):
+        return [
+            path(
+                "<int:user_id>/role/",
+                self.admin_site.admin_view(self.role_change_view),
+                name="catalog_staffaccessuser_role_change",
+            ),
+            path(
+                "<int:user_id>/request-superadmin/",
+                self.admin_site.admin_view(self.request_superadmin_view),
+                name="catalog_staffaccessuser_request_superadmin",
+            ),
+            path(
+                "superadmin-requests/",
+                self.admin_site.admin_view(self.superadmin_request_list_view),
+                name="catalog_staffaccessuser_superadmin_request_list",
+            ),
+            path(
+                "superadmin-requests/<int:request_id>/",
+                self.admin_site.admin_view(self.superadmin_request_confirm_view),
+                name="catalog_staffaccessuser_superadmin_request_confirm",
+            ),
+            *super().get_urls(),
+        ]
+
+    @staticmethod
+    def _require_role_manager(request):
+        if not (request.user.is_active and request.user.is_superuser):
+            raise PermissionDenied
+
+    def role_change_view(self, request, user_id):
+        from catalog.services.staff_role_workflow import assign_staff_role, set_staff_active
+
+        self._require_role_manager(request)
+        if request.method != "POST":
+            return HttpResponseNotAllowed(["POST"])
+        target = self.get_object(request, str(user_id))
+        if target is None:
+            raise PermissionDenied
+        form = StaffRoleChangeForm(request.POST)
+        if not form.is_valid():
+            self.message_user(request, _("Проверьте выбранную роль."), level=messages.ERROR)
+            return redirect("admin:catalog_staffaccessuser_change", user_id)
+        try:
+            assign_staff_role(
+                actor=request.user,
+                target_id=target.pk,
+                role=form.cleaned_data["admin_role"],
+            )
+            set_staff_active(
+                actor=request.user,
+                target_id=target.pk,
+                is_active=form.cleaned_data["is_active"],
+            )
+        except ValidationError as exc:
+            self.message_user(request, " ".join(exc.messages), level=messages.ERROR)
+        else:
+            self.message_user(request, _("Роль сотрудника обновлена."), level=messages.SUCCESS)
+        return redirect("admin:catalog_staffaccessuser_change", user_id)
+
+    def request_superadmin_view(self, request, user_id):
+        from catalog.services.staff_role_workflow import request_superadmin_promotion
+
+        self._require_role_manager(request)
+        if request.method != "POST":
+            return HttpResponseNotAllowed(["POST"])
+        try:
+            promotion = request_superadmin_promotion(actor=request.user, target_id=user_id)
+        except (User.DoesNotExist, ValidationError) as exc:
+            message = " ".join(exc.messages) if isinstance(exc, ValidationError) else str(_("Сотрудник не найден."))
+            self.message_user(request, message, level=messages.ERROR)
+        else:
+            self.message_user(
+                request,
+                _("Запрос #%(number)s создан. Права появятся только после второго подтверждения.") % {
+                    "number": promotion.pk,
+                },
+                level=messages.SUCCESS,
+            )
+        return redirect("admin:catalog_staffaccessuser_change", user_id)
+
+    def superadmin_request_list_view(self, request):
+        self._require_role_manager(request)
+        pending = SuperadminPromotionRequest.objects.filter(
+            status=SuperadminPromotionRequest.Status.PENDING,
+        ).select_related("target", "initiated_by")
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Запросы прав суперадмина"),
+            "opts": self.opts,
+            "pending_requests": pending,
+        }
+        return TemplateResponse(
+            request,
+            "admin/catalog/staffaccessuser/superadmin_promotion_request_list.html",
+            context,
+        )
+
+    def superadmin_request_confirm_view(self, request, request_id):
+        from catalog.services.staff_role_workflow import resolve_superadmin_promotion
+
+        self._require_role_manager(request)
+        promotion = SuperadminPromotionRequest.objects.select_related(
+            "target",
+            "initiated_by",
+            "decided_by",
+        ).filter(pk=request_id).first()
+        if promotion is None:
+            raise PermissionDenied
+        if request.method == "POST":
+            decision = request.POST.get("decision")
+            if decision not in {"approve", "reject"}:
+                self.message_user(request, _("Выберите подтверждение или отклонение."), level=messages.ERROR)
+            else:
+                try:
+                    resolve_superadmin_promotion(
+                        actor=request.user,
+                        request_id=promotion.pk,
+                        approve=decision == "approve",
+                        rejection_note=request.POST.get("rejection_note", ""),
+                    )
+                except ValidationError as exc:
+                    self.message_user(request, " ".join(exc.messages), level=messages.ERROR)
+                else:
+                    self.message_user(request, _("Решение по запросу сохранено."), level=messages.SUCCESS)
+                    return redirect("admin:catalog_staffaccessuser_superadmin_request_list")
+            promotion.refresh_from_db()
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Проверка запроса прав суперадмина"),
+            "opts": self.opts,
+            "promotion_request": promotion,
+            "can_decide": (
+                promotion.status == SuperadminPromotionRequest.Status.PENDING
+                and promotion.initiated_by_id != request.user.pk
+            ),
+            "audit_entries": promotion.audit_entries.select_related("actor").all(),
+        }
+        return TemplateResponse(
+            request,
+            "admin/catalog/staffaccessuser/superadmin_promotion_request_confirm.html",
+            context,
+        )
 
     def changelist_view(self, request, extra_context=None):
         response = super().changelist_view(request, extra_context=extra_context)
         if not hasattr(response, "context_data"):
             return response
-        superadmin_count = StaffAccessUser.objects.filter(is_superuser=True).count()
+        superadmin_count = StaffAccessUser.objects.filter(is_superuser=True, is_active=True).count()
         for staff_user in response.context_data["cl"].result_list:
             staff_user.km_is_volunteer = is_volunteer(staff_user)
+            staff_user.km_role = current_staff_role(staff_user)
+            staff_user.km_role_label = ADMIN_ROLE_LABELS[staff_user.km_role]
             staff_user.km_can_delete = bool(
                 request.user.is_superuser
                 and staff_user.pk != request.user.pk
@@ -1115,10 +1273,54 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
         extra_context = {
             "title": _("Сотрудники админки"),
             "subtitle": _("Управление сотрудниками, имеющими доступ к панели управления."),
+            "pending_superadmin_count": SuperadminPromotionRequest.objects.filter(
+                status=SuperadminPromotionRequest.Status.PENDING,
+            ).count() if request.user.is_superuser else 0,
+            "superadmin_request_list_url": reverse(
+                "admin:catalog_staffaccessuser_superadmin_request_list"
+            ) if request.user.is_superuser else "",
             **(extra_context or {}),
         }
         response.context_data.update(extra_context)
         return response
+
+
+@admin.register(StaffRoleAudit)
+class StaffRoleAuditAdmin(admin.ModelAdmin):
+    list_display = (
+        "created_at",
+        "target_display",
+        "action",
+        "old_role",
+        "new_role",
+        "actor_display",
+    )
+    list_filter = ("action", "old_role", "new_role")
+    search_fields = ("target_display", "actor_display")
+    readonly_fields = (
+        "created_at",
+        "target",
+        "target_display",
+        "actor",
+        "actor_display",
+        "old_role",
+        "new_role",
+        "action",
+        "promotion_request",
+    )
+    ordering = ("-created_at", "-pk")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return bool(request.user.is_active and request.user.is_superuser)
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class UserProfileAccessLevelFilter(admin.SimpleListFilter):

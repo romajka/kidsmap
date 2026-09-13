@@ -1,6 +1,6 @@
 {% extends "admin/change_form.html" %}
 {% load i18n static admin_urls %}
-{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}?v=3">{% endblock %}
+{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}?v=5">{% endblock %}
 {% block bodyclass %}{{ block.super }} km-staff-profile-page{% endblock %}
 {% block content_title %}{% endblock %}
 {% block content %}
@@ -32,18 +32,65 @@
     </table></div>
     {% if staff_places.has_other_pages %}<nav class="km-staff-profile__pagination" aria-label="{% translate 'Страницы мест' %}">{% if staff_places.has_previous %}<a href="?place_state={{ staff_place_state }}&amp;place_q={{ staff_place_query|urlencode }}&amp;place_page={{ staff_places.previous_page_number }}#staff-activity">← {% translate "Назад" %}</a>{% endif %}<span>{{ staff_places.number }} / {{ staff_places.paginator.num_pages }}</span>{% if staff_places.has_next %}<a href="?place_state={{ staff_place_state }}&amp;place_q={{ staff_place_query|urlencode }}&amp;place_page={{ staff_places.next_page_number }}#staff-activity">{% translate "Далее" %} →</a>{% endif %}</nav>{% endif %}
   </section>
+  <section class="km-staff-profile__section km-staff-role-workflow" aria-labelledby="staff-role-title">
+    <div class="km-staff-role-workflow__heading">
+      <div>
+        <h2 id="staff-role-title">{% translate "Роль и доступ" %}</h2>
+        <p>{% translate "Обычная роль применяется сразу и сохраняется в истории. Повышение до суперадмина требует подтверждения другого действующего суперадмина." %}</p>
+      </div>
+      <span class="km-staff-role-workflow__current">{% translate "Текущая роль" %}: {{ staff_role_label }}</span>
+    </div>
+    {% if can_manage_staff_roles %}
+      <form method="post" action="{{ staff_role_change_url }}" class="km-staff-role-workflow__form">
+        {% csrf_token %}
+        <div>
+          <label for="id_admin_role">{{ staff_role_form.admin_role.label }}</label>
+          <select id="id_admin_role" name="admin_role" required aria-describedby="admin-role-help">
+            {% for value, label in staff_role_form.fields.admin_role.choices %}<option value="{{ value }}"{% if value == staff_role_code %} selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select>
+          <p id="admin-role-help" class="km-staff-profile__help">{% translate "Выбор обычной роли снимает прежние группы и прямые разрешения сотрудника." %}</p>
+        </div>
+        <label class="km-staff-role-workflow__check"><input type="checkbox" name="is_active"{% if original.is_active %} checked{% endif %}><span>{{ staff_role_form.is_active.label }}</span></label>
+        <button type="submit" class="km-staff-role-workflow__save">{% translate "Сохранить роль" %}</button>
+      </form>
+      {% if original.is_superuser %}
+        <p class="km-staff-role-workflow__notice" role="note">{% translate "Выбор обычной роли понизит этого суперадмина. Последнего активного суперадмина и собственную роль понизить нельзя." %}</p>
+      {% elif pending_superadmin_request %}
+        <div class="km-staff-role-workflow__pending" role="status">
+          <strong>{% translate "Запрос Superadmin ожидает подтверждения" %}</strong>
+          <span>#{{ pending_superadmin_request.pk }} · {% translate "Инициатор" %}: {{ pending_superadmin_request.initiated_by|default:"—" }} · {{ pending_superadmin_request.created_at|date:"d.m.Y H:i" }}</span>
+          <a href="{% url 'admin:catalog_staffaccessuser_superadmin_request_confirm' pending_superadmin_request.pk %}">{% translate "Открыть запрос" %}</a>
+        </div>
+      {% else %}
+        <form method="post" action="{{ staff_superadmin_request_url }}" class="km-staff-role-workflow__promotion">
+          {% csrf_token %}
+          <div><strong>{% translate "Повышение до Superadmin" %}</strong><p>{% translate "Права не изменятся, пока запрос не подтвердит другой действующий суперадмин." %}</p></div>
+          <button type="submit">{% translate "Создать запрос" %}</button>
+        </form>
+      {% endif %}
+    {% else %}
+      <p class="km-staff-role-workflow__notice" role="note">{% translate "Изменять роли может только действующий суперадмин." %}</p>
+    {% endif %}
+  </section>
+  <section class="km-staff-profile__section km-staff-role-history" aria-labelledby="staff-role-history-title">
+    <h2 id="staff-role-history-title">{% translate "История ролей" %}</h2>
+    <div class="km-staff-profile__table-wrap"><table>
+      <thead><tr><th scope="col">{% translate "Дата" %}</th><th scope="col">{% translate "Действие" %}</th><th scope="col">{% translate "Старая роль" %}</th><th scope="col">{% translate "Новая роль" %}</th><th scope="col">{% translate "Кто изменил" %}</th></tr></thead>
+      <tbody>{% for entry in staff_role_history %}<tr><td>{{ entry.created_at|date:"d.m.Y H:i" }}</td><td>{{ entry.get_action_display }}</td><td>{{ entry.old_role|default:"—" }}</td><td>{{ entry.new_role|default:"—" }}</td><td>{{ entry.actor_display }}</td></tr>{% empty %}<tr><td colspan="5">{% translate "Изменений роли пока нет." %}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </section>
   <form method="post" enctype="multipart/form-data" id="{{ opts.model_name }}_form" novalidate>
     {% csrf_token %}
     <h2 id="staff-account">{% translate "Данные сотрудника" %}</h2>
     {% if errors %}<div role="alert" class="km-staff-profile__errors">{% translate "Форма содержит ошибки" %}{{ adminform.form.non_field_errors }}{{ errors }}</div>{% endif %}
     {% for fieldset in adminform %}
-      {% if forloop.counter == 2 %}<details class="km-staff-profile__section"><summary>{{ fieldset.name }}</summary><p>{% translate "Группа KidsMap Volunteers ограничивает сотрудника своими местами. Полный доступ определяется статусом суперпользователя." %}</p>{% else %}<section class="km-staff-profile__section"><h3>{{ fieldset.name }}</h3>{% endif %}
+      <section class="km-staff-profile__section"><h3>{{ fieldset.name }}</h3>
       <div class="km-staff-profile__fields">
         {% for line in fieldset %}{% for field in line %}<div class="km-staff-profile__field{% if field.field.name == 'user_permissions' or field.field.name == 'groups' %} km-staff-profile__field--wide{% endif %}">
           {% if field.is_readonly %}<span class="km-staff-profile__label">{{ field.field.label }}</span><div>{{ field.contents }}</div>{% else %}{{ field.label_tag }}{{ field.field }}{{ field.errors }}{% if field.field.help_text %}<p id="{{ field.field.auto_id }}_helptext" class="km-staff-profile__help">{{ field.field.help_text|safe }}</p>{% endif %}{% endif %}
         </div>{% endfor %}{% endfor %}
       </div>
-      {% if forloop.counter == 2 %}</details>{% else %}</section>{% endif %}
+      </section>
     {% endfor %}
     {% for inline in inline_admin_formsets %}
       <section class="km-staff-profile__section"><h3>{{ inline.opts.verbose_name }}</h3>{{ inline.formset.management_form }}{{ inline.formset.non_form_errors }}

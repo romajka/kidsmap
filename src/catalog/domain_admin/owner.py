@@ -371,6 +371,7 @@ class PlaceChangeAuditAdmin(admin.ModelAdmin):
         tone = {
             PlaceChangeAudit.SOURCE_OWNER_PANEL: "good",
             PlaceChangeAudit.SOURCE_ADMIN: "info",
+            PlaceChangeAudit.SOURCE_VOLUNTEER: "warning",
             PlaceChangeAudit.SOURCE_SYSTEM: "muted",
         }.get(obj.source, "muted")
         return format_html(

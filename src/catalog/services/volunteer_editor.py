@@ -23,7 +23,8 @@ def editor_context(form):
     for number, (key, title, icon, hint) in enumerate(definitions, 1):
         items = readiness.items if key == 'verification' else [item for item in readiness.items if item.requirement.section == key]
         done = sum(item.is_complete for item in items)
-        fields = [form[name] for name in CONTENT_FIELDS if (key == 'pricing' and name in pricing_names) or (key == 'location' and name not in special) or (key == 'media' and name in {'photo','cover_photo'}) or (key == 'basics' and name in basics)]
+        field_names = ('region',) + CONTENT_FIELDS if key == 'location' else CONTENT_FIELDS
+        fields = [form[name] for name in field_names if (key == 'pricing' and name in pricing_names) or (key == 'location' and name not in special) or (key == 'media' and name in {'photo','cover_photo'}) or (key == 'basics' and name in basics)]
         invalid = any(field.errors for field in fields)
         state = 'error' if invalid else 'done' if items and done == len(items) else 'partial' if done else 'empty'
         sections.append(dict(id=key, title=title, icon=icon, description=hint, step=f'{number:02}', fields=[field for field in fields if not field.name.startswith(('custom_price_badge_', 'extra_conditions_', 'additional_info_'))],

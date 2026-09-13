@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Silinmə statusu{% elif CURRENT_LANGUAGE == "en" %}Deletion status{% else %}Статус удаления{% endif %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=4" />{% endblock %}
+{% block content %}
+<div class="account-deletion-page">
+  <section class="account-deletion-card" aria-labelledby="deletion-status-title">
+    <span class="account-deletion-icon material-symbols-rounded" aria-hidden="true">schedule</span>
+    <p class="account-danger-zone__eyebrow">
+      {% if deletion.status == "SCHEDULED" %}{% if CURRENT_LANGUAGE == "az" %}Planlaşdırılıb{% elif CURRENT_LANGUAGE == "en" %}Scheduled{% else %}Запланировано{% endif %}
+      {% elif deletion.status == "HELD" %}{% if CURRENT_LANGUAGE == "az" %}Dayandırılıb{% elif CURRENT_LANGUAGE == "en" %}On hold{% else %}Приостановлено{% endif %}
+      {% elif deletion.status == "COMPLETED" %}{% if CURRENT_LANGUAGE == "az" %}Tamamlanıb{% elif CURRENT_LANGUAGE == "en" %}Completed{% else %}Завершено{% endif %}
+      {% elif deletion.status == "CANCELED" %}{% if CURRENT_LANGUAGE == "az" %}Ləğv edilib{% elif CURRENT_LANGUAGE == "en" %}Canceled{% else %}Отменено{% endif %}
+      {% elif deletion.status == "FAILED" %}{% if CURRENT_LANGUAGE == "az" %}Təkrar emal gözlənilir{% elif CURRENT_LANGUAGE == "en" %}Retry pending{% else %}Ожидает повтора{% endif %}
+      {% else %}{{ deletion.get_status_display }}{% endif %}
+    </p>
+    <h1 id="deletion-status-title">{% if CURRENT_LANGUAGE == "az" %}Hesabın silinməsi{% elif CURRENT_LANGUAGE == "en" %}Account deletion{% else %}Удаление аккаунта{% endif %}</h1>
+    {% if deletion.status == "SCHEDULED" %}
+      <p>{% if CURRENT_LANGUAGE == "az" %}Hesab deaktiv edilib. Son emal tarixi: {% elif CURRENT_LANGUAGE == "en" %}The account is disabled. Final processing date: {% else %}Аккаунт отключён. Дата окончательной обработки: {% endif %}<strong>{{ deletion.scheduled_for|date:"d.m.Y H:i" }}</strong>.</p>
+      <p>{% if CURRENT_LANGUAGE == "az" %}Bu tarixədək sorğunu ləğv edə bilərsiniz. Güzəşt müddəti: {% elif CURRENT_LANGUAGE == "en" %}You may cancel before that date. Grace period: {% else %}До этой даты запрос можно отменить. Срок отмены: {% endif %}<strong>{{ deletion_policy.grace_period_days }}</strong>.</p>
+      <a class="account-deletion-secondary" href="{% url 'account_deletion_cancel' deletion.subject_reference %}?token={{ status_token|urlencode }}"><span class="material-symbols-rounded" aria-hidden="true">undo</span>{% if CURRENT_LANGUAGE == "az" %}Silinməni ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel deletion{% else %}Отменить удаление{% endif %}</a>
+    {% elif deletion.status == "HELD" %}
+      <p>{{ policy_copy.legal_hold }}</p>
+    {% elif deletion.status == "COMPLETED" %}
+      <p>{% if CURRENT_LANGUAGE == "az" %}Sorğu siyasətə uyğun tamamlandı. Bu əməliyyat geri qaytarılmır.{% elif CURRENT_LANGUAGE == "en" %}Processing is complete under the policy. This action cannot be reversed.{% else %}Обработка завершена согласно политике. Это действие необратимо.{% endif %}</p>
+    {% elif deletion.status == "CANCELED" %}
+      <p>{% if CURRENT_LANGUAGE == "az" %}Silinmə ləğv edildi. Giriş üçün parolun bərpasından istifadə edin.{% elif CURRENT_LANGUAGE == "en" %}Deletion was canceled. Use password recovery to regain access.{% else %}Удаление отменено. Для входа восстановите пароль.{% endif %}</p>
+      <a class="account-deletion-secondary" href="{% url 'password_reset' %}"><span class="material-symbols-rounded" aria-hidden="true">key</span>{% if CURRENT_LANGUAGE == "az" %}Parolu bərpa et{% elif CURRENT_LANGUAGE == "en" %}Reset password{% else %}Восстановить пароль{% endif %}</a>
+    {% elif deletion.status == "FAILED" %}
+      <p>{% if CURRENT_LANGUAGE == "az" %}Emal tamamlanmayıb və təhlükəsiz şəkildə təkrarlanacaq.{% elif CURRENT_LANGUAGE == "en" %}Processing did not complete and will be retried safely.{% else %}Обработка не завершилась и будет безопасно повторена.{% endif %}</p>
+    {% endif %}
+    <p class="account-deletion-policy">{% if CURRENT_LANGUAGE == "az" %}Siyasət{% elif CURRENT_LANGUAGE == "en" %}Policy{% else %}Политика{% endif %} {{ deletion.policy_version }}</p>
+  </section>
+</div>
+{% endblock %}

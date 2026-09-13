@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import timedelta
 
 from django.db.models import Case, DecimalField, F, Q, Subquery, When
@@ -26,6 +26,7 @@ class PlaceListFilters:
     event_type: str = ""
     view_mode: str = "grid"
     force_new_only: bool = False
+    rating_sort_available: bool | None = field(default=None, init=False)
 
     @classmethod
     def from_request(cls, request, force_new_only=False):
@@ -232,6 +233,16 @@ class PlaceListFilters:
             return qs.order_by("-catalog_paid_price", "-created_at")
         if self.sort == "reviews_desc" and not self.force_new_only:
             return qs.order_by("-rating_count", "-rating_avg", "-created_at")
+        if self.sort == "rating" and not self.force_new_only:
+            from catalog.services.rating_ranking import (
+                apply_weighted_rating_ordering,
+                get_active_rating_calibration,
+            )
+
+            calibration = get_active_rating_calibration()
+            self.rating_sort_available = calibration is not None
+            if calibration is not None:
+                return apply_weighted_rating_ordering(qs, calibration)
         self.sort = "new"
         return qs.order_by("-created_at")
 

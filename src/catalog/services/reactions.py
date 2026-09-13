@@ -38,13 +38,11 @@ def mark_liked_flags(places, liked_ids):
 
 
 def toggle_place_like(place, request):
+    if not request.user.is_authenticated or not request.user.is_active:
+        raise PermissionError("Favorites require an active registered user")
     like_filter = likes_filter_for_request(request)
     session_key = ""
-    user = None
-    if request.user.is_authenticated:
-        user = request.user
-    else:
-        session_key = ensure_session_key(request)
+    user = request.user
 
     with transaction.atomic():
         lock_place = place.__class__.objects.select_for_update().get(pk=place.pk)
@@ -55,16 +53,18 @@ def toggle_place_like(place, request):
             liked = False
         else:
             try:
-                PlaceLike.objects.create(
-                    place=lock_place,
-                    user=user,
-                    session_key=session_key,
-                )
+                with transaction.atomic():
+                    PlaceLike.objects.create(
+                        place=lock_place,
+                        user=user,
+                        session_key=session_key,
+                    )
             except IntegrityError:
                 pass
             liked = True
 
-        lock_place.likes_count = PlaceLike.objects.filter(place=lock_place).count()
+        from catalog.services.favorite_metrics import eligible_favorites_count
+        lock_place.likes_count = eligible_favorites_count(place_id=lock_place.pk)
         lock_place.save(update_fields=["likes_count"])
 
     return liked, lock_place.likes_count

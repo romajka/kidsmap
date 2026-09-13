@@ -3038,7 +3038,7 @@ class TestReviewEnhancements(TestCase):
         self.assertTrue(payload["ok"])
         self.assertTrue(payload["liked"])
         self.assertEqual(payload["likes_count"], 1)
-        self.assertEqual(payload["analytics_event"]["name"], FunnelEvent.EVENT_FAVORITE_TOGGLE)
+        self.assertEqual(payload["analytics_event"]["name"], FunnelEvent.EVENT_FAVORITE_ADDED)
         self.assertEqual(payload["analytics_event"]["params"]["action"], "saved")
         self.assertEqual(PlaceLike.objects.filter(place=self.place, user=self.user).count(), 1)
 
@@ -3050,6 +3050,7 @@ class TestReviewEnhancements(TestCase):
         payload = json.loads(response.content)
         self.assertFalse(payload["liked"])
         self.assertEqual(payload["likes_count"], 0)
+        self.assertEqual(payload["analytics_event"]["name"], FunnelEvent.EVENT_FAVORITE_REMOVED)
         self.assertEqual(payload["analytics_event"]["params"]["action"], "removed")
 
     def test_add_place_review_requires_login_and_redirects_guest(self):

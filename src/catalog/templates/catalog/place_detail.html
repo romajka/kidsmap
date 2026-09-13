@@ -14,7 +14,7 @@
 {% endblock %}
 {% block extra_head %}
   <link rel="stylesheet" href="{% static 'vendor/swiper/12.2.0/swiper-bundle.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=14" />
+  <link rel="stylesheet" href="{% static 'css/pages/detail.css' %}?v=15" />
 {% endblock %}
 
 {% block content %}
@@ -148,6 +148,7 @@
                   <span>{% trans "Пока нет отзывов" %} — <a href="#review-form">{% trans "напишите первым" %}</a></span>
                 {% endif %}
               </p>
+              {% include "catalog/includes/favorite_social_proof.html" %}
             </div>
 
             {% if request.user.is_authenticated %}
@@ -267,7 +268,7 @@
                   href="{{ map_open_url }}"
                   target="_blank"
                   rel="noopener noreferrer"
-                  data-track-event="cta_map"
+                  data-track-event="directions_click"
                   data-track-place-id="{{ place.id }}"
                   data-track-source="place-detail-hero"
                   title="{% trans 'Проложить маршрут' %}"
@@ -285,7 +286,7 @@
                   href="{{ place.instagram_url }}"
                   target="_blank"
                   rel="noopener"
-                  data-track-event="cta_instagram"
+                  data-track-event="social_click"
                   data-track-place-id="{{ place.id }}"
                   data-track-source="place-detail-hero"
                   title="Instagram"
@@ -643,7 +644,7 @@
               <div class="detail-card__head">
                 <h2 class="detail-card__title">{% trans "На карте" %}</h2>
                 {% if map_open_url %}
-                  <a class="detail-card__action" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer">
+                  <a class="detail-card__action" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer" data-track-event="directions_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
                     <svg viewBox="0 0 24 24" width="19" height="19" fill="none" aria-hidden="true"><path d="m4.75 8.5 4.75-2.25 5 2.25 4.75-2.25v9.25L14.5 17.75l-5-2.25-4.75 2.25V8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
                     {% trans "Проложить маршрут" %}
                   </a>
@@ -692,7 +693,7 @@
               {% endif %}
 
               {% if place.instagram %}
-                <a class="detail-contacts__row" href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer">
+                <a class="detail-contacts__row" href="{{ place.instagram_url }}" target="_blank" rel="noopener noreferrer" data-track-event="social_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
                   <span class="detail-contacts__icon detail-contacts__icon--instagram" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none"><rect x="4.75" y="4.75" width="14.5" height="14.5" rx="4.25" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.35" stroke="currentColor" stroke-width="1.8"/><circle cx="16.55" cy="7.45" r="1" fill="currentColor"/></svg>
                   </span>
@@ -704,7 +705,7 @@
               {% endif %}
 
               {% if place.website %}
-                <a class="detail-contacts__row" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer">
+                <a class="detail-contacts__row" href="{{ place.website_url }}" target="_blank" rel="noopener noreferrer" data-track-event="website_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">
                   <span class="detail-contacts__icon detail-contacts__icon--website" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.25" stroke="currentColor" stroke-width="1.8"/><path d="M3.9 12h16.2M12 3.75c2.1 2.28 3.15 5 3.15 8.25S14.1 17.97 12 20.25c-2.1-2.28-3.15-5-3.15-8.25S9.9 6.03 12 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </span>
@@ -724,7 +725,7 @@
                     <span class="detail-label">{% trans "Адрес" %}</span>
                     <strong>{{ place.address_i18n }}</strong>
                     {% if map_open_url %}
-                      <a class="detail-contacts__link" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer" data-track-event="cta_map" data-track-place-id="{{ place.id }}" data-track-source="place-detail-contacts">{% trans "Проложить маршрут" %}</a>
+                      <a class="detail-contacts__link" href="{{ map_open_url }}" target="_blank" rel="noopener noreferrer" data-track-event="directions_click" data-track-place-id="{{ place.id }}" data-track-source="place-detail">{% trans "Проложить маршрут" %}</a>
                     {% endif %}
                   </span>
                 </div>

@@ -89,15 +89,60 @@ def _check_version(revision, version):
         raise ValidationError(_("Данные уже изменились. Обновите страницу перед сохранением."))
 
 
+def _working_place_queryset(user, source):
+    if source == PlaceChangeAudit.SOURCE_VOLUNTEER:
+        return own_places(user)
+    if source == PlaceChangeAudit.SOURCE_ADMIN:
+        if not (
+            user.is_authenticated
+            and user.is_active
+            and user.is_staff
+            and (user.is_superuser or user.has_perm("catalog.change_place"))
+        ):
+            raise PermissionDenied
+        return Place.objects.filter(deleted_at__isnull=True, is_temporary=False)
+    raise PermissionDenied
+
+
+def _audit_working_changes(*, place, actor, source, old_snapshot, new_snapshot):
+    entries = []
+    for field_name in sorted(new_snapshot):
+        old_value = old_snapshot.get(field_name)
+        new_value = new_snapshot.get(field_name)
+        if old_value == new_value:
+            continue
+        entries.append(PlaceChangeAudit(
+            place=place,
+            changed_by=actor,
+            source=source,
+            field_name=field_name,
+            old_value=json.dumps(old_value, ensure_ascii=False, cls=DjangoJSONEncoder),
+            new_value=json.dumps(new_value, ensure_ascii=False, cls=DjangoJSONEncoder),
+        ))
+    if entries:
+        PlaceChangeAudit.objects.bulk_create(entries)
+
+
 @transaction.atomic
-def save_proposal(*, user, place_id, data, files):
-    places = own_places(user)
+def save_working_revision(*, user, place_id, data, files, source):
+    places = _working_place_queryset(user, source)
+    if source == PlaceChangeAudit.SOURCE_ADMIN and not place_id:
+        raise PermissionDenied
     place = get_object_or_404(places.select_for_update(), pk=place_id) if place_id else Place(created_by=user, status="draft", is_active=False)
-    revision = VolunteerPlaceRevision.objects.filter(place=place).first() if place.pk else None
+    revision = VolunteerPlaceRevision.objects.select_for_update().filter(place=place).first() if place.pk else None
+    if source == PlaceChangeAudit.SOURCE_ADMIN and (
+        revision is None or revision.status == VolunteerPlaceRevision.Status.APPROVED
+    ):
+        raise ValidationError(_("У места нет активной рабочей версии волонтёра."))
+
     form = editor_form(place, revision, data=data, files=files)
     if not form.is_valid():
         return place, revision, form
     try:
+        action = data.get("action")
+        allowed_actions = {"draft", "submit"} if source == PlaceChangeAudit.SOURCE_VOLUNTEER else {"admin_save"}
+        if action not in allowed_actions:
+            raise ValidationError(_("Недопустимое действие сохранения."))
         _check_version(revision, form.cleaned_data["revision_version"])
         if not token_matches(form.cleaned_data["base_token"], place):
             raise ValidationError(_("Карточка изменилась. Обновите страницу."))
@@ -106,6 +151,10 @@ def save_proposal(*, user, place_id, data, files):
     except ValidationError as exc:
         form.add_error(None, exc)
         return place, revision, form
+
+    old_working_snapshot = copy.deepcopy(
+        revision.payload if revision and revision.status != VolunteerPlaceRevision.Status.APPROVED else content_snapshot(place)
+    )
     candidate = form.instance
     # FileField storage creates unique names. Never overwrite/delete a live file.
     for name in ("photo", "cover_photo"):
@@ -121,19 +170,38 @@ def save_proposal(*, user, place_id, data, files):
     payload["structured_schedule"] = json_value(form.cleaned_schedule_days)
     if revision is None:
         revision = VolunteerPlaceRevision(place=place, author=user)
-    elif revision.status == "approved":
+    elif revision.status == VolunteerPlaceRevision.Status.APPROVED:
         revision.base_snapshot = {}
     revision.base_snapshot = revision.base_snapshot or live_snapshot(place)
     revision.payload = json_value(payload)
-    revision.author = user
-    keep_feedback = data.get("action") == "draft" and revision.status in {"rejected", "draft"}
-    revision.status = "pending" if data.get("action") == "submit" else "draft"
-    if not keep_feedback:
-        revision.review_note = ""
-        revision.reviewed_by = None
+    if source == PlaceChangeAudit.SOURCE_VOLUNTEER or revision.author_id is None:
+        revision.author = user
+    if source == PlaceChangeAudit.SOURCE_VOLUNTEER:
+        keep_feedback = data.get("action") == "draft" and revision.status in {"rejected", "draft"}
+        revision.status = "pending" if data.get("action") == "submit" else "draft"
+        if not keep_feedback:
+            revision.review_note = ""
+            revision.reviewed_by = None
     revision.version = (revision.version + 1) if revision.pk else 1
     revision.save()
+    _audit_working_changes(
+        place=place,
+        actor=user,
+        source=source,
+        old_snapshot=old_working_snapshot,
+        new_snapshot=revision.payload,
+    )
     return place, revision, form
+
+
+def save_proposal(*, user, place_id, data, files):
+    return save_working_revision(
+        user=user,
+        place_id=place_id,
+        data=data,
+        files=files,
+        source=PlaceChangeAudit.SOURCE_VOLUNTEER,
+    )
 
 
 @transaction.atomic
@@ -159,6 +227,17 @@ def review_form(revision):
     candidate = candidate_from_payload(revision.place, revision.payload)
     # Files are trusted server-stored names, never taken from a review POST.
     data = {k: v for k, v in revision.payload.items() if k not in {"photo", "cover_photo"}}
+    stored_district = str(data.get("district") or "").strip()
+    if stored_district.startswith("baku_"):
+        data["region"] = "baku"
+    elif stored_district == "baku":
+        data["region"] = "baku"
+        data["district"] = ""
+    elif stored_district:
+        data["region"] = stored_district
+        data["district"] = ""
+    else:
+        data["region"] = ""
     data["pricing_plans"] = json.dumps(data.get("pricing_plans", []))
     data["structured_schedule"] = dump_schedule_payload(data.get("structured_schedule", []))
     data.update(base_token=base_token(revision.place), revision_version=revision.version)

@@ -35,6 +35,7 @@ from catalog.models import (
     Subcategory,
     CatalogContentSettings,
     SiteSettings,
+    VolunteerPlaceRevision,
 )
 from catalog.repositories.django_repositories import DjangoPlaceChangeAuditRepository
 from catalog.services.content_quality import (
@@ -1616,6 +1617,7 @@ class PlaceAdmin(admin.ModelAdmin):
     place_audit_repository = DjangoPlaceChangeAuditRepository()
     change_list_template = "admin/catalog/place/change_list.html"
     change_form_template = "admin/catalog/place/change_form.html"
+    volunteer_revision_change_form_template = "admin/catalog/place/volunteer_revision_change_form.html"
     delete_confirmation_template = "admin/catalog/place_delete_confirmation.html"
     km_primary_filters = ("category", "district", "status", "created_by")
     delete_selected_confirmation_template = "admin/catalog/place_delete_selected_confirmation.html"
@@ -1849,6 +1851,85 @@ class PlaceAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        if object_id is not None:
+            obj = self.get_object(request, object_id)
+            revision = (
+                VolunteerPlaceRevision.objects.select_related("author", "reviewed_by")
+                .filter(place=obj)
+                .exclude(status=VolunteerPlaceRevision.Status.APPROVED)
+                .first()
+                if obj is not None
+                else None
+            )
+            if revision is not None:
+                if not self.has_change_permission(request, obj):
+                    raise PermissionDenied
+                return self._volunteer_revision_changeform_view(request, obj=obj, revision=revision)
+        return super().changeform_view(
+            request,
+            object_id=object_id,
+            form_url=form_url,
+            extra_context=extra_context,
+        )
+
+    def _volunteer_revision_changeform_view(self, request, *, obj, revision):
+        from catalog.services.place_taxonomy_config import build_place_taxonomy_config
+        from catalog.services.volunteer_editor import editor_context
+        from catalog.services.volunteer_places import editor_form, live_snapshot, save_working_revision
+
+        if request.method == "POST":
+            if request.POST.get("action") != "admin_save":
+                raise PermissionDenied
+            obj, revision, form = save_working_revision(
+                user=request.user,
+                place_id=obj.pk,
+                data=request.POST,
+                files=request.FILES,
+                source=PlaceChangeAudit.SOURCE_ADMIN,
+            )
+            if not form.errors:
+                self.message_user(request, _("Рабочая версия волонтёра сохранена."), level=messages.SUCCESS)
+                return HttpResponseRedirect(request.path)
+        else:
+            form = editor_form(obj, revision)
+
+        candidate = form.instance
+        public = obj.status == Place.STATUS_PUBLISHED and obj.is_active
+        try:
+            photo = candidate.photo or candidate.cover_photo
+            photo_url = photo.url if photo else ""
+        except (ValueError, OSError):
+            photo_url = ""
+        card = {
+            "name": candidate.name_i18n(),
+            "status": revision.get_status_display(),
+            "note": revision.review_note,
+            "detail_url": reverse("admin:volunteer_review", args=[obj.pk]),
+            "photo_url": photo_url,
+            "public": public,
+            "public_url": obj.get_absolute_url() if public else "",
+        }
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Рабочая версия места"),
+            "opts": self.opts,
+            "original": obj,
+            "object_id": str(obj.pk),
+            "form": form,
+            "adminform": {"form": form},
+            "revision": revision,
+            "place": obj,
+            "card": card,
+            "conflict": revision.base_snapshot != live_snapshot(obj),
+            "admin_working_revision": True,
+            "volunteer_editor": True,
+            "km_place_taxonomy_picker": build_place_taxonomy_config(form),
+            "google_maps_api_key": getattr(settings, "GOOGLE_MAPS_API_KEY", ""),
+            **editor_context(form),
+        }
+        return TemplateResponse(request, self.volunteer_revision_change_form_template, context)
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         context["google_maps_api_key"] = getattr(settings, "GOOGLE_MAPS_API_KEY", "")

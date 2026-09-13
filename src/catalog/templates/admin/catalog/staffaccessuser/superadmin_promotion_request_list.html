@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}?v=6">{% endblock %}
+{% block content %}
+<main id="content-main" class="km-staff-promotion-page">
+  <header class="km-staff-promotion-header">
+    <a class="km-staff-promotion-back" href="{% url 'admin:catalog_staffaccessuser_changelist' %}">
+      <span aria-hidden="true">←</span><span>{% translate "Сотрудники админки" %}</span>
+    </a>
+    <div class="km-staff-promotion-title-row">
+      <span class="km-staff-promotion-title-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.2 3.4 9.9 8 11 4.6-1.1 8-5.8 8-11V5l-8-3Zm0 2.2 6 2.3V11c0 4.1-2.5 7.8-6 8.9C8.5 18.8 6 15.1 6 11V6.5l6-2.3Zm-1 4.3v3H8v2h3v3h2v-3h3v-2h-3v-3h-2Z"/></svg>
+      </span>
+      <div>
+        <p class="km-staff-promotion-eyebrow">{% translate "Контроль максимальных прав" %}</p>
+        <h1>{% translate "Запросы прав Superadmin" %}</h1>
+        <p>{% translate "Роль активируется только после решения другого действующего суперадмина." %}</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="km-staff-promotion-table" aria-labelledby="promotion-queue-title">
+    <div class="km-staff-promotion-section-head">
+      <div>
+        <h2 id="promotion-queue-title">{% translate "Ожидают решения" %}</h2>
+        <p>{% translate "Сначала проверяйте кандидата и инициатора, затем принимайте решение." %}</p>
+      </div>
+      <span class="km-staff-promotion-count">{{ pending_requests|length }}</span>
+    </div>
+    <table>
+      <thead><tr><th scope="col">{% translate "Кандидат" %}</th><th scope="col">{% translate "Инициатор" %}</th><th scope="col">{% translate "Создан" %}</th><th scope="col">{% translate "Статус" %}</th><th scope="col"><span class="sr-only">{% translate "Действия" %}</span></th></tr></thead>
+      <tbody>
+        {% for item in pending_requests %}
+          <tr>
+            <td data-label="{% translate 'Кандидат' %}"><strong>{{ item.target }}</strong></td>
+            <td data-label="{% translate 'Инициатор' %}">{{ item.initiated_by|default:"—" }}</td>
+            <td data-label="{% translate 'Создан' %}"><time datetime="{{ item.created_at|date:'c' }}">{{ item.created_at|date:"d.m.Y H:i" }}</time></td>
+            <td data-label="{% translate 'Статус' %}"><span class="km-staff-promotion-status km-staff-promotion-status--pending"><span aria-hidden="true"></span>{{ item.get_status_display }}</span></td>
+            <td class="km-staff-promotion-action-cell"><a class="km-staff-promotion-action" href="{% url 'admin:catalog_staffaccessuser_superadmin_request_confirm' item.pk %}"><span>{% translate "Проверить" %}</span><span aria-hidden="true">→</span></a></td>
+          </tr>
+        {% empty %}
+          <tr><td class="km-staff-promotion-empty" colspan="5"><span aria-hidden="true">✓</span><strong>{% translate "Ожидающих запросов нет" %}</strong><small>{% translate "Новые запросы появятся здесь после отправки." %}</small></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</main>
+{% endblock %}

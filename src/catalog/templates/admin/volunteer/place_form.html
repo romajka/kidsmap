@@ -6,7 +6,11 @@
 <div class="km-pf__shell">
   <header class="km-pf__header">
     <div class="km-pf__header-main">
-      <a class="km-pf__eyebrow" href="{% url 'admin:volunteer_index' %}">{{ ui.places }}</a>
+      {% if admin_working_revision %}
+        <a class="km-pf__eyebrow" href="{% url 'admin:catalog_place_changelist' %}">{% translate "Места" %}</a>
+      {% else %}
+        <a class="km-pf__eyebrow" href="{% url 'admin:volunteer_index' %}">{{ ui.places }}</a>
+      {% endif %}
       <div class="km-pf__titlerow"><h1 class="km-pf__title">{% if card %}{{ card.name }}{% else %}{% translate "Новое место" %}{% endif %}</h1><span class="km-pf-chip">{% if card %}{{ card.status }}{% else %}{% translate "Черновик" context "volunteer dashboard" %}{% endif %}</span></div>
       <div class="km-pf__progress"><span class="km-pf-bar km-pf-bar--lg"><span class="km-pf-bar__fill" style="width:{{ ready.percentage }}%"></span></span><strong>{{ ready.percentage }}%</strong></div>
       <p class="km-pf__progress-copy">{{ ready.completed_count }} / {{ ready.required_count }} · {{ editor_copy.update_hint }} <a href="#verification" class="km-pf-linkbtn" data-editor-target="verification">{% translate "Показать" %}</a></p>
@@ -49,8 +53,12 @@
         <div class="km-pf-side__row"><span class="km-pf-side__eyebrow">{% translate "Готовность" %}</span><span>{{ ready.completed_count }} / {{ ready.required_count }}</span></div>
         <div class="km-pf-side__progress"><strong class="km-pf-side__pct">{{ ready.percentage }}%</strong><span class="km-pf-bar"><span class="km-pf-bar__fill" style="width:{{ ready.percentage }}%"></span></span></div>
         <p>{{ editor_copy.update_hint }}</p>
-        <button type="submit" name="action" value="draft" class="km-pf-btn km-pf-btn--primary km-pf-btn--block" {% if conflict %}disabled{% endif %}>{{ ui.draft }}</button>
-        <button type="submit" name="action" value="submit" class="km-pf-btn km-pf-btn--ghost km-pf-btn--block" {% if conflict %}disabled{% endif %}>{{ ui.submit }}</button>
+        {% if admin_working_revision %}
+          <button type="submit" name="action" value="admin_save" class="km-pf-btn km-pf-btn--primary km-pf-btn--block" {% if conflict %}disabled{% endif %}>{% translate "Сохранить рабочую версию" %}</button>
+        {% else %}
+          <button type="submit" name="action" value="draft" class="km-pf-btn km-pf-btn--primary km-pf-btn--block" {% if conflict %}disabled{% endif %}>{{ ui.draft }}</button>
+          <button type="submit" name="action" value="submit" class="km-pf-btn km-pf-btn--ghost km-pf-btn--block" {% if conflict %}disabled{% endif %}>{{ ui.submit }}</button>
+        {% endif %}
       </div><div class="km-pf-side__block"><strong>{% if card %}{{ card.status }}{% else %}{% translate "Черновик" context "volunteer dashboard" %}{% endif %}</strong><p>{{ ui.intro }}</p>{% if card.public %}<p>{% translate "До одобрения новых правок на сайте остаётся прежняя опубликованная версия." context "volunteer dashboard" %}</p><a href="{{ card.public_url }}">{% translate "Посмотреть на сайте" context "volunteer dashboard" %}</a>{% endif %}</div></div>
     </aside>
   </div>

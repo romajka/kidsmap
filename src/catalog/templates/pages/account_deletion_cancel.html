@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Silinməni ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel deletion{% else %}Отменить удаление{% endif %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=4" />{% endblock %}
+{% block content %}
+<div class="account-deletion-page">
+  <section class="account-deletion-card" aria-labelledby="deletion-cancel-title">
+    <span class="account-deletion-icon account-deletion-icon--safe material-symbols-rounded" aria-hidden="true">restore_from_trash</span>
+    <h1 id="deletion-cancel-title">{% if CURRENT_LANGUAGE == "az" %}Hesabın silinməsini ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel account deletion{% else %}Отменить удаление аккаунта{% endif %}</h1>
+    <p>{% if CURRENT_LANGUAGE == "az" %}Ləğv ayrıca e-poçt kodu ilə təsdiqlənir. Hesab bərpa olunacaq, giriş üçün yeni parol təyin etməlisiniz.{% elif CURRENT_LANGUAGE == "en" %}Cancellation requires a fresh email code. The account will be restored, and you must set a new password.{% else %}Отмена подтверждается новым кодом из письма. Аккаунт восстановится, но для входа потребуется задать новый пароль.{% endif %}</p>
+    <div aria-live="polite">{% if code_sent %}{% if CURRENT_LANGUAGE == "az" %}Ləğv kodu e-poçta göndərildi.{% elif CURRENT_LANGUAGE == "en" %}A cancellation code was sent by email.{% else %}Код отмены отправлен на email.{% endif %}{% endif %}</div>
+    {% if form.non_field_errors %}<div class="account-deletion-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    {% if not code_sent %}
+      <form method="post" class="account-deletion-actions">
+        {% csrf_token %}<input type="hidden" name="form_action" value="send_code"><input type="hidden" name="status_token" value="{{ status_token }}">
+        <button class="account-btn-danger" type="submit"><span class="material-symbols-rounded" aria-hidden="true">mail</span>{% if CURRENT_LANGUAGE == "az" %}Ləğv kodunu göndər{% elif CURRENT_LANGUAGE == "en" %}Send cancellation code{% else %}Отправить код отмены{% endif %}</button>
+      </form>
+    {% else %}
+      <form method="post" class="account-deletion-form" novalidate>
+        {% csrf_token %}<input type="hidden" name="form_action" value="cancel"><input type="hidden" name="status_token" value="{{ status_token }}">
+        <label for="id_confirmation_code">{% if CURRENT_LANGUAGE == "az" %}E-poçtdakı kod{% elif CURRENT_LANGUAGE == "en" %}Email code{% else %}Код из письма{% endif %}</label>
+        <input id="id_confirmation_code" class="field" name="confirmation_code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="{{ form.confirmation_code.value|default:'' }}" aria-describedby="cancellation-code-help{% if form.confirmation_code.errors %} cancellation-code-errors{% endif %}"{% if form.confirmation_code.errors %} aria-invalid="true"{% endif %} required>
+        <small id="cancellation-code-help">{% if CURRENT_LANGUAGE == "az" %}E-poçtdakı altırəqəmli kodu daxil edin.{% elif CURRENT_LANGUAGE == "en" %}Enter the six-digit code from the email.{% else %}Введите шестизначный код из письма.{% endif %}</small>
+        {% if form.confirmation_code.errors %}<div id="cancellation-code-errors" class="account-deletion-errors" role="alert">{{ form.confirmation_code.errors }}</div>{% endif %}
+        <button class="account-btn-danger" type="submit"><span class="material-symbols-rounded" aria-hidden="true">restore_from_trash</span>{% if CURRENT_LANGUAGE == "az" %}Silinməni ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel deletion{% else %}Отменить удаление{% endif %}</button>
+      </form>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

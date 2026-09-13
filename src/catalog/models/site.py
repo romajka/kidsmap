@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models import Avg, Count, Q
 from django.db.models.signals import post_delete, post_save
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language, override
 from django.utils.text import slugify
@@ -340,6 +341,16 @@ class SiteSettings(models.Model):
         default=True,
         help_text=_("Скрывает афишу, временные карточки, ссылки в навигации и owner-формы. Данные и админка мероприятий сохраняются."),
     )
+    public_favorites_count_enabled = models.BooleanField(
+        _("Показывать публичное число добавлений в избранное"),
+        default=False,
+    )
+    public_favorites_minimum = models.PositiveIntegerField(
+        _("Минимум добавлений для публичного показа"),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)],
+    )
     footer_phone = models.CharField(_("Телефон в футере"), max_length=60, blank=True, default="")
     footer_email = models.EmailField(_("Email в футере"), blank=True, default="")
     footer_instagram = models.CharField(_("Instagram в футере"), max_length=255, blank=True, default="")
@@ -426,12 +437,25 @@ class SiteSettings(models.Model):
         clear_singleton_caches()
         return result
 
+    def clean(self):
+        super().clean()
+        if self.public_favorites_count_enabled and self.public_favorites_minimum is None:
+            raise ValidationError(
+                {"public_favorites_minimum": _("Укажите порог до включения публичного счётчика.")}
+            )
+
     def delete(self, *args, **kwargs):
         result = super().delete(*args, **kwargs)
         clear_singleton_caches()
         return result
 
     class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(public_favorites_count_enabled=False) | models.Q(public_favorites_minimum__isnull=False),
+                name="public_favorites_requires_threshold",
+            )
+        ]
         verbose_name = _("Настройка сайта")
         verbose_name_plural = _("Настройка сайта")
 
@@ -575,6 +599,22 @@ class SiteVisit(models.Model):
 
 
 class FunnelEvent(models.Model):
+    SCHEMA_V1 = 1
+    SCHEMA_V2 = 2
+    SUBJECT_PLACE = "place"
+    SUBJECT_ORGANIZATION = "organization"
+    SUBJECT_ACTIVITY = "activity"
+
+    EVENT_ORGANIZATION_VIEW = "organization_view"
+    EVENT_PLACE_VIEW = "place_view"
+    EVENT_ACTIVITY_VIEW = "activity_view"
+    EVENT_FAVORITE_ADDED = "favorite_added"
+    EVENT_FAVORITE_REMOVED = "favorite_removed"
+    EVENT_PHONE_CLICK = "phone_click"
+    EVENT_WHATSAPP_CLICK = "whatsapp_click"
+    EVENT_WEBSITE_CLICK = "website_click"
+    EVENT_SOCIAL_CLICK = "social_click"
+    EVENT_DIRECTIONS_CLICK = "directions_click"
     EVENT_CATALOG_SEARCH = "catalog_search"
     EVENT_CATALOG_FILTER = "catalog_filter"
     EVENT_PLACE_OPEN = "place_open"
@@ -593,6 +633,16 @@ class FunnelEvent(models.Model):
     EVENT_AI_REFERRAL_VISIT = "ai_referral_visit"
 
     EVENT_CHOICES = (
+        (EVENT_ORGANIZATION_VIEW, _("Просмотр организации")),
+        (EVENT_PLACE_VIEW, _("Просмотр места")),
+        (EVENT_ACTIVITY_VIEW, _("Просмотр занятия")),
+        (EVENT_FAVORITE_ADDED, _("Добавление места в избранное")),
+        (EVENT_FAVORITE_REMOVED, _("Удаление места из избранного")),
+        (EVENT_PHONE_CLICK, _("Клик по телефону")),
+        (EVENT_WHATSAPP_CLICK, _("Клик по WhatsApp")),
+        (EVENT_WEBSITE_CLICK, _("Клик по сайту")),
+        (EVENT_SOCIAL_CLICK, _("Клик по социальной сети")),
+        (EVENT_DIRECTIONS_CLICK, _("Построение маршрута")),
         (EVENT_CATALOG_SEARCH, _("Поиск в каталоге")),
         (EVENT_CATALOG_FILTER, _("Применение фильтров")),
         (EVENT_PLACE_OPEN, _("Открытие карточки")),
@@ -611,6 +661,18 @@ class FunnelEvent(models.Model):
     )
 
     event_type = models.CharField(_("Событие"), max_length=32, choices=EVENT_CHOICES, db_index=True)
+    schema_version = models.PositiveSmallIntegerField(default=SCHEMA_V1, db_index=True)
+    subject_type = models.CharField(max_length=24, blank=True, default="", db_index=True)
+    subject_id = models.PositiveBigIntegerField(null=True, blank=True, db_index=True)
+    occurred_at = models.DateTimeField(default=timezone.now, db_index=True)
+    visitor_key_hash = models.CharField(max_length=80, blank=True, default="", db_index=True)
+    session_key_hash = models.CharField(max_length=80, blank=True, default="", db_index=True)
+    source = models.CharField(max_length=40, blank=True, default="", db_index=True)
+    page_type = models.CharField(max_length=40, blank=True, default="", db_index=True)
+    language = models.CharField(max_length=8, blank=True, default="", db_index=True)
+    device_class = models.CharField(max_length=16, blank=True, default="", db_index=True)
+    referrer_domain = models.CharField(max_length=180, blank=True, default="", db_index=True)
+    campaign = models.CharField(max_length=80, blank=True, default="", db_index=True)
     day = models.DateField(_("День"), default=timezone.localdate, db_index=True)
     path = models.CharField(_("Путь"), max_length=255, blank=True, default="")
     place = models.ForeignKey(
@@ -640,6 +702,14 @@ class FunnelEvent(models.Model):
         indexes = [
             models.Index(fields=("day", "event_type")),
             models.Index(fields=("event_type", "created_at")),
+            models.Index(fields=("subject_type", "subject_id", "occurred_at", "event_type"), name="funnel_subject_time_idx"),
+            models.Index(fields=("event_type", "occurred_at"), name="funnel_event_time_idx"),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=(models.Q(schema_version=1) | (models.Q(subject_type__gt="") & models.Q(subject_id__isnull=False))),
+                name="funnel_v2_requires_subject",
+            )
         ]
 
     def __str__(self):

@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=3" />
 {% endblock %}
 
 {% block content %}
@@ -231,6 +231,52 @@
             </div>
           </form>
         </div>
+
+        <section class="account-card-box account-danger-zone" aria-labelledby="account-delete-title">
+          <div class="account-card-box__head">
+            <div>
+              <p class="account-danger-zone__eyebrow">
+                {% if CURRENT_LANGUAGE == "az" %}Təhlükəli əməliyyat{% elif CURRENT_LANGUAGE == "en" %}Danger zone{% else %}Опасная зона{% endif %}
+              </p>
+              <h2 id="account-delete-title">
+                {% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}
+              </h2>
+            </div>
+          </div>
+          <div class="account-danger-zone__body">
+            <p class="account-danger-zone__copy">
+              {% if CURRENT_LANGUAGE == "az" %}
+                Silinmə dərhal baş vermir. Əvvəlcə e-poçt kodu və dəqiq təsdiq ifadəsi tələb olunur, sonra ləğv müddəti başlayır.
+              {% elif CURRENT_LANGUAGE == "en" %}
+                Deletion is not immediate. An email code and exact confirmation phrase are required before the cancellation period begins.
+              {% else %}
+                Удаление выполняется не сразу. Сначала потребуются код из письма и точная фраза подтверждения, затем начнётся срок для отмены.
+              {% endif %}
+            </p>
+            {% if not account_deletion_available %}
+              <p class="account-danger-zone__notice" role="status">
+                {% if account_deletion_staff_blocked %}
+                  {% if CURRENT_LANGUAGE == "az" %}Xidməti hesabın silinməsi üçün səlahiyyətli administratora müraciət edin.{% elif CURRENT_LANGUAGE == "en" %}Contact an authorized administrator to offboard a staff account.{% else %}Для отключения служебного аккаунта обратитесь к уполномоченному администратору.{% endif %}
+                {% else %}
+                  {% if CURRENT_LANGUAGE == "az" %}Funksiya məlumatların saxlanması siyasəti təsdiqlənənədək deaktivdir.{% elif CURRENT_LANGUAGE == "en" %}This action is disabled until the data-retention policy is approved.{% else %}Действие отключено до утверждения политики хранения данных.{% endif %}
+                {% endif %}
+              </p>
+            {% endif %}
+            <div class="account-form-actions">
+              {% if active_account_deletion and active_account_deletion.status == "CONFIRMATION_SENT" %}
+                <a class="account-btn-danger" href="{% url 'account_deletion_confirm' active_account_deletion.subject_reference %}">
+                  {% if CURRENT_LANGUAGE == "az" %}Təsdiqləməyə davam et{% elif CURRENT_LANGUAGE == "en" %}Continue confirmation{% else %}Продолжить подтверждение{% endif %}
+                </a>
+              {% else %}
+                {% if account_deletion_available %}
+                  <a class="account-btn-danger" href="{% url 'account_deletion_request' %}">{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}</a>
+                {% else %}
+                  <span class="account-btn-danger is-disabled" aria-disabled="true">{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}</span>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        </section>
       {% else %}
         <!-- Readonly Profile Overview -->
         <div class="account-card-box">

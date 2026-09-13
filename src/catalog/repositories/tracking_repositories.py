@@ -24,6 +24,7 @@ class DjangoFunnelEventRepository(IFunnelEventRepository):
         user,
         session_key: str,
         event_meta: dict[str, Any],
+        **dimensions,
     ) -> None:
         FunnelEvent.objects.create(
             event_type=event_type,
@@ -32,6 +33,7 @@ class DjangoFunnelEventRepository(IFunnelEventRepository):
             user=user,
             session_key=session_key,
             event_meta=event_meta,
+            **dimensions,
         )
 
 

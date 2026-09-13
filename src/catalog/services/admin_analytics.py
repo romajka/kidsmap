@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Category, Place, PlaceReview
 from catalog.services.google_analytics_reporting import build_google_analytics_context
+from catalog.services.analytics_metrics import build_subject_metrics
 
 
 VALID_PERIODS = {7, 30, 90, 365}
@@ -97,6 +98,13 @@ def build_statistics_context(period_days: int = 30) -> dict:
         "unique_sessions": list(chart.get("active_users") or []),
         "page_views": list(chart.get("page_views") or []),
     }
+    now = timezone.now()
+    local_place_metrics = build_subject_metrics(
+        subject_type="place",
+        subject_ids=Place.objects.filter(deleted_at__isnull=True).values_list("pk", flat=True),
+        start=now - timedelta(days=period_days),
+        end=now,
+    )
 
     return {
         "period_days": period_days,
@@ -113,6 +121,7 @@ def build_statistics_context(period_days: int = 30) -> dict:
         "ga4_top_pages": list(ga4.get("top_pages") or []),
         "ga4_top_events": list(ga4.get("top_events") or []),
         "ga4": ga4,
+        "local_place_metrics": local_place_metrics,
     }
 
 

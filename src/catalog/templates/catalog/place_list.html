@@ -629,7 +629,8 @@
             <option value="new" {% if selected.sort == "new" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə yenilər{% elif language == "en" %}Newest first{% else %}{% trans "Сначала новые" %}{% endif %}</option>
             <option value="price_asc" {% if selected.sort == "price_asc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə ucuz{% elif language == "en" %}Price: low to high{% else %}{% trans "Цена по возрастанию" %}{% endif %}</option>
             <option value="price_desc" {% if selected.sort == "price_desc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə bahalı{% elif language == "en" %}Price: high to low{% else %}{% trans "Цена по убыванию" %}{% endif %}</option>
-            <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% if language == "az" %}Əvvəlcə populyar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}</option>
+            {% if rating_sort_available %}<option value="rating" {% if selected.sort == "rating" %}selected{% endif %}>{% if language == "az" %}Reytinq üzrə{% elif language == "en" %}Highest rated{% else %}{% trans "По рейтингу" %}{% endif %}</option>{% endif %}
+            <option value="reviews_desc" {% if selected.sort == "reviews_desc" %}selected{% endif %}>{% if language == "az" %}Ən çox rəy alanlar{% elif language == "en" %}Most reviewed{% else %}{% trans "По количеству отзывов" %}{% endif %}</option>
           </select>
         </label>
       </div>
@@ -791,7 +792,7 @@
                     {% include "catalog/includes/phone_reveal.html" with phone_class="cta-btn cta-call icon-btn icon-phone" phone_index=0 %}
                   {% endif %}
                   {% if place.instagram %}
-                    <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="cta_instagram" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">Instagram</a>
+                    <a class="cta-btn cta-instagram icon-btn icon-instagram" href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="social_click" data-track-place-id="{{ place.id }}" data-track-source="catalog-list">Instagram</a>
                   {% endif %}
                 </div>
                 <div class="card-action-stack">

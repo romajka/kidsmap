@@ -25,6 +25,12 @@
         </div>
         <div class="km-staff-header__actions">
           <span class="km-staff-count-badge">{{ cl.result_list|length }} {% translate "сотрудников" %}</span>
+          {% if superadmin_request_list_url %}
+            <a href="{{ superadmin_request_list_url }}" class="km-staff-queue-btn">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-shield"></use></svg>
+              <span>{% translate "Запросы Superadmin" %}{% if pending_superadmin_count %} · {{ pending_superadmin_count }}{% endif %}</span>
+            </a>
+          {% endif %}
           {% if has_add_permission %}
             <a href="{% url cl.opts|admin_urlname:'add' %}" class="km-staff-add-btn">
               <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-add"></use></svg>
@@ -44,7 +50,9 @@
             <option value="">{% translate "Все роли" %}</option>
             <option value="superadmin"{% if request.GET.role == 'superadmin' %} selected{% endif %}>{% translate "Суперадмины" %}</option>
             <option value="volunteer"{% if request.GET.role == 'volunteer' %} selected{% endif %}>{% translate "Волонтёры" %}</option>
-            <option value="admin"{% if request.GET.role == 'admin' %} selected{% endif %}>{% translate "Админы" %}</option>
+            <option value="moderator"{% if request.GET.role == 'moderator' %} selected{% endif %}>{% translate "Модераторы" %}</option>
+            <option value="content_manager"{% if request.GET.role == 'content_manager' %} selected{% endif %}>{% translate "Контент-менеджеры" %}</option>
+            <option value="staff"{% if request.GET.role == 'staff' %} selected{% endif %}>{% translate "Другие сотрудники" %}</option>
           </select>
           <svg class="km-i km-staff-toolbar__arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
         </div>
@@ -97,13 +105,7 @@
                   <span class="km-staff-email">{{ staff_user.email|default:"—" }}</span>
                 </td>
                 <td data-label="{% translate 'Роль' %}" class="km-staff-cell-center">
-                  {% if staff_user.is_superuser %}
-                    <span class="km-staff-role km-staff-role--super">{% translate "Суперадмин" %}</span>
-                  {% elif staff_user.km_is_volunteer %}
-                    <span class="km-staff-role km-staff-role--volunteer">{% translate "Волонтёр" %}</span>
-                  {% else %}
-                    <span class="km-staff-role km-staff-role--admin">{% translate "Админ" %}</span>
-                  {% endif %}
+                  <span class="km-staff-role km-staff-role--{{ staff_user.km_role }}">{{ staff_user.km_role_label }}</span>
                 </td>
                 <td data-label="{% translate 'Добавленные места' %}" class="km-staff-cell-center">
                   <span class="km-staff-count">{{ staff_user.places_count }}</span>

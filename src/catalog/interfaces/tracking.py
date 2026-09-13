@@ -24,6 +24,7 @@ class IFunnelEventRepository(ABC):
         user,
         session_key: str,
         event_meta: dict[str, Any],
+        **dimensions,
     ) -> None:
         raise NotImplementedError
 

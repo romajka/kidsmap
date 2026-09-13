@@ -35,10 +35,10 @@
         <div class="place-more-links">
           {% for phone in place.phone_numbers %}{% include "catalog/includes/phone_reveal.html" with phone_class="" phone_index=forloop.counter0 %}{% endfor %}
           {% if place.instagram %}
-            <a href="{{ place.instagram_url }}" target="_blank" rel="noopener">Instagram</a>
+            <a href="{{ place.instagram_url }}" target="_blank" rel="noopener" data-track-event="social_click" data-track-place-id="{{ place.id }}" data-track-source="place-card">Instagram</a>
           {% endif %}
           {% if place.website %}
-            <a href="{{ place.website_url }}" target="_blank" rel="noopener">{{ place.website }}</a>
+            <a href="{{ place.website_url }}" target="_blank" rel="noopener" data-track-event="website_click" data-track-place-id="{{ place.id }}" data-track-source="place-card">{{ place.website }}</a>
           {% endif %}
         </div>
       </div>

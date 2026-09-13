@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 import os
 import re
 from importlib.util import find_spec
@@ -103,6 +104,12 @@ GOOGLE_APPLICATION_CREDENTIALS = os.getenv(
 # Admin analytics should rely on GA4 only. Local tracking persistence is disabled
 # to avoid unbounded growth of visit/session/event tables on the server.
 LOCAL_ANALYTICS_STORAGE_ENABLED = _env_bool("LOCAL_ANALYTICS_STORAGE_ENABLED", False)
+ANALYTICS_IDENTITY_HASH_KEY = (os.getenv("ANALYTICS_IDENTITY_HASH_KEY", "") or "").strip()
+_analytics_retention_raw = (os.getenv("ANALYTICS_RAW_EVENT_RETENTION_DAYS", "") or "").strip()
+ANALYTICS_RAW_EVENT_RETENTION_DAYS = int(_analytics_retention_raw) if _analytics_retention_raw else None
+ANALYTICS_COLLECTION_STARTED_AT = (os.getenv("ANALYTICS_COLLECTION_STARTED_AT", "") or "").strip()
+OWNER_ANALYTICS_ENABLED = _env_bool("OWNER_ANALYTICS_ENABLED", False)
+ANALYTICS_PRIVACY_COHORT_MINIMUM = int(os.getenv("ANALYTICS_PRIVACY_COHORT_MINIMUM", "10"))
 TRACKING_EVENT_RATE_LIMIT = int(os.getenv("TRACKING_EVENT_RATE_LIMIT", "60"))
 TRACKING_EVENT_RATE_WINDOW_SECONDS = int(os.getenv("TRACKING_EVENT_RATE_WINDOW_SECONDS", "60"))
 REVIEWS_REQUIRE_AUTH = _env_bool("REVIEWS_REQUIRE_AUTH", True)
@@ -171,6 +178,20 @@ EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", False)
 EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "20"))
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "KidsMap <info@kidsmap.az>")
+
+# Self-service deletion stays fail-closed until an authorized privacy owner
+# supplies a complete, versioned policy JSON. The service validates all fields
+# again before it sends a code or changes an account.
+_account_deletion_policy_raw = os.getenv("ACCOUNT_DELETION_RETENTION_POLICY_JSON", "").strip()
+if _account_deletion_policy_raw:
+    try:
+        ACCOUNT_DELETION_RETENTION_POLICY = json.loads(_account_deletion_policy_raw)
+    except json.JSONDecodeError:
+        ACCOUNT_DELETION_RETENTION_POLICY = {"active": False, "configuration_error": "invalid_json"}
+else:
+    ACCOUNT_DELETION_RETENTION_POLICY = {"active": False}
+ACCOUNT_DELETION_CODE_TTL_MINUTES = int(os.getenv("ACCOUNT_DELETION_CODE_TTL_MINUTES", "10"))
+ACCOUNT_DELETION_CODE_MAX_ATTEMPTS = int(os.getenv("ACCOUNT_DELETION_CODE_MAX_ATTEMPTS", "5"))
 SERVER_EMAIL = os.getenv("SERVER_EMAIL", "info@kidsmap.az")
 EMAIL_OTP_TTL_MINUTES = int(os.getenv("EMAIL_OTP_TTL_MINUTES", "10"))
 EMAIL_OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv("EMAIL_OTP_RESEND_COOLDOWN_SECONDS", "60"))

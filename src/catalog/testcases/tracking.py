@@ -174,7 +174,7 @@ class TestGoogleAnalyticsEvents(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "kidsmap-analytics-events")
-        self.assertContains(response, '"name": "place_open"')
+        self.assertContains(response, '"name": "place_view"')
         self.assertContains(response, '"place_id": %s' % place.id)
 
     @override_settings(GOOGLE_ANALYTICS_MEASUREMENT_ID="G-TEST123")
@@ -210,6 +210,14 @@ class TestGoogleAnalyticsEvents(TestCase):
                 FunnelEvent.EVENT_ADD_PLACE_SIGNUP_START,
                 FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
                 FunnelEvent.EVENT_AI_REFERRAL_VISIT,
+                FunnelEvent.EVENT_PLACE_VIEW,
+                FunnelEvent.EVENT_FAVORITE_ADDED,
+                FunnelEvent.EVENT_FAVORITE_REMOVED,
+                FunnelEvent.EVENT_PHONE_CLICK,
+                FunnelEvent.EVENT_WHATSAPP_CLICK,
+                FunnelEvent.EVENT_WEBSITE_CLICK,
+                FunnelEvent.EVENT_SOCIAL_CLICK,
+                FunnelEvent.EVENT_DIRECTIONS_CLICK,
             ),
         )
         self.assertEqual(
@@ -220,6 +228,11 @@ class TestGoogleAnalyticsEvents(TestCase):
                 FunnelEvent.EVENT_REVIEW_SUBMIT,
                 FunnelEvent.EVENT_CLAIM_PLACE_SUBMIT,
                 FunnelEvent.EVENT_ADD_PLACE_SIGNUP_COMPLETE,
+                FunnelEvent.EVENT_PHONE_CLICK,
+                FunnelEvent.EVENT_WHATSAPP_CLICK,
+                FunnelEvent.EVENT_WEBSITE_CLICK,
+                FunnelEvent.EVENT_SOCIAL_CLICK,
+                FunnelEvent.EVENT_DIRECTIONS_CLICK,
             ),
         )
 

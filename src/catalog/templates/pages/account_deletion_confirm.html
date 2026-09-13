@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Silinməni təsdiqlə{% elif CURRENT_LANGUAGE == "en" %}Confirm deletion{% else %}Подтвердить удаление{% endif %}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=4" />{% endblock %}
+{% block content %}
+<div class="account-deletion-page">
+  <section class="account-deletion-card" aria-labelledby="deletion-confirm-title">
+    <span class="account-deletion-icon material-symbols-rounded" aria-hidden="true">verified_user</span>
+    <p class="account-danger-zone__eyebrow">{% if CURRENT_LANGUAGE == "az" %}İkinci təsdiq{% elif CURRENT_LANGUAGE == "en" %}Second confirmation{% else %}Повторное подтверждение{% endif %}</p>
+    <h1 id="deletion-confirm-title">{% if CURRENT_LANGUAGE == "az" %}Hesabın silinməsini təsdiqləyin{% elif CURRENT_LANGUAGE == "en" %}Confirm account deletion{% else %}Подтвердите удаление аккаунта{% endif %}</h1>
+    <p>{% if CURRENT_LANGUAGE == "az" %}E-poçta göndərilən altırəqəmli kodu və aşağıdakı ifadəni daxil edin.{% elif CURRENT_LANGUAGE == "en" %}Enter the six-digit code sent by email and the exact phrase below.{% else %}Введите шестизначный код из письма и точную фразу ниже.{% endif %}</p>
+    <dl class="account-deletion-facts">
+      <div><dt>{% if CURRENT_LANGUAGE == "az" %}Ləğv müddəti{% elif CURRENT_LANGUAGE == "en" %}Cancellation period{% else %}Срок отмены{% endif %}</dt><dd>{% if CURRENT_LANGUAGE == "az" %}Təsdiqdən sonra {{ deletion_policy.grace_period_days }} təqvim günü, təxmini {% elif CURRENT_LANGUAGE == "en" %}{{ deletion_policy.grace_period_days }} calendar days after confirmation, approximately until {% else %}{{ deletion_policy.grace_period_days }} календарных дней после подтверждения, ориентировочно до {% endif %}<strong>{{ projected_processing_date|date:"d.m.Y H:i" }}</strong>.</dd></div>
+      <div><dt>{% if CURRENT_LANGUAGE == "az" %}Şəxsi məlumatlar{% elif CURRENT_LANGUAGE == "en" %}Personal data{% else %}Персональные данные{% endif %}</dt><dd>{{ policy_copy.deleted }}</dd></div>
+      <div><dt>{% if CURRENT_LANGUAGE == "az" %}Dərc edilmiş məzmun{% elif CURRENT_LANGUAGE == "en" %}Published content{% else %}Опубликованный контент{% endif %}</dt><dd>{{ policy_copy.anonymized }} {{ policy_copy.owner_content }}</dd></div>
+      <div><dt>{% if CURRENT_LANGUAGE == "az" %}Ehtiyat nüsxələri və hüquqi saxlama{% elif CURRENT_LANGUAGE == "en" %}Backups and legal hold{% else %}Резервные копии и правовое хранение{% endif %}</dt><dd>{{ policy_copy.backups }} {{ policy_copy.legal_hold }}</dd></div>
+      <div><dt>{% if CURRENT_LANGUAGE == "az" %}Geri dönməz nəticə{% elif CURRENT_LANGUAGE == "en" %}Irreversible result{% else %}Необратимое последствие{% endif %}</dt><dd>{% if CURRENT_LANGUAGE == "az" %}Son emaldan sonra hesab və silinmiş şəxsi məlumatlar bərpa edilə bilməz.{% elif CURRENT_LANGUAGE == "en" %}After final processing, the account and deleted personal data cannot be restored.{% else %}После окончательной обработки аккаунт и удалённые персональные данные восстановить нельзя.{% endif %}</dd></div>
+    </dl>
+    <p class="account-deletion-policy">{% if CURRENT_LANGUAGE == "az" %}Siyasət{% elif CURRENT_LANGUAGE == "en" %}Policy{% else %}Политика{% endif %} {{ deletion.policy_version }}</p>
+    <p class="account-deletion-phrase"><code>{{ confirmation_phrase }}</code></p>
+    {% if form.non_field_errors %}<div class="account-deletion-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    <form method="post" class="account-deletion-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="form_action" value="confirm">
+      <label for="id_confirmation_code">{% if CURRENT_LANGUAGE == "az" %}E-poçtdakı kod{% elif CURRENT_LANGUAGE == "en" %}Email code{% else %}Код из письма{% endif %}</label>
+      <input id="id_confirmation_code" class="field" name="confirmation_code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="\d{6}" value="{{ form.confirmation_code.value|default:'' }}" aria-describedby="confirmation-code-help{% if form.confirmation_code.errors %} confirmation-code-errors{% endif %}"{% if form.confirmation_code.errors %} aria-invalid="true"{% endif %} required>
+      <small id="confirmation-code-help">{% if CURRENT_LANGUAGE == "az" %}Kod {{ confirmation_code_ttl_minutes }} dəqiqə etibarlıdır.{% elif CURRENT_LANGUAGE == "en" %}The code is valid for {{ confirmation_code_ttl_minutes }} minutes.{% else %}Код действует {{ confirmation_code_ttl_minutes }} минут.{% endif %}</small>
+      {% if form.confirmation_code.errors %}<div id="confirmation-code-errors" class="account-deletion-errors" role="alert">{{ form.confirmation_code.errors }}</div>{% endif %}
+
+      <label for="id_typed_confirmation">{% if CURRENT_LANGUAGE == "az" %}Təsdiq ifadəsi{% elif CURRENT_LANGUAGE == "en" %}Confirmation phrase{% else %}Фраза подтверждения{% endif %}</label>
+      <input id="id_typed_confirmation" class="field" name="typed_confirmation" autocomplete="off" value="{{ form.typed_confirmation.value|default:'' }}" aria-describedby="typed-confirmation-help{% if form.typed_confirmation.errors %} typed-confirmation-errors{% endif %}"{% if form.typed_confirmation.errors %} aria-invalid="true"{% endif %} required>
+      <small id="typed-confirmation-help">{% if CURRENT_LANGUAGE == "az" %}İfadəni boşluq və hərf registri daxil olmaqla dəqiq yazın.{% elif CURRENT_LANGUAGE == "en" %}Type the phrase exactly, including spaces and letter case.{% else %}Введите фразу точно, включая пробелы и регистр букв.{% endif %}</small>
+      {% if form.typed_confirmation.errors %}<div id="typed-confirmation-errors" class="account-deletion-errors" role="alert">{{ form.typed_confirmation.errors }}</div>{% endif %}
+
+      <div class="account-deletion-actions">
+        <button class="account-btn-danger" type="submit"><span class="material-symbols-rounded" aria-hidden="true">block</span>{% if CURRENT_LANGUAGE == "az" %}Hesabı deaktiv et{% elif CURRENT_LANGUAGE == "en" %}Disable account{% else %}Отключить аккаунт{% endif %}</button>
+        <a class="account-deletion-secondary" href="{% url 'account_settings' %}"><span class="material-symbols-rounded" aria-hidden="true">close</span>{% if CURRENT_LANGUAGE == "az" %}Ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel{% else %}Отмена{% endif %}</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

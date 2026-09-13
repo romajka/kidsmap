@@ -7,6 +7,8 @@ class CatalogConfig(AppConfig):
 
     def ready(self):
         from catalog import indexnow_signals  # noqa: F401
+        from catalog import signals  # noqa: F401
+        from catalog import checks  # noqa: F401
 
         self._patch_jazzmin_paginator()
         

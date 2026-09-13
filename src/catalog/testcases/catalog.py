@@ -180,17 +180,7 @@ class PostgreSqlUniquenessTests(TestCase):
         )
         self.place = create_quality_place(name="MariaDB Unique Place", name_ru="MariaDB Unique Place")
 
-    def test_place_like_constraints_use_anonymous_session_and_nullable_user(self):
-        like = PlaceLike.objects.create(place=self.place, session_key=" session-1 ")
-        self.assertEqual(like.session_key, "session-1")
-
-        blank_like = PlaceLike.objects.create(place=self.place, session_key="")
-        self.assertEqual(blank_like.session_key, "")
-
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                PlaceLike.objects.create(place=self.place, session_key="session-1")
-
+    def test_place_like_constraints_require_one_registered_user_per_place(self):
         PlaceLike.objects.create(place=self.place, user=self.user)
         with self.assertRaises(IntegrityError):
             with transaction.atomic():

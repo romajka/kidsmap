@@ -281,6 +281,12 @@
                 </div>
 
                 <div class="account-owner-card__actions">
+                  {% if place.owner_can_view_stats %}
+                    <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'owner_place_analytics' place.id %}">
+                      <span class="material-symbols-rounded" aria-hidden="true">analytics</span>
+                      <span>{% if CURRENT_LANGUAGE == "az" %}Analitika{% elif CURRENT_LANGUAGE == "en" %}Analytics{% else %}Аналитика{% endif %}</span>
+                    </a>
+                  {% endif %}
                   <a class="account-btn-sm account-btn-sm--secondary" href="{{ place.get_absolute_url }}">
                     <span class="material-symbols-rounded">visibility</span>
                     <span>{% if CURRENT_LANGUAGE == "az" %}Bax{% elif CURRENT_LANGUAGE == "en" %}View{% else %}Посмотреть{% endif %}</span>
@@ -425,6 +431,12 @@
 
                 <!-- Actions -->
                 <div class="account-owner-card__actions">
+                  {% if place.owner_can_view_stats %}
+                    <a class="account-btn-sm account-btn-sm--secondary" href="{% url 'owner_place_analytics' place.id %}">
+                      <span class="material-symbols-rounded" aria-hidden="true">analytics</span>
+                      <span>{% if CURRENT_LANGUAGE == "az" %}Analitika{% elif CURRENT_LANGUAGE == "en" %}Analytics{% else %}Аналитика{% endif %}</span>
+                    </a>
+                  {% endif %}
                   {% if place.latest_moderation_request.status == "PENDING" or place.status == place.STATUS_PENDING %}
                     <span class="account-action-pending-note" data-publish-unavailable="1">
                       <span class="material-symbols-rounded">schedule</span>

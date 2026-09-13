@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from django.db import transaction
 
 from catalog.forms import (
+    AccountDeletionCancelForm,
+    AccountDeletionConfirmForm,
+    AccountDeletionRequestForm,
     EmailVerificationForm,
     EmailVerificationResendForm,
     LoginForm,
@@ -59,6 +62,15 @@ class AuthController:
 
     def build_password_change_form(self, *, user, data=None) -> UserPasswordChangeForm:
         return UserPasswordChangeForm(user=user, data=data)
+
+    def build_account_deletion_request_form(self, *, data=None) -> AccountDeletionRequestForm:
+        return AccountDeletionRequestForm(data=data, initial={"form_action": "request"})
+
+    def build_account_deletion_confirm_form(self, *, data=None) -> AccountDeletionConfirmForm:
+        return AccountDeletionConfirmForm(data=data, initial={"form_action": "confirm"})
+
+    def build_account_deletion_cancel_form(self, *, data=None, form_action="send_code") -> AccountDeletionCancelForm:
+        return AccountDeletionCancelForm(data=data, initial={"form_action": form_action})
 
     @transaction.atomic
     def register_user_from_form(self, *, form: RegistrationForm):

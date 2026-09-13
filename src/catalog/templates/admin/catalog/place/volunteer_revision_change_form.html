@@ -1,0 +1,13 @@
+{% extends "admin/volunteer/edit.html" %}
+{% load i18n %}
+
+{% block workspace %}
+  <div class="km-pf-alert km-pf-alert--warn" role="status">
+    <div>
+      <strong>{% translate "Рабочая версия волонтёра" %}</strong>
+      <p>{% translate "Изменения сохраняются в общей рабочей версии. Опубликованная карточка не изменится до отдельного одобрения." %}</p>
+    </div>
+  </div>
+  {{ km_place_taxonomy_picker|json_script:"km-place-taxonomy-config" }}
+  {% include "admin/volunteer/place_form.html" %}
+{% endblock %}

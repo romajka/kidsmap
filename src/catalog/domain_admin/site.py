@@ -16,7 +16,10 @@ from catalog.models import (
     SiteVisibilitySettings,
     SiteAnalytics,
     SiteGalleryImage,
-    CatalogContentSettings
+    CatalogContentSettings,
+    FunnelEvent,
+    AnalyticsActorExclusion,
+    RatingRankingCalibration,
 )
 from catalog.services.admin_analytics import build_statistics_context
 from .user import _HiddenFromAdminIndexMixin
@@ -441,6 +444,10 @@ class SiteEmptyStateSettingsAdmin(_BaseSiteSettingsSectionAdmin):
 @admin.register(SiteVisibilitySettings)
 class SiteVisibilitySettingsAdmin(_BaseSiteSettingsSectionAdmin):
     fieldsets = (
+        (
+            _("Публичное избранное"),
+            {"fields": ("public_favorites_count_enabled", "public_favorites_minimum")},
+        ),
         (
             _("Раздел «Педагоги и специалисты»"),
             {
@@ -1123,3 +1130,57 @@ class CatalogContentSettingsAdmin(_HiddenFromAdminIndexMixin, admin.ModelAdmin):
         context["km_settings_title"] = _("Контент и SEO")
         context["km_settings_subtitle"] = _("Настройки фильтров и SEO-данных каталога (JSON).")
         return super().render_change_form(request, context, add=add, change=change, form_url=form_url, obj=obj)
+
+
+@admin.register(FunnelEvent)
+class FunnelEventAdmin(admin.ModelAdmin):
+    list_display = ("occurred_at", "event_type", "schema_version", "subject_type", "subject_id", "source", "page_type", "language", "device_class")
+    list_filter = ("schema_version", "event_type", "subject_type", "source", "page_type", "language", "device_class")
+    search_fields = ("subject_id", "path", "referrer_domain", "campaign")
+    readonly_fields = (
+        "schema_version", "event_type", "subject_type", "subject_id", "occurred_at",
+        "visitor_key_hash", "session_key_hash", "source", "page_type", "language",
+        "device_class", "referrer_domain", "campaign", "path", "place", "user", "event_meta", "created_at",
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(AnalyticsActorExclusion)
+class AnalyticsActorExclusionAdmin(admin.ModelAdmin):
+    list_display = ("user", "reason_code", "starts_at", "ends_at", "created_by", "updated_at")
+    list_filter = ("reason_code", "starts_at", "ends_at")
+    search_fields = ("user__username", "user__email")
+    readonly_fields = ("actor_key_hash", "created_at", "updated_at")
+
+    def save_model(self, request, obj, form, change):
+        if not obj.created_by_id:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(RatingRankingCalibration)
+class RatingRankingCalibrationAdmin(admin.ModelAdmin):
+    list_display = (
+        "version",
+        "status",
+        "prior_mean",
+        "prior_weight",
+        "population_review_count",
+        "population_place_count",
+        "source_cutoff",
+        "activated_at",
+        "activated_by",
+    )
+    list_filter = ("status",)
+    readonly_fields = tuple(field.name for field in RatingRankingCalibration._meta.fields)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

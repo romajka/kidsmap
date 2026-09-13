@@ -40,9 +40,11 @@ class PlaceOwnershipRequest(models.Model):
     )
     applicant = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="ownership_requests",
         verbose_name=_("Заявитель"),
+        null=True,
+        blank=True,
     )
     status = models.CharField(
         _("Статус"),
@@ -359,10 +361,12 @@ class OwnerTeamInvitation(models.Model):
 class PlaceChangeAudit(models.Model):
     SOURCE_OWNER_PANEL = "OWNER_PANEL"
     SOURCE_ADMIN = "ADMIN"
+    SOURCE_VOLUNTEER = "VOLUNTEER"
     SOURCE_SYSTEM = "SYSTEM"
     SOURCE_CHOICES = [
         (SOURCE_OWNER_PANEL, _("Управление местами")),
         (SOURCE_ADMIN, _("Админка")),
+        (SOURCE_VOLUNTEER, _("Волонтёр")),
         (SOURCE_SYSTEM, _("Система")),
     ]
 

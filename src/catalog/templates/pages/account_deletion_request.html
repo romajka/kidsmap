@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% get_current_language as CURRENT_LANGUAGE %}
+
+{% block title %}{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'css/pages/account_profile.css' %}?v=4" />{% endblock %}
+
+{% block content %}
+<div class="account-deletion-page">
+  <a class="account-deletion-back" href="{% url 'account_settings' %}">← {% if CURRENT_LANGUAGE == "az" %}Tənzimləmələrə qayıt{% elif CURRENT_LANGUAGE == "en" %}Back to settings{% else %}Вернуться в настройки{% endif %}</a>
+  <section class="account-deletion-card" aria-labelledby="deletion-request-title">
+    <span class="account-deletion-icon material-symbols-rounded" aria-hidden="true">delete_forever</span>
+    <p class="account-danger-zone__eyebrow">{% if CURRENT_LANGUAGE == "az" %}Təhlükəli əməliyyat{% elif CURRENT_LANGUAGE == "en" %}Danger zone{% else %}Опасная зона{% endif %}</p>
+    <h1 id="deletion-request-title">{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}</h1>
+
+    {% if deletion_policy and not staff_blocked %}
+      <p>{% if CURRENT_LANGUAGE == "az" %}Sorğunu təsdiqlədikdən sonra hesab dərhal deaktiv ediləcək. Son silinməyə qədər {{ deletion_policy.grace_period_days }} təqvim günü ərzində sorğunu ləğv edə bilərsiniz.{% elif CURRENT_LANGUAGE == "en" %}After confirmation, the account is disabled immediately. You can cancel for {{ deletion_policy.grace_period_days }} calendar days before final processing.{% else %}После подтверждения аккаунт будет сразу отключён. Запрос можно отменить в течение {{ deletion_policy.grace_period_days }} календарных дней до окончательной обработки.{% endif %}</p>
+      <dl class="account-deletion-facts">
+        <div><dt>{% if CURRENT_LANGUAGE == "az" %}Silinəcək{% elif CURRENT_LANGUAGE == "en" %}Deleted{% else %}Будет удалено{% endif %}</dt><dd>{{ policy_copy.deleted }}</dd></div>
+        <div><dt>{% if CURRENT_LANGUAGE == "az" %}Anonimləşdiriləcək{% elif CURRENT_LANGUAGE == "en" %}Anonymized{% else %}Будет обезличено{% endif %}</dt><dd>{{ policy_copy.anonymized }}</dd></div>
+        <div><dt>{% if CURRENT_LANGUAGE == "az" %}Dərc edilmiş məzmun{% elif CURRENT_LANGUAGE == "en" %}Published content{% else %}Опубликованный контент{% endif %}</dt><dd>{{ policy_copy.owner_content }}</dd></div>
+        <div><dt>{% if CURRENT_LANGUAGE == "az" %}Hüquqi saxlama{% elif CURRENT_LANGUAGE == "en" %}Legal hold{% else %}Правовое хранение{% endif %}</dt><dd>{{ policy_copy.legal_hold }}</dd></div>
+        <div><dt>{% if CURRENT_LANGUAGE == "az" %}Ehtiyat nüsxələri{% elif CURRENT_LANGUAGE == "en" %}Backups{% else %}Резервные копии{% endif %}</dt><dd>{{ policy_copy.backups }}</dd></div>
+      </dl>
+      <p class="account-deletion-policy">{% if CURRENT_LANGUAGE == "az" %}Siyasət{% elif CURRENT_LANGUAGE == "en" %}Policy{% else %}Политика{% endif %} {{ deletion_policy.version }} · {{ deletion_policy.effective_date }} · {{ deletion_policy.approved_by }}</p>
+      {% if form.non_field_errors %}<div class="account-deletion-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      <form method="post" class="account-deletion-actions">
+        {% csrf_token %}
+        <input type="hidden" name="form_action" value="request">
+        <button class="account-btn-danger" type="submit"><span class="material-symbols-rounded" aria-hidden="true">mail</span>{% if CURRENT_LANGUAGE == "az" %}Kodu e-poçta göndər{% elif CURRENT_LANGUAGE == "en" %}Send code by email{% else %}Отправить код на email{% endif %}</button>
+        <a class="account-deletion-secondary" href="{% url 'account_settings' %}"><span class="material-symbols-rounded" aria-hidden="true">close</span>{% if CURRENT_LANGUAGE == "az" %}Ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel{% else %}Отмена{% endif %}</a>
+      </form>
+    {% else %}
+      <div class="account-deletion-unavailable" role="status">
+        {% if staff_blocked %}
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Xidməti hesab üçün müraciət tələb olunur{% elif CURRENT_LANGUAGE == "en" %}Staff offboarding is required{% else %}Нужно оформить отключение сотрудника{% endif %}</h2>
+          <p>{% if CURRENT_LANGUAGE == "az" %}Rol və son Superadmin qorunmasını keçməmək üçün səlahiyyətli administratora müraciət edin.{% elif CURRENT_LANGUAGE == "en" %}Contact an authorized administrator so role and last-Superadmin protections are preserved.{% else %}Обратитесь к уполномоченному администратору, чтобы сохранить защиту ролей и последнего Superadmin.{% endif %}</p>
+        {% else %}
+          <h2>{% if CURRENT_LANGUAGE == "az" %}Silinmə hələ aktiv deyil{% elif CURRENT_LANGUAGE == "en" %}Deletion is not active yet{% else %}Удаление пока не активировано{% endif %}</h2>
+          <p>{% if CURRENT_LANGUAGE == "az" %}Məlumatların saxlanması siyasəti səlahiyyətli şəxs tərəfindən təsdiqlənməlidir.{% elif CURRENT_LANGUAGE == "en" %}An authorized owner must approve the data-retention policy first.{% else %}Сначала уполномоченный владелец должен утвердить политику хранения данных.{% endif %}</p>
+        {% endif %}
+        {% if form.non_field_errors %}<div class="account-deletion-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

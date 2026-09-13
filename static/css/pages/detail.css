@@ -1957,6 +1957,28 @@ a.detail-contacts__row--primary:hover {
   }
 }
 
+.favorite-social-proof {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-top: 2px;
+  padding: 6px 10px;
+  border: 1px solid #cde8d8;
+  border-radius: 999px;
+  background: #eff9f3;
+  color: #236845;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.favorite-social-proof .material-symbols-rounded {
+  color: #0d9b59;
+  font-size: 16px;
+  font-variation-settings: 'FILL' 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .detail-page *,
   .detail-mobile-bar,

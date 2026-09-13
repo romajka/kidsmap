@@ -98,3 +98,6 @@ Custom definitions начинают собирать данные после с�
 Для первичной проверки открыть **Reports → Realtime** и убедиться, что событие
 `ai_referral_visit` поступило. Realtime подтверждает доставку, но полноценное
 измерение `AI source` следует проверять после обработки данных GA4.
+# Relationship to product analytics v2
+
+AI referral measurement is a separate acquisition signal. It must follow the privacy and retention activation contract in `docs/product/analytics-event-taxonomy.md` and `docs/product/analytics-operations.md`; it does not create Organization or Activity entities and is not a substitute for canonical Place interaction events.

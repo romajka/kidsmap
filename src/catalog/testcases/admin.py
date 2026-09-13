@@ -1335,9 +1335,15 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(f"{reverse('admin:catalog_place_add')}?type=permanent")
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "admin/css/pages/kidsmap_place_form.css")
         self.assertContains(response, "km-pf__shell")
+        self.assertContains(response, 'class="km-pf__layout"', html=False)
+        self.assertContains(response, 'class="km-pf__main"', html=False)
         self.assertContains(response, "km-pf-navitem")
-        self.assertContains(response, "km-pf__side")
+        self.assertContains(response, 'class="km-pf__side"', html=False)
+        self.assertContains(response, 'class="km-pf__stickybar"', html=False)
+        for section_id in ("basics", "pricing", "location", "media", "verification"):
+            self.assertContains(response, f'id="{section_id}"', html=False)
         self.assertContains(response, "data-place-accordion-collapse-all")
         self.assertContains(response, "data-place-accordion-expand-all")
         self.assertContains(response, "data-place-section-toggle")
@@ -2650,7 +2656,7 @@ class UserAdminUXTests(TestCase):
         self.assertContains(response, 'name="admin_role"', html=False)
         self.assertContains(response, "Модератор")
         self.assertContains(response, "Контент-менеджер")
-        self.assertContains(response, "Суперадмин")
+        self.assertNotContains(response, 'value="superadmin"', html=False)
         self.assertNotContains(response, 'name="profile-0-role"', html=False)
         self.assertNotContains(response, 'name="profile-0-owner_role"', html=False)
         self.assertNotContains(response, 'name="profile-0-owner_permissions_override"', html=False)
@@ -2713,7 +2719,7 @@ class UserAdminUXTests(TestCase):
         self.assertContains(response, "Пароль:")
         self.assertContains(response, "слишком похож на имя пользователя")
 
-    def test_superadmin_can_create_content_manager_and_superadmin_roles(self):
+    def test_superadmin_can_create_content_manager_but_superadmin_requires_approval(self):
         base_payload = {
             "email": "role-staff@example.com",
             "password1": "StrongPass123!!",
@@ -2753,10 +2759,8 @@ class UserAdminUXTests(TestCase):
                 "admin_role": "superadmin",
             },
         )
-        self.assertEqual(response.status_code, 302)
-        super_role = User.objects.get(username="super_role_admin")
-        self.assertTrue(super_role.is_staff)
-        self.assertTrue(super_role.is_superuser)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username="super_role_admin").exists())
 
     def test_non_superuser_staff_cannot_open_user_add_form(self):
         staff_user = User.objects.create_user(

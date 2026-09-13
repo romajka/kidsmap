@@ -83,3 +83,591 @@
 /* The shared success alert uses flex with anonymous text items that cannot shrink. */
 .km-staff-profile-page #content .alert {display:block;white-space:normal;overflow-wrap:anywhere;padding-right:40px}
 .km-staff-profile-page #content .alert a {white-space:normal;overflow-wrap:anywhere}
+/* Role workflow */
+.km-staff-role-workflow__heading,
+.km-staff-role-workflow__form,
+.km-staff-role-workflow__promotion,
+.km-staff-role-workflow__pending {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.km-staff-role-workflow__heading p,
+.km-staff-role-workflow__promotion p {
+  margin: 4px 0 0;
+  color: #4B5563;
+}
+
+.km-staff-role-workflow__current,
+.km-staff-role-workflow__pending {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.km-staff-role-workflow__form {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #E5E7EB;
+}
+
+.km-staff-role-workflow__form select {
+  width: min(100%, 460px);
+  min-height: 42px;
+}
+
+.km-staff-role-workflow__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.km-staff-role-workflow__save,
+.km-staff-role-workflow__promotion button,
+.km-staff-promotion-approve,
+.km-staff-promotion-reject {
+  min-height: 42px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.km-staff-role-workflow__save,
+.km-staff-promotion-approve {
+  color: #FFFFFF;
+  background: #136F38;
+}
+
+.km-staff-role-workflow__promotion {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #FDE68A;
+  border-radius: 12px;
+  background: #FFFBEB;
+}
+
+.km-staff-role-workflow__promotion button,
+.km-staff-promotion-reject {
+  color: #991B1B;
+  background: #FEE2E2;
+}
+
+.km-staff-role-workflow__pending {
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.km-staff-role-workflow__notice {
+  margin-top: 14px;
+  color: #92400E;
+}
+
+.km-staff-promotion-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1100px;
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.km-staff-promotion-page header,
+.km-staff-promotion-summary,
+.km-staff-promotion-decision,
+.km-staff-promotion-page > section,
+.km-staff-promotion-table {
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-bottom: 18px;
+  padding: 20px;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  background: #FFFFFF;
+}
+
+.km-staff-promotion-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.km-staff-promotion-page th,
+.km-staff-promotion-page td {
+  padding: 12px;
+  border-bottom: 1px solid #E5E7EB;
+  text-align: left;
+}
+
+.km-staff-promotion-summary dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap: 8px 16px;
+}
+
+.km-staff-promotion-decision textarea {
+  width: 100%;
+  margin: 8px 0 14px;
+}
+
+.km-staff-promotion-decision div {
+  display: flex;
+  gap: 10px;
+}
+
+.km-staff-role-workflow button:focus-visible,
+.km-staff-promotion-page button:focus-visible,
+.km-staff-promotion-page a:focus-visible {
+  outline: 3px solid rgba(19, 111, 56, 0.3);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .km-staff-role-workflow__heading,
+  .km-staff-role-workflow__form,
+  .km-staff-role-workflow__promotion,
+  .km-staff-role-workflow__pending {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .km-staff-promotion-summary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .km-staff-promotion-table {
+    overflow-x: auto;
+  }
+}
+
+/* Superadmin approval workspace */
+.km-staff-promotion-page {
+  color: #1f2937;
+  font-family: var(--km-font-sans, 'Manrope', system-ui, sans-serif);
+}
+
+.km-staff-promotion-page .km-staff-promotion-header {
+  padding: 24px;
+}
+
+.km-staff-promotion-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 16px;
+  color: #137a43 !important;
+  font-weight: 800;
+  text-decoration: none !important;
+}
+
+.km-staff-promotion-back > span:first-child {
+  transition: transform 160ms ease;
+}
+
+.km-staff-promotion-back:hover > span:first-child {
+  transform: translateX(-3px);
+}
+
+.km-staff-promotion-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.km-staff-promotion-title-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  place-items: center;
+  border: 1px solid #bbd7c5;
+  border-radius: 15px;
+  background: #edf8f1;
+  color: #137a43;
+}
+
+.km-staff-promotion-title-icon svg {
+  width: 29px;
+  height: 29px;
+  fill: currentColor;
+}
+
+.km-staff-promotion-eyebrow {
+  margin: 0 0 4px !important;
+  color: #537166 !important;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.km-staff-promotion-title-row h1 {
+  margin: 0 0 6px;
+  color: #1f2937;
+  font-size: clamp(28px, 3.2vw, 42px);
+  line-height: 1.08;
+}
+
+.km-staff-promotion-title-row p:last-child {
+  margin: 0;
+  color: #52657a;
+}
+
+.km-staff-promotion-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.km-staff-promotion-section-head h2,
+.km-staff-promotion-decision__head h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 20px;
+}
+
+.km-staff-promotion-section-head p,
+.km-staff-promotion-decision__head p {
+  margin: 4px 0 0;
+  color: #66758a;
+  font-size: 13px;
+}
+
+.km-staff-promotion-count {
+  display: grid;
+  min-width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 999px;
+  background: #edf8f1;
+  color: #137a43;
+  font-weight: 900;
+}
+
+.km-staff-promotion-page th {
+  color: #66758a;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.km-staff-promotion-page tbody tr {
+  transition: background-color 140ms ease;
+}
+
+.km-staff-promotion-page tbody tr:hover {
+  background: #f9fbfa;
+}
+
+.km-staff-promotion-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid #f3d28a;
+  border-radius: 999px;
+  background: #fff9e8;
+  color: #815c0b;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.km-staff-promotion-status > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #d9970b;
+  box-shadow: 0 0 0 4px rgba(217, 151, 11, .13);
+}
+
+.km-staff-promotion-action-cell {
+  text-align: right !important;
+}
+
+.km-staff-promotion-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid #b9d7c4;
+  border-radius: 10px;
+  background: #edf8f1;
+  color: #137a43 !important;
+  font-weight: 800;
+  text-decoration: none !important;
+  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.km-staff-promotion-action:hover {
+  background: #137a43;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+
+.km-staff-promotion-empty {
+  padding: 42px 20px !important;
+  text-align: center !important;
+}
+
+.km-staff-promotion-empty > span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 10px;
+  place-items: center;
+  border-radius: 999px;
+  background: #edf8f1;
+  color: #137a43;
+  font-size: 22px;
+}
+
+.km-staff-promotion-empty strong,
+.km-staff-promotion-empty small {
+  display: block;
+}
+
+.km-staff-promotion-empty small {
+  margin-top: 4px;
+  color: #66758a;
+}
+
+.km-staff-promotion-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  border-color: #f1d399 !important;
+  background: #fffaf0 !important;
+}
+
+.km-staff-promotion-warning__icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 10px;
+  background: #f2b94b;
+  color: #4a3509;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.km-staff-promotion-warning strong {
+  color: #5d430c;
+}
+
+.km-staff-promotion-warning p {
+  margin: 4px 0 0;
+  color: #725b2a;
+}
+
+.km-staff-promotion-summary dl {
+  margin-bottom: 0;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8faf9;
+}
+
+.km-staff-promotion-summary dt {
+  color: #66758a;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.km-staff-promotion-summary dd {
+  margin: 0;
+}
+
+.km-staff-promotion-decision__head {
+  margin-bottom: 16px;
+}
+
+.km-staff-promotion-decision label {
+  display: block;
+  color: #344054;
+  font-weight: 800;
+}
+
+.km-staff-promotion-decision textarea {
+  min-height: 104px;
+  padding: 12px;
+  border: 1px solid #cad5e0;
+  border-radius: 10px;
+  font: inherit;
+  resize: vertical;
+}
+
+.km-staff-promotion-decision textarea:focus {
+  border-color: #137a43;
+  box-shadow: 0 0 0 3px rgba(19, 122, 67, .13);
+  outline: 0;
+}
+
+.km-staff-promotion-decision__actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: filter 150ms ease, transform 150ms ease;
+}
+
+.km-staff-promotion-decision__actions button:hover {
+  filter: brightness(.94);
+  transform: translateY(-1px);
+}
+
+.km-staff-promotion-history ol {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.km-staff-promotion-history li {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.km-staff-promotion-history li > span {
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #137a43;
+  box-shadow: 0 0 0 3px #cce6d6;
+}
+
+.km-staff-promotion-history li div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 3px 12px;
+}
+
+.km-staff-promotion-history time,
+.km-staff-promotion-history small {
+  color: #66758a;
+}
+
+.km-staff-promotion-history small {
+  grid-column: 2;
+}
+
+@media (max-width: 720px) {
+  .km-staff-promotion-page .km-staff-promotion-header,
+  .km-staff-promotion-summary,
+  .km-staff-promotion-decision,
+  .km-staff-promotion-page > section,
+  .km-staff-promotion-table {
+    padding: 16px;
+  }
+
+  .km-staff-promotion-title-icon {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .km-staff-promotion-table {
+    overflow: visible;
+  }
+
+  .km-staff-promotion-table table,
+  .km-staff-promotion-table tbody,
+  .km-staff-promotion-table tr,
+  .km-staff-promotion-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .km-staff-promotion-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .km-staff-promotion-table tr {
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .km-staff-promotion-table td {
+    display: grid;
+    grid-template-columns: minmax(95px, 36%) minmax(0, 1fr);
+    gap: 10px;
+    padding: 7px 0;
+    border: 0;
+  }
+
+  .km-staff-promotion-table td::before {
+    content: attr(data-label);
+    color: #66758a;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  .km-staff-promotion-action-cell {
+    display: block !important;
+    padding-top: 12px !important;
+    text-align: left !important;
+  }
+
+  .km-staff-promotion-action-cell::before {
+    content: none !important;
+  }
+
+  .km-staff-promotion-action {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .km-staff-promotion-summary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .km-staff-promotion-history li div {
+    grid-template-columns: 1fr;
+  }
+
+  .km-staff-promotion-history small {
+    grid-column: auto;
+  }
+
+  .km-staff-promotion-decision__actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .km-staff-promotion-decision__actions button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-staff-promotion-back > span:first-child,
+  .km-staff-promotion-action,
+  .km-staff-promotion-decision__actions button {
+    transition: none;
+  }
+
+  .km-staff-promotion-back:hover > span:first-child,
+  .km-staff-promotion-action:hover,
+  .km-staff-promotion-decision__actions button:hover {
+    transform: none;
+  }
+}

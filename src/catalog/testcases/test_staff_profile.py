@@ -61,9 +61,15 @@ class StaffProfileTests(TestCase):
                         data[field.html_name] = field.value()
         return data
 
-    def test_profile_edit_preserves_role_and_saves_inactive(self):
+    def test_profile_edit_preserves_role_and_separately_managed_inactive_state(self):
+        role_url = reverse(
+            'admin:catalog_staffaccessuser_role_change',
+            args=[self.volunteer.pk],
+        )
+        response = self.client.post(role_url, {'admin_role': 'volunteer'})
+        self.assertEqual(response.status_code, 302)
+
         data = self.form_data()
-        data.pop('is_active', None)
         data.update(first_name='Edited', _continue='1')
         response = self.client.post(self.url, data)
         self.assertEqual(response.status_code, 302)

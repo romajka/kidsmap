@@ -1,0 +1,7 @@
+{% load i18n catalog_i18n %}
+{% if favorite_social_proof.visible %}
+  <span class="favorite-social-proof">
+    <span class="material-symbols-rounded" aria-hidden="true">favorite</span>
+    <span>{{ favorite_social_proof.count|favorite_count }}</span>
+  </span>
+{% endif %}

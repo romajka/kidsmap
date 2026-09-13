@@ -430,7 +430,7 @@ class SpecialistReview(models.Model):
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="specialist_reviews",
         verbose_name=_("Пользователь"),
         null=True,

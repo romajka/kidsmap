@@ -495,7 +495,7 @@
 
 .km-pf .km-pf__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  grid-template-columns: minmax(0, 1fr) clamp(230px, 18vw, 300px);
   gap: 20px;
   align-items: start;
 }
@@ -511,6 +511,7 @@
   position: sticky;
   top: 84px;
   align-self: start;
+  min-width: 0;
 }
 
 .km-pf .km-pf__accordion-actions {
@@ -671,11 +672,18 @@
 
 .km-pf .km-pf-section__body > .km-pf-section__inner {
   overflow: visible;
+  min-width: 0;
+  max-width: 100%;
   min-height: 0;
   padding: 18px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.km-pf .km-pf-section__body > .km-pf-section__inner > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .km-pf .km-pf-section.is-collapsed .km-pf-section__body {
@@ -2879,6 +2887,9 @@
    -------------------------------------------------------------------------- */
 
 .km-pf .km-pf-disclosure {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--pf-border);
   border-radius: var(--pf-radius);
   background: var(--pf-surface);
@@ -3103,6 +3114,8 @@
   bottom: 0;
   z-index: 40;
   align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: 12px;
   margin-top: 12px;
   padding: 10px 16px;
@@ -3111,6 +3124,11 @@
   border: 1px solid var(--pf-border);
   border-radius: var(--pf-radius);
   box-shadow: 0 -4px 16px rgba(22, 33, 26, .08);
+}
+
+.km-pf .km-pf__stickybar > .km-pf-bar {
+  flex: 1 1 180px;
+  min-width: 0;
 }
 
 .km-pf .km-pf__stickybar-readiness { display: flex; align-items: baseline; gap: 6px; white-space: nowrap; }
@@ -3884,6 +3902,10 @@
 
 /* Responsive Breakpoints */
 @media (max-width: 860px) {
+  .km-pf .km-schedule-editor__table {
+    overflow-x: visible !important;
+  }
+
   .km-pf .km-schedule-editor__header {
     display: none !important;
   }
@@ -3892,6 +3914,7 @@
     grid-template-columns: 1fr !important;
     gap: 8px !important;
     padding: 10px 14px !important;
+    min-width: 0 !important;
     min-height: auto !important;
   }
 
@@ -3953,10 +3976,6 @@
    22. Responsive
    -------------------------------------------------------------------------- */
 
-@media (max-width: 1439px) {
-  .km-pf .km-pf__layout { grid-template-columns: minmax(0, 1fr) minmax(230px, 280px); }
-}
-
 @media (max-width: 1279px) {
   .km-pf { padding: 16px 16px 24px; }
   .km-pf .km-pf__header { flex-direction: column; gap: 14px; }
@@ -3965,30 +3984,76 @@
   .km-pf .km-pf-mainphoto__drop { width: 168px; height: 168px; flex-basis: 168px; }
 }
 
-@media (max-width: 1230px) {
-  .km-pf .km-pf-navitem__sub { display: none; }
-  .km-pf .km-pf-navitem { height: 46px; gap: 8px; padding: 0 10px; }
-}
-
-/* The admin's own sidebar eats ~300px, so the form has roughly (viewport-360)
-   to work with. Below this the two-column layout no longer fits and the panel
-   moves under the content — that is why the switch is not at 1024. */
-@media (max-width: 1100px) {
+/* Jazzmin's open navigation uses about 300px. Up to this viewport width the
+   Place workspace is too narrow for both a readable form and the action rail. */
+@media (max-width: 1535px) {
   .km-pf .km-pf__layout { grid-template-columns: minmax(0, 1fr); }
   .km-pf .km-pf__side { position: static; max-height: none; }
   .km-pf .km-pf-side__card { max-height: none; }
   .km-pf .km-pf__stickybar { display: flex; }
-  .km-pf .km-pf__nav { overflow-x: auto; }
-  .km-pf .km-pf-navitem { flex: 0 0 auto; min-width: 150px; }
-  .km-pf .km-pf-grid--2, .km-pf .km-pf-grid--3 { grid-template-columns: minmax(0, 1fr); }
+
+  .km-pf .km-pf__nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    overflow: visible;
+  }
+
+  .km-pf .km-pf-navitem {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 52px;
+  }
+
+  .km-pf .km-pf-navitem__sub { display: block; }
+
+  .km-pf .km-pf-navitem__title,
+  .km-pf .km-pf-navitem__sub {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .km-pf .km-pf-group[data-pf-group="address"] .km-pf-grid--3,
+  .km-pf .km-pf-group[data-pf-group="contacts"] .km-pf-grid--3,
+  .km-pf .km-pf-tariffs .km-pf-grid--3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .km-pf .km-pf-age,
+  .km-pf .km-pf-age__range,
+  .km-pf .km-pf-age__flags,
+  .km-pf .km-pf-age__duration {
+    min-width: 0;
+  }
+
+  .km-pf .km-pf-age { gap: 18px; }
+  .km-pf .km-pf-age__duration .km-pf-field { width: min(210px, 100%); }
+}
+
+@media (max-width: 860px) {
+  .km-pf .km-pf-grid--2,
+  .km-pf .km-pf-grid--3,
+  .km-pf .km-pf-group[data-pf-group="taxonomy"] .km-pf-grid--2,
+  .km-pf .km-pf-group[data-pf-group="address"] .km-pf-grid--3,
+  .km-pf .km-pf-group[data-pf-group="contacts"] .km-pf-grid--3,
+  .km-pf .km-pf-tariffs .km-pf-grid--3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .km-pf .km-pf-verify { grid-template-columns: minmax(0, 1fr); }
-  .km-pf .km-pf-age { gap: 16px; }
+  .km-pf .km-pf-age { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .km-pf .km-pf-age__flags { padding-top: 0; }
   .km-pf .km-schedule-editor__note-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 767px) {
   .km-pf { padding: 12px 10px 20px; }
+  .km-pf .km-pf__nav { grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); }
+  .km-pf .km-pf-navitem__title,
+  .km-pf .km-pf-navitem__sub { overflow-wrap: anywhere; }
+  .km-pf .km-pf__header-actions { flex-wrap: wrap; max-width: 100%; }
+  .km-pf .km-pf__stickybar > .km-pf-btn { flex: 1 1 auto; }
   .km-pf .km-pf-mainphoto { flex-direction: column; }
   .km-pf .km-pf-mainphoto__drop { width: 100%; flex-basis: auto; }
   .km-pf .km-pf__legend { display: none; }

@@ -53,3 +53,26 @@ def tariff_count(value) -> str:
     else:
         message = pgettext("tariff count: many", "%(count)s tariffs")
     return message % {"count": count}
+
+
+@register.filter
+def favorite_count(value) -> str:
+    """Return concise social-proof copy with correct Russian declension."""
+    try:
+        count = int(value or 0)
+    except (TypeError, ValueError):
+        count = 0
+
+    language_code = (get_language() or "az").split("-", 1)[0]
+    if language_code == "az":
+        return f"{count} istifadəçi saxlayıb"
+    if language_code == "en":
+        noun = "user" if count == 1 else "users"
+        return f"Saved by {count} {noun}"
+
+    plural_form = _plural_form(count, "ru")
+    if plural_form == "one":
+        return f"Сохранил {count} пользователь"
+    if plural_form == "few":
+        return f"Сохранили {count} пользователя"
+    return f"Сохранили {count} пользователей"

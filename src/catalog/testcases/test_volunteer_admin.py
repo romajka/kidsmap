@@ -33,7 +33,8 @@ class VolunteerAccessTests(TestCase):
         form = response.context['form']
         data = {name: form[name].value() if form[name].value() is not None else ''
                 for name, field in form.fields.items() if not isinstance(field, forms.FileField)}
-        data.update(action='submit', **overrides)
+        data['action'] = 'submit'
+        data.update(overrides)
         return data
 
     def submit(self, place, **overrides):
@@ -98,6 +99,318 @@ class VolunteerAccessTests(TestCase):
         self.assertEqual(place.name_az, 'Before')
         self.assertTrue(place.is_active)
         self.assertEqual(place.volunteer_revision.payload['name_az'], 'After')
+
+    def test_volunteer_location_uses_admin_region_district_contract(self):
+        from catalog.services.volunteer_places import editor_form
+
+        place = create_ready_place(created_by=self.user, district='baku_yasamal')
+        form = editor_form(place)
+
+        self.assertEqual(form['region'].value(), 'baku')
+        self.assertEqual(form['district'].value(), 'baku_yasamal')
+
+        url = f'/admin/volunteer/{place.pk}/edit/'
+        data = self.editor_data(url, region='ganja', district='')
+        data['action'] = 'draft'
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+        revision = VolunteerPlaceRevision.objects.get(place=place)
+        self.assertEqual(revision.payload['district'], 'ganja')
+
+        data = self.editor_data(url, region='ganja', district='baku_yasamal')
+        data['action'] = 'draft'
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('district', response.context['form'].errors)
+
+    def test_content_snapshot_matches_shared_editable_contract(self):
+        from catalog.services.volunteer_places import content_snapshot
+        from catalog.volunteer_forms import CONTENT_FIELDS
+
+        place = create_ready_place(created_by=self.user)
+        snapshot = content_snapshot(place)
+
+        self.assertEqual(
+            set(snapshot),
+            set(CONTENT_FIELDS) | {'pricing_plans', 'structured_schedule'},
+        )
+        for field_name in CONTENT_FIELDS:
+            Place._meta.get_field(field_name)
+
+    def test_admin_change_form_reads_active_volunteer_revision(self):
+        from catalog.services.place_readiness import evaluate_form_readiness
+        from catalog.volunteer_forms import VolunteerPlaceForm
+
+        place = create_ready_place(
+            created_by=self.user,
+            name_az='Approved title',
+            age_from=3,
+            age_to=9,
+            district='baku_yasamal',
+        )
+        revision = self.submit(
+            place,
+            name_az='Working title',
+            age_from='1',
+            age_to='6',
+            region='baku',
+            district='baku_yasamal',
+        )
+        self.root_login()
+
+        response = self.client.get(reverse('admin:catalog_place_change', args=[place.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.context['form'], VolunteerPlaceForm)
+        self.assertTrue(response.context['admin_working_revision'])
+        self.assertEqual(response.context['revision'].pk, revision.pk)
+        self.assertEqual(response.context['form']['name_az'].value(), 'Working title')
+        self.assertEqual(int(response.context['form']['age_from'].value()), 1)
+        self.assertEqual(int(response.context['form']['age_to'].value()), 6)
+        self.assertEqual(response.context['form']['region'].value(), 'baku')
+        self.assertEqual(response.context['form']['district'].value(), 'baku_yasamal')
+        expected = evaluate_form_readiness(response.context['form'], response.context['form'].instance)
+        self.assertEqual(response.context['editor_readiness'], expected)
+
+    def test_admin_change_form_uses_working_editor_for_rejected_revision_and_normal_editor_after_approval(self):
+        from catalog.domain_admin.place import PlaceAdminForm
+        from catalog.volunteer_forms import VolunteerPlaceForm
+
+        place = create_ready_place(created_by=self.user, name_az='Approved title')
+        revision = self.submit(place, name_az='Rejected working title')
+        revision.status = VolunteerPlaceRevision.Status.REJECTED
+        revision.save(update_fields=['status'])
+        self.root_login()
+        url = reverse('admin:catalog_place_change', args=[place.pk])
+
+        rejected_response = self.client.get(url)
+
+        self.assertIsInstance(rejected_response.context['form'], VolunteerPlaceForm)
+        self.assertEqual(rejected_response.context['form']['name_az'].value(), 'Rejected working title')
+
+        revision.status = VolunteerPlaceRevision.Status.APPROVED
+        revision.save(update_fields=['status'])
+        approved_response = self.client.get(url)
+
+        self.assertIsInstance(approved_response.context['adminform'].form, PlaceAdminForm)
+        self.assertEqual(approved_response.context['adminform'].form['name_az'].value(), 'Approved title')
+
+    def test_admin_and_volunteer_use_identical_revision_readiness(self):
+        from catalog.services.volunteer_dashboard import display_card, workspace_places
+
+        place = Place.objects.create(
+            created_by=self.user,
+            name='Stored title',
+            name_az='Stored title',
+            category='EDU',
+            status=Place.STATUS_DRAFT,
+            is_active=False,
+        )
+        revision = self.submit(
+            place,
+            action='draft',
+            name_az='Working title',
+            description_az='Working description',
+            age_from='1',
+            age_to='6',
+            region='baku',
+            district='baku_yasamal',
+        )
+        volunteer_card = display_card(
+            workspace_places(self.user).select_related('volunteer_revision').get(pk=place.pk)
+        )
+        self.root_login()
+
+        response = self.client.get(reverse('admin:catalog_place_change', args=[place.pk]))
+        admin_readiness = response.context['editor_readiness']
+
+        self.assertEqual(admin_readiness.completed_count, volunteer_card['readiness'].completed_count)
+        self.assertEqual(admin_readiness.required_count, volunteer_card['readiness'].required_count)
+        self.assertEqual(admin_readiness.percentage, volunteer_card['readiness'].percentage)
+        self.assertEqual(
+            tuple(issue.code for issue in admin_readiness.issues),
+            tuple(issue.code for issue in volunteer_card['readiness'].issues),
+        )
+        self.assertEqual(response.context['revision'].pk, revision.pk)
+
+    def test_admin_change_form_maps_every_shared_payload_value(self):
+        from catalog.services.volunteer_places import content_snapshot, live_snapshot
+        from catalog.volunteer_forms import CONTENT_FIELDS
+
+        place = create_ready_place(created_by=self.user, district='baku_yasamal')
+        payload = content_snapshot(place)
+        payload.update({
+            'name_az': 'Payload AZ',
+            'name_ru': 'Payload RU',
+            'name_en': 'Payload EN',
+            'description_az': 'Description AZ',
+            'description_ru': 'Description RU',
+            'description_en': 'Description EN',
+            'age_from': 1,
+            'age_to': 6,
+            'age_open_ended': False,
+            'offers_adult_classes': True,
+            'district': 'baku_yasamal',
+            'metro': 'Nizami',
+            'address': 'Working address',
+            'lat': 40.401,
+            'lng': 49.851,
+            'phone1': '+994501112233',
+            'phone2': '+994551112233',
+            'phone3': '+994701112233',
+            'instagram': 'kidsmap-working',
+            'website': 'https://working.example.test',
+            'photo': 'places/working-main.webp',
+            'cover_photo': 'places/working-cover.webp',
+            'schedule': 'Working schedule',
+            'lesson_duration_minutes': 75,
+            'lessons_per_week': 3,
+            'lessons_per_month': 12,
+            'additional_info_az': 'Working extra',
+        })
+        payload['pricing_plans'] = [{
+            'title_az': 'Working plan',
+            'payment_type': 'monthly',
+            'price_kind': 'exact',
+            'price': '120.00',
+            'currency': 'AZN',
+        }]
+        payload['structured_schedule'] = [{
+            'weekday': 'mon',
+            'is_closed': False,
+            'is_24_hours': False,
+            'intervals': [{'start': '10:00', 'end': '18:00'}],
+        }]
+        revision = VolunteerPlaceRevision.objects.create(
+            place=place,
+            author=self.user,
+            payload=payload,
+            base_snapshot=live_snapshot(place),
+            status=VolunteerPlaceRevision.Status.DRAFT,
+        )
+        self.root_login()
+
+        response = self.client.get(reverse('admin:catalog_place_change', args=[place.pk]))
+        form = response.context['form']
+
+        self.assertEqual(response.context['revision'].pk, revision.pk)
+        for name in CONTENT_FIELDS:
+            field = Place._meta.get_field(name)
+            actual = getattr(form.instance, field.attname)
+            expected = payload[name] if field.is_relation else field.to_python(payload[name])
+            if name in {'photo', 'cover_photo'}:
+                actual = str(actual)
+            with self.subTest(field=name):
+                self.assertEqual(actual, expected)
+        self.assertEqual(form.instance.pricing_plans, payload['pricing_plans'])
+        self.assertEqual(form.schedule_editor_days, payload['structured_schedule'])
+        self.assertEqual(form['region'].value(), 'baku')
+
+    def test_admin_edit_updates_active_revision_without_public_projection(self):
+        place = create_ready_place(created_by=self.user, name_az='Public title')
+        revision = self.submit(place, name_az='Volunteer title')
+        volunteer_url = f'/admin/volunteer/{place.pk}/edit/'
+        stale_volunteer_data = self.editor_data(volunteer_url, name_az='Stale volunteer title')
+        root = self.root_login()
+        admin_url = reverse('admin:catalog_place_change', args=[place.pk])
+        response = self.client.get(admin_url)
+        form = response.context['form']
+        data = {
+            name: form[name].value() if form[name].value() is not None else ''
+            for name, field in form.fields.items()
+            if not isinstance(field, forms.FileField)
+        }
+        data.update(action='admin_save', name_az='Admin corrected title')
+
+        response = self.client.post(admin_url, data)
+
+        self.assertEqual(response.status_code, 302)
+        place.refresh_from_db()
+        revision.refresh_from_db()
+        self.assertEqual(place.name_az, 'Public title')
+        self.assertEqual(revision.payload['name_az'], 'Admin corrected title')
+        self.assertEqual(revision.status, 'pending')
+        self.assertEqual(revision.author, self.user)
+        self.assertTrue(PlaceChangeAudit.objects.filter(
+            place=place,
+            changed_by=root,
+            source=PlaceChangeAudit.SOURCE_ADMIN,
+            field_name='name_az',
+        ).exists())
+
+        self.client.force_login(self.user)
+        response = self.client.get(volunteer_url)
+        self.assertEqual(response.context['form']['name_az'].value(), 'Admin corrected title')
+        stale_response = self.client.post(volunteer_url, stale_volunteer_data)
+        self.assertEqual(stale_response.status_code, 200)
+        self.assertTrue(stale_response.context['form'].non_field_errors())
+        revision.refresh_from_db()
+        self.assertEqual(revision.payload['name_az'], 'Admin corrected title')
+
+    def test_stale_admin_edit_does_not_overwrite_newer_revision(self):
+        place = create_ready_place(created_by=self.user)
+        revision = self.submit(place, name_az='Volunteer version')
+        self.root_login()
+        url = reverse('admin:catalog_place_change', args=[place.pk])
+
+        def current_data(name):
+            form = self.client.get(url).context['form']
+            data = {
+                field_name: form[field_name].value() if form[field_name].value() is not None else ''
+                for field_name, field in form.fields.items()
+                if not isinstance(field, forms.FileField)
+            }
+            data.update(action='admin_save', name_az=name)
+            return data
+
+        first = current_data('First admin edit')
+        stale = dict(first, name_az='Stale admin edit')
+        self.assertEqual(self.client.post(url, first).status_code, 302)
+
+        response = self.client.post(url, stale)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].non_field_errors())
+        revision.refresh_from_db()
+        self.assertEqual(revision.payload['name_az'], 'First admin edit')
+
+    def test_volunteer_working_save_has_field_level_audit(self):
+        place = create_ready_place(created_by=self.user, name_az='Before volunteer edit')
+
+        self.submit(place, name_az='After volunteer edit')
+
+        audit = PlaceChangeAudit.objects.get(
+            place=place,
+            changed_by=self.user,
+            source=PlaceChangeAudit.SOURCE_VOLUNTEER,
+            field_name='name_az',
+        )
+        self.assertEqual(json.loads(audit.old_value), 'Before volunteer edit')
+        self.assertEqual(json.loads(audit.new_value), 'After volunteer edit')
+
+    def test_working_save_audits_normalized_tariffs_and_schedule(self):
+        from catalog.services.volunteer_places import content_snapshot
+
+        place = create_ready_place(created_by=self.user)
+        snapshot = content_snapshot(place)
+        plans = snapshot['pricing_plans']
+        plans[0]['title_az'] = 'Audited tariff'
+        schedule = snapshot['structured_schedule']
+        schedule[0]['intervals'][0]['start'] = '10:30'
+
+        self.submit(
+            place,
+            pricing_plans=json.dumps(plans),
+            structured_schedule=json.dumps(schedule),
+        )
+
+        audits = PlaceChangeAudit.objects.filter(
+            place=place,
+            changed_by=self.user,
+            source=PlaceChangeAudit.SOURCE_VOLUNTEER,
+            field_name__in={'pricing_plans', 'structured_schedule'},
+        )
+        self.assertEqual(set(audits.values_list('field_name', flat=True)), {'pricing_plans', 'structured_schedule'})
 
     def test_foreign_place_not_listed_or_editable(self):
         place = Place.objects.create(name='FOREIGN SECRET DRAFT', category='EDU', status='draft', is_active=False)

@@ -1,6 +1,6 @@
 from .category import Category, Subcategory
 from .place import Place, PlacePhoto, PlaceScheduleDay, PlaceScheduleInterval, Event, EventPhoto, PlaceLike, PlaceReviewsByClub
-from .user import UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVerification
+from .user import AccountDeletionAudit, AccountDeletionRequest, UserProfile, SiteRegisteredUser, StaffAccessUser, UserEmailVerification
 from .review import PlaceReviewCooldown, PlaceReview, PlaceReviewReaction, SiteReview, SiteReviewReaction
 from .owner import PlaceOwnershipRequest, PlaceOwnershipRequestAudit, OwnerTeamMembership, OwnerTeamInvitation, PlaceChangeAudit
 from .site import SiteSettings, SiteGalleryImage, SiteBrandingSettings, SiteAboutSettings, SiteContactsSettings, SiteFooterSettings, SiteEmptyStateSettings, SiteVisibilitySettings, SiteAnalytics, SiteVisit, FunnelEvent, CatalogContentSettings
@@ -8,10 +8,18 @@ from .specialist import Region, District, MetroStation, SpecialistSpecialization
 from .pricing_plan import PricingPlan
 from .seo import SEOAuditRun, SEOIssue, SEOChange
 from .volunteer import VolunteerPlaceRevision
+from .staff_role import StaffRoleAudit, SuperadminPromotionRequest
+from .analytics import AnalyticsActorExclusion, AnalyticsIngressDaily
+from .rating_ranking import RatingRankingCalibration
 
 __all__ = [
     'PlaceReviewCooldown',
     'VolunteerPlaceRevision',
+    'StaffRoleAudit',
+    'SuperadminPromotionRequest',
+    'AnalyticsActorExclusion',
+    'AnalyticsIngressDaily',
+    'RatingRankingCalibration',
     'Category',
     'Subcategory',
     'Place',
@@ -26,6 +34,8 @@ __all__ = [
     'SiteRegisteredUser',
     'StaffAccessUser',
     'UserEmailVerification',
+    'AccountDeletionRequest',
+    'AccountDeletionAudit',
     'PlaceReview',
     'PlaceReviewReaction',
     'SiteReview',

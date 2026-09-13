@@ -1,3 +1,4 @@
+from datetime import timedelta
 from urllib.parse import urlencode
 from uuid import uuid4
 
@@ -11,7 +12,7 @@ from django.core.cache import cache
 from django.db.models import Q
 from django.contrib.auth import views as auth_views
 from django.db.utils import IntegrityError, OperationalError, ProgrammingError
-from django.http import HttpResponseGone, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseGone, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -36,12 +37,26 @@ from .controllers.place_reviews_controller import PlaceReviewsController
 from .controllers.seo_controller import SeoController
 from .controllers.site_reviews_controller import SiteReviewsController
 from .controllers.tracking_controller import TrackingController
+from .controllers.owner_analytics_controller import owner_analytics_controller
 from .forms import OwnerEventForm, OwnerSpecialistForm, UserPasswordResetForm
 from .legal_content import get_legal_page_content
-from .models import Category, Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, SiteSettings, Specialist
+from .models import AccountDeletionRequest, Category, Event, Place, PlaceOwnershipRequest, PlaceReview, SiteReview, SiteSettings, Specialist
 from .models import FunnelEvent
 from .services.content_quality import approved_review_queryset, public_place_queryset, public_review_queryset
 from .services.pricing_plans import public_pricing_plans
+from .services.account_deletion import (
+    AccountDeletionError,
+    cancel_account_deletion,
+    confirmation_code_ttl_minutes,
+    confirm_account_deletion,
+    get_active_retention_policy,
+    issue_cancellation_code,
+    make_status_token,
+    policy_from_request,
+    request_account_deletion,
+    typed_confirmation_phrase,
+    verify_status_token,
+)
 
 
 def place_pricing_api(request, slug):
@@ -386,6 +401,9 @@ def place_detail(request, pk, slug):
     from catalog.services.pricing_plans import build_pricing_summary
     context["pricing_summary"] = build_pricing_summary(place, context.get("language"))
 
+    from catalog.services.public_favorite_count import build_public_favorite_count
+    context["favorite_social_proof"] = build_public_favorite_count(place_id=place.pk)
+
     return render(
         request,
         "catalog/place_detail.html",
@@ -401,8 +419,9 @@ def toggle_place_like(request, pk):
 
     result = engagement_controller.toggle_place_like(request=request, place_id=pk)
     action = "saved" if result.liked else "removed"
+    event_name = FunnelEvent.EVENT_FAVORITE_ADDED if result.liked else FunnelEvent.EVENT_FAVORITE_REMOVED
     analytics_event = build_google_analytics_event(
-        FunnelEvent.EVENT_FAVORITE_TOGGLE,
+        event_name,
         {
             "place_id": result.place.id,
             "page_type": "favorite_toggle",
@@ -411,9 +430,9 @@ def toggle_place_like(request, pk):
     )
     track_funnel_event(
         request=request,
-        event_type=FunnelEvent.EVENT_FAVORITE_TOGGLE,
+        event_type=event_name,
         place=result.place,
-        meta={"action": action},
+        meta={"source": "favorite-toggle"},
     )
 
     if _is_ajax_request(request):
@@ -428,7 +447,7 @@ def toggle_place_like(request, pk):
 
     queue_google_analytics_event(
         request=request,
-        name=FunnelEvent.EVENT_FAVORITE_TOGGLE,
+        name=event_name,
         params={
             "place_id": result.place.id,
             "page_type": "favorite_toggle",
@@ -616,11 +635,15 @@ def vote_site_review(request, review_id):
 @csrf_exempt
 @require_POST
 def track_event(request):
+    from catalog.services.analytics_quality import record_analytics_ingress
     if not _has_allowed_tracking_origin(request):
+        record_analytics_ingress(rejected=1)
         return JsonResponse({"ok": False, "error": "forbidden_origin"}, status=403)
     if _tracking_rate_limit_exceeded(request):
+        record_analytics_ingress(rejected=1, rate_limited=1)
         return JsonResponse({"ok": False, "error": "rate_limited"}, status=429)
     result = tracking_controller.track_event_from_json(request=request, raw_body=request.body)
+    record_analytics_ingress(accepted=1 if result.ok else 0, rejected=0 if result.ok else 1)
     return JsonResponse(result.as_payload(), status=result.status_code)
 
 
@@ -914,6 +937,13 @@ def owner_places_dashboard(request):
         }
     )
     return render(request, "pages/owner_places.html", context)
+
+
+def owner_place_analytics(request, pk):
+    if not request.user.is_authenticated:
+        return _redirect_to_login(request)
+    context = owner_analytics_controller.build_context(request=request, place_id=pk)
+    return render(request, "pages/owner_analytics.html", context)
 
 
 def _build_owner_taxonomy_picker_config(form):
@@ -1635,6 +1665,14 @@ class AccountProfileView(LoginRequiredMixin, View):
         dashboard_context = account_controller.build_dashboard_context(user=self.request.user)
         current_route = self.request.resolver_match.url_name if self.request.resolver_match else "account_profile"
         managed_places_summary = _build_managed_places_summary(self.request.user)
+        try:
+            deletion_policy = get_active_retention_policy()
+        except AccountDeletionError:
+            deletion_policy = None
+        active_deletion = AccountDeletionRequest.objects.filter(
+            user=self.request.user,
+            status__in=AccountDeletionRequest.ACTIVE_STATUSES,
+        ).first()
         return {
             "profile_model": profile,
             "profile_form": profile_form,
@@ -1643,6 +1681,9 @@ class AccountProfileView(LoginRequiredMixin, View):
             "history_count": dashboard_context["history_count"],
             **managed_places_summary,
             "is_settings_view": current_route == "account_settings",
+            "account_deletion_available": deletion_policy is not None and not (self.request.user.is_staff or self.request.user.is_superuser),
+            "account_deletion_staff_blocked": self.request.user.is_staff or self.request.user.is_superuser,
+            "active_account_deletion": active_deletion,
             "meta_description": _("Личный кабинет KidsMap: данные профиля, контакты и безопасность аккаунта."),
         }
 
@@ -1710,6 +1751,234 @@ def account_profile(request):
 
 def account_settings(request):
     return AccountProfileView.as_view()(request)
+
+
+def _account_deletion_language(request) -> str:
+    language = (getattr(request, "LANGUAGE_CODE", None) or "ru").split("-", 1)[0].lower()
+    return language if language in {"az", "ru", "en"} else "ru"
+
+
+def _account_deletion_error_message(code: str) -> str:
+    return {
+        "retention_policy_not_active": _("Удаление аккаунта временно недоступно до утверждения политики хранения данных."),
+        "retention_policy_incomplete": _("Политика хранения данных настроена не полностью."),
+        "retention_policy_changed": _("Политика хранения изменилась. Начните запрос заново, чтобы увидеть актуальные условия."),
+        "verified_email_required": _("Для удаления аккаунта нужен подтверждённый текущий email."),
+        "staff_self_service_forbidden": _("Для служебного аккаунта обратитесь к уполномоченному администратору."),
+        "typed_confirmation_invalid": _("Введите фразу подтверждения точно так, как она показана."),
+        "confirmation_code_invalid": _("Неверный код подтверждения."),
+        "confirmation_attempts_exhausted": _("Лимит попыток исчерпан. Начните запрос заново."),
+        "confirmation_code_expired": _("Срок действия кода истёк."),
+        "confirmation_code_unavailable": _("Запросите новый код подтверждения."),
+        "confirmation_email_failed": _("Не удалось отправить письмо. Повторите попытку позже."),
+        "account_deletion_not_cancelable": _("Этот запрос уже нельзя отменить."),
+        "cancellation_period_expired": _("Срок отмены запроса истёк."),
+        "cancellation_email_unavailable": _("Не удалось отправить код отмены. Обратитесь в поддержку."),
+    }.get(code, _("Не удалось выполнить действие. Повторите попытку или обратитесь в поддержку."))
+
+
+def _deletion_context(
+    *,
+    deletion=None,
+    policy=None,
+    language="ru",
+    token="",
+    form=None,
+    code_sent=False,
+    staff_blocked=False,
+):
+    if policy is None and deletion is not None:
+        policy = policy_from_request(deletion)
+    return {
+        "deletion": deletion,
+        "deletion_policy": policy,
+        "policy_copy": policy.disclosure(language) if policy is not None else {},
+        "confirmation_phrase": typed_confirmation_phrase(language),
+        "confirmation_code_ttl_minutes": confirmation_code_ttl_minutes(),
+        "projected_processing_date": (
+            deletion.scheduled_for
+            if deletion is not None and deletion.scheduled_for is not None
+            else timezone.now() + timedelta(days=policy.grace_period_days)
+            if policy is not None
+            else None
+        ),
+        "status_token": token,
+        "form": form,
+        "code_sent": code_sent,
+        "staff_blocked": staff_blocked,
+        "meta_description": _("Безопасное удаление аккаунта KidsMap и связанных персональных данных."),
+    }
+
+
+def _render_account_deletion(request, template_name, context, *, status=200):
+    response = render(request, template_name, context, status=status)
+    response["Cache-Control"] = "no-store, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Referrer-Policy"] = "origin"
+    return response
+
+
+class AccountDeletionRequestView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("account_login")
+    template_name = "pages/account_deletion_request.html"
+
+    def get(self, request):
+        try:
+            policy = get_active_retention_policy()
+        except AccountDeletionError:
+            policy = None
+        form = auth_controller.build_account_deletion_request_form()
+        return _render_account_deletion(
+            request,
+            self.template_name,
+            _deletion_context(
+                policy=policy,
+                language=_account_deletion_language(request),
+                form=form,
+                staff_blocked=request.user.is_staff or request.user.is_superuser,
+            ),
+        )
+
+    def post(self, request):
+        language = _account_deletion_language(request)
+        form = auth_controller.build_account_deletion_request_form(data=request.POST)
+        policy = None
+        try:
+            policy = get_active_retention_policy()
+        except AccountDeletionError as exc:
+            form.add_error(None, _account_deletion_error_message(exc.code))
+        if policy is not None and form.is_valid():
+            try:
+                deletion = request_account_deletion(user=request.user, language_code=language)
+            except AccountDeletionError as exc:
+                form.add_error(None, _account_deletion_error_message(exc.code))
+            else:
+                return redirect("account_deletion_confirm", subject_reference=deletion.subject_reference)
+        return _render_account_deletion(
+            request,
+            self.template_name,
+            _deletion_context(
+                policy=policy,
+                language=language,
+                form=form,
+                staff_blocked=request.user.is_staff or request.user.is_superuser,
+            ),
+            status=400,
+        )
+
+
+class AccountDeletionConfirmView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("account_login")
+    template_name = "pages/account_deletion_confirm.html"
+
+    def _get_deletion(self, request, subject_reference):
+        return get_object_or_404(
+            AccountDeletionRequest,
+            subject_reference=subject_reference,
+            user=request.user,
+            status=AccountDeletionRequest.Status.CONFIRMATION_SENT,
+        )
+
+    def get(self, request, subject_reference):
+        deletion = self._get_deletion(request, subject_reference)
+        form = auth_controller.build_account_deletion_confirm_form()
+        return _render_account_deletion(
+            request,
+            self.template_name,
+            _deletion_context(deletion=deletion, language=_account_deletion_language(request), form=form),
+        )
+
+    def post(self, request, subject_reference):
+        deletion = self._get_deletion(request, subject_reference)
+        language = _account_deletion_language(request)
+        form = auth_controller.build_account_deletion_confirm_form(data=request.POST)
+        if form.is_valid():
+            try:
+                deletion = confirm_account_deletion(
+                    user=request.user,
+                    code=form.cleaned_data["confirmation_code"],
+                    typed_confirmation=form.cleaned_data["typed_confirmation"],
+                    language_code=language,
+                    http_request=request,
+                )
+            except AccountDeletionError as exc:
+                field = "typed_confirmation" if exc.code == "typed_confirmation_invalid" else "confirmation_code"
+                if exc.code not in {
+                    "typed_confirmation_invalid",
+                    "confirmation_code_invalid",
+                    "confirmation_attempts_exhausted",
+                    "confirmation_code_expired",
+                    "confirmation_code_unavailable",
+                }:
+                    field = None
+                form.add_error(field, _account_deletion_error_message(exc.code))
+            else:
+                token = make_status_token(deletion.subject_reference)
+                url = reverse("account_deletion_status", args=[deletion.subject_reference])
+                return redirect(f"{url}?{urlencode({'token': token})}")
+        return _render_account_deletion(
+            request,
+            self.template_name,
+            _deletion_context(deletion=deletion, language=language, form=form),
+            status=400,
+        )
+
+
+def account_deletion_status(request, subject_reference):
+    token = request.GET.get("token", "")
+    if not verify_status_token(subject_reference, token):
+        raise Http404
+    deletion = get_object_or_404(AccountDeletionRequest, subject_reference=subject_reference)
+    return _render_account_deletion(
+        request,
+        "pages/account_deletion_status.html",
+        _deletion_context(deletion=deletion, language=_account_deletion_language(request), token=token),
+    )
+
+
+def account_deletion_cancel(request, subject_reference):
+    token = request.GET.get("token", "") or request.POST.get("status_token", "")
+    if not verify_status_token(subject_reference, token):
+        raise Http404
+    deletion = get_object_or_404(AccountDeletionRequest, subject_reference=subject_reference)
+    language = _account_deletion_language(request)
+    code_sent = deletion.code_purpose == AccountDeletionRequest.CodePurpose.CANCEL
+    if request.method == "POST":
+        form = auth_controller.build_account_deletion_cancel_form(data=request.POST)
+        if form.is_valid():
+            action = form.cleaned_data["form_action"]
+            try:
+                if action == "send_code":
+                    deletion = issue_cancellation_code(subject_reference=subject_reference, language_code=language)
+                    code_sent = True
+                else:
+                    deletion = cancel_account_deletion(
+                        subject_reference=subject_reference,
+                        code=form.cleaned_data["confirmation_code"],
+                    )
+                    url = reverse("account_deletion_status", args=[deletion.subject_reference])
+                    return redirect(f"{url}?{urlencode({'token': token})}")
+            except AccountDeletionError as exc:
+                field = "confirmation_code" if action == "cancel" else None
+                form.add_error(field, _account_deletion_error_message(exc.code))
+        response_status = 400 if form.errors else 200
+    else:
+        form = auth_controller.build_account_deletion_cancel_form(form_action="send_code")
+        response_status = 200
+    return _render_account_deletion(
+        request,
+        "pages/account_deletion_cancel.html",
+        _deletion_context(deletion=deletion, language=language, token=token, form=form, code_sent=code_sent),
+        status=response_status,
+    )
+
+
+def account_deletion_request(request):
+    return AccountDeletionRequestView.as_view()(request)
+
+
+def account_deletion_confirm(request, subject_reference):
+    return AccountDeletionConfirmView.as_view()(request, subject_reference=subject_reference)
 
 
 def account_register(request):
