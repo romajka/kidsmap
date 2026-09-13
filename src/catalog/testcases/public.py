@@ -2942,7 +2942,7 @@ class TestReviewEnhancements(TestCase):
 
         az_catalog = self.client.get("/az/catalog/", follow=True)
         self.assertEqual(az_catalog.status_code, 200)
-        self.assertContains(az_catalog, "kart tapıldı")
+        self.assertContains(az_catalog, "məkan tapıldı")
         self.assertNotContains(az_catalog, "Найдено")
 
         en_catalog = self.client.get("/en/catalog/", follow=True)
