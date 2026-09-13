@@ -588,6 +588,16 @@ class TestPublicPagesSmoke(TestCase):
                 visible_text = re.findall(r">([^<>]*[А-Яа-яЁё][^<>]*)<", response.content.decode("utf-8"))
                 self.assertEqual(visible_text, [])
 
+    def test_faq_page_has_no_russian_accessibility_copy_in_azerbaijani_or_english(self):
+        for path in ("/faq/", "/en/faq/"):
+            with self.subTest(path=path):
+                response = self.client.get(path, follow=True)
+                localized_attributes = re.findall(
+                    r'(?:aria-label|title|placeholder|alt)="([^"]*[А-Яа-яЁё][^"]*)"',
+                    response.content.decode("utf-8"),
+                )
+                self.assertEqual(localized_attributes, [])
+
     def test_az_reviews_page_translates_reaction_helper(self):
         response = self.client.get("/reviews/")
 
