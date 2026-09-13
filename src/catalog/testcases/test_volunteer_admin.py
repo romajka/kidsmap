@@ -329,6 +329,7 @@ class VolunteerAccessTests(TestCase):
         revision.refresh_from_db()
         self.assertEqual(place.name_az, 'Public title')
         self.assertEqual(revision.payload['name_az'], 'Admin corrected title')
+
         self.assertEqual(revision.status, 'pending')
         self.assertEqual(revision.author, self.user)
         self.assertTrue(PlaceChangeAudit.objects.filter(
@@ -346,6 +347,31 @@ class VolunteerAccessTests(TestCase):
         self.assertTrue(stale_response.context['form'].non_field_errors())
         revision.refresh_from_db()
         self.assertEqual(revision.payload['name_az'], 'Admin corrected title')
+
+    def test_legacy_notes_can_be_cleared_from_preexisting_shared_draft(self):
+        from catalog.services.volunteer_places import content_snapshot, live_snapshot
+        place = create_ready_place(created_by=self.user, additional_info='Old schedule', extra_conditions='Old terms')
+        payload, base = content_snapshot(place), live_snapshot(place)
+        for name in ('additional_info', 'extra_conditions'):
+            payload.pop(name, None)
+            base.pop(name, None)
+        revision = VolunteerPlaceRevision.objects.create(place=place, author=self.user, payload=payload, base_snapshot=base)
+        root = self.root_login()
+        url = reverse('admin:catalog_place_change', args=[place.pk])
+        form = self.client.get(url).context['form']
+        self.assertEqual(form['additional_info'].value(), 'Old schedule')
+        data = {name: form[name].value() if form[name].value() is not None else ''
+                for name, field in form.fields.items() if not isinstance(field, forms.FileField)}
+        data.update(action='admin_save', additional_info='', extra_conditions='')
+        self.assertEqual(self.client.post(url, data).status_code, 302)
+        revision.refresh_from_db()
+        place.refresh_from_db()
+        self.assertEqual(place.additional_info, 'Old schedule')
+        self.assertEqual(revision.payload['additional_info'], '')
+        self.assertEqual(revision.base_snapshot['additional_info'], 'Old schedule')
+        audit = PlaceChangeAudit.objects.get(place=place, changed_by=root, field_name='additional_info')
+        self.assertEqual(json.loads(audit.old_value), 'Old schedule')
+        self.assertEqual(json.loads(audit.new_value), '')
 
     def test_stale_admin_edit_does_not_overwrite_newer_revision(self):
         place = create_ready_place(created_by=self.user)

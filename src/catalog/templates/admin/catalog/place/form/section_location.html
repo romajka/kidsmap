@@ -158,25 +158,5 @@
       {% include "includes/place_schedule_editor.html" with form=form variant="admin" editor_id="admin-place-schedule" %}
     </div>
 
-    <div class="km-pf-divider" role="presentation"></div>
-
-    <div class="km-pf-group" data-pf-group="conditions">
-      <div class="km-pf-group__head">
-        <span class="km-pf-group__title">{% translate "Дополнительные условия" %}</span>
-        <span class="km-pf-group__note">{% translate "Три языка на вкладках, а не тремя полями подряд" %}</span>
-      </div>
-      {% include "admin/catalog/place/form/_langgroup.html" with group="conditions" tabs=km_place_condition_tabs %}
-    </div>
-
-    <details class="km-pf-disclosure" data-pf-group="extra-info">
-      <summary class="km-pf-disclosure__summary">
-        <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
-        <span class="km-pf-disclosure__title">{% translate "Дополнительная информация" %}</span>
-        <span class="km-pf-disclosure__note">{% translate "Служебные заметки для карточки, на готовность не влияют" %}</span>
-      </summary>
-      <div class="km-pf-disclosure__body">
-        {% include "admin/catalog/place/form/_langgroup.html" with group="info" tabs=km_place_info_tabs %}
-      </div>
-    </details>
   </div>
 {% endwith %}

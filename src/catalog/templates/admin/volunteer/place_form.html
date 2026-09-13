@@ -44,7 +44,7 @@
             <div class="kv-admin-photos">{% if card.photo_url %}<img src="{{ card.photo_url }}" alt="{{ card.name }}" data-editor-photo-preview>{% else %}<img alt="{{ ui.photo_choose }}" data-editor-photo-preview hidden>{% endif %}</div>
           {% endif %}
         {% endif %}
-        {% if section.optional %}<details class="km-pf-disclosure"><summary class="km-pf-disclosure__summary">{{ ui.optional }}</summary><div class="km-pf-disclosure__body km-pf-grid km-pf-grid--2">{% for field in section.optional %}{% include "admin/catalog/place/form/_field.html" %}{% endfor %}</div></details>{% endif %}
+        {% if section.optional %}<details class="km-pf-disclosure"{% if form.additional_info.value or form.extra_conditions.value %} open{% endif %}><summary class="km-pf-disclosure__summary">{{ ui.optional }}</summary><div class="km-pf-disclosure__body km-pf-grid km-pf-grid--2">{% for field in section.optional %}{% include "admin/catalog/place/form/_field.html" with hint=field.help_text %}{% endfor %}</div></details>{% endif %}
         {% include "admin/catalog/place/form/_section_close.html" %}
       {% endfor %}
     </div>

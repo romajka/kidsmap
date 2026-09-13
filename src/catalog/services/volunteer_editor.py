@@ -16,7 +16,7 @@ def editor_context(form):
         ('verification', t('Проверка', 'Yoxlama', 'Review'), 'check_circle', t('Проверьте данные перед отправкой администратору.', 'Administratora göndərməzdən əvvəl məlumatları yoxlayın.', 'Check the details before sending to the administrator.')),
     ]
     pricing_names = {'age_from', 'age_to', 'age_open_ended', 'offers_adult_classes', 'lesson_duration_minutes', 'lesson_format', 'lessons_per_week', 'lessons_per_month'}
-    pricing_names.update(name for name in CONTENT_FIELDS if name.startswith('custom_price_badge_'))
+    pricing_names.update(name for name in CONTENT_FIELDS if name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info')))
     basics = {'name_az','name_ru','name_en','description_az','description_ru','description_en','category','subcategory'}
     special = basics | pricing_names | {'photo','cover_photo','lat','lng','price_mode','schedule','schedule_mode','schedule_note_az','schedule_note_ru','schedule_note_en'}
     sections = []
@@ -27,8 +27,8 @@ def editor_context(form):
         fields = [form[name] for name in field_names if (key == 'pricing' and name in pricing_names) or (key == 'location' and name not in special) or (key == 'media' and name in {'photo','cover_photo'}) or (key == 'basics' and name in basics)]
         invalid = any(field.errors for field in fields)
         state = 'error' if invalid else 'done' if items and done == len(items) else 'partial' if done else 'empty'
-        sections.append(dict(id=key, title=title, icon=icon, description=hint, step=f'{number:02}', fields=[field for field in fields if not field.name.startswith(('custom_price_badge_', 'extra_conditions_', 'additional_info_'))],
-            optional=[field for field in fields if field.name.startswith(('custom_price_badge_', 'extra_conditions_', 'additional_info_'))],
+        sections.append(dict(id=key, title=title, icon=icon, description=hint, step=f'{number:02}', fields=[field for field in fields if not field.name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info'))],
+            optional=[field for field in fields if field.name.startswith(('custom_price_badge_', 'extra_conditions', 'additional_info'))],
             state=dict(state=state, icon={'error':'error','done':'check_circle','partial':'radio_button_checked','empty':'radio_button_unchecked'}[state], label=f'{done} / {len(items)}' if items else '')))
     return dict(volunteer_sections=sections, editor_readiness=readiness, editor_issues=issues,
         km_place_required_fields={'district' if item.requirement.field == 'region' else item.requirement.field for item in readiness.items},

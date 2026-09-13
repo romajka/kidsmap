@@ -407,6 +407,9 @@ class PlaceAdminForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         for field_name, placeholder in _placeholders.items():
             if field_name in self.fields and hasattr(self.fields[field_name].widget, "attrs"):
                 self.fields[field_name].widget.attrs.setdefault("placeholder", str(placeholder))
+        for name, field in self.fields.items():
+            if name.startswith(("extra_conditions", "additional_info")):
+                field.widget.attrs["rows"] = 4
         self._init_schedule_editor()
 
     def save(self, commit=True):
@@ -1816,6 +1819,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     "schedule",
                     "schedule_mode",
                     ("schedule_note_az", "schedule_note_ru", "schedule_note_en"),
+                    "extra_conditions", "additional_info",
                     ("extra_conditions_az", "extra_conditions_ru", "extra_conditions_en"),
                     ("additional_info_az", "additional_info_ru", "additional_info_en"),
                 )
@@ -2655,6 +2659,7 @@ class PlaceAdmin(admin.ModelAdmin):
                     ("schedule_note_az", "schedule_note_ru", "schedule_note_en"),
                     # The per-language fields are the ones the site renders; the
                     # non-suffixed columns stay in the database as a fallback.
+                    "extra_conditions", "additional_info",
                     ("extra_conditions_az", "extra_conditions_ru", "extra_conditions_en"),
                     ("additional_info_az", "additional_info_ru", "additional_info_en"),
                 )

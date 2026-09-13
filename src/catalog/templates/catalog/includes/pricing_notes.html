@@ -1,0 +1,12 @@
+{% load i18n %}
+{% if place.extra_conditions_i18n %}
+  <p class="detail-note"><strong>{% trans "Дополнительные условия" %}:</strong> {{ place.extra_conditions_i18n|linebreaksbr }}</p>
+{% endif %}
+{% if place.additional_info_i18n %}
+  <p class="detail-note">{{ place.additional_info_i18n|linebreaksbr }}</p>
+{% endif %}
+{% if not place.is_verified %}
+  {% if pricing_summary.has_price or pricing_summary.plans %}
+    <p class="detail-note detail-note--muted" data-price-disclaimer>{% trans "Цены собраны из открытых источников — уточняйте их у организации перед визитом." %}</p>
+  {% endif %}
+{% endif %}

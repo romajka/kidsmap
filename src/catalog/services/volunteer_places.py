@@ -45,6 +45,17 @@ def base_token(place):
     return signing.dumps({"place": place.pk, "digest": digest}, salt="volunteer-place")
 
 
+def revision_base_matches(revision, place):
+    current = live_snapshot(place)
+    # Older revisions never captured these RU fallback fields. Preserve the
+    # current values when loading them; newly loaded forms still use a full
+    # signed token, so subsequent edits cannot overwrite a concurrent change.
+    for name in ("additional_info", "extra_conditions"):
+        if name not in revision.base_snapshot:
+            current.pop(name, None)
+    return revision.base_snapshot == current
+
+
 def token_matches(token, place):
     try:
         return signing.loads(token, salt="volunteer-place") == signing.loads(base_token(place), salt="volunteer-place")
@@ -146,7 +157,7 @@ def save_working_revision(*, user, place_id, data, files, source):
         _check_version(revision, form.cleaned_data["revision_version"])
         if not token_matches(form.cleaned_data["base_token"], place):
             raise ValidationError(_("Карточка изменилась. Обновите страницу."))
-        if revision and revision.status != "approved" and revision.base_snapshot != live_snapshot(place):
+        if revision and revision.status != "approved" and not revision_base_matches(revision, place):
             raise ValidationError(_("Администратор изменил карточку. Начните правки заново с текущей версии."))
     except ValidationError as exc:
         form.add_error(None, exc)
@@ -155,6 +166,8 @@ def save_working_revision(*, user, place_id, data, files, source):
     old_working_snapshot = copy.deepcopy(
         revision.payload if revision and revision.status != VolunteerPlaceRevision.Status.APPROVED else content_snapshot(place)
     )
+    for name in ("additional_info", "extra_conditions"):
+        old_working_snapshot.setdefault(name, getattr(place, name))
     candidate = form.instance
     # FileField storage creates unique names. Never overwrite/delete a live file.
     for name in ("photo", "cover_photo"):
@@ -173,6 +186,8 @@ def save_working_revision(*, user, place_id, data, files, source):
     elif revision.status == VolunteerPlaceRevision.Status.APPROVED:
         revision.base_snapshot = {}
     revision.base_snapshot = revision.base_snapshot or live_snapshot(place)
+    for name in ("additional_info", "extra_conditions"):
+        revision.base_snapshot.setdefault(name, getattr(place, name))
     revision.payload = json_value(payload)
     if source == PlaceChangeAudit.SOURCE_VOLUNTEER or revision.author_id is None:
         revision.author = user
@@ -256,7 +271,7 @@ def review_proposal(*, user, place_id, version, approve, note=""):
     if place.deleted_at or place.owner_id or place.created_by_id != revision.author_id or revision.author_id is None:
         raise ValidationError(_("Место удалено или передано другому владельцу. Одобрение недоступно."))
     if approve:
-        if revision.base_snapshot != live_snapshot(place):
+        if not revision_base_matches(revision, place):
             raise ValidationError(_("Карточка изменилась после отправки. Верните её волонтёру на доработку."))
         form = review_form(revision)
         if not form.is_valid():

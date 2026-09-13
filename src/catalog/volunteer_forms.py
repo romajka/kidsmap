@@ -24,6 +24,7 @@ CONTENT_FIELDS = (
     "schedule_note_az", "schedule_note_ru", "schedule_note_en",
     "price_mode", "lesson_duration_minutes", "lesson_format",
     "lessons_per_week", "lessons_per_month",
+    "extra_conditions", "additional_info",
     "extra_conditions_az", "extra_conditions_ru", "extra_conditions_en",
     "additional_info_az", "additional_info_ru", "additional_info_en",
     "custom_price_badge_az", "custom_price_badge_ru", "custom_price_badge_en",
@@ -86,6 +87,9 @@ class VolunteerPlaceForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
         for field in self.fields.values():
             if isinstance(field.widget, forms.Textarea):
                 field.widget.attrs["rows"] = 3
+        for name in ("extra_conditions", "additional_info"):
+            self.fields[name].label = f'{self.fields[name].label} — {_("Текст старой карточки (RU)")}'
+            self.fields[name].help_text = _("Показывается только в RU, если соответствующий перевод RU пуст. Чтобы убрать примечание полностью, очистите и перевод, и старый текст.")
         if not self.is_bound:
             self.initial["pricing_plans"] = json.dumps(self.instance.pricing_plans, ensure_ascii=False)
         init_location_fields(self, self.instance)

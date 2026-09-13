@@ -1,0 +1,34 @@
+{% load i18n %}
+<div class="km-pf-divider" role="presentation"></div>
+<div class="km-pf-group" data-pf-group="conditions">
+  <div class="km-pf-group__head">
+    <span class="km-pf-group__title">{% translate "Дополнительные условия" %}</span>
+    <span class="km-pf-group__note">{% translate "Публичные примечания в блоке «Цена и занятия». Можно редактировать или очистить." %}</span>
+  </div>
+  {% include "admin/catalog/place/form/_langgroup.html" with group="conditions" tabs=km_place_condition_tabs %}
+</div>
+<div class="km-pf-group" data-pf-group="extra-info">
+  <div class="km-pf-group__head">
+    <span class="km-pf-group__title">{% translate "Дополнительная информация" %}</span>
+    <span class="km-pf-group__note">{% translate "Публичный текст под тарифами: группы, время занятий и другие пояснения." %}</span>
+  </div>
+  {% include "admin/catalog/place/form/_langgroup.html" with group="info" tabs=km_place_info_tabs %}
+</div>
+<details class="km-pf-disclosure"{% if form.extra_conditions.value or form.additional_info.value %} open{% endif %}>
+  <summary class="km-pf-disclosure__summary">
+    <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-expand_more"></use></svg>
+    <span class="km-pf-disclosure__title">{% translate "Текст старой карточки (RU)" %}</span>
+  </summary>
+  <div class="km-pf-disclosure__body">
+    <p class="km-pf-group__note">{% translate "Показывается только в RU, если соответствующий перевод RU пуст. Чтобы убрать примечание полностью, очистите и перевод, и старый текст." %}</p>
+    {% include "admin/catalog/place/form/_field.html" with field=form.extra_conditions %}
+    {% include "admin/catalog/place/form/_field.html" with field=form.additional_info %}
+  </div>
+</details>
+<div class="km-pf-group" data-pf-group="price-disclaimer">
+  <div class="km-pf-group__head">
+    <span class="km-pf-group__title">{% translate "Автоматическое предупреждение о ценах" %}</span>
+  </div>
+  <p class="km-pf-group__note">{% translate "Цены собраны из открытых источников — уточняйте их у организации перед визитом." %}</p>
+  <p class="km-pf-group__note">{% translate "Текст переводится автоматически для AZ / RU / EN. Показывается при наличии цен или тарифов, пока карточка не отмечена «Проверено». Этот статус устанавливайте только после проверки данных, включая цены." %}</p>
+</div>
