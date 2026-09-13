@@ -56,6 +56,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Compile translations
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y gettext
+          python manage.py compilemessages --ignore .venv --ignore venv
+
       - name: Apply migrations
         run: python manage.py migrate --noinput
 
