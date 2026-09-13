@@ -20,7 +20,7 @@ import unittest
 
 from django.conf import settings
 from django.core.cache import cache
-from django.test.runner import DiscoverRunner
+from django.test.runner import DiscoverRunner, ParallelTestSuite, RemoteTestResult, RemoteTestRunner
 from django.utils import translation
 
 
@@ -39,7 +39,25 @@ def _with_state_reset(result_class):
     return StateResetResult
 
 
+class StateResetRemoteTestResult(RemoteTestResult):
+    """Reset worker-local state before every test in a parallel run."""
+
+    def startTest(self, test):
+        _reset_global_state()
+        super().startTest(test)
+
+
+class StateResetRemoteTestRunner(RemoteTestRunner):
+    resultclass = StateResetRemoteTestResult
+
+
+class KidsMapParallelTestSuite(ParallelTestSuite):
+    runner_class = StateResetRemoteTestRunner
+
+
 class KidsMapTestRunner(DiscoverRunner):
+    parallel_test_suite = KidsMapParallelTestSuite
+
     def get_resultclass(self):
         # Django returns None when it has no special result class of its own,
         # in which case unittest falls back to TextTestResult.

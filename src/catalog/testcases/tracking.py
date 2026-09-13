@@ -300,6 +300,13 @@ class TestCacheIsolationBetweenTests(TestCase):
         return [str(key) for key in cache._cache if "tracking-rate" in str(key)]
 
 
+class TestParallelRunnerStateReset(TestCase):
+    def test_parallel_workers_use_the_state_reset_result(self):
+        from config.test_runner import KidsMapParallelTestSuite, StateResetRemoteTestRunner
+
+        self.assertIs(KidsMapParallelTestSuite.runner_class, StateResetRemoteTestRunner)
+
+
 class TestLanguageIsolationBetweenTests(TestCase):
     """A request must not leave its language active for the next test.
 
