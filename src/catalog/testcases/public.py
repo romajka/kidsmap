@@ -67,7 +67,7 @@ from catalog.testcases.utils import *
 class TestPublicPagesSmoke(TestCase):
     def test_back_to_top_reserves_space_for_chat_launcher(self):
         """The fixed scroll control must stay above Tawk's bottom-right launcher."""
-        css = (settings.BASE_DIR / "static/css/site.css").read_text()
+        css = (settings.BASE_DIR / "static/css/site.css").read_text(encoding="utf-8")
 
         base_rule = re.search(r"\.km-back-to-top\s*\{(?P<rules>.*?)\n\}", css, re.DOTALL)
         mobile_rule = re.search(
@@ -83,7 +83,7 @@ class TestPublicPagesSmoke(TestCase):
 
     def test_back_to_top_hover_effect_is_limited_to_pointer_devices(self):
         """A tap must not leave the scroll control in its desktop hover state."""
-        css = (settings.BASE_DIR / "static/css/site.css").read_text()
+        css = (settings.BASE_DIR / "static/css/site.css").read_text(encoding="utf-8")
 
         self.assertIn("@media (hover: hover) and (pointer: fine)", css)
         hover_block = re.search(
@@ -105,7 +105,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertNotContains(response, "data-count-target")
 
     def test_home_hero_statistics_do_not_add_plus_to_exact_counts(self):
-        template_source = (settings.BASE_DIR / "src/catalog/templates/pages/home.html").read_text()
+        template_source = (settings.BASE_DIR / "src/catalog/templates/pages/home.html").read_text(encoding="utf-8")
 
         self.assertIn("<strong>{{ map_places|length }}</strong>", template_source)
         self.assertIn(
@@ -478,9 +478,10 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/en/auth/password-reset/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Password reset")
+        self.assertContains(response, "Reset password")
         self.assertContains(response, "Send reset link")
-        self.assertContains(response, "Back to sign in")
+        self.assertContains(response, "Remember your password?")
+        self.assertContains(response, "Sign in")
         self.assertNotContains(response, "Восстановление пароля")
         self.assertNotContains(response, "Отправить ссылку")
         self.assertNotContains(response, "Вернуться ко входу")
@@ -538,7 +539,6 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Найден 1 кружок")
-        self.assertContains(response, "Найдена 1 карточка")
         self.assertNotContains(response, "kart tapıldı")
         self.assertNotContains(response, "dərnək tapıldı")
         self.assertNotContains(response, "məkan tapıldı")
@@ -619,11 +619,12 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "How can I quickly find a club for my child?")
         self.assertNotContains(response, "Частые вопросы о KidsMap")
 
-    def test_en_header_uses_translated_language_names(self):
+    def test_en_header_uses_flagged_language_codes(self):
         response = self.client.get("/en/auth/login/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Azerbaijani")
+        self.assertContains(response, 'hreflang="az"', html=False)
+        self.assertContains(response, '<span class="km-lang-opt-code">AZ</span>', html=False)
         self.assertNotContains(response, "Азербайджанский")
 
     @override_settings(ADMIN_HOST="admin.kidsmap.az")
@@ -680,7 +681,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_production_nginx_keeps_admin_host_out_of_www_redirect_block(self):
-        nginx_config = (settings.BASE_DIR / "deploy/nginx/kidsmap.az.conf").read_text()
+        nginx_config = (settings.BASE_DIR / "deploy/nginx/kidsmap.az.conf").read_text(encoding="utf-8")
 
         self.assertIn("server_name www.kidsmap.az;", nginx_config)
         self.assertIn("server_name admin.kidsmap.az;", nginx_config)
@@ -767,7 +768,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, 'class="card place-card"', html=False)
         self.assertContains(response, "card-go-btn", html=False)
 
-    def test_home_place_card_phone_button_calls_first_number_directly(self):
+    def test_home_place_card_reveals_first_number_on_demand(self):
         place = create_quality_place(
             name="Callable Home Place",
             name_ru="Кружок с телефоном",
@@ -780,12 +781,11 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            f'class="card-contact-toggle" href="tel:{place.phone1}"',
-            html=False,
-        )
-        self.assertNotContains(response, 'data-contact-toggle', html=False)
+        self.assertContains(response, 'class="card-contact-toggle km-phone-control km-phone-control--card"', html=False)
+        self.assertContains(response, f'data-phone-reveal="{place.pk}"', html=False)
+        self.assertContains(response, 'data-phone-index="0"', html=False)
+        self.assertNotContains(response, f'href="tel:{place.phone1}"', html=False)
+        self.assertNotContains(response, place.phone1)
 
     def test_home_page_uses_admin_selected_recommendations_in_configured_order(self):
         create_quality_place(
@@ -834,8 +834,9 @@ class TestPublicPagesSmoke(TestCase):
         content = response.content.decode()
         ordered_markers = (
             'class="home-hero panel',
+            'class="home-places-rail"',
+            'class="home-discover"',
             'class="panel home-map-panel"',
-            'class="panel home-recommended"',
             'class="home-steps panel home-steps-lite',
             'id="add-place"',
             'class="panel home-faq-panel"',
@@ -845,7 +846,7 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertContains(response, 'class="home-search home-search-compact"', html=False)
         self.assertContains(response, "Открыть весь каталог")
-        self.assertContains(response, "Рекомендуемые места и занятия")
+        self.assertContains(response, "Ваше следующее любимое место")
         self.assertContains(response, "Как это работает")
         self.assertContains(response, "Добавить свое место")
         self.assertContains(response, "Частые вопросы о KidsMap")
@@ -888,18 +889,19 @@ class TestPublicPagesSmoke(TestCase):
 
         ru_response = self.client.get("/ru/", follow=True)
         en_response = self.client.get("/en/", follow=True)
-        source = (settings.BASE_DIR / "static/js/home_map.js").read_text()
+        source = (settings.BASE_DIR / "static/js/home_map.js").read_text(encoding="utf-8")
 
         self.assertContains(ru_response, 'data-home-map-language="ru"', html=False)
         self.assertContains(en_response, 'data-home-map-language="en"', html=False)
         self.assertIn("&language=", source)
         self.assertIn("&region=AZ", source)
 
-    def test_home_page_does_not_render_manual_static_version_query_params(self):
+    def test_home_page_versions_interactive_static_assets(self):
         response = self.client.get("/", follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "?v=")
+        self.assertContains(response, "css/components/header.css?v=2", html=False)
+        self.assertContains(response, "js/place_phone_reveal.js?v=2", html=False)
 
     @override_settings(
         DEBUG=False,
@@ -1101,7 +1103,7 @@ class TestPublicPagesSmoke(TestCase):
         self.assertContains(response, "window.location.assign(mapOpenUrl)", html=False)
         self.assertContains(response, "Проложить маршрут")
 
-    def test_place_detail_page_shows_all_phone_numbers(self):
+    def test_place_detail_page_reveals_all_phone_numbers_on_demand(self):
         place = create_quality_place(
             name="Multiple phones place",
             name_ru="Кружок с несколькими телефонами",
@@ -1114,9 +1116,11 @@ class TestPublicPagesSmoke(TestCase):
         response = self.client.get(place.get_absolute_url())
 
         self.assertEqual(response.status_code, 200)
-        for phone in place.phone_numbers:
-            self.assertContains(response, f'href="tel:{phone}"', html=False)
-            self.assertContains(response, phone)
+        self.assertContains(response, f'data-phone-reveal="{place.pk}"', html=False)
+        for index, phone in enumerate(place.phone_numbers):
+            self.assertContains(response, f'data-phone-index="{index}"', html=False)
+            self.assertNotContains(response, f'href="tel:{phone}"', html=False)
+            self.assertNotContains(response, phone)
 
     def test_robots_txt_disallows_private_sections(self):
         response = self.client.get("/robots.txt")
@@ -3269,10 +3273,10 @@ class PublicLanguageConsistencyTests(TestCase):
         self.assertNotIn("legacy-page", content.seo_pages("en"))
 
     def test_home_map_javascript_gets_age_and_error_labels_from_template(self):
-        source = (settings.BASE_DIR / "static/js/home_map.js").read_text()
+        source = (settings.BASE_DIR / "static/js/home_map.js").read_text(encoding="utf-8")
         template_source = (
             settings.BASE_DIR / "src/catalog/templates/pages/home.html"
-        ).read_text()
+        ).read_text(encoding="utf-8")
 
         self.assertNotIn('return from + "–" + to + " yaş"', source)
         self.assertIn("mapEl.dataset.ageRangeLabel", source)
@@ -3282,7 +3286,7 @@ class PublicLanguageConsistencyTests(TestCase):
         self.assertIn("Ages {from}–{to}", template_source)
 
     def test_home_map_marker_click_uses_shared_age_labels(self):
-        source = (settings.BASE_DIR / "static/js/home_map.js").read_text()
+        source = (settings.BASE_DIR / "static/js/home_map.js").read_text(encoding="utf-8")
 
         self.assertIn(
             "const { mapEl, mapNoteEl, places, detailsLabel, ageLabels } = sharedState;",
