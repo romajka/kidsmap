@@ -793,21 +793,37 @@ class TestAdminOwnershipModerationUX(TestCase):
         content = response.content.decode("utf-8")
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('>2</span>\n                    <p class="km-stat-label">Постоянных мест</p>', content)
-        self.assertIn('>0</span>\n                    <p class="km-stat-label">Опубликовано мест</p>', content)
-        self.assertIn('>1</span>\n                        <p class="km-stat-label">Места на проверке</p>', content)
-        self.assertIn('>1</span>\n                        <p class="km-stat-label">Мероприятия на проверке</p>', content)
-        self.assertIn('>1</span>\n                        <p class="km-stat-label">Отзывы на проверке</p>', content)
-        self.assertIn('>1</span>\n                        <p class="km-stat-label">Заявки владельцев</p>', content)
-        self.assertIn('>2</span>\n                    <p class="km-stat-label">Всего пользователей</p>', content)
+        self.assertIn('aria-label="Постоянных мест: 2"', content)
+        self.assertIn('aria-label="Опубликовано мест: 0"', content)
+        self.assertIn(
+            '<span class="km-dash-pending-card__count">1</span>\n'
+            '                            <span class="km-dash-pending-card__label">Места на проверке</span>',
+            content,
+        )
+        self.assertIn(
+            '<span class="km-dash-pending-card__count">1</span>\n'
+            '                            <span class="km-dash-pending-card__label">Мероприятия на проверке</span>',
+            content,
+        )
+        self.assertIn(
+            '<span class="km-dash-pending-card__count">1</span>\n'
+            '                            <span class="km-dash-pending-card__label">Отзывы на проверке</span>',
+            content,
+        )
+        self.assertIn(
+            '<span class="km-dash-pending-card__count">1</span>\n'
+            '                            <span class="km-dash-pending-card__label">Заявки владельцев</span>',
+            content,
+        )
+        self.assertIn('aria-label="Пользователей сайта: 2"', content)
         self.assertContains(response, '/admin/catalog_moderation/moderationplace/', html=False)
-        self.assertContains(response, '/admin/catalog/place/?is_temporary__exact=0" class="km-stat-card km-stat-card--neutral"', html=False)
-        self.assertContains(response, '/admin/catalog/place/?is_temporary__exact=0&amp;status__exact=published" class="km-stat-card km-stat-card--good"', html=False)
+        self.assertContains(response, '/admin/catalog/place/?is_temporary__exact=0" class="km-dash-kpi-card"', html=False)
+        self.assertContains(response, '/admin/catalog/place/?is_temporary__exact=0&amp;status__exact=published" class="km-dash-kpi-card km-dash-kpi-card--success"', html=False)
         self.assertContains(response, '/admin/catalog_moderation/moderationevent/', html=False)
-        self.assertContains(response, '/admin/catalog/event/?status__exact=published" class="km-stat-card km-stat-card--info"', html=False)
+        self.assertContains(response, '/admin/catalog/event/?status__exact=published" class="km-dash-kpi-card km-dash-kpi-card--info"', html=False)
         self.assertContains(response, '/admin/catalog_moderation/moderationreview/', html=False)
         self.assertContains(response, '/admin/catalog/placeownershiprequest/?status__exact=PENDING', html=False)
-        self.assertContains(response, '/admin/catalog/siteregistereduser/" class="km-stat-card km-stat-card--neutral"', html=False)
+        self.assertContains(response, '/admin/catalog/siteregistereduser/" class="km-dash-kpi-card"', html=False)
 
     def test_admin_language_switcher_uses_language_specific_next_urls(self):
         response = self.client.get("/ru/admin/")
@@ -856,12 +872,14 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(payload["results"][0]["label"], "Robot Academy")
         self.assertIn("Baku, Tech street 1", payload["results"][0]["meta"])
 
-    def test_admin_place_changelist_renders_filter_select_options(self):
+    def test_admin_place_changelist_renders_filter_controls(self):
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'data-field="category"', html=False)
-        self.assertContains(response, 'data-field="status"', html=False)
+        self.assertNotContains(response, 'data-field="status"', html=False)
+        self.assertContains(response, 'class="km-status-tabs"', html=False)
+        self.assertContains(response, "Вкладки — единственный фильтр по статусу")
         self.assertContains(response, "Образование")
         self.assertContains(response, "На рассмотрении")
 
@@ -1015,7 +1033,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         second_request.refresh_from_db()
         self.assertEqual(second_request.status, PlaceOwnershipRequest.STATUS_REJECTED)
 
-    def test_place_admin_shows_coordinates_and_map_readiness_statuses(self):
+    def test_place_admin_shows_coordinates_and_readiness_statuses(self):
         self.place.lat = 40.4093
         self.place.lng = 49.8671
         self.place.save(update_fields=["lat", "lng", "updated_at"])
@@ -1029,14 +1047,14 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 
         self.assertEqual(response.status_code, 200)
-        content = response.content.decode("utf-8")
-        self.assertTrue("Есть координаты" in content or "Koordinatlar var" in content)
-        self.assertTrue("Нужны координаты" in content or "Koordinatlar tələb olunur" in content)
-        self.assertTrue("Готово для карты" in content or "Xəritə üçün hazırdır" in content)
-        self.assertTrue("Не готово для карты" in content or "Xəritə üçün hazır deyil" in content)
+        self.assertContains(response, "Точка на карте есть")
+        self.assertContains(response, "Нет координат")
+        self.assertContains(response, "data-readiness-trigger", html=False)
+        self.assertContains(response, 'data-total="12"', html=False)
         self.assertContains(response, "Локация")
-        self.assertContains(response, "Публикация")
-        self.assertContains(response, "Статистика")
+        self.assertContains(response, "Состояние")
+        self.assertContains(response, "Метки")
+        self.assertContains(response, "Обновлено")
         self.assertContains(response, "admin/css/kidsmap_admin.css")
 
     def test_place_admin_changelist_shows_bulk_bar_quick_filters_and_row_actions(self):
@@ -1127,14 +1145,15 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "place-admin-dashboard__search-form")
-        self.assertContains(response, "Название места...")
-        self.assertContains(response, "Ищет по названию места")
-        self.assertContains(response, "Искать")
+        self.assertContains(response, "km-search-section")
+        self.assertContains(response, 'class="km-search-form"', html=False)
+        self.assertContains(response, "Название AZ/RU/EN, адрес, телефон, владелец")
+        self.assertContains(response, 'aria-label="Поиск"', html=False)
+        self.assertContains(response, 'id="km-toggle-filters-btn"', html=False)
+        self.assertContains(response, "Фильтры")
         self.assertContains(response, "Категория")
         self.assertContains(response, "Регион / район")
-        self.assertContains(response, "Статус")
-        self.assertContains(response, "карточка")
+        self.assertContains(response, "Вкладки — единственный фильтр по статусу")
         self.assertNotContains(response, 'id="toolbar"', html=False)
 
     def test_place_admin_changelist_searches_by_azerbaijani_name(self):
@@ -1149,10 +1168,10 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_place_changelist"), data={"q": "Rəssamlar"})
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Balaca Rəssamlar Studiyası")
+        self.assertContains(response, "Студия маленьких художников")
         self.assertNotContains(response, "Кружок для модерации")
 
-    def test_place_admin_changelist_shows_stats_and_quick_filter_counts(self):
+    def test_place_admin_changelist_shows_status_tabs_and_counts(self):
         Place.objects.create(
             name="Pending place",
             name_ru="На модерации",
@@ -1170,11 +1189,14 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_place_changelist"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Статистика мест")
-        self.assertContains(response, "place-admin-dashboard__stat-card")
-        self.assertContains(response, "Фильтры")
-        self.assertContains(response, "place-admin-dashboard__quick-filter")
-        self.assertContains(response, "Ещё ▾")
+        self.assertContains(response, "Постоянные места")
+        self.assertContains(response, "km-status-tabs")
+        self.assertContains(response, "km-status-tab__count")
+        self.assertContains(response, "Все")
+        self.assertContains(response, "Опубликовано")
+        self.assertContains(response, "Черновики")
+        self.assertContains(response, "На модерации")
+        self.assertContains(response, "Без координат")
 
     def test_place_admin_change_form_shows_coordinate_refresh_button(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
@@ -1562,10 +1584,13 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertIsNotNone(draft.category_id)
 
     def test_place_admin_change_form_shows_visibility_controls(self):
-        response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.id]))
+        public_place = create_ready_place(name="Published visibility controls place")
+
+        response = self.client.get(reverse("admin:catalog_place_change", args=[public_place.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Видимость на сайте")
+        self.assertContains(response, "Публикация")
+        self.assertContains(response, "Показывать на сайте")
         self.assertContains(response, "Снять с публикации")
 
     def test_place_admin_can_unpublish_place_from_change_form(self):
@@ -1861,10 +1886,11 @@ class TestAdminOwnershipModerationUX(TestCase):
     def test_place_admin_restore_view_confirms_and_restores_place(self):
         self.place.soft_delete(deleted_by=self.superuser)
         restore_url = reverse("admin:catalog_place_restore", args=[self.place.id])
+        self.assertEqual(restore_url, f"/admin/catalog/place/{self.place.id}/restore/")
 
         response = self.client.get(restore_url)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, response.get("Location"))
         self.assertContains(response, "будет восстановлена из раздела удалённых")
         self.assertContains(response, "Восстановить карточку")
 
@@ -2101,7 +2127,7 @@ class TestAdminOwnershipModerationUX(TestCase):
         review.refresh_from_db()
         self.assertFalse(review.is_approved)
 
-    def test_place_review_admin_change_form_shows_full_text_panel(self):
+    def test_place_review_admin_change_form_shows_place_link_and_full_text(self):
         review = PlaceReview.objects.create(
             place=self.place,
             author_name="Карина",
@@ -2113,8 +2139,8 @@ class TestAdminOwnershipModerationUX(TestCase):
         response = self.client.get(reverse("admin:catalog_placereview_change", args=[review.id]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Полный текст отзыва")
-        self.assertContains(response, "К карточке кружка")
+        self.assertContains(response, 'class="km-review-place-link"', html=False)
+        self.assertContains(response, "Кружок для модерации")
         self.assertContains(response, review.text)
 
     def test_userprofile_changelist_works_without_500(self):
@@ -2122,15 +2148,16 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Профили пользователей")
 
-    def test_user_change_form_has_no_groups_block(self):
+    def test_user_change_form_has_no_groups_block_and_uses_profile_actions(self):
         response = self.client.get(reverse("admin:auth_user_change", args=[self.owner_user.id]))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'name="groups"')
         self.assertNotContains(response, "id_groups")
         self.assertNotContains(response, 'name="_addanother"')
-        self.assertNotContains(response, 'name="_continue"')
-        self.assertContains(response, "km-admin-user-submit")
-        self.assertContains(response, "km-admin-user-submit__btn--secondary")
+        self.assertContains(response, "km-user-profile-page")
+        self.assertContains(response, 'name="_continue"', html=False)
+        self.assertContains(response, "km-btn--primary-save")
+        self.assertContains(response, "km-btn--secondary-save")
 
     def test_site_users_section_shows_only_non_staff_users(self):
         staff_user = User.objects.create_user(

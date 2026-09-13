@@ -3838,8 +3838,16 @@ class PlaceAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         custom_urls = [
-            path("pricing/import/validate/", self.admin_site.admin_view(self.validate_pricing_import_view), name="catalog_place_pricing_import_validate"),
-            path("<int:object_id>/export-json/", self.admin_site.admin_view(self.export_place_json_view), name="catalog_place_export_json"),
+            path(
+                "pricing/import/validate/",
+                self.admin_site.admin_view(self.validate_pricing_import_view),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_pricing_import_validate",
+            ),
+            path(
+                "<int:object_id>/export-json/",
+                self.admin_site.admin_view(self.export_place_json_view),
+                name=f"{self.opts.app_label}_{self.opts.model_name}_export_json",
+            ),
             path(
                 "<int:object_id>/quality-check/",
                 self.admin_site.admin_view(self.place_quality_check_view),
@@ -3868,22 +3876,22 @@ class PlaceAdmin(admin.ModelAdmin):
             path(
                 "search-suggestions/",
                 self.admin_site.admin_view(self.search_suggestions_view),
-                name="catalog_place_search_suggestions",
+                name=f"{self.opts.app_label}_{self.opts.model_name}_search_suggestions",
             ),
             path(
                 "<int:object_id>/toggle-publication/",
                 self.admin_site.admin_view(self.toggle_publication_view),
-                name="catalog_place_toggle_publication",
+                name=f"{self.opts.app_label}_{self.opts.model_name}_toggle_publication",
             ),
             path(
                 "<int:object_id>/quick-action/",
                 self.admin_site.admin_view(self.quick_action_view),
-                name="catalog_place_quick_action",
+                name=f"{self.opts.app_label}_{self.opts.model_name}_quick_action",
             ),
             path(
                 "<path:object_id>/restore/",
                 self.admin_site.admin_view(self.restore_view),
-                name="catalog_place_restore",
+                name=f"{self.opts.app_label}_{self.opts.model_name}_restore",
             ),
         ]
         return custom_urls + super().get_urls()
