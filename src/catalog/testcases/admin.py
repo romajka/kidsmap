@@ -280,7 +280,7 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Added by content manager")
         self.assertContains(response, 'data-field="created_by"', html=False)
-        self.assertContains(response, 'km-changelist-pagination__page-status', html=False)
+        self.assertContains(response, 'km-redesign-pagination__page', html=False)
         self.assertContains(response, f"?created_by={self.superuser.pk}&amp;p=2", html=False)
 
         unknown_response = self.client.get(
@@ -291,15 +291,15 @@ class TestAdminTemporaryEventInputs(TestCase):
         self.assertContains(unknown_response, self.place.name)
         self.assertNotContains(unknown_response, "Added by content manager")
 
-    def test_place_change_page_renders_single_compact_datetime_inputs(self):
+    def test_place_change_page_hides_legacy_temporary_datetime_inputs(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.pk]))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'name="temporary_start"', html=False)
-        self.assertContains(response, 'name="temporary_end"', html=False)
-        self.assertContains(response, 'type="datetime-local"', count=2, html=False)
+        self.assertNotContains(response, 'name="temporary_start"', html=False)
+        self.assertNotContains(response, 'name="temporary_end"', html=False)
         self.assertNotContains(response, 'name="temporary_start_0"', html=False)
         self.assertNotContains(response, 'name="temporary_end_0"', html=False)
+        self.assertContains(response, "Постоянное место")
 
     def test_place_change_page_exposes_home_recommendation_controls(self):
         response = self.client.get(reverse("admin:catalog_place_change", args=[self.place.pk]))
