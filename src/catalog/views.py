@@ -3,12 +3,14 @@ from urllib.parse import urlencode
 from uuid import uuid4
 
 from django.conf import settings
-from django.contrib.auth import login as auth_login
+from django.contrib.auth import get_user_model, login as auth_login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.core.cache import cache
+from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import Q
 from django.contrib.auth import views as auth_views
 from django.db.utils import IntegrityError, OperationalError, ProgrammingError
@@ -1673,6 +1675,15 @@ class AccountProfileView(LoginRequiredMixin, View):
             user=self.request.user,
             status__in=AccountDeletionRequest.ACTIVE_STATUSES,
         ).first()
+        is_staff_user = bool(self.request.user.is_staff or self.request.user.is_superuser)
+        pending_staff_deletion = None
+        if is_staff_user:
+            pending_staff_deletion = AccountDeletionRequest.objects.filter(
+                user=self.request.user,
+                status=AccountDeletionRequest.Status.HELD,
+                hold_code="STAFF_OFFBOARDING_REVIEW",
+            ).first()
+
         return {
             "profile_model": profile,
             "profile_form": profile_form,
@@ -1681,9 +1692,11 @@ class AccountProfileView(LoginRequiredMixin, View):
             "history_count": dashboard_context["history_count"],
             **managed_places_summary,
             "is_settings_view": current_route == "account_settings",
-            "account_deletion_available": deletion_policy is not None and not (self.request.user.is_staff or self.request.user.is_superuser),
-            "account_deletion_staff_blocked": self.request.user.is_staff or self.request.user.is_superuser,
+            "account_deletion_available": deletion_policy is not None and not is_staff_user,
+            "account_deletion_staff_blocked": is_staff_user,
             "active_account_deletion": active_deletion,
+            "pending_staff_deletion": pending_staff_deletion,
+            "staff_deletion_form": auth_controller.build_staff_account_deletion_review_form(),
             "meta_description": _("Личный кабинет KidsMap: данные профиля, контакты и безопасность аккаунта."),
         }
 
@@ -1707,7 +1720,7 @@ class AccountProfileView(LoginRequiredMixin, View):
 
         form_action = (request.POST.get("form_action") or "").strip().lower()
         if form_action == "profile":
-            profile_form = auth_controller.build_profile_edit_form(user=request.user, data=request.POST)
+            profile_form = auth_controller.build_profile_edit_form(user=request.user, data=request.POST, files=request.FILES)
             if profile_form.is_valid():
                 try:
                     profile = auth_controller.update_user_profile_from_form(user=request.user, form=profile_form)
@@ -1726,6 +1739,86 @@ class AccountProfileView(LoginRequiredMixin, View):
                 messages.success(request, _("Пароль успешно изменен."))
                 return redirect(current_route)
             messages.error(request, _("Не удалось изменить пароль. Проверьте введенные поля."))
+        elif form_action == "staff_deletion_request":
+            if not (request.user.is_staff or request.user.is_superuser):
+                messages.error(request, _("Это действие доступно только для служебных аккаунтов."))
+                return redirect(current_route)
+            staff_deletion_form = auth_controller.build_staff_account_deletion_review_form(data=request.POST)
+            if staff_deletion_form.is_valid():
+                reason = staff_deletion_form.cleaned_data["reason"]
+                details = staff_deletion_form.cleaned_data["details"]
+                reason_display = dict(staff_deletion_form.fields["reason"].choices).get(reason, reason)
+                try:
+                    policy = get_active_retention_policy()
+                    policy_version = policy.version
+                except Exception:
+                    policy_version = "v1"
+
+                now = timezone.now()
+                with transaction.atomic():
+                    deletion, created = AccountDeletionRequest.objects.select_for_update().get_or_create(
+                        user=request.user,
+                        status=AccountDeletionRequest.Status.HELD,
+                        defaults={
+                            "hold_code": "STAFF_OFFBOARDING_REVIEW",
+                            "policy_version": policy_version,
+                            "policy_snapshot": {
+                                "reason": reason,
+                                "reason_display": str(reason_display),
+                                "details": details,
+                                "requested_by": request.user.username,
+                                "is_staff_offboarding": True,
+                                "requested_at": now.isoformat(),
+                            },
+                        },
+                    )
+                    if not created:
+                        deletion.hold_code = "STAFF_OFFBOARDING_REVIEW"
+                        deletion.policy_snapshot = {
+                            "reason": reason,
+                            "reason_display": str(reason_display),
+                            "details": details,
+                            "requested_by": request.user.username,
+                            "is_staff_offboarding": True,
+                            "requested_at": now.isoformat(),
+                        }
+                        deletion.save(update_fields=["hold_code", "policy_snapshot", "updated_at"])
+
+                try:
+                    superadmins = get_user_model().objects.filter(is_superuser=True, is_active=True).exclude(pk=request.user.pk)
+                    recipient_emails = [u.email for u in superadmins if u.email]
+                    if recipient_emails:
+                        subject = f"[KidsMap] Запрос на удаление служебного аккаунта: @{request.user.username}"
+                        body = (
+                            f"Сотрудник @{request.user.username} ({request.user.get_full_name() or request.user.username}) "
+                            f"отправил запрос на удаление/отключение аккаунта.\n\n"
+                            f"Причина: {reason_display}\n"
+                            f"Комментарий: {details or '—'}\n"
+                            f"Дата: {now.strftime('%d.%m.%Y %H:%M')}\n\n"
+                            f"Для рассмотрения перейдите в профиль сотрудника в админ-панели."
+                        )
+                        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, recipient_emails, fail_silently=True)
+                except Exception:
+                    pass
+
+                messages.success(request, _("Müraciətiniz qeydə alındı və baxılmaq üçün administratora göndərildi."))
+                return redirect(current_route)
+            else:
+                messages.error(request, _("Zəhmət olmasa silinmə səbəbini seçin."))
+        elif form_action == "cancel_staff_deletion_request":
+            if request.user.is_staff or request.user.is_superuser:
+                with transaction.atomic():
+                    AccountDeletionRequest.objects.filter(
+                        user=request.user,
+                        status=AccountDeletionRequest.Status.HELD,
+                        hold_code="STAFF_OFFBOARDING_REVIEW",
+                    ).update(
+                        status=AccountDeletionRequest.Status.CANCELED,
+                        canceled_at=timezone.now(),
+                        hold_code="",
+                    )
+                messages.success(request, _("Hesabın silinməsi müraciəti ləğv edildi."))
+            return redirect(current_route)
         else:
             messages.error(request, _("Неизвестное действие формы."))
             return redirect(current_route)
@@ -1786,6 +1879,8 @@ def _deletion_context(
     form=None,
     code_sent=False,
     staff_blocked=False,
+    staff_deletion_form=None,
+    pending_staff_deletion=None,
 ):
     if policy is None and deletion is not None:
         policy = policy_from_request(deletion)
@@ -1806,6 +1901,8 @@ def _deletion_context(
         "form": form,
         "code_sent": code_sent,
         "staff_blocked": staff_blocked,
+        "staff_deletion_form": staff_deletion_form,
+        "pending_staff_deletion": pending_staff_deletion,
         "meta_description": _("Безопасное удаление аккаунта KidsMap и связанных персональных данных."),
     }
 
@@ -1828,6 +1925,15 @@ class AccountDeletionRequestView(LoginRequiredMixin, View):
         except AccountDeletionError:
             policy = None
         form = auth_controller.build_account_deletion_request_form()
+        is_staff_user = bool(request.user.is_staff or request.user.is_superuser)
+        pending_staff_deletion = None
+        if is_staff_user:
+            pending_staff_deletion = AccountDeletionRequest.objects.filter(
+                user=request.user,
+                status=AccountDeletionRequest.Status.HELD,
+                hold_code="STAFF_OFFBOARDING_REVIEW",
+            ).first()
+
         return _render_account_deletion(
             request,
             self.template_name,
@@ -1835,11 +1941,81 @@ class AccountDeletionRequestView(LoginRequiredMixin, View):
                 policy=policy,
                 language=_account_deletion_language(request),
                 form=form,
-                staff_blocked=request.user.is_staff or request.user.is_superuser,
+                staff_blocked=is_staff_user,
+                staff_deletion_form=auth_controller.build_staff_account_deletion_review_form(),
+                pending_staff_deletion=pending_staff_deletion,
             ),
         )
 
     def post(self, request):
+        form_action = (request.POST.get("form_action") or "").strip().lower()
+        if form_action == "staff_deletion_request":
+            if not (request.user.is_staff or request.user.is_superuser):
+                messages.error(request, _("Это действие доступно только для служебных аккаунтов."))
+                return redirect("account_settings")
+            staff_deletion_form = auth_controller.build_staff_account_deletion_review_form(data=request.POST)
+            if staff_deletion_form.is_valid():
+                reason = staff_deletion_form.cleaned_data["reason"]
+                details = staff_deletion_form.cleaned_data["details"]
+                reason_display = dict(staff_deletion_form.fields["reason"].choices).get(reason, reason)
+                try:
+                    policy = get_active_retention_policy()
+                    policy_version = policy.version
+                except Exception:
+                    policy_version = "v1"
+
+                now = timezone.now()
+                with transaction.atomic():
+                    deletion, created = AccountDeletionRequest.objects.select_for_update().get_or_create(
+                        user=request.user,
+                        status=AccountDeletionRequest.Status.HELD,
+                        defaults={
+                            "hold_code": "STAFF_OFFBOARDING_REVIEW",
+                            "policy_version": policy_version,
+                            "policy_snapshot": {
+                                "reason": reason,
+                                "reason_display": str(reason_display),
+                                "details": details,
+                                "requested_by": request.user.username,
+                                "is_staff_offboarding": True,
+                                "requested_at": now.isoformat(),
+                            },
+                        },
+                    )
+                    if not created:
+                        deletion.hold_code = "STAFF_OFFBOARDING_REVIEW"
+                        deletion.policy_snapshot = {
+                            "reason": reason,
+                            "reason_display": str(reason_display),
+                            "details": details,
+                            "requested_by": request.user.username,
+                            "is_staff_offboarding": True,
+                            "requested_at": now.isoformat(),
+                        }
+                        deletion.save(update_fields=["hold_code", "policy_snapshot", "updated_at"])
+
+                try:
+                    superadmins = get_user_model().objects.filter(is_superuser=True, is_active=True).exclude(pk=request.user.pk)
+                    recipient_emails = [u.email for u in superadmins if u.email]
+                    if recipient_emails:
+                        subject = f"[KidsMap] Запрос на удаление служебного аккаунта: @{request.user.username}"
+                        body = (
+                            f"Сотрудник @{request.user.username} ({request.user.get_full_name() or request.user.username}) "
+                            f"отправил запрос на удаление/отключение аккаунта.\n\n"
+                            f"Причина: {reason_display}\n"
+                            f"Комментарий: {details or '—'}\n"
+                            f"Дата: {now.strftime('%d.%m.%Y %H:%M')}\n\n"
+                            f"Для рассмотрения перейдите в профиль сотрудника в админ-панели."
+                        )
+                        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, recipient_emails, fail_silently=True)
+                except Exception:
+                    pass
+
+                messages.success(request, _("Müraciətiniz qeydə alındı və baxılmaq üçün administratora göndərildi."))
+                return redirect("account_settings")
+            else:
+                messages.error(request, _("Zəhmət olmasa silinmə səbəbini seçin."))
+
         language = _account_deletion_language(request)
         form = auth_controller.build_account_deletion_request_form(data=request.POST)
         policy = None

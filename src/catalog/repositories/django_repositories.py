@@ -156,6 +156,27 @@ class DjangoUserProfileRepository(IUserProfileRepository):
             profile.save(update_fields=["gender", "updated_at"])
         return profile
 
+    def set_avatar(self, *, user, avatar=None, clear: bool = False) -> UserProfile:
+        profile = self.get_or_create_for_user(user)
+        if clear:
+            if profile.avatar:
+                try:
+                    profile.avatar.delete(save=False)
+                except Exception:
+                    pass
+                profile.avatar = ""
+                profile.save(update_fields=["avatar", "updated_at"])
+        elif avatar:
+            if profile.avatar:
+                try:
+                    profile.avatar.delete(save=False)
+                except Exception:
+                    pass
+            profile.avatar = avatar
+            profile.save(update_fields=["avatar", "updated_at"])
+        return profile
+
+
 
 class DjangoEmailVerificationRepository(IEmailVerificationRepository):
     def get_by_user(self, *, user) -> UserEmailVerification | None:

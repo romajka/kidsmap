@@ -599,3 +599,46 @@ class AccountDeletionWebTests(TestCase):
         csrf_client.login(username=self.user.username, password="StrongPass123!!")
         response = csrf_client.post(reverse("account_deletion_request"), {"form_action": "request"})
         self.assertEqual(response.status_code, 403)
+
+    def test_staff_account_deletion_review_flow(self):
+        self.user.is_staff = True
+        self.user.save(update_fields=["is_staff"])
+
+        # 1. Staff sees active button with modal trigger
+        response = self.client.get(reverse("account_settings"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="km-open-staff-deletion-btn"')
+        self.assertContains(response, 'id="km-staff-deletion-modal"')
+        self.assertContains(response, 'name="reason"')
+
+        # 2. Staff submits deletion review request
+        post_data = {
+            "form_action": "staff_deletion_request",
+            "reason": "leaving_project",
+            "details": "Покидаю команду проекта",
+        }
+        res = self.client.post(reverse("account_settings"), post_data, follow=True)
+        self.assertEqual(res.status_code, 200)
+
+        # 3. AccountDeletionRequest created in HELD status
+        req = AccountDeletionRequest.objects.filter(user=self.user).first()
+        self.assertIsNotNone(req)
+        self.assertEqual(req.status, AccountDeletionRequest.Status.HELD)
+        self.assertEqual(req.hold_code, "STAFF_OFFBOARDING_REVIEW")
+        self.assertEqual(req.policy_snapshot["reason"], "leaving_project")
+        self.assertEqual(req.policy_snapshot["details"], "Покидаю команду проекта")
+        self.assertTrue(req.policy_snapshot["is_staff_offboarding"])
+
+        # 4. Status card shown on settings page
+        self.assertContains(res, "Hesabın silinməsi müraciətiniz baxılmadadır")
+        self.assertContains(res, "Müraciəti ləğv et")
+
+        # 5. Cancel request
+        cancel_res = self.client.post(
+            reverse("account_settings"),
+            {"form_action": "cancel_staff_deletion_request"},
+            follow=True,
+        )
+        self.assertEqual(cancel_res.status_code, 200)
+        req.refresh_from_db()
+        self.assertEqual(req.status, AccountDeletionRequest.Status.CANCELED)

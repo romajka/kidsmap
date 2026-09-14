@@ -8,6 +8,7 @@ from catalog.forms import (
     AccountDeletionCancelForm,
     AccountDeletionConfirmForm,
     AccountDeletionRequestForm,
+    StaffAccountDeletionReviewForm,
     EmailVerificationForm,
     EmailVerificationResendForm,
     LoginForm,
@@ -50,7 +51,7 @@ class AuthController:
     def build_email_verification_resend_form(self, *, data=None, initial=None) -> EmailVerificationResendForm:
         return EmailVerificationResendForm(data=data, initial=initial)
 
-    def build_profile_edit_form(self, *, user, data=None) -> UserProfileEditForm:
+    def build_profile_edit_form(self, *, user, data=None, files=None) -> UserProfileEditForm:
         profile = self.profile_repository.get_or_create_for_user(user)
         initial = {
             "email": user.email,
@@ -58,7 +59,8 @@ class AuthController:
             "last_name": user.last_name,
             "phone": profile.phone,
         }
-        return UserProfileEditForm(data=data, initial=initial, user=user)
+        return UserProfileEditForm(data=data, files=files, initial=initial, user=user)
+
 
     def build_password_change_form(self, *, user, data=None) -> UserPasswordChangeForm:
         return UserPasswordChangeForm(user=user, data=data)
@@ -71,6 +73,9 @@ class AuthController:
 
     def build_account_deletion_cancel_form(self, *, data=None, form_action="send_code") -> AccountDeletionCancelForm:
         return AccountDeletionCancelForm(data=data, initial={"form_action": form_action})
+
+    def build_staff_account_deletion_review_form(self, *, data=None) -> StaffAccountDeletionReviewForm:
+        return StaffAccountDeletionReviewForm(data=data)
 
     @transaction.atomic
     def register_user_from_form(self, *, form: RegistrationForm):
@@ -109,7 +114,12 @@ class AuthController:
         user.last_name = form.cleaned_data["last_name"]
         user.save(update_fields=["email", "first_name", "last_name"])
         self.profile_repository.set_phone(user=user, phone=form.cleaned_data["phone"])
+        avatar = form.cleaned_data.get("avatar")
+        clear_avatar = form.cleaned_data.get("clear_avatar", False)
+        if clear_avatar or avatar:
+            self.profile_repository.set_avatar(user=user, avatar=avatar, clear=clear_avatar)
         return self.profile_repository.get_or_create_for_user(user)
+
 
     def update_password_from_form(self, *, form: UserPasswordChangeForm):
         return form.save()

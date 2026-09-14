@@ -121,7 +121,11 @@
               data-dropdown-trigger
             >
               <span class="km-user-avatar">
-                <span class="material-symbols-rounded" aria-hidden="true">person</span>
+                {% if request.user.profile.avatar %}
+                  <img src="{{ request.user.profile.avatar.url }}" alt="" class="km-user-avatar__img">
+                {% else %}
+                  <span class="material-symbols-rounded" aria-hidden="true">person</span>
+                {% endif %}
               </span>
               <span class="km-user-name">{{ request.user.get_short_name|default:request.user.username|truncatechars:12 }}</span>
               <span class="km-chevron material-symbols-rounded" aria-hidden="true">expand_more</span>
@@ -129,7 +133,11 @@
             <div class="km-dropdown-menu km-dropdown-menu--right km-dropdown-user" role="menu" data-dropdown-menu>
               <div class="km-user-card-brief">
                 <div class="km-user-card-avatar">
-                  <span class="material-symbols-rounded">person</span>
+                  {% if request.user.profile.avatar %}
+                    <img src="{{ request.user.profile.avatar.url }}" alt="" class="km-user-card-avatar__img">
+                  {% else %}
+                    <span class="material-symbols-rounded">person</span>
+                  {% endif %}
                 </div>
                 <div class="km-user-card-info">
                   <span class="km-user-card-name">{{ request.user.get_full_name|default:request.user.username }}</span>
@@ -302,7 +310,11 @@
         {% if request.user.is_authenticated %}
           <div class="km-drawer-user-card">
             <div class="km-drawer-user-avatar">
-              <span class="material-symbols-rounded">person</span>
+              {% if request.user.profile.avatar %}
+                <img src="{{ request.user.profile.avatar.url }}" alt="" class="km-drawer-user-avatar__img">
+              {% else %}
+                <span class="material-symbols-rounded">person</span>
+              {% endif %}
             </div>
             <div class="km-drawer-user-meta">
               <span class="km-drawer-user-name">{{ request.user.get_full_name|default:request.user.username }}</span>

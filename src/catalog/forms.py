@@ -767,10 +767,26 @@ class UserProfileEditForm(forms.Form):
         max_length=32,
         widget=forms.TextInput(attrs={"class": "field", "autocomplete": "tel"}),
     )
+    avatar = forms.FileField(
+        label=_("Фото профиля"),
+        required=False,
+        widget=forms.FileInput(
+            attrs={
+                "class": "account-avatar-file-input",
+                "accept": "image/jpeg,image/png,image/webp",
+                "id": "id_avatar",
+            }
+        ),
+    )
+    clear_avatar = forms.BooleanField(
+        required=False,
+        widget=forms.HiddenInput(attrs={"id": "id_clear_avatar"}),
+    )
 
     def __init__(self, *args, user=None, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
+
 
     def clean_email(self):
         email = (self.cleaned_data.get("email") or "").strip().lower()
@@ -792,6 +808,29 @@ class UserProfileEditForm(forms.Form):
     def clean_phone(self):
         return _validate_phone(self.cleaned_data.get("phone") or "")
 
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get("avatar")
+        if not avatar:
+            return avatar
+        max_bytes = 5 * 1024 * 1024
+        if avatar.size > max_bytes:
+            raise ValidationError(_("Размер изображения не должен превышать 5 МБ."))
+        ext = (avatar.name.rsplit(".", 1)[-1] if "." in avatar.name else "").lower()
+        if ext not in ["jpg", "jpeg", "png", "webp"]:
+            raise ValidationError(_("Разрешены только форматы JPG, PNG и WebP."))
+        try:
+            from PIL import Image
+            img = Image.open(avatar)
+            img.verify()
+            if (img.format or "").lower() not in ["jpeg", "png", "webp"]:
+                raise ValidationError(_("Некорректный формат изображения."))
+        except ValidationError:
+            raise
+        except Exception:
+            raise ValidationError(_("Загруженный файл не является корректным изображением."))
+        return avatar
+
+
 
 class UserPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
@@ -811,6 +850,39 @@ class AccountDeletionRequestForm(forms.Form):
         if self.cleaned_data.get("form_action") != "request":
             raise ValidationError(_("Неизвестное действие."))
         return "request"
+
+
+class StaffAccountDeletionReviewForm(forms.Form):
+    REASON_CHOICES = [
+        ("leaving_project", _("Layihədən ayrılıram / artıq işləmirəm")),
+        ("new_account", _("Yeni hesab açmaq istəyirəm")),
+        ("clear_data", _("Şəxsi məlumatlarımı təmizləmək istəyirəm")),
+        ("security_issue", _("Təhlükəsizlik və ya giriş problemi")),
+        ("other", _("Digər səbəb")),
+    ]
+
+    form_action = forms.CharField(widget=forms.HiddenInput, initial="staff_deletion_request")
+    reason = forms.ChoiceField(
+        choices=REASON_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "km-deletion-reason-radio"}),
+        label=_("Səbəb"),
+        initial="leaving_project",
+    )
+    details = forms.CharField(
+        widget=forms.Textarea(attrs={
+            "class": "field km-deletion-details",
+            "rows": 3,
+            "placeholder": _("Əlavə izahat və ya şərh (istəyə görə)..."),
+        }),
+        required=False,
+        max_length=1000,
+        label=_("Əlavə şərh"),
+    )
+
+    def clean_form_action(self):
+        if self.cleaned_data.get("form_action") != "staff_deletion_request":
+            raise ValidationError(_("Неизвестное действие."))
+        return "staff_deletion_request"
 
 
 class AccountDeletionConfirmForm(forms.Form):

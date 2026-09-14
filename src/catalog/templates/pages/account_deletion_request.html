@@ -32,16 +32,106 @@
         <a class="account-deletion-secondary" href="{% url 'account_settings' %}"><span class="material-symbols-rounded" aria-hidden="true">close</span>{% if CURRENT_LANGUAGE == "az" %}Ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel{% else %}Отмена{% endif %}</a>
       </form>
     {% else %}
-      <div class="account-deletion-unavailable" role="status">
-        {% if staff_blocked %}
-          <h2>{% if CURRENT_LANGUAGE == "az" %}Xidməti hesab üçün müraciət tələb olunur{% elif CURRENT_LANGUAGE == "en" %}Staff offboarding is required{% else %}Нужно оформить отключение сотрудника{% endif %}</h2>
-          <p>{% if CURRENT_LANGUAGE == "az" %}Rol və son Superadmin qorunmasını keçməmək üçün səlahiyyətli administratora müraciət edin.{% elif CURRENT_LANGUAGE == "en" %}Contact an authorized administrator so role and last-Superadmin protections are preserved.{% else %}Обратитесь к уполномоченному администратору, чтобы сохранить защиту ролей и последнего Superadmin.{% endif %}</p>
+      {% if staff_blocked %}
+        {% if pending_staff_deletion %}
+          <div class="km-staff-deletion-status" role="status">
+            <div class="km-staff-deletion-status__head">
+              <span class="material-symbols-rounded km-staff-deletion-status__icon">hourglass_top</span>
+              <div>
+                <strong class="km-staff-deletion-status__title">
+                  {% if CURRENT_LANGUAGE == "az" %}Hesabın silinməsi müraciətiniz baxılmadadır{% elif CURRENT_LANGUAGE == "en" %}Account deletion request is under review{% else %}Запрос на удаление аккаунта находится на рассмотрении{% endif %}
+                </strong>
+                <p class="km-staff-deletion-status__meta">
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Səbəb{% elif CURRENT_LANGUAGE == "en" %}Reason{% else %}Причина{% endif %}: <strong>{{ pending_staff_deletion.policy_snapshot.reason_display|default:pending_staff_deletion.policy_snapshot.reason }}</strong></span>
+                  {% if pending_staff_deletion.policy_snapshot.details %}
+                    <span class="km-staff-deletion-status__quote">«{{ pending_staff_deletion.policy_snapshot.details }}»</span>
+                  {% endif %}
+                </p>
+                <p class="km-staff-deletion-status__note">
+                  {% if CURRENT_LANGUAGE == "az" %}Səlahiyyətli administrator müraciətə baxdıqdan sonra hesab deaktiv ediləcək.{% elif CURRENT_LANGUAGE == "en" %}The account will be deactivated once an administrator approves the request.{% else %}Аккаунт будет отключён после подтверждения уполномоченным администратором.{% endif %}
+                </p>
+              </div>
+            </div>
+            <form method="post" action="{% url 'account_settings' %}" class="km-staff-deletion-status__cancel-form">
+              {% csrf_token %}
+              <input type="hidden" name="form_action" value="cancel_staff_deletion_request">
+              <button type="submit" class="account-btn-ghost">
+                <span class="material-symbols-rounded">close</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Müraciəti ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel request{% else %}Отменить запрос{% endif %}</span>
+              </button>
+            </form>
+          </div>
         {% else %}
+          <div class="account-deletion-unavailable" role="status">
+            <h2>{% if CURRENT_LANGUAGE == "az" %}Xidməti hesab üçün müraciət tələb olunur{% elif CURRENT_LANGUAGE == "en" %}Staff offboarding is required{% else %}Нужно оформить отключение сотрудника{% endif %}</h2>
+            <p>{% if CURRENT_LANGUAGE == "az" %}Rol və son Superadmin qorunmasını keçməmək üçün səlahiyyətli administratora müraciət edin.{% elif CURRENT_LANGUAGE == "en" %}Contact an authorized administrator so role and last-Superadmin protections are preserved.{% else %}Обратитесь к уполномоченному администратору, чтобы сохранить защиту ролей и последнего Superadmin.{% endif %}</p>
+            {% if form.non_field_errors %}<div class="account-deletion-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+          </div>
+
+          <form method="post" class="km-deletion-modal__box" style="margin-top: 24px;">
+            {% csrf_token %}
+            <input type="hidden" name="form_action" value="staff_deletion_request">
+            <div class="km-deletion-modal__body" style="padding: 0;">
+              <p class="km-deletion-modal__desc">
+                {% if CURRENT_LANGUAGE == "az" %}
+                  Xidməti hesabın silinməsi təhlükəsizlik və audit məqsədilə səlahiyyətli administrator tərəfindən nəzərdən keçirilir. Zəhmət olmasa səbəbi qeyd edin:
+                {% elif CURRENT_LANGUAGE == "en" %}
+                  Staff account offboarding is reviewed by an authorized administrator for security and audit integrity. Please select a reason:
+                {% else %}
+                  Удаление служебного аккаунта рассматривается уполномоченным администратором в целях безопасности и сохранения аудита. Пожалуйста, выберите причину:
+                {% endif %}
+              </p>
+
+              <label class="km-deletion-modal__field-label">{% if CURRENT_LANGUAGE == "az" %}Silinmə səbəbi (tez seçim):{% elif CURRENT_LANGUAGE == "en" %}Reason (quick pick):{% else %}Причина удаления (быстрый выбор):{% endif %}</label>
+              <div class="km-deletion-chips" role="radiogroup" aria-label="{% if CURRENT_LANGUAGE == "az" %}Səbəb seçimi{% else %}Выбор причины{% endif %}">
+                <label class="km-deletion-chip">
+                  <input type="radio" name="reason" value="leaving_project" checked>
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Artıq layihədə iştirak etmirəm{% elif CURRENT_LANGUAGE == "en" %}Leaving the project{% else %}Больше не участвую в проекте{% endif %}</span>
+                </label>
+                <label class="km-deletion-chip">
+                  <input type="radio" name="reason" value="new_account">
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Yeni hesab açmaq istəyirəm{% elif CURRENT_LANGUAGE == "en" %}Want to create a new account{% else %}Хочу создать новый аккаунт{% endif %}</span>
+                </label>
+                <label class="km-deletion-chip">
+                  <input type="radio" name="reason" value="clear_data">
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Şəxsi məlumatlarımı silmək istəyirəm{% elif CURRENT_LANGUAGE == "en" %}Want to erase personal data{% else %}Хочу удалить персональные данные{% endif %}</span>
+                </label>
+                <label class="km-deletion-chip">
+                  <input type="radio" name="reason" value="security_issue">
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Təhlükəsizlik və ya giriş problemi{% elif CURRENT_LANGUAGE == "en" %}Security or login issue{% else %}Проблема безопасности или доступа{% endif %}</span>
+                </label>
+                <label class="km-deletion-chip">
+                  <input type="radio" name="reason" value="other">
+                  <span>{% if CURRENT_LANGUAGE == "az" %}Digər səbəb{% elif CURRENT_LANGUAGE == "en" %}Other reason{% else %}Другая причина{% endif %}</span>
+                </label>
+              </div>
+
+              <div class="km-deletion-modal__field">
+                <label for="km-direct-deletion-details" class="km-deletion-modal__field-label">
+                  {% if CURRENT_LANGUAGE == "az" %}Əlavə izahat və ya şərh:{% elif CURRENT_LANGUAGE == "en" %}Additional details or comment:{% else %}Дополнительное пояснение или комментарий:{% endif %}
+                </label>
+                <textarea id="km-direct-deletion-details" name="details" class="field km-deletion-details" rows="3" placeholder="{% if CURRENT_LANGUAGE == "az" %}İstəyə görə izahat daxil edin...{% elif CURRENT_LANGUAGE == "en" %}Optional comments...{% else %}Опишите детали при необходимости...{% endif %}"></textarea>
+              </div>
+            </div>
+            <div class="account-deletion-actions" style="margin-top: 18px;">
+              <button class="account-btn-danger" type="submit">
+                <span class="material-symbols-rounded">send</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Müraciəti göndər{% elif CURRENT_LANGUAGE == "en" %}Submit request{% else %}Отправить на рассмотрение{% endif %}</span>
+              </button>
+              <a class="account-deletion-secondary" href="{% url 'account_settings' %}">
+                <span class="material-symbols-rounded">close</span>
+                <span>{% if CURRENT_LANGUAGE == "az" %}Ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel{% else %}Отмена{% endif %}</span>
+              </a>
+            </div>
+          </form>
+        {% endif %}
+      {% else %}
+        <div class="account-deletion-unavailable" role="status">
           <h2>{% if CURRENT_LANGUAGE == "az" %}Silinmə hələ aktiv deyil{% elif CURRENT_LANGUAGE == "en" %}Deletion is not active yet{% else %}Удаление пока не активировано{% endif %}</h2>
           <p>{% if CURRENT_LANGUAGE == "az" %}Məlumatların saxlanması siyasəti səlahiyyətli şəxs tərəfindən təsdiqlənməlidir.{% elif CURRENT_LANGUAGE == "en" %}An authorized owner must approve the data-retention policy first.{% else %}Сначала уполномоченный владелец должен утвердить политику хранения данных.{% endif %}</p>
-        {% endif %}
-        {% if form.non_field_errors %}<div class="account-deletion-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
-      </div>
+          {% if form.non_field_errors %}<div class="account-deletion-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        </div>
+      {% endif %}
     {% endif %}
   </section>
 </div>

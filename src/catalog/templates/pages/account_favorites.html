@@ -26,7 +26,13 @@
   <!-- User Identity Header Card -->
   <div class="account-user-card">
     <div class="account-user-avatar">
-      {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+      {% if profile_model.avatar %}
+        <img src="{{ profile_model.avatar.url }}" alt="{{ request.user.username }}" class="account-user-avatar__img">
+      {% elif request.user.profile.avatar %}
+        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="account-user-avatar__img">
+      {% else %}
+        {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+      {% endif %}
     </div>
     <div class="account-user-info">
       <h1 class="account-user-name">{{ request.user.get_full_name|default:request.user.username }}</h1>

@@ -25,6 +25,7 @@ from catalog.models import (
     PlaceOwnershipRequestAudit,
     StaffRoleAudit,
     SuperadminPromotionRequest,
+    AccountDeletionRequest,
 )
 from .ui_utils import render_primary_action, render_action_menu, render_row_actions_container, build_admin_query_string
 from catalog.services.staff_roles import (
@@ -1006,6 +1007,11 @@ class StaffAccessUserAdmin(_BaseKidsMapUserAdmin):
                 target=obj,
                 status=SuperadminPromotionRequest.Status.PENDING,
             ).select_related("initiated_by").first()
+            context["pending_staff_deletion_request"] = AccountDeletionRequest.objects.filter(
+                user=obj,
+                status=AccountDeletionRequest.Status.HELD,
+                hold_code="STAFF_OFFBOARDING_REVIEW",
+            ).first()
             context["staff_role_history"] = StaffRoleAudit.objects.filter(target=obj).select_related(
                 "actor",
                 "promotion_request",

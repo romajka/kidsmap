@@ -86,6 +86,11 @@ class IUserProfileRepository(ABC):
     def set_gender(self, *, user, gender: str) -> UserProfile:
         raise NotImplementedError
 
+    @abstractmethod
+    def set_avatar(self, *, user, avatar=None, clear: bool = False) -> UserProfile:
+        raise NotImplementedError
+
+
 
 class IEmailVerificationRepository(ABC):
     @abstractmethod

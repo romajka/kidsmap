@@ -549,6 +549,75 @@ class TestAccountProfileUpdates(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("email", response.context["profile_form"].errors)
 
+    def test_account_profile_upload_and_clear_avatar(self):
+        import io
+        from PIL import Image
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        img_io = io.BytesIO()
+        image = Image.new("RGB", (50, 50), color="blue")
+        image.save(img_io, format="PNG")
+        img_content = img_io.getvalue()
+        avatar_file = SimpleUploadedFile("my_avatar.png", img_content, content_type="image/png")
+
+        # 1. Upload avatar
+        response = self.client.post(
+            reverse("account_settings"),
+            data={
+                "form_action": "profile",
+                "email": self.user.email,
+                "first_name": self.user.first_name,
+                "last_name": self.user.last_name,
+                "phone": "+994 55 111 22 33",
+                "avatar": avatar_file,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertTrue(bool(self.user.profile.avatar))
+        avatar_url = self.user.profile.avatar.url
+        self.assertContains(response, avatar_url)
+
+        # 2. Settings page renders uploaded avatar
+        settings_get = self.client.get(reverse("account_settings"))
+        self.assertContains(settings_get, avatar_url)
+        self.assertContains(settings_get, 'id="account-avatar-remove-btn"')
+
+        # 3. Clear avatar
+        clear_response = self.client.post(
+            reverse("account_settings"),
+            data={
+                "form_action": "profile",
+                "email": self.user.email,
+                "first_name": self.user.first_name,
+                "last_name": self.user.last_name,
+                "phone": "+994 55 111 22 33",
+                "clear_avatar": "1",
+            },
+            follow=True,
+        )
+        self.assertEqual(clear_response.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertFalse(bool(self.user.profile.avatar))
+
+    def test_account_profile_rejects_invalid_avatar_format(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        fake_file = SimpleUploadedFile("virus.exe", b"not an image", content_type="application/octet-stream")
+        response = self.client.post(
+            reverse("account_settings"),
+            data={
+                "form_action": "profile",
+                "email": self.user.email,
+                "first_name": self.user.first_name,
+                "last_name": self.user.last_name,
+                "phone": "+994 55 111 22 33",
+                "avatar": fake_file,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("avatar", response.context["profile_form"].errors)
+
     def test_account_dashboard_favorites_and_settings_pages_open(self):
         dashboard_response = self.client.get(reverse("account_dashboard"))
         favorites_response = self.client.get(reverse("account_favorites"))

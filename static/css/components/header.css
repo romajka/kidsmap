@@ -502,7 +502,22 @@
   border-radius: 50%;
   background: #eef7f1;
   color: #059669;
+  overflow: hidden;
 }
+
+.km-user-avatar img,
+.km-user-avatar__img,
+.km-user-card-avatar img,
+.km-user-card-avatar__img,
+.km-drawer-user-avatar img,
+.km-drawer-user-avatar__img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
 
 .km-user-avatar .material-symbols-rounded {
   font-size: 20px !important;
@@ -529,6 +544,7 @@
   background: #eef7f1;
   color: #059669;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .km-user-card-info {
@@ -781,6 +797,7 @@
   background: #eef7f1;
   color: #059669;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .km-drawer-user-meta {

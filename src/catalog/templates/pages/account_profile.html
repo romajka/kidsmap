@@ -25,8 +25,14 @@
 
   <!-- User Identity Header Card -->
   <div class="account-user-card">
-    <div class="account-user-avatar">
-      {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+    <div class="account-user-avatar" data-fallback-initials="{{ request.user.first_name|default:request.user.username|slice:':2'|upper }}">
+      {% if profile_model.avatar %}
+        <img src="{{ profile_model.avatar.url }}" alt="{{ request.user.username }}" class="account-user-avatar__img">
+      {% elif request.user.profile.avatar %}
+        <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" class="account-user-avatar__img">
+      {% else %}
+        {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+      {% endif %}
     </div>
     <div class="account-user-info">
       <h1 class="account-user-name">{{ request.user.get_full_name|default:request.user.username }}</h1>
@@ -115,7 +121,7 @@
             <h2>{% if CURRENT_LANGUAGE == "az" %}Profil məlumatları{% elif CURRENT_LANGUAGE == "en" %}Profile details{% else %}Данные профиля{% endif %}</h2>
           </div>
 
-          <form method="post" class="auth-form account-form" data-loading-form>
+          <form method="post" enctype="multipart/form-data" class="auth-form account-form" data-loading-form>
             {% csrf_token %}
             <input type="hidden" name="form_action" value="profile" />
 
@@ -126,6 +132,49 @@
                 {% endfor %}
               </div>
             {% endif %}
+
+            <!-- Profile Avatar Uploader -->
+            <div class="account-avatar-uploader">
+              <div class="account-avatar-uploader__preview" id="account-avatar-preview-box">
+                {% if profile_model.avatar %}
+                  <img src="{{ profile_model.avatar.url }}" alt="{{ request.user.username }}" id="account-avatar-preview-img" class="account-avatar-uploader__img">
+                  <span id="account-avatar-preview-fallback" class="account-avatar-uploader__fallback" style="display: none;">
+                    {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+                  </span>
+                {% else %}
+                  <span id="account-avatar-preview-fallback" class="account-avatar-uploader__fallback">
+                    {{ request.user.first_name|default:request.user.username|slice:":2"|upper }}
+                  </span>
+                  <img src="" alt="" id="account-avatar-preview-img" class="account-avatar-uploader__img" style="display: none;">
+                {% endif %}
+              </div>
+              <div class="account-avatar-uploader__controls">
+                <div class="account-avatar-uploader__buttons">
+                  <label class="account-btn-ghost account-avatar-btn" for="id_avatar">
+                    <span class="material-symbols-rounded">photo_camera</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Şəkil yüklə{% elif CURRENT_LANGUAGE == "en" %}Upload photo{% else %}Загрузить фото{% endif %}</span>
+                    {{ profile_form.avatar }}
+                  </label>
+                  <button type="button" class="account-btn-ghost account-avatar-btn--remove" id="account-avatar-remove-btn"{% if not profile_model.avatar %} style="display: none;"{% endif %}>
+                    <span class="material-symbols-rounded">delete</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Sil{% elif CURRENT_LANGUAGE == "en" %}Remove{% else %}Удалить{% endif %}</span>
+                  </button>
+                  {{ profile_form.clear_avatar }}
+                </div>
+                <p class="account-avatar-uploader__hint">
+                  {% if CURRENT_LANGUAGE == "az" %}
+                    JPG, PNG və ya WebP formatı, maksimum 5 MB.
+                  {% elif CURRENT_LANGUAGE == "en" %}
+                    JPG, PNG or WebP format, up to 5 MB.
+                  {% else %}
+                    JPG, PNG или WebP, не более 5 МБ.
+                  {% endif %}
+                </p>
+                {% if profile_form.avatar.errors %}
+                  <span class="auth-field-error">{{ profile_form.avatar.errors|join:", " }}</span>
+                {% endif %}
+              </div>
+            </div>
 
             <div class="account-form-grid">
               <label class="account-field">
@@ -253,28 +302,132 @@
                 Удаление выполняется не сразу. Сначала потребуются код из письма и точная фраза подтверждения, затем начнётся срок для отмены.
               {% endif %}
             </p>
-            {% if not account_deletion_available %}
-              <p class="account-danger-zone__notice" role="status">
-                {% if account_deletion_staff_blocked %}
-                  {% if CURRENT_LANGUAGE == "az" %}Xidməti hesabın silinməsi üçün səlahiyyətli administratora müraciət edin.{% elif CURRENT_LANGUAGE == "en" %}Contact an authorized administrator to offboard a staff account.{% else %}Для отключения служебного аккаунта обратитесь к уполномоченному администратору.{% endif %}
-                {% else %}
-                  {% if CURRENT_LANGUAGE == "az" %}Funksiya məlumatların saxlanması siyasəti təsdiqlənənədək deaktivdir.{% elif CURRENT_LANGUAGE == "en" %}This action is disabled until the data-retention policy is approved.{% else %}Действие отключено до утверждения политики хранения данных.{% endif %}
-                {% endif %}
-              </p>
-            {% endif %}
-            <div class="account-form-actions">
-              {% if active_account_deletion and active_account_deletion.status == "CONFIRMATION_SENT" %}
-                <a class="account-btn-danger" href="{% url 'account_deletion_confirm' active_account_deletion.subject_reference %}">
-                  {% if CURRENT_LANGUAGE == "az" %}Təsdiqləməyə davam et{% elif CURRENT_LANGUAGE == "en" %}Continue confirmation{% else %}Продолжить подтверждение{% endif %}
-                </a>
-              {% else %}
-                {% if account_deletion_available %}
-                  <a class="account-btn-danger" href="{% url 'account_deletion_request' %}">{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}</a>
-                {% else %}
-                  <span class="account-btn-danger is-disabled" aria-disabled="true">{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}</span>
-                {% endif %}
+            {% if pending_staff_deletion %}
+              <div class="km-staff-deletion-status" role="status">
+                <div class="km-staff-deletion-status__head">
+                  <span class="material-symbols-rounded km-staff-deletion-status__icon">hourglass_top</span>
+                  <div>
+                    <strong class="km-staff-deletion-status__title">
+                      {% if CURRENT_LANGUAGE == "az" %}Hesabın silinməsi müraciətiniz baxılmadadır{% elif CURRENT_LANGUAGE == "en" %}Account deletion request is under review{% else %}Запрос на удаление аккаунта находится на рассмотрении{% endif %}
+                    </strong>
+                    <p class="km-staff-deletion-status__meta">
+                      <span>{% if CURRENT_LANGUAGE == "az" %}Səbəb{% elif CURRENT_LANGUAGE == "en" %}Reason{% else %}Причина{% endif %}: <strong>{{ pending_staff_deletion.policy_snapshot.reason_display|default:pending_staff_deletion.policy_snapshot.reason }}</strong></span>
+                      {% if pending_staff_deletion.policy_snapshot.details %}
+                        <span class="km-staff-deletion-status__quote">«{{ pending_staff_deletion.policy_snapshot.details }}»</span>
+                      {% endif %}
+                    </p>
+                    <p class="km-staff-deletion-status__note">
+                      {% if CURRENT_LANGUAGE == "az" %}Səlahiyyətli administrator müraciətə baxdıqdan sonra hesab deaktiv ediləcək.{% elif CURRENT_LANGUAGE == "en" %}The account will be deactivated once an administrator approves the request.{% else %}Аккаунт будет отключён после подтверждения уполномоченным администратором.{% endif %}
+                    </p>
+                  </div>
+                </div>
+                <form method="post" class="km-staff-deletion-status__cancel-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="form_action" value="cancel_staff_deletion_request">
+                  <button type="submit" class="account-btn-ghost">
+                    <span class="material-symbols-rounded">close</span>
+                    <span>{% if CURRENT_LANGUAGE == "az" %}Müraciəti ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel request{% else %}Отменить запрос{% endif %}</span>
+                  </button>
+                </form>
+              </div>
+            {% else %}
+              {% if not account_deletion_available %}
+                <p class="account-danger-zone__notice" role="status">
+                  {% if account_deletion_staff_blocked %}
+                    {% if CURRENT_LANGUAGE == "az" %}Xidməti hesabın silinməsi üçün səlahiyyətli administratora müraciət edin.{% elif CURRENT_LANGUAGE == "en" %}Contact an authorized administrator to offboard a staff account.{% else %}Для отключения служебного аккаунта обратитесь к уполномоченному администратору.{% endif %}
+                  {% else %}
+                    {% if CURRENT_LANGUAGE == "az" %}Funksiya məlumatların saxlanması siyasəti təsdiqlənənədək deaktivdir.{% elif CURRENT_LANGUAGE == "en" %}This action is disabled until the data-retention policy is approved.{% else %}Действие отключено до утверждения политики хранения данных.{% endif %}
+                  {% endif %}
+                </p>
               {% endif %}
-            </div>
+              <div class="account-form-actions">
+                {% if active_account_deletion and active_account_deletion.status == "CONFIRMATION_SENT" %}
+                  <a class="account-btn-danger" href="{% url 'account_deletion_confirm' active_account_deletion.subject_reference %}">
+                    {% if CURRENT_LANGUAGE == "az" %}Təsdiqləməyə davam et{% elif CURRENT_LANGUAGE == "en" %}Continue confirmation{% else %}Продолжить подтверждение{% endif %}
+                  </a>
+                {% else %}
+                  {% if account_deletion_available %}
+                    <a class="account-btn-danger" href="{% url 'account_deletion_request' %}">{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}</a>
+                  {% elif account_deletion_staff_blocked %}
+                    <button type="button" class="account-btn-danger" id="km-open-staff-deletion-btn" aria-haspopup="dialog">
+                      {% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}
+                    </button>
+                  {% else %}
+                    <span class="account-btn-danger is-disabled" aria-disabled="true">{% if CURRENT_LANGUAGE == "az" %}Hesabı sil{% elif CURRENT_LANGUAGE == "en" %}Delete account{% else %}Удалить аккаунт{% endif %}</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+
+              {% if account_deletion_staff_blocked %}
+                <!-- Staff deletion request modal dialog -->
+                <dialog id="km-staff-deletion-modal" class="km-deletion-modal" aria-labelledby="km-deletion-modal-title">
+                  <form method="post" class="km-deletion-modal__box">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_action" value="staff_deletion_request">
+                    <div class="km-deletion-modal__header">
+                      <div class="km-deletion-modal__title-wrap">
+                        <span class="material-symbols-rounded km-deletion-modal__icon">warning</span>
+                        <h3 id="km-deletion-modal-title">{% if CURRENT_LANGUAGE == "az" %}Hesabın silinməsi üçün müraciət{% elif CURRENT_LANGUAGE == "en" %}Account deletion request{% else %}Запрос на удаление аккаунта{% endif %}</h3>
+                      </div>
+                      <button type="button" class="km-deletion-modal__close" id="km-close-staff-deletion-btn" aria-label="{% if CURRENT_LANGUAGE == "az" %}Bağla{% else %}Закрыть{% endif %}">
+                        <span class="material-symbols-rounded">close</span>
+                      </button>
+                    </div>
+                    <div class="km-deletion-modal__body">
+                      <p class="km-deletion-modal__desc">
+                        {% if CURRENT_LANGUAGE == "az" %}
+                          Xidməti hesabın silinməsi təhlükəsizlik və audit məqsədilə səlahiyyətli administrator tərəfindən nəzərdən keçirilir. Zəhmət olmasa səbəbi qeyd edin:
+                        {% elif CURRENT_LANGUAGE == "en" %}
+                          Staff account offboarding is reviewed by an authorized administrator for security and audit integrity. Please select a reason:
+                        {% else %}
+                          Удаление служебного аккаунта рассматривается уполномоченным администратором в целях безопасности и сохранения аудита. Пожалуйста, выберите причину:
+                        {% endif %}
+                      </p>
+
+                      <label class="km-deletion-modal__field-label">{% if CURRENT_LANGUAGE == "az" %}Silinmə səbəbi (tez seçim):{% elif CURRENT_LANGUAGE == "en" %}Reason (quick pick):{% else %}Причина удаления (быстрый выбор):{% endif %}</label>
+                      <div class="km-deletion-chips" role="radiogroup" aria-label="{% if CURRENT_LANGUAGE == "az" %}Səbəb seçimi{% else %}Выбор причины{% endif %}">
+                        <label class="km-deletion-chip">
+                          <input type="radio" name="reason" value="leaving_project" checked>
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Artıq layihədə iştirak etmirəm{% elif CURRENT_LANGUAGE == "en" %}Leaving the project{% else %}Больше не участвую в проекте{% endif %}</span>
+                        </label>
+                        <label class="km-deletion-chip">
+                          <input type="radio" name="reason" value="new_account">
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Yeni hesab açmaq istəyirəm{% elif CURRENT_LANGUAGE == "en" %}Want to create a new account{% else %}Хочу создать новый аккаунт{% endif %}</span>
+                        </label>
+                        <label class="km-deletion-chip">
+                          <input type="radio" name="reason" value="clear_data">
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Şəxsi məlumatlarımı silmək istəyirəm{% elif CURRENT_LANGUAGE == "en" %}Want to erase personal data{% else %}Хочу удалить персональные данные{% endif %}</span>
+                        </label>
+                        <label class="km-deletion-chip">
+                          <input type="radio" name="reason" value="security_issue">
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Təhlükəsizlik və ya giriş problemi{% elif CURRENT_LANGUAGE == "en" %}Security or login issue{% else %}Проблема безопасности или доступа{% endif %}</span>
+                        </label>
+                        <label class="km-deletion-chip">
+                          <input type="radio" name="reason" value="other">
+                          <span>{% if CURRENT_LANGUAGE == "az" %}Digər səbəb{% elif CURRENT_LANGUAGE == "en" %}Other reason{% else %}Другая причина{% endif %}</span>
+                        </label>
+                      </div>
+
+                      <div class="km-deletion-modal__field">
+                        <label for="km-deletion-details-input" class="km-deletion-modal__field-label">
+                          {% if CURRENT_LANGUAGE == "az" %}Əlavə izahat və ya şərh:{% elif CURRENT_LANGUAGE == "en" %}Additional details or comment:{% else %}Дополнительное пояснение или комментарий:{% endif %}
+                        </label>
+                        <textarea id="km-deletion-details-input" name="details" class="field km-deletion-details" rows="3" placeholder="{% if CURRENT_LANGUAGE == "az" %}İstəyə görə izahat daxil edin...{% elif CURRENT_LANGUAGE == "en" %}Optional comments...{% else %}Опишите детали при необходимости...{% endif %}"></textarea>
+                      </div>
+                    </div>
+                    <div class="km-deletion-modal__footer">
+                      <button type="button" class="account-btn-ghost" id="km-cancel-staff-deletion-btn">
+                        {% if CURRENT_LANGUAGE == "az" %}Ləğv et{% elif CURRENT_LANGUAGE == "en" %}Cancel{% else %}Отмена{% endif %}
+                      </button>
+                      <button type="submit" class="account-btn-danger">
+                        <span class="material-symbols-rounded">send</span>
+                        <span>{% if CURRENT_LANGUAGE == "az" %}Müraciəti göndər{% elif CURRENT_LANGUAGE == "en" %}Submit request{% else %}Отправить на рассмотрение{% endif %}</span>
+                      </button>
+                    </div>
+                  </form>
+                </dialog>
+              {% endif %}
+            {% endif %}
           </div>
         </section>
       {% else %}
