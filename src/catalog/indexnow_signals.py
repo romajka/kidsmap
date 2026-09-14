@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 
 from django.db import transaction
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from catalog.models import (
@@ -29,6 +29,9 @@ logger = logging.getLogger(__name__)
 SIGNIFICANT_PLACE_FIELDS = frozenset(
     {
         "slug",
+        "slug_az",
+        "slug_ru",
+        "slug_en",
         "name",
         "name_az",
         "name_ru",
@@ -132,22 +135,20 @@ def _notify_indexable_seo_landings() -> None:
 def _notify_place_change(
     *,
     place_id: int,
-    previous_slug: str,
+    previous_urls: tuple[str, ...],
     previously_indexable: bool,
     should_notify_current: bool,
 ) -> None:
     place = Place.objects.filter(pk=place_id).first()
     currently_indexable = bool(place and _place_is_indexable(place_id))
     urls: list[str] = []
+    current_urls = place_canonical_urls(place) if currently_indexable else []
 
-    if previously_indexable and (
-        not currently_indexable or (place and previous_slug != place.slug)
-    ):
-        url_source = place or Place(pk=place_id, slug=previous_slug, name="removed")
-        urls.extend(place_canonical_urls(url_source, slug=previous_slug))
+    if previously_indexable and set(previous_urls) != set(current_urls):
+        urls.extend(previous_urls)
 
-    if place and currently_indexable and should_notify_current:
-        urls.extend(place_canonical_urls(place))
+    if currently_indexable and should_notify_current:
+        urls.extend(current_urls)
 
     if should_notify_current or previously_indexable != currently_indexable:
         urls.extend(_indexable_seo_landing_urls())
@@ -168,7 +169,7 @@ def capture_place_indexnow_state(sender, instance, **kwargs):
             instance._indexnow_previous_state = None
             return
         instance._indexnow_previous_state = {
-            "slug": previous.slug,
+            "urls": tuple(place_canonical_urls(previous)),
             "indexable": _place_is_indexable(previous.pk),
             "snapshot": _significant_snapshot(previous),
         }
@@ -192,7 +193,7 @@ def notify_indexnow_after_place_save(sender, instance, created, **kwargs):
             significant_change = bool(set(update_fields) & SIGNIFICANT_PLACE_FIELDS)
         else:
             significant_change = previous_snapshot != _significant_snapshot(instance)
-        previous_slug = (previous_state or {}).get("slug") or instance.slug
+        previous_urls = (previous_state or {}).get("urls", ())
         previously_indexable = bool((previous_state or {}).get("indexable"))
     except Exception:
         logger.exception("Could not prepare IndexNow place notification")
@@ -202,9 +203,30 @@ def notify_indexnow_after_place_save(sender, instance, created, **kwargs):
         lambda: _safely_run(
             _notify_place_change,
             place_id=instance.pk,
-            previous_slug=previous_slug,
+            previous_urls=previous_urls,
             previously_indexable=previously_indexable,
             should_notify_current=significant_change,
+        )
+    )
+
+
+@receiver(pre_delete, sender=Place, dispatch_uid="indexnow_capture_place_delete")
+def capture_place_indexnow_delete(sender, instance, **kwargs):
+    if not indexnow_enabled():
+        return
+    instance._indexnow_deleted_urls = (
+        tuple(place_canonical_urls(instance)) if _place_is_indexable(instance.pk) else ()
+    )
+
+
+@receiver(post_delete, sender=Place, dispatch_uid="indexnow_notify_place_delete")
+def notify_indexnow_after_place_delete(sender, instance, **kwargs):
+    urls = getattr(instance, "_indexnow_deleted_urls", ())
+    if not indexnow_enabled() or not urls:
+        return
+    transaction.on_commit(
+        lambda: _safely_run(
+            enqueue_indexnow_urls, list(urls) + _indexable_seo_landing_urls()
         )
     )
 

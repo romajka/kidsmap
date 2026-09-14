@@ -140,6 +140,15 @@ def seo_urls(request):
         for code in lang_codes
     }
 
+    place = getattr(request, "_seo_place", None)
+    if place is not None:
+        from catalog.services.place_urls import place_paths_by_language
+        alternate_urls = {
+            code: build_public_absolute_uri(request, localized_path)
+            for code, localized_path in place_paths_by_language(place).items()
+        }
+        canonical_url = alternate_urls.get(current_lang, canonical_url)
+
     resolver_match = getattr(request, "resolver_match", None)
     url_name = getattr(resolver_match, "url_name", "")
     robots_content = DEFAULT_ROBOTS_CONTENT

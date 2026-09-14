@@ -115,6 +115,8 @@
     var missing = Array.isArray(review.missing_fields) ? review.missing_fields.filter(Boolean) : [];
     var verification = Array.isArray(review.needs_verification) ? review.needs_verification.filter(Boolean) : [];
     var conflicts = Array.isArray(review.conflicts) ? review.conflicts.filter(Boolean) : [];
+    var translations = Array.isArray(review.generated_translations) ? review.generated_translations.filter(Boolean) : [];
+    if (translations.length) rows.push("Переводы ИИ: " + translations.join(", "));
     if (missing.length) rows.push("Не найдено: " + missing.join(", "));
     if (verification.length) rows.push("Проверить: " + verification.join(", "));
     if (conflicts.length) rows.push("Расхождения: " + conflicts.join(", "));
@@ -283,7 +285,8 @@
       "Основной телефон — в phone1, дополнительные — в phone2, phone3. В международном формате (+994...).",
       "8. ФОТОГРАФИИ:",
       "JSON НЕ МОЖЕТ загружать файлы фотографий на сайт. Главное фото карточки редактор загружает вручную. Все найденные качественные прямые ссылки на фото места внеси в массив editor_review.media_to_upload.",
-      "9. ФОРМАТ ВЫВОДА:",
+      "9. НАЗВАНИЯ НА ТРЁХ ЯЗЫКАХ И АДРЕСА КАРТОЧКИ\n\nЗаполни name_az, name_ru и name_en на соответствующих языках, если исходное\nназвание известно и возможен качественный перевод. Сначала используй\nофициальные названия из источников. Если официального перевода нет, можно\nперевести описательное название без добавления новых фактов.\n\nБренды и собственные имена не переводи буквально и не переименовывай.\nНапример, Kids Planet может оставаться Kids Planet во всех трёх полях.\nНе добавляй в название слова «лучший», «для детей», «Баку», район и другие\nпоисковые слова, если они не являются частью подтверждённого названия.\n\nСобственные переводы названий, как и описаний, перечисли в\neditor_review.generated_translations, например:\n[\"name_ru: перевод описательного названия\", \"name_en: перевод описательного названия\"].\nЕсли название не найдено или перевод вызывает сомнение, оставь нужное\nполе пустым и укажи причину в editor_review.needs_verification.\n\nURL карточки KidsMap сайт создаёт сам из названий. Не добавляй в JSON поля\nslug, slug_az, slug_ru, slug_en и полный URL карточки KidsMap. Не превращай\nназвания в транслит ради адреса: name_ru должен содержать нормальное\nрусское название, name_az — азербайджанское, name_en — английское.\nПоле website содержит только подтверждённый официальный сайт организации.\n\nПри обновлении существующего места возвращай актуальные подтверждённые\nданные. Сайт сохраняет уже созданные адреса; изменение названия не означает\nразрешение менять URL. Все остальные правила достоверности и структура\nJSON из этой инструкции продолжают действовать.",
+      "10. ФОРМАТ ВЫВОДА:",
       "Верни РОВНО один валидный JSON-объект в блоке ```json. Не пиши текст до или после блока.",
       "Полная структура JSON:",
       JSON.stringify(example, null, 2),
@@ -396,7 +399,11 @@
             showMessage(validation.error || "Не удалось проверить тарифы.", true);
             return;
           }
-          data.pricing_plans = validation.pricing_plans;
+          // Missing pricing keys mean a partial update, not a request to clear tariffs.
+          if (Object.prototype.hasOwnProperty.call(data, "pricing_plans") || Object.prototype.hasOwnProperty.call(data, "tariffs") ||
+              (Array.isArray(validation.pricing_plans) && validation.pricing_plans.length > 0)) {
+            data.pricing_plans = validation.pricing_plans;
+          }
           if (validation.warnings && validation.warnings.length) showMessage(validation.warnings.join(" "), false);
         } catch (error) {
           showMessage("Не удалось проверить тарифы на сервере.", true);
@@ -572,10 +579,12 @@
 
         showEditorReview(data.editor_review);
 
+        var ignoredUrls = ["slug", "slug_az", "slug_ru", "slug_en", "url", "place_url", "canonical_url"].some(function (key) { return Object.prototype.hasOwnProperty.call(data, key); });
         var toastDesc = "Заполнено полей: " + filled + ". Главное фото загрузите вручную.";
         if (data.editor_review && Array.isArray(data.editor_review.media_to_upload) && data.editor_review.media_to_upload.length) {
           toastDesc += " В editor_review найдено ссылок на медиа: " + data.editor_review.media_to_upload.length + ".";
         }
+        if (ignoredUrls) toastDesc += " URL карточки формируются автоматически; переданные URL-поля не применены.";
         if (unknownKeys.length) {
           toastDesc += " Пропущены неизвестные ключи: " + unknownKeys.slice(0, 3).join(", ") + ".";
         }

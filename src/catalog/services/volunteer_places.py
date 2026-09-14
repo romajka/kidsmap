@@ -35,7 +35,7 @@ def content_snapshot(place):
 
 def live_snapshot(place):
     result = content_snapshot(place)
-    for name in ("name", "slug", "owner_id", "created_by_id", "is_active", "status", "is_verified", "deleted_at"):
+    for name in ("name", "slug", "slug_az", "slug_ru", "slug_en", "owner_id", "created_by_id", "is_active", "status", "is_verified", "deleted_at"):
         result[name] = json_value(getattr(place, name))
     return result
 

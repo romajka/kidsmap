@@ -3,7 +3,7 @@ from functools import lru_cache
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, router, transaction
 from django.db.models import Avg, Count, Q
 from django.db.models.signals import post_delete, post_save
 from django.conf import settings
@@ -68,6 +68,9 @@ class Place(models.Model):
 
     name = models.CharField(_("Название"), max_length=255)
     slug = models.SlugField(_("Slug"), max_length=255, blank=True, default="", unique=True)
+    slug_az = models.SlugField("URL AZ", max_length=60, blank=True, default="", editable=False)
+    slug_ru = models.SlugField("URL RU", max_length=60, blank=True, default="", editable=False)
+    slug_en = models.SlugField("URL EN", max_length=60, blank=True, default="", editable=False)
     name_ru = models.CharField(_("Название (RU)"), max_length=255, blank=True, default="")
     name_en = models.CharField(_("Название (EN)"), max_length=255, blank=True, default="")
     name_az = models.CharField(_("Название (AZ)"), max_length=255, blank=True, default="")
@@ -576,7 +579,9 @@ class Place(models.Model):
         return self.category_id
 
     def get_absolute_url(self):
-        return reverse("place_detail", kwargs={"pk": self.pk, "slug": self.slug})
+        from catalog.services.place_urls import place_path_for_language
+        from django.utils.translation import get_language
+        return place_path_for_language(self, get_language())
 
     def _build_unique_slug(self):
         from catalog.services.slugs import build_unique_ascii_slug
@@ -590,6 +595,31 @@ class Place(models.Model):
         )
 
     def save(self, *args, **kwargs):
+        from catalog.services.place_urls import populate_missing_place_slugs
+
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None:
+            update_fields = set(update_fields)
+            if not update_fields:
+                return
+            kwargs['update_fields'] = update_fields
+        using = kwargs.get('using') or router.db_for_write(type(self), instance=self)
+        with transaction.atomic(using=using):
+            previous = None
+            if self.pk:
+                previous = type(self).objects.using(using).select_for_update().filter(pk=self.pk).first()
+            # Rating refreshes happen on public GETs. Only content saves may
+            # initialize URLs; unrelated partial saves must leave them alone.
+            url_content_fields = {'name', 'name_az', 'name_ru', 'name_en', 'slug_az', 'slug_ru', 'slug_en'}
+            changed = set()
+            if previous is None or update_fields is None or update_fields & url_content_fields:
+                changed = populate_missing_place_slugs(self, update_fields=update_fields, previous=previous)
+            if update_fields is not None:
+                kwargs['update_fields'] = update_fields | changed
+            kwargs['using'] = using
+            return self._save_place(*args, **kwargs)
+
+    def _save_place(self, *args, **kwargs):
         pending_pricing = getattr(self, "_pending_pricing_plans", None)
         update_fields = kwargs.get("update_fields")
         if update_fields is not None and "pricing_plans" in update_fields:

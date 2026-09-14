@@ -393,9 +393,11 @@ def place_detail_legacy(request, pk):
 
 def place_detail(request, pk, slug):
     place = place_controller.get_active_place_with_gallery(pk=pk)
-    if slug != place.slug:
+    from catalog.services.place_urls import place_slug_for_language
+    if slug != place_slug_for_language(place, request.LANGUAGE_CODE):
         return redirect(place.get_absolute_url(), permanent=True)
 
+    request._seo_place = place
     context = place_controller.build_detail_context(request, place=place)
     context.update(ownership_controller.build_place_claim_context(request=request, place=place))
     context["public_pricing_plans"] = public_pricing_plans(place.pricing_plans, context.get("language"))

@@ -4043,8 +4043,49 @@ class PlaceAdmin(admin.ModelAdmin):
         )
         return HttpResponseRedirect(self._place_change_url(obj))
 
+    def localized_url_preview_view(self, request):
+        from django.shortcuts import get_object_or_404
+        from catalog.services.staff_roles import can_use_volunteer_workspace
+        from catalog.services.volunteer_places import own_places
+        from catalog.services.place_urls import place_paths_by_language, place_slug_for_language
+        from catalog.services.public_urls import build_public_absolute_uri
+        from catalog.services.slugs import build_ascii_slug
+
+        if request.method != "POST":
+            return JsonResponse({"error": "POST required"}, status=405)
+        try:
+            payload = json.loads(request.body)
+            if not isinstance(payload, dict):
+                raise ValueError
+            pk = payload.get("pk")
+            if pk is not None and (isinstance(pk, bool) or not str(pk).isdigit()):
+                raise ValueError
+            for language in ("az", "ru", "en"):
+                value = payload.get(f"name_{language}", "")
+                if not isinstance(value, str) or len(value) > 1000:
+                    raise ValueError
+        except (ValueError, UnicodeDecodeError):
+            return JsonResponse({"error": "Invalid preview payload"}, status=400)
+        volunteer = can_use_volunteer_workspace(request.user)
+        obj = None
+        if pk is not None:
+            queryset = own_places(request.user) if volunteer else self.get_queryset(request)
+            obj = get_object_or_404(queryset, pk=pk)
+            if not volunteer and not self.has_view_or_change_permission(request, obj):
+                raise PermissionDenied
+        elif not volunteer and not self.has_add_permission(request):
+            raise PermissionDenied
+        paths = place_paths_by_language(obj) if obj else {}
+        urls = {}
+        for language in ("az", "ru", "en"):
+            slug = place_slug_for_language(obj, language) if obj else build_ascii_slug(payload.get(f"name_{language}", ""), fallback="")
+            path = paths.get(language)
+            urls[language] = {"slug": slug, "path": path, "url": build_public_absolute_uri(request, path) if path else None}
+        return JsonResponse({"urls": urls, "public": bool(obj and public_place_queryset(Place.objects.all()).filter(pk=obj.pk).exists())})
+
     def get_urls(self):
         custom_urls = [
+            path("url-preview/", self.admin_site.admin_view(self.localized_url_preview_view), name=f"{self.opts.app_label}_{self.opts.model_name}_url_preview"),
             path(
                 "pricing/import/validate/",
                 self.admin_site.admin_view(self.validate_pricing_import_view),

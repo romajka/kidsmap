@@ -94,11 +94,14 @@ def localized_canonical_urls(view_name: str, *, kwargs: dict | None = None) -> l
     return urls
 
 
-def place_canonical_urls(place, *, slug: str | None = None) -> list[str]:
-    return localized_canonical_urls(
-        "place_detail",
-        kwargs={"pk": place.pk, "slug": slug or place.slug},
-    )
+def place_canonical_urls(place) -> list[str]:
+    from catalog.services.place_urls import place_paths_by_language
+
+    return list(dict.fromkeys(
+        canonical
+        for path in place_paths_by_language(place).values()
+        if (canonical := canonical_indexnow_url(path))
+    ))
 
 
 def seo_landing_canonical_urls(slug: str) -> list[str]:

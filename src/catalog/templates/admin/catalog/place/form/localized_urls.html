@@ -1,0 +1,18 @@
+{% load i18n %}
+{% firstof original.pk place.pk "" as url_place_pk %}
+<div class="km-pf-group km-place-urls" data-place-localized-urls data-label-loading="{% translate "Загрузка адресов…" context 'localized place URLs' %}"
+ data-label-empty="{% translate "Название ещё не заполнено" context 'localized place URLs' %}"
+ data-label-copy="{% translate "Скопировать" context 'localized place URLs' %}"
+ data-label-copy-label="{% translate "Скопировать адрес" context 'localized place URLs' %}"
+ data-label-copied="{% translate "Адрес скопирован." context 'localized place URLs' %}"
+ data-label-copy-error="{% translate "Не удалось скопировать. Выделите адрес и скопируйте вручную." context 'localized place URLs' %}"
+ data-label-open="{% translate "Открыть" context 'localized place URLs' %}"
+ data-label-saved="{% translate "Показаны текущие адреса. Новые переводы получат адрес после сохранения." context 'localized place URLs' %}"
+ data-label-new="{% translate "ID будет добавлен после сохранения." context 'localized place URLs' %}"
+ data-label-error="{% translate "Не удалось загрузить адреса. Измените название или обновите страницу, чтобы повторить." context 'localized place URLs' %}"
+ data-preview-url="{% url 'admin:catalog_place_url_preview' %}" data-place-pk="{{ url_place_pk }}">
+  <h3 class="km-pf-group__title">{% translate "Адреса карточки" %}</h3>
+  <p>{% translate "Сайт создаёт адреса автоматически. Сохранённые адреса не меняются при переименовании." %}</p>
+  <dl data-url-list></dl>
+  <p role="status" data-url-status>{% translate "Загрузка адресов…" context "localized place URLs" %}</p>
+</div>
