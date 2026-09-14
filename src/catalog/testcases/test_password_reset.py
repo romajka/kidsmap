@@ -37,6 +37,7 @@ class PasswordResetTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse("password_reset_done"), response["Location"])
         self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].from_email, "KidsMap <info@kidsmap.az>")
         self.assertIn("parent@example.com", mail.outbox[0].to)
 
     def test_password_reset_ajax_post_success(self):

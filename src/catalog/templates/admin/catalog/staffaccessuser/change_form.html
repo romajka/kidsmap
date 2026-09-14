@@ -1,103 +1,383 @@
 {% extends "admin/change_form.html" %}
 {% load i18n static admin_urls %}
-{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}?v=5">{% endblock %}
+{% block extrahead %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/pages/staff_profile.css' %}?v=6"><script defer src="{% static 'admin/js/staff_profile.js' %}?v=1"></script>{% endblock %}
 {% block bodyclass %}{{ block.super }} km-staff-profile-page{% endblock %}
 {% block content_title %}{% endblock %}
 {% block content %}
 <div id="content-main" class="km-staff-profile">
+
+  <!-- Breadcrumb link -->
+  <div class="km-staff-breadcrumb">
+    <a href="{% url opts|admin_urlname:'changelist' %}">
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z" fill="currentColor"/></svg>
+      <span>{% translate "Сотрудники админки" %}</span>
+    </a>
+  </div>
+
+  <!-- Compact Hero Header -->
   <header class="km-staff-profile__header">
-    <div><a href="{% url opts|admin_urlname:'changelist' %}">{% translate "Сотрудники админки" %}</a><h1>{{ km_user_form_summary.full_name }}</h1><p>@{{ original.username }} · {{ staff_role_label }} · {% if original.is_active %}{% translate "Активен" %}{% else %}{% translate "Неактивен" %}{% endif %}</p></div>
-    <div class="km-staff-profile__dates"><span>{% translate "Последний вход" %}: {{ original.last_login|date:"d.m.Y H:i"|default:"—" }}</span><span>{% translate "Зарегистрирован:" %} {{ original.date_joined|date:"d.m.Y" }}</span></div>
-  </header>
-  <nav class="km-staff-profile__tabs" aria-label="{% translate 'Профиль сотрудника' %}"><a href="#staff-activity">{% translate "Места и статистика" %}</a><a href="#staff-account">{% translate "Данные сотрудника" %}</a></nav>
-  <section id="staff-activity" aria-labelledby="staff-activity-title">
-    <h2 id="staff-activity-title">{% translate "Места и статистика" %}</h2>
-    <div class="km-staff-profile__stats">
-      {% for item in staff_stat_items %}<a href="?place_state={{ item.key }}#staff-activity"{% if staff_place_state == item.key %} aria-current="true"{% endif %}><strong>{{ item.count }}</strong><span>{{ item.label }}</span></a>{% endfor %}
-    </div>
-    <p class="km-staff-profile__help">{% translate "Считаются места, созданные сотрудником, включая удалённые. Правки считаются отдельно: у опубликованного места могут быть изменения на проверке." %}</p>
-    <form method="get" class="km-staff-profile__filters" action="#staff-activity">
-      <label>{% translate "Поиск места" %}<input type="search" name="place_q" value="{{ staff_place_query }}"></label>
-      <label>{% translate "Статус" %}<select name="place_state">{% for item in staff_stat_items %}<option value="{{ item.key }}"{% if staff_place_state == item.key %} selected{% endif %}>{{ item.label }}</option>{% endfor %}</select></label>
-      <button type="submit">{% translate "Найти" %}</button>
-    </form>
-    <div class="km-staff-profile__table-wrap"><table>
-      <thead><tr><th scope="col">{% translate "Место" %}</th><th scope="col">{% translate "Статус места" %}</th><th scope="col">{% translate "Правки" %}</th><th scope="col">{% translate "Создано" %}</th></tr></thead>
-      <tbody>{% for place in staff_places %}<tr>
-        <td data-label="{% translate 'Место' %}">{% if place.staff_change_url %}<a href="{{ place.staff_change_url }}">{{ place }}</a>{% else %}{{ place }}{% endif %}<small>#{{ place.pk }}</small></td>
-        <td data-label="{% translate 'Статус места' %}">{% if place.deleted_at %}{% translate "Удалено" %}{% elif place.status == 'published' and not place.is_active %}{% translate "Снято с публикации" %}{% else %}{{ place.get_status_display }}{% endif %}</td>
-        <td data-label="{% translate 'Правки' %}">{% if place.staff_review_url %}<a href="{{ place.staff_review_url }}">{{ place.staff_revision.get_status_display }} →</a>{% elif place.staff_revision %}{{ place.staff_revision.get_status_display }}{% else %}—{% endif %}</td>
-        <td data-label="{% translate 'Создано' %}">{{ place.created_at|date:"d.m.Y" }}</td>
-      </tr>{% empty %}<tr><td colspan="4">{% translate "Места не найдены." %}</td></tr>{% endfor %}</tbody>
-    </table></div>
-    {% if staff_places.has_other_pages %}<nav class="km-staff-profile__pagination" aria-label="{% translate 'Страницы мест' %}">{% if staff_places.has_previous %}<a href="?place_state={{ staff_place_state }}&amp;place_q={{ staff_place_query|urlencode }}&amp;place_page={{ staff_places.previous_page_number }}#staff-activity">← {% translate "Назад" %}</a>{% endif %}<span>{{ staff_places.number }} / {{ staff_places.paginator.num_pages }}</span>{% if staff_places.has_next %}<a href="?place_state={{ staff_place_state }}&amp;place_q={{ staff_place_query|urlencode }}&amp;place_page={{ staff_places.next_page_number }}#staff-activity">{% translate "Далее" %} →</a>{% endif %}</nav>{% endif %}
-  </section>
-  <section class="km-staff-profile__section km-staff-role-workflow" aria-labelledby="staff-role-title">
-    <div class="km-staff-role-workflow__heading">
-      <div>
-        <h2 id="staff-role-title">{% translate "Роль и доступ" %}</h2>
-        <p>{% translate "Обычная роль применяется сразу и сохраняется в истории. Повышение до суперадмина требует подтверждения другого действующего суперадмина." %}</p>
+    <div class="km-staff-profile__identity">
+      <div class="km-staff-profile__avatar" aria-hidden="true">
+        {{ original.username|slice:":1"|upper }}
       </div>
-      <span class="km-staff-role-workflow__current">{% translate "Текущая роль" %}: {{ staff_role_label }}</span>
+      <div class="km-staff-profile__id-text">
+        <div class="km-staff-profile__name-row">
+          <h1>{{ km_user_form_summary.full_name|default:original.username }}</h1>
+          <div class="km-staff-profile__badges">
+            <span class="km-badge km-badge--role">{{ staff_role_label }}</span>
+            {% if original.is_active %}
+              <span class="km-badge km-badge--active"><span class="km-dot"></span>{% translate "Активен" %}</span>
+            {% else %}
+              <span class="km-badge km-badge--inactive"><span class="km-dot"></span>{% translate "Неактивен" %}</span>
+            {% endif %}
+            {% if original.is_superuser %}
+              <span class="km-badge km-badge--super">Superadmin</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="km-staff-profile__meta">
+          <span class="km-staff-profile__username">@{{ original.username }}</span>
+          {% if original.email %}<span class="km-staff-profile__email">{{ original.email }}</span>{% endif %}
+        </div>
+      </div>
     </div>
-    {% if can_manage_staff_roles %}
-      <form method="post" action="{{ staff_role_change_url }}" class="km-staff-role-workflow__form">
-        {% csrf_token %}
-        <div>
-          <label for="id_admin_role">{{ staff_role_form.admin_role.label }}</label>
-          <select id="id_admin_role" name="admin_role" required aria-describedby="admin-role-help">
-            {% for value, label in staff_role_form.fields.admin_role.choices %}<option value="{{ value }}"{% if value == staff_role_code %} selected{% endif %}>{{ label }}</option>{% endfor %}
-          </select>
-          <p id="admin-role-help" class="km-staff-profile__help">{% translate "Выбор обычной роли снимает прежние группы и прямые разрешения сотрудника." %}</p>
-        </div>
-        <label class="km-staff-role-workflow__check"><input type="checkbox" name="is_active"{% if original.is_active %} checked{% endif %}><span>{{ staff_role_form.is_active.label }}</span></label>
-        <button type="submit" class="km-staff-role-workflow__save">{% translate "Сохранить роль" %}</button>
-      </form>
-      {% if original.is_superuser %}
-        <p class="km-staff-role-workflow__notice" role="note">{% translate "Выбор обычной роли понизит этого суперадмина. Последнего активного суперадмина и собственную роль понизить нельзя." %}</p>
-      {% elif pending_superadmin_request %}
-        <div class="km-staff-role-workflow__pending" role="status">
-          <strong>{% translate "Запрос Superadmin ожидает подтверждения" %}</strong>
-          <span>#{{ pending_superadmin_request.pk }} · {% translate "Инициатор" %}: {{ pending_superadmin_request.initiated_by|default:"—" }} · {{ pending_superadmin_request.created_at|date:"d.m.Y H:i" }}</span>
-          <a href="{% url 'admin:catalog_staffaccessuser_superadmin_request_confirm' pending_superadmin_request.pk %}">{% translate "Открыть запрос" %}</a>
-        </div>
-      {% else %}
-        <form method="post" action="{{ staff_superadmin_request_url }}" class="km-staff-role-workflow__promotion">
-          {% csrf_token %}
-          <div><strong>{% translate "Повышение до Superadmin" %}</strong><p>{% translate "Права не изменятся, пока запрос не подтвердит другой действующий суперадмин." %}</p></div>
-          <button type="submit">{% translate "Создать запрос" %}</button>
-        </form>
+    <div class="km-staff-profile__dates">
+      <div class="km-staff-date-item">
+        <span class="km-staff-date-label">{% translate "Последний вход" %}:</span>
+        <span class="km-staff-date-val">{{ original.last_login|date:"d.m.Y H:i"|default:"—" }}</span>
+      </div>
+      <div class="km-staff-date-item">
+        <span class="km-staff-date-label">{% translate "Зарегистрирован:" %}</span>
+        <span class="km-staff-date-val">{{ original.date_joined|date:"d.m.Y" }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="km-staff-profile__tabs" role="tablist" aria-label="{% translate 'Профиль сотрудника' %}">
+    <a href="#staff-activity" id="tab-staff-activity" role="tab" aria-controls="staff-activity" aria-selected="true" class="km-staff-tab is-active">
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" fill="currentColor"/></svg>
+      <span>{% translate "Места и статистика" %}</span>
+      <span class="km-staff-tab__badge">{{ staff_stats.total|default:0 }}</span>
+    </a>
+    <a href="#staff-role" id="tab-staff-role" role="tab" aria-controls="staff-role" aria-selected="false" class="km-staff-tab">
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><path d="M480-80q-140-36-230-155.5T160-504v-216l320-120 320 120v216q0 149-90 268.5T480-80Zm0-84q104-33 172-132t68-208v-160l-240-90-240 90v160q0 109 68 208t172 132Zm0-316Z" fill="currentColor"/></svg>
+      <span>{% translate "Роль и доступ" %}</span>
+      <span class="km-staff-tab__pill">{{ staff_role_label }}</span>
+    </a>
+    <a href="#staff-account" id="tab-staff-account" role="tab" aria-controls="staff-account" aria-selected="false" class="km-staff-tab">
+      <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q64 0 128 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z" fill="currentColor"/></svg>
+      <span>{% translate "Данные сотрудника" %}</span>
+      {% if errors %}<span class="km-staff-tab__error-dot" title="{% translate 'Форма содержит ошибки' %}">!</span>{% endif %}
+    </a>
+  </nav>
+
+  <!-- TABPANEL 1: Места и статистика -->
+  <section id="staff-activity" class="km-staff-tabpanel is-active" role="tabpanel" aria-labelledby="tab-staff-activity">
+    <div class="km-staff-panel-header">
+      <h2 id="staff-activity-title">{% translate "Места и статистика" %}</h2>
+      <p class="km-staff-profile__help">{% translate "Считаются места, созданные сотрудником, включая удалённые. Правки считаются отдельно: у опубликованного места могут быть изменения на проверке." %}</p>
+    </div>
+
+    <!-- Compact Horizontal Chips Strip -->
+    <div class="km-staff-chips-wrap">
+      <div class="km-staff-chips" role="group" aria-label="{% translate 'Статистика мест' %}">
+        {% for item in staff_stat_items %}
+          <a href="?place_state={{ item.key }}#staff-activity"
+             class="km-staff-chip{% if staff_place_state == item.key %} is-active{% endif %}{% if item.count == 0 %} is-zero{% endif %}"
+             {% if staff_place_state == item.key %}aria-current="true"{% endif %}
+             title="{{ item.label }}">
+            <span class="km-staff-chip__label">{{ item.label }}</span>
+            <span class="km-staff-chip__count">{{ item.count }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Search & Filter Toolbar -->
+    <form method="get" class="km-staff-filterbar" action="#staff-activity">
+      <div class="km-staff-filterbar__search">
+        <svg class="km-i km-staff-search-icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" fill="currentColor"/></svg>
+        <input type="search" name="place_q" value="{{ staff_place_query }}" placeholder="{% translate 'Поиск места по названию...' %}" aria-label="{% translate 'Поиск места' %}">
+      </div>
+      <div class="km-staff-filterbar__select-wrap">
+        <select name="place_state" class="km-staff-select" aria-label="{% translate 'Статус' %}">
+          {% for item in staff_stat_items %}
+            <option value="{{ item.key }}"{% if staff_place_state == item.key %} selected{% endif %}>{{ item.label }} ({{ item.count }})</option>
+          {% endfor %}
+        </select>
+        <svg class="km-i km-select-arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><path d="M480-360 280-560h400L480-360Z" fill="currentColor"/></svg>
+      </div>
+      <button type="submit" class="km-staff-btn km-staff-btn--primary">{% translate "Найти" %}</button>
+      {% if staff_place_query or staff_place_state != 'total' %}
+        <a href="?place_state=total#staff-activity" class="km-staff-btn km-staff-btn--ghost">{% translate "Сбросить" %}</a>
       {% endif %}
-    {% else %}
-      <p class="km-staff-role-workflow__notice" role="note">{% translate "Изменять роли может только действующий суперадмин." %}</p>
+    </form>
+
+    <!-- Places Table -->
+    <div class="km-staff-profile__table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col" style="width:42%">{% translate "Место" %}</th>
+            <th scope="col" style="width:20%">{% translate "Статус места" %}</th>
+            <th scope="col" style="width:22%">{% translate "Правки" %}</th>
+            <th scope="col" style="width:16%">{% translate "Создано" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for place in staff_places %}
+            <tr>
+              <td data-label="{% translate 'Место' %}">
+                <div class="km-place-cell">
+                  {% if place.staff_change_url %}
+                    <a href="{{ place.staff_change_url }}" class="km-place-link">{{ place }}</a>
+                  {% else %}
+                    <span class="km-place-name">{{ place }}</span>
+                  {% endif %}
+                  <span class="km-place-id">#{{ place.pk }}</span>
+                </div>
+              </td>
+              <td data-label="{% translate 'Статус места' %}">
+                {% if place.deleted_at %}
+                  <span class="km-status-pill km-status-pill--deleted">{% translate "Удалено" %}</span>
+                {% elif place.status == 'published' and not place.is_active %}
+                  <span class="km-status-pill km-status-pill--inactive">{% translate "Снято с публикации" %}</span>
+                {% elif place.status == 'published' %}
+                  <span class="km-status-pill km-status-pill--published">{{ place.get_status_display }}</span>
+                {% elif place.status == 'draft' %}
+                  <span class="km-status-pill km-status-pill--draft">{{ place.get_status_display }}</span>
+                {% elif place.status == 'pending' %}
+                  <span class="km-status-pill km-status-pill--pending">{{ place.get_status_display }}</span>
+                {% else %}
+                  <span class="km-status-pill">{{ place.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td data-label="{% translate 'Правки' %}">
+                {% if place.staff_review_url %}
+                  <a href="{{ place.staff_review_url }}" class="km-revision-link">{{ place.staff_revision.get_status_display }} →</a>
+                {% elif place.staff_revision %}
+                  <span class="km-revision-text">{{ place.staff_revision.get_status_display }}</span>
+                {% else %}
+                  <span class="km-cell-empty">—</span>
+                {% endif %}
+              </td>
+              <td data-label="{% translate 'Создано' %}" class="km-cell-date">{{ place.created_at|date:"d.m.Y" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="km-table-empty">
+                <div class="km-table-empty__content">
+                  <p>{% translate "Места не найдены." %}</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if staff_places.has_other_pages %}
+      <nav class="km-staff-profile__pagination" aria-label="{% translate 'Страницы мест' %}">
+        {% if staff_places.has_previous %}
+          <a href="?place_state={{ staff_place_state }}&amp;place_q={{ staff_place_query|urlencode }}&amp;place_page={{ staff_places.previous_page_number }}#staff-activity" class="km-page-link">← {% translate "Назад" %}</a>
+        {% else %}
+          <span class="km-page-link is-disabled">← {% translate "Назад" %}</span>
+        {% endif %}
+        <span class="km-page-counter">{{ staff_places.number }} / {{ staff_places.paginator.num_pages }}</span>
+        {% if staff_places.has_next %}
+          <a href="?place_state={{ staff_place_state }}&amp;place_q={{ staff_place_query|urlencode }}&amp;place_page={{ staff_places.next_page_number }}#staff-activity" class="km-page-link">{% translate "Далее" %} →</a>
+        {% else %}
+          <span class="km-page-link is-disabled">{% translate "Далее" %} →</span>
+        {% endif %}
+      </nav>
     {% endif %}
   </section>
-  <section class="km-staff-profile__section km-staff-role-history" aria-labelledby="staff-role-history-title">
-    <h2 id="staff-role-history-title">{% translate "История ролей" %}</h2>
-    <div class="km-staff-profile__table-wrap"><table>
-      <thead><tr><th scope="col">{% translate "Дата" %}</th><th scope="col">{% translate "Действие" %}</th><th scope="col">{% translate "Старая роль" %}</th><th scope="col">{% translate "Новая роль" %}</th><th scope="col">{% translate "Кто изменил" %}</th></tr></thead>
-      <tbody>{% for entry in staff_role_history %}<tr><td>{{ entry.created_at|date:"d.m.Y H:i" }}</td><td>{{ entry.get_action_display }}</td><td>{{ entry.old_role|default:"—" }}</td><td>{{ entry.new_role|default:"—" }}</td><td>{{ entry.actor_display }}</td></tr>{% empty %}<tr><td colspan="5">{% translate "Изменений роли пока нет." %}</td></tr>{% endfor %}</tbody>
-    </table></div>
-  </section>
-  <form method="post" enctype="multipart/form-data" id="{{ opts.model_name }}_form" novalidate>
-    {% csrf_token %}
-    <h2 id="staff-account">{% translate "Данные сотрудника" %}</h2>
-    {% if errors %}<div role="alert" class="km-staff-profile__errors">{% translate "Форма содержит ошибки" %}{{ adminform.form.non_field_errors }}{{ errors }}</div>{% endif %}
-    {% for fieldset in adminform %}
-      <section class="km-staff-profile__section"><h3>{{ fieldset.name }}</h3>
-      <div class="km-staff-profile__fields">
-        {% for line in fieldset %}{% for field in line %}<div class="km-staff-profile__field{% if field.field.name == 'user_permissions' or field.field.name == 'groups' %} km-staff-profile__field--wide{% endif %}">
-          {% if field.is_readonly %}<span class="km-staff-profile__label">{{ field.field.label }}</span><div>{{ field.contents }}</div>{% else %}{{ field.label_tag }}{{ field.field }}{{ field.errors }}{% if field.field.help_text %}<p id="{{ field.field.auto_id }}_helptext" class="km-staff-profile__help">{{ field.field.help_text|safe }}</p>{% endif %}{% endif %}
-        </div>{% endfor %}{% endfor %}
+
+  <!-- TABPANEL 2: Роль и доступ -->
+  <section id="staff-role" class="km-staff-tabpanel" role="tabpanel" aria-labelledby="tab-staff-role" hidden>
+    <div class="km-staff-card km-staff-role-workflow">
+      <div class="km-staff-role-workflow__heading">
+        <div>
+          <h2 id="staff-role-title">{% translate "Роль и доступ" %}</h2>
+          <p>{% translate "Обычная роль применяется сразу и сохраняется в истории. Повышение до суперадмина требует подтверждения другого действующего суперадмина." %}</p>
+        </div>
+        <span class="km-staff-role-workflow__current">{% translate "Текущая роль" %}: <strong>{{ staff_role_label }}</strong></span>
       </div>
-      </section>
-    {% endfor %}
-    {% for inline in inline_admin_formsets %}
-      <section class="km-staff-profile__section"><h3>{{ inline.opts.verbose_name }}</h3>{{ inline.formset.management_form }}{{ inline.formset.non_form_errors }}
-        {% for child in inline.formset.forms %}{{ child.non_field_errors }}{% for hidden in child.hidden_fields %}{{ hidden }}{% endfor %}<div class="km-staff-profile__fields">{% for field in child.visible_fields %}<div class="km-staff-profile__field">{{ field.label_tag }}{{ field }}{{ field.errors }}{% if field.help_text %}<p class="km-staff-profile__help" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</p>{% endif %}</div>{% endfor %}</div>{% endfor %}
-      </section>
-    {% endfor %}
-    <footer class="km-staff-profile__actions">{% if has_change_permission %}<button name="_continue" type="submit"><i class="fas fa-save" aria-hidden="true"></i> {% translate "Сохранить и продолжить" %}</button><button name="_save" type="submit" class="km-staff-profile__secondary"><i class="fas fa-check" aria-hidden="true"></i> {% translate "Сохранить и выйти" %}</button>{% if km_password_change_url %}<a class="km-staff-profile__btn--info" href="{{ km_password_change_url }}"><i class="fas fa-key" aria-hidden="true"></i> {% translate "Сменить пароль" %}</a>{% endif %}{% endif %}{% if has_delete_permission %}<a class="km-staff-profile__danger" href="{% url opts|admin_urlname:'delete' original.pk %}"><i class="fas fa-trash-alt" aria-hidden="true"></i> {% translate "Удалить пользователя" %}</a>{% endif %}</footer>
-  </form>
+
+      {% if can_manage_staff_roles %}
+        <form method="post" action="{{ staff_role_change_url }}" class="km-staff-role-workflow__form">
+          {% csrf_token %}
+          <div class="km-role-select-wrap">
+            <label for="id_admin_role" class="km-field-label">{{ staff_role_form.admin_role.label }}</label>
+            <select id="id_admin_role" name="admin_role" required aria-describedby="admin-role-help">
+              {% for value, label in staff_role_form.fields.admin_role.choices %}
+                <option value="{{ value }}"{% if value == staff_role_code %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <p id="admin-role-help" class="km-staff-profile__help">{% translate "Выбор обычной роли снимает прежние группы и прямые разрешения сотрудника." %}</p>
+          </div>
+          <div class="km-role-actions-row">
+            <label class="km-staff-role-workflow__check">
+              <input type="checkbox" name="is_active"{% if original.is_active %} checked{% endif %}>
+              <span>{{ staff_role_form.is_active.label }}</span>
+            </label>
+            <button type="submit" class="km-staff-role-workflow__save">{% translate "Сохранить роль" %}</button>
+          </div>
+        </form>
+
+        {% if original.is_superuser %}
+          <p class="km-staff-role-workflow__notice" role="note">{% translate "Выбор обычной роли понизит этого суперадмина. Последнего активного суперадмина и собственную роль понизить нельзя." %}</p>
+        {% elif pending_superadmin_request %}
+          <div class="km-staff-role-workflow__pending" role="status">
+            <div>
+              <strong>{% translate "Запрос Superadmin ожидает подтверждения" %}</strong>
+              <div class="km-pending-meta">#{{ pending_superadmin_request.pk }} · {% translate "Инициатор" %}: {{ pending_superadmin_request.initiated_by|default:"—" }} · {{ pending_superadmin_request.created_at|date:"d.m.Y H:i" }}</div>
+            </div>
+            <a href="{% url 'admin:catalog_staffaccessuser_superadmin_request_confirm' pending_superadmin_request.pk %}" class="km-staff-btn km-staff-btn--outline">{% translate "Открыть запрос" %}</a>
+          </div>
+        {% else %}
+          <form method="post" action="{{ staff_superadmin_request_url }}" class="km-staff-role-workflow__promotion">
+            {% csrf_token %}
+            <div>
+              <strong>{% translate "Повышение до Superadmin" %}</strong>
+              <p>{% translate "Права не изменятся, пока запрос не подтвердит другой действующий суперадмин." %}</p>
+            </div>
+            <button type="submit">{% translate "Создать запрос" %}</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <p class="km-staff-role-workflow__notice" role="note">{% translate "Изменять роли может только действующий суперадмин." %}</p>
+      {% endif %}
+    </div>
+
+    <!-- Role History Card -->
+    <div class="km-staff-card km-staff-role-history">
+      <h3 id="staff-role-history-title">{% translate "История ролей" %}</h3>
+      <div class="km-staff-profile__table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{% translate "Дата" %}</th>
+              <th scope="col">{% translate "Действие" %}</th>
+              <th scope="col">{% translate "Старая роль" %}</th>
+              <th scope="col">{% translate "Новая роль" %}</th>
+              <th scope="col">{% translate "Кто изменил" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in staff_role_history %}
+              <tr>
+                <td class="km-cell-date">{{ entry.created_at|date:"d.m.Y H:i" }}</td>
+                <td><span class="km-action-badge">{{ entry.get_action_display }}</span></td>
+                <td>{{ entry.old_role|default:"—" }}</td>
+                <td><strong>{{ entry.new_role|default:"—" }}</strong></td>
+                <td>{{ entry.actor_display }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="km-table-empty">{% translate "Изменений роли пока нет." %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABPANEL 3: Данные сотрудника -->
+  <section id="staff-account" class="km-staff-tabpanel" role="tabpanel" aria-labelledby="tab-staff-account" hidden>
+    <form method="post" enctype="multipart/form-data" id="{{ opts.model_name }}_form" novalidate>
+      {% csrf_token %}
+      <div class="km-staff-panel-header">
+        <h2 class="km-staff-section-title">{% translate "Данные сотрудника" %}</h2>
+      </div>
+
+      {% if errors %}
+        <div role="alert" class="km-staff-profile__errors">
+          <div class="km-errors-header">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm-40-160h80v-240h-80v240Zm40 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" fill="currentColor"/></svg>
+            <strong>{% translate "Форма содержит ошибки" %}</strong>
+          </div>
+          {{ adminform.form.non_field_errors }}
+          {{ errors }}
+        </div>
+      {% endif %}
+
+      {% for fieldset in adminform %}
+        <section class="km-staff-profile__section">
+          <h3>{{ fieldset.name }}</h3>
+          <div class="km-staff-profile__fields">
+            {% for line in fieldset %}
+              {% for field in line %}
+                <div class="km-staff-profile__field{% if field.field.name == 'user_permissions' or field.field.name == 'groups' %} km-staff-profile__field--wide{% endif %}">
+                  {% if field.is_readonly %}
+                    <span class="km-staff-profile__label">{{ field.field.label }}</span>
+                    <div class="km-readonly-val">{{ field.contents }}</div>
+                  {% else %}
+                    {{ field.label_tag }}
+                    {{ field.field }}
+                    {{ field.errors }}
+                    {% if field.field.help_text %}
+                      <p id="{{ field.field.auto_id }}_helptext" class="km-staff-profile__help">{{ field.field.help_text|safe }}</p>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </section>
+      {% endfor %}
+
+      {% for inline in inline_admin_formsets %}
+        <section class="km-staff-profile__section">
+          <h3>{{ inline.opts.verbose_name }}</h3>
+          {{ inline.formset.management_form }}
+          {{ inline.formset.non_form_errors }}
+          {% for child in inline.formset.forms %}
+            {{ child.non_field_errors }}
+            {% for hidden in child.hidden_fields %}{{ hidden }}{% endfor %}
+            <div class="km-staff-profile__fields">
+              {% for field in child.visible_fields %}
+                <div class="km-staff-profile__field">
+                  {{ field.label_tag }}
+                  {{ field }}
+                  {{ field.errors }}
+                  {% if field.help_text %}
+                    <p class="km-staff-profile__help" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</p>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </section>
+      {% endfor %}
+
+      <footer class="km-staff-profile__actions">
+        {% if has_change_permission %}
+          <button name="_continue" type="submit" class="km-staff-btn km-staff-btn--save">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><path d="M840-680v520q0 33-23.5 56.5T760-80H200q-33 0-56.5-23.5T120-160v-640q0-33 23.5-56.5T200-880h480l160 160Zm-80 34L646-760H200v600h560v-494ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v494-600 106Z" fill="currentColor"/></svg>
+            <span>{% translate "Сохранить и продолжить" %}</span>
+          </button>
+          <button name="_save" type="submit" class="km-staff-btn km-staff-btn--secondary">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z" fill="currentColor"/></svg>
+            <span>{% translate "Сохранить и выйти" %}</span>
+          </button>
+          {% if km_password_change_url %}
+            <a class="km-staff-btn km-staff-btn--info" href="{{ km_password_change_url }}">
+              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><path d="M280-400q-33 0-56.5-23.5T200-480q0-33 23.5-56.5T280-560q33 0 56.5 23.5T360-480q0 33-23.5 56.5T280-400Zm0 160q-100 0-170-70T40-480q0-100 70-170t170-70q67 0 121.5 33t86.5 87h352l120 120-180 180-80-80-60 60-60-60-40 40H488q-32 54-86.5 87T280-240Zm0-80q65 0 111.5-45t50.5-109l22-26h186l40 40 60-60-60-60 40-40H464l-22-26q-16-64-62.5-109T280-640q-66 0-113 47t-47 113q0 66 47 113t113 47Z" fill="currentColor"/></svg>
+              <span>{% translate "Сменить пароль" %}</span>
+            </a>
+          {% endif %}
+        {% endif %}
+        {% if has_delete_permission %}
+          <a class="km-staff-btn km-staff-btn--danger" href="{% url opts|admin_urlname:'delete' original.pk %}">
+            <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" fill="currentColor"/></svg>
+            <span>{% translate "Удалить пользователя" %}</span>
+          </a>
+        {% endif %}
+      </footer>
+    </form>
+  </section>
+
 </div>
 {% endblock %}

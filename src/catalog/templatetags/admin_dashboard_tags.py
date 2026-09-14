@@ -171,6 +171,11 @@ def paginator_page_url(cl, page_number):
 
 
 @register.simple_tag
+def cl_sort_url(cl, sort_key):
+    return cl.get_query_string({'sort': sort_key}, [PAGE_VAR])
+
+
+@register.simple_tag
 def paginator_range_label(cl):
     total = cl.result_count
     if total == 0:
@@ -187,7 +192,7 @@ def get_active_filter_chips(cl):
         'is_temporary', 'is_temporary__exact',
         'status', 'status__exact',
         'deleted_at', 'deleted_at__isnull',
-        'p', 'o', 'q'
+        'p', 'o', 'q', 'sort'
     }
     for spec in getattr(cl, 'filter_specs', []):
         field_name = getattr(spec, 'parameter_name', getattr(spec, 'field_path', ''))

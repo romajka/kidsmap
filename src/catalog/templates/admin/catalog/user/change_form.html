@@ -160,7 +160,7 @@
     </form>
   </div>
   {% else %}
-  <div id="content-main" class="km-user-profile-page km-place-form-page">
+  <div id="content-main" class="km-user-profile-page">
     <form
       {% if has_file_field %}enctype="multipart/form-data"{% endif %}
       {% if form_url %}action="{{ form_url }}"{% endif %}
@@ -172,8 +172,8 @@
       {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1">{% endif %}
       {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">{% endif %}
 
-      <div class="km-user-profile-shell km-place-form-shell">
-        <header class="km-user-hero km-place-form-hero">
+      <div class="km-user-profile-shell">
+        <header class="km-user-hero">
           <div class="km-user-hero__copy">
             <p class="km-user-hero__eyebrow">
               {% if add %}{% translate "Новый пользователь" %}{% else %}{% translate "Профиль пользователя" %}{% endif %}
@@ -238,7 +238,7 @@
         </header>
 
         {% if errors %}
-          <div class="km-place-form-alert km-place-form-alert--danger">
+          <div class="km-user-profile-alert" role="alert">
             <strong>{% translate "Форма содержит ошибки" %}.</strong>
             <span>
               {% blocktranslate count counter=errors|length %}
@@ -251,15 +251,15 @@
           </div>
         {% endif %}
 
-        <div class="km-user-layout km-place-form-layout">
-          <main class="km-user-main km-place-form-main">
+        <div class="km-user-layout">
+          <main class="km-user-main">
             {% block field_sets %}
               {% for fieldset in adminform %}
-                <section class="km-user-section km-place-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
+                <section class="km-user-section{% if 'collapse' in fieldset.classes %} collapse{% endif %}" id="fieldset-{{ forloop.counter0 }}">
                   {% if fieldset.name %}
-                    <header class="km-user-section__head km-place-section__head">
+                    <header class="km-user-section__head">
                       <div>
-                        <h2 class="km-user-section__title km-place-section__title">
+                        <h2 class="km-user-section__title">
                           {% if "аккаунт" in fieldset.name|lower or "account" in fieldset.name|lower %}
                             <i class="fas fa-id-card" aria-hidden="true"></i>
                           {% elif "права" in fieldset.name|lower or "permission" in fieldset.name|lower %}
@@ -272,12 +272,12 @@
                           {{ fieldset.name }}
                         </h2>
                         {% if fieldset.description %}
-                          <p class="km-user-section__desc km-place-section__description">{{ fieldset.description|safe }}</p>
+                          <p class="km-user-section__desc">{{ fieldset.description|safe }}</p>
                         {% endif %}
                       </div>
                     </header>
                   {% endif %}
-                  <div class="km-place-section__body">
+                  <div class="km-user-section__body">
                     {% include "admin/includes/fieldset.html" %}
                   </div>
                 </section>
@@ -291,10 +291,10 @@
             {% endblock %}
           </main>
 
-          <aside class="km-user-sidebar km-place-form-sidebar">
-            <div class="km-place-sidebar-sticky">
+          <aside class="km-user-sidebar">
+            <div class="km-user-sidebar__sticky">
               {% if not add %}
-              <div class="km-user-sidebar-card km-place-sidebar-card--summary">
+              <div class="km-user-sidebar-card km-user-sidebar-card--summary">
                 <div class="km-user-status-banner">
                   <span class="km-user-status-dot km-user-status-dot--{% if km_user_form_summary.is_active %}active{% else %}inactive{% endif %}"></span>
                   <div class="km-user-status-text">
@@ -329,8 +329,8 @@
               </div>
               {% endif %}
 
-              <div class="km-user-sidebar-card km-place-sidebar-card--actions" style="margin-top: 14px;">
-                <div class="km-user-actions-group km-place-sidebar-action-buttons">
+              <div class="km-user-sidebar-card km-user-sidebar-card--actions">
+                <div class="km-user-actions-group">
                   <button type="submit" name="_continue" class="km-btn--sidebar km-btn--primary-save">
                     <i class="fas fa-save" aria-hidden="true"></i> {% translate "Сохранить и продолжить" %}
                   </button>

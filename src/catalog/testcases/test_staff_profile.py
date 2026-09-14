@@ -126,3 +126,15 @@ class StaffProfileTests(TestCase):
         response = self.client.get(self.url)
         self.assertContains(response, 'Məkanlar və statistika')
         self.assertEqual(response.wsgi_request.LANGUAGE_CODE, 'az')
+
+    def test_compact_staff_profile_ui_elements(self):
+        create_ready_place(created_by=self.volunteer)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'km-staff-profile__avatar')
+        self.assertContains(response, 'tab-staff-activity')
+        self.assertContains(response, 'tab-staff-role')
+        self.assertContains(response, 'tab-staff-account')
+        self.assertContains(response, 'km-staff-chip')
+        self.assertContains(response, 'km-status-pill')
+        self.assertContains(response, 'staff_profile.js')

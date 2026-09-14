@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Avg, Count, Exists, Max, OuterRef, Prefetch, Q
 from django import forms
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, QueryDict
 from django.urls import path, reverse
 from django.template.response import TemplateResponse
 from django.utils import timezone
@@ -712,6 +712,60 @@ class PlaceCreatedByFilter(admin.SimpleListFilter):
         if value and value.isdigit():
             return queryset.filter(created_by_id=int(value))
         return queryset
+
+
+class PlaceCreatedDateFilter(admin.SimpleListFilter):
+    title = _("Период создания")
+    parameter_name = "created_date"
+    field_path = "created_date"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("today", _("Сегодня")),
+            ("7d", _("Новые (за 7 дней)")),
+            ("30d", _("Новые (за 30 дней)")),
+            ("90d", _("За 90 дней")),
+            ("older_90d", _("Старые (более 90 дней)")),
+            ("older_1y", _("Старые (более года)")),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        now = timezone.now()
+        if value == "today":
+            start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            return queryset.filter(created_at__gte=start_of_day)
+        if value == "7d":
+            return queryset.filter(created_at__gte=now - timezone.timedelta(days=7))
+        if value == "30d":
+            return queryset.filter(created_at__gte=now - timezone.timedelta(days=30))
+        if value == "90d":
+            return queryset.filter(created_at__gte=now - timezone.timedelta(days=90))
+        if value == "older_90d":
+            return queryset.filter(created_at__lt=now - timezone.timedelta(days=90))
+        if value == "older_1y":
+            return queryset.filter(created_at__lt=now - timezone.timedelta(days=365))
+        return queryset
+
+
+class PlaceSortFilter(admin.SimpleListFilter):
+    title = _("Сортировка")
+    parameter_name = "sort"
+    field_path = "sort"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("created_desc", _("Создано: новые")),
+            ("created_asc", _("Создано: старые")),
+            ("updated_desc", _("Обновлено")),
+            ("updated_asc", _("Обновлено: старые")),
+            ("name_asc", _("По названию (А–Я)")),
+        )
+
+    def queryset(self, request, queryset):
+        return queryset
+
+
 
 
 class EventDeletedFilter(admin.SimpleListFilter):
@@ -1647,6 +1701,8 @@ class PlaceAdmin(admin.ModelAdmin):
         PlaceCoordinatesFilter,
         PlaceMapReadyFilter,
         PlaceCreatedByFilter,
+        PlaceCreatedDateFilter,
+        PlaceSortFilter,
         "category",
         "is_temporary",
         "district",
@@ -1694,6 +1750,21 @@ class PlaceAdmin(admin.ModelAdmin):
     ordering = ("-updated_at",)
     list_per_page = 15
     save_on_top = True
+
+    def get_ordering(self, request):
+        sort_param = request.GET.get("sort")
+        if sort_param == "created_desc":
+            return ["-created_at", "-id"]
+        elif sort_param == "created_asc":
+            return ["created_at", "id"]
+        elif sort_param == "updated_desc":
+            return ["-updated_at", "-id"]
+        elif sort_param == "updated_asc":
+            return ["updated_at", "id"]
+        elif sort_param == "name_asc":
+            return ["name_ru", "name_az", "id"]
+        return super().get_ordering(request)
+
 
     # The change form renders its fields by hand (see the templates under
     # ``admin/catalog/place/form/``), so a section only carries its identity and
@@ -2760,11 +2831,31 @@ class PlaceAdmin(admin.ModelAdmin):
     def col_place(self, obj):
         name = (obj.name_i18n() if callable(getattr(obj, "name_i18n", None)) else (getattr(obj, "name_i18n", "") or obj.name_az or obj.name_ru or obj.name_en or obj.name)) or f"Place #{obj.pk}"
         cat_label = obj.category.name_i18n() if obj.category else obj.get_category_display()
-        meta = f"ID {obj.pk} · {cat_label}"
+        req = getattr(self, "_current_request", None)
+        if obj.category:
+            cat_url = self._build_changelist_query_string(req, category__id__exact=str(obj.category_id))
+            cat_html = format_html(
+                '<a href="{}" class="km-col-tag-link" title="{}">{}</a>',
+                cat_url,
+                _("Отфильтровать по категории: %(cat)s") % {"cat": cat_label},
+                cat_label,
+            )
+        else:
+            cat_html = format_html('<span class="km-col-tag-plain">{}</span>', cat_label)
+
+        sub_html = ""
         if getattr(obj, "subcategory_id", None) and obj.subcategory:
             sub_name = obj.subcategory.name_i18n() if callable(getattr(obj.subcategory, "name_i18n", None)) else (getattr(obj.subcategory, "name_i18n", "") or obj.subcategory.name)
             if sub_name:
-                meta += f" · {sub_name}"
+                sub_url = self._build_changelist_query_string(req, subcategory__id__exact=str(obj.subcategory_id))
+                sub_html = format_html(
+                    ' · <a href="{}" class="km-col-tag-link" title="{}">{}</a>',
+                    sub_url,
+                    _("Отфильтровать по подкатегории: %(sub)s") % {"sub": sub_name},
+                    sub_name,
+                )
+
+        meta = format_html('ID {} · {}{}', obj.pk, cat_html, sub_html)
 
         preview = ""
         image_url = getattr(obj, "public_image_url", "")
@@ -2822,14 +2913,50 @@ class PlaceAdmin(admin.ModelAdmin):
     def col_location(self, obj):
         address = obj.address_i18n() if callable(getattr(obj, "address_i18n", None)) else (obj.address or "")
         address = (address or "").strip() or "—"
+        req = getattr(self, "_current_request", None)
         if obj.has_coordinates:
-            loc2 = (obj.district_i18n() if callable(getattr(obj, "district_i18n", None)) else getattr(obj, "district", "")) or ""
+            district_label = (obj.district_i18n() if callable(getattr(obj, "district_i18n", None)) else getattr(obj, "district", "")) or ""
+            loc2_parts = []
+            if district_label and getattr(obj, "district_id", None):
+                district_url = self._build_changelist_query_string(req, district__id__exact=str(obj.district_id))
+                loc2_parts.append(
+                    format_html(
+                        '<a href="{}" class="km-col-tag-link" title="{}">{}</a>',
+                        district_url,
+                        _("Отфильтровать по району: %(dist)s") % {"dist": district_label},
+                        district_label,
+                    )
+                )
+            elif district_label:
+                loc2_parts.append(format_html('<span>{}</span>', district_label))
+
             if getattr(obj, "metro", None):
                 metro_label = (obj.metro_i18n() if callable(getattr(obj, "metro_i18n", None)) else getattr(obj, "metro", "")) or ""
-                loc2 = f"{loc2} · {metro_label}" if loc2 and metro_label else (loc2 or metro_label)
-            loc2_html = format_html('<span class="km-col-loc-sub">{}</span>', loc2) if loc2 else ""
+                if metro_label and getattr(obj, "metro_id", None):
+                    metro_url = self._build_changelist_query_string(req, metro__id__exact=str(obj.metro_id))
+                    loc2_parts.append(
+                        format_html(
+                            '<a href="{}" class="km-col-tag-link" title="{}">{}</a>',
+                            metro_url,
+                            _("Отфильтровать по метро: %(metro)s") % {"metro": metro_label},
+                            metro_label,
+                        )
+                    )
+                elif metro_label:
+                    loc2_parts.append(format_html('<span>{}</span>', metro_label))
+
+            if loc2_parts:
+                loc2_html = format_html('<span class="km-col-loc-sub">{}</span>', mark_safe(" · ".join(loc2_parts)))
+            else:
+                loc2_html = ""
         else:
-            loc2_html = mark_safe('<span class="km-col-loc-sub km-col-loc-sub--warn">нет координат</span>')
+            without_coords_url = self._build_changelist_query_string(req, clear=("coordinates_status",), coordinates_status="no")
+            loc2_html = format_html(
+                '<a href="{}" class="km-col-loc-sub km-col-loc-sub--warn" title="{}">{}</a>',
+                without_coords_url,
+                _("Показать карточки без координат"),
+                _("нет координат"),
+            )
 
         return format_html(
             '<div class="km-col-location">'
@@ -2872,12 +2999,38 @@ class PlaceAdmin(admin.ModelAdmin):
             ensure_ascii=False,
         )
 
-        return format_html(
-            '<div class="km-col-state km-col-state--{}" data-state="{}">'
-            '<div class="km-col-state-top">'
+        req = getattr(self, "_current_request", None)
+        status_clear = ("deleted_state", "publication_state", "is_active__exact", "coordinates_status", "map_ready_status", "status__exact")
+        if obj.is_deleted:
+            status_url = self._build_changelist_query_string(req, clear=status_clear, deleted_state="deleted")
+        elif obj.status == Place.STATUS_PUBLISHED and obj.is_active:
+            status_url = self._build_changelist_query_string(req, clear=status_clear, deleted_state="active", is_active__exact="1", status__exact=Place.STATUS_PUBLISHED)
+        elif obj.status == Place.STATUS_DRAFT:
+            status_url = self._build_changelist_query_string(req, clear=status_clear, status__exact=Place.STATUS_DRAFT)
+        elif obj.status == Place.STATUS_PENDING:
+            status_url = self._build_changelist_query_string(req, clear=status_clear, status__exact=Place.STATUS_PENDING)
+        elif not obj.is_active:
+            status_url = self._build_changelist_query_string(req, clear=status_clear, deleted_state="active", is_active__exact="0")
+        else:
+            status_url = self._build_changelist_query_string(req, clear=status_clear, status__exact=obj.status)
+
+        status_top_html = format_html(
+            '<a href="{}" class="km-col-state-link" title="{}">'
             '<span class="km-state-dot {}"></span>'
             '<svg class="km-i km-state-visibility" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-{}"></use></svg>'
             '<span class="km-state-label">{}</span>'
+            '</a>',
+            status_url,
+            _("Отфильтровать по статусу: %(status)s") % {"status": status_text},
+            dot_class,
+            state_icon,
+            status_text,
+        )
+
+        return format_html(
+            '<div class="km-col-state km-col-state--{}" data-state="{}">'
+            '<div class="km-col-state-top">'
+            '{}'
             '</div>'
             '<div class="km-col-state-bottom">'
             '<span class="km-state-bar-wrap"><span class="km-state-bar {} km-state-bar--{}"></span></span>'
@@ -2889,9 +3042,7 @@ class PlaceAdmin(admin.ModelAdmin):
             '</div>',
             state_key,
             state_key,
-            dot_class,
-            state_icon,
-            status_text,
+            status_top_html,
             bar_color_class,
             score,
             obj.pk,
@@ -2953,8 +3104,11 @@ class PlaceAdmin(admin.ModelAdmin):
             rating_val,
         )
 
-    @admin.display(description=_("Обновлено"), ordering="updated_at")
+    @admin.display(description=_("Обновлено / Создано"), ordering="updated_at")
     def col_updated(self, obj):
+        req = getattr(self, "_current_request", None)
+        current_sort = req.GET.get("sort") if req else None
+
         audit = self._latest_place_audit(obj)
         if audit:
             actor = self._user_label(audit.changed_by) or _("система")
@@ -2965,17 +3119,62 @@ class PlaceAdmin(admin.ModelAdmin):
             source = _("создано")
             dt = timezone.localtime(obj.updated_at)
 
-        dt_str = dt.strftime("%d.%m %H:%M")
-        meta_str = f"{actor} · {source}"
+        created_dt = timezone.localtime(obj.created_at)
+        created_dt_str = created_dt.strftime("%d.%m.%Y")
+        created_author = self._user_label(obj.created_by) or _("не указан")
+
+        # Author filter link
+        creator_id = obj.created_by_id
+        if creator_id:
+            author_url = self._build_changelist_query_string(req, created_by=str(creator_id))
+            author_html = format_html(
+                '<a href="{}" class="km-col-tag-link km-col-author-link" title="{}">{}</a> <span class="km-col-upd-source">· {}</span>',
+                author_url,
+                _("Показать карточки автора: %(name)s") % {"name": actor},
+                actor,
+                source,
+            )
+        else:
+            author_html = format_html('<span class="km-col-upd-author" title="{}">{} · {}</span>', actor, actor, source)
+
+        # Full tooltip
+        tooltip = _("Создано: %(created)s (%(creator)s) · Обновлено: %(updated)s (%(updator)s)") % {
+            "created": created_dt.strftime("%d.%m.%Y %H:%M"),
+            "creator": created_author,
+            "updated": dt.strftime("%d.%m.%Y %H:%M"),
+            "updator": actor,
+        }
+
+        # If sorted by creation date, show created_at prominently!
+        if current_sort in ("created_desc", "created_asc"):
+            primary_time = created_dt.strftime("%d.%m %H:%M")
+            sub_created = format_html(
+                '<span class="km-col-upd-created" title="{}"><small>{}: {}</small></span>',
+                _("Обновлено: %(dt)s") % {"dt": dt.strftime("%d.%m.%Y %H:%M")},
+                _("Обновл."),
+                dt.strftime("%d.%m.%Y"),
+            )
+        else:
+            primary_time = dt.strftime("%d.%m %H:%M")
+            sub_created = format_html(
+                '<span class="km-col-upd-created" title="{}"><small>{}: {}</small></span>',
+                _("Создано: %(dt)s (автор: %(author)s)") % {"dt": created_dt.strftime("%d.%m.%Y %H:%M"), "author": created_author},
+                _("Создано"),
+                created_dt_str,
+            )
+
         return format_html(
-            '<div class="km-col-updated">'
+            '<div class="km-col-updated" title="{}">'
             '<span class="km-col-upd-time">{}</span>'
-            '<span class="km-col-upd-author" title="{}">{}</span>'
+            '{}'
+            '{}'
             '</div>',
-            dt_str,
-            meta_str,
-            meta_str,
+            tooltip,
+            primary_time,
+            author_html,
+            sub_created,
         )
+
 
     @admin.display(description=_("Действия"))
     def col_actions(self, obj):
@@ -3506,7 +3705,10 @@ class PlaceAdmin(admin.ModelAdmin):
         )
 
     def _build_changelist_query_string(self, request, *, clear: tuple[str, ...] = (), **updates) -> str:
-        params = request.GET.copy()
+        if request and hasattr(request, "GET"):
+            params = request.GET.copy()
+        else:
+            params = QueryDict("", mutable=True)
         params.pop("p", None)
         for key in clear:
             params.pop(key, None)
@@ -3515,7 +3717,7 @@ class PlaceAdmin(admin.ModelAdmin):
             if value not in (None, ""):
                 params[key] = value
         encoded = params.urlencode()
-        return f"?{encoded}" if encoded else ""
+        return f"?{encoded}" if encoded else "?"
 
     def _place_quick_filters(self, request, *, counts: dict[str, int] | None = None):
         counts = counts or self._place_dashboard_counts()
@@ -4426,6 +4628,7 @@ class PlaceAdmin(admin.ModelAdmin):
         return JsonResponse({"results": results})
 
     def changelist_view(self, request, extra_context=None):
+        self._current_request = request
         dashboard_counts = self._place_dashboard_counts()
         quick_filters = self._place_quick_filters(request, counts=dashboard_counts)
         is_trash = self._is_trash_changelist(request)
@@ -4437,10 +4640,23 @@ class PlaceAdmin(admin.ModelAdmin):
         primary_quick_filters = [quick_filter_map[key] for key in primary_filter_order if key in quick_filter_map]
         secondary_quick_filters = [item for item in quick_filters if item.get("key") not in primary_filter_order]
 
+        sort_val = request.GET.get("sort", "updated_desc")
+        sort_labels = {
+            "created_desc": _("Создано: новые"),
+            "created_asc": _("Создано: старые"),
+            "updated_desc": _("Обновлено"),
+            "updated_asc": _("Обновлено: старые"),
+            "name_asc": _("По названию (А–Я)"),
+        }
+        km_current_sort = sort_val if sort_val in sort_labels else "updated_desc"
+        km_current_sort_label = sort_labels[km_current_sort]
+
         extra_context = {
             "place_dashboard_stats": self._place_dashboard_stats(request, counts=dashboard_counts),
             "km_primary_quick_filters": primary_quick_filters,
             "km_secondary_quick_filters": secondary_quick_filters,
+            "km_current_sort": km_current_sort,
+            "km_current_sort_label": km_current_sort_label,
             "km_total_places_count": dashboard_counts.get("quick_all", 0),
             "km_total_trash_count": dashboard_counts.get("quick_deleted", 0),
             "place_bulk_actions": self._place_trash_bulk_actions() if is_trash else self._place_bulk_actions(),
@@ -4481,6 +4697,7 @@ class PlaceAdmin(admin.ModelAdmin):
             **(extra_context or {}),
         }
         return super().changelist_view(request, extra_context=extra_context)
+
 
     @admin.action(description=_("Сделать активными"))
     def mark_active(self, request, queryset):

@@ -2159,6 +2159,16 @@ class TestAdminOwnershipModerationUX(TestCase):
         self.assertContains(response, "km-btn--primary-save")
         self.assertContains(response, "km-btn--secondary-save")
 
+    def test_user_change_form_uses_isolated_profile_layout(self):
+        response = self.client.get(reverse("admin:auth_user_change", args=[self.owner_user.id]))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode("utf-8")
+        self.assertIn("km-user-profile-page", content)
+        self.assertNotIn("km-place-form-page", content)
+        self.assertNotIn("km-place-form-layout", content)
+        self.assertIn('name="user_permissions"', content)
+
     def test_site_users_section_shows_only_non_staff_users(self):
         staff_user = User.objects.create_user(
             username="staff_adminux",
