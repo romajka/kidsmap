@@ -182,6 +182,92 @@
         }
       });
     });
+
+    /* ── 4. Animated Language Switcher Slider ── */
+    const langSwitcher = document.querySelector('[data-lang-switcher]');
+    if (langSwitcher) {
+      const langBtns = Array.from(langSwitcher.querySelectorAll('.km-drawer-lang-btn'));
+      let isNavigating = false;
+
+      function selectLanguage(targetBtn) {
+        if (!targetBtn || isNavigating) return;
+        const targetIndex = targetBtn.getAttribute('data-lang-index');
+        if (targetIndex === null) return;
+
+        const currentIndex = langSwitcher.style.getPropertyValue('--lang-index').trim();
+        if (targetIndex === currentIndex && targetBtn.classList.contains('active')) {
+          return;
+        }
+
+        isNavigating = true;
+        const targetUrl = targetBtn.getAttribute('href');
+
+        // Trigger smooth glide animation
+        langSwitcher.classList.add('is-animating');
+        langSwitcher.style.setProperty('--lang-index', targetIndex);
+
+        // Update button visual states
+        langBtns.forEach(function (btn) {
+          const isActive = btn === targetBtn;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+        });
+
+        // Delay navigation slightly so user sees the fluid slider spring animation
+        setTimeout(function () {
+          if (targetUrl) {
+            window.location.href = targetUrl;
+          } else {
+            isNavigating = false;
+            langSwitcher.classList.remove('is-animating');
+          }
+        }, 260);
+      }
+
+      langBtns.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          selectLanguage(btn);
+        });
+      });
+
+      // Touch swipe support across segmented pills
+      let touchStartX = 0;
+      let touchStartIndex = 0;
+      let isTouching = false;
+
+      langSwitcher.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1 || isNavigating) return;
+        touchStartX = e.touches[0].clientX;
+        const currentActive = langSwitcher.querySelector('.km-drawer-lang-btn.active');
+        touchStartIndex = currentActive ? parseInt(currentActive.getAttribute('data-lang-index') || '0', 10) : 0;
+        isTouching = true;
+      }, { passive: true });
+
+      langSwitcher.addEventListener('touchmove', function (e) {
+        if (!isTouching || isNavigating || e.touches.length !== 1) return;
+        const touchCurrentX = e.touches[0].clientX;
+        const diffX = touchCurrentX - touchStartX;
+        const rect = langSwitcher.getBoundingClientRect();
+        const itemWidth = rect.width / 3;
+
+        if (Math.abs(diffX) > itemWidth * 0.45) {
+          const step = diffX > 0 ? 1 : -1;
+          const nextIndex = Math.max(0, Math.min(2, touchStartIndex + step));
+          if (nextIndex !== touchStartIndex) {
+            const nextBtn = langBtns[nextIndex];
+            if (nextBtn) {
+              isTouching = false;
+              selectLanguage(nextBtn);
+            }
+          }
+        }
+      }, { passive: true });
+
+      langSwitcher.addEventListener('touchend', function () {
+        isTouching = false;
+      }, { passive: true });
+    }
   }
 
   // Initialize once DOM is loaded

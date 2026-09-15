@@ -39,7 +39,7 @@ ICONS = [
     "public", "radio_button_checked", "radio_button_unchecked", "rate_review", "remove", "restore_from_trash", "save",
     "schedule", "search", "search_off", "sell", "settings", "shield", "star", "tune", "unfold_more",
     "upload", "upload_file", "verified_user", "view_column", "visibility", "visibility_off",
-    "warning",
+    "warning", "arrow_upward", "sort_by_alpha", "swap_vert", "update",
 ]
 
 # Names this build of Material Symbols spells differently.

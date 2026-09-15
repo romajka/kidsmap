@@ -65,11 +65,11 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
             run = engine.run_audit()
             messages.success(
                 request,
-                f"🚀 SEO-аудит успешно выполнен (Запуск #{run.pk})! "
-                f"Проверено {run.total_urls} URL. Найдено ошибок: {run.error_count}, предупреждений: {run.warning_count}."
+                _("🚀 SEO-аудит успешно выполнен (Запуск #%(pk)s)! Проверено %(total)s URL. Найдено ошибок: %(errors)s, предупреждений: %(warnings)s.")
+                % {"pk": run.pk, "total": run.total_urls, "errors": run.error_count, "warnings": run.warning_count}
             )
         except Exception as exc:
-            messages.error(request, f"Ошибка выполнения SEO-аудита: {exc}")
+            messages.error(request, _("Ошибка выполнения SEO-аудита: %(error)s") % {"error": exc})
 
         from django.shortcuts import redirect
         return redirect("admin:catalog_seoauditrun_changelist")
@@ -80,11 +80,14 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
             engine = SEOFixEngine()
             changes = engine.apply_safe_fixes(dry_run=False)
             if changes:
-                messages.success(request, f"⚡ Успешно применено {len(changes)} безопасных автоисправлений Level A!")
+                messages.success(
+                    request,
+                    _("⚡ Успешно применено %(count)s безопасных автоисправлений Level A!") % {"count": len(changes)}
+                )
             else:
-                messages.info(request, "⚡ Нет открытых проблем Level A — все автоисправления уже применены.")
+                messages.info(request, _("⚡ Нет открытых проблем Level A — все автоисправления уже применены."))
         except Exception as exc:
-            messages.error(request, f"Ошибка применения автоисправлений: {exc}")
+            messages.error(request, _("Ошибка применения автоисправлений: %(error)s") % {"error": exc})
 
         from django.shortcuts import redirect
         return redirect("admin:catalog_seoauditrun_changelist")
@@ -97,10 +100,11 @@ class SEOAuditRunAdmin(admin.ModelAdmin):
             SEOIssue.objects.filter(audit_run__isnull=True).delete()
             messages.success(
                 request,
-                f"🗑 История прошлых аудитов успешно очищена ({runs_count} запусков, {issues_count} проблем)."
+                _("🗑 История прошлых аудитов успешно очищена (%(runs)s запусков, %(issues)s проблем).")
+                % {"runs": runs_count, "issues": issues_count}
             )
         except Exception as exc:
-            messages.error(request, f"Ошибка очистки истории: {exc}")
+            messages.error(request, _("Ошибка очистки истории: %(error)s") % {"error": exc})
 
         from django.shortcuts import redirect
         return redirect("admin:catalog_seoauditrun_changelist")

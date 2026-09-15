@@ -49,18 +49,18 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
             <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 26px;">🎯</span> Реестр SEO-проблем и рекомендаций
+                <span style="font-size: 26px;">🎯</span> {% translate "Реестр SEO-проблем и рекомендаций" %}
             </h2>
             <p style="margin: 0; color: #94a3b8; font-size: 14px;">
-                Фильтруйте замечания по уровням, переходите на сайт или редактируйте данные карточек в 1 клик.
+                {% translate "Фильтруйте замечания по уровням, переходите на сайт или редактируйте данные карточек в 1 клик." %}
             </p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <a href="{% url 'admin:catalog_seoauditrun_run_now' %}" class="btn" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);">
-                <span>🚀</span> ▶ Запустить аудит
+                <span>🚀</span> {% translate "▶ Запустить аудит" %}
             </a>
             <a href="{% url 'admin:catalog_seoauditrun_apply_fixes_now' %}" class="btn" style="background-color: #059669; color: #ffffff; font-weight: 600; padding: 9px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);">
-                <span>⚡</span> Применить Level A
+                <span>⚡</span> {% translate "Применить Level A" %}
             </a>
         </div>
     </div>
@@ -68,55 +68,55 @@
 
 <!-- Interactive Quick Filter Tabs -->
 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center;">
-    <span style="font-size: 13px; font-weight: 700; color: #64748b; margin-right: 4px;">Быстрый фильтр:</span>
+    <span style="font-size: 13px; font-weight: 700; color: #64748b; margin-right: 4px;">{% translate "Быстрый фильтр:" %}</span>
     <a href="{% url 'admin:catalog_seoissue_changelist' %}" class="seo-filter-tab {% if not request.GET.level and not request.GET.severity %}active{% endif %}">
-        🔍 Все замечания
+        🔍 {% translate "Все замечания" %}
     </a>
     <a href="{% url 'admin:catalog_seoissue_changelist' %}?level__exact=A" class="seo-filter-tab {% if request.GET.level == 'A' %}active{% endif %}" style="border-color: #bbf7d0;">
-        🟢 Level A (Автоисправления)
+        🟢 {% translate "Level A (Автоисправления)" %}
     </a>
     <a href="{% url 'admin:catalog_seoissue_changelist' %}?level__exact=B" class="seo-filter-tab {% if request.GET.level == 'B' %}active{% endif %}" style="border-color: #fed7aa;">
-        🟠 Level B (На утверждение)
+        🟠 {% translate "Level B (На утверждение)" %}
     </a>
     <a href="{% url 'admin:catalog_seoissue_changelist' %}?level__exact=C" class="seo-filter-tab {% if request.GET.level == 'C' %}active{% endif %}" style="border-color: #fecaca;">
-        🔴 Level C (Ручной осмотр)
+        🔴 {% translate "Level C (Ручной осмотр)" %}
     </a>
     <a href="{% url 'admin:catalog_seoissue_changelist' %}?severity__exact=critical" class="seo-filter-tab {% if request.GET.severity == 'critical' %}active{% endif %}" style="border-color: #fca5a5; color: #dc2626;">
-        🛑 Только критические
+        🛑 {% translate "Только критические" %}
     </a>
 </div>
 
 <!-- Level Cards Legend -->
 <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
     <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-        <span>📌</span> Справочник уровней автоматизации SEO:
+        <span>📌</span> {% translate "Справочник уровней автоматизации SEO:" %}
     </h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
         <div class="seo-card-badge" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px;">
             <div style="font-weight: 700; color: #166534; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                 <span style="background-color: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Level A</span>
-                Безопасный авто-фикс
+                {% translate "Безопасный авто-фикс" %}
             </div>
             <p style="margin: 0; color: #15803d; font-size: 13px; line-height: 1.4;">
-                Технические задачи (sitemap, canonical, schema). Исправляются 1 кнопкой.
+                {% translate "Технические задачи (sitemap, canonical, schema). Исправляются 1 кнопкой." %}
             </p>
         </div>
         <div class="seo-card-badge" style="background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; padding: 14px;">
             <div style="font-weight: 700; color: #9a3412; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                 <span style="background-color: #f97316; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Level B</span>
-                Требует утверждения
+                {% translate "Требует утверждения" %}
             </div>
             <p style="margin: 0; color: #c2410c; font-size: 13px; line-height: 1.4;">
-                Предложения по заголовкам и мета-тегам. Выберите галкой и утвердите.
+                {% translate "Предложения по заголовкам и мета-тегам. Выберите галкой и утвердите." %}
             </p>
         </div>
         <div class="seo-card-badge" style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px;">
             <div style="font-weight: 700; color: #991b1b; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
                 <span style="background-color: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Level C</span>
-                Ручной осмотр
+                {% translate "Ручной осмотр" %}
             </div>
             <p style="margin: 0; color: #b91c1c; font-size: 13px; line-height: 1.4;">
-                Факты о заведениях (GPS, фото). Робот не изменяет их автоматически.
+                {% translate "Факты о заведениях (GPS, фото). Робот не изменяет их автоматически." %}
             </p>
         </div>
     </div>

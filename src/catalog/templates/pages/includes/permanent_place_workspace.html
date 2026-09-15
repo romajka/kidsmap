@@ -6,7 +6,7 @@
   {{ ui|json_script:"pw-copy" }}
   <form method="post" enctype="multipart/form-data" class="pw-form" data-permanent-place-form data-pw-volunteer="{{ volunteer_editor|yesno:'1,0' }}" data-pw-bound="{{ form.is_bound|yesno:'1,0' }}" data-draft-key="{% if place %}place-edit-{{ request.user.pk }}-{{ place.pk }}{% else %}{{ draft_client_key }}{% endif %}" novalidate>
     {% csrf_token %}{% if volunteer_editor %}{{ form.revision_version }}{{ form.base_token }}{{ form.price_mode }}{% endif %}<input type="hidden" name="draft_client_key" value="{{ draft_client_key }}"><input type="hidden" name="is_temporary" value=""><input type="hidden" name="age_open_ended" value="{{ form.age_open_ended.value|yesno:'1,' }}">
-    <aside class="pw-sidebar"><p class="pw-nav-title">{{ ui.progress }}</p><nav aria-label="{{ ui.title }}">{% for step in form.wizard_steps %}<button type="button" data-pw-go="{{ step.number }}"><span class="pw-nav-icon" aria-hidden="true">{% include "pages/includes/permanent_place_icon.html" with number=step.number %}</span><span class="pw-nav-label"><small>{{ ui.step }} {{ step.number|stringformat:'02d' }}</small>{{ step.title }}</span><i data-pw-step-status="{{ step.number }}" aria-hidden="true"></i></button>{% endfor %}</nav><p class="pw-sidebar-note">{{ ui.saved_later }}</p></aside>
+    <aside class="pw-sidebar"><p class="pw-nav-title">{{ ui.progress }}</p><nav aria-label="{{ ui.title }}">{% for step in form.wizard_steps %}<button type="button" data-pw-go="{{ step.number }}"><span class="pw-nav-icon" aria-hidden="true">{% include "pages/includes/permanent_place_icon.html" with number=step.number %}</span><span class="pw-nav-label"><small>{{ ui.step }} {{ step.number|stringformat:'02d' }}</small>{{ step.title }}</span><i data-pw-step-status="{{ step.number }}" class="pw-nav-status" aria-hidden="true"></i><span class="pw-nav-bar"><span class="pw-nav-bar-fill" data-pw-step-bar="{{ step.number }}"></span></span></button>{% endfor %}</nav><p class="pw-sidebar-note">{{ ui.saved_later }}</p></aside>
     <div class="pw-workspace">
       <div class="pw-progress"><div><span data-pw-progress-label>{{ ui.step }} 1 {{ ui.of }} 7</span><span data-pw-progress-title></span></div><div class="pw-progress-track" role="progressbar" aria-label="{{ ui.progress }}" aria-valuemin="1" aria-valuemax="7" aria-valuenow="1"><span data-pw-progress-bar></span></div></div>
       <p class="pw-draft-status" data-pw-draft-status role="status"></p>
@@ -43,5 +43,23 @@
     </div>
   </form>
   {% if place and not volunteer_editor %}<form method="post" action="{% url 'owner_place_delete' place.pk %}" class="pw-delete" data-pw-delete>{% csrf_token %}<button type="submit">{{ ui.deletion }}</button></form>{% endif %}
+  <dialog class="pw-modal" id="pw-leave-modal" aria-labelledby="pw-leave-title" aria-describedby="pw-leave-desc">
+    <div class="pw-modal__box">
+      <div class="pw-modal__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+      </div>
+      <h3 class="pw-modal__title" id="pw-leave-title">{{ ui.leave_modal_title }}</h3>
+      <p class="pw-modal__desc" id="pw-leave-desc" data-pw-leave-desc>{{ ui.leave_modal_desc_lang }}</p>
+      <div class="pw-modal__actions">
+        <button type="button" class="pw-modal__btn pw-modal__btn--save" data-pw-leave-save>{{ ui.leave_modal_save }}</button>
+        <button type="button" class="pw-modal__btn pw-modal__btn--stay" data-pw-leave-stay>{{ ui.leave_modal_stay }}</button>
+        <button type="button" class="pw-modal__btn pw-modal__btn--discard" data-pw-leave-discard>{{ ui.leave_modal_discard }}</button>
+      </div>
+    </div>
+  </dialog>
 </div>
 {% endwith %}

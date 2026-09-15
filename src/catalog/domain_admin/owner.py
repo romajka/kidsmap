@@ -588,7 +588,7 @@ class PlaceOwnershipRequestAdmin(admin.ModelAdmin):
         if first_value is not None:
             return f"{first_value}+{unit}"
         if second_value is not None:
-            return f"до {second_value}{unit}"
+            return _("до %(value)s%(unit)s") % {"value": second_value, "unit": unit}
         return ""
 
     def _render_place_completion_badge(self, *, is_filled: bool):

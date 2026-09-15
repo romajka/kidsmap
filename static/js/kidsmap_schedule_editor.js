@@ -587,10 +587,25 @@
   function renderIntervalsHtml(state, day) {
     if (day.is_closed) {
       var dayOff = state.root.dataset.dayOffLabel || state.root.dataset.closedLabel || "Выходной";
-      return '<span class="km-schedule-editor__state-copy km-schedule-editor__state-copy--closed">— ' + escapeHtml(dayOff) + " —</span>";
+      var lang = ((document.documentElement.lang || "ru").split("-")[0] || "ru").toLowerCase();
+      var openBtnLabel = lang === "az" ? "Saatları təyin et" : (lang === "en" ? "Set hours" : "Указать часы");
+      return (
+        '<div class="km-schedule-editor__closed-state">' +
+          '<span class="km-schedule-editor__state-copy km-schedule-editor__state-copy--closed">— ' + escapeHtml(dayOff) + ' —</span>' +
+          '<button type="button" class="km-schedule-editor__quick-open-btn" data-km-schedule-open-day="' + day.weekday + '" title="' + escapeHtml(openBtnLabel) + '">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>' +
+            '<span>' + escapeHtml(openBtnLabel) + '</span>' +
+          '</button>' +
+        '</div>'
+      );
     }
     if (day.is_24_hours) {
-      return '<span class="km-schedule-editor__state-copy km-schedule-editor__state-copy--active">' + escapeHtml(state.root.dataset.allDayLabel || "") + "</span>";
+      return (
+        '<span class="km-schedule-editor__state-copy km-schedule-editor__state-copy--active">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="M2 12h2"></path><path d="M20 12h2"></path></svg>' +
+          '<span>' + escapeHtml(state.root.dataset.allDayLabel || "") + '</span>' +
+        '</span>'
+      );
     }
 
     var intervals = day.intervals && day.intervals.length ? day.intervals : [{ start: "", end: "" }];
@@ -632,6 +647,9 @@
     var row = state.daysContainer.querySelector('[data-km-schedule-row="' + day.weekday + '"]');
     if (!row) return;
 
+    row.classList.toggle("is-closed-row", !!day.is_closed);
+    row.classList.toggle("is-open-row", !day.is_closed);
+
     var openCheckbox = row.querySelector('[data-km-schedule-open="' + day.weekday + '"]');
     if (openCheckbox) {
       openCheckbox.checked = !day.is_closed;
@@ -664,6 +682,12 @@
     var addBtn = row.querySelector('[data-km-schedule-add-interval="' + day.weekday + '"]');
     if (addBtn) {
       addBtn.disabled = day.is_closed || day.is_24_hours;
+      addBtn.style.display = (day.is_closed || day.is_24_hours) ? "none" : "inline-flex";
+    }
+
+    var copyBtn = row.querySelector('[data-km-schedule-copy-day="' + day.weekday + '"]');
+    if (copyBtn) {
+      copyBtn.disabled = !!day.is_closed;
     }
 
     var errorsDiv = row.querySelector(".km-schedule-editor__row-errors");
@@ -744,7 +768,7 @@
     });
 
     state.root.addEventListener("click", function (event) {
-      var target = event.target.closest("[data-km-schedule-preset], [data-km-schedule-add-interval], [data-km-schedule-remove-interval], [data-km-schedule-copy-day], [data-km-schedule-copy-weekdays], [data-km-schedule-open-copy-picker], [data-km-schedule-close-copy], [data-km-schedule-apply-copy], .km-schedule-editor__interval-clock, [data-km-schedule-start], [data-km-schedule-end]");
+      var target = event.target.closest("[data-km-schedule-preset], [data-km-schedule-open-day], [data-km-schedule-add-interval], [data-km-schedule-remove-interval], [data-km-schedule-copy-day], [data-km-schedule-copy-weekdays], [data-km-schedule-open-copy-picker], [data-km-schedule-close-copy], [data-km-schedule-apply-copy], .km-schedule-editor__interval-clock, [data-km-schedule-start], [data-km-schedule-end]");
       if (!target) return;
 
       if (target.closest(".km-schedule-editor__interval-clock")) {
@@ -768,12 +792,24 @@
         return;
       }
 
+      if (target.hasAttribute("data-km-schedule-open-day")) {
+        var openDayTarget = dayByWeekday(state, target.getAttribute("data-km-schedule-open-day"));
+        if (!openDayTarget) return;
+        openDayTarget.is_closed = false;
+        openDayTarget.is_24_hours = false;
+        openDayTarget.intervals = [{ start: "09:00", end: "18:00" }];
+        syncDayRowDom(state, openDayTarget);
+        updateInput(state);
+        renderPreview(state);
+        return;
+      }
+
       if (target.hasAttribute("data-km-schedule-add-interval")) {
         var day = dayByWeekday(state, target.getAttribute("data-km-schedule-add-interval"));
         if (!day) return;
         day.is_closed = false;
         day.is_24_hours = false;
-        day.intervals.push({ start: "09:00", end: "21:00" });
+        day.intervals.push({ start: "09:00", end: "18:00" });
         syncDayRowDom(state, day);
         updateInput(state);
         renderPreview(state);
@@ -811,7 +847,7 @@
           openDay.intervals = [];
         } else {
           openDay.is_24_hours = false;
-          openDay.intervals = [{ start: "09:00", end: "21:00" }];
+          openDay.intervals = [{ start: "09:00", end: "18:00" }];
         }
         syncDayRowDom(state, openDay);
         updateInput(state);

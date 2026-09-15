@@ -30,14 +30,33 @@
   }
   function fieldStep(name) { return Number(box(name)?.closest('[data-pw-step]')?.dataset.pwStep || 1); }
   function reveal(name) {
-    go(fieldStep(name));
+    const stepNum = fieldStep(name);
+    go(stepNum);
     let parent = box(name)?.parentElement;
     while (parent && parent !== form) { if (parent.tagName === 'DETAILS') parent.open = true; parent = parent.parentElement; }
-    const target = el(name);
-    if (name === 'category') form.querySelector('[data-pw-category]')?.focus();
-    else if (name === 'subcategory') form.querySelector('.pw-subcategory-trigger')?.focus();
-    else if (target?.type !== 'hidden' && target?.focus) target.focus();
-    else box(name)?.querySelector('button,input:not([type=hidden]),select')?.focus();
+    let target = null;
+    if (name === 'category') target = form.querySelector('[data-pw-category][aria-pressed="true"]') || form.querySelector('[data-pw-category]');
+    else if (name === 'subcategory') target = form.querySelector('.pw-subcategory-trigger') || form.querySelector('[data-pw-field="subcategory"]');
+    else if (name === 'photo') target = form.querySelector('.pw-upload') || box('photo');
+    else if (name === 'lat' || name === 'lng') target = form.querySelector('.owner-map-picker') || box('address');
+    else if (name === 'pricing_plans') target = form.querySelector('[data-tariff-add]') || box('pricing_plans');
+    else if (name === 'structured_schedule') target = form.querySelector('.km-schedule-editor') || box('structured_schedule');
+    else {
+      target = el(name);
+      if (!target || target.type === 'hidden') target = box(name)?.querySelector('input:not([type=hidden]),textarea,select,button');
+    }
+
+    const scrollTarget = box(name) || target;
+    if (scrollTarget) {
+      scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      scrollTarget.classList.remove('pw-field--pulse');
+      void scrollTarget.offsetWidth;
+      scrollTarget.classList.add('pw-field--pulse');
+      setTimeout(() => scrollTarget.classList.remove('pw-field--pulse'), 1800);
+    }
+    if (target?.focus && target.type !== 'hidden') {
+      try { target.focus({ preventScroll: true }); } catch (e) { target.focus(); }
+    }
   }
   function requiredNames() {
     if (volunteer) return [];
@@ -45,6 +64,29 @@
     if (ageMode === 'range') names.push('age_to');
     if (value('region') === 'baku') names.push('district');
     return names;
+  }
+  function isNumericString(str) {
+    return typeof str === 'string' && /^\d+$/.test(str.trim());
+  }
+  function isValidPhone(val) {
+    if (!val) return true;
+    const trimmed = val.trim();
+    if (!trimmed) return true;
+    if (/[a-zA-Zа-яА-ЯёЁüöğışəÜÖĞİŞƏ]/.test(trimmed)) return false;
+    if (!/^[0-9+\s()\-]+$/.test(trimmed)) return false;
+    const digits = trimmed.replace(/\D/g, '');
+    return digits.length >= 7 && digits.length <= 15;
+  }
+  function isValidUrl(val) {
+    if (!val) return true;
+    const trimmed = val.trim();
+    if (!trimmed) return true;
+    try {
+      const url = new URL(trimmed.includes('://') ? trimmed : `https://${trimmed}`);
+      return Boolean(url.hostname && url.hostname.includes('.'));
+    } catch {
+      return false;
+    }
   }
   function filled(name) {
     if (name === 'photo') return photoEditor ? photoEditor.hasMain() : !!el(name)?.files?.length || (!!savedMain && !el('photo-clear')?.checked);
@@ -57,10 +99,78 @@
     requiredNames().forEach(name => { if (!filled(name)) result.set(name, ui.required); });
     if (!rules.names.some(name => value(name))) result.set('name_az', ui.required);
     if (Math.max(...rules.descriptions.map(name => value(name).length)) < rules.description_min) result.set('description_az', `${ui.invalid}: ${rules.description_min}`);
-    if (value('age_from') && value('age_to') && Number(value('age_from')) > Number(value('age_to'))) result.set('age_to', ui.invalid);
+
+    const ageFromStr = value('age_from');
+    const ageToStr = value('age_to');
+    if (ageMode !== 'all') {
+      if (ageFromStr !== '') {
+        if (!isNumericString(ageFromStr) || Number(ageFromStr) < 0 || Number(ageFromStr) > 18) {
+          result.set('age_from', ui.age_invalid || ui.invalid);
+        }
+      } else if (requiredNames().includes('age_from')) {
+        result.set('age_from', ui.required);
+      }
+
+      if (ageMode === 'range') {
+        if (ageToStr !== '') {
+          if (!isNumericString(ageToStr) || Number(ageToStr) < 0 || Number(ageToStr) > 18) {
+            result.set('age_to', ui.age_invalid || ui.invalid);
+          } else if (isNumericString(ageFromStr) && Number(ageToStr) < Number(ageFromStr)) {
+            result.set('age_to', ui.age_range_invalid || ui.invalid);
+          }
+        } else if (requiredNames().includes('age_to')) {
+          result.set('age_to', ui.required);
+        }
+      } else if (ageToStr !== '') {
+        if (!isNumericString(ageToStr) || Number(ageToStr) < 0 || Number(ageToStr) > 18) {
+          result.set('age_to', ui.age_invalid || ui.invalid);
+        } else if (isNumericString(ageFromStr) && Number(ageToStr) < Number(ageFromStr)) {
+          result.set('age_to', ui.age_range_invalid || ui.invalid);
+        }
+      }
+    }
+
+    const duration = value('lesson_duration_minutes');
+    if (duration !== '') {
+      if (!isNumericString(duration) || Number(duration) < 5 || Number(duration) > 1440) {
+        result.set('lesson_duration_minutes', ui.number_invalid || ui.invalid);
+      }
+    }
+    const lessonsWeek = value('lessons_per_week');
+    if (lessonsWeek !== '') {
+      if (!isNumericString(lessonsWeek) || Number(lessonsWeek) < 1 || Number(lessonsWeek) > 50) {
+        result.set('lessons_per_week', ui.number_invalid || ui.invalid);
+      }
+    }
+    const lessonsMonth = value('lessons_per_month');
+    if (lessonsMonth !== '') {
+      if (!isNumericString(lessonsMonth) || Number(lessonsMonth) < 1 || Number(lessonsMonth) > 200) {
+        result.set('lessons_per_month', ui.number_invalid || ui.invalid);
+      }
+    }
+
     for (const [name, limit] of [['lat', 90], ['lng', 180]]) {
       if (filled(name) && (!Number.isFinite(Number(value(name))) || Math.abs(Number(value(name))) > limit)) result.set(name, ui.invalid);
     }
+
+    ['phone1', 'phone2', 'phone3'].forEach(phoneName => {
+      const pVal = value(phoneName);
+      if (pVal !== '') {
+        if (!isValidPhone(pVal)) {
+          result.set(phoneName, ui.phone_invalid || ui.invalid);
+        }
+      } else if (requiredNames().includes(phoneName)) {
+        result.set(phoneName, ui.required);
+      }
+    });
+
+    const webVal = value('website');
+    if (webVal !== '') {
+      if (!isValidUrl(webVal)) {
+        result.set('website', ui.url_invalid || ui.invalid);
+      }
+    }
+
     const plans = parse(value('pricing_plans'));
     const hasPrimary = plans.some(p => p.is_active !== false && (p.charge_role || 'primary') === 'primary' && (
       ['free', 'on_request'].includes(p.price_kind) ||
@@ -83,13 +193,18 @@
     if (savedGallery - removed + (el('gallery_images')?.files?.length || 0) > rules.max_gallery) result.set('gallery_images', `${ui.invalid}: ${rules.max_gallery}`);
     for (const input of form.querySelectorAll('input,select,textarea')) {
       if (input.type === 'hidden' || input.hidden || input.closest('.pw-field')?.hidden || input.closest('.owner-tariff-field')?.hidden || input.disabled) continue;
-      if (input.validity && !input.validity.valid && input.value !== '') result.set(input.name || 'pricing_plans', input.validationMessage);
+      if (input.validity && !input.validity.valid && input.value !== '') {
+        if (!result.has(input.name)) {
+          result.set(input.name || 'pricing_plans', input.validationMessage || ui.invalid);
+        }
+      }
     }
     return result;
   }
   function displayIssues(result) {
     form.querySelectorAll('.pw-client-error').forEach(node => node.textContent = '');
     form.querySelectorAll('[aria-invalid=true]').forEach(node => node.removeAttribute('aria-invalid'));
+    form.querySelectorAll('.pw-field--invalid').forEach(node => node.classList.remove('pw-field--invalid'));
     const summary = form.querySelector('[data-pw-errors]');
     summary.replaceChildren(); summary.hidden = result.size === 0;
     if (!result.size) return;
@@ -101,6 +216,7 @@
       button.addEventListener('click', () => reveal(name)); entry.append(button); list.append(entry);
       const error = box(name)?.querySelector('.pw-client-error'); if (error) error.textContent = message;
       const input = el(name); if (input?.setAttribute) input.setAttribute('aria-invalid', 'true');
+      const b = box(name); if (b) b.classList.add('pw-field--invalid');
     });
     summary.append(list);
   }
@@ -146,26 +262,97 @@
   function markRequired() {
     if (volunteer) return;
     const required = requiredNames();
+    const errors = issues();
     form.querySelectorAll('[data-pw-required]').forEach(node => {
       const name = node.dataset.pwRequired;
       const groupedName = rules.names.includes(name);
+      const isDesc = rules.descriptions.includes(name);
       const mandatory = required.includes(name);
+      const b = box(name);
+      const input = el(name);
+      const hasError = errors.has(name);
+      const rawVal = value(name);
+      const hasContent = rawVal.length > 0;
+
+      let isFilled = false;
+      let isPartial = false;
+      let isInvalid = false;
+
+      if (hasError && !isDesc && (hasContent || (name === 'lat' && errors.has('lat')))) {
+        isInvalid = true;
+      } else if (!hasError) {
+        if (groupedName) {
+          isFilled = rules.names.some(n => filled(n) && !errors.has(n));
+        } else if (isDesc) {
+          const len = rawVal.length;
+          if (len >= rules.description_min) {
+            isFilled = true;
+          } else if (len > 0) {
+            isPartial = true;
+          }
+        } else {
+          isFilled = filled(name);
+        }
+      } else if (isDesc) {
+        const len = rawVal.length;
+        if (len >= rules.description_min) {
+          isFilled = true;
+        } else if (len > 0) {
+          isPartial = true;
+        }
+      }
+
       node.hidden = false;
-      node.textContent = groupedName ? ui.one_name : mandatory ? ui.required_badge : ui.optional_badge;
-      node.dataset.kind = groupedName ? 'group' : mandatory ? 'required' : 'optional';
-      box(name)?.classList.toggle('pw-field--required', mandatory || groupedName);
-      if (el(name)?.setAttribute) el(name).setAttribute('aria-required', String(mandatory));
+      if (isInvalid) {
+        node.textContent = ui.invalid;
+        node.dataset.filled = 'invalid';
+      } else if (isDesc && isPartial) {
+        node.textContent = `${rawVal.length} / ${rules.description_min}`;
+        node.dataset.filled = 'partial';
+      } else {
+        node.textContent = groupedName ? ui.one_name : mandatory ? (isFilled ? ui.fields_ready : ui.required_badge) : (isFilled ? ui.fields_ready : ui.optional_badge);
+        node.dataset.filled = String(isFilled);
+      }
+      node.dataset.kind = isInvalid ? 'invalid' : groupedName ? 'group' : mandatory ? 'required' : 'optional';
+
+      if (b) {
+        b.classList.toggle('pw-field--required', mandatory || groupedName);
+        b.classList.toggle('pw-field--filled', isFilled && !isInvalid);
+        b.classList.toggle('pw-field--partial', isPartial && !isInvalid);
+        b.classList.toggle('pw-field--invalid', isInvalid);
+        b.classList.toggle('pw-field--empty', !isFilled && !isPartial && !isInvalid);
+
+        const errSpan = b.querySelector('.pw-client-error');
+        if (errSpan) {
+          errSpan.textContent = isInvalid ? (errors.get(name) || ui.invalid) : '';
+        }
+      }
+      if (input?.setAttribute) {
+        input.setAttribute('aria-required', String(mandatory));
+        if (isInvalid) {
+          input.setAttribute('aria-invalid', 'true');
+        } else {
+          input.removeAttribute('aria-invalid');
+        }
+      }
     });
     updateRequirements();
   }
   function updateRequirements() {
     if (volunteer) return;
     const errors = issues();
-    const entries = requiredNames().filter(name => name !== 'lng').map(name => ({
-      name, title: name === 'lat' ? ui.point_requirement : label(name),
-      ready: !errors.has(name) && (name !== 'lat' || !errors.has('lng')),
-    }));
-    entries.unshift({name: 'name_az', title: ui.name_requirement, ready: rules.names.some(name => value(name))});
+    const entries = requiredNames().filter(name => name !== 'lng' && !rules.names.includes(name)).map(name => {
+      let title = name === 'lat' ? ui.point_requirement : label(name);
+      const isReady = !errors.has(name) && (name !== 'lat' || !errors.has('lng'));
+      if (rules.descriptions.includes(name)) {
+        const descLen = Math.max(0, ...rules.descriptions.map(dn => value(dn).trim().length));
+        if (!isReady && descLen > 0) {
+          title = `${title} (${descLen}/${rules.description_min})`;
+        }
+      }
+      return { name, title, ready: isReady };
+    });
+    entries.unshift({name: 'name_az', title: ui.name_requirement, ready: rules.names.some(name => value(name).trim().length > 0)});
     entries.push({name: 'pricing_plans', title: ui.price_requirement, ready: !errors.has('pricing_plans')});
     if (value('schedule_mode') === 'regular') entries.push({name: 'structured_schedule', title: ui.schedule_requirement, ready: !errors.has('structured_schedule')});
     form.querySelectorAll('[data-pw-requirements]').forEach(panel => {
@@ -173,22 +360,88 @@
       const items = entries.filter(entry => fieldStep(entry.name) === number);
       const list = panel.querySelector('[data-pw-requirements-list]'); list.replaceChildren();
       const complete = items.filter(item => item.ready).length;
-      panel.querySelector('[data-pw-requirements-count]').textContent = `${ui.fields_ready} ${complete} / ${items.length}`;
+      const total = items.length;
+      const percent = total > 0 ? Math.round((complete / total) * 100) : 100;
+      const isComplete = complete === total && total > 0;
+      const isEmpty = complete === 0;
+      const state = isComplete ? 'complete' : isEmpty ? 'empty' : 'partial';
+
+      panel.querySelector('[data-pw-requirements-count]').textContent = `${ui.fields_ready} ${complete} / ${total}`;
       items.forEach(item => {
         const button = document.createElement('button'), icon = document.createElement('span'), caption = document.createElement('span');
         button.type = 'button'; button.dataset.pwRequirement = item.name; button.dataset.ready = String(item.ready);
         icon.textContent = item.ready ? '✓' : '○'; icon.setAttribute('aria-hidden', 'true');
         caption.textContent = item.title; button.append(icon, caption);
         button.setAttribute('aria-label', `${item.title}: ${item.ready ? ui.fields_ready : ui.required_badge}`);
-        button.addEventListener('click', () => reveal(item.name)); list.append(button);
+        button.addEventListener('click', (e) => { e.preventDefault(); reveal(item.name); });
+        list.append(button);
       });
-      panel.dataset.complete = String(complete === items.length);
+      panel.dataset.complete = String(isComplete);
+
       const status = form.querySelector(`[data-pw-step-status="${number}"]`);
-      status.textContent = complete === items.length ? '✓' : `${complete}/${items.length}`;
-      status.setAttribute('title', `${ui.fields_ready} ${complete} / ${items.length}`);
+      if (status) {
+        status.dataset.state = state;
+        status.dataset.complete = String(isComplete);
+        status.dataset.percent = String(percent);
+        status.setAttribute('title', `${ui.fields_ready} ${complete} / ${total} (${percent}%)`);
+
+        const circumference = 50.26;
+        const offset = isComplete ? 0 : Math.max(0, circumference - (circumference * percent / 100));
+        status.innerHTML =
+          '<svg class="pw-nav-ring" viewBox="0 0 22 22" aria-hidden="true">' +
+            '<circle cx="11" cy="11" r="8" class="pw-nav-ring-bg"></circle>' +
+            '<circle cx="11" cy="11" r="8" class="pw-nav-ring-fill" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset.toFixed(2) + '"></circle>' +
+          '</svg>' +
+          '<span class="pw-nav-status-text">' + (isComplete ? '✓' : complete + '/' + total) + '</span>';
+      }
+
+      const bar = form.querySelector(`[data-pw-step-bar="${number}"]`);
+      if (bar) {
+        bar.style.width = percent + '%';
+        bar.dataset.state = state;
+      }
+
+      const navBtn = form.querySelector(`[data-pw-go="${number}"]`);
+      if (navBtn) {
+        navBtn.classList.toggle('pw-nav--complete', isComplete);
+        navBtn.classList.toggle('pw-nav--pending', !isComplete);
+        navBtn.dataset.state = state;
+      }
     });
+
     const finalStatus = form.querySelector('[data-pw-step-status="7"]');
-    finalStatus.textContent = errors.size ? '' : '✓';
+    const allStepsComplete = errors.size === 0;
+    const finalBar = form.querySelector('[data-pw-step-bar="7"]');
+    const finalNavBtn = form.querySelector('[data-pw-go="7"]');
+    if (finalStatus) {
+      const finalState = allStepsComplete ? 'complete' : 'partial';
+      finalStatus.dataset.state = finalState;
+      finalStatus.dataset.complete = String(allStepsComplete);
+      if (allStepsComplete) {
+        finalStatus.innerHTML =
+          '<svg class="pw-nav-ring" viewBox="0 0 22 22" aria-hidden="true">' +
+            '<circle cx="11" cy="11" r="8" class="pw-nav-ring-bg"></circle>' +
+            '<circle cx="11" cy="11" r="8" class="pw-nav-ring-fill" stroke-dasharray="50.26" stroke-dashoffset="0"></circle>' +
+          '</svg>' +
+          '<span class="pw-nav-status-text">✓</span>';
+      } else {
+        finalStatus.innerHTML =
+          '<svg class="pw-nav-ring" viewBox="0 0 22 22" aria-hidden="true">' +
+            '<circle cx="11" cy="11" r="8" class="pw-nav-ring-bg"></circle>' +
+            '<circle cx="11" cy="11" r="8" class="pw-nav-ring-fill" stroke-dasharray="50.26" stroke-dashoffset="50.26"></circle>' +
+          '</svg>' +
+          '<span class="pw-nav-status-text">!</span>';
+      }
+    }
+    if (finalBar) {
+      finalBar.style.width = allStepsComplete ? '100%' : '0%';
+      finalBar.dataset.state = allStepsComplete ? 'complete' : 'empty';
+    }
+    if (finalNavBtn) {
+      finalNavBtn.classList.toggle('pw-nav--complete', allStepsComplete);
+      finalNavBtn.classList.toggle('pw-nav--pending', !allStepsComplete);
+      finalNavBtn.dataset.state = allStepsComplete ? 'complete' : 'partial';
+    }
   }
   function saveBrowser() {
     if (restoring) return;
@@ -206,6 +459,20 @@
   }
   function changed(event) {
     if (restoring || !initialized) return;
+    const target = event?.target;
+    if (target && target.name) {
+      if (['age_from', 'age_to', 'lesson_duration_minutes', 'lessons_per_week', 'lessons_per_month', 'price_from', 'price_to', 'price_per_lesson', 'price_per_month', 'price_per_8_lessons'].includes(target.name)) {
+        const sanitized = target.value.replace(/[^\d]/g, '');
+        if (sanitized !== target.value) {
+          target.value = sanitized;
+        }
+      } else if (['phone1', 'phone2', 'phone3'].includes(target.name)) {
+        const sanitized = target.value.replace(/[^\d+\s()\-\.]/g, '');
+        if (sanitized !== target.value) {
+          target.value = sanitized;
+        }
+      }
+    }
     dirty = true;
     if (event?.target?.name === 'region') regionChanged(true);
     if (event?.target?.name === 'address' && value('address') !== initialAddress && value('lat')) form.querySelector('[data-pw-map-changed]').hidden = false;
@@ -319,6 +586,9 @@
     if (event.submitter?.value !== 'save_draft') {
       const errors = issues(); displayIssues(errors);
       if (errors.size) { event.preventDefault(); reveal(errors.keys().next().value); return; }
+    } else {
+      saveBrowser();
+      text('[data-pw-draft-status]', ui.draft_saved_toast || ui.browser_saved);
     }
     if (!navigator.onLine) { event.preventDefault(); text('[data-pw-draft-status]', ui.offline); return; }
     submitting = true;
@@ -340,7 +610,153 @@
     // Retain browser recovery until the next GET proves that saving succeeded.
     try { if (!volunteer) sessionStorage.setItem('kidsmap:submitted-draft', draftKey); } catch {}
   });
-  window.addEventListener('beforeunload', event => { if (dirty && !submitting) { event.preventDefault(); event.returnValue = ui.unsaved; } });
+  const leaveModal = document.getElementById('pw-leave-modal');
+  let pendingNavigationUrl = null;
+
+  function hasUnsavedData() {
+    if (dirty) return true;
+    const plansVal = value('pricing_plans');
+    return Boolean(
+      value('name_az') || value('name_ru') || value('name_en') ||
+      value('address') || value('category') ||
+      (plansVal && plansVal !== '[]' && plansVal !== '') ||
+      value('phone1') || value('website') ||
+      value('description_az') || value('description_ru') || value('description_en') ||
+      (photoEditor && photoEditor.hasMain && photoEditor.hasMain())
+    );
+  }
+
+  function showLeaveModal(targetUrl, isLanguageSwitch = false) {
+    if (!leaveModal) {
+      if (window.confirm(isLanguageSwitch ? (ui.leave_modal_desc_lang || ui.unsaved) : ui.unsaved)) {
+        saveBrowser();
+        submitting = true;
+        window.location.assign(targetUrl);
+      }
+      return;
+    }
+    pendingNavigationUrl = targetUrl;
+    const descEl = leaveModal.querySelector('[data-pw-leave-desc]');
+    if (descEl) {
+      descEl.textContent = isLanguageSwitch ? (ui.leave_modal_desc_lang || ui.unsaved) : (ui.leave_modal_desc_nav || ui.unsaved);
+    }
+    if (typeof leaveModal.showModal === 'function') {
+      try {
+        leaveModal.showModal();
+      } catch (e) {
+        leaveModal.setAttribute('open', '');
+      }
+    } else {
+      leaveModal.setAttribute('open', '');
+    }
+  }
+
+  function closeLeaveModal() {
+    if (!leaveModal) return;
+    if (typeof leaveModal.close === 'function') {
+      try {
+        leaveModal.close();
+      } catch (e) {
+        leaveModal.removeAttribute('open');
+      }
+    } else {
+      leaveModal.removeAttribute('open');
+    }
+    pendingNavigationUrl = null;
+  }
+
+  if (leaveModal) {
+    leaveModal.querySelector('[data-pw-leave-save]')?.addEventListener('click', () => {
+      saveBrowser();
+      const dest = pendingNavigationUrl;
+      closeLeaveModal();
+      if (!dest) return;
+      submitting = true;
+      try {
+        const urlObj = new URL(dest, window.location.origin);
+        if (urlObj.pathname.includes('/account/places/create/')) {
+          urlObj.searchParams.set('type', 'permanent');
+          if (form.dataset.draftKey) {
+            urlObj.searchParams.set('draft_session', form.dataset.draftKey);
+          }
+        }
+        window.location.assign(urlObj.href);
+      } catch (e) {
+        window.location.assign(dest);
+      }
+    });
+
+    leaveModal.querySelector('[data-pw-leave-stay]')?.addEventListener('click', () => {
+      closeLeaveModal();
+    });
+
+    leaveModal.querySelector('[data-pw-leave-discard]')?.addEventListener('click', () => {
+      const dest = pendingNavigationUrl;
+      dirty = false;
+      closeLeaveModal();
+      if (!dest) return;
+      submitting = true;
+      window.location.assign(dest);
+    });
+
+    leaveModal.addEventListener('click', (event) => {
+      if (event.target === leaveModal) {
+        closeLeaveModal();
+      }
+    });
+
+    leaveModal.addEventListener('cancel', () => {
+      pendingNavigationUrl = null;
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    if (submitting) return;
+    const link = event.target.closest('a');
+    if (!link || !link.href) return;
+    if (link.target === '_blank' || link.hasAttribute('download') || link.href.startsWith('javascript:') || link.href.startsWith('tel:') || link.href.startsWith('mailto:')) return;
+
+    try {
+      const url = new URL(link.href, window.location.origin);
+      if (url.origin === window.location.origin && url.pathname === window.location.pathname && url.search === window.location.search && url.hash) {
+        return;
+      }
+
+      const isLangSwitch = Boolean(
+        link.closest('.km-lang-wrapper') ||
+        link.closest('.km-drawer-lang-section') ||
+        link.classList.contains('km-lang-option') ||
+        link.classList.contains('km-drawer-lang-btn') ||
+        link.hasAttribute('hreflang')
+      );
+
+      if (hasUnsavedData()) {
+        event.preventDefault();
+        event.stopPropagation();
+        showLeaveModal(link.href, isLangSwitch);
+      } else if (isLangSwitch) {
+        if (url.pathname.includes('/account/places/create/')) {
+          url.searchParams.set('type', 'permanent');
+          if (form.dataset.draftKey) {
+            url.searchParams.set('draft_session', form.dataset.draftKey);
+          }
+          if (url.href !== link.href) {
+            event.preventDefault();
+            event.stopPropagation();
+            window.location.assign(url.href);
+          }
+        }
+      }
+    } catch (err) {}
+  }, true);
+
+  window.addEventListener('beforeunload', event => {
+    if (dirty && !submitting) {
+      saveBrowser();
+      event.preventDefault();
+      event.returnValue = ui.unsaved;
+    }
+  });
   window.addEventListener('offline', () => text('[data-pw-draft-status]', ui.offline));
   window.addEventListener('online', () => text('[data-pw-draft-status]', ui.browser_saved));
   document.querySelector('[data-pw-delete]')?.addEventListener('submit', event => { if (!window.confirm(ui.delete_confirm)) event.preventDefault(); else submitting = true; });
@@ -634,9 +1050,30 @@
   }
 
   const description = el('description_az'), counter = document.createElement('small');
-  counter.className = 'pw-description-count'; description.after(counter);
-  function countDescription() { counter.textContent = `${description.value.length} / ${rules.description_min}`; counter.classList.toggle('is-ready', description.value.length >= rules.description_min); }
-  if (!volunteer) { description.addEventListener('input', countDescription); countDescription(); }
+  counter.className = 'pw-description-count';
+  if (description) {
+    description.after(counter);
+    function countDescription() {
+      const len = description.value.trim().length;
+      const min = rules.description_min;
+      if (len >= min) {
+        counter.textContent = `✓ ${len} / ${min} simvol (kifayətdir)`;
+        counter.classList.add('is-ready');
+        counter.classList.remove('is-partial');
+      } else if (len > 0) {
+        counter.textContent = `${len} / ${min} simvol (tamamlamaq üçün daha ${min - len} simvol yazın)`;
+        counter.classList.remove('is-ready');
+        counter.classList.add('is-partial');
+      } else {
+        counter.textContent = `0 / ${min} simvol (ən azı ${min} simvol tələb olunur)`;
+        counter.classList.remove('is-ready', 'is-partial');
+      }
+    }
+    if (!volunteer) {
+      description.addEventListener('input', () => { countDescription(); markRequired(); });
+      countDescription();
+    }
+  }
   setAge(ageMode); regionChanged(); markRequired();
   function targetStepFromHash() {
     const raw = (location.hash || '').replace(/^#/, '');

@@ -1017,40 +1017,106 @@
   background: #10b981;
 }
 
-/* Mobile Language Switcher */
+/* Mobile Language Switcher (Segmented Control with Animated Slider) */
 .km-drawer-lang-section {
   margin-top: auto;
-  padding-top: 14px;
+  padding-top: 16px;
   border-top: 1px solid rgba(13, 73, 36, 0.08);
 }
 
 .km-drawer-lang-pills {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  background: #f3f4f6;
+  gap: 6px;
+  background: #f1f5f9;
   padding: 4px;
-  border-radius: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  isolation: isolate;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* Floating animated slider thumb */
+.km-drawer-lang-slider {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px - 12px) / 3);
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  z-index: 1;
+  pointer-events: none;
+  will-change: transform;
+  transform: translateX(calc(var(--lang-index, 0) * (100% + 6px)));
+  transition: transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 0.2s ease;
+}
+
+.km-drawer-lang-pills.is-animating .km-drawer-lang-slider {
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14), 0 2px 4px rgba(15, 23, 42, 0.06);
 }
 
 .km-drawer-lang-btn {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 7px;
   padding: 8px 10px;
   border-radius: 10px;
-  text-decoration: none;
-  color: #4b5563;
+  text-decoration: none !important;
+  color: #64748b;
   font-size: 13.5px;
   font-weight: 700;
-  transition: all 0.18s ease;
+  background: transparent !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.km-drawer-lang-btn:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) {
+  .km-drawer-lang-btn:not(.active):hover {
+    color: #1e293b;
+  }
+  .km-drawer-lang-btn:not(.active):hover .lang-flag-icon {
+    transform: scale(1.06);
+  }
+}
+
+.km-drawer-lang-btn .lang-flag-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+  transition: transform 0.28s cubic-bezier(0.34, 1.45, 0.64, 1);
 }
 
 .km-drawer-lang-btn.active {
-  background: #ffffff;
   color: #0d6b35;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.km-drawer-lang-btn.active .lang-flag-icon {
+  transform: scale(1.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-drawer-lang-slider {
+    transition: none !important;
+  }
+  .km-drawer-lang-btn .lang-flag-icon {
+    transition: none !important;
+  }
 }
 
 /* ==========================================================================

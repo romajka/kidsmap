@@ -807,5 +807,19 @@
         });
       });
     }
+
+    /* --------------------------------------------------------------------------
+       Click outside to close open details menus (sort, columns)
+       -------------------------------------------------------------------------- */
+    document.addEventListener('click', function (e) {
+      var sortMenu = document.getElementById('km-sort-menu');
+      if (sortMenu && sortMenu.open && !sortMenu.contains(e.target)) {
+        sortMenu.removeAttribute('open');
+      }
+      var columnsMenu = document.getElementById('km-columns-menu');
+      if (columnsMenu && columnsMenu.open && !columnsMenu.contains(e.target)) {
+        columnsMenu.removeAttribute('open');
+      }
+    });
   });
 })();

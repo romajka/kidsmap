@@ -156,28 +156,35 @@
                     </a>
 
                     {% if admin_language_switch_items %}
-                    <div class="km-admin-header__dropdown dropdown">
-                        <button type="button" class="km-admin-header__btn km-admin-header__lang-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{% trans 'Выбрать язык' %}">
-                            <svg class="km-i km-admin-header__icon-globe" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-language"></use></svg>
-                            <span class="km-topbar-language-code">{{ LANGUAGE_CODE|upper }}</span>
-                            <svg class="km-i km-admin-header__chevron" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
+                    <div class="km-admin-header__dropdown dropdown km-admin-lang-navitem">
+                        <button type="button" class="km-admin-header__btn km-admin-header__lang-btn km-admin-lang-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{% trans 'Выбрать язык' %}">
+                            <img class="km-admin-lang-flag" src="{% static 'img/flags/' %}{{ LANGUAGE_CODE }}.png" alt="" width="18" height="18" onerror="this.style.display='none'">
+                            <span class="km-topbar-language-code km-admin-lang-code">{{ LANGUAGE_CODE|upper }}</span>
+                            <svg class="km-i km-admin-header__chevron km-admin-lang-arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right km-admin-header__dropdown-menu" id="jazzy-languagemenu">
+                        <div class="dropdown-menu dropdown-menu-right km-admin-header__dropdown-menu km-admin-lang-dropdown" id="jazzy-languagemenu">
+                            <div class="km-admin-lang-header">{% trans "Язык интерфейса" %}</div>
                             {% for item in admin_language_switch_items %}
                             <form action="{% url 'set_language' %}" method="post" class="km-admin-lang-switch-form">
                                 {% csrf_token %}
                                 <input type="hidden" name="language" value="{{ item.code }}" />
                                 <input type="hidden" name="next" value="{{ item.url }}" />
                                 <button type="submit"
-                                    class="dropdown-item{% if item.active %} active{% endif %}"
+                                    class="dropdown-item km-admin-lang-item{% if item.active %} active{% endif %}"
                                     lang="{{ item.code }}">
-                                    {{ item.code|upper }}
+                                    <img class="km-admin-lang-opt-flag" src="{% static 'img/flags/' %}{{ item.code }}.png" alt="" width="18" height="18" onerror="this.style.display='none'">
+                                    <span class="km-admin-lang-opt-name">{% if item.code == 'az' %}Azərbaycan{% elif item.code == 'ru' %}Русский{% elif item.code == 'en' %}English{% else %}{{ item.code|upper }}{% endif %}</span>
+                                    <span class="km-admin-lang-opt-badge">{{ item.code|upper }}</span>
+                                    {% if item.active %}
+                                        <i class="fas fa-check km-admin-lang-check" aria-hidden="true"></i>
+                                    {% endif %}
                                 </button>
                             </form>
                             {% endfor %}
                         </div>
                     </div>
                     {% endif %}
+
 
                     <div class="km-admin-header__dropdown km-admin-header__user-dropdown dropdown">
                         <button type="button" class="km-admin-header__avatar-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ request.user }}">

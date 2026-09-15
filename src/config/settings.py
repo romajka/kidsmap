@@ -217,7 +217,7 @@ INSTALLED_APPS = [
 ]
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Панель управления KidsMap",
+    "site_title": _("Панель управления KidsMap"),
     "site_header": "KidsMap",
     "site_brand": "KidsMap",
     "site_logo": "img/logo.svg",
@@ -225,14 +225,14 @@ JAZZMIN_SETTINGS = {
     "login_logo_dark": "img/logo.svg",
     "site_logo_classes": "km-admin-brand-logo",
     "site_icon": None,
-    "welcome_sign": "Панель управления KidsMap",
+    "welcome_sign": _("Панель управления KidsMap"),
     "copyright": "KidsMap",
     "search_model": ["catalog.Place", "auth.User"],
     "user_avatar": None,
     
     "topmenu_links": [
-        {"name": "Главная",  "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Перейти на сайт", "url": "/", "new_window": True},
+        {"name": _("Главная"),  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": _("Перейти на сайт"), "url": "/", "new_window": True},
     ],
     
     "show_sidebar": True,
@@ -309,7 +309,7 @@ JAZZMIN_SETTINGS = {
     "custom_css": "admin/css/kidsmap_admin.css",
     "custom_js": "admin/js/kidsmap_admin_sidebar.js",
     "show_ui_builder": False,
-    "language_chooser": False,
+    "language_chooser": True,
 }
 
 JAZZMIN_UI_TWEAKS = {

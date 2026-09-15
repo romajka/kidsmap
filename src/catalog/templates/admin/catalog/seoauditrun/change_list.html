@@ -49,21 +49,21 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
             <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 26px;">🔍</span> Управление SEO-аудитом KidsMap
+                <span style="font-size: 26px;">🔍</span> {% trans "Управление SEO-аудитом KidsMap" %}
             </h2>
             <p style="margin: 0; color: #94a3b8; font-size: 14px;">
-                Запускайте сканирование сайта в 1 клик или применяйте безопасные автоисправления (Level A) без риска для контента.
+                {% trans "Запускайте сканирование сайта в 1 клик или применяйте безопасные автоисправления (Level A) без риска для контента." %}
             </p>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <a href="{% url 'admin:catalog_seoauditrun_run_now' %}" id="btnRunAuditNow" class="btn" style="background-color: #2563eb; color: #ffffff; font-weight: 600; padding: 10px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); transition: all 0.2s;">
-                <span id="iconRunAudit">🚀</span> <span id="textRunAudit">▶ Запустить SEO-аудит сайта</span>
+                <span id="iconRunAudit">🚀</span> <span id="textRunAudit">▶ {% trans "Запустить SEO-аудит сайта" %}</span>
             </a>
             <a href="{% url 'admin:catalog_seoauditrun_apply_fixes_now' %}" id="btnApplyFixesNow" class="btn" style="background-color: #059669; color: #ffffff; font-weight: 600; padding: 10px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); transition: all 0.2s;">
-                <span id="iconApplyFixes">⚡</span> <span id="textApplyFixes">Применить автоисправления (Level A)</span>
+                <span id="iconApplyFixes">⚡</span> <span id="textApplyFixes">{% trans "Применить автоисправления (Level A)" %}</span>
             </a>
             <button type="button" id="btnOpenClearModal" class="btn" style="background-color: #dc2626; color: #ffffff; font-weight: 600; padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3); transition: all 0.2s;">
-                <span>🗑</span> <span>Очистить историю</span>
+                <span>🗑</span> <span>{% trans "Очистить историю" %}</span>
             </button>
         </div>
     </div>
@@ -71,7 +71,7 @@
     <!-- Animated progress banner -->
     <div id="seoProgressBanner" style="display: none; margin-top: 16px; background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 8px; padding: 12px 16px; color: #60a5fa; font-size: 14px; font-weight: 600; align-items: center; gap: 10px;">
         <span class="seo-spinner"></span>
-        <span id="seoProgressMessage">Выполняется сканирование страниц сайта. Пожалуйста, подождите несколько секунд...</span>
+        <span id="seoProgressMessage">{% trans "Выполняется сканирование страниц сайта. Пожалуйста, подождите несколько секунд..." %}</span>
     </div>
 </div>
 
@@ -79,16 +79,16 @@
 <div id="seoClearModal" class="seo-modal-overlay">
     <div class="seo-modal-box">
         <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
-        <h3 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 700; color: #0f172a;">Очистить историю аудитов?</h3>
+        <h3 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 700; color: #0f172a;">{% trans "Очистить историю аудитов?" %}</h3>
         <p style="margin: 0 0 20px 0; font-size: 14px; color: #64748b; line-height: 1.5;">
-            Вы уверены, что хотите удалить прошлые записи аудитов и связанные старые SEO-проблемы из базы? Это действие необратимо.
+            {% trans "Вы уверены, что хотите удалить прошлые записи аудитов и связанные старые SEO-проблемы из базы? Это действие необратимо." %}
         </p>
         <div style="display: flex; gap: 12px; justify-content: center;">
             <button type="button" id="btnCancelClear" style="background: #e2e8f0; color: #334155; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                Отмена
+                {% trans "Отмена" %}
             </button>
             <a href="{% url 'admin:catalog_seoauditrun_clear_history_now' %}" style="background: #dc2626; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; display: inline-block;">
-                Да, очистить историю
+                {% trans "Да, очистить историю" %}
             </a>
         </div>
     </div>

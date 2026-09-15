@@ -41,6 +41,7 @@ urlpatterns = [
         indexnow_key_file,
         name="indexnow_key_file",
     ),
+    path("admin/add-choice/", admin_add_choice),
     path("admin/", admin.site.urls),
     re_path(
         rf"^{(settings.LANGUAGE_CODE or 'az').split('-')[0]}(?:/(?P<path>.*))?$",

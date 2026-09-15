@@ -68,7 +68,7 @@
       egSessionsMonth: "məsələn, 12",
       egPackageSessions: "məsələn, 10",
       egPrice: "məsələn, 120",
-      kind: "Tarif növü", priceKind: "Qiymət növü", exact: "Dəqiq", free: "Ödənişsiz",
+      kind: "Tarif növü", priceKind: "Qiymət növü", exact: "Dəqiq", free: "Pulsuz",
       from: "Başlayır", range: "Aralıq", onRequest: "Sorğu ilə", priceMin: "Qiymət min", priceMax: "Qiymət max",
       billingMode: "Ödəniş forması", oneTime: "Birdəfəlik", recurring: "Daimi", installment: "Hissə-hissə",
       interval: "Dövr", intervalCount: "Dövr sayı", cycles: "Ödəniş sayı",
@@ -201,21 +201,21 @@
 
   const fields = [
     ["editor_kind", labels.kind, "select", currentDict.kinds, true],
-    ["title_az", labels.titleAz, "text", null, false],
-    ["title_ru", labels.titleRu, "text", null, false],
-    ["title_en", labels.titleEn, "text", null, false],
-    ["lesson_format", labels.format, "select", [["group", labels.group], ["individual", labels.individual], ["open_visit", labels.openVisit]], true],
     ["billing_mode", labels.billingMode, "select", [["one_time", labels.oneTime], ["recurring", labels.recurring], ["installment", labels.installment]], true],
-    ["billing_interval", labels.interval, "select", currentDict.intervals, false],
-    ["billing_interval_count", labels.intervalCount, "number", null, false],
-    ["billing_cycles", labels.cycles, "number", null, false],
+    ["title_az", labels.titleAz, "text", null, false],
+    ["quantity", labels.quantity, "number", null, false],
+    ["quantity_unit", labels.quantityUnit, "select", currentDict.quantityUnits, false],
     ["price_kind", labels.priceKind, "select", [["exact", labels.exact], ["free", labels.free], ["from", labels.from], ["range", labels.range], ["on_request", labels.onRequest]], true],
     ["price", labels.price, "number", null, false],
     ["price_min", labels.priceMin, "number", null, false],
     ["price_max", labels.priceMax, "number", null, false],
     ["currency", labels.currency, "select", [["AZN", "AZN"], ["USD", "USD"], ["EUR", "EUR"], ["RUB", "RUB"]], true],
-    ["quantity", labels.quantity, "number", null, false],
-    ["quantity_unit", labels.quantityUnit, "select", currentDict.quantityUnits, false],
+    ["billing_interval", labels.interval, "select", currentDict.intervals, false],
+    ["billing_interval_count", labels.intervalCount, "number", null, false],
+    ["billing_cycles", labels.cycles, "number", null, false],
+    ["title_ru", labels.titleRu, "text", null, false],
+    ["title_en", labels.titleEn, "text", null, false],
+    ["lesson_format", labels.format, "select", [["group", labels.group], ["individual", labels.individual], ["open_visit", labels.openVisit]], true],
     ["sessions_per_week", labels.week, "number", null, false],
     ["sessions_per_month", labels.month, "number", null, false],
     ["is_unlimited", labels.unlimited, "checkbox", null, false],
@@ -375,15 +375,47 @@
       const choices = document.createElement("div");
       choices.className = "pw-price-choices";
       choices.setAttribute("role", "group"); choices.setAttribute("aria-label", label);
-      const symbols = {exact: "=", free: "0", from: "≥", range: "↔", on_request: "?"};
+      const priceIcons = {
+        exact: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></svg>',
+        free: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>',
+        from: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17l10-10M17 17V7H7"/></svg>',
+        range: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>',
+        on_request: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><circle cx="12" cy="12" r="1"/></svg>'
+      };
       options.forEach(([value, caption]) => {
-        const button = document.createElement("button"), symbol = document.createElement("b"), text = document.createElement("span");
-        button.type = "button"; symbol.textContent = symbols[value]; text.textContent = caption;
-        button.append(symbol, text); button.setAttribute("aria-pressed", field.value === value ? "true" : "false");
-        button.addEventListener("click", () => { field.value = value; field.dispatchEvent(new Event("change", {bubbles:true})); });
+        const button = document.createElement("button");
+        button.type = "button";
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "pw-price-choice-icon";
+        iconSpan.innerHTML = priceIcons[value] || "";
+        const textSpan = document.createElement("span");
+        textSpan.className = "pw-price-choice-label";
+        textSpan.textContent = caption;
+        button.append(iconSpan, textSpan);
+        button.dataset.priceKind = value;
+        button.setAttribute("aria-pressed", field.value === value ? "true" : "false");
+        button.addEventListener("click", () => {
+          field.value = value;
+          field.dispatchEvent(new Event("change", { bubbles: true }));
+        });
         choices.append(button);
       });
       field.hidden = true; wrapper.append(choices);
+
+      if (field.value === "free" || field.value === "on_request") {
+        const hint = document.createElement("div");
+        hint.className = `owner-tariff-price-notice owner-tariff-price-notice--${field.value}`;
+        if (field.value === "free") {
+          hint.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span>' +
+            (langKey === "az" ? "Bu tarif üzrə xidmət pulsuzdur (0 ₼)" : langKey === "en" ? "This service is free of charge (0 ₼)" : "Этот тариф предоставляется бесплатно (0 ₼)") +
+            '</span>';
+        } else {
+          hint.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><circle cx="12" cy="8" r="0.8" fill="currentColor"/></svg><span>' +
+            (langKey === "az" ? "Qiymət fərdi sorğu əsasında razılaşdırılır" : langKey === "en" ? "Price is agreed upon customer request" : "Цена согласуется по запросу клиента") +
+            '</span>';
+        }
+        wrapper.append(hint);
+      }
     }
     target.appendChild(wrapper);
   }

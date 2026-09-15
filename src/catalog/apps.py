@@ -1,9 +1,10 @@
 from django.apps import AppConfig
+from django.utils.translation import gettext_lazy as _
 
 
 class CatalogConfig(AppConfig):
     name = 'catalog'
-    verbose_name = 'Каталог'
+    verbose_name = _('Каталог')
 
     def ready(self):
         from catalog import indexnow_signals  # noqa: F401

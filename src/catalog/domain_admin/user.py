@@ -185,12 +185,12 @@ class _BaseKidsMapUserAdmin(UserAdmin):
             
         badges = []
         if obj.is_superuser:
-            badges.append('<span class="km-badge km-badge--danger" style="margin-right:4px;">Суперадмин</span>')
+            badges.append(f'<span class="km-badge km-badge--danger" style="margin-right:4px;">{_("Суперадмин")}</span>')
         elif obj.is_staff:
-            badges.append('<span class="km-badge km-badge--info" style="margin-right:4px;">Админ</span>')
+            badges.append(f'<span class="km-badge km-badge--info" style="margin-right:4px;">{_("Админ")}</span>')
 
         if not obj.is_active:
-            badges.append('<span class="km-badge km-badge--neutral" style="margin-right:4px;">Неактивен</span>')
+            badges.append(f'<span class="km-badge km-badge--neutral" style="margin-right:4px;">{_("Неактивен")}</span>')
 
         badge_html = f'<div style="margin-top:6px;">{"".join(badges)}</div>' if badges else ""
 

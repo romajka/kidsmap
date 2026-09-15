@@ -455,11 +455,21 @@
       <!-- Drawer Language Switcher (Segmented Bar) -->
       <div class="km-drawer-lang-section">
         <span class="km-drawer-section-title">{% trans "Язык сайта" %}</span>
-        <div class="km-drawer-lang-pills">
+        <div
+          class="km-drawer-lang-pills"
+          data-lang-switcher
+          style="--lang-index: {% if CURRENT_LANGUAGE == 'ru' %}1{% elif CURRENT_LANGUAGE == 'en' %}2{% else %}0{% endif %};"
+          role="radiogroup"
+          aria-label="{% trans 'Выбор языка' %}"
+        >
+          <div class="km-drawer-lang-slider" aria-hidden="true"></div>
           <a
             class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'az' %}active{% endif %}"
             href="{{ alternate_urls.az }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="az"
+            data-lang-index="0"
+            role="radio"
+            aria-checked="{% if CURRENT_LANGUAGE == 'az' %}true{% else %}false{% endif %}"
           >
             <img class="lang-flag-icon" src="{% static 'img/flags/az.png' %}" alt="" width="18" height="18" />
             <span>AZ</span>
@@ -468,6 +478,9 @@
             class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'ru' %}active{% endif %}"
             href="{{ alternate_urls.ru }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="ru"
+            data-lang-index="1"
+            role="radio"
+            aria-checked="{% if CURRENT_LANGUAGE == 'ru' %}true{% else %}false{% endif %}"
           >
             <img class="lang-flag-icon" src="{% static 'img/flags/ru.png' %}" alt="" width="18" height="18" />
             <span>RU</span>
@@ -476,6 +489,9 @@
             class="km-drawer-lang-btn {% if CURRENT_LANGUAGE == 'en' %}active{% endif %}"
             href="{{ alternate_urls.en }}{% if language_switch_query %}?{{ language_switch_query }}{% endif %}"
             hreflang="en"
+            data-lang-index="2"
+            role="radio"
+            aria-checked="{% if CURRENT_LANGUAGE == 'en' %}true{% else %}false{% endif %}"
           >
             <img class="lang-flag-icon" src="{% static 'img/flags/en.png' %}" alt="" width="18" height="18" />
             <span>EN</span>

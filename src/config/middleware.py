@@ -29,14 +29,11 @@ class AdminLocaleMiddleware:
     def __call__(self, request):
         previous_language = translation.get_language()
         admin_language = self._resolve_admin_language(request.path)
-        # AZ uses the unprefixed URL, which the legacy admin fixes to Russian.
-        # Honor the language picker within Place editing, volunteer workspace and staff profiles;
-        # keep existing admin URL/language behavior unchanged elsewhere.
-        if request.path.startswith(("/admin/volunteer/", "/admin/catalog/staffaccessuser/", "/admin/catalog/place/")):
+        if admin_language:
+            # Honor the user's selected language cookie across the entire admin panel
             selected = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
             if selected in {code for code, _label in settings.LANGUAGES}:
                 admin_language = selected
-        if admin_language:
             translation.activate(admin_language)
             request.LANGUAGE_CODE = admin_language
 
@@ -45,9 +42,5 @@ class AdminLocaleMiddleware:
         if admin_language:
             if hasattr(response, "render") and callable(response.render) and not getattr(response, "is_rendered", True):
                 response.render()
-            if previous_language:
-                translation.activate(previous_language)
-            else:
-                translation.deactivate()
 
         return response

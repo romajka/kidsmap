@@ -88,3 +88,56 @@ class PlaceSortingAndFilteringTests(TestCase):
         self.assertContains(response, "category__id__exact=")
         self.assertContains(response, "km-col-tag-link")
         self.assertContains(response, "km-col-upd-created")
+
+    def test_sorting_by_name_asc(self):
+        url = reverse("admin:catalog_place_changelist")
+        response = self.client.get(url, {"sort": "name_asc"})
+        self.assertEqual(response.status_code, 200)
+        places = list(response.context["cl"].result_list)
+        # "Новое место" vs "Старое место" (Н comes before С in Russian alphabet)
+        self.assertEqual(places[0].pk, self.place_new.pk)
+        self.assertEqual(places[1].pk, self.place_old.pk)
+        self.assertContains(response, "По названию (А → Я)")
+        self.assertContains(response, "km-col-sort-badge is-active")
+
+    def test_sorting_by_name_desc(self):
+        url = reverse("admin:catalog_place_changelist")
+        response = self.client.get(url, {"sort": "name_desc"})
+        self.assertEqual(response.status_code, 200)
+        places = list(response.context["cl"].result_list)
+        # "Старое место" vs "Новое место" (С comes after Н, so reversed С first)
+        self.assertEqual(places[0].pk, self.place_old.pk)
+        self.assertEqual(places[1].pk, self.place_new.pk)
+        self.assertContains(response, "По названию (Я → А)")
+
+    def test_sorting_by_updated_asc_and_desc(self):
+        url = reverse("admin:catalog_place_changelist")
+        # updated_asc: place_old (updated yesterday) before place_new (updated today)
+        response_asc = self.client.get(url, {"sort": "updated_asc"})
+        self.assertEqual(response_asc.status_code, 200)
+        places_asc = list(response_asc.context["cl"].result_list)
+        self.assertEqual(places_asc[0].pk, self.place_old.pk)
+        self.assertEqual(places_asc[1].pk, self.place_new.pk)
+
+        # updated_desc: place_new (updated today) before place_old (updated yesterday)
+        response_desc = self.client.get(url, {"sort": "updated_desc"})
+        self.assertEqual(response_desc.status_code, 200)
+        places_desc = list(response_desc.context["cl"].result_list)
+        self.assertEqual(places_desc[0].pk, self.place_new.pk)
+        self.assertEqual(places_desc[1].pk, self.place_old.pk)
+
+    def test_table_headers_render_clean_sort_links_without_broken_fa_icons(self):
+        url = reverse("admin:catalog_place_changelist")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        # Toolbar sort button
+        self.assertContains(response, "km-btn-sort")
+        self.assertContains(response, "km-sort-dropdown")
+        # Column headers
+        self.assertContains(response, "km-th-sortable")
+        self.assertContains(response, "km-th-sort-link")
+        # Ensure broken Jazzmin glyph elements are not present
+        self.assertNotContains(response, "fa fa-times")
+        self.assertNotContains(response, "fa-sort-alpha-down")
+        self.assertNotContains(response, "fa-sort-alpha-up")
+

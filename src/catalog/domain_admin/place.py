@@ -755,11 +755,12 @@ class PlaceSortFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            ("created_desc", _("Создано: новые")),
-            ("created_asc", _("Создано: старые")),
-            ("updated_desc", _("Обновлено")),
-            ("updated_asc", _("Обновлено: старые")),
-            ("name_asc", _("По названию (А–Я)")),
+            ("created_desc", _("Создано: сначала новые")),
+            ("created_asc", _("Создано: сначала старые")),
+            ("updated_desc", _("Обновлено: сначала новые")),
+            ("updated_asc", _("Обновлено: сначала старые")),
+            ("name_asc", _("По названию (А → Я)")),
+            ("name_desc", _("По названию (Я → А)")),
         )
 
     def queryset(self, request, queryset):
@@ -1763,6 +1764,8 @@ class PlaceAdmin(admin.ModelAdmin):
             return ["updated_at", "id"]
         elif sort_param == "name_asc":
             return ["name_ru", "name_az", "id"]
+        elif sort_param == "name_desc":
+            return ["-name_ru", "-name_az", "-id"]
         return super().get_ordering(request)
 
 
@@ -4683,11 +4686,12 @@ class PlaceAdmin(admin.ModelAdmin):
 
         sort_val = request.GET.get("sort", "updated_desc")
         sort_labels = {
-            "created_desc": _("Создано: новые"),
-            "created_asc": _("Создано: старые"),
-            "updated_desc": _("Обновлено"),
-            "updated_asc": _("Обновлено: старые"),
-            "name_asc": _("По названию (А–Я)"),
+            "created_desc": _("Создано (новые)"),
+            "created_asc": _("Создано (старые)"),
+            "updated_desc": _("Обновлено (новые)"),
+            "updated_asc": _("Обновлено (старые)"),
+            "name_asc": _("По названию (А → Я)"),
+            "name_desc": _("По названию (Я → А)"),
         }
         km_current_sort = sort_val if sort_val in sort_labels else "updated_desc"
         km_current_sort_label = sort_labels[km_current_sort]

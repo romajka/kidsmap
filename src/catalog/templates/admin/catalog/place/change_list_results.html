@@ -1,0 +1,118 @@
+{% load i18n static admin_urls jazzmin admin_dashboard_tags %}
+
+{% if result_hidden_fields %}
+<div class="hiddenfields">
+  {% for item in result_hidden_fields %}{{ item }}{% endfor %}
+</div>
+{% endif %}
+
+{% if results %}
+{% with current_sort=cl.params.sort|default:'updated_desc' %}
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table id="result_list" class="table table-striped">
+      <thead>
+        <tr>
+          {% for header in result_headers %}
+            {% if forloop.first %}
+              <th class="{% header_class header forloop %}" tabindex="0" rowspan="1" colspan="1">
+                <div class="text">
+                  {{ header.text|capfirst }}
+                </div>
+              </th>
+            {% elif "col_place" in header.class_attrib %}
+              <th class="{% header_class header forloop %} column-col_place km-th-sortable" tabindex="0" rowspan="1" colspan="1">
+                <div class="text">
+                  {% if current_sort == 'name_asc' %}
+                    <a href="{% cl_sort_url cl 'name_desc' %}" class="km-th-sort-link is-active" title="{% translate 'Сейчас: по названию (А–Я). Нажмите, чтобы сортировать в обратном порядке (Я–А)' %}">
+                      <span class="km-th-label">{{ header.text|capfirst }}</span>
+                      <span class="km-col-sort-badge is-active" aria-label="{% translate 'А-Я' %}">
+                        <span>{% translate "А–Я" %}</span>
+                        <svg class="km-i km-col-arrow--down" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                      </span>
+                    </a>
+                  {% elif current_sort == 'name_desc' %}
+                    <a href="{% cl_sort_url cl 'name_asc' %}" class="km-th-sort-link is-active" title="{% translate 'Сейчас: по названию (Я–А). Нажмите, чтобы сортировать по алфавиту (А–Я)' %}">
+                      <span class="km-th-label">{{ header.text|capfirst }}</span>
+                      <span class="km-col-sort-badge is-active" aria-label="{% translate 'Я-А' %}">
+                        <span>{% translate "Я–А" %}</span>
+                        <svg class="km-i km-col-arrow--up" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                      </span>
+                    </a>
+                  {% else %}
+                    <a href="{% cl_sort_url cl 'name_asc' %}" class="km-th-sort-link" title="{% translate 'Нажмите, чтобы сортировать места по названию (А–Я)' %}">
+                      <span class="km-th-label">{{ header.text|capfirst }}</span>
+                      <span class="km-col-sort-badge km-col-sort-badge--neutral" aria-hidden="true">
+                        <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-unfold_more"></use></svg>
+                      </span>
+                    </a>
+                  {% endif %}
+                </div>
+              </th>
+            {% elif "col_updated" in header.class_attrib %}
+              <th class="{% header_class header forloop %} column-col_updated km-th-sortable" tabindex="0" rowspan="1" colspan="1">
+                <div class="text">
+                  {% if current_sort == 'created_desc' %}
+                    <a href="{% cl_sort_url cl 'created_asc' %}" class="km-th-sort-link is-active" title="{% translate 'Сейчас: сначала новые созданные. Нажмите, чтобы показать сначала старые созданные' %}">
+                      <span class="km-th-label">{{ header.text|capfirst }}</span>
+                      <span class="km-col-sort-badge is-active">
+                        <span>{% translate "Создано: новые" %}</span>
+                        <svg class="km-i km-col-arrow--down" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                      </span>
+                    </a>
+                  {% elif current_sort == 'created_asc' %}
+                    <a href="{% cl_sort_url cl 'created_desc' %}" class="km-th-sort-link is-active" title="{% translate 'Сейчас: сначала старые созданные. Нажмите, чтобы показать сначала новые созданные' %}">
+                      <span class="km-th-label">{{ header.text|capfirst }}</span>
+                      <span class="km-col-sort-badge is-active">
+                        <span>{% translate "Создано: старые" %}</span>
+                        <svg class="km-i km-col-arrow--up" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                      </span>
+                    </a>
+                  {% elif current_sort == 'updated_asc' %}
+                    <a href="{% cl_sort_url cl 'updated_desc' %}" class="km-th-sort-link is-active" title="{% translate 'Сейчас: сначала старые обновлённые. Нажмите, чтобы показать недавно обновлённые' %}">
+                      <span class="km-th-label">{{ header.text|capfirst }}</span>
+                      <span class="km-col-sort-badge is-active">
+                        <span>{% translate "Обновлено: старые" %}</span>
+                        <svg class="km-i km-col-arrow--up" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                      </span>
+                    </a>
+                  {% elif current_sort == 'updated_desc' %}
+                    <a href="{% cl_sort_url cl 'updated_asc' %}" class="km-th-sort-link is-active" title="{% translate 'Сейчас: недавно обновлённые первыми. Нажмите, чтобы показать давно не обновлявшиеся' %}">
+                      <span class="km-th-label">{{ header.text|capfirst }}</span>
+                      <span class="km-col-sort-badge is-active">
+                        <span>{% translate "Обновлено: новые" %}</span>
+                        <svg class="km-i km-col-arrow--down" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-arrow_downward"></use></svg>
+                      </span>
+                    </a>
+                  {% else %}
+                    <a href="{% cl_sort_url cl 'updated_desc' %}" class="km-th-sort-link" title="{% translate 'Нажмите, чтобы сортировать по дате обновления (сначала новые)' %}">
+                      <span class="km-th-label">{{ header.text|capfirst }}</span>
+                      <span class="km-col-sort-badge km-col-sort-badge--neutral" aria-hidden="true">
+                        <svg class="km-i" viewBox="0 0 960 960"><use href="#kmi-unfold_more"></use></svg>
+                      </span>
+                    </a>
+                  {% endif %}
+                </div>
+              </th>
+            {% else %}
+              <th class="{% header_class header forloop %} {{ header.class_attrib|default:'' }}" tabindex="0" rowspan="1" colspan="1">
+                <div class="text">
+                  <span>{{ header.text|capfirst }}</span>
+                </div>
+              </th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in results %}
+          <tr role="row" class="{% cycle 'even' 'odd' %}">
+            {% for item in result %}{{ item }}{% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endwith %}
+{% endif %}

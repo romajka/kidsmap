@@ -101,6 +101,11 @@ def ui_copy():
         ready=t('Можно отправлять на модерацию', 'Moderasiyaya göndərmək olar', 'Ready to send for review'),
         missing=t('Проверьте обязательные поля', 'Məcburi sahələri yoxlayın', 'Check required fields'),
         invalid=t('Проверьте значение', 'Dəyəri yoxlayın', 'Check this value'),
+        age_range_invalid=t('Возраст «до» должен быть не меньше «от» (0–18).', 'Maksimum yaş minimum yaşdan az ola bilməz (0–18).', 'Maximum age must be greater than or equal to minimum age (0–18).'),
+        age_invalid=t('Укажите возраст от 0 до 18.', '0-dan 18-dək yaş daxil edin.', 'Enter an age between 0 and 18.'),
+        phone_invalid=t('Укажите корректный номер телефона (без букв).', 'Düzgün telefon nömrəsi daxil edin (hərfsiz).', 'Enter a valid phone number (no letters).'),
+        url_invalid=t('Укажите корректный адрес сайта. Пример: https://site.com', 'Düzgün veb-sayt ünvanı daxil edin. Məsələn: https://sayt.com', 'Enter a valid website URL. Example: https://site.com'),
+        number_invalid=t('Укажите целое положительное число.', 'Müsbət tam ədəd daxil edin.', 'Enter a positive whole number.'),
         browser_saved=t('Текст и тарифы сохранены в этом браузере. Для сохранения фото нажмите «Сохранить черновик».', 'Mətn və tariflər bu brauzerdə saxlanılıb. Şəkillər üçün «Qaralamanı saxla» düyməsini basın.', 'Text and plans saved in this browser. Use Save draft to save photos.'),
         restored=t('Черновик восстановлен. Незагруженные фотографии выберите заново.', 'Qaralama bərpa edildi. Yüklənməmiş şəkilləri yenidən seçin.', 'Draft restored. Select any unuploaded photos again.'),
         storage_error=t('Браузер не смог сохранить черновик. Сохраните его кнопкой ниже.', 'Brauzer qaralamanı saxlaya bilmədi. Aşağıdakı düymə ilə saxlayın.', 'Browser draft could not be saved. Use the Save draft button.'),
@@ -119,6 +124,13 @@ def ui_copy():
         search_subcategory=t('Поиск подкатегории...', 'Alt kateqoriya axtarışı...', 'Search subcategories...'),
         options_count=t('вариантов', 'variant', 'options'),
         clear_selection=t('Очистить выбор', 'Seçimi təmizlə', 'Clear selection'),
+        leave_modal_title=t('Есть несохранённые данные', 'Yadda saxlanılmamış məlumatlar var', 'You have unsaved changes'),
+        leave_modal_desc_lang=t('Вы переключаете язык страницы. Чтобы не потерять введённые данные, сохраните черновик — заполнение продолжится на выбранном языке.', 'Siz səhifənin dilini dəyişirsiniz. Daxil etdiyiniz məlumatların itməməsi üçün qaralamanı saxlayın — məlumatlar seçdiyiniz dildə davam edəcək.', 'You are switching the language. Save your draft so you can continue in the selected language without losing any data.'),
+        leave_modal_desc_nav=t('Вы переходите на другую страницу. Чтобы не потерять введённые данные, сохраните черновик — вы сможете продолжить в любое время.', 'Siz başqa səhifəyə keçirsiniz. Daxil etdiyiniz məlumatların itməməsi üçün qaralamanı saxlayın — istənilən vaxt davam edə bilərsiniz.', 'You are navigating away. Save your draft so you can continue at any time without losing your progress.'),
+        leave_modal_save=t('Сохранить черновик и перейти', 'Qaralamanı saxla və davam et', 'Save draft and proceed'),
+        leave_modal_stay=t('Остаться и продолжить', 'Doldurmağa davam et', 'Keep editing'),
+        leave_modal_discard=t('Не сохранять', 'Yadda saxlamadan çıx', 'Discard changes'),
+        draft_saved_toast=t('Черновик успешно сохранён', 'Qaralama uğurla yadda saxlanıldı', 'Draft successfully saved'),
     )
 
 

@@ -390,7 +390,7 @@
               <div class="km-form-row km-meta-row">
                 <div class="km-field km-field--readonly"><label>{% trans "Создано" %}</label><span>{{ original.created_at|date:"d.m.Y H:i" }}</span></div>
                 <div class="km-field km-field--readonly"><label>{% trans "Обновлено" %}</label><span>{{ original.updated_at|date:"d.m.Y H:i" }}</span></div>
-                <div class="km-field km-field--readonly"><label>{% trans "Рейтинг" %}</label><span>{{ original.rating_avg|default:"—" }} ({{ original.rating_count }} отз.)</span></div>
+                <div class="km-field km-field--readonly"><label>{% trans "Рейтинг" %}</label><span>{{ original.rating_avg|default:"—" }} ({{ original.rating_count }} {% trans "отз." %})</span></div>
               </div>
             {% endif %}
           </div>

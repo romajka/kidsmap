@@ -91,32 +91,121 @@
 
       <div class="km-toolbar-right">
         <details class="km-sort-details" id="km-sort-menu">
-          <summary class="km-sort-indicator" role="button" aria-haspopup="listbox" title="{% translate 'Сортировка списка' %}">
-            <span class="km-sort-indicator__label">{% translate "Сортировка" %}:</span>
-            <strong class="km-sort-indicator__val">{{ km_current_sort_label|default:_("Обновлено") }}</strong>
-            <svg class="km-i km-sort-indicator__arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-arrow_downward"></use></svg>
+          <summary class="km-btn-sort" role="button" aria-haspopup="listbox" title="{% translate 'Порядок отображения карточек' %}">
+            <svg class="km-i km-btn-sort__icon" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-swap_vert"></use></svg>
+            <span class="km-btn-sort__label">{% translate "Сортировка" %}:</span>
+            <span class="km-btn-sort__current">{{ km_current_sort_label|default:_("Обновлено (новые)") }}</span>
+            <svg class="km-i km-btn-sort__arrow" viewBox="0 0 960 960" aria-hidden="true" focusable="false"><use href="#kmi-expand_more"></use></svg>
           </summary>
           <div class="km-sort-dropdown" role="listbox">
-            <a href="{% cl_sort_url cl 'created_desc' %}" class="km-sort-option{% if km_current_sort == 'created_desc' %} is-active{% endif %}">
-              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-schedule"></use></svg>
-              <span>{% translate "Создано: сначала новые" %}</span>
-            </a>
-            <a href="{% cl_sort_url cl 'created_asc' %}" class="km-sort-option{% if km_current_sort == 'created_asc' %} is-active{% endif %}">
-              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-history"></use></svg>
-              <span>{% translate "Создано: сначала старые" %}</span>
-            </a>
-            <a href="{% cl_sort_url cl 'updated_desc' %}" class="km-sort-option{% if km_current_sort == 'updated_desc' or not km_current_sort %} is-active{% endif %}">
-              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-update"></use></svg>
-              <span>{% translate "Обновлено: сначала новые" %}</span>
-            </a>
-            <a href="{% cl_sort_url cl 'updated_asc' %}" class="km-sort-option{% if km_current_sort == 'updated_asc' %} is-active{% endif %}">
-              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-history"></use></svg>
-              <span>{% translate "Обновлено: сначала старые" %}</span>
-            </a>
-            <a href="{% cl_sort_url cl 'name_asc' %}" class="km-sort-option{% if km_current_sort == 'name_asc' %} is-active{% endif %}">
-              <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-sort_by_alpha"></use></svg>
-              <span>{% translate "По названию (А–Я)" %}</span>
-            </a>
+            <!-- Секция: По дате создания -->
+            <div class="km-sort-dropdown__group">
+              <div class="km-sort-dropdown__group-title">{% translate "По дате создания" %}</div>
+
+              <a href="{% cl_sort_url cl 'created_desc' %}" class="km-sort-option{% if km_current_sort == 'created_desc' %} is-active{% endif %}">
+                <span class="km-sort-option__icon-wrap">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-schedule"></use></svg>
+                </span>
+                <span class="km-sort-option__body">
+                  <span class="km-sort-option__title">{% translate "Сначала новые" %}</span>
+                  <span class="km-sort-option__desc">{% translate "Свежие добавленные карточки вверху" %}</span>
+                </span>
+                <span class="km-sort-option__check-wrap">
+                  {% if km_current_sort == 'created_desc' %}
+                    <svg class="km-i km-sort-option__check" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>
+                  {% endif %}
+                </span>
+              </a>
+
+              <a href="{% cl_sort_url cl 'created_asc' %}" class="km-sort-option{% if km_current_sort == 'created_asc' %} is-active{% endif %}">
+                <span class="km-sort-option__icon-wrap">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-history"></use></svg>
+                </span>
+                <span class="km-sort-option__body">
+                  <span class="km-sort-option__title">{% translate "Сначала старые" %}</span>
+                  <span class="km-sort-option__desc">{% translate "Первые созданные карточки вверху" %}</span>
+                </span>
+                <span class="km-sort-option__check-wrap">
+                  {% if km_current_sort == 'created_asc' %}
+                    <svg class="km-i km-sort-option__check" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>
+                  {% endif %}
+                </span>
+              </a>
+            </div>
+
+            <div class="km-sort-dropdown__divider"></div>
+
+            <!-- Секция: По дате обновления -->
+            <div class="km-sort-dropdown__group">
+              <div class="km-sort-dropdown__group-title">{% translate "По дате обновления" %}</div>
+
+              <a href="{% cl_sort_url cl 'updated_desc' %}" class="km-sort-option{% if km_current_sort == 'updated_desc' or not km_current_sort %} is-active{% endif %}">
+                <span class="km-sort-option__icon-wrap">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-update"></use></svg>
+                </span>
+                <span class="km-sort-option__body">
+                  <span class="km-sort-option__title">{% translate "Сначала новые" %}</span>
+                  <span class="km-sort-option__desc">{% translate "Недавно отредактированные вверху" %}</span>
+                </span>
+                <span class="km-sort-option__check-wrap">
+                  {% if km_current_sort == 'updated_desc' or not km_current_sort %}
+                    <svg class="km-i km-sort-option__check" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>
+                  {% endif %}
+                </span>
+              </a>
+
+              <a href="{% cl_sort_url cl 'updated_asc' %}" class="km-sort-option{% if km_current_sort == 'updated_asc' %} is-active{% endif %}">
+                <span class="km-sort-option__icon-wrap">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-history"></use></svg>
+                </span>
+                <span class="km-sort-option__body">
+                  <span class="km-sort-option__title">{% translate "Сначала старые" %}</span>
+                  <span class="km-sort-option__desc">{% translate "Давно не обновлявшиеся вверху" %}</span>
+                </span>
+                <span class="km-sort-option__check-wrap">
+                  {% if km_current_sort == 'updated_asc' %}
+                    <svg class="km-i km-sort-option__check" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>
+                  {% endif %}
+                </span>
+              </a>
+            </div>
+
+            <div class="km-sort-dropdown__divider"></div>
+
+            <!-- Секция: По названию -->
+            <div class="km-sort-dropdown__group">
+              <div class="km-sort-dropdown__group-title">{% translate "По алфавиту" %}</div>
+
+              <a href="{% cl_sort_url cl 'name_asc' %}" class="km-sort-option{% if km_current_sort == 'name_asc' %} is-active{% endif %}">
+                <span class="km-sort-option__icon-wrap">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-sort_by_alpha"></use></svg>
+                </span>
+                <span class="km-sort-option__body">
+                  <span class="km-sort-option__title">{% translate "От А до Я" %}</span>
+                  <span class="km-sort-option__desc">{% translate "В алфавитном порядке (А → Я)" %}</span>
+                </span>
+                <span class="km-sort-option__check-wrap">
+                  {% if km_current_sort == 'name_asc' %}
+                    <svg class="km-i km-sort-option__check" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>
+                  {% endif %}
+                </span>
+              </a>
+
+              <a href="{% cl_sort_url cl 'name_desc' %}" class="km-sort-option{% if km_current_sort == 'name_desc' %} is-active{% endif %}">
+                <span class="km-sort-option__icon-wrap">
+                  <svg class="km-i" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-sort_by_alpha"></use></svg>
+                </span>
+                <span class="km-sort-option__body">
+                  <span class="km-sort-option__title">{% translate "От Я до А" %}</span>
+                  <span class="km-sort-option__desc">{% translate "В обратном порядке (Я → А)" %}</span>
+                </span>
+                <span class="km-sort-option__check-wrap">
+                  {% if km_current_sort == 'name_desc' %}
+                    <svg class="km-i km-sort-option__check" viewBox="0 0 960 960" aria-hidden="true"><use href="#kmi-check"></use></svg>
+                  {% endif %}
+                </span>
+              </a>
+            </div>
           </div>
         </details>
         <details class="km-columns-details" id="km-columns-menu">

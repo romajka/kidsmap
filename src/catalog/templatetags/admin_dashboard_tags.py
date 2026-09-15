@@ -172,7 +172,7 @@ def paginator_page_url(cl, page_number):
 
 @register.simple_tag
 def cl_sort_url(cl, sort_key):
-    return cl.get_query_string({'sort': sort_key}, [PAGE_VAR])
+    return cl.get_query_string({'sort': sort_key}, [PAGE_VAR, 'o', 'ot'])
 
 
 @register.simple_tag

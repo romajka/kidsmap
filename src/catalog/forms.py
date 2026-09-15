@@ -1425,7 +1425,6 @@ class OwnerPlaceEditForm(PlaceScheduleEditorFormMixin, forms.ModelForm):
                 }
             )
         self._init_schedule_editor()
-        self.fields["schedule"].widget = forms.Textarea(attrs={"rows": 3})
         self.fields["delete_gallery_ids"].choices = [(str(photo.pk), photo.image.name) for photo in instance.gallery.all()] if instance and instance.pk else []
         self.photo_gallery_ids = [int(pk) for pk, _ in self.fields["delete_gallery_ids"].choices]
         from catalog.services.image_uploads import image_upload_config
