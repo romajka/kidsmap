@@ -1,0 +1,189 @@
+{
+  "revision": "3aec046c3acedf83f68025ed53c23e034e14947e",
+  "image": "sha256:df2a418d96d22e218702391c9d792b967461ea32b51dc456ab3b50dd443501b8",
+  "tests": {
+    "count": 753,
+    "passed": true,
+    "seconds": 600.771
+  },
+  "environment_unchanged": true,
+  "place_audit_unchanged": true,
+  "places": 338,
+  "published_places": 75,
+  "localized_urls_enabled": true,
+  "urls": {
+    "counts": {
+      "canonical_200_without_redirect": 225,
+      "canonical_checked": 225,
+      "legacy_301_exact_target": 123,
+      "legacy_redirect_checked": 123,
+      "legacy_same_as_canonical": 102,
+      "legacy_target_200": 123,
+      "reciprocal_hreflang_pass": 225,
+      "self_canonical_pass": 225,
+      "sitemap_hreflang_pass": 225,
+      "sitemap_locations_total": 270,
+      "sitemap_place_checked": 225,
+      "sitemap_place_present": 225
+    },
+    "duration_seconds": 147.33,
+    "errors": [],
+    "expected_canonical_pages": 225,
+    "ok": true,
+    "places": 75,
+    "timeout_seconds": 20,
+    "workers": 3
+  },
+  "hidden_urls": {
+    "checked": 789,
+    "not_found": 789,
+    "unexpected_status_counts": {}
+  },
+  "static": {
+    "checked": 11,
+    "ok": true,
+    "results": [
+      {
+        "asset": "admin/css/kidsmap_admin.css",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "admin/css/pages/kidsmap_changelist.css",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "admin/css/pages/kidsmap_place_form.css",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "admin/js/kidsmap_place_changelist.js",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "css/components/header.css",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "css/components/kidsmap_schedule_editor.css",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "css/pages/permanent_place_wizard.css",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "js/header.js",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "js/kidsmap_schedule_editor.js",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "js/permanent_place_pricing.js",
+        "status": 200,
+        "hash_matches": true
+      },
+      {
+        "asset": "js/permanent_place_wizard.js",
+        "status": 200,
+        "hash_matches": true
+      }
+    ]
+  },
+  "live_browser": {
+    "matrix": {
+      "checks": [
+        {
+          "surface": "home",
+          "lang": "az",
+          "width": 390,
+          "overflow": false,
+          "status": 200
+        },
+        {
+          "surface": "home",
+          "lang": "az",
+          "width": 1280,
+          "overflow": false,
+          "status": 200
+        },
+        {
+          "surface": "home",
+          "lang": "ru",
+          "width": 390,
+          "overflow": false,
+          "status": 200
+        },
+        {
+          "surface": "home",
+          "lang": "ru",
+          "width": 1280,
+          "overflow": true,
+          "status": 200
+        },
+        {
+          "surface": "home",
+          "lang": "en",
+          "width": 390,
+          "overflow": false,
+          "status": 200
+        },
+        {
+          "surface": "home",
+          "lang": "en",
+          "width": 1280,
+          "overflow": false,
+          "status": 200
+        },
+        {
+          "surface": "admin-login",
+          "lang": "ru",
+          "cookie": "en",
+          "status": 200
+        },
+        {
+          "surface": "admin-login",
+          "lang": "en",
+          "cookie": "ru",
+          "status": 200
+        }
+      ],
+      "errors": [],
+      "failed": [],
+      "blocked": 179
+    },
+    "focused": [
+      {
+        "check": "ru-desktop-with-fonts",
+        "ok": true,
+        "width": 1280,
+        "documentWidth": 1283,
+        "fonts": "loaded"
+      },
+      {
+        "check": "admin-cookie-conflict",
+        "lang": "ru",
+        "cookie": "en",
+        "sent": true,
+        "status": 200
+      },
+      {
+        "check": "admin-cookie-conflict",
+        "lang": "en",
+        "cookie": "ru",
+        "sent": true,
+        "status": 200
+      }
+    ]
+  }
+}
