@@ -445,7 +445,7 @@
   }
   function saveBrowser() {
     if (restoring) return;
-    if (volunteer) { text('[data-pw-draft-status]', ui.browser_saved); return; }
+    if (volunteer) { text('[data-pw-draft-status]', ui.unsaved); return; }
     const data = {};
     for (const input of form.querySelectorAll('input[name],select[name],textarea[name]')) {
       if (['csrfmiddlewaretoken', 'form_action', 'gallery_order', 'photo-clear'].includes(input.name) || input.type === 'file' || input.name === 'delete_gallery_ids') continue;
@@ -583,23 +583,32 @@
   form.querySelector('[data-pw-confirm-point]').addEventListener('click', () => { form.querySelector('[data-pw-map-changed]').hidden = true; });
   form.addEventListener('submit', async event => {
     if (submitting) { event.preventDefault(); return; }
-    if (event.submitter?.value !== 'save_draft') {
+    const draftAction = volunteer ? 'draft' : 'save_draft';
+    if (event.submitter?.value !== draftAction) {
       const errors = issues(); displayIssues(errors);
       if (errors.size) { event.preventDefault(); reveal(errors.keys().next().value); return; }
     } else {
       saveBrowser();
-      text('[data-pw-draft-status]', ui.draft_saved_toast || ui.browser_saved);
     }
-    if (!navigator.onLine) { event.preventDefault(); text('[data-pw-draft-status]', ui.offline); return; }
+    if (!navigator.onLine) { event.preventDefault(); saveDestination = null; text('[data-pw-draft-status]', ui.offline); return; }
     submitting = true;
     if (photoEditor) {
       event.preventDefault();
-      const result = await photoEditor.save(event.submitter);
+      let result;
+      try {
+        result = await photoEditor.save(event.submitter);
+      } catch {
+        submitting = false;
+        saveDestination = null;
+        text('[data-pw-draft-status]', ui.save_failed);
+        return;
+      }
       if (result.ok) {
         try { localStorage.removeItem(draftKey); } catch {}
-        location.assign(result.redirect);
+        location.assign(saveDestination || result.redirect);
       } else {
         submitting = false;
+        saveDestination = null;
         const errors = new Map(Object.entries(result.errors || {}).map(([name, messages]) => [name, messages.join(' ')]));
         displayIssues(errors);
         const first = errors.keys().next().value;
@@ -612,6 +621,24 @@
   });
   const leaveModal = document.getElementById('pw-leave-modal');
   let pendingNavigationUrl = null;
+  let saveDestination = null;
+
+  function saveAndLeave(destination) {
+    if (!destination || submitting) return;
+    const draftButton = form.querySelector(volunteer
+      ? 'button[name="action"][value="draft"]'
+      : 'button[name="form_action"][value="save_draft"]');
+    if (!draftButton || draftButton.disabled || typeof form.requestSubmit !== 'function') {
+      closeLeaveModal();
+      text('[data-pw-draft-status]', ui.save_failed);
+      return;
+    }
+    saveDestination = destination;
+    closeLeaveModal();
+    // Submit the actual form so text, files and photo-editor changes are persisted.
+    // Only a confirmed AJAX save may navigate here; native POST owns its redirect.
+    form.requestSubmit(draftButton);
+  }
 
   function hasUnsavedData() {
     if (dirty) return true;
@@ -629,9 +656,7 @@
   function showLeaveModal(targetUrl, isLanguageSwitch = false) {
     if (!leaveModal) {
       if (window.confirm(isLanguageSwitch ? (ui.leave_modal_desc_lang || ui.unsaved) : ui.unsaved)) {
-        saveBrowser();
-        submitting = true;
-        window.location.assign(targetUrl);
+        saveAndLeave(targetUrl);
       }
       return;
     }
@@ -667,23 +692,7 @@
 
   if (leaveModal) {
     leaveModal.querySelector('[data-pw-leave-save]')?.addEventListener('click', () => {
-      saveBrowser();
-      const dest = pendingNavigationUrl;
-      closeLeaveModal();
-      if (!dest) return;
-      submitting = true;
-      try {
-        const urlObj = new URL(dest, window.location.origin);
-        if (urlObj.pathname.includes('/account/places/create/')) {
-          urlObj.searchParams.set('type', 'permanent');
-          if (form.dataset.draftKey) {
-            urlObj.searchParams.set('draft_session', form.dataset.draftKey);
-          }
-        }
-        window.location.assign(urlObj.href);
-      } catch (e) {
-        window.location.assign(dest);
-      }
+      saveAndLeave(pendingNavigationUrl);
     });
 
     leaveModal.querySelector('[data-pw-leave-stay]')?.addEventListener('click', () => {

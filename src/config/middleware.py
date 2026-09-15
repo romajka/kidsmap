@@ -30,10 +30,12 @@ class AdminLocaleMiddleware:
         previous_language = translation.get_language()
         admin_language = self._resolve_admin_language(request.path)
         if admin_language:
-            # Honor the user's selected language cookie across the entire admin panel
-            selected = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
-            if selected in {code for code, _label in settings.LANGUAGES}:
-                admin_language = selected
+            # Explicit prefixes must match the language used by i18n URL resolution.
+            # Only unprefixed admin routes take their locale from the cookie.
+            if request.path == "/admin" or request.path.startswith("/admin/"):
+                selected = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+                if selected in {code for code, _label in settings.LANGUAGES}:
+                    admin_language = selected
             translation.activate(admin_language)
             request.LANGUAGE_CODE = admin_language
 

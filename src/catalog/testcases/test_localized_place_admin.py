@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.test import Client, TestCase, override_settings
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
 from catalog.models import Place
@@ -89,3 +89,14 @@ class LocalizedPlaceAdminTests(TestCase):
                 title = re.search(r'km-place-urls[\s\S]*?<h3[^>]*>(.*?)</h3>', response.content.decode())
                 self.assertIsNotNone(title)
                 self.assertEqual(title.group(1), label)
+
+
+class LocalizedUrlActionLabelsTests(SimpleTestCase):
+    def test_copy_and_open_buttons_render_in_each_language(self):
+        from django.template.loader import render_to_string
+        from django.utils.translation import override
+        for language, copy_label, open_label in [('az', 'Kopyala', 'Aç'), ('en', 'Copy', 'Open'), ('ru', 'Скопировать', 'Открыть')]:
+            with self.subTest(language=language), override(language):
+                html = render_to_string('admin/catalog/place/form/localized_urls.html')
+                self.assertIn(f'data-label-copy="{copy_label}"', html)
+                self.assertIn(f'data-label-open="{open_label}"', html)

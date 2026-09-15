@@ -108,6 +108,7 @@ def ui_copy():
         number_invalid=t('Укажите целое положительное число.', 'Müsbət tam ədəd daxil edin.', 'Enter a positive whole number.'),
         browser_saved=t('Текст и тарифы сохранены в этом браузере. Для сохранения фото нажмите «Сохранить черновик».', 'Mətn və tariflər bu brauzerdə saxlanılıb. Şəkillər üçün «Qaralamanı saxla» düyməsini basın.', 'Text and plans saved in this browser. Use Save draft to save photos.'),
         restored=t('Черновик восстановлен. Незагруженные фотографии выберите заново.', 'Qaralama bərpa edildi. Yüklənməmiş şəkilləri yenidən seçin.', 'Draft restored. Select any unuploaded photos again.'),
+        save_failed=t('Не удалось сохранить. Данные остались в форме; попробуйте ещё раз.', 'Yadda saxlamaq mümkün olmadı. Məlumatlar formadadır; yenidən cəhd edin.', 'Could not save. Your data remains in the form; please try again.'),
         storage_error=t('Браузер не смог сохранить черновик. Сохраните его кнопкой ниже.', 'Brauzer qaralamanı saxlaya bilmədi. Aşağıdakı düymə ilə saxlayın.', 'Browser draft could not be saved. Use the Save draft button.'),
         offline=t('Нет соединения. Текст остаётся в этом браузере; отправка будет доступна после подключения.', 'Bağlantı yoxdur. Mətn bu brauzerdə qalır; göndərmək üçün internetə qoşulun.', 'Offline. Text stays in this browser; reconnect to submit.'),
         unsaved=t('Есть несохранённые изменения.', 'Saxlanmamış dəyişikliklər var.', 'You have unsaved changes.'),

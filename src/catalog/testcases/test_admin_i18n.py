@@ -116,3 +116,29 @@ class AdminI18nTests(TestCase):
         self.assertEqual(res_ru.status_code, 200)
         content_ru = res_ru.content.decode("utf-8")
         self.assertIn("Реестр SEO-проблем и рекомендаций", content_ru)
+
+    def test_explicit_admin_prefix_wins_over_language_cookie(self):
+        for prefix in ('ru', 'en'):
+            for cookie in ('az', 'ru', 'en'):
+                with self.subTest(prefix=prefix, cookie=cookie):
+                    self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = cookie
+                    response = self.client.get(f'/{prefix}/admin/catalog/place/')
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(response.wsgi_request.LANGUAGE_CODE, prefix)
+
+    def test_unprefixed_admin_keeps_selected_cookie_language(self):
+        for cookie in ('az', 'ru', 'en'):
+            with self.subTest(cookie=cookie):
+                self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = cookie
+                response = self.client.get('/admin/catalog/place/')
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.wsgi_request.LANGUAGE_CODE, cookie)
+
+    def test_legacy_az_admin_prefix_remains_canonical_redirect(self):
+        for cookie in ('az', 'ru', 'en'):
+            with self.subTest(cookie=cookie):
+                self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = cookie
+                response = self.client.get('/az/admin/catalog/place/')
+                self.assertEqual(response.status_code, 301)
+                self.assertEqual(response.url, '/admin/catalog/place/')
+                self.assertEqual(response.wsgi_request.LANGUAGE_CODE, 'az')

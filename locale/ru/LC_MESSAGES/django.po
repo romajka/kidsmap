@@ -15,7 +15,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/catalog/templatetags/catalog_i18n.py:32
 #, python-format
@@ -566,9 +566,7 @@ msgid ""
 "Карточки исчезнут с сайта, но останутся в базе и их можно будет восстановить.\n"
 "\n"
 "Продолжить?"
-msgstr ""
-"      Выбранные кружки будут перемещены в раздел удаленных. Они исчезнут с сайта, но останутся в базе и их можно будет восстановить из админки.\n"
-"    "
+msgstr "Вы собираетесь переместить в удалённые {count} выбранных карточек.\n\nКарточки исчезнут с сайта, но останутся в базе и их можно будет восстановить.\n\nПродолжить?"
 
 #: src/catalog/admin.py:1108
 msgid "Безопасное мягкое удаление с возможностью восстановления."
@@ -1570,7 +1568,7 @@ msgstr "Владелец карточки"
 #, python-format
 #| msgid "Последние добавления"
 msgid "Служебное поле удаления: %(value)s"
-msgstr "Последние добавления"
+msgstr "Служебное поле удаления: %(value)s"
 
 #: src/catalog/admin.py:2652
 msgid "Служебное поле удаления очищено"
@@ -1697,6 +1695,7 @@ msgid "%(count)s фото"
 msgid_plural "%(count)s фото"
 msgstr[0] "%(count)s фото"
 msgstr[1] "%(count)s фото"
+msgstr[2] "%(count)s фото"
 
 #: src/catalog/admin.py:2912
 msgid "Не опубликовано"
@@ -2626,8 +2625,9 @@ msgstr "Приглашение отклонено."
 #| msgid_plural "Найдено %(total)s кружков"
 msgid "Найдено %(total)s мероприятие"
 msgid_plural "Найдено %(total)s мероприятий"
-msgstr[0] "Найден %(total)s кружок"
-msgstr[1] "Найдено %(total)s кружков"
+msgstr[0] "Найдено %(total)s мероприятие"
+msgstr[1] "Найдено %(total)s мероприятия"
+msgstr[2] "Найдено %(total)s мероприятий"
 
 #: src/catalog/controllers/place_controller.py:105
 #, python-format
@@ -2635,8 +2635,9 @@ msgstr[1] "Найдено %(total)s кружков"
 #| msgid_plural "Найдено %(total)s кружков"
 msgid "Найдено %(total)s место"
 msgid_plural "Найдено %(total)s мест"
-msgstr[0] "Найден %(total)s кружок"
-msgstr[1] "Найдено %(total)s кружков"
+msgstr[0] "Найдено %(total)s место"
+msgstr[1] "Найдено %(total)s места"
+msgstr[2] "Найдено %(total)s мест"
 
 #: src/catalog/controllers/place_controller.py:279
 #, python-format
@@ -4571,9 +4572,7 @@ msgid ""
 "Основные статусы и проблемные карточки вынесены в быстрые фильтры. Удаление "
 "работает мягко: карточка исчезает с сайта, но остаётся в базе и может быть "
 "восстановлена."
-msgstr ""
-"      Выбранные кружки будут перемещены в раздел удаленных. Они исчезнут с сайта, но останутся в базе и их можно будет восстановить из админки.\n"
-"    "
+msgstr "Основные статусы и проблемные карточки вынесены в быстрые фильтры. Удаление работает мягко: карточка исчезает с сайта, но остаётся в базе и может быть восстановлена."
 
 #: src/catalog/templates/admin/catalog/place/change_list.html:20
 #| msgid "Назад к карточкам"
@@ -4631,19 +4630,19 @@ msgstr "Выберите карточки, чтобы массовые дейс�
 #, python-brace-format
 #| msgid "Всего карточек"
 msgid "Выбрано карточек: {count}"
-msgstr "Всего карточек"
+msgstr "Выбрано карточек: {count}"
 
 #: src/catalog/templates/admin/catalog/place/change_list.html:83
 #: src/catalog/templates/admin/catalog/placereview/change_list.html:40
 #| msgid "Статус на сайте"
 msgid "Выбрать все на странице"
-msgstr "Статус на сайте"
+msgstr "Выбрать все на странице"
 
 #: src/catalog/templates/admin/catalog/place/change_list.html:84
 #: src/catalog/templates/admin/catalog/placereview/change_list.html:41
 #| msgid "Переместить в удаленные"
 msgid "Снять выделение"
-msgstr "Переместить в удаленные"
+msgstr "Снять выделение"
 
 #: src/catalog/templates/admin/catalog/place/change_list.html:86
 #| msgid "Действия"
@@ -4771,7 +4770,7 @@ msgstr "Выберите оценку от 1 до 5, чтобы отправит
 #, python-brace-format
 #| msgid "Выбрано файлов:"
 msgid "Выбрано отзывов: {count}"
-msgstr "Выбрано файлов:"
+msgstr "Выбрано отзывов: {count}"
 
 #: src/catalog/templates/admin/catalog/placereview/change_list.html:43
 #| msgid "Модерация отзывов"
@@ -5208,8 +5207,9 @@ msgstr "Карта места"
 #, python-format
 msgid "%(total)s отзыв помогает понять место лучше."
 msgid_plural "%(total)s отзыва помогают понять место лучше."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(total)s отзыв помогает понять место лучше."
+msgstr[1] "%(total)s отзыва помогают понять место лучше."
+msgstr[2] "%(total)s отзывов помогают понять место лучше."
 
 #: src/catalog/templates/catalog/place_detail.html:428
 #: src/catalog/templates/catalog/place_detail.html:430
@@ -5476,6 +5476,7 @@ msgid "%(total)s точка на карте"
 msgid_plural "%(total)s точки на карте"
 msgstr[0] "%(total)s точка на карте"
 msgstr[1] "%(total)s точки на карте"
+msgstr[2] "%(total)s точек на карте"
 
 #: src/catalog/templates/catalog/place_list.html:457
 #, python-format
@@ -5483,6 +5484,7 @@ msgid "Еще %(total)s карточка не показана: нет коор�
 msgid_plural "Еще %(total)s карточки не показаны: нет координат."
 msgstr[0] "Еще %(total)s карточка не показана: нет координат."
 msgstr[1] "Еще %(total)s карточки не показаны: нет координат."
+msgstr[2] "Еще %(total)s карточек не показаны: нет координат."
 
 #: src/catalog/templates/catalog/place_list.html:472
 #, python-format
@@ -5861,12 +5863,9 @@ msgid ""
 msgid_plural ""
 "У вас есть %(total)s черновика. Завершите публикацию, чтобы места можно было"
 " отправить на проверку."
-msgstr[0] ""
-"У вас есть %(total)s черновик. Завершите публикацию, чтобы место можно было "
-"отправить на проверку."
-msgstr[1] ""
-"У вас есть %(total)s черновика. Завершите публикацию, чтобы места можно было"
-" отправить на проверку."
+msgstr[0] "У вас есть %(total)s черновик. Завершите публикацию, чтобы место можно было отправить на проверку."
+msgstr[1] "У вас есть %(total)s черновика. Завершите публикацию, чтобы места можно было отправить на проверку."
+msgstr[2] "У вас есть %(total)s черновиков. Завершите публикацию, чтобы места можно было отправить на проверку."
 
 #: src/catalog/templates/pages/account_dashboard.html:149
 msgid "Продолжить черновик"
@@ -5944,6 +5943,7 @@ msgid "на основе %(total)s отзыва"
 msgid_plural "на основе %(total)s отзывов"
 msgstr[0] "на основе %(total)s отзыва"
 msgstr[1] "на основе %(total)s отзывов"
+msgstr[2] "на основе %(total)s отзывов"
 
 #: src/catalog/templates/pages/home.html:40
 msgid "средняя оценка"
@@ -6079,6 +6079,7 @@ msgid "на основе %(total)s отзыва о сервисе"
 msgid_plural "на основе %(total)s отзывов о сервисе"
 msgstr[0] "на основе %(total)s отзыва о сервисе"
 msgstr[1] "на основе %(total)s отзывов о сервисе"
+msgstr[2] "на основе %(total)s отзывов о сервисе"
 
 #: src/catalog/templates/pages/home.html:511
 msgid "удобный выбор для родителей"
@@ -6746,7 +6747,8 @@ msgstr "Средняя оценка сервиса"
 msgid "%(total)s отзыв о сайте"
 msgid_plural "%(total)s отзывов о сайте"
 msgstr[0] "%(total)s отзыв о сайте"
-msgstr[1] "%(total)s отзывов о сайте"
+msgstr[1] "%(total)s отзыва о сайте"
+msgstr[2] "%(total)s отзывов о сайте"
 
 #: src/catalog/templates/pages/site_reviews.html:57
 msgid "Отзывы публикуются после модерации."
@@ -6976,7 +6978,7 @@ msgstr "Ваша заявка уже на модерации."
 #, python-format
 #| msgid "Главный шаг перед отправкой."
 msgid "Заполните перед отправкой: %(fields)s."
-msgstr "Главный шаг перед отправкой."
+msgstr "Заполните перед отправкой: %(fields)s."
 
 #: src/catalog/views.py:824
 msgid "Tədbir silindi."
@@ -7445,7 +7447,8 @@ msgstr "Все мероприятия"
 msgid "%(total)s отзыв"
 msgid_plural "%(total)s отзывов"
 msgstr[0] "%(total)s отзыв"
-msgstr[1] "%(total)s отзывов"
+msgstr[1] "%(total)s отзыва"
+msgstr[2] "%(total)s отзывов"
 
 msgid "Азадлыг проспекти"
 msgstr "Азадлыг проспекти"

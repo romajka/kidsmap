@@ -3712,3 +3712,27 @@ a.km-admin-action--muted:hover,
     overflow-x: auto !important;
   }
 }
+
+/* Keep the expanded sorting control and columns menu within narrow toolbars. */
+@media (max-width: 580px) {
+  .km-toolbar-right {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .km-sort-details {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .km-btn-sort {
+    max-width: 100%;
+  }
+  .km-btn-sort__current {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .km-sort-dropdown {
+    min-width: 0;
+    width: min(320px, calc(100vw - 64px));
+  }
+}
