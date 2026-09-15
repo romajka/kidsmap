@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
+from django.utils.translation import override
 from django.test.client import RequestFactory
 from django.utils import timezone
 from django.urls import reverse
@@ -243,6 +244,7 @@ class RelationalPricingPlanTests(TestCase):
         with self.assertRaisesMessage(ValidationError, "не более 12 тарифов"):
             normalize_pricing_plans([valid_plan] * 13)
 
+    @override("ru")
     def test_empty_tariff_reports_item_number_and_required_field(self):
         with self.assertRaisesMessage(ValidationError, "Тариф 1") as error:
             normalize_pricing_plans([{}])

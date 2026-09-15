@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.test import Client, TestCase, override_settings
+from django.utils.translation import override
 from django.test.utils import CaptureQueriesContext
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection, connections
@@ -472,14 +473,20 @@ class VolunteerAccessTests(TestCase):
     def test_public_page_shows_old_content_until_approval(self):
         place = create_ready_place(created_by=self.user, name_az='Public before')
         revision = self.submit(place, name_az='Proposed after')
+        with override("az"):
+            public_url = place.get_absolute_url()
         public = Client()
-        response = public.get(place.get_absolute_url())
+        response = public.get(public_url)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.wsgi_request.LANGUAGE_CODE, "az")
         self.assertIn('Public before', response.content.decode())
         self.assertNotIn('Proposed after', response.content.decode())
         self.root_login()
-        self.client.post(f'/admin/volunteer/review/{place.pk}/', {'action': 'approve', 'version': revision.version})
-        response = public.get(place.get_absolute_url())
+        approval = self.client.post(f'/admin/volunteer/review/{place.pk}/', {'action': 'approve', 'version': revision.version})
+        self.assertEqual(approval.status_code, 302)
+        response = public.get(public_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.wsgi_request.LANGUAGE_CODE, 'az')
         self.assertIn('Proposed after', response.content.decode())
 
     def test_rejection_preserves_live_and_allows_resubmission(self):

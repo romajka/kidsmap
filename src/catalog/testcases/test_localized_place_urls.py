@@ -5,7 +5,7 @@ from django.db import close_old_connections
 from django.test import TestCase, TransactionTestCase, override_settings, skipUnlessDBFeature
 from django.utils.translation import override
 
-from catalog.models import Place
+from catalog.models import Category, Place
 
 
 @override_settings(LOCALIZED_PLACE_URLS_ENABLED=True)
@@ -117,6 +117,10 @@ class LocalizedPlaceUrlTests(TestCase):
 
 @override_settings(LOCALIZED_PLACE_URLS_ENABLED=True)
 class ConcurrentLocalizedPlaceUrlTests(TransactionTestCase):
+    def setUp(self):
+        # A preceding TransactionTestCase may have flushed migration seed data.
+        Category.objects.get_or_create(code='EDU', defaults={'name': 'Education'})
+
     @skipUnlessDBFeature('has_select_for_update')
     def test_concurrent_first_translation_keeps_one_stable_url(self):
         place = Place.objects.create(name='Concurrent', category='EDU')

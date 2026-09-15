@@ -742,6 +742,7 @@ class TestSeedCatalogTaxonomyCommand(TestCase):
         self.assertTrue(cat.icon.endswith(".svg"))
 
 class TestDependentSubcategoryValidation(TestCase):
+    @override("ru")
     def test_form_validation_fails_on_mismatched_subcategory(self):
         from catalog.models.category import Subcategory
         cat1 = Category.objects.create(code="CAT1", name_ru="Cat 1")

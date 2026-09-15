@@ -424,6 +424,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "permanent_place_wizard.js")
         self.assertContains(response, "data-tariff-input")
 
+    @override("ru")
     def test_owner_edit_shows_pricing_validation_error_and_keeps_saved_plans(self):
         existing_plans = [
             {
@@ -456,6 +457,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.wsgi_request.LANGUAGE_CODE, "ru")
         self.assertContains(response, "Тариф 1:")
         self.assertContains(response, "Количество и единица должны быть указаны вместе.")
         self.editor_place.refresh_from_db()
@@ -1347,6 +1349,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("gallery_images", form.errors)
 
+    @override("ru")
     def test_owner_place_create_rejects_main_photo_larger_than_fifteen_mb(self):
         form = OwnerPlaceCreateForm(
             data={
@@ -1699,6 +1702,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
         self.assertContains(response, "49.900000")
         geocode_mock.assert_not_called()
 
+    @override("ru")
     def test_owner_cannot_submit_incomplete_draft_for_moderation(self):
         self.client.login(username="owner_editor", password="StrongPass123!!")
 
@@ -1707,6 +1711,7 @@ class TestOwnerPlaceManagementAndPermissions(TestCase):
             follow=True,
         )
         self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(first_response.wsgi_request.LANGUAGE_CODE, "ru")
         self.assertContains(first_response, "Перед отправкой на проверку исправьте")
         self.assertContains(first_response, "Фото: загрузите основное фото")
         self.assertContains(first_response, "Точка на карте: выберите точку вручную")
