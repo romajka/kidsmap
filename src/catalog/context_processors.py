@@ -157,6 +157,14 @@ def seo_urls(request):
     elif url_name in QUERY_NOINDEX_URL_NAMES and request.GET:
         robots_content = "noindex,follow"
 
+    page_number = getattr(request, "_seo_catalog_page_number", None)
+    if url_name == "place_list" and set(request.GET) == {"page"} and page_number is not None:
+        suffix = f"?page={page_number}" if page_number > 1 else ""
+        canonical_url = f"{canonical_url}{suffix}"
+        alternate_urls = {code: f"{url}{suffix}" for code, url in alternate_urls.items()}
+        if request.GET.getlist("page") == [str(page_number)]:
+            robots_content = DEFAULT_ROBOTS_CONTENT
+
     og_locale_map = {"ru": "ru_RU", "az": "az_AZ", "en": "en_US"}
     og_locale = og_locale_map.get(current_lang, "ru_RU")
     og_locale_alternates = [

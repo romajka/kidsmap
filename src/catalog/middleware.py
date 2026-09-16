@@ -28,8 +28,10 @@ class CanonicalPublicHostMiddleware:
 
 class AdminHostRedirectMiddleware:
     """
-    Redirect admin URLs to dedicated admin host (if configured).
-    This isolates browser sessions between public site and admin panel.
+    Keep administrative and public routes on their dedicated hosts.
+
+    This isolates browser sessions and prevents public URLs from being served
+    and discovered under the admin subdomain.
     """
 
     ADMIN_PATH_RE = re.compile(r"^/(?:[a-z]{2}/)?admin(?:/|$)")
@@ -39,12 +41,21 @@ class AdminHostRedirectMiddleware:
 
     def __call__(self, request):
         admin_host = (getattr(settings, "ADMIN_HOST", "") or "").strip().lower()
-        if admin_host and self.ADMIN_PATH_RE.match(request.path):
-            current_host = request.get_host().split(":", 1)[0].lower()
-            if current_host != admin_host:
-                scheme = "https" if request.is_secure() else request.scheme
-                target_url = f"{scheme}://{admin_host}{request.get_full_path()}"
-                return HttpResponseRedirect(target_url)
+        if not admin_host:
+            return self.get_response(request)
+
+        current_host = request.get_host().split(":", 1)[0].lower()
+        is_admin_path = bool(self.ADMIN_PATH_RE.match(request.path))
+        # Crawlers need host-specific rules to discover the public-route 301s.
+        if current_host == admin_host and request.path == "/robots.txt":
+            return self.get_response(request)
+        if current_host == admin_host and not is_admin_path and public_origin():
+            return HttpResponsePermanentRedirect(f"{public_origin()}{request.get_full_path()}")
+
+        if is_admin_path and current_host != admin_host:
+            scheme = "https" if request.is_secure() else request.scheme
+            target_url = f"{scheme}://{admin_host}{request.get_full_path()}"
+            return HttpResponseRedirect(target_url)
         return self.get_response(request)
 
 

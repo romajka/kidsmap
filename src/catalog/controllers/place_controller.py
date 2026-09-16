@@ -97,6 +97,10 @@ class PlaceController:
 
         paginator = Paginator(qs, 12)
         page_obj = paginator.get_page(request.GET.get("page"))
+        if not force_new_only:
+            # Use the rendered page, including Paginator's invalid-page fallback,
+            # so query variants never claim a canonical for nonexistent content.
+            request._seo_catalog_page_number = page_obj.number
         if showing_events:
             events = page_obj.object_list
 

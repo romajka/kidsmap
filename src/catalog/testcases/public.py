@@ -690,6 +690,27 @@ class TestPublicPagesSmoke(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(
+        PUBLIC_BASE_URL="https://kidsmap.az",
+        ALLOWED_HOSTS=["admin.kidsmap.az", "kidsmap.az", "testserver"],
+        ADMIN_HOST="admin.kidsmap.az",
+    )
+    def test_public_urls_on_admin_host_redirect_to_public_origin(self):
+        for path in (
+            "/auth/login/?next=/place/64-klub-dzyudo-ben/%23reviews",
+            "/auth/register/?next=/place/64-klub-dzyudo-ben/%23reviews",
+            "/place/64-klub-dzyudo-ben/?source=search",
+        ):
+            with self.subTest(path=path):
+                response = self.client.get(
+                    path,
+                    secure=True,
+                    HTTP_HOST="admin.kidsmap.az",
+                )
+
+                self.assertEqual(response.status_code, 301)
+                self.assertEqual(response["Location"], f"https://kidsmap.az{path}")
+
     def test_production_nginx_keeps_admin_host_out_of_www_redirect_block(self):
         nginx_config = (settings.BASE_DIR / "deploy/nginx/kidsmap.az.conf").read_text(encoding="utf-8")
 

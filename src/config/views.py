@@ -77,6 +77,14 @@ def robots_txt(request):
     sitemap_url = build_public_absolute_uri(request, reverse("django.contrib.sitemaps.views.sitemap"))
     lang_codes = [code for code, _label in settings.LANGUAGES]
     default_lang = (settings.LANGUAGE_CODE or "az").split("-")[0]
+    admin_host = (getattr(settings, "ADMIN_HOST", "") or "").strip().lower()
+    if admin_host and request.get_host().split(":", 1)[0].lower() == admin_host:
+        # Public routes only redirect on this host. Blocking them here would
+        # prevent search engines from observing those permanent redirects.
+        lines = ["User-agent: *", "Disallow: /admin/"]
+        lines.extend(f"Disallow: /{code}/admin/" for code in lang_codes)
+        lines.extend(["", f"Sitemap: {sitemap_url}"])
+        return HttpResponse("\n".join(lines), content_type="text/plain")
     lines = [
         "User-agent: *",
         "Allow: /",
